@@ -18,22 +18,44 @@ public class IteratorSerializer
         super(Iterator.class, elemType, staticTyping, vts, null);
     }
 
+    @Deprecated // since 3.1
     public IteratorSerializer(IteratorSerializer src,
             TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property) {
-        super(src, vts, valueSerializer, unwrapSingle, property);
+        this(src, vts, valueSerializer, unwrapSingle, property, null, false);
+    }
+
+    /**
+     * @since 3.1
+     */
+    public IteratorSerializer(IteratorSerializer src,
+              TypeSerializer vts, ValueSerializer<?> valueSerializer,
+              Boolean unwrapSingle, BeanProperty property,
+              Object suppressableValue, boolean suppressNulls) {
+        super(src, vts, valueSerializer, unwrapSingle, property, suppressableValue, suppressNulls);
     }
 
     @Override
     protected StdContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-        return new IteratorSerializer(this, vts, _elementSerializer, _unwrapSingle, _property);
+        return new IteratorSerializer(this, vts, _elementSerializer, _unwrapSingle, _property,
+                _suppressableValue, _suppressNulls);
     }
 
+    @Deprecated // @since 3.1
     @Override
     public IteratorSerializer withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
-        return new IteratorSerializer(this, vts, elementSerializer, unwrapSingle, property);
+        return new IteratorSerializer(this, vts, elementSerializer, unwrapSingle, property,
+                null, false);
+    }
+
+    @Override
+    public IteratorSerializer withResolved(BeanProperty property,
+           TypeSerializer vts, ValueSerializer<?> elementSerializer,
+           Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        return new IteratorSerializer(this, vts, elementSerializer, unwrapSingle, property,
+                suppressableValue, suppressNulls);
     }
 
     /*
@@ -84,30 +106,44 @@ public class IteratorSerializer
         }
         ValueSerializer<Object> serializer = _elementSerializer;
         if (serializer == null) {
-            _serializeDynamicContents(value, g, ctxt);
+            _serializeDynamicContentsImpl(value, g, ctxt);
             return;
         }
         final TypeSerializer typeSer = _valueTypeSerializer;
+        final boolean filtered = _needToCheckFiltering(ctxt);
         do {
             Object elem = value.next();
             if (elem == null) {
+                if (filtered && _suppressNulls) {
+                    continue;
+                }
                 ctxt.defaultSerializeNullValue(g);
-            } else if (typeSer == null) {
-                serializer.serialize(elem, g, ctxt);
             } else {
-                serializer.serializeWithType(elem, g, ctxt, typeSer);
+                // Check if this element should be suppressed (only in filtered mode)
+                if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
+                    continue;
+                }
+                if (typeSer == null) {
+                    serializer.serialize(elem, g, ctxt);
+                } else {
+                    serializer.serializeWithType(elem, g, ctxt, typeSer);
+                }
             }
         } while (value.hasNext());
     }
 
-    protected void _serializeDynamicContents(Iterator<?> value, JsonGenerator g,
+    private void _serializeDynamicContentsImpl(Iterator<?> value, JsonGenerator g,
             SerializationContext ctxt)
-        throws JacksonException
+       throws JacksonException
     {
         final TypeSerializer typeSer = _valueTypeSerializer;
+        final boolean filtered = _needToCheckFiltering(ctxt);
         do {
             Object elem = value.next();
             if (elem == null) {
+                if (filtered && _suppressNulls) {
+                    continue;
+                }
                 ctxt.defaultSerializeNullValue(g);
                 continue;
             }
@@ -120,6 +156,10 @@ public class IteratorSerializer
                 } else {
                     serializer = _findAndAddDynamic(ctxt, cc);
                 }
+            }
+            // Check if this element should be suppressed (only in filtered mode)
+            if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
+                continue;
             }
             if (typeSer == null) {
                 serializer.serialize(elem, g, ctxt);

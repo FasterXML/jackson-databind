@@ -14,10 +14,21 @@ public class EnumSetSerializer
         super(EnumSet.class, elemType, true, null, null);
     }
 
+    @Deprecated // since 3.1
     public EnumSetSerializer(EnumSetSerializer src,
             TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property) {
-        super(src, vts, valueSerializer, unwrapSingle, property);
+        this(src, vts, valueSerializer, unwrapSingle, property, null, false);
+    }
+
+    /**
+     * @since 3.1
+     */
+    public EnumSetSerializer(EnumSetSerializer src,
+             TypeSerializer vts, ValueSerializer<?> valueSerializer,
+             Boolean unwrapSingle, BeanProperty property,
+             Object suppressableValue, boolean suppressNulls) {
+        super(src, vts, valueSerializer, unwrapSingle, property, suppressableValue, suppressNulls);
     }
 
     @Override
@@ -26,11 +37,19 @@ public class EnumSetSerializer
         return this;
     }
 
+    @Deprecated // @since 3.1
     @Override
     protected EnumSetSerializer withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
-        return new EnumSetSerializer(this, vts, elementSerializer, unwrapSingle, property);
+        return new EnumSetSerializer(this, vts, elementSerializer, unwrapSingle, property, null, false);
+    }
+
+    @Override
+    public EnumSetSerializer withResolved(BeanProperty property,
+            TypeSerializer vts, ValueSerializer<?> elementSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        return new EnumSetSerializer(this, vts, elementSerializer, unwrapSingle, property, suppressableValue, suppressNulls);
     }
 
     @Override
@@ -67,6 +86,7 @@ public class EnumSetSerializer
             SerializationContext ctxt)
         throws JacksonException
     {
+        final boolean needsFiltering = _needToCheckFiltering(ctxt);
         g.assignCurrentValue(value);
         ValueSerializer<Object> enumSer = _elementSerializer;
         // Need to dynamically find instance serializer; unfortunately that seems
@@ -76,6 +96,10 @@ public class EnumSetSerializer
                 // 12-Jan-2010, tatu: Since enums cannot be polymorphic, let's
                 //   not bother with typed serializer variant here
                 enumSer = _findAndAddDynamic(ctxt, en.getDeclaringClass());
+            }
+            // [databind#5369] Support @JsonInclude in Collection
+            if (needsFiltering && !_shouldSerializeElement(ctxt, en, enumSer)) {
+                continue;
             }
             enumSer.serialize(en, g, ctxt);
         }

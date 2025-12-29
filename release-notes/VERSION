@@ -54,6 +54,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5361: Fix Maven SBOM publishing (worked in 3.0.0-rc4 but not in rc5 or later)
 (date-time)#359: `InstantDeserializer` deserializes the nanosecond portion of
   fractional negative timestamps incorrectly
+#5369: Support `@JsonInclude` for `Collection`s
+  (with `SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS`)
+ (implementation by Joo-Hyuk K)
 #5405: `@JsonFormat(shape = Shape.POJO)` does not work for `java.util.Map`
   serialization via property annotation
  (fix contributed by @JacksonJang)

@@ -47,23 +47,44 @@ public class CollectionSerializer
         _maybeEnumSet = elemType.isEnumType() || elemType.isJavaLangObject();
     }
 
+    @Deprecated // since 3.1
     protected CollectionSerializer(CollectionSerializer src,
             TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property) {
-        super(src, vts, valueSerializer, unwrapSingle, property);
+        this(src, vts, valueSerializer, unwrapSingle, property, null, false);
+    }
+
+    /**
+     * @since 3.1
+     */
+    protected CollectionSerializer(CollectionSerializer src,
+            TypeSerializer vts, ValueSerializer<?> valueSerializer,
+            Boolean unwrapSingle, BeanProperty property,
+            Object suppressableValue, boolean suppressNulls) {
+        super(src, vts, valueSerializer, unwrapSingle, property, suppressableValue, suppressNulls);
         _maybeEnumSet = src._maybeEnumSet;
     }
 
     @Override
     protected StdContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-        return new CollectionSerializer(this, vts, _elementSerializer, _unwrapSingle, _property);
+        return new CollectionSerializer(this, vts, _elementSerializer, _unwrapSingle, _property,
+                _suppressableValue, _suppressNulls);
     }
 
+    @Deprecated // @since 3.1
     @Override
     protected CollectionSerializer withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
-        return new CollectionSerializer(this, vts, elementSerializer, unwrapSingle, property);
+        return withResolved(property, vts, elementSerializer, unwrapSingle, null, false);
+    }
+
+    // @since 3.1
+    @Override
+    protected CollectionSerializer withResolved(BeanProperty property,
+            TypeSerializer vts, ValueSerializer<?> elementSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+        return new CollectionSerializer(this, vts, elementSerializer, unwrapSingle, property, suppressableValue, suppressNulls);
     }
 
     /*
@@ -98,12 +119,12 @@ public class CollectionSerializer
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, g, ctxt);
+                serializeContentsImpl(value, g, ctxt);
                 return;
             }
         }
         g.writeStartArray(value, len);
-        serializeContents(value, g, ctxt);
+        serializeContentsImpl(value, g, ctxt);
         g.writeEndArray();
     }
 
@@ -112,8 +133,15 @@ public class CollectionSerializer
             SerializationContext ctxt)
         throws JacksonException
     {
+        serializeContentsImpl(value, g, ctxt);
+    }
+
+    private void serializeContentsImpl(Collection<?> value, JsonGenerator g,
+            SerializationContext ctxt)
+        throws JacksonException
+    {
         if (_elementSerializer != null) {
-            serializeContentsUsing(value, g, ctxt, _elementSerializer);
+            serializeContentsUsingImpl(value, g, ctxt, _elementSerializer);
             return;
         }
         Iterator<?> it = value.iterator();
@@ -124,12 +152,17 @@ public class CollectionSerializer
         // [databind#4849]/[databind#4214]: need to check for EnumSet
         final TypeSerializer typeSer = (_maybeEnumSet && value instanceof EnumSet<?>)
                 ? null : _valueTypeSerializer;
+        final boolean filtered = _needToCheckFiltering(ctxt);
 
         int i = 0;
         try {
             do {
                 Object elem = it.next();
                 if (elem == null) {
+                    if (filtered && _suppressNulls) {
+                        ++i;
+                        continue;
+                    }
                     ctxt.defaultSerializeNullValue(g);
                 } else {
                     Class<?> cc = elem.getClass();
@@ -141,6 +174,11 @@ public class CollectionSerializer
                             serializer = _findAndAddDynamic(ctxt, cc);
                         }
                         serializers = _dynamicValueSerializers;
+                    }
+                    // Check if this element should be suppressed (only in filtered mode)
+                    if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
+                        ++i;
+                        continue;
                     }
                     if (typeSer == null) {
                         serializer.serialize(elem, g, ctxt);
@@ -155,12 +193,14 @@ public class CollectionSerializer
         }
     }
 
-    public void serializeContentsUsing(Collection<?> value, JsonGenerator g,
+    private void serializeContentsUsingImpl(Collection<?> value, JsonGenerator g,
             SerializationContext ctxt, ValueSerializer<Object> ser)
         throws JacksonException
     {
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {
+            final boolean filtered = _needToCheckFiltering(ctxt);
+
             // [databind#4849]/[databind#4214]: need to check for EnumSet
             final TypeSerializer typeSer = (_maybeEnumSet && value instanceof EnumSet<?>)
                     ? null : _valueTypeSerializer;
@@ -169,8 +209,17 @@ public class CollectionSerializer
                 Object elem = it.next();
                 try {
                     if (elem == null) {
+                        if (filtered && _suppressNulls) {
+                            ++i;
+                            continue;
+                        }
                         ctxt.defaultSerializeNullValue(g);
                     } else {
+                        // Check if this element should be suppressed (only in filtered mode)
+                        if (filtered && !_shouldSerializeElement(ctxt, elem, ser)) {
+                            ++i;
+                            continue;
+                        }
                         if (typeSer == null) {
                             ser.serialize(elem, g, ctxt);
                         } else {

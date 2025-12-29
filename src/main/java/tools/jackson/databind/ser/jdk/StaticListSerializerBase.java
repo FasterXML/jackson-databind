@@ -35,6 +35,11 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     protected final Boolean _unwrapSingle;
 
     /**
+     * @since 3.1
+     */
+    protected final Class<?> _rawElementType;
+
+    /**
      * Value that indicates suppression mechanism to use for
      * content values (elements of container), if any; null
      * for no filtering.
@@ -50,8 +55,15 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
      */
     protected final boolean _suppressNulls;
 
+    @Deprecated // since 3.1
     protected StaticListSerializerBase(Class<?> cls) {
-        super(cls);
+        this(cls, String.class);
+    }
+
+    protected StaticListSerializerBase(Class<?> rawCollectionType,
+            Class<?> rawElementType) {
+        super(rawCollectionType);
+        _rawElementType = rawElementType;
         _unwrapSingle = null;
         _suppressableValue = null;
         _suppressNulls = false;
@@ -69,6 +81,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     protected StaticListSerializerBase(StaticListSerializerBase<?> src,
             Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
         super(src);
+        _rawElementType = src._rawElementType;
         _unwrapSingle = unwrapSingle;
         _suppressableValue = suppressableValue;
         _suppressNulls = suppressNulls;
@@ -119,10 +132,10 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         // [databind#124]: May have a content converter
         ser = findContextualConvertingSerializer(ctxt, property, ser);
         if (ser == null) {
-            ser = ctxt.findContentValueSerializer(String.class, property);
+            ser = ctxt.findContentValueSerializer(_rawElementType, property);
         }
         // Handle content inclusion (similar to MapSerializer lines 560-609)
-        JsonInclude.Value inclV = findIncludeOverrides(ctxt, property, List.class);
+        JsonInclude.Value inclV = findIncludeOverrides(ctxt, property, handledType());
         Object valueToSuppress = _suppressableValue;
         boolean suppressNulls = _suppressNulls;
 
@@ -131,7 +144,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
             if (incl != JsonInclude.Include.USE_DEFAULTS) {
                 switch (incl) {
                     case NON_DEFAULT:
-                        valueToSuppress = BeanUtil.getDefaultValue(ctxt.constructType(String.class));
+                        valueToSuppress = BeanUtil.getDefaultValue(ctxt.constructType(_rawElementType));
                         suppressNulls = true;
                         if (valueToSuppress != null) {
                             if (valueToSuppress.getClass().isArray()) {

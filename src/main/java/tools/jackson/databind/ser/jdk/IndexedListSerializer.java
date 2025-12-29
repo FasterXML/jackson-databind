@@ -107,18 +107,17 @@ public final class IndexedListSerializer
         throws JacksonException
     {
         final List<?> value = (List<?>) value0;
-        final boolean needsFiltering = _needToCheckFiltering(ctxt);
         if (_elementSerializer != null) {
-            serializeContentsUsingImpl(value, g, ctxt, _elementSerializer, needsFiltering);
+            serializeContentsUsingImpl(value, g, ctxt, _elementSerializer);
         } else if (_valueTypeSerializer != null) {
-            serializeTypedContentsImpl(value, g, ctxt, needsFiltering);
+            serializeTypedContentsImpl(value, g, ctxt);
         } else {
-            serializeContentsImpl(value, g, ctxt, needsFiltering);
+            serializeContentsImpl(value, g, ctxt);
         }
     }
 
     private void serializeContentsImpl(List<?> value, JsonGenerator g,
-            SerializationContext ctxt, boolean filtered)
+            SerializationContext ctxt)
         throws JacksonException
     {
         final int len = value.size();
@@ -126,6 +125,7 @@ public final class IndexedListSerializer
             return;
         }
         int i = 0;
+        final boolean filtered = _needToCheckFiltering(ctxt);
         try {
             for (; i < len; ++i) {
                 Object elem = value.get(i);
@@ -158,8 +158,7 @@ public final class IndexedListSerializer
     }
 
     private void serializeContentsUsingImpl(List<?> value, JsonGenerator g,
-            SerializationContext ctxt, ValueSerializer<Object> ser,
-            boolean filtered)
+            SerializationContext ctxt, ValueSerializer<Object> ser)
         throws JacksonException
     {
         final int len = value.size();
@@ -167,6 +166,7 @@ public final class IndexedListSerializer
             return;
         }
         final TypeSerializer typeSer = _valueTypeSerializer;
+        final boolean filtered = _needToCheckFiltering(ctxt);
         for (int i = 0; i < len; ++i) {
             Object elem = value.get(i);
             try {
@@ -193,7 +193,7 @@ public final class IndexedListSerializer
     }
 
     private void serializeTypedContentsImpl(List<?> value, JsonGenerator g,
-            SerializationContext ctxt, boolean filtered)
+            SerializationContext ctxt)
         throws JacksonException
     {
         final int len = value.size();
@@ -201,6 +201,7 @@ public final class IndexedListSerializer
             return;
         }
         int i = 0;
+        final boolean filtered = _needToCheckFiltering(ctxt);
         try {
             final TypeSerializer typeSer = _valueTypeSerializer;
             PropertySerializerMap serializers = _dynamicValueSerializers;

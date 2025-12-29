@@ -30,7 +30,7 @@ public class StringCollectionSerializer
      */
 
     protected StringCollectionSerializer() {
-        super(Collection.class);
+        super(Collection.class, String.class);
     }
 
     @Deprecated // since 3.1

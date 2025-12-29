@@ -119,27 +119,29 @@ public class CollectionSerializer
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContentsImpl(value, g, ctxt, _needToCheckFiltering(ctxt));
+                serializeContentsImpl(value, g, ctxt);
                 return;
             }
         }
         g.writeStartArray(value, len);
-        serializeContentsImpl(value, g, ctxt, _needToCheckFiltering(ctxt));
+        serializeContentsImpl(value, g, ctxt);
         g.writeEndArray();
     }
 
     @Override
-    public void serializeContents(Collection<?> value, JsonGenerator g, SerializationContext ctxt)
+    public void serializeContents(Collection<?> value, JsonGenerator g,
+            SerializationContext ctxt)
+        throws JacksonException
     {
-        serializeContentsImpl(value, g, ctxt, _needToCheckFiltering(ctxt));
+        serializeContentsImpl(value, g, ctxt);
     }
 
     private void serializeContentsImpl(Collection<?> value, JsonGenerator g,
-            SerializationContext ctxt, boolean filtered)
+            SerializationContext ctxt)
         throws JacksonException
     {
         if (_elementSerializer != null) {
-            serializeContentsUsingImpl(value, g, ctxt, _elementSerializer, filtered);
+            serializeContentsUsingImpl(value, g, ctxt, _elementSerializer);
             return;
         }
         Iterator<?> it = value.iterator();
@@ -150,6 +152,7 @@ public class CollectionSerializer
         // [databind#4849]/[databind#4214]: need to check for EnumSet
         final TypeSerializer typeSer = (_maybeEnumSet && value instanceof EnumSet<?>)
                 ? null : _valueTypeSerializer;
+        final boolean filtered = _needToCheckFiltering(ctxt);
 
         int i = 0;
         try {
@@ -191,11 +194,13 @@ public class CollectionSerializer
     }
 
     private void serializeContentsUsingImpl(Collection<?> value, JsonGenerator g,
-            SerializationContext ctxt, ValueSerializer<Object> ser, boolean filtered)
+            SerializationContext ctxt, ValueSerializer<Object> ser)
         throws JacksonException
     {
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {
+            final boolean filtered = _needToCheckFiltering(ctxt);
+
             // [databind#4849]/[databind#4214]: need to check for EnumSet
             final TypeSerializer typeSer = (_maybeEnumSet && value instanceof EnumSet<?>)
                     ? null : _valueTypeSerializer;

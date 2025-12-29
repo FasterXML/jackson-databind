@@ -30,7 +30,7 @@ public final class IndexedStringListSerializer
      */
 
     protected IndexedStringListSerializer() {
-        super(List.class);
+        super(List.class, String.class);
     }
 
     @Deprecated // since 3.1

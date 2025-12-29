@@ -104,13 +104,13 @@ public class IteratorSerializer
         if (!value.hasNext()) {
             return;
         }
-        final boolean filtered = _needToCheckFiltering(ctxt);
         ValueSerializer<Object> serializer = _elementSerializer;
         if (serializer == null) {
-            _serializeDynamicContentsImpl(value, g, ctxt, filtered);
+            _serializeDynamicContentsImpl(value, g, ctxt);
             return;
         }
         final TypeSerializer typeSer = _valueTypeSerializer;
+        final boolean filtered = _needToCheckFiltering(ctxt);
         do {
             Object elem = value.next();
             if (elem == null) {
@@ -133,10 +133,11 @@ public class IteratorSerializer
     }
 
     private void _serializeDynamicContentsImpl(Iterator<?> value, JsonGenerator g,
-            SerializationContext ctxt, boolean filtered)
+            SerializationContext ctxt)
        throws JacksonException
     {
         final TypeSerializer typeSer = _valueTypeSerializer;
+        final boolean filtered = _needToCheckFiltering(ctxt);
         do {
             Object elem = value.next();
             if (elem == null) {

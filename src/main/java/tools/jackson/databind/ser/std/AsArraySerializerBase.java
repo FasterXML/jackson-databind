@@ -161,15 +161,39 @@ public abstract class AsArraySerializerBase<T>
         _suppressNulls = suppressNulls;
     }
 
+    /**
+     *<p>
+     * NOTE: non-abstract in 3.1, to avoid sub-class from having to implement it; calls
+     * {@link #withResolved(BeanProperty, TypeSerializer, ValueSerializer, Boolean, Object, boolean)}.
+     * 
+     * @deprecated Since 3.1, callers should switch to calling
+     * {@link #withResolved(BeanProperty, TypeSerializer, ValueSerializer, Boolean, Object, boolean)}
+     * instead.
+     */
     @Deprecated // since 3.1
-    protected abstract AsArraySerializerBase<T> withResolved(BeanProperty property,
+    protected AsArraySerializerBase<T> withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,
-            Boolean unwrapSingle);
+            Boolean unwrapSingle) {
+        return withResolved(property, vts, elementSerializer, unwrapSingle,
+                null, false);
+    }
 
-
-    protected abstract AsArraySerializerBase<T> withResolved(BeanProperty property,
-            TypeSerializer vts, ValueSerializer<?> elementSerializer,
-            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls);
+    /**
+     * Factory method to use for creating differently configured instances, called by
+     * this class (from #createContextual), overridden by implementation class.
+     *<p>
+     * NOTE: only implemented for backwards-compatibility with 3.0 version
+     * {@code JacksonModule}s, otherwise would be abstract: sub-classes really
+     * need to override.
+     *
+     * @since 3.1
+     */
+    @SuppressWarnings("deprecation")
+    protected AsArraySerializerBase<T> withResolved(BeanProperty property,
+                TypeSerializer vts, ValueSerializer<?> elementSerializer, Boolean unwrapSingle,
+                Object suppressableValue, boolean suppressNulls) {
+        return withResolved(property, vts, elementSerializer, unwrapSingle);
+    }
 
     /*
     /**********************************************************************

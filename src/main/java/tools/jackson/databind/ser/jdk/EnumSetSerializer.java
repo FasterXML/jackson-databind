@@ -37,14 +37,6 @@ public class EnumSetSerializer
         return this;
     }
 
-    @Deprecated // @since 3.1
-    @Override
-    protected EnumSetSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, ValueSerializer<?> elementSerializer,
-            Boolean unwrapSingle) {
-        return new EnumSetSerializer(this, vts, elementSerializer, unwrapSingle, property, null, false);
-    }
-
     @Override
     public EnumSetSerializer withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,

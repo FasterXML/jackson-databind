@@ -139,11 +139,7 @@ public class CollectionSerializer
         throws JacksonException
     {
         if (_elementSerializer != null) {
-            if (filtered) {
-                serializeFilteredContentsUsing(value, g, ctxt, _elementSerializer);
-            } else {
-                serializeContentsUsing(value, g, ctxt, _elementSerializer);
-            }
+            serializeContentsUsingImpl(value, g, ctxt, _elementSerializer, filtered);
             return;
         }
         Iterator<?> it = value.iterator();
@@ -194,21 +190,9 @@ public class CollectionSerializer
         }
     }
 
-    public void serializeContentsUsing(Collection<?> value, JsonGenerator g,
-            SerializationContext ctxt, ValueSerializer<Object> ser)
+    private void serializeContentsUsingImpl(Collection<?> value, JsonGenerator g,
+            SerializationContext ctxt, ValueSerializer<Object> ser, boolean filtered)
         throws JacksonException
-    {
-        serializeContentsUsingImpl(value, g, ctxt, ser, false);
-    }
-
-    private void serializeFilteredContentsUsing(Collection<?> value, JsonGenerator g, SerializationContext ctxt,
-            ValueSerializer<Object> ser) throws JacksonException
-    {
-        serializeContentsUsingImpl(value, g, ctxt, ser, true);
-    }
-
-    private void serializeContentsUsingImpl(Collection<?> value, JsonGenerator g, SerializationContext ctxt,
-            ValueSerializer<Object> ser, boolean filtered) throws JacksonException
     {
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {

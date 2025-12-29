@@ -257,15 +257,15 @@ public enum SerializationFeature implements ConfigFeature
     FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY(false),
 
     /**
-     * Feature that determines whether {@code JsonInclude#content()} is also
-     * applied to values inside {@link java.util.Collection} properties.
-     * <p>
+     * Feature that determines whether {@code JsonInclude#content()} configured
+     * filtering is applied to elements of {@link java.util.Collection} valued
+     * properties.
      * By default, {@code content()} inclusion rules are only applied to
-     * {@code Map} values and reference types, and are ignored for
-     * {@code Collection} element values.
+     * {@code Map} values and reference type contents, and are ignored for
+     * {@code Collection} elements.
      * <p>
      * When this feature is enabled, {@code JsonInclude#content()} rules
-     * are evaluated for {@code Collection} elements during serialization.
+     * are used for filtering {@code Collection} elements during serialization.
      * <p>
      * This feature is <b>disabled by default</b> for backwards
      * compatibility.

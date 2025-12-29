@@ -71,13 +71,25 @@ public class CollectionDeserializer
     /**
      * Constructor for context-free instances, where we do not yet know
      * which property is using this deserializer.
+     *
+     * @since 3.1
      */
     public CollectionDeserializer(JavaType collectionType,
             ValueDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator,
             AnnotatedClass classInfo)
     {
-        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator, null, null, null, classInfo);
+        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator,
+                null, null, null, classInfo);
+    }
+
+    @Deprecated // since 3.1
+    public CollectionDeserializer(JavaType collectionType,
+            ValueDeserializer<Object> valueDeser,
+            TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator)
+    {
+        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator,
+                null, null, null, null);
     }
 
     /**
@@ -162,8 +174,7 @@ public class CollectionDeserializer
 
     /**
      * Method called to finalize setup of this deserializer,
-     * when it is known for which property deserializer is needed
-     * for.
+     * when it is known for which property deserializer is needed for.
      */
     @Override
     public CollectionDeserializer createContextual(DeserializationContext ctxt,
@@ -234,7 +245,7 @@ _containerType,
         if (unwrapSingle != null) {
             return unwrapSingle;
         }
-        if(_classInfo != null){
+        if (_classInfo != null) {
             JsonFormat.Value format = ctxt.getAnnotationIntrospector()
                 .findFormat(ctxt.getConfig(), _classInfo);
             if (format != null) {

@@ -10,7 +10,6 @@ import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.jsontype.TypeDeserializer;
-import tools.jackson.databind.util.Annotations;
 
 /**
  * We need a custom deserializer both because {@link ArrayBlockingQueue} has no
@@ -26,7 +25,7 @@ public class ArrayBlockingQueueDeserializer
     /**********************************************************************
      */
 
-     public ArrayBlockingQueueDeserializer(JavaType containerType,
+    public ArrayBlockingQueueDeserializer(JavaType containerType,
             ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
             ValueInstantiator valueInstantiator,
             AnnotatedClass classInfo)

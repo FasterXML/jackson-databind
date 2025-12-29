@@ -95,11 +95,8 @@ public class IterableSerializer
                 return;
             }
         }
-        final boolean needsFiltering = ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
-                && ((_suppressableValue != null) || _suppressNulls);
-
         g.writeStartArray(value);
-        _serializeContents(value, g, ctxt, needsFiltering);
+        serializeContents(value, g, ctxt);
         g.writeEndArray();
     }
 
@@ -108,22 +105,7 @@ public class IterableSerializer
             SerializationContext ctxt)
         throws JacksonException
     {
-        _serializeContents(value, g, ctxt, false);
-    }
-
-    @Override
-    protected void serializeFilteredContents(Iterable<?> value, JsonGenerator g, SerializationContext ctxt)
-        throws JacksonException
-    {
-        final boolean needsFiltering = ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
-                && ((_suppressableValue != null) || _suppressNulls);
-        _serializeContents(value, g, ctxt, needsFiltering);
-    }
-
-    private void _serializeContents(Iterable<?> value, JsonGenerator g,
-                                  SerializationContext ctxt, boolean needsFiltering)
-            throws JacksonException
-    {
+        final boolean needsFiltering = _needToCheckFiltering(ctxt);
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {
             final TypeSerializer typeSer = _valueTypeSerializer;
@@ -152,7 +134,7 @@ public class IterableSerializer
                 }
                 // [databind#5369] Support `@JsonInclude` in `Collection`
                 //                Let's do filtering before serialization
-                if (needsFiltering && !_shouldSerializeElement(elem, _elementSerializer, ctxt)) {
+                if (needsFiltering && !_shouldSerializeElement(ctxt, elem, _elementSerializer)) {
                     continue;
                 }
                 if (typeSer == null) {

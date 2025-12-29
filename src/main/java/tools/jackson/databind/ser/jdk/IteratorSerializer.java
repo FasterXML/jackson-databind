@@ -92,13 +92,7 @@ public class IteratorSerializer
         }
         */
         g.writeStartArray(value);
-        if (ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
-            && ((_suppressableValue != null) || _suppressNulls)
-        ) {
-            serializeFilteredContents(value, g, ctxt);
-        } else {
-            serializeContents(value, g, ctxt);
-        }
+        serializeContents(value, g, ctxt);
         g.writeEndArray();
     }
 
@@ -107,30 +101,13 @@ public class IteratorSerializer
             SerializationContext ctxt)
         throws JacksonException
     {
-        serializeContentsImpl(value, g, ctxt, false);
-    }
-
-    @Override
-    protected void serializeFilteredContents(Iterator<?> value, JsonGenerator g,
-            SerializationContext ctxt) throws JacksonException
-    {
-        serializeContentsImpl(value, g, ctxt,
-            ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
-    }
-
-    private void serializeContentsImpl(Iterator<?> value, JsonGenerator g,
-           SerializationContext ctxt, boolean filtered) throws JacksonException
-    {
         if (!value.hasNext()) {
             return;
         }
+        final boolean filtered = _needToCheckFiltering(ctxt);
         ValueSerializer<Object> serializer = _elementSerializer;
         if (serializer == null) {
-            if (filtered) {
-                _serializeFilteredDynamicContents(value, g, ctxt);
-            } else {
-                _serializeDynamicContents(value, g, ctxt);
-            }
+            _serializeDynamicContentsImpl(value, g, ctxt, filtered);
             return;
         }
         final TypeSerializer typeSer = _valueTypeSerializer;
@@ -143,7 +120,7 @@ public class IteratorSerializer
                 ctxt.defaultSerializeNullValue(g);
             } else {
                 // Check if this element should be suppressed (only in filtered mode)
-                if (filtered && !_shouldSerializeElement(elem, serializer, ctxt)) {
+                if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                     continue;
                 }
                 if (typeSer == null) {
@@ -155,23 +132,9 @@ public class IteratorSerializer
         } while (value.hasNext());
     }
 
-    protected void _serializeDynamicContents(Iterator<?> value, JsonGenerator g,
-            SerializationContext ctxt)
-        throws JacksonException
-    {
-        _serializeDynamicContentsImpl(value, g, ctxt,
-            false);
-    }
-
-    protected void _serializeFilteredDynamicContents(Iterator<?> value, JsonGenerator g,
-         SerializationContext ctxt) throws JacksonException
-    {
-        _serializeDynamicContentsImpl(value, g, ctxt,
-            ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS));
-    }
-
     private void _serializeDynamicContentsImpl(Iterator<?> value, JsonGenerator g,
-               SerializationContext ctxt, boolean filtered) throws JacksonException
+            SerializationContext ctxt, boolean filtered)
+       throws JacksonException
     {
         final TypeSerializer typeSer = _valueTypeSerializer;
         do {
@@ -194,7 +157,7 @@ public class IteratorSerializer
                 }
             }
             // Check if this element should be suppressed (only in filtered mode)
-            if (filtered && !_shouldSerializeElement(elem, serializer, ctxt)) {
+            if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                 continue;
             }
             if (typeSer == null) {

@@ -88,27 +88,17 @@ public final class IndexedListSerializer
         throws JacksonException
     {
         final List<?> value = (List<?>) value0;
-        final boolean needsFiltering = ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
-                && ((_suppressableValue != null) || _suppressNulls);
         final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                if (needsFiltering) {
-                    serializeFilteredContents(value, g, ctxt);
-                } else {
-                    serializeContents(value, g, ctxt);
-                }
+                serializeContents(value, g, ctxt);
                 return;
             }
         }
         g.writeStartArray(value, len);
-        if (needsFiltering) {
-            serializeFilteredContents(value, g, ctxt);
-        } else {
-            serializeContents(value, g, ctxt);
-        }
+        serializeContents(value, g, ctxt);
         g.writeEndArray();
     }
 
@@ -117,27 +107,13 @@ public final class IndexedListSerializer
         throws JacksonException
     {
         final List<?> value = (List<?>) value0;
+        final boolean needsFiltering = _needToCheckFiltering(ctxt);
         if (_elementSerializer != null) {
-            serializeContentsUsingImpl(value, g, ctxt, _elementSerializer, false);
+            serializeContentsUsingImpl(value, g, ctxt, _elementSerializer, needsFiltering);
         } else if (_valueTypeSerializer != null) {
-            serializeTypedContentsImpl(value, g, ctxt, false);
+            serializeTypedContentsImpl(value, g, ctxt, needsFiltering);
         } else {
-            serializeContentsImpl(value, g, ctxt, false);
-        }
-    }
-
-    @Override
-    public void serializeFilteredContents(Object value0, JsonGenerator g,
-            SerializationContext ctxt)
-        throws JacksonException
-    {
-        final List<?> value = (List<?>) value0;
-        if (_elementSerializer != null) {
-            serializeContentsUsingImpl(value, g, ctxt, _elementSerializer, true);
-        } else if (_valueTypeSerializer != null) {
-            serializeTypedContentsImpl(value, g, ctxt, true);
-        } else {
-            serializeContentsImpl(value, g, ctxt, true);
+            serializeContentsImpl(value, g, ctxt, needsFiltering);
         }
     }
 
@@ -170,7 +146,7 @@ public final class IndexedListSerializer
                         }
                     }
                     // Check if this element should be suppressed (only in filtered mode)
-                    if (filtered && !_shouldSerializeElement(elem, serializer, ctxt)) {
+                    if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                         continue;
                     }
                     serializer.serialize(elem, g, ctxt);
@@ -201,7 +177,7 @@ public final class IndexedListSerializer
                     ctxt.defaultSerializeNullValue(g);
                 } else {
                     // Check if this element should be suppressed (only in filtered mode)
-                    if (filtered && !_shouldSerializeElement(elem, ser, ctxt)) {
+                    if (filtered && !_shouldSerializeElement(ctxt, elem, ser)) {
                         continue;
                     }
                     if (typeSer == null) {
@@ -248,7 +224,7 @@ public final class IndexedListSerializer
                         serializers = _dynamicValueSerializers;
                     }
                     // Check if this element should be suppressed (only in filtered mode)
-                    if (filtered && !_shouldSerializeElement(elem, serializer, ctxt)) {
+                    if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                         continue;
                     }
                     serializer.serializeWithType(elem, g, ctxt, typeSer);

@@ -79,13 +79,11 @@ public final class IndexedStringListSerializer
         throws JacksonException
     {
         final int len = value.size();
-        final boolean needsFiltering = ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
-                && ((_suppressableValue != null) || _suppressNulls);
         if (len == 1) {
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                if (needsFiltering) {
+                if (_needToCheckFiltering(ctxt)) {
                     serializeContentsFiltered(value, g, ctxt, 1);
 
                 } else {
@@ -95,7 +93,7 @@ public final class IndexedStringListSerializer
             }
         }
         g.writeStartArray(value, len);
-        if (needsFiltering) {
+        if (_needToCheckFiltering(ctxt)) {
             serializeContentsFiltered(value, g, ctxt, len);
         } else {
             serializeContentsNonFiltered(value, g, ctxt, len);
@@ -111,9 +109,7 @@ public final class IndexedStringListSerializer
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
         g.assignCurrentValue(value);
-        final boolean needsFiltering = ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
-                && ((_suppressableValue != null) || _suppressNulls);
-        if (needsFiltering) {
+        if (_needToCheckFiltering(ctxt)) {
             serializeContentsFiltered(value, g, ctxt, value.size());
         } else {
             serializeContentsNonFiltered(value, g, ctxt, value.size());
@@ -166,4 +162,8 @@ public final class IndexedStringListSerializer
        }
    }
 
+    protected boolean _needToCheckFiltering(SerializationContext ctxt) {
+        return ((_suppressableValue != null) || _suppressNulls)
+                && ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS);
+    }
 }

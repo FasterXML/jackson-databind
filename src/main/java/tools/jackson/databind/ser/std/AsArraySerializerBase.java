@@ -340,19 +340,6 @@ public abstract class AsArraySerializerBase<T>
             SerializationContext ctxt)
         throws JacksonException;
 
-    /**
-     * Support `@JsonInclude`
-     * Will fallback to {@link AsArraySerializerBase#serializeContents(Object, JsonGenerator, SerializationContext)} for backward compatibility.
-     *
-     * @since 3.1
-     */
-    protected void serializeFilteredContents(T value, JsonGenerator g,
-            SerializationContext ctxt)
-        throws JacksonException
-    {
-        serializeContents(value, g, ctxt);
-    }
-
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JacksonException
@@ -369,26 +356,39 @@ public abstract class AsArraySerializerBase<T>
     }
 
     /**
+     * Common utility method for checking if this serializer needs to consider
+     * filtering of its elements.
+     * Returns {@code true} if filtering needs to be checked,
+     * {@code false} if not.
+     *
+     * @since 3.1
+     */
+    protected boolean _needToCheckFiltering(SerializationContext ctxt) {
+        return ((_suppressableValue != null) || _suppressNulls)
+                && ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS);
+    }
+    
+    /**
      * Common utility method for checking if an element should be filtered/suppressed
      * based on @JsonInclude settings. Returns {@code true} if element should be serialized,
      * {@code false} if it should be skipped.
      *
+     * @param ctxt Serialization context
      * @param elem Element to check for suppression
      * @param serializer Serializer for the element (may be null for strings)
-     * @param provider Serializer provider
      * @return true if element should be serialized, false if suppressed
      *
      * @since 3.1
      */
-    protected final boolean _shouldSerializeElement(Object elem, ValueSerializer<Object> serializer,
-        SerializationContext provider) throws JacksonException
+    protected boolean _shouldSerializeElement(SerializationContext ctxt,
+            Object elem, ValueSerializer<Object> serializer)
     {
         if (_suppressableValue == null) {
             return true;
         }
         if (_suppressableValue == MARKER_FOR_EMPTY) {
             if (serializer != null) {
-                return !serializer.isEmpty(provider, elem);
+                return !serializer.isEmpty(ctxt, elem);
             }
             // For strings and primitives, check emptiness directly
             if (elem instanceof String str) {

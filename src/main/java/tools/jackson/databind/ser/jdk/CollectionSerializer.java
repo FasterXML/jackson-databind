@@ -115,41 +115,23 @@ public class CollectionSerializer
         throws JacksonException
     {
         final int len = value.size();
-        final boolean needsFiltering = ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
-                && ((_suppressableValue != null) || _suppressNulls);
         if (len == 1) {
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                if (needsFiltering) {
-                    serializeFilteredContents(value, g, ctxt);
-                } else {
-                    serializeContents(value, g, ctxt);
-                }
+                serializeContentsImpl(value, g, ctxt, _needToCheckFiltering(ctxt));
                 return;
             }
         }
         g.writeStartArray(value, len);
-        if (needsFiltering) {
-            serializeFilteredContents(value, g, ctxt);
-        } else {
-            serializeContents(value, g, ctxt);
-        }
+        serializeContentsImpl(value, g, ctxt, _needToCheckFiltering(ctxt));
         g.writeEndArray();
     }
 
     @Override
     public void serializeContents(Collection<?> value, JsonGenerator g, SerializationContext ctxt)
     {
-        serializeContentsImpl(value, g, ctxt, false);
-    }
-
-    @Override
-    protected void serializeFilteredContents(Collection<?> value, JsonGenerator g,
-            SerializationContext ctxt)
-        throws JacksonException
-    {
-        serializeContentsImpl(value, g, ctxt, true);
+        serializeContentsImpl(value, g, ctxt, _needToCheckFiltering(ctxt));
     }
 
     private void serializeContentsImpl(Collection<?> value, JsonGenerator g,
@@ -195,7 +177,7 @@ public class CollectionSerializer
                         serializers = _dynamicValueSerializers;
                     }
                     // Check if this element should be suppressed (only in filtered mode)
-                    if (filtered && !_shouldSerializeElement(elem, serializer, ctxt)) {
+                    if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                         ++i;
                         continue;
                     }
@@ -245,7 +227,7 @@ public class CollectionSerializer
                         ctxt.defaultSerializeNullValue(g);
                     } else {
                         // Check if this element should be suppressed (only in filtered mode)
-                        if (filtered && !_shouldSerializeElement(elem, ser, ctxt)) {
+                        if (filtered && !_shouldSerializeElement(ctxt, elem, ser)) {
                             ++i;
                             continue;
                         }

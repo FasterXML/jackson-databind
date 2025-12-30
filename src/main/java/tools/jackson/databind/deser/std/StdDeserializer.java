@@ -20,6 +20,7 @@ import tools.jackson.databind.deser.bean.BeanDeserializerBase;
 import tools.jackson.databind.deser.impl.NullsAsEmptyProvider;
 import tools.jackson.databind.deser.impl.NullsConstantProvider;
 import tools.jackson.databind.deser.impl.NullsFailProvider;
+import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
@@ -1844,6 +1845,30 @@ inputDesc, _coercedTypeDesc(targetType));
     }
 
     /**
+     * Overloaded variant that also considers class annotations in addition
+     * of type defaults and property annotations.
+     *
+     * @since 3.1
+     */
+    protected JsonFormat.Value findFormatOverrides(DeserializationContext ctxt,
+            BeanProperty prop, Class<?> typeForDefaults,
+            AnnotatedClass clsAnnotations)
+    {
+        // Per-property annotations have highest precedence, followed by
+        // per-typ defaults
+        JsonFormat.Value overrides = (prop == null)
+                ? ctxt.getDefaultPropertyFormat(typeForDefaults)
+                : prop.findPropertyFormat(ctxt.getConfig(), typeForDefaults);
+        if (clsAnnotations != null) {
+            // Lowest precedence for Class annotations
+            JsonFormat.Value overrides2 = ctxt.getAnnotationIntrospector()
+                    .findFormat(ctxt.getConfig(), clsAnnotations);
+            overrides = JsonFormat.Value.merge(overrides2, overrides);
+        }
+        return overrides;
+    }
+
+    /**
      * Convenience method that uses {@link #findFormatOverrides} to find possible
      * defaults and/of overrides, and then calls
      * <code>JsonFormat.Value.getFeature(feat)</code>
@@ -1855,10 +1880,22 @@ inputDesc, _coercedTypeDesc(targetType));
             BeanProperty prop, Class<?> typeForDefaults, JsonFormat.Feature feat)
     {
         JsonFormat.Value format = findFormatOverrides(ctxt, prop, typeForDefaults);
-        if (format != null) {
-            return format.getFeature(feat);
-        }
-        return null;
+        return (format == null) ? null : format.getFeature(feat);
+    }
+
+    /**
+     * Overloaded variant that also considers class annotations in addition
+     * of type defaults and property annotations.
+     *
+     * @since 3.1
+     */
+    protected Boolean findFormatFeature(DeserializationContext ctxt,
+            BeanProperty prop, Class<?> typeForDefaults,
+            AnnotatedClass clsAnnotations,
+            JsonFormat.Feature feat)
+    {
+        JsonFormat.Value format = findFormatOverrides(ctxt, prop, typeForDefaults, clsAnnotations);
+        return (format == null) ? null : format.getFeature(feat);
     }
 
     /**

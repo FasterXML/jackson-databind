@@ -71,14 +71,6 @@ public class CollectionSerializer
                 _suppressableValue, _suppressNulls);
     }
 
-    @Deprecated // @since 3.1
-    @Override
-    protected CollectionSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, ValueSerializer<?> elementSerializer,
-            Boolean unwrapSingle) {
-        return withResolved(property, vts, elementSerializer, unwrapSingle, null, false);
-    }
-
     // @since 3.1
     @Override
     protected CollectionSerializer withResolved(BeanProperty property,

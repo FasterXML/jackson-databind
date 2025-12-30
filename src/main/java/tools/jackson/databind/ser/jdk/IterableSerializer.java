@@ -40,14 +40,6 @@ public class IterableSerializer
                 _suppressableValue, _suppressNulls);
     }
 
-    @Deprecated // @since 3.1
-    @Override
-    public IterableSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, ValueSerializer<?> elementSerializer,
-            Boolean unwrapSingle) {
-        return new IterableSerializer(this, vts, elementSerializer, unwrapSingle, property);
-    }
-
     @Override
     public IterableSerializer withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,

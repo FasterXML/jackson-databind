@@ -50,14 +50,6 @@ public final class IndexedListSerializer
                 
     }
 
-    @Deprecated // @since 3.1
-    @Override
-    public IndexedListSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, ValueSerializer<?> elementSerializer,
-            Boolean unwrapSingle) {
-        return new IndexedListSerializer(this, vts, elementSerializer, unwrapSingle, property);
-    }
-
     @Override
     public IndexedListSerializer withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> elementSerializer,

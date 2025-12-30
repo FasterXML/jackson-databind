@@ -207,8 +207,7 @@ _containerType,
         // 11-Dec-2015, tatu: Should we pass basic `Collection.class`, or more refined? Mostly
         //   comes down to "List vs Collection" I suppose... for now, pass Collection
         Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
-                JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-        unwrapSingle = findFormatFeatureOrClassFallback(ctxt, unwrapSingle,
+                _classInfo,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         // also, often value deserializer is resolved here:
         ValueDeserializer<?> valueDeser = _valueDeserializer;
@@ -237,22 +236,6 @@ _containerType,
                     nuller, unwrapSingle);
         }
         return this;
-    }
-
-    protected Boolean findFormatFeatureOrClassFallback(DeserializationContext ctxt,
-        Boolean unwrapSingle, JsonFormat.Feature feature)
-    {
-        if (unwrapSingle != null) {
-            return unwrapSingle;
-        }
-        if (_classInfo != null) {
-            JsonFormat.Value format = ctxt.getAnnotationIntrospector()
-                .findFormat(ctxt.getConfig(), _classInfo);
-            if (format != null) {
-                return format.getFeature(feature);
-            }
-        }
-        return null;
     }
 
     /*

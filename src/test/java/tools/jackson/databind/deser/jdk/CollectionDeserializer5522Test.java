@@ -11,15 +11,14 @@ import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
-class CollectionDeserializer5522Test {
+@SuppressWarnings("serial")
+class CollectionDeserializer5522Test
+{
+    @JsonFormat(with = Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+    static class CustomNumberList extends ArrayList<Number> { }
 
     @JsonFormat(with = Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
-    static class CustomNumberList extends ArrayList<Number>{
-    }
-
-    @JsonFormat(with = Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
-    static class CustomStringList extends ArrayList<String>{
-    }
+    static class CustomStringList extends ArrayList<String> { }
 
     static class CustomClassForNumber {
         private CustomNumberList value;

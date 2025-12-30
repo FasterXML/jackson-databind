@@ -77,6 +77,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   `TRUNCATE_TO_MSECS_ON_READ`) for truncating `java.time` values before serialization,
   after deserialization
  (implemented by @cowtowncoder, w/ Claude code)
+#5522: `@JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)`
+  doesn't work on custom Collection subclass
+ (contributed by Jaeheon K)
 #5528: `TreeBuildingGenerator#writeNumber(String)` writes Number as String
  (reported by @gaeljw)
 

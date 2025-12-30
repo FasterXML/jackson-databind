@@ -25,6 +25,7 @@ public class ArrayBlockingQueueDeserializer
     /**********************************************************************
      */
 
+    // @since 3.1
     public ArrayBlockingQueueDeserializer(JavaType containerType,
             ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
             ValueInstantiator valueInstantiator,
@@ -35,6 +36,8 @@ public class ArrayBlockingQueueDeserializer
 
     /**
      * Constructor used when creating contextualized instances.
+     *
+     * @since 3.1
      */
      protected ArrayBlockingQueueDeserializer(JavaType containerType,
             ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,

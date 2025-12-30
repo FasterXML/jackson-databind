@@ -13,7 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 // https://github.com/FasterXML/jackson-databind/issues/1709
-public class UnwrappedEmptyAsNull1709Test extends DatabindTestUtil {
+public class UnwrappedEmptyAsNull1709Test extends DatabindTestUtil
+{
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     static class Container1709 {
         public String name;

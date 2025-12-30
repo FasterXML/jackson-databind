@@ -131,10 +131,13 @@ Konstantin Labun (@kulabun)
   [3.1.0]
 
 @JacksonJang
-* Contributed fix for #650: `@JsonUnwrapped` prevents checks for
+ * Contributed fix for #650: `@JsonUnwrapped` prevents checks for
   `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
   [3.1.0]
-* Contributed fix for #1516: Problem with multi-argument Creator with
+ * Contributed fix for  #1497: Allow skipping `@JsonUnwrapped` values if no properties matched,
+  `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled
+  [3.1.0]
+ * Contributed fix for #1516: Problem with multi-argument Creator with
    `@JsonBackReference` property
   [3.1.0]
  * Contributed fix for #2686: `@JsonBackReference` does not work with a builder
@@ -156,6 +159,11 @@ Oliver Drotbohm (@odrotbohm)
 @sri-adarsh-kumar
  * Contributed #1196: Add opt-in error collection for deserialization
   [3.1.0]
+
+Victor Noël (@victornoel)
+ * Requested #1497: Allow skipping `@JsonUnwrapped` values if no properties matched,
+  `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled
+ [3.1.0]
 
 Viktor Szathmáry (@phraktle)
  * Reported #5115: `@JsonUnwrapped` Record deserialization can't handle name collision

@@ -132,37 +132,39 @@ public class UnwrappedPropertyHandler
     /**
      * Processes unwrapped properties from the buffered token stream.
      *
-     * @param originalParser Parser that points to the input value to decode
-     * @param ctxt           Deserialization context
-     * @param bean           the target bean object
-     * @param buffered       the token buffer containing the JSON tokens to deserialize
+     * @param originalParser Parser from which input was originally read
+     * @param ctxt Deserialization context
+     * @param bean the target value object
+     * @param buffered the token buffer containing the JSON tokens to deserialize
+     *
      * @return the bean with unwrapped properties set
-     * @deprecated Since 3.1 use {@link #processUnwrapped(JsonParser, DeserializationContext, Object, TokenBuffer, boolean)}
-     */
-    @SuppressWarnings("resource")
-    @Deprecated
-    public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
-            Object bean, TokenBuffer buffered) {
-        return processUnwrapped(originalParser, ctxt, bean, buffered, false);
-    }
-
-    /**
+     *
      * @since 3.1
      */
-    @SuppressWarnings("resource")
     public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
-            Object bean, TokenBuffer buffered, boolean hasUnwrappedContent) {
-        // [databind#1709]: Skip deserialization if no unwrapped content.
-        if (ctxt.isEnabled(DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED)
-                && !_unwrappedPropertyNames.isEmpty() && !hasUnwrappedContent) {
-            return bean;
-        } else {
+            Object bean, TokenBuffer buffered, boolean hasUnwrappedContent)
+    {
+        if (hasUnwrappedContent
+                || _unwrappedPropertyNames.isEmpty()
+                // [databind#1709]: Skip deserialization if no unwrapped content.
+                || !ctxt.isEnabled(DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED)) {
             for (SettableBeanProperty prop : _properties) {
-                JsonParser p = buffered.asParserOnFirstToken(ctxt);
-                prop.deserializeAndSet(p, ctxt, bean);
+                try (JsonParser p = buffered.asParserOnFirstToken(ctxt)) {
+                    prop.deserializeAndSet(p, ctxt, bean);
+                }
             }
         }
         return bean;
+    }
+
+    // !!! TODO: remove from 3.2 or later (internal API)
+    /**
+     * @deprecated Since 3.1 use {@link #processUnwrapped(JsonParser, DeserializationContext, Object, TokenBuffer, boolean)}
+     */
+    @Deprecated // @since 3.1
+    public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
+            Object bean, TokenBuffer buffered) {
+        return processUnwrapped(originalParser, ctxt, bean, buffered, true);
     }
 
     /**

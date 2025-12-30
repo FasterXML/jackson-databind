@@ -1,4 +1,4 @@
-package tools.jackson.databind.deser;
+package tools.jackson.databind.struct;
 
 import org.junit.jupiter.api.Test;
 

@@ -4,6 +4,7 @@ import java.util.*;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.SettableBeanProperty;
@@ -128,15 +129,42 @@ public class UnwrappedPropertyHandler
         return values;
     }
 
-    @SuppressWarnings("resource")
+    /**
+     * Processes unwrapped properties from the buffered token stream.
+     *
+     * @param originalParser Parser from which input was originally read
+     * @param ctxt Deserialization context
+     * @param bean the target value object
+     * @param buffered the token buffer containing the JSON tokens to deserialize
+     *
+     * @return the bean with unwrapped properties set
+     *
+     * @since 3.1
+     */
     public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
-            Object bean, TokenBuffer buffered)
+            Object bean, TokenBuffer buffered, boolean hasUnwrappedContent)
     {
-        for (SettableBeanProperty prop : _properties) {
-            JsonParser p = buffered.asParserOnFirstToken(ctxt);
-            prop.deserializeAndSet(p, ctxt, bean);
+        if (hasUnwrappedContent
+                || _unwrappedPropertyNames.isEmpty()
+                // [databind#1709]: Skip deserialization if no unwrapped content.
+                || !ctxt.isEnabled(DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED)) {
+            for (SettableBeanProperty prop : _properties) {
+                try (JsonParser p = buffered.asParserOnFirstToken(ctxt)) {
+                    prop.deserializeAndSet(p, ctxt, bean);
+                }
+            }
         }
         return bean;
+    }
+
+    // !!! TODO: remove from 3.2 or later (internal API)
+    /**
+     * @deprecated Since 3.1 use {@link #processUnwrapped(JsonParser, DeserializationContext, Object, TokenBuffer, boolean)}
+     */
+    @Deprecated // @since 3.1
+    public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
+            Object bean, TokenBuffer buffered) {
+        return processUnwrapped(originalParser, ctxt, bean, buffered, true);
     }
 
     /**

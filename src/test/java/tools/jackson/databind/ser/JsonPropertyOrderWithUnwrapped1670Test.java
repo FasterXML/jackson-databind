@@ -14,55 +14,52 @@ import static tools.jackson.databind.testutil.JacksonTestUtilBase.a2q;
 public class JsonPropertyOrderWithUnwrapped1670Test {
 
     @JsonPropertyOrder({"value4", "value3", "value2", "value1"})
-    static class Issue1670 {
+    static class Issue1670
+    {
         private int value1;
         private int value2;
         @JsonUnwrapped
         private Issue1670Child b;
 
-        public Issue1670(int value1, int value2) {
+        public Issue1670(int value1, int value2)
+        {
             this.value1 = value1;
             this.value2 = value2;
             this.b = new Issue1670Child(3, 4);
-        }
-
-        public static class Issue1670Child {
-            private int value3;
-            private int value4;
-
-            public Issue1670Child(int value3, int value4) {
-                this.value3 = value3;
-                this.value4 = value4;
-            }
         }
     }
 
     @JsonPropertyOrder({"value2", "value3", "value1", "value4"})
-    static class JsonPropertyOrderTest {
+    static class JsonPropertyOrderTest
+    {
         private int value1;
         private int value2;
         @JsonUnwrapped
         private Issue1670Child b;
 
-        public JsonPropertyOrderTest(int value1, int value2) {
+        public JsonPropertyOrderTest(int value1, int value2)
+        {
             this.value1 = value1;
             this.value2 = value2;
             this.b = new Issue1670Child(3, 4);
         }
+    }
 
-        public static class Issue1670Child {
-            private int value3;
-            private int value4;
+    static class Issue1670Child
+    {
+        private int value3;
+        private int value4;
 
-            public Issue1670Child(int value3, int value4) {
-                this.value3 = value3;
-                this.value4 = value4;
-            }
+        public Issue1670Child(int value3, int value4)
+        {
+            this.value3 = value3;
+            this.value4 = value4;
         }
     }
 
     @Test
-    public void testSerialize1670() throws Exception {
+    public void testSerialize1670() throws Exception
+    {
         String json = a2q("{'value4':4,'value3':3,'value2':2,'value1':1}");
         ObjectMapper mapper = JsonMapper.builder()
                 .changeDefaultVisibility(vc ->
@@ -73,7 +70,8 @@ public class JsonPropertyOrderWithUnwrapped1670Test {
     }
 
     @Test
-    public void testJsonPropertyOrderTest() throws Exception {
+    public void testJsonPropertyOrderTest() throws Exception
+    {
         String json = a2q("{'value2':2,'value3':3,'value1':1,'value4':4}");
         ObjectMapper mapper = JsonMapper.builder()
                 .changeDefaultVisibility(vc ->

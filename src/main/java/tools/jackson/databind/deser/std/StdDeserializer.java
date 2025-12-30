@@ -1854,10 +1854,13 @@ inputDesc, _coercedTypeDesc(targetType));
             BeanProperty prop, Class<?> typeForDefaults,
             AnnotatedClass clsAnnotations)
     {
+        // Per-property annotations have highest precedence, followed by
+        // per-typ defaults
         JsonFormat.Value overrides = (prop == null)
                 ? ctxt.getDefaultPropertyFormat(typeForDefaults)
                 : prop.findPropertyFormat(ctxt.getConfig(), typeForDefaults);
         if (clsAnnotations != null) {
+            // Lowest precedence for Class annotations
             JsonFormat.Value overrides2 = ctxt.getAnnotationIntrospector()
                     .findFormat(ctxt.getConfig(), clsAnnotations);
             overrides = JsonFormat.Value.merge(overrides2, overrides);

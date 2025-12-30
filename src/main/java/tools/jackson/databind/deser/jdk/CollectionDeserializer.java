@@ -57,6 +57,8 @@ public class CollectionDeserializer
     /**
      * Annotations defined on the actual Collection class; retained to avoid
      * re-introspection overhead during {@link #createContextual} calls.
+     *
+     * @since 3.1
      */
     protected transient final AnnotatedClass _classInfo;
 
@@ -94,6 +96,8 @@ public class CollectionDeserializer
 
     /**
      * Constructor used when creating contextualized instances.
+     *
+     * @since 3.1
      */
     protected CollectionDeserializer(JavaType collectionType,
             ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,

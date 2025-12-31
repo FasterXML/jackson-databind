@@ -657,6 +657,8 @@ public class BuilderBasedDeserializer
         }
 
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
+        boolean hasUnwrappedContent = false;
+
         for (int ix = p.currentNameMatch(_propertyNameMatcher); ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) { // common case
                 p.nextToken();
@@ -685,21 +687,26 @@ public class BuilderBasedDeserializer
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
-            // but... others should be passed to unwrapped property deserializers
-            tokens.writeName(propName);
-            tokens.copyCurrentStructure(p);
-            // how about any setter? We'll get copies but...
-            if (_anySetter != null) {
-                try {
-                    _anySetter.deserializeAndSet(p, ctxt, bean, propName);
-                } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, propName, ctxt);
-                }
+            // 29-Dec-2025: [databind#650] We can avoid buffering and passing to any props
+            if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
+                hasUnwrappedContent = true;
+                tokens.writeName(propName);
+                tokens.copyCurrentStructure(p);
                 continue;
+            }
+            // how about any setter?
+            if (_anySetter == null) {
+                handleUnknownVanilla(p, ctxt, bean, propName);
+                continue;
+            }
+            try {
+                _anySetter.deserializeAndSet(p, ctxt, bean, propName);
+            } catch (Exception e) {
+                throw wrapAndThrow(e, bean, propName, ctxt);
             }
         }
         tokens.writeEndObject();
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
+        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens, hasUnwrappedContent);
     }
 
     protected Object deserializeWithUnwrapped(JsonParser p,
@@ -707,6 +714,8 @@ public class BuilderBasedDeserializer
         throws JacksonException
     {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
+        boolean hasUnwrappedContent = false;
+
         for (int ix = p.currentNameMatch(_propertyNameMatcher); ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) { // common case
                 p.nextToken();
@@ -734,16 +743,22 @@ public class BuilderBasedDeserializer
                 handleIgnoredProperty(p, ctxt, builder, propName);
                 continue;
             }
-            // but... others should be passed to unwrapped property deserializers
-            tokens.writeName(propName);
-            tokens.copyCurrentStructure(p);
-            // how about any setter? We'll get copies but...
-            if (_anySetter != null) {
-                _anySetter.deserializeAndSet(p, ctxt, builder, propName);
+            // 29-Dec-2025: [databind#650] We can avoid buffering and passing to any props
+            if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
+                hasUnwrappedContent = true;
+                tokens.writeName(propName);
+                tokens.copyCurrentStructure(p);
+                continue;
             }
+            // how about any setter?
+            if (_anySetter == null) {
+                handleUnknownVanilla(p, ctxt, builder, propName);
+                continue;
+            }
+            _anySetter.deserializeAndSet(p, ctxt, builder, propName);
         }
         tokens.writeEndObject();
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens);
+        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
     }
 
     @SuppressWarnings("resource")
@@ -757,6 +772,7 @@ public class BuilderBasedDeserializer
         TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
 
+        boolean hasUnwrappedContent = false;
         JsonToken t = p.currentToken();
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
@@ -802,12 +818,19 @@ public class BuilderBasedDeserializer
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
-            tokens.writeName(propName);
-            tokens.copyCurrentStructure(p);
-            // "any property"?
-            if (_anySetter != null) {
-                buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+            // 29-Dec-2025: [databind#650] We can avoid buffering and passing to any props
+            if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
+                hasUnwrappedContent = true;
+                tokens.writeName(propName);
+                tokens.copyCurrentStructure(p);
+                continue;
             }
+            // how about any setter?
+            if (_anySetter == null) {
+                handleUnknownVanilla(p, ctxt, null, propName);
+                continue;
+            }
+            buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
         }
         tokens.writeEndObject();
 
@@ -819,7 +842,7 @@ public class BuilderBasedDeserializer
             return wrapInstantiationProblem(ctxt, e);
 
         }
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens);
+        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
     }
 
     /*

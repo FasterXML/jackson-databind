@@ -11,7 +11,6 @@
     <artifactId>jackson-base</artifactId>
     <version>2.21.0-SNAPSHOT</version>
   </parent>
-
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
   <version>2.21.0-SNAPSHOT</version>

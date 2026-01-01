@@ -32,17 +32,17 @@ jobs:
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:
-    - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Set up JDK (without deployment credentials)
       if: ${{ github.event_name == 'pull_request' || github.repository != 'FasterXML/jackson-databind' }}
-      uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+      uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
       with:
         distribution: 'temurin'
         java-version: ${{ matrix.java_version }}
         cache: 'maven'
     - name: Set up JDK with deployment credentials
       if: ${{ github.event_name != 'pull_request' && github.repository == 'FasterXML/jackson-databind' }}
-      uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+      uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
       with:
         distribution: 'temurin'
         java-version: ${{ matrix.java_version }}
@@ -74,21 +74,21 @@ jobs:
       run: ./mvnw -B -q -ff -ntp test jacoco:report
     - name: Publish code coverage
       if: ${{ matrix.release_build && github.event_name != 'pull_request' && github.repository == 'FasterXML/jackson-databind' }}
-      uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./target/site/jacoco/jacoco.xml
         flags: unittests
     - name: Upload coverage report as artifact
       if: ${{ matrix.release_build && github.event_name != 'pull_request' && github.repository == 'FasterXML/jackson-databind' }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: jacoco-report
         path: target/site/jacoco/jacoco.csv
         retention-days: 30
     - name: Download base branch coverage
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
-      uses: dawidd6/action-download-artifact@v6
+      uses: dawidd6/action-download-artifact@v12
       continue-on-error: true
       with:
         workflow: main.yml
@@ -192,7 +192,7 @@ jobs:
         echo "$COMMENT_BODY" > pr-comment/comment-body.txt
     - name: Upload PR comment
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: pr-comment
         path: pr-comment/

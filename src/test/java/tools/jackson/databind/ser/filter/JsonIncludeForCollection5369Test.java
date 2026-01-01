@@ -304,7 +304,7 @@ public class JsonIncludeForCollection5369Test
      */
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
-            .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+            .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
             .build();
 
     /*
@@ -458,7 +458,7 @@ public class JsonIncludeForCollection5369Test
     @Test
     public void testContentIncludeOverrideForCollection() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
                 .withConfigOverride(List.class,
                         o -> o.setInclude(JsonInclude.Value.empty().withContentFilter(FooFilter.class)))
                 .build();
@@ -477,7 +477,7 @@ public class JsonIncludeForCollection5369Test
     @Test
     public void testContentIncludeOverrideForList() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
                 .withConfigOverride(List.class,
                         o -> o.setInclude(JsonInclude.Value.empty().withContentFilter(FooFilter.class)))
                 .build();
@@ -497,7 +497,7 @@ public class JsonIncludeForCollection5369Test
     public void testEnumSetWithContentFilter() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
                 .build();
 
         EnumSet5369Bean input = new EnumSet5369Bean(
@@ -516,7 +516,7 @@ public class JsonIncludeForCollection5369Test
     public void testIterableWithContentFilteringForNulls() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
                 .build();
         BeanWithIterableIncludeNonNull pojo = new BeanWithIterableIncludeNonNull();
         pojo.values = new Iterable5369(1, null, 2, null, 3);
@@ -530,7 +530,7 @@ public class JsonIncludeForCollection5369Test
     public void testIterableWithContentFilteringMagicNumber() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS)
+                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
                 .build();
         BeanWithIterableCustomInclude pojo = new BeanWithIterableCustomInclude();
         pojo.values = new Iterable5369(1, null, 2, 3, 5369);

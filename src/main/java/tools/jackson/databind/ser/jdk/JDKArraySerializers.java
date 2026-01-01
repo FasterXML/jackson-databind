@@ -80,9 +80,19 @@ public class JDKArraySerializers
             super(cls);
         }
 
+        @Deprecated // since 3.1
         protected TypedPrimitiveArraySerializer(TypedPrimitiveArraySerializer<T> src,
                 BeanProperty prop, Boolean unwrapSingle) {
-            super(src, prop, unwrapSingle);
+            this(src, prop, unwrapSingle, src._suppressableValue, src._suppressNulls);
+        }
+
+        /**
+         * @since 3.1
+         */
+        protected TypedPrimitiveArraySerializer(TypedPrimitiveArraySerializer<T> src,
+                BeanProperty prop, Boolean unwrapSingle,
+                Object suppressableValue, boolean suppressNulls) {
+            super(src, prop, unwrapSingle, suppressableValue, suppressNulls);
         }
 
         // 01-Dec-2016, tatu: Only now realized that due strong typing of Java arrays,
@@ -109,14 +119,31 @@ public class JDKArraySerializers
 
         public BooleanArraySerializer() { super(boolean[].class); }
 
+        @Deprecated // since 3.1
         protected BooleanArraySerializer(BooleanArraySerializer src,
                 BeanProperty prop, Boolean unwrapSingle) {
-            super(src, prop, unwrapSingle);
+            this(src, prop, unwrapSingle, src._suppressableValue, src._suppressNulls);
         }
 
+        /**
+         * @since 3.1
+         */
+        protected BooleanArraySerializer(BooleanArraySerializer src,
+                BeanProperty prop, Boolean unwrapSingle,
+                Object suppressableValue, boolean suppressNulls) {
+            super(src, prop, unwrapSingle, suppressableValue, suppressNulls);
+        }
+
+        @Deprecated // @since 3.1
         @Override
         public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
             return new BooleanArraySerializer(this, prop, unwrapSingle);
+        }
+
+        @Override
+        protected ArraySerializerBase<boolean[]> _withResolved(BeanProperty prop,
+                Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+            return new BooleanArraySerializer(this, prop, unwrapSingle, suppressableValue, suppressNulls);
         }
 
         /**
@@ -166,7 +193,11 @@ public class JDKArraySerializers
         public void serializeContents(boolean[] value, JsonGenerator g, SerializationContext provider)
             throws JacksonException
         {
+            final boolean filtered = _needToCheckFiltering(provider);
             for (int i = 0, len = value.length; i < len; ++i) {
+                if (filtered && !_shouldSerializeElement(provider, Boolean.valueOf(value[i]))) {
+                    continue;
+                }
                 g.writeBoolean(value[i]);
             }
         }
@@ -185,14 +216,31 @@ public class JDKArraySerializers
         private final static JavaType VALUE_TYPE = simpleElementType(Short.TYPE);
 
         public ShortArraySerializer() { super(short[].class); }
+
+        @Deprecated // since 3.1
         public ShortArraySerializer(ShortArraySerializer src, BeanProperty prop,
                  Boolean unwrapSingle) {
-            super(src, prop, unwrapSingle);
+            this(src, prop, unwrapSingle, src._suppressableValue, src._suppressNulls);
         }
 
+        /**
+         * @since 3.1
+         */
+        protected ShortArraySerializer(ShortArraySerializer src, BeanProperty prop,
+                Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+            super(src, prop, unwrapSingle, suppressableValue, suppressNulls);
+        }
+
+        @Deprecated // since 3.1
         @Override
         public ValueSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
             return new ShortArraySerializer(this, prop, unwrapSingle);
+        }
+
+        @Override
+        protected ArraySerializerBase<short[]> _withResolved(BeanProperty prop,
+                Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+            return new ShortArraySerializer(this, prop, unwrapSingle, suppressableValue, suppressNulls);
         }
 
         @Override
@@ -233,7 +281,11 @@ public class JDKArraySerializers
         public void serializeContents(short[] value, JsonGenerator g, SerializationContext provider)
             throws JacksonException
         {
+            final boolean filtered = _needToCheckFiltering(provider);
             for (int i = 0, len = value.length; i < len; ++i) {
+                if (filtered && !_shouldSerializeElement(provider, Short.valueOf(value[i]))) {
+                    continue;
+                }
                 g.writeNumber((int)value[i]);
             }
         }
@@ -319,14 +371,31 @@ public class JDKArraySerializers
 
         public IntArraySerializer() { super(int[].class); }
 
+        @Deprecated // since 3.1
         protected IntArraySerializer(IntArraySerializer src,
                 BeanProperty prop, Boolean unwrapSingle) {
-            super(src, prop, unwrapSingle);
+            this(src, prop, unwrapSingle, src._suppressableValue, src._suppressNulls);
         }
 
+        /**
+         * @since 3.1
+         */
+        protected IntArraySerializer(IntArraySerializer src,
+                BeanProperty prop, Boolean unwrapSingle,
+                Object suppressableValue, boolean suppressNulls) {
+            super(src, prop, unwrapSingle, suppressableValue, suppressNulls);
+        }
+
+        @Deprecated // since 3.1
         @Override
         public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
             return new IntArraySerializer(this, prop, unwrapSingle);
+        }
+
+        @Override
+        protected ArraySerializerBase<int[]> _withResolved(BeanProperty prop,
+                Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+            return new IntArraySerializer(this, prop, unwrapSingle, suppressableValue, suppressNulls);
         }
 
         /**
@@ -367,6 +436,13 @@ public class JDKArraySerializers
                 serializeContents(value, g, provider);
                 return;
             }
+            // Check if filtering is needed
+            if (_needToCheckFiltering(provider)) {
+                g.writeStartArray(value, len);
+                serializeContents(value, g, provider);
+                g.writeEndArray();
+                return;
+            }
             // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
             g.writeArray(value, 0, value.length);
         }
@@ -375,7 +451,11 @@ public class JDKArraySerializers
         public void serializeContents(int[] value, JsonGenerator g, SerializationContext provider)
             throws JacksonException
         {
+            final boolean filtered = _needToCheckFiltering(provider);
             for (int i = 0, len = value.length; i < len; ++i) {
+                if (filtered && !_shouldSerializeElement(provider, Integer.valueOf(value[i]))) {
+                    continue;
+                }
                 g.writeNumber(value[i]);
             }
         }
@@ -394,14 +474,31 @@ public class JDKArraySerializers
         private final static JavaType VALUE_TYPE = simpleElementType(Long.TYPE);
 
         public LongArraySerializer() { super(long[].class); }
+
+        @Deprecated // since 3.1
         public LongArraySerializer(LongArraySerializer src, BeanProperty prop,
                 Boolean unwrapSingle) {
-            super(src, prop, unwrapSingle);
+            this(src, prop, unwrapSingle, src._suppressableValue, src._suppressNulls);
         }
 
+        /**
+         * @since 3.1
+         */
+        protected LongArraySerializer(LongArraySerializer src, BeanProperty prop,
+                Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+            super(src, prop, unwrapSingle, suppressableValue, suppressNulls);
+        }
+
+        @Deprecated // since 3.1
         @Override
         public ValueSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
             return new LongArraySerializer(this, prop, unwrapSingle);
+        }
+
+        @Override
+        protected ArraySerializerBase<long[]> _withResolved(BeanProperty prop,
+                Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+            return new LongArraySerializer(this, prop, unwrapSingle, suppressableValue, suppressNulls);
         }
 
         @Override
@@ -433,6 +530,13 @@ public class JDKArraySerializers
                 serializeContents(value, g, provider);
                 return;
             }
+            // Check if filtering is needed
+            if (_needToCheckFiltering(provider)) {
+                g.writeStartArray(value, len);
+                serializeContents(value, g, provider);
+                g.writeEndArray();
+                return;
+            }
             // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
             g.writeArray(value, 0, value.length);
         }
@@ -441,7 +545,11 @@ public class JDKArraySerializers
         public void serializeContents(long[] value, JsonGenerator g, SerializationContext provider)
             throws JacksonException
         {
+            final boolean filtered = _needToCheckFiltering(provider);
             for (int i = 0, len = value.length; i < len; ++i) {
+                if (filtered && !_shouldSerializeElement(provider, Long.valueOf(value[i]))) {
+                    continue;
+                }
                 g.writeNumber(value[i]);
             }
         }
@@ -466,14 +574,30 @@ public class JDKArraySerializers
             super(float[].class);
         }
 
+        @Deprecated // since 3.1
         public FloatArraySerializer(FloatArraySerializer src, BeanProperty prop,
                 Boolean unwrapSingle) {
-            super(src, prop, unwrapSingle);
+            this(src, prop, unwrapSingle, src._suppressableValue, src._suppressNulls);
         }
 
+        /**
+         * @since 3.1
+         */
+        protected FloatArraySerializer(FloatArraySerializer src, BeanProperty prop,
+                Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+            super(src, prop, unwrapSingle, suppressableValue, suppressNulls);
+        }
+
+        @Deprecated // since 3.1
         @Override
         public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
             return new FloatArraySerializer(this, prop, unwrapSingle);
+        }
+
+        @Override
+        protected ArraySerializerBase<float[]> _withResolved(BeanProperty prop,
+                Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+            return new FloatArraySerializer(this, prop, unwrapSingle, suppressableValue, suppressNulls);
         }
 
         @Override
@@ -527,7 +651,11 @@ public class JDKArraySerializers
         public void serializeContents(float[] value, JsonGenerator g, SerializationContext provider)
             throws JacksonException
         {
+            final boolean filtered = _needToCheckFiltering(provider);
             for (int i = 0, len = value.length; i < len; ++i) {
+                if (filtered && !_shouldSerializeElement(provider, Float.valueOf(value[i]))) {
+                    continue;
+                }
                 g.writeNumber(value[i]);
             }
         }
@@ -547,20 +675,38 @@ public class JDKArraySerializers
 
         // @since 2.20
         final static DoubleArraySerializer instance = new DoubleArraySerializer();
-        
+
         public DoubleArraySerializer() { super(double[].class); }
 
         /**
          * @since 2.6
+         * @deprecated Since 3.1
          */
+        @Deprecated // since 3.1
         protected DoubleArraySerializer(DoubleArraySerializer src,
                 BeanProperty prop, Boolean unwrapSingle) {
-            super(src, prop, unwrapSingle);
+            this(src, prop, unwrapSingle, src._suppressableValue, src._suppressNulls);
         }
 
+        /**
+         * @since 3.1
+         */
+        protected DoubleArraySerializer(DoubleArraySerializer src,
+                BeanProperty prop, Boolean unwrapSingle,
+                Object suppressableValue, boolean suppressNulls) {
+            super(src, prop, unwrapSingle, suppressableValue, suppressNulls);
+        }
+
+        @Deprecated // since 3.1
         @Override
         public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
             return new DoubleArraySerializer(this, prop, unwrapSingle);
+        }
+
+        @Override
+        protected ArraySerializerBase<double[]> _withResolved(BeanProperty prop,
+                Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
+            return new DoubleArraySerializer(this, prop, unwrapSingle, suppressableValue, suppressNulls);
         }
 
         /**
@@ -605,7 +751,7 @@ public class JDKArraySerializers
             }
             return super.createContextual(ctxt, property);
         }
-        
+
         @Override
         public void serialize(double[] value, JsonGenerator g, SerializationContext ctxt)
             throws JacksonException
@@ -615,6 +761,13 @@ public class JDKArraySerializers
                 serializeContents(value, g, ctxt);
                 return;
             }
+            // Check if filtering is needed
+            if (_needToCheckFiltering(ctxt)) {
+                g.writeStartArray(value, len);
+                serializeContents(value, g, ctxt);
+                g.writeEndArray();
+                return;
+            }
             // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
             g.writeArray(value, 0, value.length);
         }
@@ -622,7 +775,11 @@ public class JDKArraySerializers
         @Override
         public void serializeContents(double[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
+            final boolean filtered = _needToCheckFiltering(ctxt);
             for (int i = 0, len = value.length; i < len; ++i) {
+                if (filtered && !_shouldSerializeElement(ctxt, Double.valueOf(value[i]))) {
+                    continue;
+                }
                 g.writeNumber(value[i]);
             }
         }

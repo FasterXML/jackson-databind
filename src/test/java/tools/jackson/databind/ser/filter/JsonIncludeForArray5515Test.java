@@ -1,12 +1,12 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.ser.filter;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -99,8 +99,7 @@ public class JsonIncludeForArray5515Test
      */
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
-            // We need something like this.
-            // .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_ARRAYS)
+            .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
             .build();
 
     /*
@@ -109,7 +108,6 @@ public class JsonIncludeForArray5515Test
     /**********************************************************
      */
 
-    @JacksonTestFailureExpected
     @Test
     public void testCustomFilterWithObjectArray() throws Exception {
         ObjectArray5155Pojo input = new ObjectArray5155Pojo(
@@ -123,7 +121,6 @@ public class JsonIncludeForArray5515Test
         );
     }
 
-    @JacksonTestFailureExpected
     @Test
     public void testCustomFilterWithStringArray() throws Exception {
         StringArray5515Pojo input = new StringArray5515Pojo(
@@ -143,7 +140,6 @@ public class JsonIncludeForArray5515Test
     /**********************************************************
      */
 
-    @JacksonTestFailureExpected
     @Test
     public void testNonDefaultWithBooleanArray() throws Exception {
         BooleanArray5515Pojo input = new BooleanArray5515Pojo(
@@ -157,7 +153,6 @@ public class JsonIncludeForArray5515Test
         );
     }
 
-    @JacksonTestFailureExpected
     @Test
     public void testNonDefaultWithIntArray() throws Exception {
         IntArray5515Pojo input = new IntArray5515Pojo(
@@ -171,7 +166,6 @@ public class JsonIncludeForArray5515Test
         );
     }
 
-    @JacksonTestFailureExpected
     @Test
     public void testNonDefaultWithLongArray() throws Exception {
         LongArray5515Pojo input = new LongArray5515Pojo(
@@ -185,7 +179,6 @@ public class JsonIncludeForArray5515Test
         );
     }
 
-    @JacksonTestFailureExpected
     @Test
     public void testNonDefaultWithDoubleArray() throws Exception {
         DoubleArray5515Pojo input = new DoubleArray5515Pojo(

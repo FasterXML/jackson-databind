@@ -92,6 +92,7 @@ public abstract class ArraySerializerBase<T>
      *
      * @since 3.1
      */
+    @SuppressWarnings("unchecked")
     protected ArraySerializerBase<T> _withResolved(BeanProperty prop,
             Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
         // Default implementation ignores content inclusion settings

@@ -1,7 +1,5 @@
 package tools.jackson.databind.ser.jdk;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -41,22 +39,6 @@ public class StringArraySerializer
      */
     protected final ValueSerializer<Object> _elementSerializer;
 
-    /**
-     * Value that indicates suppression mechanism to use for
-     * content values (elements of array), if any; null
-     * for no filtering.
-     *
-     * @since 3.1
-     */
-    protected final Object _suppressableValue;
-
-    /**
-     * Flag that indicates whether nulls should be suppressed.
-     *
-     * @since 3.1
-     */
-    protected final boolean _suppressNulls;
-
     /*
     /**********************************************************************
     /* Life-cycle
@@ -66,12 +48,9 @@ public class StringArraySerializer
     protected StringArraySerializer() {
         super(String[].class);
         _elementSerializer = null;
-        _suppressableValue = null;
-        _suppressNulls = false;
     }
 
     @Deprecated // since 3.1
-    @SuppressWarnings("unchecked")
     public StringArraySerializer(StringArraySerializer src,
             BeanProperty prop, ValueSerializer<?> ser, Boolean unwrapSingle) {
         this(src, prop, ser, unwrapSingle, null, false);
@@ -84,10 +63,8 @@ public class StringArraySerializer
     public StringArraySerializer(StringArraySerializer src,
             BeanProperty prop, ValueSerializer<?> ser, Boolean unwrapSingle,
             Object suppressableValue, boolean suppressNulls) {
-        super(src, prop, unwrapSingle);
+        super(src, prop, unwrapSingle, suppressableValue, suppressNulls);
         _elementSerializer = (ValueSerializer<Object>) ser;
-        _suppressableValue = suppressableValue;
-        _suppressNulls = suppressNulls;
     }
 
     @Override
@@ -306,19 +283,6 @@ public class StringArraySerializer
      */
 
     /**
-     * Common utility method for checking if this serializer needs to consider
-     * filtering of its elements.
-     * Returns {@code true} if filtering needs to be checked,
-     * {@code false} if not.
-     *
-     * @since 3.1
-     */
-    protected boolean _needToCheckFiltering(SerializationContext ctxt) {
-        return ((_suppressableValue != null) || _suppressNulls)
-                && ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS);
-    }
-
-    /**
      * Common utility method for checking if an element should be filtered/suppressed
      * based on @JsonInclude settings. Returns {@code true} if element should be serialized,
      * {@code false} if it should be skipped.
@@ -330,7 +294,6 @@ public class StringArraySerializer
      *
      * @since 3.1
      */
-    @SuppressWarnings("unchecked")
     protected boolean _shouldSerializeElement(SerializationContext ctxt,
             String elem, ValueSerializer<Object> serializer)
     {

@@ -1,7 +1,5 @@
 package tools.jackson.databind.ser.jdk;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -47,22 +45,6 @@ public class ObjectArraySerializer
      */
     protected ValueSerializer<Object> _elementSerializer;
 
-    /**
-     * Value that indicates suppression mechanism to use for
-     * content values (elements of array), if any; null
-     * for no filtering.
-     *
-     * @since 3.1
-     */
-    protected final Object _suppressableValue;
-
-    /**
-     * Flag that indicates whether nulls should be suppressed.
-     *
-     * @since 3.1
-     */
-    protected final boolean _suppressNulls;
-
     /*
     /**********************************************************************
     /* Life-cycle
@@ -77,8 +59,6 @@ public class ObjectArraySerializer
         _staticTyping = staticTyping;
         _valueTypeSerializer = vts;
         _elementSerializer = elementSerializer;
-        _suppressableValue = null;
-        _suppressNulls = false;
     }
 
     public ObjectArraySerializer(ObjectArraySerializer src, TypeSerializer vts)
@@ -88,12 +68,9 @@ public class ObjectArraySerializer
         _valueTypeSerializer = vts;
         _staticTyping = src._staticTyping;
         _elementSerializer = src._elementSerializer;
-        _suppressableValue = src._suppressableValue;
-        _suppressNulls = src._suppressNulls;
     }
 
     @Deprecated // since 3.1
-    @SuppressWarnings("unchecked")
     public ObjectArraySerializer(ObjectArraySerializer src,
             BeanProperty property, TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle)
@@ -109,13 +86,11 @@ public class ObjectArraySerializer
             BeanProperty property, TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls)
     {
-        super(src, property, unwrapSingle);
+        super(src, property, unwrapSingle, suppressableValue, suppressNulls);
         _elementType = src._elementType;
         _valueTypeSerializer = vts;
         _staticTyping = src._staticTyping;
         _elementSerializer = (ValueSerializer<Object>) elementSerializer;
-        _suppressableValue = suppressableValue;
-        _suppressNulls = suppressNulls;
     }
 
     @Override
@@ -415,19 +390,6 @@ public class ObjectArraySerializer
     /* Helper methods for content filtering
     /**********************************************************************
      */
-
-    /**
-     * Common utility method for checking if this serializer needs to consider
-     * filtering of its elements.
-     * Returns {@code true} if filtering needs to be checked,
-     * {@code false} if not.
-     *
-     * @since 3.1
-     */
-    protected boolean _needToCheckFiltering(SerializationContext ctxt) {
-        return ((_suppressableValue != null) || _suppressNulls)
-                && ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS);
-    }
 
     /**
      * Common utility method for checking if an element should be filtered/suppressed

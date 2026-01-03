@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -62,6 +64,30 @@ public class SingleValueAsArrayTest extends DatabindTestUtil
         }
     }
 
+    @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
+    static class IdentifiedType {
+        String entry;
+
+        @JsonCreator
+        IdentifiedType(@JsonProperty("entry") String entry)
+        {
+            this.entry = entry;
+        }
+    }
+
+    static class Bean1421D {
+        IdentifiedType[] array;
+        IdentifiedType value;
+
+        public void setValue(IdentifiedType value) {
+            this.value = value;
+        }
+
+        public void setArray(IdentifiedType[] array) {
+            this.array = array;
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -89,6 +115,17 @@ public class SingleValueAsArrayTest extends DatabindTestUtil
         List<String> expected = new ArrayList<>();
         expected.add("test2");
         assertEquals(expected, a.value);
+    }
+
+    @Test
+    public void testArrayWithObjectId() throws IOException
+    {
+        Bean1421D result = MAPPER.readValue("{\"array\":1,\"value\":{\"@id\":1,\"entry\":\"s\"}}", Bean1421D.class);
+        assertNotNull(result);
+        assertNotNull(result.value);
+        assertEquals(1, result.array.length);
+        assertNotNull(result.array[0]);
+        assertEquals("s", result.array[0].entry);
     }
 
     @Test

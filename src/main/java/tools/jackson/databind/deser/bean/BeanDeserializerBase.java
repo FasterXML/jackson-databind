@@ -139,7 +139,7 @@ public abstract class BeanDeserializerBase
     protected final Set<String> _ignorableProps;
 
     /**
-     * Keep track of the the properties that needs to be specifically included.
+     * Keep track of the properties that need to be specifically included.
      */
     protected final Set<String> _includableProps;
 

@@ -111,7 +111,7 @@ public class ObjectArraySerializer
     /**
      * @since 3.1
      */
-    public ObjectArraySerializer _withResolved(BeanProperty prop,
+    protected ObjectArraySerializer _withResolved(BeanProperty prop,
             TypeSerializer vts, ValueSerializer<?> elementSer, Boolean unwrapSingle,
             Object suppressableValue, boolean suppressNulls) {
         if ((_property == prop)

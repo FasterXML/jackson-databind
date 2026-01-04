@@ -592,7 +592,7 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
                 // [databind#5188]: Cannot use managed/back references with Records
                 if (beanDescRef.isRecordType()) {
                     ctxt.reportBadTypeDefinition(beanDescRef,
-                            "Cannot use @JsonManagedReference/@JsonBackReference with `java.lang.Record` type (property '%s')",
+                            "Cannot use `@JsonManagedReference`/`@JsonBackReference` with `java.lang.Record` type (property '%s')",
                             property.getName());
                 }
                 if (refType.isBackReference()) {

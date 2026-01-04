@@ -53,6 +53,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5184: `@JsonIgnore` on record method applied to record matching field
   at deserialization
  (reported by @emouty)
+#5188: Prevent use of unsupported `@JsonManagedReference`/`@JsonBackReference`
+  for Record-valued properties
+ (reported by @JBodkin-Amphora)
+ (implemented by @cowtowncoder, w/ Claude code)
 #5350: Add `DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES` for
   selecting `null` vs "empty/absent" value when deserializing missing `Optional` value
 #5361: Fix Maven SBOM publishing (worked in 3.0.0-rc4 but not in rc5 or later)

@@ -284,7 +284,7 @@ _containerType,
         if (p.hasToken(JsonToken.VALUE_STRING)) {
             return _deserializeFromString(p, ctxt, p.getString());
         }
-        return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
+        return _handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }
 
     @SuppressWarnings("unchecked")
@@ -303,7 +303,7 @@ _containerType,
         if (p.isExpectedStartArrayToken()) {
             return _deserializeFromArray(p, ctxt, result);
         }
-        return handleNonArray(p, ctxt, result);
+        return _handleNonArray(p, ctxt, result);
     }
 
     @Override
@@ -359,7 +359,7 @@ _containerType,
             // note: `CoercionAction.Fail` falls through because we may need to allow
             // `ACCEPT_SINGLE_VALUE_AS_ARRAY` handling later on
         }
-        return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
+        return _handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }
 
     /**
@@ -424,8 +424,8 @@ _containerType,
      * array, depending on configuration.
      */
     @SuppressWarnings("unchecked")
-    protected final Collection<Object> handleNonArray(JsonParser p, DeserializationContext ctxt,
-            Collection<Object> result)
+    protected final Collection<Object> _handleNonArray(JsonParser p,
+            DeserializationContext ctxt, Collection<Object> result)
         throws JacksonException
     {
         // Implicit arrays from single values?
@@ -483,7 +483,7 @@ _containerType,
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!p.isExpectedStartArrayToken()) {
-            return handleNonArray(p, ctxt, result);
+            return _handleNonArray(p, ctxt, result);
         }
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.assignCurrentValue(result);

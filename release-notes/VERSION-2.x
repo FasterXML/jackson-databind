@@ -34,6 +34,12 @@ Project: jackson-databind
  (implemented by @cowtowncoder, w/ Claude code)
 #5476: Support `@JsonSerializeAs` annotation
  (implemented by @cowtowncoder, w/ Claude code)
+#5541: Add missing `@JsonIdentityInfo` handling for implicit arrays with
+  `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+ (contributed by Moritz R)
+#5542: `ObjectReader.readValue()` does not fail when
+  `DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS` enabled
+ (implemented by @cowtowncoder, w/ Claude code)
 
 2.20.2 (not yet released)
 

@@ -59,7 +59,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 (date-time)#359: `InstantDeserializer` deserializes the nanosecond portion of
   fractional negative timestamps incorrectly
 #5369: Support `@JsonInclude` for `Collection`s
-  (with `SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS`)
+  (with `SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS`)
  (implementation by Joo-Hyuk K)
 #5405: `@JsonFormat(shape = Shape.POJO)` does not work for `java.util.Map`
   serialization via property annotation
@@ -86,6 +86,12 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (contributed by Jaeheon K)
 #5528: `TreeBuildingGenerator#writeNumber(String)` writes Number as String
  (reported by @gaeljw)
+#5541: Add missing `@JsonIdentityInfo` handling for implicit arrays with
+  `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+ (contributed by Moritz R)
+#5542: `ObjectReader.readValue()` does not fail when
+  `DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS` enabled
+ (implemented by @cowtowncoder, w/ Claude code)
 
 3.0.4 (not yet released)
 

@@ -86,6 +86,19 @@ public class SingleValueAsArrayTest extends DatabindTestUtil
         }
     }
 
+    static class Bean5541 {
+        IdentifiedType5537[] array;
+        IdentifiedType5537 value;
+
+        public void setValue(IdentifiedType5537 value) {
+            this.value = value;
+        }
+
+        public void setArray(IdentifiedType5537[] array) {
+            this.array = array;
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -144,5 +157,18 @@ public class SingleValueAsArrayTest extends DatabindTestUtil
         assertEquals(1, result.collection.size());
         assertNotNull(result.collection.iterator().next());
         assertEquals("s", result.collection.iterator().next().entry);
+    }
+
+    // for [databind#5541]
+    @Test
+    public void testArrayWithObjectId() throws Exception
+    {
+        Bean5541 result = MAPPER.readValue("{\"array\":1,\"value\":{\"@id\":1,\"entry\":\"s\"}}",
+                Bean5541.class);
+        assertNotNull(result);
+        assertNotNull(result.value);
+        assertEquals(1, result.array.length);
+        assertNotNull(result.array[0]);
+        assertEquals("s", result.array[0].entry);
     }
 }

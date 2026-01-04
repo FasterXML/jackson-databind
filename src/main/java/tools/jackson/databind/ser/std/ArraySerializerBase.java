@@ -60,13 +60,6 @@ public abstract class ArraySerializerBase<T>
         _suppressNulls = src._suppressNulls;
     }
 
-    @Deprecated // since 3.1
-    protected ArraySerializerBase(ArraySerializerBase<?> src, BeanProperty property,
-            Boolean unwrapSingle)
-    {
-        this(src, property, unwrapSingle, null, false);
-    }
-
     /**
      * @since 3.1
      */
@@ -79,25 +72,14 @@ public abstract class ArraySerializerBase<T>
         _suppressNulls = suppressNulls;
     }
 
-    public abstract ValueSerializer<?> _withResolved(BeanProperty prop,
-            Boolean unwrapSingle);
-
     /**
      * Factory method to use for creating differently configured instances with
-     * content inclusion settings, called by this class from #createContextual.
-     * Sub-classes should override.
-     *<p>
-     * NOTE: only implemented for backwards-compatibility with 3.0 version,
-     * otherwise would be abstract: sub-classes really need to override.
+     * content inclusion settings, called by this class from {@link #createContextual}.
      *
      * @since 3.1
      */
-    @SuppressWarnings("unchecked")
-    protected ArraySerializerBase<T> _withResolved(BeanProperty prop,
-            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
-        // Default implementation ignores content inclusion settings
-        return (ArraySerializerBase<T>) _withResolved(prop, unwrapSingle);
-    }
+    protected abstract ArraySerializerBase<T> _withResolved(BeanProperty prop,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls);
 
     @Override
     public ValueSerializer<?> createContextual(SerializationContext serializers,

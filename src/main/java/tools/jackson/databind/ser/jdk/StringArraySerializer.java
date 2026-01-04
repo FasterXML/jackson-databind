@@ -50,12 +50,6 @@ public class StringArraySerializer
         _elementSerializer = null;
     }
 
-    @Deprecated // since 3.1
-    public StringArraySerializer(StringArraySerializer src,
-            BeanProperty prop, ValueSerializer<?> ser, Boolean unwrapSingle) {
-        this(src, prop, ser, unwrapSingle, null, false);
-    }
-
     /**
      * @since 3.1
      */
@@ -68,9 +62,10 @@ public class StringArraySerializer
     }
 
     @Override
-    public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+    public StringArraySerializer _withResolved(BeanProperty prop, Boolean unwrapSingle,
+            Object suppressableValue, boolean suppressNulls) {
         return new StringArraySerializer(this, prop, _elementSerializer, unwrapSingle,
-                _suppressableValue, _suppressNulls);
+                suppressableValue, suppressNulls);
     }
 
     /**

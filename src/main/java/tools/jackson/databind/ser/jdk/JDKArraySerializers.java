@@ -80,12 +80,6 @@ public class JDKArraySerializers
             super(cls);
         }
 
-        @Deprecated // since 3.1
-        protected TypedPrimitiveArraySerializer(TypedPrimitiveArraySerializer<T> src,
-                BeanProperty prop, Boolean unwrapSingle) {
-            this(src, prop, unwrapSingle, src._suppressableValue, src._suppressNulls);
-        }
-
         /**
          * @since 3.1
          */
@@ -119,12 +113,6 @@ public class JDKArraySerializers
 
         public BooleanArraySerializer() { super(boolean[].class); }
 
-        @Deprecated // since 3.1
-        protected BooleanArraySerializer(BooleanArraySerializer src,
-                BeanProperty prop, Boolean unwrapSingle) {
-            this(src, prop, unwrapSingle, src._suppressableValue, src._suppressNulls);
-        }
-
         /**
          * @since 3.1
          */
@@ -132,12 +120,6 @@ public class JDKArraySerializers
                 BeanProperty prop, Boolean unwrapSingle,
                 Object suppressableValue, boolean suppressNulls) {
             super(src, prop, unwrapSingle, suppressableValue, suppressNulls);
-        }
-
-        @Deprecated // @since 3.1
-        @Override
-        public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
-            return new BooleanArraySerializer(this, prop, unwrapSingle);
         }
 
         @Override
@@ -177,25 +159,25 @@ public class JDKArraySerializers
         }
 
         @Override
-        public final void serialize(boolean[] value, JsonGenerator g, SerializationContext provider) throws JacksonException
+        public final void serialize(boolean[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(provider)) {
-                serializeContents(value, g, provider);
+            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+                serializeContents(value, g, ctxt);
                 return;
             }
             g.writeStartArray(value, len);
-            serializeContents(value, g, provider);
+            serializeContents(value, g, ctxt);
             g.writeEndArray();
         }
 
         @Override
-        public void serializeContents(boolean[] value, JsonGenerator g, SerializationContext provider)
+        public void serializeContents(boolean[] value, JsonGenerator g, SerializationContext ctxt)
             throws JacksonException
         {
-            final boolean filtered = _needToCheckFiltering(provider);
+            final boolean filtered = _needToCheckFiltering(ctxt);
             for (int i = 0, len = value.length; i < len; ++i) {
-                if (filtered && !_shouldSerializeElement(provider, Boolean.valueOf(value[i]))) {
+                if (filtered && !_shouldSerializeElement(ctxt, Boolean.valueOf(value[i]))) {
                     continue;
                 }
                 g.writeBoolean(value[i]);
@@ -217,24 +199,12 @@ public class JDKArraySerializers
 
         public ShortArraySerializer() { super(short[].class); }
 
-        @Deprecated // since 3.1
-        public ShortArraySerializer(ShortArraySerializer src, BeanProperty prop,
-                 Boolean unwrapSingle) {
-            this(src, prop, unwrapSingle, src._suppressableValue, src._suppressNulls);
-        }
-
         /**
          * @since 3.1
          */
         protected ShortArraySerializer(ShortArraySerializer src, BeanProperty prop,
                 Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
             super(src, prop, unwrapSingle, suppressableValue, suppressNulls);
-        }
-
-        @Deprecated // since 3.1
-        @Override
-        public ValueSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
-            return new ShortArraySerializer(this, prop, unwrapSingle);
         }
 
         @Override
@@ -265,25 +235,25 @@ public class JDKArraySerializers
         }
 
         @Override
-        public final void serialize(short[] value, JsonGenerator g, SerializationContext provider) throws JacksonException
+        public final void serialize(short[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(provider)) {
-                serializeContents(value, g, provider);
+            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+                serializeContents(value, g, ctxt);
                 return;
             }
             g.writeStartArray(value, len);
-            serializeContents(value, g, provider);
+            serializeContents(value, g, ctxt);
             g.writeEndArray();
         }
 
         @Override
-        public void serializeContents(short[] value, JsonGenerator g, SerializationContext provider)
+        public void serializeContents(short[] value, JsonGenerator g, SerializationContext ctxt)
             throws JacksonException
         {
-            final boolean filtered = _needToCheckFiltering(provider);
+            final boolean filtered = _needToCheckFiltering(ctxt);
             for (int i = 0, len = value.length; i < len; ++i) {
-                if (filtered && !_shouldSerializeElement(provider, Short.valueOf(value[i]))) {
+                if (filtered && !_shouldSerializeElement(ctxt, Short.valueOf(value[i]))) {
                     continue;
                 }
                 g.writeNumber((int)value[i]);
@@ -315,11 +285,11 @@ public class JDKArraySerializers
         }
 
         @Override
-        public void serialize(char[] value, JsonGenerator g, SerializationContext provider)
+        public void serialize(char[] value, JsonGenerator g, SerializationContext ctxt)
             throws JacksonException
         {
             // [JACKSON-289] allows serializing as 'sparse' char array too:
-            if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
+            if (ctxt.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
                 g.writeStartArray(value, value.length);
                 _writeArrayContents(g, value);
                 g.writeEndArray();
@@ -371,12 +341,6 @@ public class JDKArraySerializers
 
         public IntArraySerializer() { super(int[].class); }
 
-        @Deprecated // since 3.1
-        protected IntArraySerializer(IntArraySerializer src,
-                BeanProperty prop, Boolean unwrapSingle) {
-            this(src, prop, unwrapSingle, src._suppressableValue, src._suppressNulls);
-        }
-
         /**
          * @since 3.1
          */
@@ -384,12 +348,6 @@ public class JDKArraySerializers
                 BeanProperty prop, Boolean unwrapSingle,
                 Object suppressableValue, boolean suppressNulls) {
             super(src, prop, unwrapSingle, suppressableValue, suppressNulls);
-        }
-
-        @Deprecated // since 3.1
-        @Override
-        public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
-            return new IntArraySerializer(this, prop, unwrapSingle);
         }
 
         @Override
@@ -429,17 +387,17 @@ public class JDKArraySerializers
         }
 
         @Override
-        public final void serialize(int[] value, JsonGenerator g, SerializationContext provider) throws JacksonException
+        public final void serialize(int[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(provider)) {
-                serializeContents(value, g, provider);
+            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+                serializeContents(value, g, ctxt);
                 return;
             }
             // Check if filtering is needed
-            if (_needToCheckFiltering(provider)) {
+            if (_needToCheckFiltering(ctxt)) {
                 g.writeStartArray(value, len);
-                serializeContents(value, g, provider);
+                serializeContents(value, g, ctxt);
                 g.writeEndArray();
                 return;
             }
@@ -448,12 +406,12 @@ public class JDKArraySerializers
         }
 
         @Override
-        public void serializeContents(int[] value, JsonGenerator g, SerializationContext provider)
+        public void serializeContents(int[] value, JsonGenerator g, SerializationContext ctxt)
             throws JacksonException
         {
-            final boolean filtered = _needToCheckFiltering(provider);
+            final boolean filtered = _needToCheckFiltering(ctxt);
             for (int i = 0, len = value.length; i < len; ++i) {
-                if (filtered && !_shouldSerializeElement(provider, Integer.valueOf(value[i]))) {
+                if (filtered && !_shouldSerializeElement(ctxt, Integer.valueOf(value[i]))) {
                     continue;
                 }
                 g.writeNumber(value[i]);
@@ -475,24 +433,12 @@ public class JDKArraySerializers
 
         public LongArraySerializer() { super(long[].class); }
 
-        @Deprecated // since 3.1
-        public LongArraySerializer(LongArraySerializer src, BeanProperty prop,
-                Boolean unwrapSingle) {
-            this(src, prop, unwrapSingle, src._suppressableValue, src._suppressNulls);
-        }
-
         /**
          * @since 3.1
          */
         protected LongArraySerializer(LongArraySerializer src, BeanProperty prop,
                 Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
             super(src, prop, unwrapSingle, suppressableValue, suppressNulls);
-        }
-
-        @Deprecated // since 3.1
-        @Override
-        public ValueSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
-            return new LongArraySerializer(this, prop, unwrapSingle);
         }
 
         @Override
@@ -523,17 +469,17 @@ public class JDKArraySerializers
         }
 
         @Override
-        public final void serialize(long[] value, JsonGenerator g, SerializationContext provider) throws JacksonException
+        public final void serialize(long[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(provider)) {
-                serializeContents(value, g, provider);
+            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+                serializeContents(value, g, ctxt);
                 return;
             }
             // Check if filtering is needed
-            if (_needToCheckFiltering(provider)) {
+            if (_needToCheckFiltering(ctxt)) {
                 g.writeStartArray(value, len);
-                serializeContents(value, g, provider);
+                serializeContents(value, g, ctxt);
                 g.writeEndArray();
                 return;
             }
@@ -542,12 +488,12 @@ public class JDKArraySerializers
         }
 
         @Override
-        public void serializeContents(long[] value, JsonGenerator g, SerializationContext provider)
+        public void serializeContents(long[] value, JsonGenerator g, SerializationContext ctxt)
             throws JacksonException
         {
-            final boolean filtered = _needToCheckFiltering(provider);
+            final boolean filtered = _needToCheckFiltering(ctxt);
             for (int i = 0, len = value.length; i < len; ++i) {
-                if (filtered && !_shouldSerializeElement(provider, Long.valueOf(value[i]))) {
+                if (filtered && !_shouldSerializeElement(ctxt, Long.valueOf(value[i]))) {
                     continue;
                 }
                 g.writeNumber(value[i]);
@@ -574,24 +520,12 @@ public class JDKArraySerializers
             super(float[].class);
         }
 
-        @Deprecated // since 3.1
-        public FloatArraySerializer(FloatArraySerializer src, BeanProperty prop,
-                Boolean unwrapSingle) {
-            this(src, prop, unwrapSingle, src._suppressableValue, src._suppressNulls);
-        }
-
         /**
          * @since 3.1
          */
         protected FloatArraySerializer(FloatArraySerializer src, BeanProperty prop,
                 Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
             super(src, prop, unwrapSingle, suppressableValue, suppressNulls);
-        }
-
-        @Deprecated // since 3.1
-        @Override
-        public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
-            return new FloatArraySerializer(this, prop, unwrapSingle);
         }
 
         @Override
@@ -648,12 +582,12 @@ public class JDKArraySerializers
         }
 
         @Override
-        public void serializeContents(float[] value, JsonGenerator g, SerializationContext provider)
+        public void serializeContents(float[] value, JsonGenerator g, SerializationContext ctxt)
             throws JacksonException
         {
-            final boolean filtered = _needToCheckFiltering(provider);
+            final boolean filtered = _needToCheckFiltering(ctxt);
             for (int i = 0, len = value.length; i < len; ++i) {
-                if (filtered && !_shouldSerializeElement(provider, Float.valueOf(value[i]))) {
+                if (filtered && !_shouldSerializeElement(ctxt, Float.valueOf(value[i]))) {
                     continue;
                 }
                 g.writeNumber(value[i]);
@@ -679,28 +613,12 @@ public class JDKArraySerializers
         public DoubleArraySerializer() { super(double[].class); }
 
         /**
-         * @since 2.6
-         * @deprecated Since 3.1
-         */
-        @Deprecated // since 3.1
-        protected DoubleArraySerializer(DoubleArraySerializer src,
-                BeanProperty prop, Boolean unwrapSingle) {
-            this(src, prop, unwrapSingle, src._suppressableValue, src._suppressNulls);
-        }
-
-        /**
          * @since 3.1
          */
         protected DoubleArraySerializer(DoubleArraySerializer src,
                 BeanProperty prop, Boolean unwrapSingle,
                 Object suppressableValue, boolean suppressNulls) {
             super(src, prop, unwrapSingle, suppressableValue, suppressNulls);
-        }
-
-        @Deprecated // since 3.1
-        @Override
-        public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
-            return new DoubleArraySerializer(this, prop, unwrapSingle);
         }
 
         @Override

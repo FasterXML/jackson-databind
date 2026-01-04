@@ -94,10 +94,11 @@ public class ObjectArraySerializer
     }
 
     @Override
-    public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+    public ObjectArraySerializer _withResolved(BeanProperty prop, Boolean unwrapSingle,
+            Object suppressableValue, boolean suppressNulls) {
         return new ObjectArraySerializer(this, prop,
                 _valueTypeSerializer, _elementSerializer, unwrapSingle,
-                _suppressableValue, _suppressNulls);
+                suppressableValue, suppressNulls);
     }
 
     @Override

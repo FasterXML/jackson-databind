@@ -17,6 +17,7 @@
 package tools.jackson.databind.ext.javatime.ser;
 
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
@@ -85,6 +86,11 @@ public abstract class InstantSerializerBase<T extends Temporal>
     public void serialize(T value, JsonGenerator generator, SerializationContext ctxt)
         throws JacksonException
     {
+        // Apply millisecond truncation if enabled
+        if (ctxt.isEnabled(DateTimeFeature.TRUNCATE_TO_MSECS_ON_WRITE)) {
+            value = _truncateToMillis(value);
+        }
+
         if (useTimestamp(ctxt)) {
             if (useNanoseconds(ctxt)) {
                 generator.writeNumber(DecimalUtils.toBigDecimal(
@@ -144,5 +150,19 @@ public abstract class InstantSerializerBase<T extends Temporal>
         }
 
         return value.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected T _truncateToMillis(T value) {
+        // Handle concrete types that support truncation
+        if (value instanceof java.time.Instant inst) {
+            return (T) inst.truncatedTo(ChronoUnit.MILLIS);
+        } else if (value instanceof java.time.OffsetDateTime odt) {
+            return (T) odt.truncatedTo(ChronoUnit.MILLIS);
+        } else if (value instanceof java.time.ZonedDateTime zdt) {
+            return (T) zdt.truncatedTo(ChronoUnit.MILLIS);
+        }
+        // Return as-is if type doesn't support truncation
+        return value;
     }
 }

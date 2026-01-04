@@ -3,6 +3,7 @@ package tools.jackson.databind.ser.jdk;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
@@ -13,6 +14,8 @@ import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.ArraySerializerBase;
 import tools.jackson.databind.ser.std.StdContainerSerializer;
+import tools.jackson.databind.util.ArrayBuilders;
+import tools.jackson.databind.util.BeanUtil;
 
 /**
  * Generic serializer for Object arrays (<code>Object[]</code>).
@@ -21,6 +24,8 @@ import tools.jackson.databind.ser.std.StdContainerSerializer;
 public class ObjectArraySerializer
     extends ArraySerializerBase<Object[]>
 {
+    protected final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
+
     /**
      * Whether we are using static typing (using declared types, ignoring
      * runtime type) or not for elements.
@@ -67,12 +72,23 @@ public class ObjectArraySerializer
         _elementSerializer = src._elementSerializer;
     }
 
-    @SuppressWarnings("unchecked")
+    @Deprecated // since 3.1
     public ObjectArraySerializer(ObjectArraySerializer src,
             BeanProperty property, TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle)
     {
-        super(src,  property, unwrapSingle);
+        this(src, property, vts, elementSerializer, unwrapSingle, null, false);
+    }
+
+    /**
+     * @since 3.1
+     */
+    @SuppressWarnings("unchecked")
+    public ObjectArraySerializer(ObjectArraySerializer src,
+            BeanProperty property, TypeSerializer vts, ValueSerializer<?> elementSerializer,
+            Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls)
+    {
+        super(src, property, unwrapSingle, suppressableValue, suppressNulls);
         _elementType = src._elementType;
         _valueTypeSerializer = vts;
         _staticTyping = src._staticTyping;
@@ -80,9 +96,11 @@ public class ObjectArraySerializer
     }
 
     @Override
-    public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+    public ObjectArraySerializer _withResolved(BeanProperty prop, Boolean unwrapSingle,
+            Object suppressableValue, boolean suppressNulls) {
         return new ObjectArraySerializer(this, prop,
-                _valueTypeSerializer, _elementSerializer, unwrapSingle);
+                _valueTypeSerializer, _elementSerializer, unwrapSingle,
+                suppressableValue, suppressNulls);
     }
 
     @Override
@@ -90,13 +108,23 @@ public class ObjectArraySerializer
         return new ObjectArraySerializer(_elementType, _staticTyping, vts, _elementSerializer);
     }
 
-    public ObjectArraySerializer withResolved(BeanProperty prop,
-            TypeSerializer vts, ValueSerializer<?> ser, Boolean unwrapSingle) {
-        if ((_property == prop) && (ser == _elementSerializer)
-                && (_valueTypeSerializer == vts) && (Objects.equals(_unwrapSingle, unwrapSingle))) {
+    /**
+     * @since 3.1
+     */
+    protected ObjectArraySerializer _withResolved(BeanProperty prop,
+            TypeSerializer vts, ValueSerializer<?> elementSer, Boolean unwrapSingle,
+            Object suppressableValue, boolean suppressNulls) {
+        if ((_property == prop)
+                && (_valueTypeSerializer == vts)
+                && (_elementSerializer == elementSer)
+                && Objects.equals(_unwrapSingle, unwrapSingle)
+                && Objects.equals(_suppressableValue, suppressableValue)
+                && (_suppressNulls == suppressNulls)
+        ) {
             return this;
         }
-        return new ObjectArraySerializer(this, prop, vts, ser, unwrapSingle);
+        return new ObjectArraySerializer(this, prop, vts, elementSer, unwrapSingle,
+                suppressableValue, suppressNulls);
     }
 
     /*
@@ -143,7 +171,55 @@ public class ObjectArraySerializer
                 }
             }
         }
-        return withResolved(property, vts, ser, unwrapSingle);
+
+        // [databind#5515]: Handle content inclusion for arrays
+        JsonInclude.Value inclV = findIncludeOverrides(ctxt, property, handledType());
+        Object valueToSuppress = _suppressableValue;
+        boolean suppressNulls = _suppressNulls;
+
+        if (inclV != null) {
+            JsonInclude.Include incl = inclV.getContentInclusion();
+            if (incl != JsonInclude.Include.USE_DEFAULTS) {
+                switch (incl) {
+                    case NON_DEFAULT:
+                        valueToSuppress = BeanUtil.getDefaultValue(_elementType);
+                        suppressNulls = true;
+                        if (valueToSuppress != null) {
+                            if (valueToSuppress.getClass().isArray()) {
+                                valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
+                            }
+                        }
+                        break;
+                    case NON_ABSENT:
+                        suppressNulls = true;
+                        valueToSuppress = MARKER_FOR_EMPTY;
+                        break;
+                    case NON_EMPTY:
+                        suppressNulls = true;
+                        valueToSuppress = MARKER_FOR_EMPTY;
+                        break;
+                    case CUSTOM:
+                        valueToSuppress = ctxt.includeFilterInstance(null, inclV.getContentFilter());
+                        if (valueToSuppress == null) {
+                            suppressNulls = true;
+                        } else {
+                            suppressNulls = ctxt.includeFilterSuppressNulls(valueToSuppress);
+                        }
+                        break;
+                    case NON_NULL:
+                        valueToSuppress = null;
+                        suppressNulls = true;
+                        break;
+                    case ALWAYS:
+                    default:
+                        valueToSuppress = null;
+                        suppressNulls = false;
+                        break;
+                }
+            }
+        }
+
+        return _withResolved(property, vts, ser, unwrapSingle, valueToSuppress, suppressNulls);
     }
 
     /*
@@ -212,12 +288,16 @@ public class ObjectArraySerializer
             serializeTypedContents(value, g, ctxt);
             return;
         }
+        final boolean filtered = _needToCheckFiltering(ctxt);
         int i = 0;
         Object elem = null;
         try {
             for (; i < len; ++i) {
                 elem = value[i];
                 if (elem == null) {
+                    if (filtered && _suppressNulls) {
+                        continue;
+                    }
                     ctxt.defaultSerializeNullValue(g);
                     continue;
                 }
@@ -231,6 +311,10 @@ public class ObjectArraySerializer
                         serializer = _findAndAddDynamic(ctxt, cc);
                     }
                 }
+                // Check if this element should be suppressed (only in filtered mode)
+                if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
+                    continue;
+                }
                 serializer.serialize(elem, g, ctxt);
             }
         } catch (Exception e) {
@@ -238,11 +322,13 @@ public class ObjectArraySerializer
         }
     }
 
-    public void serializeContentsUsing(Object[] value, JsonGenerator g, SerializationContext provider,
-            ValueSerializer<Object> ser) throws JacksonException
+    public void serializeContentsUsing(Object[] value, JsonGenerator g,
+            SerializationContext ctxt, ValueSerializer<Object> ser)
+        throws JacksonException
     {
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
+        final boolean filtered = _needToCheckFiltering(ctxt);
 
         int i = 0;
         Object elem = null;
@@ -250,17 +336,24 @@ public class ObjectArraySerializer
             for (; i < len; ++i) {
                 elem = value[i];
                 if (elem == null) {
-                    provider.defaultSerializeNullValue(g);
+                    if (filtered && _suppressNulls) {
+                        continue;
+                    }
+                    ctxt.defaultSerializeNullValue(g);
+                    continue;
+                }
+                // Check if this element should be suppressed (only in filtered mode)
+                if (filtered && !_shouldSerializeElement(ctxt, elem, ser)) {
                     continue;
                 }
                 if (typeSer == null) {
-                    ser.serialize(elem, g, provider);
+                    ser.serialize(elem, g, ctxt);
                 } else {
-                    ser.serializeWithType(elem, g, provider, typeSer);
+                    ser.serializeWithType(elem, g, ctxt, typeSer);
                 }
             }
         } catch (Exception e) {
-            wrapAndThrow(provider, e, elem, i);
+            wrapAndThrow(ctxt, e, elem, i);
         }
     }
 
@@ -269,12 +362,16 @@ public class ObjectArraySerializer
     {
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
+        final boolean filtered = _needToCheckFiltering(ctxt);
         int i = 0;
         Object elem = null;
         try {
             for (; i < len; ++i) {
                 elem = value[i];
                 if (elem == null) {
+                    if (filtered && _suppressNulls) {
+                        continue;
+                    }
                     ctxt.defaultSerializeNullValue(g);
                     continue;
                 }
@@ -283,11 +380,52 @@ public class ObjectArraySerializer
                 if (serializer == null) {
                     serializer = _findAndAddDynamic(ctxt, cc);
                 }
+                // Check if this element should be suppressed (only in filtered mode)
+                if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
+                    continue;
+                }
                 serializer.serializeWithType(elem, g, ctxt, typeSer);
             }
         } catch (Exception e) {
             wrapAndThrow(ctxt, e, elem, i);
         }
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods for content filtering
+    /**********************************************************************
+     */
+
+    /**
+     * Common utility method for checking if an element should be filtered/suppressed
+     * based on @JsonInclude settings. Returns {@code true} if element should be serialized,
+     * {@code false} if it should be skipped.
+     *
+     * @param ctxt Serialization context
+     * @param elem Element to check for suppression
+     * @param serializer Serializer for the element (may be null for strings)
+     * @return true if element should be serialized, false if suppressed
+     *
+     * @since 3.1
+     */
+    protected boolean _shouldSerializeElement(SerializationContext ctxt,
+            Object elem, ValueSerializer<Object> serializer)
+    {
+        if (_suppressableValue == null) {
+            return true;
+        }
+        if (_suppressableValue == MARKER_FOR_EMPTY) {
+            if (serializer != null) {
+                return !serializer.isEmpty(ctxt, elem);
+            }
+            // For strings, check emptiness directly
+            if (elem instanceof String str) {
+                return !str.isEmpty();
+            }
+            return true;
+        }
+        return !_suppressableValue.equals(elem);
     }
 
     @Override

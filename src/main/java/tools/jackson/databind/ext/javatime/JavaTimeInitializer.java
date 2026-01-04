@@ -171,6 +171,9 @@ public final class JavaTimeInitializer
                 // because we will (for now) be getting a subtype, but in future may want to downgrade
                 // to the common base type. Even more, serializer may purposefully force use of base type.
                 // So... in practice it really should always work, in the end. :)
+
+                // 30-Dec-2025, tatu: Does not seem to get called, ever... remove from 3.2?
+                //   (or try to reproduce case where this would be needed?)
                 if (ZoneId.class.isAssignableFrom(raw)) {
                     // let's assume we should be getting "empty" StdValueInstantiator here:
                     if (defaultInstantiator instanceof StdValueInstantiator inst) {
@@ -199,21 +202,22 @@ public final class JavaTimeInitializer
         });
     }
 
+    // 30-Dec-2025, tatu: Does not seem to get called, ever... remove from 3.2?
     private AnnotatedMethod _findFactory(AnnotatedClass cls, String name, Class<?>... argTypes)
     {
         final int argCount = argTypes.length;
+        main_loop:
         for (AnnotatedMethod method : cls.getFactoryMethods()) {
-            if (!name.equals(method.getName())
-                    || (method.getParameterCount() != argCount)) {
-                continue;
-            }
-            for (int i = 0; i < argCount; ++i) {
-                Class<?> argType = method.getParameter(i).getRawType();
-                if (!argType.isAssignableFrom(argTypes[i])) {
-                    continue;
+            if (name.equals(method.getName())
+                    && (method.getParameterCount() == argCount)) {
+                for (int i = 0; i < argCount; ++i) {
+                    Class<?> argType = method.getParameter(i).getRawType();
+                    if (!argType.isAssignableFrom(argTypes[i])) {
+                        continue main_loop;
+                    }
                 }
+                return method;
             }
-            return method;
         }
         return null;
     }

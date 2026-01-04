@@ -487,12 +487,17 @@ public abstract class SerializationContext
     }
 
     /**
-     * Accessor for checking whether input format has specified capability
-     * or not.
+     * Accessor for checking whether input format has specified capability or not.
      *
      * @return True if input format has specified capability; false if not
      */
     public final boolean isEnabled(StreamWriteCapability cap) {
+        // 29-Dec-2025, PJF: Not all format modules have been updated to call _assignGenerator directly
+        // https://github.com/FasterXML/jackson-dataformat-xml/issues/793
+
+        if (_writeCapabilities == null && _generator != null) {
+            _assignGenerator(_generator);
+        }
         Objects.requireNonNull(_writeCapabilities,
                 "_writeCapabilities not set for `SerializationContext`");
         return _writeCapabilities.isEnabled(cap);

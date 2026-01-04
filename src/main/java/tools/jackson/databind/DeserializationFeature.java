@@ -116,6 +116,17 @@ public enum DeserializationFeature implements ConfigFeature
      */
     USE_NULL_FOR_MISSING_REFERENCE_VALUES(false),
 
+    /**
+     * Feature that determines whether a POJO property annotated with
+     * {@link com.fasterxml.jackson.annotation.JsonUnwrapped} should remain {@code null}
+     * when no unwrapped properties are found in the input JSON.
+     * <p>
+     * Feature is disabled by default.
+     *
+     * @since 3.1
+     */
+    USE_NULL_FOR_EMPTY_UNWRAPPED(false),
+
     /*
     /**********************************************************************
     /* Error handling features

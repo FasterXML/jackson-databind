@@ -139,7 +139,7 @@ public abstract class BeanDeserializerBase
     protected final Set<String> _ignorableProps;
 
     /**
-     * Keep track of the the properties that needs to be specifically included.
+     * Keep track of the properties that need to be specifically included.
      */
     protected final Set<String> _includableProps;
 
@@ -637,8 +637,8 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
 
         if (unwrapped != null) { // we consider this non-standard, to offline handling
             _nonStandardCreation = true;
-            // [databind#650]: Initialize nested property names cache for hasUnwrappedProperty()
-            _unwrappedPropertyHandler = unwrapped.initializedNestedPropertyNames();
+            // [databind#650]: Initialize unwrapped property names for hasUnwrappedProperty()
+            _unwrappedPropertyHandler = unwrapped.initializeUnwrappedPropertyNames();
         } else {
             _unwrappedPropertyHandler = null;
         }
@@ -1212,7 +1212,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             names.add(prop.getName());
         }
         if (_unwrappedPropertyHandler != null) {
-            _unwrappedPropertyHandler.collectNestedPropertyNamesTo(names);
+            _unwrappedPropertyHandler.collectUnwrappedPropertyNamesTo(names);
         }
     }
 

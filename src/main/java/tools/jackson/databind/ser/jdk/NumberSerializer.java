@@ -47,18 +47,18 @@ public class NumberSerializer
     }
 
     @Override
-    public ValueSerializer<?> createContextual(SerializationContext prov,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property)
     {
-        JsonFormat.Value format = findFormatOverrides(prov, property, handledType());
+        JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
         if (format != null) {
             switch (format.getShape()) {
             case STRING:
                 // [databind#2264]: Need special handling for `BigDecimal`
-                if (((Class<?>) handledType()) == BigDecimal.class) {
+                if (handledType() == BigDecimal.class) {
                     return bigDecimalAsStringSerializer();
                 }
-                return ToStringSerializer.instance;
+                return NumberSerializer.createStringSerializer(ctxt, format, _isInt);
             default:
             }
         }
@@ -66,7 +66,8 @@ public class NumberSerializer
     }
 
     @Override
-    public void serialize(Number value, JsonGenerator g, SerializationContext provider) throws JacksonException
+    public void serialize(Number value, JsonGenerator g, SerializationContext ctxt)
+        throws JacksonException
     {
         // should mostly come in as one of these two:
         if (value instanceof BigDecimal bd) {
@@ -106,8 +107,30 @@ public class NumberSerializer
     }
 
     /**
-     * @since 2.10
+     * Method used to create a string serializer for a number. If the number is integer, and configuration is set properly,
+     * we create an alternative radix serializer {@link NumberToStringWithRadixSerializer}.
+     *
+     * @since 3.1
      */
+    public static ToStringSerializerBase createStringSerializer(SerializationContext ctxt,
+            JsonFormat.Value format, boolean isInt) {
+        if (isInt && _hasRadixOverride(format)) {
+            int radix = format.getRadix();
+            return new NumberToStringWithRadixSerializer(radix);
+        }
+        return ToStringSerializer.instance;
+    }
+
+    /**
+     * Check if we have a proper {@link JsonFormat} annotation for serializing a number
+     * using an alternative radix specified in the annotation.
+     *
+     * @since 3.1
+     */
+    private static boolean _hasRadixOverride(JsonFormat.Value format) {
+        return format.hasNonDefaultRadix();
+    }
+
     public static ValueSerializer<?> bigDecimalAsStringSerializer() {
         return BigDecimalAsStringSerializer.BD_INSTANCE;
     }
@@ -129,7 +152,7 @@ public class NumberSerializer
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator gen, SerializationContext provider)
+        public void serialize(Object value, JsonGenerator gen, SerializationContext ctxt)
             throws JacksonException
         {
             final String text;
@@ -142,7 +165,7 @@ public class NumberSerializer
                     final String errorMsg = String.format(
 "Attempt to write plain `java.math.BigDecimal` (see JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN) with illegal scale (%d): needs to be between [-%d, %d]",
 bd.scale(), MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE);
-                    provider.reportMappingProblem(errorMsg);
+                    ctxt.reportMappingProblem(errorMsg);
                 }
                 text = bd.toPlainString();
             } else {

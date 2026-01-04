@@ -897,6 +897,7 @@ public class BeanDeserializer
             injectValues(ctxt, bean);
         }
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
+        boolean hasUnwrappedContent = false;
 
         for (int ix = p.currentNameMatch(_propNameMatcher); ; ix = p.nextNameMatch(_propNameMatcher)) {
             if (ix >= 0) { // common case
@@ -931,6 +932,7 @@ public class BeanDeserializer
             //    we can do.
             // 19-Dec-2025: [databind#650] We can now distinguish the cases
             if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
+                hasUnwrappedContent = true;
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
                 continue;
@@ -951,7 +953,7 @@ public class BeanDeserializer
             }
         }
         tokens.writeEndObject();
-        _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
+        _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens, hasUnwrappedContent);
         return bean;
     }
 
@@ -967,6 +969,8 @@ public class BeanDeserializer
         TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
+        boolean hasUnwrappedContent = false;
+
         for (int ix = p.currentNameMatch(_propNameMatcher); ; ix = p.nextNameMatch(_propNameMatcher)) {
             if (ix >= 0) { // common case
                 p.nextToken();
@@ -999,6 +1003,7 @@ public class BeanDeserializer
             //    we can do.
             // 19-Dec-2025: [databind#650] We can now distinguish the cases
             if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
+                hasUnwrappedContent = true;
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
             } else if (_anySetter == null) {
@@ -1016,7 +1021,7 @@ public class BeanDeserializer
             }
         }
         tokens.writeEndObject();
-        _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
+        _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens, hasUnwrappedContent);
         return bean;
     }
 
@@ -1035,6 +1040,7 @@ public class BeanDeserializer
         tokens.writeStartObject();
 
         final boolean isRecord = _beanType.isRecordType();
+        boolean hasUnwrappedContent = false;
         JsonToken t = p.currentToken();
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
@@ -1081,6 +1087,7 @@ public class BeanDeserializer
             // 19-Dec-2025: [databind#650] We can now distinguish the cases
             // but... others should be passed to unwrapped property deserializers
             if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
+                hasUnwrappedContent = true;
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
             } else if (_anySetter == null) {
@@ -1135,7 +1142,7 @@ public class BeanDeserializer
             return ctxt.reportInputMismatch(_beanType,
                     "Cannot create polymorphic instances with unwrapped values");
         }
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
+        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens, hasUnwrappedContent);
     }
 
     /*

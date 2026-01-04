@@ -256,6 +256,24 @@ public enum SerializationFeature implements ConfigFeature
      */
     FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY(false),
 
+    /**
+     * Feature that determines whether {@code JsonInclude#content()} configured
+     * filtering is applied to elements of {@link java.util.Collection} and
+     * array valued properties.
+     * By default, {@code content()} inclusion rules are only applied to
+     * {@code Map} values and reference type contents, and are ignored for
+     * {@code Collection} and array elements.
+     * <p>
+     * When this feature is enabled, {@code JsonInclude#content()} rules
+     * are used for filtering {@code Collection} and array elements during serialization.
+     * <p>
+     * This feature is <b>disabled by default</b> for backwards
+     * compatibility.
+     *
+     * @since 3.1
+     */
+    APPLY_JSON_INCLUDE_FOR_CONTAINERS(false),
+
     /*
     /**********************************************************************
     /* Other

@@ -224,7 +224,46 @@ public enum DateTimeFeature implements DatatypeFeature
      * NOT timestamps.
      */
     WRITE_DURATIONS_AS_TIMESTAMPS(false),
-    
+
+    /**
+     * Feature that determines whether time values with nanosecond precision
+     * should have their nanoseconds truncated to milliseconds <b>after</b> deserialization,
+     * before returning the value to the caller.
+     * <p>
+     * When enabled, all {@code java.time} types with nanosecond precision
+     * ({@link java.time.Instant}, {@link java.time.LocalDateTime}, {@link java.time.LocalTime},
+     * {@link java.time.OffsetDateTime}, {@link java.time.OffsetTime}, {@link java.time.ZonedDateTime},
+     * {@link java.time.Duration}) will have nanoseconds beyond millisecond precision cleared
+     * (nanoseconds 0-999,999,999 will become 0-999,000,000 in multiples of 1,000,000).
+     * <p>
+     * This feature works independently of {@link #READ_DATE_TIMESTAMPS_AS_NANOSECONDS}
+     * and affects all deserialization paths (numeric timestamps AND textual ISO-8601 strings).
+     * <p>
+     * Feature is disabled by default to preserve full nanosecond precision.
+     *
+     * @since 3.1
+     */
+    TRUNCATE_TO_MSECS_ON_READ(false),
+
+    /**
+     * Feature that determines whether time values with nanosecond precision
+     * should have their nanoseconds truncated to milliseconds <b>before</b> serialization.
+     * <p>
+     * When enabled, all {@code java.time} types with nanosecond precision
+     * ({@link java.time.Instant}, {@link java.time.LocalDateTime}, {@link java.time.LocalTime},
+     * {@link java.time.OffsetDateTime}, {@link java.time.OffsetTime}, {@link java.time.ZonedDateTime},
+     * {@link java.time.Duration}) will have nanoseconds beyond millisecond precision cleared
+     * before serialization (nanoseconds 0-999,999,999 will become 0-999,000,000 in multiples of 1,000,000).
+     * <p>
+     * This feature works independently of {@link #WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}
+     * and affects all serialization paths (numeric timestamps AND textual ISO-8601 strings).
+     * <p>
+     * Feature is disabled by default to preserve full nanosecond precision.
+     *
+     * @since 3.1
+     */
+    TRUNCATE_TO_MSECS_ON_WRITE(false),
+
     ;
 
     private final static int FEATURE_INDEX = DatatypeFeatures.FEATURE_INDEX_DATETIME;
@@ -243,8 +282,10 @@ public enum DateTimeFeature implements DatatypeFeature
 
     @Override
     public boolean enabledByDefault() { return _enabledByDefault; }
+
     @Override
     public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
+
     @Override
     public int getMask() { return _mask; }
 

@@ -40,6 +40,9 @@ Project: jackson-databind
 #5393: `@JsonAnyGetter` property gets included in generated schema since 2.19.0
  (reported by @victor-noel-pfx)
  (fix by Joo-Hyuk K)
+#5537: Add missing `@JsonIdentityInfo` handling for implicit `Collection`s with
+  `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+ (contributed by Moritz R)
 
 2.20.1 (30-Oct-2025)
 

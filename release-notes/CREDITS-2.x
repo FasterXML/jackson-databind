@@ -1979,6 +1979,11 @@ Michael Reiche (@mikereiche)
    with name() key instead of @JsonValue key
   (2.20.0)
 
+Moritz Reyer (@MoritzR200)
+ * Contributed #5537: Add missing `@JsonIdentityInfo` handling for implicit `Collection`s with
+   `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+  (2.20.2)
+
 Johnny Lim (@izeye)
  * Reported #5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
   (2.21.0)

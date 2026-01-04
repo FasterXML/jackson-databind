@@ -1,5 +1,7 @@
 package tools.jackson.databind.ser.jdk;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -106,19 +108,22 @@ public class ObjectArraySerializer
         return new ObjectArraySerializer(_elementType, _staticTyping, vts, _elementSerializer);
     }
 
-    @Deprecated // since 3.1
-    public ObjectArraySerializer withResolved(BeanProperty prop,
-            TypeSerializer vts, ValueSerializer<?> ser, Boolean unwrapSingle) {
-        return withResolved(prop, vts, ser, unwrapSingle, _suppressableValue, _suppressNulls);
-    }
-
     /**
      * @since 3.1
      */
-    public ObjectArraySerializer withResolved(BeanProperty prop,
-            TypeSerializer vts, ValueSerializer<?> ser, Boolean unwrapSingle,
+    public ObjectArraySerializer _withResolved(BeanProperty prop,
+            TypeSerializer vts, ValueSerializer<?> elementSer, Boolean unwrapSingle,
             Object suppressableValue, boolean suppressNulls) {
-        return new ObjectArraySerializer(this, prop, vts, ser, unwrapSingle,
+        if ((_property == prop)
+                && (_valueTypeSerializer == vts)
+                && (_elementSerializer == elementSer)
+                && Objects.equals(_unwrapSingle, unwrapSingle)
+                && Objects.equals(_suppressableValue, suppressableValue)
+                && (_suppressNulls == suppressNulls)
+        ) {
+            return this;
+        }
+        return new ObjectArraySerializer(this, prop, vts, elementSer, unwrapSingle,
                 suppressableValue, suppressNulls);
     }
 
@@ -214,7 +219,7 @@ public class ObjectArraySerializer
             }
         }
 
-        return withResolved(property, vts, ser, unwrapSingle, valueToSuppress, suppressNulls);
+        return _withResolved(property, vts, ser, unwrapSingle, valueToSuppress, suppressNulls);
     }
 
     /*

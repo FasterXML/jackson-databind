@@ -123,7 +123,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        protected ArraySerializerBase<boolean[]> _withResolved(BeanProperty prop,
+        protected BooleanArraySerializer _withResolved(BeanProperty prop,
                 Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
             return new BooleanArraySerializer(this, prop, unwrapSingle, suppressableValue, suppressNulls);
         }
@@ -208,7 +208,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        protected ArraySerializerBase<short[]> _withResolved(BeanProperty prop,
+        protected ShortArraySerializer _withResolved(BeanProperty prop,
                 Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
             return new ShortArraySerializer(this, prop, unwrapSingle, suppressableValue, suppressNulls);
         }
@@ -351,7 +351,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        protected ArraySerializerBase<int[]> _withResolved(BeanProperty prop,
+        protected IntArraySerializer _withResolved(BeanProperty prop,
                 Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
             return new IntArraySerializer(this, prop, unwrapSingle, suppressableValue, suppressNulls);
         }
@@ -442,7 +442,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        protected ArraySerializerBase<long[]> _withResolved(BeanProperty prop,
+        protected LongArraySerializer _withResolved(BeanProperty prop,
                 Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
             return new LongArraySerializer(this, prop, unwrapSingle, suppressableValue, suppressNulls);
         }
@@ -529,7 +529,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        protected ArraySerializerBase<float[]> _withResolved(BeanProperty prop,
+        protected FloatArraySerializer _withResolved(BeanProperty prop,
                 Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
             return new FloatArraySerializer(this, prop, unwrapSingle, suppressableValue, suppressNulls);
         }
@@ -622,7 +622,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        protected ArraySerializerBase<double[]> _withResolved(BeanProperty prop,
+        protected DoubleArraySerializer _withResolved(BeanProperty prop,
                 Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls) {
             return new DoubleArraySerializer(this, prop, unwrapSingle, suppressableValue, suppressNulls);
         }

@@ -404,6 +404,11 @@ _containerType,
             return (Collection<Object>) ctxt.handleUnexpectedToken(_containerType, p);
         }
 
+        // 03-Jan-2026: [databind#5537] Support Object Id for implicit Collections too
+        if (_valueDeserializer.getObjectIdReader() != null) {
+            return _wrapSingleWithObjectId(p, ctxt, result);
+        }
+
         Object value;
 
         try {
@@ -431,15 +436,14 @@ _containerType,
             if (!wrap) {
                 ClassUtil.throwIfRTE(e);
             }
-            // note: pass Object.class, not Object[].class, as we need element type for error info
-            throw JsonMappingException.wrapWithPath(e, Object.class, result.size());
+            throw JsonMappingException.wrapWithPath(e, _containerType.getContentType().getRawClass(), result.size());
         }
         result.add(value);
         return result;
     }
 
-    protected Collection<Object> _deserializeWithObjectId(JsonParser p, DeserializationContext ctxt,
-            Collection<Object> result)
+    protected Collection<Object> _deserializeWithObjectId(JsonParser p,
+            DeserializationContext ctxt, Collection<Object> result)
         throws IOException
     {
         // Ok: must point to START_ARRAY (or equivalent)
@@ -483,6 +487,46 @@ _containerType,
                 }
                 throw JsonMappingException.wrapWithPath(e, result, result.size());
             }
+        }
+        return result;
+    }
+
+    // @since 2.20.2
+    // Copied from `_deserializeWithObjectId()` above
+    protected Collection<Object> _wrapSingleWithObjectId(JsonParser p,
+            DeserializationContext ctxt, Collection<Object> result)
+        throws IOException
+    {
+        final CollectionReferringAccumulator referringAccumulator =
+                new CollectionReferringAccumulator(getContentType().getRawClass(), result);
+
+        try {
+            Object value;
+            if (p.hasToken(JsonToken.VALUE_NULL)) {
+                if (_skipNullValues) {
+                    return result;
+                }
+                value = null;
+            } else {
+                value = _deserializeNoNullChecks(p, ctxt);
+            }
+
+            if (value == null) {
+                value = _nullProvider.getNullValue(ctxt);
+                if (value == null) {
+                    _tryToAddNull(p, ctxt, result);
+                    return result;
+                }
+            }
+            referringAccumulator.add(value);
+        } catch (UnresolvedForwardReference reference) {
+            Referring ref = referringAccumulator.handleUnresolvedReference(reference);
+            reference.getRoid().appendReferring(ref);
+        } catch (Exception e) {
+            if (!ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)) {
+                ClassUtil.throwIfRTE(e);
+            }
+            throw JsonMappingException.wrapWithPath(e, getContentType().getRawClass(), result.size());
         }
         return result;
     }

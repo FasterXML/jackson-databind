@@ -413,6 +413,7 @@ public class ObjectArrayDeserializer
             return ctxt.handleUnexpectedToken(_containerType, p);
         }
 
+        // 03-Jan-2026: [databind#5541] Support Object Id for implicit Object[]s too
         if (_elementDeserializer.getObjectIdReader() != null) {
             return _wrapSingleWithObjectId(p, ctxt);
         }
@@ -469,6 +470,8 @@ public class ObjectArrayDeserializer
         return result;
     }
 
+    // @since 2.21
+    // Copied from `_deserializeWithObjectId()`
     protected Object[] _wrapSingleWithObjectId(JsonParser p, DeserializationContext ctxt)
             throws IOException
     {
@@ -476,7 +479,6 @@ public class ObjectArrayDeserializer
         Object value;
         try {
             if (p.hasToken(JsonToken.VALUE_NULL)) {
-                // 03-Feb-2017, tatu: Should this be skipped or not?
                 if (_skipNullValues) {
                     return _emptyValue;
                 }
@@ -508,7 +510,6 @@ public class ObjectArrayDeserializer
 
             if (value == null) {
                 value = _nullProvider.getNullValue(ctxt);
-
                 if (value == null && _skipNullValues) {
                     return _emptyValue;
                 }

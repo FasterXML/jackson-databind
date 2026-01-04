@@ -1983,6 +1983,9 @@ Moritz Reyer (@MoritzR200)
  * Contributed #5537: Add missing `@JsonIdentityInfo` handling for implicit `Collection`s with
    `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
   (2.20.2)
+ * Contributed #5541: Add missing `@JsonIdentityInfo` handling for implicit Arrays with
+   `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+  (2.21.0)
 
 Johnny Lim (@izeye)
  * Reported #5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`

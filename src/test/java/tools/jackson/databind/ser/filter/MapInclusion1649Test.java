@@ -1,0 +1,66 @@
+package tools.jackson.databind.ser.filter;
+
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class MapInclusion1649Test extends DatabindTestUtil
+{
+    @JsonInclude(value = JsonInclude.Include.NON_EMPTY, content = JsonInclude.Include.NON_EMPTY)
+    static class Bean1649 {
+        public Map<String, String> map;
+
+        public Bean1649(String key, String value) {
+            map = new LinkedHashMap<>();
+            map.put(key, value);
+        }
+    }
+
+    static class BeanFieldLevel {
+        @JsonInclude(value = JsonInclude.Include.NON_EMPTY, content = JsonInclude.Include.NON_EMPTY)
+        public Map<String, String> map;
+
+        public BeanFieldLevel(String key, String value) {
+            map = new LinkedHashMap<>();
+            map.put(key, value);
+        }
+    }
+
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    // [databind#1649] - field level (for comparison)
+    @Test
+    void nonEmptyViaField() throws IOException {
+        // non-empty/null, include
+        assertEquals(a2q("{'map':{'a':'b'}}"),
+                MAPPER.writeValueAsString(new BeanFieldLevel("a", "b")));
+        // null, empty, nope
+        assertEquals(a2q("{}"),
+                MAPPER.writeValueAsString(new BeanFieldLevel("a", null)));
+        assertEquals(a2q("{}"),
+                MAPPER.writeValueAsString(new BeanFieldLevel("a", "")));
+    }
+
+    // [databind#1649] - class level annotation should apply content filtering
+    @Test
+    void nonEmptyViaClass() throws IOException {
+        // non-empty/null value, include
+        assertEquals(a2q("{'map':{'a':'b'}}"),
+                MAPPER.writeValueAsString(new Bean1649("a", "b")));
+        // null value filtered, map becomes empty, excluded due to NON_EMPTY on value
+        assertEquals(a2q("{}"),
+                MAPPER.writeValueAsString(new Bean1649("a", null)));
+        // empty string filtered, map becomes empty, excluded due to NON_EMPTY on value
+        assertEquals(a2q("{}"),
+                MAPPER.writeValueAsString(new Bean1649("a", "")));
+    }
+}

@@ -18,6 +18,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1196: Add opt-in error collection for deserialization
  (requested by @odrotbohm)
  (contributed by @sri-adarsh-kumar)
+#1419: `JsonFormat.Shape.POJO`  does not work for `Map.Entry` via property annotation
+ (fix by @cowtowncoder, w/ Claude code)
 #1497: Allow skipping `@JsonUnwrapped` values if no properties matched,
   `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled
  (requested by Victor N)

@@ -1,7 +1,6 @@
 package tools.jackson.databind.format;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +10,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -35,6 +35,24 @@ public class MapEntryFormat1419Test extends DatabindTestUtil
         }
     }
 
+    static class BeanWithComplexMapEntryAsPOJO {
+        @JsonFormat(shape = JsonFormat.Shape.POJO)
+        public Map.Entry<List<Integer>, String[]> entry;
+
+        protected BeanWithComplexMapEntryAsPOJO() { }
+
+        public BeanWithComplexMapEntryAsPOJO(int key, String value) {
+            Map<List<Integer>, String[]> map = new HashMap<>();
+            map.put(Arrays.asList(42), new String[] { value });
+            entry = map.entrySet().iterator().next();
+        }
+
+        @Override
+        public String toString() {
+            return "[POJO: entry = "+entry+"]";
+        }
+    }
+
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
@@ -48,6 +66,18 @@ public class MapEntryFormat1419Test extends DatabindTestUtil
         BeanWithMapEntryAsPOJO result = MAPPER.readValue(json, BeanWithMapEntryAsPOJO.class);
         assertEquals("foo", result.entry.getKey());
         assertEquals("bar", result.entry.getValue());
+    }
+
+    @Test
+    void wrappedAsComplexRoundtrip() throws Exception
+    {
+        BeanWithComplexMapEntryAsPOJO input = new BeanWithComplexMapEntryAsPOJO(42, "answer");
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(a2q("{'entry':{'key':[42],'value':['answer']}}"), json);
+        BeanWithComplexMapEntryAsPOJO result = MAPPER.readValue(json,
+                BeanWithComplexMapEntryAsPOJO.class);
+        assertEquals(Arrays.asList(42), result.entry.getKey());
+        assertArrayEquals(new String[] { "answer" }, result.entry.getValue());
     }
 
     @Test

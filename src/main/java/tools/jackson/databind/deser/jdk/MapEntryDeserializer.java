@@ -160,7 +160,7 @@ public class MapEntryDeserializer
             BeanProperty property)
     {
         // [databind#1419]: Check if property has @JsonFormat(shape=POJO)
-        if (_deserializeAsPOJO(ctxt, property)) {
+        if (Boolean.TRUE.equals(_deserializeAsPOJO(ctxt, property))) {
             return constructAsPOJO(ctxt, _containerType)
                     ._createContextual2(ctxt, property);
         }
@@ -406,7 +406,7 @@ public class MapEntryDeserializer
                 BeanProperty property)
         {
             // May override back to standard too:
-            if (!_deserializeAsPOJO(ctxt, property)) {
+            if (Boolean.FALSE.equals(_deserializeAsPOJO(ctxt, property))) {
                 return constructAsPOJO(ctxt, _valueType)
                         ._createContextual2(ctxt, property);
             }

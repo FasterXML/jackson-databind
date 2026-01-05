@@ -164,13 +164,15 @@ public class MapEntryDeserializer
             BeanProperty property)
     {
         // [databind#1419]: Check if property has @JsonFormat(shape=POJO)
-        if (Boolean.TRUE.equals(_deserializeAsPOJO(ctxt, property))) {
+        if (Boolean.TRUE.equals(_shouldDeserializeAsPOJO(ctxt, property))) {
             return constructAsPOJO(ctxt, _containerType)
                     ._createContextual2(ctxt, property);
         }
         return _createContextual2(ctxt, property);
     }
 
+    // Method called from "createContextual()"s after determining if
+    // "shape-shifting" needed (and has been performed)
     protected ValueDeserializer<?> _createContextual2(DeserializationContext ctxt,
             BeanProperty property)
     {
@@ -197,7 +199,7 @@ public class MapEntryDeserializer
         return withResolved(kd, vtd, vd);
     }
 
-    protected static Boolean _deserializeAsPOJO(DeserializationContext ctxt,
+    protected static Boolean _shouldDeserializeAsPOJO(DeserializationContext ctxt,
             BeanProperty property)
     {
         if (property != null) {
@@ -404,13 +406,15 @@ public class MapEntryDeserializer
                 BeanProperty property)
         {
             // May override back to standard too:
-            if (Boolean.FALSE.equals(_deserializeAsPOJO(ctxt, property))) {
+            if (Boolean.FALSE.equals(_shouldDeserializeAsPOJO(ctxt, property))) {
                 return constructAsPOJO(ctxt, _valueType)
                         ._createContextual2(ctxt, property);
             }
             return _createContextual2(ctxt, property);
         }
 
+        // Method called from "createContextual()"s after determining if
+        // "shape-shifting" needed (and has been performed)
         protected ValueDeserializer<?> _createContextual2(DeserializationContext ctxt,
                 BeanProperty property)
         {

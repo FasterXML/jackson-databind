@@ -23,7 +23,7 @@ public class MapEntryFormat1419Test extends DatabindTestUtil
 
         protected BeanWithMapEntryAsPOJO() { }
 
-        public BeanWithMapEntryAsPOJO(String key, String value) {
+        protected BeanWithMapEntryAsPOJO(String key, String value) {
             Map<String, String> map = new HashMap<>();
             map.put(key, value);
             entry = map.entrySet().iterator().next();
@@ -41,7 +41,7 @@ public class MapEntryFormat1419Test extends DatabindTestUtil
 
         protected BeanWithComplexMapEntryAsPOJO() { }
 
-        public BeanWithComplexMapEntryAsPOJO(int key, String value) {
+        protected BeanWithComplexMapEntryAsPOJO(int key, String value) {
             Map<List<Integer>, String[]> map = new HashMap<>();
             map.put(Arrays.asList(42), new String[] { value });
             entry = map.entrySet().iterator().next();

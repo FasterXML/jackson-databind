@@ -91,12 +91,20 @@ public class MapEntryDeserializer
         return (ValueDeserializer<Object>) deser;
     }
 
+    /**
+     * Factory method for initial instance using the default ("natural") format,
+     * in which an Object with a single entry is expected.
+     *
+     * @since 3.1
+     */
     protected static MapEntryDeserializer constructDefault(DeserializationContext ctxt,
             JavaType entryType)
     {
         final JavaType keyType = entryType.containedTypeOrUnknown(0);
         final JavaType valueType = entryType.containedTypeOrUnknown(1);
         // 28-Apr-2015, tatu: TypeFactory does it all for us already so
+        // 04-Jan-2025, tatu: Or does is? None of tests fails if following was
+        //    removed.
         TypeDeserializer vts = (TypeDeserializer) valueType.getTypeHandler();
         if (vts == null) {
             vts = ctxt.findTypeDeserializer(valueType);
@@ -107,21 +115,17 @@ public class MapEntryDeserializer
         return new MapEntryDeserializer(entryType, keyDes, valueDeser, vts);
     }
 
+    /**
+     * Factory method for initial instance using the alternative ("as POJO" or
+     * "POJO-wrapped") format, in which an Object with 2 separate entries -- "key"
+     * and "value" -- are expected.
+     *
+     * @since 3.1
+     */
     protected static POJOWrappedDeserializer constructAsPOJO(DeserializationContext ctxt,
             JavaType entryType)
     {
-        final JavaType keyType = entryType.containedTypeOrUnknown(0);
-        final JavaType valueType = entryType.containedTypeOrUnknown(1);
-
-        TypeDeserializer vts = (TypeDeserializer) valueType.getTypeHandler();
-        if (vts == null) {
-            vts = ctxt.findTypeDeserializer(valueType);
-        }
-        @SuppressWarnings("unchecked")
-        ValueDeserializer<Object> valueDeser = (ValueDeserializer<Object>) valueType.getValueHandler();
-        KeyDeserializer keyDes = (KeyDeserializer) keyType.getValueHandler();
-
-        return new POJOWrappedDeserializer(entryType, keyDes, valueDeser, vts);
+        return new POJOWrappedDeserializer(entryType);
     }
 
     /**
@@ -254,7 +258,7 @@ public class MapEntryDeserializer
         if (t != JsonToken.PROPERTY_NAME) {
             if (t == JsonToken.END_OBJECT) {
                 return ctxt.reportInputMismatch(this,
-                        "Cannot deserialize a Map.Entry out of empty JSON Object");
+                        "Cannot deserialize a `Map.Entry` out of empty Object");
             }
             return (Map.Entry<Object,Object>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
@@ -326,22 +330,12 @@ public class MapEntryDeserializer
     protected static class POJOWrappedDeserializer
         extends StdDeserializer<Map.Entry<Object, Object>>
     {
-        /**
-         * Key deserializer to use; either passed via constructor
-         * (when indicated by annotations), or resolved when
-         * {@link #createContextual} is called;
-         */
-        protected final KeyDeserializer _keyDeserializer;
+        protected final ValueDeserializer<Object> _keyDeserializer;
 
-        /**
-         * Value deserializer.
-         */
+        protected final TypeDeserializer _keyTypeDeserializer;
+
         protected final ValueDeserializer<Object> _valueDeserializer;
 
-        /**
-         * If value instances have polymorphic type information, this
-         * is the type deserializer that can handle it
-         */
         protected final TypeDeserializer _valueTypeDeserializer;
 
         /*
@@ -350,22 +344,22 @@ public class MapEntryDeserializer
         /**********************************************************************
          */
 
-        public POJOWrappedDeserializer(JavaType type,
-                KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser,
-                TypeDeserializer valueTypeDeser)
+        public POJOWrappedDeserializer(JavaType type)
         {
             super(type);
-            _keyDeserializer = keyDeser;
-            _valueDeserializer = valueDeser;
-            _valueTypeDeserializer = valueTypeDeser;
+            _keyDeserializer = null;
+            _keyTypeDeserializer = null;
+            _valueDeserializer = null;
+            _valueTypeDeserializer = null;
         }
     
         protected POJOWrappedDeserializer(POJOWrappedDeserializer src,
-                KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser,
-                TypeDeserializer valueTypeDeser)
+                ValueDeserializer<Object> keyDeser, TypeDeserializer valueTypeDeser,
+                ValueDeserializer<Object> valueDeser, TypeDeserializer keyTypeDeser)
         {
             super(src);
             _keyDeserializer = keyDeser;
+            _keyTypeDeserializer = keyTypeDeser;
             _valueDeserializer = valueDeser;
             _valueTypeDeserializer = valueTypeDeser;
         }
@@ -375,15 +369,19 @@ public class MapEntryDeserializer
          * different settings.
          */
         @SuppressWarnings("unchecked")
-        protected POJOWrappedDeserializer withResolved(KeyDeserializer keyDeser,
-                TypeDeserializer valueTypeDeser, ValueDeserializer<?> valueDeser)
+        protected POJOWrappedDeserializer withResolved(ValueDeserializer<?> keyDeser,
+                TypeDeserializer keyTypeDeser,
+                ValueDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser)
         {
-            if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser)
+            if ((_keyDeserializer == keyDeser)
+                    && (_keyTypeDeserializer == keyTypeDeser)
+                    && (_valueDeserializer == valueDeser)
                     && (_valueTypeDeserializer == valueTypeDeser)) {
                 return this;
             }
             return new POJOWrappedDeserializer(this,
-                    keyDeser, (ValueDeserializer<Object>) valueDeser, valueTypeDeser);
+                    (ValueDeserializer<Object>) keyDeser, keyTypeDeser,
+                    (ValueDeserializer<Object>) valueDeser, valueTypeDeser);
         }
 
         @Override
@@ -416,27 +414,32 @@ public class MapEntryDeserializer
         protected ValueDeserializer<?> _createContextual2(DeserializationContext ctxt,
                 BeanProperty property)
         {
-            KeyDeserializer kd = _keyDeserializer;
+            ValueDeserializer<?> kd = _keyDeserializer;
+            kd = findConvertingContentDeserializer(ctxt, property, kd);
+            JavaType keyType = _valueType.containedTypeOrUnknown(0);
             if (kd == null) {
-                kd = ctxt.findKeyDeserializer(_valueType.containedType(0), property);
-            } else {
-                if (kd instanceof ContextualKeyDeserializer ckd) {
-                    kd = ckd.createContextual(ctxt, property);
-                }
+                kd = ctxt.findContextualValueDeserializer(keyType, property);
+            } else { // if directly assigned, probably not yet contextual, so:
+                kd = ctxt.handleSecondaryContextualization(kd, property, keyType);
             }
+            TypeDeserializer ktd = _keyTypeDeserializer;
+            if (ktd != null) {
+                ktd = ktd.forProperty(property);
+            }
+
             ValueDeserializer<?> vd = _valueDeserializer;
             vd = findConvertingContentDeserializer(ctxt, property, vd);
-            JavaType contentType = _valueType.containedType(1);
+            JavaType valueType = _valueType.containedType(1);
             if (vd == null) {
-                vd = ctxt.findContextualValueDeserializer(contentType, property);
+                vd = ctxt.findContextualValueDeserializer(valueType, property);
             } else { // if directly assigned, probably not yet contextual, so:
-                vd = ctxt.handleSecondaryContextualization(vd, property, contentType);
+                vd = ctxt.handleSecondaryContextualization(vd, property, valueType);
             }
             TypeDeserializer vtd = _valueTypeDeserializer;
             if (vtd != null) {
                 vtd = vtd.forProperty(property);
             }
-            return withResolved(kd, vtd, vd);
+            return withResolved(kd, ktd, vd, vtd);
         }
 
         /*
@@ -457,12 +460,8 @@ public class MapEntryDeserializer
                 if (t == JsonToken.START_ARRAY) {
                     return _deserializeFromArray(p, ctxt);
                 }
-                return (Map.Entry<Object,Object>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                return (Map.Entry<Object,Object>) ctxt.handleUnexpectedToken(_valueType, p);
             }
-
-            final KeyDeserializer keyDes = _keyDeserializer;
-            final ValueDeserializer<Object> valueDes = _valueDeserializer;
-            final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
             Object key = null;
             Object value = null;
@@ -473,24 +472,25 @@ public class MapEntryDeserializer
                 t = p.nextToken(); // move to value
 
                 if ("key".equals(propName)) {
-                    // Deserialize key
-                    if (t == JsonToken.VALUE_NULL) {
-                        key = keyDes.deserializeKey(null, ctxt);
-                    } else if (t.isScalarValue()) {
-                        key = keyDes.deserializeKey(p.getString(), ctxt);
-                    } else {
-                        ctxt.reportInputMismatch(this,
-                                "Can not deserialize `Map.Entry` key from non-scalar JSON value");
-                    }
-                } else if ("value".equals(propName)) {
-                    // Deserialize value
                     try {
                         if (t == JsonToken.VALUE_NULL) {
-                            value = valueDes.getNullValue(ctxt);
-                        } else if (typeDeser == null) {
-                            value = valueDes.deserialize(p, ctxt);
+                            key = _keyDeserializer.getNullValue(ctxt);
+                        } else if (_keyTypeDeserializer != null) {
+                            key = _keyDeserializer.deserializeWithType(p, ctxt, _keyTypeDeserializer);
                         } else {
-                            value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                            key = _keyDeserializer.deserialize(p, ctxt);
+                        }
+                    } catch (Exception e) {
+                        wrapAndThrow(ctxt, e, Map.Entry.class, propName);
+                    }
+                } else if ("value".equals(propName)) {
+                    try {
+                        if (t == JsonToken.VALUE_NULL) {
+                            value = _valueDeserializer.getNullValue(ctxt);
+                        } else if (_valueTypeDeserializer != null) {
+                            value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+                        } else {
+                            value = _valueDeserializer.deserialize(p, ctxt);
                         }
                     } catch (Exception e) {
                         wrapAndThrow(ctxt, e, Map.Entry.class, propName);
@@ -505,17 +505,18 @@ public class MapEntryDeserializer
 
             if (t != JsonToken.END_OBJECT) {
                 ctxt.reportInputMismatch(this,
-                        "Problem binding JSON into Map.Entry: unexpected content: "+t);
+                        "Problem deserializing `Map.Entry`; unexpected content after Object value: "
+                                +JsonToken.valueDescFor(t));
             }
 
-            return new AbstractMap.SimpleEntry<Object,Object>(key, value);
+            return new AbstractMap.SimpleEntry<>(key, value);
         }
         
         @Override
         public Map.Entry<Object,Object> deserialize(JsonParser p, DeserializationContext ctxt,
                 Map.Entry<Object,Object> result) throws JacksonException
         {
-            throw new IllegalStateException("Cannot update Map.Entry values");
+            throw new IllegalStateException("Cannot update `Map.Entry` values");
         }
 
         @Override

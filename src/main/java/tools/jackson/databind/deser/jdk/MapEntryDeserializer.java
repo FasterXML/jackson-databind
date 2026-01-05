@@ -333,11 +333,9 @@ public class MapEntryDeserializer
         extends StdDeserializer<Map.Entry<Object, Object>>
     {
         protected final ValueDeserializer<Object> _keyDeserializer;
-
         protected final TypeDeserializer _keyTypeDeserializer;
 
         protected final ValueDeserializer<Object> _valueDeserializer;
-
         protected final TypeDeserializer _valueTypeDeserializer;
 
         /*

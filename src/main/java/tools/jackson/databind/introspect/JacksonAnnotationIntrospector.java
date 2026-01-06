@@ -275,10 +275,26 @@ public class JacksonAnnotationIntrospector
     public JsonIgnoreProperties.Value findPropertyIgnoralByName(MapperConfig<?> config, Annotated a)
     {
         JsonIgnoreProperties v = _findAnnotation(a, JsonIgnoreProperties.class);
-        if (v == null) {
-            return JsonIgnoreProperties.Value.empty();
+        JsonIgnoreProperties.Value result = (v == null)
+                ? JsonIgnoreProperties.Value.empty()
+                : JsonIgnoreProperties.Value.from(v);
+
+        // [databind#1037]: Need to collect JsonIgnoreProperties from super-classes for class-level
+        if (v != null) {
+            Set<String> ignoreNames = new HashSet<>(result.getIgnored());
+            for (Class<?> parent = a.getRawType().getSuperclass();
+                 (parent != null) && (parent != Object.class);
+                 parent = parent.getSuperclass()) {
+                JsonIgnoreProperties parentAnnotation = parent.getAnnotation(JsonIgnoreProperties.class);
+                if (parentAnnotation != null) {
+                    Set<String> parentIgnoreNames = JsonIgnoreProperties.Value.from(parentAnnotation).getIgnored();
+                    ignoreNames.addAll(parentIgnoreNames);
+                }
+            }
+            result = result.withIgnored(ignoreNames);
         }
-        return JsonIgnoreProperties.Value.from(v);
+
+        return result;
     }
 
     @Override

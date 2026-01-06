@@ -8,6 +8,7 @@ import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.PropertyWriter;
+import tools.jackson.databind.util.Annotations;
 
 /**
  * Helper class needed to support flexible filtering of Map properties
@@ -143,5 +144,12 @@ public class MapProperty extends PropertyWriter
     @Override
     public AnnotatedMember getMember() {
         return _property.getMember();
+    }
+
+    // 05-Jan-2025, tatu: From `ConcreteBeanPropertyBase`; not easy to implement
+    //    (originally for [databind#1649])
+    @Override
+    protected Annotations contextAnnotations() {
+        return null;
     }
 }

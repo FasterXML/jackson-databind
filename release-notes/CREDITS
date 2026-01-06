@@ -167,6 +167,11 @@ Victor Noël (@victornoel)
   `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled
  [3.1.0]
 
+Michael Kendle (@doeiqts)
+ * Reported #1649: `@JsonInclude(content=)` not working for `Map`-valued properties
+  via POJO class annotation
+ [3.1.0]
+
 Viktor Szathmáry (@phraktle)
  * Reported #5115: `@JsonUnwrapped` Record deserialization can't handle name collision
  (reported by Viktor S)

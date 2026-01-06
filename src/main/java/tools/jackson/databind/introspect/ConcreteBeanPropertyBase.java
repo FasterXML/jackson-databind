@@ -1,16 +1,22 @@
 package tools.jackson.databind.introspect;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.AnnotationIntrospector;
 import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.JavaType;
 import tools.jackson.databind.PropertyMetadata;
 import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.util.Annotations;
 
 /**
  * Intermediate {@link BeanProperty} class shared by concrete readable- and
@@ -80,9 +86,9 @@ public abstract class ConcreteBeanPropertyBase
 
         // [databind#1649]: Check for class-level @JsonInclude annotation via context annotations
         // to properly resolve class-level JsonInclude settings (esp. "content" for Maps/Collections)
-        JsonInclude contextIncl = getContextAnnotation(JsonInclude.class);
-        if (contextIncl != null) {
-            JsonInclude.Value classIncl = JsonInclude.Value.from(contextIncl);
+        AnnotationsAsAnnotated classAnns = AnnotationsAsAnnotated.of(contextAnnotations(), getName());
+        if (classAnns != null) {
+            JsonInclude.Value classIncl = intr.findPropertyInclusion(config, classAnns);
             if (classIncl != null) {
                 v0 = (v0 == null) ? classIncl : v0.withOverrides(classIncl);
             }
@@ -114,5 +120,90 @@ public abstract class ConcreteBeanPropertyBase
             _aliases = aliases;
         }
         return aliases;
+    }
+
+    // @since 3.1
+    protected abstract Annotations contextAnnotations();
+
+    /**
+     * @since 3.1
+     */
+    private static class AnnotationsAsAnnotated 
+        extends Annotated
+    {
+        private final Annotations _annotations;
+        private final String _name;
+
+        private AnnotationsAsAnnotated(Annotations ann, String name) {
+            _annotations = Objects.requireNonNull(ann);
+            _name = name;
+        }
+
+        public static AnnotationsAsAnnotated of(Annotations ann, String name) {
+            if (ann == null) {
+                return null;
+            }
+            return new AnnotationsAsAnnotated(ann, name);
+        }
+
+        @Override
+        public <A extends Annotation> A getAnnotation(Class<A> acls) {
+            return _annotations.get(acls);
+        }
+
+        @Override
+        public Stream<Annotation> annotations() {
+            return _annotations.values();
+        }
+
+        @Override
+        public boolean hasAnnotation(Class<? extends Annotation> acls) {
+            return _annotations.has(acls);
+        }
+
+        @Override
+        public boolean hasOneOf(Class<? extends Annotation>[] annoClasses) {
+            return _annotations.hasOneOf(annoClasses);
+        }
+
+        @Override
+        public AnnotatedElement getAnnotated() {
+            return null;
+        }
+
+        @Override
+        protected int getModifiers() {
+            return 0;
+        }
+
+        @Override
+        public String getName() {
+            return _name;
+        }
+
+        @Override
+        public JavaType getType() {
+            return null;
+        }
+
+        @Override
+        public Class<?> getRawType() {
+            return null;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return -1;
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName()+"{'"+ _name+"'}";
+        }
     }
 }

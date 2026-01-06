@@ -408,6 +408,17 @@ public abstract class SettableBeanProperty
 
     /*
     /**********************************************************************
+    /* ConcreteBeanPropertyBase impls
+    /**********************************************************************
+     */
+
+    @Override
+    protected Annotations contextAnnotations() {
+        return _contextAnnotations;
+    }
+
+    /*
+    /**********************************************************************
     /* Accessors
     /**********************************************************************
      */

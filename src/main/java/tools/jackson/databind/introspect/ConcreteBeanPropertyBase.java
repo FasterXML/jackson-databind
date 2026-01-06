@@ -71,14 +71,20 @@ public abstract class ConcreteBeanPropertyBase
     {
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
         AnnotatedMember member = getMember();
-        if (member == null) {
-            JsonInclude.Value def = config.getDefaultPropertyInclusion(baseType);
-            return def;
+        if ((member == null) || (intr == null)) {
+            return config.getDefaultPropertyInclusion(baseType);
         }
         JsonInclude.Value v0 = config.getDefaultInclusion(baseType, member.getRawType());
-        if (intr == null) {
-            return v0;
+        // [databind#1649]: Also check for class-level inclusion, especially for
+        // "content" inclusion which should apply to Map values, Collection elements, etc.
+        // 05-Jan-2025, tatu: Alas, cannot go through `AnnotationIntrospector` without
+        //  significant changes... so need to directly access.
+        JsonInclude classAnn = getContextAnnotation(JsonInclude.class);
+        if (classAnn != null) {
+            JsonInclude.Value vClass = JsonInclude.Value.from(classAnn);
+            v0 = (v0 == null) ? vClass : v0.withOverrides(vClass);
         }
+        // Then check for property-level overrides
         JsonInclude.Value v = intr.findPropertyInclusion(config, member);
         if (v0 == null) {
             return v;

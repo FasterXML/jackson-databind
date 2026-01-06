@@ -85,11 +85,9 @@ public abstract class ConcreteBeanPropertyBase
         // [databind#1649]: Check for class-level @JsonInclude annotation via context annotations
         // to properly resolve class-level JsonInclude settings (esp. "content" for Maps/Collections)
         AnnotationsAsAnnotated classAnns = new AnnotationsAsAnnotated();
-        if (classAnns != null) {
-            JsonInclude.Value classIncl = intr.findPropertyInclusion(config, classAnns);
-            if (classIncl != null) {
-                v0 = (v0 == null) ? classIncl : v0.withOverrides(classIncl);
-            }
+        JsonInclude.Value classIncl = intr.findPropertyInclusion(config, classAnns);
+        if (classIncl != null) {
+            v0 = (v0 == null) ? classIncl : v0.withOverrides(classIncl);
         }
 
         // and finally per-property overrides

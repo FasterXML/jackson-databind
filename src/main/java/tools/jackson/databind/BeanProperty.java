@@ -240,21 +240,7 @@ public interface BeanProperty extends FullyNamed
         {
             // Start with type-based defaults (including ConfigOverrides for property type)
             JsonInclude.Value v0 = config.getDefaultInclusion(baseType, _type.getRawClass());
-
-            // [databind#1649]: Also check for class-level @JsonInclude annotation on declaring class
-            // to properly resolve class-level JsonInclude settings (esp. "content" for Maps/Collections)
             AnnotationIntrospector intr = config.getAnnotationIntrospector();
-            if ((intr != null) && (_member != null)) {
-                // Get the declaring class's annotations via introspector
-                Class<?> declaringClass = _member.getDeclaringClass();
-                tools.jackson.databind.introspect.AnnotatedClass classInfo = config.classIntrospectorInstance()
-                        .introspectClassAnnotations(config.constructType(declaringClass));
-                JsonInclude.Value classIncl = intr.findPropertyInclusion(config, classInfo);
-                if (classIncl != null) {
-                    v0 = (v0 == null) ? classIncl : v0.withOverrides(classIncl);
-                }
-            }
-
             if ((intr == null) || (_member == null)) {
                 return v0;
             }

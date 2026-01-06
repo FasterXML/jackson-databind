@@ -76,16 +76,15 @@ public abstract class ConcreteBeanPropertyBase
         // Start with type-based defaults (including ConfigOverrides for property type)
         JsonInclude.Value v0 = config.getDefaultInclusion(baseType, member.getRawType());
 
-        // [databind#1649]: Also check for class-level @JsonInclude annotation on declaring class
+        // [databind#1649]: Check for class-level @JsonInclude annotation via context annotations
         // to properly resolve class-level JsonInclude settings (esp. "content" for Maps/Collections)
         if (intr != null) {
-            // Get the declaring class's annotations via introspector
-            Class<?> declaringClass = member.getDeclaringClass();
-            AnnotatedClass classInfo = config.classIntrospectorInstance()
-                    .introspectClassAnnotations(config.constructType(declaringClass));
-            JsonInclude.Value classIncl = intr.findPropertyInclusion(config, classInfo);
-            if (classIncl != null) {
-                v0 = (v0 == null) ? classIncl : v0.withOverrides(classIncl);
+            JsonInclude contextIncl = getContextAnnotation(JsonInclude.class);
+            if (contextIncl != null) {
+                JsonInclude.Value classIncl = JsonInclude.Value.from(contextIncl);
+                if (classIncl != null) {
+                    v0 = (v0 == null) ? classIncl : v0.withOverrides(classIncl);
+                }
             }
         }
 

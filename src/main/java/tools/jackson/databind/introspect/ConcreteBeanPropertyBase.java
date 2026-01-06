@@ -119,6 +119,9 @@ public abstract class ConcreteBeanPropertyBase
     }
 
     /**
+     * Helper class we need to expose context annotations as {@link Annotated}
+     * that {@link AnnotationIntrospector} can access.
+     *
      * @since 3.1
      */
     private class AnnotationsAsAnnotated 

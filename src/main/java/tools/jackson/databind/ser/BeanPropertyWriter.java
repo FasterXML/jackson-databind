@@ -437,17 +437,6 @@ public class BeanPropertyWriter
 
     /*
     /**********************************************************************
-    /* ConcreteBeanPropertyBase impls
-    /**********************************************************************
-     */
-
-    @Override
-    protected Annotations contextAnnotations() {
-        return _contextAnnotations;
-    }
-    
-    /*
-    /**********************************************************************
     /* Managing and accessing of opaque internal settings
     /* (used by extensions)
     /**********************************************************************

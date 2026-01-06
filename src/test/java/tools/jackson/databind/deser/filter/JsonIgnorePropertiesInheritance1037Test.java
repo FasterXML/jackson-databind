@@ -27,7 +27,7 @@ public class JsonIgnorePropertiesInheritance1037Test
         }
     }
 
-    ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testReadOnlyProp() throws Exception

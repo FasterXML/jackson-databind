@@ -67,30 +67,28 @@ public abstract class ConcreteBeanPropertyBase
     @Override
     public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType)
     {
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        AnnotatedMember member = getMember();
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        final AnnotatedMember member = getMember();
         if (member == null) {
-            JsonInclude.Value def = config.getDefaultPropertyInclusion(baseType);
-            return def;
+            return config.getDefaultPropertyInclusion(baseType);
         }
         // Start with type-based defaults (including ConfigOverrides for property type)
         JsonInclude.Value v0 = config.getDefaultInclusion(baseType, member.getRawType());
-
-        // [databind#1649]: Check for class-level @JsonInclude annotation via context annotations
-        // to properly resolve class-level JsonInclude settings (esp. "content" for Maps/Collections)
-        if (intr != null) {
-            JsonInclude contextIncl = getContextAnnotation(JsonInclude.class);
-            if (contextIncl != null) {
-                JsonInclude.Value classIncl = JsonInclude.Value.from(contextIncl);
-                if (classIncl != null) {
-                    v0 = (v0 == null) ? classIncl : v0.withOverrides(classIncl);
-                }
-            }
-        }
-
         if (intr == null) {
             return v0;
         }
+
+        // [databind#1649]: Check for class-level @JsonInclude annotation via context annotations
+        // to properly resolve class-level JsonInclude settings (esp. "content" for Maps/Collections)
+        JsonInclude contextIncl = getContextAnnotation(JsonInclude.class);
+        if (contextIncl != null) {
+            JsonInclude.Value classIncl = JsonInclude.Value.from(contextIncl);
+            if (classIncl != null) {
+                v0 = (v0 == null) ? classIncl : v0.withOverrides(classIncl);
+            }
+        }
+
+        // and finally per-property overrides
         JsonInclude.Value v = intr.findPropertyInclusion(config, member);
         if (v0 == null) {
             return v;

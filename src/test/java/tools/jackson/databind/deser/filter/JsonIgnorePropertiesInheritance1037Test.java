@@ -27,14 +27,15 @@ public class JsonIgnorePropertiesInheritance1037Test
         }
     }
 
+    ObjectMapper MAPPER = newJsonMapper();
+
     @Test
     public void testReadOnlyProp() throws Exception
     {
-        ObjectMapper m = newJsonMapper();
-        String json = m.writeValueAsString(new ReadOnlyBean1037());
+        String json = MAPPER.writeValueAsString(new ReadOnlyBean1037());
         assertTrue(json.contains("generated"));
         assertTrue(json.contains("computed"));
-        ReadOnlyBean1037 bean = m.readValue(json, ReadOnlyBean1037.class);
+        ReadOnlyBean1037 bean = MAPPER.readValue(json, ReadOnlyBean1037.class);
         assertNotNull(bean);
     }
 }

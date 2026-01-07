@@ -72,7 +72,7 @@ public abstract class VirtualBeanPropertyWriter
 
     protected static Object _suppressableValue(JsonInclude.Value inclusion) {
         if (inclusion == null) {
-            return false;
+            return null;
         }
         JsonInclude.Include incl = inclusion.getValueInclusion();
         if ((incl == JsonInclude.Include.ALWAYS)

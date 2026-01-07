@@ -238,7 +238,6 @@ public interface BeanProperty extends FullyNamed
         @Override
         public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType)
         {
-            // Start with type-based defaults (including ConfigOverrides for property type)
             JsonInclude.Value v0 = config.getDefaultInclusion(baseType, _type.getRawClass());
             AnnotationIntrospector intr = config.getAnnotationIntrospector();
             if ((intr == null) || (_member == null)) {

@@ -87,7 +87,7 @@ public abstract class StdSerializer<T>
      */
 
     @Override
-    public abstract void serialize(T value, JsonGenerator gen, SerializationContext provider)
+    public abstract void serialize(T value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException;
 
     /*
@@ -313,13 +313,13 @@ public abstract class StdSerializer<T>
      * @param existingSerializer (optional) configured content
      *    serializer if one already exists.
      */
-    protected ValueSerializer<?> findContextualConvertingSerializer(SerializationContext provider,
+    protected ValueSerializer<?> findContextualConvertingSerializer(SerializationContext ctxt,
             BeanProperty prop, ValueSerializer<?> existingSerializer)
     {
         // 08-Dec-2016, tatu: to fix [databind#357], need to prevent recursive calls for
         //     same property
         @SuppressWarnings("unchecked")
-        Map<Object,Object> conversions = (Map<Object,Object>) provider.getAttribute(KEY_CONTENT_CONVERTER_LOCK);
+        Map<Object,Object> conversions = (Map<Object,Object>) ctxt.getAttribute(KEY_CONTENT_CONVERTER_LOCK);
         if (conversions != null) {
             Object lock = conversions.get(prop);
             if (lock != null) {
@@ -327,16 +327,16 @@ public abstract class StdSerializer<T>
             }
         } else {
             conversions = new IdentityHashMap<>();
-            provider.setAttribute(KEY_CONTENT_CONVERTER_LOCK, conversions);
+            ctxt.setAttribute(KEY_CONTENT_CONVERTER_LOCK, conversions);
         }
-        final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (_neitherNull(intr, prop)) {
             conversions.put(prop, Boolean.TRUE);
             try {
-                ValueSerializer<?> ser = _findConvertingContentSerializer(provider, intr,
+                ValueSerializer<?> ser = _findConvertingContentSerializer(ctxt, intr,
                         prop, existingSerializer);
                 if (ser != null) {
-                    return provider.handleSecondaryContextualization(ser, prop);
+                    return ctxt.handleSecondaryContextualization(ser, prop);
                 }
             } finally {
                 conversions.remove(prop);
@@ -345,18 +345,18 @@ public abstract class StdSerializer<T>
         return existingSerializer;
     }
 
-    private ValueSerializer<?> _findConvertingContentSerializer(SerializationContext provider,
+    private ValueSerializer<?> _findConvertingContentSerializer(SerializationContext ctxt,
             AnnotationIntrospector intr, BeanProperty prop, ValueSerializer<?> existingSerializer)
     {
         AnnotatedMember m = prop.getMember();
         if (m != null) {
-            Object convDef = intr.findSerializationContentConverter(provider.getConfig(), m);
+            Object convDef = intr.findSerializationContentConverter(ctxt.getConfig(), m);
             if (convDef != null) {
-                Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
-                JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
+                Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
+                JavaType delegateType = conv.getOutputType(ctxt.getTypeFactory());
                 // [databind#731]: Should skip if nominally java.lang.Object
                 if ((existingSerializer == null) && !delegateType.isJavaLangObject()) {
-                    existingSerializer = provider.findValueSerializer(delegateType);
+                    existingSerializer = ctxt.findValueSerializer(delegateType);
                 }
                 return new StdDelegatingSerializer(conv, delegateType, existingSerializer, prop);
             }
@@ -368,17 +368,17 @@ public abstract class StdSerializer<T>
      * Helper method used to locate filter that is needed, based on filter id
      * this serializer was constructed with.
      */
-    protected PropertyFilter findPropertyFilter(SerializationContext provider,
+    protected PropertyFilter findPropertyFilter(SerializationContext ctxt,
             Object filterId, Object valueToFilter)
     {
-        FilterProvider filters = provider.getFilterProvider();
+        FilterProvider filters = ctxt.getFilterProvider();
         // Not ok to miss the provider, if a filter is declared to be needed.
         if (filters == null) {
-            return provider.reportBadDefinition(handledType(),
+            return ctxt.reportBadDefinition(handledType(),
                     "Cannot resolve PropertyFilter with id '"+filterId+"'; no FilterProvider configured");
         }
         // But whether unknown ids are ok just depends on filter provider; if we get null that's fine
-        return filters.findPropertyFilter(provider, filterId, valueToFilter);
+        return filters.findPropertyFilter(ctxt, filterId, valueToFilter);
     }
 
     /**
@@ -388,14 +388,14 @@ public abstract class StdSerializer<T>
      *
      * @param typeForDefaults Type (erased) used for finding default format settings, if any
      */
-    protected JsonFormat.Value findFormatOverrides(SerializationContext provider,
+    protected JsonFormat.Value findFormatOverrides(SerializationContext ctxt,
             BeanProperty prop, Class<?> typeForDefaults)
     {
         if (prop != null) {
-            return prop.findPropertyFormat(provider.getConfig(), typeForDefaults);
+            return prop.findPropertyFormat(ctxt.getConfig(), typeForDefaults);
         }
         // even without property or AnnotationIntrospector, may have type-specific defaults
-        return provider.getDefaultPropertyFormat(typeForDefaults);
+        return ctxt.getDefaultPropertyFormat(typeForDefaults);
     }
 
     /**
@@ -405,39 +405,39 @@ public abstract class StdSerializer<T>
      *
      * @param typeForDefaults Type (erased) used for finding default format settings, if any
      */
-    protected Boolean findFormatFeature(SerializationContext provider,
+    protected Boolean findFormatFeature(SerializationContext ctxt,
             BeanProperty prop, Class<?> typeForDefaults, JsonFormat.Feature feat)
     {
-        JsonFormat.Value format = findFormatOverrides(provider, prop, typeForDefaults);
+        JsonFormat.Value format = findFormatOverrides(ctxt, prop, typeForDefaults);
         if (format != null) {
             return format.getFeature(feat);
         }
         return null;
     }
 
-    protected JsonInclude.Value findIncludeOverrides(SerializationContext provider,
+    protected JsonInclude.Value findIncludeOverrides(SerializationContext ctxt,
             BeanProperty prop, Class<?> typeForDefaults)
     {
         if (prop != null) {
-            return prop.findPropertyInclusion(provider.getConfig(), typeForDefaults);
+            return prop.findPropertyInclusion(ctxt.getConfig(), typeForDefaults);
         }
         // even without property or AnnotationIntrospector, may have type-specific defaults
-        return provider.getDefaultPropertyInclusion(typeForDefaults);
+        return ctxt.getDefaultPropertyInclusion(typeForDefaults);
     }
 
     /**
      * Convenience method for finding out possibly configured content value serializer.
      */
-    protected ValueSerializer<?> findAnnotatedContentSerializer(SerializationContext serializers,
+    protected ValueSerializer<?> findAnnotatedContentSerializer(SerializationContext ctxt,
             BeanProperty property)
     {
         if (property != null) {
             // First: if we have a property, may have property-annotation overrides
             AnnotatedMember m = property.getMember();
-            final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
+            final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
             if (m != null) {
-                return serializers.serializerInstance(m,
-                        intr.findContentSerializer(serializers.getConfig(), m));
+                return ctxt.serializerInstance(m,
+                        intr.findContentSerializer(ctxt.getConfig(), m));
             }
         }
         return null;

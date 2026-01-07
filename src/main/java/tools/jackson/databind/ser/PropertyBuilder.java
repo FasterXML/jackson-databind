@@ -17,10 +17,10 @@ public class PropertyBuilder
 {
     private final static Object NO_DEFAULT_MARKER = Boolean.FALSE;
 
-    final protected SerializationConfig _config;
-    final protected BeanDescription _beanDesc;
+    protected final SerializationConfig _config;
+    protected final BeanDescription _beanDesc;
 
-    final protected AnnotationIntrospector _annotationIntrospector;
+    protected final AnnotationIntrospector _annotationIntrospector;
 
     /**
      * If a property has serialization inclusion value of
@@ -39,13 +39,13 @@ public class PropertyBuilder
      * per-property basis. Combines global inclusion defaults and
      * per-type (annotation and type-override) inclusion overrides.
      */
-    final protected JsonInclude.Value _defaultInclusion;
+    protected final JsonInclude.Value _defaultInclusion;
 
     /**
      * Marker flag used to indicate that "real" default values are to be used
      * for properties, as per per-type value inclusion of type <code>NON_DEFAULT</code>
      */
-    final protected boolean _useRealPropertyDefaults;
+    protected final boolean _useRealPropertyDefaults;
 
     public PropertyBuilder(SerializationConfig config, BeanDescription beanDesc)
     {
@@ -214,7 +214,6 @@ public class PropertyBuilder
         case ALWAYS: // default
         default:
             // we may still want to suppress empty collections
-            @SuppressWarnings("deprecation")
             final SerializationFeature emptyJsonArrays = SerializationFeature.WRITE_EMPTY_JSON_ARRAYS;
             if (actualType.isContainerType() && !_config.isEnabled(emptyJsonArrays)) {
                 valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;

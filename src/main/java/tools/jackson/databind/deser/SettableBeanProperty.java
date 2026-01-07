@@ -17,10 +17,7 @@ import tools.jackson.databind.deser.impl.NullsConstantProvider;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.jsontype.TypeDeserializer;
-import tools.jackson.databind.util.Annotations;
-import tools.jackson.databind.util.ClassUtil;
-import tools.jackson.databind.util.NameTransformer;
-import tools.jackson.databind.util.ViewMatcher;
+import tools.jackson.databind.util.*;
 
 /**
  * Base class for deserializable properties of a bean: contains
@@ -402,7 +399,7 @@ public abstract class SettableBeanProperty
         // Not needed on deserialization side so:
         return JsonInclude.Value.empty();
     }
-    
+
     @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
             SerializationContext provider)

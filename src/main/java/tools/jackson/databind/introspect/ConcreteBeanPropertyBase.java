@@ -4,12 +4,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
-import tools.jackson.databind.AnnotationIntrospector;
-import tools.jackson.databind.BeanProperty;
-import tools.jackson.databind.PropertyMetadata;
-import tools.jackson.databind.PropertyName;
+import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 
 /**
@@ -65,8 +61,8 @@ public abstract class ConcreteBeanPropertyBase
     }
 
     // Left abstract at this level: only implemented properly on serialization side
-    @Override
-    public abstract JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType);
+    //@Override
+    //public abstract JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType);
 
     @Override
     public List<PropertyName> findAliases(MapperConfig<?> config)

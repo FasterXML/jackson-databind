@@ -278,7 +278,7 @@ public abstract class ReferenceTypeSerializer<T>
      */
 
     @Override
-    public boolean isEmpty(SerializationContext provider, T value) throws JacksonException
+    public boolean isEmpty(SerializationContext ctxt, T value) throws JacksonException
     {
         // First, absent value (note: null check is just sanity check here)
         if (!_isValuePresent(value)) {
@@ -293,10 +293,10 @@ public abstract class ReferenceTypeSerializer<T>
         }
         ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            ser = _findCachedSerializer(provider, contents.getClass());
+            ser = _findCachedSerializer(ctxt, contents.getClass());
         }
         if (_suppressableValue == MARKER_FOR_EMPTY) {
-            return ser.isEmpty(provider, contents);
+            return ser.isEmpty(ctxt, contents);
         }
         return _suppressableValue.equals(contents);
     }
@@ -317,36 +317,36 @@ public abstract class ReferenceTypeSerializer<T>
      */
 
     @Override
-    public void serialize(T ref, JsonGenerator g, SerializationContext provider)
+    public void serialize(T ref, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         Object value = _getReferencedIfPresent(ref);
         if (value == null) {
             if (_unwrapper == null) {
-                provider.defaultSerializeNullValue(g);
+                ctxt.defaultSerializeNullValue(g);
             }
             return;
         }
         ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            ser = _findCachedSerializer(provider, value.getClass());
+            ser = _findCachedSerializer(ctxt, value.getClass());
         }
         if (_valueTypeSerializer != null) {
-            ser.serializeWithType(value, g, provider, _valueTypeSerializer);
+            ser.serializeWithType(value, g, ctxt, _valueTypeSerializer);
         } else {
-            ser.serialize(value, g, provider);
+            ser.serialize(value, g, ctxt);
         }
     }
 
     @Override
-    public void serializeWithType(T ref, JsonGenerator g, SerializationContext provider,
+    public void serializeWithType(T ref, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
         Object value = _getReferencedIfPresent(ref);
         if (value == null) {
             if (_unwrapper == null) {
-                provider.defaultSerializeNullValue(g);
+                ctxt.defaultSerializeNullValue(g);
             }
             return;
         }
@@ -358,14 +358,14 @@ public abstract class ReferenceTypeSerializer<T>
         // Otherwise apply type-prefix/suffix, then std serialize:
         /*
         typeSer.writeTypePrefixForScalar(ref, g);
-        serialize(ref, g, provider);
+        serialize(ref, g, ctxt);
         typeSer.writeTypeSuffixForScalar(ref, g);
         */
         ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            ser = _findCachedSerializer(provider, value.getClass());
+            ser = _findCachedSerializer(ctxt, value.getClass());
         }
-        ser.serializeWithType(value, g, provider, typeSer);
+        ser.serializeWithType(value, g, ctxt, typeSer);
     }
 
     /*
@@ -397,7 +397,7 @@ public abstract class ReferenceTypeSerializer<T>
      * Helper method that encapsulates logic of retrieving and caching required
      * serializer.
      */
-    private final ValueSerializer<Object> _findCachedSerializer(SerializationContext provider,
+    private final ValueSerializer<Object> _findCachedSerializer(SerializationContext ctxt,
             Class<?> rawType)
     {
         ValueSerializer<Object> ser = _dynamicValueSerializers.serializerFor(rawType);
@@ -408,12 +408,12 @@ public abstract class ReferenceTypeSerializer<T>
             if (_referredType.hasGenericTypes()) {
                 // [databind#1673] Must ensure we will resolve all available type information
                 //  so as not to miss generic declaration of, say, `List<GenericPojo>`...
-                JavaType fullType = provider.constructSpecializedType(_referredType, rawType);
+                JavaType fullType = ctxt.constructSpecializedType(_referredType, rawType);
                 // 23-Oct-2019, tatu: I _think_ we actually need to consider referenced
                 //    type as "primary" to allow applying various handlers -- done since 2.11
-                ser = provider.findPrimaryPropertySerializer(fullType, _property);
+                ser = ctxt.findPrimaryPropertySerializer(fullType, _property);
             } else {
-                ser = provider.findPrimaryPropertySerializer(rawType, _property);
+                ser = ctxt.findPrimaryPropertySerializer(rawType, _property);
             }
             if (_unwrapper != null) {
                 ser = ser.unwrappingSerializer(_unwrapper);
@@ -423,14 +423,14 @@ public abstract class ReferenceTypeSerializer<T>
         return ser;
     }
 
-    private final ValueSerializer<Object> _findSerializer(SerializationContext provider,
+    private final ValueSerializer<Object> _findSerializer(SerializationContext ctxt,
         JavaType type, BeanProperty prop)
     {
         // 13-Mar-2017, tatu: Used to call `findTypeValueSerializer()`, but contextualization
         //   not working for that case for some reason
         // 15-Jan-2017, tatu: ... possibly because we need to access "secondary" serializer,
         //   not primary (primary being one for Reference type itself, not value)
-//        return provider.findTypedValueSerializer(type, true, prop);
-        return provider.findPrimaryPropertySerializer(type, prop);
+//        return ctxt.findTypedValueSerializer(type, true, prop);
+        return ctxt.findPrimaryPropertySerializer(type, prop);
     }
 }

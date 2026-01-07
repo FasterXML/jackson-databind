@@ -83,6 +83,7 @@ public class MapProperty extends PropertyWriter
 
     @Override
     public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType) {
+        // Not needed with this virtual wrapping; could add if needed
         return JsonInclude.Value.empty();
     }
 

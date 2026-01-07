@@ -161,7 +161,7 @@ public interface BeanProperty extends FullyNamed
      * @param objectVisitor Visitor to used as the callback handler
      */
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
-            SerializationContext provider);
+            SerializationContext ctxt);
 
     /*
     /**********************************************************************
@@ -275,7 +275,7 @@ public interface BeanProperty extends FullyNamed
          */
         @Override
         public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
-                SerializationContext provider) {
+                SerializationContext ctxt) {
             throw new UnsupportedOperationException("Instances of "+getClass().getName()+" should not get visited");
         }
     }
@@ -360,7 +360,7 @@ public interface BeanProperty extends FullyNamed
 
         @Override
         public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
-                SerializationContext provider) {
+                SerializationContext ctxt) {
         }
     }
 }

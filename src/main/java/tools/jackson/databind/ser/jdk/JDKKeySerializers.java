@@ -137,15 +137,15 @@ public abstract class JDKKeySerializers
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializationContext provider)
+        public void serialize(Object value, JsonGenerator g, SerializationContext ctxt)
             throws JacksonException
         {
             switch (_typeId) {
             case TYPE_DATE:
-                provider.defaultSerializeDateKey((Date)value, g);
+                ctxt.defaultSerializeDateKey((Date)value, g);
                 break;
             case TYPE_CALENDAR:
-                provider.defaultSerializeDateKey(((Calendar) value).getTimeInMillis(), g);
+                ctxt.defaultSerializeDateKey(((Calendar) value).getTimeInMillis(), g);
                 break;
             case TYPE_CLASS:
                 g.writeName(((Class<?>)value).getName());
@@ -154,12 +154,12 @@ public abstract class JDKKeySerializers
                 {
                     String key;
 
-                    if (provider.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
+                    if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
                         key = value.toString();
                     } else {
                         Enum<?> e = (Enum<?>) value;
                         // 14-Sep-2019, tatu: [databind#2129] Use this specific feature
-                        if (provider.isEnabled(EnumFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
+                        if (ctxt.isEnabled(EnumFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
                             key = String.valueOf(e.ordinal());
                         } else {
                             key = e.name();
@@ -174,7 +174,7 @@ public abstract class JDKKeySerializers
                 break;
             case TYPE_BYTE_ARRAY:
                 {
-                    String encoded = provider.getConfig().getBase64Variant().encode((byte[]) value);
+                    String encoded = ctxt.getConfig().getBase64Variant().encode((byte[]) value);
                     g.writeName(encoded);
                 }
                 break;
@@ -206,16 +206,16 @@ public abstract class JDKKeySerializers
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializationContext provider)
+        public void serialize(Object value, JsonGenerator g, SerializationContext ctxt)
             throws JacksonException
         {
             Class<?> cls = value.getClass();
             PropertySerializerMap m = _dynamicSerializers;
             ValueSerializer<Object> ser = m.serializerFor(cls);
             if (ser == null) {
-                ser = _findAndAddDynamic(m, cls, provider);
+                ser = _findAndAddDynamic(m, cls, ctxt);
             }
-            ser.serialize(value, g, provider);
+            ser.serialize(value, g, ctxt);
         }
 
         @Override
@@ -224,7 +224,7 @@ public abstract class JDKKeySerializers
         }
 
         protected ValueSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-                Class<?> type, SerializationContext provider)
+                Class<?> type, SerializationContext ctxt)
         {
             // 27-Jun-2017, tatu: [databind#1679] Need to avoid StackOverflowError...
             if (type == Object.class) {
@@ -235,7 +235,7 @@ public abstract class JDKKeySerializers
             }
             PropertySerializerMap.SerializerAndMapResult result =
                     // null -> for now we won't keep ref or pass BeanProperty; could change
-                    map.findAndAddKeySerializer(type, provider, null);
+                    map.findAndAddKeySerializer(type, ctxt, null);
             // did we get a new map of serializers? If so, start using it
             if (map != result.map) {
                 _dynamicSerializers = result.map;
@@ -252,7 +252,7 @@ public abstract class JDKKeySerializers
         public StringKeySerializer() { super(String.class); }
 
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializationContext provider)
+        public void serialize(Object value, JsonGenerator g, SerializationContext ctxt)
             throws JacksonException
         {
             g.writeName((String) value);

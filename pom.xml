@@ -216,6 +216,13 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
+          <!-- [databind#5550]: Generate non-modular javadoc for better compatibility
+               with projects linking to Jackson's javadoc on javadoc.io.
+               Even though jackson-databind is a JPMS module, using legacyMode
+               generates javadoc with flat structure that can be linked from both
+               modular and non-modular projects without "unnamed module" warnings.
+          -->
+          <legacyMode>true</legacyMode>
           <links combine.children="append">
             <!-- 08-Aug-2025, tatu: 3.x retains dep to annotations 2.x -->
             <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-annotations/latest</link>

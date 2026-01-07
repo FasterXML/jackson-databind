@@ -273,14 +273,14 @@ public class PropertyBuilder
     {
         JavaType secondary = _annotationIntrospector.refineSerializationType(_config, a, declaredType);
 
-        // 11-Oct-2015, tatu: As of 2.7, not 100% sure following checks are needed. But keeping
-        //    for now, just in case
+        // 11-Oct-2015, tatu: As of 2.7, not 100% sure following checks are needed.
+        //    But keeping for now, just in case
         if (secondary != declaredType) {
             Class<?> serClass = secondary.getRawClass();
             // Must be a super type to be usable
             Class<?> rawDeclared = declaredType.getRawClass();
             if (serClass.isAssignableFrom(rawDeclared)) {
-                // fine as is
+                ; // fine as is
             } else {
                 /* 18-Nov-2010, tatu: Related to fixing [JACKSON-416], an issue with such
                  *   check is that for deserialization more specific type makes sense;
@@ -322,9 +322,8 @@ public class PropertyBuilder
     {
         Object def = _defaultBean;
         if (def == null) {
-            /* If we can fix access rights, we should; otherwise non-public
-             * classes or default constructor will prevent instantiation
-             */
+            // If we can fix access rights, we should; otherwise non-public
+            // classes or default constructor will prevent instantiation
             def = _beanDesc.instantiateBean(_config.canOverrideAccessModifiers());
             if (def == null) {
                 // 06-Nov-2015, tatu: As per [databind#998], do not fail.

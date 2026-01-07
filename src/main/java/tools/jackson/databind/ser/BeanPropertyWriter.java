@@ -3,17 +3,19 @@ package tools.jackson.databind.ser;
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.SerializableString;
+import tools.jackson.core.*;
 import tools.jackson.core.io.SerializedString;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.jsontype.TypeSerializer;
@@ -423,6 +425,36 @@ public class BeanPropertyWriter
     public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
         return (_contextAnnotations == null) ? null : _contextAnnotations
                 .get(acls);
+    }
+
+    @Override
+    public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType)
+    {
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        final AnnotatedMember member = getMember();
+        if (member == null) {
+            return config.getDefaultPropertyInclusion(baseType);
+        }
+        // Start with type-based defaults (including ConfigOverrides for property type)
+        JsonInclude.Value v0 = config.getDefaultInclusion(baseType, member.getRawType());
+        if (intr == null) {
+            return v0;
+        }
+
+        // [databind#1649]: Check for class-level @JsonInclude annotation via context annotations
+        // to properly resolve class-level JsonInclude settings (esp. "content" for Maps/Collections)
+        AnnotationsAsAnnotated classAnns = new AnnotationsAsAnnotated();
+        JsonInclude.Value classIncl = intr.findPropertyInclusion(config, classAnns);
+        if (classIncl != null) {
+            v0 = (v0 == null) ? classIncl : v0.withOverrides(classIncl);
+        }
+
+        // and finally per-property overrides
+        JsonInclude.Value v = intr.findPropertyInclusion(config, member);
+        if (v0 == null) {
+            return v;
+        }
+        return v0.withOverrides(v);
     }
 
     @Override
@@ -838,6 +870,12 @@ public class BeanPropertyWriter
         return sb.toString();
     }
 
+    /*
+    /**********************************************************************
+    /* Helper class(es)
+    /**********************************************************************
+     */
+
     class GetterHolder extends UnreflectHandleSupplier {
         public GetterHolder() {
             super(methodType(Object.class, Object.class));
@@ -856,4 +894,82 @@ public class BeanPropertyWriter
             }
         }
     }
+
+    /**
+     * Helper class we need to expose context annotations as {@link Annotated}
+     * that {@link AnnotationIntrospector} can access.
+     *
+     * @since 3.1
+     */
+    private class AnnotationsAsAnnotated
+        extends Annotated
+    {
+        public AnnotationsAsAnnotated() { }
+
+        @Override
+        public <A extends Annotation> A getAnnotation(Class<A> acls) {
+            return getContextAnnotation(acls);
+        }
+
+        @Override
+        public Stream<Annotation> annotations() {
+            return Stream.empty();
+        }
+
+        @Override
+        public boolean hasAnnotation(Class<? extends Annotation> acls) {
+            return getContextAnnotation(acls) != null;
+        }
+
+        @Override
+        public boolean hasOneOf(Class<? extends Annotation>[] annoClasses) {
+            for (Class<? extends Annotation> acls : annoClasses) {
+                if (getContextAnnotation(acls) != null) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public AnnotatedElement getAnnotated() {
+            return null;
+        }
+
+        @Override
+        protected int getModifiers() {
+            return 0;
+        }
+
+        @Override
+        public String getName() {
+            return BeanPropertyWriter.this.getName();
+        }
+
+        @Override
+        public JavaType getType() {
+            return BeanPropertyWriter.this.getType();
+        }
+
+        @Override
+        public Class<?> getRawType() {
+            return BeanPropertyWriter.this.getType().getRawClass();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return -1;
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName()+"{'"+getName()+"'}";
+        }
+    }
+
 }

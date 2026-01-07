@@ -1,9 +1,16 @@
 package tools.jackson.databind.ser;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.util.stream.Stream;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.Annotated;
+import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.BeanPropertyDefinition;
 import tools.jackson.databind.introspect.ConcreteBeanPropertyBase;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
@@ -88,6 +95,42 @@ public abstract class PropertyWriter
 
     /*
     /**********************************************************************
+    /* Typed annotation access
+    /**********************************************************************
+     */
+    
+    @Override
+    public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType)
+    {
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        final AnnotatedMember member = getMember();
+        if (member == null) {
+            return config.getDefaultPropertyInclusion(baseType);
+        }
+        // Start with type-based defaults (including ConfigOverrides for property type)
+        JsonInclude.Value v0 = config.getDefaultInclusion(baseType, member.getRawType());
+        if (intr == null) {
+            return v0;
+        }
+
+        // [databind#1649]: Check for class-level @JsonInclude annotation via context annotations
+        // to properly resolve class-level JsonInclude settings (esp. "content" for Maps/Collections)
+        AnnotationsAsAnnotated classAnns = new AnnotationsAsAnnotated();
+        JsonInclude.Value classIncl = intr.findPropertyInclusion(config, classAnns);
+        if (classIncl != null) {
+            v0 = (v0 == null) ? classIncl : v0.withOverrides(classIncl);
+        }
+
+        // and finally per-property overrides
+        JsonInclude.Value v = intr.findPropertyInclusion(config, member);
+        if (v0 == null) {
+            return v;
+        }
+        return v0.withOverrides(v);
+    }
+
+    /*
+    /**********************************************************************
     /* Serialization methods, regular output
     /**********************************************************************
      */
@@ -96,7 +139,7 @@ public abstract class PropertyWriter
      * The main serialization method called by filter when property is to be written
      * as an Object property.
      */
-    public abstract void serializeAsProperty(Object value, JsonGenerator g, SerializationContext provider)
+    public abstract void serializeAsProperty(Object value, JsonGenerator g, SerializationContext ctxt)
         throws Exception;
 
     /**
@@ -105,7 +148,7 @@ public abstract class PropertyWriter
      * filtered, but the underlying data format requires a placeholder of some kind.
      * This is usually the case for tabular (positional) data formats such as CSV.
      */
-    public abstract void serializeAsOmittedProperty(Object value, JsonGenerator g, SerializationContext provider)
+    public abstract void serializeAsOmittedProperty(Object value, JsonGenerator g, SerializationContext ctxt)
         throws Exception;
 
     /*
@@ -124,7 +167,7 @@ public abstract class PropertyWriter
      * data format; so it is typically NOT called for fully tabular formats such as CSV,
      * where logical output is still as form of POJOs.
      */
-    public abstract void serializeAsElement(Object value, JsonGenerator g, SerializationContext provider)
+    public abstract void serializeAsElement(Object value, JsonGenerator g, SerializationContext ctxt)
         throws Exception;
 
     /**
@@ -132,7 +175,7 @@ public abstract class PropertyWriter
      * but then value is to be omitted. This requires output of a placeholder value
      * of some sort; often similar to {@link #serializeAsOmittedProperty}.
      */
-    public abstract void serializeAsOmittedElement(Object value, JsonGenerator g, SerializationContext provider)
+    public abstract void serializeAsOmittedElement(Object value, JsonGenerator g, SerializationContext ctxt)
         throws Exception;
 
     /*
@@ -147,5 +190,88 @@ public abstract class PropertyWriter
      */
     @Override
     public abstract void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
-            SerializationContext provider);
+            SerializationContext ctxt);
+
+    /*
+    /**********************************************************************
+    /* Helper class(es)
+    /**********************************************************************
+     */
+
+    /**
+     * Helper class we need to expose context annotations as {@link Annotated}
+     * that {@link AnnotationIntrospector} can access.
+     *
+     * @since 3.1
+     */
+    private class AnnotationsAsAnnotated 
+        extends Annotated
+    {
+        public AnnotationsAsAnnotated() { }
+
+        @Override
+        public <A extends Annotation> A getAnnotation(Class<A> acls) {
+            return getContextAnnotation(acls);
+        }
+
+        @Override
+        public Stream<Annotation> annotations() {
+            return Stream.empty();
+        }
+
+        @Override
+        public boolean hasAnnotation(Class<? extends Annotation> acls) {
+            return getContextAnnotation(acls) != null;
+        }
+
+        @Override
+        public boolean hasOneOf(Class<? extends Annotation>[] annoClasses) {
+            for (Class<? extends Annotation> acls : annoClasses) {
+                if (getContextAnnotation(acls) != null) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public AnnotatedElement getAnnotated() {
+            return null;
+        }
+
+        @Override
+        protected int getModifiers() {
+            return 0;
+        }
+
+        @Override
+        public String getName() {
+            return PropertyWriter.this.getName();
+        }
+
+        @Override
+        public JavaType getType() {
+            return PropertyWriter.this.getType();
+        }
+
+        @Override
+        public Class<?> getRawType() {
+            return PropertyWriter.this.getType().getRawClass();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return -1;
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName()+"{'"+getName()+"'}";
+        }
+    }
 }

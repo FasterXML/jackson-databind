@@ -1,17 +1,13 @@
 package tools.jackson.databind.introspect;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.AnnotationIntrospector;
 import tools.jackson.databind.BeanProperty;
-import tools.jackson.databind.JavaType;
 import tools.jackson.databind.PropertyMetadata;
 import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.cfg.MapperConfig;
@@ -68,35 +64,9 @@ public abstract class ConcreteBeanPropertyBase
         return (overrides == null) ? format : format.withOverrides(overrides);
     }
 
+    // Left abstract at this level: only implemented properly on serialization side
     @Override
-    public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType)
-    {
-        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        final AnnotatedMember member = getMember();
-        if (member == null) {
-            return config.getDefaultPropertyInclusion(baseType);
-        }
-        // Start with type-based defaults (including ConfigOverrides for property type)
-        JsonInclude.Value v0 = config.getDefaultInclusion(baseType, member.getRawType());
-        if (intr == null) {
-            return v0;
-        }
-
-        // [databind#1649]: Check for class-level @JsonInclude annotation via context annotations
-        // to properly resolve class-level JsonInclude settings (esp. "content" for Maps/Collections)
-        AnnotationsAsAnnotated classAnns = new AnnotationsAsAnnotated();
-        JsonInclude.Value classIncl = intr.findPropertyInclusion(config, classAnns);
-        if (classIncl != null) {
-            v0 = (v0 == null) ? classIncl : v0.withOverrides(classIncl);
-        }
-
-        // and finally per-property overrides
-        JsonInclude.Value v = intr.findPropertyInclusion(config, member);
-        if (v0 == null) {
-            return v;
-        }
-        return v0.withOverrides(v);
-    }
+    public abstract JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType);
 
     @Override
     public List<PropertyName> findAliases(MapperConfig<?> config)
@@ -116,82 +86,5 @@ public abstract class ConcreteBeanPropertyBase
             _aliases = aliases;
         }
         return aliases;
-    }
-
-    /**
-     * Helper class we need to expose context annotations as {@link Annotated}
-     * that {@link AnnotationIntrospector} can access.
-     *
-     * @since 3.1
-     */
-    private class AnnotationsAsAnnotated 
-        extends Annotated
-    {
-        public AnnotationsAsAnnotated() { }
-
-        @Override
-        public <A extends Annotation> A getAnnotation(Class<A> acls) {
-            return getContextAnnotation(acls);
-        }
-
-        @Override
-        public Stream<Annotation> annotations() {
-            return Stream.empty();
-        }
-
-        @Override
-        public boolean hasAnnotation(Class<? extends Annotation> acls) {
-            return getContextAnnotation(acls) != null;
-        }
-
-        @Override
-        public boolean hasOneOf(Class<? extends Annotation>[] annoClasses) {
-            for (Class<? extends Annotation> acls : annoClasses) {
-                if (getContextAnnotation(acls) != null) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        @Override
-        public AnnotatedElement getAnnotated() {
-            return null;
-        }
-
-        @Override
-        protected int getModifiers() {
-            return 0;
-        }
-
-        @Override
-        public String getName() {
-            return ConcreteBeanPropertyBase.this.getName();
-        }
-
-        @Override
-        public JavaType getType() {
-            return ConcreteBeanPropertyBase.this.getType();
-        }
-
-        @Override
-        public Class<?> getRawType() {
-            return ConcreteBeanPropertyBase.this.getType().getRawClass();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return -1;
-        }
-
-        @Override
-        public String toString() {
-            return getClass().getSimpleName()+"{'"+getName()+"'}";
-        }
     }
 }

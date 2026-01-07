@@ -5,10 +5,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.core.*;
 import tools.jackson.core.util.InternCache;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.bean.BeanDeserializer;
 import tools.jackson.databind.deser.impl.FailingDeserializer;
 import tools.jackson.databind.deser.impl.NullsConstantProvider;
@@ -395,6 +397,12 @@ public abstract class SettableBeanProperty
         return _contextAnnotations.get(acls);
     }
 
+    @Override
+    public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType) {
+        // Not needed on deserialization side so:
+        return JsonInclude.Value.empty();
+    }
+    
     @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
             SerializationContext provider)

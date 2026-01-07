@@ -872,7 +872,7 @@ public class BeanPropertyWriter
 
     /*
     /**********************************************************************
-    /* Helper class(es)
+    /* Helper classes
     /**********************************************************************
      */
 
@@ -908,37 +908,32 @@ public class BeanPropertyWriter
 
         @Override
         public <A extends Annotation> A getAnnotation(Class<A> acls) {
-            return getContextAnnotation(acls);
+            return _contextAnnotations.get(acls);
         }
 
         @Override
         public Stream<Annotation> annotations() {
-            return Stream.empty();
+            return _contextAnnotations.values();
         }
 
         @Override
         public boolean hasAnnotation(Class<? extends Annotation> acls) {
-            return getContextAnnotation(acls) != null;
+            return _contextAnnotations.has(acls);
         }
 
         @Override
         public boolean hasOneOf(Class<? extends Annotation>[] annoClasses) {
-            for (Class<? extends Annotation> acls : annoClasses) {
-                if (getContextAnnotation(acls) != null) {
-                    return true;
-                }
-            }
-            return false;
+            return _contextAnnotations.hasOneOf(annoClasses);
         }
 
         @Override
         public AnnotatedElement getAnnotated() {
-            return null;
+            return _member.getAnnotated();
         }
 
         @Override
         protected int getModifiers() {
-            return 0;
+            return _member.getMember().getModifiers();
         }
 
         @Override
@@ -971,5 +966,4 @@ public class BeanPropertyWriter
             return getClass().getSimpleName()+"{'"+getName()+"'}";
         }
     }
-
 }

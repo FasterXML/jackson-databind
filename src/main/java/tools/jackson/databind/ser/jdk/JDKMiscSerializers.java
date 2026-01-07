@@ -15,7 +15,7 @@ import tools.jackson.databind.ser.std.ToStringSerializer;
 import tools.jackson.databind.util.TokenBuffer;
 
 /**
- * Class that providers access to serializers user for non-structured JDK types that
+ * Class that ctxts access to serializers user for non-structured JDK types that
  * are serializer as scalars; some using basic {@link ToStringSerializer},
  * others explicit serializers.
  */
@@ -65,7 +65,7 @@ public class JDKMiscSerializers
         public AtomicBooleanSerializer() { super(AtomicBoolean.class, false); }
 
         @Override
-        public void serialize(AtomicBoolean value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
+        public void serialize(AtomicBoolean value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
             gen.writeBoolean(value.get());
         }
 
@@ -81,7 +81,7 @@ public class JDKMiscSerializers
         public AtomicIntegerSerializer() { super(AtomicInteger.class, false); }
 
         @Override
-        public void serialize(AtomicInteger value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
+        public void serialize(AtomicInteger value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
             gen.writeNumber(value.get());
         }
 
@@ -98,7 +98,9 @@ public class JDKMiscSerializers
         public AtomicLongSerializer() { super(AtomicLong.class, false); }
 
         @Override
-        public void serialize(AtomicLong value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
+        public void serialize(AtomicLong value, JsonGenerator gen, SerializationContext ctxt)
+            throws JacksonException
+        {
             gen.writeNumber(value.get());
         }
 
@@ -125,7 +127,8 @@ public class JDKMiscSerializers
 
         @Override
         public void serialize(ByteArrayOutputStream value, JsonGenerator gen,
-                SerializationContext ctxt) throws JacksonException {
+                SerializationContext ctxt) throws JacksonException
+        {
             gen.writeBinary(value.toByteArray());
         }
 

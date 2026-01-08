@@ -470,27 +470,7 @@ public class BeanPropertyWriter
     @Override
     public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType)
     {
-        // [databind#1649]: If inclusion was pre-computed in PropertyBuilder
-        // (merging contextual annotations), use that instead of re-computing
-        if (_inclusion != null) {
-            return _inclusion;
-        }
-        // Otherwise, compute dynamically (legacy behavior for properties not
-        // constructed through PropertyBuilder)
-        AnnotatedMember member = getMember();
-        if (member == null) {
-            return config.getDefaultPropertyInclusion(baseType);
-        }
-        JsonInclude.Value v0 = config.getDefaultInclusion(baseType, member.getRawType());
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        if (intr == null) {
-            return v0;
-        }
-        JsonInclude.Value v = intr.findPropertyInclusion(config, member);
-        if (v0 == null) {
-            return v;
-        }
-        return v0.withOverrides(v);
+        return _inclusion;
     }
 
     protected void _depositSchemaProperty(ObjectNode propertiesNode,

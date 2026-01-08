@@ -20,7 +20,7 @@ public abstract class JSR310DateTimeDeserializerBase<T>
     protected final DateTimeFormatter _formatter;
 
     /**
-     * Setting that indicates the {@Link JsonFormat.Shape} specified for this deserializer
+     * Setting that indicates the {@link JsonFormat.Shape} specified for this deserializer
      * as a {@link com.fasterxml.jackson.annotation.JsonFormat.Shape} annotation on
      * property or class, or due to per-type "config override", or from global settings:
      * If Shape is NUMBER_INT, the input value is considered to be epoch days. If not a

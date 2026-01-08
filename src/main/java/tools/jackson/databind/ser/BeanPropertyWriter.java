@@ -203,7 +203,10 @@ public class BeanPropertyWriter
     /**********************************************************************
      */
 
-    @SuppressWarnings("unchecked")
+    /**
+     * @deprecated Since 3.1
+     */
+    @Deprecated // @since 3.1
     public BeanPropertyWriter(BeanPropertyDefinition propDef,
             AnnotatedMember member, Annotations contextAnnotations,
             JavaType declaredType,

@@ -27,6 +27,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1516: Problem with multi-argument Creator with `@JsonBackReference` property
  (reported by @sarahlikesglitter)
  (fix by @JacksonJang)
+#1649: `@JsonInclude(content=)` not working for `Map`-valued properties via
+  POJO class annotation
+ (fix by @cowtowncoder, w/ Claude code)
 #1654: @JsonDeserialize(contentUsing=...) is ignored if content
   type is determined by @JsonTypeInfo
  (reported by @pdegoeje)

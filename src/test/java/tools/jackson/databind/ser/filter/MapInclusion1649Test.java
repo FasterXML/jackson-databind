@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.ser.filter;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -28,7 +27,6 @@ class MapInclusion1649Test extends DatabindTestUtil {
     final private ObjectMapper MAPPER = objectMapper();
 
     // [databind#1649]
-    @JacksonTestFailureExpected
     @Test
     void nonEmptyViaClass() throws IOException {
         // non-empty/null, include

@@ -224,9 +224,13 @@ public class PropertyBuilder
         if (views == null) {
             views = _beanDesc.findDefaultViews();
         }
+        // [databind#1649]: Pass the computed inclusion value (which includes
+        // contextual annotations) so BeanPropertyWriter can use it directly
+        // instead of re-computing in findPropertyInclusion()
         BeanPropertyWriter bpw = _constructPropertyWriter(propDef,
                 am, _beanDesc.getClassAnnotations(), declaredType,
-                ser, typeSer, serializationType, suppressNulls, valueToSuppress, views);
+                ser, typeSer, serializationType, suppressNulls, valueToSuppress, views,
+                inclV);
 
         // How about custom null serializer?
         Object serDef = _annotationIntrospector.findNullSerializer(_config, am);
@@ -244,17 +248,20 @@ public class PropertyBuilder
     /**
      * Overridable factory method for actual construction of {@link BeanPropertyWriter};
      * often needed if subclassing {@link #buildWriter} method.
+     *
+     * @since 3.1 Added {@code inclusion} parameter
      */
     protected BeanPropertyWriter _constructPropertyWriter(BeanPropertyDefinition propDef,
             AnnotatedMember member, Annotations contextAnnotations,
             JavaType declaredType,
             ValueSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             boolean suppressNulls, Object suppressableValue,
-            Class<?>[] includeInViews)
+            Class<?>[] includeInViews, JsonInclude.Value inclusion)
     {
         return new BeanPropertyWriter(propDef,
                 member, contextAnnotations, declaredType,
-                ser, typeSer, serType, suppressNulls, suppressableValue, includeInViews);
+                ser, typeSer, serType, suppressNulls, suppressableValue, includeInViews,
+                inclusion);
     }
 
     /*

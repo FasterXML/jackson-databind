@@ -501,7 +501,7 @@ public class BeanPropertyWriter
      */
     public Object setInternalSetting(Object key, Object value) {
         if (_internalSettings == null) {
-            _internalSettings = new HashMap<Object, Object>();
+            _internalSettings = new HashMap<>();
         }
         return _internalSettings.put(key, value);
     }

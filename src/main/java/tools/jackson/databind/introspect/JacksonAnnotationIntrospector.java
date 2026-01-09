@@ -163,6 +163,19 @@ public class JacksonAnnotationIntrospector
         return b.booleanValue();
     }
 
+    /**
+     * @since 3.1
+     */
+    @Override
+    public Annotation tryMergeClassAnnotation(Annotation existing, Annotation newValue) {
+        // Only handle JsonIgnoreProperties for now
+        // TODO: It will be added...
+        if (existing instanceof JsonIgnoreProperties && newValue instanceof JsonIgnoreProperties) {
+            return _mergeJsonIgnoreProperties((JsonIgnoreProperties) existing, (JsonIgnoreProperties) newValue);
+        }
+        return null;
+    }
+
     /*
     /**********************************************************************
     /* General annotations
@@ -275,26 +288,10 @@ public class JacksonAnnotationIntrospector
     public JsonIgnoreProperties.Value findPropertyIgnoralByName(MapperConfig<?> config, Annotated a)
     {
         JsonIgnoreProperties v = _findAnnotation(a, JsonIgnoreProperties.class);
-        JsonIgnoreProperties.Value result = (v == null)
-                ? JsonIgnoreProperties.Value.empty()
-                : JsonIgnoreProperties.Value.from(v);
-
-        // [databind#1037]: Need to collect JsonIgnoreProperties from super-classes for class-level
-        if (v != null) {
-            Set<String> ignoreNames = new HashSet<>(result.getIgnored());
-            for (Class<?> parent = a.getRawType().getSuperclass();
-                 (parent != null) && (parent != Object.class);
-                 parent = parent.getSuperclass()) {
-                JsonIgnoreProperties parentAnnotation = parent.getAnnotation(JsonIgnoreProperties.class);
-                if (parentAnnotation != null) {
-                    Set<String> parentIgnoreNames = JsonIgnoreProperties.Value.from(parentAnnotation).getIgnored();
-                    ignoreNames.addAll(parentIgnoreNames);
-                }
-            }
-            result = result.withIgnored(ignoreNames);
+        if (v == null) {
+            return JsonIgnoreProperties.Value.empty();
         }
-
-        return result;
+        return JsonIgnoreProperties.Value.from(v);
     }
 
     @Override
@@ -1526,5 +1523,50 @@ public class JacksonAnnotationIntrospector
     private DatabindException _databindException(Throwable t, String msg) {
         // not optimal as we have no parser/generator/context to pass
         return DatabindException.from((JsonParser) null, msg, t);
+    }
+
+    /**
+     * Helper method to merge two {@link JsonIgnoreProperties} annotations.
+     * The existing annotation (from more specific class) takes precedence for
+     * boolean flags, while ignored property names are combined (union).
+     *
+     * @since 3.1
+     */
+    private JsonIgnoreProperties _mergeJsonIgnoreProperties(JsonIgnoreProperties existing, JsonIgnoreProperties newValue) {
+        // Use Value class which already has merge logic
+        JsonIgnoreProperties.Value existingValue = JsonIgnoreProperties.Value.from(existing);
+        JsonIgnoreProperties.Value mergedValue = JsonIgnoreProperties.Value.from(newValue).withMerge();
+
+        // Merge: existing takes precedence, but names are combined
+        final JsonIgnoreProperties.Value merged = existingValue.withOverrides(mergedValue);
+
+        // Create a synthetic annotation instance
+        return new JsonIgnoreProperties() {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return JsonIgnoreProperties.class;
+            }
+
+            @Override
+            public String[] value() {
+                Set<String> ignored = merged.getIgnored();
+                return ignored.toArray(new String[0]);
+            }
+
+            @Override
+            public boolean ignoreUnknown() {
+                return merged.getIgnoreUnknown();
+            }
+
+            @Override
+            public boolean allowGetters() {
+                return merged.getAllowGetters();
+            }
+
+            @Override
+            public boolean allowSetters() {
+                return merged.getAllowSetters();
+            }
+        };
     }
 }

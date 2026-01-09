@@ -172,6 +172,24 @@ public enum DeserializationFeature implements ConfigFeature
     FAIL_ON_INVALID_SUBTYPE(true),
 
     /**
+     * Feature that determines whether abstract types (abstract classes, interfaces)
+     * should be ignored when building the type fingerprints for polymorphic type
+     * deduction using {@link com.fasterxml.jackson.annotation.JsonTypeInfo.Id#DEDUCTION}.
+     * When enabled, non-concrete types are excluded from deduction since they cannot
+     * be instantiated; when disabled, they participate in deduction which may cause
+     * signature conflicts with their concrete subclasses.
+     *<p>
+     * This feature only affects deduction-based polymorphic deserialization; other
+     * type resolution mechanisms (NAME, CLASS, etc.) are not affected.
+     *<p>
+     * Feature is enabled by default (since 3.1) to exclude abstract types from
+     * deduction and avoid signature conflicts.
+     *
+     * @since 3.1
+     */
+    IGNORE_ABSTRACT_TYPES_FOR_DEDUCTION(true),
+
+    /**
      * Feature that determines what happens when reading JSON content into tree
      * ({@link JsonNode} and a duplicate key
      * is encountered (property name that was already seen for the JSON Object).

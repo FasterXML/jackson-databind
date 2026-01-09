@@ -64,15 +64,13 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         int nextProperty = 0;
         Map<BitSet, String> fingerprints = new HashMap<>();
 
+        final boolean removeAbstract = ctxt.isEnabled(DeserializationFeature.IGNORE_ABSTRACT_TYPES_FOR_DEDUCTION);
         for (NamedType subtype : subtypes) {
             JavaType subtyped = ctxt.constructType(subtype.getType());
             // [databind#4708]: Skip non-concrete types (abstract classes, interfaces)
             // since they cannot be instantiated and should not participate in deduction
-            if (ctxt.isEnabled(DeserializationFeature.IGNORE_ABSTRACT_TYPES_FOR_DEDUCTION)) {
-                Class<?> rawType = subtyped.getRawClass();
-                if (!ClassUtil.isConcrete(rawType)) {
-                    continue;
-                }
+            if (removeAbstract && !ClassUtil.isConcrete(subtyped.getRawClass())) {
+                continue;
             }
             List<BeanPropertyDefinition> properties = ctxt.introspectBeanDescription(subtyped).findProperties();
 

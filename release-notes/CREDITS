@@ -167,6 +167,11 @@ Victor Noël (@victornoel)
   `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled
  [3.1.0]
 
+James Mudd (@jamesmudd)
+ * Reported #4277: Deserialization `@JsonFormat(shape = JsonFormat.Shape.ARRAY)` POJO with
+  `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work
+ [3.1.0]
+
 Viktor Szathmáry (@phraktle)
  * Reported #5115: `@JsonUnwrapped` Record deserialization can't handle name collision
  (reported by Viktor S)

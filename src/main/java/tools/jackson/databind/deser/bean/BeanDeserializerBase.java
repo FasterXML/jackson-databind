@@ -878,6 +878,19 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
             shape = _serializationShape;
         }
         if (shape == JsonFormat.Shape.ARRAY) {
+            // [databind#4277]: Detect incompatible combination of ARRAY shape with EXTERNAL_PROPERTY
+            if (contextual._externalTypeIdHandler != null) {
+                return (BeanDeserializerBase) ctxt.reportBadDefinition(_beanType, String.format(
+                    "Cannot use @JsonFormat(shape=JsonFormat.Shape.ARRAY) with " +
+                    "@JsonTypeInfo(include=JsonTypeInfo.As.EXTERNAL_PROPERTY) for type %s: " +
+                    "EXTERNAL_PROPERTY requires object-style JSON with named properties, " +
+                    "but ARRAY shape uses positional JSON arrays. " +
+                    "\n\nWorking alternatives:" +
+                    "\n1. Use @JsonTypeInfo(include=JsonTypeInfo.As.PROPERTY) - type ID inside value object" +
+                    "\n2. Use @JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_ARRAY) - wrap value with type" +
+                    "\n3. Implement a custom deserializer for protocol-specific requirements",
+                    ClassUtil.getTypeDescription(_beanType)));
+            }
             contextual = contextual.asArrayDeserializer();
         }
         return contextual;

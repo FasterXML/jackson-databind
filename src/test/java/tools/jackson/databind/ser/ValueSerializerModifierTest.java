@@ -1,6 +1,9 @@
 package tools.jackson.databind.ser;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +13,9 @@ import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.introspect.AnnotatedField;
+import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.POJOPropertyBuilder;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -289,6 +294,41 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
         }
     }
 
+    
+    // [databind#5414]
+
+    // HiddenFieldModule should prevent the output of the password field.
+    record User5414(String name, @Hidden String password) {}
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Hidden {}
+
+    static class HiddenFieldModule5414 extends SimpleModule {
+        @Override
+        public void setupModule(SetupContext context) {
+          super.setupModule(context);
+          context.addSerializerModifier(new HiddenFieldRemover5414());
+        }
+    }
+
+    static class HiddenFieldRemover5414 extends ValueSerializerModifier {
+        @Override
+        public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription.Supplier beanDesc, List<BeanPropertyWriter> beanProperties) {
+            return beanProperties.stream()
+                    .filter(writer -> !isHidden(writer.getMember()))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
+
+        private boolean isHidden(AnnotatedMember member) {
+            if (member.annotations() == null) {
+                return false;
+            }
+            return member
+                    .annotations()
+                    .anyMatch(annotation -> annotation.annotationType().equals(Hidden.class));
+        }
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -441,4 +481,15 @@ public class ValueSerializerModifierTest extends DatabindTestUtil
         }
     }
 
+    // [databind#5414]
+    @Test
+    public void annotationsAccessIssue5414()
+    {
+        var mapper = JsonMapper.builder()
+                .addModule(new HiddenFieldModule5414())
+                .build();
+        User5414 user = new User5414("John", "123456");
+        String userJson = mapper.writeValueAsString(user);
+        assertEquals("{\"name\":\"John\"}", userJson);
+    }
 }

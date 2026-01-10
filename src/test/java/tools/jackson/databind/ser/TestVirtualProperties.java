@@ -48,7 +48,6 @@ public class TestVirtualProperties extends DatabindTestUtil
         public int value = 28;
     }
 
-    @SuppressWarnings("serial")
     static class CustomVProperty
         extends VirtualBeanPropertyWriter
     {

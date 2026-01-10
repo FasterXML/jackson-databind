@@ -167,6 +167,11 @@ Victor Noël (@victornoel)
   `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled
  [3.1.0]
 
+Garret Wilson (@garretwilson)
+ * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
+   getter method auto-detection for Records
+ [3.1.0]
+
 James Mudd (@jamesmudd)
  * Reported #4277: Deserialization `@JsonFormat(shape = JsonFormat.Shape.ARRAY)` POJO with
   `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work

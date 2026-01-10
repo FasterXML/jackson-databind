@@ -432,6 +432,10 @@ public class DefaultAccessorNamingStrategy
         @Override
         public AccessorNamingStrategy forRecord(MapperConfig<?> config, AnnotatedClass recordClass)
         {
+            // [databind#4157]: If configured to restrict to components only, use stricter strategy
+            if (config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS)) {
+                return new RecordNamingStrict(config, recordClass);
+            }
             return new RecordNaming(config, recordClass);
         }
     }
@@ -541,44 +545,57 @@ public class DefaultAccessorNamingStrategy
             if (_fieldNames.contains(name)) {
                 return name;
             }
-            // [databind#4157]: If configured to restrict accessors to components only,
-            // do NOT fall back to standard getter detection for non-component methods.
-            // This prevents helper methods like getDisplayName() from being serialized.
-            if (_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS)) {
-                return null;
-            }
             // but also allow auto-detecting additional getters, if any?
             return super.findNameForRegularGetter(am, name);
+        }
+    }
+
+    /**
+     * Stricter {@link RecordNaming} implementation used when
+     * {@link MapperFeature#OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS} is enabled.
+     * Unlike the default {@link RecordNaming}, this strategy does NOT fall back to
+     * standard getter/setter detection for methods that don't match Record component names.
+     *<p>
+     * This prevents helper methods like {@code getDisplayName()} from being auto-detected
+     * and serialized when they are not actual Record components.
+     *
+     * @since 3.1
+     */
+    public static class RecordNamingStrict
+        extends RecordNaming
+    {
+        public RecordNamingStrict(MapperConfig<?> config, AnnotatedClass forClass) {
+            super(config, forClass);
+        }
+
+        @Override
+        public String findNameForRegularGetter(AnnotatedMethod am, String name)
+        {
+            // Only allow exact component name matches, no "get" prefix detection
+            if (_fieldNames.contains(name)) {
+                return name;
+            }
+            return null;
         }
 
         @Override
         public String findNameForIsGetter(AnnotatedMethod am, String name)
         {
-            // First check if it's a direct component match (no prefix)
+            // Only allow exact component name matches, no "is" prefix detection
             if (_fieldNames.contains(name)) {
                 return name;
             }
-            // [databind#4157]: If restricting to components only, don't allow
-            // "is"-prefix detection for non-component methods
-            if (_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS)) {
-                return null;
-            }
-            return super.findNameForIsGetter(am, name);
+            return null;
         }
 
         @Override
         public String findNameForMutator(AnnotatedMethod am, String name)
         {
-            // Records are immutable, but check components for edge cases
+            // Only allow exact component name matches, no "set"/"with" prefix detection
             if (_fieldNames.contains(name)) {
                 return name;
             }
-            // [databind#4157]: If restricting to components only, don't allow
-            // mutator detection for non-component methods
-            if (_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS)) {
-                return null;
-            }
-            return super.findNameForMutator(am, name);
+            return null;
         }
     }
 }

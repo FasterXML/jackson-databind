@@ -11,6 +11,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.0.4 (not yet released)
 
+#2580: Regression with External type id / Build deserialization in 3.0
 #5481: JsonMapper.Builder.modules(...) ignores changes after build() due to
   internal saveState
  (reported by @libetl)

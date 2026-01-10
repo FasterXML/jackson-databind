@@ -866,6 +866,8 @@ public class BuilderBasedDeserializer
             if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 return _handleUnexpectedWithin(p, ctxt, bean);
             }
+            // advanced to value
+            p.nextToken();
             // ignorable things should be ignored
             final String propName = p.currentName();
             if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {

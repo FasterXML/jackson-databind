@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * which controls whether only Record component getters are auto-detected
  * or if all JavaBean-style getters are detected (backward compatible behavior).
  */
-public class RecordOverridePublicAccessorsTest extends DatabindTestUtil
+public class RecordIgnoreGetters4157Test extends DatabindTestUtil
 {
     // Test Case 1: Basic record with helper getter
     record PersonRecord(String name, int age) {

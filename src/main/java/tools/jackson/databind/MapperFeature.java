@@ -128,17 +128,18 @@ public enum MapperFeature
 
     /**
      * Feature that determines whether, for Java {@code Record} types, Jackson should
-     * only infer getter methods from actual Record components, or whether all public
-     * getter methods should be auto-detected following standard JavaBean naming conventions.
+     * only infer getter methods from actual Record components, or whether
+     * getter methods should be auto-detected based on name (and within limits
+     * of Jackson visibility as per {@code @JsonAutoDetect} and defaults).
      * <p>
-     * When enabled (true), only getter methods matching Record component names will be
-     * auto-detected for serialization; helper methods like {@code getDisplayName()} on a
+     * When enabled (true), only getter methods matching Record component names will ever
+     * be auto-detected for serialization; helper methods like {@code getDisplayName()} on a
      * Record with component {@code name} will NOT be serialized unless explicitly
      * annotated with {@code @JsonProperty}.
      * <p>
-     * When disabled (false, the default), all public getter methods following JavaBean
-     * conventions will be auto-detected, which may include helper methods that are not
-     * Record components. This is the backward-compatible behavior.
+     * When disabled (false, the default), public getter methods following JavaBean
+     * conventions may be auto-detected, which may include helper methods that are not
+     * Record components.
      * <p>
      * Note that:
      * <ul>

@@ -12,6 +12,7 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 // [databind#5548] Verify that `@JsonInclude` Target level works everywhere.
+// (same as [databind#1649])
 public class JsonIncludeEmptyAtEveryLevel5548Test
     extends DatabindTestUtil
 {

@@ -1205,6 +1205,25 @@ ctor.creator()));
         }
         // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
         implName = _checkRenameByField(implName);
+        // [databind#4157]: Defense-in-depth for Records when restricting to components only.
+        // This is an additional safety check to ensure non-component accessors don't slip through.
+        if (_isRecordType && !nameExplicit
+                && _config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS)) {
+            // Verify this is actually a record component
+            String[] recordComponents = RecordUtil.getRecordFieldNames(_classDef.getRawType());
+            if (recordComponents != null) {
+                boolean isComponent = false;
+                for (String component : recordComponents) {
+                    if (component.equals(implName)) {
+                        isComponent = true;
+                        break;
+                    }
+                }
+                if (!isComponent) {
+                    return; // Not a component, skip it
+                }
+            }
+        }
         boolean ignore = _annotationIntrospector.hasIgnoreMarker(_config, m);
         // 03-Dec-2025, tatu: [databind#5184]: Not the cleanest fix but here goes...
         //  (why not clean? Ideally accessor reconciliation solved the issue, not

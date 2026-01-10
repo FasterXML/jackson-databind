@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -59,6 +60,19 @@ public class RecordIgnoreNonAccessorGetterTest extends DatabindTestUtil {
 
         String json = MAPPER.writeValueAsString(new RecordWithInterfaceWithGetter("Bob"));
 
+        assertEquals("{\"name\":\"Bob\"}", json);
+    }
+
+    // [databind#4157]
+    @Test
+    public void testWithOverridePublicAccessorsFeature() throws Exception {
+        final ObjectMapper MAPPER = jsonMapperBuilder()
+                .enable(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS)
+                .build();
+
+        String json = MAPPER.writeValueAsString(new RecordWithInterfaceWithGetter("Bob"));
+
+        // With feature enabled, only the actual record component should be serialized
         assertEquals("{\"name\":\"Bob\"}", json);
     }
 }

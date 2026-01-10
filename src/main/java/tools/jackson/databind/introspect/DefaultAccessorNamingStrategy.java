@@ -541,8 +541,44 @@ public class DefaultAccessorNamingStrategy
             if (_fieldNames.contains(name)) {
                 return name;
             }
+            // [databind#4157]: If configured to restrict accessors to components only,
+            // do NOT fall back to standard getter detection for non-component methods.
+            // This prevents helper methods like getDisplayName() from being serialized.
+            if (_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS)) {
+                return null;
+            }
             // but also allow auto-detecting additional getters, if any?
             return super.findNameForRegularGetter(am, name);
+        }
+
+        @Override
+        public String findNameForIsGetter(AnnotatedMethod am, String name)
+        {
+            // First check if it's a direct component match (no prefix)
+            if (_fieldNames.contains(name)) {
+                return name;
+            }
+            // [databind#4157]: If restricting to components only, don't allow
+            // "is"-prefix detection for non-component methods
+            if (_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS)) {
+                return null;
+            }
+            return super.findNameForIsGetter(am, name);
+        }
+
+        @Override
+        public String findNameForMutator(AnnotatedMethod am, String name)
+        {
+            // Records are immutable, but check components for edge cases
+            if (_fieldNames.contains(name)) {
+                return name;
+            }
+            // [databind#4157]: If restricting to components only, don't allow
+            // mutator detection for non-component methods
+            if (_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS)) {
+                return null;
+            }
+            return super.findNameForMutator(am, name);
         }
     }
 }

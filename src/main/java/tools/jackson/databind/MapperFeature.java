@@ -127,6 +127,32 @@ public enum MapperFeature
     ALLOW_IS_GETTERS_FOR_NON_BOOLEAN(false),
 
     /**
+     * Feature that determines whether, for Java {@code Record} types, Jackson should
+     * only auto-detect accessor methods (getters) that correspond to actual Record
+     * components, or whether all public getter methods should be detected following
+     * standard JavaBean naming conventions.
+     * <p>
+     * When enabled (true), only accessor methods matching Record component names
+     * will be auto-detected for serialization; helper methods like {@code getDisplayName()}
+     * on a Record with component {@code name} will NOT be serialized unless explicitly
+     * annotated with {@code @JsonProperty}.
+     * <p>
+     * When disabled (false, the default), all public getter methods following JavaBean
+     * conventions will be auto-detected, which may include helper methods that are not
+     * Record components. This is the backward-compatible behavior.
+     * <p>
+     * Note that explicit annotations ({@code @JsonProperty}, {@code @JsonGetter}, etc.)
+     * always take precedence and will work regardless of this setting.
+     * <p>
+     * This setting only affects Records; it has no effect on regular POJOs.
+     * <p>
+     * Feature is disabled by default for backward compatibility.
+     *
+     * @since 3.1
+     */
+    OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS(false),
+
+    /**
      * Feature that determines whether nominal property type of {@link Void} is
      * allowed for Getter methods to indicate {@code null} valued pseudo-property
      * or not. If enabled, such properties are recognized (see [databind#2675] for

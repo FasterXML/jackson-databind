@@ -894,6 +894,7 @@ public class BuilderBasedDeserializer
             }
             // ignorable things should be ignored
             final String propName = p.currentName();
+            p.nextToken();
             if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;

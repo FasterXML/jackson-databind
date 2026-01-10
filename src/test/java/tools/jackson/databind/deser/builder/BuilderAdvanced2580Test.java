@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.deser.builder;
 
 import org.junit.jupiter.api.Test;
 
@@ -13,9 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
-// Test case for a regression in 3.0, worked in 2.11
+// [databind#2580]: Builder with external type id
 public class BuilderAdvanced2580Test
 {
     @JsonDeserialize(builder=ExternalBuilder.class)
@@ -63,8 +62,7 @@ public class BuilderAdvanced2580Test
     /**********************************************************
      */
 
-    // [databind#2580]: regression somewhere
-    @JacksonTestFailureExpected
+    // [databind#2580]
     @Test
     public void testWithExternalTypeId() throws Exception
     {

@@ -9,7 +9,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import java.util.Optional;
 
-// [databind#5548] Verify that `@JsonInclude` Target level works everywhere
+// [databind#5548] Verify that `@JsonInclude` Target level works everywhere.
 public class JsonIncludeEmptyAtEveryLevel5548Test
     extends DatabindTestUtil
 {
@@ -65,7 +65,6 @@ public class JsonIncludeEmptyAtEveryLevel5548Test
         JacksonAsEmptyModel model = new JacksonAsEmptyModel();
         model.setName("");
         model.setDescription("");
-        model.setFamilyName("");
         String JSON = mapper.writeValueAsString(model);
 
         Assertions.assertEquals(JSON, "{}");
@@ -78,7 +77,6 @@ public class JsonIncludeEmptyAtEveryLevel5548Test
         JacksonFieldLevelModel model = new JacksonFieldLevelModel();
         model.setName("");
         model.setDescription("");
-        model.setFamilyName("");
         String JSON = mapper.writeValueAsString(model);
 
         Assertions.assertEquals(JSON, "{}");
@@ -91,7 +89,6 @@ public class JsonIncludeEmptyAtEveryLevel5548Test
         JacksonClassLevelModel model = new JacksonClassLevelModel();
         model.setName("");
         model.setDescription("");
-        model.setFamilyName("");
         String JSON = mapper.writeValueAsString(model);
 
         Assertions.assertEquals(JSON, "{}");

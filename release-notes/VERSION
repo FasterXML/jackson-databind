@@ -48,6 +48,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   resolve `?` into expected bounds, resulting in `LinkedHashMap`
  (reported by @Mariusz)
  (fix by @cowtowncoder, w/ Claude code)
+#4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
+  getter method auto-detection for Records
+ (suggested by Garret W)
+ (fix by @cowtowncoder, w/ Claude code)
 #4277: Deserialization `@JsonFormat(shape = JsonFormat.Shape.ARRAY)` POJO with
   `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work
  (reported by James M)

@@ -128,29 +128,31 @@ public enum MapperFeature
 
     /**
      * Feature that determines whether, for Java {@code Record} types, Jackson should
-     * only auto-detect accessor methods (getters) that correspond to actual Record
-     * components, or whether all public getter methods should be detected following
-     * standard JavaBean naming conventions.
+     * only infer getter methods from actual Record components, or whether all public
+     * getter methods should be auto-detected following standard JavaBean naming conventions.
      * <p>
-     * When enabled (true), only accessor methods matching Record component names
-     * will be auto-detected for serialization; helper methods like {@code getDisplayName()}
-     * on a Record with component {@code name} will NOT be serialized unless explicitly
+     * When enabled (true), only getter methods matching Record component names will be
+     * auto-detected for serialization; helper methods like {@code getDisplayName()} on a
+     * Record with component {@code name} will NOT be serialized unless explicitly
      * annotated with {@code @JsonProperty}.
      * <p>
      * When disabled (false, the default), all public getter methods following JavaBean
      * conventions will be auto-detected, which may include helper methods that are not
      * Record components. This is the backward-compatible behavior.
      * <p>
-     * Note that explicit annotations ({@code @JsonProperty}, {@code @JsonGetter}, etc.)
-     * always take precedence and will work regardless of this setting.
-     * <p>
-     * This setting only affects Records; it has no effect on regular POJOs.
+     * Note that:
+     * <ul>
+     *  <li>Explicit annotations ({@code @JsonProperty}, {@code @JsonGetter}, etc.)
+     *      always take precedence and will work regardless of this setting</li>
+     *  <li>This setting only affects getter detection for Records; it does NOT affect
+     *      setter or field detection, and has no effect on regular POJOs</li>
+     * </ul>
      * <p>
      * Feature is disabled by default for backward compatibility.
      *
      * @since 3.1
      */
-    OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS(false),
+    INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY(false),
 
     /**
      * Feature that determines whether nominal property type of {@link Void} is

@@ -433,7 +433,7 @@ public class DefaultAccessorNamingStrategy
         public AccessorNamingStrategy forRecord(MapperConfig<?> config, AnnotatedClass recordClass)
         {
             // [databind#4157]: If configured to restrict to components only, use stricter strategy
-            if (config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS)) {
+            if (config.isEnabled(MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY)) {
                 return new RecordNamingStrict(config, recordClass);
             }
             return new RecordNaming(config, recordClass);
@@ -552,7 +552,7 @@ public class DefaultAccessorNamingStrategy
 
     /**
      * Stricter {@link RecordNaming} implementation used when
-     * {@link MapperFeature#OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS} is enabled.
+     * {@link MapperFeature#INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY} is enabled.
      * Unlike the default {@link RecordNaming}, this strategy does NOT fall back to
      * standard getter/setter detection for methods that don't match Record component names.
      *<p>

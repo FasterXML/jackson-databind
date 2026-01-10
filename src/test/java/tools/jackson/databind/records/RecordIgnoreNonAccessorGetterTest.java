@@ -65,9 +65,9 @@ public class RecordIgnoreNonAccessorGetterTest extends DatabindTestUtil {
 
     // [databind#4157]
     @Test
-    public void testWithOverridePublicAccessorsFeature() throws Exception {
+    public void testWithInferGettersFromComponentsOnlyFeature() throws Exception {
         final ObjectMapper MAPPER = jsonMapperBuilder()
-                .enable(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS)
+                .enable(MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY)
                 .build();
 
         String json = MAPPER.writeValueAsString(new RecordWithInterfaceWithGetter("Bob"));

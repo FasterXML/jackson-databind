@@ -12,8 +12,8 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for {@link MapperFeature#OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS}
- * which controls whether only Record component accessors are auto-detected
+ * Tests for {@link MapperFeature#INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY}
+ * which controls whether only Record component getters are auto-detected
  * or if all JavaBean-style getters are detected (backward compatible behavior).
  */
 public class RecordOverridePublicAccessorsTest extends DatabindTestUtil
@@ -79,7 +79,7 @@ public class RecordOverridePublicAccessorsTest extends DatabindTestUtil
     private final ObjectMapper MAPPER_DEFAULT = newJsonMapper();
 
     private final ObjectMapper MAPPER_RESTRICTED = jsonMapperBuilder()
-            .enable(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS)
+            .enable(MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY)
             .build();
 
     /*
@@ -87,7 +87,7 @@ public class RecordOverridePublicAccessorsTest extends DatabindTestUtil
      */
     @Test
     public void testFeatureDisabledByDefault() throws Exception {
-        assertFalse(MAPPER_DEFAULT.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS));
+        assertFalse(MAPPER_DEFAULT.isEnabled(MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY));
     }
 
     /*
@@ -258,10 +258,10 @@ public class RecordOverridePublicAccessorsTest extends DatabindTestUtil
     @Test
     public void testFeatureConfiguration_ViaBuilder() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS)
+                .enable(MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY)
                 .build();
 
-        assertTrue(mapper.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS));
+        assertTrue(mapper.isEnabled(MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY));
 
         PersonRecord person = new PersonRecord("test", 1);
         String json = mapper.writeValueAsString(person);
@@ -274,10 +274,10 @@ public class RecordOverridePublicAccessorsTest extends DatabindTestUtil
     @Test
     public void testFeatureConfiguration_ExplicitDisable() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .disable(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS)
+                .disable(MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY)
                 .build();
 
-        assertFalse(mapper.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESSORS_FOR_RECORDS));
+        assertFalse(mapper.isEnabled(MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY));
 
         PersonRecord person = new PersonRecord("test", 1);
         String json = mapper.writeValueAsString(person);

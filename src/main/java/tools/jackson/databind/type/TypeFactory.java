@@ -1544,7 +1544,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             }
             newBindings = TypeBindings.create(rawType, pt);
 
-            // [databind#4118] Unbind wildcards in self-referential type parameters
+            // [databind#4118] Unbind wildcards in (direct) self-referential type parameters
             // to allow deserializers to use the class definition's bounds instead of Object.
             // [databind#4147] Only unbind for self-referential parameters to avoid
             // breaking multi-parameter types like Either<L, R> where only some are wildcards.
@@ -1552,7 +1552,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
                 if (args[i] instanceof WildcardType && !pt[i].hasGenericTypes()) {
                     TypeVariable<? extends Class<?>> typeVariable = rawType.getTypeParameters()[i];
 
-                    // Only unbind if this is a self-referential type parameter
+                    // Only unbind if this is a (direct) self-referential type parameter
                     if (_isSelfReferentialTypeParameter(typeVariable, rawType)) {
                         if (pt[i].getRawClass().isAssignableFrom(rawClass(typeVariable))) {
                             newBindings = newBindings.withoutVariable(typeVariable.getName());
@@ -1611,10 +1611,13 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
     }
 
     /**
-     * Helper method to determine if a type parameter is self-referential,
+     * Helper method to determine if a type parameter is directly self-referential,
      * meaning its bound references the declaring class itself.
      * For example, in {@code class Foo<T extends Foo<?>>}, T is self-referential.
      * This is used to handle recursive wildcard types correctly (see [databind#4118]).
+     *<p>
+     * NOTE: does NOT check for indirect (nested) self-references: should be rare
+     * in practice but potential concern.
      *
      * @param typeVar Type variable to check
      * @param declaringClass The class that declares this type variable

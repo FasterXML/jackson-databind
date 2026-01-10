@@ -9,10 +9,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.tofix.BuilderAdvanced2580Test.BaseBean2580;
-import tools.jackson.databind.tofix.BuilderAdvanced2580Test.ExternalBean2580;
-import tools.jackson.databind.tofix.BuilderAdvanced2580Test.ExternalBuilder2580;
-import tools.jackson.databind.tofix.BuilderAdvanced2580Test.ValueBean2580;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.deser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -57,7 +56,6 @@ class RecursiveWildcard4118Test extends DatabindTestUtil {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // for [databind#4118]
-    @JacksonTestFailureExpected
     @Test
     void recursiveWildcard4118() throws Exception {
         Tree<?> tree = MAPPER.readValue("[[[]]]", new TypeReference<Tree<?>>() {
@@ -69,7 +67,6 @@ class RecursiveWildcard4118Test extends DatabindTestUtil {
     }
 
     // for [databind#4118]
-    @JacksonTestFailureExpected
     @Test
     void deserWildcard4118() throws Exception {
         // Given

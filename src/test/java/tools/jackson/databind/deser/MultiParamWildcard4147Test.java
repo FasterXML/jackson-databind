@@ -62,7 +62,6 @@ class MultiParamWildcard4147Test extends DatabindTestUtil
     void multiParamWithBothWildcards() throws Exception {
         String json = a2q("{'left':'hello','right':456}");
 
-        @SuppressWarnings("unchecked")
         Pair<?, ?> result = MAPPER.readValue(json, Pair.class);
 
         assertNotNull(result);

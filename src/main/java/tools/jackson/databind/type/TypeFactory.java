@@ -1546,7 +1546,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
 
             // [databind#4118] Unbind wildcards in self-referential type parameters
             // to allow deserializers to use the class definition's bounds instead of Object.
-            // [databind#4147] Fixed: Only unbind for self-referential parameters to avoid
+            // [databind#4147] Only unbind for self-referential parameters to avoid
             // breaking multi-parameter types like Either<L, R> where only some are wildcards.
             for (int i = 0; i < paramCount; ++i) {
                 if (args[i] instanceof WildcardType && !pt[i].hasGenericTypes()) {
@@ -1631,19 +1631,12 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         // Check the first bound (typically the important one)
         Type bound = bounds[0];
 
-        // If bound is a ParameterizedType, check if its raw type is the declaring class
-        if (bound instanceof ParameterizedType pt) {
-            Type rawType = pt.getRawType();
-            if (rawType instanceof Class<?> && rawType == declaringClass) {
-                return true;
-            }
-        }
-
-        // Could also be directly the class (raw type bound)
-        if (bound instanceof Class<?> && bound == declaringClass) {
+        // May be directly the class (raw type bound)
+        if (bound == declaringClass) {
             return true;
         }
 
-        return false;
+        // Or if bound is a ParameterizedType, check if its raw type is the declaring class
+       return (bound instanceof ParameterizedType pt && pt.getRawType() == declaringClass);
     }
 }

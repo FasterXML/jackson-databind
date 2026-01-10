@@ -44,6 +44,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #3964: Deserialization issue: MismatchedInputException, Bean not
   yet resolved
  (reported by @detomarco)
+#4118: Deserialization of a certain kinds of parametrized properties fail to
+  resolve `?` into expected bounds, resulting in `LinkedHashMap`
+ (reported by @Mariusz)
+ (fix by @cowtowncoder, w/ Claude code)
 #4277: Deserialization `@JsonFormat(shape = JsonFormat.Shape.ARRAY)` POJO with
   `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work
  (reported by James M)

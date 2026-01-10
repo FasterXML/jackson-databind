@@ -1,20 +1,21 @@
 package tools.jackson.databind.ser.filter;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-
-import java.util.Optional;
 
 // [databind#5548] Verify that `@JsonInclude` Target level works everywhere.
 public class JsonIncludeEmptyAtEveryLevel5548Test
     extends DatabindTestUtil
 {
-
-    public static class JacksonAsEmptyModel {
+    static class JacksonAsEmptyModel {
         String name;
         String description;
         String familyName;
@@ -26,7 +27,7 @@ public class JsonIncludeEmptyAtEveryLevel5548Test
         public void setFamilyName(String familyName) {this.familyName = familyName;}
     }
 
-    public static class JacksonFieldLevelModel {
+    static class JacksonFieldLevelModel {
         @JsonInclude(value = JsonInclude.Include.NON_EMPTY, content = JsonInclude.Include.NON_EMPTY)
         String name;
         @JsonInclude(value = JsonInclude.Include.NON_EMPTY, content = JsonInclude.Include.NON_EMPTY)
@@ -42,7 +43,7 @@ public class JsonIncludeEmptyAtEveryLevel5548Test
     }
 
     @JsonInclude(value = JsonInclude.Include.NON_EMPTY, content = JsonInclude.Include.NON_EMPTY)
-    public static class JacksonClassLevelModel {
+    static class JacksonClassLevelModel {
         String name;
         String description;
         String familyName;
@@ -55,7 +56,7 @@ public class JsonIncludeEmptyAtEveryLevel5548Test
     }
 
     @Test
-    public void testWithMapperConfiguration() {
+    void testWithMapperConfiguration() {
         ObjectMapper mapper = JsonMapper.builder()
                 .changeDefaultPropertyInclusion(inclusion -> inclusion
                         .withContentInclusion(JsonInclude.Include.NON_EMPTY)
@@ -71,7 +72,7 @@ public class JsonIncludeEmptyAtEveryLevel5548Test
     }
 
     @Test
-    public void testWithFieldConfiguration() {
+    void testWithFieldConfiguration() {
         ObjectMapper mapper = JsonMapper.builder().build();
 
         JacksonFieldLevelModel model = new JacksonFieldLevelModel();
@@ -83,7 +84,7 @@ public class JsonIncludeEmptyAtEveryLevel5548Test
     }
 
     @Test
-    public void testWithClassLevelConfiguration() {
+    void testWithClassLevelConfiguration() {
         ObjectMapper mapper = JsonMapper.builder().build();
 
         JacksonClassLevelModel model = new JacksonClassLevelModel();
@@ -93,5 +94,4 @@ public class JsonIncludeEmptyAtEveryLevel5548Test
 
         Assertions.assertEquals(JSON, "{}");
     }
-
 }

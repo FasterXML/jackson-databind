@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.jsontype.ext;
 
 import java.util.UUID;
 
@@ -14,17 +14,9 @@ import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.annotation.JsonTypeIdResolver;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-// 31-Jan-2020, tatu: Seems to have regression in 3.0, but this is so
-//    fucking complicated case that my head hurts. Regression only
-//    found because due to some renaming or another test case was not
-//    run for a while, and when named back to end with -Test was now
-//    failing with 3.0. Would be nice to fix but OMG do some users use
-//    tortured and complicated system to do... scary things. Not even 100%
-//    sure it was a good idea to allow all this machinery in the first place.
 @SuppressWarnings("hiding")
 public class ExternalTypeCustomResolver1288Test extends DatabindTestUtil
 {
@@ -442,7 +434,6 @@ public class ExternalTypeCustomResolver1288Test extends DatabindTestUtil
     }
 
     // [databind#1288]
-    @JacksonTestFailureExpected
     @Test
     public void testExternalWithCustomResolverAndBuilder() throws Exception
     {

@@ -11,6 +11,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.0.4 (not yet released)
 
+#1288 (regression in 3.0) Type id not exposed for `JsonTypeInfo.As.EXTERNAL_PROPERTY`
+  even when `visible` set to `true`
 #2580: Regression with External type id / Build deserialization in 3.0
 #5481: JsonMapper.Builder.modules(...) ignores changes after build() due to
   internal saveState

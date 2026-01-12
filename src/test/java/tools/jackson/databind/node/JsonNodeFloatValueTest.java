@@ -235,7 +235,11 @@ public class JsonNodeFloatValueTest
     public void asFloatFromMiscOther()
     {
         // Null node converts to 0.0f; missing fails
-        _assertAsFloat((float) 0, NODES.nullNode());
+        assertEquals(0.0f, NODES.nullNode().asFloat());
+
+        // and defaults
+        assertEquals(-9999.5f, NODES.nullNode().asFloat(-9999.5f));
+        assertFalse(NODES.nullNode().asFloatOpt().isPresent());
         _assertAsFloatFailForNonNumber(NODES.missingNode());
     }
 

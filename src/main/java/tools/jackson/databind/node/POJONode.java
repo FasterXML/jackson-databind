@@ -69,6 +69,32 @@ public class POJONode
     }
 
     @Override
+    public boolean asBoolean(boolean defaultValue) {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return defaultValue;
+        }
+        if (_value instanceof Boolean B) {
+            return B;
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<Boolean> asBooleanOpt() {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return Optional.empty();
+        }
+
+        if (_value instanceof Boolean B) {
+            return B ? OPT_TRUE : OPT_FALSE;
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
     protected String _asString() {
         if (_value instanceof String str) {
              return str;
@@ -76,6 +102,18 @@ public class POJONode
         // 21-Mar-2025, tatu: [databind#5034] Should we consider RawValue too?
         //    (for now, won't)
         return null;
+    }
+
+    @Override
+    public String asString(String defaultValue) {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return defaultValue;
+        }
+        if (_value instanceof String str) {
+            return str;
+        }
+        return defaultValue;
     }
 
     /**
@@ -126,7 +164,7 @@ public class POJONode
     public short asShort(short defaultValue) {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return 0;
+            return defaultValue;
         }
 
         // Next, check if the value is NOT a Number
@@ -146,7 +184,7 @@ public class POJONode
     public Optional<Short> asShortOpt() {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return Optional.of((short) 0);
+            return Optional.empty();
         }
 
         // Next, check if the value is NOT a Number
@@ -190,7 +228,7 @@ public class POJONode
     public int asInt(int defaultValue) {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return 0;
+            return defaultValue;
         }
 
         // Next, check if the value is NOT a Number
@@ -210,7 +248,7 @@ public class POJONode
     public OptionalInt asIntOpt() {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return OptionalInt.of(0);
+            return OptionalInt.empty();
         }
 
         // Next, check if the value is NOT a Number
@@ -254,7 +292,7 @@ public class POJONode
     public long asLong(long defaultValue) {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return 0L;
+            return defaultValue;
         }
 
         // Next, report coercion fail if the value is NOT a Number
@@ -274,7 +312,7 @@ public class POJONode
     public OptionalLong asLongOpt() {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return OptionalLong.of(0L);
+            return OptionalLong.empty();
         }
 
         // Next, report coercion fail if the value is NOT a Number
@@ -313,7 +351,7 @@ public class POJONode
     public BigInteger asBigInteger(BigInteger defaultValue) {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return BigInteger.ZERO;
+            return defaultValue;
         }
 
         // Next, check if the value is NOT a Number
@@ -329,7 +367,7 @@ public class POJONode
     public Optional<BigInteger> asBigIntegerOpt() {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return Optional.of(BigInteger.ZERO);
+            return Optional.empty();
         }
 
         // Next, check if the value is NOT a Number
@@ -369,7 +407,7 @@ public class POJONode
     public float asFloat(float defaultValue) {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return 0.0f;
+            return defaultValue;
         }
 
         // Next, check if the value is NOT a Number
@@ -389,7 +427,7 @@ public class POJONode
     public Optional<Float> asFloatOpt() {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return Optional.of(0.0f);
+            return Optional.empty();
         }
 
         // Next, check if the value is NOT a Number
@@ -433,7 +471,7 @@ public class POJONode
     public double asDouble(double defaultValue) {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return 0.0d;
+            return defaultValue;
         }
 
         // Next, check if the value is NOT a Number
@@ -453,7 +491,7 @@ public class POJONode
     public OptionalDouble asDoubleOpt() {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return OptionalDouble.of(0.0d);
+            return OptionalDouble.empty();
         }
 
         // Next, check if the value is NOT a Number
@@ -492,7 +530,7 @@ public class POJONode
     public BigDecimal asDecimal(BigDecimal defaultValue) {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return BigDecimal.ZERO;
+            return defaultValue;
         }
 
         // Next, check if the value is NOT a Number
@@ -508,7 +546,7 @@ public class POJONode
     public Optional<BigDecimal> asDecimalOpt() {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return Optional.of(BigDecimal.ZERO);
+            return Optional.empty();
         }
 
         // Next, check if the value is NOT a Number

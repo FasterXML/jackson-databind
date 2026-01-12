@@ -211,7 +211,11 @@ public class JsonNodeDecimalValueTest
     public void asDecimalFromMiscOther()
     {
         // "null" becomes "0.0"
-        _assertAsDecimal(BigDecimal.ZERO, NODES.nullNode());
+        assertEquals(BigDecimal.ZERO, NODES.nullNode().asDecimal());
+
+        // but also defaulting
+        assertEquals(BD_DEFAULT, NODES.nullNode().asDecimal(BD_DEFAULT));
+        assertFalse(NODES.nullNode().asDecimalOpt().isPresent());
 
         // but "missing" still fails
         _assertFailAsDecimalForNonNumber(NODES.missingNode());

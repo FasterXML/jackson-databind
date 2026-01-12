@@ -47,7 +47,7 @@ public class NullNodeTest extends NodeTestBase
         // fallback accessors
 
         assertEquals("", n.asString());
-        assertEquals("", n.asString("fallback"));
+        assertEquals("fallback", n.asString("fallback"));
 
         assertEquals(0, n.size());
         assertTrue(n.isEmpty());

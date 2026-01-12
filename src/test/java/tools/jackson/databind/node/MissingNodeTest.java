@@ -7,7 +7,9 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.exc.JsonNodeException;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MissingNodeTest extends NodeTestBase
@@ -19,7 +21,9 @@ public class MissingNodeTest extends NodeTestBase
         assertTrue(n.isMissingNode());
         assertEquals(JsonToken.NOT_AVAILABLE, n.asToken());
         // exception in 3.0:
-        //assertEquals("", n.asString());
+        assertThatThrownBy(n::asString)
+                .isInstanceOf(JsonNodeException.class)
+                .hasMessage("'MissingNode' method `asString()` cannot convert value <missing> to `java.lang.String`: value type not coercible to `String`");
         assertEquals("default", n.asString("default"));
         assertStandardEquals(n);
         // 10-Dec-2018, tatu: With 2.10, should serialize same as via ObjectMapper/ObjectWriter

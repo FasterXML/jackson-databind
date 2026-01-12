@@ -188,7 +188,11 @@ public class JsonNodeBigIntegerValueTest
     public void asBigIntegerFromMiscOther()
     {
         // NullNode becomes 0, not fail
-        _assertAsBigInteger(BigInteger.ZERO, NODES.nullNode());
+        assertEquals(BigInteger.ZERO, NODES.nullNode().asBigInteger());
+
+        // and then defaulting
+        assertEquals(BigInteger.valueOf(9999999L), NODES.nullNode().asBigInteger(BigInteger.valueOf(9999999L)));
+        assertFalse(NODES.nullNode().asBigIntegerOpt().isPresent());
 
         // But MissingNode still fails
         _assertAsBigIntegerFailForNonNumber(NODES.missingNode());

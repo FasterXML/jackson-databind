@@ -611,13 +611,13 @@ public abstract class JsonNode
 
     /**
      * Similar to {@link #asString()}, but instead of throwing an exception for
-     * non-coercible values, will return specified default value.
+     * non-coercible values or coercing {@code null}, will return the specified default value.
      */
     public abstract String asString(String defaultValue);
 
     /**
      * Similar to {@link #asString()}, but instead of throwing an exception for
-     * non-coercible values, will return {@code Optional.empty()}.
+     * non-coercible values or coercing {@code null}, will return {@code Optional.empty()}.
      */
     public abstract Optional<String> asStringOpt();
 
@@ -703,13 +703,13 @@ public abstract class JsonNode
 
     /**
      * Similar to {@link #asBoolean()}, but instead of throwing an exception for
-     * non-coercible values, will return specified default value.
+     * non-coercible values or coercing {@code null}, will return the specified default value.
      */
     public abstract boolean asBoolean(boolean defaultValue);
 
     /**
      * Similar to {@link #asBoolean()}, but instead of throwing an exception for
-     * non-coercible values, will return {@code Optional.empty()}.
+     * non-coercible values or coercing {@code null}, will return {@code Optional.empty()}.
      */
     public abstract Optional<Boolean> asBooleanOpt();
 
@@ -794,7 +794,7 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #shortValue()}, but that will return specified
-     * {@code defaultValue} if this node cannot be converted to {@code short}.
+     * {@code defaultValue} if this node cannot be converted to {@code short} or if the value is {@code null}.
      *
      * @param defaultValue Value to return if this node cannot be converted to {@code short}
      *
@@ -806,7 +806,7 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #asShort()}, but that will return
      * ({@code Optional.empty()}) if this node cannot
-     * be coerced to {@code short}.
+     * be coerced to {@code short} or if the value is {@code null}.
      *
      * @return {@code Optional<Short>} value this node represents,
      * if possible to accurately represent; {@code Optional.empty()} otherwise
@@ -882,7 +882,7 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #intValue()}, but that will return specified
-     * {@code defaultValue} if this node cannot be converted to {@code int}.
+     * {@code defaultValue} if this node cannot be converted to {@code int} or if the value is {@code null}.
      *
      * @param defaultValue Value to return if this node cannot be converted to {@code int}
      *
@@ -894,7 +894,7 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #asInt()}, but that will return
      * ({@code OptionalInt.empty()}) if this node cannot
-     * be coerced to {@code int}.
+     * be coerced to {@code int} or if the value is {@code null}.
      *
      * @return {@link OptionalInt} value this node represents,
      * if possible to accurately represent; {@code OptionalInt.empty()} otherwise
@@ -971,7 +971,7 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #asLong()}, but that will return specified
      * {@code defaultValue} if this node cannot be coerced to {@code long}
-     * (instead of throwing an exception).
+     * (instead of throwing an exception) or if the value is {@code null}.
      *
      * @param defaultValue Value to return if this node cannot be coerced to {@code long}
      *
@@ -983,7 +983,7 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #asLong()}, but that will return
      * ({@code OptionalLong.empty()}) if this node cannot
-     * be coerced to {@code long}.
+     * be coerced to {@code long} or if the value is {@code null}.
      *
      * @return {@link OptionalLong} value this node represents (or can be coerced to),
      *    {@code OptionalLong.empty()} otherwise
@@ -1056,7 +1056,7 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #asBigInteger()}, but that will return specified
-     * {@code defaultValue} if this node cannot be converted to {@link BigInteger}.
+     * {@code defaultValue} if this node cannot be converted to {@link BigInteger} or if the value is {@code null}.
      *
      * @param defaultValue Value to return if this node cannot be converted to {@link BigInteger}
      *
@@ -1068,7 +1068,7 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #bigIntegerValue()}, but that will return empty
      * ({@code Optional.empty()}) if this node cannot
-     * be converted to Java {@code BigInteger}.
+     * be converted to Java {@code BigInteger} or if the value is {@code null}.
      *
      * @return {@link BigInteger} value this node represents, as {@code Optional<BigInteger>},
      * if possible to accurately represent; {@code Optional.empty()} otherwise.
@@ -1138,7 +1138,7 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #asFloat()}, but that will return {@code defaultValue}
-     * if this node cannot be coerced to {@code float}.
+     * if this node cannot be coerced to {@code float} or if the value is {@code null}.
      *
      * @return {@code float} value this node represents,
      * if possible to accurately represent; {@code defaultValue} otherwise
@@ -1148,7 +1148,7 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #asFloat()}, but that will return
      * ({@code Optional.empty()}) if this node cannot
-     * be coerced to {@code float}.
+     * be coerced to {@code float} or if the value is {@code null}.
      *
      * @return {@code Optional<Float>} value this node represents,
      * if possible to accurately represent; {@code Optional.empty()} otherwise
@@ -1219,7 +1219,7 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #asDouble()}, but that will return {@code defaultValue}
-     * if this node cannot be coerced to {@code double}.
+     * if this node cannot be coerced to {@code double} or if the value is {@code null}.
      *
      * @return {@code double} value this node represents,
      * if possible to accurately represent; {@code defaultValue} otherwise
@@ -1229,7 +1229,7 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #asDouble()}, but that will return
      * ({@code OptionalDouble.empty()}) if this node cannot
-     * be coerced to {@code double}.
+     * be coerced to {@code double} or if the value is {@code null}.
      *
      * @return {@link OptionalDouble} value this node represents,
      * if possible to accurately represent; {@code OptionalDouble.empty()} otherwise
@@ -1302,7 +1302,7 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #asDecimal()}, but that will return {@code defaultValue}
-     * if this node cannot be coerced to Java {@code BigDecimal}.
+     * if this node cannot be coerced to Java {@code BigDecimal} or if the value is {@code null}.
      *
      * @return {@code BigDecimal} value this node represents,
      * if possible to accurately represent; {@code defaultValue} otherwise
@@ -1312,7 +1312,7 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #asDecimal()}, but that will return empty
      * {@link Optional} ({@code Optional.empty()}) if this node cannot
-     * be coerced to {@code BigDecimal}.
+     * be coerced to {@code BigDecimal} or if the value is {@code null}.
      *
      * @return Java {@code BigDecimal} value this node represents, as {@code Optional<BigDecimal>},
      * if possible to accurately represent; {@code Optional.empty()} otherwise

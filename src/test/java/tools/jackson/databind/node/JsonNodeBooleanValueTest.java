@@ -136,7 +136,9 @@ public class JsonNodeBooleanValueTest
     public void asBooleanFromNonNumberMisc()
     {
         // Null ok
-        _assertFalseFromAsBoolean(NODES.nullNode());
+        assertEquals(false, NODES.nullNode().asBoolean());
+        assertEquals(true, NODES.nullNode().asBoolean(true));
+        assertFalse(NODES.nullNode().asBooleanOpt().isPresent());
         // And POJO node with Boolean:
         _assertFalseFromAsBoolean(NODES.pojoNode(Boolean.FALSE));
         _assertTrueFromAsBoolean(NODES.pojoNode(Boolean.TRUE));

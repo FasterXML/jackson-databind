@@ -123,7 +123,11 @@ public class JsonNodeStringValueTest
     @Test
     public void asStringFromNonNumberMisc()
     {
-        _assertAsStringSuccess("", NODES.nullNode());
+        assertEquals("", NODES.nullNode().asString());
+
+        // But also fallbacks
+        assertEquals("fallback", NODES.nullNode().asString("fallback"));
+        assertFalse(NODES.nullNode().asStringOpt().isPresent());
 
         _assertAsStringFailForNonString(NODES.missingNode());
     }

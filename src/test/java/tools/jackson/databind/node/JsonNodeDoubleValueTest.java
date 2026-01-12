@@ -233,7 +233,11 @@ public class JsonNodeDoubleValueTest
     public void asDoubleFromMiscOther()
     {
         // Null node converts to 0.0d; missing fails
-        _assertAsDouble((double) 0, NODES.nullNode());
+        assertEquals(0.0d, NODES.nullNode().asDouble());
+
+        // and defaults
+        assertEquals(-9999.5, NODES.nullNode().asDouble(-9999.5));
+        assertFalse(NODES.nullNode().asDoubleOpt().isPresent());
 
         _assertAsDoubleFailForNonNumber(NODES.missingNode());
     }

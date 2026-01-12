@@ -86,7 +86,7 @@ public class DisableCoercions3690Test
                 mapper, inputType);
 
         _verifyFailedCoercionWithInvalidFormat("{ \"field\": [ [ 1 ] ] }", 
-                "Cannot deserialize value of type `java.lang.String` from Array value", 
+                "Cannot coerce Integer value (1) to `java.lang.String` value",
                 mapper, inputType);
 
         _verifyFailedCoercionWithInvalidFormat("{ \"field\": [ { \"field\": 1 } ] }",
@@ -95,7 +95,7 @@ public class DisableCoercions3690Test
     }
 
     private void _verifyFailedCoercionWithInvalidFormat(String jsonStr, String expectedMsg, ObjectMapper mapper, 
-                                                        JavaType inputType) throws Exception
+            JavaType inputType) throws Exception
     {
         try {
             mapper.readValue(jsonStr, inputType);

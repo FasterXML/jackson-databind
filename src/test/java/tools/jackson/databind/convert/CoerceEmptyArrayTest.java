@@ -215,6 +215,37 @@ public class CoerceEmptyArrayTest
         _verifyToEmptyCoercion(MAPPER_TO_EMPTY, UUID.class, new UUID(0L, 0L));
     }
 
+    // [databind#2124]: Legacy ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT should work for String
+    @Test
+    public void testStringFromEmptyArrayWithLegacyFeature() throws Exception
+    {
+        final String EMPTY = "[]";
+
+        // Without feature, should fail
+        try {
+            DEFAULT_MAPPER.readerFor(String.class).readValue(EMPTY);
+            fail("Should not accept empty array for String by default");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize");
+        }
+
+        // With legacy feature enabled, should return null
+        ObjectMapper legacyMapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)
+                .build();
+
+        String result = legacyMapper.readerFor(String.class).readValue(EMPTY);
+        assertNull(result, "Expected null from empty array with legacy feature");
+
+        // Test nested empty arrays in collections (original issue scenario)
+        String json = "[\"hello\", []]";
+        List<String> list = legacyMapper.readValue(json,
+                new TypeReference<List<String>>() {});
+        assertEquals(2, list.size());
+        assertEquals("hello", list.get(0));
+        assertNull(list.get(1), "Expected null for nested empty array");
+    }
+
     /*
     /**********************************************************
     /* Helper methods

@@ -335,6 +335,7 @@ public class CoercionConfigs
         return (targetType == LogicalType.Float)
                 || (targetType == LogicalType.Integer)
                 || (targetType == LogicalType.Boolean)
-                || (targetType == LogicalType.DateTime);
+                || (targetType == LogicalType.DateTime)
+                || (targetType == LogicalType.Textual);  // [databind#2124]: support String
     }
 }

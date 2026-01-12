@@ -104,7 +104,7 @@ public class OptionalNumbersTest
         assertNotNull(bean.value);
         assertEquals(-37L, bean.value.getAsInt());
     }
-    
+
     /*
     /**********************************************************
     /* Test methods, OptionalLong

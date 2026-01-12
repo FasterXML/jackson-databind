@@ -1,7 +1,6 @@
 package tools.jackson.databind.deser.impl;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
@@ -111,14 +110,14 @@ public final class ManagedReferenceProperty
     }
 
     private Iterable<?> _toIterable(Object value) {
-        if (value instanceof Collection<?>) {
-            return (Collection<?>) value;
+        if (value instanceof Collection<?> coll) {
+            return coll;
         }
-        if (value instanceof Object[]) {
-            return java.util.Arrays.asList((Object[]) value);
+        if (value instanceof Map<?,?> map) {
+            return map.values();
         }
-        if (value instanceof Map<?,?>) {
-            return ((Map<?,?>) value).values();
+        if (value instanceof Object[] obs) {
+            return Arrays.asList(obs);
         }
         throw new IllegalStateException("Unsupported container type (" + value.getClass().getName()
                 + ") when resolving reference '" + _referenceName + "'");

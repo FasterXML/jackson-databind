@@ -329,7 +329,9 @@ public class JsonIncludeTest
         // [databind#5570]: Integer wrapper default is null, not 0, so Integer.valueOf(0) should be included
         assertEquals("{\"i2\":0}", MAPPER.writeValueAsString(new DefaultIntBean(0, Integer.valueOf(0))));
         assertEquals("{\"i2\":1}", MAPPER.writeValueAsString(new DefaultIntBean(0, Integer.valueOf(1))));
+        assertEquals("{}", MAPPER.writeValueAsString(new DefaultIntBean(0, null)));
         assertEquals("{\"i1\":3,\"i2\":0}", MAPPER.writeValueAsString(new DefaultIntBean(3, Integer.valueOf(0))));
+        assertEquals("{\"i1\":3}", MAPPER.writeValueAsString(new DefaultIntBean(3, null)));
     }
 
     // [databind#5570]: Test for Boolean wrapper with NON_DEFAULT

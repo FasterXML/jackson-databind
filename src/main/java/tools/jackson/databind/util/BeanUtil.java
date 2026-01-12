@@ -69,8 +69,9 @@ public class BeanUtil
      * and for structured (Maps, Collections, arrays) and reference types, criteria
      * {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}
      * is used.
-     *
-     * @since 3.0 (updated to return `null` for wrapper types instead of primitive defaults)
+     *<p>
+     * Changed in 3.1 updated to return {@code null} for wrapper types instead of primitive
+     * defaults).
      */
     public static Object getDefaultValue(JavaType type)
     {

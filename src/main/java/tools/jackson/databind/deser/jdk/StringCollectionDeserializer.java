@@ -244,6 +244,8 @@ public final class StringCollectionDeserializer
                         if (act == CoercionAction.AsNull || act == CoercionAction.TryConvert) {
                             value = null;
                         } else if (act == CoercionAction.AsEmpty) {
+                            // Since we are using default/standard deserialization (not
+                            // custom) one, can hard-code empty String
                             value = "";
                         } else {
                             // Fail case: delegate to _parseString which will throw proper error

@@ -2581,7 +2581,9 @@ public class ObjectMapper
             // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
             result = null;
         } else { // pointing to event other than null
-            result = ctxt.readRootValue(p, valueType, _findRootDeserializer(ctxt, valueType), null);
+            result = ctxt.readRootValue(p, valueType,
+                    _findRootDeserializer(ctxt, valueType), null);
+            ctxt.checkUnresolvedObjectId();
         }
         // Need to consume the token too
         p.clearCurrentToken();

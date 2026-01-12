@@ -115,16 +115,29 @@ Fouad Almalki (@Eng-Fouad)
  * Contributed fix for 5442: Make `JsonMapper/ObjectMapper` fully proxyable by CGLIB
   [3.1.0]
 
+Christopher Currie (@christophercurrie)
+
+* Requested #221: Support alternate radixes when writing numeric values as strings
+  [3.1.0]
+
+Davyd Fridman (@tiger9800)
+
+* Implemented #221: Support alternate radixes when writing numeric values as strings
+  [3.1.0]
+
 Konstantin Labun (@kulabun)
  * Reported #650: `@JsonUnwrapped` prevents checks for
   `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
   [3.1.0]
 
 @JacksonJang
-* Contributed fix for #650: `@JsonUnwrapped` prevents checks for
+ * Contributed fix for #650: `@JsonUnwrapped` prevents checks for
   `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
   [3.1.0]
-* Contributed fix for #1516: Problem with multi-argument Creator with
+ * Contributed fix for  #1497: Allow skipping `@JsonUnwrapped` values if no properties matched,
+  `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled
+  [3.1.0]
+ * Contributed fix for #1516: Problem with multi-argument Creator with
    `@JsonBackReference` property
   [3.1.0]
  * Contributed fix for #2686: `@JsonBackReference` does not work with a builder
@@ -138,6 +151,8 @@ Konstantin Labun (@kulabun)
  * Contributed fix for #5405: `@JsonFormat(shape = Shape.POJO)` does not work for
    `java.util.Map` serialization via property annotation
   [3.1.0]
+ * Contributed #5515: Support `@JsonInclude.content` for Arrays
+  [3.1.0]
 
 Oliver Drotbohm (@odrotbohm)
  * Requested #1196: Add opt-in error collection for deserialization
@@ -147,13 +162,36 @@ Oliver Drotbohm (@odrotbohm)
  * Contributed #1196: Add opt-in error collection for deserialization
   [3.1.0]
 
+Victor Noël (@victornoel)
+ * Requested #1497: Allow skipping `@JsonUnwrapped` values if no properties matched,
+   `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled
+  [3.1.0]
+
+Ulf Andersson (@ulfandersson)
+ * Reported #2124: Allow coercion of '[ ]' into empty/null String with
+   `ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT`
+  [3.1.0]
+
+Garret Wilson (@garretwilson)
+ * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
+   getter method auto-detection for Records
+  [3.1.0]
+
+James Mudd (@jamesmudd)
+ * Reported #4277: Deserialization `@JsonFormat(shape = JsonFormat.Shape.ARRAY)` POJO with
+  `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work
+  [3.1.0]
+
 Viktor Szathmáry (@phraktle)
  * Reported #5115: `@JsonUnwrapped` Record deserialization can't handle name collision
  (reported by Viktor S)
   [3.1.0]
 
 Hélios Gilles (@RoiSoleil)
- * Contributed #5413: Add/support forward reference resolution for array values
+ * Contributed #5413: Add/support forward reference resolution for array value
   [3.1.0]
 
-   
+Jaeheon Kim (@jher235)
+ * Contributed #5522: `@JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)`
+   doesn't work on custom Collection subclass
+  [3.1.0]

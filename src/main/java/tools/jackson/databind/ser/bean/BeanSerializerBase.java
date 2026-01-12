@@ -268,14 +268,14 @@ public abstract class BeanSerializerBase
      * to be able to properly handle cyclic type references.
      */
     @Override
-    public void resolve(SerializationContext provider)
+    public void resolve(SerializationContext ctxt)
     {
         int filteredCount = (_filteredProps == null) ? 0 : _filteredProps.length;
         for (int i = 0, len = _props.length; i < len; ++i) {
             BeanPropertyWriter prop = _props[i];
             // let's start with null serializer resolution actually
             if (!prop.willSuppressNulls() && !prop.hasNullSerializer()) {
-                ValueSerializer<Object> nullSer = provider.findNullValueSerializer(prop);
+                ValueSerializer<Object> nullSer = ctxt.findNullValueSerializer(prop);
                 if (nullSer != null) {
                     prop.assignNullSerializer(nullSer);
                     // also: remember to replace filtered property too?
@@ -292,7 +292,7 @@ public abstract class BeanSerializerBase
                 continue;
             }
             // [databind#124]: allow use of converters
-            ValueSerializer<Object> ser = findConvertingSerializer(provider, prop);
+            ValueSerializer<Object> ser = findConvertingSerializer(ctxt, prop);
             if (ser == null) {
                 // Was the serialization type hard-coded? If so, use it
                 JavaType type = prop.getSerializationType();
@@ -308,7 +308,7 @@ public abstract class BeanSerializerBase
                         continue;
                     }
                 }
-                ser = provider.findPrimaryPropertySerializer(type, prop);
+                ser = ctxt.findPrimaryPropertySerializer(type, prop);
                 // 04-Feb-2010, tatu: We may have stashed type serializer for content types
                 //   too, earlier; if so, it's time to connect the dots here:
                 if (type.isContainerType()) {
@@ -342,7 +342,7 @@ public abstract class BeanSerializerBase
         for (int i = 0; i < _props.length; i++) {
             BeanPropertyWriter prop = _props[i];
             if (prop instanceof AnyGetterWriter anyGetterWriter) {
-                anyGetterWriter.resolve(provider);
+                anyGetterWriter.resolve(ctxt);
             }
         }
     }
@@ -352,20 +352,20 @@ public abstract class BeanSerializerBase
      * to indicate use of a converter for property value (in case of container types,
      * it is container type itself, not key or content type).
      */
-    protected ValueSerializer<Object> findConvertingSerializer(SerializationContext provider,
+    protected ValueSerializer<Object> findConvertingSerializer(SerializationContext ctxt,
             BeanPropertyWriter prop)
     {
-        final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (intr != null) {
             AnnotatedMember m = prop.getMember();
             if (m != null) {
-                Object convDef = intr.findSerializationConverter(provider.getConfig(), m);
+                Object convDef = intr.findSerializationConverter(ctxt.getConfig(), m);
                 if (convDef != null) {
-                    Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
-                    JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
+                    Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
+                    JavaType delegateType = conv.getOutputType(ctxt.getTypeFactory());
                     // [databind#731]: Should skip if nominally java.lang.Object
                     ValueSerializer<?> ser = delegateType.isJavaLangObject() ? null
-                            : provider.findPrimaryPropertySerializer(delegateType, prop);
+                            : ctxt.findPrimaryPropertySerializer(delegateType, prop);
                     return new StdDelegatingSerializer(conv, delegateType, ser, prop);
                 }
             }
@@ -611,7 +611,7 @@ public abstract class BeanSerializerBase
 
     // Main serialization method left unimplemented
     @Override
-    public abstract void serialize(Object bean, JsonGenerator gen, SerializationContext provider)
+    public abstract void serialize(Object bean, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException;
 
     // Type-info-augmented case implemented as it does not usually differ between impls
@@ -637,53 +637,53 @@ public abstract class BeanSerializerBase
     }
 
     protected final void _serializeWithObjectId(Object bean, JsonGenerator g,
-            SerializationContext provider, boolean startEndObject)
+            SerializationContext ctxt, boolean startEndObject)
         throws JacksonException
     {
         final ObjectIdWriter w = _objectIdWriter;
-        WritableObjectId objectId = provider.findObjectId(bean, w.generator);
+        WritableObjectId objectId = ctxt.findObjectId(bean, w.generator);
         // If possible, write as id already
-        if (objectId.writeAsReference(g, provider, w)) {
+        if (objectId.writeAsReference(g, ctxt, w)) {
             return;
         }
         // If not, need to inject the id:
         Object id = objectId.generateId(bean);
         if (w.alwaysAsId) {
-            w.serializer.serialize(id, g, provider);
+            w.serializer.serialize(id, g, ctxt);
             return;
         }
         if (startEndObject) {
             g.writeStartObject(bean);
         }
-        objectId.writeAsDeclaration(g, provider, w);
+        objectId.writeAsDeclaration(g, ctxt, w);
         if (_propertyFilterId != null) {
-            _serializePropertiesFiltered(bean, g, provider, _propertyFilterId);
+            _serializePropertiesFiltered(bean, g, ctxt, _propertyFilterId);
         } else {
-            _serializeProperties(bean, g, provider);
+            _serializeProperties(bean, g, ctxt);
         }
         if (startEndObject) {
             g.writeEndObject();
         }
     }
 
-    protected final void _serializeWithObjectId(Object bean, JsonGenerator g, SerializationContext provider,
+    protected final void _serializeWithObjectId(Object bean, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
         g.assignCurrentValue(bean);
         final ObjectIdWriter w = _objectIdWriter;
-        WritableObjectId objectId = provider.findObjectId(bean, w.generator);
+        WritableObjectId objectId = ctxt.findObjectId(bean, w.generator);
         // If possible, write as id already
-        if (objectId.writeAsReference(g, provider, w)) {
+        if (objectId.writeAsReference(g, ctxt, w)) {
             return;
         }
         // If not, need to inject the id:
         Object id = objectId.generateId(bean);
         if (w.alwaysAsId) {
-            w.serializer.serialize(id, g, provider);
+            w.serializer.serialize(id, g, ctxt);
             return;
         }
-        _serializeObjectId(bean, g, provider, typeSer, objectId);
+        _serializeObjectId(bean, g, ctxt, typeSer, objectId);
     }
 
     protected  void _serializeObjectId(Object bean,
@@ -731,7 +731,7 @@ public abstract class BeanSerializerBase
      * @since 3.0
      */
     protected void _serializePropertiesNoView(Object bean, JsonGenerator gen,
-            SerializationContext provider, BeanPropertyWriter[] props)
+            SerializationContext ctxt, BeanPropertyWriter[] props)
         throws JacksonException
     {
         int i = 0;
@@ -742,13 +742,13 @@ public abstract class BeanSerializerBase
             if (left > 3) {
                 do {
                     prop = props[i];
-                    prop.serializeAsProperty(bean, gen, provider);
+                    prop.serializeAsProperty(bean, gen, ctxt);
                     prop = props[i+1];
-                    prop.serializeAsProperty(bean, gen, provider);
+                    prop.serializeAsProperty(bean, gen, ctxt);
                     prop = props[i+2];
-                    prop.serializeAsProperty(bean, gen, provider);
+                    prop.serializeAsProperty(bean, gen, ctxt);
                     prop = props[i+3];
-                    prop.serializeAsProperty(bean, gen, provider);
+                    prop.serializeAsProperty(bean, gen, ctxt);
                     left -= 4;
                     i += 4;
                 } while (left > 3);
@@ -756,19 +756,19 @@ public abstract class BeanSerializerBase
             switch (left) {
             case 3:
                 prop = props[i++];
-                prop.serializeAsProperty(bean, gen, provider);
+                prop.serializeAsProperty(bean, gen, ctxt);
             case 2:
                 prop = props[i++];
-                prop.serializeAsProperty(bean, gen, provider);
+                prop.serializeAsProperty(bean, gen, ctxt);
             case 1:
                 prop = props[i++];
-                prop.serializeAsProperty(bean, gen, provider);
+                prop.serializeAsProperty(bean, gen, ctxt);
             }
         } catch (Exception e) {
             // 08-Feb-2025, tatu: !!! As per [databind#4775] should no longer need
             //   special handling for any-setter here, right?
             String name = (prop == null) ? "[anySetter]" : prop.getName();
-            wrapAndThrow(provider, e, bean, name);
+            wrapAndThrow(ctxt, e, bean, name);
         } catch (StackOverflowError e) {
             final String name = (prop == null) ? "[anySetter]" : prop.getName();
             throw DatabindException.from(gen, "Infinite recursion (StackOverflowError)", e)
@@ -784,7 +784,7 @@ public abstract class BeanSerializerBase
      * @since 3.0
      */
     protected void _serializePropertiesMaybeView(Object bean, JsonGenerator g,
-            SerializationContext provider, BeanPropertyWriter[] props)
+            SerializationContext ctxt, BeanPropertyWriter[] props)
         throws JacksonException
     {
         int i = 0;
@@ -796,19 +796,19 @@ public abstract class BeanSerializerBase
                 do {
                     prop = props[i];
                     if (prop != null) {
-                        prop.serializeAsProperty(bean, g, provider);
+                        prop.serializeAsProperty(bean, g, ctxt);
                     }
                     prop = props[i+1];
                     if (prop != null) {
-                        prop.serializeAsProperty(bean, g, provider);
+                        prop.serializeAsProperty(bean, g, ctxt);
                     }
                     prop = props[i+2];
                     if (prop != null) {
-                        prop.serializeAsProperty(bean, g, provider);
+                        prop.serializeAsProperty(bean, g, ctxt);
                     }
                     prop = props[i+3];
                     if (prop != null) {
-                        prop.serializeAsProperty(bean, g, provider);
+                        prop.serializeAsProperty(bean, g, ctxt);
                     }
                     left -= 4;
                     i += 4;
@@ -818,22 +818,22 @@ public abstract class BeanSerializerBase
             case 3:
                 prop = props[i++];
                 if (prop != null) {
-                    prop.serializeAsProperty(bean, g, provider);
+                    prop.serializeAsProperty(bean, g, ctxt);
                 }
             case 2:
                 prop = props[i++];
                 if (prop != null) {
-                    prop.serializeAsProperty(bean, g, provider);
+                    prop.serializeAsProperty(bean, g, ctxt);
                 }
             case 1:
                 prop = props[i++];
                 if (prop != null) {
-                    prop.serializeAsProperty(bean, g, provider);
+                    prop.serializeAsProperty(bean, g, ctxt);
                 }
             }
         } catch (Exception e) {
             String name = (prop == null) ? "[anySetter]" : prop.getName();
-            wrapAndThrow(provider, e, bean, name);
+            wrapAndThrow(ctxt, e, bean, name);
         } catch (StackOverflowError e) {
             final String name = (prop == null) ? "[anySetter]" : prop.getName();
             throw DatabindException.from(g, "Infinite recursion (StackOverflowError)", e)
@@ -855,22 +855,22 @@ public abstract class BeanSerializerBase
      * which properties are to be serialized (and possibly how)
      */
     protected void _serializePropertiesFiltered(Object bean, JsonGenerator g,
-            SerializationContext provider, Object filterId)
+            SerializationContext ctxt, Object filterId)
         throws JacksonException
     {
         final BeanPropertyWriter[] props;
-        final PropertyFilter filter = findPropertyFilter(provider, filterId, bean);
-        if (_filteredProps != null && provider.getActiveView() != null) {
+        final PropertyFilter filter = findPropertyFilter(ctxt, filterId, bean);
+        if (_filteredProps != null && ctxt.getActiveView() != null) {
             props = _filteredProps;
             // better also allow missing filter actually.. Falls down
             if (filter == null) {
-                _serializePropertiesMaybeView(bean, g, provider, props);
+                _serializePropertiesMaybeView(bean, g, ctxt, props);
                 return;
             }
         } else {
             props = _props;
             if (filter == null) {
-                _serializePropertiesNoView(bean, g, provider, props);
+                _serializePropertiesNoView(bean, g, ctxt, props);
                 return;
             }
         }
@@ -880,12 +880,12 @@ public abstract class BeanSerializerBase
             for (final int len = props.length; i < len; ++i) {
                 BeanPropertyWriter prop = props[i];
                 if (prop != null) { // can have nulls in filtered list
-                    filter.serializeAsProperty(bean, g, provider, prop);
+                    filter.serializeAsProperty(bean, g, ctxt, prop);
                 }
             }
         } catch (Exception e) {
             String name = (i == props.length) ? "[anySetter]" : props[i].getName();
-            wrapAndThrow(provider, e, bean, name);
+            wrapAndThrow(ctxt, e, bean, name);
         } catch (StackOverflowError e) {
             // Minimize call depth since we are close to fail:
             final String name = (i == props.length) ? "[anySetter]" : props[i].getName();
@@ -894,14 +894,14 @@ public abstract class BeanSerializerBase
         }
     }
 
-    protected void _serializeProperties(Object bean, JsonGenerator g, SerializationContext provider)
+    protected void _serializeProperties(Object bean, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         // NOTE: only called from places where FilterId (JsonView) already checked.
-        if (_filteredProps != null && provider.getActiveView() != null) {
-            _serializePropertiesMaybeView(bean, g, provider, _filteredProps);
+        if (_filteredProps != null && ctxt.getActiveView() != null) {
+            _serializePropertiesMaybeView(bean, g, ctxt, _filteredProps);
         } else {
-            _serializePropertiesNoView(bean, g, provider, _props);
+            _serializePropertiesNoView(bean, g, ctxt, _props);
         }
     }
 
@@ -922,16 +922,16 @@ public abstract class BeanSerializerBase
         if (objectVisitor == null) {
             return;
         }
-        final SerializationContext provider = visitor.getContext();
+        final SerializationContext ctxt = visitor.getContext();
         if (_propertyFilterId != null) {
             PropertyFilter filter = findPropertyFilter(visitor.getContext(),
                     _propertyFilterId, null);
             for (int i = 0, end = _props.length; i < end; ++i) {
-                filter.depositSchemaProperty(_props[i], objectVisitor, provider);
+                filter.depositSchemaProperty(_props[i], objectVisitor, ctxt);
             }
         } else {
-            Class<?> view = ((_filteredProps == null) || (provider == null))
-                    ? null : provider.getActiveView();
+            Class<?> view = ((_filteredProps == null) || (ctxt == null))
+                    ? null : ctxt.getActiveView();
             final BeanPropertyWriter[] props;
             if (view != null) {
                 props = _filteredProps;
@@ -942,7 +942,7 @@ public abstract class BeanSerializerBase
             for (int i = 0, end = props.length; i < end; ++i) {
                 BeanPropertyWriter prop = props[i];
                 if (prop != null) { // may be filtered out unconditionally
-                    prop.depositSchemaProperty(objectVisitor, provider);
+                    prop.depositSchemaProperty(objectVisitor, ctxt);
                 }
             }
         }

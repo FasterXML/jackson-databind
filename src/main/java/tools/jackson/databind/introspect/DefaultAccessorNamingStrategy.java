@@ -432,6 +432,10 @@ public class DefaultAccessorNamingStrategy
         @Override
         public AccessorNamingStrategy forRecord(MapperConfig<?> config, AnnotatedClass recordClass)
         {
+            // [databind#4157]: If configured to restrict to components only, use stricter strategy
+            if (config.isEnabled(MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY)) {
+                return new RecordNamingStrict(config, recordClass);
+            }
             return new RecordNaming(config, recordClass);
         }
     }
@@ -543,6 +547,55 @@ public class DefaultAccessorNamingStrategy
             }
             // but also allow auto-detecting additional getters, if any?
             return super.findNameForRegularGetter(am, name);
+        }
+    }
+
+    /**
+     * Stricter {@link RecordNaming} implementation used when
+     * {@link MapperFeature#INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY} is enabled.
+     * Unlike the default {@link RecordNaming}, this strategy does NOT fall back to
+     * standard getter/setter detection for methods that don't match Record component names.
+     *<p>
+     * This prevents helper methods like {@code getDisplayName()} from being auto-detected
+     * and serialized when they are not actual Record components.
+     *
+     * @since 3.1
+     */
+    public static class RecordNamingStrict
+        extends RecordNaming
+    {
+        public RecordNamingStrict(MapperConfig<?> config, AnnotatedClass forClass) {
+            super(config, forClass);
+        }
+
+        @Override
+        public String findNameForRegularGetter(AnnotatedMethod am, String name)
+        {
+            // Only allow exact component name matches, no "get" prefix detection
+            if (_fieldNames.contains(name)) {
+                return name;
+            }
+            return null;
+        }
+
+        @Override
+        public String findNameForIsGetter(AnnotatedMethod am, String name)
+        {
+            // Only allow exact component name matches, no "is" prefix detection
+            if (_fieldNames.contains(name)) {
+                return name;
+            }
+            return null;
+        }
+
+        @Override
+        public String findNameForMutator(AnnotatedMethod am, String name)
+        {
+            // Only allow exact component name matches, no "set"/"with" prefix detection
+            if (_fieldNames.contains(name)) {
+                return name;
+            }
+            return null;
         }
     }
 }

@@ -149,14 +149,14 @@ public class UnwrappingBeanPropertyWriter
 
     @Override
     public void depositSchemaProperty(final JsonObjectFormatVisitor visitor,
-            SerializationContext provider)
+            SerializationContext ctxt)
     {
-        ValueSerializer<Object> ser = provider
+        ValueSerializer<Object> ser = ctxt
                 .findPrimaryPropertySerializer(getType(), this)
                 .unwrappingSerializer(_nameTransformer);
 
         if (ser.isUnwrappingSerializer()) {
-            ser.acceptJsonFormatVisitor(new JsonFormatVisitorWrapper.Base(provider) {
+            ser.acceptJsonFormatVisitor(new JsonFormatVisitorWrapper.Base(ctxt) {
                 // an unwrapping serializer will always expect ObjectFormat,
                 // hence, the other cases do not have to be implemented
                 @Override
@@ -165,7 +165,7 @@ public class UnwrappingBeanPropertyWriter
                 }
             }, getType());
         } else {
-            super.depositSchemaProperty(visitor, provider);
+            super.depositSchemaProperty(visitor, ctxt);
         }
     }
 
@@ -194,14 +194,14 @@ public class UnwrappingBeanPropertyWriter
     // need to override as we must get unwrapping instance...
     @Override
     protected ValueSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            Class<?> type, SerializationContext provider)
+            Class<?> type, SerializationContext ctxt)
     {
         ValueSerializer<Object> serializer;
         if (_nonTrivialBaseType != null) {
-            JavaType subtype = provider.constructSpecializedType(_nonTrivialBaseType, type);
-            serializer = provider.findPrimaryPropertySerializer(subtype, this);
+            JavaType subtype = ctxt.constructSpecializedType(_nonTrivialBaseType, type);
+            serializer = ctxt.findPrimaryPropertySerializer(subtype, this);
         } else {
-            serializer = provider.findPrimaryPropertySerializer(type, this);
+            serializer = ctxt.findPrimaryPropertySerializer(type, this);
         }
         NameTransformer t = _nameTransformer;
         if (serializer.isUnwrappingSerializer()

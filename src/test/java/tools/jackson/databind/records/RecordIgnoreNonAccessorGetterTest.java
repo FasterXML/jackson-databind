@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -41,24 +42,39 @@ public class RecordIgnoreNonAccessorGetterTest extends DatabindTestUtil {
     }
 
     @Test
-    public void testSerializeIgnoreInterfaceGetter_WithoutUsingVisibilityConfig() throws Exception {
-        final ObjectMapper MAPPER = newJsonMapper();
-        String json = MAPPER.writeValueAsString(new RecordWithInterfaceWithGetter("Bob"));
-
+    public void testSerializeIgnoreInterfaceGetter_WithoutUsingVisibilityConfig()
+    {
+        final ObjectMapper mapper = newJsonMapper();
+        String json = mapper.writeValueAsString(new RecordWithInterfaceWithGetter("Bob"));
         assertEquals("{\"id\":\"ID:Bob\",\"name\":\"Bob\",\"count\":999}", json);
     }
 
     @Test
-    public void testSerializeIgnoreInterfaceGetter_UsingVisibilityConfig() throws Exception {
-        final ObjectMapper MAPPER = jsonMapperBuilder()
+    public void testSerializeIgnoreInterfaceGetter_UsingVisibilityConfig()
+    {
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultVisibility(vc ->
                     vc.withVisibility(PropertyAccessor.GETTER, Visibility.NONE)
                         .withVisibility(PropertyAccessor.FIELD, Visibility.ANY)
                 )
                 .build();
 
-        String json = MAPPER.writeValueAsString(new RecordWithInterfaceWithGetter("Bob"));
+        String json = mapper.writeValueAsString(new RecordWithInterfaceWithGetter("Bob"));
 
+        assertEquals("{\"name\":\"Bob\"}", json);
+    }
+
+    // [databind#4157]
+    @Test
+    public void testWithInferGettersFromComponentsOnlyFeature()
+    {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY)
+                .build();
+
+        String json = mapper.writeValueAsString(new RecordWithInterfaceWithGetter("Bob"));
+
+        // With feature enabled, only the actual record component should be serialized
         assertEquals("{\"name\":\"Bob\"}", json);
     }
 }

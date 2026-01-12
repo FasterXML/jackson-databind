@@ -13,7 +13,6 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SuppressWarnings("serial")
 public class JsonValueExtTypeIdTest extends DatabindTestUtil
 {
     // The following is required for the testDecimalMetadata test case. That case fails.

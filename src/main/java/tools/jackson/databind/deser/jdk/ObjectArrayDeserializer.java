@@ -196,7 +196,7 @@ public class ObjectArrayDeserializer
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!p.isExpectedStartArrayToken()) {
-            return handleNonArray(p, ctxt);
+            return _handleNonArray(p, ctxt);
         }
         if (_elementDeserializer.getObjectIdReader(ctxt) != null) {
             return _deserializeWithObjectId(p, ctxt);
@@ -224,7 +224,7 @@ public class ObjectArrayDeserializer
     {
         final Object[] intoValue = (Object[]) intoValue0;
         if (!p.isExpectedStartArrayToken()) {
-            Object[] arr = (Object[]) handleNonArray(p, ctxt);
+            Object[] arr = (Object[]) _handleNonArray(p, ctxt);
             if (arr == null) {
                 return intoValue;
             }
@@ -350,7 +350,7 @@ public class ObjectArrayDeserializer
         return result;
     }
 
-    protected Object handleNonArray(JsonParser p, DeserializationContext ctxt)
+    protected Object _handleNonArray(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
         // Can we do implicit coercion to a single-element array still?
@@ -370,9 +370,15 @@ public class ObjectArrayDeserializer
             }
             return ctxt.handleUnexpectedToken(_containerType, p);
         }
-        JsonToken t = p.currentToken();
+
+        // 03-Jan-2026: [databind#5541] Support Object Id for implicit Object[]s too
+        if (_elementDeserializer.getObjectIdReader(ctxt) != null) {
+            return _wrapSingleWithObjectId(p, ctxt);
+        }
+
         Object value;
 
+        JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_NULL) {
             // 03-Feb-2017, tatu: Should this be skipped or not?
             if (_skipNullValues) {
@@ -422,6 +428,58 @@ public class ObjectArrayDeserializer
         }
         result[0] = value;
         return result;
+    }
+
+    // @since 2.21
+    // Copied from `_deserializeWithObjectId()`
+    protected Object[] _wrapSingleWithObjectId(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        final ObjectArrayReferringAccumulator acc = new ObjectArrayReferringAccumulator(_untyped, _elementClass);
+        Object value;
+        try {
+            if (p.hasToken(JsonToken.VALUE_NULL)) {
+                if (_skipNullValues) {
+                    return _emptyValue;
+                }
+                value = null;
+            } else {
+                if (p.hasToken(JsonToken.VALUE_STRING)) {
+                    String textValue = p.getString();
+                    // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
+                    if (textValue.isEmpty()) {
+                        final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
+                                CoercionInputShape.EmptyString);
+                        if (act != CoercionAction.Fail) {
+                            return (Object[]) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                    "empty String (\"\")");
+                        }
+                    } else if (_isBlank(textValue)) {
+                        final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), handledType(),
+                                CoercionAction.Fail);
+                        if (act != CoercionAction.Fail) {
+                            return (Object[]) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                    "blank String (all whitespace)");
+                        }
+                    }
+                    // if coercion failed, we can still add it to a list
+                }
+
+                value = _deserializeNoNullChecks(p, ctxt);
+            }
+
+            if (value == null) {
+                value = _nullProvider.getNullValue(ctxt);
+                if (value == null && _skipNullValues) {
+                    return _emptyValue;
+                }
+            }
+            acc.add(value);
+        } catch (UnresolvedForwardReference reference) {
+            ArrayReferring referring = new ArrayReferring(reference, _elementClass, acc);
+            reference.getRoid().appendReferring(referring);
+        }
+        return acc.buildArray();
     }
 
     /**

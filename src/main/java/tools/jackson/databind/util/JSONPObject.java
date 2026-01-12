@@ -51,15 +51,15 @@ public class JSONPObject
      */
 
     @Override
-    public void serializeWithType(JsonGenerator gen, SerializationContext provider, TypeSerializer typeSer)
+    public void serializeWithType(JsonGenerator gen, SerializationContext ctxt, TypeSerializer typeSer)
         throws JacksonException
     {
         // No type for JSONP wrapping: value serializer will handle typing for value:
-        serialize(gen, provider);
+        serialize(gen, ctxt);
     }
 
     @Override
-    public void serialize(JsonGenerator gen, SerializationContext provider)
+    public void serialize(JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         // First, wrapping:
@@ -67,7 +67,7 @@ public class JSONPObject
         gen.writeRaw('(');
 
         if (_value == null) {
-            provider.defaultSerializeNullValue(gen);
+            ctxt.defaultSerializeNullValue(gen);
         } else {
             // NOTE: Escape line-separator characters that break JSONP only if no custom character escapes are set.
             // If custom escapes are in place JSONP-breaking characters will not be escaped and it is recommended to
@@ -79,9 +79,9 @@ public class JSONPObject
 
             try {
                 if (_serializationType != null) {
-                    provider.findTypedValueSerializer(_serializationType, true).serialize(_value, gen, provider);
+                    ctxt.findTypedValueSerializer(_serializationType, true).serialize(_value, gen, ctxt);
                 } else {
-                    provider.findTypedValueSerializer(_value.getClass(), true).serialize(_value, gen, provider);
+                    ctxt.findTypedValueSerializer(_value.getClass(), true).serialize(_value, gen, ctxt);
                 }
             } finally {
                 if (override) {

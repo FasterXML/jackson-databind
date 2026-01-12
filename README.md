@@ -639,7 +639,7 @@ This is particularly useful for things like REST API validation (return all vali
 
 We would love to get your contribution, whether it's in form of bug reports, Requests for Enhancement (RFE), documentation, or code patches.
 
-See [CONTRIBUTING](https://github.com/FasterXML/jackson/blob/3.x/CONTRIBUTING.md) for details on things like:
+See [CONTRIBUTING](https://github.com/FasterXML/jackson/blob/main/CONTRIBUTING.md) for details on things like:
 
 * Community, ways to interact (mailing lists, gitter)
 * Issue tracking ([GitHub Issues](https://github.com/FasterXML/jackson-databind/issues))

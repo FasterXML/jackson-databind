@@ -13,6 +13,7 @@ import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.deser.ReadableObjectId.Referring;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
+import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.ClassUtil;
@@ -53,6 +54,14 @@ public class CollectionDeserializer
      */
     protected final ValueDeserializer<Object> _delegateDeserializer;
 
+    /**
+     * Annotations defined on the actual Collection class; retained to avoid
+     * re-introspection overhead during {@link #createContextual} calls.
+     *
+     * @since 3.1
+     */
+    protected transient final AnnotatedClass _classInfo;
+
     // NOTE: no PropertyBasedCreator, as JSON Arrays have no properties
 
     /*
@@ -64,27 +73,43 @@ public class CollectionDeserializer
     /**
      * Constructor for context-free instances, where we do not yet know
      * which property is using this deserializer.
+     *
+     * @since 3.1
      */
+    public CollectionDeserializer(JavaType collectionType,
+            ValueDeserializer<Object> valueDeser,
+            TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator,
+            AnnotatedClass classInfo)
+    {
+        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator,
+                null, null, null, classInfo);
+    }
+
+    @Deprecated // since 3.1
     public CollectionDeserializer(JavaType collectionType,
             ValueDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator)
     {
-        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator, null, null, null);
+        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator,
+                null, null, null, null);
     }
 
     /**
      * Constructor used when creating contextualized instances.
+     *
+     * @since 3.1
      */
     protected CollectionDeserializer(JavaType collectionType,
             ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
             ValueInstantiator valueInstantiator, ValueDeserializer<Object> delegateDeser,
-            NullValueProvider nuller, Boolean unwrapSingle)
+            NullValueProvider nuller, Boolean unwrapSingle, AnnotatedClass classInfo)
     {
         super(collectionType, nuller, unwrapSingle);
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
         _valueInstantiator = valueInstantiator;
         _delegateDeserializer = delegateDeser;
+        _classInfo = classInfo;
     }
 
     /**
@@ -98,6 +123,22 @@ public class CollectionDeserializer
         _valueTypeDeserializer = src._valueTypeDeserializer;
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
+        _classInfo = src._classInfo;
+    }
+
+    /**
+     * Factory method called by {@code BasicDeserializerFactory} to create
+     * an instance
+     *
+     * @since 3.1
+     */
+    public static CollectionDeserializer create(JavaType collectionType,
+            BeanDescription.Supplier beanDescRef,
+            ValueDeserializer<Object> valueDeser,
+            TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator)
+    {
+        return new CollectionDeserializer(collectionType, valueDeser, valueTypeDeser,
+                valueInstantiator, beanDescRef.getClassInfo());
     }
 
     /**
@@ -111,7 +152,7 @@ public class CollectionDeserializer
         return new CollectionDeserializer(_containerType,
                 (ValueDeserializer<Object>) vd, vtd,
                 _valueInstantiator, (ValueDeserializer<Object>) dd,
-                nuller, unwrapSingle);
+                nuller, unwrapSingle, _classInfo);
     }
 
     // Important: do NOT cache if polymorphic values
@@ -137,8 +178,7 @@ public class CollectionDeserializer
 
     /**
      * Method called to finalize setup of this deserializer,
-     * when it is known for which property deserializer is needed
-     * for.
+     * when it is known for which property deserializer is needed for.
      */
     @Override
     public CollectionDeserializer createContextual(DeserializationContext ctxt,
@@ -171,6 +211,7 @@ _containerType,
         // 11-Dec-2015, tatu: Should we pass basic `Collection.class`, or more refined? Mostly
         //   comes down to "List vs Collection" I suppose... for now, pass Collection
         Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
+                _classInfo,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         // also, often value deserializer is resolved here:
         ValueDeserializer<?> valueDeser = _valueDeserializer;
@@ -243,7 +284,7 @@ _containerType,
         if (p.hasToken(JsonToken.VALUE_STRING)) {
             return _deserializeFromString(p, ctxt, p.getString());
         }
-        return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
+        return _handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }
 
     @SuppressWarnings("unchecked")
@@ -262,7 +303,7 @@ _containerType,
         if (p.isExpectedStartArrayToken()) {
             return _deserializeFromArray(p, ctxt, result);
         }
-        return handleNonArray(p, ctxt, result);
+        return _handleNonArray(p, ctxt, result);
     }
 
     @Override
@@ -318,7 +359,7 @@ _containerType,
             // note: `CoercionAction.Fail` falls through because we may need to allow
             // `ACCEPT_SINGLE_VALUE_AS_ARRAY` handling later on
         }
-        return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
+        return _handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }
 
     /**
@@ -383,8 +424,8 @@ _containerType,
      * array, depending on configuration.
      */
     @SuppressWarnings("unchecked")
-    protected final Collection<Object> handleNonArray(JsonParser p, DeserializationContext ctxt,
-            Collection<Object> result)
+    protected final Collection<Object> _handleNonArray(JsonParser p,
+            DeserializationContext ctxt, Collection<Object> result)
         throws JacksonException
     {
         // Implicit arrays from single values?
@@ -395,6 +436,11 @@ _containerType,
             return (Collection<Object>) ctxt.handleUnexpectedToken(_containerType, p);
         }
         JsonToken t = p.currentToken();
+
+        // 03-Jan-2026: [databind#5537] Support Object Id for implicit Collections too
+        if (_valueDeserializer.getObjectIdReader(ctxt) != null) {
+            return _wrapSingleWithObjectId(p, ctxt, result);
+        }
 
         Object value;
 
@@ -425,19 +471,19 @@ _containerType,
             }
             // note: pass Object.class, not Object[].class, as we need element type for error info
             throw DatabindException.wrapWithPath(ctxt, e,
-                    new JacksonException.Reference(Object.class, result.size()));
+                    new JacksonException.Reference(_containerType.getContentType().getRawClass(), result.size()));
         }
         result.add(value);
         return result;
     }
 
-    protected Collection<Object> _deserializeWithObjectId(JsonParser p, DeserializationContext ctxt,
-            Collection<Object> result)
+    protected Collection<Object> _deserializeWithObjectId(JsonParser p,
+            DeserializationContext ctxt, Collection<Object> result)
         throws JacksonException
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!p.isExpectedStartArrayToken()) {
-            return handleNonArray(p, ctxt, result);
+            return _handleNonArray(p, ctxt, result);
         }
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.assignCurrentValue(result);
@@ -481,13 +527,54 @@ _containerType,
         return result;
     }
 
+    // @since 2.20.2
+    // Copied from `_deserializeWithObjectId()` above
+    protected Collection<Object> _wrapSingleWithObjectId(JsonParser p,
+            DeserializationContext ctxt, Collection<Object> result)
+        throws JacksonException
+    {
+        final CollectionReferringAccumulator referringAccumulator =
+                new CollectionReferringAccumulator(getContentType().getRawClass(), result);
+
+        try {
+            Object value;
+            if (p.hasToken(JsonToken.VALUE_NULL)) {
+                if (_skipNullValues) {
+                    return result;
+                }
+                value = null;
+            } else {
+                value = _deserializeNoNullChecks(p, ctxt);
+            }
+
+            if (value == null) {
+                value = _nullProvider.getNullValue(ctxt);
+                if (value == null) {
+                    _tryToAddNull(p, ctxt, result);
+                    return result;
+                }
+            }
+            referringAccumulator.add(value);
+        } catch (UnresolvedForwardReference reference) {
+            Referring ref = referringAccumulator.handleUnresolvedReference(reference);
+            reference.getRoid().appendReferring(ref);
+        } catch (Exception e) {
+            if (!ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)) {
+                ClassUtil.throwIfRTE(e);
+            }
+            throw DatabindException.wrapWithPath(ctxt, e,
+                    new JacksonException.Reference(result, result.size()));
+        }
+        return result;
+    }
+
     /**
      * Deserialize the content of the collection.
      * If _valueTypeDeserializer is null, use _valueDeserializer.deserialize; if non-null,
      * use _valueDeserializer.deserializeWithType to deserialize value.
      * This method only performs deserialization and does not consider _skipNullValues, _nullProvider, etc.
      */
-    protected Object _deserializeNoNullChecks(JsonParser p,DeserializationContext ctxt)
+    protected Object _deserializeNoNullChecks(JsonParser p, DeserializationContext ctxt)
     {
         if (_valueTypeDeserializer == null) {
             return _valueDeserializer.deserialize(p, ctxt);
@@ -515,7 +602,7 @@ _containerType,
                     "`java.util.Collection` of type %s does not accept `null` values",
                     ClassUtil.getTypeDescription(getValueType(ctxt)));
         }
-    }    
+    }
     /**
      * Helper class for dealing with Object Id references for values contained in
      * collections being deserialized.
@@ -595,4 +682,5 @@ _containerType,
             _parent.resolveForwardReference(ctxt, id, value);
         }
     }
+
 }

@@ -14,6 +14,7 @@ import tools.jackson.core.SerializableString;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.jsontype.TypeSerializer;
@@ -176,6 +177,15 @@ public class BeanPropertyWriter
      */
     protected final Class<?>[] _includeInViews;
 
+    /**
+     * Inclusion settings for this property, pre-computed in {@code PropertyBuilder}
+     * by merging global defaults, type defaults, and property-level annotations,
+     * including contextual annotations from the enclosing class.
+     *
+     * @since 3.1
+     */
+    protected final JsonInclude.Value _inclusion;
+
     /*
     /**********************************************************************
     /* Opaqueinternal data that bean serializer factory and
@@ -191,13 +201,34 @@ public class BeanPropertyWriter
     /**********************************************************************
      */
 
-    @SuppressWarnings("unchecked")
+    /**
+     * @deprecated Since 3.1
+     */
+    @Deprecated // @since 3.1
     public BeanPropertyWriter(BeanPropertyDefinition propDef,
             AnnotatedMember member, Annotations contextAnnotations,
             JavaType declaredType,
             ValueSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             boolean suppressNulls, Object suppressableValue,
             Class<?>[] includeInViews)
+    {
+        this(propDef, member, contextAnnotations, declaredType,
+                ser, typeSer, serType, suppressNulls, suppressableValue,
+                includeInViews, null);
+    }
+
+    /**
+     * Constructor with additional inclusion parameter.
+     *
+     * @since 3.1
+     */
+    @SuppressWarnings("unchecked")
+    public BeanPropertyWriter(BeanPropertyDefinition propDef,
+            AnnotatedMember member, Annotations contextAnnotations,
+            JavaType declaredType,
+            ValueSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
+            boolean suppressNulls, Object suppressableValue,
+            Class<?>[] includeInViews, JsonInclude.Value inclusion)
     {
         super(propDef);
         _member = member;
@@ -218,6 +249,7 @@ public class BeanPropertyWriter
         // this will be resolved later on, unless nulls are to be suppressed
         _nullSerializer = null;
         _includeInViews = includeInViews;
+        _inclusion = (inclusion == null) ? JsonInclude.Value.empty() : inclusion;
     }
 
     /**
@@ -244,6 +276,7 @@ public class BeanPropertyWriter
         _suppressableValue = null;
 
         _nullSerializer = null;
+        _inclusion = null;
     }
 
     /**
@@ -281,6 +314,7 @@ public class BeanPropertyWriter
         _includeInViews = base._includeInViews;
         _typeSerializer = base._typeSerializer;
         _nonTrivialBaseType = base._nonTrivialBaseType;
+        _inclusion = base._inclusion;
     }
 
     protected BeanPropertyWriter(BeanPropertyWriter base, SerializedString name) {
@@ -304,6 +338,7 @@ public class BeanPropertyWriter
         _includeInViews = base._includeInViews;
         _typeSerializer = base._typeSerializer;
         _nonTrivialBaseType = base._nonTrivialBaseType;
+        _inclusion = base._inclusion;
     }
 
     public BeanPropertyWriter rename(NameTransformer transformer) {
@@ -430,6 +465,12 @@ public class BeanPropertyWriter
         return _member;
     }
 
+    @Override
+    public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType)
+    {
+        return _inclusion;
+    }
+
     protected void _depositSchemaProperty(ObjectNode propertiesNode,
             JsonNode schemaNode) {
         propertiesNode.set(getName(), schemaNode);
@@ -458,7 +499,7 @@ public class BeanPropertyWriter
      */
     public Object setInternalSetting(Object key, Object value) {
         if (_internalSettings == null) {
-            _internalSettings = new HashMap<Object, Object>();
+            _internalSettings = new HashMap<>();
         }
         return _internalSettings.put(key, value);
     }

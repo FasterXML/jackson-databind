@@ -63,27 +63,27 @@ public class JSONWrappedObject implements JacksonSerializable
      */
 
     @Override
-    public void serializeWithType(JsonGenerator g, SerializationContext provider, TypeSerializer typeSer)
+    public void serializeWithType(JsonGenerator g, SerializationContext ctxt, TypeSerializer typeSer)
         throws JacksonException
     {
         // No type for JSONP wrapping: value serializer will handle typing for value:
-        serialize(g, provider);
+        serialize(g, ctxt);
     }
 
     @Override
-    public void serialize(JsonGenerator g, SerializationContext provider)
+    public void serialize(JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         // First, wrapping:
     	if (_prefix != null) g.writeRaw(_prefix);
         if (_value == null) {
-            provider.defaultSerializeNullValue(g);
+            ctxt.defaultSerializeNullValue(g);
         } else if (_serializationType != null) {
-            provider.findTypedValueSerializer(_serializationType, true)
-                .serialize(_value, g, provider);
+            ctxt.findTypedValueSerializer(_serializationType, true)
+                .serialize(_value, g, ctxt);
         } else {
-            provider.findTypedValueSerializer(_value.getClass(), true)
-                .serialize(_value, g, provider);
+            ctxt.findTypedValueSerializer(_value.getClass(), true)
+                .serialize(_value, g, ctxt);
         }
         if (_suffix != null) g.writeRaw(_suffix);
     }

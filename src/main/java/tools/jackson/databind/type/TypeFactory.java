@@ -1544,21 +1544,22 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             }
             newBindings = TypeBindings.create(rawType, pt);
 
-            // [databind#4118] Unbind any wildcards with a less specific upper bound than
-            // declared on the type variable
-
-            // [databind#4147] Regressum Maximum, alas! Need to undo fix due to side effects;
-            // plan is to re-tackle in 2.17
-            /*
+            // [databind#4118] Unbind wildcards in (direct) self-referential type parameters
+            // to allow deserializers to use the class definition's bounds instead of Object.
+            // [databind#4147] Only unbind for self-referential parameters to avoid
+            // breaking multi-parameter types like Either<L, R> where only some are wildcards.
             for (int i = 0; i < paramCount; ++i) {
                 if (args[i] instanceof WildcardType && !pt[i].hasGenericTypes()) {
                     TypeVariable<? extends Class<?>> typeVariable = rawType.getTypeParameters()[i];
-                    if (pt[i].getRawClass().isAssignableFrom(rawClass(typeVariable))) {
-                        newBindings = newBindings.withoutVariable(typeVariable.getName());
+
+                    // Only unbind if this is a (direct) self-referential type parameter
+                    if (_isSelfReferentialTypeParameter(typeVariable, rawType)) {
+                        if (pt[i].getRawClass().isAssignableFrom(rawClass(typeVariable))) {
+                            newBindings = newBindings.withoutVariable(typeVariable.getName());
+                        }
                     }
                 }
             }
-            */
         }
         return _fromClass(context, rawType, newBindings);
     }
@@ -1607,5 +1608,38 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
          * For now, we won't try anything more advanced; above is just for future reference.
          */
         return _fromAny(context, type.getUpperBounds()[0], bindings);
+    }
+
+    /**
+     * Helper method to determine if a type parameter is directly self-referential,
+     * meaning its bound references the declaring class itself.
+     * For example, in {@code class Foo<T extends Foo<?>>}, T is self-referential.
+     * This is used to handle recursive wildcard types correctly (see [databind#4118]).
+     *<p>
+     * NOTE: does NOT check for indirect (nested) self-references: should be rare
+     * in practice but potential concern.
+     *
+     * @param typeVar Type variable to check
+     * @param declaringClass The class that declares this type variable
+     * @return {@code true} if the type variable's bound references the declaring class
+     *
+     * @since 3.1
+     */
+    protected boolean _isSelfReferentialTypeParameter(TypeVariable<?> typeVar, Class<?> declaringClass) {
+        Type[] bounds = typeVar.getBounds();
+        if (bounds == null || bounds.length == 0) {
+            return false;
+        }
+
+        // Check the first bound (typically the important one)
+        Type bound = bounds[0];
+
+        // May be directly the class (raw type bound)
+        if (bound == declaringClass) {
+            return true;
+        }
+
+        // Or if bound is a ParameterizedType, check if its raw type is the declaring class
+       return (bound instanceof ParameterizedType pt && pt.getRawType() == declaringClass);
     }
 }

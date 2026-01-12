@@ -19,7 +19,7 @@ public class InetSocketAddressSerializer
     public InetSocketAddressSerializer() { super(InetSocketAddress.class); }
 
     @Override
-    public void serialize(InetSocketAddress value, JsonGenerator jgen, SerializationContext provider)
+    public void serialize(InetSocketAddress value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         InetAddress addr = value.getAddress();
@@ -36,7 +36,7 @@ public class InetSocketAddressSerializer
             }
         }
 
-        jgen.writeString(str + ":" + value.getPort());
+        g.writeString(str + ":" + value.getPort());
     }
 
     @Override

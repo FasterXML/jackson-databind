@@ -20,7 +20,7 @@ public class OptionalLongSerializer extends StdScalarSerializer<OptionalLong>
     }
 
     @Override
-    public boolean isEmpty(SerializationContext provider, OptionalLong value) {
+    public boolean isEmpty(SerializationContext ctxt, OptionalLong value) {
         return (value == null) || !value.isPresent();
     }
 
@@ -36,13 +36,13 @@ public class OptionalLongSerializer extends StdScalarSerializer<OptionalLong>
     }
 
     @Override
-    public void serialize(OptionalLong value, JsonGenerator jgen, SerializationContext provider)
+    public void serialize(OptionalLong value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         if (value.isPresent()) {
-            jgen.writeNumber(value.getAsLong());
+            g.writeNumber(value.getAsLong());
         } else { // should we get here?
-            jgen.writeNull();
+            g.writeNull();
         }
     }
 }

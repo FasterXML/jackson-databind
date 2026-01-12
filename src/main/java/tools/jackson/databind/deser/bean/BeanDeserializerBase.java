@@ -139,7 +139,7 @@ public abstract class BeanDeserializerBase
     protected final Set<String> _ignorableProps;
 
     /**
-     * Keep track of the the properties that needs to be specifically included.
+     * Keep track of the properties that need to be specifically included.
      */
     protected final Set<String> _includableProps;
 
@@ -637,8 +637,8 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
 
         if (unwrapped != null) { // we consider this non-standard, to offline handling
             _nonStandardCreation = true;
-            // [databind#650]: Initialize nested property names cache for hasUnwrappedProperty()
-            _unwrappedPropertyHandler = unwrapped.initializedNestedPropertyNames();
+            // [databind#650]: Initialize unwrapped property names for hasUnwrappedProperty()
+            _unwrappedPropertyHandler = unwrapped.initializeUnwrappedPropertyNames();
         } else {
             _unwrappedPropertyHandler = null;
         }
@@ -878,6 +878,17 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
             shape = _serializationShape;
         }
         if (shape == JsonFormat.Shape.ARRAY) {
+            // [databind#4277]: Detect incompatible combination of ARRAY shape with EXTERNAL_PROPERTY
+            if (contextual._externalTypeIdHandler != null) {
+                return (BeanDeserializerBase) ctxt.reportBadDefinition(_beanType,
+                    """
+Cannot use `@JsonFormat(shape=JsonFormat.Shape.ARRAY)` with `@JsonTypeInfo(include=JsonTypeInfo.As.EXTERNAL_PROPERTY)` for type %s: `EXTERNAL_PROPERTY` requires object-style JSON with named properties, but `ARRAY` shape uses positional JSON arrays.
+Working alternatives:
+1. Use `@JsonTypeInfo(include=JsonTypeInfo.As.PROPERTY)` - type ID inside value object
+2. Use `@JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_ARRAY)` - wrap value with type
+3. Implement a custom deserializer for protocol-specific requirements
+                    """.formatted(ClassUtil.getTypeDescription(_beanType)));
+            }
             contextual = contextual.asArrayDeserializer();
         }
         return contextual;
@@ -1212,7 +1223,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             names.add(prop.getName());
         }
         if (_unwrappedPropertyHandler != null) {
-            _unwrappedPropertyHandler.collectNestedPropertyNamesTo(names);
+            _unwrappedPropertyHandler.collectUnwrappedPropertyNamesTo(names);
         }
     }
 

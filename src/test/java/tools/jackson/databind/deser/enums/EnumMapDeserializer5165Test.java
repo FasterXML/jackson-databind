@@ -1,4 +1,4 @@
-package tools.jackson.databind.deser.jdk;
+package tools.jackson.databind.deser.enums;
 
 import java.util.EnumMap;
 

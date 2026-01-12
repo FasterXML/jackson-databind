@@ -1,8 +1,7 @@
 package tools.jackson.databind.ser.jdk;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
@@ -15,6 +14,8 @@ import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.ArraySerializerBase;
 import tools.jackson.databind.ser.std.StdContainerSerializer;
 import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.util.ArrayBuilders;
+import tools.jackson.databind.util.BeanUtil;
 
 /**
  * Standard serializer used for <code>String[]</code> values.
@@ -23,6 +24,8 @@ import tools.jackson.databind.type.TypeFactory;
 public class StringArraySerializer
     extends ArraySerializerBase<String[]>
 {
+    protected final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
+
     /* Note: not clean in general, but we are betting against
      * anyone re-defining properties of String.class here...
      */
@@ -47,16 +50,22 @@ public class StringArraySerializer
         _elementSerializer = null;
     }
 
+    /**
+     * @since 3.1
+     */
     @SuppressWarnings("unchecked")
     public StringArraySerializer(StringArraySerializer src,
-            BeanProperty prop, ValueSerializer<?> ser, Boolean unwrapSingle) {
-        super(src, prop, unwrapSingle);
+            BeanProperty prop, ValueSerializer<?> ser, Boolean unwrapSingle,
+            Object suppressableValue, boolean suppressNulls) {
+        super(src, prop, unwrapSingle, suppressableValue, suppressNulls);
         _elementSerializer = (ValueSerializer<Object>) ser;
     }
 
     @Override
-    public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
-        return new StringArraySerializer(this, prop, _elementSerializer, unwrapSingle);
+    public StringArraySerializer _withResolved(BeanProperty prop, Boolean unwrapSingle,
+            Object suppressableValue, boolean suppressNulls) {
+        return new StringArraySerializer(this, prop, _elementSerializer, unwrapSingle,
+                suppressableValue, suppressNulls);
     }
 
     /**
@@ -108,11 +117,56 @@ public class StringArraySerializer
         if (isDefaultSerializer(ser)) {
             ser = null;
         }
-        // note: will never have TypeSerializer, because Strings are "natural" type
-        if ((ser == _elementSerializer) && (Objects.equals(unwrapSingle, _unwrapSingle))) {
-            return this;
+
+        // [databind#5515]: Handle content inclusion for arrays
+        JsonInclude.Value inclV = findIncludeOverrides(ctxt, property, handledType());
+        Object valueToSuppress = _suppressableValue;
+        boolean suppressNulls = _suppressNulls;
+
+        if (inclV != null) {
+            JsonInclude.Include incl = inclV.getContentInclusion();
+            if (incl != JsonInclude.Include.USE_DEFAULTS) {
+                switch (incl) {
+                    case NON_DEFAULT:
+                        valueToSuppress = BeanUtil.getDefaultValue(VALUE_TYPE);
+                        suppressNulls = true;
+                        if (valueToSuppress != null) {
+                            if (valueToSuppress.getClass().isArray()) {
+                                valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
+                            }
+                        }
+                        break;
+                    case NON_ABSENT:
+                        suppressNulls = true;
+                        valueToSuppress = MARKER_FOR_EMPTY;
+                        break;
+                    case NON_EMPTY:
+                        suppressNulls = true;
+                        valueToSuppress = MARKER_FOR_EMPTY;
+                        break;
+                    case CUSTOM:
+                        valueToSuppress = ctxt.includeFilterInstance(null, inclV.getContentFilter());
+                        if (valueToSuppress == null) {
+                            suppressNulls = true;
+                        } else {
+                            suppressNulls = ctxt.includeFilterSuppressNulls(valueToSuppress);
+                        }
+                        break;
+                    case NON_NULL:
+                        valueToSuppress = null;
+                        suppressNulls = true;
+                        break;
+                    case ALWAYS:
+                    default:
+                        valueToSuppress = null;
+                        suppressNulls = false;
+                        break;
+                }
+            }
         }
-        return new StringArraySerializer(this, property, ser, unwrapSingle);
+        // note: will never have TypeSerializer, because Strings are "natural" type
+        return new StringArraySerializer(this, property, ser, unwrapSingle,
+                valueToSuppress, suppressNulls);
     }
 
     /*
@@ -177,12 +231,20 @@ public class StringArraySerializer
             serializeContentsSlow(value, g, ctxt, _elementSerializer);
             return;
         }
+        final boolean filtered = _needToCheckFiltering(ctxt);
         for (int i = 0; i < len; ++i) {
             String str = value[i];
             if (str == null) {
+                if (filtered && _suppressNulls) {
+                    continue;
+                }
                 g.writeNull();
             } else {
-                g.writeString(value[i]);
+                // Check if this element should be suppressed (only in filtered mode)
+                if (filtered && !_shouldSerializeElement(ctxt, str, null)) {
+                    continue;
+                }
+                g.writeString(str);
             }
         }
     }
@@ -191,14 +253,56 @@ public class StringArraySerializer
             SerializationContext ctxt, ValueSerializer<Object> ser)
         throws JacksonException
     {
+        final boolean filtered = _needToCheckFiltering(ctxt);
         for (int i = 0, len = value.length; i < len; ++i) {
             String str = value[i];
             if (str == null) {
+                if (filtered && _suppressNulls) {
+                    continue;
+                }
                 ctxt.defaultSerializeNullValue(g);
             } else {
-                ser.serialize(value[i], g, ctxt);
+                // Check if this element should be suppressed (only in filtered mode)
+                if (filtered && !_shouldSerializeElement(ctxt, str, ser)) {
+                    continue;
+                }
+                ser.serialize(str, g, ctxt);
             }
         }
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods for content filtering
+    /**********************************************************************
+     */
+
+    /**
+     * Common utility method for checking if an element should be filtered/suppressed
+     * based on @JsonInclude settings. Returns {@code true} if element should be serialized,
+     * {@code false} if it should be skipped.
+     *
+     * @param ctxt Serialization context
+     * @param elem Element to check for suppression
+     * @param serializer Serializer for the element (may be null for strings)
+     * @return true if element should be serialized, false if suppressed
+     *
+     * @since 3.1
+     */
+    protected boolean _shouldSerializeElement(SerializationContext ctxt,
+            String elem, ValueSerializer<Object> serializer)
+    {
+        if (_suppressableValue == null) {
+            return true;
+        }
+        if (_suppressableValue == MARKER_FOR_EMPTY) {
+            if (serializer != null) {
+                return !serializer.isEmpty(ctxt, elem);
+            }
+            // For strings, check emptiness directly
+            return !elem.isEmpty();
+        }
+        return !_suppressableValue.equals(elem);
     }
 
     @Override

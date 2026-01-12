@@ -8,6 +8,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.1.0 (not yet released)
 
+#221: Support alternate radixes when writing numeric values as strings
+ (requested by Christopher C)
+ (implementation by Davyd F)
 #650: `@JsonUnwrapped` prevents checks for
   `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
  (reported by Konstantin L)
@@ -15,14 +18,27 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1196: Add opt-in error collection for deserialization
  (requested by @odrotbohm)
  (contributed by @sri-adarsh-kumar)
+#1419: `JsonFormat.Shape.POJO`  does not work for `Map.Entry` via property annotation
+ (fix by @cowtowncoder, w/ Claude code)
+#1497: Allow skipping `@JsonUnwrapped` values if no properties matched,
+  `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled
+ (requested by Victor N)
+ (fix by @JacksonJang)
 #1516: Problem with multi-argument Creator with `@JsonBackReference` property
  (reported by @sarahlikesglitter)
  (fix by @JacksonJang)
+#1649: `@JsonInclude(content=)` not working for `Map`-valued properties via
+  POJO class annotation
+ (fix by @cowtowncoder, w/ Claude code)
 #1654: @JsonDeserialize(contentUsing=...) is ignored if content
   type is determined by @JsonTypeInfo
  (reported by @pdegoeje)
  (fix by @cowtowncoder, @JacksonJang)
 #1980: Add method `remove(JsonPointer)` in `ContainerNode`
+ (fix by @cowtowncoder, w/ Claude code)
+#2124: Allow coercion of '[ ]' into empty/null String with
+  `ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT`
+ (reported by Ulf A)
  (fix by @cowtowncoder, w/ Claude code)
 #2438: Prevent use of setter/field in case Creator property
   already exists, duplicate value seen
@@ -32,6 +48,18 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #3964: Deserialization issue: MismatchedInputException, Bean not
   yet resolved
  (reported by @detomarco)
+#4118: Deserialization of a certain kinds of parametrized properties fail to
+  resolve `?` into expected bounds, resulting in `LinkedHashMap`
+ (reported by @Mariusz)
+ (fix by @cowtowncoder, w/ Claude code)
+#4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
+  getter method auto-detection for Records
+ (suggested by Garret W)
+ (fix by @cowtowncoder, w/ Claude code)
+#4277: Deserialization `@JsonFormat(shape = JsonFormat.Shape.ARRAY)` POJO with
+  `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work
+ (reported by James M)
+ (implemented by @cowtowncoder, w/ Claude code)
 #4629: `@JsonIncludeProperties` and `@JsonIgnoreProperties` ignored when
   deserializing Records
  (reported by Sim Y-T)
@@ -40,17 +68,27 @@ Versions: 3.x (for earlier see VERSION-2.x)
   creator property" when deserializing JSON with dup property to single-property Record
  (reported by @sseelmann)
  (fix contributed by @JacksonJang)
+#4708: `JsonTypeInfo.Id.DEDUCTION` should block signatures for non-instantiable
+  types (abstract classes, interfaces)
+ (implemented by @cowtowncoder, w/ Claude code)
 #5115: `@JsonUnwrapped` Record deserialization can't handle name collision
  (reported by Viktor S)
  (fix contributed by @JacksonJang)
 #5184: `@JsonIgnore` on record method applied to record matching field
   at deserialization
  (reported by @emouty)
+#5188: Prevent use of unsupported `@JsonManagedReference`/`@JsonBackReference`
+  for Record-valued properties
+ (reported by @JBodkin-Amphora)
+ (implemented by @cowtowncoder, w/ Claude code)
 #5350: Add `DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES` for
   selecting `null` vs "empty/absent" value when deserializing missing `Optional` value
 #5361: Fix Maven SBOM publishing (worked in 3.0.0-rc4 but not in rc5 or later)
 (date-time)#359: `InstantDeserializer` deserializes the nanosecond portion of
   fractional negative timestamps incorrectly
+#5369: Support `@JsonInclude.content` for `Collection`s
+  (with `SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS`)
+ (implementation by Joo-Hyuk K)
 #5405: `@JsonFormat(shape = Shape.POJO)` does not work for `java.util.Map`
   serialization via property annotation
  (fix contributed by @JacksonJang)
@@ -66,6 +104,23 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (reported by @jnizet)
  (fixed by Joo-Hyuk K)
 #5475: Support `@JsonDeserializeAs` annotation
+ (implemented by @cowtowncoder, w/ Claude code)
+#5515: Support `@JsonInclude.content` for Arrays
+ (implemented by @JacksonJang)
+#5519: Add 2 new `JavaTimeFeature`s: (`TRUNCATE_TO_MSECS_ON_WRITE`,
+  `TRUNCATE_TO_MSECS_ON_READ`) for truncating `java.time` values before serialization,
+  after deserialization
+ (implemented by @cowtowncoder, w/ Claude code)
+#5522: `@JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)`
+  doesn't work on custom Collection subclass
+ (contributed by Jaeheon K)
+#5528: `TreeBuildingGenerator#writeNumber(String)` writes Number as String
+ (reported by @gaeljw)
+#5541: Add missing `@JsonIdentityInfo` handling for implicit arrays with
+  `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+ (contributed by Moritz R)
+#5542: `ObjectReader.readValue()` does not fail when
+  `DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS` enabled
  (implemented by @cowtowncoder, w/ Claude code)
 
 3.0.4 (not yet released)

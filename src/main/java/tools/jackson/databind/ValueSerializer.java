@@ -235,7 +235,7 @@ public abstract class ValueSerializer<T>
      *<pre>
      *  // note: method to call depends on whether this type is serialized as JSON scalar, object or Array!
      *  typeSer.writeTypePrefixForScalar(value, gen);
-     *  serialize(value, gen, provider);
+     *  serialize(value, gen, ctxt);
      *  typeSer.writeTypeSuffixForScalar(value, gen);
      *</pre>
      * and implementations for type serialized as JSON Arrays or Objects would differ slightly,

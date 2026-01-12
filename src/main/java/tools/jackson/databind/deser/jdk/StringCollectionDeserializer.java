@@ -13,6 +13,7 @@ import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
+import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.AnnotatedWithParams;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
@@ -47,6 +48,14 @@ public final class StringCollectionDeserializer
      */
     private final ValueDeserializer<Object> _delegateDeserializer;
 
+    /**
+     * Annotations defined on the actual Collection class; retained to avoid
+     * re-introspection overhead during {@link #createContextual} calls.
+     *
+     * @since 3.1
+     */
+    protected transient final AnnotatedClass _classInfo;
+
     // NOTE: no PropertyBasedCreator, as JSON Arrays have no properties
 
     /*
@@ -55,22 +64,40 @@ public final class StringCollectionDeserializer
     /**********************************************************************
      */
 
+    // @since 3.1
     public StringCollectionDeserializer(JavaType collectionType,
-            ValueDeserializer<?> valueDeser, ValueInstantiator valueInstantiator)
+            ValueDeserializer<?> valueDeser, ValueInstantiator valueInstantiator,
+            AnnotatedClass classInfo)
     {
-        this(collectionType, valueInstantiator, null, valueDeser, valueDeser, null);
+        this(collectionType, valueInstantiator, null, valueDeser, valueDeser, null, classInfo);
     }
 
+    // @since 3.1
     @SuppressWarnings("unchecked")
     protected StringCollectionDeserializer(JavaType collectionType,
             ValueInstantiator valueInstantiator, ValueDeserializer<?> delegateDeser,
             ValueDeserializer<?> valueDeser,
-            NullValueProvider nuller, Boolean unwrapSingle)
+            NullValueProvider nuller, Boolean unwrapSingle, AnnotatedClass classInfo)
     {
         super(collectionType, nuller, unwrapSingle);
         _valueDeserializer = (ValueDeserializer<String>) valueDeser;
         _valueInstantiator = valueInstantiator;
         _delegateDeserializer = (ValueDeserializer<Object>) delegateDeser;
+        _classInfo = classInfo;
+    }
+
+    /**
+     * Factory method called by {@code BasicDeserializerFactory} to create
+     * an instance
+     *
+     * @since 3.1
+     */
+    public static StringCollectionDeserializer create(JavaType collectionType,
+            BeanDescription.Supplier beanDescRef,
+            ValueDeserializer<Object> valueDeser, ValueInstantiator valueInstantiator)
+    {
+        return new StringCollectionDeserializer(collectionType,
+                valueDeser, valueInstantiator, beanDescRef.getClassInfo());
     }
 
     protected StringCollectionDeserializer withResolved(ValueDeserializer<?> delegateDeser,
@@ -82,7 +109,7 @@ public final class StringCollectionDeserializer
             return this;
         }
         return new StringCollectionDeserializer(_containerType, _valueInstantiator,
-                delegateDeser, valueDeser, nuller, unwrapSingle);
+                delegateDeser, valueDeser, nuller, unwrapSingle, _classInfo);
     }
 
     @Override
@@ -135,6 +162,7 @@ public final class StringCollectionDeserializer
         // 11-Dec-2015, tatu: Should we pass basic `Collection.class`, or more refined? Mostly
         //   comes down to "List vs Collection" I suppose... for now, pass Collection
         Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
+                _classInfo,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         NullValueProvider nuller = findContentNullProvider(ctxt, property, valueDeser);
         if (isDefaultDeserializer(valueDeser)) {
@@ -207,6 +235,25 @@ public final class StringCollectionDeserializer
                 if (t == JsonToken.VALUE_NULL) {
                     if (_skipNullValues) {
                         continue;
+                    }
+                } else if (t == JsonToken.START_ARRAY) {
+                    // [databind#2124]: Support for empty array coercion to null String
+                    JsonToken nextToken = p.nextToken();
+                    if (nextToken == JsonToken.END_ARRAY) {
+                        CoercionAction act = _findCoercionFromEmptyArray(ctxt);
+                        if (act == CoercionAction.AsNull || act == CoercionAction.TryConvert) {
+                            value = null;
+                        } else if (act == CoercionAction.AsEmpty) {
+                            // Since we are using default/standard deserialization (not
+                            // custom) one, can hard-code empty String
+                            value = "";
+                        } else {
+                            // Fail case: delegate to _parseString which will throw proper error
+                            value = _parseString(p, ctxt, _nullProvider);
+                        }
+                    } else {
+                        // Non-empty array: delegate to _parseString which will throw proper error
+                        value = _parseString(p, ctxt, _nullProvider);
                     }
                 } else {
                     value = _parseString(p, ctxt, _nullProvider);

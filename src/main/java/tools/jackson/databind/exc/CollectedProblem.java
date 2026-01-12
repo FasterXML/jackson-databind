@@ -23,7 +23,8 @@ import tools.jackson.databind.JavaType;
  * <li>{@link #getToken() token} - JSON token type at error location</li>
  * </ul>
  *
- * <p><b>Truncation</b>: String values longer than {@value #MAX_RAW_VALUE_LENGTH}
+ * <p><b>Truncation</b>: String values longer than {@code #MAX_RAW_VALUE_LENGTH}
+ * (currently: 200)
  * characters are truncated with "..." suffix to prevent memory issues.
  *
  * <p><b>Unknown properties</b>: For unknown property errors, {@code rawValue}
@@ -44,8 +45,8 @@ public final class CollectedProblem {
     private final String message;
     private final JavaType targetType;
     private final TokenStreamLocation location;
-    private final Object rawValue;      // @Nullable
-    private final JsonToken token;      // @Nullable
+    private final Object rawValue; // @Nullable
+    private final JsonToken token; // @Nullable
 
     public CollectedProblem(JsonPointer path, String message,
             JavaType targetType, TokenStreamLocation location,

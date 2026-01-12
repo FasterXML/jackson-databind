@@ -116,6 +116,17 @@ public enum DeserializationFeature implements ConfigFeature
      */
     USE_NULL_FOR_MISSING_REFERENCE_VALUES(false),
 
+    /**
+     * Feature that determines whether a POJO property annotated with
+     * {@link com.fasterxml.jackson.annotation.JsonUnwrapped} should remain {@code null}
+     * when no unwrapped properties are found in the input JSON.
+     * <p>
+     * Feature is disabled by default.
+     *
+     * @since 3.1
+     */
+    USE_NULL_FOR_EMPTY_UNWRAPPED(false),
+
     /*
     /**********************************************************************
     /* Error handling features
@@ -159,6 +170,24 @@ public enum DeserializationFeature implements ConfigFeature
      * type information.
      */
     FAIL_ON_INVALID_SUBTYPE(true),
+
+    /**
+     * Feature that determines whether abstract types (abstract classes, interfaces)
+     * should be ignored when building the type fingerprints for polymorphic type
+     * deduction using {@link com.fasterxml.jackson.annotation.JsonTypeInfo.Id#DEDUCTION}.
+     * When enabled, non-concrete types are excluded from deduction since they cannot
+     * be instantiated; when disabled, they participate in deduction which may cause
+     * signature conflicts with their concrete subclasses.
+     *<p>
+     * This feature only affects deduction-based polymorphic deserialization; other
+     * type resolution mechanisms (NAME, CLASS, etc.) are not affected.
+     *<p>
+     * Feature is enabled by default (since 3.1) to exclude abstract types from
+     * deduction and avoid signature conflicts.
+     *
+     * @since 3.1
+     */
+    IGNORE_ABSTRACT_TYPES_FOR_DEDUCTION(true),
 
     /**
      * Feature that determines what happens when reading JSON content into tree
@@ -405,13 +434,17 @@ public enum DeserializationFeature implements ConfigFeature
     ACCEPT_EMPTY_STRING_AS_NULL_OBJECT(false),
 
     /**
-     * Feature that can be enabled to allow empty JSON Array
-     * value (that is, {@code [ ]} to be bound to POJOs {@code null}.
-     * If disabled, standard POJOs can only be bound from JSON {@code null} or
-     * JSON Object (standard meaning that no custom deserializers or
-     * constructors are defined; both of which can add support for other
-     * kinds of JSON values); if enabled, empty JSON Array will be taken
-     * to be equivalent of JSON {@code null}.
+     * Legacy feature that can be enabled to allow empty JSON Array
+     * value (that is, {@code [ ]} to be bound to Java {@code null} for
+     * target types like POJOs, {@link java.util.Map}s, {@link java.lang.String}s
+     * and scalar (non-structured) types such as {@code java.lang.Number}s.
+     * If disabled, such values can only be bound from empty JSON Arrays
+     * if JSON Arrays bound "naturally" as is the case for Java Arrays
+     * and {@link java.util.Collection}s.
+     *<p>
+     * NOTE: in Jackson 2.12 and above, this is considered "legacy" feature because
+     * there is more granular system for allowing coercions like this: see
+     * {@link MapperBuilder#withCoercionConfig} for more information.
      *<p>
      * Feature is disabled by default.
      */

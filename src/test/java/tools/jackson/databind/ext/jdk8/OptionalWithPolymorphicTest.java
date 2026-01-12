@@ -14,7 +14,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestOptionalWithPolymorphic
+public class OptionalWithPolymorphicTest
     extends DatabindTestUtil
 {
     static class ContainerA {

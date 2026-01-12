@@ -24,6 +24,7 @@ module tools.jackson.databind
     requires org.mockito;
     requires org.junit.jupiter.api;
     requires org.junit.jupiter.params;
+    requires org.junit.platform.commons;
 
     // Main exports need to switch to "opens" for testing
     opens tools.jackson.databind;
@@ -97,6 +98,7 @@ module tools.jackson.databind
     opens tools.jackson.databind.seq;
     opens tools.jackson.databind.struct;
     opens tools.jackson.databind.testutil.failure;
+    exports tools.jackson.databind.testutil.failure;
     opens tools.jackson.databind.tofix;
     opens tools.jackson.databind.util.internal;
     opens tools.jackson.databind.views;

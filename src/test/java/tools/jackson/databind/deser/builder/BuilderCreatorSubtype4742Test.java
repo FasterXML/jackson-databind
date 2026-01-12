@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.deser.builder;
 
 import java.util.List;
 
@@ -9,13 +9,10 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-// For some reason, fixed in 2.18.2, but failing for 3.0 -- possibly
-// depends on another fix.
 // [databind#4742] Deserialization with Builder, External type id,
 // @JsonCreator failing
 public class BuilderCreatorSubtype4742Test
@@ -110,7 +107,6 @@ public class BuilderCreatorSubtype4742Test
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
     @Test
     public void testDeser4742() throws Exception
     {

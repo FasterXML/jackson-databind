@@ -1,6 +1,9 @@
 package tools.jackson.databind.ext.jdk8;
 
 import java.util.*;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -12,6 +15,7 @@ import tools.jackson.core.type.TypeReference;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StreamSerializerTest extends StreamTestBase
 {
@@ -42,19 +46,65 @@ public class StreamSerializerTest extends StreamTestBase
             return foo ^ bar.hashCode();
         }
     }
-    TestBean[] empty = {};
 
-    TestBean testBean1 = new TestBean(1, "one");
+    static class IntStreamWrapper {
+        public IntStream value;
 
-    TestBean testBean2 = new TestBean(2, "two");
+        public IntStreamWrapper(IntStream value) {
+            this.value = value;
+        }
 
-    TestBean[] single = { testBean1 };
+        protected IntStreamWrapper() { }
+    }
 
-    TestBean[] multipleValues = { testBean1, testBean2 };
+    static class LongStreamWrapper {
+        public LongStream value;
+
+        public LongStreamWrapper(LongStream value) {
+            this.value = value;
+        }
+
+        protected LongStreamWrapper() { }
+    }
+
+    static class DoubleStreamWrapper {
+        public DoubleStream value;
+
+        public DoubleStreamWrapper(DoubleStream value) {
+            this.value = value;
+        }
+
+        protected DoubleStreamWrapper() { }
+    }
+
+    final static TestBean[] empty = {};
+
+    final static TestBean testBean1 = new TestBean(1, "one");
+
+    final static TestBean testBean2 = new TestBean(2, "two");
+
+    final static TestBean[] single = { testBean1 };
+
+    final static TestBean[] multipleValues = { testBean1, testBean2 };
 
     @Test
     public void testEmptyStream() throws Exception {
         assertArrayEquals(empty, this.roundTrip(Stream.empty(), TestBean[].class));
+    }
+
+    @Test
+    public void testEmptyIntStream() throws Exception {
+        IntStreamWrapper wrapper = new IntStreamWrapper(IntStream.empty());
+        String json = objectMapper.writeValueAsString(wrapper);
+        // Empty stream should serialize to empty array
+        assertEquals("{\"value\":[]}", json);
+    }
+
+    @Test
+    public void testLongStreamWithElements() throws Exception {
+        LongStreamWrapper wrapper = new LongStreamWrapper(LongStream.of(1L, 2L, 3L, 100L));
+        String json = objectMapper.writeValueAsString(wrapper);
+        assertTrue(json.contains("\"value\":[1,2,3,100]"));
     }
 
     @Test
@@ -92,43 +142,6 @@ public class StreamSerializerTest extends StreamTestBase
     public void testStreamCloses() throws Exception {
         assertClosesOnSuccess(Stream.of(multipleValues), stream -> roundTrip(stream, TestBean[].class));
     }
-
-    // 10-Jan-2025, tatu: I hate these kinds of obscure lambda-ridden tests.
-    //    They were accidentally disabled and now fail for... some reason. WTF.
-    //   (came from `jackson-modules-java8`, disabled due to JUnit 4->5 migration)
-    /*
-    @Test
-    public void testStreamClosesOnRuntimeException() throws Exception {
-        String exceptionMessage = "Stream peek threw";
-        assertClosesOnRuntimeException(exceptionMessage, stream -> roundTrip(stream, TestBean[].class),
-                Stream.of(multipleValues)
-                    .peek(e -> {
-                        throw new RuntimeException(exceptionMessage);
-                    }));
-    }
-
-    @Test
-    public void testStreamClosesOnSneakyIOException() throws Exception {
-        String exceptionMessage = "Stream peek threw";
-        assertClosesOnIoException(exceptionMessage, stream -> roundTrip(stream, TestBean[].class),
-                Stream.of(multipleValues)
-                    .peek(e -> {
-                        sneakyThrow(new IOException(exceptionMessage));
-                    }));
-    }
-
-    @Test
-    public void testStreamClosesOnWrappedIoException() throws Exception {
-        final String exceptionMessage = "Stream peek threw";
-
-        assertClosesOnWrappedIoException(exceptionMessage, stream -> roundTrip(stream, TestBean[].class),
-                Stream.of(multipleValues)
-                    .peek(e -> {
-                        throw new UncheckedIOException(new IOException(exceptionMessage));
-                    }));
-    }
-    */
-
     private <T, R> R[] roundTrip(Stream<T> stream, Class<R[]> clazz) {
         String json = objectMapper.writeValueAsString(stream);
         return objectMapper.readValue(json, clazz);

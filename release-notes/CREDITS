@@ -164,18 +164,23 @@ Oliver Drotbohm (@odrotbohm)
 
 Victor Noël (@victornoel)
  * Requested #1497: Allow skipping `@JsonUnwrapped` values if no properties matched,
-  `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled
- [3.1.0]
+   `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled
+  [3.1.0]
+
+Ulf Andersson (@ulfandersson)
+ * Reported #2124: Allow coercion of '[ ]' into empty/null String with
+   `ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT`
+  [3.1.0]
 
 Garret Wilson (@garretwilson)
  * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
    getter method auto-detection for Records
- [3.1.0]
+  [3.1.0]
 
 James Mudd (@jamesmudd)
  * Reported #4277: Deserialization `@JsonFormat(shape = JsonFormat.Shape.ARRAY)` POJO with
   `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work
- [3.1.0]
+  [3.1.0]
 
 Viktor Szathmáry (@phraktle)
  * Reported #5115: `@JsonUnwrapped` Record deserialization can't handle name collision

@@ -101,7 +101,7 @@ public class JacksonTestUtilBase
                 return;
             }
         }
-        fail("Expected an exception with one of substrings ("+Arrays.asList(anyMatches)+"): got one with message \""+msg+"\"");
+        fail("Expected an exception ("+e.getClass().getName()+") with one of substrings ("+Arrays.asList(anyMatches)+"): got one with message \""+msg+"\"");
     }
 
     /**

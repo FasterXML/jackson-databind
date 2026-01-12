@@ -1,13 +1,13 @@
-package tools.jackson.databind.ext;
+package tools.jackson.databind.ext.jdk8;
+
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
 
 import static org.junit.jupiter.api.Assertions.*;
 

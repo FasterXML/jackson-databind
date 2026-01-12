@@ -76,24 +76,27 @@ public class BeanUtil
     {
         // 06-Nov-2015, tatu: Returning null is fine for Object types; but need special
         //   handling for primitives since they are never passed as nulls.
-        Class<?> cls = type.getRawClass();
+        final Class<?> cls = type.getRawClass();
 
         // 11-Jan-2026, tatu: [databind#5570] Only use primitive defaults for actual
         //   primitive types, not wrapper types (which default to null)
         if (cls.isPrimitive()) {
             return ClassUtil.defaultValue(cls);
         }
-        // For wrapper types (Integer, Boolean, etc.), default is null, not the
-        // wrapped primitive default
+        // as per above, for wrapper types (Integer, Boolean, etc.), default is null,
+        // not the wrapped primitive default -- but does not need special casing
+        /*
         Class<?> prim = ClassUtil.primitiveType(cls);
         if (prim != null) {
             return null;
         }
-        if (type.isContainerType() || type.isReferenceType()) {
-            return JsonInclude.Include.NON_EMPTY;
-        }
+        */
+
         if (cls == String.class) {
             return "";
+        }
+        if (type.isContainerType() || type.isReferenceType()) {
+            return JsonInclude.Include.NON_EMPTY;
         }
         // 09-Mar-2016, tatu: Not sure how far this path we want to go but for now
         //   let's add `java.util.Date` and `java.util.Calendar`, as per [databind#1550]

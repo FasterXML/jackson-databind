@@ -34,12 +34,16 @@ public class BeanUtilTest extends DatabindTestUtil
                 BeanUtil.getDefaultValue(tf.constructType(AtomicReference.class)));
         assertEquals("",
                 BeanUtil.getDefaultValue(tf.constructType(String.class)));
-        // primitive/wrappers have others
+        // [databind#5570]: primitive wrappers (Integer, Boolean, etc.) default to null
+        assertNull(BeanUtil.getDefaultValue(tf.constructType(Integer.class)));
+        assertNull(BeanUtil.getDefaultValue(tf.constructType(Boolean.class)));
+        // primitives have specific defaults
         assertEquals(Integer.valueOf(0),
-                BeanUtil.getDefaultValue(tf.constructType(Integer.class)));
+                BeanUtil.getDefaultValue(tf.constructType(Integer.TYPE)));
+        assertEquals(Boolean.FALSE,
+                BeanUtil.getDefaultValue(tf.constructType(Boolean.TYPE)));
 
-
-        // but POJOs have no real default
+        // POJOs have no real default
         assertNull(BeanUtil.getDefaultValue(tf.constructType(getClass())));
     }
 

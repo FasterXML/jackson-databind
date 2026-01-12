@@ -63,11 +63,14 @@ public class BeanUtil
      * serialize, to determine whether to exclude value from serialization with
      * inclusion type of {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}.
      *<p>
-     * Default logic is such that for primitives and wrapper types for primitives, expected
-     * defaults (0 for `int` and `java.lang.Integer`) are returned; for Strings, empty String,
+     * Default logic is such that for primitives, expected defaults (0 for `int`, `false` for
+     * `boolean`) are returned; for primitive wrappers (`Integer`, `Boolean`, etc), `null` is
+     * returned (since that is the default value for reference types); for Strings, empty String;
      * and for structured (Maps, Collections, arrays) and reference types, criteria
      * {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}
      * is used.
+     *
+     * @since 3.0 (updated to return `null` for wrapper types instead of primitive defaults)
      */
     public static Object getDefaultValue(JavaType type)
     {
@@ -75,11 +78,16 @@ public class BeanUtil
         //   handling for primitives since they are never passed as nulls.
         Class<?> cls = type.getRawClass();
 
-        // 30-Sep-2016, tatu: Also works for Wrappers, so both `Integer.TYPE` and `Integer.class`
-        //    would return `Integer.TYPE`
+        // 11-Jan-2026, tatu: [databind#5570] Only use primitive defaults for actual
+        //   primitive types, not wrapper types (which default to null)
+        if (cls.isPrimitive()) {
+            return ClassUtil.defaultValue(cls);
+        }
+        // For wrapper types (Integer, Boolean, etc.), default is null, not the
+        // wrapped primitive default
         Class<?> prim = ClassUtil.primitiveType(cls);
         if (prim != null) {
-            return ClassUtil.defaultValue(prim);
+            return null;
         }
         if (type.isContainerType() || type.isReferenceType()) {
             return JsonInclude.Include.NON_EMPTY;

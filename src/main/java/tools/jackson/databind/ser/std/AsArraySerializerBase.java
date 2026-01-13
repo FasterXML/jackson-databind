@@ -257,7 +257,7 @@ public abstract class AsArraySerializerBase<T>
             if (incl != JsonInclude.Include.USE_DEFAULTS) {
                 switch (incl) {
                     case NON_DEFAULT:
-                        valueToSuppress = BeanUtil.getDefaultValue(_elementType);
+                        valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, _elementType);
                         suppressNulls = true;
                         if (valueToSuppress != null) {
                             if (valueToSuppress.getClass().isArray()) {

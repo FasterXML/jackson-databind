@@ -144,7 +144,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
             if (incl != JsonInclude.Include.USE_DEFAULTS) {
                 switch (incl) {
                     case NON_DEFAULT:
-                        valueToSuppress = BeanUtil.getDefaultValue(ctxt.constructType(_rawElementType));
+                        valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, ctxt.constructType(_rawElementType));
                         suppressNulls = true;
                         if (valueToSuppress != null) {
                             if (valueToSuppress.getClass().isArray()) {

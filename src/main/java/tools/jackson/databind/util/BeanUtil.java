@@ -6,7 +6,9 @@ import java.util.GregorianCalendar;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.JavaType;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.cfg.MapperConfig;
 
 /**
@@ -63,29 +65,47 @@ public class BeanUtil
      * serialize, to determine whether to exclude value from serialization with
      * inclusion type of {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}.
      *<p>
-     * Default logic is such that for primitives and wrapper types for primitives, expected
-     * defaults (0 for `int` and `java.lang.Integer`) are returned; for Strings, empty String,
+     * Default logic is such that for primitives, expected defaults (0 for `int`, `false` for
+     * `boolean`) are returned; for primitive wrappers (`Integer`, `Boolean`, etc), either `null`
+     * or wrapped default for matching primitive is returned (depending on
+     * {@link MapperFeature#WRAPPERS_DEFAULT_TO_NULL} setting);
+     * for Strings, empty String;
      * and for structured (Maps, Collections, arrays) and reference types, criteria
-     * {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}
-     * is used.
+     * {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_EMPTY}
+     * is used (to compare to "empty" value)
+     *<p>
+     * @param type Type for which default value requested
+     * @param wrappersAsNulls If {@code true}, default for primitive wrapper types
+     *    like {@link java.lang.Boolean} will be {@code null}; if {@code false} will be
+     *    wrapped default of matching primitive type (for {@code java.lang.Boolean} that
+     *    would be {@code Boolean.FALSE})
+     *
+     * @since 3.1
      */
-    public static Object getDefaultValue(JavaType type)
+    public static Object propertyDefaultValue(JavaType type, boolean wrappersAsNulls)
     {
         // 06-Nov-2015, tatu: Returning null is fine for Object types; but need special
         //   handling for primitives since they are never passed as nulls.
-        Class<?> cls = type.getRawClass();
+        final Class<?> cls = type.getRawClass();
 
-        // 30-Sep-2016, tatu: Also works for Wrappers, so both `Integer.TYPE` and `Integer.class`
-        //    would return `Integer.TYPE`
-        Class<?> prim = ClassUtil.primitiveType(cls);
-        if (prim != null) {
-            return ClassUtil.defaultValue(prim);
+        // 11-Jan-2026, tatu: [databind#5570] Primitive types have non-null defaults
+        if (cls.isPrimitive()) {
+            return ClassUtil.defaultValue(cls);
+        }
+        if (cls == String.class) {
+            return "";
         }
         if (type.isContainerType() || type.isReferenceType()) {
             return JsonInclude.Include.NON_EMPTY;
         }
-        if (cls == String.class) {
-            return "";
+        // For wrapper types (Integer, Boolean, etc.), default is either null,
+        // or the wrapped primitive default
+        Class<?> primitiveType = ClassUtil.primitiveType(cls);
+        if (primitiveType != null) {
+            if (wrappersAsNulls) {
+                return null;
+            }
+            return ClassUtil.defaultValue(primitiveType);
         }
         // 09-Mar-2016, tatu: Not sure how far this path we want to go but for now
         //   let's add `java.util.Date` and `java.util.Calendar`, as per [databind#1550]
@@ -100,6 +120,42 @@ public class BeanUtil
         return null;
     }
 
+    /**
+     * Short-cut for:
+     *<pre>
+     * getDefaultValue(type, ctxt.isEnabled(MapperFeature.WRAPPERS_DEFAULT_TO_NUL));
+     *</pre>
+     *
+     * @since 3.1
+     */
+    public static Object propertyDefaultValue(DatabindContext ctxt, JavaType type)
+    {
+        return propertyDefaultValue(type,
+                ctxt.isEnabled(MapperFeature.WRAPPERS_DEFAULT_TO_NULL));
+    }
+
+    /**
+     * Short-cut for:
+     *<pre>
+     * propertyDefaultValue(type, config.isEnabled(MapperFeature.WRAPPERS_DEFAULT_TO_NUL));
+     *</pre>
+     *
+     * @since 3.1
+     */
+    public static Object propertyDefaultValue(MapperConfig<?> config, JavaType type)
+    {
+        return propertyDefaultValue(type,
+                config.isEnabled(MapperFeature.WRAPPERS_DEFAULT_TO_NULL));
+    }
+    
+    /**
+     * @deprecated Since 3.1 use one of {@code propertyDefaultValue()} variants.
+     */
+    @Deprecated // since 3.1
+    public static Object getDefaultValue(JavaType type) {
+        return propertyDefaultValue(type, true);
+    }
+    
     /*
     /**********************************************************************
     /* Package-specific type detection for error handling

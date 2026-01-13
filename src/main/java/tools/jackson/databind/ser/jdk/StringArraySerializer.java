@@ -128,7 +128,7 @@ public class StringArraySerializer
             if (incl != JsonInclude.Include.USE_DEFAULTS) {
                 switch (incl) {
                     case NON_DEFAULT:
-                        valueToSuppress = BeanUtil.getDefaultValue(VALUE_TYPE);
+                        valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, VALUE_TYPE);
                         suppressNulls = true;
                         if (valueToSuppress != null) {
                             if (valueToSuppress.getClass().isArray()) {

@@ -174,7 +174,7 @@ public class PropertyBuilder
                     _throwWrapped(e, propDef.getName(), defaultBean);
                 }
             } else {
-                valueToSuppress = BeanUtil.getDefaultValue(actualType);
+                valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, actualType);
                 suppressNulls = true;
             }
             if (valueToSuppress == null) {

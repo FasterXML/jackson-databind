@@ -491,10 +491,26 @@ public enum MapperFeature
      */
 
     /**
+     * Setting that determines whether wrapper types for primitives (like
+     * {@link java.lang.Boolean}) have default value of {@code null} (feature
+     * {@code true} / enabled) or the default matching primitive default
+     * (for {@code java.lang.Boolean} would be {@code Boolean.FALSE}) (when
+     * feature {@code false} / disabled).
+     *<p>
+     * Default value is mostly relevant for serialization inclusion checks
+     * using {@code @JsonInclude} annotation.
+     *<p>
+     * Feature is disabled by default, {@code false}, for backwards-compatibility.
+     *
+     * @since 3.1
+     */
+    WRAPPERS_DEFAULT_TO_NULL(false),
+
+    /**
      * Setting that determines what happens if an attempt is made to explicitly
      * "merge" value of a property, where value does not support merging; either
-     * merging is skipped and new value is created (<code>true</code>) or
-     * an exception is thrown (false).
+     * merging is skipped and new value is created ({@code true}) or
+     * an exception is thrown ({@code false}).
      *<p>
      * Feature is enabled by default, to allow use of merge defaults even in presence
      * of some unmergeable properties.
@@ -506,7 +522,7 @@ public enum MapperFeature
      * defined in class definitions in cases where the input data omits the relevant values.
      *<p>
      * Not all modules will respect this feature. Initially, only {@code jackson-module-scala}
-     * will respect this feature but other modules will add support over time.
+     * will respect this feature but other modules may add support over time.
      *<p>
      * Feature is enabled by default.
      *

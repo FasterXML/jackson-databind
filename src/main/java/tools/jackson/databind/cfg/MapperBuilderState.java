@@ -120,6 +120,26 @@ public abstract class MapperBuilderState
 
     /*
     /**********************************************************************
+    /* Default views
+    /**********************************************************************
+     */
+
+    /**
+     * Default view to use for serialization, if any.
+     *
+     * @since 3.1
+     */
+    protected final Class<?> _defaultSerializationView;
+
+    /**
+     * Default view to use for deserialization, if any.
+     *
+     * @since 3.1
+     */
+    protected final Class<?> _defaultDeserializationView;
+
+    /*
+    /**********************************************************************
     /* Construction
     /**********************************************************************
      */
@@ -169,6 +189,10 @@ public abstract class MapperBuilderState
 
         // Other handlers
         _defaultAttributes = Snapshottable.takeSnapshot(src._defaultAttributes);
+
+        // Default views
+        _defaultSerializationView = src._defaultSerializationView;
+        _defaultDeserializationView = src._defaultDeserializationView;
 
         // Modules
         if (src._modules == null) {

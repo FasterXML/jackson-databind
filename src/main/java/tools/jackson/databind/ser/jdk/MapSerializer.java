@@ -408,7 +408,7 @@ public class MapSerializer
                 boolean suppressNulls;
                 switch (incl) {
                 case NON_DEFAULT:
-                    valueToSuppress = BeanUtil.getDefaultValue(_valueType);
+                    valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, _valueType);
                     suppressNulls = true;
                     if (valueToSuppress != null) {
                         if (valueToSuppress.getClass().isArray()) {

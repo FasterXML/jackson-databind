@@ -196,6 +196,26 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
+    /* Default views
+    /**********************************************************************
+     */
+
+    /**
+     * Default view to use for serialization, if any.
+     *
+     * @since 3.1
+     */
+    protected Class<?> _defaultSerializationView;
+
+    /**
+     * Default view to use for deserialization, if any.
+     *
+     * @since 3.1
+     */
+    protected Class<?> _defaultDeserializationView;
+
+    /*
+    /**********************************************************************
     /* Feature flags: ser, deser
     /**********************************************************************
      */
@@ -302,6 +322,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _abstractTypeResolvers = NO_ABSTRACT_TYPE_RESOLVERS;
 
         _defaultAttributes = null;
+
+        _defaultSerializationView = null;
+        _defaultDeserializationView = null;
     }
 
     /**
@@ -348,6 +371,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
         // Factories/handlers, other
         _defaultAttributes = Snapshottable.takeSnapshot(state._defaultAttributes);
+
+        // Default views
+        _defaultSerializationView = state._defaultSerializationView;
+        _defaultDeserializationView = state._defaultDeserializationView;
 
         // Modules
         if (state._modules == null) {
@@ -661,6 +688,28 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     protected PrettyPrinter _defaultPrettyPrinter() {
         return DEFAULT_PRETTY_PRINTER;
+    }
+
+    /**
+     * Accessor for configured default serialization view, if any; {@code null} if none.
+     *
+     * @return Default serialization view, if configured; {@code null} otherwise
+     *
+     * @since 3.1
+     */
+    public Class<?> defaultSerializationView() {
+        return _defaultSerializationView;
+    }
+
+    /**
+     * Accessor for configured default deserialization view, if any; {@code null} if none.
+     *
+     * @return Default deserialization view, if configured; {@code null} otherwise
+     *
+     * @since 3.1
+     */
+    public Class<?> defaultDeserializationView() {
+        return _defaultDeserializationView;
     }
 
     /*
@@ -1495,6 +1544,71 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B defaultBase64Variant(Base64Variant v) {
         _baseSettings = _baseSettings.with(v);
+        return _this();
+    }
+
+    /*
+    /**********************************************************************
+    /* Configuring default views
+    /**********************************************************************
+     */
+
+    /**
+     * Method for configuring the default view to use for serialization.
+     * When set, the mapper will use this view as the default for all serialization
+     * operations unless explicitly overridden via {@link ObjectWriter#withView(Class)}.
+     *<p>
+     * This provides a way to set a mapper-wide default serialization view,
+     * addressing the loss of functionality from Jackson 2.x where views could be set
+     * directly on the mapper configuration.
+     *
+     * @param view Default view class to use for serialization; if {@code null}, no default
+     *    view will be used
+     *
+     * @return This builder instance to allow call chaining
+     *
+     * @since 3.1
+     */
+    public B defaultSerializationView(Class<?> view) {
+        _defaultSerializationView = view;
+        return _this();
+    }
+
+    /**
+     * Method for configuring the default view to use for deserialization.
+     * When set, the mapper will use this view as the default for all deserialization
+     * operations unless explicitly overridden via {@link ObjectReader#withView(Class)}.
+     *<p>
+     * This provides a way to set a mapper-wide default deserialization view,
+     * addressing the loss of functionality from Jackson 2.x where views could be set
+     * directly on the mapper configuration.
+     *
+     * @param view Default view class to use for deserialization; if {@code null}, no default
+     *    view will be used
+     *
+     * @return This builder instance to allow call chaining
+     *
+     * @since 3.1
+     */
+    public B defaultDeserializationView(Class<?> view) {
+        _defaultDeserializationView = view;
+        return _this();
+    }
+
+    /**
+     * Convenience method equivalent to calling both {@link #defaultSerializationView(Class)}
+     * and {@link #defaultDeserializationView(Class)} with the same view class.
+     *
+     * @param view Default view class to use for both serialization and deserialization;
+     *    if {@code null}, no default view will be used
+     *
+     * @return This builder instance to allow call chaining
+     *
+     * @since 3.1
+     */
+    public B defaultView(Class<?> view) {
+        _defaultSerializationView = view;
+        _defaultDeserializationView = view;
         return _this();
     }
 

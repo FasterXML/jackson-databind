@@ -137,6 +137,33 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     /**
+     * Constructor used when creating a new instance with a default view
+     * (compared to that of creating fluent copies)
+     *
+     * @since 3.1
+     */
+    protected MapperConfigBase(MapperBuilder<?,?> b, long mapperFeatures,
+            TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
+            ConfigOverrides configOverrides, ContextAttributes defaultAttrs,
+            RootNameLookup rootNames,
+            Class<?> view)
+    {
+        super(b.baseSettings(), mapperFeatures);
+
+        _typeFactory = tf;
+        _classIntrospector = classIntr;
+        _typeResolverProvider = b.typeResolverProvider();
+        _subtypeResolver = str;
+        _mixIns = mixins;
+        _rootNames = rootNames;
+        _rootName = null;
+        _view = view;
+        _attributes = defaultAttrs;
+        _configOverrides = configOverrides;
+        _datatypeFeatures = b.datatypeFeatures();
+    }
+
+    /**
      * Pass-through constructor used when no changes are needed to the
      * base class.
      */

@@ -195,3 +195,7 @@ Jaeheon Kim (@jher235)
  * Contributed #5522: `@JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)`
    doesn't work on custom Collection subclass
   [3.1.0]
+
+Réda Housni Alaoui (@reda-alaoui)
+ * Requested #5575: Allow configuring a default serialization and deserialization view (3.x)
+  [3.1.0]

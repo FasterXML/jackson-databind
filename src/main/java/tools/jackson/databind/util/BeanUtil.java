@@ -6,7 +6,9 @@ import java.util.GregorianCalendar;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.JavaType;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.cfg.MapperConfig;
 
 /**
@@ -72,8 +74,14 @@ public class BeanUtil
      *<p>
      * Changed in 3.1 updated to return {@code null} for wrapper types instead of primitive
      * defaults).
+     *
+     * @param type Type for which default value requested
+     * @param wrappersAsNulls If {@code true}, default for primitive wrapper types
+     *    like {@link java.lang.Boolean} will be {@code null}; if {@code false} will be
+     *    wrapped default of matching primitive type (for {@code java.lang.Boolean} that
+     *    would be {@code Boolean.FALSE})
      */
-    public static Object getDefaultValue(JavaType type)
+    public static Object getDefaultValue(JavaType type, boolean wrappersAsNulls)
     {
         // 06-Nov-2015, tatu: Returning null is fine for Object types; but need special
         //   handling for primitives since they are never passed as nulls.
@@ -112,6 +120,28 @@ public class BeanUtil
         return null;
     }
 
+    // @since 3.1
+    public static Object getDefaultValue(JavaType type, DatabindContext ctxt)
+    {
+        return getDefaultValue(type,
+                ctxt.isEnabled(MapperFeature.WRAPPERS_DEFAULT_TO_NULL));
+    }
+
+    // @since 3.1
+    public static Object getDefaultValue(JavaType type, MapperConfig<?> config)
+    {
+        return getDefaultValue(type,
+                config.isEnabled(MapperFeature.WRAPPERS_DEFAULT_TO_NULL));
+    }
+    
+    /**
+     * @deprecated Since 3.1 use one of overloads that take second argument instead
+     */
+    @Deprecated // since 3.1
+    public static Object getDefaultValue(JavaType type) {
+        return getDefaultValue(type, true);
+    }
+    
     /*
     /**********************************************************************
     /* Package-specific type detection for error handling

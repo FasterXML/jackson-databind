@@ -388,43 +388,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /*
-    protected MapperBuilder(MapperBuilder<?,?> base)
-    {
-        _streamFactory = base._streamFactory;
-        _baseSettings = base._baseSettings;
-        _configOverrides = base._configOverrides;
-        _coercionConfigs = base._coercionConfigs;
-
-        _mapperFeatures = base._mapperFeatures;
-        _serFeatures = base._serFeatures;
-        _deserFeatures = base._deserFeatures;
-
-        _streamReadFeatures = base._streamReadFeatures;
-        _stremWriteFeatures = base._stremWriteFeatures;
-        _formatReadFeatures = base._formatReadFeatures;
-        _formatWriteFeatures = base._formatWriteFeatures;
-        _datatypeFeatures = base._datatypeFeatures;
-
-        _typeFactory = base._typeFactory;
-        _classIntrospector = base._classIntrospector;
-        _typeResolverProvider = base._typeResolverProvider;
-        _subtypeResolver = base._subtypeResolver;
-        _mixInHandler = base._mixInHandler;
-
-        _serializerFactory = base._serializerFactory;
-        _serializationContexts = base._serializationContexts;
-        _filterProvider = base._filterProvider;
-
-        _deserializerFactory = base._deserializerFactory;
-        _deserializationContext = base._deserializationContext;
-        _injectableValues = base._injectableValues;
-        _problemHandlers = base._problemHandlers;
-        _abstractTypeResolvers = base._abstractTypeResolvers;
-        _cacheProvider = base._cacheProvider;
-    }
-    */
-
-    /*
     /**********************************************************************
     /* Methods for actual build process
     /**********************************************************************
@@ -1557,10 +1520,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * Method for configuring the default view to use for serialization.
      * When set, the mapper will use this view as the default for all serialization
      * operations unless explicitly overridden via {@link ObjectWriter#withView(Class)}.
-     *<p>
-     * This provides a way to set a mapper-wide default serialization view,
-     * addressing the loss of functionality from Jackson 2.x where views could be set
-     * directly on the mapper configuration.
      *
      * @param view Default view class to use for serialization; if {@code null}, no default
      *    view will be used
@@ -1578,10 +1537,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * Method for configuring the default view to use for deserialization.
      * When set, the mapper will use this view as the default for all deserialization
      * operations unless explicitly overridden via {@link ObjectReader#withView(Class)}.
-     *<p>
-     * This provides a way to set a mapper-wide default deserialization view,
-     * addressing the loss of functionality from Jackson 2.x where views could be set
-     * directly on the mapper configuration.
      *
      * @param view Default view class to use for deserialization; if {@code null}, no default
      *    view will be used

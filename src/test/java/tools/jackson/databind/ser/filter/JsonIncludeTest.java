@@ -326,33 +326,51 @@ public class JsonIncludeTest
     @Test
     public void testDefaultForIntegers() throws Exception
     {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.WRAPPERS_DEFAULT_TO_NULL)
+                .build();
         // [databind#5570]: Integer wrapper default is null, not 0, so Integer.valueOf(0) should be included
-        assertEquals("{\"i2\":0}", MAPPER.writeValueAsString(new DefaultIntBean(0, Integer.valueOf(0))));
-        assertEquals("{\"i2\":1}", MAPPER.writeValueAsString(new DefaultIntBean(0, Integer.valueOf(1))));
-        assertEquals("{}", MAPPER.writeValueAsString(new DefaultIntBean(0, null)));
-        assertEquals("{\"i1\":3,\"i2\":0}", MAPPER.writeValueAsString(new DefaultIntBean(3, Integer.valueOf(0))));
-        assertEquals("{\"i1\":3}", MAPPER.writeValueAsString(new DefaultIntBean(3, null)));
-    }
+        assertEquals("{\"i2\":0}", mapper.writeValueAsString(new DefaultIntBean(0, Integer.valueOf(0))));
+        assertEquals("{\"i2\":1}", mapper.writeValueAsString(new DefaultIntBean(0, Integer.valueOf(1))));
+        assertEquals("{}", mapper.writeValueAsString(new DefaultIntBean(0, null)));
+        assertEquals("{\"i1\":3,\"i2\":0}", mapper.writeValueAsString(new DefaultIntBean(3, Integer.valueOf(0))));
+        assertEquals("{\"i1\":3}", mapper.writeValueAsString(new DefaultIntBean(3, null)));
+
+        // but with different settings
+        mapper = jsonMapperBuilder()
+                .disable(MapperFeature.WRAPPERS_DEFAULT_TO_NULL)
+                .build();
+
+        assertEquals("{}", mapper.writeValueAsString(new DefaultIntBean(0, Integer.valueOf(0))));
+        assertEquals("{\"i2\":1}", mapper.writeValueAsString(new DefaultIntBean(0, Integer.valueOf(1))));
+        assertEquals("{}", mapper.writeValueAsString(new DefaultIntBean(0, null)));
+        assertEquals("{\"i1\":3}", mapper.writeValueAsString(new DefaultIntBean(3, Integer.valueOf(0))));
+        assertEquals("{\"i1\":3}", mapper.writeValueAsString(new DefaultIntBean(3, null)));
+}
 
     // [databind#5570]: Test for Boolean wrapper with NON_DEFAULT
     @Test
     public void testDefaultForBooleans() throws Exception
     {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.WRAPPERS_DEFAULT_TO_NULL)
+                .build();
+
         // Both false: primitive suppressed (false is default for boolean),
         // wrapper included (Boolean default is null, not false)
-        assertEquals("{\"b2\":false}", MAPPER.writeValueAsString(
+        assertEquals("{\"b2\":false}", mapper.writeValueAsString(
             new DefaultBooleanBean(false, Boolean.FALSE)));
 
         // Both true: both included (neither matches their defaults)
-        assertEquals("{\"b1\":true,\"b2\":true}", MAPPER.writeValueAsString(
+        assertEquals("{\"b1\":true,\"b2\":true}", mapper.writeValueAsString(
             new DefaultBooleanBean(true, Boolean.TRUE)));
 
         // Wrapper null: both suppressed (primitive=false matches default, wrapper=null matches default)
-        assertEquals("{}", MAPPER.writeValueAsString(
+        assertEquals("{}", mapper.writeValueAsString(
             new DefaultBooleanBean(false, null)));
 
         // Primitive true, wrapper false: both included (neither matches defaults)
-        assertEquals("{\"b1\":true,\"b2\":false}", MAPPER.writeValueAsString(
+        assertEquals("{\"b1\":true,\"b2\":false}", mapper.writeValueAsString(
             new DefaultBooleanBean(true, Boolean.FALSE)));
     }
 
@@ -362,6 +380,7 @@ public class JsonIncludeTest
     {
         // Test case from issue #5570 - global NON_DEFAULT configuration
         ObjectMapper mapper = jsonMapperBuilder()
+            .enable(MapperFeature.WRAPPERS_DEFAULT_TO_NULL)
             .changeDefaultPropertyInclusion(incl ->
                 incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
             .build();

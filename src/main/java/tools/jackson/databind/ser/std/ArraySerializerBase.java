@@ -82,21 +82,21 @@ public abstract class ArraySerializerBase<T>
             Boolean unwrapSingle, Object suppressableValue, boolean suppressNulls);
 
     @Override
-    public ValueSerializer<?> createContextual(SerializationContext serializers,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property)
     {
         Boolean unwrapSingle = null;
 
         // First: if we have a property, may have property-annotation overrides
         if (property != null) {
-            JsonFormat.Value format = findFormatOverrides(serializers, property, handledType());
+            JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
             if (format != null) {
                 unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
             }
         }
 
         // [databind#5515]: Handle content inclusion for arrays
-        JsonInclude.Value inclV = findIncludeOverrides(serializers, property, handledType());
+        JsonInclude.Value inclV = findIncludeOverrides(ctxt, property, handledType());
         Object valueToSuppress = _suppressableValue;
         boolean suppressNulls = _suppressNulls;
 
@@ -105,7 +105,7 @@ public abstract class ArraySerializerBase<T>
             if (incl != JsonInclude.Include.USE_DEFAULTS) {
                 switch (incl) {
                     case NON_DEFAULT:
-                        valueToSuppress = BeanUtil.getDefaultValue(getContentType());
+                        valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, getContentType());
                         suppressNulls = true;
                         if (valueToSuppress != null) {
                             if (valueToSuppress.getClass().isArray()) {
@@ -122,11 +122,11 @@ public abstract class ArraySerializerBase<T>
                         valueToSuppress = MARKER_FOR_EMPTY;
                         break;
                     case CUSTOM:
-                        valueToSuppress = serializers.includeFilterInstance(null, inclV.getContentFilter());
+                        valueToSuppress = ctxt.includeFilterInstance(null, inclV.getContentFilter());
                         if (valueToSuppress == null) {
                             suppressNulls = true;
                         } else {
-                            suppressNulls = serializers.includeFilterSuppressNulls(valueToSuppress);
+                            suppressNulls = ctxt.includeFilterSuppressNulls(valueToSuppress);
                         }
                         break;
                     case NON_NULL:

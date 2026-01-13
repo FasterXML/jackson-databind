@@ -193,7 +193,7 @@ public abstract class ReferenceTypeSerializer<T>
                     boolean suppressNulls;
                     switch (incl) {
                     case NON_DEFAULT:
-                        valueToSuppress = BeanUtil.getDefaultValue(_referredType);
+                        valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, _referredType);
                         suppressNulls = true;
                         if (valueToSuppress != null) {
                             if (valueToSuppress.getClass().isArray()) {

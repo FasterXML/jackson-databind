@@ -500,13 +500,11 @@ public enum MapperFeature
      * Default value is mostly relevant for serialization inclusion checks
      * using {@code @JsonInclude} annotation.
      *<p>
-     * Feature is enabled by default, {@code true} (since 3.1) so that wrappers
-     * have {@code null} as their default value. Before 3.1 effective behavior
-     * was similar to feature being disabled.
+     * Feature is disabled by default, {@code false}, for backwards-compatibility.
      *
      * @since 3.1
      */
-    WRAPPERS_DEFAULT_TO_NULL(true),
+    WRAPPERS_DEFAULT_TO_NULL(false),
 
     /**
      * Setting that determines what happens if an attempt is made to explicitly

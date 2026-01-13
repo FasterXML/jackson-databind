@@ -748,7 +748,7 @@ public abstract class BasicSerializerFactory
 
         switch (incl) {
         case NON_DEFAULT:
-            valueToSuppress = BeanUtil.getDefaultValue(contentType);
+            valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, contentType);
             if (valueToSuppress != null) {
                 if (valueToSuppress.getClass().isArray()) {
                     valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
@@ -808,7 +808,7 @@ public abstract class BasicSerializerFactory
 
         switch (incl) {
         case NON_DEFAULT:
-            valueToSuppress = BeanUtil.getDefaultValue(contentType);
+            valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, contentType);
             if (valueToSuppress != null) {
                 if (valueToSuppress.getClass().isArray()) {
                     valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
@@ -997,7 +997,7 @@ public abstract class BasicSerializerFactory
             suppressNulls = true;
             switch (incl) {
             case NON_DEFAULT:
-                valueToSuppress = BeanUtil.getDefaultValue(contentType);
+                valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, contentType);
                 if (valueToSuppress != null) {
                     if (valueToSuppress.getClass().isArray()) {
                         valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);

@@ -122,6 +122,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5542: `ObjectReader.readValue()` does not fail when
   `DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS` enabled
  (implemented by @cowtowncoder, w/ Claude code)
+#5570: Add `MapperFeature.WRAPPERS_DEFAULT_TO_NULL` to allow configuring
+  `JsonInclude.Include.NON_DEFAULT` default for primitive wrapper types to be `null`,
+  not wrapped default of primitive
 
 3.0.4 (not yet released)
 

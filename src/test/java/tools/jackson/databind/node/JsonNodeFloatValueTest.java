@@ -288,7 +288,7 @@ public class JsonNodeFloatValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
                 .contains("asFloat()")
-                .contains("cannot coerce value")
+                .contains("cannot convert value")
                 .contains("value not in 32-bit `float` range");
 
         assertEquals(-2.25f, node.asFloat(-2.25f));

@@ -67,7 +67,7 @@ public class LongNode
         if (inShortRange()) {
             return (short) _value;
         }
-        return _reportShortCoercionRangeFail("shortValue()");
+        return _reportShortConversionRangeFail("shortValue()");
     }
 
     @Override
@@ -85,7 +85,7 @@ public class LongNode
         if (inShortRange()) {
             return (short) _value;
         }
-        return _reportShortCoercionRangeFail("asShort()");
+        return _reportShortConversionRangeFail("asShort()");
     }
 
     @Override
@@ -103,7 +103,7 @@ public class LongNode
         if (inIntRange()) {
             return (int) _value;
         }
-        return _reportIntCoercionRangeFail("intValue()");
+        return _reportIntConversionRangeFail("intValue()");
     }
 
     @Override
@@ -121,7 +121,7 @@ public class LongNode
         if (inIntRange()) {
             return (int) _value;
         }
-        return _reportIntCoercionRangeFail("asInt()");
+        return _reportIntConversionRangeFail("asInt()");
     }
 
     @Override

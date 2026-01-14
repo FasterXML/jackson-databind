@@ -390,7 +390,7 @@ public class JsonNodeIntValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("asInt()")
-            .contains("cannot coerce value")
+            .contains("cannot convert value")
             .contains("value not in 32-bit `int` range");
 
         // assert defaulting
@@ -422,7 +422,7 @@ public class JsonNodeIntValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
         .contains("asInt()")
-            .contains("cannot coerce value")
+            .contains("cannot convert value")
             .contains("value non-Finite");
 
         // Verify default value handling

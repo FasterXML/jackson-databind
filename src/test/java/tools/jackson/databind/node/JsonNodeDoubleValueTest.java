@@ -265,7 +265,7 @@ public class JsonNodeDoubleValueTest
                 () ->  node.doubleValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains("value type not numeric");
 
         assertEquals(1.5d, node.doubleValue(1.5d));
@@ -286,7 +286,7 @@ public class JsonNodeDoubleValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("asDouble()")
-            .contains("cannot coerce value")
+            .contains("cannot convert value")
             .contains("value not in 64-bit `double` range");
 
         assertEquals(-2.25d, node.asDouble(-2.25d));

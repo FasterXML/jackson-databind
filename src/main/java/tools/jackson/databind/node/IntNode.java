@@ -87,7 +87,7 @@ public class IntNode
         if (inShortRange()) {
             return (short) _value;
         }
-        return _reportShortCoercionRangeFail("shortValue()");
+        return _reportShortConversionRangeFail("shortValue()");
     }
 
     @Override
@@ -105,7 +105,7 @@ public class IntNode
         if (inShortRange()) {
             return (short) _value;
         }
-        return _reportShortCoercionRangeFail("asShort()");
+        return _reportShortConversionRangeFail("asShort()");
     }
 
     @Override

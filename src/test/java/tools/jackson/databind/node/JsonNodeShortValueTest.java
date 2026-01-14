@@ -331,7 +331,7 @@ public class JsonNodeShortValueTest
                 () ->  node.shortValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains("value type not numeric");
 
         // assert defaulting
@@ -387,7 +387,7 @@ public class JsonNodeShortValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
                 .contains("asShort()")
-                .contains("cannot coerce value")
+                .contains("cannot convert value")
                 .contains("value non-Finite");
 
         // Verify default value handling

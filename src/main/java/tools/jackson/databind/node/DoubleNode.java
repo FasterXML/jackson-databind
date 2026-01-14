@@ -75,7 +75,7 @@ public class DoubleNode
         if (Float.isFinite(f)) {
             return f;
         }
-        return _reportFloatCoercionRangeFail("floatValue()");
+        return _reportFloatConversionRangeFail("floatValue()");
     }
 
     @Override
@@ -102,7 +102,7 @@ public class DoubleNode
         if (Float.isFinite(f)) {
             return f;
         }
-        return _reportFloatCoercionRangeFail("asFloat()");
+        return _reportFloatConversionRangeFail("asFloat()");
     }
 
     @Override

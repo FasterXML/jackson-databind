@@ -291,7 +291,7 @@ public class JsonNodeDecimalValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
         .contains("asDecimal()")
-            .contains("cannot coerce value")
+            .contains("cannot convert value")
             .contains("value non-Finite ('NaN')");
 
         // Verify default value handling

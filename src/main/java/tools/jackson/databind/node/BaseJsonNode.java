@@ -678,20 +678,10 @@ public abstract class BaseJsonNode
                 _valueDesc(), ClassUtil.nameOf(targetType), message);
     }
 
-    protected short _reportShortCoercionRangeFail(String method) {
-        return _reportCoercionFail(method, Short.TYPE,
-            "value not in 16-bit `short` range");
-    }
-
     // @since 3.1
     protected short _reportShortConversionRangeFail(String method) {
         return _reportConversionFail(method, Short.TYPE,
             "value not in 16-bit `short` range");
-    }
-
-    protected int _reportIntCoercionRangeFail(String method) {
-        return _reportCoercionFail(method, Integer.TYPE,
-            "value not in 32-bit `int` range");
     }
 
     // @since 3.1
@@ -700,20 +690,10 @@ public abstract class BaseJsonNode
             "value not in 32-bit `int` range");
     }
 
-    protected long _reportLongCoercionRangeFail(String method) {
-        return _reportCoercionFail(method, Long.TYPE,
-            "value not in 64-bit `long` range");
-    }
-
     // @since 3.1
     protected long _reportLongConversionRangeFail(String method) {
         return _reportConversionFail(method, Long.TYPE,
             "value not in 64-bit `long` range");
-    }
-
-    protected float _reportFloatCoercionRangeFail(String method) {
-        return _reportCoercionFail(method, Float.TYPE,
-            "value not in 32-bit `float` range");
     }
 
     // @since 3.1
@@ -722,30 +702,15 @@ public abstract class BaseJsonNode
             "value not in 32-bit `float` range");
     }
 
-    protected double _reportDoubleCoercionRangeFail(String method) {
-        return _reportCoercionFail(method, Double.TYPE,
-            "value not in 64-bit `double` range");
-    }
-
     // @since 3.1
     protected double _reportDoubleConversionRangeFail(String method) {
         return _reportConversionFail(method, Double.TYPE,
             "value not in 64-bit `double` range");
     }
 
-    protected short _reportShortCoercionFractionFail(String method) {
-        return _reportCoercionFail(method, Short.TYPE,
-                "value has fractional part");
-    }
-
     // @since 3.1
     protected short _reportShortConversionFractionFail(String method) {
         return _reportConversionFail(method, Short.TYPE,
-                "value has fractional part");
-    }
-
-    protected int _reportIntCoercionFractionFail(String method) {
-        return _reportCoercionFail(method, Integer.TYPE,
                 "value has fractional part");
     }
 
@@ -755,19 +720,9 @@ public abstract class BaseJsonNode
                 "value has fractional part");
     }
 
-    protected long _reportLongCoercionFractionFail(String method) {
-        return _reportCoercionFail(method, Long.TYPE,
-                "value has fractional part");
-    }
-
     // @since 3.1
     protected long _reportLongConversionFractionFail(String method) {
         return _reportConversionFail(method, Long.TYPE,
-                "value has fractional part");
-    }
-
-    protected BigInteger _reportBigIntegerCoercionFractionFail(String method) {
-        return _reportCoercionFail(method, BigInteger.class,
                 "value has fractional part");
     }
 
@@ -777,19 +732,9 @@ public abstract class BaseJsonNode
                 "value has fractional part");
     }
 
-    protected int _reportIntCoercionNaNFail(String method) {
-        return _reportCoercionFail(method, Integer.TYPE,
-                "value non-Finite ('NaN')");
-    }
-
     // @since 3.1
     protected int _reportIntConversionNaNFail(String method) {
         return _reportConversionFail(method, Integer.TYPE,
-                "value non-Finite ('NaN')");
-    }
-
-    protected long _reportLongCoercionNaNFail(String method) {
-        return _reportCoercionFail(method, Long.TYPE,
                 "value non-Finite ('NaN')");
     }
 
@@ -799,19 +744,9 @@ public abstract class BaseJsonNode
                 "value non-Finite ('NaN')");
     }
 
-    protected BigInteger _reportBigIntegerCoercionNaNFail(String method) {
-        return _reportCoercionFail(method, BigInteger.class,
-                "value non-Finite ('NaN')");
-    }
-    
     // @since 3.1
     protected BigInteger _reportBigIntegerConversionNaNFail(String method) {
         return _reportConversionFail(method, BigInteger.class,
-                "value non-Finite ('NaN')");
-    }
-
-    protected BigDecimal _reportBigDecimalCoercionNaNFail(String method) {
-        return _reportCoercionFail(method, BigDecimal.class,
                 "value non-Finite ('NaN')");
     }
 

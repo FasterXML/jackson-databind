@@ -91,9 +91,9 @@ public abstract class NumericFPNode extends NumericNode
     public short asShort() {
         if (!inShortRange()) {
             if (isNaN()) {
-                _reportIntCoercionNaNFail("asShort()");
+                _reportIntConversionNaNFail("asShort()");
             }
-            return _reportShortCoercionRangeFail("asShort()");
+            return _reportShortConversionRangeFail("asShort()");
         }
         return _asShortValueUnchecked();
     }
@@ -148,9 +148,9 @@ public abstract class NumericFPNode extends NumericNode
     public int asInt() {
         if (!inIntRange()) {
             if (isNaN()) {
-                _reportIntCoercionNaNFail("asInt()");
+                _reportIntConversionNaNFail("asInt()");
             }
-            return _reportIntCoercionRangeFail("asInt()");
+            return _reportIntConversionRangeFail("asInt()");
         }
         return _asIntValueUnchecked();
     }
@@ -205,9 +205,9 @@ public abstract class NumericFPNode extends NumericNode
     public final long asLong() {
         if (!inLongRange()) {
             if (isNaN()) {
-                _reportLongCoercionNaNFail("asLong()");
+                _reportLongConversionNaNFail("asLong()");
             }
-            return _reportLongCoercionRangeFail("asLong()");
+            return _reportLongConversionRangeFail("asLong()");
         }
         return _asLongValueUnchecked();
     }
@@ -258,7 +258,7 @@ public abstract class NumericFPNode extends NumericNode
     @Override
     public final BigInteger asBigInteger() {
         if (isNaN()) {
-            _reportBigIntegerCoercionNaNFail("asBigInteger()");
+            _reportBigIntegerConversionNaNFail("asBigInteger()");
         }
         return _asBigIntegerValueUnchecked();
     }
@@ -308,7 +308,7 @@ public abstract class NumericFPNode extends NumericNode
     @Override
     public BigDecimal asDecimal() {
         if (isNaN()) {
-            _reportBigDecimalCoercionNaNFail("asDecimal()");
+            _reportBigDecimalConversionNaNFail("asDecimal()");
         }
         return _asDecimalValueUnchecked();
     }

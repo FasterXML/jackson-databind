@@ -23,7 +23,7 @@ public class MissingNodeTest extends NodeTestBase
         // exception in 3.0:
         assertThatThrownBy(n::asString)
                 .isInstanceOf(JsonNodeException.class)
-                .hasMessage("'MissingNode' method `asString()` cannot convert value <missing> to `java.lang.String`: value type not coercible to `String`");
+                .hasMessage("'MissingNode' method `asString()` cannot coerce value <missing> to `java.lang.String`: value type not coercible");
         assertEquals("default", n.asString("default"));
         assertStandardEquals(n);
         // 10-Dec-2018, tatu: With 2.10, should serialize same as via ObjectMapper/ObjectWriter

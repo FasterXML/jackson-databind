@@ -87,8 +87,8 @@ public class POJONodeTest extends NodeTestBase
         assertThat(new POJONode(Boolean.FALSE).asBoolean()).isFalse();
         assertThatThrownBy(() -> new POJONode(new Data()).asBoolean())
                 .isInstanceOf(JsonNodeException.class)
-                .hasMessage("'POJONode' method `asBoolean()` cannot convert value"
-                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `boolean`: value type not coercible to `boolean`");
+                .hasMessage("'POJONode' method `asBoolean()` cannot coerce value"
+                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `boolean`: value type not coercible");
     }
 
     @Test
@@ -111,13 +111,13 @@ public class POJONodeTest extends NodeTestBase
     public void testAsString() {
         assertThatThrownBy(() -> new POJONode(null).asString())
                 .isInstanceOf(JsonNodeException.class)
-                .hasMessage("'POJONode' method `asString()` cannot convert value"
-                        + " {POJO of type [null]} to `java.lang.String`: value type not coercible to `String`");
+                .hasMessage("'POJONode' method `asString()` cannot coerce value"
+                        + " {POJO of type [null]} to `java.lang.String`: value type not coercible");
         assertThat(new POJONode("test").asString()).isEqualTo("test");
         assertThatThrownBy(() -> new POJONode(new Data()).asString())
                 .isInstanceOf(JsonNodeException.class)
-                .hasMessage("'POJONode' method `asString()` cannot convert value"
-                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `java.lang.String`: value type not coercible to `String`");
+                .hasMessage("'POJONode' method `asString()` cannot coerce value"
+                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `java.lang.String`: value type not coercible");
     }
 
     @Test
@@ -146,8 +146,8 @@ public class POJONodeTest extends NodeTestBase
         assertThat(new POJONode(BigDecimal.valueOf(99.99)).asShort()).isEqualTo((short) 99);
         assertThatThrownBy(() -> new POJONode(new Data()).asShort())
                 .isInstanceOf(JsonNodeException.class)
-                .hasMessage("'POJONode' method `asShort()` cannot convert value"
-                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `short`: value type not numeric");
+                .hasMessage("'POJONode' method `asShort()` cannot coerce value"
+                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `short`: value type not coercible");
     }
 
     @Test
@@ -188,8 +188,8 @@ public class POJONodeTest extends NodeTestBase
         assertThat(new POJONode(BigDecimal.valueOf(99.99)).asInt()).isEqualTo(99);
         assertThatThrownBy(() -> new POJONode(new Data()).asInt())
                 .isInstanceOf(JsonNodeException.class)
-                .hasMessage("'POJONode' method `asInt()` cannot convert value"
-                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `int`: value type not numeric");
+                .hasMessage("'POJONode' method `asInt()` cannot coerce value"
+                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `int`: value type not coercible");
     }
 
     @Test
@@ -230,8 +230,8 @@ public class POJONodeTest extends NodeTestBase
         assertThat(new POJONode(BigDecimal.valueOf(99.99)).asLong()).isEqualTo(99L);
         assertThatThrownBy(() -> new POJONode(new Data()).asLong())
                 .isInstanceOf(JsonNodeException.class)
-                .hasMessage("'POJONode' method `asLong()` cannot convert value"
-                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `long`: value type not numeric");
+                .hasMessage("'POJONode' method `asLong()` cannot coerce value"
+                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `long`: value type not coercible");
     }
 
     @Test
@@ -272,8 +272,8 @@ public class POJONodeTest extends NodeTestBase
         assertThat(new POJONode(BigDecimal.valueOf(99.99)).asBigInteger()).isEqualTo(BigInteger.valueOf(99));
         assertThatThrownBy(() -> new POJONode(new Data()).asBigInteger())
                 .isInstanceOf(JsonNodeException.class)
-                .hasMessage("'POJONode' method `asBigInteger()` cannot convert value"
-                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `java.math.BigInteger`: value type not numeric");
+                .hasMessage("'POJONode' method `asBigInteger()` cannot coerce value"
+                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `java.math.BigInteger`: value type not coercible");
     }
 
     @Test
@@ -314,8 +314,8 @@ public class POJONodeTest extends NodeTestBase
         assertThat(new POJONode(BigDecimal.valueOf(99.99)).asFloat()).isEqualTo(99.99f);
         assertThatThrownBy(() -> new POJONode(new Data()).asFloat())
                 .isInstanceOf(JsonNodeException.class)
-                .hasMessage("'POJONode' method `asFloat()` cannot convert value"
-                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `float`: value type not numeric");
+                .hasMessage("'POJONode' method `asFloat()` cannot coerce value"
+                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `float`: value type not coercible");
     }
 
     @Test
@@ -356,8 +356,8 @@ public class POJONodeTest extends NodeTestBase
         assertThat(new POJONode(BigDecimal.valueOf(99.99)).asDouble()).isEqualTo(99.99D);
         assertThatThrownBy(() -> new POJONode(new Data()).asDouble())
                 .isInstanceOf(JsonNodeException.class)
-                .hasMessage("'POJONode' method `asDouble()` cannot convert value"
-                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `double`: value type not numeric");
+                .hasMessage("'POJONode' method `asDouble()` cannot coerce value"
+                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `double`: value type not coercible");
     }
 
     @Test
@@ -398,8 +398,8 @@ public class POJONodeTest extends NodeTestBase
         assertThat(new POJONode(BigDecimal.valueOf(99.99)).asDecimal()).isEqualTo(BigDecimal.valueOf(99.99));
         assertThatThrownBy(() -> new POJONode(new Data()).asDecimal())
                 .isInstanceOf(JsonNodeException.class)
-                .hasMessage("'POJONode' method `asDecimal()` cannot convert value"
-                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `java.math.BigDecimal`: value type not coercible to `BigDecimal`");
+                .hasMessage("'POJONode' method `asDecimal()` cannot coerce value"
+                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `java.math.BigDecimal`: value type not coercible");
     }
 
     @Test

@@ -53,7 +53,7 @@ public class Base64DecodingTest
             /*byte[] b =*/ nodeValue.binaryValue();
             fail("Should not pass");
         } catch (JsonNodeException e) {
-            verifyException(e, "method `binaryValue()` cannot convert value");
+            verifyException(e, "method `binaryValue()` cannot coerce value");
             verifyException(e, "Illegal character '!'");
         }
     }

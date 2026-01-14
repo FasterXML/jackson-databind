@@ -155,7 +155,7 @@ public class POJONode
         Long L = _extractAsLong();
         if (L == null || L < Short.MIN_VALUE || L > Short.MAX_VALUE) {
             // report range fail
-            _reportShortCoercionRangeFail("asShort()");
+            _reportShortConversionRangeFail("asShort()");
         }
         return L.shortValue();
     }
@@ -219,7 +219,7 @@ public class POJONode
         Long L = _extractAsLong();
         if (L == null || L < Integer.MIN_VALUE || L > Integer.MAX_VALUE) {
             // report range fail
-            _reportIntCoercionRangeFail("asInt()");
+            _reportIntConversionRangeFail("asInt()");
         }
         return L.intValue();
     }
@@ -283,7 +283,7 @@ public class POJONode
         Long L = _extractAsLong();
         if (L == null) {
             // report range fail
-            _reportLongCoercionRangeFail("asLong()");
+            _reportLongConversionRangeFail("asLong()");
         }
         return L;
     }
@@ -398,7 +398,7 @@ public class POJONode
         Float F = _extractAsFloat();
         if (F == null) {
             // report range fail
-            _reportFloatCoercionRangeFail("asFloat()");
+            _reportFloatConversionRangeFail("asFloat()");
         }
         return F;
     }
@@ -462,7 +462,7 @@ public class POJONode
         Double D = _extractAsDouble();
         if (D == null) {
             // report range fail
-            _reportDoubleCoercionRangeFail("asDouble()");
+            _reportDoubleConversionRangeFail("asDouble()");
         }
         return D;
     }

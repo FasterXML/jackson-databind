@@ -227,7 +227,7 @@ public class JsonNodeBigIntegerValueTest
                 () ->  node.bigIntegerValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains("value type not numeric");
 
         // Verify default value handling
@@ -265,7 +265,7 @@ public class JsonNodeBigIntegerValueTest
                 () ->  node.asBigInteger(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
-            .contains("cannot convert value");
+            .contains("cannot coerce value");
 
         // Verify default value handling
         assertEquals(BigInteger.ONE, node.asBigInteger(BigInteger.ONE));

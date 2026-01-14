@@ -249,7 +249,7 @@ public class JsonNodeDecimalValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("decimalValue()")
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains("value type not numeric");
 
         // Verify default value handling
@@ -272,7 +272,7 @@ public class JsonNodeDecimalValueTest
     }
 
     private void _assertFailAsDecimalForNonNumber(JsonNode node) {
-        _assertFailAsDecimal(node, "value type not coercible to `BigDecimal`");
+        _assertFailAsDecimal(node, "value type not coercible");
     }
 
     private void _assertFailAsDecimal(JsonNode node, String extraFailMsg) {
@@ -281,7 +281,7 @@ public class JsonNodeDecimalValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("asDecimal()")
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains(extraFailMsg);
 
         // Verify default value handling

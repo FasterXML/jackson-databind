@@ -72,7 +72,7 @@ public class BigIntegerNode
         if (inShortRange()) {
             return _value.shortValue();
         }
-        return _reportShortCoercionRangeFail("shortValue()");
+        return _reportShortConversionRangeFail("shortValue()");
     }
 
     @Override
@@ -90,7 +90,7 @@ public class BigIntegerNode
         if (inShortRange()) {
             return _value.shortValue();
         }
-        return _reportShortCoercionRangeFail("asShort()");
+        return _reportShortConversionRangeFail("asShort()");
     }
 
     @Override
@@ -108,7 +108,7 @@ public class BigIntegerNode
         if (inIntRange()) {
             return _value.intValue();
         }
-        return _reportIntCoercionRangeFail("intValue()");
+        return _reportIntConversionRangeFail("intValue()");
     }
 
     @Override
@@ -126,7 +126,7 @@ public class BigIntegerNode
         if (inIntRange()) {
             return _value.intValue();
         }
-        return _reportIntCoercionRangeFail("asInt()");
+        return _reportIntConversionRangeFail("asInt()");
     }
 
     @Override
@@ -144,7 +144,7 @@ public class BigIntegerNode
         if (canConvertToLong()) {
             return _value.longValue();
         }
-        return _reportLongCoercionRangeFail("longValue()");
+        return _reportLongConversionRangeFail("longValue()");
     }
 
     @Override
@@ -162,7 +162,7 @@ public class BigIntegerNode
         if (canConvertToLong()) {
             return _value.longValue();
         }
-        return _reportLongCoercionRangeFail("asLong()");
+        return _reportLongConversionRangeFail("asLong()");
     }
 
     @Override
@@ -194,7 +194,7 @@ public class BigIntegerNode
         if (Float.isFinite(f)) {
             return f;
         }
-        return _reportFloatCoercionRangeFail("floatValue()");
+        return _reportFloatConversionRangeFail("floatValue()");
     }
 
     @Override
@@ -218,7 +218,7 @@ public class BigIntegerNode
         if (Float.isFinite(f)) {
             return f;
         }
-        return _reportFloatCoercionRangeFail("asFloat()");
+        return _reportFloatConversionRangeFail("asFloat()");
     }
 
     @Override
@@ -242,7 +242,7 @@ public class BigIntegerNode
         if (Double.isFinite(d)) {
             return d;
         }
-        return _reportDoubleCoercionRangeFail("doubleValue()");
+        return _reportDoubleConversionRangeFail("doubleValue()");
     }
 
     @Override
@@ -266,7 +266,7 @@ public class BigIntegerNode
         if (Double.isFinite(d)) {
             return d;
         }
-        return _reportDoubleCoercionRangeFail("asDouble()");
+        return _reportDoubleConversionRangeFail("asDouble()");
     }
 
     @Override

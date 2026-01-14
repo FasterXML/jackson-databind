@@ -77,7 +77,7 @@ public class DecimalNode
         if (Float.isFinite(f)) {
             return f;
         }
-        return _reportFloatCoercionRangeFail("floatValue()");
+        return _reportFloatConversionRangeFail("floatValue()");
     }
 
     @Override
@@ -104,7 +104,7 @@ public class DecimalNode
         if (Float.isFinite(f)) {
             return f;
         }
-        return _reportFloatCoercionRangeFail("asFloat()");
+        return _reportFloatConversionRangeFail("asFloat()");
     }
 
     @Override
@@ -131,7 +131,7 @@ public class DecimalNode
         if (Double.isFinite(d)) {
             return d;
         }
-        return _reportDoubleCoercionRangeFail("doubleValue()");
+        return _reportDoubleConversionRangeFail("doubleValue()");
     }
 
     @Override
@@ -158,7 +158,7 @@ public class DecimalNode
         if (Double.isFinite(d)) {
             return d;
         }
-        return _reportDoubleCoercionRangeFail("asDouble()");
+        return _reportDoubleConversionRangeFail("asDouble()");
     }
 
     @Override

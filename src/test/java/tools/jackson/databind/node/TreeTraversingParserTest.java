@@ -241,7 +241,7 @@ public class TreeTraversingParserTest
         try {
             p.getBinaryValue();
         } catch (JsonNodeException e) {
-            verifyException(e, "method `binaryValue()` cannot convert value");
+            verifyException(e, "method `binaryValue()` cannot coerce value");
             verifyException(e, "Illegal character");
         }
         p.close();

@@ -62,12 +62,14 @@ public abstract class BaseJsonNode
 
     @Override
     public Number numberValue() {
-        return _reportCoercionFail("numberValue()", Number.class, "value type not numeric");
+        return _reportCoercionFail("numberValue()", Number.class,
+                "value type not numeric");
     }
 
     @Override
     public short shortValue() {
-        return _reportCoercionFail("shortValue()", Short.TYPE, "value type not numeric");
+        return _reportCoercionFail("shortValue()", Short.TYPE,
+                "value type not numeric");
     }
 
     @Override
@@ -84,7 +86,7 @@ public abstract class BaseJsonNode
 
     @Override
     public short asShort() {
-        return _reportCoercionFail("asShort()", Short.TYPE, "value type not numeric");
+        return _reportCoercionFail("asShort()", Short.TYPE);
     }
 
     @Override
@@ -101,7 +103,8 @@ public abstract class BaseJsonNode
 
     @Override
     public int intValue() {
-        return _reportCoercionFail("intValue()", Integer.TYPE, "value type not numeric");
+        return _reportCoercionFail("intValue()", Integer.TYPE,
+                "value type not numeric");
     }
 
     @Override
@@ -118,7 +121,7 @@ public abstract class BaseJsonNode
 
     @Override
     public int asInt() {
-        return _reportCoercionFail("asInt()", Integer.TYPE, "value type not numeric");
+        return _reportCoercionFail("asInt()", Integer.TYPE);
     }
 
     @Override
@@ -135,7 +138,8 @@ public abstract class BaseJsonNode
 
     @Override
     public long longValue() {
-        return _reportCoercionFail("longValue()", Long.TYPE, "value type not numeric");
+        return _reportCoercionFail("longValue()", Long.TYPE,
+                "value type not numeric");
     }
 
     @Override
@@ -152,7 +156,7 @@ public abstract class BaseJsonNode
 
     @Override
     public long asLong() {
-        return _reportCoercionFail("asLong()", Long.TYPE, "value type not numeric");
+        return _reportCoercionFail("asLong()", Long.TYPE);
     }
 
     @Override
@@ -169,7 +173,8 @@ public abstract class BaseJsonNode
 
     @Override
     public BigInteger bigIntegerValue() {
-        return _reportCoercionFail("bigIntegerValue()", BigInteger.class, "value type not numeric");
+        return _reportCoercionFail("bigIntegerValue()", BigInteger.class,
+                "value type not numeric");
     }
 
     @Override
@@ -186,7 +191,7 @@ public abstract class BaseJsonNode
 
     @Override
     public BigInteger asBigInteger() {
-        return _reportCoercionFail("asBigInteger()", BigInteger.class, "value type not numeric");
+        return _reportCoercionFail("asBigInteger()", BigInteger.class);
     }
 
     @Override
@@ -203,7 +208,8 @@ public abstract class BaseJsonNode
 
     @Override
     public float floatValue() {
-        return _reportCoercionFail("floatValue()", Float.TYPE, "value type not numeric");
+        return _reportCoercionFail("floatValue()", Float.TYPE,
+                "value type not numeric");
     }
 
     @Override
@@ -220,7 +226,7 @@ public abstract class BaseJsonNode
 
     @Override
     public float asFloat() {
-        return _reportCoercionFail("asFloat()", Float.TYPE, "value type not numeric");
+        return _reportCoercionFail("asFloat()", Float.TYPE);
     }
 
     @Override
@@ -237,7 +243,8 @@ public abstract class BaseJsonNode
 
     @Override
     public double doubleValue() {
-        return _reportCoercionFail("doubleValue()", Double.TYPE, "value type not numeric");
+        return _reportCoercionFail("doubleValue()", Double.TYPE,
+                "value type not numeric");
     }
 
     @Override
@@ -254,7 +261,7 @@ public abstract class BaseJsonNode
 
     @Override
     public double asDouble() {
-        return _reportCoercionFail("asDouble()", Double.TYPE, "value type not numeric");
+        return _reportCoercionFail("asDouble()", Double.TYPE);
     }
 
     @Override
@@ -271,7 +278,8 @@ public abstract class BaseJsonNode
 
     @Override
     public BigDecimal decimalValue() {
-        return _reportCoercionFail("decimalValue()", BigDecimal.class, "value type not numeric");
+        return _reportCoercionFail("decimalValue()", BigDecimal.class,
+                "value type not numeric");
     }
 
     @Override
@@ -288,8 +296,7 @@ public abstract class BaseJsonNode
 
     @Override
     public BigDecimal asDecimal() {
-        return _reportCoercionFail("asDecimal()", BigDecimal.class,
-                "value type not coercible to `BigDecimal`");
+        return _reportCoercionFail("asDecimal()", BigDecimal.class);
     }
 
     @Override
@@ -312,13 +319,13 @@ public abstract class BaseJsonNode
 
     @Override
     public byte[] binaryValue() {
-        return _reportCoercionFail("binaryValue()", Boolean.TYPE,
+        return _reportConversionFail("binaryValue()", Boolean.TYPE,
                 "value type not binary (or convertible to binary via Base64-decoding)");
     }
 
     @Override
     public boolean booleanValue() {
-        return _reportCoercionFail("booleanValue()", Boolean.TYPE,
+        return _reportConversionFail("booleanValue()", Boolean.TYPE,
                 "value type not boolean");
     }
 
@@ -338,8 +345,7 @@ public abstract class BaseJsonNode
     public boolean asBoolean() {
         Boolean b = _asBoolean();
         if (b == null) {
-            return _reportCoercionFail("asBoolean()", Boolean.TYPE,
-                    "value type not coercible to `boolean`");
+            return _reportCoercionFail("asBoolean()", Boolean.TYPE);
         }
         return b;
     }
@@ -364,7 +370,7 @@ public abstract class BaseJsonNode
 
     @Override
     public String stringValue() {
-        return _reportCoercionFail("stringValue()", String.class,
+        return _reportConversionFail("stringValue()", String.class,
                 "value type not String");
     }
 
@@ -384,8 +390,7 @@ public abstract class BaseJsonNode
     public String asString() {
         String str = _asString();
         if (str == null) {
-            return _reportCoercionFail("asString()", String.class,
-                    "value type not coercible to `String`");
+            return _reportCoercionFail("asString()", String.class);
         }
         return str;
     }
@@ -649,7 +654,23 @@ public abstract class BaseJsonNode
     /**********************************************************************
      */
 
+    // @since 3.1
+    protected <T> T _reportCoercionFail(String method, Class<?> targetType)
+    {
+        return _reportCoercionFail(method, targetType, "value type not coercible");
+    }
+
+    // @since 3.0
     protected <T> T _reportCoercionFail(String method, Class<?> targetType,
+            String message)
+    {
+        throw JsonNodeException.from(this, "'%s' method `%s` cannot coerce value %s to %s: %s",
+                getClass().getSimpleName(), method,
+                _valueDesc(), ClassUtil.nameOf(targetType), message);
+    }
+
+    // @since 3.1
+    protected <T> T _reportConversionFail(String method, Class<?> targetType,
             String message)
     {
         throw JsonNodeException.from(this, "'%s' method `%s` cannot convert value %s to %s: %s",
@@ -657,68 +678,81 @@ public abstract class BaseJsonNode
                 _valueDesc(), ClassUtil.nameOf(targetType), message);
     }
 
-    protected short _reportShortCoercionRangeFail(String method) {
-        return _reportCoercionFail(method, Short.TYPE,
+    // @since 3.1
+    protected short _reportShortConversionRangeFail(String method) {
+        return _reportConversionFail(method, Short.TYPE,
             "value not in 16-bit `short` range");
     }
 
-    protected int _reportIntCoercionRangeFail(String method) {
-        return _reportCoercionFail(method, Integer.TYPE,
+    // @since 3.1
+    protected int _reportIntConversionRangeFail(String method) {
+        return _reportConversionFail(method, Integer.TYPE,
             "value not in 32-bit `int` range");
     }
 
-    protected long _reportLongCoercionRangeFail(String method) {
-        return _reportCoercionFail(method, Long.TYPE,
+    // @since 3.1
+    protected long _reportLongConversionRangeFail(String method) {
+        return _reportConversionFail(method, Long.TYPE,
             "value not in 64-bit `long` range");
     }
 
-    protected float _reportFloatCoercionRangeFail(String method) {
-        return _reportCoercionFail(method, Float.TYPE,
+    // @since 3.1
+    protected float _reportFloatConversionRangeFail(String method) {
+        return _reportConversionFail(method, Float.TYPE,
             "value not in 32-bit `float` range");
     }
 
-    protected double _reportDoubleCoercionRangeFail(String method) {
-        return _reportCoercionFail(method, Double.TYPE,
+    // @since 3.1
+    protected double _reportDoubleConversionRangeFail(String method) {
+        return _reportConversionFail(method, Double.TYPE,
             "value not in 64-bit `double` range");
     }
 
-    protected short _reportShortCoercionFractionFail(String method) {
-        return _reportCoercionFail(method, Short.TYPE,
+    // @since 3.1
+    protected short _reportShortConversionFractionFail(String method) {
+        return _reportConversionFail(method, Short.TYPE,
                 "value has fractional part");
     }
 
-    protected int _reportIntCoercionFractionFail(String method) {
-        return _reportCoercionFail(method, Integer.TYPE,
+    // @since 3.1
+    protected int _reportIntConversionFractionFail(String method) {
+        return _reportConversionFail(method, Integer.TYPE,
                 "value has fractional part");
     }
 
-    protected long _reportLongCoercionFractionFail(String method) {
-        return _reportCoercionFail(method, Long.TYPE,
+    // @since 3.1
+    protected long _reportLongConversionFractionFail(String method) {
+        return _reportConversionFail(method, Long.TYPE,
                 "value has fractional part");
     }
 
-    protected BigInteger _reportBigIntegerCoercionFractionFail(String method) {
-        return _reportCoercionFail(method, BigInteger.class,
+    // @since 3.1
+    protected BigInteger _reportBigIntegerConversionFractionFail(String method) {
+        return _reportConversionFail(method, BigInteger.class,
                 "value has fractional part");
     }
 
-    protected int _reportIntCoercionNaNFail(String method) {
-        return _reportCoercionFail(method, Integer.TYPE,
+    // @since 3.1
+    protected int _reportIntConversionNaNFail(String method) {
+        return _reportConversionFail(method, Integer.TYPE,
                 "value non-Finite ('NaN')");
     }
 
-    protected long _reportLongCoercionNaNFail(String method) {
-        return _reportCoercionFail(method, Long.TYPE,
+    // @since 3.1
+    protected long _reportLongConversionNaNFail(String method) {
+        return _reportConversionFail(method, Long.TYPE,
                 "value non-Finite ('NaN')");
     }
 
-    protected BigInteger _reportBigIntegerCoercionNaNFail(String method) {
-        return _reportCoercionFail(method, BigInteger.class,
+    // @since 3.1
+    protected BigInteger _reportBigIntegerConversionNaNFail(String method) {
+        return _reportConversionFail(method, BigInteger.class,
                 "value non-Finite ('NaN')");
     }
-    
-    protected BigDecimal _reportBigDecimalCoercionNaNFail(String method) {
-        return _reportCoercionFail(method, BigDecimal.class,
+
+    // @since 3.1
+    protected BigDecimal _reportBigDecimalConversionNaNFail(String method) {
+        return _reportConversionFail(method, BigDecimal.class,
                 "value non-Finite ('NaN')");
     }
 

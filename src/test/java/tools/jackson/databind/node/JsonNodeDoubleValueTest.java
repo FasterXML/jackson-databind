@@ -269,7 +269,7 @@ public class JsonNodeDoubleValueTest
                 () ->  node.doubleValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains("value type not numeric");
 
         assertEquals(1.5d, node.doubleValue(1.5d));
@@ -298,7 +298,7 @@ public class JsonNodeDoubleValueTest
     }
 
     private void _assertAsDoubleFailForNonNumber(JsonNode node) {
-        _assertAsDoubleFailForNonNumber(node, "value type not numeric");
+        _assertAsDoubleFailForNonNumber(node, "value type not coercible");
     }
 
     private void _assertAsDoubleFailForNonNumber(JsonNode node, String extraMatch) {
@@ -307,7 +307,7 @@ public class JsonNodeDoubleValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("asDouble()")
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains(extraMatch);
 
         assertEquals(1.5d, node.asDouble(1.5d));

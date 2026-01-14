@@ -61,12 +61,12 @@ public abstract class NumericFPNode extends NumericNode
     public final short shortValue() {
         if (!inShortRange()) {
             if (isNaN()) {
-                _reportIntCoercionNaNFail("shortValue()");
+                _reportIntConversionNaNFail("shortValue()");
             }
-            return _reportShortCoercionRangeFail("shortValue()");
+            return _reportShortConversionRangeFail("shortValue()");
         }
         if (hasFractionalPart()) {
-            _reportShortCoercionFractionFail("shortValue()");
+            _reportShortConversionFractionFail("shortValue()");
         }
         return _asShortValueUnchecked();
     }
@@ -118,12 +118,12 @@ public abstract class NumericFPNode extends NumericNode
     public final int intValue() {
         if (!inIntRange()) {
             if (isNaN()) {
-                _reportIntCoercionNaNFail("intValue()");
+                _reportIntConversionNaNFail("intValue()");
             }
-            return _reportIntCoercionRangeFail("intValue()");
+            return _reportIntConversionRangeFail("intValue()");
         }
         if (hasFractionalPart()) {
-            _reportIntCoercionFractionFail("intValue()");
+            _reportIntConversionFractionFail("intValue()");
         }
         return _asIntValueUnchecked();
     }

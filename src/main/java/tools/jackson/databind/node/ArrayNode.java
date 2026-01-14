@@ -68,7 +68,11 @@ public class ArrayNode
 
     @Override
     protected String _valueDesc() {
-        return "[...(" + _children.size() + " elements)]";
+        int size = _children.size();
+        if (size == 0) {
+            return "[ ]";
+        }
+        return "[...(" + size + " elements)]";
     }
     
     // note: co-variant to allow caller-side type safety

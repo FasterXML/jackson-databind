@@ -131,7 +131,7 @@ public final class MissingNode
      */
 
     @Override
-    public final void serialize(JsonGenerator g, SerializationContext provider)
+    public final void serialize(JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         /* Nothing to output... should we signal an error tho?
@@ -144,7 +144,7 @@ public final class MissingNode
     }
 
     @Override
-    public void serializeWithType(JsonGenerator g, SerializationContext provider,
+    public void serializeWithType(JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {

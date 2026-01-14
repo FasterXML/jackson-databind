@@ -746,7 +746,7 @@ public class BeanPropertyWriter
     // Also part of BeanProperty implementation
     @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor v,
-            SerializationContext provider)
+            SerializationContext ctxt)
     {
         if (v != null) {
             if (isRequired()) {
@@ -764,16 +764,16 @@ public class BeanPropertyWriter
      */
 
     protected ValueSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            Class<?> rawType, SerializationContext provider)
+            Class<?> rawType, SerializationContext ctxt)
     {
         JavaType t;
         if (_nonTrivialBaseType != null) {
-            t = provider.constructSpecializedType(_nonTrivialBaseType,
+            t = ctxt.constructSpecializedType(_nonTrivialBaseType,
                     rawType);
         } else {
-            t = provider.constructType(rawType);
+            t = ctxt.constructType(rawType);
         }
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddPrimarySerializer(t, provider, this);
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddPrimarySerializer(t, ctxt, this);
         // did we get a new map of serializers? If so, start using it
         if (map != result.map) {
             _dynamicSerializers = result.map;

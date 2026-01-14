@@ -549,11 +549,11 @@ public class MapSerializer
      */
 
     @Override
-    public void serialize(Map<?,?> value, JsonGenerator gen, SerializationContext provider)
+    public void serialize(Map<?,?> value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         gen.writeStartObject(value);
-        serializeWithoutTypeInfo(value, gen, provider);
+        serializeWithoutTypeInfo(value, gen, ctxt);
         gen.writeEndObject();
     }
 
@@ -617,12 +617,12 @@ public class MapSerializer
      * NOTE: {@code public} only because it is called by code from {@code Guava}
      *  {@code TableSerializer}
      */
-    public void serializeEntries(Map<?,?> value, JsonGenerator gen, SerializationContext provider)
+    public void serializeEntries(Map<?,?> value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         // If value type needs polymorphic type handling, some more work needed:
         if (_valueTypeSerializer != null) {
-            serializeTypedEntries(value, gen, provider, null);
+            serializeTypedEntries(value, gen, ctxt, null);
             return;
         }
         final ValueSerializer<Object> keySerializer = _keySerializer;
@@ -634,27 +634,27 @@ public class MapSerializer
                 // First, serialize key
                 keyElem = entry.getKey();
                 if (keyElem == null) {
-                    provider.findNullKeySerializer(_keyType, _property).serialize(null, gen, provider);
+                    ctxt.findNullKeySerializer(_keyType, _property).serialize(null, gen, ctxt);
                 } else {
                     // One twist: is entry ignorable? If so, skip
                     if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyElem)) {
                         continue;
                     }
-                    keySerializer.serialize(keyElem, gen, provider);
+                    keySerializer.serialize(keyElem, gen, ctxt);
                 }
                 // And then value
                 if (valueElem == null) {
-                    provider.defaultSerializeNullValue(gen);
+                    ctxt.defaultSerializeNullValue(gen);
                     continue;
                 }
                 ValueSerializer<Object> serializer = _valueSerializer;
                 if (serializer == null) {
-                    serializer = _findSerializer(provider, valueElem);
+                    serializer = _findSerializer(ctxt, valueElem);
                 }
-                serializer.serialize(valueElem, gen, provider);
+                serializer.serialize(valueElem, gen, ctxt);
             }
         } catch (Exception e) { // Add reference information
-            wrapAndThrow(provider, e, value, String.valueOf(keyElem));
+            wrapAndThrow(ctxt, e, value, String.valueOf(keyElem));
         }
     }
 
@@ -664,13 +664,13 @@ public class MapSerializer
      * NOTE: {@code public} because other similar methods are (no current known
      * external usage).
      */
-    public void serializeOptionalFields(Map<?,?> value, JsonGenerator gen, SerializationContext provider,
+    public void serializeOptionalFields(Map<?,?> value, JsonGenerator gen, SerializationContext ctxt,
             Object suppressableValue)
         throws JacksonException
     {
         // If value type needs polymorphic type handling, some more work needed:
         if (_valueTypeSerializer != null) {
-            serializeTypedEntries(value, gen, provider, suppressableValue);
+            serializeTypedEntries(value, gen, ctxt, suppressableValue);
             return;
         }
         final boolean checkEmpty = (MARKER_FOR_EMPTY == suppressableValue);
@@ -680,7 +680,7 @@ public class MapSerializer
             final Object keyElem = entry.getKey();
             ValueSerializer<Object> keySerializer;
             if (keyElem == null) {
-                keySerializer = provider.findNullKeySerializer(_keyType, _property);
+                keySerializer = ctxt.findNullKeySerializer(_keyType, _property);
             } else {
                 if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyElem)) {
                     continue;
@@ -695,15 +695,15 @@ public class MapSerializer
                 if (_suppressNulls) { // all suppressions include null-suppression
                     continue;
                 }
-                valueSer = provider.getDefaultNullValueSerializer();
+                valueSer = ctxt.getDefaultNullValueSerializer();
             } else {
                 valueSer = _valueSerializer;
                 if (valueSer == null) {
-                    valueSer = _findSerializer(provider, valueElem);
+                    valueSer = _findSerializer(ctxt, valueElem);
                 }
                 // also may need to skip non-empty values:
                 if (checkEmpty) {
-                    if (valueSer.isEmpty(provider, valueElem)) {
+                    if (valueSer.isEmpty(ctxt, valueElem)) {
                         continue;
                     }
                 } else if (suppressableValue != null) {
@@ -714,10 +714,10 @@ public class MapSerializer
             }
             // and then serialize, if all went well
             try {
-                keySerializer.serialize(keyElem, gen, provider);
-                valueSer.serialize(valueElem, gen, provider);
+                keySerializer.serialize(keyElem, gen, ctxt);
+                valueSer.serialize(valueElem, gen, ctxt);
             } catch (Exception e) {
-                wrapAndThrow(provider, e, value, String.valueOf(keyElem));
+                wrapAndThrow(ctxt, e, value, String.valueOf(keyElem));
             }
         }
     }
@@ -725,12 +725,12 @@ public class MapSerializer
     /**
      * Method called to serialize fields, when the value type is statically known,
      * so that value serializer is passed and does not need to be fetched from
-     * provider.
+     * ctxt.
      *<p>
      * NOTE: {@code public} because other similar methods are (no current known
      * external usage).
      */
-    public void serializeEntriesUsing(Map<?,?> value, JsonGenerator gen, SerializationContext provider,
+    public void serializeEntriesUsing(Map<?,?> value, JsonGenerator gen, SerializationContext ctxt,
             ValueSerializer<Object> ser)
         throws JacksonException
     {
@@ -744,22 +744,22 @@ public class MapSerializer
             }
 
             if (keyElem == null) {
-                provider.findNullKeySerializer(_keyType, _property).serialize(null, gen, provider);
+                ctxt.findNullKeySerializer(_keyType, _property).serialize(null, gen, ctxt);
             } else {
-                keySerializer.serialize(keyElem, gen, provider);
+                keySerializer.serialize(keyElem, gen, ctxt);
             }
             final Object valueElem = entry.getValue();
             if (valueElem == null) {
-                provider.defaultSerializeNullValue(gen);
+                ctxt.defaultSerializeNullValue(gen);
             } else {
                 try {
                     if (typeSer == null) {
-                        ser.serialize(valueElem, gen, provider);
+                        ser.serialize(valueElem, gen, ctxt);
                     } else {
-                        ser.serializeWithType(valueElem, gen, provider, typeSer);
+                        ser.serializeWithType(valueElem, gen, ctxt, typeSer);
                     }
                 } catch (Exception e) {
-                    wrapAndThrow(provider, e, value, String.valueOf(keyElem));
+                    wrapAndThrow(ctxt, e, value, String.valueOf(keyElem));
                 }
             }
         }
@@ -772,7 +772,7 @@ public class MapSerializer
      * NOTE: {@code public} because other similar methods are (no current known
      * external usage).
      */
-    public void serializeFilteredEntries(Map<?,?> value, JsonGenerator gen, SerializationContext provider,
+    public void serializeFilteredEntries(Map<?,?> value, JsonGenerator gen, SerializationContext ctxt,
             PropertyFilter filter,
             Object suppressableValue)
         throws JacksonException
@@ -789,7 +789,7 @@ public class MapSerializer
 
             ValueSerializer<Object> keySerializer;
             if (keyElem == null) {
-                keySerializer = provider.findNullKeySerializer(_keyType, _property);
+                keySerializer = ctxt.findNullKeySerializer(_keyType, _property);
             } else {
                 keySerializer = _keySerializer;
             }
@@ -802,15 +802,15 @@ public class MapSerializer
                 if (_suppressNulls) {
                     continue;
                 }
-                valueSer = provider.getDefaultNullValueSerializer();
+                valueSer = ctxt.getDefaultNullValueSerializer();
             } else {
                 valueSer = _valueSerializer;
                 if (valueSer == null) {
-                    valueSer = _findSerializer(provider, valueElem);
+                    valueSer = _findSerializer(ctxt, valueElem);
                 }
                 // also may need to skip non-empty values:
                 if (checkEmpty) {
-                    if (valueSer.isEmpty(provider, valueElem)) {
+                    if (valueSer.isEmpty(ctxt, valueElem)) {
                         continue;
                     }
                 } else if (suppressableValue != null) {
@@ -822,9 +822,9 @@ public class MapSerializer
             // and with that, ask filter to handle it
             prop.reset(keyElem, valueElem, keySerializer, valueSer);
             try {
-                filter.serializeAsProperty(value, gen, provider, prop);
+                filter.serializeAsProperty(value, gen, ctxt, prop);
             } catch (Exception e) {
-                wrapAndThrow(provider, e, value, String.valueOf(keyElem));
+                wrapAndThrow(ctxt, e, value, String.valueOf(keyElem));
             }
         }
     }
@@ -834,7 +834,7 @@ public class MapSerializer
      * NOTE: {@code public} because other similar methods are (no current known
      * external usage).
      */
-    public void serializeTypedEntries(Map<?,?> value, JsonGenerator gen, SerializationContext provider,
+    public void serializeTypedEntries(Map<?,?> value, JsonGenerator gen, SerializationContext ctxt,
             Object suppressableValue)
         throws JacksonException
     {
@@ -844,7 +844,7 @@ public class MapSerializer
             Object keyElem = entry.getKey();
             ValueSerializer<Object> keySerializer;
             if (keyElem == null) {
-                keySerializer = provider.findNullKeySerializer(_keyType, _property);
+                keySerializer = ctxt.findNullKeySerializer(_keyType, _property);
             } else {
                 // One twist: is entry ignorable? If so, skip
                 if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyElem)) {
@@ -860,15 +860,15 @@ public class MapSerializer
                 if (_suppressNulls) { // all suppression include null suppression
                     continue;
                 }
-                valueSer = provider.getDefaultNullValueSerializer();
+                valueSer = ctxt.getDefaultNullValueSerializer();
             } else {
                 valueSer = _valueSerializer;
                 if (valueSer == null) {
-                    valueSer = _findSerializer(provider, valueElem);
+                    valueSer = _findSerializer(ctxt, valueElem);
                 }
                 // also may need to skip non-empty values:
                 if (checkEmpty) {
-                    if (valueSer.isEmpty(provider, valueElem)) {
+                    if (valueSer.isEmpty(ctxt, valueElem)) {
                         continue;
                     }
                 } else if (suppressableValue != null) {
@@ -877,11 +877,11 @@ public class MapSerializer
                     }
                 }
             }
-            keySerializer.serialize(keyElem, gen, provider);
+            keySerializer.serialize(keyElem, gen, ctxt);
             try {
-                valueSer.serializeWithType(valueElem, gen, provider, _valueTypeSerializer);
+                valueSer.serializeWithType(valueElem, gen, ctxt, _valueTypeSerializer);
             } catch (Exception e) {
-                wrapAndThrow(provider, e, value, String.valueOf(keyElem));
+                wrapAndThrow(ctxt, e, value, String.valueOf(keyElem));
             }
         }
     }
@@ -894,7 +894,7 @@ public class MapSerializer
      *
      * @param bean Enclosing POJO that has any-getter used to obtain "any properties"
      */
-    public void serializeFilteredAnyProperties(SerializationContext provider, JsonGenerator gen,
+    public void serializeFilteredAnyProperties(SerializationContext ctxt, JsonGenerator gen,
             Object bean, Map<?,?> value, PropertyFilter filter,
             Object suppressableValue)
         throws JacksonException
@@ -911,7 +911,7 @@ public class MapSerializer
 
             ValueSerializer<Object> keySerializer;
             if (keyElem == null) {
-                keySerializer = provider.findNullKeySerializer(_keyType, _property);
+                keySerializer = ctxt.findNullKeySerializer(_keyType, _property);
             } else {
                 keySerializer = _keySerializer;
             }
@@ -924,15 +924,15 @@ public class MapSerializer
                 if (_suppressNulls) {
                     continue;
                 }
-                valueSer = provider.getDefaultNullValueSerializer();
+                valueSer = ctxt.getDefaultNullValueSerializer();
             } else {
                 valueSer = _valueSerializer;
                 if (valueSer == null) {
-                    valueSer = _findSerializer(provider, valueElem);
+                    valueSer = _findSerializer(ctxt, valueElem);
                 }
                 // also may need to skip non-empty values:
                 if (checkEmpty) {
-                    if (valueSer.isEmpty(provider, valueElem)) {
+                    if (valueSer.isEmpty(ctxt, valueElem)) {
                         continue;
                     }
                 } else if (suppressableValue != null) {
@@ -944,9 +944,9 @@ public class MapSerializer
             // and with that, ask filter to handle it
             prop.reset(keyElem, valueElem, keySerializer, valueSer);
             try {
-                filter.serializeAsProperty(bean, gen, provider, prop);
+                filter.serializeAsProperty(bean, gen, ctxt, prop);
             } catch (Exception e) {
-                wrapAndThrow(provider, e, value, String.valueOf(keyElem));
+                wrapAndThrow(ctxt, e, value, String.valueOf(keyElem));
             }
         }
     }
@@ -978,7 +978,7 @@ public class MapSerializer
      */
 
     protected Map<?,?> _orderEntries(Map<?,?> input, JsonGenerator gen,
-            SerializationContext provider) throws JacksonException
+            SerializationContext ctxt) throws JacksonException
     {
         // minor optimization: may already be sorted?
         if (input instanceof SortedMap<?,?>) {
@@ -993,11 +993,11 @@ public class MapSerializer
         Object firstKey = input.keySet().iterator().next();
         if (!Comparable.class.isInstance(firstKey)) {
             // We cannot sort incomparable keys, should we fail or just skip sorting?
-            if (!provider.isEnabled(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)) {
+            if (!ctxt.isEnabled(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY)) {
                 return input;
             } else {
                 Class<?> clazz = firstKey == null ? Object.class : firstKey.getClass();
-                provider.reportBadDefinition(clazz,
+                ctxt.reportBadDefinition(clazz,
                     String.format("Cannot order Map entries by key of incomparable type %s, consider disabling " +
                                 "`SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY` to simply skip sorting",
                                 ClassUtil.classNameOf(firstKey)));
@@ -1013,7 +1013,7 @@ public class MapSerializer
             for (Map.Entry<?,?> entry : input.entrySet()) {
                 Object key = entry.getKey();
                 if (key == null) {
-                    _writeNullKeyedEntry(gen, provider, entry.getValue());
+                    _writeNullKeyedEntry(gen, ctxt, entry.getValue());
                     continue;
                 }
                 result.put(key, entry.getValue());

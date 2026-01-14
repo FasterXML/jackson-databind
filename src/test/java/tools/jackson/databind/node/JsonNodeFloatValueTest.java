@@ -288,7 +288,7 @@ public class JsonNodeFloatValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
                 .contains("asFloat()")
-                .contains("cannot convert value")
+                .contains("cannot coerce value")
                 .contains("value not in 32-bit `float` range");
 
         assertEquals(-2.25f, node.asFloat(-2.25f));
@@ -296,7 +296,7 @@ public class JsonNodeFloatValueTest
     }
 
     private void _assertAsFloatFailForNonNumber(JsonNode node) {
-        _assertAsFloatFailForNonNumber(node, "value type not numeric");
+        _assertAsFloatFailForNonNumber(node, "value type not coercible");
     }
 
     private void _assertAsFloatFailForNonNumber(JsonNode node, String extraMatch) {
@@ -305,7 +305,7 @@ public class JsonNodeFloatValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
                 .contains("asFloat()")
-                .contains("cannot convert value")
+                .contains("cannot coerce value")
                 .contains(extraMatch);
 
         assertEquals(1.5f, node.asFloat(1.5f));

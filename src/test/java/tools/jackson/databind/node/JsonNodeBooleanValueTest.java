@@ -190,8 +190,8 @@ public class JsonNodeBooleanValueTest
                 () ->  node.asBoolean(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
-            .contains("cannot convert value")
-            .contains("value type not coercible to `boolean`");
+            .contains("cannot coerce value")
+            .contains("value type not coercible");
 
         // But also check defaulting
         assertFalse(node.asBoolean(false));

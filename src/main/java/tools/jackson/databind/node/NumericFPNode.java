@@ -175,12 +175,12 @@ public abstract class NumericFPNode extends NumericNode
     public final long longValue() {
         if (!inLongRange()) {
             if (isNaN()) {
-                _reportLongCoercionNaNFail("longValue()");
+                _reportLongConversionNaNFail("longValue()");
             }
-            return _reportLongCoercionRangeFail("longValue()");
+            return _reportLongConversionRangeFail("longValue()");
         }
         if (hasFractionalPart()) {
-            _reportLongCoercionFractionFail("longValue()");
+            _reportLongConversionFractionFail("longValue()");
         }
         return _asLongValueUnchecked();
     }
@@ -231,10 +231,10 @@ public abstract class NumericFPNode extends NumericNode
     @Override
     public final BigInteger bigIntegerValue() {
         if (isNaN()) {
-            _reportBigIntegerCoercionNaNFail("bigIntegerValue()");
+            _reportBigIntegerConversionNaNFail("bigIntegerValue()");
         }
         if (hasFractionalPart()) {
-            _reportBigIntegerCoercionFractionFail("bigIntegerValue()");
+            _reportBigIntegerConversionFractionFail("bigIntegerValue()");
         }
         return _asBigIntegerValueUnchecked();
     }
@@ -284,7 +284,7 @@ public abstract class NumericFPNode extends NumericNode
     @Override
     public BigDecimal decimalValue() {
         if (isNaN()) {
-            _reportBigDecimalCoercionNaNFail("decimalValue()");
+            _reportBigDecimalConversionNaNFail("decimalValue()");
         }
         return _asDecimalValueUnchecked();
     }

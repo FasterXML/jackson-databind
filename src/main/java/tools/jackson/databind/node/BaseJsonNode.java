@@ -805,7 +805,7 @@ public abstract class BaseJsonNode
     }
     
     // @since 3.1
-    protected BigInteger _reportBigIntegerConversonNaNFail(String method) {
+    protected BigInteger _reportBigIntegerConversionNaNFail(String method) {
         return _reportConversionFail(method, BigInteger.class,
                 "value non-Finite ('NaN')");
     }

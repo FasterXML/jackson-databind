@@ -156,8 +156,8 @@ public class JsonNodeStringValueTest
                 () ->  node.asString(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
-            .contains("cannot convert value")
-            .contains("value type not coercible to `String`");
+            .contains("cannot coerce value")
+            .contains("value type not coercible");
 
         // But also check defaulting
         assertEquals("foo", node.asString("foo"));

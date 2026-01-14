@@ -385,7 +385,7 @@ public class JsonNodeLongValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("asLong()")
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains("value not in 64-bit `long` range");
 
         // Verify default value handling
@@ -394,7 +394,7 @@ public class JsonNodeLongValueTest
     }
 
     private void _assertAsLongFailForNonNumber(JsonNode node) {
-        _assertAsLongFailForNonNumber(node, "value type not numeric");
+        _assertAsLongFailForNonNumber(node, "value type not coercible");
     }
 
     private void _assertAsLongFailForNonNumber(JsonNode node, String extraMsg) {
@@ -403,7 +403,7 @@ public class JsonNodeLongValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("asLong()")
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains(extraMsg);
 
         // Verify default value handling
@@ -417,7 +417,7 @@ public class JsonNodeLongValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("asLong()")
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains("value non-Finite");
 
         // Verify default value handling

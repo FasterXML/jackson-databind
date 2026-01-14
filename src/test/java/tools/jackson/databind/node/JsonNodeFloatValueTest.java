@@ -267,7 +267,7 @@ public class JsonNodeFloatValueTest
                 () ->  node.floatValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains("value type not numeric");
 
         assertEquals(-2.25f, node.floatValue(-2.25f));

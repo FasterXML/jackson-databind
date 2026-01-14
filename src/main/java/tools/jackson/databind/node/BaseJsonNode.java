@@ -62,13 +62,13 @@ public abstract class BaseJsonNode
 
     @Override
     public Number numberValue() {
-        return _reportConversionFail("numberValue()", Number.class,
+        return _reportCoercionFail("numberValue()", Number.class,
                 "value type not numeric");
     }
 
     @Override
     public short shortValue() {
-        return _reportConversionFail("shortValue()", Short.TYPE,
+        return _reportCoercionFail("shortValue()", Short.TYPE,
                 "value type not numeric");
     }
 
@@ -103,7 +103,7 @@ public abstract class BaseJsonNode
 
     @Override
     public int intValue() {
-        return _reportConversionFail("intValue()", Integer.TYPE,
+        return _reportCoercionFail("intValue()", Integer.TYPE,
                 "value type not numeric");
     }
 
@@ -138,7 +138,7 @@ public abstract class BaseJsonNode
 
     @Override
     public long longValue() {
-        return _reportConversionFail("longValue()", Long.TYPE,
+        return _reportCoercionFail("longValue()", Long.TYPE,
                 "value type not numeric");
     }
 
@@ -173,7 +173,7 @@ public abstract class BaseJsonNode
 
     @Override
     public BigInteger bigIntegerValue() {
-        return _reportConversionFail("bigIntegerValue()", BigInteger.class,
+        return _reportCoercionFail("bigIntegerValue()", BigInteger.class,
                 "value type not numeric");
     }
 
@@ -208,7 +208,7 @@ public abstract class BaseJsonNode
 
     @Override
     public float floatValue() {
-        return _reportConversionFail("floatValue()", Float.TYPE,
+        return _reportCoercionFail("floatValue()", Float.TYPE,
                 "value type not numeric");
     }
 
@@ -243,7 +243,7 @@ public abstract class BaseJsonNode
 
     @Override
     public double doubleValue() {
-        return _reportConversionFail("doubleValue()", Double.TYPE,
+        return _reportCoercionFail("doubleValue()", Double.TYPE,
                 "value type not numeric");
     }
 
@@ -278,7 +278,7 @@ public abstract class BaseJsonNode
 
     @Override
     public BigDecimal decimalValue() {
-        return _reportConversionFail("decimalValue()", BigDecimal.class,
+        return _reportCoercionFail("decimalValue()", BigDecimal.class,
                 "value type not numeric");
     }
 

@@ -62,7 +62,7 @@ public enum SerializationFeature implements ConfigFeature
      * types; if disabled, they are serialized as empty Objects,
      * i.e. without any properties.
      *<p>
-     * Note that empty types that this feature has only effect on
+     * Note that this feature has only effect on
      * those "empty" beans that do not have any recognized annotations
      * (like <code>@JsonSerialize</code>): ones that do have annotations
      * do not result in an exception being thrown.

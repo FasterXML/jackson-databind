@@ -61,47 +61,19 @@ public final class MissingNode
 
     /*
     /**********************************************************************
-    /* Overridden JsonNode methods, scalar access, non-numeric
-    /* (following NullNode behavior)
+    /* Overridden JsonNode methods, scalar access (following NullNode behavior)
     /**********************************************************************
      */
 
     @Override
-    protected Boolean _asBoolean() {
-        return Boolean.FALSE;
+    public boolean asBoolean() {
+        return false;
     }
 
     @Override
-    public boolean asBoolean(boolean defaultValue) {
-        return defaultValue;
-    }
-
-    @Override
-    public Optional<Boolean> asBooleanOpt() {
-        return Optional.empty();
-    }
-
-    @Override
-    protected String _asString() {
+    public String asString() {
         return "";
     }
-
-    @Override
-    public String asString(String defaultValue) {
-        return defaultValue;
-    }
-
-    @Override
-    public Optional<String> asStringOpt() {
-        return Optional.empty();
-    }
-
-    /*
-    /**********************************************************************
-    /* Overridden JsonNode methods, scalar access, numeric
-    /* (following NullNode behavior)
-    /**********************************************************************
-     */
 
     @Override
     public short asShort() {

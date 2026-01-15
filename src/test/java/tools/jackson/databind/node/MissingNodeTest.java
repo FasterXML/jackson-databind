@@ -9,10 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.exc.JsonNodeException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MissingNodeTest extends NodeTestBase

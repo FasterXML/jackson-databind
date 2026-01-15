@@ -71,6 +71,7 @@ public class TreeTraversingParserTest
         assertEquals((short) 123, p.getShortValue());
         assertEquals(123, p.getValueAsInt(-1));
         assertEquals(123L, p.getValueAsLong(42L));
+        assertEquals(BigInteger.valueOf(123L), p.getBigIntegerValue());
         assertEquals("123", p.getString());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
@@ -84,9 +85,16 @@ public class TreeTraversingParserTest
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertNull(p.currentName());
         assertEquals(12.25, p.getDoubleValue(), 0);
+        assertEquals(12.25f, p.getFloatValue(), 0);
         assertEquals(NumberType.DOUBLE, p.getNumberType());
         assertEquals(NumberTypeFP.DOUBLE64, p.getNumberTypeFP());
         assertFalse(p.isNaN());
+        try {
+            p.getShortValue();
+            fail("Should not pass");
+        } catch (InputCoercionException e) {
+            verifyException(e, "has fractional part; cannot convert to `short`");
+        }
         try {
             p.getIntValue();
             fail("Should not pass");
@@ -105,11 +113,15 @@ public class TreeTraversingParserTest
 
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
         assertNull(p.currentName());
+        assertNull(p.getNumberType());
+        assertEquals(NumberTypeFP.UNKNOWN, p.getNumberTypeFP());
         assertEquals(JsonToken.VALUE_NULL.asString(), p.getString());
 
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertNull(p.currentName());
         assertTrue(p.getBooleanValue());
+        assertNull(p.getNumberType());
+        assertEquals(NumberTypeFP.UNKNOWN, p.getNumberTypeFP());
         assertEquals(JsonToken.VALUE_TRUE.asString(), p.getString());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());

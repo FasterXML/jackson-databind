@@ -32,9 +32,13 @@ public class TreeBuildingGeneratorTest extends DatabindTestUtil
         g.writeNumber((short) 123);
         g.writeNull();
         g.writeNumber(BigInteger.valueOf(999));
+        g.writeBoolean(false);
+        g.writeArray(new long[0], 0, 0);
+        g.writeStartObject(Boolean.TRUE, 0);
+        g.writeEndObject();
         g.writeEndArray();
 
-        assertEquals(a2q("['foo','bar',123,null,999]"),
+        assertEquals(a2q("['foo','bar',123,null,999,false,[],{}]"),
                 g.treeBuilt().toString());
     }
 
@@ -48,9 +52,16 @@ public class TreeBuildingGeneratorTest extends DatabindTestUtil
         g.writeName("arr");
         g.writeStartArray("foo", 0);
         g.writeEndArray();
+        g.writeName("b");
+        g.writeBoolean(true);
+
+        g.writeName("ob");
+        g.writeStartObject(Boolean.TRUE, 0);
+        g.writeEndObject();
+        
         g.writeEndObject();
 
-        assertEquals(a2q("{'null':null,'arr':[]}"),
+        assertEquals(a2q("{'null':null,'arr':[],'b':true,'ob':{}}"),
                 g.treeBuilt().toString());
     }
 

@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.exc.JsonNodeException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.RawValue;
@@ -128,7 +129,7 @@ public class ArrayNodeTest
         try {
             n.set(2, NODE_F.nullNode());
             fail("Should not pass");
-        } catch (IndexOutOfBoundsException e) {
+        } catch (JsonNodeException e) {
             verifyException(e, "illegal index");
         }
         n.insert(1, (String) null);
@@ -219,11 +220,11 @@ public class ArrayNodeTest
         try {
             array.replace(100, null);
             fail("Should not pass");
-        } catch (IndexOutOfBoundsException e) {
-            ;
+        } catch (JsonNodeException e) {
+            verifyException(e, "Illegal index 100, array size 1");
         }
     }
-    
+
     @Test
     public void testArrayViaMapper()
     {

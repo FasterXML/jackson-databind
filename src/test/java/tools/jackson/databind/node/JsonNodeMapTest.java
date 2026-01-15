@@ -75,7 +75,8 @@ public class JsonNodeMapTest extends NodeTestBase
     public void testMapWithArrayNode()
     {
         JsonNode node = MAPPER.readTree("[1,2,3,4,5]");
-        assertEquals(5, node.map(n -> n.size()));
+        Integer I = node.map(n -> n.size());
+        assertEquals(5, I);
     }
 
     @Test

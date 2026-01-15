@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import tools.jackson.core.*;
@@ -2027,6 +2028,92 @@ public abstract class JsonNode
      */
     public <R> R map(Function<? super JsonNode, ? extends R> mapper) {
         return mapper.apply(this);
+    }
+
+    /**
+     * Method for handling {@code null} values: if this node represents JSON {@code null}
+     * value (that is, {@link #isNull()} returns {@code true}), returns the specified
+     * replacement value; otherwise returns {@code this} node.
+     *<p>
+     * This enables functional-style handling of null values:
+     *<pre>
+     *   JsonNode node = ...;
+     *   JsonNode nonNull = node.nullAs(defaultNode);
+     *</pre>
+     *
+     * @param replacement Value to return if this node is a null node
+     *
+     * @return {@code this} node if not null, otherwise the replacement node
+     *
+     * @since 3.1
+     */
+    public JsonNode nullAs(JsonNode replacement) {
+        return isNull() ? replacement : this;
+    }
+
+    /**
+     * Method for handling {@code null} values with deferred evaluation: if this node
+     * represents JSON {@code null} value (that is, {@link #isNull()} returns {@code true}),
+     * invokes the supplier and returns its result; otherwise returns {@code this} node
+     * without invoking the supplier.
+     *<p>
+     * This enables functional-style handling of null values with lazy evaluation:
+     *<pre>
+     *   JsonNode node = ...;
+     *   JsonNode nonNull = node.nullAs(() -&gt; computeDefault());
+     *</pre>
+     *
+     * @param supplier Supplier to invoke if this node is a null node
+     *
+     * @return {@code this} node if not null, otherwise the result from the supplier
+     *
+     * @since 3.1
+     */
+    public JsonNode nullAs(Supplier<? extends JsonNode> supplier) {
+        return isNull() ? supplier.get() : this;
+    }
+
+    /**
+     * Method for handling missing nodes: if this node is a {@link MissingNode}
+     * (that is, {@link #isMissingNode()} returns {@code true}), returns the specified
+     * replacement value; otherwise returns {@code this} node.
+     *<p>
+     * This enables functional-style handling of missing values:
+     *<pre>
+     *   JsonNode node = objectNode.path("mayNotExist");
+     *   JsonNode present = node.missingAs(defaultNode);
+     *</pre>
+     *
+     * @param replacement Value to return if this node is a missing node
+     *
+     * @return {@code this} node if not missing, otherwise the replacement node
+     *
+     * @since 3.1
+     */
+    public JsonNode missingAs(JsonNode replacement) {
+        return isMissingNode() ? replacement : this;
+    }
+
+    /**
+     * Method for handling missing nodes with deferred evaluation: if this node is a
+     * {@link MissingNode} (that is, {@link #isMissingNode()} returns {@code true}),
+     * invokes the supplier and returns its result; otherwise returns {@code this} node
+     * without invoking the supplier.
+     *<p>
+     * This enables functional-style handling of missing values with lazy evaluation:
+     *<pre>
+     *   JsonNode node = objectNode.path("mayNotExist");
+     *   JsonNode present = node.missingAs(() -&gt; computeDefault());
+     *</pre>
+     *
+     * @param supplier Supplier to invoke if this node is a missing node
+     *
+     * @return {@code this} node if not missing, otherwise the result from the supplier
+     *
+     * @since 3.1
+     */
+    public JsonNode missingAs(Supplier<? extends JsonNode> supplier) {
+        return isMissingNode() ? supplier.get() : this;
     }
 
     /*

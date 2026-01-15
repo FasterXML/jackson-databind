@@ -136,6 +136,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5583 Improve `asXxx()` method impls of `MissingNode`, `POJONode(null)`,
   to work like `NullNode`
  (implemented by @cowtowncoder, w/ Claude code)
+#5586: Change `IndexOutOfBoundsException` that `ArrayNode.set()`/`replace()`
+  throw to `JsonNodeException`
 
 3.0.4 (not yet released)
 

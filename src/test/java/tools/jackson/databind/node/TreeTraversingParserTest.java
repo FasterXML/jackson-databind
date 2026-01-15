@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.JsonParser.NumberType;
+import tools.jackson.core.JsonParser.NumberTypeFP;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.JsonNodeException;
@@ -66,6 +67,7 @@ public class TreeTraversingParserTest
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals("a", p.currentName());
         assertEquals(123, p.getIntValue());
+        assertEquals((short) 123, p.getShortValue());
         assertEquals("123", p.getString());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
@@ -79,6 +81,8 @@ public class TreeTraversingParserTest
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertNull(p.currentName());
         assertEquals(12.25, p.getDoubleValue(), 0);
+        assertEquals(NumberType.DOUBLE, p.getNumberType());
+        assertEquals(NumberTypeFP.DOUBLE64, p.getNumberTypeFP());
         assertEquals("12.25", p.getString());
 
         assertToken(JsonToken.VALUE_NULL, p.nextToken());

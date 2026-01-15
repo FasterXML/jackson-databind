@@ -220,6 +220,7 @@ public class POJONodeTest extends NodeTestBase
     public void testAsLong() {
         assertThat(new POJONode(null).asLong()).isEqualTo(0L);
         assertThat(new POJONode(99.99D).asLong()).isEqualTo(99L);
+        assertThat(new POJONode(33.3f).asLong()).isEqualTo(33L);
         assertThat(new POJONode(99L).asLong()).isEqualTo(99L);
         assertThat(new POJONode(99).asLong()).isEqualTo(99L);
         assertThat(new POJONode((short) 99).asLong()).isEqualTo(99L);

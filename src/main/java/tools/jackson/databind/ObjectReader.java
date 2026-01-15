@@ -50,7 +50,7 @@ import tools.jackson.databind.util.TokenBuffer;
  * should be extended by sub-classing.
  */
 public class ObjectReader
-    implements Versioned, TreeCodec
+    implements TreeCodec<JsonNode>, Versioned
 
     // NOTE: since 3.x, NO LONGER JDK Serializable
 {
@@ -1077,9 +1077,9 @@ public class ObjectReader
     }
 
     @Override
-    public JsonParser treeAsTokens(TreeNode n) {
+    public JsonParser treeAsTokens(JsonNode n) {
         _assertNotNull("n", n);
-        return treeAsTokens((JsonNode) n, _deserializationContext());
+        return treeAsTokens(n, _deserializationContext());
     }
 
     protected JsonParser treeAsTokens(JsonNode n, DeserializationContext ctxt) {
@@ -1102,7 +1102,6 @@ public class ObjectReader
      * Note: if an object was specified with {@link #withValueToUpdate}, it
      * will be ignored.
      */
-    @SuppressWarnings("unchecked")
     @Override
     public JsonNode readTree(JsonParser p) throws JacksonException {
         _assertNotNull("p", p);
@@ -1111,7 +1110,7 @@ public class ObjectReader
 
     // Alas, can't really support this part...
     @Override
-    public void writeTree(JsonGenerator g, TreeNode tree) {
+    public void writeTree(JsonGenerator g, JsonNode tree) {
         throw new UnsupportedOperationException();
     }
 
@@ -1770,19 +1769,29 @@ public class ObjectReader
     /**********************************************************************
      */
 
-    public <T> T treeToValue(TreeNode n, Class<T> valueType) throws JacksonException
+    public <T> T treeToValue(JsonNode n, Class<T> valueType) throws JacksonException
     {
         _assertNotNull("n", n);
         return forType(valueType).readValue(treeAsTokens(n));
     }
 
+    @Deprecated // @since 3.1
+    public <T> T treeToValue(TreeNode n, Class<T> valueType) throws JacksonException {
+        return treeToValue((JsonNode) n, valueType);
+    }
+
     /**
-     * Same as {@link #treeToValue(TreeNode, Class)} but with type-resolved target value type.
+     * Same as {@link #treeToValue(JsonNode, Class)} but with type-resolved target value type.
      */
-    public <T> T treeToValue(TreeNode n, JavaType valueType) throws JacksonException
+    public <T> T treeToValue(JsonNode n, JavaType valueType) throws JacksonException
     {
         _assertNotNull("n", n);
-        return forType(valueType).readValue(treeAsTokens(n));
+        return forType(valueType).readValue(treeAsTokens( n));
+    }
+
+    @Deprecated // @since 3.1
+    public <T> T treeToValue(TreeNode n, JavaType valueType) throws JacksonException {
+        return treeToValue((JsonNode) n, valueType);
     }
 
     /*

@@ -91,7 +91,7 @@ Simplest usage is of form:
  * graph of deserializers involved).
  */
 public class ObjectMapper
-    implements TreeCodec, Versioned,
+    implements TreeCodec<JsonNode>, Versioned,
         java.io.Serializable
 {
     private static final long serialVersionUID = 3L;
@@ -886,10 +886,10 @@ public class ObjectMapper
      * @param n Root node of the tree that resulting parser will read from
      */
     @Override
-    public JsonParser treeAsTokens(TreeNode n) {
+    public JsonParser treeAsTokens(JsonNode n) {
         _assertNotNull("n", n);
         DeserializationContext ctxt = _deserializationContext();
-        return new TreeTraversingParser((JsonNode) n, ctxt);
+        return new TreeTraversingParser(n, ctxt);
     }
 
     /**
@@ -915,7 +915,6 @@ public class ObjectMapper
      * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      */
-    @SuppressWarnings("unchecked")
     @Override
     public JsonNode readTree(JsonParser p) throws JacksonException
     {
@@ -937,7 +936,7 @@ public class ObjectMapper
     }
 
     @Override
-    public void writeTree(JsonGenerator g, TreeNode rootNode) throws JacksonException
+    public void writeTree(JsonGenerator g, JsonNode rootNode) throws JacksonException
     {
         _assertNotNull("g", g);
         SerializationConfig config = serializationConfig();
@@ -1256,9 +1255,11 @@ public class ObjectMapper
      *<pre>
      *   objectMapper.convertValue(n, valueClass);
      *</pre>
+     *<p>
+     * Typed overload added in 3.1
      */
     @SuppressWarnings("unchecked")
-    public <T> T treeToValue(TreeNode n, Class<T> valueType)
+    public <T> T treeToValue(JsonNode n, Class<T> valueType)
         throws JacksonException
     {
         if (n == null) {
@@ -1266,7 +1267,7 @@ public class ObjectMapper
         }
         // 25-Jan-2019, tatu: [databind#2220] won't prevent existing coercions here
         // Simple cast when we just want to cast to, say, ObjectNode
-        if (TreeNode.class.isAssignableFrom(valueType)
+        if (JsonNode.class.isAssignableFrom(valueType)
                 && valueType.isAssignableFrom(n.getClass())) {
             return (T) n;
         }
@@ -1290,19 +1291,26 @@ public class ObjectMapper
         return readValue(treeAsTokens(n), valueType);
     }
 
+    @Deprecated // @since 3.1
+    public <T> T treeToValue(TreeNode n, Class<T> valueType)
+        throws JacksonException
+    {
+        return treeToValue((JsonNode) n, valueType);
+    }
+
     /**
-     * Same as {@link #treeToValue(TreeNode, Class)} but target type specified
+     * Same as {@link #treeToValue(JsonNode, Class)} but target type specified
      * using fully resolved {@link JavaType}.
      */
     @SuppressWarnings("unchecked")
-    public <T> T treeToValue(TreeNode n, JavaType valueType)
+    public <T> T treeToValue(JsonNode n, JavaType valueType)
         throws JacksonException
     {
         // Implementation copied from the type-erased variant
         if (n == null) {
             return null;
         }
-        if (valueType.isTypeOrSubTypeOf(TreeNode.class)
+        if (valueType.isTypeOrSubTypeOf(JsonNode.class)
                 && valueType.isTypeOrSuperTypeOf(n.getClass())) {
             return (T) n;
         }
@@ -1318,14 +1326,28 @@ public class ObjectMapper
         return (T) readValue(treeAsTokens(n), valueType);
     }
 
+    @Deprecated // @since 3.1
+    public <T> T treeToValue(TreeNode n, JavaType valueType)
+        throws JacksonException
+    {
+        return treeToValue((JsonNode) n, valueType);
+    }
+
     /**
-     * Same as {@link #treeToValue(TreeNode, JavaType)} but target type specified
+     * Same as {@link #treeToValue(JsonNode, JavaType)} but target type specified
      * using fully resolved {@link TypeReference}.
      */
-    public <T> T treeToValue(TreeNode n, TypeReference<T> toValueTypeRef)
+    public <T> T treeToValue(JsonNode n, TypeReference<T> toValueTypeRef)
         throws JacksonException
     {
         return treeToValue(n, constructType(toValueTypeRef));
+    }
+
+    @Deprecated // @since 3.1
+    public <T> T treeToValue(TreeNode n, TypeReference<T> toValueTypeRef)
+        throws JacksonException
+    {
+        return treeToValue((JsonNode) n, toValueTypeRef);
     }
 
     /**

@@ -191,6 +191,11 @@ Hélios Gilles (@RoiSoleil)
  * Contributed #5413: Add/support forward reference resolution for array value
   [3.1.0]
 
+Francesco Chicchiriccò (@ilgrosso)
+ * Reported #5485: Unchecked conversion warning in `JsonMapper` wrt `TreeCodec.readTree()`
+  override
+  [3.1.0]
+
 Jaeheon Kim (@jher235)
  * Contributed #5522: `@JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)`
    doesn't work on custom Collection subclass

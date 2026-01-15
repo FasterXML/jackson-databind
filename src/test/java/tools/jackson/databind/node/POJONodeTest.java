@@ -227,10 +227,30 @@ public class POJONodeTest extends NodeTestBase
         assertThat(new POJONode((byte) 99).asLong()).isEqualTo(99L);
         assertThat(new POJONode(BigInteger.valueOf(99)).asLong()).isEqualTo(99L);
         assertThat(new POJONode(BigDecimal.valueOf(99.99)).asLong()).isEqualTo(99L);
+
         assertThatThrownBy(() -> new POJONode(new Data()).asLong())
+            .isInstanceOf(JsonNodeException.class)
+            .hasMessage("'POJONode' method `asLong()` cannot coerce value"
+                + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `long`: value type not coercible");
+
+        assertThatThrownBy(() -> new POJONode((float) Long.MAX_VALUE * 2.0f).asLong())
                 .isInstanceOf(JsonNodeException.class)
-                .hasMessage("'POJONode' method `asLong()` cannot coerce value"
-                        + " {POJO of type `tools.jackson.databind.node.POJONodeTest$Data`} to `long`: value type not coercible");
+                .hasMessageContaining("'POJONode' method `asLong()` cannot convert value")
+                .hasMessageContaining("value not in 64-bit `long` range")
+                ;
+
+        final double bigD = (double) Long.MAX_VALUE * 2.0;
+        assertThatThrownBy(() -> new POJONode(bigD).asLong())
+                .isInstanceOf(JsonNodeException.class)
+                .hasMessageContaining("'POJONode' method `asLong()` cannot convert value")
+                .hasMessageContaining("value not in 64-bit `long` range")
+                ;
+
+        assertThatThrownBy(() -> new POJONode(BigDecimal.valueOf(bigD)).asLong())
+            .isInstanceOf(JsonNodeException.class)
+            .hasMessageContaining("'POJONode' method `asLong()` cannot convert value")
+            .hasMessageContaining("value not in 64-bit `long` range")
+            ;
     }
 
     @Test

@@ -131,6 +131,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5575: Allow configuring a default serialization and deserialization view (3.x)
  (requested by Réda H-A)
  (implemented by @cowtowncoder, w/ Claude code)
+#5579: Add `JsonNode.map()` method
 
 3.0.4 (not yet released)
 

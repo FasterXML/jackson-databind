@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import tools.jackson.core.*;
@@ -1998,6 +1999,34 @@ public abstract class JsonNode
         // To avoid abstract method, base implementation just fails
         return _reportUnsupportedOperation("`JsonNode` not of type `ObjectNode` (but `"
                 +getClass().getName()+")`, cannot call `withArrayProperty(String)` on it");
+    }
+
+    /*
+    /**********************************************************************
+    /* Public API, conversions (3.1)
+    /**********************************************************************
+     */
+
+    /**
+     * Method that applies a transformation function to this node and returns the result.
+     * This enables functional-style transformations of {@link JsonNode} objects.
+     *<p>
+     * For example:
+     *<pre>
+     *   JsonNode node = ...;
+     *   String upperCaseText = node.map(n -&gt; n.asString().toUpperCase());
+     *   Integer value = node.map(n -&gt; n.asInt() * 2);
+     *</pre>
+     *
+     * @param <R> The type of the result produced by the mapper function
+     * @param mapper Function to apply to this node
+     *
+     * @return Result of applying the mapper function to this node
+     *
+     * @since 3.1
+     */
+    public <R> R map(Function<? super JsonNode, ? extends R> mapper) {
+        return mapper.apply(this);
     }
 
     /*

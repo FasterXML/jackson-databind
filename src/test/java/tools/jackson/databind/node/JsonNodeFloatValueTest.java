@@ -234,13 +234,17 @@ public class JsonNodeFloatValueTest
     @Test
     public void asFloatFromMiscOther()
     {
-        // Null node converts to 0.0f; missing fails
+        // Null node converts to 0.0f
         assertEquals(0.0f, NODES.nullNode().asFloat());
 
         // and defaults
         assertEquals(-9999.5f, NODES.nullNode().asFloat(-9999.5f));
         assertFalse(NODES.nullNode().asFloatOpt().isPresent());
-        _assertAsFloatFailForNonNumber(NODES.missingNode());
+
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals(0.0f, NODES.missingNode().asFloat());
+        assertEquals(-9999.5f, NODES.missingNode().asFloat(-9999.5f));
+        assertFalse(NODES.missingNode().asFloatOpt().isPresent());
     }
 
 

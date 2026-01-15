@@ -133,6 +133,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (implemented by @cowtowncoder, w/ Claude code)
 #5579: Add `JsonNode.map()` method
 #5581: Add functional conversion methods `JsonNode.nullAs()`, `JsonNode.missingAs()`
+#5583 Improve `asXxx()` method impls of `MissingNode`, `POJONode(null)`,
+  to work like `NullNode`
+ (implemented by @cowtowncoder, w/ Claude code)
 
 3.0.4 (not yet released)
 

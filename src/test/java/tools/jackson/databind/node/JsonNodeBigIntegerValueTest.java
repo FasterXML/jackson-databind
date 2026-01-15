@@ -194,8 +194,10 @@ public class JsonNodeBigIntegerValueTest
         assertEquals(BigInteger.valueOf(9999999L), NODES.nullNode().asBigInteger(BigInteger.valueOf(9999999L)));
         assertFalse(NODES.nullNode().asBigIntegerOpt().isPresent());
 
-        // But MissingNode still fails
-        _assertAsBigIntegerFailForNonNumber(NODES.missingNode());
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals(BigInteger.ZERO, NODES.missingNode().asBigInteger());
+        assertEquals(BigInteger.valueOf(9999999L), NODES.missingNode().asBigInteger(BigInteger.valueOf(9999999L)));
+        assertFalse(NODES.missingNode().asBigIntegerOpt().isPresent());
     }
     
     // // // Shared helper methods

@@ -109,10 +109,8 @@ public class POJONodeTest extends NodeTestBase
 
     @Test
     public void testAsString() {
-        assertThatThrownBy(() -> new POJONode(null).asString())
-                .isInstanceOf(JsonNodeException.class)
-                .hasMessage("'POJONode' method `asString()` cannot coerce value"
-                        + " {POJO of type [null]} to `java.lang.String`: value type not coercible");
+        // [databind#5583]: as of 3.1, POJONode(null).asString() returns "" like NullNode
+        assertThat(new POJONode(null).asString()).isEqualTo("");
         assertThat(new POJONode("test").asString()).isEqualTo("test");
         assertThatThrownBy(() -> new POJONode(new Data()).asString())
                 .isInstanceOf(JsonNodeException.class)

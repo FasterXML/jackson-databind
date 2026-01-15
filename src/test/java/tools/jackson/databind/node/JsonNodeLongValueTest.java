@@ -295,14 +295,17 @@ public class JsonNodeLongValueTest
     @Test
     public void asLongFromMiscOther()
     {
-        // NullNode works, Missing fails
+        // NullNode works
         assertEquals(0L, NODES.nullNode().asLong());
 
         // But also fallbacks
         assertEquals(999999L, NODES.nullNode().asLong(999999L));
         assertFalse(NODES.nullNode().asLongOpt().isPresent());
 
-        _assertAsLongFailForNonNumber(NODES.missingNode());
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals(0L, NODES.missingNode().asLong());
+        assertEquals(999999L, NODES.missingNode().asLong(999999L));
+        assertFalse(NODES.missingNode().asLongOpt().isPresent());
     }
     
     // // // Shared helper methods, longValue()

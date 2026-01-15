@@ -96,6 +96,10 @@ public class POJONode
 
     @Override
     protected String _asString() {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return "";
+        }
         if (_value instanceof String str) {
              return str;
         }
@@ -114,6 +118,20 @@ public class POJONode
             return str;
         }
         return defaultValue;
+    }
+
+    @Override
+    public Optional<String> asStringOpt() {
+        // First, `null` same as `NullNode`
+        if (_value == null) {
+            return Optional.empty();
+        }
+
+        if (_value instanceof String str) {
+            return Optional.of(str);
+        }
+
+        return Optional.empty();
     }
 
     /**

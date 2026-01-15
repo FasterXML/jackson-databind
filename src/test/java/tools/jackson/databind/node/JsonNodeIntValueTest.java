@@ -300,14 +300,17 @@ public class JsonNodeIntValueTest
     @Test
     public void asIntFromMiscOther()
     {
-        // NullNode -> 0 but "missing" still fails
+        // NullNode -> 0
         assertEquals(0, NODES.nullNode().asInt());
 
         // and defaulting
         assertEquals(999_999, NODES.nullNode().asInt(999_999));
         assertFalse(NODES.nullNode().asIntOpt().isPresent());
 
-        _assertAsIntFailForNonNumber(NODES.missingNode());
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals(0, NODES.missingNode().asInt());
+        assertEquals(999_999, NODES.missingNode().asInt(999_999));
+        assertFalse(NODES.missingNode().asIntOpt().isPresent());
     }
     
     // // // Shared helper methods: intValue()

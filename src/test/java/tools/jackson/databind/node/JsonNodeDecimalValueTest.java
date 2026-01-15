@@ -217,8 +217,10 @@ public class JsonNodeDecimalValueTest
         assertEquals(BD_DEFAULT, NODES.nullNode().asDecimal(BD_DEFAULT));
         assertFalse(NODES.nullNode().asDecimalOpt().isPresent());
 
-        // but "missing" still fails
-        _assertFailAsDecimalForNonNumber(NODES.missingNode());
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals(BigDecimal.ZERO, NODES.missingNode().asDecimal());
+        assertEquals(BD_DEFAULT, NODES.missingNode().asDecimal(BD_DEFAULT));
+        assertFalse(NODES.missingNode().asDecimalOpt().isPresent());
     }
     
     // // // Shared helper methods

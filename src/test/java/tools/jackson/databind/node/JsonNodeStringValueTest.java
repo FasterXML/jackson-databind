@@ -129,7 +129,10 @@ public class JsonNodeStringValueTest
         assertEquals("fallback", NODES.nullNode().asString("fallback"));
         assertFalse(NODES.nullNode().asStringOpt().isPresent());
 
-        _assertAsStringFailForNonString(NODES.missingNode());
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals("", NODES.missingNode().asString());
+        assertEquals("fallback", NODES.missingNode().asString("fallback"));
+        assertFalse(NODES.missingNode().asStringOpt().isPresent());
     }
 
     // // // Helper methods:

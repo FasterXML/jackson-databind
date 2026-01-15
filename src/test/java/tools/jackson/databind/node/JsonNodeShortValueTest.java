@@ -281,14 +281,17 @@ public class JsonNodeShortValueTest
     @Test
     public void asIntFromMiscOther()
     {
-        // NullNode -> 0 but "missing" still fails
+        // NullNode -> 0
         assertEquals((short) 0, NODES.nullNode().asShort());
 
         // and defaulting
         assertEquals((short) 99, NODES.nullNode().asShort((short) 99));
         assertFalse(NODES.nullNode().asShortOpt().isPresent());
 
-        _assertAsShortFailForNonNumber(NODES.missingNode());
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals((short) 0, NODES.missingNode().asShort());
+        assertEquals((short) 99, NODES.missingNode().asShort((short) 99));
+        assertFalse(NODES.missingNode().asShortOpt().isPresent());
     }
 
 

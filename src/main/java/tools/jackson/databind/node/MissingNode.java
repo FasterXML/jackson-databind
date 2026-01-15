@@ -1,5 +1,7 @@
 package tools.jackson.databind.node;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,14 +59,90 @@ public final class MissingNode
         return "<missing>";
     }
 
-    // // Note: not a numeric node, hence default 'asXxx()' are fine:
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access, non-numeric
+    /* (following NullNode behavior)
+    /**********************************************************************
+     */
+
+    @Override
+    protected Boolean _asBoolean() {
+        return Boolean.FALSE;
+    }
+
+    @Override
+    public boolean asBoolean(boolean defaultValue) {
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<Boolean> asBooleanOpt() {
+        return Optional.empty();
+    }
+
+    @Override
+    protected String _asString() {
+        return "";
+    }
+
+    @Override
+    public String asString(String defaultValue) {
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<String> asStringOpt() {
+        return Optional.empty();
+    }
 
     /*
-    public int asInt(int defaultValue);
-    public long asLong(long defaultValue);
-    public double asDouble(double defaultValue);
-    public boolean asBoolean(boolean defaultValue);
-    */
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access, numeric
+    /* (following NullNode behavior)
+    /**********************************************************************
+     */
+
+    @Override
+    public short asShort() {
+        return 0;
+    }
+
+    @Override
+    public int asInt() {
+        return 0;
+    }
+
+    @Override
+    public long asLong() {
+        return 0L;
+    }
+
+    @Override
+    public BigInteger asBigInteger() {
+        return BigInteger.ZERO;
+    }
+
+    @Override
+    public float asFloat() {
+        return 0.0f;
+    }
+
+    @Override
+    public double asDouble() {
+        return 0.0d;
+    }
+
+    @Override
+    public BigDecimal asDecimal() {
+        return BigDecimal.ZERO;
+    }
+
+    /*
+    /**********************************************************************
+    /* Other JsonNode method overrides
+    /**********************************************************************
+     */
 
     @Override
     public Optional<JsonNode> asOptional() {

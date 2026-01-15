@@ -143,8 +143,10 @@ public class JsonNodeBooleanValueTest
         _assertFalseFromAsBoolean(NODES.pojoNode(Boolean.FALSE));
         _assertTrueFromAsBoolean(NODES.pojoNode(Boolean.TRUE));
 
-        // but missing not
-        _assertFailAsBooleanForNonBoolean(NODES.missingNode());
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals(false, NODES.missingNode().asBoolean());
+        assertEquals(true, NODES.missingNode().asBoolean(true));
+        assertFalse(NODES.missingNode().asBooleanOpt().isPresent());
     }
 
     // // // Helper methods

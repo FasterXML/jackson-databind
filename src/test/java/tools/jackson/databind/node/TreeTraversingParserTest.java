@@ -83,6 +83,7 @@ public class TreeTraversingParserTest
         assertEquals(12.25, p.getDoubleValue(), 0);
         assertEquals(NumberType.DOUBLE, p.getNumberType());
         assertEquals(NumberTypeFP.DOUBLE64, p.getNumberTypeFP());
+        assertFalse(p.isNaN());
         assertEquals("12.25", p.getString());
 
         assertToken(JsonToken.VALUE_NULL, p.nextToken());

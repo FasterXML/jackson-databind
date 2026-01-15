@@ -120,6 +120,18 @@ public class TreeTraversingParserTest
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertNull(p.currentName());
         assertTrue(p.getBooleanValue());
+        try {
+            p.getValueAsInt(1);
+            fail("Should not pass");
+        } catch (InputCoercionException e) {
+            verifyException(e, "Current token (VALUE_TRUE) not numeric, cannot use numeric value accessors");
+        }
+        try {
+            p.getValueAsLong(2L);
+            fail("Should not pass");
+        } catch (InputCoercionException e) {
+            verifyException(e, "Current token (VALUE_TRUE) not numeric, cannot use numeric value accessors");
+        }
         assertNull(p.getNumberType());
         assertEquals(NumberTypeFP.UNKNOWN, p.getNumberTypeFP());
         assertEquals(JsonToken.VALUE_TRUE.asString(), p.getString());

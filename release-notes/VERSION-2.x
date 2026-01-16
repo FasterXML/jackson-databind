@@ -130,6 +130,9 @@ No changes since 2.19.2
  (implementation by Liam F)
 #2145: Add `JsonNode.optional(String name)` and `optional(int index)` methods
  (fix by Joo-Hyuk K)
+#2287: Allow overriding of FAIL_ON_MISSING_CREATOR_PROPERTIES / honor
+  `@JsonProperty(required = false)`
+ - Actual fix via #5020, see below
 #2461: Nested `@JsonUnwrapped` property names not correctly handled
  (reported by @plovell)
  (fix contributed by @SandeepGaur2016)

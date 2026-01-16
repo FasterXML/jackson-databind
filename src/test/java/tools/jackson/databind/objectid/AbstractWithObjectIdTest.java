@@ -21,7 +21,7 @@ public class AbstractWithObjectIdTest extends DatabindTestUtil
     static class BaseInterfaceImpl implements BaseInterface {
 
         @JsonProperty
-        private List<BaseInterfaceImpl> myInstances = new ArrayList<BaseInterfaceImpl>();
+        private List<BaseInterfaceImpl> myInstances = new ArrayList<>();
 
         void addInstance(BaseInterfaceImpl instance) {
             myInstances.add(instance);

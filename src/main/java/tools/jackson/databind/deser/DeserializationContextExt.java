@@ -138,7 +138,8 @@ public abstract class DeserializationContextExt
                 continue;
             }
             if (exception == null) {
-                exception = new UnresolvedForwardReference(getParser(), "Unresolved forward references for: ")
+                exception = new UnresolvedForwardReference(getParser(),
+                        "Unresolved forward references: ")
                         .withStackTrace();
             }
             Object key = roid.getKey().key;

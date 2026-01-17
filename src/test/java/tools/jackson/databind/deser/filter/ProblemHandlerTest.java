@@ -12,6 +12,7 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.deser.ValueInstantiator;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.jsontype.TypeIdResolver;
@@ -360,9 +361,19 @@ public class ProblemHandlerTest
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new InstantiationProblemHandler(BustedCtor.INST))
             .build();
-        BustedCtor w = mapper.readValue("{ }",
-                BustedCtor.class);
+        BustedCtor w = mapper.readValue("{ }", BustedCtor.class);
         assertNotNull(w);
+
+        // and then broken handling
+        mapper = jsonMapperBuilder()
+                .addHandler(new InstantiationProblemHandler("foo"))
+                .build();
+        try {
+            mapper.readValue("{ }", BustedCtor.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "returned value of type `java.lang.String`");
+        }
     }
 
     @Test
@@ -378,6 +389,18 @@ public class ProblemHandlerTest
         NoDefaultCtor w = mapper.readValue("{ \"x\" : true }", NoDefaultCtor.class);
         assertNotNull(w);
         assertEquals(13, w.value);
+
+        // And then broken case
+        mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .addHandler(new MissingInstantiationHandler("foo"))
+                .build();
+        try {
+            mapper.readValue("{ \"x\" : true }", NoDefaultCtor.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "returned value of type `java.lang.String`");
+        }
     }
 
     @Test

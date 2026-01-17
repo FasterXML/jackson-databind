@@ -453,6 +453,13 @@ public class ObjectReaderTest extends DatabindTestUtil
         } catch (IllegalArgumentException e) {
             verifyException(e, "Cannot use FormatSchema");
         }
+
+        try {
+            MAPPER.reader(new BogusSchema());
+            fail("Should not pass");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "Cannot use FormatSchema");
+        }
     }
 
     // For [databind#2297]

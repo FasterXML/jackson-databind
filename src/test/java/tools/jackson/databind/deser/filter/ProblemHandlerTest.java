@@ -13,6 +13,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.jsontype.TypeIdResolver;
@@ -254,6 +255,16 @@ public class ProblemHandlerTest
             .build();
         SingleValuedEnum result = mapper.readValue("3", SingleValuedEnum.class);
         assertEquals(SingleValuedEnum.A, result);
+
+        mapper = jsonMapperBuilder()
+                .addHandler(new WeirdNumberHandler("foo"))
+                .build();
+        try {
+            mapper.readValue("3", SingleValuedEnum.class);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "returned value of type `java.lang.String`");
+        }
     }
 
     @Test
@@ -271,6 +282,16 @@ public class ProblemHandlerTest
                 .build();
         UUID result2 = mapper.readValue(q("not a uuid!"), UUID.class);
         assertNull(result2);
+
+        mapper = jsonMapperBuilder()
+                .addHandler(new WeirdStringHandler("foo"))
+                .build();
+        try {
+            mapper.readValue(q("not a uuid!"), UUID.class);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "returned value of type `java.lang.String`");
+        }
     }
 
     // [databind#3784]: Base64 decoding
@@ -411,5 +432,15 @@ public class ProblemHandlerTest
             .build();
         Integer v = mapper.readValue("true", Integer.class);
         assertEquals(Integer.valueOf(13), v);
+
+        mapper = jsonMapperBuilder()
+                .addHandler(new WeirdTokenHandler("foo"))
+                .build();
+        try{
+            mapper.readValue("true", Integer.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "returned value of type `java.lang.String`");
+        }
     }
 }

@@ -321,6 +321,17 @@ public class ProblemHandlerTest
                 BaseWrapper.class);
         assertNotNull(w);
         assertEquals(BaseImpl.class, w.value.getClass());
+
+        mapper = jsonMapperBuilder()
+                .addHandler(new UnknownTypeIdHandler(String.class))
+                .build();
+        try {
+            mapper.readValue("{\"value\":{\"type\":\"foo\",\"a\":4}}",
+                    BaseWrapper.class);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "into non-subtype: `java.lang.String`");
+        }
     }
 
     @Test
@@ -347,6 +358,17 @@ public class ProblemHandlerTest
                 BaseWrapper.class);
         assertNotNull(w);
         assertEquals(BaseImpl.class, w.value.getClass());
+
+        mapper = jsonMapperBuilder()
+                .addHandler(new MissingTypeIdHandler(String.class))
+                .build();
+        try {
+            mapper.readValue("{\"value\":{\"a\":4}}",
+                    BaseWrapper.class);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "into non-subtype: `java.lang.String`");
+        }
     }
 
     @Test

@@ -5,6 +5,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -61,6 +63,7 @@ public class ObjectWriterTest
     /**********************************************************
      */
 
+    @Test
     public void testPrettyPrinter() throws Exception
     {
         ObjectWriter writer = MAPPER.writer();
@@ -82,6 +85,7 @@ public class ObjectWriterTest
         assertEquals("{\"a\":1}", writer.writeValueAsString(data));
     }
 
+    @Test
     public void testPrefetch() throws Exception
     {
         ObjectWriter writer = MAPPER.writer();
@@ -90,6 +94,7 @@ public class ObjectWriterTest
         assertTrue(writer.hasPrefetchedSerializer());
     }
 
+    @Test
     public void testObjectWriterFeatures() throws Exception
     {
         ObjectWriter writer = MAPPER.writer()
@@ -102,6 +107,7 @@ public class ObjectWriterTest
                 .writeValueAsString(map));
     }
 
+    @Test
     public void testObjectWriterWithNode() throws Exception
     {
         ObjectNode stuff = MAPPER.createObjectNode();
@@ -111,6 +117,7 @@ public class ObjectWriterTest
         assertEquals("{\"a\":5}", json);
     }
 
+    @Test
     public void testPolymorphicWithTyping() throws Exception
     {
         ObjectWriter writer = MAPPER.writerFor(PolyBase.class);
@@ -122,6 +129,7 @@ public class ObjectWriterTest
         assertEquals(a2q("{'type':'B','b':-5}"), json);
     }
 
+    @Test
     public void testNoPrefetch() throws Exception
     {
         ObjectWriter w = MAPPER.writer()
@@ -132,6 +140,7 @@ public class ObjectWriterTest
         assertEquals("3", out.toString("UTF-8"));
     }
 
+    @Test
     public void testWithCloseCloseable() throws Exception
     {
         ObjectWriter w = MAPPER.writer()
@@ -143,7 +152,7 @@ public class ObjectWriterTest
         assertNotNull(json);
         assertTrue(input.closed);
         input.close();
-
+        
         // and via explicitly passed generator
         JsonGenerator g = MAPPER.createGenerator(new StringWriter());
         input = new CloseableValue();
@@ -154,6 +163,7 @@ public class ObjectWriterTest
         input.close();
     }
 
+    @Test
     public void testViewSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
@@ -177,6 +187,7 @@ public class ObjectWriterTest
                 .get();
     }
 
+    @Test
     public void testMiscSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
@@ -193,16 +204,9 @@ public class ObjectWriterTest
         assertEquals("b", w.getAttributes().getAttribute("a"));
         w = w.withoutAttribute("a");
         assertNull(w.getAttributes().getAttribute("a"));
-
-        FormatSchema schema = new BogusSchema();
-        try {
-            newW = w.with(schema);
-            fail("Should not pass");
-        } catch (IllegalArgumentException e) {
-            verifyException(e, "Cannot use FormatSchema");
-        }
     }
 
+    @Test
     public void testRootValueSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
@@ -233,6 +237,7 @@ public class ObjectWriterTest
         assertNotSame(w, newW);
     }
 
+    @Test
     public void testFeatureSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
@@ -262,6 +267,7 @@ public class ObjectWriterTest
                 SerializationFeature.EAGER_SERIALIZER_FETCH));
     }
 
+    @Test
     public void testStreamWriteFeatures() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
@@ -279,6 +285,7 @@ public class ObjectWriterTest
     /**********************************************************
      */
 
+    @Test
     public void testArgumentChecking() throws Exception
     {
         final ObjectWriter w = MAPPER.writer();
@@ -290,8 +297,16 @@ public class ObjectWriterTest
         }
     }
 
+    @Test
     public void testSchema() throws Exception
     {
+        FormatSchema schema = new BogusSchema();
+        try {
+            MAPPER.writer(schema);
+            fail("Should not pass");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "Cannot use FormatSchema");
+        }
         try {
             MAPPER.writerFor(String.class)
                 .with(new BogusSchema())
@@ -302,6 +317,7 @@ public class ObjectWriterTest
         }
     }
 
+    @Test
     public void test_createGenerator_OutputStream() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -316,6 +332,7 @@ public class ObjectWriterTest
         outputStream.write(1);
     }
 
+    @Test
     public void test_createGenerator_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -327,6 +344,7 @@ public class ObjectWriterTest
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
     }
 
+    @Test
     public void test_createGenerator_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -338,6 +356,7 @@ public class ObjectWriterTest
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
     }
 
+    @Test
     public void test_createGenerator_Writer() throws Exception
     {
         Writer writer = new StringWriter();
@@ -352,6 +371,7 @@ public class ObjectWriterTest
         writer.append('1');
     }
 
+    @Test
     public void test_createGenerator_DataOutput() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -367,6 +387,7 @@ public class ObjectWriterTest
         dataOutput.write(1);
     }
 
+    @Test
     public void test_createGenerator_failsIfArgumentIsNull() throws Exception
     {
         ObjectWriter objectWriter = MAPPER.writer();
@@ -378,6 +399,7 @@ public class ObjectWriterTest
         test_method_failsIfArgumentIsNull(() -> objectWriter.createGenerator((Writer) null));
     }
 
+    @Test
     public void test_writeValue_OutputStream() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -389,6 +411,7 @@ public class ObjectWriterTest
         outputStream.write(1);
     }
 
+    @Test
     public void test_writeValue_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -397,6 +420,7 @@ public class ObjectWriterTest
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
     }
 
+    @Test
     public void test_writeValue_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -405,6 +429,7 @@ public class ObjectWriterTest
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
     }
 
+    @Test
     public void test_writeValue_Writer() throws Exception
     {
         Writer writer = new StringWriter();
@@ -416,6 +441,7 @@ public class ObjectWriterTest
         writer.append('1');
     }
 
+    @Test
     public void test_writeValue_DataOutput() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -428,6 +454,7 @@ public class ObjectWriterTest
         dataOutput.write(1);
     }
 
+    @Test
     public void test_writeValue_JsonGenerator() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -440,6 +467,7 @@ public class ObjectWriterTest
         outputStream.write(1);
     }
 
+    @Test
     public void test_writeValue_failsIfArgumentIsNull() throws Exception
     {
         ObjectMapper objectMapper = MAPPER;
@@ -451,6 +479,7 @@ public class ObjectWriterTest
         test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValue((JsonGenerator) null, null));
     }
 
+    @Test
     public void test_writeValues_OutputStream() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -463,6 +492,7 @@ public class ObjectWriterTest
         outputStream.write(1);
     }
 
+    @Test
     public void test_writeValues_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -472,6 +502,7 @@ public class ObjectWriterTest
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
     }
 
+    @Test
     public void test_writeValues_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -481,6 +512,7 @@ public class ObjectWriterTest
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
     }
 
+    @Test
     public void test_writeValues_Writer() throws Exception
     {
         Writer writer = new StringWriter();
@@ -493,6 +525,7 @@ public class ObjectWriterTest
         writer.append('1');
     }
 
+    @Test
     public void test_writeValues_DataOutput() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -506,6 +539,7 @@ public class ObjectWriterTest
         dataOutput.write(1);
     }
 
+    @Test
     public void test_writeValues_JsonGenerator() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -519,6 +553,7 @@ public class ObjectWriterTest
         outputStream.write(1);
     }
 
+    @Test
     public void test_writeValues_failsIfArgumentIsNull() throws Exception
     {
         ObjectMapper objectMapper = MAPPER;
@@ -530,6 +565,7 @@ public class ObjectWriterTest
         test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValues((JsonGenerator) null));
     }
 
+    @Test
     public void test_writeValuesAsArray_OutputStream() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -544,6 +580,7 @@ public class ObjectWriterTest
         outputStream.write(1);
     }
 
+    @Test
     public void test_writeValuesAsArray_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -555,6 +592,7 @@ public class ObjectWriterTest
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "[\"value\"]");
     }
 
+    @Test
     public void test_writeValuesAsArray_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -566,6 +604,7 @@ public class ObjectWriterTest
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "[\"value\"]");
     }
 
+    @Test
     public void test_writeValuesAsArray_Writer() throws Exception
     {
         Writer writer = new StringWriter();
@@ -580,6 +619,7 @@ public class ObjectWriterTest
         writer.append('1');
     }
 
+    @Test
     public void test_writeValuesAsArray_DataOutput() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -595,6 +635,7 @@ public class ObjectWriterTest
         dataOutput.write(1);
     }
 
+    @Test
     public void test_writeValuesAsArray_JsonGenerator() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -612,6 +653,7 @@ public class ObjectWriterTest
         outputStream.write(1);
     }
 
+    @Test
     public void test_writeValuesAsArray_failsIfArgumentIsNull() throws Exception
     {
         ObjectMapper objectMapper = MAPPER;

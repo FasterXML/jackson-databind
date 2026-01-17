@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonWriteFeature;
+import tools.jackson.core.type.ResolvedType;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.util.MinimalPrettyPrinter;
 import tools.jackson.databind.cfg.DeserializationContexts;
@@ -52,6 +53,18 @@ public class ObjectMapperTest extends DatabindTestUtil
         public void writeArrayValueSeparator(JsonGenerator g)
         {
             g.writeRaw(" , ");
+        }
+    }
+
+    static class CloseableValue implements Closeable
+    {
+        public int x;
+
+        public boolean closed;
+
+        @Override
+        public void close() throws IOException {
+            closed = true;
         }
     }
 
@@ -180,7 +193,7 @@ public class ObjectMapperTest extends DatabindTestUtil
     {
         final int[] input = new int[] { 1, 2 };
 
-        JsonMapper vanilla = new JsonMapper();
+        JsonMapper vanilla = newJsonMapper();
 
         // without anything else, compact:
         assertEquals("[1,2]", vanilla.writeValueAsString(input));
@@ -589,7 +602,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         assertEquals(result1, "value");
 
         inputStream.reset();
-        String result2 = MAPPER.readValue(inputStream, SimpleType.constructUnsafe(String.class));
+        String result2 = MAPPER.readValue(inputStream, MAPPER.constructType(String.class));
         assertEquals(result2, "value");
 
         inputStream.reset();
@@ -604,7 +617,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
         String result1 = MAPPER.readValue(path.toFile(), String.class);
         assertEquals(result1, "value");
-        String result2 = MAPPER.readValue(path.toFile(), SimpleType.constructUnsafe(String.class));
+        String result2 = MAPPER.readValue(path.toFile(), MAPPER.constructType(String.class));
         assertEquals(result2, "value");
         String result3 = MAPPER.readValue(path.toFile(), new TypeReference<String>() {});
         assertEquals(result3, "value");
@@ -617,7 +630,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
         String result1 = MAPPER.readValue(path, String.class);
         assertEquals(result1, "value");
-        String result2 = MAPPER.readValue(path, SimpleType.constructUnsafe(String.class));
+        String result2 = MAPPER.readValue(path, MAPPER.constructType(String.class));
         assertEquals(result2, "value");
         String result3 = MAPPER.readValue(path, new TypeReference<String>() {});
         assertEquals(result3, "value");
@@ -631,7 +644,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         assertEquals(result1, "value");
 
         Reader reader2 = new StringReader("\"value\"");
-        String result2 = MAPPER.readValue(reader2, SimpleType.constructUnsafe(String.class));
+        String result2 = MAPPER.readValue(reader2, MAPPER.constructType(String.class));
         assertEquals(result2, "value");
 
         Reader reader3 = new StringReader("\"value\"");
@@ -645,7 +658,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
         String result1 = MAPPER.readValue(bytes, String.class);
         assertEquals(result1, "value");
-        String result2 = MAPPER.readValue(bytes, SimpleType.constructUnsafe(String.class));
+        String result2 = MAPPER.readValue(bytes, MAPPER.constructType(String.class));
         assertEquals(result2, "value");
         String result3 = MAPPER.readValue(bytes, new TypeReference<String>() {});
         assertEquals(result3, "value");
@@ -663,7 +676,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         String string = "\"value\"";
         String result1 = MAPPER.readValue(string, String.class);
         assertEquals(result1, "value");
-        String result2 = MAPPER.readValue(string, SimpleType.constructUnsafe(String.class));
+        String result2 = MAPPER.readValue(string, MAPPER.constructType(String.class));
         assertEquals(result2, "value");
         String result3 = MAPPER.readValue(string, new TypeReference<String>() {});
         assertEquals(result3, "value");
@@ -678,7 +691,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         assertEquals(result1, "value");
 
         DataInput dataInput2 = new MockDataInput(inputBytes);
-        String result2 = MAPPER.readValue(dataInput2, SimpleType.constructUnsafe(String.class));
+        String result2 = MAPPER.readValue(dataInput2, MAPPER.constructType(String.class));
         assertEquals(result2, "value");
 
         DataInput dataInput3 = new MockDataInput(inputBytes);
@@ -689,19 +702,23 @@ public class ObjectMapperTest extends DatabindTestUtil
     @Test
     public void test_readValue_JsonParser() throws Exception
     {
-        String string = "\"value\"";
+        String string = q("value");
 
-        JsonParser jsonParser1 = MAPPER.createParser(string);
-        String result1 = MAPPER.readValue(jsonParser1, String.class);
-        assertEquals(result1, "value");
+        try (JsonParser p = MAPPER.createParser(string)) {
+            assertEquals("value", MAPPER.readValue(p, String.class));
+        }
 
-        JsonParser jsonParser2 = MAPPER.createParser(string);
-        String result2 = MAPPER.readValue(jsonParser2, SimpleType.constructUnsafe(String.class));
-        assertEquals(result2, "value");
+        JsonParser p2 = MAPPER.createParser(string);
+        assertEquals("value",
+                MAPPER.readValue(p2, MAPPER.constructType(String.class)));
 
-        JsonParser jsonParser3 = MAPPER.createParser(string);
-        String result3 = MAPPER.readValue(jsonParser3, new TypeReference<String>() {});
-        assertEquals(result3, "value");
+        JsonParser p3 = MAPPER.createParser(string);
+        assertEquals("value",
+                MAPPER.readValue(p3, (ResolvedType) MAPPER.constructType(String.class)));
+
+        JsonParser p4 = MAPPER.createParser(string);
+        assertEquals("value",
+                MAPPER.readValue(p4, new TypeReference<String>() {}));
     }
 
     @SuppressWarnings("rawtypes")
@@ -856,6 +873,19 @@ public class ObjectMapperTest extends DatabindTestUtil
         }
     }
 
+    @Test
+    public void testWithCloseCloseable() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.CLOSE_CLOSEABLE)
+                .build();
+        CloseableValue input = new CloseableValue();
+        assertFalse(input.closed);
+        byte[] json = mapper.writeValueAsBytes(input);
+        assertNotNull(json);
+        assertTrue(input.closed);
+    }
+    
     @Test
     public void testClearCaches() throws Exception
     {

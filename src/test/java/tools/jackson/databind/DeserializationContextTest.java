@@ -30,7 +30,9 @@ public class DeserializationContextTest extends DatabindTestUtil
 
             assertNull(ctxt.readTreeAsValue(nodeF.nullNode(), Boolean.class));
             assertEquals(Boolean.FALSE, ctxt.readTreeAsValue(nodeF.nullNode(), Boolean.TYPE));
-            assertNull(ctxt.readTreeAsValue(nodeF.nullNode(), String.class));
+
+            assertNull(ctxt.readTreeAsValue(nodeF.nullNode(), MAPPER.constructType(String.class)));
+            assertNull(ctxt.readTreeAsValue(null, MAPPER.constructType(String.class)));
 
             assertNull(ctxt.readTreeAsValue(nodeF.nullNode(), Bean4934.class));
         }

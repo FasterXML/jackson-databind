@@ -13,6 +13,8 @@ import tools.jackson.core.*;
 import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonReadFeature;
+import tools.jackson.core.type.ResolvedType;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.cfg.ContextAttributes;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
@@ -59,15 +61,21 @@ public class ObjectReaderTest extends DatabindTestUtil
     {
         final String JSON = "[1]";
         final byte[] BYTES = JSON.getBytes("UTF-8");
-        Object ob = MAPPER.readerFor(Object.class)
-                .readValue(BYTES);
-        assertTrue(ob instanceof List<?>);
+        final Object EXP = Arrays.asList(1);
+        assertEquals(EXP, MAPPER
+                .readerFor(Object.class)
+                .readValue(BYTES));
+        assertEquals(EXP, MAPPER
+                .readerFor(Object.class)
+                .readValue(BYTES, 0, BYTES.length));
 
-        ob = MAPPER.readerFor(Object.class)
-                .readValue(BYTES, 0, BYTES.length);
-        assertTrue(ob instanceof List<?>);
-        assertEquals(1, ((List<?>) ob).size());
-
+        assertEquals(EXP, MAPPER
+                .readerFor(Object.class)
+                .readValue(JSON));
+        assertEquals(EXP, MAPPER
+                .readerFor(Object.class)
+                .readValue(new StringReader(JSON)));
+        
         // but also failure mode(s)
         try {
             MAPPER.readerFor(Object.class)
@@ -224,6 +232,19 @@ public class ObjectReaderTest extends DatabindTestUtil
     }
 
     @Test
+    public void testJsonReadFeatures() throws Exception
+    {
+        ObjectReader r = MAPPER.reader();
+
+        r = r.withFeatures(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,
+                JsonReadFeature.ALLOW_JAVA_COMMENTS);
+
+        ObjectReader r2 = r.withoutFeatures(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,
+                JsonReadFeature.ALLOW_JAVA_COMMENTS);
+        assertNotSame(r, r2);
+    }
+
+    @Test
     public void testDatatypeFeatures() throws Exception
     {
         ObjectReader r = MAPPER.reader();
@@ -291,16 +312,6 @@ public class ObjectReaderTest extends DatabindTestUtil
      */
 
     @Test
-    public void testParserConfigViaReader() throws Exception
-    {
-        try (JsonParser p = MAPPER.reader()
-                .with(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
-                .createParser("[ ]")) {
-            assertTrue(p.isEnabled(StreamReadFeature.STRICT_DUPLICATE_DETECTION));
-        }
-    }
-
-    @Test
     void createParserVariants() throws Exception
     {
         final ObjectReader R = MAPPER.reader();
@@ -336,8 +347,45 @@ public class ObjectReaderTest extends DatabindTestUtil
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.END_ARRAY, p.nextToken());
         }
+
+        try (JsonParser p = R.createParser("[]".toCharArray(), 0, 2)) {
+            assertNotNull(p);
+        }
     }
-    
+
+    @Test
+    public void testParserConfigViaReader() throws Exception
+    {
+        try (JsonParser p = MAPPER.reader()
+                .with(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
+                .createParser("[ ]")) {
+            assertTrue(p.isEnabled(StreamReadFeature.STRICT_DUPLICATE_DETECTION));
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, readValues() variants
+    /**********************************************************************
+     */
+
+    public void testReadValuesVariants()
+    {
+        final ObjectReader R = MAPPER.reader();
+        try (JsonParser p = R.createParser("[]")) {
+            assertNotNull(R.readValues(p, List.class));
+        }
+        try (JsonParser p = R.createParser("[]")) {
+            assertNotNull(R.readValues(p, R.constructType(List.class)));
+        }
+        try (JsonParser p = R.createParser("[]")) {
+            assertNotNull(R.readValues(p, (ResolvedType) R.constructType(List.class)));
+        }
+        try (JsonParser p = R.createParser("[]")) {
+            assertNotNull(R.readValues(p, new TypeReference<List<String>>() { }));
+        }
+    }
+
     /*
     /**********************************************************************
     /* Test methods, JsonPointer
@@ -578,7 +626,8 @@ public class ObjectReaderTest extends DatabindTestUtil
     @Test
     public void testCustomArrayNode() throws Exception
     {
-        ArrayNode defaultNode = (ArrayNode) MAPPER.readTree("[{\"x\": 1, \"y\": 2}]");
+        ArrayNode defaultNode = (ArrayNode) MAPPER.readTree(
+                new StringReader("[{\"x\": 1, \"y\": 2}]"));
         DelegatingArrayNode customArrayNode = new DelegatingArrayNode(defaultNode);
         Point[] points = MAPPER.readerFor(Point[].class).readValue(customArrayNode);
         Point point = points[0];

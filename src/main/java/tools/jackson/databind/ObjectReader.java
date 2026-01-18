@@ -1,6 +1,7 @@
 package tools.jackson.databind;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -845,6 +846,29 @@ public class ObjectReader
      */
     public TypeFactory typeFactory() {
         return _config.getTypeFactory();
+    }
+
+    /**
+     * Convenience method for constructing {@link JavaType} out of given
+     * type (typically <code>java.lang.Class</code>), but without explicit
+     * context.
+     *
+     * @since 3.1
+     */
+    public JavaType constructType(Type type) {
+        _assertNotNull("type", type);
+        return _config.getTypeFactory().constructType(type);
+    }
+
+    /**
+     * Convenience method for constructing {@link JavaType} out of given
+     * type reference.
+     *
+     * @since 3.1
+     */
+    public JavaType constructType(TypeReference<?> typeReference) {
+        _assertNotNull("typeReference", typeReference);
+        return _config.getTypeFactory().constructType(typeReference);
     }
 
     public ContextAttributes getAttributes() {

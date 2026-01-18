@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.Version;
+import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.jdk.NumberDeserializers;
@@ -184,6 +185,11 @@ public class IntrospectorPairTest extends DatabindTestUtil
             return values.get("findTypeResolverBuilder");
         }
 
+        @Override
+        public Boolean isTypeId(MapperConfig<?> config, AnnotatedMember member) {
+            return (Boolean) values.get("isTypeId");
+        }
+
         /*
         /******************************************************
         /* General member (field, method/constructor) annotations
@@ -214,6 +220,11 @@ public class IntrospectorPairTest extends DatabindTestUtil
         @Override
         public Boolean hasAnyGetter(MapperConfig<?> config, Annotated ann) {
             return (Boolean) values.get("hasAnyGetter");
+        }
+
+        @Override
+        public JsonSerialize.Typing findSerializationTyping(MapperConfig<?> config, Annotated a) {
+            return (JsonSerialize.Typing) values.get("findSerializationTyping");
         }
 
         /*
@@ -626,6 +637,31 @@ public class IntrospectorPairTest extends DatabindTestUtil
     }
 
     @Test
+    public void testFindSerializationTyping() throws Exception
+    {
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findSerializationTyping", JsonSerialize.Typing.STATIC);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("findSerializationTyping", JsonSerialize.Typing.DYNAMIC);
+
+        // Both null -> null
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
+                .findSerializationTyping(null, null));
+
+        // Primary takes precedence
+        assertEquals(JsonSerialize.Typing.STATIC,
+                new AnnotationIntrospectorPair(intr1, intr2).findSerializationTyping(null, null));
+        assertEquals(JsonSerialize.Typing.DYNAMIC,
+                new AnnotationIntrospectorPair(intr2, intr1).findSerializationTyping(null, null));
+
+        // If primary returns null, secondary is used
+        assertEquals(JsonSerialize.Typing.STATIC,
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr1).findSerializationTyping(null, null));
+        assertEquals(JsonSerialize.Typing.DYNAMIC,
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2).findSerializationTyping(null, null));
+    }
+
+    @Test
     public void testHasAsValue() throws Exception
     {
         IntrospectorWithMap intr1 = new IntrospectorWithMap()
@@ -884,6 +920,30 @@ public class IntrospectorPairTest extends DatabindTestUtil
                 new AnnotationIntrospectorPair(intr1, intr2).findTypeName(null, null));
         assertEquals("type2",
                 new AnnotationIntrospectorPair(intr2, intr1).findTypeName(null, null));
+    }
+
+    @Test
+    public void testIsTypeId() {
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("isTypeId", Boolean.TRUE);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("isTypeId", Boolean.FALSE);
+
+        // Both null -> null
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
+                .isTypeId(null, null));
+
+        // Primary takes precedence
+        assertEquals(Boolean.TRUE,
+                new AnnotationIntrospectorPair(intr1, intr2).isTypeId(null, null));
+        assertEquals(Boolean.FALSE,
+                new AnnotationIntrospectorPair(intr2, intr1).isTypeId(null, null));
+
+        // If primary returns null, secondary is used
+        assertEquals(Boolean.TRUE,
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr1).isTypeId(null, null));
+        assertEquals(Boolean.FALSE,
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2).isTypeId(null, null));
     }
 
     /*

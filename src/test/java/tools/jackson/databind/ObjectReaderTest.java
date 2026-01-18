@@ -14,6 +14,7 @@ import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.databind.cfg.ContextAttributes;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
@@ -37,9 +38,9 @@ public class ObjectReaderTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, simple read/write with defaults
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -111,9 +112,9 @@ public class ObjectReaderTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, some alternative JSON settings
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -171,13 +172,13 @@ public class ObjectReaderTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, config setting verification
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
-    public void testFeatureSettings() throws Exception
+    public void testDeserializationFeatures() throws Exception
     {
         ObjectReader r = MAPPER.reader();
         assertFalse(r.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
@@ -199,13 +200,42 @@ public class ObjectReaderTest extends DatabindTestUtil
         // and another one
         assertSame(r, r.with(r.getConfig()));
 
-        // and with StreamReadFeatures
-        r = MAPPER.reader();
+    }
+
+    @Test
+    public void testStreamReadFeatures() throws Exception
+    {
+        ObjectReader r = MAPPER.reader();
         assertFalse(r.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
         ObjectReader r2 = r.with(StreamReadFeature.IGNORE_UNDEFINED);
         assertTrue(r2.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
         ObjectReader r3 = r2.without(StreamReadFeature.IGNORE_UNDEFINED);
         assertFalse(r3.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
+
+        r = r.withFeatures(StreamReadFeature.AUTO_CLOSE_SOURCE,
+                StreamReadFeature.CLEAR_CURRENT_TOKEN_ON_CLOSE);
+        assertTrue(r.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
+        assertTrue(r.isEnabled(StreamReadFeature.CLEAR_CURRENT_TOKEN_ON_CLOSE));
+
+        r = r.withoutFeatures(StreamReadFeature.AUTO_CLOSE_SOURCE,
+                StreamReadFeature.CLEAR_CURRENT_TOKEN_ON_CLOSE);
+        assertFalse(r.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
+        assertFalse(r.isEnabled(StreamReadFeature.CLEAR_CURRENT_TOKEN_ON_CLOSE));
+    }
+
+    @Test
+    public void testDatatypeFeatures() throws Exception
+    {
+        ObjectReader r = MAPPER.reader();
+        r = r.withFeatures(EnumFeature.READ_ENUM_KEYS_USING_INDEX,
+                EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
+        assertTrue(r.isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX));
+        assertTrue(r.isEnabled(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS));
+
+        r = r.withoutFeatures(EnumFeature.READ_ENUM_KEYS_USING_INDEX,
+                EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
+        assertFalse(r.isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX));
+        assertFalse(r.isEnabled(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS));
     }
 
     @Test
@@ -254,6 +284,12 @@ public class ObjectReaderTest extends DatabindTestUtil
         assertEquals(MAPPER.constructType(String.class), r.getValueType());
     }
 
+    /*
+    /**********************************************************************
+    /* Test methods, createParser() variants
+    /**********************************************************************
+     */
+
     @Test
     public void testParserConfigViaReader() throws Exception
     {
@@ -265,20 +301,47 @@ public class ObjectReaderTest extends DatabindTestUtil
     }
 
     @Test
-    public void testGeneratorConfigViaReader() throws Exception
+    void createParserVariants() throws Exception
     {
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator g = MAPPER.writer()
-                .with(StreamWriteFeature.IGNORE_UNKNOWN)
-                .createGenerator(sw)) {
-            assertTrue(g.isEnabled(StreamWriteFeature.IGNORE_UNKNOWN));
+        final ObjectReader R = MAPPER.reader();
+        File f = _createFileWithNameAndJson("test.json", "{}");
+        try (JsonParser p = R.createParser(f)) {
+            assertNotNull(p);
+        }
+        try (JsonParser p = R.createParser(f.toPath())) {
+            assertNotNull(p);
+        }
+        f.delete();
+
+        try (JsonParser p = R.createParser(
+                new ByteArrayInputStream("{}".getBytes(StandardCharsets.UTF_8)))) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+        }
+        try (JsonParser p = R.createParser(new StringReader("[]"))) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+        }
+        try (JsonParser p = R.createParser(new byte[0])) {
+            assertNotNull(p);
+        }
+        try (JsonParser p = R.createParser(new byte[0], 0, 0)) {
+            assertNotNull(p);
+        }
+        try (JsonParser p = R.createParser("[]")) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+        }
+        try (JsonParser p = R.createParser("[]".toCharArray())) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
         }
     }
-
+    
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, JsonPointer
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -384,11 +447,23 @@ public class ObjectReaderTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
-    /* Test methods, ObjectCodec
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods, other
+    /**********************************************************************
      */
 
+    @Test
+    public void testJsonNodeCreation() throws Exception
+    {
+        final ObjectReader R = MAPPER.reader();
+        assertTrue(R.createArrayNode().isArray());
+        assertTrue(R.createObjectNode().isObject());
+        assertTrue(R.booleanNode(true).isBoolean());
+        assertTrue(R.nullNode().isNull());
+        assertTrue(R.missingNode().isMissingNode());
+        assertTrue(R.stringNode("abc").isString());
+    }
+    
     @Test
     public void testTreeToValue() throws Exception
     {
@@ -419,9 +494,9 @@ public class ObjectReaderTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, failures, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -446,8 +521,7 @@ public class ObjectReaderTest extends DatabindTestUtil
 
         try {
             // but not schema that doesn't match format (no schema exists for json)
-            r = r.with(new BogusSchema())
-                .readValue(q("foo"));
+            r = r.with(new BogusSchema());
 
             fail("Should not pass");
         } catch (IllegalArgumentException e) {

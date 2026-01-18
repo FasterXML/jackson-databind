@@ -1047,23 +1047,18 @@ public class ObjectReader
      */
 
     @Override
-    public ObjectNode createObjectNode() {
-        return _config.getNodeFactory().objectNode();
-    }
-
-    @Override
     public ArrayNode createArrayNode() {
         return _config.getNodeFactory().arrayNode();
     }
 
     @Override
-    public JsonNode booleanNode(boolean b) {
-        return _config.getNodeFactory().booleanNode(b);
+    public ObjectNode createObjectNode() {
+        return _config.getNodeFactory().objectNode();
     }
 
     @Override
-    public JsonNode stringNode(String text) {
-        return _config.getNodeFactory().stringNode(text);
+    public JsonNode booleanNode(boolean b) {
+        return _config.getNodeFactory().booleanNode(b);
     }
 
     @Override
@@ -1076,6 +1071,11 @@ public class ObjectReader
         return _config.getNodeFactory().nullNode();
     }
 
+    @Override
+    public JsonNode stringNode(String text) {
+        return _config.getNodeFactory().stringNode(text);
+    }
+    
     @Override
     public JsonParser treeAsTokens(JsonNode n) {
         _assertNotNull("n", n);

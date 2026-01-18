@@ -250,6 +250,66 @@ public class IntrospectorPairTest extends DatabindTestUtil
 
         /*
         /******************************************************
+        /* Enum introspection
+        /******************************************************
+         */
+
+        @Override
+        public String[] findEnumValues(MapperConfig<?> config, AnnotatedClass annotatedClass,
+                Enum<?>[] enumValues, String[] names) {
+            String[] overrides = (String[]) values.get("findEnumValues");
+            if (overrides != null) {
+                for (int i = 0; i < overrides.length; i++) {
+                    if (overrides[i] != null) {
+                        names[i] = overrides[i];
+                    }
+                }
+            }
+            return names;
+        }
+
+        @Override
+        public void findEnumAliases(MapperConfig<?> config, AnnotatedClass annotatedClass,
+                Enum<?>[] enumValues, String[][] aliases) {
+            String[][] overrides = (String[][]) values.get("findEnumAliases");
+            if (overrides != null) {
+                for (int i = 0; i < overrides.length && i < aliases.length; i++) {
+                    if (overrides[i] != null) {
+                        aliases[i] = overrides[i];
+                    }
+                }
+            }
+        }
+
+        @Override
+        public Enum<?> findDefaultEnumValue(MapperConfig<?> config,
+                AnnotatedClass ac, Enum<?>[] enumValues) {
+            return (Enum<?>) values.get("findDefaultEnumValue");
+        }
+
+        @Override
+        public Object findEnumNamingStrategy(MapperConfig<?> config, AnnotatedClass ac) {
+            return values.get("findEnumNamingStrategy");
+        }
+
+        /*
+        /******************************************************
+        /* Deserializer finding methods
+        /******************************************************
+         */
+
+        @Override
+        public Object findKeyDeserializer(MapperConfig<?> config, Annotated am) {
+            return values.get("findKeyDeserializer");
+        }
+
+        @Override
+        public Object findContentDeserializer(MapperConfig<?> config, Annotated am) {
+            return values.get("findContentDeserializer");
+        }
+
+        /*
+        /******************************************************
         /* Helper methods
         /******************************************************
          */
@@ -282,6 +342,14 @@ public class IntrospectorPairTest extends DatabindTestUtil
                 new AnnotationIntrospectorPair(noVersion, withVersion).version());
     }
 
+    @Test
+    public void testCreate() throws Exception
+    {
+        assertNotNull(AnnotationIntrospectorPair.create(NO_ANNOTATIONS, NO_ANNOTATIONS));
+        assertNotNull(AnnotationIntrospectorPair.create(NO_ANNOTATIONS, null));
+        assertNotNull(AnnotationIntrospectorPair.create(null, NO_ANNOTATIONS));
+    }
+    
     @Test
     public void testAccess() throws Exception
     {
@@ -661,6 +729,68 @@ public class IntrospectorPairTest extends DatabindTestUtil
         assertNull(new AnnotationIntrospectorPair(nop2, nop).findDeserializer(null, null));
     }
 
+    @Test
+    public void testFindKeyDeserializer() throws Exception
+    {
+        final ValueDeserializer<?> deserString = StringDeserializer.instance;
+        final ValueDeserializer<?> deserBoolean = NumberDeserializers.find(Boolean.TYPE);
+
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findKeyDeserializer", deserString);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("findKeyDeserializer", deserBoolean);
+        AnnotationIntrospector nop = AnnotationIntrospector.nopInstance();
+        IntrospectorWithMap nop2 = new IntrospectorWithMap()
+                .add("findKeyDeserializer", KeyDeserializer.None.class);
+
+        // Primary takes precedence when both have values
+        assertSame(deserString,
+                new AnnotationIntrospectorPair(intr1, intr2).findKeyDeserializer(null, null));
+        assertSame(deserBoolean,
+                new AnnotationIntrospectorPair(intr2, intr1).findKeyDeserializer(null, null));
+
+        // No-op instance should not block real one
+        assertSame(deserString,
+                new AnnotationIntrospectorPair(nop, intr1).findKeyDeserializer(null, null));
+        assertSame(deserString,
+                new AnnotationIntrospectorPair(nop2, intr1).findKeyDeserializer(null, null));
+
+        // No-ops should result in null
+        assertNull(new AnnotationIntrospectorPair(nop, nop2).findKeyDeserializer(null, null));
+        assertNull(new AnnotationIntrospectorPair(nop2, nop).findKeyDeserializer(null, null));
+    }
+
+    @Test
+    public void testFindContentDeserializer() throws Exception
+    {
+        final ValueDeserializer<?> deserString = StringDeserializer.instance;
+        final ValueDeserializer<?> deserBoolean = NumberDeserializers.find(Boolean.TYPE);
+
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findContentDeserializer", deserString);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("findContentDeserializer", deserBoolean);
+        AnnotationIntrospector nop = AnnotationIntrospector.nopInstance();
+        IntrospectorWithMap nop2 = new IntrospectorWithMap()
+                .add("findContentDeserializer", ValueDeserializer.None.class);
+
+        // Primary takes precedence when both have values
+        assertSame(deserString,
+                new AnnotationIntrospectorPair(intr1, intr2).findContentDeserializer(null, null));
+        assertSame(deserBoolean,
+                new AnnotationIntrospectorPair(intr2, intr1).findContentDeserializer(null, null));
+
+        // No-op instance should not block real one
+        assertSame(deserString,
+                new AnnotationIntrospectorPair(nop, intr1).findContentDeserializer(null, null));
+        assertSame(deserString,
+                new AnnotationIntrospectorPair(nop2, intr1).findContentDeserializer(null, null));
+
+        // No-ops should result in null
+        assertNull(new AnnotationIntrospectorPair(nop, nop2).findContentDeserializer(null, null));
+        assertNull(new AnnotationIntrospectorPair(nop2, nop).findContentDeserializer(null, null));
+    }
+
     /*
     /******************************************************
     /* Property auto-detection
@@ -754,6 +884,130 @@ public class IntrospectorPairTest extends DatabindTestUtil
                 new AnnotationIntrospectorPair(intr1, intr2).findTypeName(null, null));
         assertEquals("type2",
                 new AnnotationIntrospectorPair(intr2, intr1).findTypeName(null, null));
+    }
+
+    /*
+    /******************************************************
+    /* Enum introspection
+    /******************************************************
+     */
+
+    @Test
+    public void testFindEnumValues() {
+        // Secondary sets names for indices 0 and 1
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findEnumValues", new String[] { "PRIMARY_A", null, "PRIMARY_C" });
+        // Primary sets names for indices 0 and 2
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("findEnumValues", new String[] { "SECONDARY_A", "SECONDARY_B", null });
+
+        String[] defaultNames = new String[] { "A", "B", "C" };
+
+        // With no introspectors returning values, names should be unchanged
+        String[] result = new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
+                .findEnumValues(null, null, null, defaultNames.clone());
+        assertArrayEquals(new String[] { "A", "B", "C" }, result);
+
+        // Primary takes precedence: secondary runs first, then primary overwrites
+        // So index 0 -> PRIMARY_A (primary wins), index 1 -> SECONDARY_B, index 2 -> PRIMARY_C
+        result = new AnnotationIntrospectorPair(intr1, intr2)
+                .findEnumValues(null, null, null, defaultNames.clone());
+        assertArrayEquals(new String[] { "PRIMARY_A", "SECONDARY_B", "PRIMARY_C" }, result);
+
+        // Reversed order: intr2 is primary now
+        // So index 0 -> SECONDARY_A (primary wins), index 1 -> SECONDARY_B, index 2 -> PRIMARY_C
+        result = new AnnotationIntrospectorPair(intr2, intr1)
+                .findEnumValues(null, null, null, defaultNames.clone());
+        assertArrayEquals(new String[] { "SECONDARY_A", "SECONDARY_B", "PRIMARY_C" }, result);
+    }
+
+    @Test
+    public void testFindEnumAliases() {
+        // Primary sets aliases for index 0
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findEnumAliases", new String[][] { new String[] { "p_alias1" }, null, null });
+        // Secondary sets aliases for indices 0 and 1
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("findEnumAliases", new String[][] { new String[] { "s_alias1" }, new String[] { "s_alias2" }, null });
+
+        String[][] aliases = new String[3][];
+
+        // With no introspectors, aliases should remain null
+        new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
+                .findEnumAliases(null, null, null, aliases);
+        assertNull(aliases[0]);
+        assertNull(aliases[1]);
+        assertNull(aliases[2]);
+
+        // Primary takes precedence: secondary runs first, then primary overwrites
+        aliases = new String[3][];
+        new AnnotationIntrospectorPair(intr1, intr2)
+                .findEnumAliases(null, null, null, aliases);
+        // Index 0: primary overwrites secondary
+        assertArrayEquals(new String[] { "p_alias1" }, aliases[0]);
+        // Index 1: only secondary sets it
+        assertArrayEquals(new String[] { "s_alias2" }, aliases[1]);
+        // Index 2: neither sets it
+        assertNull(aliases[2]);
+
+        // Reversed order
+        aliases = new String[3][];
+        new AnnotationIntrospectorPair(intr2, intr1)
+                .findEnumAliases(null, null, null, aliases);
+        // Index 0: intr2 (now primary) overwrites intr1 (now secondary)
+        assertArrayEquals(new String[] { "s_alias1" }, aliases[0]);
+        // Index 1: only intr2 sets it
+        assertArrayEquals(new String[] { "s_alias2" }, aliases[1]);
+        assertNull(aliases[2]);
+    }
+
+    @Test
+    public void testFindDefaultEnumValue() {
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findDefaultEnumValue", SimpleEnum.ONE);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("findDefaultEnumValue", SimpleEnum.TWO);
+
+        // Both null -> null
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
+                .findDefaultEnumValue(null, null, null));
+
+        // Primary takes precedence
+        assertEquals(SimpleEnum.ONE,
+                new AnnotationIntrospectorPair(intr1, intr2).findDefaultEnumValue(null, null, null));
+        assertEquals(SimpleEnum.TWO,
+                new AnnotationIntrospectorPair(intr2, intr1).findDefaultEnumValue(null, null, null));
+
+        // If primary returns null, secondary is used
+        assertEquals(SimpleEnum.ONE,
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr1).findDefaultEnumValue(null, null, null));
+        assertEquals(SimpleEnum.TWO,
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2).findDefaultEnumValue(null, null, null));
+    }
+
+    @Test
+    public void testFindEnumNamingStrategy() {
+        // Using Class objects as stand-ins for enum naming strategies
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findEnumNamingStrategy", Integer.class);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("findEnumNamingStrategy", String.class);
+
+        // Both null -> null
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
+                .findEnumNamingStrategy(null, null));
+
+        // Primary takes precedence
+        assertEquals(Integer.class,
+                new AnnotationIntrospectorPair(intr1, intr2).findEnumNamingStrategy(null, null));
+        assertEquals(String.class,
+                new AnnotationIntrospectorPair(intr2, intr1).findEnumNamingStrategy(null, null));
+
+        // If primary returns null, secondary is used
+        assertEquals(Integer.class,
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr1).findEnumNamingStrategy(null, null));
+        assertEquals(String.class,
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2).findEnumNamingStrategy(null, null));
     }
 
     /*

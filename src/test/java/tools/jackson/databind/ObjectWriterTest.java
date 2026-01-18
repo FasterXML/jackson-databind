@@ -67,7 +67,7 @@ public class ObjectWriterTest
     public void testPrettyPrinter() throws Exception
     {
         ObjectWriter writer = MAPPER.writer();
-        HashMap<String, Integer> data = new HashMap<String,Integer>();
+        HashMap<String, Integer> data = new HashMap<>();
         data.put("a", 1);
 
         // default: no indentation
@@ -110,11 +110,14 @@ public class ObjectWriterTest
     @Test
     public void testObjectWriterWithNode() throws Exception
     {
-        ObjectNode stuff = MAPPER.createObjectNode();
+        ObjectWriter W = MAPPER.writer();
+        ObjectNode stuff = W.createObjectNode();
         stuff.put("a", 5);
         ObjectWriter writer = MAPPER.writerFor(JsonNode.class);
         String json = writer.writeValueAsString(stuff);
         assertEquals("{\"a\":5}", json);
+
+        assertTrue(W.createArrayNode().isArray());
     }
 
     @Test
@@ -309,8 +312,7 @@ public class ObjectWriterTest
         }
         try {
             MAPPER.writerFor(String.class)
-                .with(new BogusSchema())
-                .writeValueAsBytes("foo");
+                .with(new BogusSchema());
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
             verifyException(e, "Cannot use FormatSchema");

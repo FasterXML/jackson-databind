@@ -46,11 +46,11 @@ public class ObjectReaderTest extends DatabindTestUtil
     public void testSimpleViaParser() throws Exception
     {
         final String JSON = "[1]";
-        JsonParser p = MAPPER.createParser(JSON);
-        Object ob = MAPPER.readerFor(Object.class)
-                .readValue(p);
-        p.close();
-        assertTrue(ob instanceof List<?>);
+        try (JsonParser p = MAPPER.createParser(JSON)) {
+            Object ob = MAPPER.readerFor(Object.class)
+                    .readValue(p);
+            assertTrue(ob instanceof List<?>);
+        }
     }
 
     @Test

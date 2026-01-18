@@ -1,13 +1,12 @@
 package tools.jackson.databind;
 
 import java.io.*;
-import java.nio.file.Files;
+import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import tools.jackson.core.*;
-import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.filter.FilteringParserDelegate;
 import tools.jackson.core.filter.JsonPointerBasedFilter;
 import tools.jackson.core.filter.TokenFilter;
@@ -847,6 +846,29 @@ public class ObjectReader
         return _config.getTypeFactory();
     }
 
+    /**
+     * Convenience method for constructing {@link JavaType} out of given
+     * type (typically <code>java.lang.Class</code>), but without explicit
+     * context.
+     *
+     * @since 3.1
+     */
+    public JavaType constructType(Type type) {
+        _assertNotNull("type", type);
+        return _config.getTypeFactory().constructType(type);
+    }
+
+    /**
+     * Convenience method for constructing {@link JavaType} out of given
+     * type reference.
+     *
+     * @since 3.1
+     */
+    public JavaType constructType(TypeReference<?> typeReference) {
+        _assertNotNull("typeReference", typeReference);
+        return _config.getTypeFactory().constructType(typeReference);
+    }
+
     public ContextAttributes getAttributes() {
         return _config.getAttributes();
     }
@@ -1047,23 +1069,18 @@ public class ObjectReader
      */
 
     @Override
-    public ObjectNode createObjectNode() {
-        return _config.getNodeFactory().objectNode();
-    }
-
-    @Override
     public ArrayNode createArrayNode() {
         return _config.getNodeFactory().arrayNode();
     }
 
     @Override
-    public JsonNode booleanNode(boolean b) {
-        return _config.getNodeFactory().booleanNode(b);
+    public ObjectNode createObjectNode() {
+        return _config.getNodeFactory().objectNode();
     }
 
     @Override
-    public JsonNode stringNode(String text) {
-        return _config.getNodeFactory().stringNode(text);
+    public JsonNode booleanNode(boolean b) {
+        return _config.getNodeFactory().booleanNode(b);
     }
 
     @Override
@@ -1076,6 +1093,11 @@ public class ObjectReader
         return _config.getNodeFactory().nullNode();
     }
 
+    @Override
+    public JsonNode stringNode(String text) {
+        return _config.getNodeFactory().stringNode(text);
+    }
+    
     @Override
     public JsonParser treeAsTokens(JsonNode n) {
         _assertNotNull("n", n);
@@ -1957,8 +1979,8 @@ public class ObjectReader
         if (t == null) {
             t = p.nextToken();
             if (t == null) {
-                // [databind#2211]: return `MissingNode` (supercedes [databind#1406] which dictated
-                // returning `null`
+                // [databind#2211]: return `MissingNode` (supercedes [databind#1406]
+                // which dictated returning `null`)
                 return _config.getNodeFactory().missingNode();
             }
         }
@@ -2075,22 +2097,6 @@ public class ObjectReader
     protected DeserializationContextExt _deserializationContext(JsonParser p) {
         return _contexts.createContext(_config, _schema, _injectableValues)
                 .assignParser(p);
-    }
-
-    protected InputStream _inputStream(File f) throws JacksonException {
-        try {
-            return new FileInputStream(f);
-        } catch (IOException e) {
-            throw JacksonIOException.construct(e);
-        }
-    }
-
-    protected InputStream _inputStream(Path path) throws JacksonException {
-        try {
-            return Files.newInputStream(path);
-        } catch (IOException e) {
-            throw JacksonIOException.construct(e);
-        }
     }
 
     protected final void _assertNotNull(String paramName, Object src) {

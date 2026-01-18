@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import tools.jackson.core.*;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.json.JsonWriteFeature;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -67,7 +68,7 @@ public class ObjectWriterTest
     public void testPrettyPrinter() throws Exception
     {
         ObjectWriter writer = MAPPER.writer();
-        HashMap<String, Integer> data = new HashMap<String,Integer>();
+        HashMap<String, Integer> data = new HashMap<>();
         data.put("a", 1);
 
         // default: no indentation
@@ -99,7 +100,7 @@ public class ObjectWriterTest
     {
         ObjectWriter writer = MAPPER.writer()
                 .without(JsonWriteFeature.QUOTE_PROPERTY_NAMES);
-        Map<String,Integer> map = new HashMap<String,Integer>();
+        Map<String,Integer> map = new HashMap<>();
         map.put("a", 1);
         assertEquals("{a:1}", writer.writeValueAsString(map));
         // but can also reconfigure
@@ -110,11 +111,14 @@ public class ObjectWriterTest
     @Test
     public void testObjectWriterWithNode() throws Exception
     {
-        ObjectNode stuff = MAPPER.createObjectNode();
+        ObjectWriter W = MAPPER.writer();
+        ObjectNode stuff = W.createObjectNode();
         stuff.put("a", 5);
         ObjectWriter writer = MAPPER.writerFor(JsonNode.class);
         String json = writer.writeValueAsString(stuff);
         assertEquals("{\"a\":5}", json);
+
+        assertTrue(W.createArrayNode().isArray());
     }
 
     @Test
@@ -273,10 +277,25 @@ public class ObjectWriterTest
         ObjectWriter w = MAPPER.writer();
         assertNotSame(w, w.with(JsonWriteFeature.ESCAPE_NON_ASCII));
         assertNotSame(w, w.withFeatures(JsonWriteFeature.ESCAPE_NON_ASCII));
-
+        assertSame(w, w.without(JsonWriteFeature.ESCAPE_NON_ASCII));
+        assertSame(w, w.withoutFeatures(JsonWriteFeature.ESCAPE_NON_ASCII));
+        
         assertTrue(w.isEnabled(StreamWriteFeature.AUTO_CLOSE_TARGET));
         assertNotSame(w, w.without(StreamWriteFeature.AUTO_CLOSE_TARGET));
         assertNotSame(w, w.withoutFeatures(StreamWriteFeature.AUTO_CLOSE_TARGET));
+        assertSame(w, w.with(StreamWriteFeature.AUTO_CLOSE_TARGET));
+        assertSame(w, w.withFeatures(StreamWriteFeature.AUTO_CLOSE_TARGET));
+    }
+
+    @Test
+    public void testDatatypeFeatures() throws Exception
+    {
+        ObjectWriter w = MAPPER.writer();
+
+        assertNotNull(w.withFeatures(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS,
+                EnumFeature.WRITE_ENUM_KEYS_USING_INDEX));
+        assertNotNull(w.withoutFeatures(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS,
+                EnumFeature.WRITE_ENUM_KEYS_USING_INDEX));
     }
 
     /*
@@ -309,12 +328,14 @@ public class ObjectWriterTest
         }
         try {
             MAPPER.writerFor(String.class)
-                .with(new BogusSchema())
-                .writeValueAsBytes("foo");
+                .with(new BogusSchema());
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
             verifyException(e, "Cannot use FormatSchema");
         }
+
+        // But this is ok:
+        assertNotNull(MAPPER.writer((FormatSchema) null));
     }
 
     @Test

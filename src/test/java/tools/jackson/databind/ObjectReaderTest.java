@@ -13,7 +13,10 @@ import tools.jackson.core.*;
 import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonReadFeature;
+import tools.jackson.core.type.ResolvedType;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.cfg.ContextAttributes;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
@@ -37,20 +40,20 @@ public class ObjectReaderTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, simple read/write with defaults
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
     public void testSimpleViaParser() throws Exception
     {
         final String JSON = "[1]";
-        JsonParser p = MAPPER.createParser(JSON);
-        Object ob = MAPPER.readerFor(Object.class)
-                .readValue(p);
-        p.close();
-        assertTrue(ob instanceof List<?>);
+        try (JsonParser p = MAPPER.createParser(JSON)) {
+            Object ob = MAPPER.readerFor(Object.class)
+                    .readValue(p);
+            assertTrue(ob instanceof List<?>);
+        }
     }
 
     @Test
@@ -58,15 +61,21 @@ public class ObjectReaderTest extends DatabindTestUtil
     {
         final String JSON = "[1]";
         final byte[] BYTES = JSON.getBytes("UTF-8");
-        Object ob = MAPPER.readerFor(Object.class)
-                .readValue(BYTES);
-        assertTrue(ob instanceof List<?>);
+        final Object EXP = Arrays.asList(1);
+        assertEquals(EXP, MAPPER
+                .readerFor(Object.class)
+                .readValue(BYTES));
+        assertEquals(EXP, MAPPER
+                .readerFor(Object.class)
+                .readValue(BYTES, 0, BYTES.length));
 
-        ob = MAPPER.readerFor(Object.class)
-                .readValue(BYTES, 0, BYTES.length);
-        assertTrue(ob instanceof List<?>);
-        assertEquals(1, ((List<?>) ob).size());
-
+        assertEquals(EXP, MAPPER
+                .readerFor(Object.class)
+                .readValue(JSON));
+        assertEquals(EXP, MAPPER
+                .readerFor(Object.class)
+                .readValue(new StringReader(JSON)));
+        
         // but also failure mode(s)
         try {
             MAPPER.readerFor(Object.class)
@@ -111,9 +120,9 @@ public class ObjectReaderTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, some alternative JSON settings
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -171,13 +180,13 @@ public class ObjectReaderTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, config setting verification
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
-    public void testFeatureSettings() throws Exception
+    public void testDeserializationFeatures() throws Exception
     {
         ObjectReader r = MAPPER.reader();
         assertFalse(r.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
@@ -199,13 +208,55 @@ public class ObjectReaderTest extends DatabindTestUtil
         // and another one
         assertSame(r, r.with(r.getConfig()));
 
-        // and with StreamReadFeatures
-        r = MAPPER.reader();
+    }
+
+    @Test
+    public void testStreamReadFeatures() throws Exception
+    {
+        ObjectReader r = MAPPER.reader();
         assertFalse(r.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
         ObjectReader r2 = r.with(StreamReadFeature.IGNORE_UNDEFINED);
         assertTrue(r2.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
         ObjectReader r3 = r2.without(StreamReadFeature.IGNORE_UNDEFINED);
         assertFalse(r3.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
+
+        r = r.withFeatures(StreamReadFeature.AUTO_CLOSE_SOURCE,
+                StreamReadFeature.CLEAR_CURRENT_TOKEN_ON_CLOSE);
+        assertTrue(r.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
+        assertTrue(r.isEnabled(StreamReadFeature.CLEAR_CURRENT_TOKEN_ON_CLOSE));
+
+        r = r.withoutFeatures(StreamReadFeature.AUTO_CLOSE_SOURCE,
+                StreamReadFeature.CLEAR_CURRENT_TOKEN_ON_CLOSE);
+        assertFalse(r.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
+        assertFalse(r.isEnabled(StreamReadFeature.CLEAR_CURRENT_TOKEN_ON_CLOSE));
+    }
+
+    @Test
+    public void testJsonReadFeatures() throws Exception
+    {
+        ObjectReader r = MAPPER.reader();
+
+        r = r.withFeatures(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,
+                JsonReadFeature.ALLOW_JAVA_COMMENTS);
+
+        ObjectReader r2 = r.withoutFeatures(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,
+                JsonReadFeature.ALLOW_JAVA_COMMENTS);
+        assertNotSame(r, r2);
+    }
+
+    @Test
+    public void testDatatypeFeatures() throws Exception
+    {
+        ObjectReader r = MAPPER.reader();
+        r = r.withFeatures(EnumFeature.READ_ENUM_KEYS_USING_INDEX,
+                EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
+        assertTrue(r.isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX));
+        assertTrue(r.isEnabled(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS));
+
+        r = r.withoutFeatures(EnumFeature.READ_ENUM_KEYS_USING_INDEX,
+                EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
+        assertFalse(r.isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX));
+        assertFalse(r.isEnabled(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS));
     }
 
     @Test
@@ -254,6 +305,54 @@ public class ObjectReaderTest extends DatabindTestUtil
         assertEquals(MAPPER.constructType(String.class), r.getValueType());
     }
 
+    /*
+    /**********************************************************************
+    /* Test methods, createParser() variants
+    /**********************************************************************
+     */
+
+    @Test
+    void createParserVariants() throws Exception
+    {
+        final ObjectReader R = MAPPER.reader();
+        File f = _createFileWithNameAndJson("test.json", "{}");
+        try (JsonParser p = R.createParser(f)) {
+            assertNotNull(p);
+        }
+        try (JsonParser p = R.createParser(f.toPath())) {
+            assertNotNull(p);
+        }
+        f.delete();
+
+        try (JsonParser p = R.createParser(
+                new ByteArrayInputStream("{}".getBytes(StandardCharsets.UTF_8)))) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+        }
+        try (JsonParser p = R.createParser(new StringReader("[]"))) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+        }
+        try (JsonParser p = R.createParser(new byte[0])) {
+            assertNotNull(p);
+        }
+        try (JsonParser p = R.createParser(new byte[0], 0, 0)) {
+            assertNotNull(p);
+        }
+        try (JsonParser p = R.createParser("[]")) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+        }
+        try (JsonParser p = R.createParser("[]".toCharArray())) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+        }
+
+        try (JsonParser p = R.createParser("[]".toCharArray(), 0, 2)) {
+            assertNotNull(p);
+        }
+    }
+
     @Test
     public void testParserConfigViaReader() throws Exception
     {
@@ -264,21 +363,49 @@ public class ObjectReaderTest extends DatabindTestUtil
         }
     }
 
+    /*
+    /**********************************************************************
+    /* Test methods, readXxx() variants
+    /**********************************************************************
+     */
+
     @Test
-    public void testGeneratorConfigViaReader() throws Exception
+    public void testReadValuesVariants()
     {
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator g = MAPPER.writer()
-                .with(StreamWriteFeature.IGNORE_UNKNOWN)
-                .createGenerator(sw)) {
-            assertTrue(g.isEnabled(StreamWriteFeature.IGNORE_UNKNOWN));
+        final ObjectReader R = MAPPER.reader();
+        try (JsonParser p = R.createParser("[]")) {
+            assertNotNull(R.readValues(p, List.class));
+        }
+        try (JsonParser p = R.createParser("[]")) {
+            assertNotNull(R.readValues(p, R.constructType(List.class)));
+        }
+        try (JsonParser p = R.createParser("[]")) {
+            assertNotNull(R.readValues(p, (ResolvedType) R.constructType(List.class)));
+        }
+        try (JsonParser p = R.createParser("[]")) {
+            assertNotNull(R.readValues(p, new TypeReference<List<String>>() { }));
         }
     }
 
+    @Test
+    public void testReadTreeVariants()
+    {
+        final ObjectReader R = MAPPER.reader();
+        final String JSON = "[]";
+        final byte[] JSON_B = JSON.getBytes(StandardCharsets.UTF_8);
+        final JsonNode EXP = R.createArrayNode();
+
+        assertEquals(EXP, R.readTree(JSON));
+        assertEquals(EXP, R.readTree(new StringReader(JSON)));
+        assertEquals(EXP, R.readTree(JSON_B));
+        assertEquals(EXP, R.readTree(JSON_B, 0, JSON_B.length));
+        assertEquals(EXP, R.readTree(new ByteArrayInputStream(JSON_B)));
+    }
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, JsonPointer
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -384,11 +511,23 @@ public class ObjectReaderTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
-    /* Test methods, ObjectCodec
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods, other
+    /**********************************************************************
      */
 
+    @Test
+    public void testJsonNodeCreation() throws Exception
+    {
+        final ObjectReader R = MAPPER.reader();
+        assertTrue(R.createArrayNode().isArray());
+        assertTrue(R.createObjectNode().isObject());
+        assertTrue(R.booleanNode(true).isBoolean());
+        assertTrue(R.nullNode().isNull());
+        assertTrue(R.missingNode().isMissingNode());
+        assertTrue(R.stringNode("abc").isString());
+    }
+    
     @Test
     public void testTreeToValue() throws Exception
     {
@@ -419,9 +558,9 @@ public class ObjectReaderTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, failures, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -446,8 +585,7 @@ public class ObjectReaderTest extends DatabindTestUtil
 
         try {
             // but not schema that doesn't match format (no schema exists for json)
-            r = r.with(new BogusSchema())
-                .readValue(q("foo"));
+            r = r.with(new BogusSchema());
 
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
@@ -504,7 +642,8 @@ public class ObjectReaderTest extends DatabindTestUtil
     @Test
     public void testCustomArrayNode() throws Exception
     {
-        ArrayNode defaultNode = (ArrayNode) MAPPER.readTree("[{\"x\": 1, \"y\": 2}]");
+        ArrayNode defaultNode = (ArrayNode) MAPPER.readTree(
+                new StringReader("[{\"x\": 1, \"y\": 2}]"));
         DelegatingArrayNode customArrayNode = new DelegatingArrayNode(defaultNode);
         Point[] points = MAPPER.readerFor(Point[].class).readValue(customArrayNode);
         Point point = points[0];

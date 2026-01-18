@@ -365,10 +365,11 @@ public class ObjectReaderTest extends DatabindTestUtil
 
     /*
     /**********************************************************************
-    /* Test methods, readValues() variants
+    /* Test methods, readXxx() variants
     /**********************************************************************
      */
 
+    @Test
     public void testReadValuesVariants()
     {
         final ObjectReader R = MAPPER.reader();
@@ -384,6 +385,21 @@ public class ObjectReaderTest extends DatabindTestUtil
         try (JsonParser p = R.createParser("[]")) {
             assertNotNull(R.readValues(p, new TypeReference<List<String>>() { }));
         }
+    }
+
+    @Test
+    public void testReadTreeVariants()
+    {
+        final ObjectReader R = MAPPER.reader();
+        final String JSON = "[]";
+        final byte[] JSON_B = JSON.getBytes(StandardCharsets.UTF_8);
+        final JsonNode EXP = R.createArrayNode();
+
+        assertEquals(EXP, R.readTree(JSON));
+        assertEquals(EXP, R.readTree(new StringReader(JSON)));
+        assertEquals(EXP, R.readTree(JSON_B));
+        assertEquals(EXP, R.readTree(JSON_B, 0, JSON_B.length));
+        assertEquals(EXP, R.readTree(new ByteArrayInputStream(JSON_B)));
     }
 
     /*

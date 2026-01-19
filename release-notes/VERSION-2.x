@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.21.0 (not yet released)
+2.21.0 (18-Jan-2026)
 
 #1381: Add a way to specify "inject-only" with `@JacksonInject`
  (fix by Giulio L)

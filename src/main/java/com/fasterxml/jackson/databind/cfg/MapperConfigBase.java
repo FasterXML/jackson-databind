@@ -685,6 +685,16 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Method for constructing and returning a new instance with different
      * view to use.
+     *<p>
+     * <b>Migration to Jackson 3</b> You can set the default view at mapper level in Jackson 3.1 (NOT 3.0), using
+     * {@code MapperBuilder.defaultSerializationView(Class)} or {@code MapperBuilder.defaultDeserializationView(Class)}:
+     *<pre>
+     *  ObjectMapper mapper = JsonMapper.Builder()
+     *      .defaultSerializationView(ViewPublic.class)
+     *      .defaultDeserializationView(ViewInternal.class)
+     *      .build();
+     *</pre>
+     *See <a href="https://github.com/FasterXML/jackson-databind/issues/5575">#5575</a>
      */
     public abstract T withView(Class<?> view);
 

@@ -24,10 +24,10 @@ import tools.jackson.databind.type.LogicalType;
  * Usage examples:
  * <pre>
  * // Simple case - method reference
- * new FunctionalScalarDeserializer&lt;&gt;(Bar.class, Bar::of)
+ * new FunctionalScalarDeserializer<>(Bar.class, Bar::of)
  *
  * // Full access case
- * new FunctionalScalarDeserializer&lt;&gt;(Bar.class, (p, ctx) -&gt;
+ * new FunctionalScalarDeserializer<>(Bar.class, (p, ctx) ->
  *     Bar.parse(p.getValueAsString(), ctx.getLocale()))
  * </pre>
  *
@@ -64,11 +64,6 @@ public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T> {
     public FunctionalScalarDeserializer(JavaType type, Function<String, T> function) {
         super(type);
         _function = (p, ctx) -> function.apply(p.getValueAsString());
-    }
-
-    protected FunctionalScalarDeserializer(FunctionalScalarDeserializer<T> src) {
-        super(src);
-        _function = src._function;
     }
 
     @Override
@@ -120,7 +115,7 @@ public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T> {
     /**
      * Handle empty String input according to {@link CoercionAction} configuration.
      */
-    protected Object _deserializeFromEmptyString(DeserializationContext ctxt)
+    private Object _deserializeFromEmptyString(DeserializationContext ctxt)
             throws JacksonException
     {
         CoercionAction act = ctxt.findCoercionAction(logicalType(), _valueClass,
@@ -143,10 +138,9 @@ public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T> {
 
     /**
      * Handle empty String when {@link CoercionAction#TryConvert} is configured.
-     * Subclasses may override to provide custom behavior.
      * Default implementation returns null.
      */
-    protected Object _deserializeFromEmptyStringDefault(DeserializationContext ctxt)
+    private Object _deserializeFromEmptyStringDefault(DeserializationContext ctxt)
             throws JacksonException {
         return getNullValue(ctxt);
     }

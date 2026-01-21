@@ -1,6 +1,7 @@
 package tools.jackson.databind.deser.std;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
@@ -401,6 +402,116 @@ public class FunctionalScalarDeserializer4004Test
         } catch (MismatchedInputException e) {
             verifyException(e, "not a valid textual representation");
             verifyException(e, "BiFunction error");
+        }
+    }
+
+    @Test
+    public void testStringFunctionReceivesExtractedText() throws Exception
+    {
+        final AtomicReference<String> receivedValue = new AtomicReference<>();
+
+        SimpleModule module = new SimpleModule("test");
+        module.addDeserializer(Bar.class,
+                new FunctionalScalarDeserializer<>(Bar.class, text -> {
+                    receivedValue.set(text);
+                    return Bar.of(text);
+                }));
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
+
+        Bar result = mapper.readValue("\"expected-value\"", Bar.class);
+
+        assertEquals("expected-value", receivedValue.get());
+        assertEquals("expected-value", result.getValue());
+    }
+
+    @Test
+    public void testBiFunctionReceivesParserDirectly() throws Exception
+    {
+        final AtomicReference<String> parserState = new AtomicReference<>();
+
+        SimpleModule module = new SimpleModule("test");
+        module.addDeserializer(Bar.class,
+                new FunctionalScalarDeserializer<>(Bar.class, (p, ctx) -> {
+                    parserState.set(p.currentToken().toString());
+                    return Bar.of(p.getValueAsString());
+                }));
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
+
+        Bar result = mapper.readValue("\"test-value\"", Bar.class);
+
+        assertEquals("VALUE_STRING", parserState.get());
+        assertEquals("test-value", result.getValue());
+    }
+
+    @Test
+    public void testStringFunctionReceivesCoercedNumericText() throws Exception
+    {
+        final AtomicReference<String> receivedValue = new AtomicReference<>();
+
+        SimpleModule module = new SimpleModule("test");
+        module.addDeserializer(Bar.class,
+                new FunctionalScalarDeserializer<>(Bar.class, text -> {
+                    receivedValue.set(text);
+                    return Bar.of(text);
+                }));
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
+
+        Bar result = mapper.readValue("12345", Bar.class);
+
+        assertEquals("12345", receivedValue.get());
+        assertEquals("12345", result.getValue());
+    }
+
+    @Test
+    public void testFunctionThrowsCustomException() throws Exception
+    {
+        SimpleModule module = new SimpleModule("test");
+        module.addDeserializer(Bar.class,
+                new FunctionalScalarDeserializer<>(Bar.class, s -> {
+                    throw new RuntimeException("Custom error: " + s);
+                }));
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
+
+        try {
+            mapper.readValue("\"bad\"", Bar.class);
+            fail("Should throw exception");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "not a valid textual representation");
+            verifyException(e, "Custom error");
+        }
+    }
+
+    @Test
+    public void testBiFunctionThrowsCustomException() throws Exception
+    {
+        SimpleModule module = new SimpleModule("test");
+        module.addDeserializer(Bar.class,
+                new FunctionalScalarDeserializer<>(Bar.class, (p, ctx) -> {
+                    throw new RuntimeException("BiFunction custom error: " + p.getValueAsString());
+                }));
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
+
+        try {
+            mapper.readValue("\"invalid\"", Bar.class);
+            fail("Should throw exception");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "not a valid textual representation");
+            verifyException(e, "BiFunction custom error");
         }
     }
 }

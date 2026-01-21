@@ -36,7 +36,8 @@ import tools.jackson.databind.type.LogicalType;
  */
 public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T> {
 
-    protected final BiFunction<JsonParser, DeserializationContext, T> _function;
+    protected final BiFunction<JsonParser, DeserializationContext, T> _biFunction;
+    protected final Function<String, T> _stringFunction;
 
     /*
     /**********************************************************************
@@ -47,23 +48,27 @@ public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T> {
     public FunctionalScalarDeserializer(Class<T> type,
                                         BiFunction<JsonParser, DeserializationContext, T> function) {
         super(type);
-        _function = function;
+        _biFunction = function;
+        _stringFunction = null;
     }
 
     public FunctionalScalarDeserializer(JavaType type,
                                         BiFunction<JsonParser, DeserializationContext, T> function) {
         super(type);
-        _function = function;
+        _biFunction = function;
+        _stringFunction = null;
     }
 
     public FunctionalScalarDeserializer(Class<T> type, Function<String, T> function) {
         super(type);
-        _function = (p, ctx) -> function.apply(p.getValueAsString());
+        _biFunction = null;
+        _stringFunction = function;
     }
 
     public FunctionalScalarDeserializer(JavaType type, Function<String, T> function) {
         super(type);
-        _function = (p, ctx) -> function.apply(p.getValueAsString());
+        _biFunction = null;
+        _stringFunction = function;
     }
 
     @Override
@@ -79,7 +84,18 @@ public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public T deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+    public T deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
+    {
+        // BiFunction: invoke directly without any preprocessing
+        if (_biFunction != null) {
+            try {
+                return _biFunction.apply(p, ctxt);
+            } catch (Exception e) {
+                return _handleException(p, ctxt, e);
+            }
+        }
+
+        // Function<String, T>: extract text and pass to function
         String text = p.getValueAsString();
 
         if (text == null) {
@@ -100,16 +116,28 @@ public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T> {
         }
 
         try {
-            return _function.apply(p, ctxt);
-        } catch (IllegalArgumentException e) {
-            String msg = "not a valid textual representation";
-            String m2 = e.getMessage();
-            if (m2 != null) {
-                msg = msg + ", problem: " + m2;
-            }
-            throw ctxt.weirdStringException(text, _valueClass, msg)
-                    .withCause(e);
+            return _stringFunction.apply(text);
+        } catch (Exception e) {
+            return _handleException(text, ctxt, e);
         }
+    }
+
+    private T _handleException(JsonParser p, DeserializationContext ctxt,
+            Exception e) throws JacksonException
+    {
+        return _handleException(p.getValueAsString(), ctxt, e);
+    }
+
+    private T _handleException(String text, DeserializationContext ctxt, Exception e)
+            throws JacksonException
+    {
+        String msg = "not a valid textual representation";
+        String m2 = e.getMessage();
+        if (m2 != null) {
+            msg = msg + ", problem: " + m2;
+        }
+        throw ctxt.weirdStringException(text, _valueClass, msg)
+                .withCause(e);
     }
 
     /**
@@ -132,16 +160,6 @@ public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T> {
         if (act == CoercionAction.AsEmpty) {
             return getEmptyValue(ctxt);
         }
-        // TryConvert: delegate to overridable method for subclass customization
-        return _deserializeFromEmptyStringDefault(ctxt);
-    }
-
-    /**
-     * Handle empty String when {@link CoercionAction#TryConvert} is configured.
-     * Default implementation returns null.
-     */
-    private Object _deserializeFromEmptyStringDefault(DeserializationContext ctxt)
-            throws JacksonException {
         return getNullValue(ctxt);
     }
 }

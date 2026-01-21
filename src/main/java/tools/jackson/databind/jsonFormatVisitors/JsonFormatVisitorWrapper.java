@@ -55,8 +55,6 @@ public interface JsonFormatVisitorWrapper extends WithSettableSerializationConte
     /**
      * Method called when type is of Java {@link java.util.Map} type, and will
      * be serialized as a JSON Object.
-     *
-     * @since 2.2
      */
     public JsonMapFormatVisitor expectMapFormat(JavaType type);
 
@@ -65,8 +63,6 @@ public interface JsonFormatVisitorWrapper extends WithSettableSerializationConte
      * sub-classing. Does implement {@link #setContext(SerializationContext)} and
      * {@link #getContext()} as expected; other methods simply return null
      * and do nothing.
-     *
-     * @since 2.5
      */
     public static class Base implements JsonFormatVisitorWrapper {
         protected SerializationContext _context;

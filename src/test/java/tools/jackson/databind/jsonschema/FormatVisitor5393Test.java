@@ -46,7 +46,7 @@ public class FormatVisitor5393Test
                 new JsonFormatVisitorWrapper.Base() {
                     @Override
                     public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
-                        return new JsonObjectFormatVisitor.Base() {
+                        return new JsonObjectFormatVisitor.Base(getContext()) {
                             @Override
                             public void property(BeanProperty prop) {
                                 actual.add(prop.getName());

@@ -195,7 +195,7 @@ public class NewSchemaTest extends DatabindTestUtil
 
         @Override
         public JsonMapFormatVisitor expectMapFormat(JavaType type) {
-            return new JsonMapFormatVisitor.Base();
+            return new JsonMapFormatVisitor.Base(getContext());
         }
     }
 

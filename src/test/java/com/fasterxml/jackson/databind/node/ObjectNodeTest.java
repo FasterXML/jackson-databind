@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -649,6 +650,64 @@ public class ObjectNodeTest
         try (JsonParser p = MAPPER.createParser(a2q(json))) {
             return (ObjectNode) MAPPER.reader().readTree(p);
         }
+    }
+
+    // [databind#3884]: put(JsonPointer, JsonNode)
+    @Test
+    public void testPutWithJsonPointer() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+        JsonNode value = MAPPER.getNodeFactory().textNode("test");
+
+        ObjectNode result = root.put(JsonPointer.compile("/a/b/c"), value);
+
+        assertSame(root, result);
+        assertEquals("test", root.at("/a/b/c").asText());
+    }
+
+    @Test
+    public void testPutWithJsonPointerOverwrite() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+        root.put("key", "old");
+
+        root.put(JsonPointer.compile("/key"),
+            MAPPER.getNodeFactory().textNode("new"));
+
+        assertEquals("new", root.get("key").asText());
+    }
+
+    @Test
+    public void testPutWithJsonPointerChaining() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+        JsonNodeFactory f = MAPPER.getNodeFactory();
+
+        root.put(JsonPointer.compile("/a"), f.textNode("A"))
+            .put(JsonPointer.compile("/b"), f.textNode("B"));
+
+        assertEquals("A", root.get("a").asText());
+        assertEquals("B", root.get("b").asText());
+    }
+
+    @Test
+    public void testPutWithJsonPointerNullValue() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+
+        root.put(JsonPointer.compile("/nullVal"), null);
+
+        assertTrue(root.has("nullVal"));
+        assertTrue(root.get("nullVal").isNull());
+    }
+
+    @Test
+    public void testPutWithJsonPointerRootFails()
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+
+        assertThrows(IllegalArgumentException.class,
+            () -> root.put(JsonPointer.compile(""), MAPPER.createObjectNode()));
     }
 
     private String _toString(JsonNode n) {

@@ -1144,6 +1144,58 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
 
     /*
     /**********************************************************
+    /* Extended ObjectNode API, mutators, JsonPointer-based
+    /**********************************************************
+     */
+
+    /**
+     * Method for setting value of a property at specified JSON Pointer location
+     * on this {@code ObjectNode}: this will create intermediate
+     * {@link ObjectNode}s and {@link ArrayNode}s as necessary (following the
+     * same logic as {@link #withObject(JsonPointer)}).
+     *<p>
+     * NOTE: if the last segment of the pointer is an array index (like {@code /arr/0}),
+     * the parent Array must already have enough elements; this method will not
+     * expand arrays to create missing elements.
+     *<p>
+     * NOTE: if the pointer is empty (matches root), an {@link IllegalArgumentException}
+     * is thrown since replacing {@code this} is not possible.
+     *
+     * @param ptr {@link JsonPointer} identifying location to set the value at
+     * @param value Value to set at the specified path
+     *
+     * @return This node (to allow chaining)
+     *
+     * @throws IllegalArgumentException if {@code ptr} is empty (root path)
+     *
+     * @since 2.22
+     */
+    public ObjectNode put(JsonPointer ptr, JsonNode value)
+    {
+        if (ptr.matches()) {
+            throw new IllegalArgumentException(
+                "Cannot use `put(JsonPointer, JsonNode)` with empty JSON Pointer (root)");
+        }
+        if (value == null) {
+            value = nullNode();
+        }
+        JsonPointer parentPtr = ptr.head();
+        JsonPointer lastSegment = ptr.last();
+
+        if (lastSegment.mayMatchElement()) {
+            int index = lastSegment.getMatchingIndex();
+            if (index >= 0) {
+                withArray(parentPtr).set(index, value);
+                return this;
+            }
+        }
+        String propName = lastSegment.getMatchingProperty();
+        withObject(parentPtr).set(propName, value);
+        return this;
+    }
+
+    /*
+    /**********************************************************
     /* Standard methods
     /**********************************************************
      */

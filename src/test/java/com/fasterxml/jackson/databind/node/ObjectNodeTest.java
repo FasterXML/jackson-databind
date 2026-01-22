@@ -706,7 +706,7 @@ public class ObjectNodeTest
     {
         ObjectNode root = MAPPER.createObjectNode();
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(UnsupportedOperationException.class,
             () -> root.put(JsonPointer.compile(""), MAPPER.createObjectNode()));
     }
 

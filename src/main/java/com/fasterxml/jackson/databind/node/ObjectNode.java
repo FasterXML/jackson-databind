@@ -1154,27 +1154,29 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      * {@link ObjectNode}s and {@link ArrayNode}s as necessary (following the
      * same logic as {@link #withObject(JsonPointer)}).
      *<p>
-     * NOTE: if the last segment of the pointer is an array index (like {@code /arr/0}),
-     * the parent Array must already have enough elements; this method will not
+     * This method has two important limitations: first, if the pointer is empty
+     * (referring to this node itself), an {@link UnsupportedOperationException}
+     * is thrown since replacing the context node is not possible. Second, if the
+     * last segment of the pointer is an array index (like {@code /arr/0}), the
+     * parent array must already contain enough elements; this method will not
      * expand arrays to create missing elements.
-     *<p>
-     * NOTE: if the pointer is empty (matches root), an {@link IllegalArgumentException}
-     * is thrown since replacing {@code this} is not possible.
      *
      * @param ptr {@link JsonPointer} identifying location to set the value at
      * @param value Value to set at the specified path
      *
      * @return This node (to allow chaining)
      *
-     * @throws IllegalArgumentException if {@code ptr} is empty (root path)
+     * @throws UnsupportedOperationException if {@code ptr} is empty (refers to
+     *         this node itself, which cannot be replaced)
      *
      * @since 2.22
      */
     public ObjectNode put(JsonPointer ptr, JsonNode value)
     {
         if (ptr.matches()) {
-            throw new IllegalArgumentException(
-                "Cannot use `put(JsonPointer, JsonNode)` with empty JSON Pointer (root)");
+            return _reportWrongNodeOperation(
+                "Cannot use `put(JsonPointer, JsonNode)` with empty JSON Pointer: "
+                + "root node cannot be replaced as it is the context node itself");
         }
         if (value == null) {
             value = nullNode();

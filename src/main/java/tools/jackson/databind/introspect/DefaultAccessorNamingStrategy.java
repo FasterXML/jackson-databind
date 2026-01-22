@@ -10,6 +10,7 @@ import tools.jackson.databind.AnnotationIntrospector;
 import tools.jackson.databind.BeanDescription;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.util.RecordUtil;
@@ -422,8 +423,28 @@ public class DefaultAccessorNamingStrategy
         {
             AnnotationIntrospector ai = config.isAnnotationProcessingEnabled()
                     ? config.getAnnotationIntrospector() : null;
-            JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(config, builderClass);
-            String mutatorPrefix = (builderConfig == null) ? _withPrefix : builderConfig.withPrefix;
+            String mutatorPrefix = _withPrefix;
+
+            if (ai != null) {
+                // [databind#2624] First check @JsonDeserialize.builderPrefix on value class
+                if (valueTypeDesc != null) {
+                    JsonDeserialize deser = valueTypeDesc.getClassInfo()
+                            .getAnnotation(JsonDeserialize.class);
+                    if (deser != null && !JsonDeserialize.USE_DEFAULT_PREFIX.equals(deser.builderPrefix())) {
+                        mutatorPrefix = deser.builderPrefix();
+                        return new DefaultAccessorNamingStrategy(config, builderClass,
+                                mutatorPrefix, _getterPrefix, _isGetterPrefix,
+                                _baseNameValidator);
+                    }
+                }
+
+                // Existing: check @JsonPOJOBuilder on builder class
+                JsonPOJOBuilder.Value builderConfig = ai.findPOJOBuilderConfig(config, builderClass);
+                if (builderConfig != null) {
+                    mutatorPrefix = builderConfig.withPrefix;
+                }
+            }
+
             return new DefaultAccessorNamingStrategy(config, builderClass,
                     mutatorPrefix, _getterPrefix, _isGetterPrefix,
                     _baseNameValidator);

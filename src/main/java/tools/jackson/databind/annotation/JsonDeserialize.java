@@ -42,6 +42,15 @@ import tools.jackson.databind.util.Converter;
 @com.fasterxml.jackson.annotation.JacksonAnnotation
 public @interface JsonDeserialize
 {
+    /**
+     * Marker value used as default for {@link #builderPrefix} to indicate
+     * that default handling should be used (check for {@link JsonPOJOBuilder}
+     * annotation on builder class, or use default prefix of "with").
+     *
+     * @since 2.19
+     */
+    public static final String USE_DEFAULT_PREFIX = "\u0000";
+
     // // // Annotations for explicitly specifying deserialize/builder
 
     /**
@@ -87,6 +96,22 @@ public @interface JsonDeserialize
      * and finally "build-method" is invoked to complete deserialization.
      */
     public Class<?> builder() default Void.class;
+
+    /**
+     * Optional property for specifying the prefix used for builder
+     * "with" methods when using {@link #builder()}. When set to a non-default value
+     * (something other than {@link #USE_DEFAULT_PREFIX}), this overrides any
+     * {@link JsonPOJOBuilder#withPrefix()} annotation on the builder class itself.
+     *<p>
+     * Set to empty string ({@code ""}) for no prefix (common with Lombok-generated builders).
+     *<p>
+     * Defaults to {@link #USE_DEFAULT_PREFIX} which means the prefix is determined
+     * by checking {@link JsonPOJOBuilder} annotation on the builder class, or using
+     * the global default ("with").
+     *
+     * @since 2.19
+     */
+    public String builderPrefix() default USE_DEFAULT_PREFIX;
 
     // // // Annotations for specifying intermediate Converters (2.2+)
 

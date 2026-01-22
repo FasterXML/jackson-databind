@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.convert;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,7 +8,6 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import tools.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -62,7 +61,6 @@ public class ConverterFromInterface2617Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
     @Test
     public void testConverterFromInterface() throws Exception
     {

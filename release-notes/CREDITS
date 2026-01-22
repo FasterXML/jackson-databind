@@ -172,6 +172,10 @@ Ulf Andersson (@ulfandersson)
    `ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT`
   [3.1.0]
 
+Erik Hesselink (@hesselink)
+ * Reported #2617: `@JsonDeserialize.converter` from an interface doesn't work
+  [3.1.0]
+ 
 Garret Wilson (@garretwilson)
  * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
    getter method auto-detection for Records

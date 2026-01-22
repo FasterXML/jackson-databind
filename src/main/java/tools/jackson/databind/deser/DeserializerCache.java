@@ -354,11 +354,8 @@ public final class DeserializerCache
             if (!delegateType.hasRawClass(type.getRawClass())) {
                 beanDescRef = ctxt.lazyIntrospectBeanDescription(delegateType);
             }
-            // [databind#2617]: Need to apply abstract type mapping and type modifications
+            // [databind#2617]: Need to apply type modifications
             // (like @JsonDeserialize(as=...)) to the delegate type as well
-            if (delegateType.isAbstract() || delegateType.isMapLikeType() || delegateType.isCollectionLikeType()) {
-                delegateType = config.mapAbstractType(delegateType);
-            }
             JavaType newDelegateType = modifyTypeByAnnotation(ctxt, beanDescRef.getClassInfo(), delegateType);
             if (newDelegateType != delegateType) {
                 delegateType = newDelegateType;

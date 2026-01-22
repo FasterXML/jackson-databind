@@ -10,7 +10,6 @@ import tools.jackson.databind.AnnotationIntrospector;
 import tools.jackson.databind.BeanDescription;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.MapperFeature;
-import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.util.RecordUtil;
@@ -428,12 +427,10 @@ public class DefaultAccessorNamingStrategy
             if (ai != null) {
                 // [databind#2624] First check @JsonDeserialize.builderPrefix on value class
                 if (valueTypeDesc != null) {
-                    JsonDeserialize deser = valueTypeDesc.getClassInfo()
-                            .getAnnotation(JsonDeserialize.class);
-                    if (deser != null && !JsonDeserialize.USE_DEFAULT_PREFIX.equals(deser.builderPrefix())) {
-                        mutatorPrefix = deser.builderPrefix();
+                    String prefix = ai.findBuilderPrefix(config, valueTypeDesc.getClassInfo());
+                    if (prefix != null) {
                         return new DefaultAccessorNamingStrategy(config, builderClass,
-                                mutatorPrefix, _getterPrefix, _isGetterPrefix,
+                                prefix, _getterPrefix, _isGetterPrefix,
                                 _baseNameValidator);
                     }
                 }

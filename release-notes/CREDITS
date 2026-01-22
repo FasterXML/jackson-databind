@@ -209,3 +209,7 @@ Filip Hrisafov (@filiphr)
 Réda Housni Alaoui (@reda-alaoui)
  * Requested #5575: Allow configuring a default serialization and deserialization view (3.x)
   [3.1.0]
+
+Flinter (@jhan0121)
+ * Contributed #5595: Add `FunctionalScalarDeserializer` for functional-style deserialization
+  [3.1.0]

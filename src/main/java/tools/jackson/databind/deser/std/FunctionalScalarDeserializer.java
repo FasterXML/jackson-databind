@@ -32,10 +32,11 @@ import tools.jackson.databind.type.LogicalType;
  * </pre>
  *
  * @param <T> Target type to deserialize into
+ *
  * @since 3.1
  */
-public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T> {
-
+public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T>
+{
     protected final BiFunction<JsonParser, DeserializationContext, T> _biFunction;
     protected final Function<String, T> _stringFunction;
 
@@ -46,14 +47,14 @@ public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T> {
      */
 
     public FunctionalScalarDeserializer(Class<T> type,
-                                        BiFunction<JsonParser, DeserializationContext, T> function) {
+            BiFunction<JsonParser, DeserializationContext, T> function) {
         super(type);
         _biFunction = function;
         _stringFunction = null;
     }
 
     public FunctionalScalarDeserializer(JavaType type,
-                                        BiFunction<JsonParser, DeserializationContext, T> function) {
+            BiFunction<JsonParser, DeserializationContext, T> function) {
         super(type);
         _biFunction = function;
         _stringFunction = null;
@@ -84,9 +85,10 @@ public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public T deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
+    public T deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
-        // BiFunction: invoke directly without any preprocessing
+        // BiFunction: invoke directly without any pre-processing
         if (_biFunction != null) {
             try {
                 return _biFunction.apply(p, ctxt);
@@ -123,14 +125,21 @@ public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T> {
     }
 
     private T _handleException(JsonParser p, DeserializationContext ctxt,
-            Exception e) throws JacksonException
+            Exception e)
+        throws JacksonException
     {
+        if (e instanceof JacksonException je) {
+            throw je;
+        }
         return _handleException(p.getValueAsString(), ctxt, e);
     }
 
     private T _handleException(String text, DeserializationContext ctxt, Exception e)
-            throws JacksonException
+        throws JacksonException
     {
+        if (e instanceof JacksonException je) {
+            throw je;
+        }
         String msg = "not a valid textual representation";
         String m2 = e.getMessage();
         if (m2 != null) {
@@ -144,7 +153,7 @@ public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T> {
      * Handle empty String input according to {@link CoercionAction} configuration.
      */
     private Object _deserializeFromEmptyString(DeserializationContext ctxt)
-            throws JacksonException
+        throws JacksonException
     {
         CoercionAction act = ctxt.findCoercionAction(logicalType(), _valueClass,
                 CoercionInputShape.EmptyString);
@@ -154,12 +163,10 @@ public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T> {
                     "Cannot coerce empty String (\"\") to %s (but could if enabling coercion using `CoercionConfig`)",
                     _coercedTypeDesc());
         }
-        if (act == CoercionAction.AsNull) {
-            return getNullValue(ctxt);
-        }
         if (act == CoercionAction.AsEmpty) {
             return getEmptyValue(ctxt);
         }
+        // if (act == CoercionAction.AsNull) etc
         return getNullValue(ctxt);
     }
 }

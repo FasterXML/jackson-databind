@@ -978,6 +978,13 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         if (objectIdInfo == null && objectIdReader == null) {
             return prop;
         }
+        // [databind#2245]: If custom deserializer (not BeanDeserializer) is used
+        // and it doesn't have ObjectIdReader, let the custom deserializer handle
+        // ID resolution - don't wrap with ObjectIdReferenceProperty
+        if (objectIdInfo != null && objectIdReader == null
+                && valueDeser != null && !(valueDeser instanceof BeanDeserializerBase)) {
+            return prop;
+        }
         return new ObjectIdReferenceProperty(prop, objectIdInfo);
     }
 

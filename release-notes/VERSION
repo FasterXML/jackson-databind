@@ -43,6 +43,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   already exists, duplicate value seen
 #2617: `@JsonDeserialize.converter` from an interface doesn't work
  (reported by Erik H)
+#2624: Allow overriding builder's "withPrefix" with new
+  `@JsonDeserialize.builderPrefix` property
+ (requested by Kenneth J)
 #2686: `@JsonBackReference` does not work with a builder
  (reported by @janrieke)
  (fix by @JacksonJang)

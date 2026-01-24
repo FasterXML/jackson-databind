@@ -113,7 +113,7 @@ public @interface JsonDeserialize
      */
     public String builderPrefix() default USE_DEFAULT_PREFIX;
 
-    // // // Annotations for specifying intermediate Converters (2.2+)
+    // // // Annotations for specifying intermediate Converters
 
     /**
      * Which helper object (if any) is to be used to convert from Jackson-bound
@@ -127,7 +127,7 @@ public @interface JsonDeserialize
     public Class<? extends Converter> converter() default Converter.None.class;
 
     /**
-     * Similar to {@link #converter}, but used for values of structures types
+     * Similar to {@link #converter}, but used for values of structured types
      * (List, arrays, Maps).
      */
     @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties

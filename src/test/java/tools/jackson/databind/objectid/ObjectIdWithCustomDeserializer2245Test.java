@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Test for [databind#2245]: UnresolvedForwardReference with
  * {@code @JsonIdentityReference(alwaysAsId=true)} and custom deserializer.
  */
-public class ObjectId2245Test extends DatabindTestUtil
+public class ObjectIdWithCustomDeserializer2245Test extends DatabindTestUtil
 {
     // Entity class that uses @JsonIdentityInfo
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")

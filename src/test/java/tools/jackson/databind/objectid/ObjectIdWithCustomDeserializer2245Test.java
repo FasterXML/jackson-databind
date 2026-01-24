@@ -2,7 +2,9 @@ package tools.jackson.databind.objectid;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import tools.jackson.core.JsonParser;
 
@@ -16,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test for [databind#2245]: UnresolvedForwardReference with
  * {@code @JsonIdentityReference(alwaysAsId=true)} and custom deserializer.
+ * Passes without any changes, possibly fixed in 3.0.0
  */
 public class ObjectIdWithCustomDeserializer2245Test extends DatabindTestUtil
 {

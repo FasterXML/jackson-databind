@@ -299,7 +299,7 @@ anyField.getName()));
     }
 
     @Override
-    public Map<Object, AnnotatedMember> findInjectables() {
+    public Map<Object, List<AnnotatedMember>> findInjectables() {
         if (_propCollector != null) {
             return _propCollector.getInjectables();
         }

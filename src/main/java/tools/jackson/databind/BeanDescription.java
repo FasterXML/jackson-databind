@@ -243,7 +243,7 @@ public abstract class BeanDescription
     /**********************************************************************
      */
 
-    public abstract Map<Object, AnnotatedMember> findInjectables();
+    public abstract Map<Object, List<AnnotatedMember>> findInjectables();
 
     /**
      * Method called to create a "default instance" of the bean, currently

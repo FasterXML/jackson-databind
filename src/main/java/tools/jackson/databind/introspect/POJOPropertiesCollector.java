@@ -131,7 +131,7 @@ public class POJOPropertiesCollector
      * indicate that they represent mutators for deserializer
      * value injection.
      */
-    protected LinkedHashMap<Object, AnnotatedMember> _injectables;
+    protected LinkedHashMap<Object, List<AnnotatedMember>> _injectables;
 
     /**
      * Lazily accessed information about POJO format overrides
@@ -204,7 +204,7 @@ public class POJOPropertiesCollector
         return _potentialCreators;
     }
 
-    public Map<Object, AnnotatedMember> getInjectables() {
+    public Map<Object, List<AnnotatedMember>> getInjectables() {
         if (!_collected) {
             collectAll();
         }
@@ -1266,36 +1266,46 @@ ctor.creator()));
         _property(props, implName).addSetter(m, pn, nameExplicit, visible, ignore);
     }
 
+    /**
+     * Collect injectable members using list-based approach with post-processing.
+     *
+     * Rules applied:
+     * - Rule 1: Allow multiple injection targets with the same ID
+     * - Rule 2: Same property + same ID + field&setter → setter masks field
+     * - Rule 3: Creator param masks same-property field/setter (#4218)
+     *
+     * @since 3.0
+     */
     protected void _addInjectables(Map<String, POJOPropertyBuilder> props)
     {
-        // first fields, then methods, to allow overriding
+        // Phase 1: Allow multiple injection targets with the same ID (across different properties)
         for (AnnotatedField f : _classDef.fields()) {
             _doAddInjectable(_annotationIntrospector.findInjectableValue(_config, f), f);
         }
 
+        // Phase 2: Collect all injectable setters (1-param methods)
         for (AnnotatedMethod m : _classDef.memberMethods()) {
-            // for now, only allow injection of a single arg (to be changed in future?)
             if (m.getParameterCount() != 1) {
                 continue;
             }
             _doAddInjectable(_annotationIntrospector.findInjectableValue(_config, m), m);
         }
 
-        // 21-Aug-2025, tatu: [databind#4218] avoid duplicate injectables
+        // Phase 3: Post-processing
         if (_injectables != null) {
-            for (POJOPropertyBuilder creatorProperty : _creatorProperties) {
-                if (creatorProperty == null) {
-                    continue;
-                }
-                final AnnotatedParameter parameter = creatorProperty.getConstructorParameter();
-                JacksonInject.Value injectable = _annotationIntrospector.findInjectableValue(_config, parameter);
-                if (injectable != null) {
-                    _injectables.remove(injectable.getId());
-                }
+            final IdentityHashMap<AnnotatedMember, String> memberToProp =
+                new IdentityHashMap<>();
+            if ((_creatorProperties != null) && !_creatorProperties.isEmpty()) {
+                _removeCreatorPropertyInjectables(props, memberToProp);  // Rule 3
             }
+            _deduplicateSamePropertyInjectables(props, memberToProp);    // Rule 2
         }
     }
 
+    /**
+     * Add an injectable member to the collection.
+     * [databind#5217] Allow multiple members with the same ID.
+     */
     protected void _doAddInjectable(JacksonInject.Value injectable, AnnotatedMember m)
     {
         if (injectable == null) {
@@ -1305,14 +1315,136 @@ ctor.creator()));
         if (_injectables == null) {
             _injectables = new LinkedHashMap<>();
         }
-        AnnotatedMember prev = _injectables.put(id, m);
-        if (prev != null) {
-            // 12-Apr-2017, tatu: Let's allow masking of Field by Method
-            if (prev.getClass() == m.getClass()) {
-                reportProblem("Duplicate injectable value with id '%s' (of type %s)",
-                        id, ClassUtil.classNameOf(id));
+        // [databind#5217] Allow multiple members with the same ID
+        _injectables.computeIfAbsent(id, k -> new ArrayList<>()).add(m);
+    }
+
+    /**
+     * Remove field/setter injectables that belong to the same property as an
+     * injectable creator parameter. (Rule 3 - fixes #4218)
+     *
+     * Also handles invisible fields (like record fields) by checking field name
+     * matching the property name.
+     */
+    protected void _removeCreatorPropertyInjectables(Map<String, POJOPropertyBuilder> props,
+        IdentityHashMap<AnnotatedMember, String> memberToProp)
+    {
+        if (_creatorProperties == null) {
+            return;
+        }
+        for (POJOPropertyBuilder creatorProp : _creatorProperties) {
+            if (creatorProp == null) {
+                continue;
+            }
+            AnnotatedParameter param = creatorProp.getConstructorParameter();
+            if (param == null) {
+                continue;
+            }
+
+            JacksonInject.Value injectable = _annotationIntrospector.findInjectableValue(_config, param);
+            if (injectable == null) {
+                continue;
+            }
+
+            Object id = injectable.getId();
+            List<AnnotatedMember> members = _injectables.get(id);
+            if (members != null) {
+                // Remove members that belong to the same logical property as creator param.
+                // Avoid field-name hacks; instead reconcile via property membership/name mapping.
+                final String creatorPropName = creatorProp.getName();
+                members.removeIf(m -> {
+                    // Fast path: property already knows the member
+                    if (creatorProp.containsMember(m)) {
+                        return true;
+                    }
+
+                    // Fallback: record / invisible field fallback (field name == logical prop name)
+                    if ((m instanceof AnnotatedField) && creatorPropName.equals(m.getName())) {
+                        return true;
+                    }
+
+                    // Fallback: member -> property mapping (handles @JsonProperty rename if in props)
+                    String memberPropName = _findPropertyNameForMember(m, props, memberToProp);
+                    return creatorPropName.equals(memberPropName);
+                });
+                if (members.isEmpty()) {
+                    _injectables.remove(id);
+                }
             }
         }
+    }
+
+    /**
+     * For same ID and same property, if both field and setter exist, keep only setter.
+     * (Rule 2 - setter masks field)
+     *
+     * Note: This method only operates within the same ID.
+     * Different IDs are treated independently (backward compatibility).
+     */
+    protected void _deduplicateSamePropertyInjectables(Map<String, POJOPropertyBuilder> props,
+        IdentityHashMap<AnnotatedMember, String> memberToProp)
+    {
+        for (Map.Entry<Object, List<AnnotatedMember>> entry : _injectables.entrySet()) {
+            List<AnnotatedMember> members = entry.getValue();
+            if (members.size() <= 1) {
+                continue;
+            }
+
+            // Group by property (within same ID)
+            Map<String, AnnotatedMember> byProperty = new LinkedHashMap<>();
+            List<AnnotatedMember> notInProperty = new ArrayList<>();
+
+            for (AnnotatedMember m : members) {
+                String propName = _findPropertyNameForMember(m, props, memberToProp);
+                if (propName == null) {
+                    notInProperty.add(m);  // Keep members not in any property
+                } else {
+                    AnnotatedMember existing = byProperty.get(propName);
+                    if (existing == null) {
+                        byProperty.put(propName, m);
+                    } else if (_isMethod(m) && !_isMethod(existing)) {
+                        // Setter masks field (same property, same ID)
+                        byProperty.put(propName, m);
+                    } else if (_isMethod(m) == _isMethod(existing)) {
+                        reportProblem("Duplicate injectable value with id '%s' for property '%s' (multiple %s)",
+                            entry.getKey(), propName, _isMethod(m) ? "setters" : "fields");
+                    }
+                    // else: keep existing (setter already in place or same type)
+                }
+            }
+
+            // Reconstruct the list
+            List<AnnotatedMember> result = new ArrayList<>(byProperty.values());
+            result.addAll(notInProperty);
+            entry.setValue(result);
+        }
+    }
+
+    private String _findPropertyNameForMember(AnnotatedMember m, Map<String, POJOPropertyBuilder> props,
+        IdentityHashMap<AnnotatedMember, String> memberToProp) {
+        if (memberToProp != null) {
+            final String cached = memberToProp.get(m);
+            if ((cached != null) || memberToProp.containsKey(m)) {
+                return cached;
+            }
+        }
+        for (Map.Entry<String, POJOPropertyBuilder> e : props.entrySet()) {
+            if (e.getValue().containsMember(m)) {
+                final String name = e.getKey();
+                if (memberToProp != null) {
+                    memberToProp.put(m, name);
+                }
+                return name;
+            }
+        }
+        if (memberToProp != null) {
+            memberToProp.put(m, null);
+        }
+        return null;
+    }
+
+    private boolean _isMethod(AnnotatedMember m) {
+        return m instanceof AnnotatedMethod;
     }
 
     private PropertyName _propNameFromSimple(String simpleName) {

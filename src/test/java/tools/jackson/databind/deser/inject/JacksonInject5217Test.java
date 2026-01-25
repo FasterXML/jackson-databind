@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import tools.jackson.databind.InjectableValues;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.exc.MissingInjectableValueExcepion;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -310,7 +311,8 @@ class JacksonInject5217Test extends DatabindTestUtil
     }
 
     // [databind#5217]: Core regression test - without InjectableValues configured,
-    // field-field should NOT fail with "Duplicate injectable value" error.
+    // field-field and param-param should fail with the SAME exception type
+    // (InvalidDefinitionException), NOT "Duplicate injectable value" error.
     // This directly verifies the original issue's "Expected behavior: The same error
     // should be made in all cases."
     @Test
@@ -319,7 +321,9 @@ class JacksonInject5217Test extends DatabindTestUtil
         ObjectReader reader = newJsonMapper().readerFor(FieldFieldBean.class);
         // NO .with(INJECTABLES) - this is the key point
 
-        Exception e = assertThrows(Exception.class, () -> reader.readValue("{}"));
+        // Should throw MissingInjectableValueExcepion (same as param-param case)
+        MissingInjectableValueExcepion e = assertThrows(MissingInjectableValueExcepion.class,
+            () -> reader.readValue("{}"));
 
         // Must NOT be "Duplicate injectable value" error - that was the bug
         String msg = e.getMessage();
@@ -334,7 +338,9 @@ class JacksonInject5217Test extends DatabindTestUtil
         ObjectReader reader = newJsonMapper().readerFor(ParamParamBean.class);
         // NO .with(INJECTABLES)
 
-        Exception e = assertThrows(Exception.class, () -> reader.readValue("{}"));
+        // Should throw MissingInjectableValueExcepion (same as field-field case)
+        MissingInjectableValueExcepion e = assertThrows(MissingInjectableValueExcepion.class,
+            () -> reader.readValue("{}"));
 
         // Should also NOT be "Duplicate injectable value"
         String msg = e.getMessage();

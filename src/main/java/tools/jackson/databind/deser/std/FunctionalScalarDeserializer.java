@@ -8,6 +8,7 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
@@ -140,6 +141,11 @@ public class FunctionalScalarDeserializer<T> extends StdScalarDeserializer<T>
         if (e instanceof JacksonException je) {
             throw je;
         }
+        if (!ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)
+                && e instanceof RuntimeException re) {
+            throw re;
+        }
+
         String msg = "not a valid textual representation";
         String m2 = e.getMessage();
         if (m2 != null) {

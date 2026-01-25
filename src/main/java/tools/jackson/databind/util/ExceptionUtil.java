@@ -1,5 +1,9 @@
 package tools.jackson.databind.util;
 
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.DeserializationFeature;
+
 /**
  * Utility methods for dealing with exceptions/throwables
  *
@@ -35,6 +39,40 @@ public class ExceptionUtil {
             }
             throw new RuntimeException(throwable);
         }
+    }
+
+    /**
+     * Helper method that will either throw given throwable -- if (and only if)
+     * one of following is true:
+     *
+     * 1. It is an {@link Error}
+     * 2. It is a {@link JacksonException}
+     * 3. {@code DeserializationFeature.WRAP_EXCEPTIONS} is NOT enabled AND
+     *    exception is a {@link RuntimeException}
+     *
+     * -- or (otherwise) returns throwable as-is.
+     *
+     * @param ctxt Current deserialization context
+     * @param e Exception caught to possibly re-throw
+     *
+     * @return Exception passed in for call chaining
+     *
+     * @since 3.1
+     */
+    public static <ERR extends Throwable> ERR rethrowIfNoWrap(DeserializationContext ctxt, ERR e)
+    {
+        if (e instanceof Error err) {
+            throw err;
+        }
+        if (e instanceof JacksonException je) {
+            throw je;
+        }
+        if ((ctxt != null)
+                && !ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)
+                && e instanceof RuntimeException re) {
+            throw re;
+        }
+        return e;
     }
 
     /**

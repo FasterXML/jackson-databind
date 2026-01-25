@@ -13,6 +13,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 
 // [databind#5217]: Multiple injections of same value should work consistently
@@ -306,5 +307,39 @@ class JacksonInject5217Test extends DatabindTestUtil
         InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
             () -> reader.readValue("{}"));
         verifyException(e, "multiple setters");
+    }
+
+    // [databind#5217]: Core regression test - without InjectableValues configured,
+    // field-field should NOT fail with "Duplicate injectable value" error.
+    // This directly verifies the original issue's "Expected behavior: The same error
+    // should be made in all cases."
+    @Test
+    void testFieldFieldWithoutInjectableValuesShouldNotFailWithDuplicate() throws Exception
+    {
+        ObjectReader reader = newJsonMapper().readerFor(FieldFieldBean.class);
+        // NO .with(INJECTABLES) - this is the key point
+
+        Exception e = assertThrows(Exception.class, () -> reader.readValue("{}"));
+
+        // Must NOT be "Duplicate injectable value" error - that was the bug
+        String msg = e.getMessage();
+        if (msg != null && msg.contains("Duplicate injectable")) {
+            fail("Should not fail with 'Duplicate injectable value' error. Got: " + msg);
+        }
+    }
+
+    @Test
+    void testParamParamWithoutInjectableValues() throws Exception
+    {
+        ObjectReader reader = newJsonMapper().readerFor(ParamParamBean.class);
+        // NO .with(INJECTABLES)
+
+        Exception e = assertThrows(Exception.class, () -> reader.readValue("{}"));
+
+        // Should also NOT be "Duplicate injectable value"
+        String msg = e.getMessage();
+        if (msg != null && msg.contains("Duplicate injectable")) {
+            fail("Should not fail with 'Duplicate injectable value' error. Got: " + msg);
+        }
     }
 }

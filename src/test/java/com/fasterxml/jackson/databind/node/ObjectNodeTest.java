@@ -710,6 +710,34 @@ public class ObjectNodeTest
             () -> root.put(JsonPointer.compile(""), MAPPER.createObjectNode()));
     }
 
+    // [databind#3884]: put with array index in JsonPointer
+    @Test
+    public void testPutWithJsonPointerArrayIndex() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+        // Pre-create array with element (array must already have enough elements)
+        root.withArray("/arr").add("placeholder");
+
+        JsonNode value = MAPPER.getNodeFactory().textNode("replaced");
+        root.put(JsonPointer.compile("/arr/0"), value);
+
+        assertEquals("replaced", root.at("/arr/0").asText());
+    }
+
+    @Test
+    public void testPutWithJsonPointerNestedArrayIndex() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+        // Create nested structure: {"data": {"items": ["x", "y"]}}
+        root.withArray("/data/items").add("x").add("y");
+
+        root.put(JsonPointer.compile("/data/items/1"),
+            MAPPER.getNodeFactory().textNode("updated"));
+
+        assertEquals("updated", root.at("/data/items/1").asText());
+        assertEquals("x", root.at("/data/items/0").asText()); // unchanged
+    }
+
     private String _toString(JsonNode n) {
         return n.properties().stream()
                 .map(e -> e.getKey() + "/" + e.getValue())

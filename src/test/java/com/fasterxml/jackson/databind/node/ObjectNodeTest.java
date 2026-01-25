@@ -722,6 +722,8 @@ public class ObjectNodeTest
         root.put(JsonPointer.compile("/arr/0"), value);
 
         assertEquals("replaced", root.at("/arr/0").asText());
+        assertEquals(1, root.at("/arr").size());
+        assertEquals("replaced", root.at("/arr").get(0).asText());
     }
 
     @Test
@@ -735,7 +737,8 @@ public class ObjectNodeTest
             MAPPER.getNodeFactory().textNode("updated"));
 
         assertEquals("updated", root.at("/data/items/1").asText());
-        assertEquals("x", root.at("/data/items/0").asText()); // unchanged
+        assertEquals("x", root.at("/data/items/0").asText());
+        assertEquals(2, root.at("/data/items").size());
     }
 
     private String _toString(JsonNode n) {

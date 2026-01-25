@@ -348,4 +348,56 @@ class JacksonInject5217Test extends DatabindTestUtil
             fail("Should not fail with 'Duplicate injectable value' error. Got: " + msg);
         }
     }
+
+    // [databind#5217/#4218]: Record with @JsonProperty rename + @JacksonInject
+    // Verifies Rule 3 works correctly even when logical property name differs from field name
+    record RecordWithRenamedInject(
+            @JacksonInject("id") @JsonProperty("renamed") String original
+    ) {}
+
+    @Test
+    void testRecordWithRenamedInjectableProperty() throws Exception
+    {
+        ObjectReader reader = newJsonMapper()
+                .readerFor(RecordWithRenamedInject.class)
+                .with(INJECTABLES);
+
+        RecordWithRenamedInject bean = reader.readValue("{}");
+
+        // Creator param should be injected via constructor
+        assertEquals("injectedValue", bean.original(),
+                "Record component should be injected via creator param");
+    }
+
+    // Record with renamed injectable + different property field (same ID)
+    // Verifies that renaming doesn't break Rule 1 (multiple targets allowed)
+    static class RecordPlusDifferentFieldBean {
+        @JacksonInject("id")
+        public String otherField;
+
+        final String recordValue;
+
+        @JsonCreator
+        RecordPlusDifferentFieldBean(
+                @JacksonInject("id") @JsonProperty("renamed") String recordValue
+        ) {
+            this.recordValue = recordValue;
+        }
+    }
+
+    @Test
+    void testRecordRenamedPlusDifferentFieldBothInjected() throws Exception
+    {
+        ObjectReader reader = newJsonMapper()
+                .readerFor(RecordPlusDifferentFieldBean.class)
+                .with(INJECTABLES);
+
+        RecordPlusDifferentFieldBean bean = reader.readValue("{}");
+
+        // Both should be injected - different properties with same ID
+        assertEquals("injectedValue", bean.recordValue,
+                "Renamed creator param should be injected");
+        assertEquals("injectedValue", bean.otherField,
+                "Different property field should ALSO be injected");
+    }
 }

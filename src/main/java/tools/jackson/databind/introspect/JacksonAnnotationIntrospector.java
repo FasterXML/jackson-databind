@@ -1351,6 +1351,19 @@ public class JacksonAnnotationIntrospector
         return (ann == null) ? null : new JsonPOJOBuilder.Value(ann);
     }
 
+    @Override
+    public String findBuilderPrefix(MapperConfig<?> config, AnnotatedClass valueClass)
+    {
+        JsonDeserialize ann = _findAnnotation(valueClass, JsonDeserialize.class);
+        if (ann != null) {
+            String prefix = ann.builderPrefix();
+            if (!JsonDeserialize.USE_DEFAULT_PREFIX.equals(prefix)) {
+                return prefix;
+            }
+        }
+        return null;
+    }
+
     /*
     /**********************************************************************
     /* Deserialization: property annotations

@@ -1343,6 +1343,56 @@ public abstract class JsonNode
      */
     public abstract Optional<BigDecimal> asDecimalOpt();
 
+    // // Container access: ArrayNode / ObjectNode
+
+    /**
+     * Method that will try to return this node as an {@link ArrayNode}:
+     * if this node is already an {@code ArrayNode}, {@code this} is returned;
+     * otherwise a {@link JsonNodeException} will be thrown.
+     *
+     * @return This node as {@link ArrayNode} (if it is one)
+     *
+     * @throws JsonNodeException if this node is not an {@link ArrayNode}
+     *
+     * @since 3.1
+     */
+    public abstract ArrayNode asArray();
+
+    /**
+     * Similar to {@link #asArray()}, but instead of throwing an exception for
+     * non-array nodes, will return {@code Optional.empty()}.
+     *
+     * @return This node as {@code Optional<ArrayNode>} (if it is an array node);
+     *   {@code Optional.empty()} otherwise
+     *
+     * @since 3.1
+     */
+    public abstract Optional<ArrayNode> asArrayOpt();
+
+    /**
+     * Method that will try to return this node as an {@link ObjectNode}:
+     * if this node is already an {@code ObjectNode}, {@code this} is returned;
+     * otherwise a {@link JsonNodeException} will be thrown.
+     *
+     * @return This node as {@link ObjectNode} (if it is one)
+     *
+     * @throws JsonNodeException if this node is not an {@link ObjectNode}
+     *
+     * @since 3.1
+     */
+    public abstract ObjectNode asObject();
+
+    /**
+     * Similar to {@link #asObject()}, but instead of throwing an exception for
+     * non-object nodes, will return {@code Optional.empty()}.
+     *
+     * @return This node as {@code Optional<ObjectNode>} (if it is an object node);
+     *   {@code Optional.empty()} otherwise
+     *
+     * @since 3.1
+     */
+    public abstract Optional<ObjectNode> asObjectOpt();
+
     /*
     /**********************************************************************
     /* Public API, extended traversal with "required()"

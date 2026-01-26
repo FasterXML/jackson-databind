@@ -420,10 +420,24 @@ public class DefaultAccessorNamingStrategy
         public AccessorNamingStrategy forBuilder(MapperConfig<?> config,
                 AnnotatedClass builderClass, BeanDescription valueTypeDesc)
         {
-            AnnotationIntrospector ai = config.isAnnotationProcessingEnabled()
-                    ? config.getAnnotationIntrospector() : null;
-            JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(config, builderClass);
-            String mutatorPrefix = (builderConfig == null) ? _withPrefix : builderConfig.withPrefix;
+            final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+            // [databind#2624] First check @JsonDeserialize.builderPrefix on value class
+            if (valueTypeDesc != null) {
+                String prefix = ai.findBuilderPrefix(config, valueTypeDesc.getClassInfo());
+                if (prefix != null) {
+                    return new DefaultAccessorNamingStrategy(config, builderClass,
+                            prefix, _getterPrefix, _isGetterPrefix,
+                            _baseNameValidator);
+                }
+            }
+
+            // Otherwise check @JsonPOJOBuilder on builder class
+            String mutatorPrefix = _withPrefix;
+            JsonPOJOBuilder.Value builderConfig = ai.findPOJOBuilderConfig(config, builderClass);
+            if (builderConfig != null) {
+                mutatorPrefix = builderConfig.withPrefix;
+            }
+
             return new DefaultAccessorNamingStrategy(config, builderClass,
                     mutatorPrefix, _getterPrefix, _isGetterPrefix,
                     _baseNameValidator);

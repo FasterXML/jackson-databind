@@ -1291,6 +1291,10 @@ public class ObjectMapper
         return readValue(treeAsTokens(n), valueType);
     }
 
+
+    /**
+     * @deprecated Since 3.1 use overload with {@link JsonNode} as first argument
+     */
     @Deprecated // @since 3.1
     public <T> T treeToValue(TreeNode n, Class<T> valueType)
         throws JacksonException

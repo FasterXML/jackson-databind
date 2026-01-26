@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Feature;
+import com.fasterxml.jackson.annotation.OptBoolean;
 
 import tools.jackson.core.type.TypeReference;
 
@@ -59,6 +60,24 @@ public class OffsetTimeDeserTest extends DateTimeTestBase
 
         public WrapperWithReadTimestampsAsNanosEnabled() { }
         public WrapperWithReadTimestampsAsNanosEnabled(OffsetTime v) { value = v; }
+    }
+
+    // For testing custom format (covers withDateFormat)
+    static class WrapperWithCustomPattern {
+        @JsonFormat(pattern = "HH:mm:ssXXX")
+        public OffsetTime value;
+
+        public WrapperWithCustomPattern() { }
+        public WrapperWithCustomPattern(OffsetTime v) { value = v; }
+    }
+
+    // For testing strict mode with custom format
+    static class StrictWrapper {
+        @JsonFormat(pattern = "HH:mmXXX", lenient = OptBoolean.FALSE)
+        public OffsetTime value;
+
+        public StrictWrapper() { }
+        public StrictWrapper(OffsetTime v) { value = v; }
     }
 
     private final ObjectMapper MAPPER = newMapper();
@@ -346,5 +365,113 @@ public class OffsetTimeDeserTest extends DateTimeTestBase
 
         String valueFromEmptyStr = mapper.writeValueAsString(asMap(key, ""));
         assertThrows(MismatchedInputException.class, () -> objectReader.readValue(valueFromEmptyStr));
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for custom pattern/format (covers withDateFormat)
+    /**********************************************************
+     */
+
+    @Test
+    public void testDeserializationWithCustomPattern() throws Exception
+    {
+        ObjectReader reader = MAPPER.readerFor(WrapperWithCustomPattern.class);
+
+        OffsetTime expected = OffsetTime.of(15, 30, 45, 0, ZoneOffset.ofHours(2));
+        WrapperWithCustomPattern result = reader.readValue(a2q("{'value':'15:30:45+02:00'}"));
+        assertEquals(expected, result.value);
+
+        // Also test with UTC offset
+        expected = OffsetTime.of(10, 15, 30, 0, ZoneOffset.UTC);
+        result = reader.readValue(a2q("{'value':'10:15:30Z'}"));
+        assertEquals(expected, result.value);
+    }
+
+    @Test
+    public void testStrictCustomPatternInvalidFormat() throws Exception
+    {
+        // The strict wrapper expects HH:mmXXX format, so full timestamp should fail
+        assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue("{\"value\":\"15:30:45+02:00\"}", StrictWrapper.class));
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for TRUNCATE_TO_MSECS_ON_READ feature
+    /**********************************************************
+     */
+
+    @Test
+    public void testDeserializationTruncateToMillis() throws Exception
+    {
+        ObjectReader reader = MAPPER.readerFor(OffsetTime.class)
+                .with(DateTimeFeature.TRUNCATE_TO_MSECS_ON_READ);
+
+        // From string with nanoseconds
+        OffsetTime result = reader.readValue("\"10:30:45.123456789+02:00\"");
+        assertEquals(123000000, result.getNano(), "Nanoseconds should be truncated to milliseconds");
+        assertEquals(10, result.getHour());
+        assertEquals(30, result.getMinute());
+        assertEquals(45, result.getSecond());
+
+        // From array with nanoseconds
+        result = reader.with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+                .readValue("[10,30,45,123456789,\"+02:00\"]");
+        assertEquals(123000000, result.getNano(), "Nanoseconds from array should be truncated to milliseconds");
+    }
+
+    @Test
+    public void testDeserializationTruncateToMillisAlreadyTruncated() throws Exception
+    {
+        ObjectReader reader = MAPPER.readerFor(OffsetTime.class)
+                .with(DateTimeFeature.TRUNCATE_TO_MSECS_ON_READ);
+
+        // Value already at millisecond precision should remain unchanged
+        OffsetTime result = reader.readValue("\"10:30:45.123+02:00\"");
+        assertEquals(123000000, result.getNano());
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for error cases
+    /**********************************************************
+     */
+
+    @Test
+    public void testDeserializationFromIntegerFails() throws Exception
+    {
+        // OffsetTime cannot be deserialized from a standalone integer
+        // (needs timezone info)
+        try {
+            READER.readValue("12345");
+            fail("Should not accept integer for OffsetTime");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "raw timestamp");
+        }
+    }
+
+    @Test
+    public void testDeserializationFromArrayMissingTimeZone() throws Exception
+    {
+        // Array with numeric values but missing timezone string at the end
+        try {
+            READER.readValue("[10,30,45,123]");
+            fail("Should fail when timezone string is missing");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Expected string for TimeZone");
+        }
+    }
+
+    @Test
+    public void testDeserializationFromArrayMissingTimeZoneMinimal() throws Exception
+    {
+        // Array with just hour and minute but no timezone
+        try {
+            READER.readValue("[10,30]");
+            fail("Should fail when timezone string is missing");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Expected string for TimeZone");
+        }
     }
 }

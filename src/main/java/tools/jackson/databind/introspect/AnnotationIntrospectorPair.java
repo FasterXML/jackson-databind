@@ -636,6 +636,12 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public String findBuilderPrefix(MapperConfig<?> config, AnnotatedClass valueClass) {
+        String result = _primary.findBuilderPrefix(config, valueClass);
+        return (result == null) ? _secondary.findBuilderPrefix(config, valueClass) : result;
+    }
+
+    @Override
     public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
         JsonCreator.Mode mode = _primary.findCreatorAnnotation(config, a);
         return (mode == null) ? _secondary.findCreatorAnnotation(config, a) : mode;

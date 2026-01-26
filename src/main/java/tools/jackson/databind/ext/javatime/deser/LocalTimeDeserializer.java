@@ -166,8 +166,7 @@ public class LocalTimeDeserializer extends JSR310DateTimeDeserializerBase<LocalT
         } else if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
             result = (LocalTime) p.getEmbeddedObject();
         } else if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
-            _throwNoNumericTimestampNeedTimeZone(p, ctxt);
-            return null; // Unreachable but satisfies compiler
+            return _throwNoNumericTimestampNeedTimeZone(p, ctxt);
         } else {
             result = _handleUnexpectedToken(ctxt, p, "Expected array or string.");
         }

@@ -235,6 +235,16 @@ public class ArrayNode
         return true;
     }
 
+    @Override
+    public ArrayNode asArray() {
+        return this;
+    }
+
+    @Override
+    public Optional<ArrayNode> asArrayOpt() {
+        return Optional.of(this);
+    }
+
     @Override public JsonToken asToken() { return JsonToken.START_ARRAY; }
 
     @Override

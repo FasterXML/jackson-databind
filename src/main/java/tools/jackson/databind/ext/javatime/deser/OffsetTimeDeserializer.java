@@ -119,8 +119,7 @@ public class OffsetTimeDeserializer extends JSR310DateTimeDeserializerBase<Offse
             if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
                 result = (OffsetTime) p.getEmbeddedObject();
             } else if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
-                _throwNoNumericTimestampNeedTimeZone(p, ctxt);
-                return null; // Unreachable but satisfies compiler
+                return _throwNoNumericTimestampNeedTimeZone(p, ctxt);
             } else {
                 throw ctxt.wrongTokenException(p, handledType(), JsonToken.START_ARRAY,
                         "Expected array or string");

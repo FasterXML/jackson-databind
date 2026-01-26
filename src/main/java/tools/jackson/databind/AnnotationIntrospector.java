@@ -1135,6 +1135,24 @@ public abstract class AnnotationIntrospector
     }
 
     /**
+     * Method for finding the builder prefix specified on the value class
+     * via {@code @JsonDeserialize(builderPrefix=...)}. This provides an
+     * alternative way to configure the prefix used by Builder "with-methods"
+     * without having to annotate the Builder class itself with {@code @JsonPOJOBuilder}.
+     *
+     * @param config Effective mapper configuration in use
+     * @param valueClass The value class (not Builder class!) to check for the annotation
+     *
+     * @return Builder prefix if explicitly specified; {@code null} to use default behavior
+     *   (check {@code @JsonPOJOBuilder} on builder class, or use global default)
+     *
+     * @since 3.1
+     */
+    public String findBuilderPrefix(MapperConfig<?> config, AnnotatedClass valueClass) {
+        return null;
+    }
+
+    /**
      * Method called to check whether potential Creator (constructor or static factory
      * method) has explicit annotation to indicate it as actual Creator; and if so,
      * which {@link com.fasterxml.jackson.annotation.JsonCreator.Mode} to use.

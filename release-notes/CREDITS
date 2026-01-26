@@ -166,6 +166,8 @@ Victor Noël (@victornoel)
  * Requested #1497: Allow skipping `@JsonUnwrapped` values if no properties matched,
    `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled
   [3.1.0]
+ * Requested #2343: Add `JsonNode.asArray()` and `JsonNode.asObject()`
+  [3.1.0]
 
 Ulf Andersson (@ulfandersson)
  * Reported #2124: Allow coercion of '[ ]' into empty/null String with
@@ -175,7 +177,12 @@ Ulf Andersson (@ulfandersson)
 Erik Hesselink (@hesselink)
  * Reported #2617: `@JsonDeserialize.converter` from an interface doesn't work
   [3.1.0]
- 
+
+Kenneth Jorgensen (@kennethjor)
+ * Requested #2624: Allow overriding builder's "withPrefix" with new
+  `@JsonDeserialize.builderPrefix` property
+  [3.1.0]
+
 Garret Wilson (@garretwilson)
  * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
    getter method auto-detection for Records

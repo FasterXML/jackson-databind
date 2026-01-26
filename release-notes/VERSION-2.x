@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.22.0 (not yet released)
+
+#3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
+ (requested by @SaiKrishna369)
+ (contributed by Lee Jiwon)
+
 2.21.0 (18-Jan-2026)
 
 #1381: Add a way to specify "inject-only" with `@JacksonInject`

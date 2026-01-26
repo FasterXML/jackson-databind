@@ -3,13 +3,13 @@ package tools.jackson.databind.ext.javatime.deser;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
-import tools.jackson.databind.exc.InvalidFormatException;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -20,7 +20,9 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
 {
     public static final MonthDeserializer INSTANCE = new MonthDeserializer();
 
-    private final Set<String> possibleMonthStringValues = Arrays.stream(Month.values()).map(Month::name).collect(Collectors.toSet());
+    // @since 3.1
+    private final Map<String, Month> _byNameLookup = Arrays.stream(Month.values())
+            .collect(Collectors.toUnmodifiableMap(Month::name, Function.identity()));
 
     /**
      * NOTE: only {@code public} so that use via annotations (see [modules-java8#202])
@@ -130,13 +132,13 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
                 }
                 // Second: try textual input
                 // Handle English month names such as "JANUARY" from the actual Month Enum names
-                if (possibleMonthStringValues.contains(string)) {
-                    return Month.valueOf(string);
+                Month m = _byNameLookup.get(string);
+                if (m != null) {
+                    return m;
                 }
-                throw InvalidFormatException.from(p,
-                        String.format("Cannot deserialize value of type `java.time.Month` from String \"%s\": not one of the values accepted for Enum class: %s",
-                                string, Arrays.toString(Month.values())),
-                        string, Month.class);
+                return (Month) ctxt.handleWeirdStringValue(handledType(), string, 
+                        "not one of known `Month` values: %s",
+                                Arrays.toString(Month.values()));
             }
             return Month.from(_formatter.parse(string));
         } catch (DateTimeException e) {

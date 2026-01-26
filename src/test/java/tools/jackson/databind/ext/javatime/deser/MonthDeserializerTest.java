@@ -76,9 +76,9 @@ public class MonthDeserializerTest extends DateTimeTestBase
 
     @ParameterizedTest
     @CsvSource({
-            "notamonth , 'Cannot deserialize value of type `java.time.Month` from String \"notamonth\": not one of the values accepted for Enum class:'",
-            "JANUAR    , 'Cannot deserialize value of type `java.time.Month` from String \"JANUAR\": not one of the values accepted for Enum class:'",
-            "march     , 'Cannot deserialize value of type `java.time.Month` from String \"march\": not one of the values accepted for Enum class:'",
+            "notamonth , 'Cannot deserialize value of type `java.time.Month` from String \"notamonth\": not one of known `Month` values:'",
+            "JANUAR    , 'Cannot deserialize value of type `java.time.Month` from String \"JANUAR\": not one of known `Month` values:'",
+            "march     , 'Cannot deserialize value of type `java.time.Month` from String \"march\": not one of known `Month` values:'",
             "0         , 'month number outside 1-12'",
             "13        , 'month number outside 1-12'",
     })

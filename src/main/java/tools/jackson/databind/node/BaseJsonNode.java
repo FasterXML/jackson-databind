@@ -418,7 +418,7 @@ public abstract class BaseJsonNode
     @Override
     public ArrayNode asArray() {
         return _reportWrongNodeType(
-                "Method `asArray()` called on non-array node of type %s",
+                "Can only call `asArray()` on `ArrayNode`, not %s",
                 ClassUtil.nameOf(getClass()));
     }
 
@@ -430,7 +430,7 @@ public abstract class BaseJsonNode
     @Override
     public ObjectNode asObject() {
         return _reportWrongNodeType(
-                "Method `asObject()` called on non-object node of type %s",
+                "Can only call `asObject()` on `ObjectNode`, not %s",
                 ClassUtil.nameOf(getClass()));
     }
 

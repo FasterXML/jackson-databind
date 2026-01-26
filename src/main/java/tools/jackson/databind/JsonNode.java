@@ -1349,9 +1349,6 @@ public abstract class JsonNode
      * Method that will try to return this node as an {@link ArrayNode}:
      * if this node is already an {@code ArrayNode}, {@code this} is returned;
      * otherwise a {@link JsonNodeException} will be thrown.
-     *<p>
-     * This method is useful when iterating over the elements of an array and
-     * expecting array elements to also be arrays.
      *
      * @return This node as {@link ArrayNode} (if it is one)
      *
@@ -1376,14 +1373,6 @@ public abstract class JsonNode
      * Method that will try to return this node as an {@link ObjectNode}:
      * if this node is already an {@code ObjectNode}, {@code this} is returned;
      * otherwise a {@link JsonNodeException} will be thrown.
-     *<p>
-     * This method is useful when iterating over the elements of an array and
-     * expecting elements to be objects, allowing for convenient modification:
-     *<pre>
-     *   for (JsonNode element : arrayNode) {
-     *       element.asObject().put("extraProperty", 42);
-     *   }
-     *</pre>
      *
      * @return This node as {@link ObjectNode} (if it is one)
      *

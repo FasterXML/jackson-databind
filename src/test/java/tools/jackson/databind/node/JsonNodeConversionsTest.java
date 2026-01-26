@@ -397,7 +397,7 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
     public void testNodeConvert() throws Exception
     {
         ObjectNode src = (ObjectNode) MAPPER.readTree("{}");
-        TreeNode node = src;
+        JsonNode node = src;
         ObjectNode result = MAPPER.treeToValue(node, ObjectNode.class);
         // should just cast...
         assertSame(src, result);

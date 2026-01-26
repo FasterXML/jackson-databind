@@ -157,7 +157,7 @@ public class JsonNodeAsContainerTest
                 "For (" + node.getClass().getSimpleName() + ") value: " + node);
         assertThat(e.getMessage())
             .contains("asArray()")
-            .contains("non-array node");
+            .contains("on `ArrayNode`");
 
         // asArrayOpt() should return empty Optional
         Optional<ArrayNode> opt = node.asArrayOpt();
@@ -173,7 +173,7 @@ public class JsonNodeAsContainerTest
                 "For (" + node.getClass().getSimpleName() + ") value: " + node);
         assertThat(e.getMessage())
             .contains("asObject()")
-            .contains("non-object node");
+            .contains("on `ObjectNode`");
 
         // asObjectOpt() should return empty Optional
         Optional<ObjectNode> opt = node.asObjectOpt();

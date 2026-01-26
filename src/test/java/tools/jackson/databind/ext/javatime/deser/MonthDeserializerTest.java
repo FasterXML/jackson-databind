@@ -379,9 +379,9 @@ public class MonthDeserializerTest extends DateTimeTestBase
 
     @ParameterizedTest
     @CsvSource({
-            "12  , 'Month number 12 not allowed for 0-based Month.'",
-            "-1  , 'Month number -1 not allowed for 0-based Month.'",
-            "100 , 'Month number 100 not allowed for 0-based Month.'",
+            "12  , 'Month number 12 not allowed for 0-based Month'",
+            "-1  , 'Month number -1 not allowed for 0-based Month'",
+            "100 , 'Month number 100 not allowed for 0-based Month'",
     })
     public void testBadDeserializationAsString_zeroBasedOutOfRange(String monthSpec, String expectedMessage) {
         String value = q(monthSpec);

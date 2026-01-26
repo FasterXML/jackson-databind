@@ -39,9 +39,7 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
     }
 
     protected MonthDeserializer(MonthDeserializer base,
-                                   Boolean leniency,
-                                   DateTimeFormatter formatter,
-                                   JsonFormat.Shape shape) {
+            Boolean leniency, DateTimeFormatter formatter, JsonFormat.Shape shape) {
         super(base, leniency, formatter, shape);
     }
 
@@ -57,7 +55,7 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
 
     @Override
     public Month deserialize(JsonParser p, DeserializationContext ctxt)
-            throws JacksonException
+        throws JacksonException
     {
         if (p.hasToken(JsonToken.VALUE_STRING)) {
             return _fromString(p, ctxt, p.getString());
@@ -66,7 +64,7 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
         if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
             final int raw = p.getIntValue();
             if (ctxt.isEnabled(DateTimeFeature.ONE_BASED_MONTHS)) {
-                return _decodeMonth(raw, ctxt);
+                return _decode1BasedMonth(raw, ctxt);
             }
             // default: 0‑based index (0 == JANUARY)
             if (raw < 0 || raw >= 12) {
@@ -113,8 +111,8 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
     }
 
     protected Month _fromString(JsonParser p, DeserializationContext ctxt,
-                                   String string0)
-            throws JacksonException
+            String string0)
+        throws JacksonException
     {
         String string = string0.trim();
         if (string.length() == 0) {
@@ -127,14 +125,14 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
             if (_formatter == null) {
                 // First: try purely numeric input
                 try {
-                    int oneBasedMonthNumber = Integer.parseInt(string);
+                    int monthNumber = Integer.parseInt(string);
                     if (ctxt.isEnabled(DateTimeFeature.ONE_BASED_MONTHS)) {
-                        return _decodeMonth(oneBasedMonthNumber, ctxt);
+                        return _decode1BasedMonth(monthNumber, ctxt);
                     }
-                    if (oneBasedMonthNumber < 0 || oneBasedMonthNumber >= 12) { // invalid for 0‑based
-                        throw new InvalidFormatException(p, "Month number " + oneBasedMonthNumber + " not allowed for 1-based Month.", oneBasedMonthNumber, Integer.class);
+                    if (monthNumber < 0 || monthNumber >= 12) { // invalid for 0‑based
+                        throw new InvalidFormatException(p, "Month number " + monthNumber + " not allowed for 0-based Month", monthNumber, Integer.class);
                     }
-                    return Month.values()[oneBasedMonthNumber]; // 0‑based mapping
+                    return Month.values()[monthNumber]; // 0‑based mapping
                 } catch (NumberFormatException nfe) {
                     // fall through – treat as textual month name
                 }
@@ -157,7 +155,7 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
     /**
      * Validate and convert a 1‑based month number to {@link Month}.
      */
-    private Month _decodeMonth(int oneBasedMonthNumber, DeserializationContext ctxt)
+    private Month _decode1BasedMonth(int oneBasedMonthNumber, DeserializationContext ctxt)
             throws JacksonException
     {
         if (Month.JANUARY.getValue() <= oneBasedMonthNumber && oneBasedMonthNumber <= Month.DECEMBER.getValue()) {

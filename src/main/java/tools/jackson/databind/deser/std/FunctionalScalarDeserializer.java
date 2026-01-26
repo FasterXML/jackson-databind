@@ -22,6 +22,15 @@ import tools.jackson.databind.util.ExceptionUtil;
  * supports other JSON scalar types via {@code getValueAsString()} coercion.
  * Non-scalar JSON values (arrays, objects, embedded objects) are rejected.
  * <p>
+ * <b>Error handling:</b>
+ * <ul>
+ *   <li>{@link JacksonException} thrown by user code is propagated as-is.</li>
+ *   <li>Other exceptions are wrapped in
+ *       {@link tools.jackson.databind.exc.InvalidFormatException}.</li>
+ *   <li>If {@link tools.jackson.databind.DeserializationFeature#WRAP_EXCEPTIONS}
+ *       is disabled, {@link RuntimeException} is thrown as-is without wrapping.</li>
+ * </ul>
+ * <p>
  * Usage examples:
  * <pre>
  * // Simple case - method reference

@@ -5,8 +5,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.core.JsonParser;
 import tools.jackson.core.type.TypeReference;
 
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.CoercionAction;
@@ -512,6 +515,97 @@ public class FunctionalScalarDeserializer4004Test
         } catch (MismatchedInputException e) {
             verifyException(e, "not a valid textual representation");
             verifyException(e, "BiFunction custom error");
+        }
+    }
+
+    @Test
+    public void testFunctionThrowsJacksonExceptionPropagatedAsIs() throws Exception
+    {
+        SimpleModule module = new SimpleModule("test");
+        module.addDeserializer(Bar.class,
+                new FunctionalScalarDeserializer<>(Bar.class, s -> {
+                    throw DatabindException.from((JsonParser) null, "User JacksonException");
+                }));
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
+
+        try {
+            mapper.readValue("\"test\"", Bar.class);
+            fail("Should throw exception");
+        } catch (DatabindException e) {
+            assertEquals("User JacksonException", e.getOriginalMessage());
+        }
+    }
+
+    @Test
+    public void testBiFunctionThrowsJacksonExceptionPropagatedAsIs() throws Exception
+    {
+        SimpleModule module = new SimpleModule("test");
+        module.addDeserializer(Bar.class,
+                new FunctionalScalarDeserializer<>(Bar.class, (p, ctx) -> {
+                    throw DatabindException.from(p, "User BiFunction JacksonException");
+                }));
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
+
+        try {
+            mapper.readValue("\"test\"", Bar.class);
+            fail("Should throw exception");
+        } catch (DatabindException e) {
+            assertEquals("User BiFunction JacksonException", e.getOriginalMessage());
+        }
+    }
+
+    @Test
+    public void testWrapExceptionsEnabled() throws Exception
+    {
+        SimpleModule module = new SimpleModule("test");
+        module.addDeserializer(Bar.class,
+                new FunctionalScalarDeserializer<>(Bar.class, s -> {
+                    throw new RuntimeException("User error");
+                }));
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .enable(DeserializationFeature.WRAP_EXCEPTIONS)
+                .build();
+
+        try {
+            mapper.readValue("\"test\"", Bar.class);
+            fail("Should throw exception");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "not a valid textual representation");
+            verifyException(e, "User error");
+        } catch (Exception e) {
+            fail("Should wrap as MismatchedInputException, got: " + e.getClass().getName());
+        }
+    }
+
+    @Test
+    public void testWrapExceptionsDisabled() throws Exception
+    {
+        SimpleModule module = new SimpleModule("test");
+        module.addDeserializer(Bar.class,
+                new FunctionalScalarDeserializer<>(Bar.class, s -> {
+                    throw new RuntimeException("User error");
+                }));
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .disable(DeserializationFeature.WRAP_EXCEPTIONS)
+                .build();
+
+        try {
+            mapper.readValue("\"test\"", Bar.class);
+            fail("Should throw exception");
+        } catch (MismatchedInputException e) {
+            fail("Should not wrap exception when WRAP_EXCEPTIONS is disabled");
+        } catch (RuntimeException e) {
+            verifyException(e, "User error");
         }
     }
 }

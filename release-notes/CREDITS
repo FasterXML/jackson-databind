@@ -166,6 +166,8 @@ Victor Noël (@victornoel)
  * Requested #1497: Allow skipping `@JsonUnwrapped` values if no properties matched,
    `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled
   [3.1.0]
+ * Requested #2343: Add `JsonNode.asArray()` and `JsonNode.asObject()`
+  [3.1.0]
 
 Ulf Andersson (@ulfandersson)
  * Reported #2124: Allow coercion of '[ ]' into empty/null String with

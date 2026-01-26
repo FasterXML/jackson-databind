@@ -411,6 +411,36 @@ public abstract class BaseJsonNode
 
     /*
     /**********************************************************************
+    /* Defaulting for container access (asArray/asObject)
+    /**********************************************************************
+     */
+
+    @Override
+    public ArrayNode asArray() {
+        return _reportWrongNodeType(
+                "Method `asArray()` called on non-array node of type %s",
+                ClassUtil.nameOf(getClass()));
+    }
+
+    @Override
+    public Optional<ArrayNode> asArrayOpt() {
+        return Optional.empty();
+    }
+
+    @Override
+    public ObjectNode asObject() {
+        return _reportWrongNodeType(
+                "Method `asObject()` called on non-object node of type %s",
+                ClassUtil.nameOf(getClass()));
+    }
+
+    @Override
+    public Optional<ObjectNode> asObjectOpt() {
+        return Optional.empty();
+    }
+
+    /*
+    /**********************************************************************
     /* Basic definitions for non-container types
     /**********************************************************************
      */

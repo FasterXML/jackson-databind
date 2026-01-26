@@ -39,6 +39,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
   `ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT`
  (reported by Ulf A)
  (fix by @cowtowncoder, w/ Claude code)
+#2343: Add `JsonNode.asArray()` and `JsonNode.asObject()`
+ (requested by Victor N)
 #2438: Prevent use of setter/field in case Creator property
   already exists, duplicate value seen
 #2617: `@JsonDeserialize.converter` from an interface doesn't work

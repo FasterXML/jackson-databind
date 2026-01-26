@@ -244,6 +244,16 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return true;
     }
 
+    @Override
+    public ObjectNode asObject() {
+        return this;
+    }
+
+    @Override
+    public Optional<ObjectNode> asObjectOpt() {
+        return Optional.of(this);
+    }
+
     @Override public JsonToken asToken() { return JsonToken.START_OBJECT; }
 
     @Override

@@ -1150,19 +1150,26 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
 
     /**
      * Method for setting value of a property at specified JSON Pointer location
-     * on this {@code ObjectNode}: this will create intermediate
-     * {@link ObjectNode}s and {@link ArrayNode}s as necessary (following the
-     * same logic as {@link #withObject(JsonPointer)}).
+     * on this {@code ObjectNode}. Intermediate {@link ObjectNode}s are created
+     * as necessary (following the same logic as {@link #withObject(JsonPointer)}).
      *<p>
-     * This method has two important limitations: first, if the pointer is empty
-     * (referring to this node itself), an {@link UnsupportedOperationException}
-     * is thrown since replacing the context node is not possible. Second, if the
-     * last segment of the pointer is an array index (like {@code /arr/0}), the
-     * parent array must already contain enough elements; this method will not
-     * expand arrays to create missing elements.
+     * <b>Array index handling:</b> If the last segment appears to be an array index
+     * (non-negative integer like {@code /arr/0}), the method checks if the parent
+     * node already exists and is an {@link ArrayNode}:
+     * <ul>
+     *   <li>If parent is an existing {@link ArrayNode}: sets value at that index
+     *       (the array must already contain enough elements; arrays are NOT expanded)</li>
+     *   <li>Otherwise: treats the numeric segment as a property name (e.g., property "0")</li>
+     * </ul>
+     *<p>
+     * <b>Limitations:</b>
+     * <ul>
+     *   <li>Empty pointer (referring to this node) throws {@link UnsupportedOperationException}</li>
+     *   <li>Arrays are NOT created or expanded automatically</li>
+     * </ul>
      *
      * @param ptr {@link JsonPointer} identifying location to set the value at
-     * @param value Value to set at the specified path
+     * @param value Value to set at the specified path; {@code null} becomes a {@link NullNode}
      *
      * @return This node (to allow chaining)
      *
@@ -1187,8 +1194,11 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         if (lastSegment.mayMatchElement()) {
             int index = lastSegment.getMatchingIndex();
             if (index >= 0) {
-                withArray(parentPtr).set(index, value);
-                return this;
+                JsonNode parent = this.at(parentPtr);
+                if (parent.isArray()) {
+                    ((ArrayNode) parent).set(index, value);
+                    return this;
+                }
             }
         }
         String propName = lastSegment.getMatchingProperty();

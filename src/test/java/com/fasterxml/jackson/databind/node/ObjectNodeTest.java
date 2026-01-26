@@ -741,6 +741,47 @@ public class ObjectNodeTest
         assertEquals(2, root.at("/data/items").size());
     }
 
+    // [databind#3884]: numeric segment is treated as property name unless parent is ArrayNode
+    @Test
+    public void testPutWithNumericPropertyName() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+
+        // "/0" on ObjectNode: treat "0" as property name
+        root.put(JsonPointer.compile("/0"), MAPPER.getNodeFactory().textNode("value"));
+
+        assertTrue(root.has("0"));
+        assertEquals("value", root.get("0").asText());
+    }
+
+    // [databind#3884]: numeric segment is treated as property name when parent path is missing
+    @Test
+    public void testPutArrayIndexWhenParentMissing() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+
+        // "/arr/0" with missing parent: treat "0" as property name -> {"arr":{"0":"value"}}
+        root.put(JsonPointer.compile("/arr/0"), MAPPER.getNodeFactory().textNode("value"));
+
+        assertTrue(root.has("arr"));
+        assertTrue(root.get("arr").isObject());
+        assertEquals("value", root.at("/arr/0").asText());
+    }
+
+    // [databind#3884]: numeric segment is treated as property name when parent is ObjectNode
+    @Test
+    public void testPutNumericSegmentOnExistingObject() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+        root.putObject("obj");
+
+        // "/obj/0" with ObjectNode parent: treat "0" as property name
+        root.put(JsonPointer.compile("/obj/0"), MAPPER.getNodeFactory().textNode("value"));
+
+        assertTrue(root.get("obj").isObject());
+        assertEquals("value", root.at("/obj/0").asText());
+    }
+
     private String _toString(JsonNode n) {
         return n.properties().stream()
                 .map(e -> e.getKey() + "/" + e.getValue())

@@ -38,6 +38,11 @@ public class MonthDeserializerTest extends DateTimeTestBase
         public Wrapper() { }
     }
 
+    static class WrapperWithFormat {
+        @JsonFormat(pattern = "MMM", locale = "en")
+        public Month value;
+    }
+
     @ParameterizedTest
     @EnumSource(Month.class)
     public void testDeserializationAsString01_oneBased(Month expectedMonth) throws Exception
@@ -374,12 +379,12 @@ public class MonthDeserializerTest extends DateTimeTestBase
 
     @ParameterizedTest
     @CsvSource({
-            "12  , 'Month number 12 not allowed for 1-based Month.'",
-            "-1  , 'Month number -1 not allowed for 1-based Month.'",
-            "100 , 'Month number 100 not allowed for 1-based Month.'",
+            "12  , 'Month number 12 not allowed for 0-based Month.'",
+            "-1  , 'Month number -1 not allowed for 0-based Month.'",
+            "100 , 'Month number 100 not allowed for 0-based Month.'",
     })
     public void testBadDeserializationAsString_zeroBasedOutOfRange(String monthSpec, String expectedMessage) {
-        String value = "\"" + monthSpec + '"';
+        String value = q(monthSpec);
         assertError(
             () -> readerForZeroBased().readValue(value),
             InvalidFormatException.class,
@@ -453,11 +458,6 @@ public class MonthDeserializerTest extends DateTimeTestBase
     /* Tests for custom DateTimeFormatter
     /**********************************************************************
      */
-
-    static class WrapperWithFormat {
-        @JsonFormat(pattern = "MMM", locale = "en")
-        public Month value;
-    }
 
     @Test
     public void testDeserializationWithCustomFormat() throws Exception

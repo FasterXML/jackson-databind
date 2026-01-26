@@ -1994,3 +1994,7 @@ Johnny Lim (@izeye)
 Hélios Gilles (@RoiSoleil)
  * Contributed #5413: Add/support forward reference resolution for array values
   [2.21.0]
+
+Lee Jiwon (@dlwldnjs1009)
+ * Contributed #3884: Add `ObjectNode.put(JsonPointe, JsonNode)` method
+  [2.22.0]

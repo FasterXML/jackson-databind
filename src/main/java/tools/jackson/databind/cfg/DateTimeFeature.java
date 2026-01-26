@@ -264,6 +264,30 @@ public enum DateTimeFeature implements DatatypeFeature
      */
     TRUNCATE_TO_MSECS_ON_WRITE(false),
 
+    /**
+     * Feature that controls how <b>zero timezone offset</b> ({@code offset == 0})
+     * is serialized: as "Z" (disabled, default in 3.x) or as numeric offset
+     * "+00:00" / "+0000" (enabled, for Jackson 2.x backward compatibility).
+     *<p>
+     * NOTE: The name "UTC" is historical and kept for public API naming consistency.
+     * This feature applies to <b>ALL timezones where the actual offset is zero</b>
+     * at serialization time (e.g., "UTC", "GMT", "Europe/London" in winter),
+     * regardless of the timezone ID. The check is based on offset value
+     * ({@code offset == 0}), not timezone name.
+     *<p>
+     * Only affects serialization when using
+     * {@link tools.jackson.databind.util.StdDateFormat} (the default).
+     * Custom {@link java.text.DateFormat} instances are not modified by this feature.
+     *<p>
+     * When enabled, the colon format ("+00:00" vs "+0000") is controlled by
+     * {@link tools.jackson.databind.util.StdDateFormat#withColonInTimeZone(boolean)}.
+     *<p>
+     * Feature is disabled by default to maintain Jackson 3.x standard behavior ("Z").
+     *
+     * @since 3.1
+     */
+    WRITE_UTC_AS_OFFSET(false),
+
     ;
 
     private final static int FEATURE_INDEX = DatatypeFeatures.FEATURE_INDEX_DATETIME;

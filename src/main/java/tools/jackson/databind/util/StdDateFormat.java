@@ -150,6 +150,18 @@ public class StdDateFormat
      */
     protected boolean _tzSerializedWithColon = true;
 
+    /**
+     * Whether zero timezone offset should be serialized as "Z" (true, default in 3.x)
+     * or as numeric offset "+00:00"/"+0000" (false, legacy 2.x behavior).
+     *<p>
+     * NOTE: Applies to ALL timezones with zero offset, not just UTC TimeZone ID.
+     *<p>
+     * Default is {@code true} in Jackson 3.0; was effectively {@code false} in 2.x.
+     *
+     * @since 3.1
+     */
+    protected boolean _writeZeroOffsetAsZ = true;
+
     /*
     /**********************************************************************
     /* Life cycle, accessing singleton "standard" formats
@@ -157,15 +169,26 @@ public class StdDateFormat
      */
 
     public StdDateFormat() {
-        _locale = DEFAULT_LOCALE;
+        // NOTE: _timezone intentionally left null (means "use default when needed")
+        // Default 3.x behavior: colon in offset ("+HH:mm") and "Z" for zero offset
+        this(null, DEFAULT_LOCALE, null, true, true);
     }
 
     protected StdDateFormat(TimeZone tz, Locale loc, Boolean lenient,
             boolean formatTzOffsetWithColon) {
+        this(tz, loc, lenient, formatTzOffsetWithColon, true);
+    }
+
+    /**
+     * @since 3.1
+     */
+    protected StdDateFormat(TimeZone tz, Locale loc, Boolean lenient,
+            boolean formatTzOffsetWithColon, boolean writeZeroOffsetAsZ) {
         _timezone = tz;
         _locale = loc;
         _lenient = lenient;
         _tzSerializedWithColon = formatTzOffsetWithColon;
+        _writeZeroOffsetAsZ = writeZeroOffsetAsZ;
     }
 
     public static TimeZone getDefaultTimeZone() {
@@ -183,7 +206,7 @@ public class StdDateFormat
         if ((tz == _timezone) || tz.equals(_timezone)) {
             return this;
         }
-        return new StdDateFormat(tz, _locale, _lenient, _tzSerializedWithColon);
+        return new StdDateFormat(tz, _locale, _lenient, _tzSerializedWithColon, _writeZeroOffsetAsZ);
     }
 
     /**
@@ -196,7 +219,7 @@ public class StdDateFormat
         if (loc.equals(_locale)) {
             return this;
         }
-        return new StdDateFormat(_timezone, loc, _lenient, _tzSerializedWithColon);
+        return new StdDateFormat(_timezone, loc, _lenient, _tzSerializedWithColon, _writeZeroOffsetAsZ);
     }
 
     /**
@@ -208,7 +231,7 @@ public class StdDateFormat
         if (_equals(b, _lenient)) {
             return this;
         }
-        return new StdDateFormat(_timezone, _locale, b, _tzSerializedWithColon);
+        return new StdDateFormat(_timezone, _locale, b, _tzSerializedWithColon, _writeZeroOffsetAsZ);
     }
 
     /**
@@ -226,14 +249,34 @@ public class StdDateFormat
         if (_tzSerializedWithColon == b) {
             return this;
         }
-        return new StdDateFormat(_timezone, _locale, _lenient, b);
-     }
+        return new StdDateFormat(_timezone, _locale, _lenient, b, _writeZeroOffsetAsZ);
+    }
+
+    /**
+     * "Mutant factory" method that returns an instance that controls whether
+     * zero timezone offset is serialized as "Z" ({@code true}) or as numeric
+     * offset "+00:00"/"+0000" ({@code false}).
+     *<p>
+     * NOTE: Applies to ALL timezones with zero offset, not just UTC TimeZone ID.
+     *<p>
+     * When writing numeric offset, the colon inclusion is controlled by
+     * {@link #withColonInTimeZone(boolean)}.
+     *
+     * @since 3.1
+     */
+    public StdDateFormat withZeroOffsetAsZ(boolean b) {
+        if (_writeZeroOffsetAsZ == b) {
+            return this;
+        }
+        return new StdDateFormat(_timezone, _locale, _lenient,
+                _tzSerializedWithColon, b);
+    }
 
     @Override
     public StdDateFormat clone() {
         // Although there isn't that much state to share, we do need to
         // orchestrate a bit, mostly since timezones may be changed
-        return new StdDateFormat(_timezone, _locale, _lenient, _tzSerializedWithColon);
+        return new StdDateFormat(_timezone, _locale, _lenient, _tzSerializedWithColon, _writeZeroOffsetAsZ);
     }
 
     /*
@@ -417,19 +460,37 @@ public class StdDateFormat
 
         int offset = tz.getOffset(cal.getTimeInMillis());
         if (offset != 0) {
-            int hours = Math.abs((offset / (60 * 1000)) / 60);
-            int minutes = Math.abs((offset / (60 * 1000)) % 60);
-            buffer.append(offset < 0 ? '-' : '+');
-            pad2(buffer, hours);
-            if( _tzSerializedWithColon ) {
-                buffer.append(':');
-            }
-            pad2(buffer, minutes);
+            _appendOffset(buffer, offset);
         } else {
-            // 06-Mar-2020, tatu: Jackson versions 2.x forced use of numeric offset even
-            //    for Zulu; for 3.0 `Z` is used.
-            buffer.append('Z');
+            // [databind#3284]: Allow legacy format via _writeZeroOffsetAsZ toggle
+            if (_writeZeroOffsetAsZ) {
+                // 06-Mar-2020, tatu: Jackson versions 2.x forced use of numeric offset even
+                //    for Zulu; for 3.0 `Z` is used.
+                buffer.append('Z');
+            } else {
+                _appendOffset(buffer, 0);
+            }
         }
+    }
+
+    /**
+     * Helper to append timezone offset in +HH:mm or +HHmm format.
+     * Reused for both zero and non-zero offsets.
+     *
+     * @param buffer destination buffer
+     * @param offsetMillis offset in milliseconds; truncated to whole minutes (as per original logic)
+     */
+    private void _appendOffset(StringBuffer buffer, int offsetMillis) {
+        // Simplified calculation: divide once, then extract hours/minutes
+        int totalMinutes = offsetMillis / (60 * 1000);
+        int hours = Math.abs(totalMinutes / 60);
+        int minutes = Math.abs(totalMinutes % 60);
+        buffer.append(offsetMillis < 0 ? '-' : '+');
+        pad2(buffer, hours);
+        if (_tzSerializedWithColon) {
+            buffer.append(':');
+        }
+        pad2(buffer, minutes);
     }
 
     protected void _formatBCEYear(StringBuffer buffer, int bceYearNoSign) {

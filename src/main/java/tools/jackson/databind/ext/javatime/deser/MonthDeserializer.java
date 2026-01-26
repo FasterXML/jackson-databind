@@ -62,16 +62,11 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
         }
         // Support numeric scalar input
         if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
-            final int raw = p.getIntValue();
+            final int monthIndex = p.getIntValue();
             if (ctxt.isEnabled(DateTimeFeature.ONE_BASED_MONTHS)) {
-                return _decode1BasedMonth(raw, ctxt);
+                return _decode1BasedMonth(monthIndex, ctxt);
             }
-            // default: 0‑based index (0 == JANUARY)
-            if (raw < 0 || raw >= 12) {
-                return (Month) ctxt.handleWeirdNumberValue(handledType(),
-                        raw, "Month index (%s) outside 0-11 range", raw);
-            }
-            return Month.values()[raw];
+            return _decode0BasedMonth(monthIndex, ctxt);
         }
         // 30-Sep-2020, tatu: New! "Scalar from Object" (mostly for XML)
         if (p.isExpectedStartObjectToken()) {
@@ -125,14 +120,11 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
             if (_formatter == null) {
                 // First: try purely numeric input
                 try {
-                    int monthNumber = Integer.parseInt(string);
+                    int monthIndex = Integer.parseInt(string);
                     if (ctxt.isEnabled(DateTimeFeature.ONE_BASED_MONTHS)) {
-                        return _decode1BasedMonth(monthNumber, ctxt);
+                        return _decode1BasedMonth(monthIndex, ctxt);
                     }
-                    if (monthNumber < 0 || monthNumber >= 12) { // invalid for 0‑based
-                        throw new InvalidFormatException(p, "Month number " + monthNumber + " not allowed for 0-based Month", monthNumber, Integer.class);
-                    }
-                    return Month.values()[monthNumber]; // 0‑based mapping
+                    return _decode0BasedMonth(monthIndex, ctxt);
                 } catch (NumberFormatException nfe) {
                     // fall through – treat as textual month name
                 }
@@ -141,28 +133,43 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
                 if (possibleMonthStringValues.contains(string)) {
                     return Month.valueOf(string);
                 }
-                throw new InvalidFormatException(p, String.format("Cannot deserialize value of type `java.time.Month` from String \"%s\": not one of the values accepted for Enum class: %s", string, Arrays.toString(Month.values())), string, Month.class);
+                throw InvalidFormatException.from(p,
+                        String.format("Cannot deserialize value of type `java.time.Month` from String \"%s\": not one of the values accepted for Enum class: %s",
+                                string, Arrays.toString(Month.values())),
+                        string, Month.class);
             }
             return Month.from(_formatter.parse(string));
         } catch (DateTimeException e) {
             return _handleDateTimeFormatException(ctxt, e, _formatter, string);
         } catch (NumberFormatException e) {
             throw ctxt.weirdStringException(string, handledType(),
-                    "not a valid month value");
+                    "not a valid Month value");
         }
     }
 
     /**
      * Validate and convert a 1‑based month number to {@link Month}.
      */
-    private Month _decode1BasedMonth(int oneBasedMonthNumber, DeserializationContext ctxt)
-            throws JacksonException
+    private Month _decode1BasedMonth(int monthIndex, DeserializationContext ctxt)
+        throws JacksonException
     {
-        if (Month.JANUARY.getValue() <= oneBasedMonthNumber && oneBasedMonthNumber <= Month.DECEMBER.getValue()) {
-            return Month.of(oneBasedMonthNumber);
+        if (Month.JANUARY.getValue() <= monthIndex && monthIndex <= Month.DECEMBER.getValue()) {
+            return Month.of(monthIndex);
         }
-        // If out of range, throw an exception
         return (Month) ctxt.handleWeirdNumberValue(handledType(),
-                oneBasedMonthNumber, "Month number %s not allowed for 1-based Month.", oneBasedMonthNumber);
+                monthIndex, "month number outside 1-12 range for 1-based `Month`s");
+    }
+
+    /**
+     * Validate and convert a 0‑based month number to {@link Month}.
+     */
+    private Month _decode0BasedMonth(int monthIndex, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        if (monthIndex < 0 || monthIndex >= 12) { // invalid for 0‑based
+            return (Month) ctxt.handleWeirdNumberValue(handledType(),
+                    monthIndex, "month number outside 0-11 range for 0-based `Month`s");
+        }
+        return Month.values()[monthIndex]; // 0‑based mapping
     }
 }

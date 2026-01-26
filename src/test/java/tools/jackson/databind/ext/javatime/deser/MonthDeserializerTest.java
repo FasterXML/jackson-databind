@@ -79,8 +79,8 @@ public class MonthDeserializerTest extends DateTimeTestBase
             "notamonth , 'Cannot deserialize value of type `java.time.Month` from String \"notamonth\": not one of the values accepted for Enum class:'",
             "JANUAR    , 'Cannot deserialize value of type `java.time.Month` from String \"JANUAR\": not one of the values accepted for Enum class:'",
             "march     , 'Cannot deserialize value of type `java.time.Month` from String \"march\": not one of the values accepted for Enum class:'",
-            "0         , 'Month number 0 not allowed for 1-based Month.'",
-            "13        , 'Month number 13 not allowed for 1-based Month.'",
+            "0         , 'month number outside 1-12'",
+            "13        , 'month number outside 1-12'",
     })
     public void testBadDeserializationAsString01_oneBased(String monthSpec, String expectedMessage) {
         String value = "\"" + monthSpec + '"';
@@ -237,7 +237,7 @@ public class MonthDeserializerTest extends DateTimeTestBase
         assertError(
             () -> readerForZeroBased().readValue(String.valueOf(invalidValue)),
             MismatchedInputException.class,
-            "Month index (" + invalidValue + ") outside 0-11 range"
+            "month number outside 0-11 range"
         );
     }
 
@@ -248,7 +248,7 @@ public class MonthDeserializerTest extends DateTimeTestBase
         assertError(
             () -> readerForOneBased().readValue(String.valueOf(invalidValue)),
             MismatchedInputException.class,
-            "Month number " + invalidValue + " not allowed for 1-based Month."
+            "month number outside 1-12 range"
         );
     }
 
@@ -379,9 +379,9 @@ public class MonthDeserializerTest extends DateTimeTestBase
 
     @ParameterizedTest
     @CsvSource({
-            "12  , 'Month number 12 not allowed for 0-based Month'",
-            "-1  , 'Month number -1 not allowed for 0-based Month'",
-            "100 , 'Month number 100 not allowed for 0-based Month'",
+            "12  , 'month number outside 0-11'",
+            "-1  , 'month number outside 0-11'",
+            "100 , 'month number outside 0-11'",
     })
     public void testBadDeserializationAsString_zeroBasedOutOfRange(String monthSpec, String expectedMessage) {
         String value = q(monthSpec);

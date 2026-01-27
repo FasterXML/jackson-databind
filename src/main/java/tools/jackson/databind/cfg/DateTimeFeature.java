@@ -269,15 +269,21 @@ public enum DateTimeFeature implements DatatypeFeature
      * is serialized: as "Z" (disabled, default in 3.x) or as numeric offset
      * "+00:00" / "+0000" (enabled, for Jackson 2.x backward compatibility).
      *<p>
-     * NOTE: The name "UTC" is historical and kept for public API naming consistency.
-     * This feature applies to <b>ALL timezones where the actual offset is zero</b>
-     * at serialization time (e.g., "UTC", "GMT", "Europe/London" in winter),
-     * regardless of the timezone ID. The check is based on offset value
-     * ({@code offset == 0}), not timezone name.
+     * NOTE: the name "UTC" is historical; this feature applies to <b>all timezones
+     * where the actual offset is zero</b> at serialization time (e.g., "UTC", "GMT",
+     * "Europe/London" in winter), regardless of the timezone ID.
      *<p>
-     * Only affects serialization when using
+     * For "classic" JDK date types ({@link java.util.Date}, {@link java.util.Calendar})
+     * this feature controls zero-offset formatting when using
      * {@link tools.jackson.databind.util.StdDateFormat} (the default).
-     * Custom {@link java.text.DateFormat} instances are not modified by this feature.
+     * For Java 8 ({@code java.time.*}) and Joda date/time types, formatting is
+     * controlled by {@code DateTimeFormatter} configuration and this feature
+     * has no effect.
+     * Custom {@link java.text.DateFormat} instances are also not modified.
+     *<p>
+     * NOTE: when enabled, this feature overrides any {@code StdDateFormat}
+     * configuration set via
+     * {@link tools.jackson.databind.util.StdDateFormat#withZeroOffsetAsZ(boolean)}.
      *<p>
      * When enabled, the colon format ("+00:00" vs "+0000") is controlled by
      * {@link tools.jackson.databind.util.StdDateFormat#withColonInTimeZone(boolean)}.

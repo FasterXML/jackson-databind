@@ -6,7 +6,9 @@ Project: jackson-databind
 
 2.21.1 (not yet released)
 
-No changes since 2.21.0
+#5616: `ObjectWriter` serializes Reference types (`AtomicReference`,
+  `Optional`) containing subtypes incompletely
+ (reported by Brandon S)
 
 2.21.0 (18-Jan-2026)
 

@@ -1994,3 +1994,7 @@ Johnny Lim (@izeye)
 Hélios Gilles (@RoiSoleil)
  * Contributed #5413: Add/support forward reference resolution for array values
   [2.21.0]
+
+Brandon Schmitt (@BrandonSchmitt)
+ * Reported #5616: `ObjectWriter` serializes `Optional`s with subtypes incompletely
+  [2.21.1]

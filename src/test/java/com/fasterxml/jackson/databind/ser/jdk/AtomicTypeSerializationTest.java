@@ -179,4 +179,17 @@ public class AtomicTypeSerializationTest
         assertEquals(a2q("{'maybeText':'value'}"),
                 MAPPER.writeValueAsString(new MyBean2565()));
     }
+
+    // [databind#5616]: AtomicReference with subtype, serialization as supertype
+    @Test
+    public void testAtomicReferenceWithSubtypeProperties() throws Exception
+    {
+        Strategy object = new Foo(99);
+
+        String json = MAPPER.writerFor(new com.fasterxml.jackson.core.type.TypeReference<AtomicReference<Strategy>>() {})
+                .writeValueAsString(new AtomicReference<>(object));
+
+        // Must include subtype property "foo", not just type info
+        assertEquals("{\"type\":\"Foo\",\"foo\":99}", json);
+    }
 }

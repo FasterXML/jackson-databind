@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.json.JsonWriteFeature;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.annotation.JsonSerialize;
@@ -180,5 +181,15 @@ public class AtomicTypeSerializationTest
     {
         assertEquals(a2q("{'maybeText':'value'}"),
                 MAPPER.writeValueAsString(new MyBean2565()));
+    }
+    // [databind#5616]: AtomicReference with subtype, serialization as supertype
+    @Test
+    public void testAtomicReferenceWithSubtypeProperties() throws Exception
+    {
+        String json = MAPPER.writerFor(new TypeReference<AtomicReference<Strategy>>() {})
+                .writeValueAsString(new AtomicReference<>(new Foo(99)));
+
+        // Must include subtype property "foo", not just type info
+        assertEquals("{\"type\":\"Foo\",\"foo\":99}", json);
     }
 }

@@ -224,3 +224,7 @@ Réda Housni Alaoui (@reda-alaoui)
 Flinter (@jhan0121)
  * Contributed #5595: Add `FunctionalScalarDeserializer` for functional-style deserialization
   [3.1.0]
+
+Brandon Schmitt (@BrandonSchmitt)
+ * Reported #5616: `ObjectWriter` serializes `Optional`s with subtypes incompletely
+  [3.1.0]

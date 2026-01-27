@@ -183,6 +183,11 @@ Kenneth Jorgensen (@kennethjor)
   `@JsonDeserialize.builderPrefix` property
   [3.1.0]
 
+Lee Jiwon (@dlwldnjs1009)
+ * Implemented #3284: Backward compatibility for timezone formats of UTC Date
+   serialization
+  [3.1.0]
+
 Garret Wilson (@garretwilson)
  * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
    getter method auto-detection for Records

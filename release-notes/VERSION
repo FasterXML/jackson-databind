@@ -51,6 +51,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #2686: `@JsonBackReference` does not work with a builder
  (reported by @janrieke)
  (fix by @JacksonJang)
+#3284: Backward compatibility for timezone formats of UTC Date
+  serialization
+ (requested by @arungitan)
+ (implemented by Lee Jiwon)
 #3964: Deserialization issue: MismatchedInputException, Bean not
   yet resolved
  (reported by @detomarco)

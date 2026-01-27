@@ -298,12 +298,21 @@ anyField.getName()));
         return null;
     }
 
+    @Deprecated
     @Override
-    public Map<Object, List<AnnotatedMember>> findInjectables() {
-        if (_propCollector != null) {
-            return _propCollector.getInjectables();
+    public Map<Object, AnnotatedMember> findInjectables() {
+        if (_propCollector == null) {
+            return Collections.emptyMap();
         }
-        return Collections.emptyMap();
+        return _propCollector.getInjectables();
+    }
+
+    @Override
+    public Map<Object, List<AnnotatedMember>> findAllInjectables() {
+        if (_propCollector == null) {
+            return Collections.emptyMap();
+        }
+        return _propCollector.getAllInjectables();
     }
 
     @Override

@@ -1,20 +1,21 @@
 package tools.jackson.databind.deser.inject;
 
+import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import tools.jackson.databind.InjectableValues;
-import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MissingInjectableValueExcepion;
+import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 // [databind#5217]: Multiple injections of same value should work consistently
@@ -62,18 +63,68 @@ class JacksonInject5217Test extends DatabindTestUtil
         }
     }
 
-    // Case 4: Field + Setter (same property, same ID) - should inject via setter only (masking)
-    // The field and setter are for the same property, so ideally only one should be injected
-    static class FieldSetterBean {
-        @JacksonInject("id")
-        public String value;
+    // Two fields with same default injectable ID (type-based)
+    static class TwoFieldsSameTypeDto {
+        @JacksonInject
+        public String first;
 
-        int setterCallCount = 0;
+        @JacksonInject
+        public String second;
+    }
 
+    // Creator param + Field with same ID on DIFFERENT properties
+    // When on different properties, both should be injected
+    static class CreatorParamFieldBean {
         @JacksonInject("id")
-        public void setValue(String value) {
-            this.setterCallCount++;
-            this.value = value;
+        public String field;
+
+        final String param;
+
+        @JsonCreator
+        CreatorParamFieldBean(
+                @JacksonInject("id") @JsonProperty("param") String param
+        ) {
+            this.param = param;
+            // Note: field is NOT assigned here to verify injection behavior
+        }
+    }
+
+    // Different IDs - should inject independently
+    static class DifferentIdsBean {
+        @JacksonInject("id1")
+        public String field1;
+
+        @JacksonInject("id2")
+        public String field2;
+    }
+
+    // Creator param + DIFFERENT property field share same injectable ID
+    // Both should be injected (not under-injection) - P0 test for #4218 fix
+    static class CreatorPlusDifferentPropertyFieldBean {
+        @JacksonInject("id")
+        public String fieldB;  // Different property from creator param
+
+        final String paramA;
+
+        @JsonCreator
+        CreatorPlusDifferentPropertyFieldBean(
+                @JacksonInject("id") @JsonProperty("paramA") String paramA
+        ) {
+            this.paramA = paramA;
+        }
+    }
+
+    // Creator param + SAME property field - should inject only once (#4218)
+    static class CreatorSamePropertyFieldBean {
+        @JacksonInject("id")
+        public String id;  // Same property as creator param!
+
+        @JsonCreator
+        CreatorSamePropertyFieldBean(
+                @JacksonInject("id") @JsonProperty("id") String id
+        ) {
+            // When field injection is skipped (same property), constructor must assign
+            this.id = id;
         }
     }
 
@@ -117,123 +168,6 @@ class JacksonInject5217Test extends DatabindTestUtil
         ParamFieldBean bean = reader.readValue("{}");
         assertEquals("injectedValue", bean.param);
         assertEquals("injectedValue", bean.field);
-    }
-
-    // [databind#5217]: Field + Setter (same property) - setter should mask field
-    // This verifies that when both field and setter are annotated with @JacksonInject
-    // for the same property, only the setter is used (higher precedence)
-    @Test
-    void testFieldAndSetterSameProperty() throws Exception
-    {
-        ObjectReader reader = newJsonMapper()
-                .readerFor(FieldSetterBean.class)
-                .with(INJECTABLES);
-
-        FieldSetterBean bean = reader.readValue("{}");
-        assertEquals("injectedValue", bean.value);
-        assertEquals(1, bean.setterCallCount, "Should inject only once via setter");
-    }
-
-    // Case 5: Field + Setter with @JsonProperty custom name
-    // Verifies that _findPropertyNameForMember correctly handles @JsonProperty
-    static class FieldSetterWithJsonPropertyBean {
-        @JacksonInject("id")
-        @JsonProperty("customName")
-        public String field;
-
-        int setterCallCount = 0;
-
-        @JacksonInject("id")
-        public void setCustomName(String value) {
-            this.setterCallCount++;
-            this.field = value;
-        }
-    }
-
-    // Case 6: Creator param + Field with same ID on DIFFERENT properties
-    // When on different properties, both should be injected
-    static class CreatorParamFieldBean {
-        @JacksonInject("id")
-        public String field;
-
-        final String param;
-
-        @JsonCreator
-        CreatorParamFieldBean(
-                @JacksonInject("id") @JsonProperty("param") String param
-        ) {
-            this.param = param;
-            // Note: field is NOT assigned here to verify injection behavior
-        }
-    }
-
-    // Case 7: Different IDs - should inject independently
-    static class DifferentIdsBean {
-        @JacksonInject("id1")
-        public String field1;
-
-        @JacksonInject("id2")
-        public String field2;
-    }
-
-    // Case 8: Creator param + DIFFERENT property field share same injectable ID
-    // Both should be injected (not under-injection) - P0 test for #4218 fix
-    static class CreatorPlusDifferentPropertyFieldBean {
-        @JacksonInject("id")
-        public String fieldB;  // Different property from creator param
-
-        final String paramA;
-
-        @JsonCreator
-        CreatorPlusDifferentPropertyFieldBean(
-                @JacksonInject("id") @JsonProperty("paramA") String paramA
-        ) {
-            this.paramA = paramA;
-        }
-    }
-
-    // Case 9: Creator param + SAME property field - should inject only once (#4218 핵심)
-    static class CreatorSamePropertyFieldBean {
-        @JacksonInject("id")
-        public String id;  // Same property as creator param!
-
-        @JsonCreator
-        CreatorSamePropertyFieldBean(
-                @JacksonInject("id") @JsonProperty("id") String id
-        ) {
-            // When field injection is skipped (same property), constructor must assign
-            this.id = id;
-        }
-    }
-
-    // Case 10: Two injectable setters mapped to same logical property -> error
-    static class TwoSettersSamePropertyBean {
-        public String value;
-
-        @JacksonInject("id")
-        @JsonProperty("value")
-        public void setValue(String v) {
-            value = v;
-        }
-
-        @JacksonInject("id")
-        @JsonProperty("value")
-        public void setOtherValue(String v) {
-            value = v;
-        }
-    }
-
-    // [databind#5217]: Field + Setter with @JsonProperty - verifies property name lookup
-    @Test
-    void testFieldSetterWithJsonProperty() throws Exception
-    {
-        ObjectReader reader = newJsonMapper()
-                .readerFor(FieldSetterWithJsonPropertyBean.class)
-                .with(INJECTABLES);
-
-        FieldSetterWithJsonPropertyBean bean = reader.readValue("{}");
-        assertEquals("injectedValue", bean.field);
-        assertEquals(1, bean.setterCallCount, "Should inject only once via setter");
     }
 
     // [databind#4218]: Creator param + field with same ID on DIFFERENT properties
@@ -298,23 +232,9 @@ class JacksonInject5217Test extends DatabindTestUtil
         assertEquals("injectedValue", bean.id, "Value should be injected");
     }
 
-    @Test
-    void testTwoInjectableSettersSamePropertyFails() throws Exception
-    {
-        ObjectReader reader = newJsonMapper()
-            .readerFor(TwoSettersSamePropertyBean.class)
-            .with(INJECTABLES);
-
-        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
-            () -> reader.readValue("{}"));
-        verifyException(e, "multiple setters");
-    }
-
     // [databind#5217]: Core regression test - without InjectableValues configured,
-    // field-field and param-param should fail with the SAME exception type
-    // (InvalidDefinitionException), NOT "Duplicate injectable value" error.
-    // This directly verifies the original issue's "Expected behavior: The same error
-    // should be made in all cases."
+    // field-field and param-param should fail with the SAME exception type,
+    // NOT "Duplicate injectable value" error.
     @Test
     void testFieldFieldWithoutInjectableValuesShouldNotFailWithDuplicate() throws Exception
     {
@@ -399,5 +319,67 @@ class JacksonInject5217Test extends DatabindTestUtil
                 "Renamed creator param should be injected");
         assertEquals("injectedValue", bean.otherField,
                 "Different property field should ALSO be injected");
+    }
+
+    /*
+    /**********************************************************************
+    /* New tests per plan: default-id field-field (#5217 original reproduction)
+    /**********************************************************************
+     */
+
+    // Test 1 — Original reproduction (regression prevention)
+    // Default id (= type name) + field-field same type, NO InjectableValues configured
+    // Must NOT fail with "Duplicate injectable value" — #5217 inconsistency fix
+    @Test
+    void testDefaultIdFieldFieldNoDuplicateError() throws Exception
+    {
+        ObjectReader reader = newJsonMapper().readerFor(TwoFieldsSameTypeDto.class);
+        // InjectableValues not configured — intentional
+
+        MissingInjectableValueExcepion ex = assertThrows(
+            MissingInjectableValueExcepion.class,
+            () -> reader.readValue("{}")
+        );
+
+        String msg = ex.getMessage();
+        assertNotNull(msg);
+        // Key: must NOT be "Duplicate injectable value" — that was the #5217 bug
+        assertFalse(msg.contains("Duplicate injectable value"),
+            "Should not get duplicate injectable error but got: " + msg);
+    }
+
+    // Test 2 — Behavior verification: both fields injected with same value
+    @Test
+    void testDefaultIdFieldFieldBothInjected() throws Exception
+    {
+        // Register for both possible default-id formats (Class object and class name string)
+        InjectableValues injectables = new InjectableValues.Std()
+            .addValue(String.class, "INJECTED")
+            .addValue(String.class.getName(), "INJECTED");
+
+        ObjectReader reader = newJsonMapper()
+            .readerFor(TwoFieldsSameTypeDto.class)
+            .with(injectables);
+
+        TwoFieldsSameTypeDto result = reader.readValue("{}");
+
+        assertEquals("INJECTED", result.first);
+        assertEquals("INJECTED", result.second);
+    }
+
+    // Test 3 — API shape: findAllInjectables() returns multiple members for same default id
+    @Test
+    void testFindAllInjectablesMultipleMembersForDefaultId() throws Exception
+    {
+        ObjectMapper mapper = newJsonMapper();
+        BeanDescription desc = ObjectMapperTestAccess.beanDescriptionForDeser(mapper, TwoFieldsSameTypeDto.class);
+
+        Map<Object, List<AnnotatedMember>> all = desc.findAllInjectables();
+        assertFalse(all.isEmpty(), "Should have at least one injectable entry");
+
+        // Key: at least one ID with 2+ members (format-independent count check)
+        boolean foundMultiple = all.values().stream()
+            .anyMatch(members -> members.size() >= 2);
+        assertTrue(foundMultiple, "Expected at least one ID with 2+ members");
     }
 }

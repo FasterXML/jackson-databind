@@ -806,7 +806,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
     protected void addInjectables(DeserializationContext ctxt,
             BeanDescription.Supplier beanDescRef, BeanDeserializerBuilder builder)
     {
-        Map<Object, List<AnnotatedMember>> raw = beanDescRef.get().findInjectables();
+        Map<Object, List<AnnotatedMember>> raw = beanDescRef.get().findAllInjectables();
         if (raw != null) {
             final AnnotationIntrospector introspector = ctxt.getAnnotationIntrospector();
 

@@ -794,7 +794,7 @@ public class POJOPropertyBuilder
      *
      * @param member the member to check (may be null)
      * @return true if this property contains the given member as field, setter, or getter
-     * @since 3.0
+     * @since 3.1
      */
     public boolean containsMember(AnnotatedMember member) {
         if (member == null) {

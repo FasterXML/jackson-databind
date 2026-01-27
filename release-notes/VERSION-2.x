@@ -10,6 +10,12 @@ Project: jackson-databind
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
+2.21.1 (not yet released)
+
+#5616: `ObjectWriter` serializes Reference types (`AtomicReference`,
+  `Optional`) containing subtypes incompletely
+ (reported by Brandon S)
+
 2.21.0 (18-Jan-2026)
 
 #1381: Add a way to specify "inject-only" with `@JacksonInject`
@@ -47,7 +53,7 @@ Project: jackson-databind
   `DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS` enabled
  (implemented by @cowtowncoder, w/ Claude code)
 
-2.20.2 (not yet released)
+2.20.2 (19-Jan-2026)
 
 #5393: `@JsonAnyGetter` property gets included in generated schema since 2.19.0
  (reported by @victor-noel-pfx)

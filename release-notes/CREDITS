@@ -183,6 +183,11 @@ Kenneth Jorgensen (@kennethjor)
   `@JsonDeserialize.builderPrefix` property
   [3.1.0]
 
+Lee Jiwon (@dlwldnjs1009)
+ * Implemented #3284: Backward compatibility for timezone formats of UTC Date
+   serialization
+  [3.1.0]
+
 Garret Wilson (@garretwilson)
  * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
    getter method auto-detection for Records
@@ -223,4 +228,8 @@ Réda Housni Alaoui (@reda-alaoui)
 
 Flinter (@jhan0121)
  * Contributed #5595: Add `FunctionalScalarDeserializer` for functional-style deserialization
+  [3.1.0]
+
+Brandon Schmitt (@BrandonSchmitt)
+ * Reported #5616: `ObjectWriter` serializes `Optional`s with subtypes incompletely
   [3.1.0]

@@ -157,6 +157,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5616: `ObjectWriter` serializes `Optional`s with subtypes incompletely
  (reported by Brandon S)
  (implemented by @cowtowncoder, w/ Claude code)
+#5621: Fix typo: MissingInjectableValueExcepion → MissingInjectableValueException
+ (implemented by Lee Jiwon)
 
 3.0.4 (not yet released)
 

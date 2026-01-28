@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.OptBoolean;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.exc.MissingInjectableValueExcepion;
 import tools.jackson.databind.exc.MissingInjectableValueException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -141,5 +142,14 @@ class JacksonInject3072Test extends DatabindTestUtil
 
         assertNull(dto.id);
         assertNull(dto.optionalField);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    void testBackwardCompatWithDeprecatedClassName() throws Exception {
+        MissingInjectableValueException ex = assertThrows(
+                MissingInjectableValueException.class,
+                () -> READER.readValue("{}"));
+        assertThat(ex).isInstanceOf(MissingInjectableValueExcepion.class);
     }
 }

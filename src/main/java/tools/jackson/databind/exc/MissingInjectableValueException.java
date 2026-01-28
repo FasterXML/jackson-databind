@@ -5,7 +5,7 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DatabindException;
 
-public class MissingInjectableValueExcepion
+public class MissingInjectableValueException
     extends DatabindException
 {
     private static final long serialVersionUID = 1L;
@@ -14,7 +14,7 @@ public class MissingInjectableValueExcepion
     protected final BeanProperty _forProperty;
     protected final Object _beanInstance;
 
-    protected MissingInjectableValueExcepion(JsonParser p, String msg,
+    protected MissingInjectableValueException(JsonParser p, String msg,
             Object valueId, BeanProperty forProperty, Object beanInstance)
     {
         super(p, msg);
@@ -23,10 +23,10 @@ public class MissingInjectableValueExcepion
         _beanInstance = beanInstance;
     }
 
-    public static MissingInjectableValueExcepion from(JsonParser p, String msg,
+    public static MissingInjectableValueException from(JsonParser p, String msg,
             Object valueId, BeanProperty forProperty, Object beanInstance)
     {
-        return new MissingInjectableValueExcepion(p, msg, valueId, forProperty, beanInstance);
+        return new MissingInjectableValueException(p, msg, valueId, forProperty, beanInstance);
     }
 
     public Object getValueId() { return _valueId; }

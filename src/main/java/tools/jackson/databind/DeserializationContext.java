@@ -2153,7 +2153,7 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
     public DatabindException missingInjectableValueException(String msg,
             Object valueId,
             BeanProperty forProperty, Object beanInstance) {
-        return MissingInjectableValueExcepion.from(_parser, msg,
+        return MissingInjectableValueException.from(_parser, msg,
                 valueId, forProperty, beanInstance);
     }
 

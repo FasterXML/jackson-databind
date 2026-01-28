@@ -833,6 +833,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return disable(DateTimeFeature.ONE_BASED_MONTHS)
                 .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .enable(DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
+                .enable(DateTimeFeature.WRITE_UTC_AS_OFFSET) // [databind#3824]
                 .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
                 .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)

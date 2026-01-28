@@ -402,6 +402,138 @@ public class JavaUtilDateSerializationTest
         assertEquals(a2q("{'date':'1970-01-01X01:00:00'}"), json);
     }
 
+    /**
+     * Test zero-offset as numeric format ([databind#3284])
+     */
+    @Test
+    public void testDateISO8601_zeroOffsetAsNumeric() throws IOException {
+        // 1) Default: zero offset should serialize as "Z"
+        {
+            ObjectMapper mapper = jsonMapperBuilder().build();
+            serialize(mapper, judate(1970, 1, 1, 0, 0, 0, 0, "UTC"),
+                    "1970-01-01T00:00:00.000Z");
+        }
+
+        // 2) Feature enabled: zero offset should serialize as "+00:00" (colon=true by default)
+        {
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .enable(DateTimeFeature.WRITE_UTC_AS_OFFSET)
+                    .build();
+            serialize(mapper, judate(1970, 1, 1, 0, 0, 0, 0, "UTC"),
+                    "1970-01-01T00:00:00.000+00:00");
+        }
+
+        // 3) Feature enabled + colon disabled: zero offset should serialize as "+0000"
+        {
+            StdDateFormat df = new StdDateFormat()
+                    .withColonInTimeZone(false)
+                    .withZeroOffsetAsZ(false);
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .defaultDateFormat(df)
+                    .build();
+            serialize(mapper, judate(1970, 1, 1, 0, 0, 0, 0, "UTC"),
+                    "1970-01-01T00:00:00.000+0000");
+        }
+
+        // 4) Regression: Non-zero offset should be unaffected
+        // Use epoch (0L) with GMT+2 formatter to verify offset is correctly written
+        {
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .defaultTimeZone(TimeZone.getTimeZone("GMT+2"))
+                    .enable(DateTimeFeature.WRITE_UTC_AS_OFFSET)
+                    .build();
+            // epoch=0 formatted in GMT+2 => 1970-01-01T02:00:00.000+02:00
+            serialize(mapper, new Date(0L), "1970-01-01T02:00:00.000+02:00");
+        }
+
+        // 5) Calendar also respects the feature (exact match, not contains)
+        {
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .enable(DateTimeFeature.WRITE_UTC_AS_OFFSET)
+                    .build();
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            cal.setTimeInMillis(0);
+            String json = mapper.writeValueAsString(cal);
+            assertEquals("\"1970-01-01T00:00:00.000+00:00\"", json);
+        }
+
+        // 6) Non-UTC timezone ID with zero offset (e.g., "GMT") also uses numeric format
+        {
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .enable(DateTimeFeature.WRITE_UTC_AS_OFFSET)
+                    .build();
+            serialize(mapper, judate(1970, 1, 1, 0, 0, 0, 0, "GMT"),
+                    "1970-01-01T00:00:00.000+00:00");
+        }
+
+        // 7) Map<Date, ?> key serialization also respects the feature (exact match)
+        {
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .enable(DateTimeFeature.WRITE_UTC_AS_OFFSET)
+                    .build();
+            Map<Date, String> map = new LinkedHashMap<>();
+            map.put(judate(1970, 1, 1, 0, 0, 0, 0, "UTC"), "epoch");
+            String json = mapper.writeValueAsString(map);
+            assertEquals("{\"1970-01-01T00:00:00.000+00:00\":\"epoch\"}", json);
+        }
+
+        // 8) Custom DateFormat is NOT affected by the feature (by design)
+        {
+            // Use fixed literal 'Z' suffix to ensure predictable output regardless of JDK
+            SimpleDateFormat customFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            customFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .defaultDateFormat(customFormat)
+                    .enable(DateTimeFeature.WRITE_UTC_AS_OFFSET)
+                    .build();
+            Date date = judate(1970, 1, 1, 0, 0, 0, 0, "UTC");
+            String json = mapper.writeValueAsString(date);
+            // Custom DateFormat controls output - feature has no effect
+            // Output is literal 'Z' (not offset) because custom format overrides StdDateFormat
+            assertEquals("\"1970-01-01T00:00:00.000Z\"", json);
+        }
+
+        // 9) Map key with WRITE_DATE_KEYS_AS_TIMESTAMPS=true is unaffected (uses timestamp, not format)
+        {
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .enable(DateTimeFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)
+                    .enable(DateTimeFeature.WRITE_UTC_AS_OFFSET)
+                    .build();
+            Map<Date, String> map = new LinkedHashMap<>();
+            map.put(judate(1970, 1, 1, 0, 0, 0, 0, "UTC"), "epoch");
+            String json = mapper.writeValueAsString(map);
+            assertEquals("{\"0\":\"epoch\"}", json);
+        }
+
+        // 10) WRITE_DATES_AS_TIMESTAMPS ignores the feature (outputs numeric timestamp)
+        {
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                    .enable(DateTimeFeature.WRITE_UTC_AS_OFFSET)
+                    .build();
+            String json = mapper.writeValueAsString(new Date(0L));
+            assertEquals("0", json);
+        }
+
+        // 11) DST zone: Europe/London winter (offset=0) vs summer (offset=+01:00)
+        // Verifies feature applies based on actual offset, not timezone ID
+        {
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .defaultTimeZone(TimeZone.getTimeZone("Europe/London"))
+                    .enable(DateTimeFeature.WRITE_UTC_AS_OFFSET)
+                    .build();
+            // Winter: 2024-01-15 00:00:00 UTC -> offset=0 -> should be +00:00
+            Date winterDate = new Date(1705276800000L); // 2024-01-15T00:00:00Z
+            String winterJson = mapper.writeValueAsString(winterDate);
+            assertTrue(winterJson.endsWith("+00:00\""), "Winter should end with +00:00: " + winterJson);
+
+            // Summer: 2024-07-15 00:00:00 UTC -> offset=+01:00 -> should be +01:00
+            Date summerDate = new Date(1721001600000L); // 2024-07-15T00:00:00Z
+            String summerJson = mapper.writeValueAsString(summerDate);
+            assertTrue(summerJson.endsWith("+01:00\""), "Summer should end with +01:00: " + summerJson);
+        }
+    }
+
     private static Date judate(int year, int month, int day, int hour, int minutes, int seconds, int millis, String tz) {
         Calendar cal = Calendar.getInstance();
         // 23-Nov-2018, tatu: Safer this way, even though negative appears to work too

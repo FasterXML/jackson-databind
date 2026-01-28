@@ -264,6 +264,36 @@ public enum DateTimeFeature implements DatatypeFeature
      */
     WRITE_DURATIONS_AS_TIMESTAMPS(false),
 
+    /**
+     * Feature that controls how <b>zero timezone offset</b> ({@code offset == 0})
+     * is serialized: as "Z" (disabled) or as numeric offset
+     * "+00:00" or "+0000" (enabled).
+     *<p>
+     * NOTE: the name "UTC" is historical; this feature applies to <b>all timezones
+     * where the actual offset is zero</b> at serialization time (e.g., "UTC", "GMT",
+     * "Europe/London" in winter), regardless of the timezone ID.
+     *<p>
+     * This feature only controls zero-offset formatting when using "classic" JDK date
+     * types ({@link java.util.Date}, {@link java.util.Calendar}) and with
+     * {@link tools.jackson.databind.util.StdDateFormat} (the default).
+     * For Java 8 ({@code java.time.*}) and Joda date/time types, formatting is
+     * controlled by {@code DateTimeFormatter} configuration and this feature
+     * has no effect.
+     * Custom {@link java.text.DateFormat} instances are also not modified.
+     *<p>
+     * NOTE: when enabled, this feature overrides any {@code StdDateFormat}
+     * configuration set via
+     * {@link tools.jackson.databind.util.StdDateFormat#withZeroOffsetAsZ(boolean)}.
+     *<p>
+     * When enabled, the colon format ("+00:00" vs "+0000") is controlled by
+     * {@link tools.jackson.databind.util.StdDateFormat#withColonInTimeZone(boolean)}.
+     *<p>
+     * Feature is disabled by default to maintain Jackson 3.x standard behavior ("Z");
+     * it is usually enabled to achieve behavior similar to Jackson 2.x.
+     *
+     * @since 3.1
+     */
+    WRITE_UTC_AS_OFFSET(false),
     ;
 
     private final static int FEATURE_INDEX = DatatypeFeatures.FEATURE_INDEX_DATETIME;

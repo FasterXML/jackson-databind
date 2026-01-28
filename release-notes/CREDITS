@@ -162,6 +162,11 @@ Oliver Drotbohm (@odrotbohm)
  * Contributed #1196: Add opt-in error collection for deserialization
   [3.1.0]
 
+Jeff Maxwell (@jmax01)
+ * Reported #1391: Default typing adds typing info to collections even with
+  `@JsonTypeInfo(use = Id.NONE)` override
+  [3.1.0]
+
 Victor Noël (@victornoel)
  * Requested #1497: Allow skipping `@JsonUnwrapped` values if no properties matched,
    `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled

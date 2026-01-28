@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.jsontype;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -18,15 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 // via explicit {@link JsonTypeInfo}
 class DefaultTypingOverride1391Test extends DatabindTestUtil {
     static class ListWrapper {
-        /* 03-Oct-2016, tatu: This doesn't work because it applies to contents
-         *   (elements), NOT the container. But there is no current mechanism
-         *   to change that; would need to add a new feature or properties
-         */
         @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
         public Collection<String> stuff = Collections.emptyList();
     }
 
-    @JacksonTestFailureExpected
     @Test
     void collectionWithOverride() throws Exception
     {
@@ -37,5 +31,9 @@ class DefaultTypingOverride1391Test extends DatabindTestUtil {
             .build();
         String json = mapper.writeValueAsString(new ListWrapper());
         assertEquals(a2q("{'stuff':[]}"), json);
+
+        // And verify deserialization works too
+        ListWrapper result = mapper.readValue(json, ListWrapper.class);
+        assertEquals(0, result.stuff.size());
     }
 }

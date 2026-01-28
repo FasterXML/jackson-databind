@@ -17,6 +17,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1196: Add opt-in error collection for deserialization
  (requested by @odrotbohm)
  (contributed by @sri-adarsh-kumar)
+#1391: Default typing adds typing info to collections even with
+  `@JsonTypeInfo(use = Id.NONE)` override
+ (reported by Jeff M)
+ (fix by @cowtowncoder, w/ Claude code)
 #1419: `JsonFormat.Shape.POJO`  does not work for `Map.Entry` via property annotation
  (fix by @cowtowncoder, w/ Claude code)
 #1497: Allow skipping `@JsonUnwrapped` values if no properties matched,

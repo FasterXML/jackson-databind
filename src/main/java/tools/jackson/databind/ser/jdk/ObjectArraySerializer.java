@@ -315,16 +315,8 @@ public class ObjectArraySerializer
                 if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                     continue;
                 }
-                // [databind#XXXX]: Check if element needs type information even if array doesn't have value type serializer
-                TypeSerializer elemTypeSer = _valueTypeSerializer;
-                if ((elemTypeSer == null) && (_elementType != null)) {
-                    Class<?> elemClass = elem.getClass();
-                    // Only check if runtime type differs from declared type
-                    if (!elemClass.equals(_elementType.getRawClass())) {
-                        // Check if the element's type (or its supertypes) requires type information
-                        elemTypeSer = ctxt.findTypeSerializer(ctxt.constructType(elemClass));
-                    }
-                }
+                // [databind#XXXX]: Check runtime type for polymorphic type handling when static type serializer is null
+                TypeSerializer elemTypeSer = ctxt.findTypeSerializerForRuntime(_valueTypeSerializer, _elementType, elem);
                 if (elemTypeSer == null) {
                     serializer.serialize(elem, g, ctxt);
                 } else {
@@ -360,16 +352,8 @@ public class ObjectArraySerializer
                 if (filtered && !_shouldSerializeElement(ctxt, elem, ser)) {
                     continue;
                 }
-                // [databind#XXXX]: Check if element needs type information even if array doesn't have value type serializer
-                TypeSerializer elemTypeSer = typeSer;
-                if ((elemTypeSer == null) && (_elementType != null)) {
-                    Class<?> elemClass = elem.getClass();
-                    // Only check if runtime type differs from declared type
-                    if (!elemClass.equals(_elementType.getRawClass())) {
-                        // Check if the element's type (or its supertypes) requires type information
-                        elemTypeSer = ctxt.findTypeSerializer(ctxt.constructType(elemClass));
-                    }
-                }
+                // [databind#XXXX]: Check runtime type for polymorphic type handling when static type serializer is null
+                TypeSerializer elemTypeSer = ctxt.findTypeSerializerForRuntime(typeSer, _elementType, elem);
                 if (elemTypeSer == null) {
                     ser.serialize(elem, g, ctxt);
                 } else {

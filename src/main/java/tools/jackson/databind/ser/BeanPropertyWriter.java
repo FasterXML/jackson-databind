@@ -644,17 +644,8 @@ public class BeanPropertyWriter
             }
         }
         g.writeName(_name);
-        TypeSerializer typeSer = _typeSerializer;
-        // [databind#XXXX]: If property type serializer not set but value has type info,
-        // need to check value's actual type for polymorphic type handling
-        if ((typeSer == null) && (_declaredType != null)) {
-            Class<?> valueClass = value.getClass();
-            // Only check if runtime type differs from declared type
-            if (!valueClass.equals(_declaredType.getRawClass())) {
-                // Check if the value's type (or its supertypes) requires type information
-                typeSer = ctxt.findTypeSerializer(ctxt.constructType(valueClass));
-            }
-        }
+        // [databind#XXXX]: Check runtime type for polymorphic type handling when static type serializer is null
+        TypeSerializer typeSer = ctxt.findTypeSerializerForRuntime(_typeSerializer, _declaredType, value);
         if (typeSer == null) {
             ser.serialize(value, g, ctxt);
         } else {
@@ -723,17 +714,8 @@ public class BeanPropertyWriter
                 return;
             }
         }
-        TypeSerializer typeSer = _typeSerializer;
-        // [databind#XXXX]: If property type serializer not set but value has type info,
-        // need to check value's actual type for polymorphic type handling
-        if ((typeSer == null) && (_declaredType != null)) {
-            Class<?> valueClass = value.getClass();
-            // Only check if runtime type differs from declared type
-            if (!valueClass.equals(_declaredType.getRawClass())) {
-                // Check if the value's type (or its supertypes) requires type information
-                typeSer = ctxt.findTypeSerializer(ctxt.constructType(valueClass));
-            }
-        }
+        // [databind#XXXX]: Check runtime type for polymorphic type handling when static type serializer is null
+        TypeSerializer typeSer = ctxt.findTypeSerializerForRuntime(_typeSerializer, _declaredType, value);
         if (typeSer == null) {
             ser.serialize(value, g, ctxt);
         } else {

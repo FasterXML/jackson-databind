@@ -651,16 +651,8 @@ public class MapSerializer
                 if (serializer == null) {
                     serializer = _findSerializer(ctxt, valueElem);
                 }
-                // [databind#XXXX]: Check if value needs type information even if map doesn't have value type serializer
-                TypeSerializer typeSer = _valueTypeSerializer;
-                if ((typeSer == null) && (_valueType != null)) {
-                    Class<?> valueClass = valueElem.getClass();
-                    // Only check if runtime type differs from declared type
-                    if (!valueClass.equals(_valueType.getRawClass())) {
-                        // Check if the value's type (or its supertypes) requires type information
-                        typeSer = ctxt.findTypeSerializer(ctxt.constructType(valueClass));
-                    }
-                }
+                // [databind#XXXX]: Check runtime type for polymorphic type handling when static type serializer is null
+                TypeSerializer typeSer = ctxt.findTypeSerializerForRuntime(_valueTypeSerializer, _valueType, valueElem);
                 if (typeSer == null) {
                     serializer.serialize(valueElem, gen, ctxt);
                 } else {
@@ -729,16 +721,8 @@ public class MapSerializer
             // and then serialize, if all went well
             try {
                 keySerializer.serialize(keyElem, gen, ctxt);
-                // [databind#XXXX]: Check if value needs type information even if map doesn't have value type serializer
-                TypeSerializer typeSer = _valueTypeSerializer;
-                if ((typeSer == null) && (_valueType != null) && (valueElem != null)) {
-                    Class<?> valueClass = valueElem.getClass();
-                    // Only check if runtime type differs from declared type
-                    if (!valueClass.equals(_valueType.getRawClass())) {
-                        // Check if the value's type (or its supertypes) requires type information
-                        typeSer = ctxt.findTypeSerializer(ctxt.constructType(valueClass));
-                    }
-                }
+                // [databind#XXXX]: Check runtime type for polymorphic type handling when static type serializer is null
+                TypeSerializer typeSer = ctxt.findTypeSerializerForRuntime(_valueTypeSerializer, _valueType, valueElem);
                 if (typeSer == null) {
                     valueSer.serialize(valueElem, gen, ctxt);
                 } else {

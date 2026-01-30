@@ -862,6 +862,42 @@ public abstract class SerializationContext
                 .findPropertyTypeSerializer(this, accessor, baseType);
     }
 
+    /**
+     * Helper method for finding {@link TypeSerializer} to use for polymorphic handling
+     * based on runtime type of a value, when static type information does not indicate
+     * need for type information.
+     * This is useful for cases where generic type information is lost due to type erasure,
+     * but runtime value has polymorphic type annotations.
+     *
+     * @param staticTypeSer Statically determined TypeSerializer (from declared type); may be null
+     * @param declaredType Declared/static type of the value
+     * @param value Actual value instance to serialize
+     *
+     * @return TypeSerializer to use: either the passed static one, or dynamically determined
+     *   one based on runtime type; or null if no type information needed
+     *
+     * @since 3.1
+     */
+    public TypeSerializer findTypeSerializerForRuntime(TypeSerializer staticTypeSer,
+            JavaType declaredType, Object value)
+    {
+        // If we already have a static type serializer, use it
+        if (staticTypeSer != null) {
+            return staticTypeSer;
+        }
+        // If no declared type info, can't check
+        if (declaredType == null) {
+            return null;
+        }
+        Class<?> runtimeClass = value.getClass();
+        // Only check if runtime type differs from declared type
+        if (runtimeClass.equals(declaredType.getRawClass())) {
+            return null;
+        }
+        // Check if the runtime type (or its supertypes) requires type information
+        return findTypeSerializer(constructType(runtimeClass));
+    }
+
     /*
     /**********************************************************************
     /* Serializer discovery: key serializers

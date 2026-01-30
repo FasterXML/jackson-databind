@@ -141,7 +141,21 @@ public final class IndexedListSerializer
                     if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                         continue;
                     }
-                    serializer.serialize(elem, g, ctxt);
+                    // [databind#XXXX]: Check if element needs type information even if list doesn't have value type serializer
+                    TypeSerializer elemTypeSer = _valueTypeSerializer;
+                    if ((elemTypeSer == null) && (_elementType != null)) {
+                        Class<?> elemClass = elem.getClass();
+                        // Only check if runtime type differs from declared type
+                        if (!elemClass.equals(_elementType.getRawClass())) {
+                            // Check if the element's type (or its supertypes) requires type information
+                            elemTypeSer = ctxt.findTypeSerializer(ctxt.constructType(elemClass));
+                        }
+                    }
+                    if (elemTypeSer == null) {
+                        serializer.serialize(elem, g, ctxt);
+                    } else {
+                        serializer.serializeWithType(elem, g, ctxt, elemTypeSer);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -172,10 +186,20 @@ public final class IndexedListSerializer
                     if (filtered && !_shouldSerializeElement(ctxt, elem, ser)) {
                         continue;
                     }
-                    if (typeSer == null) {
+                    // [databind#XXXX]: Check if element needs type information even if list doesn't have value type serializer
+                    TypeSerializer elemTypeSer = typeSer;
+                    if ((elemTypeSer == null) && (_elementType != null)) {
+                        Class<?> elemClass = elem.getClass();
+                        // Only check if runtime type differs from declared type
+                        if (!elemClass.equals(_elementType.getRawClass())) {
+                            // Check if the element's type (or its supertypes) requires type information
+                            elemTypeSer = ctxt.findTypeSerializer(ctxt.constructType(elemClass));
+                        }
+                    }
+                    if (elemTypeSer == null) {
                         ser.serialize(elem, g, ctxt);
                     } else {
-                        ser.serializeWithType(elem, g, ctxt, typeSer);
+                        ser.serializeWithType(elem, g, ctxt, elemTypeSer);
                     }
                 }
             } catch (Exception e) {

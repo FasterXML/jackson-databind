@@ -20,6 +20,11 @@ public class CustomTypeIdResolverGenericTest extends DatabindTestUtil {
             .enable(SerializationFeature.INDENT_OUTPUT)
             .build();
 
+    // Helper method to normalize line endings for cross-platform compatibility
+    private String normalizeLineEndings(String str) {
+        return str.replace("\r\n", "\n").replace("\r", "\n");
+    }
+
     @Test
     void root() throws Exception {
         //given
@@ -34,7 +39,7 @@ public class CustomTypeIdResolverGenericTest extends DatabindTestUtil {
         var actual = mapper.writeValueAsString(bar);
 
         //then
-        assertEquals(expected, actual);
+        assertEquals(normalizeLineEndings(expected), normalizeLineEndings(actual));
     }
 
     @Test
@@ -53,7 +58,7 @@ public class CustomTypeIdResolverGenericTest extends DatabindTestUtil {
         var actual = mapper.writeValueAsString(map);
 
         //then
-        assertEquals(expected, actual);
+        assertEquals(normalizeLineEndings(expected), normalizeLineEndings(actual));
     }
 
     @Test
@@ -75,7 +80,7 @@ public class CustomTypeIdResolverGenericTest extends DatabindTestUtil {
         var actual = mapper.writeValueAsString(box);
 
         //then
-        assertEquals(expected, actual);
+        assertEquals(normalizeLineEndings(expected), normalizeLineEndings(actual));
     }
 
     @Test
@@ -97,7 +102,7 @@ public class CustomTypeIdResolverGenericTest extends DatabindTestUtil {
         var actual = mapper.writeValueAsString(box);
 
         //then
-        assertEquals(expected, actual);
+        assertEquals(normalizeLineEndings(expected), normalizeLineEndings(actual));
     }
 
     @Test
@@ -122,7 +127,7 @@ public class CustomTypeIdResolverGenericTest extends DatabindTestUtil {
         var actual = writer.writeValueAsString(box);
 
         //then
-        assertEquals(expected, actual);
+        assertEquals(normalizeLineEndings(expected), normalizeLineEndings(actual));
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, property = "@type")

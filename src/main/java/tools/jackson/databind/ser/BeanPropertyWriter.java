@@ -644,10 +644,21 @@ public class BeanPropertyWriter
             }
         }
         g.writeName(_name);
-        if (_typeSerializer == null) {
+        TypeSerializer typeSer = _typeSerializer;
+        // [databind#XXXX]: If property type serializer not set but value has type info,
+        // need to check value's actual type for polymorphic type handling
+        if ((typeSer == null) && (_declaredType != null)) {
+            Class<?> valueClass = value.getClass();
+            // Only check if runtime type differs from declared type
+            if (!valueClass.equals(_declaredType.getRawClass())) {
+                // Check if the value's type (or its supertypes) requires type information
+                typeSer = ctxt.findTypeSerializer(ctxt.constructType(valueClass));
+            }
+        }
+        if (typeSer == null) {
             ser.serialize(value, g, ctxt);
         } else {
-            ser.serializeWithType(value, g, ctxt, _typeSerializer);
+            ser.serializeWithType(value, g, ctxt, typeSer);
         }
     }
 
@@ -712,10 +723,21 @@ public class BeanPropertyWriter
                 return;
             }
         }
-        if (_typeSerializer == null) {
+        TypeSerializer typeSer = _typeSerializer;
+        // [databind#XXXX]: If property type serializer not set but value has type info,
+        // need to check value's actual type for polymorphic type handling
+        if ((typeSer == null) && (_declaredType != null)) {
+            Class<?> valueClass = value.getClass();
+            // Only check if runtime type differs from declared type
+            if (!valueClass.equals(_declaredType.getRawClass())) {
+                // Check if the value's type (or its supertypes) requires type information
+                typeSer = ctxt.findTypeSerializer(ctxt.constructType(valueClass));
+            }
+        }
+        if (typeSer == null) {
             ser.serialize(value, g, ctxt);
         } else {
-            ser.serializeWithType(value, g, ctxt, _typeSerializer);
+            ser.serializeWithType(value, g, ctxt, typeSer);
         }
     }
 

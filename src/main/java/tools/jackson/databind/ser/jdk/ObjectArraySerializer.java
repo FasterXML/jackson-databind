@@ -315,7 +315,7 @@ public class ObjectArraySerializer
                 if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                     continue;
                 }
-                // [databind#XXXX]: Check runtime type for polymorphic type handling when static type serializer is null
+                // [databind#5625]: Check runtime type for polymorphic type handling when static type serializer is null
                 TypeSerializer elemTypeSer = ctxt.findTypeSerializerForRuntime(_valueTypeSerializer, _elementType, elem);
                 if (elemTypeSer == null) {
                     serializer.serialize(elem, g, ctxt);
@@ -352,7 +352,7 @@ public class ObjectArraySerializer
                 if (filtered && !_shouldSerializeElement(ctxt, elem, ser)) {
                     continue;
                 }
-                // [databind#XXXX]: Check runtime type for polymorphic type handling when static type serializer is null
+                // [databind#5625]: Check runtime type for polymorphic type handling when static type serializer is null
                 TypeSerializer elemTypeSer = ctxt.findTypeSerializerForRuntime(typeSer, _elementType, elem);
                 if (elemTypeSer == null) {
                     ser.serialize(elem, g, ctxt);

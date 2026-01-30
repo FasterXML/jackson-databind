@@ -651,7 +651,7 @@ public class MapSerializer
                 if (serializer == null) {
                     serializer = _findSerializer(ctxt, valueElem);
                 }
-                // [databind#XXXX]: Check runtime type for polymorphic type handling when static type serializer is null
+                // [databind#5625]: Check runtime type for polymorphic type handling when static type serializer is null
                 TypeSerializer typeSer = ctxt.findTypeSerializerForRuntime(_valueTypeSerializer, _valueType, valueElem);
                 if (typeSer == null) {
                     serializer.serialize(valueElem, gen, ctxt);
@@ -721,7 +721,7 @@ public class MapSerializer
             // and then serialize, if all went well
             try {
                 keySerializer.serialize(keyElem, gen, ctxt);
-                // [databind#XXXX]: Check runtime type for polymorphic type handling when static type serializer is null
+                // [databind#5625]: Check runtime type for polymorphic type handling when static type serializer is null
                 TypeSerializer typeSer = ctxt.findTypeSerializerForRuntime(_valueTypeSerializer, _valueType, valueElem);
                 if (typeSer == null) {
                     valueSer.serialize(valueElem, gen, ctxt);

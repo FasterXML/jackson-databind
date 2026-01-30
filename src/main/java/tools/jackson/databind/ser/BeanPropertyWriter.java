@@ -644,7 +644,7 @@ public class BeanPropertyWriter
             }
         }
         g.writeName(_name);
-        // [databind#XXXX]: Check runtime type for polymorphic type handling when static type serializer is null
+        // [databind#5625]: Check runtime type for polymorphic type handling when static type serializer is null
         TypeSerializer typeSer = ctxt.findTypeSerializerForRuntime(_typeSerializer, _declaredType, value);
         if (typeSer == null) {
             ser.serialize(value, g, ctxt);
@@ -714,7 +714,7 @@ public class BeanPropertyWriter
                 return;
             }
         }
-        // [databind#XXXX]: Check runtime type for polymorphic type handling when static type serializer is null
+        // [databind#5625]: Check runtime type for polymorphic type handling when static type serializer is null
         TypeSerializer typeSer = ctxt.findTypeSerializerForRuntime(_typeSerializer, _declaredType, value);
         if (typeSer == null) {
             ser.serialize(value, g, ctxt);

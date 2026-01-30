@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
@@ -21,122 +23,176 @@ public class CustomTypeIdResolverGenericTest extends DatabindTestUtil {
       .build();
 
   @Test
-  void root() throws Exception {
-    //given
-    var bar = new Bar("test");
-    var expected = """
-        {
-          "@type" : "BAR",
-          "any" : "test"
-        }""";
+  public void testRoot() throws Exception {
+    // given
+    Bar bar = new Bar("test");
+    String expected = "{\n" +
+        "  \"@type\" : \"BAR\",\n" +
+        "  \"any\" : \"test\"\n" +
+        "}";
 
-    //when
-    var actual = mapper.writeValueAsString(bar);
+    // when
+    String actual = mapper.writeValueAsString(bar);
 
-    //then
+    // then
     assertEquals(expected, actual);
   }
 
   @Test
-  void nestedMap() throws Exception {
-    //given
-    var map = Map.of("bar", new Bar("test"));
-    var expected = """
-        {
-          "bar" : {
-            "@type" : "BAR",
-            "any" : "test"
-          }
-        }""";
+  public void testNestedMap() throws Exception {
+    // given
+    Map<String, Foo> map = new HashMap<>();
+    map.put("bar", new Bar("test"));
+    String expected = "{\n" +
+        "  \"bar\" : {\n" +
+        "    \"@type\" : \"BAR\",\n" +
+        "    \"any\" : \"test\"\n" +
+        "  }\n" +
+        "}";
 
-    //when
-    var actual = mapper.writeValueAsString(map);
+    // when
+    String actual = mapper.writeValueAsString(map);
 
-    //then
+    // then
     assertEquals(expected, actual);
   }
 
   @Test
-  void nestedRecord() throws Exception {
-    //given
-    record Box(Foo value) {
+  public void testNestedPojo() throws Exception {
+    // given
+    Box box = new Box(new Qux(1));
+    String expected = "{\n" +
+        "  \"value\" : {\n" +
+        "    \"@type\" : \"QUX\",\n" +
+        "    \"any\" : 1\n" +
+        "  }\n" +
+        "}";
 
-    }
-    var box = new Box(new Qux(1));
-    var expected = """
-        {
-          "value" : {
-            "@type" : "QUX",
-            "any" : 1
-          }
-        }""";
+    // when
+    String actual = mapper.writeValueAsString(box);
 
-    //when
-    var actual = mapper.writeValueAsString(box);
-
-    //then
+    // then
     assertEquals(expected, actual);
   }
 
   @Test
-  void nestedGenericRecord() throws Exception {
-    //given
-    record Box<T>(T value) {
+  public void testNestedGenericPojo() throws Exception {
+    // given
+    GenericBox<Foo> box = new GenericBox<>(new Qux(1));
+    String expected = "{\n" +
+        "  \"value\" : {\n" +
+        "    \"@type\" : \"QUX\",\n" +
+        "    \"any\" : 1\n" +
+        "  }\n" +
+        "}";
 
-    }
-    var box = new Box<>(new Qux(1));
-    var expected = """
-        {
-          "value" : {
-            "@type" : "QUX",
-            "any" : 1
-          }
-        }""";
+    // when
+    String actual = mapper.writeValueAsString(box);
 
-    //when
-    var actual = mapper.writeValueAsString(box);
-
-    //then
+    // then
     assertEquals(expected, actual);
   }
 
   @Test
-  void nestedGenericRecordExplicitWriter() throws Exception {
-    //given
-    record Box<T>(T value) {
+  public void testNestedGenericPojoExplicitWriter() throws Exception {
+    // given
+    GenericBox<Foo> box = new GenericBox<>(new Qux(1));
+    String expected = "{\n" +
+        "  \"value\" : {\n" +
+        "    \"@type\" : \"QUX\",\n" +
+        "    \"any\" : 1\n" +
+        "  }\n" +
+        "}";
 
-    }
-    var box = new Box<>(new Qux(1));
-    var expected = """
-        {
-          "value" : {
-            "@type" : "QUX",
-            "any" : 1
-          }
-        }""";
+    // when
+    String actual = mapper.writer().forType(new TypeReference<GenericBox<Foo>>() {
+    }).writeValueAsString(box);
 
-    var writer = mapper.writer().forType(new TypeReference<Box<Foo>>() {
-    });
-
-    //when
-    var actual = writer.writeValueAsString(box);
-
-    //then
+    // then
     assertEquals(expected, actual);
   }
+
+  // Test classes
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, property = "@type")
   @JsonTypeIdResolver(FooIdResolver.class)
-  public sealed interface Foo permits Bar, Qux {
-
+  public interface Foo {
   }
 
-  record Bar(String any) implements Foo {
+  public static class Bar implements Foo {
+    private String any;
 
+    public Bar() {
+    }
+
+    public Bar(String any) {
+      this.any = any;
+    }
+
+    public String getAny() {
+      return any;
+    }
+
+    public void setAny(String any) {
+      this.any = any;
+    }
   }
 
-  record Qux(int any) implements Foo {
+  public static class Qux implements Foo {
+    private int any;
 
+    public Qux() {
+    }
+
+    public Qux(int any) {
+      this.any = any;
+    }
+
+    public int getAny() {
+      return any;
+    }
+
+    public void setAny(int any) {
+      this.any = any;
+    }
+  }
+
+  public static class Box {
+    private Foo value;
+
+    public Box() {
+    }
+
+    public Box(Foo value) {
+      this.value = value;
+    }
+
+    public Foo getValue() {
+      return value;
+    }
+
+    public void setValue(Foo value) {
+      this.value = value;
+    }
+  }
+
+  public static class GenericBox<T> {
+    private T value;
+
+    public GenericBox() {
+    }
+
+    public GenericBox(T value) {
+      this.value = value;
+    }
+
+    public T getValue() {
+      return value;
+    }
+
+    public void setValue(T value) {
+      this.value = value;
+    }
   }
 
   public static class FooIdResolver extends TypeIdResolverBase {
@@ -148,11 +204,12 @@ public class CustomTypeIdResolverGenericTest extends DatabindTestUtil {
 
     @Override
     public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType) {
-      return switch (value) {
-        case Bar _ -> "BAR";
-        case Qux _ -> "QUX";
-        default -> throw new IllegalStateException("Unexpected value: " + value);
-      };
+      if (value instanceof Bar) {
+        return "BAR";
+      } else if (value instanceof Qux) {
+        return "QUX";
+      }
+      throw new IllegalStateException("Unexpected value: " + value);
     }
 
     @Override

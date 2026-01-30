@@ -868,6 +868,10 @@ public abstract class SerializationContext
      * need for type information.
      * This is useful for cases where generic type information is lost due to type erasure,
      * but runtime value has polymorphic type annotations.
+     * <p>
+     * Note: This method only checks for <b>explicit</b> type annotations (like {@code @JsonTypeInfo})
+     * on the runtime class, and does NOT use default typing configuration. This ensures that
+     * default typing behavior is not affected by runtime type checking.
      *
      * @param staticTypeSer Statically determined TypeSerializer (from declared type); may be null
      * @param declaredType Declared/static type of the value
@@ -894,8 +898,23 @@ public abstract class SerializationContext
         if (runtimeClass.equals(declaredType.getRawClass())) {
             return null;
         }
-        // Check if the runtime type (or its supertypes) requires type information
-        return findTypeSerializer(constructType(runtimeClass));
+        // Check if the runtime type has EXPLICIT type annotations (not default typing)
+        // We introspect the class to check for explicit @JsonTypeInfo
+        JavaType runtimeType = constructType(runtimeClass);
+        AnnotatedClass classInfo = introspectClassAnnotations(runtimeType);
+        
+        // Check if there's explicit type info on this class
+        AnnotationIntrospector ai = _config.getAnnotationIntrospector();
+        JsonTypeInfo.Value typeInfo = ai.findPolymorphicTypeInfo(_config, classInfo);
+        
+        // Only proceed if there's explicit type info (not relying on default typing)
+        if (typeInfo == null || typeInfo.getIdType() == JsonTypeInfo.Id.NONE) {
+            return null;
+        }
+        
+        // Use the standard findTypeSerializer, which will now find the explicit annotations
+        // We already know there are explicit annotations, so it won't just fall back to default typing
+        return findTypeSerializer(runtimeType, classInfo);
     }
 
     /*

@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
@@ -23,176 +21,122 @@ public class CustomTypeIdResolverGenericTest extends DatabindTestUtil {
       .build();
 
   @Test
-  public void testRoot() throws Exception {
-    // given
-    Bar bar = new Bar("test");
-    String expected = "{\n" +
-        "  \"@type\" : \"BAR\",\n" +
-        "  \"any\" : \"test\"\n" +
-        "}";
+  void root() throws Exception {
+    //given
+    var bar = new Bar("test");
+    var expected = """
+        {
+          "@type" : "BAR",
+          "any" : "test"
+        }""";
 
-    // when
-    String actual = mapper.writeValueAsString(bar);
+    //when
+    var actual = mapper.writeValueAsString(bar);
 
-    // then
+    //then
     assertEquals(expected, actual);
   }
 
   @Test
-  public void testNestedMap() throws Exception {
-    // given
-    Map<String, Foo> map = new HashMap<>();
-    map.put("bar", new Bar("test"));
-    String expected = "{\n" +
-        "  \"bar\" : {\n" +
-        "    \"@type\" : \"BAR\",\n" +
-        "    \"any\" : \"test\"\n" +
-        "  }\n" +
-        "}";
+  void nestedMap() throws Exception {
+    //given
+    var map = Map.of("bar", new Bar("test"));
+    var expected = """
+        {
+          "bar" : {
+            "@type" : "BAR",
+            "any" : "test"
+          }
+        }""";
 
-    // when
-    String actual = mapper.writeValueAsString(map);
+    //when
+    var actual = mapper.writeValueAsString(map);
 
-    // then
+    //then
     assertEquals(expected, actual);
   }
 
   @Test
-  public void testNestedPojo() throws Exception {
-    // given
-    Box box = new Box(new Qux(1));
-    String expected = "{\n" +
-        "  \"value\" : {\n" +
-        "    \"@type\" : \"QUX\",\n" +
-        "    \"any\" : 1\n" +
-        "  }\n" +
-        "}";
+  void nestedRecord() throws Exception {
+    //given
+    record Box(Foo value) {
 
-    // when
-    String actual = mapper.writeValueAsString(box);
+    }
+    var box = new Box(new Qux(1));
+    var expected = """
+        {
+          "value" : {
+            "@type" : "QUX",
+            "any" : 1
+          }
+        }""";
 
-    // then
+    //when
+    var actual = mapper.writeValueAsString(box);
+
+    //then
     assertEquals(expected, actual);
   }
 
   @Test
-  public void testNestedGenericPojo() throws Exception {
-    // given
-    GenericBox<Foo> box = new GenericBox<>(new Qux(1));
-    String expected = "{\n" +
-        "  \"value\" : {\n" +
-        "    \"@type\" : \"QUX\",\n" +
-        "    \"any\" : 1\n" +
-        "  }\n" +
-        "}";
+  void nestedGenericRecord() throws Exception {
+    //given
+    record Box<T>(T value) {
 
-    // when
-    String actual = mapper.writeValueAsString(box);
+    }
+    var box = new Box<>(new Qux(1));
+    var expected = """
+        {
+          "value" : {
+            "@type" : "QUX",
+            "any" : 1
+          }
+        }""";
 
-    // then
+    //when
+    var actual = mapper.writeValueAsString(box);
+
+    //then
     assertEquals(expected, actual);
   }
 
   @Test
-  public void testNestedGenericPojoExplicitWriter() throws Exception {
-    // given
-    GenericBox<Foo> box = new GenericBox<>(new Qux(1));
-    String expected = "{\n" +
-        "  \"value\" : {\n" +
-        "    \"@type\" : \"QUX\",\n" +
-        "    \"any\" : 1\n" +
-        "  }\n" +
-        "}";
+  void nestedGenericRecordExplicitWriter() throws Exception {
+    //given
+    record Box<T>(T value) {
 
-    // when
-    String actual = mapper.writer().forType(new TypeReference<GenericBox<Foo>>() {
-    }).writeValueAsString(box);
+    }
+    var box = new Box<>(new Qux(1));
+    var expected = """
+        {
+          "value" : {
+            "@type" : "QUX",
+            "any" : 1
+          }
+        }""";
 
-    // then
+    var writer = mapper.writer().forType(new TypeReference<Box<Foo>>() {
+    });
+
+    //when
+    var actual = writer.writeValueAsString(box);
+
+    //then
     assertEquals(expected, actual);
   }
-
-  // Test classes
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, property = "@type")
   @JsonTypeIdResolver(FooIdResolver.class)
-  public interface Foo {
+  public sealed interface Foo permits Bar, Qux {
+
   }
 
-  public static class Bar implements Foo {
-    private String any;
+  record Bar(String any) implements Foo {
 
-    public Bar() {
-    }
-
-    public Bar(String any) {
-      this.any = any;
-    }
-
-    public String getAny() {
-      return any;
-    }
-
-    public void setAny(String any) {
-      this.any = any;
-    }
   }
 
-  public static class Qux implements Foo {
-    private int any;
+  record Qux(int any) implements Foo {
 
-    public Qux() {
-    }
-
-    public Qux(int any) {
-      this.any = any;
-    }
-
-    public int getAny() {
-      return any;
-    }
-
-    public void setAny(int any) {
-      this.any = any;
-    }
-  }
-
-  public static class Box {
-    private Foo value;
-
-    public Box() {
-    }
-
-    public Box(Foo value) {
-      this.value = value;
-    }
-
-    public Foo getValue() {
-      return value;
-    }
-
-    public void setValue(Foo value) {
-      this.value = value;
-    }
-  }
-
-  public static class GenericBox<T> {
-    private T value;
-
-    public GenericBox() {
-    }
-
-    public GenericBox(T value) {
-      this.value = value;
-    }
-
-    public T getValue() {
-      return value;
-    }
-
-    public void setValue(T value) {
-      this.value = value;
-    }
   }
 
   public static class FooIdResolver extends TypeIdResolverBase {

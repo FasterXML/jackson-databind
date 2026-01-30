@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.tofix;
 
 import java.util.Optional;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -78,9 +79,22 @@ public class RecordWithJsonIgnoredMethod5184Test
     }
 
     @Test
-    void should_not_deserialize_wrong_json_model_to_test_data() throws Exception {
+    void should_deserialize_when_ignore_unknown_wrong_json_model_to_test_data() throws Exception {
         String json = """
                 {"value":"test value"}
+                """;
+
+        TestData5184 testData = jsonMapperBuilder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build()
+                .readValue(json, TestData5184.class);
+
+        assertThat(testData.value()).isNull();
+    }
+
+    @Test
+    void should_not_deserialize_wrong_json_model_to_test_data() throws Exception {
+        String json = """
+                {}
                 """;
 
         TestData5184 testData = MAPPER.readValue(json, TestData5184.class);

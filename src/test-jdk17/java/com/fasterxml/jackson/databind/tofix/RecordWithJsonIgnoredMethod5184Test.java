@@ -44,7 +44,6 @@ public class RecordWithJsonIgnoredMethod5184Test
 
     private static final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
     @Test
     void should_deserialize_json_to_test_data() throws Exception {
         String json = """

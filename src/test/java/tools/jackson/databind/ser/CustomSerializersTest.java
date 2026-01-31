@@ -17,6 +17,7 @@ import tools.jackson.databind.ser.std.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.Converter;
+import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -433,5 +434,50 @@ public class CustomSerializersTest extends DatabindTestUtil
         assertEquals("{\"@type\":\"Super\"}", mapper.writeValueAsString(new Super4575()));
         assertEquals("{\"@type\":\"Sub\"}", mapper.writeValueAsString(new Sub4575()));
         assertEquals("null", mapper.writeValueAsString(Super4575.NULL));
+    }
+
+    static class DelegatingSerializerImpl extends DelegatingSerializer {
+
+        public DelegatingSerializerImpl() {
+            this(new StdSerializerTestImpl());
+        }
+
+        public DelegatingSerializerImpl(ValueSerializer<?> valueSerializer) {
+            super(valueSerializer);
+        }
+
+        @Override
+        protected ValueSerializer<Object> newDelegatingInstance(ValueSerializer<?> newDelegatee) {
+            return new DelegatingSerializerImpl(newDelegatee);
+        }
+    }
+
+    static class StdSerializerTestImpl extends StdSerializer<String> {
+
+        public StdSerializerTestImpl() {
+            super(String.class);
+        }
+
+        @Override
+        public void serialize(String value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {}
+
+        @Override
+        public boolean isEmpty(SerializationContext ctxt, String value) { return true; }
+
+        @Override
+        public ValueSerializer<String> unwrappingSerializer(NameTransformer unwrapper) {
+            return new StdSerializerTestImpl();
+        }
+    }
+
+    @Test
+    void testBasicDelegatingSerializer() {
+        DelegatingSerializerImpl delegatingSerializer = new DelegatingSerializerImpl();
+        assertEquals(true, delegatingSerializer.isEmpty(null, null));
+        assertEquals(String.class, delegatingSerializer.handledType());
+        ValueSerializer<?> unwrapping = delegatingSerializer.unwrappingSerializer(null);
+        assertNotNull(unwrapping);
+        assertNotSame(delegatingSerializer, unwrapping);
+
     }
 }

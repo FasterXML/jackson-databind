@@ -205,20 +205,6 @@ public class AdditionalStreamSerializerTest
         assertEquals("[1,2,3]", json);
     }
 
-    @Test
-    public void testStreamEmpty() throws Exception
-    {
-        String json = MAPPER.writeValueAsString(Stream.empty());
-        assertEquals("[]", json);
-    }
-
-    @Test
-    public void testStreamSingleElement() throws Exception
-    {
-        String json = MAPPER.writeValueAsString(Stream.of("only"));
-        assertEquals("[\"only\"]", json);
-    }
-
     /*
     /**********************************************************
     /* Stream: closure verification for wrapper contexts

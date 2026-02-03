@@ -202,7 +202,7 @@ public class CustomSerializersTest extends DatabindTestUtil
     @JsonTypeName("Sub")
     static class Sub4575 extends Super4575 { }
 
-    static class NullSerializer4575 extends StdDelegatingSerializer {
+    static class NullSerializer4575 extends StdConvertingSerializer {
         public NullSerializer4575(Converter<Object, ?> converter, JavaType delegateType,
                 ValueSerializer<?> delegateSerializer,
                 BeanProperty prop) {
@@ -235,7 +235,7 @@ public class CustomSerializersTest extends DatabindTestUtil
         }
 
         @Override
-        protected StdDelegatingSerializer withDelegate(Converter<Object, ?> converter,
+        protected StdConvertingSerializer withDelegate(Converter<Object, ?> converter,
                 JavaType delegateType, ValueSerializer<?> delegateSerializer,
                 BeanProperty prop) {
             return new NullSerializer4575(converter, delegateType, delegateSerializer, prop);
@@ -296,7 +296,7 @@ public class CustomSerializersTest extends DatabindTestUtil
     public void testDelegating() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
-        module.addSerializer(new StdDelegatingSerializer(Immutable.class,
+        module.addSerializer(new StdConvertingSerializer(Immutable.class,
                 new StdConverter<Immutable, Map<String,Integer>>() {
                     @Override
                     public Map<String, Integer> convert(Immutable value)
@@ -313,6 +313,29 @@ public class CustomSerializersTest extends DatabindTestUtil
         assertEquals("{\"x\":3,\"y\":7}", mapper.writeValueAsString(new Immutable()));
     }
 
+    // [databind#5631]
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testDelegatingWithDeprecated() throws Exception
+    {
+        SimpleModule module = new SimpleModule("test", Version.unknownVersion());
+        module.addSerializer(new StdDelegatingSerializer(Immutable.class,
+                new StdConverter<Immutable, Map<String,Integer>>() {
+                    @Override
+                    public Map<String, Integer> convert(Immutable value)
+                    {
+                        HashMap<String,Integer> map = new LinkedHashMap<String,Integer>();
+                        map.put("x", value.x());
+                        map.put("y", value.y());
+                        return map;
+                    }
+        }));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
+        assertEquals("{\"x\":3,\"y\":7}", mapper.writeValueAsString(new Immutable()));
+    }
+    
     // [databind#215]: Allow registering CharacterEscapes via ObjectWriter
     @Test
     public void testCustomEscapes() throws Exception

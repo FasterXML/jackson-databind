@@ -12,6 +12,8 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /*
  * Execute with: mvnw test -Dtest=tools.jackson.databind.GitHub5615JavaTest -f pom.xml
  */
@@ -69,8 +71,30 @@ public class GitHub5615JavaTest {
     private final Result result = testJsonMapper.readValue(roomsString, Result.class);
 
     @RepeatedTest(2000)
-    void trySerializationAndDeserialization() {
-        serializeWithDeserialization(result);
+    void trySerializationAndDeserialization() throws Exception {
+        int threadCount = 10;
+        var barrier = new java.util.concurrent.CyclicBarrier(threadCount);
+        var threads = new java.util.ArrayList<Thread>();
+        var errors = new java.util.concurrent.CopyOnWriteArrayList<Throwable>();
+        
+        for (int i = 0; i < threadCount; i++) {
+            Thread t = new Thread(() -> {
+                try {
+                    barrier.await();
+                    serializeWithDeserialization(result);
+                } catch (Throwable e) {
+                    errors.add(e);
+                }
+            });
+            threads.add(t);
+            t.start();
+        }
+        
+        for (Thread t : threads) {
+            t.join();
+        }
+
+        assertTrue(errors.isEmpty());
     }
 
     private void serializeWithDeserialization(Result result) {

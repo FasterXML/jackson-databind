@@ -87,6 +87,7 @@ public class GitHub5615JavaTest {
                         serializeWithDeserialization(result);
                     }
                 } catch (Throwable e) {
+                    System.out.println(e.getMessage());
                     errors.add(e);
                 }
             });

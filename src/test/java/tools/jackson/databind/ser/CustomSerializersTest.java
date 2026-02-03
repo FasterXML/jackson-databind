@@ -137,6 +137,30 @@ public class CustomSerializersTest extends DatabindTestUtil
         }
     }
 
+    // Test for isEmpty() of StdConvertingSerializer
+    @JsonPropertyOrder({ "text", "other" })
+    static class ConvertingIsEmptyBean {
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        @JsonSerialize(converter = MaybeEmptyConverter.class)
+        public String text;
+
+        public String other;
+
+        public ConvertingIsEmptyBean(String t, String o) {
+            text = t;
+            other = o;
+        }
+    }
+
+    static class MaybeEmptyConverter extends StdConverter<String, String> {
+        @Override
+        public String convert(String value) {
+            if ("NULL".equals(value)) return null;
+            if ("EMPTY".equals(value)) return "";
+            return value;
+        }
+    }
+
     // [databind#2475]
     static class MyFilter2475 extends SimpleBeanPropertyFilter {
         @Override
@@ -174,11 +198,7 @@ public class CustomSerializersTest extends DatabindTestUtil
 
     // [databind#4575]
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
-    @JsonSubTypes(
-        {
-            @JsonSubTypes.Type(Sub4575.class)
-        }
-    )
+    @JsonSubTypes({ @JsonSubTypes.Type(Sub4575.class) })
     @JsonTypeName("Super")
     static class Super4575 {
         public static final Super4575 NULL = new Super4575();
@@ -359,6 +379,24 @@ public class CustomSerializersTest extends DatabindTestUtil
 
         Set<String> set = new LinkedHashSet<String>(Arrays.asList("foo", null));
         assertEquals(a2q("['FOO',null]"), mapper.writeValueAsString(set));
+    }
+
+    // Test that StdConvertingSerializer.isEmpty() works with NON_EMPTY inclusion:
+    // converter returning null means empty, converter returning "" means empty,
+    // converter returning non-empty string means not empty.
+    @Test
+    public void testConvertingSerializerIsEmpty() throws Exception {
+        // Converted to null -> isEmpty() returns true -> property excluded
+        assertEquals(a2q("{'other':'a'}"),
+                MAPPER.writeValueAsString(new ConvertingIsEmptyBean("NULL", "a")));
+
+        // Converted to "" -> delegate isEmpty() returns true -> property excluded
+        assertEquals(a2q("{'other':'b'}"),
+                MAPPER.writeValueAsString(new ConvertingIsEmptyBean("EMPTY", "b")));
+
+        // Converted to non-empty -> isEmpty() returns false -> property included
+        assertEquals(a2q("{'text':'hello','other':'c'}"),
+                MAPPER.writeValueAsString(new ConvertingIsEmptyBean("hello", "c")));
     }
 
     // [databind#2475]

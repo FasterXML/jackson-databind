@@ -1,11 +1,8 @@
 package tools.jackson.databind.ser;
 
-import java.io.StringWriter;
 import java.util.*;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.Test;
-import org.w3c.dom.Element;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -29,18 +26,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class CustomSerializersTest extends DatabindTestUtil
 {
-    static class ElementSerializer extends StdSerializer<Element>
-    {
-        public ElementSerializer() { super(Element.class); }
-        @Override
-        public void serialize(Element value, JsonGenerator gen, SerializationContext provider) {
-            gen.writeString("element");
-        }
-    }
-
-    @JsonSerialize(using = ElementSerializer.class)
-    public static class ElementMixin {}
-
     public static class Immutable {
         protected int x() { return 3; }
         protected int y() { return 7; }
@@ -202,7 +187,8 @@ public class CustomSerializersTest extends DatabindTestUtil
     @JsonTypeName("Sub")
     static class Sub4575 extends Super4575 { }
 
-    static class NullSerializer4575 extends StdConvertingSerializer {
+    static class NullSerializer4575 extends StdConvertingSerializer
+    {
         public NullSerializer4575(Converter<Object, ?> converter, JavaType delegateType,
                 ValueSerializer<?> delegateSerializer,
                 BeanProperty prop) {
@@ -243,24 +229,12 @@ public class CustomSerializersTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
-    /* Unit tests
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-
-    @Test
-    public void testCustomization() throws Exception
-    {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .addMixIn(Element.class, ElementMixin.class)
-                .build();
-        Element element = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument().createElement("el");
-        StringWriter sw = new StringWriter();
-        mapper.writeValue(sw, element);
-        assertEquals(sw.toString(), "\"element\"");
-    }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Test

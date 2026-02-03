@@ -5,14 +5,9 @@ import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.Converter;
 
 /**
- * Serializer implementation where given Java type is first converted
- * to an intermediate "delegate type" (using a configured
- * {@link Converter}, and then this delegate value is serialized by Jackson.
- *<p>
- * Note that although types may be related, they must not be same; trying
- * to do this will result in an exception.
+ * Older incorrectly named (in 3.0) variant of {@link StdConvertingSerializer}.
  *
- * @deprecated Since 3.1 should use correctly named {@link StdConvertingSerializer}
+ * @deprecated Since 3.1 should use correctly named {@link StdConvertingSerializer} instead.
  */
 @Deprecated
 public class StdDelegatingSerializer

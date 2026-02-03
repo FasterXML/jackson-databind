@@ -17,6 +17,8 @@ import tools.jackson.databind.util.Converter;
  * Note that although types may be related, they must not be same; trying
  * to do this will result in an exception.
  *
+ * @see Converter
+ *
  * @since 3.1 (in 3.0 was incorrectly named {@link StdDelegatingSerializer})
  */
 @SuppressWarnings("javadoc")

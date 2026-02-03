@@ -1,6 +1,7 @@
 package tools.jackson.databind.deser.std;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
@@ -31,7 +32,7 @@ public abstract class DelegatingDeserializer
 
     public DelegatingDeserializer(ValueDeserializer<?> d)
     {
-        super(d.handledType());
+        super(Objects.requireNonNull(d, "delegatee must not be null").handledType());
         _delegatee = d;
     }
 
@@ -51,9 +52,7 @@ public abstract class DelegatingDeserializer
 
     @Override
     public void resolve(DeserializationContext ctxt) {
-        if (_delegatee != null) {
-            _delegatee.resolve(ctxt);
-        }
+        _delegatee.resolve(ctxt);
     }
 
     @Override

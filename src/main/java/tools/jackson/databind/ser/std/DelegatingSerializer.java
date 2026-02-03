@@ -12,6 +12,7 @@ import tools.jackson.databind.ser.PropertyWriter;
 import tools.jackson.databind.util.NameTransformer;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 
 public abstract class DelegatingSerializer
@@ -26,7 +27,7 @@ public abstract class DelegatingSerializer
      */
     public DelegatingSerializer(ValueSerializer<?> delegatee) {
 
-        super((Class<Object>) delegatee.handledType());
+        super((Class<Object>) Objects.requireNonNull(delegatee, "delegatee must not be null").handledType());
         _delegatee = (ValueSerializer<Object>) delegatee;
     }
 
@@ -46,9 +47,7 @@ public abstract class DelegatingSerializer
 
     @Override
     public void resolve(SerializationContext ctxt) {
-        if (_delegatee != null) {
-            _delegatee.resolve(ctxt);
-        }
+        _delegatee.resolve(ctxt);
     }
 
     @Override

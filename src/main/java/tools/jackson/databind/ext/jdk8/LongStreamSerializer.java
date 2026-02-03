@@ -35,7 +35,7 @@ public class LongStreamSerializer extends StdSerializer<LongStream>
             });
             g.writeEndArray();
         } catch (Exception e) {
-            // For most regular serializers we won't both handling but streams are typically
+            // For most regular serializers we won't bother handling but streams are typically
             // root values so
             wrapAndThrow(ctxt, e, stream, g.streamWriteContext().getCurrentIndex());
         }

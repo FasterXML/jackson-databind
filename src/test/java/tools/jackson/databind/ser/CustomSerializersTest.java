@@ -1,11 +1,8 @@
 package tools.jackson.databind.ser;
 
-import java.io.StringWriter;
 import java.util.*;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.Test;
-import org.w3c.dom.Element;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -29,18 +26,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class CustomSerializersTest extends DatabindTestUtil
 {
-    static class ElementSerializer extends StdSerializer<Element>
-    {
-        public ElementSerializer() { super(Element.class); }
-        @Override
-        public void serialize(Element value, JsonGenerator gen, SerializationContext provider) {
-            gen.writeString("element");
-        }
-    }
-
-    @JsonSerialize(using = ElementSerializer.class)
-    public static class ElementMixin {}
-
     public static class Immutable {
         protected int x() { return 3; }
         protected int y() { return 7; }
@@ -152,6 +137,30 @@ public class CustomSerializersTest extends DatabindTestUtil
         }
     }
 
+    // Test for isEmpty() of StdConvertingSerializer
+    @JsonPropertyOrder({ "text", "other" })
+    static class ConvertingIsEmptyBean {
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        @JsonSerialize(converter = MaybeEmptyConverter.class)
+        public String text;
+
+        public String other;
+
+        public ConvertingIsEmptyBean(String t, String o) {
+            text = t;
+            other = o;
+        }
+    }
+
+    static class MaybeEmptyConverter extends StdConverter<String, String> {
+        @Override
+        public String convert(String value) {
+            if ("NULL".equals(value)) return null;
+            if ("EMPTY".equals(value)) return "";
+            return value;
+        }
+    }
+
     // [databind#2475]
     static class MyFilter2475 extends SimpleBeanPropertyFilter {
         @Override
@@ -189,11 +198,7 @@ public class CustomSerializersTest extends DatabindTestUtil
 
     // [databind#4575]
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
-    @JsonSubTypes(
-        {
-            @JsonSubTypes.Type(Sub4575.class)
-        }
-    )
+    @JsonSubTypes({ @JsonSubTypes.Type(Sub4575.class) })
     @JsonTypeName("Super")
     static class Super4575 {
         public static final Super4575 NULL = new Super4575();
@@ -202,7 +207,8 @@ public class CustomSerializersTest extends DatabindTestUtil
     @JsonTypeName("Sub")
     static class Sub4575 extends Super4575 { }
 
-    static class NullSerializer4575 extends StdDelegatingSerializer {
+    static class NullSerializer4575 extends StdConvertingSerializer
+    {
         public NullSerializer4575(Converter<Object, ?> converter, JavaType delegateType,
                 ValueSerializer<?> delegateSerializer,
                 BeanProperty prop) {
@@ -235,7 +241,7 @@ public class CustomSerializersTest extends DatabindTestUtil
         }
 
         @Override
-        protected StdDelegatingSerializer withDelegate(Converter<Object, ?> converter,
+        protected StdConvertingSerializer withDelegate(Converter<Object, ?> converter,
                 JavaType delegateType, ValueSerializer<?> delegateSerializer,
                 BeanProperty prop) {
             return new NullSerializer4575(converter, delegateType, delegateSerializer, prop);
@@ -243,24 +249,12 @@ public class CustomSerializersTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
-    /* Unit tests
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-
-    @Test
-    public void testCustomization() throws Exception
-    {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .addMixIn(Element.class, ElementMixin.class)
-                .build();
-        Element element = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument().createElement("el");
-        StringWriter sw = new StringWriter();
-        mapper.writeValue(sw, element);
-        assertEquals(sw.toString(), "\"element\"");
-    }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Test
@@ -296,7 +290,7 @@ public class CustomSerializersTest extends DatabindTestUtil
     public void testDelegating() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
-        module.addSerializer(new StdDelegatingSerializer(Immutable.class,
+        module.addSerializer(new StdConvertingSerializer(Immutable.class,
                 new StdConverter<Immutable, Map<String,Integer>>() {
                     @Override
                     public Map<String, Integer> convert(Immutable value)
@@ -313,6 +307,29 @@ public class CustomSerializersTest extends DatabindTestUtil
         assertEquals("{\"x\":3,\"y\":7}", mapper.writeValueAsString(new Immutable()));
     }
 
+    // [databind#5631]
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testDelegatingWithDeprecated() throws Exception
+    {
+        SimpleModule module = new SimpleModule("test", Version.unknownVersion());
+        module.addSerializer(new StdDelegatingSerializer(Immutable.class,
+                new StdConverter<Immutable, Map<String,Integer>>() {
+                    @Override
+                    public Map<String, Integer> convert(Immutable value)
+                    {
+                        HashMap<String,Integer> map = new LinkedHashMap<String,Integer>();
+                        map.put("x", value.x());
+                        map.put("y", value.y());
+                        return map;
+                    }
+        }));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
+        assertEquals("{\"x\":3,\"y\":7}", mapper.writeValueAsString(new Immutable()));
+    }
+    
     // [databind#215]: Allow registering CharacterEscapes via ObjectWriter
     @Test
     public void testCustomEscapes() throws Exception
@@ -362,6 +379,24 @@ public class CustomSerializersTest extends DatabindTestUtil
 
         Set<String> set = new LinkedHashSet<String>(Arrays.asList("foo", null));
         assertEquals(a2q("['FOO',null]"), mapper.writeValueAsString(set));
+    }
+
+    // Test that StdConvertingSerializer.isEmpty() works with NON_EMPTY inclusion:
+    // converter returning null means empty, converter returning "" means empty,
+    // converter returning non-empty string means not empty.
+    @Test
+    public void testConvertingSerializerIsEmpty() throws Exception {
+        // Converted to null -> isEmpty() returns true -> property excluded
+        assertEquals(a2q("{'other':'a'}"),
+                MAPPER.writeValueAsString(new ConvertingIsEmptyBean("NULL", "a")));
+
+        // Converted to "" -> delegate isEmpty() returns true -> property excluded
+        assertEquals(a2q("{'other':'b'}"),
+                MAPPER.writeValueAsString(new ConvertingIsEmptyBean("EMPTY", "b")));
+
+        // Converted to non-empty -> isEmpty() returns false -> property included
+        assertEquals(a2q("{'text':'hello','other':'c'}"),
+                MAPPER.writeValueAsString(new ConvertingIsEmptyBean("hello", "c")));
     }
 
     // [databind#2475]

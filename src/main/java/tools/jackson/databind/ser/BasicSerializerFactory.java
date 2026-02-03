@@ -438,7 +438,7 @@ public abstract class BasicSerializerFactory
             return ser;
         }
         JavaType delegateType = conv.getOutputType(ctxt.getTypeFactory());
-        return new StdDelegatingSerializer(conv, delegateType, ser, null);
+        return new StdConvertingSerializer(conv, delegateType, ser, null);
     }
 
     protected Converter<Object,Object> findConverter(SerializationContext ctxt,

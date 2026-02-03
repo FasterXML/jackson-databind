@@ -358,7 +358,7 @@ public abstract class StdSerializer<T>
                 if ((existingSerializer == null) && !delegateType.isJavaLangObject()) {
                     existingSerializer = ctxt.findValueSerializer(delegateType);
                 }
-                return new StdDelegatingSerializer(conv, delegateType, existingSerializer, prop);
+                return new StdConvertingSerializer(conv, delegateType, existingSerializer, prop);
             }
         }
         return existingSerializer;

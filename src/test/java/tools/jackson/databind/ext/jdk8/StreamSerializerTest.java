@@ -1,9 +1,6 @@
 package tools.jackson.databind.ext.jdk8;
 
 import java.util.*;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -12,10 +9,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StreamSerializerTest extends StreamTestBase
 {
@@ -47,36 +46,28 @@ public class StreamSerializerTest extends StreamTestBase
         }
     }
 
-    static class IntStreamWrapper {
-        public IntStream value;
+    static class StringStreamWrapper {
+        public Stream<String> value;
 
-        public IntStreamWrapper(IntStream value) {
-            this.value = value;
-        }
-
-        protected IntStreamWrapper() { }
+        public StringStreamWrapper() { }
+        StringStreamWrapper(Stream<String> v) { value = v; }
     }
 
-    static class LongStreamWrapper {
-        public LongStream value;
+    static final class FinalValueBean {
+        public int x;
 
-        public LongStreamWrapper(LongStream value) {
-            this.value = value;
+        public FinalValueBean() { }
+        FinalValueBean(int x) { this.x = x; }
+
+        @Override
+        public boolean equals(Object o) {
+            return (o instanceof FinalValueBean) && ((FinalValueBean) o).x == x;
         }
 
-        protected LongStreamWrapper() { }
+        @Override
+        public int hashCode() { return x; }
     }
-
-    static class DoubleStreamWrapper {
-        public DoubleStream value;
-
-        public DoubleStreamWrapper(DoubleStream value) {
-            this.value = value;
-        }
-
-        protected DoubleStreamWrapper() { }
-    }
-
+    
     final static TestBean[] empty = {};
 
     final static TestBean testBean1 = new TestBean(1, "one");
@@ -90,21 +81,6 @@ public class StreamSerializerTest extends StreamTestBase
     @Test
     public void testEmptyStream() throws Exception {
         assertArrayEquals(empty, this.roundTrip(Stream.empty(), TestBean[].class));
-    }
-
-    @Test
-    public void testEmptyIntStream() throws Exception {
-        IntStreamWrapper wrapper = new IntStreamWrapper(IntStream.empty());
-        String json = objectMapper.writeValueAsString(wrapper);
-        // Empty stream should serialize to empty array
-        assertEquals("{\"value\":[]}", json);
-    }
-
-    @Test
-    public void testLongStreamWithElements() throws Exception {
-        LongStreamWrapper wrapper = new LongStreamWrapper(LongStream.of(1L, 2L, 3L, 100L));
-        String json = objectMapper.writeValueAsString(wrapper);
-        assertTrue(json.contains("\"value\":[1,2,3,100]"));
     }
 
     @Test
@@ -142,6 +118,42 @@ public class StreamSerializerTest extends StreamTestBase
     public void testStreamCloses() throws Exception {
         assertClosesOnSuccess(Stream.of(multipleValues), stream -> roundTrip(stream, TestBean[].class));
     }
+
+    @Test
+    public void testStreamWithStaticTyping() throws Exception
+    {
+        ObjectMapper mapper = DatabindTestUtil.jsonMapperBuilder()
+                .enable(MapperFeature.USE_STATIC_TYPING)
+                .build();
+        String json = mapper.writeValueAsString(
+                new StringStreamWrapper(Stream.of("a", "b", "c")));
+        assertEquals(DatabindTestUtil.a2q("{'value':['a','b','c']}"), json);
+    }
+
+    @Test
+    public void testStreamWithFinalElementType() throws Exception
+    {
+        // FinalValueBean is a final class, so createContextual() should
+        // resolve a specific content serializer even without USE_STATIC_TYPING
+        Stream<FinalValueBean> stream = Stream.of(
+                new FinalValueBean(1), new FinalValueBean(2));
+        String json = objectMapper.writeValueAsString(stream);
+        assertEquals(DatabindTestUtil.a2q("[{'x':1},{'x':2}]"), json);
+    }
+
+    @Test
+    public void testStreamOfStrings() throws Exception
+    {
+        assertEquals("[\"hello\",\"world\"]",
+                objectMapper.writeValueAsString(Stream.of("hello", "world")));
+    }
+
+    @Test
+    public void testStreamOfIntegers() throws Exception
+    {
+        assertEquals("[1,2,3]", objectMapper.writeValueAsString(Stream.of(1, 2, 3)));
+    }
+
     private <T, R> R[] roundTrip(Stream<T> stream, Class<R[]> clazz) {
         String json = objectMapper.writeValueAsString(stream);
         return objectMapper.readValue(json, clazz);

@@ -65,6 +65,12 @@ public class OptionalNumbersTest
      */
 
     @Test
+    public void testOptionalIntNull() throws Exception
+    {
+        assertFalse(MAPPER.readValue("null", OptionalInt.class).isPresent());
+    }
+
+    @Test
     public void testOptionalIntAbsent() throws Exception
     {
         String json = MAPPER.writeValueAsString(OptionalInt.empty());
@@ -105,6 +111,18 @@ public class OptionalNumbersTest
         assertEquals(-37L, bean.value.getAsInt());
     }
 
+    @Test
+    public void testOptionalIntInvalid() throws Exception
+    {
+        try {
+            MAPPER.readValue("true", OptionalInt.class);
+            fail("Should fail");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize value of type `java.util.OptionalInt`");
+            verifyException(e, "from Boolean value (token");
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods, OptionalLong
@@ -112,9 +130,16 @@ public class OptionalNumbersTest
      */
 
     @Test
+    public void testOptionalLongNull() throws Exception
+    {
+        assertFalse(MAPPER.readValue("null", OptionalLong.class).isPresent());
+    }
+
+    @Test
     public void testOptionalLongAbsent() throws Exception
     {
-        assertFalse(MAPPER.readValue(MAPPER.writeValueAsBytes(OptionalLong.empty()), OptionalLong.class).isPresent());
+        assertFalse(MAPPER.readValue(MAPPER.writeValueAsBytes(OptionalLong.empty()),
+                OptionalLong.class).isPresent());
     }
 
     @Test
@@ -192,6 +217,18 @@ public class OptionalNumbersTest
                 mapper.writeValueAsString(new OptionalLongBean()));
     }
 
+    @Test
+    public void testOptionalLongInvalid() throws Exception
+    {
+        try {
+            MAPPER.readValue("true", OptionalLong.class);
+            fail("Should fail");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize value of type `java.util.OptionalLong`");
+            verifyException(e, "from Boolean value (token");
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods, OptionalDouble
@@ -199,10 +236,16 @@ public class OptionalNumbersTest
      */
 
     @Test
+    public void testOptionalDoubleNull() throws Exception
+    {
+        assertFalse(MAPPER.readValue("null", OptionalDouble.class).isPresent());
+    }
+
+    @Test
     public void testOptionalDoubleAbsent() throws Exception
     {
-        assertFalse(MAPPER.readValue(MAPPER.writeValueAsBytes(OptionalInt.empty()),
-                OptionalInt.class).isPresent());
+        assertFalse(MAPPER.readValue(MAPPER.writeValueAsBytes(OptionalDouble.empty()),
+                OptionalDouble.class).isPresent());
     }
 
     @Test
@@ -217,7 +260,8 @@ public class OptionalNumbersTest
     @Test
     public void testOptionalDoublePresent() throws Exception
     {
-        assertEquals(Double.MIN_VALUE, MAPPER.readValue(MAPPER.writeValueAsBytes(OptionalDouble.of(Double.MIN_VALUE)), OptionalDouble.class).getAsDouble());
+        assertEquals(Double.MIN_VALUE,
+                MAPPER.readValue(MAPPER.writeValueAsBytes(OptionalDouble.of(Double.MIN_VALUE)), OptionalDouble.class).getAsDouble());
     }
 
     @Test
@@ -312,4 +356,17 @@ public class OptionalNumbersTest
                 a2q("{'value':'-Infinity'}"), OptionalDoubleBean.class);
         assertEquals(OptionalDouble.of(Double.NEGATIVE_INFINITY), bean.value);
     }
+
+    @Test
+    public void testOptionalDoubleInvalid() throws Exception
+    {
+        try {
+            MAPPER.readValue("true", OptionalDouble.class);
+            fail("Should fail");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize value of type `java.util.OptionalDouble`");
+            verifyException(e, "from Boolean value (token");
+        }
+    }
+
 }

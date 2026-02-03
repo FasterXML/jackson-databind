@@ -19,9 +19,9 @@ public class StackTraceElementDeserTest extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Tests for basic deserialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -64,9 +64,9 @@ public class StackTraceElementDeserTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Tests for Java 9+ fields (module info)
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -101,9 +101,9 @@ public class StackTraceElementDeserTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Tests for round-trip
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -142,9 +142,9 @@ public class StackTraceElementDeserTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Tests for array of StackTraceElements
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -182,9 +182,9 @@ public class StackTraceElementDeserTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Tests for edge cases
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -213,11 +213,10 @@ public class StackTraceElementDeserTest extends DatabindTestUtil
     @Test
     public void testSingleValueArrayUnwrap() throws Exception
     {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                .build();
+        ObjectReader r = MAPPER.readerFor(StackTraceElement.class)
+                .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
         String json = a2q("[{'className':'W','methodName':'wrap','fileName':'W.java','lineNumber':1}]");
-        StackTraceElement result = mapper.readValue(json, StackTraceElement.class);
+        StackTraceElement result = r.readValue(json);
         assertNotNull(result);
         assertEquals("W", result.getClassName());
     }

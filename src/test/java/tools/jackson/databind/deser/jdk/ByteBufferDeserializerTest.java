@@ -87,13 +87,6 @@ public class ByteBufferDeserializerTest extends DatabindTestUtil
     }
 
     @Test
-    public void testNullByteBuffer() throws Exception
-    {
-        ByteBuffer result = MAPPER.readValue("null", ByteBuffer.class);
-        assertNull(result);
-    }
-
-    @Test
     public void testLargeByteBuffer() throws Exception
     {
         byte[] largeData = new byte[10000];

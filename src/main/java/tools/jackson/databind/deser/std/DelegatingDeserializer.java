@@ -17,7 +17,7 @@ import tools.jackson.databind.util.NameTransformer;
  * Base class that simplifies implementations of {@link ValueDeserializer}s
  * that mostly delegate functionality to another deserializer implementation
  * (possibly forming a chaining of deserializers delegating functionality
- * in some cases)
+ * in some cases).
  */
 public abstract class DelegatingDeserializer
     extends StdDeserializer<Object>

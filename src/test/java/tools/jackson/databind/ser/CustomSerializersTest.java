@@ -249,6 +249,41 @@ public class CustomSerializersTest extends DatabindTestUtil
         }
     }
 
+    // [databind#5630]: DelegatingSerializer impl
+    static class DelegatingSerializerImpl extends DelegatingSerializer
+    {
+        public DelegatingSerializerImpl() {
+            this(new StdSerializerTestImpl());
+        }
+
+        public DelegatingSerializerImpl(ValueSerializer<?> valueSerializer) {
+            super(valueSerializer);
+        }
+
+        @Override
+        protected ValueSerializer<Object> newDelegatingInstance(ValueSerializer<?> newDelegatee) {
+            return new DelegatingSerializerImpl(newDelegatee);
+        }
+    }
+
+    static class StdSerializerTestImpl extends StdSerializer<String>
+    {
+        public StdSerializerTestImpl() { super(String.class); }
+
+        @Override
+        public void serialize(String value, JsonGenerator gen, SerializationContext ctxt) {
+            gen.writeString(value);
+        }
+
+        @Override
+        public boolean isEmpty(SerializationContext ctxt, String value) { return value.isEmpty(); }
+
+        @Override
+        public ValueSerializer<String> unwrappingSerializer(NameTransformer unwrapper) {
+            return new StdSerializerTestImpl();
+        }
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -436,40 +471,7 @@ public class CustomSerializersTest extends DatabindTestUtil
         assertEquals("null", mapper.writeValueAsString(Super4575.NULL));
     }
 
-    static class DelegatingSerializerImpl extends DelegatingSerializer {
-
-        public DelegatingSerializerImpl() {
-            this(new StdSerializerTestImpl());
-        }
-
-        public DelegatingSerializerImpl(ValueSerializer<?> valueSerializer) {
-            super(valueSerializer);
-        }
-
-        @Override
-        protected ValueSerializer<Object> newDelegatingInstance(ValueSerializer<?> newDelegatee) {
-            return new DelegatingSerializerImpl(newDelegatee);
-        }
-    }
-
-    static class StdSerializerTestImpl extends StdSerializer<String> {
-
-        public StdSerializerTestImpl() {
-            super(String.class);
-        }
-
-        @Override
-        public void serialize(String value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {}
-
-        @Override
-        public boolean isEmpty(SerializationContext ctxt, String value) { return true; }
-
-        @Override
-        public ValueSerializer<String> unwrappingSerializer(NameTransformer unwrapper) {
-            return new StdSerializerTestImpl();
-        }
-    }
-
+    // [databind#5630]: DelegatingSerializer impl
     @Test
     void testBasicDelegatingSerializer() {
         DelegatingSerializerImpl delegatingSerializer = new DelegatingSerializerImpl();
@@ -478,6 +480,5 @@ public class CustomSerializersTest extends DatabindTestUtil
         ValueSerializer<?> unwrapping = delegatingSerializer.unwrappingSerializer(null);
         assertNotNull(unwrapping);
         assertNotSame(delegatingSerializer, unwrapping);
-
     }
 }

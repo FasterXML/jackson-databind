@@ -496,6 +496,11 @@ public class MapDeserializer
                     result);
         }
 
+        // [databind#3188] Cache capability once outside the loop
+        final NullKeySkippable nks = (_keyDeserializer instanceof NullKeySkippable)
+                ? (NullKeySkippable) _keyDeserializer : null;
+        final boolean skipNullKeys = (nks != null) && nks.skipNullKeys(ctxt);
+
         String keyStr;
         if (p.isExpectedStartObjectToken()) {
             keyStr = p.nextName();
@@ -514,6 +519,11 @@ public class MapDeserializer
             Object key = _keyDeserializer.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
+            // [databind#3188] Skip entry when key deserializer requests null-key skipping
+            if (skipNullKeys && key == null) {
+                p.skipChildren(); // no-op for scalar tokens; safe to call unconditionally
+                continue;
+            }
             if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
                 p.skipChildren();
                 continue;
@@ -636,6 +646,11 @@ public class MapDeserializer
         // null -> no ObjectIdReader for Maps (yet?)
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
 
+        // [databind#3188] Cache capability once outside the loop
+        final NullKeySkippable nks = (_keyDeserializer instanceof NullKeySkippable)
+                ? (NullKeySkippable) _keyDeserializer : null;
+        final boolean skipNullKeys = (nks != null) && nks.skipNullKeys(ctxt);
+
         String key;
         if (p.isExpectedStartObjectToken()) {
             key = p.nextName();
@@ -669,6 +684,11 @@ public class MapDeserializer
             }
             // other property? needs buffering
             Object actualKey = _keyDeserializer.deserializeKey(key, ctxt);
+            // [databind#3188] Skip entry when key deserializer requests null-key skipping
+            if (skipNullKeys && actualKey == null) {
+                p.skipChildren(); // no-op for scalar tokens; safe to call unconditionally
+                continue;
+            }
             Object value;
 
             try {
@@ -719,6 +739,11 @@ public class MapDeserializer
         // Note: assumption is that Object Id handling can't really work with merging
         // and thereby we can (and should) just drop that part
 
+        // [databind#3188] Cache capability once outside the loop
+        final NullKeySkippable nks = (_keyDeserializer instanceof NullKeySkippable)
+                ? (NullKeySkippable) _keyDeserializer : null;
+        final boolean skipNullKeys = (nks != null) && nks.skipNullKeys(ctxt);
+
         String keyStr;
         if (p.isExpectedStartObjectToken()) {
             keyStr = p.nextName();
@@ -737,6 +762,11 @@ public class MapDeserializer
             Object key = _keyDeserializer.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
+            // [databind#3188] Skip entry when key deserializer requests null-key skipping
+            if (skipNullKeys && key == null) {
+                p.skipChildren(); // no-op for scalar tokens; safe to call unconditionally
+                continue;
+            }
             if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
                 p.skipChildren();
                 continue;

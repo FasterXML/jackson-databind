@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import tools.jackson.databind.json.JsonMapper;
@@ -70,7 +71,7 @@ public class GitHub5615JavaTest {
 
     private final Result result = testJsonMapper.readValue(roomsString, Result.class);
 
-    @RepeatedTest(2000)
+    @RepeatedTest(1000)
     void trySerializationAndDeserialization() throws Exception {
         int threadCount = 10;
         var barrier = new java.util.concurrent.CyclicBarrier(threadCount);
@@ -81,7 +82,10 @@ public class GitHub5615JavaTest {
             Thread t = new Thread(() -> {
                 try {
                     barrier.await();
-                    serializeWithDeserialization(result);
+                    for (int j = 0; j < 10; j++) {
+                        Thread.sleep((long) (Math.random() * 10));
+                        serializeWithDeserialization(result);
+                    }
                 } catch (Throwable e) {
                     errors.add(e);
                 }

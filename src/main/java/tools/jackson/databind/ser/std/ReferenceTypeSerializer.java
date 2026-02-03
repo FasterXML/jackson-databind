@@ -239,7 +239,7 @@ public abstract class ReferenceTypeSerializer<T>
         return refSer;
     }
 
-    protected boolean _useStatic(SerializationContext serializers, BeanProperty property,
+    protected boolean _useStatic(SerializationContext ctxt, BeanProperty property,
             JavaType referredType)
     {
         // First: no serializer for `Object.class`, must be dynamic
@@ -255,11 +255,11 @@ public abstract class ReferenceTypeSerializer<T>
             return true;
         }
         // if neither, maybe explicit annotation?
-        AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if ((intr != null) && (property != null)) {
             Annotated ann = property.getMember();
             if (ann != null) {
-                JsonSerialize.Typing t = intr.findSerializationTyping(serializers.getConfig(),
+                JsonSerialize.Typing t = intr.findSerializationTyping(ctxt.getConfig(),
                         property.getMember());
                 if (t == JsonSerialize.Typing.STATIC) {
                     return true;
@@ -270,7 +270,7 @@ public abstract class ReferenceTypeSerializer<T>
             }
         }
         // and finally, may be forced by global static typing (unlikely...)
-        return serializers.isEnabled(MapperFeature.USE_STATIC_TYPING);
+        return ctxt.isEnabled(MapperFeature.USE_STATIC_TYPING);
     }
 
     /*

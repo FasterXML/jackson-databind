@@ -12,7 +12,9 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /*
@@ -81,30 +83,37 @@ public class GitHub5615JavaTest {
         for (int i = 0; i < threadCount; i++) {
             Thread t = new Thread(() -> {
                 try {
+                    long randomSleep = (long) (Math.random() * 15);
                     barrier.await();
-                    for (int j = 0; j < 10; j++) {
-                        Thread.sleep((long) (Math.random() * 10));
+                    for (int j = 0; j < 100; j++) {
+                        Thread.sleep(randomSleep);
                         serializeWithDeserialization(result);
                     }
                 } catch (Throwable e) {
-                    System.out.println(e.getMessage());
                     errors.add(e);
                 }
             });
             threads.add(t);
             t.start();
         }
-        
+
         for (Thread t : threads) {
             t.join();
         }
 
-        assertTrue(errors.isEmpty());
+        assertTrue(
+                errors.isEmpty(),
+                () -> format(
+                        "test failed with %s",
+                        errors.stream()
+                                .map(Throwable::toString)
+                                .collect(Collectors.joining("\n"))
+                )
+        );
     }
 
     private void serializeWithDeserialization(Result result) {
-        String personalbetriebslageJson = testJsonMapper.writeValueAsString(result);
-        testJsonMapper.readValue(personalbetriebslageJson, Result.class);
+        testJsonMapper.readValue(testJsonMapper.writeValueAsString(result), Result.class);
     }
 
     // Data class definitions

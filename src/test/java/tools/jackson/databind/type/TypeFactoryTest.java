@@ -577,7 +577,7 @@ public class TypeFactoryTest extends DatabindTestUtil
 
         field = SneakyBean.class.getDeclaredField("longList");
         type = TF.constructType(field.getGenericType());
-        assertTrue(type instanceof CollectionType);
+        assertInstanceOf(CollectionType.class, type);
         CollectionType collectionType = (CollectionType) type;
         assertEquals(TF.constructType(Long.class), collectionType.getContentType());
     }

@@ -23,10 +23,10 @@ public class Java6CollectionsDeserTest
         Deque<?> dq = mapper.readValue("[1]", Deque.class);
         assertNotNull(dq);
         assertEquals(1, dq.size());
-        assertTrue(dq instanceof Deque<?>);
+        assertInstanceOf(Deque.class, dq);
 
         NavigableSet<?> ns = mapper.readValue("[ true ]", NavigableSet.class);
         assertEquals(1, ns.size());
-        assertTrue(ns instanceof NavigableSet<?>);
+        assertInstanceOf(NavigableSet.class, ns);
     }
 }

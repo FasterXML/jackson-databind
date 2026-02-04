@@ -98,9 +98,9 @@ public class MultipleExternalIds291Test extends DatabindTestUtil
         {
             Container c = MAPPER.readValue(json, Container.class);
             assertNotNull(c);
-            assertTrue(c.field1 instanceof A);
+            assertInstanceOf(A.class, c.field1);
             assertEquals("AAA", ((A) c.field1).a);
-            assertTrue(c.field2 instanceof C);
+            assertInstanceOf(C.class, c.field2);
             assertEquals("CCC", ((C) c.field2).c);
         }
 
@@ -109,9 +109,9 @@ public class MultipleExternalIds291Test extends DatabindTestUtil
             ContainerWithExtra c = MAPPER.readValue(json, ContainerWithExtra.class);
             assertNotNull(c);
             assertEquals("1", c.type);
-            assertTrue(c.field1 instanceof A);
+            assertInstanceOf(A.class, c.field1);
             assertEquals("AAA", ((A) c.field1).a);
-            assertTrue(c.field2 instanceof C);
+            assertInstanceOf(C.class, c.field2);
             assertEquals("CCC", ((C) c.field2).c);
         }
     }

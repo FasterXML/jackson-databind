@@ -426,7 +426,7 @@ public class ValueInstantiatorTest
         assertNotNull(value);
         Object ob = value.value;
         assertNotNull(ob);
-        assertTrue(ob instanceof Map);
+        assertInstanceOf(Map.class, ob);
     }
 
     /*

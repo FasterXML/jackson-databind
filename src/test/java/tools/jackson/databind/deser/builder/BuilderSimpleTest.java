@@ -427,7 +427,7 @@ public class BuilderSimpleTest
         assertEquals("bob", value.stuff.get("name"));
         Object ob = value.stuff.get("foobar");
         assertNotNull(ob);
-        assertTrue(ob instanceof List);
+        assertInstanceOf(List.class, ob);
         assertTrue(((List<?>) ob).isEmpty());
     }
 

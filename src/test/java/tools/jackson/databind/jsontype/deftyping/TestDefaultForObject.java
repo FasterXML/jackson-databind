@@ -284,7 +284,7 @@ public class TestDefaultForObject
         Object[] output = m.readValue(json, Object[].class);
         assertEquals(1, output.length);
         Object ob = output[0];
-        assertTrue(ob instanceof EnumSet<?>);
+        assertInstanceOf(EnumSet.class, ob);
         EnumSet<Choice> set2 = (EnumSet<Choice>) ob;
         assertEquals(1, set2.size());
         assertTrue(set2.contains(Choice.NO));
@@ -305,7 +305,7 @@ public class TestDefaultForObject
         Object[] output = m.readValue(json, Object[].class);
         assertEquals(1, output.length);
         Object ob = output[0];
-        assertTrue(ob instanceof EnumMap<?,?>);
+        assertInstanceOf(EnumMap.class, ob);
         EnumMap<Choice,String> map2 = (EnumMap<Choice,String>) ob;
         assertEquals(1, map2.size());
         assertEquals("maybe", map2.get(Choice.NO));
@@ -470,12 +470,12 @@ public class TestDefaultForObject
         List<Object> list = m.readValue(str, List.class);
         assertEquals(1, list.size()); // no type for main List, just single entry
         Object entryOb = list.get(0);
-        assertTrue(entryOb instanceof List<?>);
+        assertInstanceOf(List.class, entryOb);
         // but then type wrapper for bean
         List<?> entryList = (List<?>)entryOb;
         assertEquals(2, entryList.size());
         assertEquals(StringBean.class.getName(), entryList.get(0));
-        assertTrue(entryList.get(1) instanceof Map);
+        assertInstanceOf(Map.class, entryList.get(1));
         Map<?,?> map = (Map<?,?>) entryList.get(1);
         assertEquals(1, map.size());
         assertEquals("abc", map.get("name"));

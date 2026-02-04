@@ -332,7 +332,7 @@ public class ValueAnnotationsDeserTest
     public void testRootInterfaceAsOld() throws Exception
     {
         RootInterface value = MAPPER.readValue("{\"a\":\"abc\" }", RootInterface.class);
-        assertTrue(value instanceof RootInterfaceImpl);
+        assertInstanceOf(RootInterfaceImpl.class, value);
         assertEquals("abc", value.getA());
     }
 
@@ -340,7 +340,7 @@ public class ValueAnnotationsDeserTest
     public void testRootInterfaceAsNew() throws Exception
     {
         RootInterface2 value = MAPPER.readValue("{\"a\":\"abc\" }", RootInterface2.class);
-        assertTrue(value instanceof RootInterfaceImpl);
+        assertInstanceOf(RootInterfaceImpl.class, value);
         assertEquals("abc", value.getA());
     }
 
@@ -348,7 +348,7 @@ public class ValueAnnotationsDeserTest
     public void testRootInterfaceUsing() throws Exception
     {
         RootString value = MAPPER.readValue("\"xxx\"", RootString.class);
-        assertTrue(value instanceof RootString);
+        assertInstanceOf(RootString.class, value);
         assertEquals("xxx", value.contents());
     }
 

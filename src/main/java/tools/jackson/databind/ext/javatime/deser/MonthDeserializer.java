@@ -99,7 +99,11 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
                 throw ctxt.wrongTokenException(p, handledType(), JsonToken.END_ARRAY,
                         "Expected array to end");
             }
-            return Month.of(month);
+            if (Month.JANUARY.getValue() <= month && month <= Month.DECEMBER.getValue()) {
+                return Month.of(month);
+            }
+            return (Month) ctxt.handleWeirdNumberValue(handledType(),
+                month, "month number outside 1-12 range for 1-based `Month`s");
         } else if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
             return (Month) p.getEmbeddedObject();
         }

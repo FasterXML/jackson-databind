@@ -103,7 +103,7 @@ public class MonthDayDeserializer extends JSR310DateTimeDeserializerBase<MonthDa
             }
             try {
                 return MonthDay.of(month, day);
-            } catch (DateTimeException | ArithmeticException e) {
+            } catch (DateTimeException e) {
                 throw DateTimeParseException.from(p,
                         String.format("Failed to deserialize %s from array value [%d,%d]: %s",
                                 handledType().getName(), month, day, e.getMessage()),

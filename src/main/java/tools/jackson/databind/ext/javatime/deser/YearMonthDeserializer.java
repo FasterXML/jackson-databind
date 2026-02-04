@@ -123,7 +123,7 @@ public class YearMonthDeserializer extends JSR310DateTimeDeserializerBase<YearMo
             }
             try {
                 return YearMonth.of(year, month);
-            } catch (DateTimeException | ArithmeticException e) {
+            } catch (DateTimeException e) {
                 throw DateTimeParseException.from(p,
                         String.format("Failed to deserialize %s from array value [%d,%d]: %s",
                                 handledType().getName(), year, month, e.getMessage()),

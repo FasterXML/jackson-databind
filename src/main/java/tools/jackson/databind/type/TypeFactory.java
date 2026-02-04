@@ -1542,6 +1542,33 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             for (int i = 0; i < paramCount; ++i) {
                 pt[i] = _fromAny(context, args[i], parentBindings);
             }
+
+            // [databind#5285] For unbounded wildcards where the corresponding type
+            // variable has a more specific (non-Object) upper bound declared, use
+            // that bound instead of Object. This ensures that annotations (such as
+            // @JsonTypeInfo) on the bound type are properly recognized.
+            // NOTE: self-referential type parameters are excluded here because they
+            // are handled separately below ([databind#4118]).
+            for (int i = 0; i < paramCount; ++i) {
+                if (args[i] instanceof WildcardType wt) {
+                    Type[] upperBounds = wt.getUpperBounds();
+                    Type[] lowerBounds = wt.getLowerBounds();
+                    if (upperBounds.length == 1 && upperBounds[0] == Object.class
+                            && (lowerBounds == null || lowerBounds.length == 0)) {
+                        TypeVariable<? extends Class<?>> typeVar = rawType.getTypeParameters()[i];
+                        if (!_isSelfReferentialTypeParameter(typeVar, rawType)) {
+                            final Type[] varBounds;
+                            synchronized (typeVar) {
+                                varBounds = typeVar.getBounds();
+                            }
+                            if (varBounds.length > 0 && varBounds[0] != Object.class) {
+                                pt[i] = _fromAny(context, varBounds[0], parentBindings);
+                            }
+                        }
+                    }
+                }
+            }
+
             newBindings = TypeBindings.create(rawType, pt);
 
             // [databind#4118] Unbind wildcards in (direct) self-referential type parameters

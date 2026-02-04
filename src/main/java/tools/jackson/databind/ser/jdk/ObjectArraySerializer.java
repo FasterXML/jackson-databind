@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.core.*;
+import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.introspect.AnnotatedMember;
@@ -272,6 +273,47 @@ public class ObjectArraySerializer
         g.writeEndArray();
     }
 
+    // [databind#3194]: Override to check whether element type info should be
+    // written after the outer array's type ID has been written. When the outer
+    // type ID determines a concrete element type that is "final" (per default
+    // typing rules), inner element type IDs are redundant and cause
+    // deserialization failures.
+    @Override
+    public void serializeWithType(Object[] value, JsonGenerator g, SerializationContext ctxt,
+            TypeSerializer typeSer)
+        throws JacksonException
+    {
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
+                typeSer.typeId(value, JsonToken.START_ARRAY));
+        g.assignCurrentValue(value);
+        if (_valueTypeSerializer != null && _elementSerializer == null
+                && _shouldSkipElementTypeId(value, ctxt)) {
+            _serializeDynamicContents(value, g, ctxt);
+        } else {
+            serializeContents(value, g, ctxt);
+        }
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
+    }
+
+    /**
+     * Helper method for [databind#3194]: checks if the actual runtime array
+     * element type does NOT require type serialization based on default typing
+     * rules. For example, {@code String[]} has final component type {@code String},
+     * so with {@code NON_FINAL} typing it does not need a type wrapper.
+     */
+    private boolean _shouldSkipElementTypeId(Object[] value, SerializationContext ctxt) {
+        Class<?> actualComponentType = value.getClass().getComponentType();
+        // If actual component type matches declared element type, definitely
+        // need type info (it was already determined to need it at construction time)
+        if (actualComponentType == _elementType.getRawClass()) {
+            return false;
+        }
+        // Check if the actual component type would get a TypeSerializer;
+        // if not, its type info is redundant since the outer type ID already
+        // determines the concrete element type.
+        return ctxt.findTypeSerializer(ctxt.constructType(actualComponentType)) == null;
+    }
+
     @Override
     public void serializeContents(Object[] value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
@@ -286,6 +328,23 @@ public class ObjectArraySerializer
         }
         if (_valueTypeSerializer != null) {
             serializeTypedContents(value, g, ctxt);
+            return;
+        }
+        _serializeDynamicContents(value, g, ctxt);
+    }
+
+    /**
+     * Serialize array elements using dynamically resolved per-element serializers,
+     * WITHOUT element type wrappers.
+     * Extracted from {@link #serializeContents} for reuse from
+     * {@link #serializeWithType} (see [databind#3194]).
+     */
+    protected void _serializeDynamicContents(Object[] value, JsonGenerator g,
+            SerializationContext ctxt)
+        throws JacksonException
+    {
+        final int len = value.length;
+        if (len == 0) {
             return;
         }
         final boolean filtered = _needToCheckFiltering(ctxt);

@@ -277,7 +277,7 @@ public class ObjectArrayDeserializer
                 chunk[ix++] = value;
             } catch (ArrayStoreException e) {
                 throw DatabindException.wrapWithPath(ctxt, e,
-                        new JacksonException.Reference(chunk, buffer.bufferedSize() + ix));
+                        new JacksonException.Reference(chunk, buffer.bufferedSize() + ix - 1));
             }
         }
 
@@ -327,12 +327,12 @@ public class ObjectArrayDeserializer
                 reference.getRoid().appendReferring(referring);
             } catch (Exception e) {
                 // Get array for error path; if buildArray fails with ArrayStoreException,
-                // use null as reference since we're already handling an exception
+                // suppress it to preserve the original exception being handled
                 Object[] arrayRef = null;
                 try {
                     arrayRef = acc.buildArray();
                 } catch (ArrayStoreException ase) {
-                    // Ignore, we're already in error path
+                    // Suppress ArrayStoreException to preserve original exception
                 }
                 throw DatabindException.wrapWithPath(ctxt, e,
                         // 22-Nov-2025, tatu: Not ideal but has to do

@@ -24,8 +24,8 @@ public class ArrayStoreExceptionHandlingTest extends DatabindTestUtil
     static class BadIntegerDeserializer extends ValueDeserializer<Integer> {
         @Override
         public Integer deserialize(JsonParser p, DeserializationContext ctxt) {
-            // Return a String when Integer is expected - will cause ArrayStoreException
-            // when assigned to Integer[] through Object[] reference
+            // Cast through Object to bypass compile-time type checking and force runtime ArrayStoreException
+            // when Jackson tries to assign this String to an Integer[] array
             return (Integer)(Object)"not an integer";
         }
     }

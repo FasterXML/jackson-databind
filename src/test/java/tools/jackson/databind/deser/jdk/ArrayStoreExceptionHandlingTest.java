@@ -2,12 +2,8 @@ package tools.jackson.databind.deser.jdk;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
-import tools.jackson.databind.exc.InvalidDefinitionException;
-import tools.jackson.databind.exc.MismatchedInputException;
-import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -146,6 +142,39 @@ public class ArrayStoreExceptionHandlingTest extends DatabindTestUtil
         
         try {
             Integer[] result = mapper.readValue(json.toString(), Integer[].class);
+            fail("Should have thrown an exception due to ArrayStoreException");
+        } catch (DatabindException e) {
+            assertFalse(e instanceof ArrayStoreException, 
+                "Exception should be DatabindException, not raw ArrayStoreException");
+            
+            // Verify that ArrayStoreException is in the cause chain
+            Throwable cause = e;
+            boolean foundArrayStore = false;
+            while (cause != null) {
+                if (cause instanceof ArrayStoreException) {
+                    foundArrayStore = true;
+                    break;
+                }
+                cause = cause.getCause();
+            }
+            assertTrue(foundArrayStore, "Should have ArrayStoreException in cause chain");
+        }
+    }
+    
+    // Test case 7: Single value unwrapping with ArrayStoreException
+    @Test
+    public void testSingleValueUnwrappingWithArrayStoreException() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+            .addModule(new tools.jackson.databind.module.SimpleModule()
+                .addDeserializer(Integer.class, new BadIntegerDeserializer()))
+            .build();
+        
+        String json = "42";  // Single value, not an array
+        
+        try {
+            Integer[] result = mapper.readValue(json, Integer[].class);
             fail("Should have thrown an exception due to ArrayStoreException");
         } catch (DatabindException e) {
             assertFalse(e instanceof ArrayStoreException, 

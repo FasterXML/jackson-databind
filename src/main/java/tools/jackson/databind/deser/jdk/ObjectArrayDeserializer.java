@@ -444,7 +444,12 @@ public class ObjectArrayDeserializer
         } else {
             result = (Object[]) Array.newInstance(_elementClass, 1);
         }
-        result[0] = value;
+        try {
+            result[0] = value;
+        } catch (ArrayStoreException e) {
+            throw DatabindException.wrapWithPath(ctxt, e,
+                    new JacksonException.Reference(result, 0));
+        }
         return result;
     }
 

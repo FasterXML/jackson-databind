@@ -28,6 +28,7 @@ import tools.jackson.core.io.NumberInput;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.ClassUtil;
@@ -175,15 +176,11 @@ abstract class JSR310DeserializerBase<T> extends StdScalarDeserializer<T>
           throws JacksonException
     {
         final String formatterDesc = (format == null) ? "[default format]" : format.toString();
-        try {
-            return (R) context.handleWeirdStringValue(handledType(), value,
-                    "Failed to deserialize %s (with format '%s'): (%s) %s",
-                    ClassUtil.getClassDescription(handledType()),
-                    formatterDesc, e0.getClass().getName(), e0.getMessage());
-        } catch (JacksonException e) {
-            e.initCause(e0);
-            throw e;
-        }
+        throw DateTimeParseException.from(context.getParser(),
+                String.format("Failed to deserialize %s (with format '%s'): %s",
+                        ClassUtil.getClassDescription(handledType()),
+                        formatterDesc, e0.getMessage()),
+                value, handledType(), e0);
     }
     
     @SuppressWarnings("unchecked")

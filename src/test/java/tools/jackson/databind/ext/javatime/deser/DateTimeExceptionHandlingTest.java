@@ -96,8 +96,8 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
         try {
             r.readValue("\"2025-02-30T12:00:00\"");
             fail("Should not pass with invalid date string");
-        } catch (Exception e) {
-            // Expected - should be wrapped in DateTimeParseException or handled by base class
+        } catch (DateTimeParseException e) {
+            // Expected
             assertNotNull(e.getCause());
             assertTrue(e.getCause() instanceof java.time.DateTimeException);
         }
@@ -149,8 +149,8 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
         try {
             r.readValue("\"2025-02-30\"");
             fail("Should not pass with invalid date string");
-        } catch (Exception e) {
-            // Expected - should be wrapped in DateTimeParseException or handled by base class
+        } catch (DateTimeParseException e) {
+            // Expected
             assertNotNull(e.getCause());
             assertTrue(e.getCause() instanceof java.time.DateTimeException);
         }
@@ -201,8 +201,8 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
         try {
             r.readValue("\"12:69:00\"");
             fail("Should not pass with invalid minute string");
-        } catch (Exception e) {
-            // Expected - should be wrapped in DateTimeParseException or handled by base class
+        } catch (DateTimeParseException e) {
+            // Expected
             assertNotNull(e.getCause());
             assertTrue(e.getCause() instanceof java.time.DateTimeException);
         }

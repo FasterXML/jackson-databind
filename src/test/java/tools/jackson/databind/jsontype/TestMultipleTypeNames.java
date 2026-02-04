@@ -14,6 +14,7 @@ import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 // Tests for [databind#2761] (and [annotations#171]
 public class TestMultipleTypeNames extends DatabindTestUtil
@@ -118,11 +119,11 @@ public class TestMultipleTypeNames extends DatabindTestUtil
         w = MAPPER.readValue(json, WrapperForNamesTest.class);
         assertNotNull(w);
         assertEquals(3, w.base.size());
-        assertTrue(w.base.get(0).data instanceof A);
+        assertInstanceOf(A.class, w.base.get(0).data);
         assertEquals(5l, ((A) w.base.get(0).data).x);
-        assertTrue(w.base.get(1).data instanceof B);
+        assertInstanceOf(B.class, w.base.get(1).data);
         assertEquals(3.1f, ((B) w.base.get(1).data).y, 0);
-        assertTrue(w.base.get(2).data instanceof B);
+        assertInstanceOf(B.class, w.base.get(2).data);
         assertEquals(33.8f, ((B) w.base.get(2).data).y, 0);
 
 
@@ -147,11 +148,11 @@ public class TestMultipleTypeNames extends DatabindTestUtil
         w = MAPPER.readValue(json, WrapperForNameAndNamesTest.class);
         assertNotNull(w);
         assertEquals(3, w.base.size());
-        assertTrue(w.base.get(0).data instanceof A);
+        assertInstanceOf(A.class, w.base.get(0).data);
         assertEquals(5l, ((A) w.base.get(0).data).x);
-        assertTrue(w.base.get(1).data instanceof B);
+        assertInstanceOf(B.class, w.base.get(1).data);
         assertEquals(3.1f, ((B) w.base.get(1).data).y, 0);
-        assertTrue(w.base.get(2).data instanceof B);
+        assertInstanceOf(B.class, w.base.get(2).data);
         assertEquals(33.8f, ((B) w.base.get(2).data).y, 0);
 
 

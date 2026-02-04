@@ -11,6 +11,7 @@ import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * Tests to verify that Type Id may be exposed during deserialization,
@@ -242,7 +243,7 @@ public class TestVisibleTypeId extends DatabindTestUtil
 
         // then bring back:
         I263Base result = MAPPER.readValue("{\"age\":19,\"name\":\"bob\"}", I263Base.class);
-        assertTrue(result instanceof I263Impl);
+        assertInstanceOf(I263Impl.class, result);
         assertEquals(19, ((I263Impl) result).age);
     }
 

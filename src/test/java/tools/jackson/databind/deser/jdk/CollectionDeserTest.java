@@ -17,6 +17,7 @@ import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.module.SimpleModule;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
@@ -123,7 +124,7 @@ public class CollectionDeserTest
         // (since we know that Jackson will construct an ArrayList here...)
         Object value = MAPPER.readValue(JSON, Object.class);
         assertNotNull(value);
-        assertTrue(value instanceof ArrayList<?>);
+        assertInstanceOf(ArrayList.class, value);
         List<?> result = (List<?>) value;
 
         assertEquals(4, result.size());

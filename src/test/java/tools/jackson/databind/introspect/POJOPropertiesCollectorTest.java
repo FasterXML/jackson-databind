@@ -18,6 +18,7 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class POJOPropertiesCollectorTest
     extends DatabindTestUtil
@@ -424,7 +425,7 @@ public class POJOPropertiesCollectorTest
         assertEquals(1, props.size());
         assertEquals("value", props.get(0).getName());
         AnnotatedMember m = props.get(0).getAccessor();
-        assertTrue(m instanceof AnnotatedMethod);
+        assertInstanceOf(AnnotatedMethod.class, m);
         assertEquals(Integer.class, m.getRawType());
 
         // then for deserialization; prefer ctor param

@@ -15,6 +15,7 @@ import tools.jackson.databind.introspect.AnnotatedWithParams;
 import tools.jackson.databind.module.SimpleModule;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
@@ -426,7 +427,7 @@ public class ValueInstantiatorTest
         assertNotNull(value);
         Object ob = value.value;
         assertNotNull(ob);
-        assertTrue(ob instanceof Map);
+        assertInstanceOf(Map.class, ob);
     }
 
     /*

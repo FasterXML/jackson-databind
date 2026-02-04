@@ -13,6 +13,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * Unit tests to verify that Java/JSON scalar values (non-structured values)
@@ -85,7 +86,7 @@ public class TestDefaultForScalars
         // and let's make sure it also comes back same way:
         Object[] result = DEFAULT_TYPING_MAPPER.readValue(json, Object[].class);
         assertEquals(1, result.length);
-        assertTrue(result[0] instanceof Calendar);
+        assertInstanceOf(Calendar.class, result[0]);
         assertEquals(ts, ((Calendar) result[0]).getTimeInMillis());
     }
 

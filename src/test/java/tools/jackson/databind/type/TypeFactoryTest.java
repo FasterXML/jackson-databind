@@ -11,6 +11,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * Simple tests to verify that the {@link TypeFactory} constructs
@@ -577,7 +578,7 @@ public class TypeFactoryTest extends DatabindTestUtil
 
         field = SneakyBean.class.getDeclaredField("longList");
         type = TF.constructType(field.getGenericType());
-        assertTrue(type instanceof CollectionType);
+        assertInstanceOf(CollectionType.class, type);
         CollectionType collectionType = (CollectionType) type;
         assertEquals(TF.constructType(Long.class), collectionType.getContentType());
     }

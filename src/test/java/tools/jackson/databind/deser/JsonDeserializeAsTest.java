@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonDeserializeAs;
 import tools.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
@@ -209,7 +210,7 @@ public class JsonDeserializeAsTest
     public void testRootInterfaceAs() throws Exception
     {
         RootInterface value = MAPPER.readValue("{\"a\":\"abc\" }", RootInterface.class);
-        assertTrue(value instanceof RootInterfaceImpl);
+        assertInstanceOf(RootInterfaceImpl.class, value);
         assertEquals("abc", value.getA());
     }
 

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * Tests to ensure that we can handle 1.6-only types, even if
@@ -23,10 +24,10 @@ public class Java6CollectionsDeserTest
         Deque<?> dq = mapper.readValue("[1]", Deque.class);
         assertNotNull(dq);
         assertEquals(1, dq.size());
-        assertTrue(dq instanceof Deque<?>);
+        assertInstanceOf(Deque.class, dq);
 
         NavigableSet<?> ns = mapper.readValue("[ true ]", NavigableSet.class);
         assertEquals(1, ns.size());
-        assertTrue(ns instanceof NavigableSet<?>);
+        assertInstanceOf(NavigableSet.class, ns);
     }
 }

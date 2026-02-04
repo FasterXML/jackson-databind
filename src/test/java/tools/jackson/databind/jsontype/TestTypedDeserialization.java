@@ -16,6 +16,7 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class TestTypedDeserialization
     extends DatabindTestUtil
@@ -180,7 +181,7 @@ public class TestTypedDeserialization
         String JSON = "{\".TestTypedDeserialization$Dog\" : "
             +asJSONObjectValueString(m, "name", "Scooby", "boneCount", "6")+" }";
         Animal a = m.readValue(JSON, Animal.class);
-        assertTrue(a instanceof Animal);
+        assertInstanceOf(Animal.class, a);
         assertEquals(Dog.class, a.getClass());
         Dog d = (Dog) a;
         assertEquals("Scooby", d.name);

@@ -13,6 +13,7 @@ import tools.jackson.databind.jsontype.impl.SimpleNameIdResolver;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * Test for <a href="https://github.com/FasterXML/jackson-databind/issues/4061">
@@ -210,7 +211,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
         
         Root root = MAPPER.readValue(jsonStr, Root.class);
         
-        assertTrue(root.child instanceof MergeChildA);
+        assertInstanceOf(MergeChildA.class, root.child);
         assertEquals("I'm child A", ((MergeChildA) root.child).name);
     }
 
@@ -225,7 +226,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
 
         Root root = mapper.readValue(jsonStr, Root.class);
         
-        assertTrue(root.child instanceof MergeChildA);
+        assertInstanceOf(MergeChildA.class, root.child);
         assertEquals("I'm child A", ((MergeChildA) root.child).name);
     }
 

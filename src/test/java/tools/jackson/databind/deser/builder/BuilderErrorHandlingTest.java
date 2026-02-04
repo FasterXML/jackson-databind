@@ -11,6 +11,7 @@ import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class BuilderErrorHandlingTest extends DatabindTestUtil
 {
@@ -161,7 +162,7 @@ public class BuilderErrorHandlingTest extends DatabindTestUtil
             fail("Expected an exception");
         } catch (ValueInstantiationException e) {
             verifyException(e, "Missing second");
-            assertTrue(e.getCause() instanceof ValidatingValue.ValidationException);
+            assertInstanceOf(ValidatingValue.ValidationException.class, e.getCause());
         }
     }
 
@@ -174,7 +175,7 @@ public class BuilderErrorHandlingTest extends DatabindTestUtil
             fail("Expected an exception");
         } catch (ValueInstantiationException e) {
             verifyException(e, "Missing second");
-            assertTrue(e.getCause() instanceof ValidatingValue.ValidationException);
+            assertInstanceOf(ValidatingValue.ValidationException.class, e.getCause());
         }
     }
 

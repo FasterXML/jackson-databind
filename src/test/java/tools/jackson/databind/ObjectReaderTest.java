@@ -26,6 +26,7 @@ import tools.jackson.databind.node.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class ObjectReaderTest extends DatabindTestUtil
 {
@@ -52,7 +53,7 @@ public class ObjectReaderTest extends DatabindTestUtil
         try (JsonParser p = MAPPER.createParser(JSON)) {
             Object ob = MAPPER.readerFor(Object.class)
                     .readValue(p);
-            assertTrue(ob instanceof List<?>);
+            assertInstanceOf(List.class, ob);
         }
     }
 

@@ -16,6 +16,7 @@ import tools.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 // Tests for [databind#3505] causing a NPE when setting a DefaultTypeResolverBuilder
 // and registering subtypes through ObjectMapper (no annotations)
@@ -76,11 +77,11 @@ public class DefaultTypeResolver3505Test
 
         final Parent firstRead = mapper.readValue("{ \"one\": \"Hello World\" }", Parent.class);
         assertNotNull(firstRead);
-        assertTrue(firstRead instanceof Parent.ChildOne);
+        assertInstanceOf(Parent.ChildOne.class, firstRead);
         assertEquals("Hello World", ((Parent.ChildOne) firstRead).one);
         final Parent secondRead = mapper.readValue("{ \"two\": \"Hello World\" }", Parent.class);
         assertNotNull(secondRead);
-        assertTrue(secondRead instanceof Parent.ChildTwo);
+        assertInstanceOf(Parent.ChildTwo.class, secondRead);
         assertEquals("Hello World", ((Parent.ChildTwo) secondRead).two);
     }
 }

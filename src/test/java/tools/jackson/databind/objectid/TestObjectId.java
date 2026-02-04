@@ -12,6 +12,7 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class TestObjectId extends DatabindTestUtil
 {
@@ -162,11 +163,11 @@ public class TestObjectId extends DatabindTestUtil
 
         BaseEntity resultRoot = MAPPER.readValue(json, BaseEntity.class);
         assertNotNull(resultRoot);
-        assertTrue(resultRoot instanceof Bar);
+        assertInstanceOf(Bar.class, resultRoot);
         Bar first = (Bar) resultRoot;
 
         assertNotNull(first.next);
-        assertTrue(first.next instanceof Foo);
+        assertInstanceOf(Foo.class, first.next);
         Foo second = (Foo) first.next;
         assertNotNull(second.ref);
         assertSame(first, second.ref);

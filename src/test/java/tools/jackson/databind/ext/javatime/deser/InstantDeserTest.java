@@ -24,6 +24,7 @@ import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static tools.jackson.databind.ext.javatime.deser.InstantDeserializer.ISO8601_COLONLESS_OFFSET_REGEX;
 
 public class InstantDeserTest extends DateTimeTestBase
@@ -371,7 +372,7 @@ public class InstantDeserTest extends DateTimeTestBase
         Temporal value = m.readValue(
                 "[\"" + Instant.class.getName() + "\",123456789.183917322]", Temporal.class
                 );
-        assertTrue(value instanceof Instant, "The value should be an Instant.");
+        assertInstanceOf(Instant.class, value, "The value should be an Instant.");
         assertEquals(date, value);
     }
 
@@ -386,7 +387,7 @@ public class InstantDeserTest extends DateTimeTestBase
         Temporal value = m.readValue(
                 "[\"" + Instant.class.getName() + "\",123456789]", Temporal.class
                 );
-        assertTrue(value instanceof Instant, "The value should be an Instant.");
+        assertInstanceOf(Instant.class, value, "The value should be an Instant.");
         assertEquals(date, value);
     }
 
@@ -402,7 +403,7 @@ public class InstantDeserTest extends DateTimeTestBase
                 "[\"" + Instant.class.getName() + "\",123456789422]", Temporal.class
                 );
 
-        assertTrue(value instanceof Instant, "The value should be an Instant.");
+        assertInstanceOf(Instant.class, value, "The value should be an Instant.");
         assertEquals(date, value);
     }
 
@@ -416,7 +417,7 @@ public class InstantDeserTest extends DateTimeTestBase
         Temporal value = m.readValue(
                 "[\"" + Instant.class.getName() + "\",\"" + FORMATTER.format(date) + "\"]", Temporal.class
                 );
-        assertTrue(value instanceof Instant, "The value should be an Instant.");
+        assertInstanceOf(Instant.class, value, "The value should be an Instant.");
         assertEquals(date, value);
     }
 

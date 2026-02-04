@@ -22,6 +22,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * Additional tests for {@link ObjectNode} container class.
@@ -335,7 +336,7 @@ public class ObjectNodeTest
         ObjectNode root = MAPPER.createObjectNode();
         assertEquals("{}", MAPPER.writeValueAsString(root));
         JsonNode child = root.withObject("/prop");
-        assertTrue(child instanceof ObjectNode);
+        assertInstanceOf(ObjectNode.class, child);
         assertEquals("{\"prop\":{}}", MAPPER.writeValueAsString(root));
     }
 
@@ -345,7 +346,7 @@ public class ObjectNodeTest
         JsonNode root = MAPPER.createObjectNode();
         assertEquals("{}", MAPPER.writeValueAsString(root));
         ArrayNode child = root.withArray("/arr");
-        assertTrue(child instanceof ArrayNode);
+        assertInstanceOf(ArrayNode.class, child);
         assertEquals("{\"arr\":[]}", MAPPER.writeValueAsString(root));
     }
 

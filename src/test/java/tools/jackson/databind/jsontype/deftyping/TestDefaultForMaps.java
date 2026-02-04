@@ -16,6 +16,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class TestDefaultForMaps
     extends DatabindTestUtil
@@ -112,7 +113,7 @@ public class TestDefaultForMaps
         Object key = entry.getKey();
         assertEquals(MapKey.class, key.getClass());
         Object value = entry.getValue();
-        assertTrue(value instanceof List<?>);
+        assertInstanceOf(List.class, value);
         List<?> list = (List<?>) value;
         assertEquals(1, list.size());
         assertEquals(Integer.class, list.get(0).getClass());

@@ -13,6 +13,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class TestGenericListSerialization
     extends DatabindTestUtil
@@ -71,10 +72,10 @@ public class TestGenericListSerialization
         List<Parent> deserializedContent = out.getResult();
 
         assertEquals(2, deserializedContent.size());
-        assertTrue(deserializedContent.get(0) instanceof Parent);
-        assertTrue(deserializedContent.get(0) instanceof Child1);
+        assertInstanceOf(Parent.class, deserializedContent.get(0));
+        assertInstanceOf(Child1.class, deserializedContent.get(0));
         assertFalse(deserializedContent.get(0) instanceof Child2);
-        assertTrue(deserializedContent.get(1) instanceof Child2);
+        assertInstanceOf(Child2.class, deserializedContent.get(1));
         assertFalse(deserializedContent.get(1) instanceof Child1);
 
         assertEquals("PARENT", ((Child1) deserializedContent.get(0)).parentContent);

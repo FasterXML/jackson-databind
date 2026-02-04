@@ -13,6 +13,7 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
@@ -332,7 +333,7 @@ public class ValueAnnotationsDeserTest
     public void testRootInterfaceAsOld() throws Exception
     {
         RootInterface value = MAPPER.readValue("{\"a\":\"abc\" }", RootInterface.class);
-        assertTrue(value instanceof RootInterfaceImpl);
+        assertInstanceOf(RootInterfaceImpl.class, value);
         assertEquals("abc", value.getA());
     }
 
@@ -340,7 +341,7 @@ public class ValueAnnotationsDeserTest
     public void testRootInterfaceAsNew() throws Exception
     {
         RootInterface2 value = MAPPER.readValue("{\"a\":\"abc\" }", RootInterface2.class);
-        assertTrue(value instanceof RootInterfaceImpl);
+        assertInstanceOf(RootInterfaceImpl.class, value);
         assertEquals("abc", value.getA());
     }
 
@@ -348,7 +349,7 @@ public class ValueAnnotationsDeserTest
     public void testRootInterfaceUsing() throws Exception
     {
         RootString value = MAPPER.readValue("\"xxx\"", RootString.class);
-        assertTrue(value instanceof RootString);
+        assertInstanceOf(RootString.class, value);
         assertEquals("xxx", value.contents());
     }
 

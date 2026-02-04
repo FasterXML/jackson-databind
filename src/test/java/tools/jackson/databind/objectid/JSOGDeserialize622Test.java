@@ -13,6 +13,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * Unit test(s) for [databind#622], supporting non-scalar-Object-ids,
@@ -224,7 +225,7 @@ public class JSOGDeserialize622Test extends DatabindTestUtil
         JSOGWrapper out = mapper.readValue(json, JSOGWrapper.class);
         assertNotNull(out);
         assertEquals(15, out.value);
-        assertTrue(out.jsog instanceof IdentifiableExampleJSOG);
+        assertInstanceOf(IdentifiableExampleJSOG.class, out.jsog);
         IdentifiableExampleJSOG jsog = (IdentifiableExampleJSOG) out.jsog;
         assertEquals(123, jsog.foo);
         assertSame(jsog, jsog.next);

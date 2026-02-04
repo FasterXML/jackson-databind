@@ -11,6 +11,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class TestDefaultForLists
     extends DatabindTestUtil
@@ -125,8 +126,8 @@ public class TestDefaultForLists
         ObjectListBean output = POLY_MAPPER.readValue(json, ObjectListBean.class);
         List<Object> outputList = output.values;
         assertEquals(2, outputList.size());
-        assertTrue(outputList.get(0) instanceof TimeZone);
-        assertTrue(outputList.get(1) instanceof Locale);
+        assertInstanceOf(TimeZone.class, outputList.get(0));
+        assertInstanceOf(Locale.class, outputList.get(1));
     }
 
     @Test
@@ -152,6 +153,6 @@ public class TestDefaultForLists
         String json = mapper.writeValueAsString(new SetBean("abc"));
         SetBean bean = mapper.readValue(json, SetBean.class);
         assertNotNull(bean);
-        assertTrue(bean.names instanceof HashSet);
+        assertInstanceOf(HashSet.class, bean.names);
     }
 }

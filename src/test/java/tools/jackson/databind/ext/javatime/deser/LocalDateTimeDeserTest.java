@@ -44,6 +44,7 @@ import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class LocalDateTimeDeserTest
     extends DateTimeTestBase
@@ -428,7 +429,7 @@ public class LocalDateTimeDeserTest
                 .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(
                 "[\"" + LocalDateTime.class.getName() + "\",[2005,11,5,22,31,5,829837]]");
-        assertTrue(value instanceof LocalDateTime, "The value should be a LocalDateTime.");
+        assertInstanceOf(LocalDateTime.class, value, "The value should be a LocalDateTime.");
         assertEquals(time, value, "The value is not correct.");
     }
 
@@ -444,7 +445,7 @@ public class LocalDateTimeDeserTest
                 .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(
                 "[\"" + LocalDateTime.class.getName() + "\",[2005,11,5,22,31,5,422]]");
-        assertTrue(value instanceof LocalDateTime, "The value should be a LocalDateTime.");
+        assertInstanceOf(LocalDateTime.class, value, "The value should be a LocalDateTime.");
         assertEquals(time, value, "The value is not correct.");
     }
 
@@ -458,7 +459,7 @@ public class LocalDateTimeDeserTest
         Temporal value = m.readValue(
                 "[\"" + LocalDateTime.class.getName() + "\",\"" + time.toString() + "\"]", Temporal.class
         );
-        assertTrue(value instanceof LocalDateTime, "The value should be a LocalDateTime.");
+        assertInstanceOf(LocalDateTime.class, value, "The value should be a LocalDateTime.");
         assertEquals(time, value, "The value is not correct.");
     }
 

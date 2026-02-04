@@ -16,6 +16,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 // Tests for External type id, one that exists at same level as typed Object,
 // that is, property is not within typed object but a member of its parent.
@@ -458,7 +459,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
         // and back just to be sure:
         ExternalTypeWithNonPOJO result = MAPPER.readValue(json, ExternalTypeWithNonPOJO.class);
         assertNotNull(result.value);
-        assertTrue(result.value instanceof java.util.Date);
+        assertInstanceOf(java.util.Date.class, result.value);
     }
 
     // For [databind#118] using "natural" type(s)
@@ -471,7 +472,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
         // and back just to be sure:
         ExternalTypeWithNonPOJO result = MAPPER.readValue(json, ExternalTypeWithNonPOJO.class);
         assertNotNull(result.value);
-        assertTrue(result.value instanceof Integer);
+        assertInstanceOf(Integer.class, result.value);
 
         // ditto with others types
         input = new ExternalTypeWithNonPOJO(Boolean.TRUE);
@@ -479,14 +480,14 @@ public class ExternalTypeIdTest extends DatabindTestUtil
         assertNotNull(json);
         result = MAPPER.readValue(json, ExternalTypeWithNonPOJO.class);
         assertNotNull(result.value);
-        assertTrue(result.value instanceof Boolean);
+        assertInstanceOf(Boolean.class, result.value);
 
         input = new ExternalTypeWithNonPOJO("foobar");
         json = MAPPER.writeValueAsString(input);
         assertNotNull(json);
         result = MAPPER.readValue(json, ExternalTypeWithNonPOJO.class);
         assertNotNull(result.value);
-        assertTrue(result.value instanceof String);
+        assertInstanceOf(String.class, result.value);
         assertEquals("foobar", result.value);
     }
 

@@ -8,6 +8,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.ext.javatime.DateTimeParseException;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -35,8 +36,8 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
             fail("Should not pass with invalid date");
         } catch (DateTimeParseException e) {
             assertInstanceOf(DateTimeException.class, e.getCause());
-            assertTrue(e.getMessage().contains("Failed to deserialize"));
-            assertTrue(e.getMessage().contains("[2023,2,30,12,30]"));
+            assertThat(e).hasMessageContaining("Failed to deserialize");
+            assertThat(e).hasMessageContaining("[2023,2,30,12,30]");
         }
     }
 
@@ -95,8 +96,8 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
             fail("Should not pass with invalid date");
         } catch (DateTimeParseException e) {
             assertInstanceOf(DateTimeException.class, e.getCause());
-            assertTrue(e.getMessage().contains("Failed to deserialize"));
-            assertTrue(e.getMessage().contains("[2023,2,30]"));
+            assertThat(e).hasMessageContaining("Failed to deserialize");
+            assertThat(e).hasMessageContaining("[2023,2,30]");
         }
     }
 
@@ -142,7 +143,7 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
             fail("Should not pass with invalid hour");
         } catch (DateTimeParseException e) {
             assertInstanceOf(DateTimeException.class, e.getCause());
-            assertTrue(e.getMessage().contains("Failed to deserialize"));
+            assertThat(e).hasMessageContaining("Failed to deserialize");
         }
     }
 
@@ -188,7 +189,7 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
             fail("Should not pass with invalid date for MonthDay");
         } catch (DateTimeParseException e) {
             assertInstanceOf(DateTimeException.class, e.getCause());
-            assertTrue(e.getMessage().contains("Failed to deserialize"));
+            assertThat(e).hasMessageContaining("Failed to deserialize");
         }
     }
 
@@ -221,7 +222,7 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
             fail("Should not pass with invalid month");
         } catch (DateTimeParseException e) {
             assertInstanceOf(DateTimeException.class, e.getCause());
-            assertTrue(e.getMessage().contains("Failed to deserialize"));
+            assertThat(e).hasMessageContaining("Failed to deserialize");
         }
     }
 
@@ -254,7 +255,7 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
             fail("Should not pass with out of range year");
         } catch (DateTimeParseException e) {
             assertInstanceOf(DateTimeException.class, e.getCause());
-            assertTrue(e.getMessage().contains("Failed to deserialize"));
+            assertThat(e).hasMessageContaining("Failed to deserialize");
         }
     }
 
@@ -275,7 +276,7 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
             fail("Should not pass with extreme decimal value");
         } catch (DateTimeParseException e) {
             assertInstanceOf(ArithmeticException.class, e.getCause());
-            assertTrue(e.getMessage().contains("Failed to deserialize"));
+            assertThat(e).hasMessageContaining("Failed to deserialize");
         }
     }
 
@@ -290,7 +291,7 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
             fail("Should not pass with extreme decimal value");
         } catch (DateTimeParseException e) {
             assertInstanceOf(ArithmeticException.class, e.getCause());
-            assertTrue(e.getMessage().contains("Failed to deserialize"));
+            assertThat(e).hasMessageContaining("Failed to deserialize");
         }
     }
 }

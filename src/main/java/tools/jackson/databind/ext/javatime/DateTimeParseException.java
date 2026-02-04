@@ -3,20 +3,21 @@ package tools.jackson.databind.ext.javatime;
 import java.time.DateTimeException;
 
 import tools.jackson.core.JsonParser;
-import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 /**
  * Specialized exception to be thrown when deserialization of {@code java.time}
- * instances fails due to {@link java.time.DateTimeException}.
+ * instances fails due to {@link java.time.DateTimeException} or related exceptions.
  * <p>
- * This exception is used to wrap {@link java.time.DateTimeException}s that occur
- * during parsing or construction of {@code java.time} objects (like {@code LocalDateTime},
- * {@code LocalDate}, {@code LocalTime}, etc.), providing better error context for
- * Jackson deserialization failures.
+ * This exception is used to wrap {@link java.time.DateTimeException}s and
+ * {@link ArithmeticException}s that occur during parsing or construction of
+ * {@code java.time} objects (like {@code LocalDateTime}, {@code LocalDate},
+ * {@code LocalTime}, etc.), providing better error context for Jackson
+ * deserialization failures.
  *
  * @since 3.1
  */
-public class DateTimeParseException extends DatabindException
+public class DateTimeParseException extends MismatchedInputException
 {
     private static final long serialVersionUID = 1L;
 
@@ -25,17 +26,14 @@ public class DateTimeParseException extends DatabindException
      */
     protected final String _value;
 
-    /**
-     * The target type we attempted to deserialize into.
-     */
-    protected final Class<?> _targetType;
-
     public DateTimeParseException(JsonParser p, String msg, String value,
             Class<?> targetType, Throwable cause)
     {
-        super(p, msg, cause);
+        super(p, msg, targetType);
         _value = value;
-        _targetType = targetType;
+        if (cause != null) {
+            initCause(cause);
+        }
     }
 
     /**
@@ -46,7 +44,7 @@ public class DateTimeParseException extends DatabindException
      * @param value The value that could not be parsed
      * @param targetType Type we attempted to deserialize into
      * @param cause The underlying exception (typically {@link java.time.DateTimeException}
-     *              but could be other {@link RuntimeException}s like {@link ArithmeticException})
+     *              or {@link ArithmeticException})
      *
      * @return New {@link DateTimeParseException} instance
      */
@@ -63,14 +61,5 @@ public class DateTimeParseException extends DatabindException
      */
     public String getValue() {
         return _value;
-    }
-
-    /**
-     * Accessor for the target type we attempted to deserialize into.
-     *
-     * @return Target class for deserialization
-     */
-    public Class<?> getTargetType() {
-        return _targetType;
     }
 }

@@ -173,7 +173,7 @@ public class OffsetTimeDeserializer extends JSR310DateTimeDeserializerBase<Offse
             if (p.currentToken() == JsonToken.VALUE_STRING) {
                 try {
                     result = OffsetTime.of(hour, minute, second, partialSecond, ZoneOffset.of(p.getString()));
-                } catch (RuntimeException e) {
+                } catch (DateTimeException | ArithmeticException e) {
                     throw DateTimeParseException.from(p,
                             String.format("Failed to deserialize %s from array value [%d,%d,...]: %s",
                                     handledType().getName(), hour, minute, e.getMessage()),

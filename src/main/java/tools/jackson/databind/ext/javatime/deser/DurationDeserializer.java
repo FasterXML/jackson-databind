@@ -142,7 +142,7 @@ public class DurationDeserializer extends JSR310DeserializerBase<Duration>
                 // [modules-java8#337] since 2.19, Duration does not need negative adjustment
                 try {
                     result = DecimalUtils.extractSecondsAndNanos(value, Duration::ofSeconds, false);
-                } catch (RuntimeException e) {
+                } catch (DateTimeException | ArithmeticException e) {
                     throw DateTimeParseException.from(parser,
                             String.format("Failed to deserialize %s from decimal value %s: %s",
                                     handledType().getName(), value, e.getMessage()),

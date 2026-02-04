@@ -118,7 +118,7 @@ public class LocalDateDeserializer extends JSR310DateTimeDeserializerBase<LocalD
                 }
                 try {
                     return LocalDate.of(year, month, day);
-                } catch (RuntimeException e) {
+                } catch (DateTimeException | ArithmeticException e) {
                     throw DateTimeParseException.from(p,
                             String.format("Failed to deserialize %s from array value [%d,%d,%d]: %s",
                                     handledType().getName(), year, month, day, e.getMessage()),

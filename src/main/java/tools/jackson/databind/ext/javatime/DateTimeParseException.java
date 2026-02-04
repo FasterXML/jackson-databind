@@ -1,5 +1,7 @@
 package tools.jackson.databind.ext.javatime;
 
+import java.time.DateTimeException;
+
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DatabindException;
 
@@ -29,7 +31,7 @@ public class DateTimeParseException extends DatabindException
     protected final Class<?> _targetType;
 
     public DateTimeParseException(JsonParser p, String msg, String value,
-            Class<?> targetType, java.time.DateTimeException cause)
+            Class<?> targetType, DateTimeException cause)
     {
         super(p, msg, cause);
         _value = value;
@@ -43,12 +45,12 @@ public class DateTimeParseException extends DatabindException
      * @param msg Error message
      * @param value The value that could not be parsed
      * @param targetType Type we attempted to deserialize into
-     * @param cause The underlying {@link java.time.DateTimeException}
+     * @param cause The underlying {@link DateTimeException}
      *
      * @return New {@link DateTimeParseException} instance
      */
     public static DateTimeParseException from(JsonParser p, String msg,
-            String value, Class<?> targetType, java.time.DateTimeException cause)
+            String value, Class<?> targetType, DateTimeException cause)
     {
         return new DateTimeParseException(p, msg, value, targetType, cause);
     }

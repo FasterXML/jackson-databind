@@ -32,7 +32,6 @@ class WildcardBoundResolve5285Test extends DatabindTestUtil
     record MessageWrapper<T extends Settings>(T settings, String message) { }
 
     // Container to obtain ParameterizedType via field reflection
-    @SuppressWarnings("unused")
     static class Holder {
         MessageWrapper<?> wildcardWrapper;
         MessageWrapper<EmailSettings> specificWrapper;
@@ -44,7 +43,6 @@ class WildcardBoundResolve5285Test extends DatabindTestUtil
         public T value;
     }
 
-    @SuppressWarnings("unused")
     static class BoxHolder {
         Box<?> wildcardBox;
     }

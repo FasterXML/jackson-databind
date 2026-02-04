@@ -1538,51 +1538,53 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         if (paramCount == 0) {
             newBindings = EMPTY_BINDINGS;
         } else {
+            boolean anyWildcards = false;
+
             JavaType[] pt = new JavaType[paramCount];
             for (int i = 0; i < paramCount; ++i) {
-                pt[i] = _fromAny(context, args[i], parentBindings);
-            }
-
-            // [databind#5285] For unbounded wildcards where the corresponding type
-            // variable has a more specific (non-Object) upper bound declared, use
-            // that bound instead of Object. This ensures that annotations (such as
-            // @JsonTypeInfo) on the bound type are properly recognized.
-            // NOTE: self-referential type parameters are excluded here because they
-            // are handled separately below ([databind#4118]).
-            for (int i = 0; i < paramCount; ++i) {
                 if (args[i] instanceof WildcardType wt) {
-                    Type[] upperBounds = wt.getUpperBounds();
-                    Type[] lowerBounds = wt.getLowerBounds();
-                    if (upperBounds.length == 1 && upperBounds[0] == Object.class
-                            && (lowerBounds == null || lowerBounds.length == 0)) {
-                        TypeVariable<? extends Class<?>> typeVar = rawType.getTypeParameters()[i];
-                        if (!_isSelfReferentialTypeParameter(typeVar, rawType)) {
-                            final Type[] varBounds;
-                            synchronized (typeVar) {
-                                varBounds = typeVar.getBounds();
-                            }
-                            if (varBounds.length > 0 && varBounds[0] != Object.class) {
-                                pt[i] = _fromAny(context, varBounds[0], parentBindings);
+                    anyWildcards = true;
+                    // [databind#5285] Resolve wildcards using best available bound:
+                    // use the type variable's declared upper bound when the wildcard
+                    // itself is unbounded and the variable has a non-Object bound.
+                    // Self-referential parameters excluded (handled below, [databind#4118]).
+                    Type effectiveBound = wt.getUpperBounds()[0];
+                    if (effectiveBound == Object.class) {
+                        Type[] lowerBounds = wt.getLowerBounds();
+                        if (lowerBounds == null || lowerBounds.length == 0) {
+                            TypeVariable<? extends Class<?>> typeVar = rawType.getTypeParameters()[i];
+                            if (!_isSelfReferentialTypeParameter(typeVar, rawType)) {
+                                final Type[] varBounds;
+                                synchronized (typeVar) {
+                                    varBounds = typeVar.getBounds();
+                                }
+                                if (varBounds.length > 0 && varBounds[0] != Object.class) {
+                                    effectiveBound = varBounds[0];
+                                }
                             }
                         }
                     }
+                    pt[i] = _fromAny(context, effectiveBound, parentBindings);
+                } else {
+                    pt[i] = _fromAny(context, args[i], parentBindings);
                 }
             }
-
             newBindings = TypeBindings.create(rawType, pt);
 
             // [databind#4118] Unbind wildcards in (direct) self-referential type parameters
             // to allow deserializers to use the class definition's bounds instead of Object.
             // [databind#4147] Only unbind for self-referential parameters to avoid
             // breaking multi-parameter types like Either<L, R> where only some are wildcards.
-            for (int i = 0; i < paramCount; ++i) {
-                if (args[i] instanceof WildcardType && !pt[i].hasGenericTypes()) {
-                    TypeVariable<? extends Class<?>> typeVariable = rawType.getTypeParameters()[i];
-
-                    // Only unbind if this is a (direct) self-referential type parameter
-                    if (_isSelfReferentialTypeParameter(typeVariable, rawType)) {
-                        if (pt[i].getRawClass().isAssignableFrom(rawClass(typeVariable))) {
-                            newBindings = newBindings.withoutVariable(typeVariable.getName());
+            if (anyWildcards) {
+                for (int i = 0; i < paramCount; ++i) {
+                    if (args[i] instanceof WildcardType && !pt[i].hasGenericTypes()) {
+                        TypeVariable<? extends Class<?>> typeVariable = rawType.getTypeParameters()[i];
+    
+                        // Only unbind if this is a (direct) self-referential type parameter
+                        if (_isSelfReferentialTypeParameter(typeVariable, rawType)) {
+                            if (pt[i].getRawClass().isAssignableFrom(rawClass(typeVariable))) {
+                                newBindings = newBindings.withoutVariable(typeVariable.getName());
+                            }
                         }
                     }
                 }

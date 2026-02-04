@@ -88,6 +88,21 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
         }
     }
 
+    @Test
+    public void testLocalDateTimeInvalidDateString() throws Exception
+    {
+        // February 30 is invalid - string format
+        ObjectReader r = MAPPER.readerFor(LocalDateTime.class);
+        try {
+            r.readValue("\"2025-02-30T12:00:00\"");
+            fail("Should not pass with invalid date string");
+        } catch (Exception e) {
+            // Expected - should be wrapped in DateTimeParseException or handled by base class
+            assertNotNull(e.getCause());
+            assertTrue(e.getCause() instanceof java.time.DateTimeException);
+        }
+    }
+
     /*
     /**********************************************************
     /* Test for LocalDate - invalid date
@@ -126,6 +141,21 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
         }
     }
 
+    @Test
+    public void testLocalDateInvalidDateString() throws Exception
+    {
+        // February 30 is invalid - string format
+        ObjectReader r = MAPPER.readerFor(LocalDate.class);
+        try {
+            r.readValue("\"2025-02-30\"");
+            fail("Should not pass with invalid date string");
+        } catch (Exception e) {
+            // Expected - should be wrapped in DateTimeParseException or handled by base class
+            assertNotNull(e.getCause());
+            assertTrue(e.getCause() instanceof java.time.DateTimeException);
+        }
+    }
+
     /*
     /**********************************************************
     /* Test for LocalTime - invalid time
@@ -158,6 +188,21 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
             fail("Should not pass with invalid minute");
         } catch (DateTimeParseException e) {
             // Expected
+            assertNotNull(e.getCause());
+            assertTrue(e.getCause() instanceof java.time.DateTimeException);
+        }
+    }
+
+    @Test
+    public void testLocalTimeInvalidMinuteString() throws Exception
+    {
+        // Minute 69 is invalid - string format
+        ObjectReader r = MAPPER.readerFor(LocalTime.class);
+        try {
+            r.readValue("\"12:69:00\"");
+            fail("Should not pass with invalid minute string");
+        } catch (Exception e) {
+            // Expected - should be wrapped in DateTimeParseException or handled by base class
             assertNotNull(e.getCause());
             assertTrue(e.getCause() instanceof java.time.DateTimeException);
         }

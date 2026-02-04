@@ -2,8 +2,12 @@ package tools.jackson.databind.deser.jdk;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,33 +20,46 @@ public class ArrayStoreExceptionHandlingTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    // Test case 1: Deserializing incompatible types into a typed array
+    // Custom deserializer that returns incompatible types to trigger ArrayStoreException
+    static class BadIntegerDeserializer extends ValueDeserializer<Integer> {
+        @Override
+        public Integer deserialize(JsonParser p, DeserializationContext ctxt) {
+            // Return a String when Integer is expected - will cause ArrayStoreException
+            // when assigned to Integer[] through Object[] reference
+            return (Integer)(Object)"not an integer";
+        }
+    }
+    
+    // Test case 1: Deserializing with a custom deserializer that returns wrong type
     @Test
-    public void testIncompatibleTypeInTypedArray() throws Exception
+    public void testArrayStoreExceptionWithCustomDeserializer() throws Exception
     {
-        // Try to deserialize strings into an Integer array
-        String json = "[\"not\", \"an\", \"integer\"]";
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addModule(new tools.jackson.databind.module.SimpleModule()
+                .addDeserializer(Integer.class, new BadIntegerDeserializer()))
+            .build();
+        
+        String json = "[1, 2, 3]";
         
         try {
-            Integer[] result = MAPPER.readValue(json, Integer[].class);
-            fail("Should have thrown an exception");
+            Integer[] result = mapper.readValue(json, Integer[].class);
+            fail("Should have thrown an exception due to ArrayStoreException");
         } catch (DatabindException e) {
             // Expected: should be wrapped as DatabindException, not raw ArrayStoreException
             assertFalse(e instanceof ArrayStoreException, 
                 "Exception should be DatabindException, not raw ArrayStoreException");
             
-            // The root cause might be an ArrayStoreException or MismatchedInputException
+            // Verify that ArrayStoreException is in the cause chain
             Throwable cause = e;
-            boolean foundArrayStoreOrMismatch = false;
+            boolean foundArrayStore = false;
             while (cause != null) {
-                if (cause instanceof ArrayStoreException || cause instanceof MismatchedInputException) {
-                    foundArrayStoreOrMismatch = true;
+                if (cause instanceof ArrayStoreException) {
+                    foundArrayStore = true;
                     break;
                 }
                 cause = cause.getCause();
             }
-            // We may get MismatchedInputException for type conversion failures
-            // ArrayStoreException would occur if conversion succeeded but assignment failed
+            assertTrue(foundArrayStore, "Should have ArrayStoreException in cause chain");
         }
     }
 
@@ -108,5 +125,43 @@ public class ArrayStoreExceptionHandlingTest extends DatabindTestUtil
         assertEquals(2, result[0].length);
         assertEquals(Integer.valueOf(1), result[0][0]);
         assertEquals(Integer.valueOf(4), result[1][1]);
+    }
+    
+    // Test case 6: Large array with custom deserializer to test chunking + ArrayStoreException
+    @Test
+    public void testLargeArrayWithArrayStoreException() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addModule(new tools.jackson.databind.module.SimpleModule()
+                .addDeserializer(Integer.class, new BadIntegerDeserializer()))
+            .build();
+        
+        // Create array large enough to trigger chunking (> 12 elements)
+        StringBuilder json = new StringBuilder("[");
+        for (int i = 0; i < 50; i++) {
+            if (i > 0) json.append(",");
+            json.append(i);
+        }
+        json.append("]");
+        
+        try {
+            Integer[] result = mapper.readValue(json.toString(), Integer[].class);
+            fail("Should have thrown an exception due to ArrayStoreException");
+        } catch (DatabindException e) {
+            assertFalse(e instanceof ArrayStoreException, 
+                "Exception should be DatabindException, not raw ArrayStoreException");
+            
+            // Verify that ArrayStoreException is in the cause chain
+            Throwable cause = e;
+            boolean foundArrayStore = false;
+            while (cause != null) {
+                if (cause instanceof ArrayStoreException) {
+                    foundArrayStore = true;
+                    break;
+                }
+                cause = cause.getCause();
+            }
+            assertTrue(foundArrayStore, "Should have ArrayStoreException in cause chain");
+        }
     }
 }

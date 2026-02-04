@@ -11,12 +11,14 @@ import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.jdk.CollectionSerializer;
 import tools.jackson.databind.ser.std.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.Converter;
+import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -248,6 +250,41 @@ public class CustomSerializersTest extends DatabindTestUtil
         }
     }
 
+    // [databind#5630]: DelegatingSerializer impl
+    static class DelegatingSerializer5630Impl extends DelegatingSerializer
+    {
+        public DelegatingSerializer5630Impl() {
+            this(new QuotingStringSerializer5630Impl());
+        }
+
+        public DelegatingSerializer5630Impl(ValueSerializer<?> valueSerializer) {
+            super(valueSerializer);
+        }
+
+        @Override
+        protected ValueSerializer<Object> newDelegatingInstance(ValueSerializer<?> newDelegatee) {
+            return new DelegatingSerializer5630Impl(newDelegatee);
+        }
+    }
+
+    static class QuotingStringSerializer5630Impl extends StdSerializer<String>
+    {
+        public QuotingStringSerializer5630Impl() { super(String.class); }
+
+        @Override
+        public void serialize(String value, JsonGenerator gen, SerializationContext ctxt) {
+            gen.writeString("'"+value+"'");
+        }
+
+        @Override
+        public boolean isEmpty(SerializationContext ctxt, String value) { return value.isEmpty(); }
+
+        @Override
+        public ValueSerializer<String> unwrappingSerializer(NameTransformer unwrapper) {
+            return new QuotingStringSerializer5630Impl();
+        }
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -433,5 +470,49 @@ public class CustomSerializersTest extends DatabindTestUtil
         assertEquals("{\"@type\":\"Super\"}", mapper.writeValueAsString(new Super4575()));
         assertEquals("{\"@type\":\"Sub\"}", mapper.writeValueAsString(new Sub4575()));
         assertEquals("null", mapper.writeValueAsString(Super4575.NULL));
+    }
+
+    // [databind#5630]: DelegatingSerializer impl
+    @Test
+    void testBasicDelegatingSerializer()
+    {
+        DelegatingSerializer5630Impl delegatingSerializer = new DelegatingSerializer5630Impl();
+        assertEquals(String.class, delegatingSerializer.handledType());
+        ValueSerializer<?> delegatee = delegatingSerializer.getDelegatee();
+        assertNotNull(delegatee);
+        assertEquals(delegatingSerializer.usesObjectId(), delegatee.usesObjectId());
+        assertEquals(delegatingSerializer.isUnwrappingSerializer(), delegatee.isUnwrappingSerializer());
+        Iterator<?> it = delegatingSerializer.properties();
+        assertFalse(it.hasNext());
+
+        assertFalse(delegatingSerializer.isEmpty(null, "foo"));
+        
+        // No changes when trying to change filter id (with our custom impl)
+        assertSame(delegatingSerializer, delegatingSerializer.withFilterId("abc"));
+        assertSame(delegatingSerializer,
+                delegatingSerializer.withIgnoredProperties(Collections.emptySet()));
+        assertSame(delegatingSerializer,
+                delegatingSerializer.withFormatOverrides(null, JsonFormat.Value.empty()));
+
+        // No change if attempting to "replace" with same instance
+        assertSame(delegatingSerializer, delegatingSerializer.replaceDelegatee(delegatee));
+        // but is if not
+        assertNotSame(delegatingSerializer,
+                delegatingSerializer.replaceDelegatee(new QuotingStringSerializer5630Impl()));
+
+        ValueSerializer<?> unwrapping = delegatingSerializer.unwrappingSerializer(null);
+        assertNotNull(unwrapping);
+        assertNotSame(delegatingSerializer, unwrapping);
+    }
+
+    // But also real registration
+    @Test
+    void testRegisteredDelegatingSerializer()
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(new SimpleModule()
+                        .addSerializer(new DelegatingSerializer5630Impl()))
+                .build();
+        assertEquals("\"'foo'\"", mapper.writeValueAsString("foo"));
     }
 }

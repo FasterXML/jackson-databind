@@ -179,7 +179,8 @@ public abstract class ValueSerializer<T>
      *  </li>
      * <li>Return {@code null} to indicate that this serializer instance is not suitable for
      *    handling format variation, but does not know how to construct new serializer: caller
-     *    will typically then call {@link tools.jackson.databind.ser.SerializerFactory} with overrides to construct new serializer
+     *    will typically then call {@link tools.jackson.databind.ser.SerializerFactory}
+     *    with overrides to construct new serializer
      *  </li>
      *</ul>
      * One example of second approach is the case where {@link com.fasterxml.jackson.annotation.JsonFormat.Shape#STRING} indicates String

@@ -325,7 +325,7 @@ public class MapDeserializer
                         if (ignored == null) {
                             ignored = new HashSet<>(ignoresToAdd);
                         } else {
-                            ignored = new HashSet<String>(ignored);
+                            ignored = new HashSet<>(ignored);
                             ignored.addAll(ignoresToAdd);
                         }
                     }
@@ -502,18 +502,25 @@ public class MapDeserializer
         } else {
             JsonToken t = p.currentToken();
             if (t != JsonToken.PROPERTY_NAME) {
-                if (t == JsonToken.END_OBJECT) {
-                    return result;
-                }
-                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
+                _checkIsEndObject(ctxt, t);
+                return result;
             }
             keyStr = p.currentName();
         }
+
+        // [databind#3188] Cache capability once outside the loop
+        final boolean skipNullKeys = (_keyDeserializer instanceof NullKeySkippable nks)
+                && nks.skipNullKeys(ctxt);
 
         for (; keyStr != null; keyStr = p.nextName()) {
             Object key = _keyDeserializer.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
+            // [databind#3188] Skip entry when key deserializer requests null-key skipping
+            if (skipNullKeys && key == null) {
+                p.skipChildren(); // no-op for scalar tokens; safe to call unconditionally
+                continue;
+            }
             if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
                 p.skipChildren();
                 continue;
@@ -574,11 +581,9 @@ public class MapDeserializer
             key = p.nextName();
         } else {
             JsonToken t = p.currentToken();
-            if (t == JsonToken.END_OBJECT) {
-                return result;
-            }
             if (t != JsonToken.PROPERTY_NAME) {
-                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
+                _checkIsEndObject(ctxt, t);
+                return result;
             }
             key = p.currentName();
         }
@@ -645,6 +650,10 @@ public class MapDeserializer
             key = null;
         }
 
+        // [databind#3188] Cache capability once outside the loop
+        final boolean skipNullKeys = (_keyDeserializer instanceof NullKeySkippable nks)
+                && nks.skipNullKeys(ctxt);
+
         for (; key != null; key = p.nextName()) {
             JsonToken t = p.nextToken(); // to get to value
             if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(key)) {
@@ -669,6 +678,11 @@ public class MapDeserializer
             }
             // other property? needs buffering
             Object actualKey = _keyDeserializer.deserializeKey(key, ctxt);
+            // [databind#3188] Skip entry when key deserializer requests null-key skipping
+            if (skipNullKeys && actualKey == null) {
+                p.skipChildren(); // no-op for scalar tokens; safe to call unconditionally
+                continue;
+            }
             Object value;
 
             try {
@@ -724,19 +738,26 @@ public class MapDeserializer
             keyStr = p.nextName();
         } else {
             JsonToken t = p.currentToken();
-            if (t == JsonToken.END_OBJECT) {
-                return;
-            }
             if (t != JsonToken.PROPERTY_NAME) {
-                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
+                _checkIsEndObject(ctxt, t);
+                return;
             }
             keyStr = p.currentName();
         }
+
+        // [databind#3188] Cache capability once outside the loop
+        final boolean skipNullKeys = (_keyDeserializer instanceof NullKeySkippable nks)
+                && nks.skipNullKeys(ctxt);
 
         for (; keyStr != null; keyStr = p.nextName()) {
             Object key = _keyDeserializer.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
+            // [databind#3188] Skip entry when key deserializer requests null-key skipping
+            if (skipNullKeys && key == null) {
+                p.skipChildren(); // no-op for scalar tokens; safe to call unconditionally
+                continue;
+            }
             if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
                 p.skipChildren();
                 continue;
@@ -798,11 +819,9 @@ public class MapDeserializer
             key = p.nextName();
         } else {
             JsonToken t = p.currentToken();
-            if (t == JsonToken.END_OBJECT) {
-                return;
-            }
             if (t != JsonToken.PROPERTY_NAME) {
-                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
+                _checkIsEndObject(ctxt, t);
+                return;
             }
             key = p.currentName();
         }
@@ -856,7 +875,6 @@ public class MapDeserializer
      * If _valueTypeDeserializer is null, use _valueDeserializer.deserialize; if non-null,
      * use _valueDeserializer.deserializeWithType to deserialize value.
      * This method only performs deserialization and does not consider _skipNullValues, _nullProvider, etc.
-     * @since 2.19.2
      */
     protected Object _deserializeNoNullChecks(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
@@ -867,9 +885,6 @@ public class MapDeserializer
         return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
     }
 
-    /**
-     * @since 2.14
-     */
     @SuppressWarnings("unchecked")
     protected void _squashDups(final DeserializationContext ctxt,
             final Map<Object, Object> result,
@@ -893,6 +908,13 @@ public class MapDeserializer
     /* Internal methods, other
     /**********************************************************************
      */
+
+    // @since 3.1
+    protected void _checkIsEndObject(DeserializationContext ctxt, JsonToken t) {
+        if (t != JsonToken.END_OBJECT) {
+            ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
+        }
+    }
 
     private void handleUnresolvedReference(DeserializationContext ctxt,
             MapReferringAccumulator accumulator,

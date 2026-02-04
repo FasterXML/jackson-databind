@@ -349,6 +349,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
 
     @JacksonStdImpl
     final static class EnumKD extends JDKKeyDeserializer
+        implements NullKeySkippable // [databind#3188]
     {
         protected final EnumResolver _byNameResolver;
 
@@ -430,6 +431,12 @@ public class JDKKeyDeserializer extends KeyDeserializer
             }
             return  _byToStringResolver;
         }
+
+        // [databind#3188]: signal to skip map entry when unknown enum id maps to null
+        @Override
+        public boolean skipNullKeys(DeserializationContext ctxt) {
+            return ctxt.isEnabled(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+        }
     }
 
     /**
@@ -472,4 +479,3 @@ public class JDKKeyDeserializer extends KeyDeserializer
         }
     }
 }
-

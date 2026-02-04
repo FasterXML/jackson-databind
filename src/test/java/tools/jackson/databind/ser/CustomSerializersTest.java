@@ -1,5 +1,6 @@
 package tools.jackson.databind.ser;
 
+import java.io.StringWriter;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
@@ -250,25 +251,25 @@ public class CustomSerializersTest extends DatabindTestUtil
     }
 
     // [databind#5630]: DelegatingSerializer impl
-    static class DelegatingSerializerImpl extends DelegatingSerializer
+    static class DelegatingSerializer5630Impl extends DelegatingSerializer
     {
-        public DelegatingSerializerImpl() {
-            this(new StdSerializerTestImpl());
+        public DelegatingSerializer5630Impl() {
+            this(new StringSerializer5630Impl());
         }
 
-        public DelegatingSerializerImpl(ValueSerializer<?> valueSerializer) {
+        public DelegatingSerializer5630Impl(ValueSerializer<?> valueSerializer) {
             super(valueSerializer);
         }
 
         @Override
         protected ValueSerializer<Object> newDelegatingInstance(ValueSerializer<?> newDelegatee) {
-            return new DelegatingSerializerImpl(newDelegatee);
+            return new DelegatingSerializer5630Impl(newDelegatee);
         }
     }
 
-    static class StdSerializerTestImpl extends StdSerializer<String>
+    static class StringSerializer5630Impl extends StdSerializer<String>
     {
-        public StdSerializerTestImpl() { super(String.class); }
+        public StringSerializer5630Impl() { super(String.class); }
 
         @Override
         public void serialize(String value, JsonGenerator gen, SerializationContext ctxt) {
@@ -280,7 +281,7 @@ public class CustomSerializersTest extends DatabindTestUtil
 
         @Override
         public ValueSerializer<String> unwrappingSerializer(NameTransformer unwrapper) {
-            return new StdSerializerTestImpl();
+            return new StringSerializer5630Impl();
         }
     }
 
@@ -473,10 +474,17 @@ public class CustomSerializersTest extends DatabindTestUtil
 
     // [databind#5630]: DelegatingSerializer impl
     @Test
-    void testBasicDelegatingSerializer() {
-        DelegatingSerializerImpl delegatingSerializer = new DelegatingSerializerImpl();
-        assertEquals(true, delegatingSerializer.isEmpty(null, null));
+    void testBasicDelegatingSerializer()
+    {
+        DelegatingSerializer5630Impl delegatingSerializer = new DelegatingSerializer5630Impl();
         assertEquals(String.class, delegatingSerializer.handledType());
+
+        StringWriter w = new StringWriter();
+        try (JsonGenerator g = MAPPER.createGenerator(w)) {
+            assertEquals(true, delegatingSerializer.isEmpty(null, ""));
+            delegatingSerializer.serialize("foo", g, null);
+        }
+        assertEquals(q("foo"), w.toString());
         ValueSerializer<?> unwrapping = delegatingSerializer.unwrappingSerializer(null);
         assertNotNull(unwrapping);
         assertNotSame(delegatingSerializer, unwrapping);

@@ -123,7 +123,7 @@ public class CollectionDeserTest
         // (since we know that Jackson will construct an ArrayList here...)
         Object value = MAPPER.readValue(JSON, Object.class);
         assertNotNull(value);
-        assertTrue(value instanceof ArrayList<?>);
+        assertInstanceOf(ArrayList.class, value);
         List<?> result = (List<?>) value;
 
         assertEquals(4, result.size());

@@ -202,7 +202,7 @@ public class UntypedDeserializationTest
         @SuppressWarnings("unchecked")
         Map<Object,Object> result = (Map<Object,Object>)MAPPER.readValue(JSON, Object.class);
         assertNotNull(result);
-        assertTrue(result instanceof Map<?,?>);
+        assertInstanceOf(Map.class, result);
 
         assertEquals(3, result.size());
 
@@ -239,12 +239,12 @@ public class UntypedDeserializationTest
         // 05-Apr-2014, tatu: Odd failures if using shared mapper; so work around:
         Object root = MAPPER.readValue(a2q("{'a':3,'b':[1,2]}"),
                 Object.class);
-        assertTrue(root instanceof Map<?,?>);
+        assertInstanceOf(Map.class, root);
         Map<?,?> map = (Map<?,?>) root;
         assertEquals(2, map.size());
         assertEquals(Integer.valueOf(3), map.get("a"));
         Object ob = map.get("b");
-        assertTrue(ob instanceof List<?>);
+        assertInstanceOf(List.class, ob);
         List<?> l = (List<?>) ob;
         assertEquals(2, l.size());
         assertEquals(Integer.valueOf(2), l.get(1));
@@ -261,15 +261,15 @@ public class UntypedDeserializationTest
             .build();
 
         Object ob = mapper.readValue("{\"a\":\"b\", \"nr\":1 }", Object.class);
-        assertTrue(ob instanceof Map);
+        assertInstanceOf(Map.class, ob);
         Object value = ((Map<?,?>) ob).get("a");
         assertNotNull(value);
-        assertTrue(value instanceof String);
+        assertInstanceOf(String.class, value);
         assertEquals("B", value);
 
         value = ((Map<?,?>) ob).get("nr");
         assertNotNull(value);
-        assertTrue(value instanceof Number);
+        assertInstanceOf(Number.class, value);
         assertEquals(Integer.valueOf(13), value);
     }
 
@@ -328,7 +328,7 @@ public class UntypedDeserializationTest
                 .build();
         // And then list...
         Object ob = mapper.readValue("[1, 2, true]", Object.class);
-        assertTrue(ob instanceof List<?>);
+        assertInstanceOf(List.class, ob);
         List<?> l = (List<?>) ob;
         assertEquals(3, l.size());
         assertEquals("X1", l.get(0));
@@ -346,7 +346,7 @@ public class UntypedDeserializationTest
                 .build();
         // And then list...
         Object ob = mapper.readValue("{\"a\":true}", Object.class);
-        assertTrue(ob instanceof Map<?,?>);
+        assertInstanceOf(Map.class, ob);
         Map<?,?> map = (Map<?,?>) ob;
         assertEquals(1, map.size());
         assertEquals("Ytrue", map.get("a"));
@@ -359,14 +359,14 @@ public class UntypedDeserializationTest
         ObjectReader r = MAPPER.readerFor(DelegatingUntyped.class);
 
         pojo = r.readValue("[]");
-        assertTrue(pojo.value instanceof List);
+        assertInstanceOf(List.class, pojo.value);
         pojo = r.readValue("[{}]");
-        assertTrue(pojo.value instanceof List);
+        assertInstanceOf(List.class, pojo.value);
 
         pojo = r.readValue("{}");
-        assertTrue(pojo.value instanceof Map);
+        assertInstanceOf(Map.class, pojo.value);
         pojo = r.readValue("{\"a\":[]}");
-        assertTrue(pojo.value instanceof Map);
+        assertInstanceOf(Map.class, pojo.value);
     }
 
     @Test
@@ -374,7 +374,7 @@ public class UntypedDeserializationTest
     {
         // by default we get:
         Object ob = MAPPER.readValue("[1]", Object.class);
-        assertTrue(ob instanceof List<?>);
+        assertInstanceOf(List.class, ob);
 
         // but can change to produce Object[]:
         ObjectMapper mapper = jsonMapperBuilder()
@@ -564,7 +564,7 @@ public class UntypedDeserializationTest
         Object ob = MAPPER.readerFor(Object.class)
                 .with(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)
                 .readValue(INT_ARRAY_JSON);
-        assertTrue(ob instanceof Object[]);
+        assertInstanceOf(Object[].class, ob);
         Object[] obs = (Object[]) ob;
         for (int i = 0; i < 100; ++i) {
             assertEquals(Integer.valueOf(i), obs[i]);
@@ -640,7 +640,7 @@ public class UntypedDeserializationTest
 
         Object result = mapper.readValue("3.14159", Object.class);
         assertNotNull(result);
-        assertTrue(result instanceof BigDecimal);
+        assertInstanceOf(BigDecimal.class, result);
         assertEquals(new BigDecimal("3.14159"), result);
     }
 
@@ -648,9 +648,9 @@ public class UntypedDeserializationTest
     public void testFloatTypesFloat32AndFloat64() throws Exception
     {
         Object result = MAPPER.readValue("1.5", Object.class);
-        assertTrue(result instanceof Double);
+        assertInstanceOf(Double.class, result);
         result = MAPPER.readValue("2.718281828", Object.class);
-        assertTrue(result instanceof Double);
+        assertInstanceOf(Double.class, result);
     }
 
     @Test
@@ -662,7 +662,7 @@ public class UntypedDeserializationTest
                 .build();
 
         Object result = mapper.readValue("NaN", Object.class);
-        assertTrue(result instanceof Double);
+        assertInstanceOf(Double.class, result);
         assertTrue(((Double) result).isNaN());
     }
 
@@ -697,7 +697,7 @@ public class UntypedDeserializationTest
 
         Object result = mapper.readValue("12345678901234567890", Object.class);
         assertNotNull(result);
-        assertTrue(result instanceof BigInteger);
+        assertInstanceOf(BigInteger.class, result);
         assertEquals(new BigInteger("12345678901234567890"), result);
     }
 
@@ -747,8 +747,8 @@ public class UntypedDeserializationTest
         assertEquals(Boolean.TRUE, result.get(2));
         assertNull(result.get(3));
         assertEquals(Double.valueOf(3.14), result.get(4));
-        assertTrue(result.get(5) instanceof Map);
-        assertTrue(result.get(6) instanceof List);
+        assertInstanceOf(Map.class, result.get(5));
+        assertInstanceOf(List.class, result.get(6));
     }
 
     @Test

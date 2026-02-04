@@ -209,7 +209,7 @@ public class JsonDeserializeAsTest
     public void testRootInterfaceAs() throws Exception
     {
         RootInterface value = MAPPER.readValue("{\"a\":\"abc\" }", RootInterface.class);
-        assertTrue(value instanceof RootInterfaceImpl);
+        assertInstanceOf(RootInterfaceImpl.class, value);
         assertEquals("abc", value.getA());
     }
 

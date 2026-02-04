@@ -10,6 +10,7 @@ import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // For [databind#5027]
@@ -48,7 +49,7 @@ public class RegisteredClassDeser5027Test extends DatabindTestUtil
         final String foo1 = MAPPER.writeValueAsString(new FooClassImpl());
         final String foo2 = MAPPER.writeValueAsString(new FooClassImpl2());
         FooClass res1 = MAPPER.readValue(foo1, FooClass.class);
-        assertTrue(res1 instanceof FooClassImpl);
+        assertInstanceOf(FooClassImpl.class, res1);
         // next bit should fail because FooClassImpl2 is not listed as a subtype (see mapper config)
         assertThrows(InvalidTypeIdException.class, () -> MAPPER.readValue(foo2, FooClass.class));
     }
@@ -60,7 +61,7 @@ public class RegisteredClassDeser5027Test extends DatabindTestUtil
         final String foo1 = mapper.writeValueAsString(new FooClassNoRegSubTypesImpl());
         // the default mapper should be able to deserialize the object (sub type check not enforced)
         FooClassNoRegSubTypes res1 = mapper.readValue(foo1, FooClassNoRegSubTypes.class);
-        assertTrue(res1 instanceof FooClassNoRegSubTypesImpl);
+        assertInstanceOf(FooClassNoRegSubTypesImpl.class, res1);
     }
 
     @Test
@@ -79,7 +80,7 @@ public class RegisteredClassDeser5027Test extends DatabindTestUtil
         final String foo1 = MAPPER.writeValueAsString(new FooMinClassImpl());
         final String foo2 = MAPPER.writeValueAsString(new FooMinClassImpl2());
         FooMinClass res1 = MAPPER.readValue(foo1, FooMinClass.class);
-        assertTrue(res1 instanceof FooMinClassImpl);
+        assertInstanceOf(FooMinClassImpl.class, res1);
         // next bit should fail because FooMinClassImpl2 is not listed as a subtype (see mapper config)
         assertThrows(InvalidTypeIdException.class, () -> MAPPER.readValue(foo2, FooMinClass.class));
     }

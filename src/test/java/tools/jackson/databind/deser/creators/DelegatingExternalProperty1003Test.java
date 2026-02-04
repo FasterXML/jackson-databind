@@ -8,6 +8,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class DelegatingExternalProperty1003Test extends DatabindTestUtil
 {
@@ -57,6 +58,6 @@ public class DelegatingExternalProperty1003Test extends DatabindTestUtil
         final String json = mapper.writeValueAsString(new HeroBattle1003(new Superman1003()));
         final HeroBattle1003 battle = mapper.readValue(json, HeroBattle1003.class);
 
-        assertTrue(battle.getHero() instanceof Superman1003);
+        assertInstanceOf(Superman1003.class, battle.getHero());
     }
 }

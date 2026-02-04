@@ -52,7 +52,7 @@ public class ObjectReaderTest extends DatabindTestUtil
         try (JsonParser p = MAPPER.createParser(JSON)) {
             Object ob = MAPPER.readerFor(Object.class)
                     .readValue(p);
-            assertTrue(ob instanceof List<?>);
+            assertInstanceOf(List.class, ob);
         }
     }
 

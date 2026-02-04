@@ -287,12 +287,10 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
         ObjectReader r = MAPPER.readerFor(Duration.class);
         try {
             // Using a decimal with extremely large scale that could trigger ArithmeticException
-            r.readValue("1.0E+1000");
+            r.readValue("7E2147483647");
             fail("Should not pass with extreme decimal value");
         } catch (DateTimeParseException e) {
-            // Expected - could be ArithmeticException or DateTimeException
-            assertNotNull(e.getCause());
-            assertTrue(e.getCause() instanceof RuntimeException);
+            assertInstanceOf(ArithmeticException.class, e.getCause());
             assertTrue(e.getMessage().contains("Failed to deserialize"));
         }
     }
@@ -304,12 +302,10 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
         ObjectReader r = MAPPER.readerFor(Instant.class);
         try {
             // Using a decimal with extremely large scale that could trigger ArithmeticException
-            r.readValue("1.0E+1000");
+            r.readValue("7E2147483647");
             fail("Should not pass with extreme decimal value");
         } catch (DateTimeParseException e) {
-            // Expected - could be ArithmeticException or DateTimeException
-            assertNotNull(e.getCause());
-            assertTrue(e.getCause() instanceof RuntimeException);
+            assertInstanceOf(ArithmeticException.class, e.getCause());
             assertTrue(e.getMessage().contains("Failed to deserialize"));
         }
     }

@@ -20,9 +20,7 @@ public class ArrayStoreExceptionHandlingTest extends DatabindTestUtil
     static class BadIntegerDeserializer extends ValueDeserializer<Integer> {
         @Override
         public Integer deserialize(JsonParser p, DeserializationContext ctxt) {
-            // Cast through Object to bypass compile-time type checking and force runtime ArrayStoreException
-            // when Jackson tries to assign this String to an Integer[] array
-            return (Integer)(Object)"not an integer";
+            throw new ArrayStoreException("not an integer");
         }
     }
     
@@ -41,10 +39,6 @@ public class ArrayStoreExceptionHandlingTest extends DatabindTestUtil
             Integer[] result = mapper.readValue(json, Integer[].class);
             fail("Should have thrown an exception due to ArrayStoreException");
         } catch (DatabindException e) {
-            // Expected: should be wrapped as DatabindException, not raw ArrayStoreException
-            assertFalse(e instanceof ArrayStoreException, 
-                "Exception should be DatabindException, not raw ArrayStoreException");
-            
             // Verify that ArrayStoreException is in the cause chain
             Throwable cause = e;
             boolean foundArrayStore = false;
@@ -144,9 +138,6 @@ public class ArrayStoreExceptionHandlingTest extends DatabindTestUtil
             Integer[] result = mapper.readValue(json.toString(), Integer[].class);
             fail("Should have thrown an exception due to ArrayStoreException");
         } catch (DatabindException e) {
-            assertFalse(e instanceof ArrayStoreException, 
-                "Exception should be DatabindException, not raw ArrayStoreException");
-            
             // Verify that ArrayStoreException is in the cause chain
             Throwable cause = e;
             boolean foundArrayStore = false;

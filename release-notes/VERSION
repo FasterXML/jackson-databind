@@ -55,6 +55,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #2686: `@JsonBackReference` does not work with a builder
  (reported by @janrieke)
  (fix by @JacksonJang)
+#3188: Skip unknown `Enum` keys in `Map` deserialization
+ (requested by @matthias-mueller)
+ (fixed by Lee Jiwon)
 #3284: Backward compatibility for timezone formats of UTC Date
   serialization
  (requested by @arungitan)

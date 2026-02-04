@@ -189,6 +189,8 @@ Kenneth Jorgensen (@kennethjor)
   [3.1.0]
 
 Lee Jiwon (@dlwldnjs1009)
+ * Fixed #3188: Skip unknown `Enum` keys in `Map` deserialization
+  [3.1.0]
  * Implemented #3284: Backward compatibility for timezone formats of UTC Date
    serialization
   [3.1.0]

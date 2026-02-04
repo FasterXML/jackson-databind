@@ -325,7 +325,7 @@ public class MapDeserializer
                         if (ignored == null) {
                             ignored = new HashSet<>(ignoresToAdd);
                         } else {
-                            ignored = new HashSet<String>(ignored);
+                            ignored = new HashSet<>(ignored);
                             ignored.addAll(ignoresToAdd);
                         }
                     }
@@ -502,10 +502,8 @@ public class MapDeserializer
         } else {
             JsonToken t = p.currentToken();
             if (t != JsonToken.PROPERTY_NAME) {
-                if (t == JsonToken.END_OBJECT) {
-                    return result;
-                }
-                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
+                _checkIsEndObject(ctxt, t);
+                return result;
             }
             keyStr = p.currentName();
         }
@@ -583,11 +581,9 @@ public class MapDeserializer
             key = p.nextName();
         } else {
             JsonToken t = p.currentToken();
-            if (t == JsonToken.END_OBJECT) {
-                return result;
-            }
             if (t != JsonToken.PROPERTY_NAME) {
-                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
+                _checkIsEndObject(ctxt, t);
+                return result;
             }
             key = p.currentName();
         }
@@ -742,11 +738,9 @@ public class MapDeserializer
             keyStr = p.nextName();
         } else {
             JsonToken t = p.currentToken();
-            if (t == JsonToken.END_OBJECT) {
-                return;
-            }
             if (t != JsonToken.PROPERTY_NAME) {
-                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
+                _checkIsEndObject(ctxt, t);
+                return;
             }
             keyStr = p.currentName();
         }
@@ -825,11 +819,9 @@ public class MapDeserializer
             key = p.nextName();
         } else {
             JsonToken t = p.currentToken();
-            if (t == JsonToken.END_OBJECT) {
-                return;
-            }
             if (t != JsonToken.PROPERTY_NAME) {
-                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
+                _checkIsEndObject(ctxt, t);
+                return;
             }
             key = p.currentName();
         }
@@ -883,7 +875,6 @@ public class MapDeserializer
      * If _valueTypeDeserializer is null, use _valueDeserializer.deserialize; if non-null,
      * use _valueDeserializer.deserializeWithType to deserialize value.
      * This method only performs deserialization and does not consider _skipNullValues, _nullProvider, etc.
-     * @since 2.19.2
      */
     protected Object _deserializeNoNullChecks(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
@@ -894,9 +885,6 @@ public class MapDeserializer
         return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
     }
 
-    /**
-     * @since 2.14
-     */
     @SuppressWarnings("unchecked")
     protected void _squashDups(final DeserializationContext ctxt,
             final Map<Object, Object> result,
@@ -920,6 +908,13 @@ public class MapDeserializer
     /* Internal methods, other
     /**********************************************************************
      */
+
+    // @since 3.1
+    protected void _checkIsEndObject(DeserializationContext ctxt, JsonToken t) {
+        if (t != JsonToken.END_OBJECT) {
+            ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
+        }
+    }
 
     private void handleUnresolvedReference(DeserializationContext ctxt,
             MapReferringAccumulator accumulator,

@@ -27,8 +27,9 @@ import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for proper wrapping of {@link java.time.DateTimeException} into
- * {@link DateTimeParseException} when deserializing java.time types.
+ * Tests for proper wrapping of {@link java.time.DateTimeException} and other
+ * {@link RuntimeException}s into {@link DateTimeParseException} when deserializing
+ * java.time types.
  */
 public class DateTimeExceptionHandlingTest extends DateTimeTestBase
 {
@@ -269,6 +270,46 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
             fail("Should not pass with out of range year");
         } catch (DateTimeParseException e) {
             assertInstanceOf(java.time.DateTimeException.class, e.getCause());
+            assertTrue(e.getMessage().contains("Failed to deserialize"));
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Test for Duration - arithmetic exceptions
+    /**********************************************************
+     */
+
+    @Test
+    public void testDurationFromLargeDecimal() throws Exception
+    {
+        // Very large decimal that could cause ArithmeticException
+        ObjectReader r = MAPPER.readerFor(Duration.class);
+        try {
+            // Using a decimal with extremely large scale that could trigger ArithmeticException
+            r.readValue("1.0E+1000");
+            fail("Should not pass with extreme decimal value");
+        } catch (DateTimeParseException e) {
+            // Expected - could be ArithmeticException or DateTimeException
+            assertNotNull(e.getCause());
+            assertTrue(e.getCause() instanceof RuntimeException);
+            assertTrue(e.getMessage().contains("Failed to deserialize"));
+        }
+    }
+
+    @Test
+    public void testInstantFromLargeDecimal() throws Exception
+    {
+        // Very large decimal that could cause ArithmeticException  
+        ObjectReader r = MAPPER.readerFor(Instant.class);
+        try {
+            // Using a decimal with extremely large scale that could trigger ArithmeticException
+            r.readValue("1.0E+1000");
+            fail("Should not pass with extreme decimal value");
+        } catch (DateTimeParseException e) {
+            // Expected - could be ArithmeticException or DateTimeException
+            assertNotNull(e.getCause());
+            assertTrue(e.getCause() instanceof RuntimeException);
             assertTrue(e.getMessage().contains("Failed to deserialize"));
         }
     }

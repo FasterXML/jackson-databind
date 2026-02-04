@@ -160,7 +160,7 @@ public class LocalTimeDeserializer extends JSR310DateTimeDeserializerBase<LocalT
                             result = LocalTime.of(hour, minute, second, partialSecond);
                         }
                     }
-                } catch (DateTimeException e) {
+                } catch (RuntimeException e) {
                     throw DateTimeParseException.from(p,
                             String.format("Failed to deserialize %s from array value [%d,%d,...]: %s",
                                     handledType().getName(), hour, minute, e.getMessage()),
@@ -212,7 +212,7 @@ public class LocalTimeDeserializer extends JSR310DateTimeDeserializerBase<LocalT
                 }
             }
             return LocalTime.parse(string, format);
-        } catch (DateTimeException e) {
+        } catch (RuntimeException e) {
             return _handleDateTimeFormatException(ctxt, e, format, string);
         }
     }

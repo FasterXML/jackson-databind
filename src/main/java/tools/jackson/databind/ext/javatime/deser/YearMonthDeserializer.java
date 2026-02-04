@@ -123,7 +123,7 @@ public class YearMonthDeserializer extends JSR310DateTimeDeserializerBase<YearMo
             }
             try {
                 return YearMonth.of(year, month);
-            } catch (DateTimeException e) {
+            } catch (RuntimeException e) {
                 throw DateTimeParseException.from(p,
                         String.format("Failed to deserialize %s from array value [%d,%d]: %s",
                                 handledType().getName(), year, month, e.getMessage()),
@@ -150,7 +150,7 @@ public class YearMonthDeserializer extends JSR310DateTimeDeserializerBase<YearMo
         }
         try {
             return YearMonth.parse(string, _formatter);
-        } catch (DateTimeException e) {
+        } catch (RuntimeException e) {
             return _handleDateTimeFormatException(ctxt, e, _formatter, string);
         }
     }

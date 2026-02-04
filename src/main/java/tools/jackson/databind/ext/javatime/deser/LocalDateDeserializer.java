@@ -118,7 +118,7 @@ public class LocalDateDeserializer extends JSR310DateTimeDeserializerBase<LocalD
                 }
                 try {
                     return LocalDate.of(year, month, day);
-                } catch (DateTimeException e) {
+                } catch (RuntimeException e) {
                     throw DateTimeParseException.from(p,
                             String.format("Failed to deserialize %s from array value [%d,%d,%d]: %s",
                                     handledType().getName(), year, month, day, e.getMessage()),
@@ -184,7 +184,7 @@ public class LocalDateDeserializer extends JSR310DateTimeDeserializerBase<LocalD
                 }
             }
             return LocalDate.parse(string, format);
-        } catch (DateTimeException e) {
+        } catch (RuntimeException e) {
             return _handleDateTimeFormatException(ctxt, e, format, string);
         }
     }

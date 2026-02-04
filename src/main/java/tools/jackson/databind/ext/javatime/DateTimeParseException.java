@@ -31,7 +31,7 @@ public class DateTimeParseException extends DatabindException
     protected final Class<?> _targetType;
 
     public DateTimeParseException(JsonParser p, String msg, String value,
-            Class<?> targetType, DateTimeException cause)
+            Class<?> targetType, Throwable cause)
     {
         super(p, msg, cause);
         _value = value;
@@ -45,12 +45,13 @@ public class DateTimeParseException extends DatabindException
      * @param msg Error message
      * @param value The value that could not be parsed
      * @param targetType Type we attempted to deserialize into
-     * @param cause The underlying {@link DateTimeException}
+     * @param cause The underlying exception (typically {@link java.time.DateTimeException}
+     *              but could be other {@link RuntimeException}s like {@link ArithmeticException})
      *
      * @return New {@link DateTimeParseException} instance
      */
     public static DateTimeParseException from(JsonParser p, String msg,
-            String value, Class<?> targetType, DateTimeException cause)
+            String value, Class<?> targetType, Throwable cause)
     {
         return new DateTimeParseException(p, msg, value, targetType, cause);
     }

@@ -125,7 +125,7 @@ public class YearDeserializer extends JSR310DateTimeDeserializerBase<Year>
                 return Year.parse(string);
             }
             return Year.parse(string, _formatter);
-        } catch (DateTimeException e) {
+        } catch (RuntimeException e) {
             return _handleDateTimeFormatException(ctxt, e, _formatter, string);
         }
     }
@@ -135,7 +135,7 @@ public class YearDeserializer extends JSR310DateTimeDeserializerBase<Year>
     {
         try {
             return Year.of(value);
-        } catch (DateTimeException e) {
+        } catch (RuntimeException e) {
             throw DateTimeParseException.from(ctxt.getParser(),
                     String.format("Failed to deserialize %s from number %d: %s",
                             Year.class.getName(), value, e.getMessage()),

@@ -397,7 +397,7 @@ public class InstantDeserializer<T extends Temporal>
             if (shouldAdjustToContextTimezone(ctxt)) {
                 return adjust.apply(value, getZone(ctxt));
             }
-        } catch (DateTimeException e) {
+        } catch (RuntimeException e) {
             value = _handleDateTimeFormatException(ctxt, e, _formatter, string);
         }
         return value;
@@ -413,7 +413,7 @@ public class InstantDeserializer<T extends Temporal>
             }
             return fromMilliseconds.apply(new FromIntegerArguments(
                     timestamp, this.getZone(context)));
-        } catch (DateTimeException e) {
+        } catch (RuntimeException e) {
             throw DateTimeParseException.from(context.getParser(),
                     String.format("Failed to deserialize %s from timestamp %d: %s",
                             handledType().getName(), timestamp, e.getMessage()),
@@ -430,7 +430,7 @@ public class InstantDeserializer<T extends Temporal>
                         // negative nanoseconds, so no adjustment needed
                         false);
             return fromNanoseconds.apply(args);
-        } catch (DateTimeException e) {
+        } catch (RuntimeException e) {
             throw DateTimeParseException.from(context.getParser(),
                     String.format("Failed to deserialize %s from decimal value %s: %s",
                             handledType().getName(), value, e.getMessage()),

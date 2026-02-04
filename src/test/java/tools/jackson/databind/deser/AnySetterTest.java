@@ -291,7 +291,7 @@ public class AnySetterTest extends DatabindTestUtil
         assertEquals(Integer.valueOf(3), result.get("a"));
         assertEquals(Boolean.TRUE, result.get("b"));
         Object ob = result.get("c");
-        assertTrue(ob instanceof List<?>);
+        assertInstanceOf(List.class, ob);
         List<?> l = (List<?>)ob;
         assertEquals(3, l.size());
         assertEquals(Integer.valueOf(3), l.get(2));
@@ -383,7 +383,7 @@ public class AnySetterTest extends DatabindTestUtil
         assertEquals(1, result.props.size());
         Base ob = result.props.get("a");
         assertNotNull(ob);
-        assertTrue(ob instanceof Impl);
+        assertInstanceOf(Impl.class, ob);
         assertEquals("xyz", ((Impl) ob).value);
     }
 
@@ -471,8 +471,8 @@ public class AnySetterTest extends DatabindTestUtil
         assertNotNull(stringGeneric);
         assertEquals(stringGeneric.getStaticallyMappedProperty(), "Test");
         for(Map.Entry<String, Integer> entry : stringGeneric.getDynamicallyMappedProperties().entrySet()) {
-            assertTrue(entry.getKey() instanceof String, "A key in MyGeneric<String> is not an String.");
-            assertTrue(entry.getValue() instanceof Integer, "A value in MyGeneric<Integer> is not an Integer.");
+            assertInstanceOf(String.class, entry.getKey(), "A key in MyGeneric<String> is not an String.");
+            assertInstanceOf(Integer.class, entry.getValue(), "A value in MyGeneric<Integer> is not an Integer.");
         }
         assertEquals(stringGeneric.getDynamicallyMappedProperties(), stringGenericMap);
 

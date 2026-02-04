@@ -83,8 +83,7 @@ public class DeductionWithAbstractSubtype4708Test extends DatabindTestUtil
         Ingredient result1 = MAPPER.readValue(json1, Ingredient.class);
 
         assertNotNull(result1);
-        assertTrue(result1 instanceof Ingredient.ItemById,
-            "Should deserialize to concrete ItemById, not abstract class");
+        assertInstanceOf(Ingredient.ItemById.class, result1, "Should deserialize to concrete ItemById, not abstract class");
         Ingredient.ItemById item1 = (Ingredient.ItemById) result1;
         assertEquals("minecraft:stone", item1.id);
         assertEquals(64, item1.count);
@@ -94,7 +93,7 @@ public class DeductionWithAbstractSubtype4708Test extends DatabindTestUtil
         Ingredient result2 = MAPPER.readValue(json2, Ingredient.class);
 
         assertNotNull(result2);
-        assertTrue(result2 instanceof Ingredient.ItemByTag);
+        assertInstanceOf(Ingredient.ItemByTag.class, result2);
         Ingredient.ItemByTag item2 = (Ingredient.ItemByTag) result2;
         assertEquals("minecraft:logs", item2.tag);
         assertEquals(32, item2.count);
@@ -110,7 +109,7 @@ public class DeductionWithAbstractSubtype4708Test extends DatabindTestUtil
         Ingredient.Item result = MAPPER.readValue(json, itemType);
 
         assertNotNull(result);
-        assertTrue(result instanceof Ingredient.ItemById);
+        assertInstanceOf(Ingredient.ItemById.class, result);
         assertEquals("test", ((Ingredient.ItemById) result).id);
     }
 
@@ -136,7 +135,7 @@ public class DeductionWithAbstractSubtype4708Test extends DatabindTestUtil
         Animal result = MAPPER.readValue(json, Animal.class);
 
         assertNotNull(result);
-        assertTrue(result instanceof ConcreteAnimal);
+        assertInstanceOf(ConcreteAnimal.class, result);
         assertEquals("Fido", result.name);
         assertEquals(5, ((ConcreteAnimal) result).age);
     }
@@ -167,14 +166,14 @@ public class DeductionWithAbstractSubtype4708Test extends DatabindTestUtil
         Pet result1 = MAPPER.readValue(json1, Pet.class);
 
         assertNotNull(result1);
-        assertTrue(result1 instanceof Dog);
+        assertInstanceOf(Dog.class, result1);
         assertEquals("Labrador", ((Dog) result1).breed);
 
         String json2 = a2q("{'indoor':true}");
         Pet result2 = MAPPER.readValue(json2, Pet.class);
 
         assertNotNull(result2);
-        assertTrue(result2 instanceof Cat);
+        assertInstanceOf(Cat.class, result2);
         assertTrue(((Cat) result2).indoor);
     }
 

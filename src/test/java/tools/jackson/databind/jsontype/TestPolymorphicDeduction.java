@@ -96,13 +96,13 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
   @Test
   public void testSimpleInference() throws Exception {
     Cat cat = MAPPER.readValue(liveCatJson, Cat.class);
-    assertTrue(cat instanceof LiveCat);
+    assertInstanceOf(LiveCat.class, cat);
     assertSame(cat.getClass(), LiveCat.class);
     assertEquals("Felix", cat.name);
     assertTrue(((LiveCat)cat).angry);
 
     cat = MAPPER.readValue(deadCatJson, Cat.class);
-    assertTrue(cat instanceof DeadCat);
+    assertInstanceOf(DeadCat.class, cat);
     assertSame(cat.getClass(), DeadCat.class);
     assertEquals("Felix", cat.name);
     assertEquals("entropy", ((DeadCat)cat).causeOfDeath);
@@ -115,7 +115,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
     // When:
     Feline feline = mapper.readValue(fleabagJson, Feline.class);
     // Then:
-    assertTrue(feline instanceof Fleabag);
+    assertInstanceOf(Fleabag.class, feline);
   }
 
   @Test
@@ -134,7 +134,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
       .build()
       .readValue(deadCatJson.toUpperCase(), Cat.class);
-    assertTrue(cat instanceof DeadCat);
+    assertInstanceOf(DeadCat.class, cat);
     assertSame(cat.getClass(), DeadCat.class);
     assertEquals("FELIX", cat.name);
     assertEquals("ENTROPY", ((DeadCat)cat).causeOfDeath);
@@ -147,7 +147,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
 //      .setFormat(JsonFormat.Value.empty()
 //      .withFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
 //    Cat cat = mapper.readValue(deadCatJson.replace("causeOfDeath", "CAUSEOFDEATH"), Cat.class);
-//    assertTrue(cat instanceof DeadCat);
+//    assertInstanceOf(DeadCat.class, cat);
 //    assertSame(cat.getClass(), DeadCat.class);
 //    assertEquals("Felix", cat.name);
 //    assertEquals("Entropy", ((DeadCat)cat).causeOfDeath);
@@ -156,13 +156,13 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
   @Test
   public void testContainedInference() throws Exception {
     Box box = MAPPER.readValue(box1Json, Box.class);
-    assertTrue(box.feline instanceof LiveCat);
+    assertInstanceOf(LiveCat.class, box.feline);
     assertSame(box.feline.getClass(), LiveCat.class);
     assertEquals("Felix", ((LiveCat)box.feline).name);
     assertTrue(((LiveCat)box.feline).angry);
 
     box = MAPPER.readValue(box2Json, Box.class);
-    assertTrue(box.feline instanceof DeadCat);
+    assertInstanceOf(DeadCat.class, box.feline);
     assertSame(box.feline.getClass(), DeadCat.class);
     assertEquals("Felix", ((DeadCat)box.feline).name);
     assertEquals("entropy", ((DeadCat)box.feline).causeOfDeath);
@@ -171,7 +171,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
   @Test
   public void testContainedInferenceOfEmptySubtype() throws Exception {
     Box box = MAPPER.readValue(box3Json, Box.class);
-    assertTrue(box.feline instanceof Fleabag);
+    assertInstanceOf(Fleabag.class, box.feline);
 
     box = MAPPER.readValue(box4Json, Box.class);
     assertNull(box.feline, "null != {}");
@@ -184,8 +184,8 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
   public void testListInference() throws Exception {
     JavaType listOfCats = defaultTypeFactory().constructParametricType(List.class, Cat.class);
     List<Cat> boxes = MAPPER.readValue(arrayOfCatsJson, listOfCats);
-    assertTrue(boxes.get(0) instanceof LiveCat);
-    assertTrue(boxes.get(1) instanceof DeadCat);
+    assertInstanceOf(LiveCat.class, boxes.get(0));
+    assertInstanceOf(DeadCat.class, boxes.get(1));
   }
 
   @Test
@@ -193,14 +193,14 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
     JavaType mapOfCats = defaultTypeFactory().constructParametricType(Map.class, String.class, Cat.class);
     Map<String, Cat> map = MAPPER.readValue(mapOfCatsJson, mapOfCats);
     assertEquals(1, map.size());
-    assertTrue(map.entrySet().iterator().next().getValue() instanceof LiveCat);
+    assertInstanceOf(LiveCat.class, map.entrySet().iterator().next().getValue());
   }
 
   @Test
   public void testArrayInference() throws Exception {
     Cat[] boxes = MAPPER.readValue(arrayOfCatsJson, Cat[].class);
-    assertTrue(boxes[0] instanceof LiveCat);
-    assertTrue(boxes[1] instanceof DeadCat);
+    assertInstanceOf(LiveCat.class, boxes[0]);
+    assertInstanceOf(DeadCat.class, boxes[1]);
   }
 
   @Test
@@ -208,7 +208,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
     Cat cat = MAPPER.readerFor(Cat.class)
       .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
       .readValue(luckyCatJson);
-    assertTrue(cat instanceof LiveCat);
+    assertInstanceOf(LiveCat.class, cat);
     assertSame(cat.getClass(), LiveCat.class);
     assertEquals("Felix", cat.name);
     assertTrue(((LiveCat)cat).angry);
@@ -270,7 +270,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
     Cat cat = mapper.readValue(ambiguousCatJson, Cat.class);
     // Then:
     // Even though "age":2 implies this was a failed subtype, we are instructed to fallback to Cat regardless.
-    assertTrue(cat instanceof Cat);
+    assertInstanceOf(Cat.class, cat);
     assertSame(Cat.class, cat.getClass());
     assertEquals("Felix", cat.name);
   }

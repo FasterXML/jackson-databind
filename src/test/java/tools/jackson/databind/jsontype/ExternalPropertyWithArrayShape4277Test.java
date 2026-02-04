@@ -181,7 +181,7 @@ public class ExternalPropertyWithArrayShape4277Test extends DatabindTestUtil
         assertNotNull(result);
         assertEquals("id123", result.uniqueId);
         assertNotNull(result.animal);
-        assertTrue(result.animal instanceof Cat);
+        assertInstanceOf(Cat.class, result.animal);
         assertEquals("Fluffy", result.animal.name);
     }
 
@@ -207,7 +207,7 @@ public class ExternalPropertyWithArrayShape4277Test extends DatabindTestUtil
         assertNotNull(result);
         assertEquals("id123", result.uniqueId);
         assertNotNull(result.animal);
-        assertTrue(result.animal instanceof Cat);
+        assertInstanceOf(Cat.class, result.animal);
         assertEquals("Fluffy", result.animal.name);
     }
 

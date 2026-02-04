@@ -258,8 +258,7 @@ public class ConvertingDeserializerTest
         Issue795Bean bean = MAPPER.readerFor(Issue795Bean.class)
                 .readValue("{\"value\":\"1.25\"}");
         assertNotNull(bean.value);
-        assertTrue(bean.value instanceof BigDecimal,
-            "Type not BigDecimal but "+bean.value.getClass());
+        assertInstanceOf(BigDecimal.class, bean.value, "Type not BigDecimal but "+bean.value.getClass());
         assertEquals(new BigDecimal("1.25"), bean.value);
     }
 }

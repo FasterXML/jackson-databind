@@ -284,9 +284,6 @@ public class ObjectArrayDeserializer
                     }
                     acc.add(value);
                 } catch (UnresolvedForwardReference reference) {
-                    if (acc == null) {
-                        throw reference;
-                    }
                     ArrayReferring referring = new ArrayReferring(reference, _elementClass, acc);
                     reference.getRoid().appendReferring(referring);
                 }
@@ -416,6 +413,11 @@ public class ObjectArrayDeserializer
             return ctxt.handleUnexpectedToken(_containerType, p);
         }
 
+        // 03-Jan-2026: [databind#5541] Support Object Id for implicit Object[]s too
+        if (_elementDeserializer.getObjectIdReader() != null) {
+            return _wrapSingleWithObjectId(p, ctxt);
+        }
+
         Object value;
         if (p.hasToken(JsonToken.VALUE_NULL)) {
             // 03-Feb-2017, tatu: Should this be skipped or not?
@@ -466,6 +468,58 @@ public class ObjectArrayDeserializer
         }
         result[0] = value;
         return result;
+    }
+
+    // @since 2.21
+    // Copied from `_deserializeWithObjectId()`
+    protected Object[] _wrapSingleWithObjectId(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+    {
+        final ObjectArrayReferringAccumulator acc = new ObjectArrayReferringAccumulator(_untyped, _elementClass);
+        Object value;
+        try {
+            if (p.hasToken(JsonToken.VALUE_NULL)) {
+                if (_skipNullValues) {
+                    return _emptyValue;
+                }
+                value = null;
+            } else {
+                if (p.hasToken(JsonToken.VALUE_STRING)) {
+                    String textValue = p.getText();
+                    // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
+                    if (textValue.isEmpty()) {
+                        final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
+                                CoercionInputShape.EmptyString);
+                        if (act != CoercionAction.Fail) {
+                            return (Object[]) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                    "empty String (\"\")");
+                        }
+                    } else if (_isBlank(textValue)) {
+                        final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), handledType(),
+                                CoercionAction.Fail);
+                        if (act != CoercionAction.Fail) {
+                            return (Object[]) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                    "blank String (all whitespace)");
+                        }
+                    }
+                    // if coercion failed, we can still add it to a list
+                }
+
+                value = _deserializeNoNullChecks(p, ctxt);
+            }
+
+            if (value == null) {
+                value = _nullProvider.getNullValue(ctxt);
+                if (value == null && _skipNullValues) {
+                    return _emptyValue;
+                }
+            }
+            acc.add(value);
+        } catch (UnresolvedForwardReference reference) {
+            ArrayReferring referring = new ArrayReferring(reference, _elementClass, acc);
+            reference.getRoid().appendReferring(referring);
+        }
+        return acc.buildArray();
     }
 
     /**

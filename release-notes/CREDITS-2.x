@@ -1979,6 +1979,14 @@ Michael Reiche (@mikereiche)
    with name() key instead of @JsonValue key
   (2.20.0)
 
+Moritz Reyer (@MoritzR200)
+ * Contributed #5537: Add missing `@JsonIdentityInfo` handling for implicit `Collection`s with
+   `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+  (2.20.2)
+ * Contributed #5541: Add missing `@JsonIdentityInfo` handling for implicit Arrays with
+   `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+  (2.21.0)
+
 Johnny Lim (@izeye)
  * Reported #5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
   (2.21.0)
@@ -1986,3 +1994,11 @@ Johnny Lim (@izeye)
 Hélios Gilles (@RoiSoleil)
  * Contributed #5413: Add/support forward reference resolution for array values
   [2.21.0]
+
+Brandon Schmitt (@BrandonSchmitt)
+ * Reported #5616: `ObjectWriter` serializes `Optional`s with subtypes incompletely
+  [2.21.1]
+
+Lee Jiwon (@dlwldnjs1009)
+ * Contributed #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
+  [2.22.0]

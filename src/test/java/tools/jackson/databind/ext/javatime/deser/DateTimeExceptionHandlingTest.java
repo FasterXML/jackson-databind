@@ -48,7 +48,8 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
         try {
             r.readValue("[2023,2,30,12,30]");
             fail("Should not pass with invalid date");
-        } catch (DateTimeParseException e) {            assertInstanceOf(java.time.DateTimeException.class, e.getCause());
+        } catch (DateTimeParseException e) {
+            assertInstanceOf(java.time.DateTimeException.class, e.getCause());
             assertTrue(e.getMessage().contains("Failed to deserialize"));
             assertTrue(e.getMessage().contains("[2023,2,30,12,30]"));
         }
@@ -62,7 +63,8 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
         try {
             r.readValue("[2023,13,15,12,30]");
             fail("Should not pass with invalid month");
-        } catch (DateTimeParseException e) {            assertInstanceOf(java.time.DateTimeException.class, e.getCause());
+        } catch (DateTimeParseException e) {
+             assertInstanceOf(java.time.DateTimeException.class, e.getCause());
         }
     }
 
@@ -74,7 +76,8 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
         try {
             r.readValue("[2023,2,15,25,30]");
             fail("Should not pass with invalid hour");
-        } catch (DateTimeParseException e) {            assertInstanceOf(java.time.DateTimeException.class, e.getCause());
+        } catch (DateTimeParseException e) {
+            assertInstanceOf(java.time.DateTimeException.class, e.getCause());
         }
     }
 
@@ -86,7 +89,8 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
         try {
             r.readValue("\"2025-02-30T12:00:00\"");
             fail("Should not pass with invalid date string");
-        } catch (DatabindException e) {            assertInstanceOf(java.time.DateTimeException.class, e.getCause());
+        } catch (DatabindException e) {
+            assertInstanceOf(java.time.DateTimeException.class, e.getCause());
         }
     }
 

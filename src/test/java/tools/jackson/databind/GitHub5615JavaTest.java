@@ -83,10 +83,8 @@ public class GitHub5615JavaTest {
         for (int i = 0; i < threadCount; i++) {
             Thread t = new Thread(() -> {
                 try {
-                    long randomSleep = (long) (Math.random() * 15);
                     barrier.await();
                     for (int j = 0; j < 100; j++) {
-                        Thread.sleep(randomSleep);
                         serializeWithDeserialization(result);
                     }
                 } catch (Throwable e) {

@@ -12,6 +12,7 @@ import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.jdk.CollectionSerializer;
 import tools.jackson.databind.ser.std.*;
@@ -254,7 +255,7 @@ public class CustomSerializersTest extends DatabindTestUtil
     static class DelegatingSerializer5630Impl extends DelegatingSerializer
     {
         public DelegatingSerializer5630Impl() {
-            this(new StringSerializer5630Impl());
+            this(new QuotingStringSerializer5630Impl());
         }
 
         public DelegatingSerializer5630Impl(ValueSerializer<?> valueSerializer) {
@@ -267,13 +268,13 @@ public class CustomSerializersTest extends DatabindTestUtil
         }
     }
 
-    static class StringSerializer5630Impl extends StdSerializer<String>
+    static class QuotingStringSerializer5630Impl extends StdSerializer<String>
     {
-        public StringSerializer5630Impl() { super(String.class); }
+        public QuotingStringSerializer5630Impl() { super(String.class); }
 
         @Override
         public void serialize(String value, JsonGenerator gen, SerializationContext ctxt) {
-            gen.writeString(value);
+            gen.writeString("'"+value+"'");
         }
 
         @Override
@@ -281,7 +282,7 @@ public class CustomSerializersTest extends DatabindTestUtil
 
         @Override
         public ValueSerializer<String> unwrappingSerializer(NameTransformer unwrapper) {
-            return new StringSerializer5630Impl();
+            return new QuotingStringSerializer5630Impl();
         }
     }
 
@@ -484,25 +485,25 @@ public class CustomSerializersTest extends DatabindTestUtil
         assertEquals(delegatingSerializer.isUnwrappingSerializer(), delegatee.isUnwrappingSerializer());
         Iterator<?> it = delegatingSerializer.properties();
         assertFalse(it.hasNext());
-
-        StringWriter w = new StringWriter();
-        try (JsonGenerator g = MAPPER.createGenerator(w)) {
-            g.writeStartArray();
-            // `null` as context ok as long as they are custom serializers...
-            delegatingSerializer.serialize("foo", g, null);
-            g.writeEndArray();
-
-            assertEquals(true, delegatingSerializer.isEmpty(null, ""));
-        }
-        assertEquals("[\"foo\"]", w.toString());
         // No change if attempting to "replace" with same instance
         assertSame(delegatingSerializer, delegatingSerializer.replaceDelegatee(delegatee));
         // but is if not
         assertNotSame(delegatingSerializer,
-                delegatingSerializer.replaceDelegatee(new StringSerializer5630Impl()));
+                delegatingSerializer.replaceDelegatee(new QuotingStringSerializer5630Impl()));
 
         ValueSerializer<?> unwrapping = delegatingSerializer.unwrappingSerializer(null);
         assertNotNull(unwrapping);
         assertNotSame(delegatingSerializer, unwrapping);
+    }
+
+    // But also real registration
+    @Test
+    void testRegisteredDelegatingSerializer()
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(new SimpleModule()
+                        .addSerializer(new DelegatingSerializer5630Impl()))
+                .build();
+        assertEquals("\"'foo'\"", mapper.writeValueAsString("foo"));
     }
 }

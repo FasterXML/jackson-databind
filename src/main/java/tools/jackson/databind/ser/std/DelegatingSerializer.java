@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import tools.jackson.core.JsonGenerator;
 
 import tools.jackson.databind.*;
@@ -44,6 +46,45 @@ public abstract class DelegatingSerializer
 
     protected abstract ValueSerializer<Object> newDelegatingInstance(ValueSerializer<?> newDelegatee);
 
+    protected final ValueSerializer<Object> _newIfChanged(ValueSerializer<?> newDelegatee) {
+        if (newDelegatee == _delegatee) {
+            return this;
+        }
+        return newDelegatingInstance(newDelegatee);
+    }
+    
+    /*
+    /**********************************************************************
+    /* Overridden "mutant factory" methods
+    /**********************************************************************
+     */
+
+    @Override
+    public ValueSerializer<Object> replaceDelegatee(ValueSerializer<?> delegatee) {
+        return _newIfChanged(delegatee);
+    }
+
+    @Override
+    public ValueSerializer<Object> unwrappingSerializer(NameTransformer unwrapper) {
+        return _newIfChanged(_delegatee.unwrappingSerializer(unwrapper));
+    }
+    
+    @Override
+    public ValueSerializer<?> withFilterId(Object filterId) {
+        return _newIfChanged(_delegatee.withFilterId(filterId));
+    }
+
+    @Override
+    public ValueSerializer<?> withFormatOverrides(SerializationConfig config,
+            JsonFormat.Value formatOverrides) {
+        return _newIfChanged(_delegatee.withFormatOverrides(config, formatOverrides));
+    }
+    
+    @Override
+    public ValueSerializer<?> withIgnoredProperties(Set<String> ignoredProperties) {
+        return _newIfChanged(_delegatee.withIgnoredProperties(ignoredProperties));
+    }
+
     /*
     /**********************************************************************
     /* Overridden methods for contextualization, resolving
@@ -58,30 +99,7 @@ public abstract class DelegatingSerializer
     @Override
     public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
     {
-        ValueSerializer<?> del = ctxt.handleSecondaryContextualization(_delegatee,
-                property);
-        if (del == _delegatee) {
-            return this;
-        }
-        return newDelegatingInstance(del);
-    }
-
-    @Override
-    public ValueSerializer<Object> unwrappingSerializer(NameTransformer unwrapper) {
-        ValueSerializer<?> unwrapping = _delegatee.unwrappingSerializer(unwrapper);
-        if (unwrapping == _delegatee) {
-            return this;
-        }
-        return newDelegatingInstance(unwrapping);
-    }
-
-    @Override
-    public ValueSerializer<Object> replaceDelegatee(ValueSerializer<?> delegatee)
-    {
-        if (delegatee == _delegatee) {
-            return this;
-        }
-        return newDelegatingInstance(delegatee);
+        return _newIfChanged(ctxt.handleSecondaryContextualization(_delegatee, property));
     }
 
     /*
@@ -89,6 +107,11 @@ public abstract class DelegatingSerializer
     /* Overridden serialization methods
     /**********************************************************************
      */
+
+    @Override
+    public boolean isEmpty(SerializationContext ctxt, Object value) {
+        return _delegatee.isEmpty(ctxt, value);
+    }
 
     @Override
     public void serialize(Object value, JsonGenerator gen, SerializationContext ctxt) {
@@ -103,20 +126,10 @@ public abstract class DelegatingSerializer
 
     /*
     /**********************************************************************
-    /* Overridden other methods
+    /* Overridden accessors
     /**********************************************************************
      */
-
-    @Override
-    public ValueSerializer<?> withFilterId(Object filterId) {
-        return _delegatee.withFilterId(filterId);
-    }
-
-    @Override
-    public ValueSerializer<?> withIgnoredProperties(Set<String> ignoredProperties) {
-        return _delegatee.withIgnoredProperties(ignoredProperties);
-    }
-
+    
     @Override
     public Class<?> handledType() { return _delegatee.handledType(); }
 
@@ -131,9 +144,6 @@ public abstract class DelegatingSerializer
 
     @Override
     public Iterator<PropertyWriter> properties() { return _delegatee.properties(); }
-
-    @Override
-    public boolean isEmpty(SerializationContext ctxt, Object value) { return _delegatee.isEmpty(ctxt, value); }
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType type) {

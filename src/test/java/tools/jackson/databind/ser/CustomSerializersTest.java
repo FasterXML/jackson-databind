@@ -1,6 +1,5 @@
 package tools.jackson.databind.ser;
 
-import java.io.StringWriter;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
@@ -485,6 +484,16 @@ public class CustomSerializersTest extends DatabindTestUtil
         assertEquals(delegatingSerializer.isUnwrappingSerializer(), delegatee.isUnwrappingSerializer());
         Iterator<?> it = delegatingSerializer.properties();
         assertFalse(it.hasNext());
+
+        assertFalse(delegatingSerializer.isEmpty(null, "foo"));
+        
+        // No changes when trying to change filter id (with our custom impl)
+        assertSame(delegatingSerializer, delegatingSerializer.withFilterId("abc"));
+        assertSame(delegatingSerializer,
+                delegatingSerializer.withIgnoredProperties(Collections.emptySet()));
+        assertSame(delegatingSerializer,
+                delegatingSerializer.withFormatOverrides(null, JsonFormat.Value.empty()));
+
         // No change if attempting to "replace" with same instance
         assertSame(delegatingSerializer, delegatingSerializer.replaceDelegatee(delegatee));
         // but is if not

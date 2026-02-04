@@ -21,7 +21,6 @@ import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 @SuppressWarnings("resource")
 public class TokenBufferTest extends DatabindTestUtil

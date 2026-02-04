@@ -11,7 +11,6 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * Simple tests to verify that the {@link TypeFactory} constructs

@@ -20,11 +20,9 @@ import java.time.*;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.*;
 import tools.jackson.databind.ext.javatime.DateTimeParseException;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
-import tools.jackson.databind.exc.MismatchedInputException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -97,7 +95,7 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
         try {
             r.readValue("\"2025-02-30T12:00:00\"");
             fail("Should not pass with invalid date string");
-        } catch (JacksonException e) {
+        } catch (DatabindException e) {
             // Expected
             assertNotNull(e.getCause());
             assertTrue(e.getCause() instanceof java.time.DateTimeException);
@@ -150,7 +148,7 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
         try {
             r.readValue("\"2025-02-30\"");
             fail("Should not pass with invalid date string");
-        } catch (JacksonException e) {
+        } catch (DatabindException e) {
             // Expected
             assertNotNull(e.getCause());
             assertTrue(e.getCause() instanceof java.time.DateTimeException);
@@ -202,7 +200,7 @@ public class DateTimeExceptionHandlingTest extends DateTimeTestBase
         try {
             r.readValue("\"12:69:00\"");
             fail("Should not pass with invalid minute string");
-        } catch (JacksonException e) {
+        } catch (DatabindException e) {
             // Expected
             assertNotNull(e.getCause());
             assertTrue(e.getCause() instanceof java.time.DateTimeException);

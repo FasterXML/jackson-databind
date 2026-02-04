@@ -24,7 +24,6 @@ import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static tools.jackson.databind.ext.javatime.deser.InstantDeserializer.ISO8601_COLONLESS_OFFSET_REGEX;
 
 public class InstantDeserTest extends DateTimeTestBase

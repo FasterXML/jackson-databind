@@ -25,7 +25,6 @@ import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class OffsetDateTimeDeserTest
     extends DateTimeTestBase

@@ -44,7 +44,6 @@ import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class LocalDateTimeDeserTest
     extends DateTimeTestBase

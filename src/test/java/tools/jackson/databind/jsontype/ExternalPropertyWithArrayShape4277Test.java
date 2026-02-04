@@ -8,7 +8,6 @@ import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * Tests for issue #4277: Combining {@code @JsonFormat(shape=ARRAY)} with

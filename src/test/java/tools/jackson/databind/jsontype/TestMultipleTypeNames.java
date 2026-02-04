@@ -14,7 +14,6 @@ import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 // Tests for [databind#2761] (and [annotations#171]
 public class TestMultipleTypeNames extends DatabindTestUtil

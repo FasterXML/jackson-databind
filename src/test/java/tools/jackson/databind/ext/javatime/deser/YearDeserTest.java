@@ -33,7 +33,6 @@ import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class YearDeserTest extends DateTimeTestBase
 {

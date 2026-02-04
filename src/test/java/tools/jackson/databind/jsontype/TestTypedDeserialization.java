@@ -16,7 +16,6 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class TestTypedDeserialization
     extends DatabindTestUtil

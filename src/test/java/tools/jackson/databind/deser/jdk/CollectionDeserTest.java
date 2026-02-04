@@ -17,7 +17,6 @@ import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.module.SimpleModule;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 

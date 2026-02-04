@@ -17,7 +17,6 @@ import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 import tools.jackson.databind.util.TokenBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class TestDefaultForObject
     extends DatabindTestUtil

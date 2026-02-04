@@ -15,7 +15,6 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.DEDUCTION;
 

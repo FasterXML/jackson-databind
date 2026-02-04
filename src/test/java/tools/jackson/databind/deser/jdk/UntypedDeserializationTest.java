@@ -23,7 +23,6 @@ import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;

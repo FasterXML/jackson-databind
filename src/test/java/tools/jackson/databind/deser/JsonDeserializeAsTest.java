@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonDeserializeAs;
 import tools.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 

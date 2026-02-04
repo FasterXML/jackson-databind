@@ -11,7 +11,6 @@ import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * Unit tests related to specialized handling of "default implementation"

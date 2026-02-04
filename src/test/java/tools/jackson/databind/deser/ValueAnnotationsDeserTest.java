@@ -13,7 +13,6 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;

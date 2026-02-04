@@ -11,7 +11,6 @@ import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * Tests for [databind#4708]: DEDUCTION mode should ignore abstract classes

@@ -16,7 +16,6 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 // Tests for External type id, one that exists at same level as typed Object,
 // that is, property is not within typed object but a member of its parent.

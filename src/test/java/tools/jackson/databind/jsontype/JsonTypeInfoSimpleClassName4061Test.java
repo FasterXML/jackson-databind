@@ -13,7 +13,6 @@ import tools.jackson.databind.jsontype.impl.SimpleNameIdResolver;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * Test for <a href="https://github.com/FasterXML/jackson-databind/issues/4061">

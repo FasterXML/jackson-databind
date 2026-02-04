@@ -14,7 +14,6 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class SealedTypesWithExistingPropertyTest extends DatabindTestUtil
 {

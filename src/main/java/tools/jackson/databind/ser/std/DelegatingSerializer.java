@@ -91,8 +91,8 @@ public abstract class DelegatingSerializer
      */
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializationContext provider) {
-        _delegatee.serialize(value, gen, provider);
+    public void serialize(Object value, JsonGenerator gen, SerializationContext ctxt) {
+        _delegatee.serialize(value, gen, ctxt);
     }
 
     @Override

@@ -478,13 +478,29 @@ public class CustomSerializersTest extends DatabindTestUtil
     {
         DelegatingSerializer5630Impl delegatingSerializer = new DelegatingSerializer5630Impl();
         assertEquals(String.class, delegatingSerializer.handledType());
+        ValueSerializer<?> delegatee = delegatingSerializer.getDelegatee();
+        assertNotNull(delegatee);
+        assertEquals(delegatingSerializer.usesObjectId(), delegatee.usesObjectId());
+        assertEquals(delegatingSerializer.isUnwrappingSerializer(), delegatee.isUnwrappingSerializer());
+        Iterator<?> it = delegatingSerializer.properties();
+        assertFalse(it.hasNext());
 
         StringWriter w = new StringWriter();
         try (JsonGenerator g = MAPPER.createGenerator(w)) {
-            assertEquals(true, delegatingSerializer.isEmpty(null, ""));
+            g.writeStartArray();
+            // `null` as context ok as long as they are custom serializers...
             delegatingSerializer.serialize("foo", g, null);
+            g.writeEndArray();
+
+            assertEquals(true, delegatingSerializer.isEmpty(null, ""));
         }
-        assertEquals(q("foo"), w.toString());
+        assertEquals("[\"foo\"]", w.toString());
+        // No change if attempting to "replace" with same instance
+        assertSame(delegatingSerializer, delegatingSerializer.replaceDelegatee(delegatee));
+        // but is if not
+        assertNotSame(delegatingSerializer,
+                delegatingSerializer.replaceDelegatee(new StringSerializer5630Impl()));
+
         ValueSerializer<?> unwrapping = delegatingSerializer.unwrappingSerializer(null);
         assertNotNull(unwrapping);
         assertNotSame(delegatingSerializer, unwrapping);

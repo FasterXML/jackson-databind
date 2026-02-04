@@ -397,7 +397,7 @@ public class InstantDeserializer<T extends Temporal>
             if (shouldAdjustToContextTimezone(ctxt)) {
                 return adjust.apply(value, getZone(ctxt));
             }
-        } catch (RuntimeException e) {
+        } catch (DateTimeException e) {
             value = _handleDateTimeFormatException(ctxt, e, _formatter, string);
         }
         return value;

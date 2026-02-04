@@ -212,7 +212,7 @@ public class LocalTimeDeserializer extends JSR310DateTimeDeserializerBase<LocalT
                 }
             }
             return LocalTime.parse(string, format);
-        } catch (RuntimeException e) {
+        } catch (DateTimeException e) {
             return _handleDateTimeFormatException(ctxt, e, format, string);
         }
     }

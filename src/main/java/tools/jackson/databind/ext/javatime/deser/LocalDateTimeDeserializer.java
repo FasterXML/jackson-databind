@@ -224,7 +224,7 @@ public class LocalDateTimeDeserializer
                 }
             }
            return LocalDateTime.parse(string, _formatter);
-        } catch (RuntimeException e) {
+        } catch (DateTimeException e) {
             return _handleDateTimeFormatException(ctxt, e, format, string);
         }
     }

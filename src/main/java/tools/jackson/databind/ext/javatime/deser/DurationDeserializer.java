@@ -205,7 +205,7 @@ public class DurationDeserializer extends JSR310DeserializerBase<Duration>
 
         try {
             return Duration.parse(value);
-        } catch (RuntimeException e) {
+        } catch (DateTimeException e) {
             // null format -> "default formatter"
             return _handleDateTimeFormatException(ctxt, e, null, value);
         }

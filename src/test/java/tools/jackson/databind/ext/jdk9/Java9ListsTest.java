@@ -13,6 +13,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // for [databind#2900]
@@ -101,7 +102,7 @@ System.err.println(" final? "+type.isFinal());
         Set<?> set = Set.of("a", "b", "c");
         String actualJson = w.writeValueAsString(set);
         Set<?> output = MAPPER.readValue(actualJson, Set.class);
-        assertTrue(output instanceof Set<?>);
+        assertInstanceOf(Set.class, output);
         assertEquals(set, output);
     }
 

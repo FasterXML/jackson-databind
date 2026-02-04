@@ -224,7 +224,7 @@ public class JSOGDeserialize622Test extends DatabindTestUtil
         JSOGWrapper out = mapper.readValue(json, JSOGWrapper.class);
         assertNotNull(out);
         assertEquals(15, out.value);
-        assertTrue(out.jsog instanceof IdentifiableExampleJSOG);
+        assertInstanceOf(IdentifiableExampleJSOG.class, out.jsog);
         IdentifiableExampleJSOG jsog = (IdentifiableExampleJSOG) out.jsog;
         assertEquals(123, jsog.foo);
         assertSame(jsog, jsog.next);

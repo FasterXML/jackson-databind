@@ -376,7 +376,7 @@ public class TokenBufferTest extends DatabindTestUtil
         assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, p.nextToken());
         Object ob = p.getEmbeddedObject();
         assertNotNull(ob);
-        assertTrue(ob instanceof byte[]);
+        assertInstanceOf(byte[].class, ob);
         assertEquals(3, ((byte[]) ob).length);
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());

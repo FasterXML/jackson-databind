@@ -194,7 +194,7 @@ public class SealedTypesWithJsonTypeInfoSimpleClassName4061Test extends Databind
 
     Root root = MAPPER.readValue(jsonStr, Root.class);
 
-    assertTrue(root.child instanceof MergeChildA);
+    assertInstanceOf(MergeChildA.class, root.child);
     assertEquals("I'm child A", ((MergeChildA) root.child).name);
   }
 
@@ -207,7 +207,7 @@ public class SealedTypesWithJsonTypeInfoSimpleClassName4061Test extends Databind
 
     Root root = mapper.readValue(jsonStr, Root.class);
 
-    assertTrue(root.child instanceof MergeChildA);
+    assertInstanceOf(MergeChildA.class, root.child);
     assertEquals("I'm child A", ((MergeChildA) root.child).name);
   }
 

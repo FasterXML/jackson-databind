@@ -17,6 +17,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1196: Add opt-in error collection for deserialization
  (requested by @odrotbohm)
  (contributed by @sri-adarsh-kumar)
+#1391: Default typing adds typing info to collections even with
+  `@JsonTypeInfo(use = Id.NONE)` override
+ (reported by Jeff M)
+ (fix by @cowtowncoder, w/ Claude code)
 #1419: `JsonFormat.Shape.POJO`  does not work for `Map.Entry` via property annotation
  (fix by @cowtowncoder, w/ Claude code)
 #1497: Allow skipping `@JsonUnwrapped` values if no properties matched,
@@ -51,6 +55,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #2686: `@JsonBackReference` does not work with a builder
  (reported by @janrieke)
  (fix by @JacksonJang)
+#3188: Skip unknown `Enum` keys in `Map` deserialization
+ (requested by @matthias-mueller)
+ (fixed by Lee Jiwon)
 #3284: Backward compatibility for timezone formats of UTC Date
   serialization
  (requested by @arungitan)
@@ -157,6 +164,11 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5616: `ObjectWriter` serializes `Optional`s with subtypes incompletely
  (reported by Brandon S)
  (implemented by @cowtowncoder, w/ Claude code)
+#5621: Fix typo: MissingInjectableValueExcepion → MissingInjectableValueException
+ (implemented by Lee Jiwon)
+#5630: Add `DelegatingSerializer`
+ (contributed by Matthew L)
+ #5631: Rename `StdDelegatingSerializer` to `StdConvertingSerializer` (3.0->3.1)
 
 3.0.4 (not yet released)
 

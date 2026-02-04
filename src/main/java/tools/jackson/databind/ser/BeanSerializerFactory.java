@@ -24,7 +24,7 @@ import tools.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import tools.jackson.databind.ser.impl.UnsupportedTypeSerializer;
 import tools.jackson.databind.ser.jdk.MapEntryAsPOJOSerializer;
 import tools.jackson.databind.ser.jdk.MapSerializer;
-import tools.jackson.databind.ser.std.StdDelegatingSerializer;
+import tools.jackson.databind.ser.std.StdConvertingSerializer;
 import tools.jackson.databind.ser.std.ToEmptyObjectSerializer;
 import tools.jackson.databind.type.ReferenceType;
 import tools.jackson.databind.util.BeanUtil;
@@ -176,7 +176,7 @@ public class BeanSerializerFactory
             if ((ser == null) && !delegateType.isJavaLangObject()) {
                 ser = _createSerializer2(ctxt, beanDescRef, delegateType, formatOverrides, true);
             }
-            return new StdDelegatingSerializer(conv, delegateType, ser, null);
+            return new StdConvertingSerializer(conv, delegateType, ser, null);
         }
         // No, regular serializer
         return (ValueSerializer<Object>) _createSerializer2(ctxt, beanDescRef, type, formatOverrides, staticTyping);

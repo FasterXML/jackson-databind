@@ -18,7 +18,7 @@ import tools.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import tools.jackson.databind.ser.jdk.EnumSerializer;
 import tools.jackson.databind.ser.jdk.MapEntrySerializer;
 import tools.jackson.databind.ser.std.StdContainerSerializer;
-import tools.jackson.databind.ser.std.StdDelegatingSerializer;
+import tools.jackson.databind.ser.std.StdConvertingSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.Converter;
@@ -366,7 +366,7 @@ public abstract class BeanSerializerBase
                     // [databind#731]: Should skip if nominally java.lang.Object
                     ValueSerializer<?> ser = delegateType.isJavaLangObject() ? null
                             : ctxt.findPrimaryPropertySerializer(delegateType, prop);
-                    return new StdDelegatingSerializer(conv, delegateType, ser, prop);
+                    return new StdConvertingSerializer(conv, delegateType, ser, prop);
                 }
             }
         }

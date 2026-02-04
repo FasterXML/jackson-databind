@@ -1,11 +1,8 @@
 package tools.jackson.databind.ser;
 
-import java.io.StringWriter;
 import java.util.*;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.Test;
-import org.w3c.dom.Element;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -14,12 +11,14 @@ import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.jdk.CollectionSerializer;
 import tools.jackson.databind.ser.std.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.Converter;
+import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,18 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class CustomSerializersTest extends DatabindTestUtil
 {
-    static class ElementSerializer extends StdSerializer<Element>
-    {
-        public ElementSerializer() { super(Element.class); }
-        @Override
-        public void serialize(Element value, JsonGenerator gen, SerializationContext provider) {
-            gen.writeString("element");
-        }
-    }
-
-    @JsonSerialize(using = ElementSerializer.class)
-    public static class ElementMixin {}
-
     public static class Immutable {
         protected int x() { return 3; }
         protected int y() { return 7; }
@@ -152,6 +139,30 @@ public class CustomSerializersTest extends DatabindTestUtil
         }
     }
 
+    // Test for isEmpty() of StdConvertingSerializer
+    @JsonPropertyOrder({ "text", "other" })
+    static class ConvertingIsEmptyBean {
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        @JsonSerialize(converter = MaybeEmptyConverter.class)
+        public String text;
+
+        public String other;
+
+        public ConvertingIsEmptyBean(String t, String o) {
+            text = t;
+            other = o;
+        }
+    }
+
+    static class MaybeEmptyConverter extends StdConverter<String, String> {
+        @Override
+        public String convert(String value) {
+            if ("NULL".equals(value)) return null;
+            if ("EMPTY".equals(value)) return "";
+            return value;
+        }
+    }
+
     // [databind#2475]
     static class MyFilter2475 extends SimpleBeanPropertyFilter {
         @Override
@@ -189,11 +200,7 @@ public class CustomSerializersTest extends DatabindTestUtil
 
     // [databind#4575]
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
-    @JsonSubTypes(
-        {
-            @JsonSubTypes.Type(Sub4575.class)
-        }
-    )
+    @JsonSubTypes({ @JsonSubTypes.Type(Sub4575.class) })
     @JsonTypeName("Super")
     static class Super4575 {
         public static final Super4575 NULL = new Super4575();
@@ -202,7 +209,8 @@ public class CustomSerializersTest extends DatabindTestUtil
     @JsonTypeName("Sub")
     static class Sub4575 extends Super4575 { }
 
-    static class NullSerializer4575 extends StdDelegatingSerializer {
+    static class NullSerializer4575 extends StdConvertingSerializer
+    {
         public NullSerializer4575(Converter<Object, ?> converter, JavaType delegateType,
                 ValueSerializer<?> delegateSerializer,
                 BeanProperty prop) {
@@ -235,32 +243,55 @@ public class CustomSerializersTest extends DatabindTestUtil
         }
 
         @Override
-        protected StdDelegatingSerializer withDelegate(Converter<Object, ?> converter,
+        protected StdConvertingSerializer withDelegate(Converter<Object, ?> converter,
                 JavaType delegateType, ValueSerializer<?> delegateSerializer,
                 BeanProperty prop) {
             return new NullSerializer4575(converter, delegateType, delegateSerializer, prop);
         }
     }
 
+    // [databind#5630]: DelegatingSerializer impl
+    static class DelegatingSerializer5630Impl extends DelegatingSerializer
+    {
+        public DelegatingSerializer5630Impl() {
+            this(new QuotingStringSerializer5630Impl());
+        }
+
+        public DelegatingSerializer5630Impl(ValueSerializer<?> valueSerializer) {
+            super(valueSerializer);
+        }
+
+        @Override
+        protected ValueSerializer<Object> newDelegatingInstance(ValueSerializer<?> newDelegatee) {
+            return new DelegatingSerializer5630Impl(newDelegatee);
+        }
+    }
+
+    static class QuotingStringSerializer5630Impl extends StdSerializer<String>
+    {
+        public QuotingStringSerializer5630Impl() { super(String.class); }
+
+        @Override
+        public void serialize(String value, JsonGenerator gen, SerializationContext ctxt) {
+            gen.writeString("'"+value+"'");
+        }
+
+        @Override
+        public boolean isEmpty(SerializationContext ctxt, String value) { return value.isEmpty(); }
+
+        @Override
+        public ValueSerializer<String> unwrappingSerializer(NameTransformer unwrapper) {
+            return new QuotingStringSerializer5630Impl();
+        }
+    }
+
     /*
-    /**********************************************************
-    /* Unit tests
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-
-    @Test
-    public void testCustomization() throws Exception
-    {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .addMixIn(Element.class, ElementMixin.class)
-                .build();
-        Element element = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument().createElement("el");
-        StringWriter sw = new StringWriter();
-        mapper.writeValue(sw, element);
-        assertEquals(sw.toString(), "\"element\"");
-    }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Test
@@ -296,7 +327,7 @@ public class CustomSerializersTest extends DatabindTestUtil
     public void testDelegating() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
-        module.addSerializer(new StdDelegatingSerializer(Immutable.class,
+        module.addSerializer(new StdConvertingSerializer(Immutable.class,
                 new StdConverter<Immutable, Map<String,Integer>>() {
                     @Override
                     public Map<String, Integer> convert(Immutable value)
@@ -313,6 +344,29 @@ public class CustomSerializersTest extends DatabindTestUtil
         assertEquals("{\"x\":3,\"y\":7}", mapper.writeValueAsString(new Immutable()));
     }
 
+    // [databind#5631]
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testDelegatingWithDeprecated() throws Exception
+    {
+        SimpleModule module = new SimpleModule("test", Version.unknownVersion());
+        module.addSerializer(new StdDelegatingSerializer(Immutable.class,
+                new StdConverter<Immutable, Map<String,Integer>>() {
+                    @Override
+                    public Map<String, Integer> convert(Immutable value)
+                    {
+                        HashMap<String,Integer> map = new LinkedHashMap<String,Integer>();
+                        map.put("x", value.x());
+                        map.put("y", value.y());
+                        return map;
+                    }
+        }));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
+        assertEquals("{\"x\":3,\"y\":7}", mapper.writeValueAsString(new Immutable()));
+    }
+    
     // [databind#215]: Allow registering CharacterEscapes via ObjectWriter
     @Test
     public void testCustomEscapes() throws Exception
@@ -364,6 +418,24 @@ public class CustomSerializersTest extends DatabindTestUtil
         assertEquals(a2q("['FOO',null]"), mapper.writeValueAsString(set));
     }
 
+    // Test that StdConvertingSerializer.isEmpty() works with NON_EMPTY inclusion:
+    // converter returning null means empty, converter returning "" means empty,
+    // converter returning non-empty string means not empty.
+    @Test
+    public void testConvertingSerializerIsEmpty() throws Exception {
+        // Converted to null -> isEmpty() returns true -> property excluded
+        assertEquals(a2q("{'other':'a'}"),
+                MAPPER.writeValueAsString(new ConvertingIsEmptyBean("NULL", "a")));
+
+        // Converted to "" -> delegate isEmpty() returns true -> property excluded
+        assertEquals(a2q("{'other':'b'}"),
+                MAPPER.writeValueAsString(new ConvertingIsEmptyBean("EMPTY", "b")));
+
+        // Converted to non-empty -> isEmpty() returns false -> property included
+        assertEquals(a2q("{'text':'hello','other':'c'}"),
+                MAPPER.writeValueAsString(new ConvertingIsEmptyBean("hello", "c")));
+    }
+
     // [databind#2475]
     @Test
     public void testIssue2475() throws Exception {
@@ -398,5 +470,49 @@ public class CustomSerializersTest extends DatabindTestUtil
         assertEquals("{\"@type\":\"Super\"}", mapper.writeValueAsString(new Super4575()));
         assertEquals("{\"@type\":\"Sub\"}", mapper.writeValueAsString(new Sub4575()));
         assertEquals("null", mapper.writeValueAsString(Super4575.NULL));
+    }
+
+    // [databind#5630]: DelegatingSerializer impl
+    @Test
+    void testBasicDelegatingSerializer()
+    {
+        DelegatingSerializer5630Impl delegatingSerializer = new DelegatingSerializer5630Impl();
+        assertEquals(String.class, delegatingSerializer.handledType());
+        ValueSerializer<?> delegatee = delegatingSerializer.getDelegatee();
+        assertNotNull(delegatee);
+        assertEquals(delegatingSerializer.usesObjectId(), delegatee.usesObjectId());
+        assertEquals(delegatingSerializer.isUnwrappingSerializer(), delegatee.isUnwrappingSerializer());
+        Iterator<?> it = delegatingSerializer.properties();
+        assertFalse(it.hasNext());
+
+        assertFalse(delegatingSerializer.isEmpty(null, "foo"));
+        
+        // No changes when trying to change filter id (with our custom impl)
+        assertSame(delegatingSerializer, delegatingSerializer.withFilterId("abc"));
+        assertSame(delegatingSerializer,
+                delegatingSerializer.withIgnoredProperties(Collections.emptySet()));
+        assertSame(delegatingSerializer,
+                delegatingSerializer.withFormatOverrides(null, JsonFormat.Value.empty()));
+
+        // No change if attempting to "replace" with same instance
+        assertSame(delegatingSerializer, delegatingSerializer.replaceDelegatee(delegatee));
+        // but is if not
+        assertNotSame(delegatingSerializer,
+                delegatingSerializer.replaceDelegatee(new QuotingStringSerializer5630Impl()));
+
+        ValueSerializer<?> unwrapping = delegatingSerializer.unwrappingSerializer(null);
+        assertNotNull(unwrapping);
+        assertNotSame(delegatingSerializer, unwrapping);
+    }
+
+    // But also real registration
+    @Test
+    void testRegisteredDelegatingSerializer()
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(new SimpleModule()
+                        .addSerializer(new DelegatingSerializer5630Impl()))
+                .build();
+        assertEquals("\"'foo'\"", mapper.writeValueAsString("foo"));
     }
 }

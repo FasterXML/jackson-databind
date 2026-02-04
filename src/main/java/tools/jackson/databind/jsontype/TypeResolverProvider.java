@@ -110,6 +110,14 @@ public class TypeResolverProvider
         // As per definition of @JsonTypeInfo, check for annotation only for non-container types
         if (!baseType.isContainerType() && !baseType.isReferenceType()) {
             b = _findTypeResolver(config, accessor, baseType);
+        } else {
+            // [databind#1391]: For container/reference types, only check for @JsonTypeInfo(Id.NONE)
+            // to allow disabling of default typing (other type info settings apply to content)
+            TypeResolverBuilder<?> marker = _findTypeResolver(config, accessor, baseType);
+            if (marker == NO_RESOLVER) {
+                b = NO_RESOLVER;
+            }
+            // Otherwise b stays null to continue with default typing
         }
         // No annotation on property? Then base it on actual type (and further, default typing if need be)
         if (b == null) {
@@ -137,6 +145,14 @@ public class TypeResolverProvider
         // As per definition of @JsonTypeInfo, check for annotation only for non-container types
         if (!baseType.isContainerType() && !baseType.isReferenceType()) {
             b = _findTypeResolver(config, accessor, baseType);
+        } else {
+            // [databind#1391]: For container/reference types, only check for @JsonTypeInfo(Id.NONE)
+            // to allow disabling of default typing (other type info settings apply to content)
+            TypeResolverBuilder<?> marker = _findTypeResolver(config, accessor, baseType);
+            if (marker == NO_RESOLVER) {
+                b = NO_RESOLVER;
+            }
+            // Otherwise b stays null to continue with default typing
         }
         // No annotation on property? Then base it on actual type (and further, default typing if need be)
         if (b == null) {

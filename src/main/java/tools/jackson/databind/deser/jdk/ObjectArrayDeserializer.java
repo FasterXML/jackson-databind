@@ -273,7 +273,12 @@ public class ObjectArrayDeserializer
                 chunk = buffer.appendCompletedChunk(chunk);
                 ix = 0;
             }
-            chunk[ix++] = value;
+            try {
+                chunk[ix++] = value;
+            } catch (ArrayStoreException e) {
+                throw DatabindException.wrapWithPath(ctxt, e,
+                        new JacksonException.Reference(chunk, buffer.bufferedSize() + ix));
+            }
         }
 
         final Object[] result;
@@ -321,14 +326,27 @@ public class ObjectArrayDeserializer
                 ArrayReferring referring = new ArrayReferring(reference, _elementClass, acc);
                 reference.getRoid().appendReferring(referring);
             } catch (Exception e) {
+                // Get array for error path; if buildArray fails with ArrayStoreException,
+                // use null as reference since we're already handling an exception
+                Object[] arrayRef = null;
+                try {
+                    arrayRef = acc.buildArray();
+                } catch (ArrayStoreException ase) {
+                    // Ignore, we're already in error path
+                }
                 throw DatabindException.wrapWithPath(ctxt, e,
                         // 22-Nov-2025, tatu: Not ideal but has to do
-                        new JacksonException.Reference(acc.buildArray(), ix));
+                        new JacksonException.Reference(arrayRef, ix));
             }
             ++ix;
         }
 
-        return acc.buildArray();
+        try {
+            return acc.buildArray();
+        } catch (ArrayStoreException e) {
+            throw DatabindException.wrapWithPath(ctxt, e,
+                    new JacksonException.Reference(acc._array, ix));
+        }
     }
 
     /*
@@ -479,7 +497,12 @@ public class ObjectArrayDeserializer
             ArrayReferring referring = new ArrayReferring(reference, _elementClass, acc);
             reference.getRoid().appendReferring(referring);
         }
-        return acc.buildArray();
+        try {
+            return acc.buildArray();
+        } catch (ArrayStoreException e) {
+            throw DatabindException.wrapWithPath(ctxt, e,
+                    new JacksonException.Reference(acc._array, 0));
+        }
     }
 
     /**
@@ -545,7 +568,12 @@ public class ObjectArrayDeserializer
                 Object id, Object value) throws JacksonException {
             for (int i = 0; i < _parent._accumulator.size(); i++) {
                 if (_parent._accumulator.get(i) == this) {
-                    _parent._array[i] = value;
+                    try {
+                        _parent._array[i] = value;
+                    } catch (ArrayStoreException e) {
+                        throw DatabindException.wrapWithPath(ctxt, e,
+                                new JacksonException.Reference(_parent._array, i));
+                    }
                     return;
                 }
             }

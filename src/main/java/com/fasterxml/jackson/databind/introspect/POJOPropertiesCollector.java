@@ -1250,7 +1250,7 @@ ctor.creator()));
         // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
         implName = _checkRenameByField(implName);
         boolean ignore = ai.hasIgnoreMarker(m);
-        // 31-Jan-2026, @Copilot: [databind#5184]: Not the cleanest fix but here goes...
+        // 05-Feb-2026: [databind#5184]: Not the cleanest fix but here goes...
         // For Records, prevent "get"-prefix methods with @JsonIgnore from incorrectly
         // affecting Record component fields (and thereby Creator parameters).
         // For example, if getter method is "getValue()" with @JsonIgnore and there's a
@@ -1260,7 +1260,7 @@ ctor.creator()));
             POJOPropertyBuilder prop = props.get(implName);
             if (prop != null && prop.hasField()) {
                 // Skip adding this getter to avoid its @JsonIgnore affecting the record field
-                return;  // Early exit - don't add this getter
+                return;
             }
         }
         _property(props, implName).addGetter(m, pn, nameExplicit, visible, ignore);

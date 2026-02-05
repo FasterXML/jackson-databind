@@ -27,6 +27,7 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.StreamReadCapability;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 
 /**
  * Deserializer for Java 8 temporal {@link Year}s.
@@ -129,7 +130,16 @@ public class YearDeserializer extends JSR310DateTimeDeserializerBase<Year>
         }
     }
 
-    protected Year _fromNumber(DeserializationContext ctxt, int value) {
-        return Year.of(value);
+    protected Year _fromNumber(DeserializationContext ctxt, int value)
+        throws JacksonException
+    {
+        try {
+            return Year.of(value);
+        } catch (DateTimeException e) {
+            throw DateTimeParseException.from(ctxt.getParser(),
+                    String.format("Failed to deserialize %s from number %d: %s",
+                            Year.class.getName(), value, e.getMessage()),
+                    String.valueOf(value), Year.class, e);
+        }
     }
 }

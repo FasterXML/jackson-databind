@@ -31,6 +31,7 @@ import tools.jackson.core.StreamReadCapability;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 import tools.jackson.databind.ext.javatime.util.DurationUnitConverter;
 
@@ -139,7 +140,14 @@ public class DurationDeserializer extends JSR310DeserializerBase<Duration>
             case JsonTokenId.ID_NUMBER_FLOAT:
                 BigDecimal value = parser.getDecimalValue();
                 // [modules-java8#337] since 2.19, Duration does not need negative adjustment
-                result = DecimalUtils.extractSecondsAndNanos(value, Duration::ofSeconds, false);
+                try {
+                    result = DecimalUtils.extractSecondsAndNanos(value, Duration::ofSeconds, false);
+                } catch (DateTimeException | ArithmeticException e) {
+                    throw DateTimeParseException.from(parser,
+                            String.format("Failed to deserialize %s from decimal value %s: %s",
+                                    handledType().getName(), value, e.getMessage()),
+                            value.toString(), handledType(), e);
+                }
                 break;
             case JsonTokenId.ID_NUMBER_INT:
                 result = _fromTimestamp(context, parser.getLongValue());

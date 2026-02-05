@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 
 /**
  * Deserializer for Java 8 temporal {@link OffsetTime}s.
@@ -170,7 +171,15 @@ public class OffsetTimeDeserializer extends JSR310DateTimeDeserializerBase<Offse
                 }
             }
             if (p.currentToken() == JsonToken.VALUE_STRING) {
-                result = OffsetTime.of(hour, minute, second, partialSecond, ZoneOffset.of(p.getString()));
+                try {
+                    result = OffsetTime.of(hour, minute, second, partialSecond, ZoneOffset.of(p.getString()));
+                } catch (DateTimeException e) {
+                    throw DateTimeParseException.from(p,
+                            String.format("Failed to deserialize %s from array value [%d,%d,...]: %s",
+                                    handledType().getName(), hour, minute, e.getMessage()),
+                            String.format("[%d,%d,...]", hour, minute),
+                            handledType(), e);
+                }
                 if (p.nextToken() != JsonToken.END_ARRAY) {
                     _reportWrongToken(ctxt, JsonToken.END_ARRAY, "timezone");
                 }

@@ -36,6 +36,7 @@ import tools.jackson.core.io.NumberInput;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 
 /**
@@ -415,12 +416,19 @@ public class InstantDeserializer<T extends Temporal>
 
     protected T _fromDecimal(DeserializationContext context, BigDecimal value)
     {
-        FromDecimalArguments args =
-            DecimalUtils.extractSecondsAndNanos(value, (s, ns) -> new FromDecimalArguments(s, ns, getZone(context)),
-                    // [modules-java8#359] since 2.21, Instant.ofEpochSecond() correctly handles
-                    // negative nanoseconds, so no adjustment needed
-                    false);
-        return fromNanoseconds.apply(args);
+        try {
+            FromDecimalArguments args =
+                DecimalUtils.extractSecondsAndNanos(value, (s, ns) -> new FromDecimalArguments(s, ns, getZone(context)),
+                        // [modules-java8#359] since 2.21, Instant.ofEpochSecond() correctly handles
+                        // negative nanoseconds, so no adjustment needed
+                        false);
+            return fromNanoseconds.apply(args);
+        } catch (DateTimeException | ArithmeticException e) {
+            throw DateTimeParseException.from(context.getParser(),
+                    String.format("Failed to deserialize %s from decimal value %s: %s",
+                            handledType().getName(), value, e.getMessage()),
+                    value.toString(), handledType(), e);
+        }
     }
 
     private ZoneId getZone(DeserializationContext context)

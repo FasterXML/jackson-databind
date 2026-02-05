@@ -150,9 +150,8 @@ public abstract class ArraySerializerBase<T>
         return this;
     }
 
-    // 03-Feb-2026, tatu: [databind#3194] Removed "final" to allow sub-classes
-    //   to override (specifically `ObjectArraySerializer`)
     @Override
+    // NOTE: was `final` in 3.0, removed in 3.1
     public void serializeWithType(T value, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException

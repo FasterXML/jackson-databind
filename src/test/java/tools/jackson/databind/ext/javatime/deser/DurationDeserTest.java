@@ -21,6 +21,7 @@ import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 
@@ -121,10 +122,11 @@ public class DurationDeserTest extends DateTimeTestBase
     public void testDeserializationAsFloatEdgeCase03() throws Exception
     {
         // Duration can't go this low
-        assertThrows(ArithmeticException.class, () -> {
+        DateTimeParseException dpe = assertThrows(DateTimeParseException.class, () -> {
             READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                     .readValue(Long.MIN_VALUE + ".1");
         });
+        assertInstanceOf(ArithmeticException.class, dpe.getCause());
     }
 
     /*

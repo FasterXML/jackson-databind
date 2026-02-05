@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.OptBoolean;
 
 import tools.jackson.core.type.TypeReference;
 
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
@@ -22,6 +23,7 @@ import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class OffsetTimeDeserTest extends DateTimeTestBase
@@ -196,6 +198,26 @@ public class OffsetTimeDeserTest extends DateTimeTestBase
 
         assertNotNull(actual, "The value should not be null.");
         assertEquals(time, actual.value, "The value is not correct.");
+    }
+
+    @Test
+    public void testDeserializationBadOffset() throws Exception
+    {
+        ObjectReader reader = newMapper().readerFor(WrapperWithReadTimestampsAsNanosDisabled.class);
+        DatabindException de = assertThrows(DatabindException.class, () -> reader
+            .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+            .readValue(a2q("{'value':[9,22,0,4257,'-25:30']}")));
+        assertThat(de).hasMessageContaining("value -25 is not in the range -18 to 18");
+    }
+
+    @Test
+    public void testDeserializationCorruptOffset() throws Exception
+    {
+        ObjectReader reader = newMapper().readerFor(WrapperWithReadTimestampsAsNanosDisabled.class);
+        DatabindException de = assertThrows(DatabindException.class, () -> reader
+            .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+            .readValue(a2q("{'value':[9,22,0,4257,'corrupt-offset']}")));
+        assertThat(de).hasMessageContaining("Invalid ID for ZoneOffset, invalid format: corrupt-offset");
     }
 
     @Test

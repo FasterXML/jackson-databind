@@ -19,6 +19,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
@@ -142,7 +143,7 @@ public class InstantDeserTest extends DateTimeTestBase
     {
         // Instant can't go this low
         String input = Instant.MIN.getEpochSecond() + ".1";
-        assertThrows(DateTimeException.class, () -> READER.readValue(input));
+        assertThrows(DateTimeParseException.class, () -> READER.readValue(input));
     }
 
     /*
@@ -155,7 +156,7 @@ public class InstantDeserTest extends DateTimeTestBase
     {
         // 1ns beyond the upper-bound of Instant.
         String input = (Instant.MAX.getEpochSecond() + 1) + ".0";
-        assertThrows(DateTimeException.class, () -> READER.readValue(input));
+        assertThrows(DateTimeParseException.class, () -> READER.readValue(input));
     }
 
     @Test
@@ -163,7 +164,7 @@ public class InstantDeserTest extends DateTimeTestBase
     {
         // 1ns beyond the lower-bound of Instant.
         String input = (Instant.MIN.getEpochSecond() - 1) + ".0";
-        assertThrows(DateTimeException.class, () -> READER.readValue(input));
+        assertThrows(DateTimeParseException.class, () -> READER.readValue(input));
     }
 
     @Test

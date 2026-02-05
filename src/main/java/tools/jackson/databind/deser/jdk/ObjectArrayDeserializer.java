@@ -424,6 +424,12 @@ public class ObjectArrayDeserializer
         if (_untyped) {
             result = new Object[1];
         } else {
+            // [databind#5646] Check if value is compatible with element type to avoid ArrayStoreException
+            if (value != null && !_elementClass.isInstance(value)) {
+                throw DatabindException.from(p,
+                        String.format("Internal error: element type `%s` not compatible with actual type `%s`",
+                                _elementClass.getName(), value.getClass().getName()));
+            }
             result = (Object[]) Array.newInstance(_elementClass, 1);
         }
         result[0] = value;
@@ -515,14 +521,16 @@ public class ObjectArrayDeserializer
         }
 
         Object[] buildArray() {
+            final int size = _accumulator.size();
             if (_untyped) {
-                _array = new Object[_accumulator.size()];
+                _array = new Object[size];
             } else {
-                _array = (Object[]) Array.newInstance(_elementType, _accumulator.size());
+                _array = (Object[]) Array.newInstance(_elementType, size);
             }
-            for (int i = 0; i < _accumulator.size(); i++) {
-                if (!(_accumulator.get(i) instanceof ArrayReferring)) {
-                    _array[i] = _accumulator.get(i);
+            for (int i = 0; i < size; i++) {
+                Object value = _accumulator.get(i);
+                if (!(value instanceof ArrayReferring)) {
+                    _array[i] = value;
                 }
             }
             return _array;
@@ -543,7 +551,8 @@ public class ObjectArrayDeserializer
         @Override
         public void handleResolvedForwardReference(DeserializationContext ctxt,
                 Object id, Object value) throws JacksonException {
-            for (int i = 0; i < _parent._accumulator.size(); i++) {
+            final int size = _parent._accumulator.size();
+            for (int i = 0; i < size; i++) {
                 if (_parent._accumulator.get(i) == this) {
                     _parent._array[i] = value;
                     return;

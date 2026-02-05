@@ -273,12 +273,7 @@ public class ObjectArrayDeserializer
                 chunk = buffer.appendCompletedChunk(chunk);
                 ix = 0;
             }
-            try {
-                chunk[ix++] = value;
-            } catch (ArrayStoreException e) {
-                throw DatabindException.wrapWithPath(ctxt, e,
-                        new JacksonException.Reference(chunk, buffer.bufferedSize() + ix - 1));
-            }
+            chunk[ix++] = value;
         }
 
         final Object[] result;

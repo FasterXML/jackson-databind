@@ -211,6 +211,16 @@ public class OffsetTimeDeserTest extends DateTimeTestBase
     }
 
     @Test
+    public void testDeserializationCorruptOffset() throws Exception
+    {
+        ObjectReader reader = newMapper().readerFor(WrapperWithReadTimestampsAsNanosDisabled.class);
+        DatabindException de = assertThrows(DatabindException.class, () -> reader
+            .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+            .readValue(a2q("{'value':[9,22,0,4257,'corrupt-offset']}")));
+        assertThat(de).hasMessageContaining("Invalid ID for ZoneOffset, invalid format: corrupt-offset");
+    }
+
+    @Test
     public void testDeserializationFromString01() throws Exception
     {
         OffsetTime time = OffsetTime.of(15, 43, 0, 0, ZoneOffset.of("+0300"));

@@ -98,6 +98,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   for Record-valued properties
  (reported by @JBodkin-Amphora)
  (implemented by @cowtowncoder, w/ Claude code)
+#5223: Java Records missing type information with `DefaultTyping.NON_FINAL`
+  (add `DefaultTyping.NON_FINAL_AND_RECORDS`)
+ (requested by @cndqjacndqja)
+ (implemented by @chanwonlee)
 #5285: Generics using wildcard not correctly resolved
  (reported by @wimdeblauwe)
  (implemented by @cowtowncoder, w/ Claude code)

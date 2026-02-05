@@ -212,6 +212,11 @@ Viktor Szathmáry (@phraktle)
  (reported by Viktor S)
   [3.1.0]
 
+Lee Chan Won (@chanwonlee)
+ * Implemented #5223: Java Records missing type information with `DefaultTyping.NON_FINAL`
+  (add `DefaultTyping.NON_FINAL_AND_RECORDS`)
+  [3.1.0]
+
 Hélios Gilles (@RoiSoleil)
  * Contributed #5413: Add/support forward reference resolution for array value
   [3.1.0]

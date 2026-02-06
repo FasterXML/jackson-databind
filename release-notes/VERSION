@@ -179,6 +179,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5642: Wrap `DateTimeException` and `ArithmeticException` in new
   `DateTimeParseException` during java.time deserialization
  (implemented by @pjfanning)
+#5646: `ObjectArrayDeserializer` may throw `ArrayStoreException` for some special cases
+ (fixed by @cowtowncoder, w/ Claude code)
 
 3.0.4 (not yet released)
 

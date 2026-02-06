@@ -181,6 +181,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (implemented by @pjfanning)
 #5646: `ObjectArrayDeserializer` may throw `ArrayStoreException` for some special cases
  (fixed by @cowtowncoder, w/ Claude code)
+#5649: Wrap `LocalDate.ofEpochDay()` and `Instant.ofEpochSecond()` to throw
+  `DateTimeParseException` on invalid values
+ (implemented by @pjfanning)
 
 3.0.4 (not yet released)
 

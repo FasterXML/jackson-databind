@@ -22,6 +22,7 @@ import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 import tools.jackson.databind.json.JsonMapper;
@@ -228,7 +229,7 @@ public class LocalDateDeserTest extends DateTimeTestBase
         try {
             READER.readValue("-922337203685");
             fail("Should not pass");
-        } catch (tools.jackson.databind.ext.javatime.DateTimeParseException e) {
+        } catch (DateTimeParseException e) {
             // Verify it's a DateTimeParseException, not DateTimeException
             verifyException(e, "Failed to deserialize");
             verifyException(e, "java.time.LocalDate");
@@ -583,7 +584,7 @@ public class LocalDateDeserTest extends DateTimeTestBase
         try {
             mapper.readValue("-922337203685", LocalDate.class);
             fail("Should not pass");
-        } catch (tools.jackson.databind.ext.javatime.DateTimeParseException e) {
+        } catch (DateTimeParseException e) {
             // Verify it's a DateTimeParseException, not DateTimeException
             verifyException(e, "Failed to deserialize");
             verifyException(e, "java.time.LocalDate");

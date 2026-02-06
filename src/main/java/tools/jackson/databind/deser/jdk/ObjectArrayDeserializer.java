@@ -27,6 +27,7 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.ArrayType;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
+import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.ObjectBuffer;
 
 /**
@@ -424,11 +425,14 @@ public class ObjectArrayDeserializer
         if (_untyped) {
             result = new Object[1];
         } else {
-            // [databind#5646] Check if value is compatible with element type to avoid ArrayStoreException
+            // [databind#5646] Check if value is compatible with element type to avoid
+            // ArrayStoreException. Fail do not hide issue so we can hopefully fix it
+            // in future
             if (value != null && !_elementClass.isInstance(value)) {
                 throw DatabindException.from(p,
-                        String.format("Internal error: element type `%s` not compatible with actual type `%s`",
-                                _elementClass.getName(), value.getClass().getName()));
+                        String.format(
+"Internal error: deserialized value of type %s not assignable to expected array element type %s",
+ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
             }
             result = (Object[]) Array.newInstance(_elementClass, 1);
         }

@@ -14,7 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class ObjectArrayDeserArrayStoreExc5646Test extends DatabindTestUtil
 {
-    // [databind#5646]
+    // [databind#5646]: catch internal problem, translate to Jackson API exception
+    // (do not hide tho)
     @Test
     public void testArrayStoreExceptionInObjectArrayDeserializer() throws Exception
     {
@@ -33,8 +34,7 @@ public class ObjectArrayDeserArrayStoreExc5646Test extends DatabindTestUtil
             reader.readValue(json);
             fail("Should throw exception");
         } catch (DatabindException e) {
-            verifyException(e, "Internal error:");
-            verifyException(e, "not compatible");
+            verifyException(e, "Internal error: deserialized value of type `java.util.ArrayList`");
         }
     }
 }

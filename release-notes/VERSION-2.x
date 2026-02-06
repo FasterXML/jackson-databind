@@ -12,9 +12,14 @@ Project: jackson-databind
 
 2.21.1 (not yet released)
 
+#5184: `@JsonIgnore` on record method applied to record matching
+  field at deserialization
+ (reported by @emouty)
+ (fix backported by Joo-Hyuk K)
 #5616: `ObjectWriter` serializes Reference types (`AtomicReference`,
   `Optional`) containing subtypes incompletely
  (reported by Brandon S)
+#5624: dup of #5184 (see above)
 
 2.21.0 (18-Jan-2026)
 

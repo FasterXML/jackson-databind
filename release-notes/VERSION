@@ -109,6 +109,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5285: Generics using wildcard not correctly resolved
  (reported by @wimdeblauwe)
  (implemented by @cowtowncoder, w/ Claude code)
+#5312: `JsonInclude.Include.NON_DEFAULT` regression for objects with `@JsonValue`
+ (reported by @LSwiatek)
+ (implemented by @cowtowncoder, w/ Claude code)
 #5350: Add `DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES` for
   selecting `null` vs "empty/absent" value when deserializing missing `Optional` value
 #5361: Fix Maven SBOM publishing (worked in 3.0.0-rc4 but not in rc5 or later)

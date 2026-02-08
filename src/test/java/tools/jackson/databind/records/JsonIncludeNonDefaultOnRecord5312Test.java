@@ -1,6 +1,5 @@
-package tools.jackson.databind.records.tofix;
+package tools.jackson.databind.records;
 
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +29,16 @@ public class JsonIncludeNonDefaultOnRecord5312Test
 
     record Pojo3(@JsonInclude(JsonInclude.Include.NON_DEFAULT) StringValue value) { }
 
+    // Record with user-added 0-arg "default" constructor
+    record Pojo4(StringValue value) {
+        Pojo4() { this(null); }
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    record Pojo5(StringValue value) {
+        Pojo5() { this(null); }
+    }
+
     private final ObjectMapper MAPPER = JsonMapper.builder()
             //might be relevant for analysis, but does not affect test outcome
             .changeDefaultPropertyInclusion(incl -> JsonInclude.Value.construct(NON_DEFAULT, NON_DEFAULT))
@@ -38,25 +47,43 @@ public class JsonIncludeNonDefaultOnRecord5312Test
 
             .build();
 
-    @JacksonTestFailureExpected
     @Test
     void testSerialization1() throws Exception {
-        //FAIL on jackson 2.18.2 / 2.20.0
         Assertions.assertEquals("{\"value\":\"\"}",
                 MAPPER.writeValueAsString(new Pojo1(new StringValue(""))));
     }
 
-    //PASS
     @Test
     void testSerialization2() throws Exception {
         Assertions.assertEquals("{\"value\":\"\"}",
                 MAPPER.writeValueAsString(new Pojo2(new StringValue(""))));
-        }
+    }
 
-    @JacksonTestFailureExpected
     @Test
     void testSerialization3() throws Exception {
-        //FAIL on jackson 2.18.2 / 2.20.0
-        Assertions.assertEquals("{\"value\":\"\"}", MAPPER.writeValueAsString(new Pojo3(new StringValue(""))));
+        Assertions.assertEquals("{\"value\":\"\"}",
+                MAPPER.writeValueAsString(new Pojo3(new StringValue(""))));
+    }
+
+    // Record with user-added 0-arg constructor, global NON_DEFAULT
+    @Test
+    void testSerializationWithDefaultCtor() throws Exception {
+        // Non-null value should be included
+        Assertions.assertEquals("{\"value\":\"\"}",
+                MAPPER.writeValueAsString(new Pojo4(new StringValue(""))));
+        // Null value should be suppressed (matches default from 0-arg ctor)
+        Assertions.assertEquals("{}",
+                MAPPER.writeValueAsString(new Pojo4(null)));
+    }
+
+    // Record with user-added 0-arg constructor, class-level NON_DEFAULT
+    @Test
+    void testSerializationWithDefaultCtorClassLevel() throws Exception {
+        // Non-null value should be included
+        Assertions.assertEquals("{\"value\":\"\"}",
+                MAPPER.writeValueAsString(new Pojo5(new StringValue(""))));
+        // Null value should be suppressed (matches default from 0-arg ctor)
+        Assertions.assertEquals("{}",
+                MAPPER.writeValueAsString(new Pojo5(null)));
     }
 }

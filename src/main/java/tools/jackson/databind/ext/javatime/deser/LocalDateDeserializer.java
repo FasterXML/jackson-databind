@@ -141,7 +141,16 @@ public class LocalDateDeserializer extends JSR310DateTimeDeserializerBase<LocalD
 
             // issue 58 - also check for NUMBER_INT, which needs to be specified when serializing.
             if (_shape == JsonFormat.Shape.NUMBER_INT || isLenient()) {
-                return LocalDate.ofEpochDay(p.getLongValue());
+                long epochDay = p.getLongValue();
+                try {
+                    return LocalDate.ofEpochDay(epochDay);
+                } catch (DateTimeException e) {
+                    throw DateTimeParseException.from(p,
+                            String.format("Failed to deserialize %s from epoch day value %d: %s",
+                                    handledType().getName(), epochDay, e.getMessage()),
+                            String.valueOf(epochDay),
+                            handledType(), e);
+                }
             }
             return _failForNotLenient(p, ctxt, JsonToken.VALUE_STRING);
         }

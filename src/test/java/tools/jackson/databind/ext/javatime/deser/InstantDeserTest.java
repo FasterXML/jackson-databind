@@ -325,6 +325,25 @@ public class InstantDeserTest extends DateTimeTestBase
         assertEquals(expected.value, actual.value);
     }
 
+    @Test
+    public void testInvalidEpochSecondValue() throws Exception
+    {
+        // Test with an invalid epoch second value that causes DateTimeException
+        // Use a value beyond Instant.MAX
+        long invalidValue = Long.MAX_VALUE;
+        
+        try {
+            READER.readValue(String.valueOf(invalidValue));
+            fail("Should not pass");
+        } catch (DateTimeParseException e) {
+            // Verify it's a DateTimeParseException, not DateTimeException
+            verifyException(e, "Failed to deserialize");
+            verifyException(e, "java.time.Instant");
+            verifyException(e, String.valueOf(invalidValue));
+            verifyException(e, "Instant exceeds minimum or maximum instant");
+        }
+    }
+
     /*
     /**********************************************************************
     /* Basic deserialization from String (ISO-8601 timestamps)

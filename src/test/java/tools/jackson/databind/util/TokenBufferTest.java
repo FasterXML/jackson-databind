@@ -3,6 +3,7 @@ package tools.jackson.databind.util;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.util.JsonParserSequence;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -889,5 +891,590 @@ public class TokenBufferTest extends DatabindTestUtil
         Map<String, String> map = MAPPER.convertValue(new Foo3816(),
                 new TypeReference<Map<String, String>>() {});
         assertNotNull(map);
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for serialize() branch coverage
+    /**********************************************************
+     */
+
+    // Cover Float branch in VALUE_NUMBER_FLOAT in serialize()
+    @Test
+    public void testSerializeWithFloatNumber() throws Exception
+    {
+        TokenBuffer buf = TokenBuffer.forGeneration();
+        buf.writeStartArray();
+        buf.writeNumber(3.14f);
+        buf.writeEndArray();
+        String json = MAPPER.writeValueAsString(buf);
+        // Float serializes as float value
+        assertEquals("[3.14]", json);
+        buf.close();
+    }
+
+    // Cover String branch in VALUE_NUMBER_FLOAT in serialize()
+    @Test
+    public void testSerializeWithStringNumber() throws Exception
+    {
+        TokenBuffer buf = TokenBuffer.forGeneration();
+        buf.writeStartArray();
+        buf.writeNumber("1.23e10");
+        buf.writeEndArray();
+        String json = MAPPER.writeValueAsString(buf);
+        assertEquals("[1.23e10]", json);
+        buf.close();
+    }
+
+    // Cover VALUE_EMBEDDED_OBJECT branches: RawValue, byte[] (embedded), JacksonSerializable
+    @Test
+    public void testSerializeEmbeddedObjectTypes() throws Exception
+    {
+        // RawValue path
+        TokenBuffer buf = TokenBuffer.forGeneration();
+        buf.writeRawValue("{\"x\":1}");
+        String json = MAPPER.writeValueAsString(buf);
+        assertEquals("{\"x\":1}", json);
+        buf.close();
+
+        // byte[] embedded object path
+        buf = TokenBuffer.forGeneration();
+        buf.writeStartArray();
+        byte[] data = new byte[] { 1, 2, 3 };
+        buf.writeEmbeddedObject(data);
+        buf.writeEndArray();
+        // Embedded byte arrays are serialized as base64
+        json = MAPPER.writeValueAsString(buf);
+        assertNotNull(json);
+        buf.close();
+    }
+
+    // Cover native IDs branches in serialize()
+    @Test
+    public void testSerializeWithNativeIds() throws Exception
+    {
+        // Use TokenBuffer with native IDs enabled
+        TokenBuffer buf = new TokenBuffer(null, true);
+        buf.writeStartObject();
+        // Write typeId and objectId before a value
+        buf.writeTypeId("myType");
+        buf.writeObjectId("myObjId");
+        buf.writeName("field");
+        buf.writeString("value");
+        buf.writeEndObject();
+
+        // Serialize to another TokenBuffer (which supports native IDs too)
+        TokenBuffer target = new TokenBuffer(null, true);
+        buf.serialize(target);
+        target.close();
+        buf.close();
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for toString() branch coverage
+    /**********************************************************
+     */
+
+    // Cover toString() truncation branch (>100 tokens)
+    @Test
+    public void testToStringWithManyTokens() throws Exception
+    {
+        TokenBuffer buf = TokenBuffer.forGeneration();
+        buf.writeStartArray();
+        // Write >100 tokens to trigger truncation
+        for (int i = 0; i < 110; i++) {
+            buf.writeNumber(i);
+        }
+        buf.writeEndArray();
+        String desc = buf.toString();
+        assertNotNull(desc);
+        assertTrue(desc.contains("... (truncated"));
+        buf.close();
+    }
+
+    // Cover _appendNativeIds() in toString()
+    @Test
+    public void testToStringWithNativeIds() throws Exception
+    {
+        TokenBuffer buf = new TokenBuffer(null, true);
+        buf.writeTypeId("typeA");
+        buf.writeObjectId("objB");
+        buf.writeStartObject();
+        buf.writeEndObject();
+        String desc = buf.toString();
+        assertNotNull(desc);
+        buf.close();
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for writeString(null), writeRawValue, writePOJO/writeTree nulls
+    /**********************************************************
+     */
+
+    // Cover writeString(String null) -> writeNull() branch
+    @Test
+    public void testWriteNullStrings() throws Exception
+    {
+        // String null
+        try (TokenBuffer buf = TokenBuffer.forGeneration()) {
+            buf.writeString((String) null);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NULL, p.nextToken());
+            }
+        }
+
+        // SerializableString null
+        try (TokenBuffer buf = TokenBuffer.forGeneration()) {
+            buf.writeString((SerializableString) null);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NULL, p.nextToken());
+            }
+        }
+    }
+
+    // Cover writeRawValue(String, offset, len) substring branch
+    @Test
+    public void testWriteRawValueWithOffsetAndLen() throws Exception
+    {
+        // String variant with offset > 0
+        try (TokenBuffer buf = TokenBuffer.forGeneration()) {
+            buf.writeRawValue("xxxABCyyy", 3, 3);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, p.nextToken());
+                Object embedded = p.getEmbeddedObject();
+                assertInstanceOf(RawValue.class, embedded);
+            }
+        }
+
+        // char[] variant
+        try (TokenBuffer buf = TokenBuffer.forGeneration()) {
+            char[] chars = "Hello World!".toCharArray();
+            buf.writeRawValue(chars, 6, 5);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, p.nextToken());
+                // char[] variant stores as a String, not RawValue
+                Object embedded = p.getEmbeddedObject();
+                assertInstanceOf(String.class, embedded);
+                assertEquals("World", embedded);
+            }
+        }
+    }
+
+    // Cover writePOJO(null) -> writeNull() branch
+    @Test
+    public void testWritePOJONull() throws Exception
+    {
+        try (TokenBuffer buf = TokenBuffer.forGeneration()) {
+            buf.writePOJO(null);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NULL, p.nextToken());
+            }
+        }
+    }
+
+    // Cover writePOJO without objectWriteContext -> VALUE_EMBEDDED_OBJECT
+    @Test
+    public void testWritePOJOWithoutWriteContext() throws Exception
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            Point pojo = new Point(1, 2);
+            buf.writePOJO(pojo);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, p.nextToken());
+                assertSame(pojo, p.getEmbeddedObject());
+            }
+        }
+    }
+
+    // Cover writeTree(null) -> writeNull() branch
+    @Test
+    public void testWriteTreeNull() throws Exception
+    {
+        try (TokenBuffer buf = TokenBuffer.forGeneration()) {
+            buf.writeTree(null);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NULL, p.nextToken());
+            }
+        }
+    }
+
+    // Cover writeTree without objectWriteContext -> VALUE_EMBEDDED_OBJECT
+    @Test
+    public void testWriteTreeWithoutWriteContext() throws Exception
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            ObjectNode node = MAPPER.createObjectNode();
+            node.put("x", 42);
+            buf.writeTree(node);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, p.nextToken());
+                assertSame(node, p.getEmbeddedObject());
+            }
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for Parser: _convertNumberToInt / _convertNumberToLong
+    /**********************************************************
+     */
+
+    // Double -> int conversion (in range)
+    @Test
+    public void testConvertDoubleToInt() throws Exception
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(42.0);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(42, p.getIntValue());
+            }
+        }
+    }
+
+    // Double -> int overflow
+    @Test
+    public void testConvertDoubleToIntOverflow() throws Exception
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(1e20);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertThrows(InputCoercionException.class, p::getIntValue);
+            }
+        }
+    }
+
+    // BigDecimal -> int conversion (in range)
+    @Test
+    public void testConvertBigDecimalToInt() throws Exception
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(BigDecimal.valueOf(99));
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(99, p.getIntValue());
+            }
+        }
+    }
+
+    // BigDecimal -> int overflow
+    @Test
+    public void testConvertBigDecimalToIntOverflow() throws Exception
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(new BigDecimal("99999999999"));
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertThrows(InputCoercionException.class, p::getIntValue);
+            }
+        }
+    }
+
+    // BigInteger in-range -> int
+    @Test
+    public void testConvertBigIntegerToInt() throws Exception
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(BigInteger.valueOf(77));
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(77, p.getIntValue());
+            }
+        }
+    }
+
+    // Double -> long conversion (in range)
+    @Test
+    public void testConvertDoubleToLong() throws Exception
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(123456.0);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(123456L, p.getLongValue());
+            }
+        }
+    }
+
+    // Double -> long overflow
+    @Test
+    public void testConvertDoubleToLongOverflow() throws Exception
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(1e30);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertThrows(InputCoercionException.class, p::getLongValue);
+            }
+        }
+    }
+
+    // BigDecimal -> long conversion (in range)
+    @Test
+    public void testConvertBigDecimalToLong() throws Exception
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(BigDecimal.valueOf(1234567890L));
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(1234567890L, p.getLongValue());
+            }
+        }
+    }
+
+    // BigDecimal -> long overflow
+    @Test
+    public void testConvertBigDecimalToLongOverflow() throws Exception
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(new BigDecimal("99999999999999999999"));
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertThrows(InputCoercionException.class, p::getLongValue);
+            }
+        }
+    }
+
+    // Float -> int conversion (in range)
+    @Test
+    public void testConvertFloatToInt() throws Exception
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(7.0f);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(7, p.getIntValue());
+            }
+        }
+    }
+
+    // Float -> long conversion (in range)
+    @Test
+    public void testConvertFloatToLong() throws Exception
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(42.0f);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(42L, p.getLongValue());
+            }
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for Parser: getDecimalValue, getNumberType, getBinaryValue
+    /**********************************************************
+     */
+
+    // Cover getDecimalValue from Integer, Long, BigInteger, Double/Float
+    @Test
+    public void testGetDecimalValueFromVariousTypes() throws Exception
+    {
+        // From Integer
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(42);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(new BigDecimal(42), p.getDecimalValue());
+            }
+        }
+
+        // From Long
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(123456789012L);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(BigDecimal.valueOf(123456789012L), p.getDecimalValue());
+            }
+        }
+
+        // From BigInteger
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            BigInteger bi = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
+            buf.writeNumber(bi);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(new BigDecimal(bi), p.getDecimalValue());
+            }
+        }
+
+        // From Double (falls through to doubleValue() path)
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(3.14);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(BigDecimal.valueOf(3.14), p.getDecimalValue());
+            }
+        }
+
+        // From Float (falls through to doubleValue() path)
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(2.5f);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                BigDecimal result = p.getDecimalValue();
+                assertNotNull(result);
+            }
+        }
+    }
+
+    // Cover getNumberType for Short and Float, and null _currToken case
+    @Test
+    public void testGetNumberTypeForAllTypes() throws Exception
+    {
+        // Short -> returns INT
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber((short) 5);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(NumberType.INT, p.getNumberType());
+            }
+        }
+
+        // Float -> returns FLOAT
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(1.5f);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(NumberType.FLOAT, p.getNumberType());
+            }
+        }
+
+        // Before calling nextToken, _currToken is null -> returns null
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(1);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                // Don't call nextToken — _currToken is null
+                assertNull(p.getNumberType());
+            }
+        }
+
+        // String-based number as VALUE_NUMBER_FLOAT -> BIG_DECIMAL
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber("123.45");
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(NumberType.BIG_DECIMAL, p.getNumberType());
+            }
+        }
+
+        // String-based number as VALUE_NUMBER_INT -> BIG_INTEGER
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber("12345", true);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(NumberType.BIG_INTEGER, p.getNumberType());
+            }
+        }
+    }
+
+    // Cover getBinaryValue from VALUE_STRING (base64 decode path)
+    @Test
+    public void testGetBinaryValueFromString() throws Exception
+    {
+        byte[] original = new byte[] { 10, 20, 30, 40, 50 };
+        String base64 = Base64.getEncoder().encodeToString(original);
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeString(base64);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_STRING, p.nextToken());
+                byte[] result = p.getBinaryValue();
+                assertNotNull(result);
+                assertArrayEquals(original, result);
+            }
+        }
+    }
+
+    // Cover getBinaryValue from VALUE_EMBEDDED_OBJECT with byte[]
+    @Test
+    public void testGetBinaryValueFromEmbeddedByteArray() throws Exception
+    {
+        byte[] data = new byte[] { 1, 2, 3 };
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeEmbeddedObject(data);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, p.nextToken());
+                byte[] result = p.getBinaryValue();
+                assertArrayEquals(data, result);
+            }
+        }
+    }
+
+    // Cover getBinaryValue called twice (exercises _byteBuilder reuse/reset path)
+    @Test
+    public void testGetBinaryValueReuse() throws Exception
+    {
+        byte[] original1 = new byte[] { 1, 2, 3 };
+        byte[] original2 = new byte[] { 4, 5, 6, 7 };
+        String base64_1 = Base64.getEncoder().encodeToString(original1);
+        String base64_2 = Base64.getEncoder().encodeToString(original2);
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeString(base64_1);
+            buf.writeString(base64_2);
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_STRING, p.nextToken());
+                assertArrayEquals(original1, p.getBinaryValue());
+                // Second call exercises the _byteBuilder.reset() path
+                assertToken(JsonToken.VALUE_STRING, p.nextToken());
+                assertArrayEquals(original2, p.getBinaryValue());
+            }
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for Segment overflow / multi-segment coverage
+    /**********************************************************
+     */
+
+    // Writing >16 tokens triggers segment overflow (new segment allocation)
+    @Test
+    public void testSegmentOverflow() throws Exception
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeStartArray();
+            // Write exactly 20 values (plus START_ARRAY = 21 tokens, exceeding 16-token segment)
+            for (int i = 0; i < 20; i++) {
+                buf.writeNumber(i);
+            }
+            buf.writeEndArray();
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
+                for (int i = 0; i < 20; i++) {
+                    assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                    assertEquals(i, p.getIntValue());
+                }
+                assertToken(JsonToken.END_ARRAY, p.nextToken());
+                assertNull(p.nextToken());
+            }
+        }
+    }
+
+    // Segment overflow with native IDs exercises Segment.assignNativeIds across segments
+    @Test
+    public void testSegmentOverflowWithNativeIds() throws Exception
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, true)) {
+            buf.writeStartArray();
+            for (int i = 0; i < 20; i++) {
+                buf.writeTypeId("type" + i);
+                buf.writeNumber(i);
+            }
+            buf.writeEndArray();
+            // Verify tokens can be read back
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
+                for (int i = 0; i < 20; i++) {
+                    assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                    assertEquals(i, p.getIntValue());
+                }
+                assertToken(JsonToken.END_ARRAY, p.nextToken());
+                assertNull(p.nextToken());
+            }
+        }
     }
 }

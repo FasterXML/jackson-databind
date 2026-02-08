@@ -405,13 +405,20 @@ public class InstantDeserializer<T extends Temporal>
 
     protected T _fromLong(DeserializationContext context, long timestamp)
     {
-        if(shouldReadTimestampsAsNanoseconds(context)){
-            return fromNanoseconds.apply(new FromDecimalArguments(
-                    timestamp, 0, this.getZone(context)
-            ));
+        try {
+            if(shouldReadTimestampsAsNanoseconds(context)){
+                return fromNanoseconds.apply(new FromDecimalArguments(
+                        timestamp, 0, this.getZone(context)
+                ));
+            }
+            return fromMilliseconds.apply(new FromIntegerArguments(
+                    timestamp, this.getZone(context)));
+        } catch (DateTimeException e) {
+            throw DateTimeParseException.from(context.getParser(),
+                    String.format("Failed to deserialize %s from timestamp value %d: %s",
+                            handledType().getName(), timestamp, e.getMessage()),
+                    String.valueOf(timestamp), handledType(), e);
         }
-        return fromMilliseconds.apply(new FromIntegerArguments(
-                timestamp, this.getZone(context)));
     }
 
     protected T _fromDecimal(DeserializationContext context, BigDecimal value)

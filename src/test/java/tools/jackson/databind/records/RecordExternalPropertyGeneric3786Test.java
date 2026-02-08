@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 // EXTERNAL_PROPERTY fails for boxed built-ins because type information is missing
 public class RecordExternalPropertyGeneric3786Test extends DatabindTestUtil
 {
-    public record Container<T>(
+    record Container3786<T>(
         int id,
         @JsonTypeInfo(
             use = JsonTypeInfo.Id.CLASS,
@@ -26,7 +26,7 @@ public class RecordExternalPropertyGeneric3786Test extends DatabindTestUtil
         T value
     ) { }
 
-    public record MyObject(
+    record MyObject3786(
         String foo,
         String bar
     ) { }
@@ -38,12 +38,12 @@ public class RecordExternalPropertyGeneric3786Test extends DatabindTestUtil
 
     // This case works: custom object has type info written
     @Test
-    public void testCustomObjectRoundTrip() throws Exception {
-        Container<MyObject> myContainer = new Container<>(1, new MyObject("foo", "bar"));
+    public void testCustomObjectRoundTrip() {
+        Container3786<MyObject3786> myContainer = new Container3786<>(1, new MyObject3786("foo", "bar"));
         String json = MAPPER.writeValueAsString(myContainer);
 
         // Should include type property for custom object
-        Container<?> result = MAPPER.readValue(json, new TypeReference<Container<?>>() { });
+        Container3786<?> result = MAPPER.readValue(json, new TypeReference<Container3786<?>>() { });
         assertNotNull(result);
         assertEquals(1, result.id());
         assertNotNull(result.value());
@@ -52,12 +52,12 @@ public class RecordExternalPropertyGeneric3786Test extends DatabindTestUtil
     // This case fails: String value has no type info written,
     // but deserialization requires it
     @Test
-    public void testStringValueRoundTrip() throws Exception {
-        Container<String> strContainer = new Container<>(1, "Hello");
+    public void testStringValueRoundTrip() {
+        Container3786<String> strContainer = new Container3786<>(1, "Hello");
         String json = MAPPER.writeValueAsString(strContainer);
 
         // JSON will be {"id":1,"value":"Hello"} -- no "type" property
-        Container<?> result = MAPPER.readValue(json, new TypeReference<Container<?>>() { });
+        Container3786<?> result = MAPPER.readValue(json, new TypeReference<Container3786<?>>() { });
         assertNotNull(result);
         assertEquals(1, result.id());
         assertEquals("Hello", result.value());
@@ -65,11 +65,11 @@ public class RecordExternalPropertyGeneric3786Test extends DatabindTestUtil
 
     // Also test with Integer value
     @Test
-    public void testIntegerValueRoundTrip() throws Exception {
-        Container<Integer> intContainer = new Container<>(1, 42);
+    public void testIntegerValueRoundTrip() {
+        Container3786<Integer> intContainer = new Container3786<>(1, 42);
         String json = MAPPER.writeValueAsString(intContainer);
 
-        Container<?> result = MAPPER.readValue(json, new TypeReference<Container<?>>() { });
+        Container3786<?> result = MAPPER.readValue(json, new TypeReference<Container3786<?>>() { });
         assertNotNull(result);
         assertEquals(1, result.id());
         assertEquals(42, result.value());
@@ -77,11 +77,11 @@ public class RecordExternalPropertyGeneric3786Test extends DatabindTestUtil
 
     // Also test with Boolean value
     @Test
-    public void testBooleanValueRoundTrip() throws Exception {
-        Container<Boolean> boolContainer = new Container<>(1, true);
+    public void testBooleanValueRoundTrip() {
+        Container3786<Boolean> boolContainer = new Container3786<>(1, true);
         String json = MAPPER.writeValueAsString(boolContainer);
 
-        Container<?> result = MAPPER.readValue(json, new TypeReference<Container<?>>() { });
+        Container3786<?> result = MAPPER.readValue(json, new TypeReference<Container3786<?>>() { });
         assertNotNull(result);
         assertEquals(1, result.id());
         assertEquals(true, result.value());

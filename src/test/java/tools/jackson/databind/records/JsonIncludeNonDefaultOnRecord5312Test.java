@@ -1,6 +1,5 @@
-package tools.jackson.databind.records.tofix;
+package tools.jackson.databind.records;
 
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -38,25 +37,21 @@ public class JsonIncludeNonDefaultOnRecord5312Test
 
             .build();
 
-    @JacksonTestFailureExpected
     @Test
     void testSerialization1() throws Exception {
-        //FAIL on jackson 2.18.2 / 2.20.0
         Assertions.assertEquals("{\"value\":\"\"}",
                 MAPPER.writeValueAsString(new Pojo1(new StringValue(""))));
     }
 
-    //PASS
     @Test
     void testSerialization2() throws Exception {
         Assertions.assertEquals("{\"value\":\"\"}",
                 MAPPER.writeValueAsString(new Pojo2(new StringValue(""))));
-        }
+    }
 
-    @JacksonTestFailureExpected
     @Test
     void testSerialization3() throws Exception {
-        //FAIL on jackson 2.18.2 / 2.20.0
-        Assertions.assertEquals("{\"value\":\"\"}", MAPPER.writeValueAsString(new Pojo3(new StringValue(""))));
+        Assertions.assertEquals("{\"value\":\"\"}",
+                MAPPER.writeValueAsString(new Pojo3(new StringValue(""))));
     }
 }

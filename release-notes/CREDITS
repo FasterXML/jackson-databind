@@ -6,7 +6,7 @@ databind core component, version 3.x
 
 Author: Tatu Saloranta, tatu.saloranta@iki.fi: author
 
-Co-Authors (with only partial listings below):
+Co-Authors (with no / partial listings below):
 
 * Joo Hyuk Kim (@JooHyukKim)
 * PJ Fanning (@pjfanning)
@@ -210,6 +210,11 @@ James Mudd (@jamesmudd)
 Viktor Szathmáry (@phraktle)
  * Reported #5115: `@JsonUnwrapped` Record deserialization can't handle name collision
  (reported by Viktor S)
+  [3.1.0]
+
+Lee Chan Won (@chanwonlee)
+ * Implemented #5223: Java Records missing type information with `DefaultTyping.NON_FINAL`
+  (add `DefaultTyping.NON_FINAL_AND_RECORDS`)
   [3.1.0]
 
 Hélios Gilles (@RoiSoleil)

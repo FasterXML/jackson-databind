@@ -1538,9 +1538,36 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         if (paramCount == 0) {
             newBindings = EMPTY_BINDINGS;
         } else {
+            boolean anyWildcards = false;
+
             JavaType[] pt = new JavaType[paramCount];
             for (int i = 0; i < paramCount; ++i) {
-                pt[i] = _fromAny(context, args[i], parentBindings);
+                if (args[i] instanceof WildcardType wt) {
+                    anyWildcards = true;
+                    // [databind#5285] Resolve wildcards using best available bound:
+                    // use the type variable's declared upper bound when the wildcard
+                    // itself is unbounded and the variable has a non-Object bound.
+                    // Self-referential parameters excluded (handled below, [databind#4118]).
+                    Type effectiveBound = wt.getUpperBounds()[0];
+                    if (effectiveBound == Object.class) {
+                        Type[] lowerBounds = wt.getLowerBounds();
+                        if (lowerBounds == null || lowerBounds.length == 0) {
+                            TypeVariable<? extends Class<?>> typeVar = rawType.getTypeParameters()[i];
+                            if (!_isSelfReferentialTypeParameter(typeVar, rawType)) {
+                                final Type[] varBounds;
+                                synchronized (typeVar) {
+                                    varBounds = typeVar.getBounds();
+                                }
+                                if (varBounds.length > 0 && varBounds[0] != Object.class) {
+                                    effectiveBound = varBounds[0];
+                                }
+                            }
+                        }
+                    }
+                    pt[i] = _fromAny(context, effectiveBound, parentBindings);
+                } else {
+                    pt[i] = _fromAny(context, args[i], parentBindings);
+                }
             }
             newBindings = TypeBindings.create(rawType, pt);
 
@@ -1548,14 +1575,16 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             // to allow deserializers to use the class definition's bounds instead of Object.
             // [databind#4147] Only unbind for self-referential parameters to avoid
             // breaking multi-parameter types like Either<L, R> where only some are wildcards.
-            for (int i = 0; i < paramCount; ++i) {
-                if (args[i] instanceof WildcardType && !pt[i].hasGenericTypes()) {
-                    TypeVariable<? extends Class<?>> typeVariable = rawType.getTypeParameters()[i];
-
-                    // Only unbind if this is a (direct) self-referential type parameter
-                    if (_isSelfReferentialTypeParameter(typeVariable, rawType)) {
-                        if (pt[i].getRawClass().isAssignableFrom(rawClass(typeVariable))) {
-                            newBindings = newBindings.withoutVariable(typeVariable.getName());
+            if (anyWildcards) {
+                for (int i = 0; i < paramCount; ++i) {
+                    if (args[i] instanceof WildcardType && !pt[i].hasGenericTypes()) {
+                        TypeVariable<? extends Class<?>> typeVariable = rawType.getTypeParameters()[i];
+    
+                        // Only unbind if this is a (direct) self-referential type parameter
+                        if (_isSelfReferentialTypeParameter(typeVariable, rawType)) {
+                            if (pt[i].getRawClass().isAssignableFrom(rawClass(typeVariable))) {
+                                newBindings = newBindings.withoutVariable(typeVariable.getName());
+                            }
                         }
                     }
                 }

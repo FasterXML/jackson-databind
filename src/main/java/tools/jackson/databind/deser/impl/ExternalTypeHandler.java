@@ -277,7 +277,24 @@ public class ExternalTypeHandler
                     ) {
                     continue;
                 }
-                // but not just one
+                // [databind#3786]: Need to mind natural types, for which no type id
+                // will be included.
+                JsonToken t = tb.firstToken();
+                if (t.isScalarValue()) {
+                    JsonParser buffered = tb.asParser(ctxt, p);
+                    buffered.nextToken();
+                    SettableBeanProperty prop = extProp.getProperty();
+                    Object result = TypeDeserializer.deserializeIfNatural(buffered, ctxt, prop.getType());
+                    if (result != null) {
+                        values[i] = result;
+                        // Unlike bean-based complete(), creator-based needs
+                        // to assign parameter to buffer before continuing
+                        if (prop.isCreatorProperty()) {
+                            buffer.assignParameter(prop, result);
+                        }
+                        continue;
+                    }
+                }
                 // 26-Oct-2012, tatu: As per [databind#94], must allow use of 'defaultImpl'
                 if (!extProp.hasDefaultType()) {
                     ctxt.reportPropertyInputMismatch(_beanType, extProp.getProperty().getName(),

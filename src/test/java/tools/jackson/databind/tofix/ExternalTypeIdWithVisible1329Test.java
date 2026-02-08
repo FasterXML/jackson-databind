@@ -106,7 +106,7 @@ public class ExternalTypeIdWithVisible1329Test extends DatabindTestUtil
         // The "kind" field is populated normally as it's a regular property
         assertEquals(InviteKind.CONTACT, result.kind);
         assertNotNull(result.to);
-        assertTrue(result.to instanceof InviteToContact);
+        assertInstanceOf(InviteToContact.class, result.to);
         assertEquals("Foo", result.to.name);
 
         // This is the key assertion: kindForMapper should remain null
@@ -130,7 +130,7 @@ public class ExternalTypeIdWithVisible1329Test extends DatabindTestUtil
 
         assertNotNull(result);
         assertNotNull(result.to);
-        assertTrue(result.to instanceof InviteToEmail);
+        assertInstanceOf(InviteToEmail.class, result.to);
         assertEquals("Bar", result.to.name);
         assertEquals("test@example.com", ((InviteToEmail)result.to).email);
 

@@ -148,7 +148,7 @@ public class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
     public void testDeserializationWithObject() throws Exception
     {
         Inter inter = MAPPER.readerFor(Inter.class).readValue("{\"type\": \"mine\", \"blah\": [\"a\", \"b\", \"c\"]}");
-        assertTrue(inter instanceof MyInter);
+        assertInstanceOf(MyInter.class, inter);
         assertFalse(inter instanceof LegacyInter);
         assertEquals(Arrays.asList("a", "b", "c"), ((MyInter) inter).blah);
     }
@@ -157,7 +157,7 @@ public class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
     public void testDeserializationWithString() throws Exception
     {
         Inter inter = MAPPER.readerFor(Inter.class).readValue("\"a,b,c,d\"");
-        assertTrue(inter instanceof LegacyInter);
+        assertInstanceOf(LegacyInter.class, inter);
         assertEquals(Arrays.asList("a", "b", "c", "d"), ((MyInter) inter).blah);
     }
 
@@ -165,7 +165,7 @@ public class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
     public void testDeserializationWithArray() throws Exception
     {
         Inter inter = MAPPER.readerFor(Inter.class).readValue("[\"a\", \"b\", \"c\", \"d\"]");
-        assertTrue(inter instanceof LegacyInter);
+        assertInstanceOf(LegacyInter.class, inter);
         assertEquals(Arrays.asList("a", "b", "c", "d"), ((MyInter) inter).blah);
     }
 
@@ -173,7 +173,7 @@ public class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
     public void testDeserializationWithArrayOfSize2() throws Exception
     {
         Inter inter = MAPPER.readerFor(Inter.class).readValue("[\"a\", \"b\"]");
-        assertTrue(inter instanceof LegacyInter);
+        assertInstanceOf(LegacyInter.class, inter);
         assertEquals(Arrays.asList("a", "b"), ((MyInter) inter).blah);
     }
 

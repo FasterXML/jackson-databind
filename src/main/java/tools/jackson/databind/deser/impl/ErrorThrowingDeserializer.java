@@ -21,7 +21,7 @@ public class ErrorThrowingDeserializer extends ValueDeserializer<Object>
     }
 
     @Override
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt) {
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) {
         throw _cause;
     }
 }

@@ -78,6 +78,11 @@ public final class DecimalUtils
     /**
      * Factory method for constructing {@link BigDecimal} out of second, nano-second
      * components.
+     * 
+     * @param seconds Seconds component
+     * @param nanoseconds Nanoseconds component  
+     * @return BigDecimal representation
+     * @throws ArithmeticException if the calculation overflows or produces invalid results
      */
     public static BigDecimal toBigDecimal(long seconds, int nanoseconds)
     {
@@ -105,6 +110,12 @@ public final class DecimalUtils
      * values, passing them to the given converter.   The implementation avoids latency issues present
      * on some JRE releases.
      *
+     * @param <T> The return type of the converter function
+     * @param seconds The decimal seconds value to extract components from
+     * @param convert Function to convert the extracted seconds and nanoseconds into result type
+     * @param negativeAdjustment Whether to adjust negative nanoseconds
+     * @return The result of applying the converter function
+     * @throws ArithmeticException if the calculation overflows or produces invalid results
      * @since 2.19
      */
     public static <T> T extractSecondsAndNanos(BigDecimal seconds,

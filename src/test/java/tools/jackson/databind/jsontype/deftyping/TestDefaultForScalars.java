@@ -85,7 +85,7 @@ public class TestDefaultForScalars
         // and let's make sure it also comes back same way:
         Object[] result = DEFAULT_TYPING_MAPPER.readValue(json, Object[].class);
         assertEquals(1, result.length);
-        assertTrue(result[0] instanceof Calendar);
+        assertInstanceOf(Calendar.class, result[0]);
         assertEquals(ts, ((Calendar) result[0]).getTimeInMillis());
     }
 

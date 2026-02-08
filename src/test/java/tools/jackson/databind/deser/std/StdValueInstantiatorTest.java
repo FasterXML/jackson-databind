@@ -10,6 +10,7 @@ import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -173,7 +174,7 @@ public class StdValueInstantiatorTest
             MAPPER.readValue("5", D.class);
             fail("Should not pass");
         } catch (ValueInstantiationException e) {
-            assertTrue(e.getCause() instanceof IllegalArgumentException);
+            assertInstanceOf(IllegalArgumentException.class, e.getCause());
             assertEquals("boo", e.getCause().getMessage());
         }
     }
@@ -191,7 +192,7 @@ public class StdValueInstantiatorTest
             MAPPER.readValue(String.valueOf(LONG_TEST_VALUE), D.class);
             fail("Should not pass");
         } catch (ValueInstantiationException e) {
-            assertTrue(e.getCause() instanceof IllegalArgumentException);
+            assertInstanceOf(IllegalArgumentException.class, e.getCause());
             assertEquals("boo", e.getCause().getMessage());
         }
     }

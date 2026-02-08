@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 
 /**
  * Deserializer for Java 8 temporal {@link LocalDateTime}s.
@@ -135,23 +136,31 @@ public class LocalDateTimeDeserializer
                 int minute = p.nextIntValue(-1);
 
                 t = p.nextToken();
-                if (t == JsonToken.END_ARRAY) {
-                    result = LocalDateTime.of(year, month, day, hour, minute);
-                } else {
-                    int second = p.getIntValue();
-                    t = p.nextToken();
+                try {
                     if (t == JsonToken.END_ARRAY) {
-                        result = LocalDateTime.of(year, month, day, hour, minute, second);
+                        result = LocalDateTime.of(year, month, day, hour, minute);
                     } else {
-                        int partialSecond = p.getIntValue();
-                        if (partialSecond < 1_000 && !shouldReadTimestampsAsNanoseconds(ctxt))
-                            partialSecond *= 1_000_000; // value is milliseconds, convert it to nanoseconds
-                        if (p.nextToken() != JsonToken.END_ARRAY) {
-                            throw ctxt.wrongTokenException(p, handledType(), JsonToken.END_ARRAY,
-                                    "Expected array to end");
+                        int second = p.getIntValue();
+                        t = p.nextToken();
+                        if (t == JsonToken.END_ARRAY) {
+                            result = LocalDateTime.of(year, month, day, hour, minute, second);
+                        } else {
+                            int partialSecond = p.getIntValue();
+                            if (partialSecond < 1_000 && !shouldReadTimestampsAsNanoseconds(ctxt))
+                                partialSecond *= 1_000_000; // value is milliseconds, convert it to nanoseconds
+                            if (p.nextToken() != JsonToken.END_ARRAY) {
+                                throw ctxt.wrongTokenException(p, handledType(), JsonToken.END_ARRAY,
+                                        "Expected array to end");
+                            }
+                            result = LocalDateTime.of(year, month, day, hour, minute, second, partialSecond);
                         }
-                        result = LocalDateTime.of(year, month, day, hour, minute, second, partialSecond);
                     }
+                } catch (DateTimeException | ArithmeticException e) {
+                    throw DateTimeParseException.from(p,
+                            String.format("Failed to deserialize %s from array value [%d,%d,%d,%d,%d,...]: %s",
+                                    handledType().getName(), year, month, day, hour, minute, e.getMessage()),
+                            String.format("[%d,%d,%d,%d,%d,...]", year, month, day, hour, minute),
+                            handledType(), e);
                 }
             } else {
                 result = ctxt.reportInputMismatch(handledType(),

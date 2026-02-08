@@ -148,7 +148,7 @@ public class TypedContainerSerTest
         List<?> output = mapper.readValue(json, typeRef);
         assertEquals(1, output.size());
         Object ob = output.get(0);
-        assertTrue(ob instanceof List<?>);
+        assertInstanceOf(List.class, ob);
         List<?> list2 = (List<?>) ob;
         assertEquals(1, list2.size());
         ob = list2.get(0);

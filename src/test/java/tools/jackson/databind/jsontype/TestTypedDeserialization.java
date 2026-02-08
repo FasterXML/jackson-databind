@@ -180,7 +180,7 @@ public class TestTypedDeserialization
         String JSON = "{\".TestTypedDeserialization$Dog\" : "
             +asJSONObjectValueString(m, "name", "Scooby", "boneCount", "6")+" }";
         Animal a = m.readValue(JSON, Animal.class);
-        assertTrue(a instanceof Animal);
+        assertInstanceOf(Animal.class, a);
         assertEquals(Dog.class, a.getClass());
         Dog d = (Dog) a;
         assertEquals("Scooby", d.name);

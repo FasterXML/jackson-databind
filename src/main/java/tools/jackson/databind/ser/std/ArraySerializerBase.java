@@ -151,7 +151,8 @@ public abstract class ArraySerializerBase<T>
     }
 
     @Override
-    public final void serializeWithType(T value, JsonGenerator g, SerializationContext ctxt,
+    // NOTE: was `final` in 3.0, removed in 3.1
+    public void serializeWithType(T value, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {

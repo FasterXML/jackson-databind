@@ -310,7 +310,7 @@ public class BeanDeserializer
      * Pre-populates creator properties from the existing Record, then
      * overrides with values from JSON input, and constructs a new Record instance.
      *
-     * @since 2.19
+     * @since 3.1
      */
     protected Object _deserializeRecordForUpdate(JsonParser p,
             DeserializationContext ctxt, Object existingRecord)

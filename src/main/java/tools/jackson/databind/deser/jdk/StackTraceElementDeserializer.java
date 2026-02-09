@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser.jdk;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,39 +8,22 @@ import java.util.Map;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
-import tools.jackson.databind.BeanDescription;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.JavaType;
-import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.*;
+import tools.jackson.databind.deser.SettableBeanProperty;
+import tools.jackson.databind.deser.bean.BeanDeserializerBase;
+import tools.jackson.databind.deser.bean.BeanPropertyMap;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.introspect.BeanPropertyDefinition;
-import tools.jackson.databind.util.TokenBuffer;
 
 public class StackTraceElementDeserializer
     extends StdScalarDeserializer<StackTraceElement>
 {
     protected final ValueDeserializer<?> _adapterDeserializer;
 
-    /**
-     * Optional mapping from mix-in property names to standard Adapter field names.
-     * {@code null} if no mix-in name overrides are present (common case).
-     */
-    protected final Map<String, String> _propertyAliases;
-
     protected StackTraceElementDeserializer(ValueDeserializer<?> ad)
     {
         super(StackTraceElement.class);
         _adapterDeserializer = ad;
-        _propertyAliases = null;
-    }
-
-    protected StackTraceElementDeserializer(ValueDeserializer<?> ad,
-            Map<String, String> propertyAliases)
-    {
-        super(StackTraceElement.class);
-        _adapterDeserializer = ad;
-        _propertyAliases = propertyAliases;
     }
 
     public static ValueDeserializer<?> construct(DeserializationContext ctxt) {
@@ -47,35 +31,89 @@ public class StackTraceElementDeserializer
         //    matching to work
         ValueDeserializer<?> adapterDeser = ctxt.findRootValueDeserializer(ctxt.constructType(Adapter.class));
 
-        // Check for mix-in @JsonProperty name overrides on StackTraceElement
-        Map<String, String> aliases = _findPropertyAliases(ctxt);
-        if (aliases != null) {
-            return new StackTraceElementDeserializer(adapterDeser, aliases);
-        }
+        // [databind#429]: Check for mix-in @JsonProperty name overrides on
+        //   StackTraceElement and propagate as aliases to the Adapter deserializer
+        adapterDeser = _applyPropertyAliases(ctxt, adapterDeser);
+
         return new StackTraceElementDeserializer(adapterDeser);
     }
 
     /**
-     * Introspect {@code StackTraceElement} properties (including mix-ins) to find
-     * any {@code @JsonProperty} name overrides. Returns {@code null} if no overrides found.
+     * Introspects {@code StackTraceElement} properties (including mix-ins) for
+     * any {@code @JsonProperty} name overrides; if found, injects them as aliases
+     * into the Adapter's {@link BeanPropertyMap} so that renamed properties are
+     * recognized without any token-stream rewriting.
      */
-    private static Map<String, String> _findPropertyAliases(DeserializationContext ctxt) {
+    private static ValueDeserializer<?> _applyPropertyAliases(DeserializationContext ctxt,
+            ValueDeserializer<?> adapterDeser)
+    {
+        if (!(adapterDeser instanceof BeanDeserializerBase)) {
+            return adapterDeser;
+        }
+        // First: introspect StackTraceElement for name overrides (external vs internal)
+        Map<String, String> nameOverrides = _findPropertyNameOverrides(ctxt);
+        if (nameOverrides == null) {
+            return adapterDeser;
+        }
+
+        // Second: build alias defs for Adapter properties
+        BeanDeserializerBase beanDeser = (BeanDeserializerBase) adapterDeser;
+        List<SettableBeanProperty> props = new ArrayList<>();
+        beanDeser.properties().forEachRemaining(props::add);
+
+        PropertyName[][] aliasDefs = null;
+        for (int i = 0, end = props.size(); i < end; ++i) {
+            String propName = props.get(i).getName();
+            List<PropertyName> propAliases = null;
+            for (Map.Entry<String, String> entry : nameOverrides.entrySet()) {
+                if (propName.equals(entry.getValue())) {
+                    if (propAliases == null) {
+                        propAliases = new ArrayList<>();
+                    }
+                    propAliases.add(PropertyName.construct(entry.getKey()));
+                }
+            }
+            if (propAliases != null) {
+                if (aliasDefs == null) {
+                    aliasDefs = new PropertyName[props.size()][];
+                }
+                aliasDefs[i] = propAliases.toArray(new PropertyName[0]);
+            }
+        }
+        if (aliasDefs == null) {
+            return adapterDeser;
+        }
+
+        // Third: construct new BeanPropertyMap with aliases and apply
+        boolean caseInsensitive = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+        BeanPropertyMap newMap = BeanPropertyMap.construct(
+                ctxt.getConfig(), props, aliasDefs, caseInsensitive)
+                .initMatcher(ctxt.tokenStreamFactory());
+        return beanDeser.withBeanProperties(newMap);
+    }
+
+    /**
+     * Introspect {@code StackTraceElement} properties (including mix-ins) to find
+     * any {@code @JsonProperty} name overrides. Returns mapping from external
+     * (JSON) name to internal (field) name, or {@code null} if no overrides found.
+     */
+    private static Map<String, String> _findPropertyNameOverrides(DeserializationContext ctxt) {
         JavaType steType = ctxt.constructType(StackTraceElement.class);
         BeanDescription beanDesc = ctxt.introspectBeanDescription(steType);
         List<BeanPropertyDefinition> props = beanDesc.findProperties();
 
-        Map<String, String> aliases = null;
+        Map<String, String> overrides = null;
         for (BeanPropertyDefinition prop : props) {
             String externalName = prop.getName();
             String internalName = prop.getInternalName();
             if (!externalName.equals(internalName)) {
-                if (aliases == null) {
-                    aliases = new HashMap<>();
+                if (overrides == null) {
+                    overrides = new HashMap<>();
                 }
-                aliases.put(externalName, internalName);
+                overrides.put(externalName, internalName);
             }
         }
-        return aliases;
+        return overrides;
     }
 
     @Override
@@ -86,19 +124,12 @@ public class StackTraceElementDeserializer
 
         // Must get an Object
         if (t == JsonToken.START_OBJECT || t == JsonToken.PROPERTY_NAME) {
-            // If we have mix-in aliases, translate property names before
-            // feeding to the Adapter deserializer
-            JsonParser effectiveParser = p;
-            if (_propertyAliases != null) {
-                effectiveParser = _translatePropertyNames(p, ctxt);
-            }
-
             Adapter adapted;
             // 26-May-2022, tatu: for legacy use, need to do this:
             if (_adapterDeserializer == null) {
-                adapted = ctxt.readValue(effectiveParser, Adapter.class);
+                adapted = ctxt.readValue(p, Adapter.class);
             } else {
-                adapted = (Adapter) _adapterDeserializer.deserialize(effectiveParser, ctxt);
+                adapted = (Adapter) _adapterDeserializer.deserialize(p, ctxt);
             }
             return constructValue(ctxt, adapted);
         } else if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -110,35 +141,6 @@ public class StackTraceElementDeserializer
             return value;
         }
         return (StackTraceElement) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
-    }
-
-    /**
-     * Pre-process JSON token stream, translating mix-in property names
-     * to standard Adapter field names.
-     */
-    private JsonParser _translatePropertyNames(JsonParser p, DeserializationContext ctxt)
-        throws JacksonException
-    {
-        TokenBuffer buf = ctxt.bufferForInputBuffering(p);
-        // If we're at START_OBJECT, write it through
-        if (p.currentToken() == JsonToken.START_OBJECT) {
-            buf.writeStartObject();
-            p.nextToken();
-        }
-        // Process property name/value pairs
-        while (p.currentToken() == JsonToken.PROPERTY_NAME) {
-            String name = p.currentName();
-            String translated = _propertyAliases.get(name);
-            buf.writeName(translated != null ? translated : name);
-            p.nextToken();
-            buf.copyCurrentStructure(p);
-            p.nextToken();
-        }
-        // Write END_OBJECT if present
-        if (p.currentToken() == JsonToken.END_OBJECT) {
-            buf.writeEndObject();
-        }
-        return buf.asParserOnFirstToken(ctxt);
     }
 
     protected StackTraceElement constructValue(DeserializationContext ctxt,

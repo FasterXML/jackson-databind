@@ -139,6 +139,14 @@ public class RecordUpdate3079Test extends DatabindTestUtil
         IdNameRecord result = MAPPER.readerForUpdating(orig)
                 .readValue("{}");
         assertNotNull(result);
+        // NOTE: will not be same instance in this particular case, but more of an impl detail
+        assertEquals(123, result.id());
+        assertEquals("Bob", result.name());
+
+        // Similarly with `null`:
+        result = MAPPER.readerForUpdating(orig).readValue("null");
+        // NOTE: will be same instance in this particular case, but more of an impl detail
+        assertNotNull(result);
         assertEquals(123, result.id());
         assertEquals("Bob", result.name());
     }

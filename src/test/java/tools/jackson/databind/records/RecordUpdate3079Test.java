@@ -5,6 +5,7 @@ import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -156,5 +157,20 @@ public class RecordUpdate3079Test extends DatabindTestUtil
         assertEquals("Gary", result.value.name());
         assertSame(orig, result);
         assertNotSame(origRecord, result.value);
+    }
+
+    // [databind#3079]: unknown properties should be ignored when configured
+    @Test
+    public void testReaderForUpdatingRecordUnknownIgnored() throws Exception
+    {
+        ObjectMapper lenientMapper = JsonMapper.builder()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
+        IdNameRecord orig = new IdNameRecord(123, "Bob");
+        IdNameRecord result = lenientMapper.readerForUpdating(orig)
+                .readValue(a2q("{'id':137,'unknown':'value'}"));
+        assertNotNull(result);
+        assertEquals(137, result.id());
+        assertEquals("Bob", result.name());
     }
 }

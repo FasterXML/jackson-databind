@@ -1,8 +1,11 @@
 package tools.jackson.databind.records;
 
 import java.util.Collections;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
@@ -13,6 +16,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RecordUpdate3079Test extends DatabindTestUtil
 {
     public record IdNameRecord(int id, String name) { }
+
+    // Record with @JsonAnySetter that captures UPPER-CASE property names
+    public record AnySetterRecord(int id, String name,
+            @JsonAnySetter Map<String, Object> extra) { }
 
     static class IdNameWrapper {
         public IdNameRecord value;
@@ -172,5 +179,23 @@ public class RecordUpdate3079Test extends DatabindTestUtil
         assertNotNull(result);
         assertEquals(137, result.id());
         assertEquals("Bob", result.name());
+    }
+
+    // [databind#3079]: @JsonAnySetter captures UPPER-CASE property names
+    //   that map to existing lower-case properties via any-setter Map
+    @Test
+    public void testReaderForUpdatingRecordWithAnySetter() throws Exception
+    {
+        AnySetterRecord orig = new AnySetterRecord(123, "Bob",
+                Map.of("ID", 999, "NAME", "Old"));
+        AnySetterRecord result = MAPPER.readerForUpdating(orig)
+                .readValue(a2q("{'ID':456,'NAME':'Gary'}"));
+        assertNotNull(result);
+        // Regular properties should be pre-populated from original
+        assertEquals(123, result.id());
+        assertEquals("Bob", result.name());
+        // UPPER-CASE properties should be captured by any-setter, overriding originals
+        assertEquals(456, result.extra().get("ID"));
+        assertEquals("Gary", result.extra().get("NAME"));
     }
 }

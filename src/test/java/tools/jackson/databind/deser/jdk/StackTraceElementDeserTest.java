@@ -19,7 +19,7 @@ public class StackTraceElementDeserTest extends DatabindTestUtil
         public StackTraceElement[] trace;
     }
 
-    // Mix-in that renames StackTraceElement properties
+    // [databind#429]: mix-in that renames StackTraceElement properties
     abstract static class StackTraceElementMixIn {
         @JsonProperty("class")
         public abstract String getClassName();
@@ -34,7 +34,9 @@ public class StackTraceElementDeserTest extends DatabindTestUtil
         public abstract int getLineNumber();
     }
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
 
     /*
     /**********************************************************************
@@ -241,7 +243,7 @@ public class StackTraceElementDeserTest extends DatabindTestUtil
 
     /*
     /**********************************************************************
-    /* Tests for mix-in @JsonProperty support
+    /* Tests for [databind#429]: mix-in @JsonProperty support
     /**********************************************************************
      */
 
@@ -251,6 +253,7 @@ public class StackTraceElementDeserTest extends DatabindTestUtil
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .addMixIn(StackTraceElement.class, StackTraceElementMixIn.class)
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .build();
 
         String json = a2q("{'class':'com.example.Foo','method':'doStuff',"

@@ -72,6 +72,12 @@ public class RecordUpdate3079Test extends DatabindTestUtil
         assertNotSame(orig, result);
         assertEquals(123, result.id());
         assertEquals("Bob", result.name());
+
+        // Same with `null`:
+        result = MAPPER.updateValue(orig, null);
+        assertNotNull(result);
+        // actually same instance, impl detail
+        assertSame(orig, result);
     }
 
     // [databind#3079] also: should be able to update Record valued property
@@ -145,10 +151,9 @@ public class RecordUpdate3079Test extends DatabindTestUtil
 
         // Similarly with `null`:
         result = MAPPER.readerForUpdating(orig).readValue("null");
-        // NOTE: will be same instance in this particular case, but more of an impl detail
+        // NOTE: will be same instance in this particular case
         assertNotNull(result);
-        assertEquals(123, result.id());
-        assertEquals("Bob", result.name());
+        assertSame(orig, result);
     }
 
     // [databind#3079]: update Record via ObjectReader, original unchanged

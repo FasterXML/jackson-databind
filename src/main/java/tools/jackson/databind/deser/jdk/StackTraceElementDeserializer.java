@@ -1,9 +1,7 @@
 package tools.jackson.databind.deser.jdk;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
@@ -51,70 +49,39 @@ public class StackTraceElementDeserializer
     private static ValueDeserializer<?> _applyPropertyAliases(DeserializationContext ctxt,
             BeanDeserializerBase adapterDeser)
     {
-        // First: introspect StackTraceElement for name overrides (external vs internal)
-        Map<String, String> nameOverrides = _findPropertyNameOverrides(ctxt);
-        if (nameOverrides == null) {
-            return adapterDeser;
-        }
+        JavaType steType = ctxt.constructType(StackTraceElement.class);
+        List<BeanPropertyDefinition> steDefs = ctxt.introspectBeanDescription(steType).findProperties();
 
-        // Second: build alias defs for Adapter properties
-        BeanDeserializerBase beanDeser = (BeanDeserializerBase) adapterDeser;
-        List<SettableBeanProperty> props = new ArrayList<>();
-        beanDeser.properties().forEachRemaining(props::add);
+        List<SettableBeanProperty> adapterProps = new ArrayList<>();
+        adapterDeser.properties().forEachRemaining(adapterProps::add);
 
+        // For each STE property where mix-in renamed it (external != internal),
+        // find the matching Adapter property and register the external name as alias
         PropertyName[][] aliasDefs = null;
-        for (int i = 0, end = props.size(); i < end; ++i) {
-            String propName = props.get(i).getName();
-            List<PropertyName> propAliases = null;
-            for (Map.Entry<String, String> entry : nameOverrides.entrySet()) {
-                if (propName.equals(entry.getValue())) {
-                    if (propAliases == null) {
-                        propAliases = new ArrayList<>();
-                    }
-                    propAliases.add(PropertyName.construct(entry.getKey()));
-                }
+        for (BeanPropertyDefinition steProp : steDefs) {
+            String externalName = steProp.getName();
+            String internalName = steProp.getInternalName();
+            if (externalName.equals(internalName)) {
+                continue;
             }
-            if (propAliases != null) {
-                if (aliasDefs == null) {
-                    aliasDefs = new PropertyName[props.size()][];
+            for (int i = 0, end = adapterProps.size(); i < end; ++i) {
+                if (internalName.equals(adapterProps.get(i).getName())) {
+                    if (aliasDefs == null) {
+                        aliasDefs = new PropertyName[end][];
+                    }
+                    aliasDefs[i] = new PropertyName[] { PropertyName.construct(externalName) };
+                    break;
                 }
-                aliasDefs[i] = propAliases.toArray(new PropertyName[0]);
             }
         }
         if (aliasDefs == null) {
             return adapterDeser;
         }
-
-        // Third: construct new BeanPropertyMap with aliases and apply
         boolean caseInsensitive = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
         BeanPropertyMap newMap = BeanPropertyMap.construct(
-                ctxt.getConfig(), props, aliasDefs, caseInsensitive)
+                ctxt.getConfig(), adapterProps, aliasDefs, caseInsensitive)
                 .initMatcher(ctxt.tokenStreamFactory());
-        return beanDeser.withBeanProperties(newMap);
-    }
-
-    /**
-     * Introspect {@code StackTraceElement} properties (including mix-ins) to find
-     * any {@code @JsonProperty} name overrides. Returns mapping from external
-     * (JSON) name to internal (field) name, or {@code null} if no overrides found.
-     */
-    private static Map<String, String> _findPropertyNameOverrides(DeserializationContext ctxt) {
-        JavaType steType = ctxt.constructType(StackTraceElement.class);
-        BeanDescription beanDesc = ctxt.introspectBeanDescription(steType);
-        List<BeanPropertyDefinition> props = beanDesc.findProperties();
-
-        Map<String, String> overrides = null;
-        for (BeanPropertyDefinition prop : props) {
-            String externalName = prop.getName();
-            String internalName = prop.getInternalName();
-            if (!externalName.equals(internalName)) {
-                if (overrides == null) {
-                    overrides = new HashMap<>();
-                }
-                overrides.put(externalName, internalName);
-            }
-        }
-        return overrides;
+        return adapterDeser.withBeanProperties(newMap);
     }
 
     @Override

@@ -33,8 +33,12 @@ public class StackTraceElementDeserializer
 
         // [databind#429]: Check for mix-in @JsonProperty name overrides on
         //   StackTraceElement and propagate as aliases to the Adapter deserializer
-        adapterDeser = _applyPropertyAliases(ctxt, adapterDeser);
-
+        if (adapterDeser instanceof BeanDeserializerBase beanDeser) {
+            Class<?> mixin = ctxt.getConfig().findMixInClassFor(StackTraceElement.class);
+            if (mixin != null) {
+                adapterDeser = _applyPropertyAliases(ctxt, beanDeser);
+            }
+        }
         return new StackTraceElementDeserializer(adapterDeser);
     }
 
@@ -45,11 +49,8 @@ public class StackTraceElementDeserializer
      * recognized without any token-stream rewriting.
      */
     private static ValueDeserializer<?> _applyPropertyAliases(DeserializationContext ctxt,
-            ValueDeserializer<?> adapterDeser)
+            BeanDeserializerBase adapterDeser)
     {
-        if (!(adapterDeser instanceof BeanDeserializerBase)) {
-            return adapterDeser;
-        }
         // First: introspect StackTraceElement for name overrides (external vs internal)
         Map<String, String> nameOverrides = _findPropertyNameOverrides(ctxt);
         if (nameOverrides == null) {
@@ -124,15 +125,9 @@ public class StackTraceElementDeserializer
 
         // Must get an Object
         if (t == JsonToken.START_OBJECT || t == JsonToken.PROPERTY_NAME) {
-            Adapter adapted;
-            // 26-May-2022, tatu: for legacy use, need to do this:
-            if (_adapterDeserializer == null) {
-                adapted = ctxt.readValue(p, Adapter.class);
-            } else {
-                adapted = (Adapter) _adapterDeserializer.deserialize(p, ctxt);
-            }
-            return constructValue(ctxt, adapted);
-        } else if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            return constructValue(ctxt, (Adapter) _adapterDeserializer.deserialize(p, ctxt));
+        }
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
             final StackTraceElement value = deserialize(p, ctxt);
             if (p.nextToken() != JsonToken.END_ARRAY) {

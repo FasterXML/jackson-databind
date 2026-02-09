@@ -96,12 +96,13 @@ public final class ObjectIdValueProperty
         }
         Object id = _valueDeserializer.deserialize(p, ctxt);
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
-        roid.bindItem(ctxt, instance);
-        // also: may need to set a property value as well
+        // [databind#1546]: Set id property BEFORE binding, so that forward reference
+        //   resolution (which may add instance to a HashSet) sees the correct hashCode
         SettableBeanProperty idProp = _objectIdReader.idProperty;
         if (idProp != null) {
-            return idProp.setAndReturn(ctxt, instance, id);
+            instance = idProp.setAndReturn(ctxt, instance, id);
         }
+        roid.bindItem(ctxt, instance);
         return instance;
     }
 

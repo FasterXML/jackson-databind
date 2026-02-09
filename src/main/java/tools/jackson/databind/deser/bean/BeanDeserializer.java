@@ -317,7 +317,9 @@ public class BeanDeserializer
         throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        PropertyValueBuffer buffer = (_anySetter != null)
+            ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter)
+            : creator.startBuilding(p, ctxt, _objectIdReader);
 
         // Step 1: Pre-populate buffer from existing Record values
         final Class<?> recordClass = _beanType.getRawClass();
@@ -360,6 +362,9 @@ public class BeanDeserializer
                 continue;
             }
             // Regular property? Buffer it
+            // 09-Feb-2026, tatu: Records really should not have non-Creator Mutators
+            //    so leave commented out until there's clear use case
+            /*
             int ix = _propNameMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
@@ -371,11 +376,21 @@ public class BeanDeserializer
                 }
                 continue;
             }
+            */
             // "Any property"?
             if (_anySetter != null) {
                 try {
-                    buffer.bufferAnyProperty(_anySetter, propName,
+                    // 09-Feb-2026, tatu: as with Mutators, should never have non-Creator
+                    //   "any"-properties, so commento out
+                    /*
+                    if (_anySetter.isFieldType() || _anySetter.isSetterType()) {
+                        buffer.bufferAnyProperty(_anySetter, propName,
+                                _anySetter.deserialize(p, ctxt));
+                    } else {
+                        */
+                    buffer.bufferAnyParameterProperty(_anySetter, propName,
                             _anySetter.deserialize(p, ctxt));
+                    //}
                 } catch (Exception e) {
                     throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                 }

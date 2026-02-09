@@ -116,13 +116,16 @@ Fouad Almalki (@Eng-Fouad)
   [3.1.0]
 
 Christopher Currie (@christophercurrie)
-
-* Requested #221: Support alternate radixes when writing numeric values as strings
+ * Requested #221: Support alternate radixes when writing numeric values as strings
   [3.1.0]
 
 Davyd Fridman (@tiger9800)
+ * Implemented #221: Support alternate radixes when writing numeric values as strings
+  [3.1.0]
 
-* Implemented #221: Support alternate radixes when writing numeric values as strings
+Gary Gregory (@garydgregory)
+ * Reported #429: Cannot use property annotations on `StackTraceElement` to configure
+   deserialization
   [3.1.0]
 
 Konstantin Labun (@kulabun)

@@ -191,6 +191,10 @@ Kenneth Jorgensen (@kennethjor)
   `@JsonDeserialize.builderPrefix` property
   [3.1.0]
 
+Dávid Csákvári (@dodie)
+ * Requested #3079: Support `ObjectMapper.updateValue()` for Record classes
+  [3.1.0]
+
 Lee Jiwon (@dlwldnjs1009)
  * Fixed #3188: Skip unknown `Enum` keys in `Map` deserialization
   [3.1.0]

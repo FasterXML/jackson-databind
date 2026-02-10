@@ -1396,6 +1396,10 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         // also: may need to set a property value as well
         SettableBeanProperty idProp = _objectIdReader.idProperty;
         if (idProp != null) {
+            // [databind#4729] Records/Creators do not have setters, skip
+            if (idProp.isCreatorProperty()) {
+                return pojo;
+            }
             return idProp.setAndReturn(ctxt, pojo, id);
         }
         return pojo;

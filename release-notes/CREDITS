@@ -214,6 +214,10 @@ James Mudd (@jamesmudd)
   `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work
   [3.1.0]
 
+John Hendrikx (@hjohn)
+ * Reported #4729: Object ID handling tries (unnecessarily) to set id value on a Record
+  [3.1.0]
+ 
 Viktor Szathmáry (@phraktle)
  * Reported #5115: `@JsonUnwrapped` Record deserialization can't handle name collision
  (reported by Viktor S)

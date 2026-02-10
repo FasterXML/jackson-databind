@@ -97,6 +97,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #4708: `JsonTypeInfo.Id.DEDUCTION` should block signatures for non-instantiable
   types (abstract classes, interfaces)
  (implemented by @cowtowncoder, w/ Claude code)
+#4729: Object ID handling tries (unnecessarily) to set id value on a Record
+ (reported by John H)
+ (implemented by @cowtowncoder, w/ Claude code)
 #5115: `@JsonUnwrapped` Record deserialization can't handle name collision
  (reported by Viktor S)
  (fix contributed by @JacksonJang)

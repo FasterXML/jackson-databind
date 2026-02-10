@@ -476,6 +476,17 @@ public abstract class BasicSerializerFactory
         if (elementTypeSerializer != null) {
             staticTyping = false;
         }
+        // [databind#1515]: content type class-level @JsonSerialize(typing=DYNAMIC)
+        //   should override global USE_STATIC_TYPING
+        if (staticTyping && (elementType != null)) {
+            JsonSerialize.Typing t = ctxt.getAnnotationIntrospector()
+                    .findSerializationTyping(ctxt.getConfig(),
+                            AnnotatedClassResolver.resolveWithoutSuperTypes(
+                                    ctxt.getConfig(), elementType.getRawClass()));
+            if (t == JsonSerialize.Typing.DYNAMIC) {
+                staticTyping = false;
+            }
+        }
         ValueSerializer<Object> elementValueSerializer = _findContentSerializer(ctxt,
                 beanDescRef.getClassInfo());
         final SerializationConfig config = ctxt.getConfig();

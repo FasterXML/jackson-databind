@@ -9,7 +9,6 @@ import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
-import tools.jackson.databind.introspect.AnnotatedClassResolver;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
@@ -310,24 +309,20 @@ public abstract class AsArraySerializerBase<T>
     }
 
     /**
-     * Helper method for [databind#1515]: check if property or content type class
-     * overrides typing to DYNAMIC.
+     * Helper method for [databind#1515]: check if property overrides
+     * typing to DYNAMIC.
      *
      * @since 3.1
      */
     protected boolean _hasDynamicTypingOverride(SerializationContext ctxt, BeanProperty property) {
-        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        final SerializationConfig config = ctxt.getConfig();
         if (property != null) {
             AnnotatedMember m = property.getMember();
-            if ((m != null)
-                    && intr.findSerializationTyping(config, m) == JsonSerialize.Typing.DYNAMIC) {
-                return true;
+            if (m != null) {
+                return ctxt.getAnnotationIntrospector()
+                        .findSerializationTyping(ctxt.getConfig(), m) == JsonSerialize.Typing.DYNAMIC;
             }
         }
-        return intr.findSerializationTyping(config,
-                AnnotatedClassResolver.resolveWithoutSuperTypes(config,
-                        _elementType.getRawClass())) == JsonSerialize.Typing.DYNAMIC;
+        return false;
     }
 
     /*

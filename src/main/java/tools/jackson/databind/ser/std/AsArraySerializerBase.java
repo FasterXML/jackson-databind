@@ -244,7 +244,7 @@ public abstract class AsArraySerializerBase<T>
             // [databind#1515]: but allow per-property or per-content-type DYNAMIC override
             if (_elementType != null) {
                 if (_staticTyping && !_elementType.isJavaLangObject()
-                        && !_isDynamicTyping(ctxt, property)) {
+                        && !_hasDynamicTypingOverride(ctxt, property)) {
                     ser = ctxt.findContentValueSerializer(_elementType, property);
                 }
             }
@@ -312,8 +312,10 @@ public abstract class AsArraySerializerBase<T>
     /**
      * Helper method for [databind#1515]: check if property or content type class
      * overrides typing to DYNAMIC.
+     *
+     * @since 3.1
      */
-    private boolean _isDynamicTyping(SerializationContext ctxt, BeanProperty property) {
+    protected boolean _hasDynamicTypingOverride(SerializationContext ctxt, BeanProperty property) {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         final SerializationConfig config = ctxt.getConfig();
         if (property != null) {

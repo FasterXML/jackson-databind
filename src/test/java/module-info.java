@@ -91,7 +91,6 @@ module tools.jackson.databind
     opens tools.jackson.databind.mixins;
     opens tools.jackson.databind.objectid;
     opens tools.jackson.databind.records;
-    opens tools.jackson.databind.records.tofix;
     opens tools.jackson.databind.ser.dos;
     opens tools.jackson.databind.ser.enums;
     opens tools.jackson.databind.ser.filter;

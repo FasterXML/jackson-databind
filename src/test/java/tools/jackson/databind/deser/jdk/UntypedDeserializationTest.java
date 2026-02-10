@@ -130,12 +130,13 @@ public class UntypedDeserializationTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final JsonMapper MAPPER = newJsonMapper();
+    private final ObjectReader OBJECT_READER = MAPPER.readerFor(Object.class);
 
     @SuppressWarnings("unchecked")
     @Test
@@ -143,9 +144,8 @@ public class UntypedDeserializationTest
     {
         final String JSON = SAMPLE_DOC_JSON_SPEC;
 
-        /* To get "untyped" Mapping (to Maps, Lists, instead of beans etc),
-         * we'll specify plain old Object.class as the target.
-         */
+        // To get "untyped" Mapping (to Maps, Lists, instead of beans etc),
+        // we'll specify plain old Object.class as the target.
         Object root = MAPPER.readValue(JSON, Object.class);
 
         assertInstanceOf(Map.class, root);
@@ -218,36 +218,31 @@ public class UntypedDeserializationTest
     @Test
     public void testSimpleVanillaScalars() throws Exception
     {
-        assertEquals("foo", MAPPER.readValue(q("foo"), Object.class));
+        assertEquals("foo", OBJECT_READER.readValue(q("foo")));
+        assertEquals("foo", OBJECT_READER.withValueToUpdate("xxx").readValue(q("foo")));
 
-        assertEquals(Boolean.TRUE, MAPPER.readValue(" true ", Object.class));
+        assertEquals(Boolean.FALSE, OBJECT_READER.readValue("false"));
+        assertEquals(Boolean.TRUE, OBJECT_READER.readValue(" true "));
 
-        assertEquals(Integer.valueOf(13), MAPPER.readValue("13 ", Object.class));
-        assertEquals(Double.valueOf(0.5), MAPPER.readValue("0.5 ", Object.class));
+        assertEquals(Integer.valueOf(13), OBJECT_READER.readValue("13 "));
+        assertEquals(Double.valueOf(0.5), OBJECT_READER.readValue("0.5 "));
     }
 
     @Test
     public void testSimpleVanillaStructured() throws Exception
     {
-        List<?> list = (List<?>) MAPPER.readValue("[ 1, 2, 3]", Object.class);
+        List<?> list = (List<?>) OBJECT_READER.readValue("[ 1, 2, 3]");
         assertEquals(Integer.valueOf(1), list.get(0));
     }
 
     @Test
-    public void testNestedUntypes() throws Exception
+    public void testNestedUntyped() throws Exception
     {
         // 05-Apr-2014, tatu: Odd failures if using shared mapper; so work around:
-        Object root = MAPPER.readValue(a2q("{'a':3,'b':[1,2]}"),
-                Object.class);
+        Object root = OBJECT_READER.readValue(a2q("{'a':3,'b':[1,2], 'c':[3]}"));
         assertInstanceOf(Map.class, root);
-        Map<?,?> map = (Map<?,?>) root;
-        assertEquals(2, map.size());
-        assertEquals(Integer.valueOf(3), map.get("a"));
-        Object ob = map.get("b");
-        assertInstanceOf(List.class, ob);
-        List<?> l = (List<?>) ob;
-        assertEquals(2, l.size());
-        assertEquals(Integer.valueOf(2), l.get(1));
+        assertEquals(Map.of("a", 3, "b", List.of(1, 2), "c", List.of(3)),
+                root);
     }
 
     @Test
@@ -304,6 +299,9 @@ public class UntypedDeserializationTest
         assertEquals(Integer.valueOf(42), r.withValueToUpdate(l).readValue("42"));
         assertEquals(Double.valueOf(2.5), r.readValue("2.5"));
         assertEquals(Double.valueOf(2.5), r.withValueToUpdate(l).readValue("2.5"));
+        // custom String deserializer
+        assertEquals("ABC", r.readValue(q("abc")));
+        assertEquals("ABC", r.withValueToUpdate(l).readValue(q("abc")));
         assertEquals(true, r.readValue("true"));
         assertEquals(true, r.withValueToUpdate(l).readValue("true"));
         assertEquals(false, r.readValue("false"));
@@ -326,14 +324,17 @@ public class UntypedDeserializationTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(m)
                 .build();
-        // And then list...
-        Object ob = mapper.readValue("[1, 2, true]", Object.class);
-        assertInstanceOf(List.class, ob);
-        List<?> l = (List<?>) ob;
-        assertEquals(3, l.size());
-        assertEquals("X1", l.get(0));
-        assertEquals("X2", l.get(1));
-        assertEquals("Xtrue", l.get(2));
+        ObjectReader r = mapper.readerFor(Object.class);
+        assertEquals(List.of("X1", "X2", "Xtrue"),
+                r.readValue("[1, 2, true]"));
+
+        // And also with alternative. But note! Custom List deserializer NOT
+        // used when mapping to Java Arrays
+        Object ob2 = r.with(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)
+                .readValue("[1, 2, true]");
+        assertInstanceOf(Object[].class, ob2);
+        assertEquals(List.of(1, 2, true),
+                Arrays.asList((Object[]) ob2));
     }
 
     @Test
@@ -501,6 +502,28 @@ public class UntypedDeserializationTest
         assertSame(list, result);
         assertEquals(3, list.size());
         assertEquals("FOOBAR", list.get(2));
+    }
+
+    @Test
+    public void testUntypedCustomMapWithDups() throws Exception
+    {
+        // Important: needs something non-vanilla to trigger different
+        // code path!
+        SimpleModule m = new SimpleModule("test-module")
+                .addDeserializer(String.class, new UCStringDeserializer());
+        final ObjectMapper customMapper = jsonMapperBuilder()
+                .addModule(m)
+                .build();
+        ObjectReader r = customMapper.readerFor(Object.class);
+        assertEquals(Map.of("a", 0), r.readValue(a2q("{'a': false, 'a': 0}")));
+        assertEquals(Map.of("a", 1, "b", false),
+                r.readValue(a2q("{'a':0, 'b': false, 'a': 1}")));
+
+        Object ob = r.readValue(a2q("""
+                { 'a': 1, 'b': true, 'c': 0.25, 'a': 'abc', 'a':2, 'b': 3 }
+                """
+              ));
+        assertEquals(Map.of("a", 2, "b", 3, "c", 0.25), ob);
     }
 
     /*

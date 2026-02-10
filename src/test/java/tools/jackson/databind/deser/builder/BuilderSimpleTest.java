@@ -32,6 +32,11 @@ public class BuilderSimpleTest
         }
     }
 
+    static class ValueClassXYWrapper {
+        @JsonIgnoreProperties(ignoreUnknown = true, value = {"abc", "def" })
+        public ValueClassXY xy;
+    }
+    
     static class SimpleBuilderXY
     {
         public int x, y;
@@ -312,14 +317,23 @@ public class BuilderSimpleTest
     @Test
     public void testSimple() throws Exception
     {
-        String json = a2q("{'x':1,'y':2}");
-        Object o = MAPPER.readValue(json, ValueClassXY.class);
-        assertNotNull(o);
-        assertSame(ValueClassXY.class, o.getClass());
+        Object o = MAPPER.readValue(a2q("{'x':1,'y':2}"), ValueClassXY.class);
+        assertInstanceOf(ValueClassXY.class, o);
         ValueClassXY value = (ValueClassXY) o;
         // note: ctor adds one to both values
         assertEquals(value._x, 2);
         assertEquals(value._y, 3);
+    }
+
+    @Test
+    public void testSimpleWrapper() throws Exception
+    {
+        ValueClassXYWrapper w = MAPPER
+                .readerFor(ValueClassXYWrapper.class)
+                .readValue(a2q("{'xy': {'x':1, 'foo':3, 'y':2, 'bar':'abc'}}"));
+        // note: ctor adds one to both values
+        assertEquals(w.xy._x, 2);
+        assertEquals(w.xy._y, 3);
     }
 
     // related to [databind#1214]

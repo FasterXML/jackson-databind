@@ -58,26 +58,11 @@ public class BuilderBasedDeserializer
     /**********************************************************************
      */
 
-    /**
-     * Constructor used by {@link BeanDeserializerBuilder}.
-     */
     public BuilderBasedDeserializer(BeanDeserializerBuilder builder,
             BeanDescription.Supplier beanDescRef, JavaType targetType,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
             Set<String> ignorableProps, boolean ignoreAllUnknown,
-            boolean hasViews)
-    {
-        this(builder, beanDescRef, targetType, properties, backRefs, ignorableProps, ignoreAllUnknown,
-                null, hasViews);
-    }
-
-    /**
-     * @since 2.12
-     */
-    public BuilderBasedDeserializer(BeanDeserializerBuilder builder,
-            BeanDescription.Supplier beanDescRef, JavaType targetType,
-            BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
-            Set<String> ignorableProps, boolean ignoreAllUnknown, Set<String> includableProps,
+            Set<String> includableProps,
             boolean hasViews)
     {
         super(builder, beanDescRef, properties, backRefs,
@@ -432,7 +417,7 @@ public class BuilderBasedDeserializer
                 }
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
-                    p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
+                    p.nextToken(); // to move to following PROPERTY_NAME/END_OBJECT
                     Object builder;
                     try {
                         builder = creator.build(ctxt, buffer);
@@ -459,13 +444,12 @@ public class BuilderBasedDeserializer
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
             }
-            // As per [JACKSON-313], things marked as ignorable should not be
-            // passed to any setter
+            // Things marked as ignorable should not be passed to "any"-setter
             if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
-            // "any property"?
+            // "any" property?
             if (_anySetter != null) {
                 buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
                 continue;

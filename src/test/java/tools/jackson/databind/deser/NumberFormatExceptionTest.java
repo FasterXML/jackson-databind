@@ -9,8 +9,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 /**
- * Test for verifying that NumberFormatException is properly caught and handled
- * when parsing invalid number strings to double/float primitives.
+ * Demonstration test showing that NumberFormatException is properly caught and handled
+ * when parsing invalid number strings to double/float primitives and wrappers.
+ * 
+ * This test documents the behavior: NumberFormatException thrown by NumberInput.parseDouble()
+ * or parseFloat() is caught by the IllegalArgumentException handler and converted to
+ * InvalidFormatException with proper context. All test methods verify that NFE does not
+ * leak to user code.
+ * 
+ * See INVESTIGATION_NumberFormatException.md for detailed analysis.
  */
 public class NumberFormatExceptionTest
 {

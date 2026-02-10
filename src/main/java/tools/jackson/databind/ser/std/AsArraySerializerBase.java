@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.introspect.AnnotatedClassResolver;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
@@ -239,8 +241,10 @@ public abstract class AsArraySerializerBase<T>
         if (ser == null) {
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
+            // [databind#1515]: but allow per-property or per-content-type DYNAMIC override
             if (_elementType != null) {
-                if (_staticTyping && !_elementType.isJavaLangObject()) {
+                if (_staticTyping && !_elementType.isJavaLangObject()
+                        && !_isDynamicTyping(ctxt, property)) {
                     ser = ctxt.findContentValueSerializer(_elementType, property);
                 }
             }
@@ -303,6 +307,25 @@ public abstract class AsArraySerializerBase<T>
             return withResolved(property, typeSer, ser, unwrapSingle, valueToSuppress, suppressNulls);
         }
         return this;
+    }
+
+    /**
+     * Helper method for [databind#1515]: check if property or content type class
+     * overrides typing to DYNAMIC.
+     */
+    private boolean _isDynamicTyping(SerializationContext ctxt, BeanProperty property) {
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        final SerializationConfig config = ctxt.getConfig();
+        if (property != null) {
+            AnnotatedMember m = property.getMember();
+            if ((m != null)
+                    && intr.findSerializationTyping(config, m) == JsonSerialize.Typing.DYNAMIC) {
+                return true;
+            }
+        }
+        return intr.findSerializationTyping(config,
+                AnnotatedClassResolver.resolveWithoutSuperTypes(config,
+                        _elementType.getRawClass())) == JsonSerialize.Typing.DYNAMIC;
     }
 
     /*

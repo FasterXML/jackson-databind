@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.ser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -68,17 +67,15 @@ class StaticTyping1515Test extends DatabindTestUtil {
             .enable(MapperFeature.USE_STATIC_TYPING)
             .build();
 
-    @JacksonTestFailureExpected
     @Test
     void staticTypingForProperties() throws Exception {
         String json = STAT_MAPPER.writeValueAsString(new Issue515Singles());
         assertEquals(a2q("{'value':{'a':1},'aValue':{'a':1,'b':2},'dValue':{'a':3,'b':4}}"), json);
     }
 
-    @JacksonTestFailureExpected
     @Test
     void staticTypingForLists() throws Exception {
         String json = STAT_MAPPER.writeValueAsString(new Issue515Lists());
-        assertEquals(a2q("{'list':[{'a':1}],'aList':[{'a':1,'b':2}],'dList:[{'a':3,'b':4}]}"), json);
+        assertEquals(a2q("{'list':[{'a':1}],'aList':[{'a':1,'b':2}],'dList':[{'a':3,'b':4}]}"), json);
     }
 }

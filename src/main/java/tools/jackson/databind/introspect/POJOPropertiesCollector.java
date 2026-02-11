@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.ConstructorDetector;
@@ -120,9 +121,9 @@ public class POJOPropertiesCollector
     protected LinkedList<AnnotatedMember> _jsonValueAccessors;
 
     /**
-     * Lazily collected list of properties that can be implicitly
-     * ignored during serialization; only updated when collecting
-     * information for deserialization purposes
+     * Lazily collected list of properties that are explicitly ignored,
+     * including both per-property markers ({@code @JsonIgnore}) and
+     * class-level {@code @JsonIgnoreProperties} annotation.
      */
     protected HashSet<String> _ignoredPropertyNames;
 
@@ -313,9 +314,13 @@ public class POJOPropertiesCollector
 
     /**
      * Accessor for set of properties that are explicitly marked to be ignored
-     * via per-property markers (but NOT class annotations).
+     * via per-property markers ({@code @JsonIgnore}) and/or class-level
+     * {@code @JsonIgnoreProperties} annotation.
      */
     public Set<String> getIgnoredPropertyNames() {
+        if (!_collected) {
+            collectAll();
+        }
         return _ignoredPropertyNames;
     }
 
@@ -399,6 +404,8 @@ public class POJOPropertiesCollector
         // Remove ignored properties, first; this MUST precede annotation merging
         // since logic relies on knowing exactly which accessor has which annotation
         _removeUnwantedProperties(props);
+        // [databind#3591]: Also collect class-level @JsonIgnoreProperties ignorals
+        _collectClassLevelIgnorals();
         // and then remove unneeded accessors (wrt read-only, read-write)
         _removeUnwantedAccessors(props);
 
@@ -1506,11 +1513,36 @@ ctor.creator()));
      */
     protected void _collectIgnorals(String name)
     {
-        if (!_forSerialization && (name != null)) {
+        if (name != null) {
             if (_ignoredPropertyNames == null) {
                 _ignoredPropertyNames = new HashSet<>();
             }
             _ignoredPropertyNames.add(name);
+        }
+    }
+
+    /**
+     * Helper method called to collect class-level {@code @JsonIgnoreProperties}
+     * ignorals into {@code _ignoredPropertyNames}, so that
+     * {@link #getIgnoredPropertyNames()} returns all ignored names regardless
+     * of source.
+     */
+    protected void _collectClassLevelIgnorals() {
+        if (_annotationIntrospector == null) {
+            return;
+        }
+        JsonIgnoreProperties.Value ignorals =
+            _annotationIntrospector.findPropertyIgnoralByName(_config, _classDef);
+        if (ignorals != null) {
+            Set<String> ignored = _forSerialization
+                    ? ignorals.findIgnoredForSerialization()
+                    : ignorals.findIgnoredForDeserialization();
+            if (ignored != null && !ignored.isEmpty()) {
+                if (_ignoredPropertyNames == null) {
+                    _ignoredPropertyNames = new HashSet<>();
+                }
+                _ignoredPropertyNames.addAll(ignored);
+            }
         }
     }
 

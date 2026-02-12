@@ -954,20 +954,16 @@ Working alternatives:
             // (abstract/interface) element type
             JavaType propType = prop.getType();
             String msg;
-            if (propType.isContainerType()) {
-                JavaType contentType = propType.getContentType();
-                if (contentType != null && contentType.isAbstract()) {
-                    msg = String.format(
+            JavaType ct;
+            if (propType.isContainerType()
+                    && (ct = propType.getContentType()) != null
+                    && ct.isAbstract()) {
+                msg = String.format(
 "Cannot handle managed/back reference %s: no back reference property found from type %s"
-+" (content type %s is abstract: @JsonBackReference must be defined on the abstract"
++" (content type %s is abstract: `@JsonBackReference` must be defined on the abstract"
 +" type or interface, not just on its subtypes)",
 ClassUtil.name(refName), ClassUtil.getTypeDescription(propType),
-                            ClassUtil.getTypeDescription(contentType));
-                } else {
-                    msg = String.format(
-"Cannot handle managed/back reference %s: no back reference property found from type %s",
-ClassUtil.name(refName), ClassUtil.getTypeDescription(propType));
-                }
+ClassUtil.getTypeDescription(ct));
             } else {
                 msg = String.format(
 "Cannot handle managed/back reference %s: no back reference property found from type %s",

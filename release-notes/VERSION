@@ -67,6 +67,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   serialization
  (requested by @arungitan)
  (implemented by Lee Jiwon)
+#3304: Backreference not set after deserialization for Abstract types
+  with `@JsonBackReference` only in sub-type
+ (reported by @Njimefo)
 #3349: `DeserializationProblemHandler.handleUnexpectedToken()` no longer
   invoked for array-like types
  (reported by @andpal)

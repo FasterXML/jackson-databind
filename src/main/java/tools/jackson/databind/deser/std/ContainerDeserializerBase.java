@@ -3,10 +3,7 @@ package tools.jackson.databind.deser.std;
 import java.lang.reflect.InvocationTargetException;
 
 import tools.jackson.core.JacksonException;
-import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
-import tools.jackson.databind.cfg.CoercionAction;
-import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.ValueInstantiator;
@@ -160,46 +157,5 @@ public abstract class ContainerDeserializerBase<T>
         // for [databind#1141]
         throw DatabindException.wrapWithPath(ctxt, t,
                     new JacksonException.Reference(ref, ClassUtil.nonNull(key, "N/A")));
-    }
-
-    /**
-     * Helper method for handling a String token during deserialization of
-     * a container type (Collection, Map, EnumMap etc).
-     * Checks for String-argument creator first, then empty/blank String coercion,
-     * and finally delegates to
-     * {@link DeserializationContext#handleUnexpectedToken(JavaType, JsonParser)}.
-     *<p>
-     * [databind#3349]: Previously, some container deserializers called
-     * {@code StdDeserializer._deserializeFromString()} which incorrectly routed
-     * non-empty Strings through {@code handleMissingInstantiator} instead of
-     * {@code handleUnexpectedToken}.
-     *
-     * @since 3.1
-     */
-    @SuppressWarnings("unchecked")
-    protected T _deserializeFromStringForContainer(JsonParser p, DeserializationContext ctxt)
-        throws JacksonException
-    {
-        final ValueInstantiator inst = getValueInstantiator();
-        final Class<?> rawTargetType = handledType();
-
-        if ((inst != null) && inst.canCreateFromString()) {
-            return (T) inst.createFromString(ctxt, p.getValueAsString());
-        }
-        String value = p.getValueAsString();
-        if (value.isEmpty()) {
-            final CoercionAction act = ctxt.findCoercionAction(logicalType(), rawTargetType,
-                    CoercionInputShape.EmptyString);
-            if (act != null) {
-                return (T) _deserializeFromEmptyString(p, ctxt, act,
-                        rawTargetType, "empty String (\"\")");
-            }
-        } else if (_isBlank(value)) {
-            final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), rawTargetType,
-                    CoercionAction.Fail);
-            return (T) _deserializeFromEmptyString(p, ctxt, act,
-                    rawTargetType, "blank String (all whitespace)");
-        }
-        return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 }

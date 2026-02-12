@@ -213,9 +213,10 @@ public abstract class PrimitiveArrayDeserializers<T>
         //   single-element wrapping of a String value
         // Let's still call _deserializeFromString() for empty strings no matter what,
         // and for all values if wrapping not enabled
+        // [databind#3349]: for non-empty strings, delegate to handleUnexpectedToken
         if (p.hasToken(JsonToken.VALUE_STRING)) {
             if (!canWrap || _isBlank(p.getString())) {
-                return _deserializeFromString(p, ctxt);
+                return _deserializeFromStringForContainer(p, ctxt);
             }
         }
         if (canWrap) {

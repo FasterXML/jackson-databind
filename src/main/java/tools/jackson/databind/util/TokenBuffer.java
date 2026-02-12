@@ -1892,8 +1892,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 if (n instanceof Float) return NumberType.FLOAT;
                 if (n instanceof Short) return NumberType.INT;       // should be SHORT
             } else if (value instanceof String) {
+                // Deferred number stored as String: report default type that
+                // _numberValue() would produce (without preferBigNumbers).
+                // For integers, only big values are deferred (see _copyBufferValue)
+                // so BIG_INTEGER is appropriate; for floats, default parsing
+                // produces Double (not BigDecimal) -- see [databind#3524]
                 return (_currToken == JsonToken.VALUE_NUMBER_FLOAT)
-                        ? NumberType.BIG_DECIMAL : NumberType.BIG_INTEGER;
+                        ? NumberType.DOUBLE : NumberType.BIG_INTEGER;
             }
             return null;
         }
@@ -1906,6 +1911,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 if (n instanceof Double) return NumberTypeFP.DOUBLE64;
                 if (n instanceof BigDecimal) return NumberTypeFP.BIG_DECIMAL;
                 if (n instanceof Float) return NumberTypeFP.FLOAT32;
+                // 11-Feb-2026, tatu: If deferred, type specifically not known,
+                //    caller to decide (unlike with `getNumberType()` that has
+                //    no "unknown" option).
+                if (n instanceof String) return NumberTypeFP.DOUBLE64;
             }
             return NumberTypeFP.UNKNOWN;
         }

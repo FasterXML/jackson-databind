@@ -142,6 +142,14 @@ public abstract class DeserializationContext
      */
     protected transient ClassIntrospector _classIntrospector;
 
+    /**
+     * Counter to track depth of nested type deserializer calls to prevent
+     * infinite recursion.
+     *
+     * @since 2.19
+     */
+    protected transient int _typeDeserializerDepth;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -839,6 +847,44 @@ public abstract class DeserializationContext
                     ClassUtil.exceptionMessage(e), containerType)
                 .withCause(e);
         }
+    }
+
+    /*
+    /**********************************************************************
+    /* Public API, TypeDeserializer recursion depth tracking
+    /**********************************************************************
+     */
+
+    /**
+     * Maximum allowed depth for type deserializer recursion before
+     * throwing an exception to prevent StackOverflowError.
+     *
+     * @since 2.19
+     */
+    public static final int MAX_TYPE_DESERIALIZER_DEPTH = 500;
+
+    /**
+     * Method called to increment the depth counter for type deserializer recursion.
+     * This is used to prevent infinite recursion and StackOverflowError when
+     * deserializing complex type hierarchies.
+     *
+     * @return The new depth after incrementing
+     *
+     * @since 2.19
+     */
+    public int incrementTypeDeserializerDepth() {
+        return ++_typeDeserializerDepth;
+    }
+
+    /**
+     * Method called to decrement the depth counter for type deserializer recursion.
+     * This should be called in a finally block after calling
+     * {@link #incrementTypeDeserializerDepth()}.
+     *
+     * @since 2.19
+     */
+    public void decrementTypeDeserializerDepth() {
+        --_typeDeserializerDepth;
     }
 
     /*

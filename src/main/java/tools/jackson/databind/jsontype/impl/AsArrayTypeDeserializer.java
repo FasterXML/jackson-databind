@@ -80,49 +80,62 @@ public class AsArrayTypeDeserializer
     protected Object _deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        // 02-Aug-2013, tatu: May need to use native type ids
-        if (p.canReadTypeId()) {
-            Object typeId = p.getTypeId();
-            if (typeId != null) {
-                return _deserializeWithNativeTypeId(p, ctxt, typeId);
+        // Track recursion depth to prevent StackOverflowError
+        final int depth = ctxt.incrementTypeDeserializerDepth();
+        try {
+            // Check depth limit before proceeding
+            if (depth > DeserializationContext.MAX_TYPE_DESERIALIZER_DEPTH) {
+                return ctxt.reportInputMismatch(baseType(),
+                        "Type deserializer depth exceeds the maximum allowed (%d): infinite recursion (StackOverflowError)?",
+                        DeserializationContext.MAX_TYPE_DESERIALIZER_DEPTH);
             }
-        }
-        boolean hadStartArray = p.isExpectedStartArrayToken();
-        String typeId = _locateTypeId(p, ctxt);
-        ValueDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
-        // Minor complication: we may need to merge type id in?
-        if (_typeIdVisible
-                // 06-Oct-2014, tatu: To fix [databind#408], must distinguish between
-                //   internal and external properties
-                //  TODO: but does it need to be injected in external case? Why not?
-                && !_usesExternalId()
-                && p.isExpectedStartObjectToken()) {
-            // but what if there's nowhere to add it in? Error? Or skip? For now, skip.
-            TokenBuffer tb = ctxt.bufferForInputBuffering(p);
-            tb.writeStartObject(); // recreate START_OBJECT
-            tb.writeName(_typePropertyName);
-            tb.writeString(typeId);
-            // 02-Jul-2016, tatu: Depending on how JsonParserSequence is initialized it may
-            //   try to access current token; ensure there isn't one
-            p.clearCurrentToken();
-            p = JsonParserSequence.createFlattened(false, tb.asParser(ctxt, p), p);
-            p.nextToken();
-        }
-        // [databind#2467] (2.10): Allow missing value to be taken as "just use null value"
-        if (hadStartArray && p.currentToken() == JsonToken.END_ARRAY) {
-            return deser.getNullValue(ctxt);
-        }
-        Object value = deser.deserialize(p, ctxt);
-        // And then need the closing END_ARRAY
-        if (hadStartArray && p.nextToken() != JsonToken.END_ARRAY) {
-            ctxt.reportWrongTokenException(baseType(), JsonToken.END_ARRAY,
-                    "expected closing `JsonToken.END_ARRAY` after type information and deserialized value");
-            // 05-May-2016, tatu: Not 100% what to do if exception is stored for
-            //     future, and not thrown immediately: should probably skip until END_ARRAY
 
-            // ... but for now, fall through
+            // 02-Aug-2013, tatu: May need to use native type ids
+            if (p.canReadTypeId()) {
+                Object typeId = p.getTypeId();
+                if (typeId != null) {
+                    return _deserializeWithNativeTypeId(p, ctxt, typeId);
+                }
+            }
+            boolean hadStartArray = p.isExpectedStartArrayToken();
+            String typeId = _locateTypeId(p, ctxt);
+            ValueDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
+            // Minor complication: we may need to merge type id in?
+            if (_typeIdVisible
+                    // 06-Oct-2014, tatu: To fix [databind#408], must distinguish between
+                    //   internal and external properties
+                    //  TODO: but does it need to be injected in external case? Why not?
+                    && !_usesExternalId()
+                    && p.isExpectedStartObjectToken()) {
+                // but what if there's nowhere to add it in? Error? Or skip? For now, skip.
+                TokenBuffer tb = ctxt.bufferForInputBuffering(p);
+                tb.writeStartObject(); // recreate START_OBJECT
+                tb.writeName(_typePropertyName);
+                tb.writeString(typeId);
+                // 02-Jul-2016, tatu: Depending on how JsonParserSequence is initialized it may
+                //   try to access current token; ensure there isn't one
+                p.clearCurrentToken();
+                p = JsonParserSequence.createFlattened(false, tb.asParser(ctxt, p), p);
+                p.nextToken();
+            }
+            // [databind#2467] (2.10): Allow missing value to be taken as "just use null value"
+            if (hadStartArray && p.currentToken() == JsonToken.END_ARRAY) {
+                return deser.getNullValue(ctxt);
+            }
+            Object value = deser.deserialize(p, ctxt);
+            // And then need the closing END_ARRAY
+            if (hadStartArray && p.nextToken() != JsonToken.END_ARRAY) {
+                ctxt.reportWrongTokenException(baseType(), JsonToken.END_ARRAY,
+                        "expected closing `JsonToken.END_ARRAY` after type information and deserialized value");
+                // 05-May-2016, tatu: Not 100% what to do if exception is stored for
+                //     future, and not thrown immediately: should probably skip until END_ARRAY
+
+                // ... but for now, fall through
+            }
+            return value;
+        } finally {
+            ctxt.decrementTypeDeserializerDepth();
         }
-        return value;
     }
 
     protected String _locateTypeId(JsonParser p, DeserializationContext ctxt) throws JacksonException

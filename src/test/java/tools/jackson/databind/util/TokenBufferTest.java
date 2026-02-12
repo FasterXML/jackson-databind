@@ -249,11 +249,12 @@ public class TokenBufferTest extends DatabindTestUtil
                 assertEquals(-123L, p.getLongValue());
             }
         }
+        // [databind#3524] String-backed float defaults to DOUBLE, not BIG_DECIMAL
         try (TokenBuffer buf = new TokenBuffer(null, false)) {
             buf.writeNumber("123", false);
             try (JsonParser p = buf.asParser()) {
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-                assertEquals(NumberType.BIG_DECIMAL, p.getNumberType());
+                assertEquals(NumberType.DOUBLE, p.getNumberType());
                 assertEquals(123.0, p.getFloatValue());
             }
         }
@@ -262,7 +263,7 @@ public class TokenBufferTest extends DatabindTestUtil
             buf.writeNumber("123");
             try (JsonParser p = buf.asParser()) {
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-                assertEquals(NumberType.BIG_DECIMAL, p.getNumberType());
+                assertEquals(NumberType.DOUBLE, p.getNumberType());
                 assertEquals(123.0, p.getFloatValue());
             }
         }
@@ -1353,12 +1354,12 @@ public class TokenBufferTest extends DatabindTestUtil
             }
         }
 
-        // String-based number as VALUE_NUMBER_FLOAT -> BIG_DECIMAL
+        // [databind#3524] String-based number as VALUE_NUMBER_FLOAT -> DOUBLE (not BIG_DECIMAL)
         try (TokenBuffer buf = new TokenBuffer(null, false)) {
             buf.writeNumber("123.45");
             try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-                assertEquals(NumberType.BIG_DECIMAL, p.getNumberType());
+                assertEquals(NumberType.DOUBLE, p.getNumberType());
             }
         }
 

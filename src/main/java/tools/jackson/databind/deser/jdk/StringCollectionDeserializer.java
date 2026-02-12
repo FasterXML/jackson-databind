@@ -342,8 +342,9 @@ public final class StringCollectionDeserializer
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (!canWrap) {
+            // [databind#3349]: special check for possible coercions etc
             if (p.hasToken(JsonToken.VALUE_STRING)) {
-                return _deserializeFromString(p, ctxt);
+                return _deserializeFromStringForContainer(p, ctxt);
             }
             return castToCollection(ctxt.handleUnexpectedToken(_containerType, p));
         }

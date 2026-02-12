@@ -430,7 +430,7 @@ public class MapDeserializer
             return _readAndBind(p, ctxt, result);
         case JsonTokenId.ID_STRING:
             // (empty) String may be ok however; or single-String-arg ctor
-            return _deserializeFromString(p, ctxt);
+            return _deserializeFromStringForContainer(p, ctxt);
         case JsonTokenId.ID_START_ARRAY:
             // Empty array, or single-value wrapped in array?
             return _deserializeFromArray(p, ctxt);

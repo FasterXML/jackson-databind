@@ -22,7 +22,8 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 /**
  * Test for [databind#3349]: DeserializationProblemHandler::handleUnexpectedToken
- * should be invoked for array-like types when given an incompatible token.
+ * should be invoked for container types (Collections, Maps, arrays) when given
+ * an incompatible String token.
  */
 public class ProblemHandler3349Test
 {
@@ -38,11 +39,18 @@ public class ProblemHandler3349Test
                 String failureMsg)
         {
             handleUnexpectedTokenCalled = true;
-            // Return empty container to allow deserialization to proceed
             if (targetType.isMapLikeType()) {
                 return new HashMap<>();
             }
-            return new ArrayList<>();
+            if (targetType.isCollectionLikeType()) {
+                return new ArrayList<>();
+            }
+            if (targetType.isArrayType()) {
+                // Return zero-length array of correct type
+                return java.lang.reflect.Array.newInstance(
+                        targetType.getContentType().getRawClass(), 0);
+            }
+            return NOT_HANDLED;
         }
 
         @Override
@@ -60,6 +68,12 @@ public class ProblemHandler3349Test
         {
             handleMissingInstantiatorCalled = true;
             return NOT_HANDLED;
+        }
+
+        void reset() {
+            handleUnexpectedTokenCalled = false;
+            handleInstantiationProblemCalled = false;
+            handleMissingInstantiatorCalled = false;
         }
     }
 
@@ -97,10 +111,14 @@ public class ProblemHandler3349Test
         }
     }
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    /*
+    /**********************************************************************
+    /* Test methods: baseline
+    /**********************************************************************
+     */
 
     // Baseline: verify that handleUnexpectedToken is called for String type
-    // when given an array token (this should work fine)
+    // when given an array token (this should work fine, not affected by #3349)
     @Test
     public void testHandleUnexpectedTokenForStringProp() throws Exception
     {
@@ -118,13 +136,14 @@ public class ProblemHandler3349Test
             // May fail, but we just want to check which handler was called
         }
 
-        assertTrue(handler.handleUnexpectedTokenCalled,
-            "handleUnexpectedToken should be called when deserializing String from START_ARRAY");
-        assertFalse(handler.handleInstantiationProblemCalled,
-            "handleInstantiationProblem should NOT be called");
-        assertFalse(handler.handleMissingInstantiatorCalled,
-            "handleMissingInstantiator should NOT be called");
+        _verifyHandleUnexpectedTokenCalled(handler);
     }
+
+    /*
+    /**********************************************************************
+    /* Test methods: Collection types
+    /**********************************************************************
+     */
 
     // [databind#3349]: handleUnexpectedToken should be called for Collection/Iterable types
     // when given a string token instead of START_ARRAY
@@ -141,51 +160,151 @@ public class ProblemHandler3349Test
 
         mapper.treeToValue(input, ArrayHolder.class);
 
-        assertTrue(handler.handleUnexpectedTokenCalled,
-            "handleUnexpectedToken should be called when deserializing Collection from STRING token");
-        assertFalse(handler.handleInstantiationProblemCalled,
-            "handleInstantiationProblem should NOT be called");
-        assertFalse(handler.handleMissingInstantiatorCalled,
-            "handleMissingInstantiator should NOT be called");
+        _verifyHandleUnexpectedTokenCalled(handler);
     }
 
-    // Also test direct deserialization of Collection from string
+    // [databind#3349]: direct Collection<String> (StringCollectionDeserializer)
     @Test
-    public void testHandleUnexpectedTokenForDirectCollection() throws Exception
+    public void testHandleUnexpectedTokenForStringCollection() throws Exception
     {
         TrackingProblemHandler handler = new TrackingProblemHandler();
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(handler)
             .build();
 
-        mapper.readValue("\"someString\"",
+        mapper.readValue(q("someString"),
             mapper.getTypeFactory().constructCollectionType(ArrayList.class, String.class));
 
-        assertTrue(handler.handleUnexpectedTokenCalled,
-            "handleUnexpectedToken should be called when deserializing Collection from STRING");
-        assertFalse(handler.handleInstantiationProblemCalled,
-            "handleInstantiationProblem should NOT be called");
-        assertFalse(handler.handleMissingInstantiatorCalled,
-            "handleMissingInstantiator should NOT be called");
+        _verifyHandleUnexpectedTokenCalled(handler);
     }
 
-    // [databind#3349]: verify same issue for Map types
+    // [databind#3349]: Collection<Integer> (CollectionDeserializer)
     @Test
-    public void testHandleUnexpectedTokenForDirectMap() throws Exception
+    public void testHandleUnexpectedTokenForObjectCollection() throws Exception
     {
         TrackingProblemHandler handler = new TrackingProblemHandler();
         ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(handler)
             .build();
 
-        mapper.readValue("\"someString\"",
+        mapper.readValue(q("someString"),
+            mapper.getTypeFactory().constructCollectionType(ArrayList.class, Integer.class));
+
+        _verifyHandleUnexpectedTokenCalled(handler);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods: Map types
+    /**********************************************************************
+     */
+
+    // [databind#3349]: Map<String,String> (MapDeserializer)
+    @Test
+    public void testHandleUnexpectedTokenForMap() throws Exception
+    {
+        TrackingProblemHandler handler = new TrackingProblemHandler();
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addHandler(handler)
+            .build();
+
+        mapper.readValue(q("someString"),
             mapper.getTypeFactory().constructMapType(HashMap.class, String.class, String.class));
 
+        _verifyHandleUnexpectedTokenCalled(handler);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods: Array types
+    /**********************************************************************
+     */
+
+    // [databind#3349]: Object[] (ObjectArrayDeserializer)
+    @Test
+    public void testHandleUnexpectedTokenForObjectArray() throws Exception
+    {
+        TrackingProblemHandler handler = new TrackingProblemHandler();
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addHandler(handler)
+            .build();
+
+        mapper.readValue(q("someString"), Object[].class);
+
+        _verifyHandleUnexpectedTokenCalled(handler);
+    }
+
+    // [databind#3349]: String[] (StringArrayDeserializer)
+    @Test
+    public void testHandleUnexpectedTokenForStringArray() throws Exception
+    {
+        TrackingProblemHandler handler = new TrackingProblemHandler();
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addHandler(handler)
+            .build();
+
+        mapper.readValue(q("someString"), String[].class);
+
+        _verifyHandleUnexpectedTokenCalled(handler);
+    }
+
+    // [databind#3349]: int[] (PrimitiveArrayDeserializers)
+    @Test
+    public void testHandleUnexpectedTokenForIntArray() throws Exception
+    {
+        TrackingProblemHandler handler = new TrackingProblemHandler();
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addHandler(handler)
+            .build();
+
+        mapper.readValue(q("someString"), int[].class);
+
+        _verifyHandleUnexpectedTokenCalled(handler);
+    }
+
+    // [databind#3349]: long[] (PrimitiveArrayDeserializers)
+    @Test
+    public void testHandleUnexpectedTokenForLongArray() throws Exception
+    {
+        TrackingProblemHandler handler = new TrackingProblemHandler();
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addHandler(handler)
+            .build();
+
+        mapper.readValue(q("someString"), long[].class);
+
+        _verifyHandleUnexpectedTokenCalled(handler);
+    }
+
+    // NOTE: double[] and float[] not tested here: they have special "packed binary
+    // vector" handling that intercepts STRING tokens (base64) before handleNonArray
+
+    // [databind#3349]: boolean[] (PrimitiveArrayDeserializers)
+    @Test
+    public void testHandleUnexpectedTokenForBooleanArray() throws Exception
+    {
+        TrackingProblemHandler handler = new TrackingProblemHandler();
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addHandler(handler)
+            .build();
+
+        mapper.readValue(q("someString"), boolean[].class);
+
+        _verifyHandleUnexpectedTokenCalled(handler);
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods
+    /**********************************************************************
+     */
+
+    private void _verifyHandleUnexpectedTokenCalled(TrackingProblemHandler handler) {
         assertTrue(handler.handleUnexpectedTokenCalled,
-            "handleUnexpectedToken should be called when deserializing Map from STRING");
+            "handleUnexpectedToken should have been called");
         assertFalse(handler.handleInstantiationProblemCalled,
-            "handleInstantiationProblem should NOT be called");
+            "handleInstantiationProblem should NOT have been called");
         assertFalse(handler.handleMissingInstantiatorCalled,
-            "handleMissingInstantiator should NOT be called");
+            "handleMissingInstantiator should NOT have been called");
     }
 }

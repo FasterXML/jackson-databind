@@ -8,9 +8,8 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.exc.DatabindException;
-import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,19 +38,12 @@ public class AsArrayTypeDeserializerStackOverflowTest extends DatabindTestUtil
      * This mimics the configuration that can lead to stackoverflow.
      */
     private ObjectMapper createMapperWithDefaultTyping() {
-        ObjectMapper mapper = newJsonMapper();
-        
-        // Enable default typing with WRAPPER_ARRAY format
-        BasicPolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
-                .allowIfBaseType(Object.class)
-                .allowIfBaseType(Map.class)
+        // Enable default typing with WRAPPER_ARRAY format using builder pattern
+        return jsonMapperBuilder()
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL,
+                        JsonTypeInfo.As.WRAPPER_ARRAY)
                 .build();
-        
-        mapper.activateDefaultTyping(ptv,
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.WRAPPER_ARRAY);
-        
-        return mapper;
     }
 
     /**

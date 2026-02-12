@@ -116,26 +116,39 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             TokenBuffer tb, String typeId)
         throws JacksonException
     {
-        ValueDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
-        if (_typeIdVisible) { // need to merge id back in JSON input?
-            if (tb == null) {
-                tb = ctxt.bufferForInputBuffering(p);
+        // Track recursion depth to prevent StackOverflowError
+        final int depth = ctxt.incrementTypeDeserializerDepth();
+        try {
+            // Check depth limit before proceeding
+            if (depth > DeserializationContext.MAX_TYPE_DESERIALIZER_DEPTH) {
+                return ctxt.reportInputMismatch(baseType(),
+                        "Type deserializer depth exceeds the maximum allowed (%d): infinite recursion (StackOverflowError)?",
+                        DeserializationContext.MAX_TYPE_DESERIALIZER_DEPTH);
             }
-            tb.writeName(p.currentName());
-            tb.writeString(typeId);
+
+            ValueDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
+            if (_typeIdVisible) { // need to merge id back in JSON input?
+                if (tb == null) {
+                    tb = ctxt.bufferForInputBuffering(p);
+                }
+                tb.writeName(p.currentName());
+                tb.writeString(typeId);
+            }
+            if (tb != null) { // need to put back skipped properties?
+                // 02-Jul-2016, tatu: Depending on for JsonParserSequence is initialized it may
+                //   try to access current token; ensure there isn't one
+                p.clearCurrentToken();
+                p = JsonParserSequence.createFlattened(false, tb.asParser(ctxt, p), p);
+            }
+            if (p.currentToken() != JsonToken.END_OBJECT) {
+                // Must point to the next value; tb had no current, p pointed to VALUE_STRING:
+                p.nextToken(); // to skip past String value
+            }
+            // deserializer should take care of closing END_OBJECT as well
+            return deser.deserialize(p, ctxt);
+        } finally {
+            ctxt.decrementTypeDeserializerDepth();
         }
-        if (tb != null) { // need to put back skipped properties?
-            // 02-Jul-2016, tatu: Depending on for JsonParserSequence is initialized it may
-            //   try to access current token; ensure there isn't one
-            p.clearCurrentToken();
-            p = JsonParserSequence.createFlattened(false, tb.asParser(ctxt, p), p);
-        }
-        if (p.currentToken() != JsonToken.END_OBJECT) {
-            // Must point to the next value; tb had no current, p pointed to VALUE_STRING:
-            p.nextToken(); // to skip past String value
-        }
-        // deserializer should take care of closing END_OBJECT as well
-        return deser.deserialize(p, ctxt);
     }
 
     // off-lined to keep main method lean and mean...
@@ -143,48 +156,61 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             DeserializationContext ctxt, TokenBuffer tb, String priorFailureMsg)
         throws JacksonException
     {
-        // May have default implementation to use
-        // 13-Oct-2020, tatu: As per [databind#2775], need to be careful to
-        //    avoid ending up using "nullifying" deserializer
-        if (!hasDefaultImpl()) {
-            // or, perhaps we just bumped into a "natural" value (boolean/int/double/String)?
-            Object result = TypeDeserializer.deserializeIfNatural(p, ctxt, _baseType);
-            if (result != null) {
-                return result;
+        // Track recursion depth to prevent StackOverflowError
+        final int depth = ctxt.incrementTypeDeserializerDepth();
+        try {
+            // Check depth limit before proceeding
+            if (depth > DeserializationContext.MAX_TYPE_DESERIALIZER_DEPTH) {
+                return ctxt.reportInputMismatch(baseType(),
+                        "Type deserializer depth exceeds the maximum allowed (%d): infinite recursion (StackOverflowError)?",
+                        DeserializationContext.MAX_TYPE_DESERIALIZER_DEPTH);
             }
-            // or, something for which "as-property" won't work, changed into "wrapper-array" type:
-            if (p.isExpectedStartArrayToken()) {
-                return super.deserializeTypedFromAny(p, ctxt);
-            }
-            if (p.hasToken(JsonToken.VALUE_STRING)) {
-                if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                    String str = p.getString().trim();
-                    if (str.isEmpty()) {
-                        return null;
+
+            // May have default implementation to use
+            // 13-Oct-2020, tatu: As per [databind#2775], need to be careful to
+            //    avoid ending up using "nullifying" deserializer
+            if (!hasDefaultImpl()) {
+                // or, perhaps we just bumped into a "natural" value (boolean/int/double/String)?
+                Object result = TypeDeserializer.deserializeIfNatural(p, ctxt, _baseType);
+                if (result != null) {
+                    return result;
+                }
+                // or, something for which "as-property" won't work, changed into "wrapper-array" type:
+                if (p.isExpectedStartArrayToken()) {
+                    return super.deserializeTypedFromAny(p, ctxt);
+                }
+                if (p.hasToken(JsonToken.VALUE_STRING)) {
+                    if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                        String str = p.getString().trim();
+                        if (str.isEmpty()) {
+                            return null;
+                        }
                     }
                 }
             }
-        }
-        // ... and here we will check for default implementation handling (either
-        // genuine, or faked for "dont fail on bad type id")
-        ValueDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
-        if (deser == null) {
-            JavaType t = _strictTypeIdHandling
-                    ? _handleMissingTypeId(ctxt, priorFailureMsg) : _baseType;
-            if (t == null) {
-                // 09-Mar-2017, tatu: Is this the right thing to do?
-                return null;
+            // ... and here we will check for default implementation handling (either
+            // genuine, or faked for "dont fail on bad type id")
+            ValueDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
+            if (deser == null) {
+                JavaType t = _strictTypeIdHandling
+                        ? _handleMissingTypeId(ctxt, priorFailureMsg) : _baseType;
+                if (t == null) {
+                    // 09-Mar-2017, tatu: Is this the right thing to do?
+                    return null;
+                }
+                // ... would this actually work?
+                deser = ctxt.findContextualValueDeserializer(t, _property);
             }
-            // ... would this actually work?
-            deser = ctxt.findContextualValueDeserializer(t, _property);
+            if (tb != null) {
+                tb.writeEndObject();
+                p = tb.asParser(ctxt, p);
+                // must move to point to the first token:
+                p.nextToken();
+            }
+            return deser.deserialize(p, ctxt);
+        } finally {
+            ctxt.decrementTypeDeserializerDepth();
         }
-        if (tb != null) {
-            tb.writeEndObject();
-            p = tb.asParser(ctxt, p);
-            // must move to point to the first token:
-            p.nextToken();
-        }
-        return deser.deserialize(p, ctxt);
     }
 
     /* Also need to re-route "unknown" version. Need to think

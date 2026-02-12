@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.DatabindException;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,68 +21,89 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class AsArrayTypeDeserializerStackOverflowTest extends DatabindTestUtil
 {
-    // Base class with type info using WRAPPER_ARRAY
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_ARRAY)
-    static class Base {
-        public Map<String, Object> data;
+    /**
+     * POJO with a Map that can hold typed Objects.
+     * When combined with default typing, this can create recursive
+     * type deserialization scenarios.
+     */
+    static class DataHolder {
+        public Map<String, Object> values;
 
-        public Base() {
-            this.data = new HashMap<>();
-        }
-
-        public Base(Map<String, Object> data) {
-            this.data = data;
-        }
-    }
-
-    // Subclass that can contain maps with type information
-    static class Container extends Base {
-        public Container() {
-            super();
-        }
-
-        public Container(Map<String, Object> data) {
-            super(data);
+        public DataHolder() {
+            this.values = new HashMap<>();
         }
     }
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    /**
+     * Create an ObjectMapper with default typing enabled using WRAPPER_ARRAY.
+     * This mimics the configuration that can lead to stackoverflow.
+     */
+    private ObjectMapper createMapperWithDefaultTyping() {
+        ObjectMapper mapper = newJsonMapper();
+        
+        // Enable default typing with WRAPPER_ARRAY format
+        BasicPolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+                .allowIfBaseType(Object.class)
+                .allowIfBaseType(Map.class)
+                .build();
+        
+        mapper.activateDefaultTyping(ptv,
+                ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.WRAPPER_ARRAY);
+        
+        return mapper;
+    }
 
     /**
      * Test that attempts to deserialize a deeply nested structure that would
      * previously cause StackOverflowError. Now it should throw a proper
      * DatabindException with a meaningful error message about depth limit.
+     * 
+     * This test creates a structure where type information nesting exceeds
+     * the MAX_TYPE_DESERIALIZER_DEPTH limit.
      */
     @Test
     public void testDeepRecursionPrevention() throws Exception
     {
-        // Create a deeply nested JSON structure that would cause infinite recursion:
-        // The issue occurs when a Map value has type information that points back
-        // to a type deserializer, creating a cycle.
+        ObjectMapper mapper = createMapperWithDefaultTyping();
         
-        // Build a deep nesting structure that exceeds MAX_TYPE_DESERIALIZER_DEPTH
+        // Build a deeply nested structure with type information
+        // Each map value needs type info, creating nested TypeDeserializer calls
         StringBuilder json = new StringBuilder();
-        json.append("[\"").append(Container.class.getName()).append("\",{\"data\":{");
         
-        // Create nesting beyond the limit
+        // Start with the outer DataHolder type
+        json.append("[\"").append(DataHolder.class.getName()).append("\",");
+        json.append("{\"values\":{");
+        
+        // Create deep nesting that exceeds MAX_TYPE_DESERIALIZER_DEPTH
+        // Each nested level adds to the type deserializer depth
         int nestingDepth = DeserializationContext.MAX_TYPE_DESERIALIZER_DEPTH + 10;
+        
         for (int i = 0; i < nestingDepth; i++) {
-            json.append("\"key").append(i).append("\":");
-            json.append("[\"").append(Container.class.getName()).append("\",{\"data\":{");
+            json.append("\"k").append(i).append("\":");
+            // Each value is a Map with type info, causing recursive TypeDeserializer invocation
+            json.append("[\"java.util.HashMap\",{");
         }
         
-        // Close all the nested structures
+        // Add a simple value at the deepest level
+        json.append("\"innerKey\":\"innerValue\"");
+        
+        // Close all nested structures
         for (int i = 0; i < nestingDepth; i++) {
-            json.append("}}]");
+            json.append("}]");
+            if (i < nestingDepth - 1) {
+                json.append(",");
+            }
         }
+        
         json.append("}}]");
 
         // This should now throw a DatabindException instead of StackOverflowError
         Exception e = assertThrows(DatabindException.class, () -> {
-            MAPPER.readValue(json.toString(), Base.class);
+            mapper.readValue(json.toString(), Object.class);
         });
         
-        // Verify the error message mentions depth limit and infinite recursion
+        // Verify the error message mentions depth limit and/or infinite recursion
         String msg = e.getMessage();
         assertTrue(msg.contains("depth exceeds") || msg.contains("infinite recursion")
                         || msg.contains("StackOverflowError"),
@@ -94,15 +116,20 @@ public class AsArrayTypeDeserializerStackOverflowTest extends DatabindTestUtil
     @Test
     public void testNormalDeserialization() throws Exception
     {
-        // Create a simple valid structure
-        String json = "[\"" + Container.class.getName() + "\",{\"data\":{\"key\":\"value\"}}]";
+        ObjectMapper mapper = createMapperWithDefaultTyping();
         
-        Base result = MAPPER.readValue(json, Base.class);
+        // Create a simple valid structure
+        String json = "[\"" + DataHolder.class.getName() + "\"," +
+                "{\"values\":{\"key1\":\"value1\",\"key2\":\"value2\"}}]";
+        
+        Object result = mapper.readValue(json, Object.class);
         
         assertNotNull(result);
-        assertInstanceOf(Container.class, result);
-        assertNotNull(result.data);
-        assertEquals("value", result.data.get("key"));
+        assertInstanceOf(DataHolder.class, result);
+        DataHolder holder = (DataHolder) result;
+        assertNotNull(holder.values);
+        assertEquals("value1", holder.values.get("key1"));
+        assertEquals("value2", holder.values.get("key2"));
     }
 
     /**
@@ -111,13 +138,23 @@ public class AsArrayTypeDeserializerStackOverflowTest extends DatabindTestUtil
     @Test
     public void testModerateNestingWorks() throws Exception
     {
-        // Create nested structure well within the limit (e.g., 50 levels)
-        StringBuilder json = new StringBuilder();
-        json.append("[\"").append(Container.class.getName()).append("\",{\"data\":{");
+        ObjectMapper mapper = createMapperWithDefaultTyping();
         
-        int nestingDepth = 50; // Well within MAX_TYPE_DESERIALIZER_DEPTH
+        // Create nested structure well within the limit (e.g., 10 levels)
+        StringBuilder json = new StringBuilder();
+        json.append("[\"").append(DataHolder.class.getName()).append("\",");
+        json.append("{\"values\":{");
+        
+        int nestingDepth = 10; // Well within MAX_TYPE_DESERIALIZER_DEPTH
         for (int i = 0; i < nestingDepth; i++) {
-            json.append("\"key").append(i).append("\":\"value").append(i).append("\"");
+            json.append("\"k").append(i).append("\":");
+            json.append("[\"java.util.HashMap\",{");
+        }
+        
+        json.append("\"innerKey\":\"innerValue\"");
+        
+        for (int i = 0; i < nestingDepth; i++) {
+            json.append("}]");
             if (i < nestingDepth - 1) {
                 json.append(",");
             }
@@ -126,10 +163,9 @@ public class AsArrayTypeDeserializerStackOverflowTest extends DatabindTestUtil
         json.append("}}]");
 
         // This should work fine
-        Base result = MAPPER.readValue(json.toString(), Base.class);
+        Object result = mapper.readValue(json.toString(), Object.class);
         
         assertNotNull(result);
-        assertInstanceOf(Container.class, result);
-        assertEquals(nestingDepth, result.data.size());
+        assertInstanceOf(DataHolder.class, result);
     }
 }

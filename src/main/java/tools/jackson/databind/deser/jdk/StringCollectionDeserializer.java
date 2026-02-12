@@ -342,8 +342,33 @@ public final class StringCollectionDeserializer
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (!canWrap) {
+            // [databind#3349]: For String tokens, first check if ValueInstantiator
+            //   can create from String; then handle empty/blank coercion;
+            //   for non-empty strings, delegate to handleUnexpectedToken
+            //   (NOT handleMissingInstantiator)
             if (p.hasToken(JsonToken.VALUE_STRING)) {
-                return _deserializeFromString(p, ctxt);
+                final ValueInstantiator inst = getValueInstantiator();
+                if ((inst != null) && inst.canCreateFromString()) {
+                    return castToCollection(inst.createFromString(ctxt, p.getValueAsString()));
+                }
+                String textValue = p.getString();
+                if (textValue.isEmpty()) {
+                    final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
+                            CoercionInputShape.EmptyString);
+                    if (act != null) {
+                        // Note: for Fail, _deserializeFromEmptyString will throw;
+                        //  for others returns coerced value
+                        return castToCollection(_deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                "empty String (\"\")"));
+                    }
+                } else if (_isBlank(textValue)) {
+                    final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), handledType(),
+                            CoercionAction.Fail);
+                    // Note: for Fail, _deserializeFromEmptyString will throw;
+                    //  for others returns coerced value
+                    return castToCollection(_deserializeFromEmptyString(p, ctxt, act, handledType(),
+                            "blank String (all whitespace)"));
+                }
             }
             return castToCollection(ctxt.handleUnexpectedToken(_containerType, p));
         }

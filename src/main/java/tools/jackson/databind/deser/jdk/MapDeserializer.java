@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
+import tools.jackson.databind.cfg.CoercionAction;
+import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.deser.ReadableObjectId.Referring;
 import tools.jackson.databind.deser.bean.PropertyBasedCreator;
@@ -430,7 +432,9 @@ public class MapDeserializer
             return _readAndBind(p, ctxt, result);
         case JsonTokenId.ID_STRING:
             // (empty) String may be ok however; or single-String-arg ctor
-            return _deserializeFromString(p, ctxt);
+            // [databind#3349]: but for non-empty strings without string creator,
+            //   should call handleUnexpectedToken, not handleMissingInstantiator
+            return _deserializeFromStringForMap(p, ctxt);
         case JsonTokenId.ID_START_ARRAY:
             // Empty array, or single-value wrapped in array?
             return _deserializeFromArray(p, ctxt);
@@ -469,6 +473,41 @@ public class MapDeserializer
     {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromObject(p, ctxt);
+    }
+
+    /**
+     * [databind#3349]: Handle String token for Map deserialization: check
+     * ValueInstantiator for string creator, then empty/blank coercion,
+     * and finally delegate to handleUnexpectedToken (NOT handleMissingInstantiator).
+     *
+     * @since 2.19
+     */
+    @SuppressWarnings("unchecked")
+    protected Map<Object,Object> _deserializeFromStringForMap(JsonParser p,
+            DeserializationContext ctxt)
+        throws JacksonException
+    {
+        final ValueInstantiator inst = getValueInstantiator();
+        final Class<?> rawTargetType = handledType();
+
+        if ((inst != null) && inst.canCreateFromString()) {
+            return (Map<Object,Object>) inst.createFromString(ctxt, p.getValueAsString());
+        }
+        String value = p.getValueAsString();
+        if (value.isEmpty()) {
+            final CoercionAction act = ctxt.findCoercionAction(logicalType(), rawTargetType,
+                    CoercionInputShape.EmptyString);
+            if (act != null) {
+                return (Map<Object,Object>) _deserializeFromEmptyString(p, ctxt, act,
+                        rawTargetType, "empty String (\"\")");
+            }
+        } else if (_isBlank(value)) {
+            final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), rawTargetType,
+                    CoercionAction.Fail);
+            return (Map<Object,Object>) _deserializeFromEmptyString(p, ctxt, act,
+                    rawTargetType, "blank String (all whitespace)");
+        }
+        return (Map<Object,Object>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     /*

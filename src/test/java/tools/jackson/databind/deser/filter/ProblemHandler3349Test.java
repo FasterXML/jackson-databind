@@ -2,7 +2,8 @@ package tools.jackson.databind.deser.filter;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -37,7 +38,10 @@ public class ProblemHandler3349Test
                 String failureMsg)
         {
             handleUnexpectedTokenCalled = true;
-            // Return empty collection to allow deserialization to proceed
+            // Return empty container to allow deserialization to proceed
+            if (targetType.isMapLikeType()) {
+                return new HashMap<>();
+            }
             return new ArrayList<>();
         }
 
@@ -159,6 +163,26 @@ public class ProblemHandler3349Test
 
         assertTrue(handler.handleUnexpectedTokenCalled,
             "handleUnexpectedToken should be called when deserializing Collection from STRING");
+        assertFalse(handler.handleInstantiationProblemCalled,
+            "handleInstantiationProblem should NOT be called");
+        assertFalse(handler.handleMissingInstantiatorCalled,
+            "handleMissingInstantiator should NOT be called");
+    }
+
+    // [databind#3349]: verify same issue for Map types
+    @Test
+    public void testHandleUnexpectedTokenForDirectMap() throws Exception
+    {
+        TrackingProblemHandler handler = new TrackingProblemHandler();
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addHandler(handler)
+            .build();
+
+        mapper.readValue("\"someString\"",
+            mapper.getTypeFactory().constructMapType(HashMap.class, String.class, String.class));
+
+        assertTrue(handler.handleUnexpectedTokenCalled,
+            "handleUnexpectedToken should be called when deserializing Map from STRING");
         assertFalse(handler.handleInstantiationProblemCalled,
             "handleInstantiationProblem should NOT be called");
         assertFalse(handler.handleMissingInstantiatorCalled,

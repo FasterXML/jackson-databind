@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class DelegatingExternalProperty1003Test extends DatabindTestUtil

@@ -359,15 +359,14 @@ public class ObjectArrayDeserializer
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (!canWrap) {
-            // 2 exceptions with Strings:
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 // One exception; byte arrays are generally serialized as base64, so that should be handled
                 // note: not `byte[]`, but `Byte[]` -- former is primitive array
                 if (_elementClass == Byte.class) {
                     return deserializeFromBase64(p, ctxt);
                 }
-                // Second: empty (and maybe blank) String
-                return _deserializeFromString(p, ctxt);
+                // [databind#3349]: for non-empty strings, delegate to handleUnexpectedToken
+                return _deserializeFromStringForContainer(p, ctxt);
             }
             return ctxt.handleUnexpectedToken(_containerType, p);
         }

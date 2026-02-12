@@ -67,6 +67,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   serialization
  (requested by @arungitan)
  (implemented by Lee Jiwon)
+#3349: `DeserializationProblemHandler.handleUnexpectedToken()` no longer
+  invoked for array-like types
+ (reported by @andpal)
 #3786: Deserialization of generic container (of Record type) using `EXTERNAL_PROPERTY`
   fails for "natural" types (`boolean`/`long`/`String`/`double`) because
   type information is missing

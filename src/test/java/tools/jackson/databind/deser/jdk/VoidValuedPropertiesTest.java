@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 // [databind#2675]: Void-valued "properties"
-public class VoidProperties2675Test
+public class VoidValuedPropertiesTest
 {
     static class VoidBean {
         protected Void value;

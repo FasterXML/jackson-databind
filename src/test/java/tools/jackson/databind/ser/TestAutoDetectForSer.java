@@ -40,6 +40,26 @@ public class TestAutoDetectForSer
     @JsonAutoDetect(getterVisibility=JsonAutoDetect.Visibility.PROTECTED_AND_PUBLIC)
     static class ProtMethodBean extends MethodBean { }
 
+    final static class FieldBeanWithStatic
+    {
+        public int x = 1;
+
+        public static int y = 2;
+
+        // not even @JsonProperty should make statics usable...
+        @JsonProperty public static int z = 3;
+    }
+
+    final static class GetterBeanWithStatic
+    {
+        public int getX() { return 3; }
+
+        public static int getA() { return -3; }
+
+        // not even @JsonProperty should make statics usable...
+        @JsonProperty public static int getFoo() { return 123; }
+    }
+    
     /*
     /*********************************************************
     /* Test methods
@@ -74,6 +94,22 @@ public class TestAutoDetectForSer
         assertNull(result.get("c"));
     }
 
+    @Test
+    public void testStaticFields() throws Exception
+    {
+        Map<String,Object> result = writeAndMap(MAPPER, new FieldBeanWithStatic());
+        assertEquals(1, result.size());
+        assertEquals(Integer.valueOf(1), result.get("x"));
+    }
+
+    @Test
+    public void testStaticMethods() throws Exception
+    {
+        Map<String,Object> result = writeAndMap(MAPPER, new GetterBeanWithStatic());
+        assertEquals(1, result.size());
+        assertEquals(Integer.valueOf(3), result.get("x"));
+    }
+    
     @Test
     public void testPrivateUsingGlobals() throws Exception
     {

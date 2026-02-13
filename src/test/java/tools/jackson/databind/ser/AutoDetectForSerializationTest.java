@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for checking extended auto-detect configuration,
  * in context of serialization
  */
-public class TestAutoDetectForSer
+public class AutoDetectForSerializationTest
     extends DatabindTestUtil
 {
     static class FieldBean

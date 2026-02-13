@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests for verifying that one can append virtual properties after regular ones.
  */
-public class TestVirtualProperties extends DatabindTestUtil
+public class VirtualPropertiesSerializationTest extends DatabindTestUtil
 {
     @JsonAppend(attrs={ @JsonAppend.Attr("id"),
         @JsonAppend.Attr(value="internal", propName="extra", required=true)

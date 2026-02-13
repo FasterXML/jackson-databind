@@ -1,4 +1,4 @@
-package tools.jackson.databind.ser;
+package tools.jackson.databind.node;
 
 import java.io.*;
 import java.util.*;
@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
-import tools.jackson.databind.node.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * This unit test suite tries to verify that JsonNode-based trees
  * can be serialized as expected
  */
-public class TestTreeSerialization
+public class TreeSerializationViaMapperTest
     extends DatabindTestUtil
 {
     final static class Bean {

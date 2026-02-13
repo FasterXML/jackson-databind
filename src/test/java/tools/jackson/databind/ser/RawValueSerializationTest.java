@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * This unit test suite tests functioning of {@link JsonRawValue}
  * annotation with bean serialization.
  */
-public class RawValueTest
+public class RawValueSerializationTest
     extends DatabindTestUtil
 {
     /*

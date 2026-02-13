@@ -13,7 +13,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#5231] Fix #5231 with MethodHandle with varargs in deserialization #5235
-public class JDKLocaleWithVargarg5231Test
+public class LocaleWithVargarg5231Test
     extends DatabindTestUtil
 {
     public static class DateTimeParserConfig {

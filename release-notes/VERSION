@@ -205,6 +205,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5649: Wrap `LocalDate.ofEpochDay()` and `Instant.ofEpochSecond()` to throw
   `DateTimeParseException` on invalid values
  (implemented by @pjfanning)
+#5674: Fix NPE when deserializing `Throwable` with `null` "stackTrace"
+ (fix by @pjfanning)
 
 3.0.4 (not yet released)
 

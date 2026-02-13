@@ -26,8 +26,6 @@ import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.module.SimpleModule;
-import tools.jackson.databind.ser.jdk.BigDecimalAsString2519Test.Bean2519Typed;
-import tools.jackson.databind.ser.jdk.BigDecimalAsString2519Test.Bean2519Untyped;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

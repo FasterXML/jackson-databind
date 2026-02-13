@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class IgnoreCreatorProp1317Test
+public class JsonIgnoreCreatorProp1317Test
 {
     static class Testing {
         @JsonIgnore

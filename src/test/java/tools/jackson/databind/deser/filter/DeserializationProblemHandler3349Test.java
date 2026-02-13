@@ -1,9 +1,6 @@
 package tools.jackson.databind.deser.filter;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +22,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
  * should be invoked for container types (Collections, Maps, arrays) when given
  * an incompatible String token.
  */
-public class ProblemHandler3349Test
+public class DeserializationProblemHandler3349Test
 {
     // Problem handler that tracks which handler method was called
     static class TrackingProblemHandler extends DeserializationProblemHandler {

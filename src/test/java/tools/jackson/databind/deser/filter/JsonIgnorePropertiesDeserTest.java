@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class IgnorePropertyOnDeserTest
+public class JsonIgnorePropertiesDeserTest
 {
     // [databind#426]
     @JsonIgnoreProperties({ "userId" })

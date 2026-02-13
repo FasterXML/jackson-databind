@@ -16,7 +16,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 // Test(s) to verify [databind#1440]
-public class ProblemHandlerLocation1440Test
+public class DeserializationProblemHandlerLocation1440Test
 {
     static class DeserializationProblem {
         public List<String> unknownProperties = new ArrayList<>();

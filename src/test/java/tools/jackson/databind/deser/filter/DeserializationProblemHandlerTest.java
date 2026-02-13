@@ -25,7 +25,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 /**
  * Tests to exercise handler methods of {@link DeserializationProblemHandler}.
  */
-public class ProblemHandlerTest
+public class DeserializationProblemHandlerTest
 {
     /*
     /**********************************************************

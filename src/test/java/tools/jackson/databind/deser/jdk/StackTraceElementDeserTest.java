@@ -342,15 +342,13 @@ public class StackTraceElementDeserTest extends DatabindTestUtil
         // first, via bean that contains StackTraceElement
         StackTraceBean bean = MAPPER.readValue(a2q("{'Location':'foobar'}"),
                 StackTraceBean.class);
-        assertNotNull(bean);
         assertNotNull(bean.location);
         assertEquals(StackTraceBean.NUM, bean.location.getLineNumber());
 
         // and then directly, iff registered
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer());
         ObjectMapper mapper = jsonMapperBuilder()
-                .addModule(module)
+                .addModule(new SimpleModule()
+                        .addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer()))
                 .build();
         StackTraceElement elem = mapper.readValue("123", StackTraceElement.class);
         assertNotNull(elem);

@@ -21,7 +21,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder
 
 
 // for [databind#2221]
-public class ProblemHandlerUnknownTypeId2221Test
+public class DeserializationProblemHandlerUnknownTypeId2221Test
 {
     @SuppressWarnings("rawtypes")
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")

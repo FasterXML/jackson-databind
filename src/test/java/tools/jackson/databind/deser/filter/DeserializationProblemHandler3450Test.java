@@ -8,7 +8,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class ProblemHandler3450Test
+public class DeserializationProblemHandler3450Test
 {
     // [databind#3450]
     static class LenientDeserializationProblemHandler extends DeserializationProblemHandler {

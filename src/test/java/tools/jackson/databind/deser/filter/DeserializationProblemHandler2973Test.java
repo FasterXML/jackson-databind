@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class ProblemHandler2973Test
+public class DeserializationProblemHandler2973Test
 {
     // [databind#2973]
     static class WeirdTokenHandler

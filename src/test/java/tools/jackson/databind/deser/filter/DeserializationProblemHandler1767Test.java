@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
-public class ProblemHandler1767Test
+public class DeserializationProblemHandler1767Test
 {
     static class IntHandler extends DeserializationProblemHandler
     {

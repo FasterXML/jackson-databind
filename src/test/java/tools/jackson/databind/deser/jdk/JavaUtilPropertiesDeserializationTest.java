@@ -9,7 +9,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JavaUtilPropertoesDeserializationTest extends DatabindTestUtil
+public class JavaUtilPropertiesDeserializationTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = sharedMapper();
 

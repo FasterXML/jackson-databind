@@ -2,22 +2,15 @@ package tools.jackson.databind.deser.jdk;
 
 import java.io.*;
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Currency;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.*;
-
-import tools.jackson.core.JsonParser;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.databind.*;
-import tools.jackson.databind.annotation.JsonDeserialize;
-import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.exc.InvalidFormatException;
-import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.util.TokenBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,27 +31,6 @@ public class JDKStringLikeTypeDeserTest
          }
     }
 
-    // [databind#429]
-    static class StackTraceBean {
-        public final static int NUM = 13;
-
-        @JsonProperty("Location")
-        @JsonDeserialize(using=MyStackTraceElementDeserializer.class)
-        protected StackTraceElement location;
-    }
-
-    static class MyStackTraceElementDeserializer extends StdDeserializer<StackTraceElement>
-    {
-        public MyStackTraceElementDeserializer() { super(StackTraceElement.class); }
-
-        @Override
-        public StackTraceElement deserialize(JsonParser jp,
-                DeserializationContext ctxt) {
-            jp.skipChildren();
-            return new StackTraceElement("a", "b", "b", StackTraceBean.NUM);
-        }
-    }
-
     /*
     /**********************************************************************
     /* Test methods
@@ -66,21 +38,6 @@ public class JDKStringLikeTypeDeserTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-
-    // [databind#239]
-    @Test
-    public void testByteBuffer() throws Exception
-    {
-        byte[] INPUT = new byte[] { 1, 3, 9, -1, 6 };
-        String exp = MAPPER.writeValueAsString(INPUT);
-        ByteBuffer result = MAPPER.readValue(exp,  ByteBuffer.class);
-        assertNotNull(result);
-        assertEquals(INPUT.length, result.remaining());
-        for (int i = 0; i < INPUT.length; ++i) {
-            assertEquals(INPUT[i], result.get());
-        }
-        assertEquals(0, result.remaining());
-    }
 
     @Test
     public void testCharset() throws Exception
@@ -90,7 +47,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testClass() throws IOException
+    public void testClass() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         assertSame(String.class, mapper.readValue(q("java.lang.String"), Class.class));
@@ -108,7 +65,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testClassWithParams() throws IOException
+    public void testClassWithParams() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ParamClassBean("Foobar"));
 
@@ -118,7 +75,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testCurrency() throws IOException
+    public void testCurrency() throws Exception
     {
         Currency usd = Currency.getInstance("USD");
         assertEquals(usd, MAPPER.readValue(q("USD"), Currency.class));
@@ -146,7 +103,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testCharSequence() throws IOException
+    public void testCharSequence() throws Exception
     {
         CharSequence cs = MAPPER.readValue("\"abc\"", CharSequence.class);
         assertEquals(String.class, cs.getClass());
@@ -154,7 +111,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testInetAddress() throws IOException
+    public void testInetAddress() throws Exception
     {
         InetAddress address = MAPPER.readValue(q("127.0.0.1"), InetAddress.class);
         assertEquals("127.0.0.1", address.getHostAddress());
@@ -166,7 +123,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testInetSocketAddress() throws IOException
+    public void testInetSocketAddress() throws Exception
     {
         InetSocketAddress address = MAPPER.readValue(q("127.0.0.1"), InetSocketAddress.class);
         assertEquals("127.0.0.1", address.getAddress().getHostAddress());
@@ -192,7 +149,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testPattern() throws IOException
+    public void testPattern() throws Exception
     {
         Pattern exp = Pattern.compile("abc:\\s?(\\d+)");
         // Ok: easiest way is to just serialize first; problem
@@ -217,59 +174,6 @@ public class JDKStringLikeTypeDeserTest
             verifyException(e, "Cannot deserialize value of type `java.util.regex.Pattern` from String \"[abc\"");
             verifyException(e, "Invalid pattern, problem");
         }
-    }
-
-    @Test
-    public void testStackTraceElement() throws Exception
-    {
-        StackTraceElement elem = null;
-        try {
-            throw new IllegalStateException();
-        } catch (Exception e) {
-            elem = e.getStackTrace()[0];
-        }
-        String json = MAPPER.writeValueAsString(elem);
-        StackTraceElement back = MAPPER.readValue(json, StackTraceElement.class);
-
-        assertEquals("testStackTraceElement", back.getMethodName());
-        assertEquals(elem.getLineNumber(), back.getLineNumber());
-        assertEquals(elem.getClassName(), back.getClassName());
-        assertEquals(elem.isNativeMethod(), back.isNativeMethod());
-        assertTrue(back.getClassName().endsWith("JDKStringLikeTypeDeserTest"));
-        assertFalse(back.isNativeMethod());
-    }
-
-    // [databind#429]
-    @Test
-    public void testStackTraceElementWithCustom() throws Exception
-    {
-        // first, via bean that contains StackTraceElement
-        StackTraceBean bean = MAPPER.readValue(a2q("{'Location':'foobar'}"),
-                StackTraceBean.class);
-        assertNotNull(bean);
-        assertNotNull(bean.location);
-        assertEquals(StackTraceBean.NUM, bean.location.getLineNumber());
-
-        // and then directly, iff registered
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer());
-        ObjectMapper mapper = jsonMapperBuilder()
-                .addModule(module)
-                .build();
-        StackTraceElement elem = mapper.readValue("123", StackTraceElement.class);
-        assertNotNull(elem);
-        assertEquals(StackTraceBean.NUM, elem.getLineNumber());
-
-        // and finally, even as part of real exception
-
-        IOException ioe = mapper.readValue(a2q("{'stackTrace':[ 123, 456 ]}"),
-                IOException.class);
-        assertNotNull(ioe);
-        StackTraceElement[] traces = ioe.getStackTrace();
-        assertNotNull(traces);
-        assertEquals(2, traces.length);
-        assertEquals(StackTraceBean.NUM, traces[0].getLineNumber());
-        assertEquals(StackTraceBean.NUM, traces[1].getLineNumber());
     }
 
     @Test

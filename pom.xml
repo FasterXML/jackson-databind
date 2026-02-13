@@ -179,8 +179,8 @@
     <!-- 13-May-2025, tatu: and now moving to Central Portal -->
     <repository>
       <id>central-snapshots</id>
-      <name>Sonatype Central Portal (snapshots)</name>
-      <url>https://central.sonatype.com/repository/maven-snapshots</url>
+      <name>OSS Sonatype snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       <releases><enabled>false</enabled></releases>
       <snapshots><enabled>true</enabled></snapshots>
     </repository>

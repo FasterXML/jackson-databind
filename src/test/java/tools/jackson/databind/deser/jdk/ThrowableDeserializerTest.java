@@ -287,4 +287,32 @@ public class ThrowableDeserializerTest extends DatabindTestUtil
         assertNotNull(result);
         assertEquals(0, result.getSuppressed().length);
     }
+
+    /*
+    /**********************************************************
+    /* Tests for stackTrace handling
+    /**********************************************************
+     */
+
+    @Test
+    public void testNullStackTrace() throws Exception
+    {
+        // Should not throw NullPointerException when stackTrace is null
+        String json = a2q("{'message':'test','stackTrace':null}");
+        IOException result = MAPPER.readValue(json, IOException.class);
+        assertNotNull(result);
+        assertEquals("test", result.getMessage());
+        // stackTrace should be present (not null) even though input was null
+        assertNotNull(result.getStackTrace());
+    }
+
+    @Test
+    public void testEmptyStackTrace() throws Exception
+    {
+        String json = a2q("{'message':'test','stackTrace':[]}");
+        IOException result = MAPPER.readValue(json, IOException.class);
+        assertNotNull(result);
+        assertEquals("test", result.getMessage());
+        assertEquals(0, result.getStackTrace().length);
+    }
 }

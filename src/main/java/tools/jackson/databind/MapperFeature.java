@@ -204,7 +204,7 @@ public enum MapperFeature
      * Feature that determines whether method and field access
      * modifier settings can be overridden when accessing
      * properties. If enabled, method
-     * {@link java.lang.reflect.AccessibleObject#setAccessible}
+     * {@link java.lang.reflect.AccessibleObject#trySetAccessible}
      * may be called to enable access to otherwise unaccessible objects.
      *<p>
      * Note that this setting may have significant performance implications,
@@ -227,7 +227,7 @@ public enum MapperFeature
 
     /**
      * Feature that determines that forces call to
-     * {@link java.lang.reflect.AccessibleObject#setAccessible} even for
+     * {@link java.lang.reflect.AccessibleObject#trySetAccessible} even for
      * <code>public</code> accessors -- that is, even if no such call is
      * needed from functionality perspective -- if call is allowed
      * (that is, {@link #CAN_OVERRIDE_ACCESS_MODIFIERS} is set to true).

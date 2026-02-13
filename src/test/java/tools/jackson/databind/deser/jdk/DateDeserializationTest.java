@@ -813,6 +813,34 @@ public class DateDeserializationTest
         }
     }
 
+    // [databind#5429]
+    @Test
+    public void testDateRoundTripWithMaxValue() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .build();
+
+        Date original = new Date(Long.MAX_VALUE);
+        String json = mapper.writeValueAsString(original);
+        Date parsed = mapper.readValue(json, Date.class);
+
+        assertEquals(original.getTime(), parsed.getTime());
+    }
+
+    // [databind#5429]
+    @Test
+    public void testDateRoundTripWithMinValue() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .build();
+
+        Date original = new Date(Long.MIN_VALUE);
+        String json = mapper.writeValueAsString(original);
+        Date parsed = mapper.readValue(json, Date.class);
+
+        assertEquals(original.getTime(), parsed.getTime());
+    }
+
     /*
     /**********************************************************
     /* Helper methods

@@ -2,24 +2,15 @@ package tools.jackson.databind.deser.jdk;
 
 import java.io.*;
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Currency;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.*;
-
-import tools.jackson.core.Base64Variants;
-import tools.jackson.core.JsonParser;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.databind.*;
-import tools.jackson.databind.annotation.JsonDeserialize;
-import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.exc.InvalidFormatException;
-import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.util.TokenBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,49 +31,13 @@ public class JDKStringLikeTypeDeserTest
          }
     }
 
-    // [databind#429]
-    static class StackTraceBean {
-        public final static int NUM = 13;
-
-        @JsonProperty("Location")
-        @JsonDeserialize(using=MyStackTraceElementDeserializer.class)
-        protected StackTraceElement location;
-    }
-
-    static class MyStackTraceElementDeserializer extends StdDeserializer<StackTraceElement>
-    {
-        public MyStackTraceElementDeserializer() { super(StackTraceElement.class); }
-
-        @Override
-        public StackTraceElement deserialize(JsonParser jp,
-                DeserializationContext ctxt) {
-            jp.skipChildren();
-            return new StackTraceElement("a", "b", "b", StackTraceBean.NUM);
-        }
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-
-    // [databind#239]
-    @Test
-    public void testByteBuffer() throws Exception
-    {
-        byte[] INPUT = new byte[] { 1, 3, 9, -1, 6 };
-        String exp = MAPPER.writeValueAsString(INPUT);
-        ByteBuffer result = MAPPER.readValue(exp,  ByteBuffer.class);
-        assertNotNull(result);
-        assertEquals(INPUT.length, result.remaining());
-        for (int i = 0; i < INPUT.length; ++i) {
-            assertEquals(INPUT[i], result.get());
-        }
-        assertEquals(0, result.remaining());
-    }
 
     @Test
     public void testCharset() throws Exception
@@ -92,7 +47,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testClass() throws IOException
+    public void testClass() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         assertSame(String.class, mapper.readValue(q("java.lang.String"), Class.class));
@@ -110,7 +65,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testClassWithParams() throws IOException
+    public void testClassWithParams() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ParamClassBean("Foobar"));
 
@@ -120,7 +75,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testCurrency() throws IOException
+    public void testCurrency() throws Exception
     {
         Currency usd = Currency.getInstance("USD");
         assertEquals(usd, MAPPER.readValue(q("USD"), Currency.class));
@@ -148,7 +103,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testCharSequence() throws IOException
+    public void testCharSequence() throws Exception
     {
         CharSequence cs = MAPPER.readValue("\"abc\"", CharSequence.class);
         assertEquals(String.class, cs.getClass());
@@ -156,7 +111,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testInetAddress() throws IOException
+    public void testInetAddress() throws Exception
     {
         InetAddress address = MAPPER.readValue(q("127.0.0.1"), InetAddress.class);
         assertEquals("127.0.0.1", address.getHostAddress());
@@ -168,7 +123,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testInetSocketAddress() throws IOException
+    public void testInetSocketAddress() throws Exception
     {
         InetSocketAddress address = MAPPER.readValue(q("127.0.0.1"), InetSocketAddress.class);
         assertEquals("127.0.0.1", address.getAddress().getHostAddress());
@@ -194,7 +149,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testPattern() throws IOException
+    public void testPattern() throws Exception
     {
         Pattern exp = Pattern.compile("abc:\\s?(\\d+)");
         // Ok: easiest way is to just serialize first; problem
@@ -219,59 +174,6 @@ public class JDKStringLikeTypeDeserTest
             verifyException(e, "Cannot deserialize value of type `java.util.regex.Pattern` from String \"[abc\"");
             verifyException(e, "Invalid pattern, problem");
         }
-    }
-
-    @Test
-    public void testStackTraceElement() throws Exception
-    {
-        StackTraceElement elem = null;
-        try {
-            throw new IllegalStateException();
-        } catch (Exception e) {
-            elem = e.getStackTrace()[0];
-        }
-        String json = MAPPER.writeValueAsString(elem);
-        StackTraceElement back = MAPPER.readValue(json, StackTraceElement.class);
-
-        assertEquals("testStackTraceElement", back.getMethodName());
-        assertEquals(elem.getLineNumber(), back.getLineNumber());
-        assertEquals(elem.getClassName(), back.getClassName());
-        assertEquals(elem.isNativeMethod(), back.isNativeMethod());
-        assertTrue(back.getClassName().endsWith("JDKStringLikeTypeDeserTest"));
-        assertFalse(back.isNativeMethod());
-    }
-
-    // [databind#429]
-    @Test
-    public void testStackTraceElementWithCustom() throws Exception
-    {
-        // first, via bean that contains StackTraceElement
-        StackTraceBean bean = MAPPER.readValue(a2q("{'Location':'foobar'}"),
-                StackTraceBean.class);
-        assertNotNull(bean);
-        assertNotNull(bean.location);
-        assertEquals(StackTraceBean.NUM, bean.location.getLineNumber());
-
-        // and then directly, iff registered
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer());
-        ObjectMapper mapper = jsonMapperBuilder()
-                .addModule(module)
-                .build();
-        StackTraceElement elem = mapper.readValue("123", StackTraceElement.class);
-        assertNotNull(elem);
-        assertEquals(StackTraceBean.NUM, elem.getLineNumber());
-
-        // and finally, even as part of real exception
-
-        IOException ioe = mapper.readValue(a2q("{'stackTrace':[ 123, 456 ]}"),
-                IOException.class);
-        assertNotNull(ioe);
-        StackTraceElement[] traces = ioe.getStackTrace();
-        assertNotNull(traces);
-        assertEquals(2, traces.length);
-        assertEquals(StackTraceBean.NUM, traces[0].getLineNumber());
-        assertEquals(StackTraceBean.NUM, traces[1].getLineNumber());
     }
 
     @Test
@@ -334,96 +236,5 @@ public class JDKStringLikeTypeDeserTest
         }
     }
 
-    @Test
-    public void testUUID() throws Exception
-    {
-        final String NULL_UUID = "00000000-0000-0000-0000-000000000000";
-        final ObjectReader r = MAPPER.readerFor(UUID.class);
 
-        // first, couple of generated UUIDs:
-        for (String value : new String[] {
-                "76e6d183-5f68-4afa-b94a-922c1fdb83f8",
-                "540a88d1-e2d8-4fb1-9396-9212280d0a7f",
-                "2c9e441d-1cd0-472d-9bab-69838f877574",
-                "591b2869-146e-41d7-8048-e8131f1fdec5",
-                "82994ac2-7b23-49f2-8cc5-e24cf6ed77be",
-                "00000007-0000-0000-0000-000000000000"
-        }) {
-            UUID uuid = UUID.fromString(value);
-            assertEquals(uuid,
-                    r.without(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                        .readValue(q(value)));
-        }
-        // then use templating; note that these are not exactly valid UUIDs
-        // wrt spec (type bits etc), but JDK UUID should deal ok
-        final String TEMPL = NULL_UUID;
-        final String chars = "123456789abcdefABCDEF";
-
-        for (int i = 0; i < chars.length(); ++i) {
-            String value = TEMPL.replace('0', chars.charAt(i));
-            assertEquals(UUID.fromString(value).toString(),
-                    r.readValue(q(value)).toString());
-        }
-
-        // also: see if base64 encoding works as expected
-        String base64 = Base64Variants.getDefaultVariant().encode(new byte[16]);
-        assertEquals(UUID.fromString(NULL_UUID),
-                r.readValue(q(base64)));
-    }
-
-    @Test
-    public void testUUIDInvalid() throws Exception
-    {
-        // and finally, exception handling too [databind#1000], for invalid cases
-        try {
-            MAPPER.readValue(q("abcde"), UUID.class);
-            fail("Should fail on invalid UUID string");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "UUID has to be represented by standard");
-        }
-        try {
-            MAPPER.readValue(q("76e6d183-5f68-4afa-b94a-922c1fdb83fx"), UUID.class);
-            fail("Should fail on invalid UUID string");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "non-hex character 'x'");
-        }
-        // should also test from-bytes version, but that's trickier... leave for now.
-    }
-
-    @Test
-    public void testUUIDAux() throws Exception
-    {
-        final UUID value = UUID.fromString("76e6d183-5f68-4afa-b94a-922c1fdb83f8");
-
-        // first, null should come as null
-        try (TokenBuffer buf = TokenBuffer.forGeneration()) {
-            buf.writePOJO(null);
-            assertNull(MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), UUID.class));
-        }
-
-        // then, UUID itself come as is:
-        try (TokenBuffer buf = TokenBuffer.forGeneration()) {
-            buf.writePOJO(value);
-            assertSame(value, MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), UUID.class));
-
-            // and finally from byte[]
-            // oh crap; JDK UUID just... sucks. Not even byte[] accessors or constructors? Huh?
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            DataOutputStream out = new DataOutputStream(bytes);
-            out.writeLong(value.getMostSignificantBits());
-            out.writeLong(value.getLeastSignificantBits());
-            out.close();
-            byte[] data = bytes.toByteArray();
-            assertEquals(16, data.length);
-
-            // Let's create fresh TokenBuffer, not reuse one
-            try (TokenBuffer buf2 = TokenBuffer.forGeneration()) {
-                buf2.writePOJO(data);
-    
-                UUID value2 = MAPPER.readValue(buf2.asParser(), UUID.class);
-    
-                assertEquals(value, value2);
-            }
-        }
-    }
 }

@@ -11,7 +11,7 @@ import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class Java7TypesTest extends DatabindTestUtil
+public class JDK7TypesTest extends DatabindTestUtil
 {
     private boolean isWindows() {
         return System.getProperty("os.name").contains("Windows");

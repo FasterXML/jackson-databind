@@ -31,7 +31,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
  * Unit tests for verifying "raw" (or "untyped") data binding from JSON to JDK objects;
  * one that only uses core JDK types; wrappers, Maps and Lists.
  */
-public class UntypedDeserializationTest
+public class JavaLangObjectDeserializationTest
 {
     static class UCStringDeserializer
         extends StdScalarDeserializer<String>

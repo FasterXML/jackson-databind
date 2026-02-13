@@ -6,7 +6,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Feature;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.core.*;
 import tools.jackson.core.type.TypeReference;
@@ -15,13 +18,15 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 @SuppressWarnings("serial")
-public class CollectionDeserTest
+public class CollectionDeserializationTest
 {
     enum Key {
         KEY1, KEY2, WHATEVER;
@@ -105,10 +110,51 @@ public class CollectionDeserTest
         }
     }
 
+    // [databind#5522]
+    @JsonFormat(with = Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+    static class CustomNumberList5522 extends ArrayList<Number> { }
+
+    @JsonFormat(with = Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+    static class CustomStringList5522 extends ArrayList<String> { }
+
+    static class CustomClassForNumber5522 {
+        private CustomNumberList5522 value;
+
+        public CustomNumberList5522 getValue() {
+            return value;
+        }
+        public void setValue(CustomNumberList5522 value) {
+            this.value = value;
+        }
+    }
+
+    static class CustomClassForString5522 {
+        private CustomStringList5522 value;
+
+        public CustomStringList5522 getValue() {
+            return value;
+        }
+        public void setValue(CustomStringList5522 value) {
+            this.value = value;
+        }
+    }
+
+    static class CustomClassForListField5522 {
+        @JsonFormat(with = Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        private List<String> value;
+
+        public List<String> getValue() {
+            return value;
+        }
+        public void setValue(List<String> value) {
+            this.value = value;
+        }
+    }
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final static ObjectMapper MAPPER = newJsonMapper();
@@ -399,5 +445,141 @@ public class CollectionDeserTest
             assertNotNull(rootC);
             assertEquals(CustomException.class, rootC.getClass());
         }
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, JDK Collections [databind#1868], [databind#4262]
+    /**********************************************************
+     */
+
+    // Round-trip test for singleton collections
+    @Test
+    public void testSingletonCollections() throws Exception
+    {
+        final TypeReference<List<XBean>> xbeanListType = new TypeReference<List<XBean>>() { };
+
+        String json = MAPPER.writeValueAsString(Collections.singleton(new XBean(3)));
+        Collection<XBean> result = MAPPER.readValue(json, xbeanListType);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(3, result.iterator().next().x);
+
+        json = MAPPER.writeValueAsString(Collections.singletonList(new XBean(28)));
+        result = MAPPER.readValue(json, xbeanListType);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(28, result.iterator().next().x);
+    }
+
+    // [databind#1868]: Verify class name serialized as is
+    @Test
+    public void testUnmodifiableSet() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .build();
+        Set<String> theSet = Collections.unmodifiableSet(Collections.singleton("a"));
+        String json = mapper.writeValueAsString(theSet);
+
+        assertEquals("[\"java.util.Collections$UnmodifiableSet\",[\"a\"]]", json);
+
+        Set<?> result = mapper.readValue(json, Set.class);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
+
+    // [databind#4262]: Handle problem of `null`s for `TreeSet`
+    @Test
+    public void testNullsWithTreeSet() throws Exception
+    {
+        try {
+            MAPPER.readValue("[ \"acb\", null, 123 ]", TreeSet.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "`java.util.Collection` of type ");
+            verifyException(e, " does not accept `null` values");
+        }
+    }
+
+    // for [databind#216]
+    @Test
+    public void testJava6Types() throws Exception
+    {
+        Deque<?> dq = MAPPER.readValue("[1]", Deque.class);
+        assertNotNull(dq);
+        assertEquals(1, dq.size());
+        assertInstanceOf(Deque.class, dq);
+
+        NavigableSet<?> ns = MAPPER.readValue("[ true ]", NavigableSet.class);
+        assertEquals(1, ns.size());
+        assertInstanceOf(NavigableSet.class, ns);
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, [databind#5522]
+    /**********************************************************
+     */
+
+    // [databind#5522]
+    @Test
+    public void testCustomNumberCollectionDeserialize5522() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .disable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+            .build();
+
+        String jsonValue = """
+            {
+                "value": 1
+            }
+            """;
+
+        CustomClassForNumber5522 result = mapper.readValue(jsonValue, CustomClassForNumber5522.class);
+
+        assertThat(result.value)
+            .hasSize(1)
+            .containsExactly(1);
+    }
+
+    // [databind#5522]
+    @Test
+    public void testCustomStringCollectionDeserialize5522() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .disable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+            .build();
+
+        String jsonValue = """
+            {
+                "value": "test"
+            }
+            """;
+
+        CustomClassForString5522 result = mapper.readValue(jsonValue, CustomClassForString5522.class);
+
+        assertThat(result.value)
+            .hasSize(1)
+            .containsExactly("test");
+    }
+
+    // [databind#5522]
+    @Test
+    public void testStringCollectionDeserializeInField5522() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .disable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+            .build();
+
+        String jsonValue = """
+            {
+                "value": "test"
+            }
+            """;
+
+        CustomClassForListField5522 result = mapper.readValue(jsonValue, CustomClassForListField5522.class);
+
+        assertThat(result.value)
+            .hasSize(1)
+            .containsExactly("test");
     }
 }

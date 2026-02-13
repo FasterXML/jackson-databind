@@ -1,15 +1,20 @@
 package tools.jackson.databind.deser.jdk;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.core.StreamReadFeature;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -337,5 +342,71 @@ public class LocaleDeserTest
             MAPPER.readerFor(Locale.class)
                 .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
                     .readValue("\"\""));
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, varargs [databind#5231]
+    /**********************************************************************
+     */
+
+    // [databind#5231]
+    public static class DateTimeParserConfig5231 {
+        public Locale[] locales;
+        private Locale locale;
+
+        public Locale[] getLocales() {
+            return locales;
+        }
+
+        public void setLocales(Locale... locales) {
+            this.locales = locales;
+            if (locales != null && locales.length == 1)
+                this.locale = this.locales[0];
+        }
+
+        protected void setLocale(final Locale locale) {
+            this.locale = locale;
+        }
+
+        public Locale getLocale() {
+            return locale;
+        }
+    }
+
+    // [databind#5231]
+    @Test
+    public void testLocaleVarargMultiple5231() {
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
+                .build();
+
+        DateTimeParserConfig5231 cfg = new DateTimeParserConfig5231();
+        cfg.setLocales(new Locale[]{Locale.US, Locale.UK, Locale.ENGLISH});
+        String json = mapper.writeValueAsString(cfg);
+
+        DateTimeParserConfig5231 result = mapper.readValue(json, DateTimeParserConfig5231.class);
+
+        assertNotNull(result);
+        assertThat(List.of(result.locales))
+                .containsExactlyInAnyOrder(Locale.US, Locale.UK, Locale.ENGLISH);
+    }
+
+    // [databind#5231]
+    @Test
+    public void testLocaleVarargSingle5231() {
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
+                .build();
+
+        DateTimeParserConfig5231 cfg = new DateTimeParserConfig5231();
+        cfg.setLocales(new Locale[]{Locale.JAPANESE});
+        String json = mapper.writeValueAsString(cfg);
+
+        DateTimeParserConfig5231 result = mapper.readValue(json, DateTimeParserConfig5231.class);
+
+        assertNotNull(result);
+        assertThat(List.of(result.locales))
+                .containsExactlyInAnyOrder(Locale.JAPANESE);
     }
 }

@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests for {@link MapEntryDeserializer} and its POJOWrapped variant.
  */
-public class MapEntryDeserializerTest extends DatabindTestUtil
+public class MapEntryDeserializationTest extends DatabindTestUtil
 {
     static class EntryHolder {
         public Map.Entry<String, Integer> entry;

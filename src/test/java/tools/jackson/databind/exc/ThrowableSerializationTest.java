@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
@@ -17,8 +18,10 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 /**
  * Unit tests for verifying that simple exceptions can be serialized.
+ *
+ * NOTE: renamed in 3.1 from "ExceptionSerializationTest"
  */
-public class ExceptionSerializationTest
+public class ThrowableSerializationTest
 {
     @SuppressWarnings("serial")
     @JsonIgnoreProperties({ "bogus1" })
@@ -155,5 +158,23 @@ public class ExceptionSerializationTest
         Map<?,?> map = mapper.readValue(json, Map.class);
         assertEquals(new HashSet<>(Arrays.asList("Cause", "StackTrace", "Message", "Suppressed", "LocalizedMessage")),
                 map.keySet());
+    }
+
+    // [databind#3244]: StackOverflow for basic JsonProcessingException?
+    @Test
+    public void testJacksonExceptionSerialization() throws Exception {
+        JacksonException e = null;
+        try {
+            MAPPER.readValue("{ foo ", Map.class);
+            fail("Should not pass");
+        } catch (JacksonException e0) {
+            e = e0;
+        }
+        String json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(e);
+
+        // Could try proper validation, but for now just ensure we won't crash
+        assertNotNull(json);
+        JsonNode n = MAPPER.readTree(json);
+        assertTrue(n.isObject());
     }
 }

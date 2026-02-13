@@ -604,6 +604,79 @@ public class ThrowableDeserializerTest extends DatabindTestUtil
 
     /*
     /**********************************************************
+    /* Tests for custom exceptions with default ctor [databind#4071]
+    /**********************************************************
+     */
+
+    @SuppressWarnings("serial")
+    static class CustomThrowable4071 extends Throwable { }
+
+    @SuppressWarnings("serial")
+    static class CustomRuntimeException4071 extends RuntimeException { }
+
+    @SuppressWarnings("serial")
+    static class CustomCheckedException4071 extends Exception { }
+
+    // [databind#4071]: Ignore "message" for custom exceptions with only default constructor
+    @Test
+    public void testCustomExceptionDefaultCtorRoundTrip() throws Exception
+    {
+        assertNotNull(MAPPER.readValue(
+                MAPPER.writeValueAsString(new CustomThrowable4071()), CustomThrowable4071.class));
+        assertNotNull(MAPPER.readValue(
+                MAPPER.writeValueAsString(new CustomRuntimeException4071()), CustomRuntimeException4071.class));
+        assertNotNull(MAPPER.readValue(
+                MAPPER.writeValueAsString(new CustomCheckedException4071()), CustomCheckedException4071.class));
+    }
+
+    // [databind#4071]: also verify deserialization as base Throwable type
+    @Test
+    public void testCustomExceptionDeserAsThrowable() throws Exception
+    {
+        assertNotNull(MAPPER.readValue(
+                MAPPER.writeValueAsString(new CustomRuntimeException4071()), Throwable.class));
+        assertNotNull(MAPPER.readValue(
+                MAPPER.writeValueAsString(new CustomCheckedException4071()), Throwable.class));
+        assertNotNull(MAPPER.readValue(
+                MAPPER.writeValueAsString(new CustomThrowable4071()), Throwable.class));
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for subclassed Throwable with @JsonCreator [databind#4827]
+    /**********************************************************
+     */
+
+    @SuppressWarnings("serial")
+    static class SubclassedExceptionWithCause extends Exception {
+        @JsonCreator
+        public SubclassedExceptionWithCause(
+                @JsonProperty("message") String message,
+                @JsonProperty("cause") Throwable cause
+        ) {
+            super(message, cause);
+        }
+    }
+
+    // [databind#4827]: Subclassed Throwable deserialization with message+cause creator
+    @Test
+    public void testSubclassedExceptionWithCauseCreator() throws Exception
+    {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
+        SubclassedExceptionWithCause input = new SubclassedExceptionWithCause(
+                "Test Message", new RuntimeException("test runtime cause"));
+
+        String serialized = mapper.writeValueAsString(input);
+        SubclassedExceptionWithCause deserialized = mapper.readValue(serialized, SubclassedExceptionWithCause.class);
+
+        assertEquals(input.getMessage(), deserialized.getMessage());
+        assertEquals(input.getCause().getMessage(), deserialized.getCause().getMessage());
+    }
+
+    /*
+    /**********************************************************
     /* Helper methods
     /**********************************************************
      */

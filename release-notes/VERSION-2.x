@@ -14,6 +14,8 @@ Project: jackson-databind
   `Optional`) containing subtypes incompletely
  (reported by Brandon S)
 #5624: dup of #5184 (see above)
+#5674: Fix NPE when deserializing `Throwable` with `null` "stackTrace"
+ (fix by @pjfanning)
 
 2.21.0 (18-Jan-2026)
 

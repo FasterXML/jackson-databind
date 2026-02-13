@@ -502,6 +502,14 @@ public abstract class BeanDeserializerBase
         }
         UnwrappedPropertyHandler unwrapped = null;
 
+        // [databind#3216]: If using purely delegating creator (no property-based
+        //   creator), bean properties are not used during deserialization so we
+        //   can skip resolving their deserializers. This avoids failures from
+        //   properties with types that cannot be resolved (e.g., Maps with
+        //   unsupported key types).
+        final boolean skipPropertyResolution = _valueInstantiator.canCreateUsingDelegate()
+                && (creatorProps == null);
+
         // 24-Mar-2017, tatu: Looks like we may have to iterate over
         //   properties twice, to handle potential issues with recursive
         //   types (see [databind#1575] f.ex).
@@ -511,6 +519,9 @@ public abstract class BeanDeserializerBase
         //   only happen for props in `creatorProps`
 
         for (SettableBeanProperty prop : _beanProperties) {
+            if (skipPropertyResolution) {
+                continue;
+            }
             // [databind#962]: no eager lookup for inject-only [creator] properties
             if (prop.hasValueDeserializer() || prop.isInjectionOnly()) {
                 continue;
@@ -528,6 +539,9 @@ public abstract class BeanDeserializerBase
 
         // Second loop: contextualize, find other pieces
         for (SettableBeanProperty origProp : _beanProperties) {
+            if (skipPropertyResolution) {
+                continue;
+            }
             SettableBeanProperty prop = origProp;
             ValueDeserializer<?> deser = prop.getValueDeserializer();
             deser = ctxt.handlePrimaryContextualization(deser, prop, prop.getType());

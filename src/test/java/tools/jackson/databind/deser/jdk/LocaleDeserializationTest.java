@@ -1,10 +1,7 @@
 package tools.jackson.databind.deser.jdk;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +21,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.q;
 // Tests for `java.util.Locale`.
 // NOTE: warnings are due to JDK 19 deprecating Locale constructors
 @SuppressWarnings("deprecation")
-public class LocaleDeserTest
+public class LocaleDeserializationTest
 {
     private final Locale[] LOCALES = new Locale[]
             {Locale.CANADA, Locale.ROOT, Locale.GERMAN, Locale.CHINESE, Locale.KOREA, Locale.TAIWAN};

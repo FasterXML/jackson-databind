@@ -1,4 +1,4 @@
-package tools.jackson.databind.deser.std;
+package tools.jackson.databind.deser;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -14,6 +14,7 @@ import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
+import tools.jackson.databind.deser.std.FunctionalScalarDeserializer;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.type.LogicalType;

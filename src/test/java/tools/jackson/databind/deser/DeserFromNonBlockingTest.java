@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Tests for checking that test deserialization with non-blocking parsers
  */
-public class NonBlockingDeserTest extends DatabindTestUtil
+public class DeserFromNonBlockingTest extends DatabindTestUtil
 {
     record Foo(String bar) {}
 

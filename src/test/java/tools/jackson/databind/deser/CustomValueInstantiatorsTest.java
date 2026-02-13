@@ -1,4 +1,4 @@
-package tools.jackson.databind.deser.creators;
+package tools.jackson.databind.deser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.Version;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonValueInstantiator;
-import tools.jackson.databind.deser.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.introspect.AnnotatedWithParams;
 import tools.jackson.databind.module.SimpleModule;
@@ -22,7 +21,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
  * Test custom value instantiators.
  */
 @SuppressWarnings("serial")
-public class ValueInstantiatorTest
+public class CustomValueInstantiatorsTest
 {
     static class MyBean
     {

@@ -1,4 +1,4 @@
-package tools.jackson.databind.deser.std;
+package tools.jackson.databind.deser;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.deser.std.StdValueInstantiator;
 import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // [databind#2978]
-public class StdValueInstantiatorTest
+public class StdValueInstantiatorsTest
     extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();

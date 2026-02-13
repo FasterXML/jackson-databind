@@ -254,7 +254,7 @@ public class JDKNumberDeserTest
     // for [jackson-core#757]
     @Test
     public void testBigArrayOfFloatPrimitives() throws Exception {
-        try (InputStream stream = FloatDeserTest.class.getResourceAsStream("/data/float-array-755.txt")) {
+        try (InputStream stream = getClass().getResourceAsStream("/data/float-array-755.txt")) {
             float[] floats = MAPPER.readValue(stream, float[].class);
             assertEquals(1004, floats.length);
             assertEquals(7.038531e-26f, floats[0]);

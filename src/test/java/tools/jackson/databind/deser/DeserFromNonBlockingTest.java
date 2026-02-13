@@ -18,20 +18,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class DeserFromNonBlockingTest extends DatabindTestUtil
 {
+    private final static int TEST_ITEM_COUNT = 10;
+
     record Foo(String bar) {}
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
-
-    private final static int TEST_ITEM_COUNT = 10;
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
     private final byte[] TEST_DOC = _testDoc(TEST_ITEM_COUNT);
-    
+
     @Test
     public void testNonBlockingByteArrayParserViaMapper()
     {
@@ -87,5 +87,4 @@ public class DeserFromNonBlockingTest extends DatabindTestUtil
         }
         return MAPPER.writeValueAsBytes(foos);
     }
-
 }

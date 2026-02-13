@@ -125,9 +125,12 @@ public class ThrowableDeserializer
                 if (throwable != null) {
                     // 07-Dec-2023, tatu: [databind#4248] Interesting that "cause"
                     //    with `null` blows up. So, avoid.
-                    if ("cause".equals(prop.getName())
-                            && p.hasToken(JsonToken.VALUE_NULL)) {
-                        continue;
+                    // Same for "stackTrace" - setStackTrace(null) throws NPE
+                    if (p.hasToken(JsonToken.VALUE_NULL)) {
+                        String propName = prop.getName();
+                        if ("cause".equals(propName) || "stackTrace".equals(propName)) {
+                            continue;
+                        }
                     }
                     prop.deserializeAndSet(p, ctxt, throwable);
                     continue;
@@ -166,7 +169,15 @@ public class ThrowableDeserializer
                 if (pending != null) {
                     for (int i = 0, len = pendingIx; i < len; i += 2) {
                         SettableBeanProperty prop = (SettableBeanProperty)pending[i];
-                        prop.set(ctxt, throwable, pending[i+1]);
+                        Object value = pending[i+1];
+                        // Skip null values for properties that don't accept them
+                        if (value == null) {
+                            String pName = prop.getName();
+                            if ("cause".equals(pName) || "stackTrace".equals(pName)) {
+                                continue;
+                            }
+                        }
+                        prop.set(ctxt, throwable, value);
                     }
                     pending = null;
                 }
@@ -224,7 +235,15 @@ public class ThrowableDeserializer
         if (pending != null) {
             for (int i = 0, len = pendingIx; i < len; i += 2) {
                 SettableBeanProperty prop = (SettableBeanProperty)pending[i];
-                prop.set(ctxt, throwable, pending[i+1]);
+                Object value = pending[i+1];
+                // Skip null values for properties that don't accept them
+                if (value == null) {
+                    String pName = prop.getName();
+                    if ("cause".equals(pName) || "stackTrace".equals(pName)) {
+                        continue;
+                    }
+                }
+                prop.set(ctxt, throwable, value);
             }
         }
 

@@ -287,4 +287,51 @@ public class ThrowableDeserializerTest extends DatabindTestUtil
         assertNotNull(result);
         assertEquals(0, result.getSuppressed().length);
     }
+
+    /*
+    /**********************************************************
+    /* Tests for stackTrace handling
+    /**********************************************************
+     */
+
+    @Test
+    public void testNullStackTrace() throws Exception
+    {
+        // stackTrace with null should not blow up (setStackTrace(null) throws NPE)
+        String json = a2q("{'message':'test','stackTrace':null}");
+        IOException result = MAPPER.readValue(json, IOException.class);
+        assertNotNull(result);
+        assertEquals("test", result.getMessage());
+        // Default stack trace should be preserved
+        assertNotNull(result.getStackTrace());
+    }
+
+    @Test
+    public void testStackTraceDeserialization() throws Exception
+    {
+        String json = a2q("{'message':'test','stackTrace':[" +
+                "{'className':'com.example.Test','methodName':'testMethod'," +
+                "'fileName':'Test.java','lineNumber':42}]}");
+        IOException result = MAPPER.readValue(json, IOException.class);
+        assertNotNull(result);
+        assertEquals("test", result.getMessage());
+        assertNotNull(result.getStackTrace());
+        assertEquals(1, result.getStackTrace().length);
+        assertEquals("com.example.Test", result.getStackTrace()[0].getClassName());
+        assertEquals("testMethod", result.getStackTrace()[0].getMethodName());
+        assertEquals("Test.java", result.getStackTrace()[0].getFileName());
+        assertEquals(42, result.getStackTrace()[0].getLineNumber());
+    }
+
+    @Test
+    public void testNullStackTraceBeforeMessage() throws Exception
+    {
+        // stackTrace with null before message should not blow up
+        String json = a2q("{'stackTrace':null,'message':'test'}");
+        IOException result = MAPPER.readValue(json, IOException.class);
+        assertNotNull(result);
+        assertEquals("test", result.getMessage());
+        // Default stack trace should be preserved
+        assertNotNull(result.getStackTrace());
+    }
 }

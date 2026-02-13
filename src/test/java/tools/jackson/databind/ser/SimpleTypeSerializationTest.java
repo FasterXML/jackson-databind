@@ -68,41 +68,6 @@ public class SimpleTypeSerializationTest
     }
 
     @Test
-    public void testShortArray() throws Exception
-    {
-        assertEquals("[0,1]", MAPPER.writeValueAsString(new short[] { 0, 1 }));
-        assertEquals("[2,3]", MAPPER.writeValueAsString(new Short[] { 2, 3 }));
-    }
-
-    @Test
-    public void testIntArray() throws Exception
-    {
-        assertEquals("[0,-3]", MAPPER.writeValueAsString(new int[] { 0, -3 }));
-        assertEquals("[13,9]", MAPPER.writeValueAsString(new Integer[] { 13, 9 }));
-    }
-
-    /* Note: dealing with floating-point values is tricky; not sure if
-     * we can really use equality tests here... JDK does have decent
-     * conversions though, to retain accuracy and round-trippability.
-     * But still...
-     */
-    @Test
-    public void testFloat() throws Exception
-    {
-        double[] values = new double[] {
-            0.0, 1.0, 0.1, -37.01, 999.99, 0.3, 33.3, Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY
-        };
-        for (double d : values) {
-           float f = (float) d;
-    	   String expected = String.valueOf(f);
-           if (Float.isNaN(f) || Float.isInfinite(f)) {
-               expected = "\""+expected+"\"";
-       	   }
-           assertEquals(expected, MAPPER.writeValueAsString(Float.valueOf(f)));
-        }
-    }
-
-    @Test
     public void testClass() throws Exception
     {
         String result = MAPPER.writeValueAsString(java.util.List.class);

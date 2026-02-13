@@ -20,13 +20,6 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
  */
 public class JDKCollectionsDeserTest
 {
-    static class XBean {
-        public int x;
-
-        public XBean() { }
-        public XBean(int x) { this.x = x; }
-    }
-
     /*
     /**********************************************************************
     /* Test methods
@@ -39,15 +32,15 @@ public class JDKCollectionsDeserTest
     @Test
     public void testSingletonCollections() throws Exception
     {
-        final TypeReference<List<XBean>> xbeanListType = new TypeReference<List<XBean>>() { };
+        final TypeReference<List<CollectionDeserTest.XBean>> xbeanListType = new TypeReference<List<CollectionDeserTest.XBean>>() { };
 
-        String json = MAPPER.writeValueAsString(Collections.singleton(new XBean(3)));
-        Collection<XBean> result = MAPPER.readValue(json, xbeanListType);
+        String json = MAPPER.writeValueAsString(Collections.singleton(new CollectionDeserTest.XBean(3)));
+        Collection<CollectionDeserTest.XBean> result = MAPPER.readValue(json, xbeanListType);
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(3, result.iterator().next().x);
 
-        json = MAPPER.writeValueAsString(Collections.singletonList(new XBean(28)));
+        json = MAPPER.writeValueAsString(Collections.singletonList(new CollectionDeserTest.XBean(28)));
         result = MAPPER.readValue(json, xbeanListType);
         assertNotNull(result);
         assertEquals(1, result.size());

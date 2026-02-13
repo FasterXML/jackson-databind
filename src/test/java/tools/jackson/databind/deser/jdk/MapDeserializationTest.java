@@ -25,10 +25,6 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 @SuppressWarnings("serial")
 public class MapDeserializationTest
 {
-    static enum Key {
-        KEY1, KEY2, WHATEVER;
-    }
-
     static class BrokenMap
         extends HashMap<Object,Object>
     {
@@ -361,21 +357,21 @@ public class MapDeserializationTest
         String JSON = "{ \"KEY1\" : \"\", \"WHATEVER\" : null }";
 
         // to get typing, must use type reference
-        EnumMap<Key,String> result = MAPPER.readValue
-            (JSON, new TypeReference<EnumMap<Key,String>>() { });
+        EnumMap<CollectionDeserTest.Key,String> result = MAPPER.readValue
+            (JSON, new TypeReference<EnumMap<CollectionDeserTest.Key,String>>() { });
 
         assertNotNull(result);
         assertEquals(EnumMap.class, result.getClass());
         assertEquals(2, result.size());
 
-        assertEquals("", result.get(Key.KEY1));
+        assertEquals("", result.get(CollectionDeserTest.Key.KEY1));
         // null should be ok too...
-        assertTrue(result.containsKey(Key.WHATEVER));
-        assertNull(result.get(Key.WHATEVER));
+        assertTrue(result.containsKey(CollectionDeserTest.Key.WHATEVER));
+        assertNull(result.get(CollectionDeserTest.Key.WHATEVER));
 
         // plus we have nothing for this key
-        assertFalse(result.containsKey(Key.KEY2));
-        assertNull(result.get(Key.KEY2));
+        assertFalse(result.containsKey(CollectionDeserTest.Key.KEY2));
+        assertNull(result.get(CollectionDeserTest.Key.KEY2));
     }
 
     @Test
@@ -384,15 +380,15 @@ public class MapDeserializationTest
         String JSON = "{ \"KEY2\" : \"WHATEVER\" }";
 
         // to get typing, must use type reference
-        Map<?,?> result = MAPPER.readValue(JSON, new TypeReference<Map<Key,Key>>() { });
+        Map<?,?> result = MAPPER.readValue(JSON, new TypeReference<Map<CollectionDeserTest.Key,CollectionDeserTest.Key>>() { });
 
         assertNotNull(result);
         assertInstanceOf(Map.class, result);
         assertEquals(1, result.size());
 
-        assertEquals(Key.WHATEVER, result.get(Key.KEY2));
-        assertNull(result.get(Key.WHATEVER));
-        assertNull(result.get(Key.KEY1));
+        assertEquals(CollectionDeserTest.Key.WHATEVER, result.get(CollectionDeserTest.Key.KEY2));
+        assertNull(result.get(CollectionDeserTest.Key.WHATEVER));
+        assertNull(result.get(CollectionDeserTest.Key.KEY1));
     }
 
     @Test

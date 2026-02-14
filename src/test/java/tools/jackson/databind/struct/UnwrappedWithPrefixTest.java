@@ -11,7 +11,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestUnwrappedWithPrefix extends DatabindTestUtil
+public class UnwrappedWithPrefixTest extends DatabindTestUtil
 {
     static class Unwrapping {
         public String name;

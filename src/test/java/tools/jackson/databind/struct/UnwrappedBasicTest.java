@@ -1,5 +1,8 @@
 package tools.jackson.databind.struct;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
@@ -15,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * handling works as expected; some more advanced tests are separated out
  * to more specific test classes (like prefix/suffix handling).
  */
-public class TestUnwrapped extends DatabindTestUtil
+public class UnwrappedBasicTest extends DatabindTestUtil
 {
     static class Unwrapping {
         public String name;
@@ -114,6 +117,121 @@ public class TestUnwrapped extends DatabindTestUtil
         public String zip;
         public String town;
         public String country;
+    }
+
+    // [databind#383]
+    static class RecursivePerson {
+        public String name;
+        public int age;
+        @JsonUnwrapped(prefix="child.") public RecursivePerson child;
+    }
+
+    // [databind#647]
+    static class UnwrappedWithSamePropertyName {
+        public MailHolder mail;
+    }
+
+    static class MailHolder {
+        @JsonUnwrapped
+        public Mail mail;
+    }
+
+    static class Mail {
+        public String mail;
+    }
+
+    // [databind#81]
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, property="@type")
+    @JsonTypeName("OuterType")
+    static class Outer81 {
+        private @JsonProperty String p1;
+        public String getP1() { return p1; }
+        public void setP1(String p1) { this.p1 = p1; }
+
+        private Inner81 inner;
+        public void setInner(Inner81 inner) { this.inner = inner; }
+
+        @JsonUnwrapped
+        public Inner81 getInner() {
+            return inner;
+        }
+    }
+
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, property="@type")
+    @JsonTypeName("InnerType")
+    static class Inner81 {
+        private @JsonProperty String p2;
+        public String getP2() { return p2; }
+        public void setP2(String p2) { this.p2 = p2; }
+    }
+
+    // [databind#1559]
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    static final class Health {
+        @JsonUnwrapped(prefix="xxx.")
+        public Status status;
+    }
+
+    // NOTE: `final` is required to trigger [databind#1559]
+    static final class Status {
+        public String code;
+    }
+
+    // [databind#2461]
+    static class Base {
+        public String id;
+
+        Base(String id) {
+            this.id = id;
+        }
+    }
+
+    static class InnerContainer {
+        @JsonUnwrapped(prefix = "base.")
+        public Base base;
+
+        InnerContainer(Base base) {
+            this.base = base;
+        }
+    }
+
+    static class OuterContainer {
+        @JsonUnwrapped(prefix = "container.")
+        public InnerContainer container;
+
+        OuterContainer(InnerContainer container) {
+            this.container = container;
+        }
+    }
+
+    // [databind#3277]
+    static class Holder {
+        Object value1;
+
+        @JsonUnwrapped
+        Holder2 holder2;
+
+        public Object getValue1() {
+            return value1;
+        }
+
+        public void setValue1(Object value1) {
+            this.value1 = value1;
+        }
+    }
+
+    static class Holder2 {
+        Map<String, Object> data = new HashMap<>();
+
+        @JsonAnyGetter
+        public Map<String, Object> getData() {
+            return data;
+        }
+
+        @JsonAnySetter
+        public void setAny(String key, Object value) {
+            data.put(key, value);
+        }
     }
 
     // [databind#2088]
@@ -270,5 +388,118 @@ public class TestUnwrapped extends DatabindTestUtil
         assertEquals(2, bean.w.a);
         assertEquals(3, bean.y);
         assertEquals(4, bean.w.b);
+    }
+
+    // [databind#383]
+    @Test
+    public void testRecursiveUsage() throws Exception
+    {
+        final String JSON = "{ 'name': 'Bob', 'age': 45, 'gender': 0, 'child.name': 'Bob jr', 'child.age': 15 }";
+        RecursivePerson p = MAPPER.readValue(a2q(JSON), RecursivePerson.class);
+        assertNotNull(p);
+        assertEquals("Bob", p.name);
+        assertNotNull(p.child);
+        assertEquals("Bob jr", p.child.name);
+    }
+
+    // [databind#647]
+    @Test
+    public void testUnwrappedWithSamePropertyName() throws Exception {
+        final String JSON = "{'mail': {'mail': 'the mail text'}}";
+        UnwrappedWithSamePropertyName result = MAPPER.readValue(a2q(JSON), UnwrappedWithSamePropertyName.class);
+        assertNotNull(result.mail);
+        assertNotNull(result.mail.mail);
+        assertEquals("the mail text", result.mail.mail.mail);
+    }
+
+    // [databind#81]
+    @Test
+    public void testDefaultUnwrappedWithTypeInfo() throws Exception
+    {
+        Outer81 outer = new Outer81();
+        outer.setP1("101");
+
+        Inner81 inner = new Inner81();
+        inner.setP2("202");
+        outer.setInner(inner);
+
+        try {
+            MAPPER.writeValueAsString(outer);
+             fail("Expected exception to be thrown.");
+        } catch (DatabindException ex) {
+            verifyException(ex, "requires use of type information");
+        }
+    }
+
+    // [databind#81]
+    @Test
+    public void testUnwrappedWithTypeInfoAndFeatureDisabled() throws Exception
+    {
+        Outer81 outer = new Outer81();
+        outer.setP1("101");
+
+        Inner81 inner = new Inner81();
+        inner.setP2("202");
+        outer.setInner(inner);
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)
+                .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .build();
+
+        String json = mapper.writeValueAsString(outer);
+
+        assertEquals("{\"@type\":\"OuterType\",\"p2\":\"202\",\"p1\":\"101\"}", json);
+    }
+
+    // [databind#1559]
+    @Test
+    public void testCanSerializeSimpleWithDefaultView() throws Exception
+    {
+        String json = jsonMapperBuilder()
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .build()
+                .writeValueAsString(new Health());
+        assertEquals(a2q("{}"), json);
+        // and just in case this, although won't matter wrt output
+        json = jsonMapperBuilder()
+                .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .build()
+                .writeValueAsString(new Health());
+        assertEquals(a2q("{}"), json);
+    }
+
+    // [databind#2461]
+    @Test
+    public void testUnwrappedCaching() throws Exception {
+        final InnerContainer inner = new InnerContainer(new Base("12345"));
+        final OuterContainer outer = new OuterContainer(inner);
+
+        final String EXP_INNER = "{\"base.id\":\"12345\"}";
+        final String EXP_OUTER = "{\"container.base.id\":\"12345\"}";
+
+        final ObjectMapper mapperOrder1 = newJsonMapper();
+        assertEquals(EXP_OUTER, mapperOrder1.writeValueAsString(outer));
+        assertEquals(EXP_INNER, mapperOrder1.writeValueAsString(inner));
+        assertEquals(EXP_OUTER, mapperOrder1.writeValueAsString(outer));
+
+        final ObjectMapper mapperOrder2 = newJsonMapper();
+        assertEquals(EXP_INNER, mapperOrder2.writeValueAsString(inner));
+        //  Used to fail here
+        assertEquals(EXP_OUTER, mapperOrder2.writeValueAsString(outer));
+    }
+
+    // [databind#3277]
+    @Test
+    public void testIsInstanceOfDouble() throws Exception
+    {
+        Holder holder = MAPPER.readValue("{\"value1\": -60.0, \"value2\": -60.0}", Holder.class);
+
+        // Validate type
+        assertEquals(Double.class, holder.value1.getClass());
+        assertEquals(Double.class, holder.holder2.data.get("value2").getClass());
+        // Validate value
+        assertEquals(-60.0, holder.value1);
+        assertEquals(-60.0, holder.holder2.data.get("value2"));
     }
 }

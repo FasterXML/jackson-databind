@@ -11,7 +11,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestPOJOAsArrayAdvanced extends DatabindTestUtil
+public class POJOAsArrayAdvancedTest extends DatabindTestUtil
 {
     @JsonFormat(shape=JsonFormat.Shape.ARRAY)
     @JsonPropertyOrder(alphabetic=true)

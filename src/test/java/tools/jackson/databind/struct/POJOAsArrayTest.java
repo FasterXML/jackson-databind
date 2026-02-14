@@ -1,7 +1,6 @@
 package tools.jackson.databind.struct;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +16,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestPOJOAsArray extends DatabindTestUtil
+public class POJOAsArrayTest extends DatabindTestUtil
 {
     static class PojoAsArrayWrapper
     {
@@ -117,6 +116,107 @@ public class TestPOJOAsArray extends DatabindTestUtil
         protected AsArrayWithMap(int x, int y) {
             attrs = new HashMap<Integer,Integer>();
             attrs.put(x, y);
+        }
+    }
+
+    // [databind#2077]
+    @JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.WRAPPER_ARRAY)
+    @JsonSubTypes({
+        @JsonSubTypes.Type(value = DirectLayout.class, name = "Direct"),
+    })
+    public interface Layout {
+    }
+
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    public static class DirectLayout implements Layout {
+    }
+
+    // [databind#4961]
+    static class WrapperForAnyGetter {
+        public BeanWithAnyGetter value;
+    }
+
+    @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder({ "firstProperty", "secondProperties", "forthProperty" })
+    static class BeanWithAnyGetter {
+        public String firstProperty = "first";
+        public String secondProperties = "second";
+        public String forthProperty = "forth";
+        @JsonAnyGetter
+        public Map<String, String> getAnyProperty() {
+            Map<String, String> map = new TreeMap<>();
+            map.put("third_A", "third_A");
+            map.put("third_B", "third_B");
+            return map;
+        }
+    }
+
+    // [databind#646]
+    @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder(alphabetic = true)
+    static class Outer646 {
+        protected Map<String, TheItem646> attributes;
+
+        public Outer646() {
+            attributes = new HashMap<String, TheItem646>();
+        }
+
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_ARRAY)
+        public Map<String, TheItem646> getAttributes() {
+            return attributes;
+        }
+    }
+
+    @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder(alphabetic = true)
+    static class TheItem646 {
+
+        @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+        @JsonPropertyOrder(alphabetic = true)
+        public static class NestedItem {
+            public String nestedStrValue;
+
+            @JsonCreator
+            public NestedItem(@JsonProperty("nestedStrValue") String nestedStrValue) {
+                this.nestedStrValue = nestedStrValue;
+            }
+        }
+
+        private String strValue;
+        private boolean boolValue;
+        private List<NestedItem> nestedItems;
+
+        @JsonCreator
+        public TheItem646(@JsonProperty("strValue") String strValue, @JsonProperty("boolValue") boolean boolValue, @JsonProperty("nestedItems") List<NestedItem> nestedItems) {
+            this.strValue = strValue;
+            this.boolValue = boolValue;
+            this.nestedItems = nestedItems;
+        }
+
+        public String getStrValue() {
+            return strValue;
+        }
+
+        public void setStrValue(String strValue) {
+            this.strValue = strValue;
+        }
+
+        public boolean isBoolValue() {
+            return boolValue;
+        }
+
+        public void setBoolValue(boolean boolValue) {
+            this.boolValue = boolValue;
+        }
+
+        public List<NestedItem> getNestedItems() {
+            return nestedItems;
+        }
+
+        public void setNestedItems(List<NestedItem> nestedItems) {
+            this.nestedItems = nestedItems;
         }
     }
 
@@ -282,6 +382,62 @@ public class TestPOJOAsArray extends DatabindTestUtil
         NonAnnotatedXY result = mapper.readValue(json, NonAnnotatedXY.class);
         assertNotNull(result);
         assertEquals(3, result.y);
+    }
+
+    /*
+    /*****************************************************
+    /* Failure tests
+    /*****************************************************
+     */
+
+    // [databind#2077]
+    @Test
+    public void testPolymorphicAsArray() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new DirectLayout());
+
+        Layout instance = MAPPER.readValue(json, Layout.class);
+        assertNotNull(instance);
+    }
+
+    // [databind#4961]
+    @Test
+    public void testSerializeArrayWithAnyGetterWithWrapper() throws Exception {
+        WrapperForAnyGetter wrapper = new WrapperForAnyGetter();
+        wrapper.value = new BeanWithAnyGetter();
+
+        String json = MAPPER.writeValueAsString(wrapper);
+
+        assertEquals(a2q("{\"value\":[\"first\",\"second\",\"forth\",{\"third_A\":\"third_A\",\"third_B\":\"third_B\"}]}"), json);
+    }
+
+    // [databind#4961]
+    @Test
+    public void testSerializeArrayWithAnyGetterAsRoot() throws Exception {
+        BeanWithAnyGetter bean = new BeanWithAnyGetter();
+
+        String json = MAPPER.writeValueAsString(bean);
+
+        assertEquals(a2q("[\"first\",\"second\",\"forth\",{\"third_A\":\"third_A\",\"third_B\":\"third_B\"}]"), json);
+    }
+
+    // [databind#646]
+    @Test
+    public void testWithCustomTypeId() throws Exception {
+
+        List<TheItem646.NestedItem> nestedList = new ArrayList<TheItem646.NestedItem>();
+        nestedList.add(new TheItem646.NestedItem("foo1"));
+        nestedList.add(new TheItem646.NestedItem("foo2"));
+        TheItem646 item = new TheItem646("first", false, nestedList);
+        Outer646 outer = new Outer646();
+        outer.getAttributes().put("entry1", item);
+
+        String json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(outer);
+
+        Outer646 result = MAPPER.readValue(json, Outer646.class);
+        assertNotNull(result);
+        assertNotNull(result.attributes);
+        assertEquals(1, result.attributes.size());
     }
 
     /*

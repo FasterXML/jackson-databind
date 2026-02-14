@@ -5,9 +5,11 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
-import java.util.UUID;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
+
+import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.MismatchedInputException;
@@ -15,14 +17,22 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
+public class UnwrapSingleArrayTest extends DatabindTestUtil
 {
     static class BooleanBean {
         boolean _v;
         void setV(boolean v) { _v = v; }
     }
 
+    static class StringWrapper {
+        public String value;
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
+
+    private final ObjectMapper UNWRAPPING_MAPPER = jsonMapperBuilder()
+            .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+            .build();
 
     private final ObjectReader NO_UNWRAPPING_READER = MAPPER.reader();
     private final ObjectReader UNWRAPPING_READER = MAPPER.reader()
@@ -408,6 +418,72 @@ public class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
                 reader.with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                     .readValue("[" + q(uuidStr) + "]"));
         _verifyMultiValueArrayFail("[" + q(uuidStr) + "," + q(uuidStr) + "]", UUID.class);
+    }
+
+    /*
+    /**********************************************************
+    /* Tests methods, POJOs/Maps
+    /**********************************************************
+     */
+
+    @Test
+    public void testSimplePOJOUnwrapping() throws Exception
+    {
+        ObjectReader r = UNWRAPPING_MAPPER.readerFor(IntWrapper.class);
+        IntWrapper w = r.readValue(a2q("[{'i':42}]"));
+        assertEquals(42, w.i);
+
+        try {
+            r.readValue(a2q("[{'i':42},{'i':16}]"));
+            fail("Did not throw exception while reading a value from a multi value array");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "more than one value");
+        }
+    }
+
+    // [databind#2767]: should work for Maps, too
+    @Test
+    public void testSimpleMapUnwrapping() throws Exception
+    {
+        ObjectReader r = UNWRAPPING_MAPPER.readerFor(Map.class);
+        Map<String,Object> m = r.readValue(a2q("[{'stuff':42}]"));
+        assertEquals(Collections.<String,Object>singletonMap("stuff", Integer.valueOf(42)), m);
+
+        try {
+            r.readValue(a2q("[{'i':42},{'i':16}]"));
+            fail("Did not throw exception while reading a value from a multi value array");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "more than one value");
+        }
+    }
+
+    @Test
+    public void testEnumMapUnwrapping() throws Exception
+    {
+        ObjectReader r = UNWRAPPING_MAPPER.readerFor(new TypeReference<EnumMap<ABC,Integer>>() { });
+        EnumMap<ABC,Integer> m = r.readValue(a2q("[{'A':42}]"));
+        EnumMap<ABC,Integer> exp = new EnumMap<>(ABC.class);
+        exp.put(ABC.A, Integer.valueOf(42));
+        assertEquals(exp, m);
+
+        try {
+            r.readValue(a2q("[{'A':42},{'B':13}]"));
+            fail("Did not throw exception while reading a value from a multi value array");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "more than one value");
+        }
+    }
+
+    // [databind#4844]: should work for wrapped null values too
+    @Test
+    public void testDeserializeArrayWithNullElement() throws Exception
+    {
+        StringWrapper v = UNWRAPPING_MAPPER
+            .readerFor(StringWrapper.class)
+            .readValue("{\"value\": [null]}");
+
+        assertNotNull(v);
+        assertNull(v.value);
     }
 
     /*

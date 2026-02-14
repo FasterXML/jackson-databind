@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for "POJO as array" feature using Builder-style
  * POJO construction.
  */
-public class TestPOJOAsArrayWithBuilder extends DatabindTestUtil
+public class POJOAsArrayWithBuilderTest extends DatabindTestUtil
 {
     @JsonDeserialize(builder=SimpleBuilderXY.class)
     @JsonFormat(shape=JsonFormat.Shape.ARRAY)

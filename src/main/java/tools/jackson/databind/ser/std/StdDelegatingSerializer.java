@@ -206,7 +206,7 @@ public class StdDelegatingSerializer
         }
         ValueSerializer<Object> ser = _delegateSerializer;
         if (ser == null) {
-            ser = _findSerializer(value, ctxt);
+            ser = _findSerializer(delegateValue, ctxt);
         }
         return ser.isEmpty(ctxt, delegateValue);
     }

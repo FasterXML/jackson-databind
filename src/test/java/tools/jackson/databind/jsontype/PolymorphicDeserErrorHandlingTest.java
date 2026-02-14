@@ -58,9 +58,7 @@ public class PolymorphicDeserErrorHandlingTest extends DatabindTestUtil
         public String name = "dog";
 
         @Override
-        public void run() {
-            System.out.println("Dog is running");
-        }
+        public void run() { }
     }
 
     static class Tree extends Plant {

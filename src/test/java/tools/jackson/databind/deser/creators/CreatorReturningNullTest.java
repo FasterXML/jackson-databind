@@ -5,8 +5,10 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
-import tools.jackson.core.JacksonException;
+
+import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.deser.*;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -14,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#4938] Allow JsonCreator factory method to return `null`
 // [databind#5401] Do not replace null from JsonCreator factory method
-public class JsonCreatorReturningNullTest
+public class CreatorReturningNullTest
     extends DatabindTestUtil
 {
     // [databind#4938]
@@ -112,6 +114,97 @@ public class JsonCreatorReturningNullTest
         }
     }
 
+    // [NullValueViaCreatorTest]
+
+    protected static class Container {
+        Contained<String> contained;
+
+        @JsonCreator
+        public Container(@JsonProperty("contained") Contained<String> contained) {
+            this.contained = contained;
+        }
+    }
+
+    protected static interface Contained<T> {}
+
+    protected static class NullContained implements Contained<Object> {}
+
+    protected static final NullContained NULL_CONTAINED = new NullContained();
+
+    protected static class ContainedDeserializer extends ValueDeserializer<Contained<?>> {
+        @Override
+        public Contained<?> deserialize(JsonParser jp, DeserializationContext ctxt) {
+            return null;
+        }
+
+        @Override
+        public Contained<?> getNullValue(DeserializationContext ctxt) {
+            return NULL_CONTAINED;
+        }
+    }
+
+    protected static class ContainerDeserializerResolver extends Deserializers.Base {
+        @Override
+        public ValueDeserializer<?> findBeanDeserializer(JavaType type,
+                DeserializationConfig config, BeanDescription.Supplier beanDescRef)
+        {
+            if (!Contained.class.isAssignableFrom(type.getRawClass())) {
+                return null;
+            }
+            return new ContainedDeserializer();
+        }
+
+        @Override
+        public boolean hasDeserializerFor(DeserializationConfig config,
+                Class<?> valueType) {
+            return false;
+        }
+    }
+
+    protected static class TestModule extends tools.jackson.databind.JacksonModule
+    {
+        @Override
+        public String getModuleName() {
+            return "ContainedModule";
+        }
+
+        @Override
+        public Version version() {
+            return Version.unknownVersion();
+        }
+
+        @Override
+        public void setupModule(SetupContext setupContext) {
+            setupContext.addDeserializers(new ContainerDeserializerResolver());
+        }
+    }
+
+    // [databind#597]
+    static class JsonEntity {
+        protected final String type;
+        protected final UUID id;
+
+        private JsonEntity(String type, UUID id) {
+            this.type = type;
+            this.id = id;
+        }
+
+        @JsonCreator
+        public static JsonEntity create(@JsonProperty("type") String type, @JsonProperty("id") UUID id) {
+            if (type != null && !type.contains(" ") && (id != null)) {
+                return new JsonEntity(type, id);
+            }
+
+            return null;
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#4938]
@@ -195,5 +288,23 @@ public class JsonCreatorReturningNullTest
 
         assertNotNull(result);
         assertNull(result.nonEmpty);
+    }
+
+    @Test
+    public void testUsesDeserializersNullValue() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new TestModule())
+                .build();
+        Container container = mapper.readValue("{}", Container.class);
+        assertEquals(NULL_CONTAINED, container.contained);
+    }
+
+    // [databind#597]: ensure that a useful exception is thrown
+    @Test
+    public void testCreatorReturningNull597()
+    {
+        String json = "{ \"type\" : \"     \", \"id\" : \"000c0ffb-a0d6-4d2e-a379-4aeaaf283599\" }";
+
+        assertNull(MAPPER.readValue(json, JsonEntity.class));
     }
 }

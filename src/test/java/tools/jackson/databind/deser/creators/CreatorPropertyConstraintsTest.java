@@ -7,13 +7,11 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.MismatchedInputException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class RequiredCreatorTest
+public class CreatorPropertyConstraintsTest
 {
     static class FascistPoint {
         Integer x, y;
@@ -54,6 +52,33 @@ public class RequiredCreatorTest
 
         public void setUserType(String userType) {
             this.userType = userType;
+        }
+    }
+
+    // [databind#2438]
+    static class Creator2438 {
+        String value = "";
+
+        @JsonCreator
+        public Creator2438(@JsonProperty("value") int v) {
+            value = "Creator:"+ v;
+        }
+
+        // Public setter (or field) required to show the issue
+        public void setValue(int v) {
+            value = "Setter:" + v;
+        }
+    }
+
+    // [databind#4119]: READ_ONLY for Creator param (Record or POJO)
+    static class Bean4119 {
+        String foo, bar;
+
+        @JsonCreator
+        public Bean4119(@JsonProperty("foo") String foo,
+                        @JsonProperty(value = "bar", access = JsonProperty.Access.READ_ONLY) String bar) {
+            this.foo = foo;
+            this.bar = bar;
         }
     }
 
@@ -124,5 +149,28 @@ public class RequiredCreatorTest
         } catch (MismatchedInputException e) {
             verifyException(e, "Missing required creator property 'otp'");
         }
+    }
+
+    // [databind#2438]
+    @Test
+    void testCreatorFallback2438() throws Exception {
+        // note: by default, duplicate-detection not enabled, so should not
+        // throw exception. But should only pass second value via Creator,
+        // not setter or field
+        Creator2438 bean = MAPPER.readValue(a2q("{'value':1, 'value':2}"),
+                Creator2438.class);
+        assertEquals("Creator:2", bean.value);
+    }
+
+    // [databind#4119]: READ_ONLY for Creator param (Record or POJO)
+    @Test
+    void testCreatorWithReadOnly4119() throws Exception {
+        Bean4119 bean = MAPPER.readerFor(Bean4119.class)
+                .readValue(a2q("{'foo':'a', 'bar':'b'}"));
+        assertNotNull(bean);
+        assertEquals("a", bean.foo);
+        // should either pass `null` (same as [databind#1890]), or, fail
+        // with useful exception (and not claiming no name specified)
+        assertNull(bean.bar);
     }
 }

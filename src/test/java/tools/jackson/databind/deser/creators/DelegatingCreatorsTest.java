@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser.creators;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil.Point;
 import tools.jackson.databind.util.TokenBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -206,6 +208,53 @@ public class DelegatingCreatorsTest
         @JsonValue
         public Issue580Base value() {
             return value;
+        }
+    }
+
+    // [TestConstructFromMap]
+
+    static class ConstructorFromMap
+    {
+        int _x;
+        String _y;
+
+        @JsonCreator
+        ConstructorFromMap(Map<?,?> arg)
+        {
+            _x = ((Number) arg.get("x")).intValue();
+            _y = (String) arg.get("y");
+        }
+    }
+
+    static class FactoryFromPoint
+    {
+        int _x, _y;
+
+        private FactoryFromPoint(Point p) {
+            _x = p.x;
+            _y = p.y;
+        }
+
+        @JsonCreator
+        static FactoryFromPoint createIt(Point p)
+        {
+            return new FactoryFromPoint(p);
+        }
+    }
+
+    // Also: let's test BigDecimal-from-JSON-String factory
+    static class FactoryFromDecimalString
+    {
+        int _value;
+
+        private FactoryFromDecimalString(BigDecimal d) {
+	    _value = d.intValue();
+        }
+
+        @JsonCreator
+        static FactoryFromDecimalString whateverNameWontMatter(BigDecimal d)
+        {
+            return new FactoryFromDecimalString(d);
         }
     }
 
@@ -411,5 +460,32 @@ public class DelegatingCreatorsTest
         assertNotNull(result);
         assertNotNull(result.value);
         assertEquals(13, ((Issue580Impl) result.value).id);
+    }
+
+    // [TestConstructFromMap]
+
+    @Test
+    public void testViaConstructor() throws Exception
+    {
+        ConstructorFromMap result = MAPPER.readValue
+            ("{ \"x\":1, \"y\" : \"abc\" }", ConstructorFromMap.class);
+        assertEquals(1, result._x);
+        assertEquals("abc", result._y);
+    }
+
+    @Test
+    public void testViaFactory() throws Exception
+    {
+        FactoryFromPoint result = MAPPER.readValue("{ \"x\" : 3, \"y\" : 4 }", FactoryFromPoint.class);
+        assertEquals(3, result._x);
+        assertEquals(4, result._y);
+    }
+
+    @Test
+    public void testViaFactoryUsingString() throws Exception
+    {
+        FactoryFromDecimalString result = MAPPER.readValue("\"12.57\"", FactoryFromDecimalString.class);
+        assertNotNull(result);
+        assertEquals(12, result._value);
     }
 }

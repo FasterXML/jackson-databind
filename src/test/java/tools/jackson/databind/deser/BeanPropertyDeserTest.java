@@ -15,19 +15,17 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.*;
-
 /**
  * Tests for bean property detection and deserialization: field-backed
  * properties, getter-as-setter collections/maps, overloaded setter
  * methods, and static method exclusion.
  */
-public class BeanPropertyDeserTest
+public class BeanPropertyDeserTest extends DatabindTestUtil
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes for field-backed property tests
-    /**********************************************************
+    /**********************************************************************
      */
 
     static class SimpleFieldBean

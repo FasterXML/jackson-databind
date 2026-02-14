@@ -13,31 +13,32 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-class BackReference1516Test extends DatabindTestUtil {
-    static class ParentWithCreator {
+class BackReference1516Test extends DatabindTestUtil
+{
+    static class ParentWithCreator
+    {
         String id, name;
 
         @JsonManagedReference
         ChildObject1 child;
 
         @ConstructorProperties({"id", "name", "child"})
-        public ParentWithCreator(String id, String name,
-                                 ChildObject1 child) {
+        public ParentWithCreator(String id, String name, ChildObject1 child) {
             this.id = id;
             this.name = name;
             this.child = child;
         }
     }
 
-    static class ChildObject1 {
+    static class ChildObject1
+    {
         public String id, name;
 
         @JsonBackReference
         public ParentWithCreator parent;
 
         @ConstructorProperties({"id", "name", "parent"})
-        public ChildObject1(String id, String name,
-                            ParentWithCreator parent) {
+        public ChildObject1(String id, String name, ParentWithCreator parent) {
             this.id = id;
             this.name = name;
             this.parent = parent;

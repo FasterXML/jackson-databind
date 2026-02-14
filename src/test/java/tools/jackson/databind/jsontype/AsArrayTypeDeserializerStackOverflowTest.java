@@ -80,12 +80,9 @@ public class AsArrayTypeDeserializerStackOverflowTest extends DatabindTestUtil
         // Add a simple value at the deepest level
         json.append("\"innerKey\":\"innerValue\"");
         
-        // Close all nested structures
+        // Close all nested structures properly - each nested map closes without comma
         for (int i = 0; i < nestingDepth; i++) {
             json.append("}]");
-            if (i < nestingDepth - 1) {
-                json.append(",");
-            }
         }
         
         json.append("}}]");
@@ -145,11 +142,9 @@ public class AsArrayTypeDeserializerStackOverflowTest extends DatabindTestUtil
         
         json.append("\"innerKey\":\"innerValue\"");
         
+        // Close all the nested structures properly - each nested map closes without comma
         for (int i = 0; i < nestingDepth; i++) {
             json.append("}]");
-            if (i < nestingDepth - 1) {
-                json.append(",");
-            }
         }
         
         json.append("}}]");

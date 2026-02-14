@@ -9,6 +9,12 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 -
 
+3.0.5 (not yet released)
+
+#5685: Fix issue where `_findSerializer()` was called with incorrect argument in
+  `StdDelegatingSerializer::isEmpty()`
+ (fixed by @wrongwrong)
+
 3.0.4 (21-Jan-2026)
 
 #1288 (regression in 3.0.0) Type id not exposed for `JsonTypeInfo.As.EXTERNAL_PROPERTY`

@@ -11,6 +11,7 @@ Co-Authors (with only partial listings below):
 * Joo Hyuk Kim (@JooHyukKim)
 * PJ Fanning (@pjfanning)
 * Sim Yih Tsern (@yihtsern)
+* wrongwrong (@k163377)
 
 ----------------------------------------------------------------------------
 
@@ -112,3 +113,8 @@ Fouad Almalki (@Eng-Fouad)
  * Contributed fix for #5416: Annotations on an interface that's part of a JDK proxy are not honored
    with Jackson 3
   [3.0.3]
+
+wrongwrong (@k163377)
+ * Fixed #5685: Fix issue where `_findSerializer()` was called with incorrect argument in
+   `StdDelegatingSerializer::isEmpty()`
+  [3.0.5]

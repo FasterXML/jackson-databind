@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.util.TokenBuffer;
 
@@ -89,8 +90,7 @@ public class JDKStringLikeTypeDeserTest
     public void testCurrency() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(Currency.class);
-        Currency usd = Currency.getInstance("USD");
-        assertEquals(usd, r.readValue(q("USD")));
+        assertEquals(Currency.getInstance("USD"), r.readValue(q("USD")));
 
         try {
             r.readValue(q("poobah"));
@@ -191,15 +191,27 @@ public class JDKStringLikeTypeDeserTest
     @Test
     public void testStringBuilder() throws Exception
     {
-        StringBuilder sb = MAPPER.readValue(q("abc"), StringBuilder.class);
-        assertEquals("abc", sb.toString());
+        ObjectReader r = MAPPER.readerFor(StringBuilder.class);
+        assertEquals("abc", r.readValue(q("abc")).toString());
+        try {
+            r.readValue("[ ]");
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize value of type `java.lang.StringBuilder` from Array value");
+        }
     }
 
     @Test
     public void testStringBuffer() throws Exception
     {
-        StringBuffer sb = MAPPER.readValue(q("abc"), StringBuffer.class);
-        assertEquals("abc", sb.toString());
+        ObjectReader r = MAPPER.readerFor(StringBuffer.class);
+        assertEquals("def", r.readValue(q("def")).toString());
+        try {
+            r.readValue("[ ]");
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize value of type `java.lang.StringBuffer` from Array value");
+        }
     }
 
     @Test

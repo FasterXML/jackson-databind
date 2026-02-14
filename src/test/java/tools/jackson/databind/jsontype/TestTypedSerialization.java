@@ -78,6 +78,15 @@ public class TestTypedSerialization
     public class A extends Super {}
     public class B extends Super {}
 
+    // [databind#1451]
+    @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+    public static class List1451A {
+        public String a;
+    }
+    public static class List1451B extends List1451A {
+        public String b;
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -212,5 +221,40 @@ public class TestTypedSerialization
         String json = mapper.writerFor(new TypeReference<Map<Long, Collection<Super>>>() {}).writeValueAsString(map);
         assertTrue(json.contains("@class"), "JSON does not contain '@class': "+json);
     }
-}
 
+    // [databind#1451]
+    @Test
+    public void testCollectionWithTypeInfo() throws Exception {
+        final String CLASS_NAME = getClass().getSimpleName();
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(SerializationFeature.EAGER_SERIALIZER_FETCH)
+                .build();
+
+        List<List1451A> input = new ArrayList<List1451A>();
+        List1451A a = new List1451A();
+        a.a = "a1";
+        input.add(a);
+
+        List1451B b = new List1451B();
+        b.b = "b";
+        b.a = "a2";
+        input.add(b);
+
+        final TypeReference<?> typeRef =
+                new TypeReference<Collection<List1451A>>(){};
+        ObjectWriter writer = mapper.writerFor(typeRef);
+
+        String result = writer.writeValueAsString(input);
+
+        assertEquals(a2q(
+"[{'@class':'."+CLASS_NAME+"$List1451A','a':'a1'},{'@class':'."+CLASS_NAME+"$List1451B','a':'a2','b':'b'}]"
+), result);
+
+        List<List1451A> output = mapper.readerFor(typeRef)
+                .readValue(result);
+        assertEquals(2, output.size());
+        assertEquals(List1451A.class, output.get(0).getClass());
+        assertEquals(List1451B.class, output.get(1).getClass());
+    }
+}

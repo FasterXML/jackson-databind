@@ -12,10 +12,12 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// for [databind#4602]
-public class TwoCreators4602Test
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class MultipleCreatorsTest
     extends DatabindTestUtil
 {
+    // [databind#4602]
     static class OuterBean4602 {
         private final Bean4602 bean;
 
@@ -29,6 +31,7 @@ public class TwoCreators4602Test
         }
     }
 
+    // [databind#4602]
     static class Bean4602 {
         private final List<String> list;
 
@@ -54,6 +57,7 @@ public class TwoCreators4602Test
         }
     }
 
+    // [databind#4602]
     static class InnerBean4602 {
         private final String name;
 
@@ -67,8 +71,34 @@ public class TwoCreators4602Test
         }
     }
 
+    // [databind#2962]
+    static class ExampleDto2962
+    {
+        final int version;
+
+        ExampleDto2962(int version) {
+            this.version = version;
+        }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        static ExampleDto2962 fromJson(Json2962 json) {
+            return new ExampleDto2962(json.version);
+        }
+
+        static class Json2962 {
+            public int version;
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    // [databind#4602]
     @Test
     public void testThatPropertiesCreatorIsUsed() throws Exception
     {
@@ -83,6 +113,7 @@ public class TwoCreators4602Test
         assertThat(result.getBean().getList()).containsExactly("a", "b", "c");
     }
 
+    // [databind#4602]
     @Test
     public void testThatDelegatingCreatorIsUsed() throws Exception
     {
@@ -94,5 +125,13 @@ public class TwoCreators4602Test
         assertThat(result.getBean().getInner()).isNotNull();
         assertThat(result.getBean().getInner().getName()).isEqualTo("default");
         assertThat(result.getBean().getList()).containsExactly("a", "b", "c");
+    }
+
+    // [databind#2962]
+    @Test
+    public void testImplicitCtorExplicitFactory() throws Exception
+    {
+        ExampleDto2962 result = MAPPER.readValue("42", ExampleDto2962.class);
+        assertEquals(42, result.version);
     }
 }

@@ -207,6 +207,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (implemented by @pjfanning)
 #5674: Fix NPE when deserializing `Throwable` with `null` "stackTrace"
  (fix by @pjfanning)
+#5683: When deserializing using `ObjectMapper::treeToValue`, NPE occurs
+  when `JsonParser::readValueAs` is called
+ (reported by @wrongwrong)
 #5685: Fix issue where `_findSerializer()` was called with incorrect argument in
   `StdDelegatingSerializer::isEmpty()`
  (fixed by @wrongwrong)

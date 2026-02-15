@@ -1104,9 +1104,9 @@ public class ObjectReader
         return treeAsTokens(n, _deserializationContext());
     }
 
-    protected JsonParser treeAsTokens(JsonNode n, DeserializationContext ctxt) {
+    protected JsonParser treeAsTokens(JsonNode n, DeserializationContextExt ctxt) {
         _assertNotNull("n", n);
-        return new TreeTraversingParser(n, ctxt);
+        return ctxt.assignAndReturnParser(new TreeTraversingParser(n, ctxt));
     }
 
     /**

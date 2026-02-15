@@ -888,8 +888,8 @@ public class ObjectMapper
     @Override
     public JsonParser treeAsTokens(JsonNode n) {
         _assertNotNull("n", n);
-        DeserializationContext ctxt = _deserializationContext();
-        return new TreeTraversingParser(n, ctxt);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return ctxt.assignAndReturnParser(new TreeTraversingParser(n, ctxt));
     }
 
     /**

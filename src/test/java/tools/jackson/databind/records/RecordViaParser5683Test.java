@@ -41,13 +41,17 @@ public class RecordViaParser5683Test extends DatabindTestUtil
     public void testIssue5683()
     {
         final String json = "{\"inner\":\"123\"}";
+        final JsonNode tree = MAPPER.readTree(json);
+
         Outer value;
 
         value = MAPPER.readValue(json, Outer.class);
         assertEquals(123L, value.inner.value());
 
-        JsonNode tree = MAPPER.readTree(json);
         value = MAPPER.treeToValue(tree, Outer.class);
+        assertEquals(123L, value.inner.value());
+
+        value = MAPPER.reader().treeToValue(tree, Outer.class);
         assertEquals(123L, value.inner.value());
     }
 }

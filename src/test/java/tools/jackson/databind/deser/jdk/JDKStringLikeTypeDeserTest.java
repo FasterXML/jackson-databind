@@ -137,27 +137,37 @@ public class JDKStringLikeTypeDeserTest
     @Test
     public void testInetSocketAddress() throws Exception
     {
-        InetSocketAddress address = MAPPER.readValue(q("127.0.0.1"), InetSocketAddress.class);
+        ObjectReader r = MAPPER.readerFor(InetSocketAddress.class);
+        InetSocketAddress address = r.readValue(q("127.0.0.1"));
         assertEquals("127.0.0.1", address.getAddress().getHostAddress());
 
-        InetSocketAddress ip6 = MAPPER.readValue(
-                q("2001:db8:85a3:8d3:1319:8a2e:370:7348"), InetSocketAddress.class);
+        InetSocketAddress ip6 = r.readValue(q("2001:db8:85a3:8d3:1319:8a2e:370:7348"));
         assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6.getAddress().getHostAddress());
 
-        InetSocketAddress ip6port = MAPPER.readValue(
-                q("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"), InetSocketAddress.class);
+        InetSocketAddress ip6port = r.readValue(
+                q("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"));
         assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6port.getAddress().getHostAddress());
         assertEquals(443, ip6port.getPort());
 
         // should we try resolving host names? That requires connectivity...
         final String HOST = "www.google.com";
-        address = MAPPER.readValue(q(HOST), InetSocketAddress.class);
+        address = r.readValue(q(HOST));
         assertEquals(HOST, address.getHostName());
 
         final String HOST_AND_PORT = HOST+":80";
-        address = MAPPER.readValue(q(HOST_AND_PORT), InetSocketAddress.class);
+        address = r.readValue(q(HOST_AND_PORT));
         assertEquals(HOST, address.getHostName());
         assertEquals(80, address.getPort());
+
+        final String BAD_VALUE = "[2001:";
+        try {
+            r.readValue(q(BAD_VALUE));
+            fail("Should not pass!");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Cannot deserialize value of type `java.net.InetSocketAddress`");
+            verifyException(e, "from String \""+BAD_VALUE+"\"");
+            verifyException(e, "Bracketed IPv6 address must contain closing bracket");
+        }
     }
 
     @Test

@@ -15,7 +15,6 @@ import tools.jackson.core.*;
 import tools.jackson.core.util.VersionUtil;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.std.FromStringDeserializer;
-import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.ClassUtil;
 
@@ -206,9 +205,8 @@ public class JDKFromStringDeserializer
 
                 int i = value.lastIndexOf(']');
                 if (i == -1) {
-                    throw new InvalidFormatException(ctxt.getParser(),
-                            "Bracketed IPv6 address must contain closing bracket",
-                            value, InetSocketAddress.class);
+                    return ctxt.handleWeirdStringValue(_valueClass, value,
+                            "Bracketed IPv6 address must contain closing bracket");
                 }
 
                 int j = value.indexOf(':', i);

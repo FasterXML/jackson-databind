@@ -15,9 +15,9 @@ public class JsonIncludeForArray5515Test
         extends DatabindTestUtil
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Filters
-    /**********************************************************
+    /**********************************************************************
      */
 
     static class Foo5515Filter {
@@ -31,9 +31,9 @@ public class JsonIncludeForArray5515Test
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* POJOs — one per array type
-    /**********************************************************
+    /**********************************************************************
      */
 
     static class ObjectArray5155Pojo {
@@ -46,12 +46,21 @@ public class JsonIncludeForArray5515Test
         }
     }
 
-    static class StringArray5515Pojo {
+    static class StringArray5515PojoCustom {
         @JsonInclude(content = JsonInclude.Include.CUSTOM,
                 contentFilter = Foo5515Filter.class)
         public String[] values;
 
-        StringArray5515Pojo(String... v) {
+        StringArray5515PojoCustom(String... v) {
+            values = v;
+        }
+    }
+
+    static class StringArray5515PojoNonEmpty {
+        @JsonInclude(content = JsonInclude.Include.NON_EMPTY)
+        public String[] values;
+
+        StringArray5515PojoNonEmpty(String... v) {
             values = v;
         }
     }
@@ -92,20 +101,14 @@ public class JsonIncludeForArray5515Test
         }
     }
 
-    /*
-    /**********************************************************
-    /* Mapper
-    /**********************************************************
-     */
-
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
             .build();
 
     /*
-    /**********************************************************
-    /* Tests — reference arrays (expect filtering, FAIL today)
-    /**********************************************************
+    /**********************************************************************
+    /* Tests — reference arrays (expect filtering)
+    /**********************************************************************
      */
 
     @Test
@@ -113,8 +116,6 @@ public class JsonIncludeForArray5515Test
         ObjectArray5155Pojo input = new ObjectArray5155Pojo(
                 "1", "foo", "2"
         );
-
-        // EXPECT foo to be filtered out — FAILS today
         assertEquals(
                 a2q("{'values':['1','2']}"),
                 MAPPER.writeValueAsString(input)
@@ -123,21 +124,32 @@ public class JsonIncludeForArray5515Test
 
     @Test
     public void testCustomFilterWithStringArray() throws Exception {
-        StringArray5515Pojo input = new StringArray5515Pojo(
+        StringArray5515PojoCustom input = new StringArray5515PojoCustom(
                 "1", "foo", "2"
         );
 
-        // EXPECT foo to be filtered out — FAILS today
         assertEquals(
                 a2q("{'values':['1','2']}"),
                 MAPPER.writeValueAsString(input)
         );
     }
 
+    @Test
+    public void testNonEmptyFilterWithStringArray() throws Exception {
+        StringArray5515PojoNonEmpty input = new StringArray5515PojoNonEmpty(
+                "1", "foo", ""
+        );
+
+        assertEquals(
+                a2q("{'values':['1','foo']}"),
+                MAPPER.writeValueAsString(input)
+        );
+    }
+
     /*
-    /**********************************************************
-    /* Tests — primitive arrays (expect NON_DEFAULT filtering, FAIL today)
-    /**********************************************************
+    /**********************************************************************
+    /* Tests — primitive arrays (expect NON_DEFAULT filtering)
+    /**********************************************************************
      */
 
     @Test
@@ -146,7 +158,6 @@ public class JsonIncludeForArray5515Test
                 true, false, true
         );
 
-        // EXPECT default 'false' to be filtered out — FAILS today
         assertEquals(
                 a2q("{'values':[true,true]}"),
                 MAPPER.writeValueAsString(input)
@@ -159,7 +170,6 @@ public class JsonIncludeForArray5515Test
                 0, 1, 0, 2
         );
 
-        // EXPECT default '0' to be filtered out — FAILS today
         assertEquals(
                 a2q("{'values':[1,2]}"),
                 MAPPER.writeValueAsString(input)
@@ -171,8 +181,6 @@ public class JsonIncludeForArray5515Test
         LongArray5515Pojo input = new LongArray5515Pojo(
                 0L, 1L, 0L, 2L
         );
-
-        // EXPECT default '0L' to be filtered out — FAILS today
         assertEquals(
                 a2q("{'values':[1,2]}"),
                 MAPPER.writeValueAsString(input)
@@ -184,8 +192,6 @@ public class JsonIncludeForArray5515Test
         DoubleArray5515Pojo input = new DoubleArray5515Pojo(
                 0.0, 1.5, 0.0
         );
-
-        // EXPECT default '0.0' to be filtered out — FAILS today
         assertEquals(
                 a2q("{'values':[1.5]}"),
                 MAPPER.writeValueAsString(input)

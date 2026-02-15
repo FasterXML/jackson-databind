@@ -1,5 +1,8 @@
 package tools.jackson.databind.jsontype;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -23,6 +26,12 @@ public class NoTypeInfoTest extends DatabindTestUtil
         public int a = 3;
     }
 
+    // [databind#1391]
+    static class ListWrapper {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
+        public Collection<String> stuff = Collections.emptyList();
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -44,5 +53,23 @@ public class NoTypeInfoTest extends DatabindTestUtil
         assertNotNull(bean);
         NoType impl = (NoType) bean;
         assertEquals(6, impl.a);
+    }
+
+    // [databind#1391]: should allow disabling of default typing
+    // via explicit {@link JsonTypeInfo}
+    @Test
+    public void testCollectionWithOverride() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
+                    DefaultTyping.OBJECT_AND_NON_CONCRETE,
+                    "$type")
+            .build();
+        String json = mapper.writeValueAsString(new ListWrapper());
+        assertEquals(a2q("{'stuff':[]}"), json);
+
+        // And verify deserialization works too
+        ListWrapper result = mapper.readValue(json, ListWrapper.class);
+        assertEquals(0, result.stuff.size());
     }
 }

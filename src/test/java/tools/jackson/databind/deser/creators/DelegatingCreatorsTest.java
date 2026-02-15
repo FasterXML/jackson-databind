@@ -1,15 +1,15 @@
 package tools.jackson.databind.deser.creators;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil.Point;
 import tools.jackson.databind.util.TokenBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -106,6 +106,155 @@ public class DelegatingCreatorsTest
         @JsonCreator
         public MapBean(Map<String, Long> map) {
             this.map = map;
+        }
+    }
+
+    // [databind#4688]
+    static final class NoFieldSingletonWithDelegatingCreator {
+        static final NoFieldSingletonWithDelegatingCreator INSTANCE = new NoFieldSingletonWithDelegatingCreator();
+
+        private NoFieldSingletonWithDelegatingCreator() {}
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        static NoFieldSingletonWithDelegatingCreator of() {
+            return INSTANCE;
+        }
+    }
+
+    // [databind#4688]
+    static final class NoFieldSingletonWithPropertiesCreator {
+        static final NoFieldSingletonWithPropertiesCreator INSTANCE = new NoFieldSingletonWithPropertiesCreator();
+
+        private NoFieldSingletonWithPropertiesCreator() {}
+
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        static NoFieldSingletonWithPropertiesCreator of() {
+            return INSTANCE;
+        }
+    }
+
+    // [databind#4688]
+    static final class NoFieldSingletonWithDefaultCreator {
+        static final NoFieldSingletonWithDefaultCreator INSTANCE = new NoFieldSingletonWithDefaultCreator();
+
+        private NoFieldSingletonWithDefaultCreator() {}
+
+        @JsonCreator
+        static NoFieldSingletonWithDefaultCreator of() {
+            return INSTANCE;
+        }
+    }
+
+    // [databind#1003]
+    public interface Hero1003 { }
+
+    // [databind#1003]
+    static class HeroBattle1003 {
+
+        private final Hero1003 hero;
+
+        HeroBattle1003(Hero1003 hero) {
+            if (hero == null) throw new Error();
+            this.hero = hero;
+        }
+
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "heroType")
+        public Hero1003 getHero() {
+            return hero;
+        }
+
+        @JsonCreator
+        static HeroBattle1003 fromJson(Delegate1003 json) {
+            return new HeroBattle1003(json.hero);
+        }
+    }
+
+    // [databind#1003]
+    static class Delegate1003 {
+        @JsonProperty
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "heroType")
+        public Hero1003 hero;
+    }
+
+    // [databind#1003]
+    static class Superman1003 implements Hero1003 {
+        String name = "superman";
+
+        public String getName() {
+            return name;
+        }
+    }
+
+    // For [databind#580]
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+    static abstract class Issue580Base {
+    }
+
+    static class Issue580Impl extends Issue580Base {
+        public int id = 3;
+
+        public Issue580Impl() { }
+        public Issue580Impl(int id) { this.id = id; }
+    }
+
+    static class Issue580Bean {
+        public Issue580Base value;
+
+        @JsonCreator
+        public Issue580Bean(Issue580Base v) {
+            value = v;
+        }
+
+        @JsonValue
+        public Issue580Base value() {
+            return value;
+        }
+    }
+
+    // [TestConstructFromMap]
+
+    static class ConstructorFromMap
+    {
+        int _x;
+        String _y;
+
+        @JsonCreator
+        ConstructorFromMap(Map<?,?> arg)
+        {
+            _x = ((Number) arg.get("x")).intValue();
+            _y = (String) arg.get("y");
+        }
+    }
+
+    static class FactoryFromPoint
+    {
+        int _x, _y;
+
+        private FactoryFromPoint(Point p) {
+            _x = p.x;
+            _y = p.y;
+        }
+
+        @JsonCreator
+        static FactoryFromPoint createIt(Point p)
+        {
+            return new FactoryFromPoint(p);
+        }
+    }
+
+    // Also: let's test BigDecimal-from-JSON-String factory
+    static class FactoryFromDecimalString
+    {
+        int _value;
+
+        private FactoryFromDecimalString(BigDecimal d) {
+	    _value = d.intValue();
+        }
+
+        @JsonCreator
+        static FactoryFromDecimalString whateverNameWontMatter(BigDecimal d)
+        {
+            return new FactoryFromDecimalString(d);
         }
     }
 
@@ -262,5 +411,81 @@ public class DelegatingCreatorsTest
         result = MAPPER.readValue(a2q("{'name':'Billy', 'time':123}"), SuperToken2353.class);
         assertEquals("Billy", result.username);
         assertEquals(123L, result.time);
+    }
+
+    // [databind#4688]
+    @Test
+    public void testNoFieldSingletonWithDelegatingCreator() throws Exception
+    {
+        NoFieldSingletonWithDelegatingCreator deserialized = MAPPER.readValue("{}",
+                NoFieldSingletonWithDelegatingCreator.class);
+        assertSame(NoFieldSingletonWithDelegatingCreator.INSTANCE, deserialized);
+    }
+
+    // [databind#4688]
+    @Test
+    public void testNoFieldSingletonWithPropertiesCreator() throws Exception
+    {
+        NoFieldSingletonWithPropertiesCreator deserialized = MAPPER.readValue("{}",
+                NoFieldSingletonWithPropertiesCreator.class);
+        assertSame(NoFieldSingletonWithPropertiesCreator.INSTANCE, deserialized);
+    }
+
+    // [databind#4688]
+    @Test
+    public void testNoFieldSingletonWithDefaultCreator() throws Exception
+    {
+        NoFieldSingletonWithDefaultCreator deserialized = MAPPER.readValue("{}",
+                NoFieldSingletonWithDefaultCreator.class);
+        assertSame(NoFieldSingletonWithDefaultCreator.INSTANCE, deserialized);
+    }
+
+    // [databind#1003]
+    @Test
+    public void testExtrnalPropertyDelegatingCreator() throws Exception
+    {
+        final String json = MAPPER.writeValueAsString(new HeroBattle1003(new Superman1003()));
+        final HeroBattle1003 battle = MAPPER.readValue(json, HeroBattle1003.class);
+
+        assertInstanceOf(Superman1003.class, battle.getHero());
+    }
+
+    // [databind#580]
+    @Test
+    public void testAbstractDelegateWithCreator() throws Exception
+    {
+        Issue580Bean input = new Issue580Bean(new Issue580Impl(13));
+        String json = MAPPER.writeValueAsString(input);
+        Issue580Bean result = MAPPER.readValue(json, Issue580Bean.class);
+        assertNotNull(result);
+        assertNotNull(result.value);
+        assertEquals(13, ((Issue580Impl) result.value).id);
+    }
+
+    // [TestConstructFromMap]
+
+    @Test
+    public void testViaConstructor() throws Exception
+    {
+        ConstructorFromMap result = MAPPER.readValue
+            ("{ \"x\":1, \"y\" : \"abc\" }", ConstructorFromMap.class);
+        assertEquals(1, result._x);
+        assertEquals("abc", result._y);
+    }
+
+    @Test
+    public void testViaFactory() throws Exception
+    {
+        FactoryFromPoint result = MAPPER.readValue("{ \"x\" : 3, \"y\" : 4 }", FactoryFromPoint.class);
+        assertEquals(3, result._x);
+        assertEquals(4, result._y);
+    }
+
+    @Test
+    public void testViaFactoryUsingString() throws Exception
+    {
+        FactoryFromDecimalString result = MAPPER.readValue("\"12.57\"", FactoryFromDecimalString.class);
+        assertNotNull(result);
+        assertEquals(12, result._value);
     }
 }

@@ -11,7 +11,6 @@ import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 /**
  * Separate tests located in different package than code being
  * exercised; needed to trigger some access-related failures.

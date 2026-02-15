@@ -103,6 +103,19 @@ public class FormatFeatureUnwrapSingleTest extends DatabindTestUtil
         public URI[] v = { URI.create("http://foo") };
     }
 
+    // [databind#1232]
+    static class SortedKeysMap {
+        @JsonFormat(with = JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES)
+        public Map<String,Integer> values = new LinkedHashMap<>();
+
+        protected SortedKeysMap() { }
+
+        public SortedKeysMap put(String key, int value) {
+            values.put(key, value);
+            return this;
+        }
+    }
+
     @JsonPropertyOrder( { "strings", "ints", "bools", "enums" })
     static class WrapWriteWithCollections
     {
@@ -169,6 +182,16 @@ public class FormatFeatureUnwrapSingleTest extends DatabindTestUtil
         assertEquals(a2q("{'strings':'a','ints':[1],'bools':[true],'enums':'B'}"),
                 MAPPER.writer().without(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 .writeValueAsString(new WrapWriteWithCollections()));
+    }
+
+    // [databind#1232]: allow forcing sorting on Map keys
+    @Test
+    public void testOrderedMaps() throws Exception {
+        SortedKeysMap map = new SortedKeysMap()
+            .put("b", 2)
+            .put("a", 1);
+        assertEquals(a2q("{'values':{'a':1,'b':2}}"),
+                MAPPER.writeValueAsString(map));
     }
 
     @Test

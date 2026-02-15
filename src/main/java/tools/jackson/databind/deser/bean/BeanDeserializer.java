@@ -612,19 +612,21 @@ public class BeanDeserializer
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
 
         // First: do we have native Object Ids (like YAML)?
-        if (p.canReadObjectId()) {
-            Object id = p.getObjectId();
-            if (id != null) {
-                _handleTypedObjectId(p, ctxt, bean, id);
+        if (_objectIdReader != null) {
+            if (p.canReadObjectId()) {
+                Object id = p.getObjectId();
+                if (id != null) {
+                    _handleTypedObjectId(p, ctxt, bean, id);
+                }
             }
-        }
-        // [databind#3838]: since 2.16 Uniform handling of missing objectId
-        // only for the specific "empty JSON Object" case (and only for non-Native
-        // Object Ids, see [databind#4607]
-        else if (_objectIdReader != null && p.hasTokenId(JsonTokenId.ID_END_OBJECT)) {
-            // [databind#4610]: check if we are to skip failure
-            if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)) {
-                ctxt.reportUnresolvedObjectId(_objectIdReader, bean);
+            // [databind#3838]: since 2.16 Uniform handling of missing objectId
+            // only for the specific "empty JSON Object" case (and only for non-Native
+            // Object Ids, see [databind#4607]
+            else if (p.hasTokenId(JsonTokenId.ID_END_OBJECT)) {
+                // [databind#4610]: check if we are to skip failure
+                if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)) {
+                    ctxt.reportUnresolvedObjectId(_objectIdReader, bean);
+                }
             }
         }
         if (_injectables != null) {

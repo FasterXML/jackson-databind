@@ -263,7 +263,6 @@ public class CollectionSerializationTest
                 MAPPER.writeValueAsString(new PseudoList()));
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     public void testEmptyListOrArray() throws IOException
     {

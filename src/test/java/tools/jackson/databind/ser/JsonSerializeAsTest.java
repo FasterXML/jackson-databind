@@ -8,12 +8,14 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSerializeAs;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for new {@link JsonSerializeAs} annotation.
+ * Unit tests for {@link JsonSerializeAs} annotation (new)
+ * and legacy {@link JsonSerialize}{@code (as=...)} annotation.
  */
 public class JsonSerializeAsTest extends DatabindTestUtil
 {
@@ -136,7 +138,83 @@ public class JsonSerializeAsTest extends DatabindTestUtil
 
     /*
     /**********************************************************************
-    /* Test methods
+    /* Annotated helper classes for legacy @JsonSerialize(as=...)
+    /**********************************************************************
+     */
+
+    public interface LegacyFooable {
+        public int getFoo();
+    }
+
+    // force use of interface
+    @JsonSerialize(as=LegacyFooable.class)
+    public static class LegacyFooImpl implements LegacyFooable {
+        @Override
+        public int getFoo() { return 42; }
+        public int getBar() { return 15; }
+    }
+
+    static class LegacyFooImplNoAnno implements LegacyFooable {
+        @Override
+        public int getFoo() { return 42; }
+        public int getBar() { return 15; }
+    }
+
+    public class LegacyFooables {
+        public LegacyFooImpl[] getFoos() {
+            return new LegacyFooImpl[] { new LegacyFooImpl() };
+        }
+    }
+
+    public class LegacyFooableWrapper {
+        public LegacyFooImpl getFoo() {
+            return new LegacyFooImpl();
+        }
+    }
+
+    // for [databind#1023]
+    static class LegacyFooableWithFieldWrapper {
+        @JsonSerialize(as=LegacyFooable.class)
+        public LegacyFooable getFoo() {
+            return new LegacyFooImplNoAnno();
+        }
+    }
+
+    interface Bean1178Base {
+        public int getA();
+    }
+
+    @JsonPropertyOrder({"a","b"})
+    static abstract class Bean1178Abstract implements Bean1178Base {
+        @Override
+        public int getA() { return 1; }
+
+        public int getB() { return 2; }
+    }
+
+    static class Bean1178Impl extends Bean1178Abstract {
+        public int getC() { return 3; }
+    }
+
+    static class Bean1178Wrapper {
+        @JsonSerialize(contentAs=Bean1178Abstract.class)
+        public List<Bean1178Base> values;
+        public Bean1178Wrapper(int count) {
+            values = new ArrayList<Bean1178Base>();
+            for (int i = 0; i < count; ++i) {
+                values.add(new Bean1178Impl());
+            }
+        }
+    }
+
+    static class Bean1178Holder {
+        @JsonSerialize(as=Bean1178Abstract.class)
+        public Bean1178Base value = new Bean1178Impl();
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, @JsonSerializeAs (new annotation)
     /**********************************************************************
      */
 
@@ -186,5 +264,49 @@ public class JsonSerializeAsTest extends DatabindTestUtil
         // Map key serialization depends on how MapKeyAbstract is serialized
         // Since it has only getId(), we expect the key to be serialized as just that property
         assertTrue(json.contains("\"values\""), "Should contain 'values' field");
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, legacy @JsonSerialize(as=...)
+    /**********************************************************************
+     */
+
+    @Test
+    public void testLegacySerializeAsInClass() throws Exception {
+        assertEquals("{\"foo\":42}", WRITER.writeValueAsString(new LegacyFooImpl()));
+    }
+
+    @Test
+    public void testLegacySerializeAsForArrayProp() throws Exception {
+        assertEquals("{\"foos\":[{\"foo\":42}]}",
+                WRITER.writeValueAsString(new LegacyFooables()));
+    }
+
+    @Test
+    public void testLegacySerializeAsForSimpleProp() throws Exception {
+        assertEquals("{\"foo\":{\"foo\":42}}",
+                WRITER.writeValueAsString(new LegacyFooableWrapper()));
+    }
+
+    // for [databind#1023]
+    @Test
+    public void testLegacySerializeWithFieldAnno() throws Exception {
+        assertEquals("{\"foo\":{\"foo\":42}}",
+                WRITER.writeValueAsString(new LegacyFooableWithFieldWrapper()));
+    }
+
+    // for [databind#1178]
+    @Test
+    public void testLegacySpecializedContentAs1178() throws Exception {
+        assertEquals(a2q("{'values':[{'a':1,'b':2}]}"),
+                WRITER.writeValueAsString(new Bean1178Wrapper(1)));
+    }
+
+    // for [databind#1231] (and continuation of [databind#1178])
+    @Test
+    public void testLegacySpecializedAsIntermediate1231() throws Exception {
+        assertEquals(a2q("{'value':{'a':1,'b':2}}"),
+                WRITER.writeValueAsString(new Bean1178Holder()));
     }
 }

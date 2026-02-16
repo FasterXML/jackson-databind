@@ -899,8 +899,17 @@ public class ObjectMapperTest extends DatabindTestUtil
         byte[] json = mapper.writeValueAsBytes(input);
         assertNotNull(json);
         assertTrue(input.closed);
+
+        // and diff overload
+        input = new CloseableValue();
+        StringWriter w = new StringWriter();
+        try (JsonGenerator g = mapper.createGenerator(w)) {
+            mapper.writeValue(g, input);
+        }
+        assertNotNull(w.toString());
+        assertTrue(input.closed);
     }
-    
+
     @Test
     public void testClearCaches() throws Exception
     {

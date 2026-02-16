@@ -2702,6 +2702,8 @@ public class ObjectMapper
                 /* FormatSchema */ null, _injectableValues);
     }
 
+    // 15-Feb-2026, tatu: Unused by databind itself
+    @Deprecated // @since 3.1
     protected DeserializationContextExt _deserializationContext(DeserializationConfig config,
             JsonParser p) {
         return _deserializationContexts.createContext(config,

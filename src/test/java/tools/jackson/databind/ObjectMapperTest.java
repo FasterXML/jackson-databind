@@ -71,11 +71,12 @@ public class ObjectMapperTest extends DatabindTestUtil
     private final JsonMapper MAPPER = newJsonMapper();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, config
-    /**********************************************************
+    /**********************************************************************
      */
 
+    @Test
     public void testFeatureDefaults()
     {
         assertTrue(MAPPER.isEnabled(TokenStreamFactory.Feature.CANONICALIZE_PROPERTY_NAMES));
@@ -92,11 +93,19 @@ public class ObjectMapperTest extends DatabindTestUtil
         assertFalse(mapper.isEnabled(JsonWriteFeature.WRITE_NAN_AS_STRINGS));
     }
 
-    /*
-    /**********************************************************
-    /* Test methods, other
-    /**********************************************************
-     */
+    @Test
+    public void testRebuild()
+    {
+        ObjectMapper legacyMapper = new ObjectMapper();
+        assertNotNull(legacyMapper.version());
+        assertNotNull(legacyMapper.tokenStreamFactory());
+        assertNotSame(legacyMapper, legacyMapper.rebuild().build());
+
+        JsonMapper newMapper = JsonMapper.builder().build();
+        assertNotNull(newMapper.version());
+        assertNotNull(newMapper.tokenStreamFactory());
+        assertNotSame(newMapper, newMapper.rebuild().build());
+    }
 
     @Test
     public void testProps()
@@ -157,6 +166,12 @@ public class ObjectMapperTest extends DatabindTestUtil
         assertFalse(dc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
     }
 
+    /*
+    /**********************************************************************
+    /* Test methods, other
+    /**********************************************************************
+     */
+    
     @Test
     public void testDeserializationContextCache() throws Exception
     {

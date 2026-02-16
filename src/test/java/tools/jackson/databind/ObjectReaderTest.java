@@ -24,6 +24,7 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.node.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.util.TokenBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -384,6 +385,11 @@ public class ObjectReaderTest extends DatabindTestUtil
         }
         try (JsonParser p = R.createParser("[]")) {
             assertNotNull(R.readValues(p, new TypeReference<List<String>>() { }));
+        }
+        try (TokenBuffer tb = TokenBuffer.forGeneration()) {
+            tb.writeStartArray();
+            tb.writeEndArray();
+            assertNotNull(R.forType(List.class).readValues(tb));
         }
     }
 
@@ -954,9 +960,19 @@ public class ObjectReaderTest extends DatabindTestUtil
             "testReadValuesFromFile",
             a2q("{ 'name': 'One'} { 'name': 'Two'}"));
 
-        MappingIterator<FilePerson> iterator = MAPPER.readerFor(FilePerson.class).readValues(file);
+        try (MappingIterator<FilePerson> iterator = MAPPER
+                .readerFor(FilePerson.class)
+                .readValues(file)) {
+            _verifyWithMappingIterator(iterator, "One", "Two");
+        }
 
-        _verifyWithMappingIterator(iterator, "One", "Two");
+        // And also with "java.nio.file.Path"
+        try (MappingIterator<FilePerson> iterator = MAPPER
+                .readerFor(FilePerson.class)
+                .readValues(file.toPath())) {
+            _verifyWithMappingIterator(iterator, "One", "Two");
+        }
+
         assertTrue(file.delete());
     }
 

@@ -1793,7 +1793,9 @@ public class ObjectReader
 
     public <T> T treeToValue(JsonNode n, Class<T> valueType) throws JacksonException
     {
-        _assertNotNull("n", n);
+        if (n == null) {
+            return null;
+        }
         return forType(valueType).readValue(treeAsTokens(n));
     }
 
@@ -1807,7 +1809,9 @@ public class ObjectReader
      */
     public <T> T treeToValue(JsonNode n, JavaType valueType) throws JacksonException
     {
-        _assertNotNull("n", n);
+        if (n == null) {
+            return null;
+        }
         return forType(valueType).readValue(treeAsTokens( n));
     }
 

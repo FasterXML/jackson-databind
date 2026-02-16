@@ -242,7 +242,7 @@ public class ObjectMapper
      * deserializers (if it is needed)
      */
     protected final ConcurrentHashMap<JavaType, ValueDeserializer<Object>> _rootDeserializers
-        = new ConcurrentHashMap<JavaType, ValueDeserializer<Object>>(64, 0.6f, 2);
+        = new ConcurrentHashMap<>(64, 0.6f, 2);
 
     /*
     /**********************************************************************

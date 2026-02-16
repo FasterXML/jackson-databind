@@ -1,7 +1,6 @@
 package tools.jackson.databind.ser.jdk;
 
 import java.io.*;
-import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -13,8 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import tools.jackson.core.StreamWriteFeature;
-import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -82,29 +79,6 @@ public class JDKTypeSerializationTest
      */
 
     private final ObjectMapper MAPPER = sharedMapper();
-
-    @Test
-    public void testBigDecimal() throws Exception
-    {
-        Map<String, Object> map = new HashMap<String, Object>();
-        String PI_STR = "3.14159265";
-        map.put("pi", new BigDecimal(PI_STR));
-        String str = MAPPER.writeValueAsString(map);
-        assertEquals("{\"pi\":3.14159265}", str);
-    }
-
-    @Test
-    public void testBigDecimalAsPlainString() throws Exception
-    {
-        final ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
-                .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
-                .build());
-        Map<String, Object> map = new HashMap<String, Object>();
-        String PI_STR = "3.00000000";
-        map.put("pi", new BigDecimal(PI_STR));
-        String str = mapper.writeValueAsString(map);
-        assertEquals("{\"pi\":3.00000000}", str);
-    }
 
     @Test
     public void testFile() throws IOException

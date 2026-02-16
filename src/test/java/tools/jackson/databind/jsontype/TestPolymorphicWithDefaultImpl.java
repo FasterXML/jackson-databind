@@ -6,8 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
+import tools.jackson.core.Version;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidTypeIdException;
+import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -134,6 +136,84 @@ public class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
 
     static class AsPropertyWrapper {
         public AsProperty value;
+    }
+
+    // [databind#1565]
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY,
+        property="typeInfo",  defaultImpl = CBaseClass1565.class)
+    @JsonSubTypes({
+        @JsonSubTypes.Type(CDerived1565.class)
+    })
+    public static interface CTestInterface1565
+    {
+         public String getName();
+         public void setName(String name);
+         public String getTypeInfo();
+    }
+
+    static class CBaseClass1565 implements CTestInterface1565
+    {
+         private String mName;
+
+         @Override
+         public String getName() {
+              return(mName);
+         }
+
+         @Override
+         public void setName(String name) {
+              mName = name;
+         }
+
+         @Override
+         public String getTypeInfo() {
+              return "base";
+         }
+    }
+
+    @JsonTypeName("derived")
+    static class CDerived1565 extends CBaseClass1565
+    {
+         public String description;
+
+         @Override
+         public String getTypeInfo() {
+              return "derived";
+         }
+    }
+
+    // [databind#1861]
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", defaultImpl = DefaultImpl1861.class)
+    @JsonSubTypes({
+            @JsonSubTypes.Type(name = "a", value = Impl1861A.class)
+    })
+    static abstract class Bean1861 {
+        public String base;
+    }
+
+    static class DefaultImpl1861 extends Bean1861 {
+        public int id;
+    }
+
+    static class Impl1861A extends Bean1861 {
+        public int valueA;
+    }
+
+    // for TestSubtypesWithDefaultImpl
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY,
+            property="#type",
+            defaultImpl=DefaultImpl.class)
+    static abstract class SuperTypeWithDefault { }
+
+    static class DefaultImpl extends SuperTypeWithDefault {
+        public int a;
+    }
+
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property="#type")
+    static abstract class SuperTypeWithoutDefault { }
+
+    static class DefaultImpl505 extends SuperTypeWithoutDefault {
+        public int a;
     }
 
     /*
@@ -279,6 +359,76 @@ public class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
                 .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
         AsPropertyWrapper wrapper = r.readValue("{ \"value\": \"\" }");
         assertNull(wrapper.value);
+    }
+
+    // [databind#1565]
+    @Test
+    public void testIncompatibleDefaultImpl1565() throws Exception
+    {
+        String value = "{\"typeInfo\": \"derived\", \"name\": \"John\", \"description\": \"Owner\"}";
+        CDerived1565 result = MAPPER.readValue(value, CDerived1565.class);
+        assertNotNull(result);
+    }
+
+    // [databind#1861]
+    @Test
+    public void testWithIncompatibleTargetType1861() throws Exception
+    {
+        // Should allow deserialization even if `defaultImpl` incompatible
+        Impl1861A result = MAPPER.readValue(a2q("{'type':'a','base':'foo','valueA':3}"),
+                Impl1861A.class);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testDefaultImplFromAnnotation() throws Exception
+    {
+        // first, test with no type information
+        SuperTypeWithDefault bean = MAPPER.readValue("{\"a\":13}", SuperTypeWithDefault.class);
+        assertEquals(DefaultImpl.class, bean.getClass());
+        assertEquals(13, ((DefaultImpl) bean).a);
+
+        // and then with unmapped info
+        bean = MAPPER.readValue("{\"a\":14,\"#type\":\"foobar\"}", SuperTypeWithDefault.class);
+        assertEquals(DefaultImpl.class, bean.getClass());
+        assertEquals(14, ((DefaultImpl) bean).a);
+
+        bean = MAPPER.readValue("{\"#type\":\"foobar\",\"a\":15}", SuperTypeWithDefault.class);
+        assertEquals(DefaultImpl.class, bean.getClass());
+        assertEquals(15, ((DefaultImpl) bean).a);
+
+        bean = MAPPER.readValue("{\"#type\":\"foobar\"}", SuperTypeWithDefault.class);
+        assertEquals(DefaultImpl.class, bean.getClass());
+        assertEquals(0, ((DefaultImpl) bean).a);
+    }
+
+    @Test
+    public void testDefaultImplViaModule() throws Exception
+    {
+        final String JSON = "{\"a\":123}";
+
+        // first: without registration etc, epic fail:
+        try {
+            MAPPER.readValue(JSON, SuperTypeWithoutDefault.class);
+            fail("Expected an exception");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "missing type id property '#type'");
+        }
+
+        // but then succeed when we register default impl
+        SimpleModule module = new SimpleModule("test", Version.unknownVersion());
+        module.addAbstractTypeMapping(SuperTypeWithoutDefault.class, DefaultImpl505.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
+        SuperTypeWithoutDefault bean = mapper.readValue(JSON, SuperTypeWithoutDefault.class);
+        assertNotNull(bean);
+        assertEquals(DefaultImpl505.class, bean.getClass());
+        assertEquals(123, ((DefaultImpl505) bean).a);
+
+        bean = mapper.readValue("{\"#type\":\"foobar\"}", SuperTypeWithoutDefault.class);
+        assertEquals(DefaultImpl505.class, bean.getClass());
+        assertEquals(0, ((DefaultImpl505) bean).a);
     }
 
     /*

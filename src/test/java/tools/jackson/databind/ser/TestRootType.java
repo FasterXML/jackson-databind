@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -23,9 +24,9 @@ public class TestRootType
     extends DatabindTestUtil
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Annotated helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     interface BaseInterface {
@@ -66,15 +67,30 @@ public class TestRootType
         public int type;
     }
 
+    static interface Issue822Interface {
+        public int getA();
+    }
+
+    // If this annotation is added, things will work:
+    //@tools.jackson.databind.annotation.JsonSerialize(as=Issue822Interface.class)
+    // but it should not be necessary when root type is passed
+    static class Issue822Impl implements Issue822Interface {
+        @Override
+        public int getA() { return 3; }
+        public int getB() { return 9; }
+    }
+    
     static class TestCommandChild extends TestCommandParent { }
 
     /*
-    /**********************************************************
-    /* Main tests
-    /**********************************************************
+    /**********************************************************************
+    /* Main test methods
+    /**********************************************************************
      */
 
-    final ObjectMapper WRAP_ROOT_MAPPER = jsonMapperBuilder()
+    private final ObjectMapper VANILLA_MAPPER = sharedMapper();
+
+    private final ObjectMapper WRAP_ROOT_MAPPER = jsonMapperBuilder()
             .enable(SerializationFeature.WRAP_ROOT_VALUE)
             .build();
 
@@ -82,11 +98,10 @@ public class TestRootType
     @Test
     public void testSuperClass() throws Exception
     {
-        ObjectMapper mapper = newJsonMapper();
         SubType bean = new SubType();
 
         // first, test with dynamically detected type
-        Map<String,Object> result = writeAndMap(mapper, bean);
+        Map<String,Object> result = writeAndMap(VANILLA_MAPPER, bean);
         assertEquals(4, result.size());
         assertEquals("a", result.get("a"));
         assertEquals(Integer.valueOf(3), result.get("b"));
@@ -94,9 +109,9 @@ public class TestRootType
         assertEquals(Boolean.TRUE, result.get("b2"));
 
         // and then using specified typed writer
-        ObjectWriter w = mapper.writerFor(BaseType.class);
+        ObjectWriter w = VANILLA_MAPPER.writerFor(BaseType.class);
         String json = w.writeValueAsString(bean);
-        result = (Map<String,Object>)mapper.readValue(json, Map.class);
+        result = (Map<String,Object>)VANILLA_MAPPER.readValue(json, Map.class);
         assertEquals(2, result.size());
         assertEquals("a", result.get("a"));
         assertEquals(Integer.valueOf(3), result.get("b"));
@@ -105,14 +120,13 @@ public class TestRootType
     @Test
     public void testSuperInterface() throws Exception
     {
-        ObjectMapper mapper = newJsonMapper();
         SubType bean = new SubType();
 
         // let's constrain by interface:
-        ObjectWriter w = mapper.writerFor(BaseInterface.class);
+        ObjectWriter w = VANILLA_MAPPER.writerFor(BaseInterface.class);
         String json = w.writeValueAsString(bean);
         @SuppressWarnings("unchecked")
-        Map<String,Object> result = mapper.readValue(json, Map.class);
+        Map<String,Object> result = VANILLA_MAPPER.readValue(json, Map.class);
         assertEquals(1, result.size());
         assertEquals(Integer.valueOf(3), result.get("b"));
     }
@@ -137,11 +151,10 @@ public class TestRootType
     @Test
     public void testIncompatibleRootType() throws Exception
     {
-        ObjectMapper mapper = newJsonMapper();
         SubType bean = new SubType();
 
         // and then let's try using incompatible type
-        ObjectWriter w = mapper.writerFor(HashMap.class);
+        ObjectWriter w = VANILLA_MAPPER.writerFor(HashMap.class);
         try {
             w.writeValueAsString(bean);
             fail("Should have failed due to incompatible type");
@@ -161,7 +174,6 @@ public class TestRootType
     @Test
     public void testJackson398() throws Exception
     {
-        ObjectMapper mapper = newJsonMapper();
         JavaType collectionType = defaultTypeFactory().constructCollectionType(ArrayList.class, BaseClass398.class);
         List<TestClass398> typedList = new ArrayList<TestClass398>();
         typedList.add(new TestClass398());
@@ -169,11 +181,12 @@ public class TestRootType
         final String EXP = "[{\"beanClass\":\"TestRootType$TestClass398\",\"property\":\"aa\"}]";
 
         // First simplest way:
-        String json = mapper.writerFor(collectionType).writeValueAsString(typedList);
+        String json = VANILLA_MAPPER.writerFor(collectionType).writeValueAsString(typedList);
         assertEquals(EXP, json);
 
         StringWriter out = new StringWriter();
-        mapper.writerFor(collectionType).writeValue(mapper.createGenerator(out), typedList);
+        VANILLA_MAPPER.writerFor(collectionType)
+            .writeValue(VANILLA_MAPPER.createGenerator(out), typedList);
 
         assertEquals(EXP, out.toString());
     }
@@ -195,9 +208,8 @@ public class TestRootType
     @Test
     public void testIssue456WrapperPart() throws Exception
     {
-        ObjectMapper mapper = newJsonMapper();
-        assertEquals("123", mapper.writerFor(Integer.TYPE).writeValueAsString(Integer.valueOf(123)));
-        assertEquals("456", mapper.writerFor(Long.TYPE).writeValueAsString(Long.valueOf(456L)));
+        assertEquals("123", VANILLA_MAPPER.writerFor(Integer.TYPE).writeValueAsString(Integer.valueOf(123)));
+        assertEquals("456", VANILLA_MAPPER.writerFor(Long.TYPE).writeValueAsString(Long.valueOf(456L)));
     }
 
     @Test
@@ -219,5 +231,48 @@ public class TestRootType
         String json =  writer.writeValueAsString(cmd);
 
         assertEquals("{\"TestCommandParent\":{\"uuid\":\"1234\",\"type\":1}}", json);
+    }
+
+    // First ensure that basic interface-override works:
+    @Test
+    public void testTypedSerialization() throws Exception
+    {
+        String singleJson = VANILLA_MAPPER.writerFor(Issue822Interface.class)
+                .writeValueAsString(new Issue822Impl());
+        // start with specific value case:
+        assertEquals("{\"a\":3}", singleJson);
+    }
+
+    @Test
+    public void testTypedRootArrays() throws Exception
+    {
+// Work-around when real solution not yet implemented:
+//        mapper.enable(MapperFeature.USE_STATIC_TYPING);
+        assertEquals("[{\"a\":3}]", VANILLA_MAPPER.writerFor(Issue822Interface[].class).writeValueAsString(
+                new Issue822Interface[] { new Issue822Impl() }));
+    }
+
+    @Test
+    public void testTypedRootLists() throws Exception
+    {
+     // Work-around when real solution not yet implemented:
+//        mapper.enable(MapperFeature.USE_STATIC_TYPING);
+
+        List<Issue822Interface> list = new ArrayList<Issue822Interface>();
+        list.add(new Issue822Impl());
+        String listJson = VANILLA_MAPPER.writerFor(new TypeReference<List<Issue822Interface>>(){})
+                .writeValueAsString(list);
+        assertEquals("[{\"a\":3}]", listJson);
+    }
+
+    @Test
+    public void testTypedRootMaps() throws Exception
+    {
+        Map<String,Issue822Interface> map = new HashMap<String,Issue822Interface>();
+        map.put("a", new Issue822Impl());
+        String listJson = VANILLA_MAPPER
+                .writerFor(new TypeReference<Map<String,Issue822Interface>>(){})
+                .writeValueAsString(map);
+        assertEquals("{\"a\":{\"a\":3}}", listJson);
     }
 }

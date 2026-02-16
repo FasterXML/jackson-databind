@@ -6,11 +6,12 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.InvalidTypeIdException;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PolymorphicDeserErrorHandlingTest extends DatabindTestUtil
 {
@@ -38,6 +39,51 @@ public class PolymorphicDeserErrorHandlingTest extends DatabindTestUtil
 
     static class Child2 extends Parent2668 {
         public String baz;
+    }
+
+    // [databind#5016]
+    static abstract class Animal5016 {
+        public String name = "animal";
+    }
+
+    static abstract class Plant {
+        public String name = "plant";
+    }
+
+    static class Cat5016 extends Animal5016 {
+        public String name = "cat";
+    }
+
+    static class Dog5016 extends Animal5016 implements Runnable {
+        public String name = "dog";
+
+        @Override
+        public void run() { }
+    }
+
+    static class Tree extends Plant {
+        public String name = "tree";
+    }
+
+    static class AnimalInfo {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "@class")
+        public Animal5016 thisType;
+    }
+
+    static class PlantInfo {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "@class")
+        public Plant thisType;
+    }
+
+    static class RunnableInfo {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "@class")
+        public Runnable thisType;
     }
 
     /*
@@ -69,6 +115,41 @@ public class PolymorphicDeserErrorHandlingTest extends DatabindTestUtil
             fail("Should not pass");
         } catch (InvalidTypeIdException e) {
             verifyException(e, "not subtype of");
+        }
+    }
+
+    // [databind#5016]
+    @Test
+    public void testWrongSubtype() throws Exception {
+        ObjectMapper mapper = newJsonMapper();
+        PlantInfo plantInfo = new PlantInfo();
+        plantInfo.thisType = new Tree();
+        String serialized = mapper.writeValueAsString(plantInfo);
+        PlantInfo newInfo0 = mapper.readValue(serialized, PlantInfo.class);
+        assertEquals(plantInfo.thisType.name, newInfo0.thisType.name);
+        // AnimalInfo has same JSON structure but incompatible type for `thisType`
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class, () ->
+                mapper.readValue(serialized, AnimalInfo.class));
+        verifyException(e, "Could not resolve type id ");
+        verifyException(e, "Not a subtype");
+    }
+
+    // [databind#5016]: java.lang.Runnable not acceptable as safe base type
+    @Test
+    public void testBlockingOfRunnable() throws Exception {
+        ObjectMapper mapper = JsonMapper.builder()
+                .build();
+        AnimalInfo animalInfo = new AnimalInfo();
+        animalInfo.thisType = new Dog5016();
+        String serialized = mapper.writeValueAsString(animalInfo);
+        AnimalInfo newInfo0 = mapper.readValue(serialized, AnimalInfo.class);
+        assertEquals(animalInfo.thisType.name, newInfo0.thisType.name);
+        try {
+            mapper.readValue(serialized, RunnableInfo.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "Configured `PolymorphicTypeValidator`");
+            verifyException(e, "denies resolution of all subtypes of base type `java.lang.Runnable`");
         }
     }
 }

@@ -119,6 +119,23 @@ public class UnwrappedWithCreator1467Test extends DatabindTestUtil
         }
     }
 
+    static class PrefixOuter {
+        @JsonUnwrapped(prefix = "inner-")
+        PrefixInner inner;
+    }
+
+    static class PrefixInner {
+        private final String _property;
+
+        public PrefixInner(@JsonProperty("property") String property) {
+            _property = property;
+        }
+
+        public String getProperty() {
+            return _property;
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
@@ -167,5 +184,14 @@ public class UnwrappedWithCreator1467Test extends DatabindTestUtil
         assertEquals("first-value2", outer.getInner1().getProperty2());
         assertEquals("second-value1", outer.getInner2().getProperty1());
         assertEquals("second-value2", outer.getInner2().getProperty2());
+    }
+
+    @Test
+    public void testUnwrappedWithPrefixCreator() throws Exception
+    {
+        String json = "{\"inner-property\": \"value\"}";
+        PrefixOuter outer = MAPPER.readValue(json, PrefixOuter.class);
+
+        assertEquals("value", outer.inner.getProperty());
     }
 }

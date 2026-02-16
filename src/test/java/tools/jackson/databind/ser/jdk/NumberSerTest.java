@@ -4,7 +4,13 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.StreamWriteFeature;
+import tools.jackson.core.json.JsonFactory;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
@@ -124,25 +132,39 @@ public class NumberSerTest extends DatabindTestUtil
         }
     }
 
+    static class Bean2519Typed {
+        public List<BigDecimal> values = new ArrayList<>();
+    }
+
+    static class Bean2519Untyped {
+        public Collection<BigDecimal> values = new HashSet<>();
+    }
+
     /*
-    /**********************************************************
-    /* Test methods
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods: short/int/long/BigInteger
+    /**********************************************************************
      */
 
     @Test
-    public void testDouble() throws Exception
+    public void testShortArray() throws Exception
     {
-        double[] values = new double[] {
-            0.0, 1.0, 0.1, -37.01, 999.99, 0.3, 33.3, Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY
-        };
-        for (double d : values) {
-            String expected = String.valueOf(d);
-            if (Double.isNaN(d) || Double.isInfinite(d)) {
-                expected = "\""+d+"\"";
-            }
-            assertEquals(expected, MAPPER.writeValueAsString(Double.valueOf(d)));
-        }
+        assertEquals("[0,1]", MAPPER.writeValueAsString(new short[] { 0, 1 }));
+        assertEquals("[2,3]", MAPPER.writeValueAsString(new Short[] { 2, 3 }));
+    }
+
+    @Test
+    public void testIntArray() throws Exception
+    {
+        assertEquals("[0,-3]", MAPPER.writeValueAsString(new int[] { 0, -3 }));
+        assertEquals("[13,9]", MAPPER.writeValueAsString(new Integer[] { 13, 9 }));
+    }
+
+    @Test
+    public void testLongArray() throws Exception
+    {
+        assertEquals("[-123,42]", MAPPER.writeValueAsString(new long[] { -123, 42 }));
+        assertEquals("[123,-999]", MAPPER.writeValueAsString(new Long[] { 123L, -999L }));
     }
 
     @Test
@@ -160,7 +182,136 @@ public class NumberSerTest extends DatabindTestUtil
             assertEquals(expected, MAPPER.writeValueAsString(value));
         }
     }
+    
+    /*
+    /**********************************************************************
+    /* Test methods, float/double/BigDecimal
+    /**********************************************************************
+     */
 
+    /* Note: dealing with floating-point values is tricky; not sure if
+     * we can really use equality tests here... JDK does have decent
+     * conversions though, to retain accuracy and round-trippability.
+     * But still...
+     */
+    @Test
+    public void testFloat() throws Exception
+    {
+        double[] values = new double[] {
+            0.0, 1.0, 0.1, -37.01, 999.99, 0.3, 33.3, Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY
+        };
+        for (double d : values) {
+           float f = (float) d;
+        String expected = String.valueOf(f);
+           if (Float.isNaN(f) || Float.isInfinite(f)) {
+               expected = "\""+expected+"\"";
+             }
+           assertEquals(expected, MAPPER.writeValueAsString(Float.valueOf(f)));
+        }
+    }
+
+    @Test
+    public void testDouble() throws Exception
+    {
+        double[] values = new double[] {
+            0.0, 1.0, 0.1, -37.01, 999.99, 0.3, 33.3, Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY
+        };
+        for (double d : values) {
+            String expected = String.valueOf(d);
+            if (Double.isNaN(d) || Double.isInfinite(d)) {
+                expected = "\""+d+"\"";
+            }
+            assertEquals(expected, MAPPER.writeValueAsString(Double.valueOf(d)));
+        }
+    }
+
+    @Test
+    public void testBigDecimal() throws Exception
+    {
+        Map<String, Object> map = new HashMap<String, Object>();
+        String PI_STR = "3.14159265";
+        map.put("pi", new BigDecimal(PI_STR));
+        String str = MAPPER.writeValueAsString(map);
+        assertEquals("{\"pi\":3.14159265}", str);
+    }
+
+    @Test
+    public void testBigDecimalAsPlainString() throws Exception
+    {
+        final ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
+                .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .build());
+        Map<String, Object> map = new HashMap<String, Object>();
+        String PI_STR = "3.00000000";
+        map.put("pi", new BigDecimal(PI_STR));
+        String str = mapper.writeValueAsString(map);
+        assertEquals("{\"pi\":3.00000000}", str);
+    }
+
+    @Test
+    public void testBigIntegerAsPlainTest() throws Exception
+    {
+        final String NORM_VALUE = "0.0000000005";
+        final BigDecimal BD_VALUE = new BigDecimal(NORM_VALUE);
+        final BigDecimalAsString INPUT = new BigDecimalAsString(BD_VALUE);
+        // by default, use the default `toString()`
+        assertEquals("{\"value\":\""+BD_VALUE.toString()+"\"}", MAPPER.writeValueAsString(INPUT));
+
+        // but can force to "plain" notation
+        final ObjectMapper m = jsonMapperBuilder()
+            .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
+            .build();
+        assertEquals("{\"value\":\""+NORM_VALUE+"\"}", m.writeValueAsString(INPUT));
+    }
+
+    @Test
+    public void testBigDecimalAsString2519Typed() throws Exception
+    {
+        Bean2519Typed foo = new Bean2519Typed();
+        foo.values.add(new BigDecimal("2.34"));
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(BigDecimal.class,
+                        o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)))
+                .build();
+        String json = mapper.writeValueAsString(foo);
+        assertEquals(a2q("{'values':['2.34']}"), json);
+    }
+
+    @Test
+    public void testBigDecimalAsString2519Untyped() throws Exception
+    {
+        Bean2519Untyped foo = new Bean2519Untyped();
+        foo.values.add(new BigDecimal("2.34"));
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(BigDecimal.class,
+                        o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)))
+                .build();
+        String json = mapper.writeValueAsString(foo);
+        assertEquals(a2q("{'values':['2.34']}"), json);
+    }
+
+    @Test
+    public void testCustomSerializationBigDecimalAsString() throws Exception {
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(BigDecimal.class, new BigDecimalAsStringSerializer());
+        ObjectMapper mapper = jsonMapperBuilder().addModule(module).build();
+        assertEquals(a2q("{'value':'2.0'}"), mapper.writeValueAsString(new BigDecimalHolder("2")));
+    }
+
+    @Test
+    public void testCustomSerializationBigDecimalAsNumber() throws Exception {
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(BigDecimal.class, new BigDecimalAsNumberSerializer());
+        ObjectMapper mapper = jsonMapperBuilder().addModule(module).build();
+        assertEquals(a2q("{'value':2.0}"), mapper.writeValueAsString(new BigDecimalHolder("2")));
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, as-String
+    /**********************************************************************
+     */
+    
     @Test
     public void testNumbersAsString() throws Exception
     {
@@ -214,22 +365,6 @@ public class NumberSerTest extends DatabindTestUtil
         assertEquals(a2q("{'value':0.05}"), MAPPER.writeValueAsString(new NumberWrapper(Double.valueOf(0.05))));
         assertEquals(a2q("{'value':123}"), MAPPER.writeValueAsString(new NumberWrapper(BigInteger.valueOf(123))));
         assertEquals(a2q("{'value':0.025}"), MAPPER.writeValueAsString(new NumberWrapper(BigDecimal.valueOf(0.025))));
-    }
-
-    @Test
-    public void testCustomSerializationBigDecimalAsString() throws Exception {
-        SimpleModule module = new SimpleModule();
-        module.addSerializer(BigDecimal.class, new BigDecimalAsStringSerializer());
-        ObjectMapper mapper = jsonMapperBuilder().addModule(module).build();
-        assertEquals(a2q("{'value':'2.0'}"), mapper.writeValueAsString(new BigDecimalHolder("2")));
-    }
-
-    @Test
-    public void testCustomSerializationBigDecimalAsNumber() throws Exception {
-        SimpleModule module = new SimpleModule();
-        module.addSerializer(BigDecimal.class, new BigDecimalAsNumberSerializer());
-        ObjectMapper mapper = jsonMapperBuilder().addModule(module).build();
-        assertEquals(a2q("{'value':2.0}"), mapper.writeValueAsString(new BigDecimalHolder("2")));
     }
 
     @Test

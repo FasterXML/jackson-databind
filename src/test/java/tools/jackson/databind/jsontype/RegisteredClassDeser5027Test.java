@@ -11,7 +11,6 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // For [databind#5027]
 public class RegisteredClassDeser5027Test extends DatabindTestUtil

@@ -99,8 +99,8 @@ public class ContextAttributeWithDeserTest
         assertEquals("y/3", pojos2[1].value);
     }
 
-    @Test
     // [databind#3001]
+    @Test
     public void testDefaultsViaMapper() throws Exception
     {
         final String INPUT = a2q("{'value':'x'}");
@@ -124,4 +124,17 @@ public class ContextAttributeWithDeserTest
                 .readValue(INPUT);
         assertEquals("x/19", pojo3.value);
     }
+
+    @Test
+    public void testDefaultsViaReader() throws Exception
+    {
+        final String INPUT = a2q("{'value':'x'}");
+        ContextAttributes attrs = ContextAttributes.getEmpty()
+                .withSharedAttribute(KEY, Integer.valueOf(28));
+        TestPOJO pojo = MAPPER.reader(attrs)
+                .forType(TestPOJO.class)
+                .readValue(INPUT);
+        assertEquals("x/28", pojo.value);
+    }
 }
+

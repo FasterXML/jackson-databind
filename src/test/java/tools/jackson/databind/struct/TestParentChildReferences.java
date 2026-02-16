@@ -1,5 +1,6 @@
 package tools.jackson.databind.struct;
 
+import java.io.IOException;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
@@ -182,6 +183,51 @@ public class TestParentChildReferences
         public ConcreteNode() { }
         public ConcreteNode(String id) { this.id = id; }
     }
+
+    // [databind#1878]
+    static class Child1878 {
+        @JsonBackReference
+        public Parent1878 b;
+    }
+
+    static class Parent1878 {
+        @JsonManagedReference
+        public Child1878 a;
+    }
+
+    // Forward reference with @JsonIdentityInfo
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY)
+    static class ForwardReferenceContainerClass
+    {
+        public ForwardReferenceClass frc;
+        public YetAnotherClass2 yac;
+        public String id;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonSubTypes({
+            @JsonSubTypes.Type(value = ForwardReferenceClassOne.class, name = "One"),
+            @JsonSubTypes.Type(value = ForwardReferenceClassTwo.class, name = "Two")})
+    static abstract class ForwardReferenceClass
+    {
+        public String id;
+        public void setId(String id) {
+            this.id = id;
+        }
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
+    static class YetAnotherClass2
+    {
+        public YetAnotherClass2() {}
+        public ForwardReferenceClass frc;
+        public String id;
+    }
+
+    static class ForwardReferenceClassOne extends ForwardReferenceClass { }
+
+    static class ForwardReferenceClassTwo extends ForwardReferenceClass { }
 
     // [JACKSON-708]
     static class Model708 { }
@@ -373,5 +419,35 @@ public class TestParentChildReferences
     {
         Advertisement708 ad = MAPPER.readValue("{\"title\":\"Hroch\",\"photos\":[{\"id\":3}]}", Advertisement708.class);
         assertNotNull(ad);
+    }
+
+    // [databind#1878]
+    @Test
+    public void testChildDeserialization() throws Exception {
+        Child1878 child = MAPPER.readValue("{\"b\": {}}", Child1878.class);
+        assertNotNull(child.b);
+    }
+
+    // Forward reference with @JsonIdentityInfo
+    @Test
+    public void testForwardRef() throws IOException {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .build();
+        mapper.readValue("{" +
+                "  \"@type\" : \"TestParentChildReferences$ForwardReferenceContainerClass\"," +
+                "  \"frc\" : \"willBeForwardReferenced\"," +
+                "  \"yac\" : {" +
+                "    \"@type\" : \"TestParentChildReferences$YetAnotherClass2\"," +
+                "    \"frc\" : {" +
+                "      \"@type\" : \"One\"," +
+                "      \"id\" : \"willBeForwardReferenced\"" +
+                "    }," +
+                "    \"id\" : \"anId\"" +
+                "  }," +
+                "  \"id\" : \"ForwardReferenceContainerClass1\"" +
+                "}", ForwardReferenceContainerClass.class);
     }
 }

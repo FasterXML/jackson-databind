@@ -586,9 +586,10 @@ public class ObjectReaderTest extends DatabindTestUtil
     {
         ObjectReader r = MAPPER.readerFor(String.class);
 
-        // Ok to try to set `null` schema, always:
+        // Ok to try to set `null` schema, always works:
+        assertNotNull(MAPPER.reader((FormatSchema) null));
         r = r.with((FormatSchema) null);
-
+        
         try {
             // but not schema that doesn't match format (no schema exists for json)
             r = r.with(new BogusSchema());

@@ -15,7 +15,6 @@ import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.cfg.EnumFeature;
-import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -306,6 +306,17 @@ public class ObjectReaderTest extends DatabindTestUtil
         assertEquals(MAPPER.constructType(String.class), r.getValueType());
     }
 
+    @Test
+    public void testMiscReaderCreation() {
+        JsonNodeFactory nf = new JsonNodeFactory();
+        ObjectReader r = MAPPER.reader(nf);
+        assertSame(nf, r.jsonNodeFactory());
+
+        r = MAPPER.reader(Base64Variants.MODIFIED_FOR_URL);
+        assertEquals(Base64Variants.MODIFIED_FOR_URL,
+                r.getConfig().getBase64Variant());
+    }
+
     /*
     /**********************************************************************
     /* Test methods, createParser() variants

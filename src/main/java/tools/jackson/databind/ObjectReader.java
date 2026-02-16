@@ -833,6 +833,13 @@ public class ObjectReader
     }
 
     /**
+     * @since 3.1
+     */
+    public JsonNodeFactory jsonNodeFactory() {
+        return _config.getNodeFactory();
+    }
+
+    /**
      * @since 3.0
      */
     public TokenStreamFactory parserFactory() {

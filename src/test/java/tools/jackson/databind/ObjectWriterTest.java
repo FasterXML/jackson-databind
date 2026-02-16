@@ -113,6 +113,7 @@ public class ObjectWriterTest
     public void testObjectWriterWithNode() throws Exception
     {
         ObjectWriter W = MAPPER.writer();
+        assertNotNull(W.jsonNodeFactory());
         ObjectNode stuff = W.createObjectNode();
         stuff.put("a", 5);
         ObjectWriter writer = MAPPER.writerFor(JsonNode.class);
@@ -141,12 +142,6 @@ public class ObjectWriterTest
         assertNotNull(MAPPER.writerFor((Class<?>) null));
         assertNotNull(MAPPER.writerFor((JavaType) null));
         assertNotNull(MAPPER.writerFor((TypeReference<?>) null));
-    }
-
-    @Test
-    public void testWithNodeFactory() throws Exception
-    {
-        assertNotNull(MAPPER.writer().jsonNodeFactory());
     }
 
     @Test

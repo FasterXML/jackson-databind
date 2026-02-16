@@ -24,6 +24,7 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.node.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.util.TokenBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -305,6 +306,17 @@ public class ObjectReaderTest extends DatabindTestUtil
         assertEquals(MAPPER.constructType(String.class), r.getValueType());
     }
 
+    @Test
+    public void testMiscReaderCreation() {
+        JsonNodeFactory nf = new JsonNodeFactory();
+        ObjectReader r = MAPPER.reader(nf);
+        assertSame(nf, r.jsonNodeFactory());
+
+        r = MAPPER.reader(Base64Variants.MODIFIED_FOR_URL);
+        assertEquals(Base64Variants.MODIFIED_FOR_URL,
+                r.getConfig().getBase64Variant());
+    }
+
     /*
     /**********************************************************************
     /* Test methods, createParser() variants
@@ -384,6 +396,11 @@ public class ObjectReaderTest extends DatabindTestUtil
         }
         try (JsonParser p = R.createParser("[]")) {
             assertNotNull(R.readValues(p, new TypeReference<List<String>>() { }));
+        }
+        try (TokenBuffer tb = TokenBuffer.forGeneration()) {
+            tb.writeStartArray();
+            tb.writeEndArray();
+            assertNotNull(R.forType(List.class).readValues(tb));
         }
     }
 
@@ -580,9 +597,10 @@ public class ObjectReaderTest extends DatabindTestUtil
     {
         ObjectReader r = MAPPER.readerFor(String.class);
 
-        // Ok to try to set `null` schema, always:
+        // Ok to try to set `null` schema, always works:
+        assertNotNull(MAPPER.reader((FormatSchema) null));
         r = r.with((FormatSchema) null);
-
+        
         try {
             // but not schema that doesn't match format (no schema exists for json)
             r = r.with(new BogusSchema());
@@ -954,9 +972,19 @@ public class ObjectReaderTest extends DatabindTestUtil
             "testReadValuesFromFile",
             a2q("{ 'name': 'One'} { 'name': 'Two'}"));
 
-        MappingIterator<FilePerson> iterator = MAPPER.readerFor(FilePerson.class).readValues(file);
+        try (MappingIterator<FilePerson> iterator = MAPPER
+                .readerFor(FilePerson.class)
+                .readValues(file)) {
+            _verifyWithMappingIterator(iterator, "One", "Two");
+        }
 
-        _verifyWithMappingIterator(iterator, "One", "Two");
+        // And also with "java.nio.file.Path"
+        try (MappingIterator<FilePerson> iterator = MAPPER
+                .readerFor(FilePerson.class)
+                .readValues(file.toPath())) {
+            _verifyWithMappingIterator(iterator, "One", "Two");
+        }
+
         assertTrue(file.delete());
     }
 

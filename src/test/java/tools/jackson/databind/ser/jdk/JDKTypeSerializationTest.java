@@ -1,7 +1,6 @@
 package tools.jackson.databind.ser.jdk;
 
 import java.io.*;
-import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -13,8 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import tools.jackson.core.StreamWriteFeature;
-import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -28,7 +25,41 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JDKTypeSerializationTest
     extends DatabindTestUtil
 {
-    private final ObjectMapper MAPPER = sharedMapper();
+    static final class AppId implements CharSequence {
+        private final long value;
+
+        public AppId(long value) throws IllegalArgumentException {
+            this.value = value;
+        }
+
+        public static AppId valueOf(String value) throws IllegalArgumentException {
+            if (value == null) {
+                throw new IllegalArgumentException("value is null");
+            }
+            return new AppId(Long.parseLong(value));
+        }
+
+        @Override
+        public int length() {
+            return toString().length();
+        }
+
+        @Override
+        public char charAt(int index) {
+            return toString().charAt(index);
+        }
+
+        @Override
+        public CharSequence subSequence(int start, int end) {
+            return toString().subSequence(start, end);
+        }
+
+        // pay attention: no @JsonValue here
+        @Override
+        public String toString() {
+            return Long.toString(value);
+        }
+    }
 
     static class InetAddressBean {
         public InetAddress value;
@@ -41,28 +72,13 @@ public class JDKTypeSerializationTest
         public Void value;
     }
 
-    @Test
-    public void testBigDecimal() throws Exception
-    {
-        Map<String, Object> map = new HashMap<String, Object>();
-        String PI_STR = "3.14159265";
-        map.put("pi", new BigDecimal(PI_STR));
-        String str = MAPPER.writeValueAsString(map);
-        assertEquals("{\"pi\":3.14159265}", str);
-    }
+    /*
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
+     */
 
-    @Test
-    public void testBigDecimalAsPlainString() throws Exception
-    {
-        final ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
-                .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
-                .build());
-        Map<String, Object> map = new HashMap<String, Object>();
-        String PI_STR = "3.00000000";
-        map.put("pi", new BigDecimal(PI_STR));
-        String str = mapper.writeValueAsString(map);
-        assertEquals("{\"pi\":3.00000000}", str);
-    }
+    private final ObjectMapper MAPPER = sharedMapper();
 
     @Test
     public void testFile() throws IOException
@@ -155,6 +171,24 @@ public class JDKTypeSerializationTest
         assertEquals(q("UTF-8"), MAPPER.writeValueAsString(Charset.forName("UTF-8")));
     }
 
+    // NOTE: Does NOT really belong here as it is about serialization...
+    // but there's no proper place yet.
+    // [databind#3305]
+    @Test
+    public void testCharSequenceSerialization() throws Exception
+    {
+        final String APP_ID = "3074457345618296002";
+        AppId appId = AppId.valueOf(APP_ID);
+
+        String serialized = MAPPER.writeValueAsString(appId);
+
+        //Without a fix fails on JDK17 with
+        // ComparisonFailure:
+        //Expected :{"empty":false}
+        //Actual   :"3074457345618296002"
+        assertEquals("\"" + APP_ID + "\"", serialized);
+    }
+    
     // [databind#239]: Support serialization of ByteBuffer
     @Test
     public void testByteBuffer() throws IOException

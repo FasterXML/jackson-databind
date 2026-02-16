@@ -1,5 +1,6 @@
 package tools.jackson.databind.jsontype;
 
+import java.io.Serializable;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import tools.jackson.core.*;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
@@ -109,6 +113,112 @@ public class TestWithGenerics extends DatabindTestUtil
          }
     }
 
+    // [databind#1128]
+    @SuppressWarnings("rawtypes")
+    static abstract class HObj<M extends HObj> {
+        public long id;
+
+        // important: do not serialize as subtype, but only as type that
+        // is statically recognizable here.
+        @JsonSerialize(typing=JsonSerialize.Typing.STATIC)
+        public M parent;
+    }
+
+    static class DevBase extends HObj<DevBase> {
+        public String tag;
+
+        // for some reason, setter is needed to expose this...
+        public void setTag(String t) { tag = t; }
+    }
+
+    static class Dev extends DevBase {
+        public long p1;
+
+        public void setP1(long l) { p1 = l; }
+        public long getP1() { return p1; }
+    }
+
+    static class DevM extends Dev {
+        private long m1;
+
+        public long getM1() { return m1; }
+    }
+
+    static abstract class ContainerBase<T> {
+        public T entity;
+    }
+
+    static class DevMContainer extends ContainerBase<DevM>{ }
+
+    // [databind#2331]
+    static class SuperNode<T> { }
+    static class SuperTestClass { }
+
+    @SuppressWarnings("serial")
+    static class Node<T extends SuperTestClass & Cloneable> extends SuperNode<Node<T>> implements Serializable {
+
+        public List<Node<T>> children;
+
+        public Node() {
+            children = new ArrayList<Node<T>>();
+        }
+
+        /**
+         * The Wildcard here seems to be the Issue.
+         * If we remove this full getter, everything is working as expected.
+         */
+        public List<? extends SuperNode<Node<T>>> getChildren() {
+            return children;
+        }
+    }
+
+    // [databind#1735]
+    static class Wrapper1735 {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "type")
+        public Payload1735 w;
+    }
+
+    static class Payload1735 {
+        public void setValue(String str) { }
+    }
+
+    static class Nefarious1735 {
+        public Nefarious1735() {
+            throw new Error("Never call this constructor");
+        }
+
+        public void setValue(String str) {
+            throw new Error("Never call this setter");
+        }
+    }
+
+    // for [JACKSON-356]
+    public static class JSONResponse<T> {
+
+        private T result;
+
+        public T getResult() {
+            return result;
+        }
+
+        public void setResult(T result) {
+            this.result = result;
+        }
+    }
+
+    @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
+    public static class Parent356 {
+        public String parentContent = "PARENT";
+    }
+
+    public static class Child356_1 extends Parent356 {
+        public String childContent1 = "CHILD1";
+    }
+
+    public static class Child356_2 extends Parent356 {
+        public String childContent2 = "CHILD2";
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -195,5 +305,103 @@ public class TestWithGenerics extends DatabindTestUtil
         wrappedContainerWithField.animalContainer = new ContainerWithTwoAnimals<Dog,Dog>(new Dog("d1",1), new Dog("d2",2));
         String json = MAPPER.writeValueAsString(wrappedContainerWithField);
         assertNotNull(json);
+    }
+
+    // [databind#1128]
+    @Test
+    public void testIssue1128() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .build();
+        final DevMContainer devMContainer1 = new DevMContainer();
+        final DevM entity = new DevM();
+        final Dev parent = new Dev();
+        parent.id = 2L;
+        entity.parent = parent;
+        devMContainer1.entity = entity;
+
+        String json = mapper.writeValueAsString(devMContainer1);
+
+        final DevMContainer devMContainer = mapper.readValue(json, DevMContainer.class);
+        long id = devMContainer.entity.parent.id;
+        assertEquals(2, id);
+    }
+
+    // [databind#2331]
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Test
+    public void testGeneric2331() throws Exception {
+        Node root = new Node();
+        root.children.add(new Node());
+
+        String json = newJsonMapper().writeValueAsString(root);
+        assertNotNull(json);
+    }
+
+    // [databind#1735]
+    @Test
+    public void testSimpleTypeCheck1735() throws Exception
+    {
+        final String NEF_CLASS = Nefarious1735.class.getName();
+        try {
+            MAPPER.readValue(a2q(
+"{'w':{'type':'"+NEF_CLASS+"'}}"),
+                    Wrapper1735.class);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "could not resolve type id");
+            verifyException(e, "not a subtype");
+        }
+    }
+
+    // [databind#1735]
+    @Test
+    public void testNestedTypeCheck1735() throws Exception
+    {
+        try {
+            MAPPER.readValue(a2q(
+"{'w':{'type':'java.util.HashMap<java.lang.String,java.lang.String>'}}"),
+                    Wrapper1735.class);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "could not resolve type id");
+            verifyException(e, "not a subtype");
+        }
+    }
+
+    // [JACKSON-356]
+    @Test
+    public void testSubTypesFor356() throws Exception
+    {
+        JSONResponse<List<Parent356>> input = new JSONResponse<List<Parent356>>();
+
+        List<Parent356> embedded = new ArrayList<Parent356>();
+        embedded.add(new Child356_1());
+        embedded.add(new Child356_2());
+        input.setResult(embedded);
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .configure(MapperFeature.USE_STATIC_TYPING, true)
+                .build();
+
+        JavaType rootType = defaultTypeFactory().constructType(new TypeReference<JSONResponse<List<Parent356>>>() { });
+        byte[] json = mapper.writerFor(rootType).writeValueAsBytes(input);
+
+        JSONResponse<List<Parent356>> out = mapper.readValue(json, 0, json.length, rootType);
+
+        List<Parent356> deserializedContent = out.getResult();
+
+        assertEquals(2, deserializedContent.size());
+        assertInstanceOf(Parent356.class, deserializedContent.get(0));
+        assertInstanceOf(Child356_1.class, deserializedContent.get(0));
+        assertFalse(deserializedContent.get(0) instanceof Child356_2);
+        assertInstanceOf(Child356_2.class, deserializedContent.get(1));
+        assertFalse(deserializedContent.get(1) instanceof Child356_1);
+
+        assertEquals("PARENT", ((Child356_1) deserializedContent.get(0)).parentContent);
+        assertEquals("PARENT", ((Child356_2) deserializedContent.get(1)).parentContent);
+        assertEquals("CHILD1", ((Child356_1) deserializedContent.get(0)).childContent1);
+        assertEquals("CHILD2", ((Child356_2) deserializedContent.get(1)).childContent2);
     }
 }

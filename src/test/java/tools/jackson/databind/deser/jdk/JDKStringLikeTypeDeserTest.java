@@ -2,24 +2,17 @@ package tools.jackson.databind.deser.jdk;
 
 import java.io.*;
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Currency;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.*;
-
-import tools.jackson.core.Base64Variants;
-import tools.jackson.core.JsonParser;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.databind.*;
-import tools.jackson.databind.annotation.JsonDeserialize;
-import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.exc.InvalidFormatException;
-import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.util.TokenBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,49 +33,13 @@ public class JDKStringLikeTypeDeserTest
          }
     }
 
-    // [databind#429]
-    static class StackTraceBean {
-        public final static int NUM = 13;
-
-        @JsonProperty("Location")
-        @JsonDeserialize(using=MyStackTraceElementDeserializer.class)
-        protected StackTraceElement location;
-    }
-
-    static class MyStackTraceElementDeserializer extends StdDeserializer<StackTraceElement>
-    {
-        public MyStackTraceElementDeserializer() { super(StackTraceElement.class); }
-
-        @Override
-        public StackTraceElement deserialize(JsonParser jp,
-                DeserializationContext ctxt) {
-            jp.skipChildren();
-            return new StackTraceElement("a", "b", "b", StackTraceBean.NUM);
-        }
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-
-    // [databind#239]
-    @Test
-    public void testByteBuffer() throws Exception
-    {
-        byte[] INPUT = new byte[] { 1, 3, 9, -1, 6 };
-        String exp = MAPPER.writeValueAsString(INPUT);
-        ByteBuffer result = MAPPER.readValue(exp,  ByteBuffer.class);
-        assertNotNull(result);
-        assertEquals(INPUT.length, result.remaining());
-        for (int i = 0; i < INPUT.length; ++i) {
-            assertEquals(INPUT[i], result.get());
-        }
-        assertEquals(0, result.remaining());
-    }
 
     @Test
     public void testCharset() throws Exception
@@ -92,25 +49,35 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testClass() throws IOException
+    public void testClass() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        assertSame(String.class, mapper.readValue(q("java.lang.String"), Class.class));
+        ObjectReader classR = MAPPER.readerFor(Class.class);
+        assertSame(String.class, classR.readValue(q("java.lang.String")));
 
         // then primitive types
-        assertSame(Boolean.TYPE, mapper.readValue(q("boolean"), Class.class));
-        assertSame(Byte.TYPE, mapper.readValue(q("byte"), Class.class));
-        assertSame(Short.TYPE, mapper.readValue(q("short"), Class.class));
-        assertSame(Character.TYPE, mapper.readValue(q("char"), Class.class));
-        assertSame(Integer.TYPE, mapper.readValue(q("int"), Class.class));
-        assertSame(Long.TYPE, mapper.readValue(q("long"), Class.class));
-        assertSame(Float.TYPE, mapper.readValue(q("float"), Class.class));
-        assertSame(Double.TYPE, mapper.readValue(q("double"), Class.class));
-        assertSame(Void.TYPE, mapper.readValue(q("void"), Class.class));
+        assertSame(Boolean.TYPE, classR.readValue(q("boolean")));
+        assertSame(Byte.TYPE, classR.readValue(q("byte")));
+        assertSame(Short.TYPE, classR.readValue(q("short")));
+        assertSame(Character.TYPE, classR.readValue(q("char")));
+        assertSame(Integer.TYPE, classR.readValue(q("int")));
+        assertSame(Long.TYPE, classR.readValue(q("long")));
+        assertSame(Float.TYPE, classR.readValue(q("float")));
+        assertSame(Double.TYPE, classR.readValue(q("double")));
+        assertSame(Void.TYPE, classR.readValue(q("void")));
+
+        // and then error handling
+        try {
+            classR.readValue(q("UNKNOWN"));
+            fail("Should not pass");
+        } catch (ValueInstantiationException e) {
+            verifyException(e, "instance of `java.lang.Class`");
+            // 13-Feb-2026, tatu: Not a good message, should improve but...
+            verifyException(e, "UNKNOWN");
+        }
     }
 
     @Test
-    public void testClassWithParams() throws IOException
+    public void testClassWithParams() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ParamClassBean("Foobar"));
 
@@ -120,13 +87,13 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testCurrency() throws IOException
+    public void testCurrency() throws Exception
     {
-        Currency usd = Currency.getInstance("USD");
-        assertEquals(usd, MAPPER.readValue(q("USD"), Currency.class));
+        ObjectReader r = MAPPER.readerFor(Currency.class);
+        assertEquals(Currency.getInstance("USD"), r.readValue(q("USD")));
 
         try {
-            MAPPER.readValue(q("poobah"), Currency.class);
+            r.readValue(q("poobah"));
             fail("Should not pass!");
         } catch (InvalidFormatException e) {
             verifyException(e, "Cannot deserialize value of type `java.util.Currency` from String \"Poobah\"");
@@ -148,7 +115,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testCharSequence() throws IOException
+    public void testCharSequence() throws Exception
     {
         CharSequence cs = MAPPER.readValue("\"abc\"", CharSequence.class);
         assertEquals(String.class, cs.getClass());
@@ -156,7 +123,7 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testInetAddress() throws IOException
+    public void testInetAddress() throws Exception
     {
         InetAddress address = MAPPER.readValue(q("127.0.0.1"), InetAddress.class);
         assertEquals("127.0.0.1", address.getHostAddress());
@@ -168,33 +135,43 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testInetSocketAddress() throws IOException
+    public void testInetSocketAddress() throws Exception
     {
-        InetSocketAddress address = MAPPER.readValue(q("127.0.0.1"), InetSocketAddress.class);
+        ObjectReader r = MAPPER.readerFor(InetSocketAddress.class);
+        InetSocketAddress address = r.readValue(q("127.0.0.1"));
         assertEquals("127.0.0.1", address.getAddress().getHostAddress());
 
-        InetSocketAddress ip6 = MAPPER.readValue(
-                q("2001:db8:85a3:8d3:1319:8a2e:370:7348"), InetSocketAddress.class);
+        InetSocketAddress ip6 = r.readValue(q("2001:db8:85a3:8d3:1319:8a2e:370:7348"));
         assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6.getAddress().getHostAddress());
 
-        InetSocketAddress ip6port = MAPPER.readValue(
-                q("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"), InetSocketAddress.class);
+        InetSocketAddress ip6port = r.readValue(
+                q("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"));
         assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6port.getAddress().getHostAddress());
         assertEquals(443, ip6port.getPort());
 
         // should we try resolving host names? That requires connectivity...
         final String HOST = "www.google.com";
-        address = MAPPER.readValue(q(HOST), InetSocketAddress.class);
+        address = r.readValue(q(HOST));
         assertEquals(HOST, address.getHostName());
 
         final String HOST_AND_PORT = HOST+":80";
-        address = MAPPER.readValue(q(HOST_AND_PORT), InetSocketAddress.class);
+        address = r.readValue(q(HOST_AND_PORT));
         assertEquals(HOST, address.getHostName());
         assertEquals(80, address.getPort());
+
+        final String BAD_VALUE = "[2001:";
+        try {
+            r.readValue(q(BAD_VALUE));
+            fail("Should not pass!");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Cannot deserialize value of type `java.net.InetSocketAddress`");
+            verifyException(e, "from String \""+BAD_VALUE+"\"");
+            verifyException(e, "Bracketed IPv6 address must contain closing bracket");
+        }
     }
 
     @Test
-    public void testPattern() throws IOException
+    public void testPattern() throws Exception
     {
         Pattern exp = Pattern.compile("abc:\\s?(\\d+)");
         // Ok: easiest way is to just serialize first; problem
@@ -222,70 +199,29 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testStackTraceElement() throws Exception
-    {
-        StackTraceElement elem = null;
-        try {
-            throw new IllegalStateException();
-        } catch (Exception e) {
-            elem = e.getStackTrace()[0];
-        }
-        String json = MAPPER.writeValueAsString(elem);
-        StackTraceElement back = MAPPER.readValue(json, StackTraceElement.class);
-
-        assertEquals("testStackTraceElement", back.getMethodName());
-        assertEquals(elem.getLineNumber(), back.getLineNumber());
-        assertEquals(elem.getClassName(), back.getClassName());
-        assertEquals(elem.isNativeMethod(), back.isNativeMethod());
-        assertTrue(back.getClassName().endsWith("JDKStringLikeTypeDeserTest"));
-        assertFalse(back.isNativeMethod());
-    }
-
-    // [databind#429]
-    @Test
-    public void testStackTraceElementWithCustom() throws Exception
-    {
-        // first, via bean that contains StackTraceElement
-        StackTraceBean bean = MAPPER.readValue(a2q("{'Location':'foobar'}"),
-                StackTraceBean.class);
-        assertNotNull(bean);
-        assertNotNull(bean.location);
-        assertEquals(StackTraceBean.NUM, bean.location.getLineNumber());
-
-        // and then directly, iff registered
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer());
-        ObjectMapper mapper = jsonMapperBuilder()
-                .addModule(module)
-                .build();
-        StackTraceElement elem = mapper.readValue("123", StackTraceElement.class);
-        assertNotNull(elem);
-        assertEquals(StackTraceBean.NUM, elem.getLineNumber());
-
-        // and finally, even as part of real exception
-
-        IOException ioe = mapper.readValue(a2q("{'stackTrace':[ 123, 456 ]}"),
-                IOException.class);
-        assertNotNull(ioe);
-        StackTraceElement[] traces = ioe.getStackTrace();
-        assertNotNull(traces);
-        assertEquals(2, traces.length);
-        assertEquals(StackTraceBean.NUM, traces[0].getLineNumber());
-        assertEquals(StackTraceBean.NUM, traces[1].getLineNumber());
-    }
-
-    @Test
     public void testStringBuilder() throws Exception
     {
-        StringBuilder sb = MAPPER.readValue(q("abc"), StringBuilder.class);
-        assertEquals("abc", sb.toString());
+        ObjectReader r = MAPPER.readerFor(StringBuilder.class);
+        assertEquals("abc", r.readValue(q("abc")).toString());
+        try {
+            r.readValue("[ ]");
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize value of type `java.lang.StringBuilder` from Array value");
+        }
     }
 
     @Test
     public void testStringBuffer() throws Exception
     {
-        StringBuffer sb = MAPPER.readValue(q("abc"), StringBuffer.class);
-        assertEquals("abc", sb.toString());
+        ObjectReader r = MAPPER.readerFor(StringBuffer.class);
+        assertEquals("def", r.readValue(q("def")).toString());
+        try {
+            r.readValue("[ ]");
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize value of type `java.lang.StringBuffer` from Array value");
+        }
     }
 
     @Test
@@ -334,96 +270,5 @@ public class JDKStringLikeTypeDeserTest
         }
     }
 
-    @Test
-    public void testUUID() throws Exception
-    {
-        final String NULL_UUID = "00000000-0000-0000-0000-000000000000";
-        final ObjectReader r = MAPPER.readerFor(UUID.class);
 
-        // first, couple of generated UUIDs:
-        for (String value : new String[] {
-                "76e6d183-5f68-4afa-b94a-922c1fdb83f8",
-                "540a88d1-e2d8-4fb1-9396-9212280d0a7f",
-                "2c9e441d-1cd0-472d-9bab-69838f877574",
-                "591b2869-146e-41d7-8048-e8131f1fdec5",
-                "82994ac2-7b23-49f2-8cc5-e24cf6ed77be",
-                "00000007-0000-0000-0000-000000000000"
-        }) {
-            UUID uuid = UUID.fromString(value);
-            assertEquals(uuid,
-                    r.without(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                        .readValue(q(value)));
-        }
-        // then use templating; note that these are not exactly valid UUIDs
-        // wrt spec (type bits etc), but JDK UUID should deal ok
-        final String TEMPL = NULL_UUID;
-        final String chars = "123456789abcdefABCDEF";
-
-        for (int i = 0; i < chars.length(); ++i) {
-            String value = TEMPL.replace('0', chars.charAt(i));
-            assertEquals(UUID.fromString(value).toString(),
-                    r.readValue(q(value)).toString());
-        }
-
-        // also: see if base64 encoding works as expected
-        String base64 = Base64Variants.getDefaultVariant().encode(new byte[16]);
-        assertEquals(UUID.fromString(NULL_UUID),
-                r.readValue(q(base64)));
-    }
-
-    @Test
-    public void testUUIDInvalid() throws Exception
-    {
-        // and finally, exception handling too [databind#1000], for invalid cases
-        try {
-            MAPPER.readValue(q("abcde"), UUID.class);
-            fail("Should fail on invalid UUID string");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "UUID has to be represented by standard");
-        }
-        try {
-            MAPPER.readValue(q("76e6d183-5f68-4afa-b94a-922c1fdb83fx"), UUID.class);
-            fail("Should fail on invalid UUID string");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "non-hex character 'x'");
-        }
-        // should also test from-bytes version, but that's trickier... leave for now.
-    }
-
-    @Test
-    public void testUUIDAux() throws Exception
-    {
-        final UUID value = UUID.fromString("76e6d183-5f68-4afa-b94a-922c1fdb83f8");
-
-        // first, null should come as null
-        try (TokenBuffer buf = TokenBuffer.forGeneration()) {
-            buf.writePOJO(null);
-            assertNull(MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), UUID.class));
-        }
-
-        // then, UUID itself come as is:
-        try (TokenBuffer buf = TokenBuffer.forGeneration()) {
-            buf.writePOJO(value);
-            assertSame(value, MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), UUID.class));
-
-            // and finally from byte[]
-            // oh crap; JDK UUID just... sucks. Not even byte[] accessors or constructors? Huh?
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            DataOutputStream out = new DataOutputStream(bytes);
-            out.writeLong(value.getMostSignificantBits());
-            out.writeLong(value.getLeastSignificantBits());
-            out.close();
-            byte[] data = bytes.toByteArray();
-            assertEquals(16, data.length);
-
-            // Let's create fresh TokenBuffer, not reuse one
-            try (TokenBuffer buf2 = TokenBuffer.forGeneration()) {
-                buf2.writePOJO(data);
-    
-                UUID value2 = MAPPER.readValue(buf2.asParser(), UUID.class);
-    
-                assertEquals(value, value2);
-            }
-        }
-    }
 }

@@ -948,9 +948,28 @@ Working alternatives:
         ValueDeserializer<?> valueDeser = prop.getValueDeserializer();
         SettableBeanProperty backProp = valueDeser.findBackReference(refName);
         if (backProp == null) {
-            return ctxt.reportBadDefinition(_beanType, String.format(
+            // [databind#3304]: Provide more informative error message when the property
+            // is a container type with abstract/interface content type -- common case is
+            // when @JsonBackReference only exists on a subtype, not on the declared
+            // (abstract/interface) element type
+            JavaType propType = prop.getType();
+            String msg;
+            JavaType ct;
+            if (propType.isContainerType()
+                    && (ct = propType.getContentType()) != null
+                    && ct.isAbstract()) {
+                msg = String.format(
+"Cannot handle managed/back reference %s: no back reference property found from type %s"
++" (content type %s is abstract: `@JsonBackReference` must be defined on the abstract"
++" type or interface, not just on its subtypes)",
+ClassUtil.name(refName), ClassUtil.getTypeDescription(propType),
+ClassUtil.getTypeDescription(ct));
+            } else {
+                msg = String.format(
 "Cannot handle managed/back reference %s: no back reference property found from type %s",
-ClassUtil.name(refName), ClassUtil.getTypeDescription(prop.getType())));
+ClassUtil.name(refName), ClassUtil.getTypeDescription(propType));
+            }
+            return ctxt.reportBadDefinition(_beanType, msg);
         }
         // also: verify that type is compatible
         JavaType referredType = _beanType;

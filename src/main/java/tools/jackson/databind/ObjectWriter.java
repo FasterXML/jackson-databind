@@ -20,6 +20,7 @@ import tools.jackson.databind.cfg.SerializationContexts;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.ser.*;
 import tools.jackson.databind.ser.impl.TypeWrappedSerializer;
@@ -907,6 +908,13 @@ public class ObjectWriter
      */
     public TokenStreamFactory generatorFactory() {
         return _generatorFactory;
+    }
+
+    /**
+     * @since 3.1
+     */
+    public JsonNodeFactory jsonNodeFactory() {
+        return _config.getNodeFactory();
     }
 
     public TypeFactory typeFactory() {

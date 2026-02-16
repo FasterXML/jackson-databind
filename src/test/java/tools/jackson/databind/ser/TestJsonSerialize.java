@@ -1,5 +1,6 @@
 package tools.jackson.databind.ser;
 
+import java.io.IOException;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
@@ -11,19 +12,26 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ser.std.NullSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * This unit test suite tests use of @JsonClass Annotation
+ * This unit test suite tests use of {@link JsonSerialize} annotation
  * with bean serialization.
  */
 @SuppressWarnings("serial")
 public class TestJsonSerialize
     extends DatabindTestUtil
 {
+    /*
+    /**********************************************************
+    /* Helper types for basic @JsonSerialize tests
+    /**********************************************************
+     */
+
     interface ValueInterface {
         public int getX();
     }
@@ -123,9 +131,143 @@ public class TestJsonSerialize
         }
     }
 
+    @JsonPropertyOrder({ "a", "something" })
+    static class Response {
+        public String a = "x";
+
+        @JsonProperty   //does not show up
+        public boolean isSomething() { return true; }
+    }
+
     /*
     /**********************************************************
-    /* Main tests
+    /* Helper types for contentAs/contentUsing/keyUsing tests
+    /**********************************************************
+     */
+
+    static class SimpleKey {
+        protected final String key;
+
+        public SimpleKey(String str) { key = str; }
+
+        @Override public String toString() { return "toString:"+key; }
+    }
+
+    static class SimpleValue {
+        public final String value;
+
+        public SimpleValue(String str) { value = str; }
+    }
+
+    @JsonPropertyOrder({"value", "value2"})
+    static class ActualValue extends SimpleValue
+    {
+        public final String other = "123";
+
+        public ActualValue(String str) { super(str); }
+    }
+
+    static class SimpleKeySerializer extends ValueSerializer<SimpleKey> {
+        @Override
+        public void serialize(SimpleKey key, JsonGenerator g, SerializationContext provider)
+        {
+            g.writeName("key "+key.key);
+        }
+    }
+
+    static class SimpleValueSerializer extends ValueSerializer<SimpleValue> {
+        @Override
+        public void serialize(SimpleValue value, JsonGenerator g, SerializationContext provider)
+        {
+            g.writeString("value "+value.value);
+        }
+    }
+
+    @JsonSerialize(contentAs=SimpleValue.class)
+    static class SimpleValueList extends ArrayList<ActualValue> { }
+
+    @JsonSerialize(contentAs=SimpleValue.class)
+    static class SimpleValueMap extends HashMap<SimpleKey, ActualValue> { }
+
+    @JsonSerialize(contentUsing=SimpleValueSerializer.class)
+    static class SimpleValueListWithSerializer extends ArrayList<ActualValue> { }
+
+    @JsonSerialize(keyUsing=SimpleKeySerializer.class, contentUsing=SimpleValueSerializer.class)
+    static class SimpleValueMapWithSerializer extends HashMap<SimpleKey, ActualValue> { }
+
+    static class ListWrapperSimple
+    {
+        @JsonSerialize(contentAs=SimpleValue.class)
+        public final ArrayList<ActualValue> values = new ArrayList<ActualValue>();
+
+        public ListWrapperSimple(String value) {
+            values.add(new ActualValue(value));
+        }
+    }
+
+    static class ListWrapperWithSerializer
+    {
+        @JsonSerialize(contentUsing=SimpleValueSerializer.class)
+        public final ArrayList<ActualValue> values = new ArrayList<ActualValue>();
+
+        public ListWrapperWithSerializer(String value) {
+            values.add(new ActualValue(value));
+        }
+    }
+
+    static class MapWrapperSimple
+    {
+        @JsonSerialize(contentAs=SimpleValue.class)
+        public final HashMap<SimpleKey, ActualValue> values = new HashMap<SimpleKey, ActualValue>();
+
+        public MapWrapperSimple(String key, String value) {
+            values.put(new SimpleKey(key), new ActualValue(value));
+        }
+    }
+
+    static class MapWrapperWithSerializer
+    {
+        @JsonSerialize(keyUsing=SimpleKeySerializer.class, contentUsing=SimpleValueSerializer.class)
+        public final HashMap<SimpleKey, ActualValue> values = new HashMap<SimpleKey, ActualValue>();
+
+        public MapWrapperWithSerializer(String key, String value) {
+            values.put(new SimpleKey(key), new ActualValue(value));
+        }
+    }
+
+    static class NullBean
+    {
+        @JsonSerialize(using=NullSerializer.class)
+        public String value = "abc";
+    }
+
+    /*
+    /**********************************************************
+    /* Helper types for contentUsing on list elements
+    /**********************************************************
+     */
+
+    // [JACKSON-829]
+    static class FooToBarSerializer extends ValueSerializer<String> {
+        @Override
+        public void serialize(String value, JsonGenerator g, SerializationContext provider)
+        {
+            if ("foo".equals(value)) {
+                g.writeString("bar");
+            } else {
+                g.writeString(value);
+            }
+        }
+    }
+
+    static class MyObject {
+        @JsonSerialize(contentUsing = FooToBarSerializer.class)
+        List<String> list;
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, basic @JsonSerialize
     /**********************************************************
      */
 
@@ -232,14 +374,6 @@ public class TestJsonSerialize
                 mapper.writeValueAsString(new Foo294("fooId", "barId")));
     }
 
-    @JsonPropertyOrder({ "a", "something" })
-    static class Response {
-        public String a = "x";
-
-        @JsonProperty   //does not show up
-        public boolean isSomething() { return true; }
-    }
-
     @Test
     public void testWithIsGetter() throws Exception
     {
@@ -253,5 +387,120 @@ public class TestJsonSerialize
                 .build();
         assertEquals(a2q("{'a':'x','something':true}"),
                 mapper.writeValueAsString(new Response()));
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, contentAs/contentUsing/keyUsing
+    /**********************************************************
+     */
+
+    // test value annotation applied to List value class
+    @Test
+    public void testSerializedAsListWithClassAnnotations() throws IOException
+    {
+        SimpleValueList list = new SimpleValueList();
+        list.add(new ActualValue("foo"));
+        assertEquals("[{\"value\":\"foo\"}]", MAPPER.writeValueAsString(list));
+    }
+
+    // test value annotation applied to Map value class
+    @Test
+    public void testSerializedAsMapWithClassAnnotations() throws IOException
+    {
+        SimpleValueMap map = new SimpleValueMap();
+        map.put(new SimpleKey("x"), new ActualValue("y"));
+        assertEquals("{\"toString:x\":{\"value\":\"y\"}}", MAPPER.writeValueAsString(map));
+    }
+
+    // test Serialization annotation with List
+    @Test
+    public void testSerializedAsListWithClassSerializer() throws IOException
+    {
+        SimpleValueListWithSerializer list = new SimpleValueListWithSerializer();
+        list.add(new ActualValue("foo"));
+        assertEquals("[\"value foo\"]", MAPPER.writeValueAsString(list));
+    }
+
+    @Test
+    public void testSerializedAsListWithPropertyAnnotations() throws IOException
+    {
+        ListWrapperSimple input = new ListWrapperSimple("bar");
+        assertEquals("{\"values\":[{\"value\":\"bar\"}]}", MAPPER.writeValueAsString(input));
+    }
+
+    @Test
+    public void testSerializedAsMapWithClassSerializer() throws IOException
+    {
+        SimpleValueMapWithSerializer map = new SimpleValueMapWithSerializer();
+        map.put(new SimpleKey("abc"), new ActualValue("123"));
+        assertEquals("{\"key abc\":\"value 123\"}", MAPPER.writeValueAsString(map));
+    }
+
+    @Test
+    public void testSerializedAsMapWithPropertyAnnotations() throws IOException
+    {
+        MapWrapperSimple input = new MapWrapperSimple("a", "b");
+        assertEquals("{\"values\":{\"toString:a\":{\"value\":\"b\"}}}",
+                MAPPER.writeValueAsString(input));
+    }
+
+    @Test
+    public void testSerializedAsListWithPropertyAnnotations2() throws IOException
+    {
+        ListWrapperWithSerializer input = new ListWrapperWithSerializer("abc");
+        assertEquals("{\"values\":[\"value abc\"]}", MAPPER.writeValueAsString(input));
+    }
+
+    @Test
+    public void testSerializedAsMapWithPropertyAnnotations2() throws IOException
+    {
+        MapWrapperWithSerializer input = new MapWrapperWithSerializer("foo", "b");
+        assertEquals("{\"values\":{\"key foo\":\"value b\"}}", MAPPER.writeValueAsString(input));
+    }
+
+    @Test
+    public void testEmptyInclusionContainers() throws IOException
+    {
+        ObjectMapper defMapper = MAPPER;
+        ObjectMapper inclMapper = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .build();
+
+        ListWrapper<String> list = new ListWrapper<String>();
+        assertEquals("{\"list\":[]}", defMapper.writeValueAsString(list));
+        assertEquals("{}", inclMapper.writeValueAsString(list));
+        assertEquals("{}", inclMapper.writeValueAsString(new ListWrapper<String>()));
+
+        MapWrapper<String,Integer> map = new MapWrapper<String,Integer>(new HashMap<String,Integer>());
+        assertEquals("{\"map\":{}}", defMapper.writeValueAsString(map));
+        assertEquals("{}", inclMapper.writeValueAsString(map));
+        assertEquals("{}", inclMapper.writeValueAsString(new MapWrapper<String,Integer>(null)));
+
+        ArrayWrapper<Integer> array = new ArrayWrapper<Integer>(new Integer[0]);
+        assertEquals("{\"array\":[]}", defMapper.writeValueAsString(array));
+        assertEquals("{}", inclMapper.writeValueAsString(array));
+        assertEquals("{}", inclMapper.writeValueAsString(new ArrayWrapper<Integer>(null)));
+    }
+
+    @Test
+    public void testNullSerializer() throws Exception
+    {
+        assertEquals("{\"value\":null}", MAPPER.writeValueAsString(new NullBean()));
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, contentUsing on list elements
+    /**********************************************************
+     */
+
+    @Test
+    public void testCustomContentSerializer() throws Exception
+    {
+        MyObject object = new MyObject();
+        object.list = Arrays.asList("foo");
+        String json = MAPPER.writeValueAsString(object);
+        assertEquals("{\"list\":[\"bar\"]}", json);
     }
 }

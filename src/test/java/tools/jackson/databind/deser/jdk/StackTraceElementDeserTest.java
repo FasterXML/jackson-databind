@@ -4,8 +4,14 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.IOException;
+
+import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,6 +40,27 @@ public class StackTraceElementDeserTest extends DatabindTestUtil
         public abstract int getLineNumber();
     }
 
+    // [databind#429]
+    static class StackTraceBean {
+        public final static int NUM = 13;
+
+        @JsonProperty("Location")
+        @JsonDeserialize(using=MyStackTraceElementDeserializer.class)
+        protected StackTraceElement location;
+    }
+
+    static class MyStackTraceElementDeserializer extends StdDeserializer<StackTraceElement>
+    {
+        public MyStackTraceElementDeserializer() { super(StackTraceElement.class); }
+
+        @Override
+        public StackTraceElement deserialize(JsonParser p,
+                DeserializationContext ctxt) {
+            p.skipChildren();
+            return new StackTraceElement("a", "b", "b", StackTraceBean.NUM);
+        }
+    }
+    
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
@@ -307,4 +334,36 @@ public class StackTraceElementDeserTest extends DatabindTestUtil
         assertEquals("Bar.java", result.getFileName());
         assertEquals(100, result.getLineNumber());
     }
+
+    // [databind#429]
+    @Test
+    public void testStackTraceElementWithCustom() throws Exception
+    {
+        // first, via bean that contains StackTraceElement
+        StackTraceBean bean = MAPPER.readValue(a2q("{'Location':'foobar'}"),
+                StackTraceBean.class);
+        assertNotNull(bean.location);
+        assertEquals(StackTraceBean.NUM, bean.location.getLineNumber());
+
+        // and then directly, iff registered
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer()))
+                .build();
+        StackTraceElement elem = mapper.readValue("123", StackTraceElement.class);
+        assertNotNull(elem);
+        assertEquals(StackTraceBean.NUM, elem.getLineNumber());
+
+        // and finally, even as part of real exception
+
+        IOException ioe = mapper.readValue(a2q("{'stackTrace':[ 123, 456 ]}"),
+                IOException.class);
+        assertNotNull(ioe);
+        StackTraceElement[] traces = ioe.getStackTrace();
+        assertNotNull(traces);
+        assertEquals(2, traces.length);
+        assertEquals(StackTraceBean.NUM, traces[0].getLineNumber());
+        assertEquals(StackTraceBean.NUM, traces[1].getLineNumber());
+    }
+
 }

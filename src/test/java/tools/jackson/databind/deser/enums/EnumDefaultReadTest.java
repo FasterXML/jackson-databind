@@ -278,13 +278,9 @@ public class EnumDefaultReadTest
             final String fromValue, final Class<T> toValueType)
         throws Exception
     {
-        try {
-            reader.forType(toValueType).readValue(q(fromValue));
-            fail("Deserialization should have failed");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "Cannot deserialize value of type");
-            /* Expected. */
-        }
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> reader.forType(toValueType).readValue(q(fromValue)));
+        verifyException(e, "Cannot deserialize value of type");
     }
 
     @Test

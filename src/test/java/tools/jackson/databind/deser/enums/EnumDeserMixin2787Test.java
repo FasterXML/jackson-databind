@@ -12,7 +12,7 @@ import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
@@ -69,7 +69,7 @@ public class EnumDeserMixin2787Test
     /**********************************************************************
      */
 
-    protected final ObjectMapper MAPPER = jsonMapperBuilder().build();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testEnumDeserSuccess() throws Exception {
@@ -137,20 +137,14 @@ public class EnumDeserMixin2787Test
         ObjectMapper mapper = mapperWithMixIn(Enum2787.class, EnumMixin2787.class);
 
         // fail for Bean property name
-        try {
-            mapper.readValue(q("tax10"), Enum2787.class);
-            fail("should not reach");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "tax10", "not one of the values accepted for Enum class");
-        }
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> mapper.readValue(q("tax10"), Enum2787.class));
+        verifyException(e, "tax10", "not one of the values accepted for Enum class");
 
         // fail for Bean's JsonProperty because overridden
-        try {
-            mapper.readValue(q("B_ORIGIN_PROP"), Enum2787.class);
-            fail("should not reach");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "B_ORIGIN_PROP", "not one of the values accepted for Enum class");
-        }
+        InvalidFormatException e2 = assertThrows(InvalidFormatException.class,
+                () -> mapper.readValue(q("B_ORIGIN_PROP"), Enum2787.class));
+        verifyException(e2, "B_ORIGIN_PROP", "not one of the values accepted for Enum class");
     }
 
     @Test
@@ -166,22 +160,18 @@ public class EnumDeserMixin2787Test
     public void testMixInValueForTargetClass() throws Exception {
         ObjectMapper mapper = mapperWithMixIn(Enum2787.class, EnumMixin2787.class);
 
-        try {
-            mapper.readValue(q("tax30"), Enum2787.class);
-        } catch (InvalidFormatException e) {
-            verifyException(e, " String \"tax30\": not one of the values accepted for Enum class:");
-        }
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> mapper.readValue(q("tax30"), Enum2787.class));
+        verifyException(e, " String \"tax30\": not one of the values accepted for Enum class:");
     }
 
     @Test
     public void testMixinOnEnumValuesThrowWhenUnknown() throws Exception {
         ObjectMapper mapper = mapperWithMixIn(Enum2787.class, EnumMixin2787.class);
 
-        try {
-            mapper.readValue(q("should-not-exist"), Enum2787.class);
-        } catch (InvalidFormatException e) {
-            verifyException(e, "should-not-exist", "not one of the values accepted for Enum class");
-        }
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> mapper.readValue(q("should-not-exist"), Enum2787.class));
+        verifyException(e, "should-not-exist", "not one of the values accepted for Enum class");
     }
 
     @Test
@@ -198,7 +188,7 @@ public class EnumDeserMixin2787Test
     }
 
     private JsonMapper.Builder builderWithMixIn(Class<?> target, Class<?> mixin) {
-        return JsonMapper.builder().disable(EnumFeature.READ_ENUMS_USING_TO_STRING)
+        return jsonMapperBuilder().disable(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 .addMixIn(target, mixin);
     }
 }

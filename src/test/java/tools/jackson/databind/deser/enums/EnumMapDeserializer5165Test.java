@@ -9,13 +9,14 @@ import com.fasterxml.jackson.annotation.Nulls;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidNullException;
-import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // For [databind#5165]
 public class EnumMapDeserializer5165Test
+    extends DatabindTestUtil
 {
     public enum MyEnum {
         FOO
@@ -35,7 +36,7 @@ public class EnumMapDeserializer5165Test
 
     @Test
     public void nullsFailTest() {
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultNullHandling(n -> JsonSetter.Value.forContentNulls(Nulls.FAIL))
                 .build();
         assertThrows(
@@ -46,7 +47,7 @@ public class EnumMapDeserializer5165Test
 
     @Test
     public void nullsSkipTest() throws Exception {
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultNullHandling(n -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
                 .build();
         Dst dst = mapper.readValue("{\"map\":{\"FOO\":\"\"}}", new TypeReference<Dst>() {});

@@ -13,7 +13,6 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.cfg.EnumFeature;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -104,7 +103,7 @@ public class EnumMapDeserializationTest
     /**********************************************************
      */
 
-    protected final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testEnumMaps() throws Exception
@@ -325,13 +324,10 @@ public class EnumMapDeserializationTest
     // [databind#3188] Default behavior unchanged - still fails
     @Test
     public void testUnknownKeyFailsWithHashMapByDefault() throws Exception {
-        try {
-            MAPPER.readerFor(new TypeReference<HashMap<TestEnumWithDefault,String>>() { })
-                  .readValue("{\"unknown\":\"value\"}");
-            fail("Should fail for unknown enum key");
-        } catch (DatabindException e) {
-            verifyException(e, "Cannot deserialize Map key");
-        }
+        DatabindException e = assertThrows(DatabindException.class,
+                () -> MAPPER.readerFor(new TypeReference<HashMap<TestEnumWithDefault,String>>() { })
+                    .readValue("{\"unknown\":\"value\"}"));
+        verifyException(e, "Cannot deserialize Map key");
     }
 
     /*
@@ -344,7 +340,7 @@ public class EnumMapDeserializationTest
     @Test
     public void testCaseInsensitiveEnumsInMaps() throws Exception
     {
-        ObjectReader r = JsonMapper.builder()
+        ObjectReader r = jsonMapperBuilder()
             .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
             .build()
             .readerFor(Holder1988.class);

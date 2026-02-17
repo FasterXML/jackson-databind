@@ -12,7 +12,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // for [databind#1419]
 public class MapEntryFormat1419Test extends DatabindTestUtil
@@ -83,12 +83,9 @@ public class MapEntryFormat1419Test extends DatabindTestUtil
     @Test
     void deserFailWithStructureMismatch() throws Exception
     {
-        try {
-            BeanWithMapEntryAsPOJO result = MAPPER.readValue(a2q("{'entry':{'notKey': 'value'}}"),
-                    BeanWithMapEntryAsPOJO.class);
-            fail("Should not pass, got: "+result);
-        } catch (UnrecognizedPropertyException e) {
-            assertEquals("notKey", e.getPropertyName());
-        }
+        UnrecognizedPropertyException e = assertThrows(UnrecognizedPropertyException.class,
+                () -> MAPPER.readValue(a2q("{'entry':{'notKey': 'value'}}"),
+                        BeanWithMapEntryAsPOJO.class));
+        assertEquals("notKey", e.getPropertyName());
     }
 }

@@ -9,9 +9,9 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DifferentRadixNumberFormatTest extends DatabindTestUtil {
 
@@ -123,13 +123,10 @@ public class DifferentRadixNumberFormatTest extends DatabindTestUtil {
         assertEquals(intialIntWrapper.value, readBackIntWrapper.value);
 
         // And error case too:
-        try {
-            mapper.readValue(a2q("{'value':'XYZ'}"), IntWrapper.class);
-            fail("Should not pass");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "Cannot deserialize value of type `int` from String \"XYZ\"");
-            verifyException(e, "not a valid representation of `int` value with radix 16");
-        }
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> mapper.readValue(a2q("{'value':'XYZ'}"), IntWrapper.class));
+        verifyException(e, "Cannot deserialize value of type `int` from String \"XYZ\"");
+        verifyException(e, "not a valid representation of `int` value with radix 16");
     }
 
     @Test
@@ -151,13 +148,10 @@ public class DifferentRadixNumberFormatTest extends DatabindTestUtil {
         assertEquals(intialIntWrapper.value, readBackIntWrapper.value);
 
         // And error case too:
-        try {
-            mapper.readValue(a2q("{'value':'_x'}"), IntWrapper.class);
-            fail("Should not pass");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "Cannot deserialize value of type `int` from String \"_x\"");
-            verifyException(e, "not a valid representation of `int` value with radix 16");
-        }
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> mapper.readValue(a2q("{'value':'_x'}"), IntWrapper.class));
+        verifyException(e, "Cannot deserialize value of type `int` from String \"_x\"");
+        verifyException(e, "not a valid representation of `int` value with radix 16");
     }
 
     @Test

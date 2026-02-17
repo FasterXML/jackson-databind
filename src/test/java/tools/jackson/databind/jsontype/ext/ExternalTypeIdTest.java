@@ -423,9 +423,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
 
         Base b = baseContainer2.getBase();
         assertNotNull(b);
-        if (b.getClass() != Derived1.class) {
-            fail("Should have type Derived1, was "+b.getClass().getName());
-        }
+        assertInstanceOf(Derived1.class, b);
 
         Derived1 derived1 = (Derived1) b;
         assertEquals("base prop val", derived1.getBaseProperty());

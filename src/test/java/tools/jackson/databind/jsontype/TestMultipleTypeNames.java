@@ -127,13 +127,10 @@ public class TestMultipleTypeNames extends DatabindTestUtil
 
 
         // TC 2 : incorrect serialisation
-        json = "{\"data\": [{\"type\":\"a\", \"data\": {\"x\": 2.2}}, {\"type\":\"b\", \"data\": {\"y\": 5.3}}, {\"type\":\"c\", \"data\": {\"y\": 9.8}}]}";
-        try  {
-            MAPPER.readValue(json, WrapperForNamesTest.class);
-            fail("This serialisation should fail 'coz of x being float");
-        } catch (UnrecognizedPropertyException e) {
-            verifyException(e, "Unrecognized property \"data\"");
-        }
+        String badJson = "{\"data\": [{\"type\":\"a\", \"data\": {\"x\": 2.2}}, {\"type\":\"b\", \"data\": {\"y\": 5.3}}, {\"type\":\"c\", \"data\": {\"y\": 9.8}}]}";
+        UnrecognizedPropertyException e = assertThrows(UnrecognizedPropertyException.class,
+                () -> MAPPER.readValue(badJson, WrapperForNamesTest.class));
+        verifyException(e, "Unrecognized property \"data\"");
     }
 
     @Test
@@ -156,15 +153,12 @@ public class TestMultipleTypeNames extends DatabindTestUtil
 
 
         // TC 2 : incorrect serialisation
-        json = "{\"data\": [{\"type\":\"a\", \"data\": {\"x\": 2.2}}, {\"type\":\"b\", \"data\": {\"y\": 5.3}}, {\"type\":\"c\", \"data\": {\"y\": 9.8}}]}";
-        try  {
-            MAPPER.readerFor(WrapperForNameAndNamesTest.class)
-                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                    .readValue(json);
-            fail("This serialisation should fail 'coz of x being float");
-        } catch (UnrecognizedPropertyException e) {
-            verifyException(e, "Unrecognized property \"data\"");
-        }
+        String badJson = "{\"data\": [{\"type\":\"a\", \"data\": {\"x\": 2.2}}, {\"type\":\"b\", \"data\": {\"y\": 5.3}}, {\"type\":\"c\", \"data\": {\"y\": 9.8}}]}";
+        UnrecognizedPropertyException e = assertThrows(UnrecognizedPropertyException.class,
+                () -> MAPPER.readerFor(WrapperForNameAndNamesTest.class)
+                        .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                        .readValue(badJson));
+        verifyException(e, "Unrecognized property \"data\"");
     }
 
     @Test
@@ -172,12 +166,9 @@ public class TestMultipleTypeNames extends DatabindTestUtil
     {
         String json = "{\"base\": [{\"type\":\"a\", \"data\": {\"x\": 5}}, {\"type\":\"b\", \"data\": {\"y\": 3.1}}, {\"type\":\"c\", \"data\": {\"y\": 33.8}}]}";
 
-        try  {
-            MAPPER.readValue(json, WrapperForNotUniqueNamesTest.class);
-            fail("This serialisation should fail because of repeated subtype name");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "Annotated type [data] got repeated subtype name [a]");
-        }
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> MAPPER.readValue(json, WrapperForNotUniqueNamesTest.class));
+        verifyException(e, "Annotated type [data] got repeated subtype name [a]");
     }
 
 }

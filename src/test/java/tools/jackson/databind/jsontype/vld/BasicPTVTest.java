@@ -76,6 +76,11 @@ public class BasicPTVTest extends DatabindTestUtil
         public NumberWrapper(Number v) { value = v; }
     }
 
+    // [databind#2539]
+    static class Dangerous2539 {
+        public int x;
+    }
+
     /*
     /**********************************************************************
     /* Test methods: by base type, pass
@@ -251,6 +256,44 @@ public class BasicPTVTest extends DatabindTestUtil
         verifyException(e, "Could not resolve type id 'tools.jackson.");
         verifyException(e, "as a subtype of");
     }
+
+    // [databind#2539]
+    @Test
+    public void testWithJDKBasicsOk() throws Exception
+    {
+        final ObjectMapper defaultingMapper = jsonMapperBuilder()
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowSubTypesWithExplicitDeserializer()
+                        .build(),
+                        DefaultTyping.NON_FINAL_AND_ENUMS)
+                .build();
+
+        Object[] input = new Object[] {
+                "test", 42, new java.net.URL("http://localhost"),
+                java.util.UUID.nameUUIDFromBytes("abc".getBytes()),
+                new Object[] { }
+        };
+
+        String json = defaultingMapper.writeValueAsString(input);
+        Object result = defaultingMapper.readValue(json, Object.class);
+        assertEquals(Object[].class, result.getClass());
+
+        // but then non-ok case:
+        final String json2 = defaultingMapper.writeValueAsString(new Object[] {
+                new Dangerous2539()
+        });
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> defaultingMapper.readValue(json2, Object.class));
+        verifyException(e, "Could not resolve type id 'tools.jackson.");
+        verifyException(e, "as a subtype of");
+
+        // and another one within array
+        final String json3 = defaultingMapper.writeValueAsString(new Object[] {
+                new Dangerous2539[] { new Dangerous2539() }
+        });
+        InvalidTypeIdException e2 = assertThrows(InvalidTypeIdException.class,
+                () -> defaultingMapper.readValue(json3, Object.class));
+        verifyException(e2, "Could not resolve type id '[Ltools.jackson.");
+        verifyException(e2, "as a subtype of");
+    }
 }
-
-

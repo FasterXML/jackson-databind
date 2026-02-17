@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -62,6 +65,25 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
   static enum Enum3711 { A, B }
+
+    // [databind#4327]
+    @JsonTypeInfo(use = DEDUCTION)
+    @JsonSubTypes({
+        @Type(value = DeductionBean4327_1.class),
+        @Type(value = DeductionBean4327_2.class)
+    })
+    interface Deduction4327 { }
+
+    static class DeductionBean4327_1 implements Deduction4327 {
+        public int x;
+    }
+
+    static class DeductionBean4327_2 implements Deduction4327 {
+        @JsonAlias(value = {"y", "Y", "yy", "ff", "X"})
+        public int y;
+
+        public void setY(int y) { this.y = y; }
+    }
 
   /*
   /**********************************************************
@@ -304,4 +326,14 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
   {
       assertEquals(q("B"), MAPPER.writeValueAsString(Enum3711.B));
   }
+
+    // [databind#4327]
+    @ParameterizedTest
+    @ValueSource(strings = {"y", "Y", "yy", "ff", "X"})
+    public void testAliasWithPolymorphicDeduction4327(String field) throws Exception {
+        String json = a2q(String.format("{'%s': 2 }", field));
+        Deduction4327 value = MAPPER.readValue(json, Deduction4327.class);
+        assertNotNull(value);
+        assertEquals(2, ((DeductionBean4327_2) value).y);
+    }
 }

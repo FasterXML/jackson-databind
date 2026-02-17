@@ -10,7 +10,10 @@ import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
+import tools.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
+import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 import tools.jackson.databind.util.TokenBuffer;
@@ -97,6 +100,50 @@ public class TestDefaultForObject
         public Validity validateBaseType(DatabindContext ctxt, JavaType baseType) {
             return Validity.DENIED;
         }
+    }
+
+    // [databind#2968]
+    static abstract class SimpleBall {
+        public int size = 3;
+    }
+
+    static class BasketBall extends SimpleBall {
+        protected BasketBall() {}
+
+        public BasketBall(int size) {
+            super();
+            this.size = size;
+        }
+    }
+
+    // [databind#1093]
+    static class Point1093 {
+        public int x, y;
+
+        protected Point1093() { }
+        protected Point1093(int _x, int _y) {
+            x = _x;
+            y = _y;
+        }
+    }
+
+    // [databind#3235]
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
+    static class Parent3235 { }
+    static class Child3235 extends Parent3235 { }
+
+    static abstract class AbstractParentWithoutDefault3235 {}
+
+    static class ChildOfParentWithoutDefault3235 extends AbstractParentWithoutDefault3235 {
+        public Map<String,String> mapField;
+        public Parent3235 objectField;
+    }
+
+    public static class FooTreeNode {
+        public String bar;
+
+        public FooTreeNode() { }
+        public FooTreeNode(String b) { bar = b; }
     }
 
     /*
@@ -440,6 +487,109 @@ public class TestDefaultForObject
         assertEquals(a2q("['"+FinalStringBean.class.getName()+"',{'name':'abc'}]"),
                 mapper.writeValueAsString(new FinalStringBean("abc")));
                 */
+    }
+
+    // [databind#2968] / [databind#3824]
+    @Test
+    public void testDeserializationConcreteClassWithDefaultTyping() throws Exception {
+        final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+            .allowIfBaseType(SimpleBall.class)
+            .build();
+        ObjectMapper mapper = jsonMapperBuilder()
+            .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL,
+                    JsonTypeInfo.As.PROPERTY)
+            .disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES)
+            .build();
+
+        final String concreteTypeJson = a2q("{'size': 42}");
+        BasketBall basketBall = mapper.readValue(concreteTypeJson, BasketBall.class);
+        assertEquals(42, basketBall.size);
+    }
+
+    // [databind#1093]
+    @Test
+    public void testWithDefaultTyping1093() throws Exception
+    {
+        ObjectMapper m = jsonMapperBuilder()
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.JAVA_LANG_OBJECT)
+                .build();
+
+        final Point1093 input = new Point1093(28, 12);
+
+        _testWithDefaultTyping1093(input, m.readerFor(Object.class),
+                m.writer().forType(Object.class));
+        _testWithDefaultTyping1093(input, m.readerFor(Object.class),
+                m.writerFor(Object.class));
+    }
+
+    private void _testWithDefaultTyping1093(Point1093 input, ObjectReader r,
+            ObjectWriter w) throws Exception
+    {
+        String json = w.writeValueAsString(input);
+
+        Point1093 result = (Point1093) r.readValue(json);
+
+        assertEquals(input.x, result.x);
+        assertEquals(input.y, result.y);
+    }
+
+    // [databind#3235]
+    @Test
+    public void testForAbstractTypeMapping3235() throws Exception
+    {
+        ObjectMapper mapper3235 = jsonMapperBuilder()
+                .enable(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL)
+                .addModule(new SimpleModule()
+                        .addAbstractTypeMapping(AbstractParentWithoutDefault3235.class, ChildOfParentWithoutDefault3235.class)
+                        .addAbstractTypeMapping(Map.class, TreeMap.class)
+                        .addAbstractTypeMapping(List.class, LinkedList.class)
+                )
+                .registerSubtypes(TreeMap.class, LinkedList.class, ChildOfParentWithoutDefault3235.class)
+                .setDefaultTyping(
+                        new DefaultTypeResolverBuilder( NoCheckSubTypeValidator.instance,
+                                DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY,
+                                JsonTypeInfo.Id.CLASS, "foo")
+                )
+                .build();
+        String doc = a2q(
+                "{" +
+                "  'mapField': {" +
+                "    'a':'a'" +
+                "  }, " +
+                "  'objectField': {}" +
+                "}");
+        Object o = mapper3235.readValue(doc, AbstractParentWithoutDefault3235.class);
+        assertEquals(o.getClass(), ChildOfParentWithoutDefault3235.class);
+        ChildOfParentWithoutDefault3235 ot = (ChildOfParentWithoutDefault3235) o;
+        assertEquals(ot.mapField.getClass(), TreeMap.class);
+        assertEquals(ot.objectField.getClass(), Parent3235.class);
+    }
+
+    @Test
+    public void testValueAsStringWithDefaultTyping() throws Exception
+    {
+        ObjectMapper defMapper = jsonMapperBuilder()
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .build();
+        FooTreeNode foo = new FooTreeNode("baz");
+        String json = defMapper.writeValueAsString(foo);
+
+        JsonNode jsonNode = defMapper.readTree(json);
+        assertEquals(jsonNode.get("bar").stringValue(), foo.bar);
+    }
+
+    @Test
+    public void testValueToTreeWithDefaultTyping() throws Exception
+    {
+        ObjectMapper defMapper = jsonMapperBuilder()
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .build();
+        FooTreeNode foo = new FooTreeNode("baz");
+        JsonNode jsonNode = defMapper.valueToTree(foo);
+        assertEquals(jsonNode.get("bar").stringValue(), foo.bar);
     }
 
     /*

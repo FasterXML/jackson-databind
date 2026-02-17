@@ -7,7 +7,7 @@ import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // for [databind#2539]
 public class BasicPTVKnownTypesTest extends DatabindTestUtil
@@ -36,27 +36,21 @@ public class BasicPTVKnownTypesTest extends DatabindTestUtil
         assertEquals(Object[].class, result.getClass());
 
         // but then non-ok case:
-        json = DEFAULTING_MAPPER.writeValueAsString(new Object[] {
+        final String json2 = DEFAULTING_MAPPER.writeValueAsString(new Object[] {
                 new Dangerous()
         });
-        try {
-            DEFAULTING_MAPPER.readValue(json, Object.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'tools.jackson.");
-            verifyException(e, "as a subtype of");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> DEFAULTING_MAPPER.readValue(json2, Object.class));
+        verifyException(e, "Could not resolve type id 'tools.jackson.");
+        verifyException(e, "as a subtype of");
 
         // and another one within array
-        json = DEFAULTING_MAPPER.writeValueAsString(new Object[] {
+        final String json3 = DEFAULTING_MAPPER.writeValueAsString(new Object[] {
                 new Dangerous[] { new Dangerous() }
         });
-        try {
-            DEFAULTING_MAPPER.readValue(json, Object.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id '[Ltools.jackson.");
-            verifyException(e, "as a subtype of");
-        }
+        InvalidTypeIdException e2 = assertThrows(InvalidTypeIdException.class,
+                () -> DEFAULTING_MAPPER.readValue(json3, Object.class));
+        verifyException(e2, "Could not resolve type id '[Ltools.jackson.");
+        verifyException(e2, "as a subtype of");
     }
 }

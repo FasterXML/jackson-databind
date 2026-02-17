@@ -69,7 +69,7 @@ public class JsonValueExtTypeIdTest extends DatabindTestUtil
         }
     }
 
-    final ObjectMapper MAPPER = new ObjectMapper();
+    final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testDoubleMetadata() throws IOException {

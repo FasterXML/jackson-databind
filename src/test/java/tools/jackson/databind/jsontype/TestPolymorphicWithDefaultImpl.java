@@ -222,7 +222,7 @@ public class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testDeserializationWithObject() throws Exception

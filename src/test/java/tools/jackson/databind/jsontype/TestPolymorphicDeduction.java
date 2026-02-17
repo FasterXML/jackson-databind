@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.InvalidTypeIdException;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -130,7 +129,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
 
   @Test
   public void testCaseInsensitiveInference() throws Exception {
-    Cat cat = JsonMapper.builder() // Don't use shared mapper!
+    Cat cat = jsonMapperBuilder() // Don't use shared mapper!
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
       .build()
       .readValue(deadCatJson.toUpperCase(), Cat.class);
@@ -220,33 +219,27 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
 
   @Test
   public void testAmbiguousClasses() throws Exception {
-    try {
-      ObjectMapper mapper = JsonMapper.builder() // Don't use shared mapper!
-              .registerSubtypes(AnotherLiveCat.class)
-              .build();
-      /*Cat cat =*/ mapper.readValue(liveCatJson, Cat.class);
-      fail("Should not get here");
-    } catch (InvalidDefinitionException e) {
-        verifyException(e, "Subtypes ");
-        verifyException(e, "have the same signature");
-        verifyException(e, "cannot be uniquely deduced");
-    }
+    ObjectMapper mapper = jsonMapperBuilder() // Don't use shared mapper!
+            .registerSubtypes(AnotherLiveCat.class)
+            .build();
+    InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+            () -> mapper.readValue(liveCatJson, Cat.class));
+    verifyException(e, "Subtypes ");
+    verifyException(e, "have the same signature");
+    verifyException(e, "cannot be uniquely deduced");
   }
 
   @Test
   public void testAmbiguousProperties() throws Exception {
-    try {
-      /*Cat cat =*/ MAPPER.readValue(ambiguousCatJson, Cat.class);
-      fail("Should not get here");
-    } catch (InvalidTypeIdException e) {
-        verifyException(e, "Cannot deduce unique subtype");
-    }
+    InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+            () -> MAPPER.readValue(ambiguousCatJson, Cat.class));
+    verifyException(e, "Cannot deduce unique subtype");
   }
 
   @Test
   public void testFailOnInvalidSubtype() throws Exception {
     // Given:
-    JsonMapper mapper = JsonMapper.builder() // Don't use shared mapper!
+    ObjectMapper mapper = jsonMapperBuilder() // Don't use shared mapper!
       .disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
       .build();
     // When:
@@ -262,7 +255,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
   @Test
   public void testDefaultImpl() throws Exception {
     // Given:
-    JsonMapper mapper = JsonMapper.builder() // Don't use shared mapper!
+    ObjectMapper mapper = jsonMapperBuilder() // Don't use shared mapper!
       .addMixIn(Cat.class, CatMixin.class)
       .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
       .build();

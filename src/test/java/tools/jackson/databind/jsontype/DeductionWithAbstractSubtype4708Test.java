@@ -189,17 +189,14 @@ public class DeductionWithAbstractSubtype4708Test extends DatabindTestUtil
 
         String json = a2q("{'item':'minecraft:stone','count':64}");
 
-        try {
-            mapper.readValue(json, Ingredient.class);
-            fail("Should have failed with signature conflict");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "Subtypes");
-            verifyException(e, "have the same signature");
-            verifyException(e, "cannot be uniquely deduced");
-            // Verify it mentions both the abstract class and concrete class
-            verifyException(e, "AbstractItemById");
-            verifyException(e, "ItemById");
-        }
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> mapper.readValue(json, Ingredient.class));
+        verifyException(e, "Subtypes");
+        verifyException(e, "have the same signature");
+        verifyException(e, "cannot be uniquely deduced");
+        // Verify it mentions both the abstract class and concrete class
+        verifyException(e, "AbstractItemById");
+        verifyException(e, "ItemById");
     }
 
     // Test that feature is enabled by default

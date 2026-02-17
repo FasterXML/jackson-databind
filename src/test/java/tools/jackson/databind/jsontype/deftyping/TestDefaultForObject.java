@@ -10,7 +10,6 @@ import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.exc.InvalidDefinitionException;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
@@ -157,19 +156,16 @@ public class TestDefaultForObject
     // [databind#2840]: ensure "as-property" uses PTV passed
     @Test
     public void testAsPropertyWithPTV() throws Exception {
-        ObjectMapper m = JsonMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .activateDefaultTypingAsProperty(new BlockAllPTV(),
                         DefaultTyping.NON_FINAL,
                         "@classy")
                 .build();
         String json = m.writeValueAsString(new StringBean("abc"));
-        try {
-            /*Object result =*/ m.readValue(json, Object.class);
-            fail("Should not pass");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "Configured `PolymorphicTypeValidator`");
-            verifyException(e, "denied resolution of all subtypes of ");
-        }
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> m.readValue(json, Object.class));
+        verifyException(e, "Configured `PolymorphicTypeValidator`");
+        verifyException(e, "denied resolution of all subtypes of ");
     }
 
     /**
@@ -180,21 +176,18 @@ public class TestDefaultForObject
     public void testAbstractBean() throws Exception
     {
         // First, let's verify that we'd fail without enabling default type info
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m0 = newJsonMapper();
         AbstractBean[] input = new AbstractBean[] { new StringBean("xyz") };
-        String serial = m.writeValueAsString(input);
-        try {
-            m.readValue(serial, AbstractBean[].class);
-            fail("Should have failed");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "cannot construct instance of");
-        }
+        String serial0 = m0.writeValueAsString(input);
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> m0.readValue(serial0, AbstractBean[].class));
+        verifyException(e, "cannot construct instance of");
         // and then that we will succeed with default type info
-        m = jsonMapperBuilder()
+        ObjectMapper m = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.OBJECT_AND_NON_CONCRETE)
                 .build();
-        serial = m.writeValueAsString(input);
+        String serial = m.writeValueAsString(input);
         AbstractBean[] beans = m.readValue(serial, AbstractBean[].class);
         assertEquals(1, beans.length);
         assertEquals(StringBean.class, beans[0].getClass());
@@ -418,15 +411,12 @@ public class TestDefaultForObject
     @Test
     public void testNoGoWithExternalProperty() throws Exception
     {
-        try {
-            /*ObjectMapper mapper =*/ jsonMapperBuilder()
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> jsonMapperBuilder()
                     .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                             DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.EXTERNAL_PROPERTY)
-                    .build();
-            fail("Should not have passed");
-        } catch (IllegalArgumentException e) {
-            verifyException(e, "Cannot use includeAs of EXTERNAL_PROPERTY");
-        }
+                    .build());
+        verifyException(e, "Cannot use includeAs of EXTERNAL_PROPERTY");
     }
 
     // [databind#2349]

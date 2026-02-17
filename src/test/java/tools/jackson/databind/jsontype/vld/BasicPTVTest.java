@@ -99,13 +99,10 @@ public class BasicPTVTest extends DatabindTestUtil
 
         // then non-accepted
         final String json2 = mapper.writeValueAsString(new NumberWrapper(Byte.valueOf((byte) 4)));
-        try {
-            mapper.readValue(json2, NumberWrapper.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'java.lang.Byte'");
-            verifyException(e, "as a subtype of");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json2, NumberWrapper.class));
+        verifyException(e, "Could not resolve type id 'java.lang.Byte'");
+        verifyException(e, "as a subtype of");
 
         // and then yet again accepted one with different config
         ObjectMapper mapper2 = jsonMapperBuilder()
@@ -135,13 +132,10 @@ public class BasicPTVTest extends DatabindTestUtil
 
         // then non-accepted
         final String json2 = mapper.writeValueAsString(new NumberWrapper(Byte.valueOf((byte) 4)));
-        try {
-            mapper.readValue(json2, NumberWrapper.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'java.lang.Byte'");
-            verifyException(e, "as a subtype of");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json2, NumberWrapper.class));
+        verifyException(e, "Could not resolve type id 'java.lang.Byte'");
+        verifyException(e, "as a subtype of");
     }
 
     // Then subtype-pattern
@@ -161,13 +155,10 @@ public class BasicPTVTest extends DatabindTestUtil
 
         // then non-accepted
         final String json2 = mapper.writeValueAsString(new NumberWrapper(Byte.valueOf((byte) 4)));
-        try {
-            mapper.readValue(json2, NumberWrapper.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'java.lang.Byte'");
-            verifyException(e, "as a subtype of");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json2, NumberWrapper.class));
+        verifyException(e, "Could not resolve type id 'java.lang.Byte'");
+        verifyException(e, "as a subtype of");
     }
 
     // And finally, block by specific direct-match base type
@@ -183,14 +174,10 @@ public class BasicPTVTest extends DatabindTestUtil
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
                 .build();
         final String json = mapper.writeValueAsString(new ObjectWrapper(new ValueA(15)));
-        try {
-            mapper.readValue(json, ObjectWrapper.class);
-            fail("Should not pass");
-
         // NOTE: different exception type since denial was for whole property, not just specific values
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "denied resolution of all subtypes of base type `java.lang.Object`");
-        }
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> mapper.readValue(json, ObjectWrapper.class));
+        verifyException(e, "denied resolution of all subtypes of base type `java.lang.Object`");
     }
 
     /*
@@ -214,14 +201,11 @@ public class BasicPTVTest extends DatabindTestUtil
         assertEquals(42, w.value.x);
 
         // then non-accepted
-        try {
-            mapper.readValue(mapper.writeValueAsString(BaseValueWrapper.withA(43)),
-                    BaseValueWrapper.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'tools.jackson.");
-            verifyException(e, "as a subtype of");
-        }
+        final String json2 = mapper.writeValueAsString(BaseValueWrapper.withA(43));
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json2, BaseValueWrapper.class));
+        verifyException(e, "Could not resolve type id 'tools.jackson.");
+        verifyException(e, "as a subtype of");
     }
 
     @Test
@@ -239,14 +223,11 @@ public class BasicPTVTest extends DatabindTestUtil
         assertEquals(42, w.value.x);
 
         // then non-accepted
-        try {
-            mapper.readValue(mapper.writeValueAsString(BaseValueWrapper.withA(43)),
-                    BaseValueWrapper.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'tools.jackson.");
-            verifyException(e, "as a subtype of");
-        }
+        final String json2 = mapper.writeValueAsString(BaseValueWrapper.withA(43));
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json2, BaseValueWrapper.class));
+        verifyException(e, "Could not resolve type id 'tools.jackson.");
+        verifyException(e, "as a subtype of");
     }
 
     @Test
@@ -264,14 +245,11 @@ public class BasicPTVTest extends DatabindTestUtil
         assertEquals(42, w.value.x);
 
         // then non-accepted
-        try {
-            mapper.readValue(mapper.writeValueAsString(BaseValueWrapper.withA(43)),
-                    BaseValueWrapper.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'tools.jackson.");
-            verifyException(e, "as a subtype of");
-        }
+        final String json2 = mapper.writeValueAsString(BaseValueWrapper.withA(43));
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json2, BaseValueWrapper.class));
+        verifyException(e, "Could not resolve type id 'tools.jackson.");
+        verifyException(e, "as a subtype of");
     }
 }
 

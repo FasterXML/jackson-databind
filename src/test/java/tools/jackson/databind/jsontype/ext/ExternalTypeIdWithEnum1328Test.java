@@ -86,7 +86,7 @@ public class ExternalTypeIdWithEnum1328Test extends DatabindTestUtil
 
     @Test
     public void testExample() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
 
         String json = mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(Arrays.asList(new AnimalAndType(AnimalType.Dog, new Dog())));

@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.DateTimeFeature;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
@@ -294,7 +293,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testSimpleSerialization() throws Exception
@@ -316,7 +315,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     @Test
     public void testImproperExternalIdSerialization() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         assertEquals("{\"extType\":\"funk\",\"i\":3}",
                 mapper.writeValueAsString(new FunkyExternalBean()));
     }
@@ -514,7 +513,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     @Test
     public void testExternalTypeWithProp222() throws Exception
     {
-        JsonMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .build();
         Issue222Bean input = new Issue222Bean(13);

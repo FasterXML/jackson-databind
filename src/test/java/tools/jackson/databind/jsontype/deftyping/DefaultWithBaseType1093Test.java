@@ -3,7 +3,6 @@ package tools.jackson.databind.jsontype.deftyping;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
@@ -30,7 +29,7 @@ public class DefaultWithBaseType1093Test extends DatabindTestUtil
     @Test
     public void testWithDefaultTyping() throws Exception
     {
-        ObjectMapper m = JsonMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.JAVA_LANG_OBJECT)
                 .build();

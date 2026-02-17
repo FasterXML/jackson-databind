@@ -1,14 +1,10 @@
-package tools.jackson.databind.jsontype;
+package tools.jackson.databind.jsontype.deduct;
 
 import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -19,36 +15,33 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.DEDUCTION;
 
 // for [databind#43], deduction-based polymorphism
-public class TestPolymorphicDeduction extends DatabindTestUtil {
+public class SealedTypesWithPolymorphicDeductionTest extends DatabindTestUtil {
 
   @JsonTypeInfo(use = DEDUCTION)
-  @JsonSubTypes( {@Type(LiveCat.class), @Type(DeadCat.class), @Type(Fleabag.class)})
   // A general supertype with no properties - used for tests involving {}
-  interface Feline {}
+  sealed interface Feline permits Cat, Fleabag {}
 
   @JsonTypeInfo(use = DEDUCTION)
-  @JsonSubTypes( {@Type(LiveCat.class), @Type(DeadCat.class)})
   // A supertype containing common properties
-  public static class Cat implements Feline {
+  public static sealed class Cat implements Feline permits DeadCat, LiveCat {
     public String name;
   }
 
   // Distinguished by its parent and a unique property
-  static class DeadCat extends Cat {
+  static final class DeadCat extends Cat {
     public String causeOfDeath;
   }
 
   // Distinguished by its parent and a unique property
-  static class LiveCat extends Cat {
+  static final class LiveCat extends Cat {
     public boolean angry;
   }
 
   // No distinguishing properties whatsoever
-  static class Fleabag implements Feline {
+  static final class Fleabag implements Feline {
     // NO OP
   }
 
@@ -65,25 +58,6 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
   static enum Enum3711 { A, B }
-
-    // [databind#4327]
-    @JsonTypeInfo(use = DEDUCTION)
-    @JsonSubTypes({
-        @Type(value = DeductionBean4327_1.class),
-        @Type(value = DeductionBean4327_2.class)
-    })
-    interface Deduction4327 { }
-
-    static class DeductionBean4327_1 implements Deduction4327 {
-        public int x;
-    }
-
-    static class DeductionBean4327_2 implements Deduction4327 {
-        @JsonAlias(value = {"y", "Y", "yy", "ff", "X"})
-        public int y;
-
-        public void setY(int y) { this.y = y; }
-    }
 
   /*
   /**********************************************************
@@ -234,18 +208,44 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
     assertEquals("Felix", cat.name);
     assertTrue(((LiveCat)cat).angry);
   }
+  
+  @JsonTypeInfo(use = DEDUCTION)
+  // A general supertype with no properties - used for tests involving {}
+  sealed interface AmbiguousFeline permits AmbiguousCat, AmbiguousFleabag {}
 
-  static class AnotherLiveCat extends Cat {
+  @JsonTypeInfo(use = DEDUCTION)
+  // A supertype containing common properties
+  public static sealed class AmbiguousCat implements AmbiguousFeline permits AmbiguousDeadCat, AmbiguousLiveCat, AmbiguousAnotherLiveCat {
+    public String name;
+  }
+
+  // Distinguished by its parent and a unique property
+  static final class AmbiguousDeadCat extends AmbiguousCat {
+    public String causeOfDeath;
+  }
+
+  // Distinguished by its parent and a unique property
+  static final class AmbiguousLiveCat extends AmbiguousCat {
+    public boolean angry;
+  }
+
+  // No distinguishing properties whatsoever
+  static final class AmbiguousFleabag implements AmbiguousFeline {
+    // NO OP
+  }
+  
+
+  static final class AmbiguousAnotherLiveCat extends AmbiguousCat {
     public boolean angry;
   }
 
   @Test
   public void testAmbiguousClasses() throws Exception {
     ObjectMapper mapper = jsonMapperBuilder() // Don't use shared mapper!
-            .registerSubtypes(AnotherLiveCat.class)
+            // .registerSubtypes(AmbiguousAnotherLiveCat.class)
             .build();
     InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
-            () -> mapper.readValue(liveCatJson, Cat.class));
+            () -> mapper.readValue(liveCatJson, AmbiguousCat.class));
     verifyException(e, "Subtypes ");
     verifyException(e, "have the same signature");
     verifyException(e, "cannot be uniquely deduced");
@@ -326,14 +326,4 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
   {
       assertEquals(q("B"), MAPPER.writeValueAsString(Enum3711.B));
   }
-
-    // [databind#4327]
-    @ParameterizedTest
-    @ValueSource(strings = {"y", "Y", "yy", "ff", "X"})
-    public void testAliasWithPolymorphicDeduction4327(String field) throws Exception {
-        String json = a2q(String.format("{'%s': 2 }", field));
-        Deduction4327 value = MAPPER.readValue(json, Deduction4327.class);
-        assertNotNull(value);
-        assertEquals(2, ((DeductionBean4327_2) value).y);
-    }
 }

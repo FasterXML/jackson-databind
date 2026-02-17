@@ -1,4 +1,4 @@
-package tools.jackson.databind.jsontype;
+package tools.jackson.databind.jsontype.deduct;
 
 import java.util.ArrayList;
 import java.util.Arrays;

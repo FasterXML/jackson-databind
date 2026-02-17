@@ -1,4 +1,4 @@
-package tools.jackson.databind.ext.javatime.misc;
+package tools.jackson.databind.jsontype.deduct;
 
 import java.time.*;
 

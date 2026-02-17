@@ -1,4 +1,4 @@
-package tools.jackson.databind.jsontype;
+package tools.jackson.databind.jsontype.deduct;
 
 import org.junit.jupiter.api.Test;
 

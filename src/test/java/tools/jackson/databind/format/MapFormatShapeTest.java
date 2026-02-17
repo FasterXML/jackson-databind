@@ -159,17 +159,27 @@ public class MapFormatShapeTest extends DatabindTestUtil
                 result);
     }
 
-    // Can't yet use per-property overrides at all, see [databind#1419]
-
-    /*
+    // [databind#5405]: property overrides for @JsonFormat.shape for Maps
     @Test
     public void testSerializeAsPOJOViaProperty() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean476Container(1,0,3));
-        assertEquals(a2q("{'a':{'extra':13,'empty':false},'c':{'empty':false,'value':3}}"),
+        assertEquals(a2q(
+                "{'a':{'extra':13,'empty':false},'c':{'extra':13,'empty':false}}"),
                 result);
     }
 
+    // [databind#5405]
+    @Test
+    public void testSerializeAsPOJOViaFullProperty() throws Exception
+    {
+        String result = MAPPER.writeValueAsString(new Bean476Container(1,2,3));
+        assertEquals(a2q(
+                "{'a':{'extra':13,'empty':false},'b':{'value':2},'c':{'extra':13,'empty':false}}"),
+                result);
+    }
+
+    // [databind#5405]
     @Test
     public void testSerializeNaturalViaOverride() throws Exception
     {
@@ -177,7 +187,6 @@ public class MapFormatShapeTest extends DatabindTestUtil
         assertEquals(a2q("{'stuff':{'value':123}}"),
                 result);
     }
-    */
 
     /*
     /**********************************************************

@@ -58,6 +58,16 @@ public class EnumDefaultReadTest
         }
     }
     
+    // [databind#4403]
+    enum Brand4403 {
+        @JsonProperty("005")
+        SEAT,
+        @JsonProperty("006")
+        HYUNDAI,
+        @JsonEnumDefaultValue
+        OTHER
+    }
+
     enum BaseEnumDefault {
         A, B, C, Z;
     }
@@ -296,7 +306,7 @@ public class EnumDefaultReadTest
     }
 
     @Test
-    public void testFirstEnumDefaultValueViaMixin() throws Exception 
+    public void testFirstEnumDefaultValueViaMixin() throws Exception
     {
         ObjectMapper mixinMapper = jsonMapperBuilder()
                 .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -305,7 +315,21 @@ public class EnumDefaultReadTest
 
         // While not guaranteed by annotation Javadocs, default implementation does
         // pick the first annotated enum value (in declaration order))
-        assertEquals(BaseOverloaded.A, 
+        assertEquals(BaseOverloaded.A,
                 mixinMapper.readValue(q("UNKNOWN"), BaseOverloaded.class));
+    }
+
+    // [databind#4403]
+    @Test
+    public void testReadFromDefault4403() throws Exception
+    {
+        ObjectReader r = newJsonMapper().readerFor(Brand4403.class)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+        assertEquals(Brand4403.SEAT, r.readValue(q("005")));
+        assertEquals(Brand4403.HYUNDAI, r.readValue(q("006")));
+        assertEquals(Brand4403.OTHER, r.readValue(q("x")));
+
+        // Problem here: "001" taken as "Stringified" index 1
+        assertEquals(Brand4403.OTHER, r.readValue(q("001")));
     }
 }

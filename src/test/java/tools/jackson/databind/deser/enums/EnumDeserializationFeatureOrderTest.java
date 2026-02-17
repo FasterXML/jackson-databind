@@ -16,7 +16,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EnumDeserilizationFeatureOrderTest
+public class EnumDeserializationFeatureOrderTest
     extends DatabindTestUtil
 {
     /*

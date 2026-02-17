@@ -13,6 +13,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.cfg.EnumFeature;
+import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -95,6 +96,24 @@ public class EnumMapDeserializationTest
     static class Holder1988 {
         public Map<Enum1988, Number> mapHolder;
         public Enum1988 enumHolder;
+    }
+
+    // [databind#5165]
+    enum Enum5165 {
+        FOO
+    }
+
+    // [databind#5165]
+    static class Dst5165 {
+        private EnumMap<Enum5165, Integer> map;
+
+        public EnumMap<Enum5165, Integer> getMap() {
+            return map;
+        }
+
+        public void setMap(EnumMap<Enum5165, Integer> map) {
+            this.map = map;
+        }
     }
 
     /*
@@ -355,5 +374,34 @@ public class EnumMapDeserializationTest
         h = r.readValue("{\"enumHolder\":\"foo_bar\"}");
         assertEquals(Enum1988.FOO_BAR, h.enumHolder);
         assertNull(h.mapHolder);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods: null handling [databind#5165]
+    /**********************************************************************
+     */
+
+    // [databind#5165]
+    @Test
+    public void testNullsFailEnumMap5165() {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultNullHandling(n -> JsonSetter.Value.forContentNulls(Nulls.FAIL))
+                .build();
+        assertThrows(
+                InvalidNullException.class,
+                () -> mapper.readValue("{\"map\":{\"FOO\":\"\"}}", new TypeReference<Dst5165>(){})
+        );
+    }
+
+    // [databind#5165]
+    @Test
+    public void testNullsSkipEnumMap5165() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultNullHandling(n -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
+                .build();
+        Dst5165 dst = mapper.readValue("{\"map\":{\"FOO\":\"\"}}", new TypeReference<Dst5165>() {});
+
+        assertTrue(dst.getMap().isEmpty());
     }
 }

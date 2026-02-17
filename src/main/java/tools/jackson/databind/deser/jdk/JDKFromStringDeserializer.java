@@ -343,32 +343,19 @@ public class JDKFromStringDeserializer
     }
 
     private static class NioPathHelper {
-        private static final boolean areWindowsFilePathsSupported;
-        static {
-            boolean isWindowsRootFound = false;
-            for (File file : File.listRoots()) {
-                String path = file.getPath();
-                if (path.length() >= 2
-                        && path.charAt(1) == ':'
-                        && Character.isLetter(path.charAt(0))) {
-                    isWindowsRootFound = true;
-                    break;
-                }
-            }
-            areWindowsFilePathsSupported = isWindowsRootFound;
-        }
 
         public static Path deserialize(DeserializationContext ctxt, String value) throws JacksonException {
-            // If someone gives us an input with no : at all, treat as local path, instead of failing
-            // with invalid URI.
-            if (value.indexOf(':') < 0) {
+            // If someone gives us an input with no : at all, treat as local path,
+            // instead of failing with invalid URI.
+
+            int colonIx = value.indexOf(':');
+            if (colonIx < 0) {
                 return Paths.get(value);
             }
 
-            if (value.length() >= 2
-                    && value.charAt(1) == ':'
-                    && Character.isLetter(value.charAt(0))) {
-                if (areWindowsFilePathsSupported) {
+            // Does it look Windows driver prefix (like "C:")?
+            if ((colonIx == 1) && Character.isLetter(value.charAt(0))) {
+                if (NioPathWindowsDetector.windowsPathsSupported()) {
                     return Paths.get(value);
                 }
             }
@@ -397,6 +384,28 @@ public class JDKFromStringDeserializer
                 }
             } catch (Exception e) {
                 return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
+            }
+        }
+
+        // @since 3.1
+        private static class NioPathWindowsDetector {
+            private static final boolean _areWindowsFilePathsSupported;
+            static {
+                boolean isWindowsRootFound = false;
+                for (File file : File.listRoots()) {
+                    String path = file.getPath();
+                    if (path.length() >= 2
+                            && path.charAt(1) == ':'
+                            && Character.isLetter(path.charAt(0))) {
+                        isWindowsRootFound = true;
+                        break;
+                    }
+                }
+                _areWindowsFilePathsSupported = isWindowsRootFound;
+            }
+
+            public static boolean windowsPathsSupported() {
+                return _areWindowsFilePathsSupported;
             }
         }
     }

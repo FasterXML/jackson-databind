@@ -1989,17 +1989,14 @@ inputDesc, _coercedTypeDesc(targetType));
         //    whether the element type has a default constructor. The error should only fire
         //    lazily if/when a null element is actually encountered during deserialization.
         if (nulls == Nulls.AS_EMPTY) {
-            if (valueDeser != null) {
-                AccessPattern access = valueDeser.getEmptyAccessPattern();
-                if (access == AccessPattern.ALWAYS_NULL) {
-                    return NullsConstantProvider.nuller();
-                }
-                if (access == AccessPattern.CONSTANT) {
-                    return NullsConstantProvider.forValue(valueDeser.getEmptyValue(ctxt));
-                }
-                return new NullsAsEmptyProvider(valueDeser);
+            AccessPattern access = valueDeser.getEmptyAccessPattern();
+            if (access == AccessPattern.ALWAYS_NULL) {
+                return NullsConstantProvider.nuller();
             }
-            return valueDeser;
+            if (access == AccessPattern.CONSTANT) {
+                return NullsConstantProvider.forValue(valueDeser.getEmptyValue(ctxt));
+            }
+            return new NullsAsEmptyProvider(valueDeser);
         }
 
         NullValueProvider prov = _findNullProvider(ctxt, prop, nulls, valueDeser);

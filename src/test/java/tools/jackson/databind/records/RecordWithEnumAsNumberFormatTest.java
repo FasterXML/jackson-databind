@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // [databind#3580] Enum (de)serialization in conjunction with JsonFormat.Shape.NUMBER_INT
-public class EnumNumberFormatShapeRecord3580Test
+public class RecordWithEnumAsNumberFormatTest
         extends DatabindTestUtil
 {
     public record RecordNumber3580(@JsonFormat(shape = JsonFormat.Shape.NUMBER) RecordState3580 state) {}

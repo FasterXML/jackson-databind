@@ -1,5 +1,7 @@
 package tools.jackson.databind.records;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,28 +17,20 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// [databind#3874]
-public class RecordNullHandling3847Test extends DatabindTestUtil {
-    /*
-    /**********************************************************
-    /* Set up
-    /**********************************************************
-     */
-
+public class RecordNullHandlingTest extends DatabindTestUtil
+{
+    // [databind#3847]
     static class Pojo3847 {
         public String fieldName;
     }
 
     public record PlainRecord(String fieldName) {}
     public record IntRecord(String description, int value) {}
-
     public record FixedRecord(@JsonProperty("field_name") String fieldName) {}
 
-    /*
-    /**********************************************************************
-    /* Tests
-    /**********************************************************************
-     */
+    // [databind#3084]
+    record Bar(String name, String value) {}
+    record Foo(List<Bar> list) {}
 
     private final ObjectMapper NULL_MAPPER = JsonMapper.builder()
             .changeDefaultNullHandling(n -> n.withValueNulls(Nulls.FAIL)
@@ -48,16 +42,23 @@ public class RecordNullHandling3847Test extends DatabindTestUtil {
             .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
             .build();
 
+    /*
+    /**********************************************************************
+    /* Test methods, Nulls.FAIL configuration [databind#3847]
+    /**********************************************************************
+     */
+
+    // [databind#3847]
     @Test
     public void testPojoNullHandlingValid() throws Exception {
-        Pojo3847 pojo = NULL_MAPPER.readValue(a2q("{'fieldName': 'value'}"), Pojo3847.class); // expected
+        Pojo3847 pojo = NULL_MAPPER.readValue(a2q("{'fieldName': 'value'}"), Pojo3847.class);
         assertEquals("value", pojo.fieldName);
     }
 
     @Test
     public void testPojoNullHandlingNullValue() throws Exception {
         try {
-            NULL_MAPPER.readValue(a2q("{'fieldName': null}"), Pojo3847.class); // expected
+            NULL_MAPPER.readValue(a2q("{'fieldName': null}"), Pojo3847.class);
             fail("should expect InvalidNullException");
         } catch (InvalidNullException e) {
             verifyException(e, "Invalid `null` value encountered for property \"fieldName\"");
@@ -96,13 +97,13 @@ public class RecordNullHandling3847Test extends DatabindTestUtil {
     }
 
     @Test
-    public void testRecordFixerNullHandlingValid() throws Exception {
+    public void testRecordFixedNullHandlingValid() throws Exception {
         FixedRecord fixedRecord = NULL_MAPPER.readValue(a2q("{ 'field_name': 'value' }"), FixedRecord.class);
         assertEquals("value", fixedRecord.fieldName);
     }
 
     @Test
-    public void testRecordFixerNullHandlingNullValue() throws Exception {
+    public void testRecordFixedNullHandlingNullValue() throws Exception {
         try {
             NULL_MAPPER.readValue(a2q("{ 'field_name': null }"), FixedRecord.class);
             fail("should expect InvalidNullException");
@@ -112,7 +113,7 @@ public class RecordNullHandling3847Test extends DatabindTestUtil {
     }
 
     @Test
-    public void testRecordFixerNullHandlingEmptyJson() throws Exception {
+    public void testRecordFixedNullHandlingEmptyJson() throws Exception {
         try {
             NULL_MAPPER.readValue("{}", FixedRecord.class);
             fail("should expect InvalidNullException");
@@ -133,5 +134,33 @@ public class RecordNullHandling3847Test extends DatabindTestUtil {
                 .readValue("{}");
         assertNull(ir.description);
         assertEquals(0, ir.value);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, Nulls.AS_EMPTY with List<Record> [databind#3084]
+    /**********************************************************************
+     */
+
+    // [databind#3084]
+    @Test
+    void testEmptyObjectIntoRecordWithListOfRecord() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultNullHandling(h -> h.withContentNulls(Nulls.AS_EMPTY))
+                .build();
+        Foo foo = mapper.readValue("{}", Foo.class);
+        assertNull(foo.list());
+    }
+
+    @Test
+    void testNonEmptyListIntoRecordWithListOfRecord() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultNullHandling(h -> h.withContentNulls(Nulls.AS_EMPTY))
+                .build();
+        Foo foo = mapper.readValue("{\"list\":[{\"name\":\"a\",\"value\":\"b\"}]}", Foo.class);
+        assertNotNull(foo.list());
+        assertEquals(1, foo.list().size());
+        assertEquals("a", foo.list().get(0).name());
+        assertEquals("b", foo.list().get(0).value());
     }
 }

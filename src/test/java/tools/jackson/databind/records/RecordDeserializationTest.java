@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 
 import tools.jackson.databind.DeserializationFeature;
@@ -18,14 +19,15 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Test case that covers both failing-by-regression tests and passing tests.
- * <p>For more details, refer to
- * <a href="https://github.com/FasterXML/jackson-databind/issues/3906">
- * [databind#3906]: Regression: 2.15.0 breaks deserialization for records when mapper.setVisibility(ALL, NONE);</a>
- */
-public class RecordDeserialization3906Test extends DatabindTestUtil
+public class RecordDeserializationTest extends DatabindTestUtil
 {
+    // [databind#3897]
+    record ExampleWriteOnly(
+        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+        String value
+    ) {}
+
+    // [databind#3906]
     record Record3906(String string, int integer) {
     }
 
@@ -41,22 +43,30 @@ public class RecordDeserialization3906Test extends DatabindTestUtil
 
     private record PrivateRecord3906(String string, int integer) {
     }
-    
-    /*
-    /**********************************************************
-    /* Failing tests that pass in 2.x
-    /**********************************************************
-     */
-
-    // Forked to test class under "failing/" for 3.0
 
     /*
-    /**********************************************************
-    /* Passing Tests : Suggested work-arounds
-    /* for future modifications
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods, WRITE_ONLY access [databind#3897]
+    /**********************************************************************
      */
 
+    // [databind#3897]
+    @Test
+    public void testRecordWithWriteOnly3897() throws Exception {
+        final String JSON = a2q("{'value':'foo'}");
+
+        ExampleWriteOnly result = newJsonMapper().readValue(JSON, ExampleWriteOnly.class);
+
+        assertEquals("foo", result.value());
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, visibility configuration workarounds [databind#3906]
+    /**********************************************************************
+     */
+
+    // [databind#3906]
     @Test
     public void testEmptyJsonToRecordWorkAround() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -145,7 +155,6 @@ public class RecordDeserialization3906Test extends DatabindTestUtil
                                 if (!ac.getType().isRecordType()) {
                                     return checker;
                                 }
-                                // If this is a Record, then increase the "creator" visibility again
                                 return checker.withCreatorVisibility(Visibility.ANY);
                             }
                         });

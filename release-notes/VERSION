@@ -60,6 +60,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @JacksonJang)
 #3079: Support `ObjectMapper.updateValue()` for Record classes
  (requested by Dávid C)
+#3084: `Nulls.AS_EMPTY` doesn't work for collections containing
+  values without default constructor (like Records)
+ (reported by Krzysztof K)
+ (fix by @cowtowncoder, w/ Claude code)
 #3188: Skip unknown `Enum` keys in `Map` deserialization
  (requested by @matthias-mueller)
  (fixed by Lee Jiwon)

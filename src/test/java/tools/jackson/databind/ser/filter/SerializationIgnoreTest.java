@@ -12,28 +12,25 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * This unit test suite tests use of {@link JsonIgnore} annotations
- * with  bean serialization; as well as {@link JsonIgnoreType}.
+ * Tests for {@link JsonIgnore} and {@link JsonIgnoreType} annotations
+ * with bean serialization.
  */
-public class TestSimpleSerializationIgnore
-    extends DatabindTestUtil
+public class SerializationIgnoreTest extends DatabindTestUtil
 {
-    // Class for testing enabled {@link JsonIgnore} annotation
-    final static class SizeClassEnabledIgnore
+    // Class for testing enabled @JsonIgnore annotation
+    static class SizeClassEnabledIgnore
     {
         @JsonIgnore public int getY() { return 9; }
 
-        // note: must be public to be seen
         public int getX() { return 1; }
 
         @JsonIgnore public int getY2() { return 1; }
         @JsonIgnore public int getY3() { return 2; }
     }
 
-    // Class for testing disabled {@link JsonIgnore} annotation
-    final static class SizeClassDisabledIgnore
+    // Class for testing disabled @JsonIgnore annotation
+    static class SizeClassDisabledIgnore
     {
-        // note: must be public to be seen
         public int getX() { return 3; }
         @JsonIgnore(false) public int getY() { return 4; }
     }
@@ -47,11 +44,8 @@ public class TestSimpleSerializationIgnore
         public int getY() { return 2; }
     }
 
-    static class SubClassNonIgnore
-        extends BaseClassIgnore
+    static class SubClassNonIgnore extends BaseClassIgnore
     {
-        // Annotations to disable ignorance, in sub-class; note that
-        // we must still get "JsonProperty" fro super class
         @Override
         @JsonIgnore(false)
         public int x() { return 3; }
@@ -68,9 +62,20 @@ public class TestSimpleSerializationIgnore
         public IgnoredType ignored = new IgnoredType();
     }
 
+    // [databind#3357]: Precedence of @JsonIgnore over @JsonProperty
+    static class IgnoreAndProperty3357 {
+        public int toInclude = 2;
+
+        @JsonIgnore
+        @JsonProperty
+        int toIgnore = 3;
+
+        public int getToIgnore() { return toIgnore; }
+    }
+
     /*
     /**********************************************************************
-    /* Test methods
+    /* Test methods, @JsonIgnore
     /**********************************************************************
      */
 
@@ -79,7 +84,6 @@ public class TestSimpleSerializationIgnore
     @Test
     public void testSimpleIgnore() throws Exception
     {
-        // Should see "x", not "y"
         Map<String,Object> result = writeAndMap(MAPPER, new SizeClassEnabledIgnore());
         assertEquals(1, result.size());
         assertEquals(Integer.valueOf(1), result.get("x"));
@@ -89,17 +93,12 @@ public class TestSimpleSerializationIgnore
     @Test
     public void testDisabledIgnore() throws Exception
     {
-        // Should see "x" and "y"
         Map<String,Object> result = writeAndMap(MAPPER, new SizeClassDisabledIgnore());
         assertEquals(2, result.size());
         assertEquals(Integer.valueOf(3), result.get("x"));
         assertEquals(Integer.valueOf(4), result.get("y"));
     }
 
-    /**
-     * Test case to verify that ignore tag can also be disabled
-     * via inheritance
-     */
     @Test
     public void testIgnoreOver() throws Exception
     {
@@ -119,5 +118,18 @@ public class TestSimpleSerializationIgnore
     public void testIgnoreType() throws Exception
     {
         assertEquals("{\"value\":13}", MAPPER.writeValueAsString(new NonIgnoredType()));
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, @JsonIgnore vs @JsonProperty precedence [databind#3357]
+    /**********************************************************************
+     */
+
+    // [databind#3357]
+    @Test
+    public void testPropertyVsIgnore3357() throws Exception
+    {
+        assertEquals("{\"toInclude\":2}", MAPPER.writeValueAsString(new IgnoreAndProperty3357()));
     }
 }

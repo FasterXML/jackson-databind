@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -20,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class UnwrappedBasicTest extends DatabindTestUtil
 {
+    // // // Inner types for basic @JsonUnwrapped tests
+
     static class Unwrapping {
         public String name;
         @JsonUnwrapped
@@ -32,7 +35,7 @@ public class UnwrappedBasicTest extends DatabindTestUtil
         }
     }
 
-    final static class Location {
+    static class Location {
         public int x;
         public int y;
 
@@ -262,13 +265,353 @@ public class UnwrappedBasicTest extends DatabindTestUtil
         }
     }
 
+    // // // Inner types for USE_NULL_FOR_EMPTY_UNWRAPPED tests [databind#1709]
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    static class Container1709 {
+        public String name;
+        @JsonUnwrapped
+        public Unwrapped1709 u;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    static class Unwrapped1709 {
+        public String s;
+        public Integer n;
+    }
+
+    // // // Inner types for @JsonUnwrapped with @JsonCreator [databind#1467]
+
+    static class ExplicitWithoutName {
+        private final String _unrelated;
+        private final Inner1467 _inner;
+
+        @JsonCreator
+        public ExplicitWithoutName(@JsonProperty("unrelated") String unrelated, @JsonUnwrapped Inner1467 inner) {
+            _unrelated = unrelated;
+            _inner = inner;
+        }
+
+        public String getUnrelated() {
+            return _unrelated;
+        }
+
+        @JsonUnwrapped
+        public Inner1467 getInner() {
+            return _inner;
+        }
+    }
+
+    static class ExplicitWithName {
+        private final String _unrelated;
+        private final Inner1467 _inner;
+
+        @JsonCreator
+        public ExplicitWithName(@JsonProperty("unrelated") String unrelated, @JsonProperty("inner") @JsonUnwrapped Inner1467 inner) {
+            _unrelated = unrelated;
+            _inner = inner;
+        }
+
+        public String getUnrelated() {
+            return _unrelated;
+        }
+
+        public Inner1467 getInner() {
+            return _inner;
+        }
+    }
+
+    static class ImplicitWithName {
+        private final String _unrelated;
+        private final Inner1467 _inner;
+
+        public ImplicitWithName(@JsonProperty("unrelated") String unrelated, @JsonProperty("inner") @JsonUnwrapped Inner1467 inner) {
+            _unrelated = unrelated;
+            _inner = inner;
+        }
+
+        public String getUnrelated() {
+            return _unrelated;
+        }
+
+        public Inner1467 getInner() {
+            return _inner;
+        }
+    }
+
+    static class WithTwoUnwrappedProperties {
+        private final String _unrelated;
+        private final Inner1467 _inner1;
+        private final Inner1467 _inner2;
+
+        public WithTwoUnwrappedProperties(
+                @JsonProperty("unrelated") String unrelated,
+                @JsonUnwrapped(prefix = "first-") Inner1467 inner1,
+                @JsonUnwrapped(prefix = "second-") Inner1467 inner2
+        ) {
+            _unrelated = unrelated;
+            _inner1 = inner1;
+            _inner2 = inner2;
+        }
+
+        public String getUnrelated() {
+            return _unrelated;
+        }
+
+        @JsonUnwrapped(prefix = "first-")
+        public Inner1467 getInner1() {
+            return _inner1;
+        }
+
+        @JsonUnwrapped(prefix = "second-")
+        public Inner1467 getInner2() {
+            return _inner2;
+        }
+    }
+
+    static class Inner1467 {
+        private final String _property1;
+        private final String _property2;
+
+        public Inner1467(@JsonProperty("property1") String property1, @JsonProperty("property2") String property2) {
+            _property1 = property1;
+            _property2 = property2;
+        }
+
+        public String getProperty1() {
+            return _property1;
+        }
+
+        public String getProperty2() {
+            return _property2;
+        }
+    }
+
+    static class PrefixOuter {
+        @JsonUnwrapped(prefix = "inner-")
+        PrefixInner inner;
+    }
+
+    static class PrefixInner {
+        private final String _property;
+
+        public PrefixInner(@JsonProperty("property") String property) {
+            _property = property;
+        }
+
+        public String getProperty() {
+            return _property;
+        }
+    }
+
+    // // // Inner types for @JsonUnwrapped with prefix/suffix tests
+
+    // Class with unwrapping using prefixes
+    static class PrefixUnwrap
+    {
+        public String name;
+        @JsonUnwrapped(prefix="_")
+        public Location location;
+
+        public PrefixUnwrap() { }
+        protected PrefixUnwrap(String str, int x, int y) {
+            name = str;
+            location = new Location(x, y);
+        }
+    }
+
+    static class DeepPrefixUnwrap
+    {
+        @JsonUnwrapped(prefix="u.")
+        public PrefixUnwrap unwrapped;
+
+        public DeepPrefixUnwrap() { }
+        protected DeepPrefixUnwrap(String str, int x, int y) {
+            unwrapped = new PrefixUnwrap(str, x, y);
+        }
+    }
+
+    // Let's actually test hierarchic names with unwrapping bit more:
+    @JsonPropertyOrder({ "general", "misc" })
+    static class ConfigRoot
+    {
+        @JsonUnwrapped(prefix="general.")
+        public ConfigGeneral general = new ConfigGeneral();
+
+        @JsonUnwrapped(prefix="misc.")
+        public ConfigMisc misc = new ConfigMisc();
+
+        public ConfigRoot() { }
+        protected ConfigRoot(String name, int value)
+        {
+            general = new ConfigGeneral(name);
+            misc.value = value;
+        }
+    }
+
+    static class ConfigAlternate
+    {
+        @JsonUnwrapped
+        public ConfigGeneral general = new ConfigGeneral();
+
+        @JsonUnwrapped(prefix="misc.")
+        public ConfigMisc misc = new ConfigMisc();
+
+        public int id;
+
+        public ConfigAlternate() { }
+        protected ConfigAlternate(int id, String name, int value)
+        {
+            this.id = id;
+            general = new ConfigGeneral(name);
+            misc.value = value;
+        }
+    }
+
+    static class ConfigGeneral
+    {
+        @JsonUnwrapped(prefix="names.")
+        public ConfigNames names = new ConfigNames();
+
+        public ConfigGeneral() { }
+        protected ConfigGeneral(String name) {
+            names.name = name;
+        }
+    }
+
+    static class ConfigNames {
+        public String name = "x";
+    }
+
+    static class ConfigMisc {
+        public int value;
+    }
+
+    // For [Issue#226]
+    static class Parent226 {
+        @JsonUnwrapped(prefix="c1.")
+        public Child226 c1;
+        @JsonUnwrapped(prefix="c2.")
+        public Child226 c2;
+    }
+
+    static class Child226 {
+        @JsonUnwrapped(prefix="sc2.")
+        public SubChild sc1;
+    }
+
+    static class SubChild {
+        public String value;
+    }
+
+    // // // Inner types for @JsonUnwrapped with unknown property handling [databind#650]
+
+    static class A650 {
+        @JsonUnwrapped
+        public B650 b;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class A650WithUnknownsOk {
+        @JsonUnwrapped
+        public B650 b;
+    }
+
+    static class B650 {
+        public String field;
+    }
+
+    // For prefix/suffix
+    static class A650WithPrefix {
+        @JsonUnwrapped(prefix = "nested.")
+        public B650 b;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class A650WithPrefixUnknownsOk {
+        @JsonUnwrapped(prefix = "nested.")
+        public B650 b;
+    }
+
+    // For @JsonCreator + @JsonUnwrapped
+    static class A650WithCreator {
+        public String name;
+
+        @JsonUnwrapped
+        public B650 b;
+
+        @JsonCreator
+        public A650WithCreator(@JsonProperty("name") String name) {
+            this.name = name;
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class A650WithCreatorUnknownsOk {
+        public String name;
+
+        @JsonUnwrapped
+        public B650 b;
+
+        @JsonCreator
+        public A650WithCreatorUnknownsOk(@JsonProperty("name") String name) {
+            this.name = name;
+        }
+    }
+
+    // For @JsonCreator + @JsonUnwrapped with prefix
+    static class A650WithCreatorAndPrefix {
+        public String name;
+
+        @JsonUnwrapped(prefix = "nested.")
+        public B650 b;
+
+        @JsonCreator
+        public A650WithCreatorAndPrefix(@JsonProperty("name") String name) {
+            this.name = name;
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class A650WithCreatorAndPrefixUnknownsOk {
+        public String name;
+
+        @JsonUnwrapped(prefix = "nested.")
+        public B650 b;
+
+        @JsonCreator
+        public A650WithCreatorAndPrefixUnknownsOk(@JsonProperty("name") String name) {
+            this.name = name;
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Mapper instances
+    /**********************************************************
+     */
+
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    // [databind#1709]
+    private final ObjectMapper MAPPER_ENABLED = jsonMapperBuilder()
+            .enable(DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED)
+            .build();
+
+    private final ObjectMapper MAPPER_DISABLED = jsonMapperBuilder()
+            .disable(DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED)
+            .build();
+
+    // [databind#650]: with FAIL_ON_UNKNOWN_PROPERTIES enabled
+    private final ObjectMapper STRICT_MAPPER = JsonMapper.builder()
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
+
     /*
     /**********************************************************
     /* Tests, serialization
     /**********************************************************
      */
-
-    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testSimpleUnwrappingSerialize() throws Exception {
@@ -501,5 +844,364 @@ public class UnwrappedBasicTest extends DatabindTestUtil
         // Validate value
         assertEquals(-60.0, holder.value1);
         assertEquals(-60.0, holder.holder2.data.get("value2"));
+    }
+
+    /*
+    /**********************************************************
+    /* Tests, USE_NULL_FOR_EMPTY_UNWRAPPED [databind#1709]
+    /**********************************************************
+     */
+
+    @Test
+    public void testEmptyUnwrappedAsNull() throws Exception {
+        String json = a2q("{'name':'test'}");
+        Container1709 result = MAPPER_ENABLED.readValue(json, Container1709.class);
+        assertNotNull(result);
+        assertEquals("test", result.name);
+        assertNull(result.u);
+    }
+
+    @Test
+    public void testEmptyJsonEmptyUnwrappedAsNull() throws Exception {
+        Container1709 result = MAPPER_ENABLED.readValue("{}", Container1709.class);
+        assertNotNull(result);
+        assertNull(result.name);
+        assertNull(result.u);
+    }
+
+    @Test
+    public void testNonNullUnwrappedPreserved() throws Exception {
+        String json = a2q("{'name':'test','s':'value'}");
+        Container1709 result = MAPPER_ENABLED.readValue(json, Container1709.class);
+        assertNotNull(result);
+        assertEquals("test", result.name);
+        assertNotNull(result.u);
+        assertEquals("value", result.u.s);
+    }
+
+    @Test
+    public void testPartialNonNullUnwrappedPreserved() throws Exception {
+        String json = a2q("{'s':'value'}");
+        Container1709 result = MAPPER_ENABLED.readValue(json, Container1709.class);
+        assertNotNull(result);
+        assertNotNull(result.u);
+        assertEquals("value", result.u.s);
+        assertNull(result.u.n);
+    }
+
+    @Test
+    public void testEmptyUnwrappedAsNullWhenDisabled() throws Exception {
+        String json = a2q("{'name':'test'}");
+        Container1709 result = MAPPER_DISABLED.readValue(json, Container1709.class);
+        assertNotNull(result);
+        assertEquals("test", result.name);
+        assertNotNull(result.u);
+        assertNull(result.u.s);
+        assertNull(result.u.n);
+    }
+
+    @Test
+    public void testEmptyJsonEmptyUnwrappedAsNullWhenDisabled() throws Exception {
+        Container1709 result = MAPPER_DISABLED.readValue("{}", Container1709.class);
+        assertNotNull(result);
+        assertNull(result.name);
+        assertNotNull(result.u);
+        assertNull(result.u.s);
+        assertNull(result.u.n);
+    }
+
+    @Test
+    public void testNonNullUnwrappedPreservedWhenDisabled() throws Exception {
+        String json = a2q("{'name':'test','s':'value'}");
+        Container1709 result = MAPPER_DISABLED.readValue(json, Container1709.class);
+        assertNotNull(result);
+        assertEquals("test", result.name);
+        assertNotNull(result.u);
+        assertEquals("value", result.u.s);
+    }
+
+    @Test
+    public void testPartialNonNullUnwrappedPreservedWhenDisabled() throws Exception {
+        String json = a2q("{'s':'value'}");
+        Container1709 result = MAPPER_DISABLED.readValue(json, Container1709.class);
+        assertNull(result.u.n);
+    }
+
+    /*
+    /**********************************************************
+    /* Tests, @JsonUnwrapped with @JsonCreator [databind#1467]
+    /**********************************************************
+     */
+
+    @Test
+    public void testUnwrappedWithJsonCreatorWithExplicitWithoutName() throws Exception
+    {
+        String json = "{\"unrelated\": \"unrelatedValue\", \"property1\": \"value1\", \"property2\": \"value2\"}";
+        ExplicitWithoutName outer = MAPPER.readValue(json, ExplicitWithoutName.class);
+
+        assertEquals("unrelatedValue", outer.getUnrelated());
+        assertEquals("value1", outer.getInner().getProperty1());
+        assertEquals("value2", outer.getInner().getProperty2());
+    }
+
+    @Test
+    public void testUnwrappedWithJsonCreatorExplicitWithName() throws Exception
+    {
+        String json = "{\"unrelated\": \"unrelatedValue\", \"property1\": \"value1\", \"property2\": \"value2\"}";
+        ExplicitWithName outer = MAPPER.readValue(json, ExplicitWithName.class);
+
+        assertEquals("unrelatedValue", outer.getUnrelated());
+        assertEquals("value1", outer.getInner().getProperty1());
+        assertEquals("value2", outer.getInner().getProperty2());
+    }
+
+    @Test
+    public void testUnwrappedWithJsonCreatorImplicitWithName() throws Exception
+    {
+        String json = "{\"unrelated\": \"unrelatedValue\", \"property1\": \"value1\", \"property2\": \"value2\"}";
+        ImplicitWithName outer = MAPPER.readValue(json, ImplicitWithName.class);
+
+        assertEquals("unrelatedValue", outer.getUnrelated());
+        assertEquals("value1", outer.getInner().getProperty1());
+        assertEquals("value2", outer.getInner().getProperty2());
+    }
+
+    @Test
+    public void testUnwrappedWithTwoUnwrappedProperties() throws Exception
+    {
+        String json = "{\"unrelated\": \"unrelatedValue\", " +
+                "\"first-property1\": \"first-value1\", \"first-property2\": \"first-value2\", " +
+                "\"second-property1\": \"second-value1\", \"second-property2\": \"second-value2\"}";
+        WithTwoUnwrappedProperties outer = MAPPER.readValue(json, WithTwoUnwrappedProperties.class);
+
+        assertEquals("unrelatedValue", outer.getUnrelated());
+        assertEquals("first-value1", outer.getInner1().getProperty1());
+        assertEquals("first-value2", outer.getInner1().getProperty2());
+        assertEquals("second-value1", outer.getInner2().getProperty1());
+        assertEquals("second-value2", outer.getInner2().getProperty2());
+    }
+
+    @Test
+    public void testUnwrappedWithPrefixCreator() throws Exception
+    {
+        String json = "{\"inner-property\": \"value\"}";
+        PrefixOuter outer = MAPPER.readValue(json, PrefixOuter.class);
+
+        assertEquals("value", outer.inner.getProperty());
+    }
+
+    /*
+    /**********************************************************
+    /* Tests, @JsonUnwrapped with prefix/suffix
+    /**********************************************************
+     */
+
+    @Test
+    public void testPrefixedUnwrappingSerialize() throws Exception
+    {
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+        assertEquals("{\"_x\":1,\"_y\":2,\"name\":\"Tatu\"}",
+                mapper.writeValueAsString(new PrefixUnwrap("Tatu", 1, 2)));
+    }
+
+    @Test
+    public void testDeepPrefixedUnwrappingSerialize() throws Exception
+    {
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+        String json = mapper.writeValueAsString(new DeepPrefixUnwrap("Bubba", 1, 1));
+        assertEquals("{\"u._x\":1,\"u._y\":1,\"u.name\":\"Bubba\"}", json);
+    }
+
+    @Test
+    public void testHierarchicConfigSerialize() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new ConfigRoot("Fred", 25));
+        assertEquals("{\"general.names.name\":\"Fred\",\"misc.value\":25}", json);
+    }
+
+    @Test
+    public void testPrefixedUnwrapDeserialize() throws Exception
+    {
+        PrefixUnwrap bean = MAPPER.readValue("{\"name\":\"Axel\",\"_x\":4,\"_y\":7}", PrefixUnwrap.class);
+        assertNotNull(bean);
+        assertEquals("Axel", bean.name);
+        assertNotNull(bean.location);
+        assertEquals(4, bean.location.x);
+        assertEquals(7, bean.location.y);
+    }
+
+    @Test
+    public void testDeepPrefixedUnwrapDeserialize() throws Exception
+    {
+        DeepPrefixUnwrap bean = MAPPER.readValue("{\"u.name\":\"Bubba\",\"u._x\":2,\"u._y\":3}",
+                DeepPrefixUnwrap.class);
+        assertNotNull(bean.unwrapped);
+        assertNotNull(bean.unwrapped.location);
+        assertEquals(2, bean.unwrapped.location.x);
+        assertEquals(3, bean.unwrapped.location.y);
+        assertEquals("Bubba", bean.unwrapped.name);
+    }
+
+    @Test
+    public void testHierarchicConfigDeserialize() throws Exception
+    {
+        ConfigRoot root = MAPPER.readValue("{\"general.names.name\":\"Bob\",\"misc.value\":3}",
+                ConfigRoot.class);
+        assertNotNull(root.general);
+        assertNotNull(root.general.names);
+        assertNotNull(root.misc);
+        assertEquals(3, root.misc.value);
+        assertEquals("Bob", root.general.names.name);
+    }
+
+    @Test
+    public void testHierarchicConfigRoundTrip() throws Exception
+    {
+        ConfigAlternate input = new ConfigAlternate(123, "Joe", 42);
+        String json = MAPPER.writeValueAsString(input);
+
+        ConfigAlternate root = MAPPER.readValue(json, ConfigAlternate.class);
+        assertEquals(123, root.id);
+        assertNotNull(root.general);
+        assertNotNull(root.general.names);
+        assertNotNull(root.misc);
+        assertEquals("Joe", root.general.names.name);
+        assertEquals(42, root.misc.value);
+    }
+
+    // [Issue#226]
+    @Test
+    public void testIssue226() throws Exception
+    {
+        Parent226 input = new Parent226();
+        input.c1 = new Child226();
+        input.c1.sc1 = new SubChild();
+        input.c1.sc1.value = "a";
+        input.c2 = new Child226();
+        input.c2.sc1 = new SubChild();
+        input.c2.sc1.value = "b";
+
+        String json = MAPPER.writeValueAsString(input);
+
+        Parent226 output = MAPPER.readValue(json, Parent226.class);
+        assertNotNull(output.c1);
+        assertNotNull(output.c2);
+
+        assertNotNull(output.c1.sc1);
+        assertNotNull(output.c2.sc1);
+
+        assertEquals("a", output.c1.sc1.value);
+        assertEquals("b", output.c2.sc1.value);
+    }
+
+    /*
+    /**********************************************************
+    /* Tests, @JsonUnwrapped with unknown property handling [databind#650]
+    /**********************************************************
+     */
+
+    @Test
+    public void testFailOnUnknownPropertyUnwrapped() throws Exception {
+        final String json = a2q("{'field': 'value', 'bad': 'bad value'}");
+        try {
+            STRICT_MAPPER.readValue(json, A650.class);
+            fail("Exception was not thrown on unknown property");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized property");
+        }
+    }
+
+    @Test
+    public void testWorkOnUnknownWithAnnotation() throws Exception {
+        final String json = a2q("{'field': 'value', 'bad': 'bad value'}");
+        A650WithUnknownsOk a = STRICT_MAPPER.readValue(json, A650WithUnknownsOk.class);
+        assertEquals("value", a.b.field);
+    }
+
+    // Passing case, regular usage
+    @Test
+    public void testWorksOnRegularPropertyUnwrapped() throws Exception {
+        A650 value = STRICT_MAPPER.readValue(a2q("{'field': 'value'}"), A650.class);
+        assertEquals("value", value.b.field);
+    }
+
+    // Tests for @JsonUnwrapped with prefix
+    @Test
+    public void testFailOnUnknownPropertyUnwrappedWithPrefix() throws Exception {
+        final String json = a2q("{'nested.field': 'value', 'bad': 'bad value'}");
+        try {
+            STRICT_MAPPER.readValue(json, A650WithPrefix.class);
+            fail("Exception was not thrown on unknown property");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized property");
+        }
+    }
+
+    @Test
+    public void testWorkOnUnknownWithPrefixAndAnnotation() throws Exception {
+        final String json = a2q("{'nested.field': 'value', 'bad': 'bad value'}");
+        A650WithPrefixUnknownsOk a = STRICT_MAPPER.readValue(json, A650WithPrefixUnknownsOk.class);
+        assertEquals("value", a.b.field);
+    }
+
+    @Test
+    public void testWorksOnRegularPropertyUnwrappedWithPrefix() throws Exception {
+        A650WithPrefix value = STRICT_MAPPER.readValue(a2q("{'nested.field': 'value'}"), A650WithPrefix.class);
+        assertEquals("value", value.b.field);
+    }
+
+    // Tests for @JsonCreator + @JsonUnwrapped (deserializeUsingPropertyBasedWithUnwrapped)
+    @Test
+    public void testFailOnUnknownPropertyWithCreator() throws Exception {
+        final String json = a2q("{'name': 'test', 'field': 'value', 'bad': 'bad value'}");
+        try {
+            STRICT_MAPPER.readValue(json, A650WithCreator.class);
+            fail("Exception was not thrown on unknown property");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized property");
+        }
+    }
+
+    @Test
+    public void testWorkOnUnknownWithCreatorAndAnnotation() throws Exception {
+        final String json = a2q("{'name': 'test', 'field': 'value', 'bad': 'bad value'}");
+        A650WithCreatorUnknownsOk a = STRICT_MAPPER.readValue(json, A650WithCreatorUnknownsOk.class);
+        assertEquals("test", a.name);
+        assertEquals("value", a.b.field);
+    }
+
+    @Test
+    public void testWorksOnRegularPropertyWithCreator() throws Exception {
+        A650WithCreator value = STRICT_MAPPER.readValue(a2q("{'name': 'test', 'field': 'value'}"), A650WithCreator.class);
+        assertEquals("test", value.name);
+        assertEquals("value", value.b.field);
+    }
+
+    // Tests for @JsonCreator + @JsonUnwrapped with prefix
+    @Test
+    public void testFailOnUnknownPropertyWithCreatorAndPrefix() throws Exception {
+        final String json = a2q("{'name': 'test', 'nested.field': 'value', 'bad': 'bad value'}");
+        try {
+            STRICT_MAPPER.readValue(json, A650WithCreatorAndPrefix.class);
+            fail("Exception was not thrown on unknown property");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized property");
+        }
+    }
+
+    @Test
+    public void testWorkOnUnknownWithCreatorAndPrefixAndAnnotation() throws Exception {
+        final String json = a2q("{'name': 'test', 'nested.field': 'value', 'bad': 'bad value'}");
+        A650WithCreatorAndPrefixUnknownsOk a = STRICT_MAPPER.readValue(json, A650WithCreatorAndPrefixUnknownsOk.class);
+        assertEquals("test", a.name);
+        assertEquals("value", a.b.field);
+    }
+
+    @Test
+    public void testWorksOnRegularPropertyWithCreatorAndPrefix() throws Exception {
+        A650WithCreatorAndPrefix value = STRICT_MAPPER.readValue(
+                a2q("{'name': 'test', 'nested.field': 'value'}"), A650WithCreatorAndPrefix.class);
+        assertEquals("test", value.name);
+        assertEquals("value", value.b.field);
     }
 }

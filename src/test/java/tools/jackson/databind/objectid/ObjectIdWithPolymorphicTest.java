@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -92,6 +93,28 @@ public class ObjectIdWithPolymorphicTest extends DatabindTestUtil
         protected Catch() {}
     }
 
+    // // // [databind#877]: interface + abstract class with ObjectId and default typing
+
+    interface BaseInterface877 { }
+
+    @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
+    static class BaseInterfaceImpl877 implements BaseInterface877 {
+        @JsonProperty
+        private List<BaseInterfaceImpl877> myInstances = new ArrayList<>();
+
+        void addInstance(BaseInterfaceImpl877 instance) {
+            myInstances.add(instance);
+        }
+    }
+
+    static class ListWrapper877<T extends BaseInterface877> {
+        @JsonProperty
+        private List<T> myList = new ArrayList<>();
+
+        void add(T t) { myList.add(t); }
+        int size() { return myList.size(); }
+    }
+
     // // // [TestObjectId / databind#(no issue)]: ObjectId + JsonTypeInfo combination
 
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
@@ -162,6 +185,32 @@ public class ObjectIdWithPolymorphicTest extends DatabindTestUtil
         assertSame(p, p.children.get(0).owner);
         assertSame(p, p.children.get(1).owner);
         assertSame(p, p.children.get(2).owner);
+    }
+
+    // [databind#877]
+    @Test
+    public void testIssue877() throws Exception
+    {
+        BaseInterfaceImpl877 one = new BaseInterfaceImpl877();
+        BaseInterfaceImpl877 two = new BaseInterfaceImpl877();
+        one.addInstance(two);
+        two.addInstance(one);
+
+        ListWrapper877<BaseInterfaceImpl877> myList = new ListWrapper877<>();
+        myList.add(one);
+        myList.add(two);
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL, "@class")
+                .build();
+
+        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(myList);
+        ListWrapper877<BaseInterfaceImpl877> result =
+                mapper.readValue(json, new TypeReference<ListWrapper877<BaseInterfaceImpl877>>() { });
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
     }
 
     @Test

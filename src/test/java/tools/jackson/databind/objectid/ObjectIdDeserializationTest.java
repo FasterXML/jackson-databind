@@ -2,6 +2,7 @@ package tools.jackson.databind.objectid;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
@@ -206,6 +207,41 @@ public class ObjectIdDeserializationTest extends DatabindTestUtil
 
         public IdentifiableStringId() { this(0); }
         public IdentifiableStringId(int v) { value = v; }
+    }
+
+    // // // For testAtomicReferenceWithObjectId [from ReferentialWithObjectIdTest]
+
+    public static class LinkedEmployeeList {
+        public AtomicReference<LinkedEmployee> first;
+    }
+
+    @JsonIdentityInfo(property="id", generator=ObjectIdGenerators.PropertyGenerator.class)
+    public static class LinkedEmployee {
+        public int id;
+        public String name;
+        public AtomicReference<LinkedEmployee> next;
+
+        public LinkedEmployee next(LinkedEmployee n) {
+            next = new AtomicReference<>(n);
+            return this;
+        }
+    }
+
+    // // // For testObjectIdWithInjectables [from ObjectIdWithInjectables538Test]
+
+    @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
+    public static class InjectableA {
+        public InjectableB b;
+
+        public InjectableA(@JacksonInject("i1") String injected) { }
+    }
+
+    @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
+    public static class InjectableB {
+        public InjectableA a;
+
+        @JsonCreator
+        public InjectableB(@JacksonInject("i2") String injected) { }
     }
 
     // // // For testWithFieldsInBaseClass [databind#1083]
@@ -587,5 +623,71 @@ public class ObjectIdDeserializationTest extends DatabindTestUtil
             + "  'name': 'FoodMart'\n"
             + "}]}\n");
         MAPPER.readValue(json, JsonRoot1083.class);
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, AtomicReference with ObjectId
+    /**********************************************************
+     */
+
+    @Test
+    public void testAtomicReferenceWithObjectId() throws Exception
+    {
+        LinkedEmployee first = new LinkedEmployee();
+        first.id = 1;
+        first.name = "Alice";
+
+        LinkedEmployee second = new LinkedEmployee();
+        second.id = 2;
+        second.name = "Bob";
+
+        first.next(second);
+        second.next(first);
+
+        LinkedEmployeeList input = new LinkedEmployeeList();
+        input.first = new AtomicReference<>(first);
+
+        String json = MAPPER.writeValueAsString(input);
+
+        LinkedEmployeeList result = MAPPER.readValue(json, LinkedEmployeeList.class);
+        LinkedEmployee firstB = result.first.get();
+        assertNotNull(firstB);
+        assertEquals("Alice", firstB.name);
+        LinkedEmployee secondB = firstB.next.get();
+        assertNotNull(secondB);
+        assertEquals("Bob", secondB.name);
+        assertNotNull(secondB.next.get());
+        assertSame(firstB, secondB.next.get());
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, ObjectId with injectable values [databind#538]
+    /**********************************************************
+     */
+
+    @Test
+    public void testObjectIdWithInjectables() throws Exception
+    {
+        InjectableA a = new InjectableA("a");
+        InjectableB b = new InjectableB("b");
+        a.b = b;
+        b.a = a;
+
+        String json = MAPPER.writeValueAsString(a);
+
+        InjectableValues.Std inject = new InjectableValues.Std();
+        inject.addValue("i1", "e1");
+        inject.addValue("i2", "e2");
+        InjectableA output;
+        try {
+            output = MAPPER.reader(inject).forType(InjectableA.class).readValue(json);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to deserialize from JSON '"+json+"'", e);
+        }
+        assertNotNull(output);
+        assertNotNull(output.b);
+        assertSame(output, output.b.a);
     }
 }

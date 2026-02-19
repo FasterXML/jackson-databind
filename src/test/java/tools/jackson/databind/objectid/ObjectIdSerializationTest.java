@@ -188,6 +188,42 @@ public class ObjectIdSerializationTest extends DatabindTestUtil
         @JsonProperty("comment") public String getComment() { return comment; }
     }
 
+    // // // For testNoDuplicateKeysWithFieldLevelAnnotation [databind#2759]
+
+    static class Hive {
+        public String name;
+        public List<Bee> bees = new ArrayList<>();
+        public Long id;
+
+        Hive() { }
+
+        public Hive(Long id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public void addBee(Bee bee) { bees.add(bee); }
+    }
+
+    static class Bee {
+        public Long id;
+
+        @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+        @JsonIdentityReference(alwaysAsId=true)
+        @JsonProperty("hiveId")
+        Hive hive;
+
+        public Bee() { }
+
+        public Bee(Long id, Hive hive) {
+            this.id = id;
+            this.hive = hive;
+        }
+
+        public Hive getHive() { return hive; }
+        public void setHive(Hive hive) { this.hive = hive; }
+    }
+
     // // // For testMixedRefsIssue188 [databind#188]
 
     static class Company {
@@ -391,6 +427,29 @@ public class ObjectIdSerializationTest extends DatabindTestUtil
                 +"{\"id\":2,\"manager\":1,\"name\":\"Second\",\"reports\":[]}"
                 +"]}",
                 json);
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, no duplicate keys with field-level @JsonIdentityInfo [databind#2759]
+    /**********************************************************
+     */
+
+    // [databind#2759]
+    @Test
+    public void testNoDuplicateKeysWithFieldLevelAnnotation() throws Exception
+    {
+        Hive hive = new Hive(100500L, "main hive");
+        hive.addBee(new Bee(1L, hive));
+
+        final String json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(hive);
+        try {
+            MAPPER.readerFor(JsonNode.class)
+                .with(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)
+                .readValue(json);
+        } catch (DatabindException e) {
+            fail("Should not have duplicates, but JSON content has: "+json);
+        }
     }
 
     /*

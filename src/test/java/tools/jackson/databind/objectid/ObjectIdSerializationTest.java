@@ -1,5 +1,8 @@
 package tools.jackson.databind.objectid;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
@@ -12,44 +15,37 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit test to verify handling of Object Id deserialization
+ * Unit tests to verify handling of Object Id serialization.
  */
-public class TestObjectIdSerialization extends DatabindTestUtil
+public class ObjectIdSerializationTest extends DatabindTestUtil
 {
+    // // // Int-sequence generator, class-level
+
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
     static class Identifiable
     {
         public int value;
-
         public Identifiable next;
 
         public Identifiable() { this(0); }
-        public Identifiable(int v) {
-            value = v;
-        }
+        public Identifiable(int v) { value = v; }
     }
 
     @JsonIdentityInfo(generator=ObjectIdGenerators.StringIdGenerator.class, property="id")
     static class StringIdentifiable
     {
         public int value;
-
         public StringIdentifiable next;
 
         public StringIdentifiable() { this(0); }
-        public StringIdentifiable(int v) {
-            value = v;
-        }
+        public StringIdentifiable(int v) { value = v; }
     }
 
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="customId")
     static class IdentifiableWithProp
     {
         public int value;
-
-        // Property that contains Object Id to use
         public int customId;
-
         public IdentifiableWithProp next;
 
         public IdentifiableWithProp() { this(0, 0); }
@@ -59,7 +55,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         }
     }
 
-    // For property reference, need another class:
+    // // // Int-sequence generator, property-level
 
     static class IdWrapper
     {
@@ -67,9 +63,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         public ValueNode node;
 
         public IdWrapper() { }
-        public IdWrapper(int v) {
-            node = new ValueNode(v);
-        }
+        public IdWrapper(int v) { node = new ValueNode(v); }
     }
 
     static class ValueNode {
@@ -80,7 +74,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         public ValueNode(int v) { value = v; }
     }
 
-    // Similarly for property-ref via property:
+    // // // Property generator, property-level
 
     protected static class IdWrapperCustom
     {
@@ -107,15 +101,15 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         }
     }
 
+    // // // alwaysAsId
+
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
     static class AlwaysAsId
     {
         public int value;
 
         public AlwaysAsId() { this(0); }
-        public AlwaysAsId(int v) {
-            value = v;
-        }
+        public AlwaysAsId(int v) { value = v; }
     }
 
     // For [https://github.com/FasterXML/jackson-annotations/issues/4]
@@ -143,7 +137,6 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         @JsonIdentityReference(alwaysAsId=true)
         public TreeNode parent;
 
-        // children serialized with ids if need be
         public TreeNode child;
 
         public TreeNode() { }
@@ -154,7 +147,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         }
     }
 
-    // // Let's also have one 'broken' test
+    // // // Error case
 
     // no "id" property
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
@@ -168,25 +161,50 @@ public class TestObjectIdSerialization extends DatabindTestUtil
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
     public static class EmptyObject { }
 
-    //for [databind#1150]
-    @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
-    static class IdentifiableStringId
-    {
-        public String id;
-        public int value;
+    // // // For testColumnMetadata
 
-        public Identifiable next;
+    @JsonPropertyOrder({"a", "b"})
+    static class Wrapper {
+        public ColumnMetadata a, b;
+    }
 
-        public IdentifiableStringId() { this(0); }
-        public IdentifiableStringId(int v) {
-            value = v;
+    @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
+    static class ColumnMetadata {
+        private final String name;
+        private final String type;
+        private final String comment;
+
+        @JsonCreator
+        public ColumnMetadata(@JsonProperty("name") String name,
+                @JsonProperty("type") String type,
+                @JsonProperty("comment") String comment) {
+            this.name = name;
+            this.type = type;
+            this.comment = comment;
+        }
+
+        @JsonProperty("name") public String getName() { return name; }
+        @JsonProperty("type") public String getType() { return type; }
+        @JsonProperty("comment") public String getComment() { return comment; }
+    }
+
+    // // // For testMixedRefsIssue188 [databind#188]
+
+    static class Company {
+        public List<Employee> employees;
+
+        public void add(Employee e) {
+            if (employees == null) {
+                employees = new ArrayList<>();
+            }
+            employees.add(e);
         }
     }
 
     /*
-    /*****************************************************
+    /**********************************************************
     /* Unit tests, external id serialization
-    /*****************************************************
+    /**********************************************************
      */
 
     private final static String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"next\":1,\"value\":13}";
@@ -199,7 +217,6 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         Identifiable src = new Identifiable(13);
         src.next = src;
 
-        // First, serialize:
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         String json = mapper.writeValueAsString(src);
         assertEquals(EXP_SIMPLE_INT_CLASS, json);
@@ -218,7 +235,6 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         IdWrapper src = new IdWrapper(7);
         src.node.next = src;
 
-        // First, serialize:
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         String json = mapper.writeValueAsString(src);
         assertEquals(EXP_SIMPLE_INT_PROP, json);
@@ -248,7 +264,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         String json = MAPPER.writeValueAsString(ob1);
         assertNotNull(json);
 
-        // then get them back
+        // then verify round-trip
         StringIdentifiable output = MAPPER.readValue(json, StringIdentifiable.class);
         assertNotNull(output);
         assertEquals(12, output.value);
@@ -266,21 +282,20 @@ public class TestObjectIdSerialization extends DatabindTestUtil
     }
 
     /*
-    /*****************************************************
+    /**********************************************************
     /* Unit tests, custom (property) id serialization
-    /*****************************************************
+    /**********************************************************
      */
 
     private final static String EXP_CUSTOM_PROP = "{\"customId\":123,\"next\":123,\"value\":-19}";
-    // Test for verifying that custom
+
     @Test
     public void testCustomPropertyForClass() throws Exception
     {
         IdentifiableWithProp src = new IdentifiableWithProp(123, -19);
         src.next = src;
 
-        JsonMapper mapper =  JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
-        // First, serialize:
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         String json = mapper.writeValueAsString(src);
         assertEquals(EXP_CUSTOM_PROP, json);
 
@@ -290,14 +305,14 @@ public class TestObjectIdSerialization extends DatabindTestUtil
     }
 
     private final static String EXP_CUSTOM_PROP_VIA_REF = "{\"node\":{\"id\":123,\"next\":{\"node\":123},\"value\":7}}";
-    // Test for verifying that custom
+
     @Test
     public void testCustomPropertyViaProperty() throws Exception
     {
         IdWrapperCustom src = new IdWrapperCustom(123, 7);
         src.node.next = src;
+
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
-        // First, serialize:
         String json = mapper.writeValueAsString(src);
         assertEquals(EXP_CUSTOM_PROP_VIA_REF, json);
         // and second time too, for a good measure
@@ -323,23 +338,65 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         assertEquals("{\"id\":1,\"child\":"
                 +"{\"id\":2,\"child\":null,\"name\":\"leaf\",\"parent\":1},\"name\":\"root\",\"parent\":null}",
                 json);
-
-    }
-
-    //for [databind#1150]
-    @Test
-    public void testNullStringPropertyId() throws Exception
-    {
-        IdentifiableStringId value = MAPPER.readValue
-                (a2q("{'value':3, 'next':null, 'id':null}"), IdentifiableStringId.class);
-        assertNotNull(value);
-        assertEquals(3, value.value);
     }
 
     /*
-    /*****************************************************
+    /**********************************************************
+    /* Unit tests, ColumnMetadata roundtrip with @JsonCreator
+    /**********************************************************
+     */
+
+    @Test
+    public void testColumnMetadata() throws Exception
+    {
+        ColumnMetadata col = new ColumnMetadata("Billy", "employee", "comment");
+        Wrapper w = new Wrapper();
+        w.a = col;
+        w.b = col;
+        String json = MAPPER.writeValueAsString(w);
+
+        Wrapper deserialized = MAPPER.readValue(json, Wrapper.class);
+        assertNotNull(deserialized);
+        assertNotNull(deserialized.a);
+        assertNotNull(deserialized.b);
+
+        assertEquals("Billy", deserialized.a.getName());
+        assertEquals("employee", deserialized.a.getType());
+        assertEquals("comment", deserialized.a.getComment());
+
+        assertSame(deserialized.a, deserialized.b);
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, mixed refs (alwaysAsId) serialization [databind#188]
+    /**********************************************************
+     */
+
+    @Test
+    public void testMixedRefsIssue188() throws Exception
+    {
+        Company comp = new Company();
+        Employee e1 = new Employee(1, "First", null);
+        Employee e2 = new Employee(2, "Second", e1);
+        e1.addReport(e2);
+        comp.add(e1);
+        comp.add(e2);
+
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+        String json = mapper.writeValueAsString(comp);
+
+        assertEquals("{\"employees\":["
+                +"{\"id\":1,\"manager\":null,\"name\":\"First\",\"reports\":[2]},"
+                +"{\"id\":2,\"manager\":1,\"name\":\"Second\",\"reports\":[]}"
+                +"]}",
+                json);
+    }
+
+    /*
+    /**********************************************************
     /* Unit tests, error handling
-    /*****************************************************
+    /**********************************************************
      */
 
     @Test

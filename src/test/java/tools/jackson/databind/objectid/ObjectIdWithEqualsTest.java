@@ -13,15 +13,15 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestObjectIdWithEquals extends DatabindTestUtil
+public class ObjectIdWithEqualsTest extends DatabindTestUtil
 {
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id", scope=Foo.class)
     @JsonPropertyOrder({ "id", "bars", "otherBars" })
     static class Foo {
         public int id;
 
-        public List<Bar> bars = new ArrayList<Bar>();
-        public List<Bar> otherBars = new ArrayList<Bar>();
+        public List<Bar> bars = new ArrayList<>();
+        public List<Bar> otherBars = new ArrayList<>();
 
         public Foo() { }
         public Foo(int i) { id = i; }
@@ -33,14 +33,10 @@ public class TestObjectIdWithEquals extends DatabindTestUtil
         public int id;
 
         public Bar() { }
-        public Bar(int i) {
-            id = i;
-        }
+        public Bar(int i) { id = i; }
 
         @Override
-        public int hashCode() {
-            return id;
-        }
+        public int hashCode() { return id; }
 
         @Override
         public boolean equals(Object obj) {
@@ -74,15 +70,13 @@ public class TestObjectIdWithEquals extends DatabindTestUtil
         }
 
         @Override
-        public int hashCode() {
-            return uri.hashCode();
-        }
+        public int hashCode() { return uri.hashCode(); }
     }
 
     /*
-    /******************************************************
+    /**********************************************************
     /* Test methods
-    /******************************************************
+    /**********************************************************
      */
 
     @Test
@@ -97,14 +91,11 @@ public class TestObjectIdWithEquals extends DatabindTestUtil
 
         Bar bar1 = new Bar(1);
         Bar bar2 = new Bar(2);
-        // this is another bar which is supposed to be "equal" to bar1
-        // due to the same ID and
-        // Bar class' equals() method will return true.
+        // this anotherBar1 is "equal" to bar1 due to same ID and Bar.equals()
         Bar anotherBar1 = new Bar(1);
 
         foo.bars.add(bar1);
         foo.bars.add(bar2);
-        // this anotherBar1 object will confuse the serializer.
         foo.otherBars.add(anotherBar1);
         foo.otherBars.add(bar2);
 
@@ -126,16 +117,12 @@ public class TestObjectIdWithEquals extends DatabindTestUtil
         element2.uri = URI.create("URI");
         element2.name = "Element2";
 
-        // 12-Nov-2015, tatu: array works fine regardless of Type Erasure, but if using List,
-        //   must provide additional piece of type info
-//        Element[] input = new Element[] { element, element2 };
         List<Element> input = Arrays.asList(element, element2);
 
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID)
                 .build();
 
-//        String json = mapper.writeValueAsString(input);
         String json = mapper.writerFor(new TypeReference<List<Element>>() { })
                 .writeValueAsString(input);
 

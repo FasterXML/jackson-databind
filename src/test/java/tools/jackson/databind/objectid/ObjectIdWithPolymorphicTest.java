@@ -4,9 +4,7 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.EnumFeature;
@@ -15,8 +13,10 @@ import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestObjectIdWithPolymorphic extends DatabindTestUtil
+public class ObjectIdWithPolymorphicTest extends DatabindTestUtil
 {
+    // // // Simple polymorphic roundtrip
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
     static abstract class Base
@@ -25,9 +25,7 @@ public class TestObjectIdWithPolymorphic extends DatabindTestUtil
         public Base next;
 
         public Base() { this(0); }
-        protected Base(int v) {
-            value = v;
-        }
+        protected Base(int v) { value = v; }
     }
 
     static class Impl extends Base
@@ -41,7 +39,7 @@ public class TestObjectIdWithPolymorphic extends DatabindTestUtil
         }
     }
 
-    // [JACKSON-811] types
+    // // // [databind#811] types -- deeply nested polymorphic BPEL-like structure
 
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
     public static class Base811 {
@@ -62,7 +60,7 @@ public class TestObjectIdWithPolymorphic extends DatabindTestUtil
 
     public static class Process extends Base811 {
         protected int childIdCounter = 0;
-        protected List<Base811> children = new ArrayList<Base811>();
+        protected List<Base811> children = new ArrayList<>();
 
         public Process() { super(null); }
     }
@@ -70,48 +68,51 @@ public class TestObjectIdWithPolymorphic extends DatabindTestUtil
     public static abstract class Activity extends Base811 {
         protected Activity parent;
         public Activity(Process owner, Activity parent) {
-                super(owner);
-                this.parent = parent;
+            super(owner);
+            this.parent = parent;
         }
-        protected Activity() {
-            super();
-        }
+        protected Activity() { super(); }
     }
 
     public static class Scope extends Activity {
-        public final List<FaultHandler> faultHandlers = new ArrayList<FaultHandler>();
-        public Scope(Process owner, Activity parent) {
-            super(owner, parent);
-        }
-        protected Scope() {
-            super();
-        }
+        public final List<FaultHandler> faultHandlers = new ArrayList<>();
+        public Scope(Process owner, Activity parent) { super(owner, parent); }
+        protected Scope() { super(); }
     }
 
     public static class FaultHandler extends Base811 {
-        public final List<Catch> catchBlocks = new ArrayList<Catch>();
+        public final List<Catch> catchBlocks = new ArrayList<>();
 
-        public FaultHandler(Process owner) {
-            super(owner);
-        }
-
+        public FaultHandler(Process owner) { super(owner); }
         protected FaultHandler() {}
     }
 
     public static class Catch extends Scope {
-        public Catch(Process owner, Activity parent) {
-            super(owner, parent);
-        }
-        protected Catch() {};
+        public Catch(Process owner, Activity parent) { super(owner, parent); }
+        protected Catch() {}
+    }
+
+    // // // [TestObjectId / databind#(no issue)]: ObjectId + JsonTypeInfo combination
+
+    @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
+    @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
+    public static class BaseEntity { }
+
+    public static class Foo extends BaseEntity {
+        public BaseEntity ref;
+    }
+
+    public static class Bar extends BaseEntity {
+        public Foo next;
     }
 
     /*
-    /*****************************************************
+    /**********************************************************
     /* Unit tests for polymorphic type handling
-    /*****************************************************
+    /**********************************************************
      */
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testPolymorphicRoundtrip() throws Exception
@@ -121,10 +122,9 @@ public class TestObjectIdWithPolymorphic extends DatabindTestUtil
         in1.next = new Impl(111, 222);
         in1.next.next = in1;
 
-        String json = mapper.writeValueAsString(in1);
+        String json = MAPPER.writeValueAsString(in1);
 
-        // then bring back...
-        Base result0 = mapper.readValue(json, Base.class);
+        Base result0 = MAPPER.readValue(json, Base.class);
         assertNotNull(result0);
         assertSame(Impl.class, result0.getClass());
         Impl result = (Impl) result0;
@@ -162,5 +162,27 @@ public class TestObjectIdWithPolymorphic extends DatabindTestUtil
         assertSame(p, p.children.get(0).owner);
         assertSame(p, p.children.get(1).owner);
         assertSame(p, p.children.get(2).owner);
+    }
+
+    @Test
+    public void testObjectAndTypeId() throws Exception
+    {
+        Bar inputRoot = new Bar();
+        Foo inputChild = new Foo();
+        inputRoot.next = inputChild;
+        inputChild.ref = inputRoot;
+
+        String json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(inputRoot);
+
+        BaseEntity resultRoot = MAPPER.readValue(json, BaseEntity.class);
+        assertNotNull(resultRoot);
+        assertInstanceOf(Bar.class, resultRoot);
+        Bar first = (Bar) resultRoot;
+
+        assertNotNull(first.next);
+        assertInstanceOf(Foo.class, first.next);
+        Foo second = (Foo) first.next;
+        assertNotNull(second.ref);
+        assertSame(first, second.ref);
     }
 }

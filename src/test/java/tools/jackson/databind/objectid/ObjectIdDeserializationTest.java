@@ -1,9 +1,6 @@
 package tools.jackson.databind.objectid;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.junit.jupiter.api.Test;
@@ -15,31 +12,27 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.ContextAttributes;
 import tools.jackson.databind.deser.UnresolvedForwardReference;
 import tools.jackson.databind.deser.UnresolvedId;
-import tools.jackson.databind.objectid.TestObjectId.Company;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit test to verify handling of Object Id deserialization
+ * Unit tests to verify handling of Object Id deserialization.
  */
-public class TestObjectIdDeserialization extends DatabindTestUtil
+public class ObjectIdDeserializationTest extends DatabindTestUtil
 {
     private static final String POOL_KEY = "POOL";
 
-    // // Classes for external id use
+    // // // Classes for external id use
 
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
     static class Identifiable
     {
         public int value;
-
         public Identifiable next;
 
         public Identifiable() { this(0); }
-        public Identifiable(int v) {
-            value = v;
-        }
+        public Identifiable(int v) { value = v; }
     }
 
     @JsonIdentityInfo(generator=ObjectIdGenerators.UUIDGenerator.class, property="#")
@@ -54,7 +47,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
         public UUIDNode(int v) { value = v; }
     }
 
-    // // Classes for external id from property annotations:
+    // // // Classes for external id from property annotations:
 
     static class IdWrapper
     {
@@ -62,9 +55,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
         public ValueNode node;
 
         public IdWrapper() { }
-        public IdWrapper(int v) {
-            node = new ValueNode(v);
-        }
+        public IdWrapper(int v) { node = new ValueNode(v); }
     }
 
     static class ValueNode {
@@ -75,15 +66,13 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
         public ValueNode(int v) { value = v; }
     }
 
-    // // Classes for external id use
+    // // // Classes for custom property id use
 
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="customId")
     static class IdentifiableCustom
     {
         public int value;
-
         public int customId;
-
         public IdentifiableCustom next;
 
         public IdentifiableCustom() { this(-1, 0); }
@@ -95,14 +84,11 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
 
     static class IdWrapperExt
     {
-        @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class,
-        		property="customId")
+        @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="customId")
         public ValueNodeExt node;
 
         public IdWrapperExt() { }
-        public IdWrapperExt(int v) {
-            node = new ValueNodeExt(v);
-        }
+        public IdWrapperExt(int v) { node = new ValueNodeExt(v); }
     }
 
     static class ValueNodeExt
@@ -114,9 +100,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
         public ValueNodeExt() { this(0); }
         public ValueNodeExt(int v) { value = v; }
 
-        public void setCustomId(int i) {
-        	customId = i;
-        }
+        public void setCustomId(int i) { customId = i; }
     }
 
     static class MappedCompany {
@@ -125,7 +109,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
     static class AnySetterObjectId {
-        protected Map<String, AnySetterObjectId> values = new HashMap<String, AnySetterObjectId>();
+        protected Map<String, AnySetterObjectId> values = new HashMap<>();
 
         @JsonAnySetter
         public void anySet(String field, AnySetterObjectId value) {
@@ -134,6 +118,8 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
             values.put(field, value);
         }
     }
+
+    // // // Classes for custom id resolver
 
     static class CustomResolutionWrapper {
         public List<WithCustomResolution> data;
@@ -145,8 +131,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
         public int id;
         public int data;
 
-        public WithCustomResolution(int id, int data)
-        {
+        public WithCustomResolution(int id, int data) {
             this.id = id;
             this.data = data;
         }
@@ -156,54 +141,98 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
         private Map<Object,WithCustomResolution> _pool;
 
         public PoolResolver() {}
-        public PoolResolver(Map<Object,WithCustomResolution> pool){ _pool = pool; }
+        public PoolResolver(Map<Object,WithCustomResolution> pool) { _pool = pool; }
 
         @Override
-        public void bindItem(IdKey id, Object pojo){ }
+        public void bindItem(IdKey id, Object pojo) { }
 
         @Override
-        public Object resolveId(IdKey id){ return _pool.get(id.key); }
+        public Object resolveId(IdKey id) { return _pool.get(id.key); }
 
         @Override
-        public boolean canUseFor(ObjectIdResolver resolverType)
-        {
+        public boolean canUseFor(ObjectIdResolver resolverType) {
             return resolverType.getClass() == getClass() && _pool != null && !_pool.isEmpty();
         }
 
         @Override
-        public ObjectIdResolver newForDeserialization(Object c)
-        {
-            DeserializationContext context = (DeserializationContext)c;
+        public ObjectIdResolver newForDeserialization(Object c) {
+            DeserializationContext context = (DeserializationContext) c;
             @SuppressWarnings("unchecked")
-            Map<Object,WithCustomResolution> pool = (Map<Object,WithCustomResolution>)context.getAttribute(POOL_KEY);
+            Map<Object,WithCustomResolution> pool =
+                (Map<Object,WithCustomResolution>) context.getAttribute(POOL_KEY);
             return new PoolResolver(pool);
         }
     }
+
+    // // // Classes for FAIL_ON_UNRESOLVED_OBJECT_IDS tests
 
     static class SomeWrapper {
         @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
         public SomeNode node;
 
         public SomeWrapper() {}
-
-        public SomeWrapper(int v) {
-            node = new SomeNode(v);
-        }
+        public SomeWrapper(int v) { node = new SomeNode(v); }
     }
 
     static class SomeNode {
         public int value;
         public SomeWrapper next;
 
-        public SomeNode() {this(0);}
+        public SomeNode() { this(0); }
+        public SomeNode(int v) { value = v; }
+    }
 
-        public SomeNode(int v) {value = v;}
+    // // // Company/Employee for forward-reference tests
+
+    static class Company {
+        public List<Employee> employees;
+
+        public void add(Employee e) {
+            if (employees == null) {
+                employees = new ArrayList<>();
+            }
+            employees.add(e);
+        }
+    }
+
+    // // // For testNullStringPropertyId [databind#1150]
+
+    @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+    static class IdentifiableStringId
+    {
+        public String id;
+        public int value;
+        public Identifiable next;
+
+        public IdentifiableStringId() { this(0); }
+        public IdentifiableStringId(int v) { value = v; }
+    }
+
+    // // // For testWithFieldsInBaseClass [databind#1083]
+
+    @JsonTypeInfo(
+            use = JsonTypeInfo.Id.NAME,
+            property = "type",
+            defaultImpl = JsonMapSchema.class)
+    @JsonSubTypes({
+        @JsonSubTypes.Type(value = JsonMapSchema.class, name = "map"),
+        @JsonSubTypes.Type(value = JsonJdbcSchema.class, name = "jdbc") })
+    public static abstract class JsonSchema {
+        public String name;
+    }
+
+    static class JsonMapSchema extends JsonSchema { }
+
+    static class JsonJdbcSchema extends JsonSchema { }
+
+    static class JsonRoot1083 {
+        public List<JsonSchema> schemas = new ArrayList<>();
     }
 
     /*
-    /*****************************************************
+    /**********************************************************
     /* Unit tests, external id deserialization
-    /*****************************************************
+    /**********************************************************
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
@@ -213,7 +242,6 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     @Test
     public void testSimpleDeserializationClass() throws Exception
     {
-        // then bring back...
         Identifiable result = MAPPER.readValue(EXP_SIMPLE_INT_CLASS, Identifiable.class);
         assertEquals(13, result.value);
         assertSame(result, result.next);
@@ -245,7 +273,6 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
 
         String json = MAPPER.writeValueAsString(root);
 
-        // and should come back the same too...
         UUIDNode result = MAPPER.readValue(json, UUIDNode.class);
         assertEquals(1, result.value);
         UUIDNode result2 = result.first;
@@ -282,8 +309,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     }
 
     @Test
-    public void testForwardReference()
-        throws Exception
+    public void testForwardReference() throws Exception
     {
         String json = "{\"employees\":["
                       + "{\"id\":1,\"name\":\"First\",\"manager\":2,\"reports\":[]},"
@@ -295,13 +321,12 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
         Employee secondEmployee = company.employees.get(1);
         assertEquals(1, firstEmployee.id);
         assertEquals(2, secondEmployee.id);
-        assertEquals(secondEmployee, firstEmployee.manager); // Ensure that forward reference was properly resolved.
-        assertEquals(firstEmployee, secondEmployee.reports.get(0)); // And that back reference is also properly resolved.
+        assertEquals(secondEmployee, firstEmployee.manager); // Ensure forward reference was properly resolved.
+        assertEquals(firstEmployee, secondEmployee.reports.get(0)); // And back reference.
     }
 
     @Test
-    public void testForwardReferenceInCollection()
-        throws Exception
+    public void testForwardReferenceInCollection() throws Exception
     {
         String json = "{\"employees\":["
                       + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
@@ -315,8 +340,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     }
 
     @Test
-    public void testForwardReferenceInMap()
-        throws Exception
+    public void testForwardReferenceInMap() throws Exception
     {
         String json = "{\"employees\":{"
                       + "\"1\":{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
@@ -330,13 +354,12 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
         assertEmployees(firstEmployee, secondEmployee);
     }
 
-    private void assertEmployees(Employee firstEmployee, Employee secondEmployee)
-    {
+    private void assertEmployees(Employee firstEmployee, Employee secondEmployee) {
         assertEquals(1, firstEmployee.id);
         assertEquals(2, secondEmployee.id);
         assertEquals(1, firstEmployee.reports.size());
-        assertSame(secondEmployee, firstEmployee.reports.get(0)); // Ensure that forward reference was properly resolved and in order.
-        assertSame(firstEmployee, secondEmployee.manager); // And that back reference is also properly resolved.
+        assertSame(secondEmployee, firstEmployee.reports.get(0));
+        assertSame(firstEmployee, secondEmployee.manager);
     }
 
     @Test
@@ -347,8 +370,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     }
 
     @Test
-    public void testUnresolvedForwardReference()
-        throws Exception
+    public void testUnresolvedForwardReference() throws Exception
     {
         String json = "{\"employees\":["
                       + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[3]},"
@@ -358,7 +380,6 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
             MAPPER.readValue(json, Company.class);
             fail("Should have thrown.");
         } catch (UnresolvedForwardReference exception) {
-            // Expected
             List<UnresolvedId> unresolvedIds = exception.getUnresolvedIds();
             assertEquals(2, unresolvedIds.size());
             UnresolvedId firstUnresolvedId = unresolvedIds.get(0);
@@ -390,7 +411,6 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
                 + "]}";
         Company company = MAPPER.readValue(json, Company.class);
         assertEquals(4, company.employees.size());
-        // Deser must keep object ordering.
         Employee firstEmployee = company.employees.get(1);
         Employee secondEmployee = company.employees.get(0);
         assertSame(firstEmployee, company.employees.get(2));
@@ -399,8 +419,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     }
 
     @Test
-    public void testKeepMapOrdering()
-        throws Exception
+    public void testKeepMapOrdering() throws Exception
     {
         String json = "{\"employees\":{"
                       + "\"1\":2, \"2\":1,"
@@ -412,8 +431,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
         Employee firstEmployee = company.employees.get(2);
         Employee secondEmployee = company.employees.get(1);
         assertEmployees(firstEmployee, secondEmployee);
-        // Deser must keep object ordering. Not sure if it's really important for maps,
-        // but since default map is LinkedHashMap might as well ensure it does...
+        // Deser must keep object ordering.
         Iterator<Entry<Integer,Employee>> iterator = company.employees.entrySet().iterator();
         assertSame(secondEmployee, iterator.next().getValue());
         assertSame(firstEmployee, iterator.next().getValue());
@@ -422,9 +440,9 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     }
 
     /*
-    /*****************************************************
+    /**********************************************************
     /* Unit tests, custom (property-based) id deserialization
-    /*****************************************************
+    /**********************************************************
      */
 
     private final static String EXP_CUSTOM_VIA_CLASS = "{\"customId\":123,\"value\":-900,\"next\":123}";
@@ -432,7 +450,6 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     @Test
     public void testCustomDeserializationClass() throws Exception
     {
-        // then bring back...
         IdentifiableCustom result = MAPPER.readValue(EXP_CUSTOM_VIA_CLASS, IdentifiableCustom.class);
         assertEquals(-900, result.value);
         assertSame(result, result.next);
@@ -443,7 +460,6 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     @Test
     public void testCustomDeserializationProperty() throws Exception
     {
-        // then bring back...
         IdWrapperExt result = MAPPER.readValue(EXP_CUSTOM_VIA_PROP, IdWrapperExt.class);
         assertEquals(99, result.node.value);
         assertSame(result.node, result.node.next.node);
@@ -451,23 +467,25 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     }
 
     /*
-    /*****************************************************
+    /**********************************************************
     /* Unit tests, custom id resolver
-    /*****************************************************
+    /**********************************************************
      */
 
     @Test
     public void testCustomPoolResolver() throws Exception
     {
-        Map<Object,WithCustomResolution> pool = new HashMap<Object,WithCustomResolution>();
+        Map<Object,WithCustomResolution> pool = new HashMap<>();
         pool.put(1, new WithCustomResolution(1, 1));
         pool.put(2, new WithCustomResolution(2, 2));
         pool.put(3, new WithCustomResolution(3, 3));
         pool.put(4, new WithCustomResolution(4, 4));
         pool.put(5, new WithCustomResolution(5, 5));
-        ContextAttributes attrs = MAPPER.deserializationConfig().getAttributes().withSharedAttribute(POOL_KEY, pool);
+        ContextAttributes attrs = MAPPER.deserializationConfig().getAttributes()
+                .withSharedAttribute(POOL_KEY, pool);
         String content = "{\"data\":[1,2,3,4,5]}";
-        CustomResolutionWrapper wrapper = MAPPER.readerFor(CustomResolutionWrapper.class).with(attrs).readValue(content);
+        CustomResolutionWrapper wrapper = MAPPER.readerFor(CustomResolutionWrapper.class)
+                .with(attrs).readValue(content);
         assertFalse(wrapper.data.isEmpty());
         for (WithCustomResolution ob : wrapper.data) {
             assertSame(pool.get(ob.id), ob);
@@ -475,39 +493,35 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
     }
 
     /*
-    /*****************************************************
-    /* Unit tests, missing/null Object id [databind#742]
-    /*****************************************************
+    /**********************************************************
+    /* Unit tests, null/missing Object id [databind#742]
+    /**********************************************************
      */
-
-    /*
-    private final static String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"value\":13,\"next\":1}";
-    @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
-    static class Identifiable
-    {
-        public int value;
-
-        public Identifiable next;
-    }
-    */
 
     @Test
     public void testNullObjectId() throws Exception
     {
-        // Ok, so missing Object Id is ok, but so is null.
+        Identifiable value = MAPPER.readValue(
+                a2q("{'value':3, 'next':null, 'id':null}"), Identifiable.class);
+        assertNotNull(value);
+        assertEquals(3, value.value);
+    }
 
-        Identifiable value = MAPPER.readValue
-                (a2q("{'value':3, 'next':null, 'id':null}"), Identifiable.class);
+    // [databind#1150]
+    @Test
+    public void testNullStringPropertyId() throws Exception
+    {
+        IdentifiableStringId value = MAPPER.readValue(
+                a2q("{'value':3, 'next':null, 'id':null}"), IdentifiableStringId.class);
         assertNotNull(value);
         assertEquals(3, value.value);
     }
 
     /*
-    /*****************************************************
-    /* Unit tests in conjunction with DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS
-    /*****************************************************
+    /**********************************************************
+    /* Unit tests, DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS
+    /**********************************************************
      */
-
 
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
 
@@ -538,15 +552,14 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
 
     @Test
     public void testUnresolvedObjectIdsFailure() throws Exception {
-        // Set-up : node id of 2 that doesn't exist,
         String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':2}}}");
 
-        // 1. Does not fail, because disabled such.
+        // 1. Does not fail with feature disabled
         SomeWrapper wrapper = DISABLED_MAPPER.readValue(json, SomeWrapper.class);
         assertNull(wrapper.node.next.node);
 
         try {
-            // 2. Will fail by default.
+            // 2. Will fail by default
             DEFAULT_MAPPER.readValue(json, SomeWrapper.class);
             fail("should not pass");
         } catch (UnresolvedForwardReference e) {
@@ -554,7 +567,7 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
         }
 
         try {
-            // 3. Will also throw exception, because configured as such.
+            // 3. Will also fail with feature explicitly enabled
             ENABLED_MAPPER.readValue(json, SomeWrapper.class);
             fail("should not pass");
         } catch (UnresolvedForwardReference e) {
@@ -562,4 +575,17 @@ public class TestObjectIdDeserialization extends DatabindTestUtil
         }
     }
 
+    /*
+    /**********************************************************
+    /* Unit tests, type info with JsonIdentityInfo [databind#1083]
+    /**********************************************************
+     */
+
+    @Test
+    public void testWithFieldsInBaseClass1083() throws Exception {
+        final String json = a2q("{'schemas': [{\n"
+            + "  'name': 'FoodMart'\n"
+            + "}]}\n");
+        MAPPER.readValue(json, JsonRoot1083.class);
+    }
 }

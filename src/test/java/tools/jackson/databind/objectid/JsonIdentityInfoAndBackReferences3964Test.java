@@ -13,7 +13,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#3964] MismatchedInputException, Bean not yet resolved
-class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
+public class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
 {
     /**
      * Fails : Original test
@@ -207,7 +207,7 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
      * Original test: used to fail
      */
     @Test
-    void original() throws Exception {
+    public void testOriginalBackReference() throws Exception {
         String json = "{" +
                 "              \"id\": 1,\n" +
                 "              \"fruits\": [\n" +
@@ -233,7 +233,7 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
      * Lean version that used to fail, and Without getters and setters
      */
     @Test
-    void leanWithoutGetterAndSetters() throws Exception {
+    public void testLeanWithoutGetterAndSetters() throws Exception {
         String json = a2q("{" +
                 "              'id': 1," +
                 "              'cats': [" +
@@ -260,7 +260,7 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
      * and also without {@link JsonCreator}.
      */
     @Test
-    void leanWithoutGetterAndSettersAndCreator() throws Exception {
+    public void testLeanWithoutGetterSettersOrCreator() throws Exception {
         String json = a2q("{" +
                 "              'id': 1," +
                 "              'squids': [" +

@@ -160,11 +160,12 @@ public class ObjectId825Test extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
-    /* Unit tests, complex BPEL-like hierarchy [databind#825B]
-    /**********************************************************
+    /**********************************************************************
+    /* Unit tests, complex BPEL-like hierarchy [databind#825]
+    /**********************************************************************
      */
 
+    // [databind#825]
     @Test
     public void testFull825() throws Exception
     {

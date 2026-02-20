@@ -355,7 +355,7 @@ public class JDKFromStringDeserializer
 
             // Does it look Windows driver prefix (like "C:")?
             if ((colonIx == 1) && Character.isLetter(value.charAt(0))) {
-                if (NioPathWindowsDetector.isWindows()) {
+                if (NioPathWindowsChecker.isWindows()) {
                     return Paths.get(value);
                 }
             }
@@ -388,7 +388,7 @@ public class JDKFromStringDeserializer
         }
 
         // @since 3.1
-        private static class NioPathWindowsDetector {
+        private static class NioPathWindowsChecker {
             private static final boolean _isWindows;
             static {
                 boolean isWindows = false;

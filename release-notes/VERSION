@@ -64,6 +64,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   values without default constructor (like Records)
  (reported by Krzysztof K)
  (fix by @cowtowncoder, w/ Claude code)
+#3163: Huge performance problem deserializing `java.nio.file.Path`
+  with existing Windows Samba/CIFS mounts
+ (reported by @Gaibhne)
 #3188: Skip unknown `Enum` keys in `Map` deserialization
  (requested by @matthias-mueller)
  (fixed by Lee Jiwon)

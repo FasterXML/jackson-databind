@@ -165,7 +165,7 @@ public class JDKFromStringDeserializer
         case STD_URI:
             return URI.create(value);
         case STD_PATH:
-            // 06-Sep-2018, tatu: Offlined due to additions in [databind#2120]
+            // 06-Sep-2018, tatu: Off-lined due to additions in [databind#2120]
             return NioPathHelper.deserialize(ctxt, value);
         case STD_CLASS:
             try {
@@ -355,7 +355,7 @@ public class JDKFromStringDeserializer
 
             // Does it look Windows driver prefix (like "C:")?
             if ((colonIx == 1) && Character.isLetter(value.charAt(0))) {
-                if (NioPathWindowsDetector.windowsPathsSupported()) {
+                if (NioPathWindowsDetector.isWindows()) {
                     return Paths.get(value);
                 }
             }
@@ -389,23 +389,18 @@ public class JDKFromStringDeserializer
 
         // @since 3.1
         private static class NioPathWindowsDetector {
-            private static final boolean _areWindowsFilePathsSupported;
+            private static final boolean _isWindows;
             static {
-                boolean isWindowsRootFound = false;
-                for (File file : File.listRoots()) {
-                    String path = file.getPath();
-                    if (path.length() >= 2
-                            && path.charAt(1) == ':'
-                            && Character.isLetter(path.charAt(0))) {
-                        isWindowsRootFound = true;
-                        break;
-                    }
-                }
-                _areWindowsFilePathsSupported = isWindowsRootFound;
+                boolean isWindows = false;
+
+                try {
+                    isWindows = System.getProperty("os.name").startsWith("Windows");
+                } catch (Exception e) { }
+                _isWindows = isWindows;
             }
 
-            public static boolean windowsPathsSupported() {
-                return _areWindowsFilePathsSupported;
+            public static boolean isWindows() {
+                return _isWindows;
             }
         }
     }

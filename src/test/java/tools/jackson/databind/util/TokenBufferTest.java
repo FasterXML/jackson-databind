@@ -310,7 +310,7 @@ public class TokenBufferTest extends DatabindTestUtil
         }
     }
 
-    // [databind#
+    // [databind#5706]
     @Test
     void testNumberIntAsStringSerialization() throws IOException {
         try (TokenBuffer buf = new TokenBuffer(null, false)) {

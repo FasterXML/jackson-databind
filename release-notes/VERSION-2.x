@@ -16,6 +16,9 @@ Project: jackson-databind
 #5624: dup of #5184 (see above)
 #5674: Fix NPE when deserializing `Throwable` with `null` "stackTrace"
  (fix by @pjfanning)
+#5706: `TokenBuffer` serialization fails when buffer contains integer
+  encoded as String
+ (reported by Kyrylo M)
 
 2.21.0 (18-Jan-2026)
 

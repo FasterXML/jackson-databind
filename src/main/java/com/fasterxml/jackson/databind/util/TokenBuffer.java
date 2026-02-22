@@ -443,6 +443,8 @@ public class TokenBuffer
                         gen.writeNumber((Long) n);
                     } else if (n instanceof Short) {
                         gen.writeNumber((Short) n);
+                    } else if (n instanceof String) {
+                        gen.writeNumber((String) n);
                     } else {
                         gen.writeNumber(((Number) n).intValue());
                     }

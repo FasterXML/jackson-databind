@@ -45,21 +45,6 @@
              --add-opens=java.base/java.util=tools.jackson.databind
     </argLine>
 
-    <!-- 12-Nov-2022, tatu: [databind#3659] Verify Android SDK compatibility.
-
-      Baseline compatibility:
-
-      * Jackson 2.13: compatible with Android SDK 24 and up
-      * Jackson 2.14 - 2.18: compatible with Android SDK 26 and up
-      * Jackson 3.0: compatible with Android SDK 34 and up (need Record access)
-      -->
-
-    <version.android.sdk>34</version.android.sdk>
-    <!-- 24-Mar-2025, tatu: Latest as of now:
-	 https://mvnrepository.com/artifact/com.toasttab.android/gummy-bears-api-34
-      -->
-    <version.android.sdk.signature>0.12.0</version.android.sdk.signature>
-
     <version.bytebuddy>1.18.4</version.bytebuddy>
     <version.mockito>5.21.0</version.mockito>
 
@@ -271,20 +256,12 @@
 
       <!-- 12-Nov-2022, tatu: [databind#3659] add verification of compatibility
            wrt Android SDK versions using AnimalSniffer with "gummy bears" signatures.
-           To be run from CI, but manually with:
-
-             mvn animal-sniffer:check
         -->
+      <!-- 24-Feb-2026, tatu: Starting with 3.2, use common defaults for ASDK level -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>animal-sniffer-maven-plugin</artifactId>
-        <version>1.27</version>
         <configuration>
-          <signature>
-            <groupId>com.toasttab.android</groupId>
-            <artifactId>gummy-bears-api-${version.android.sdk}</artifactId>
-            <version>${version.android.sdk.signature}</version>
-          </signature>
           <ignores>
             <!-- These are only accessed (safely) via "Java7SupportImpl.java" so ignore
               -->

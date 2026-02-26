@@ -265,7 +265,9 @@ Flinter (@jhan0121)
 Brandon Schmitt (@BrandonSchmitt)
  * Reported #5616: `ObjectWriter` serializes `Optional`s with subtypes incompletely
   [3.1.0]
-
+ * Reported #5710: `ObjectWriter` transforms polymorphic types into a tree incompletely
+  [3.1.1]
+ 
 Matthew Luckam (@mluckam)
  * Contributed #5630: Add `DelegatingSerializer`
 

@@ -9,6 +9,12 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 No changes since 3.1
 
+3.1.1 (not yet released)
+
+#5710: `ObjectWriter` transforms polymorphic types into a tree incompletely
+ (reported by Brandon S)
+ (fix by @cowtowncoder, w/ Claude code)
+
 3.1.0 (23-Feb-2026)
 
 #221: Support alternate radixes when writing numeric values as strings

@@ -183,6 +183,13 @@ public abstract class BeanDeserializerBase
     protected UnwrappedPropertyHandler _unwrappedPropertyHandler;
 
     /**
+     * Handler for properties annotated with {@code @JsonWrapped}, if any.
+     *
+     * @since 3.1
+     */
+    protected WrappedPropertyHandler _wrappedPropertyHandler;
+
+    /**
      * Handler that we need if any of properties uses external
      * type id.
      */
@@ -284,6 +291,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _wrappedPropertyHandler = src._wrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -350,6 +358,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _wrappedPropertyHandler = src._wrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -394,6 +403,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _wrappedPropertyHandler = src._wrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -428,6 +438,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _wrappedPropertyHandler = src._wrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -642,6 +653,87 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
         } else {
             _unwrappedPropertyHandler = null;
         }
+
+        // Detect @JsonWrapped properties
+        WrappedPropertyHandler wrapped = null;
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr != null) {
+            // Iterate a copy since we'll modify _beanProperties
+            List<SettableBeanProperty> allProps = new ArrayList<>();
+            for (SettableBeanProperty prop : _beanProperties) {
+                allProps.add(prop);
+            }
+
+            // First pass: collect wrapped properties and validate
+            Map<String, List<SettableBeanProperty>> groups = new LinkedHashMap<>();
+            Set<SettableBeanProperty> wrappedPropSet = new HashSet<>();
+            for (SettableBeanProperty prop : allProps) {
+                AnnotatedMember member = prop.getMember();
+                if (member == null) continue;
+                String wrapperName = intr.findWrappedGroupName(ctxt.getConfig(), member);
+                if (wrapperName == null) continue;
+                wrappedPropSet.add(prop);
+
+                // Validate: empty name
+                if (wrapperName.isEmpty()) {
+                    ctxt.reportBadDefinition(handledType(),
+                        String.format("@JsonWrapped value must not be empty (on property '%s')",
+                            prop.getName()));
+                }
+
+                // Validate: creator parameter
+                if ((prop instanceof CreatorProperty) && ((CreatorProperty) prop).getCreatorIndex() >= 0) {
+                    ctxt.reportBadDefinition(handledType(),
+                        String.format("@JsonWrapped on creator parameter '%s' is not supported",
+                            prop.getName()));
+                }
+
+                // Validate: scalar-only (symmetry with serialization)
+                JavaType type = prop.getType();
+                if (!_isScalarType(type)) {
+                    ctxt.reportBadDefinition(handledType(),
+                        String.format("@JsonWrapped is only supported on scalar/primitive types; "
+                            + "found %s on property '%s'",
+                            type.toCanonical(), prop.getName()));
+                }
+
+                groups.computeIfAbsent(wrapperName, k -> new ArrayList<>()).add(prop);
+            }
+
+            if (!groups.isEmpty()) {
+                // Validate: name conflicts (wrapper name vs non-wrapped property name)
+                Set<String> wrapperNames = groups.keySet();
+                for (SettableBeanProperty prop : allProps) {
+                    if (wrappedPropSet.contains(prop)) continue;  // this is a wrapped property, skip
+                    if (wrapperNames.contains(prop.getName())) {
+                        ctxt.reportBadDefinition(handledType(),
+                            String.format("Wrapper name '%s' conflicts with existing property '%s'",
+                                prop.getName(), prop.getName()));
+                    }
+                }
+
+                // Build handler and remove wrapped properties from bean properties
+                wrapped = new WrappedPropertyHandler();
+                for (Map.Entry<String, List<SettableBeanProperty>> entry : groups.entrySet()) {
+                    for (SettableBeanProperty prop : entry.getValue()) {
+                        wrapped.addProperty(entry.getKey(), prop);
+                        _beanProperties.remove(prop);
+                    }
+                }
+            }
+        }
+
+        if (wrapped != null) {
+            if (_unwrappedPropertyHandler != null) {
+                ctxt.reportBadDefinition(handledType(),
+                    String.format("Cannot use both @JsonWrapped and @JsonUnwrapped on the same bean '%s': "
+                        + "combined deserialization is not supported (post-MVP limitation). "
+                        + "Use one or the other.", ClassUtil.classNameOf(handledType())));
+            }
+            _wrappedPropertyHandler = wrapped;
+            _nonStandardCreation = true;
+        }
+
         // may need to disable vanilla processing, if unwrapped handling was enabled...
         _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
     }
@@ -1975,5 +2067,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             ClassUtil.throwIfRTE(t);
         }
         return ctxt.handleInstantiationProblem(_beanType.getRawClass(), null, t);
+    }
+
+    protected boolean _isScalarType(JavaType type) {
+        return BeanUtil.isScalarType(type);
     }
 }

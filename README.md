@@ -431,6 +431,37 @@ Note that use of a "creator method" (`@JsonCreator` with `@JsonProperty` annotat
 can mix and match properties from constructor/factory method with ones that
 are set via setters or directly using fields.
 
+### Annotations: wrapping properties
+
+`@JsonWrapped` groups one or more scalar fields into a synthetic nested JSON object — the inverse of `@JsonUnwrapped`.
+
+```java
+public class Gene {
+    public String name;
+
+    @JsonWrapped("chr") public String chromosome;
+    @JsonWrapped("chr") public int    position;
+}
+```
+
+Serializing a `Gene` instance produces:
+
+```json
+{
+  "name" : "BRCA1",
+  "chr" : {
+    "chromosome" : "17",
+    "position" : 43044295
+  }
+}
+```
+
+Deserialization is also supported: Jackson reads the nested `"chr"` object and maps its fields back to the annotated POJO fields (round-trip).
+
+Note: only scalar/primitive fields may be wrapped — annotating a collection, map, array, or nested POJO will cause a mapping error.
+
+See the [`@JsonWrapped` Javadoc](src/main/java/tools/jackson/databind/annotation/JsonWrapped.java) for the full list of constraints.
+
 ## Tutorial: fancier stuff, conversions
 
 One useful (but not very widely known) feature of Jackson is its ability

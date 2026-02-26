@@ -512,6 +512,17 @@ public abstract class AnnotationIntrospector
     public NameTransformer findUnwrappingNameTransformer(MapperConfig<?> config, AnnotatedMember member) { return null; }
 
     /**
+     * Method for finding the wrapped group name for a member annotated
+     * with {@code @JsonWrapped}. Returns the wrapper object name if the
+     * member should be wrapped, or {@code null} if not.
+     *
+     * @since 3.1
+     */
+    public String findWrappedGroupName(MapperConfig<?> config, AnnotatedMember member) {
+        return null;
+    }
+
+    /**
      * Method called to check whether given property is marked to
      * be ignored. This is used to determine whether to ignore
      * properties, on per-property basis, usually combining

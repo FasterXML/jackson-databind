@@ -43,6 +43,7 @@ public class JacksonAnnotationIntrospector
         JsonTypeInfo.class,
         JsonRawValue.class,
         JsonUnwrapped.class,
+        JsonWrapped.class,
         JsonBackReference.class,
         JsonManagedReference.class
     };
@@ -56,6 +57,7 @@ public class JacksonAnnotationIntrospector
         JsonFormat.class,
         JsonTypeInfo.class,
         JsonUnwrapped.class,
+        JsonWrapped.class,
         JsonBackReference.class,
         JsonManagedReference.class,
         JsonMerge.class
@@ -513,6 +515,15 @@ public class JacksonAnnotationIntrospector
         String prefix = ann.prefix();
         String suffix = ann.suffix();
         return NameTransformer.simpleTransformer(prefix, suffix);
+    }
+
+    @Override
+    public String findWrappedGroupName(MapperConfig<?> config, AnnotatedMember member) {
+        JsonWrapped ann = _findAnnotation(member, JsonWrapped.class);
+        if (ann == null || !ann.enabled()) {
+            return null;
+        }
+        return ann.value();
     }
 
     @Override // since 2.9

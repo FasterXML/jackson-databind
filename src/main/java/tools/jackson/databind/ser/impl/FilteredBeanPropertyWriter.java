@@ -22,6 +22,21 @@ public abstract class FilteredBeanPropertyWriter
         return new MultiView(base, viewsToIncludeIn);
     }
 
+    /**
+     * If {@code writer} is a view-filtered wrapper, returns the underlying delegate.
+     * Otherwise returns {@code writer} unchanged. Used by {@code @JsonWrapped} grouping
+     * to bypass view filtering for inner wrapped properties (MVP limitation).
+     */
+    public static BeanPropertyWriter unwrapDelegate(BeanPropertyWriter writer) {
+        if (writer instanceof SingleView) {
+            return ((SingleView) writer)._delegate;
+        }
+        if (writer instanceof MultiView) {
+            return ((MultiView) writer)._delegate;
+        }
+        return writer;
+    }
+
     /*
     /**********************************************************************
     /* Concrete sub-classes

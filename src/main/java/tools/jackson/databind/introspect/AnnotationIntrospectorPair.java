@@ -260,6 +260,12 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public String findWrappedGroupName(MapperConfig<?> config, AnnotatedMember member) {
+        String r = _primary.findWrappedGroupName(config, member);
+        return (r == null) ? _secondary.findWrappedGroupName(config, member) : r;
+    }
+
+    @Override
     public JacksonInject.Value findInjectableValue(MapperConfig<?> config, AnnotatedMember m) {
         JacksonInject.Value r = _primary.findInjectableValue(config, m);
         if (r == null || r.getUseInput() == null) {

@@ -34,7 +34,8 @@ class ObjectWriterValueToTree5710Test extends DatabindTestUtil
 
     // Direct polymorphic type: valueToTree() should include "@type" property
     @Test
-    void valueToTreeDirectPolymorphicType() throws Exception {
+    void valueToTreeDirectPolymorphicType() throws Exception
+    {
         ObjectWriter writer = MAPPER.writerFor(new TypeReference<Supertype>() {});
         Subtype value = new Subtype();
 
@@ -47,7 +48,8 @@ class ObjectWriterValueToTree5710Test extends DatabindTestUtil
 
     // List-wrapped polymorphic type: valueToTree() should include "@type" in array elements
     @Test
-    void valueToTreeListWrappedPolymorphicType() throws Exception {
+    void valueToTreeListWrappedPolymorphicType() throws Exception
+    {
         ObjectWriter writer = MAPPER.writerFor(new TypeReference<List<Supertype>>() {});
         List<Subtype> value = List.of(new Subtype());
 
@@ -56,16 +58,14 @@ class ObjectWriterValueToTree5710Test extends DatabindTestUtil
         assertTrue(json.contains("\"@type\""), "writeValueAsString() should include '@type': " + json);
 
         // valueToTree() should match writeValueAsString()
-        JsonNode tree = writer.valueToTree(value);
-        JsonNode expected = MAPPER.readTree(json);
-
-        assertEquals(expected, tree,
+        assertEquals(MAPPER.readTree(json), writer.valueToTree(value),
                 "valueToTree() should match writeValueAsString() for List<Supertype>");
     }
 
     // Optional-wrapped polymorphic type: valueToTree() should include "@type" property
     @Test
-    void valueToTreeOptionalWrappedPolymorphicType() throws Exception {
+    void valueToTreeOptionalWrappedPolymorphicType() throws Exception
+    {
         ObjectWriter writer = MAPPER.writerFor(new TypeReference<Optional<Supertype>>() {});
         Optional<Subtype> value = Optional.of(new Subtype());
 
@@ -74,10 +74,7 @@ class ObjectWriterValueToTree5710Test extends DatabindTestUtil
         assertTrue(json.contains("\"@type\""), "writeValueAsString() should include '@type': " + json);
 
         // valueToTree() should match writeValueAsString()
-        JsonNode tree = writer.valueToTree(value);
-        JsonNode expected = MAPPER.readTree(json);
-
-        assertEquals(expected, tree,
+        assertEquals(MAPPER.readTree(json), writer.valueToTree(value),
                 "valueToTree() should match writeValueAsString() for Optional<Supertype>");
     }
 }

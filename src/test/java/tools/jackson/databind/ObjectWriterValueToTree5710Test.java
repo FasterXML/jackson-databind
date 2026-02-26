@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,15 +10,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.*;
+
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#5710]: ObjectWriter.valueToTree() generates incomplete tree model
 // for polymorphic types when wrapped in container/reference types
-class ObjectWriterValueToTree5710Test extends DatabindTestUtil {
-
+class ObjectWriterValueToTree5710Test extends DatabindTestUtil
+{
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")
     @JsonSubTypes({
         @JsonSubTypes.Type(name = "subtype", value = Subtype.class)

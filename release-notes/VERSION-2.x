@@ -10,7 +10,7 @@ Project: jackson-databind
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.1 (not yet released)
+2.21.1 (22-Feb-2026)
 
 #5184: `@JsonIgnore` on record method applied to record matching
   field at deserialization
@@ -239,6 +239,7 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
+2.18.6 (22-Feb-2026)
 2.18.5 (27-Oct-2025)
 
 No changes since 2.18.4

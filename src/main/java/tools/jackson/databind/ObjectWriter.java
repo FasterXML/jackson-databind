@@ -22,6 +22,7 @@ import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.TreeBuildingGenerator;
 import tools.jackson.databind.ser.*;
 import tools.jackson.databind.ser.impl.TypeWrappedSerializer;
 import tools.jackson.databind.type.TypeFactory;
@@ -1186,10 +1187,20 @@ public class ObjectWriter
      *
      * @since 3.0
      */
+    @SuppressWarnings("unchecked")
     public <T extends JsonNode> T valueToTree(Object fromValue)
         throws JacksonException
     {
-        return _serializationContext().valueToTree(fromValue);
+        // 25-Feb-2026, tatu: [databind#5710] Must use _prefetch (same as writeValueAsString())
+        //   so that configured root type info is used, not just runtime type.
+        if (fromValue == null) {
+            return (T) _config.getNodeFactory().nullNode();
+        }
+        final SerializationContextExt ctxt = _serializationContext();
+        final TreeBuildingGenerator gen = TreeBuildingGenerator.forSerialization(ctxt,
+                _config.getNodeFactory());
+        _configAndWriteValue(ctxt, gen, fromValue);
+        return (T) gen.treeBuilt();
     }
 
     /*

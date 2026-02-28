@@ -1067,9 +1067,7 @@ ctor.creator()));
                     // declaration position without re-invoking the annotation introspector.
                     // [databind#5716]
                     final PropertyName placeholder = UnwrappedPropertyHandler.creatorParamName(param.getIndex());
-                    final PropertyName internalName = hasImplicit
-                            ? PropertyName.construct(_checkRenameByField(implName.getSimpleName()))
-                            : placeholder;
+                    final PropertyName internalName = hasImplicit ? implName : placeholder;
                     final POJOPropertyBuilder prop = new POJOPropertyBuilder(_config,
                             _annotationIntrospector, _forSerialization, internalName, placeholder);
                     prop._unwrapped = true;

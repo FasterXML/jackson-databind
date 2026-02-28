@@ -20,6 +20,7 @@ public class RecordUnwrappedOrdering5716Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = JsonMapper.builder()
             .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+            .enable(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST)
             .build();
 
     @JacksonTestFailureExpected

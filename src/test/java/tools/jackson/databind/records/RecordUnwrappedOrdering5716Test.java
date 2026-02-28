@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.records;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,7 +8,6 @@ import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -23,7 +22,6 @@ public class RecordUnwrappedOrdering5716Test extends DatabindTestUtil
             .enable(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST)
             .build();
 
-    @JacksonTestFailureExpected
     @Test
     void unwrappedRecordShouldKeepDeclarationOrder() throws Exception
     {

@@ -78,7 +78,7 @@ public class POJOPropertyBuilder
      * while {@link #_internalName} holds the actual implicit parameter name used
      * for declaration-order sorting.
      *
-     * @since 3.1
+     * @since 3.1.1
      */
     protected boolean _unwrapped;
 

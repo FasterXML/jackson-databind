@@ -15,6 +15,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5710: `ObjectWriter` transforms polymorphic types into a tree incompletely
  (reported by Brandon S)
  (fix by @cowtowncoder, w/ Claude code)
+#5716: `@JsonUnwrapped` properties moved to end in 3.1.0
+ (reported by Viktor S)
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.1.0 (23-Feb-2026)
 

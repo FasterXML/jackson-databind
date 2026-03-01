@@ -76,7 +76,7 @@ public class RecordWithJsonUnwrappedTest extends DatabindTestUtil
         input.a.a = 1;
         input.a.b = 2;
 
-        String      json   = MAPPER.writeValueAsString(input);
+        String json = MAPPER.writeValueAsString(input);
         BarPojo5115 output = MAPPER.readValue(json, BarPojo5115.class);
 
         assertEquals(4, output.c);

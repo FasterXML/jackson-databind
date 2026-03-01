@@ -909,19 +909,12 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
                 continue;
             }
             String wrapperName = intr.findWrappedGroupName(config, member);
-            if (wrapperName == null) {
-                continue;
+            if (wrapperName == null || wrapperName.isEmpty()) {
+                continue;  // not wrapped, or explicitly disabled via @JsonWrapped("")
             }
 
             // Cache the wrapper name for later use
             wrapperNameCache.put(prop, wrapperName);
-
-            // Validate: empty name
-            if (wrapperName.isEmpty()) {
-                ctxt.reportBadTypeDefinition(beanDescRef,
-                    "@JsonWrapped value must not be empty (on property '%s')", prop.getName());
-                continue;
-            }
 
             // Validate: scalar-only
             JavaType type = prop.getType();

@@ -1418,8 +1418,7 @@ public class BeanDeserializer
             p.nextToken();
 
             if (_wrappedPropertyHandler.hasWrapperName(propName)) {
-                _wrappedPropertyHandler.handleWrappedObject(p, ctxt, bean,
-                    propName, _anySetter);
+                _wrappedPropertyHandler.handleWrappedObject(p, ctxt, bean, propName);
                 continue;
             }
 

@@ -74,7 +74,7 @@ public class JsonWrappedSerializationTest extends DatabindTestUtil
     }
 
     static class DisabledWrapping {
-        @JsonWrapped(value = "w", enabled = false)
+        @JsonWrapped("")   // "" = explicitly disabled
         public int x;
 
         public DisabledWrapping() { }
@@ -254,12 +254,12 @@ public class JsonWrappedSerializationTest extends DatabindTestUtil
     }
 
     @Nested
-    @DisplayName("enabled flag tests")
-    class EnabledFlagTests {
+    @DisplayName("disabled wrapping tests")
+    class DisabledWrappingTests {
 
         @Test
-        @DisplayName("should serialize flat when enabled=false")
-        void enabledFalse() throws Exception
+        @DisplayName("should serialize flat when @JsonWrapped(\"\") disables wrapping")
+        void emptyValueDisablesWrapping() throws Exception
         {
             // setup
             DisabledWrapping bean = new DisabledWrapping(42);

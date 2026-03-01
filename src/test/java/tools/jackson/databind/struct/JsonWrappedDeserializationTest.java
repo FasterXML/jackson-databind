@@ -72,7 +72,7 @@ public class JsonWrappedDeserializationTest extends DatabindTestUtil
         public MultiWrapperBean() { }
     }
 
-    private final ObjectMapper MAPPER = JsonMapper.builder().build();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Nested
     @DisplayName("basic deserialization")
@@ -194,7 +194,7 @@ public class JsonWrappedDeserializationTest extends DatabindTestUtil
     class UnknownInnerPropertyTests {
 
         @Test
-        @DisplayName("should collect unknown inner properties when @JsonAnySetter present")
+        @DisplayName("should NOT route unknown inner properties to outer @JsonAnySetter")
         public void testUnknownInnerWithAnySetter() throws Exception
         {
             // setup
@@ -203,10 +203,10 @@ public class JsonWrappedDeserializationTest extends DatabindTestUtil
             // when
             BeanWithAnySetter bean = MAPPER.readValue(json, BeanWithAnySetter.class);
 
-            // then
+            // then: unknown inner props are ignored (not sent to outer anySetter)
             assertThat(bean.symbol).isEqualTo("TP53");
             assertThat(bean.chrId).isEqualTo("17");
-            assertThat(bean.extra.get("extra")).isEqualTo("val");
+            assertThat(bean.extra).isEmpty();
         }
 
         @Test

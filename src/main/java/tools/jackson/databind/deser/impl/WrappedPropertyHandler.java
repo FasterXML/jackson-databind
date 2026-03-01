@@ -4,7 +4,6 @@ import java.util.*;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
-import tools.jackson.databind.deser.SettableAnyProperty;
 import tools.jackson.databind.deser.SettableBeanProperty;
 
 /**
@@ -65,15 +64,13 @@ public class WrappedPropertyHandler implements java.io.Serializable
     /**
      * Deserialize all inner properties from a wrapper object.
      *
-     * @param p         Parser positioned at START_OBJECT of the wrapper
-     * @param ctxt      Deserialization context
-     * @param bean      The target bean being populated
+     * @param p           Parser positioned at START_OBJECT of the wrapper
+     * @param ctxt        Deserialization context
+     * @param bean        The target bean being populated
      * @param wrapperName The wrapper field name (for error messages)
-     * @param anySetter Optional any-setter from the parent bean (may be null)
      */
     public void handleWrappedObject(JsonParser p, DeserializationContext ctxt,
-            Object bean, String wrapperName,
-            /* nullable */ SettableAnyProperty anySetter)
+            Object bean, String wrapperName)
         throws JacksonException
     {
         JsonToken t = p.currentToken();
@@ -91,22 +88,13 @@ public class WrappedPropertyHandler implements java.io.Serializable
             return;
         }
 
-        // Retrieve precomputed inner property lookup
+        // Invariant: caller checked hasWrapperName() so this cannot be null
         Map<String, SettableBeanProperty> innerLookup = _innerLookups.get(wrapperName);
-        if (innerLookup == null) {
-            innerLookup = Collections.emptyMap();
-        }
 
-        // Iterate inner properties
-        while ((t = p.nextToken()) != JsonToken.END_OBJECT) {
-            if (t != JsonToken.PROPERTY_NAME) {
-                ctxt.reportWrongTokenException(bean.getClass(), JsonToken.PROPERTY_NAME,
-                    "Unexpected token inside wrapped object '%s'", wrapperName);
-                return;
-            }
-            String innerName = p.currentName();
-            p.nextToken();  // move to value
-
+        // Iterate inner properties using idiomatic Jackson pattern
+        String innerName;
+        while ((innerName = p.nextName()) != null) {
+            p.nextToken(); // advance to value token
             SettableBeanProperty innerProp = innerLookup.get(innerName);
             if (innerProp != null) {
                 try {
@@ -116,18 +104,14 @@ public class WrappedPropertyHandler implements java.io.Serializable
                             new JacksonException.Reference(bean, innerName));
                 }
             } else {
-                // Unknown inner property
-                if (anySetter != null) {
-                    try {
-                        anySetter.deserializeAndSet(p, ctxt, bean, innerName);
-                    } catch (Exception e) {
-                        throw DatabindException.wrapWithPath(ctxt, e,
-                                new JacksonException.Reference(bean, innerName));
-                    }
-                } else {
-                    handleUnknownInnerProperty(p, ctxt, bean, wrapperName, innerName);
-                }
+                // Unknown inner property: use standard unknown-property handling (NOT outer anySetter)
+                handleUnknownInnerProperty(p, ctxt, bean, wrapperName, innerName);
             }
+        }
+        // Verify we consumed until END_OBJECT for malformed input strictness
+        if (p.currentToken() != JsonToken.END_OBJECT) {
+            ctxt.reportWrongTokenException(bean.getClass(), JsonToken.END_OBJECT,
+                "Expected END_OBJECT after wrapped group '%s'", wrapperName);
         }
     }
 

@@ -262,7 +262,11 @@ public class AnnotationIntrospectorPair
     @Override
     public String findWrappedGroupName(MapperConfig<?> config, AnnotatedMember member) {
         String r = _primary.findWrappedGroupName(config, member);
-        return (r == null) ? _secondary.findWrappedGroupName(config, member) : r;
+        // null = not present → try secondary; "" = explicitly disabled → don't fall through
+        if (r == null) {
+            return _secondary.findWrappedGroupName(config, member);
+        }
+        return r;
     }
 
     @Override

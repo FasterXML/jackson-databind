@@ -41,9 +41,11 @@ import com.fasterxml.jackson.annotation.JacksonAnnotation;
  *
  * <p>Constraints:
  * <ul>
- *   <li>Only scalar and primitive types are supported as wrapped fields
- *       (containers, maps, arrays, and nested POJOs will cause a mapping error).</li>
- *   <li>The wrapper name ({@code value()}) must be non-empty.</li>
+ *   <li>MVP limitation: only scalar and primitive types are currently supported as wrapped
+ *       fields (containers, maps, arrays, and nested POJOs are not yet supported).</li>
+ *   <li>The wrapper name ({@code value()}) must be non-empty, unless explicitly disabling
+ *       wrapping: an empty {@code value()} ({@code @JsonWrapped("")}) disables wrapping —
+ *       useful in mix-ins to suppress wrapping defined in a supertype.</li>
  *   <li>The wrapper name must not conflict with an existing non-wrapped property on the same bean.</li>
  *   <li>Not supported on {@code @JsonCreator} constructor or factory-method parameters.</li>
  *   <li>MVP limitation: {@code @JsonView} on inner wrapped fields is ignored — the wrapper
@@ -64,12 +66,8 @@ import com.fasterxml.jackson.annotation.JacksonAnnotation;
 public @interface JsonWrapped {
     /**
      * Single-level wrapper object name (e.g. "chr").
-     * Must be non-empty.
+     * An empty string disables wrapping (useful in mix-ins to suppress
+     * wrapping defined in a supertype).
      */
     String value();
-
-    /**
-     * Allows conditional disabling of wrapping.
-     */
-    boolean enabled() default true;
 }

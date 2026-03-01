@@ -669,17 +669,14 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
             Set<SettableBeanProperty> wrappedPropSet = new HashSet<>();
             for (SettableBeanProperty prop : allProps) {
                 AnnotatedMember member = prop.getMember();
-                if (member == null) continue;
-                String wrapperName = intr.findWrappedGroupName(ctxt.getConfig(), member);
-                if (wrapperName == null) continue;
-                wrappedPropSet.add(prop);
-
-                // Validate: empty name
-                if (wrapperName.isEmpty()) {
-                    ctxt.reportBadDefinition(handledType(),
-                        String.format("@JsonWrapped value must not be empty (on property '%s')",
-                            prop.getName()));
+                if (member == null) {
+                    continue;
                 }
+                String wrapperName = intr.findWrappedGroupName(ctxt.getConfig(), member);
+                if (wrapperName == null || wrapperName.isEmpty()) {
+                    continue;  // not wrapped, or explicitly disabled via @JsonWrapped("")
+                }
+                wrappedPropSet.add(prop);
 
                 // Validate: creator parameter
                 if ((prop instanceof CreatorProperty) && ((CreatorProperty) prop).getCreatorIndex() >= 0) {

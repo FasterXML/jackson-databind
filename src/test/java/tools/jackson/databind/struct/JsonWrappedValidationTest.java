@@ -10,12 +10,12 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonWrapped;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 public class JsonWrappedValidationTest extends DatabindTestUtil
 {
-    private final ObjectMapper MAPPER = JsonMapper.builder().build();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // -- Inner classes for test beans --
 
@@ -92,16 +92,18 @@ public class JsonWrappedValidationTest extends DatabindTestUtil
     class SerializationValidationTests {
 
         @Test
-        @DisplayName("should throw InvalidDefinitionException when wrapper name is empty")
-        void emptyWrapperName() {
+        @DisplayName("should treat @JsonWrapped(\"\") as disabled (property appears at top level)")
+        void emptyWrapperNameIsDisabled() throws Exception {
             // setup
             EmptyName bean = new EmptyName();
             bean.x = "test";
 
-            // when/then
-            assertThatThrownBy(() -> MAPPER.writeValueAsString(bean))
-                .isInstanceOf(InvalidDefinitionException.class)
-                .hasMessageContaining("must not be empty");
+            // when/then: no exception; wrapping is disabled — property appears at top level
+            String json = MAPPER.writeValueAsString(bean);
+            assertThat(json).isEqualTo("{\"x\":\"test\"}");
+            // deserialization also works flat
+            EmptyName result = MAPPER.readValue("{\"x\":\"round-trip\"}", EmptyName.class);
+            assertThat(result.x).isEqualTo("round-trip");
         }
 
         @Test

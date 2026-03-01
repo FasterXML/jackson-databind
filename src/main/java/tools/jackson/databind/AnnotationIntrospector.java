@@ -513,8 +513,13 @@ public abstract class AnnotationIntrospector
 
     /**
      * Method for finding the wrapped group name for a member annotated
-     * with {@code @JsonWrapped}. Returns the wrapper object name if the
-     * member should be wrapped, or {@code null} if not.
+     * with {@code @JsonWrapped}. Three-value return contract:
+     * <ul>
+     *   <li>{@code null} — annotation not present; secondary introspector may supply a value</li>
+     *   <li>{@code ""} (empty string) — annotation present but explicitly disabled;
+     *       secondary introspector must NOT override</li>
+     *   <li>non-empty string — active wrapper name</li>
+     * </ul>
      *
      * @since 3.1
      */

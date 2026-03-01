@@ -916,15 +916,6 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
             // Cache the wrapper name for later use
             wrapperNameCache.put(prop, wrapperName);
 
-            // Validate: scalar-only
-            JavaType type = prop.getType();
-            if (!_isScalarType(type)) {
-                ctxt.reportBadTypeDefinition(beanDescRef,
-                    "@JsonWrapped is only supported on scalar/primitive types; found %s on property '%s'",
-                    type.toCanonical(), prop.getName());
-                continue;
-            }
-
             if (groups == null) {
                 groups = new LinkedHashMap<>();
             }
@@ -1026,7 +1017,4 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
         return result;
     }
 
-    protected boolean _isScalarType(JavaType type) {
-        return BeanUtil.isScalarType(type);
-    }
 }

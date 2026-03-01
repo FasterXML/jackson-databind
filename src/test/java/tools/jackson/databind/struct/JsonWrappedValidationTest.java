@@ -107,52 +107,65 @@ public class JsonWrappedValidationTest extends DatabindTestUtil
         }
 
         @Test
-        @DisplayName("should throw InvalidDefinitionException when property is a List")
-        void nonScalarList() {
+        @DisplayName("should wrap List field under wrapper name")
+        void nonScalarList() throws Exception {
             // setup
             NonScalarList bean = new NonScalarList();
+            bean.items = java.util.Arrays.asList("a", "b");
 
-            // when/then
-            assertThatThrownBy(() -> MAPPER.writeValueAsString(bean))
-                .isInstanceOf(InvalidDefinitionException.class)
-                .hasMessageContaining("only supported on scalar");
+            // when
+            String json = MAPPER.writeValueAsString(bean);
+
+            // then
+            assertThat(json).isEqualTo("{\"w\":{\"items\":[\"a\",\"b\"]}}");
         }
 
         @Test
-        @DisplayName("should throw InvalidDefinitionException when property is a Map")
-        void nonScalarMap() {
+        @DisplayName("should wrap Map field under wrapper name")
+        void nonScalarMap() throws Exception {
             // setup
             NonScalarMap bean = new NonScalarMap();
+            bean.data = new java.util.LinkedHashMap<>();
+            bean.data.put("k", "v");
 
-            // when/then
-            assertThatThrownBy(() -> MAPPER.writeValueAsString(bean))
-                .isInstanceOf(InvalidDefinitionException.class)
-                .hasMessageContaining("only supported on scalar");
+            // when
+            String json = MAPPER.writeValueAsString(bean);
+
+            // then
+            assertThat(json).isEqualTo("{\"w\":{\"data\":{\"k\":\"v\"}}}");
         }
 
         @Test
-        @DisplayName("should throw InvalidDefinitionException when property is an array")
-        void nonScalarArray() {
+        @DisplayName("should wrap array field under wrapper name")
+        void nonScalarArray() throws Exception {
             // setup
             NonScalarArray bean = new NonScalarArray();
+            bean.items = new String[]{"x", "y"};
 
-            // when/then
-            assertThatThrownBy(() -> MAPPER.writeValueAsString(bean))
-                .isInstanceOf(InvalidDefinitionException.class)
-                .hasMessageContaining("only supported on scalar");
+            // when
+            String json = MAPPER.writeValueAsString(bean);
+
+            // then
+            assertThat(json).isEqualTo("{\"w\":{\"items\":[\"x\",\"y\"]}}");
         }
 
         @Test
-        @DisplayName("should throw InvalidDefinitionException when property is a POJO")
-        void nonScalarPojo() {
+        @DisplayName("should wrap POJO field under wrapper name")
+        void nonScalarPojo() throws Exception {
             // setup
             NonScalarPojo bean = new NonScalarPojo();
             bean.address = new Address();
+            bean.address.street = "Main St";
+            bean.address.city = "NYC";
 
-            // when/then
-            assertThatThrownBy(() -> MAPPER.writeValueAsString(bean))
-                .isInstanceOf(InvalidDefinitionException.class)
-                .hasMessageContaining("only supported on scalar");
+            // when
+            String json = MAPPER.writeValueAsString(bean);
+
+            // then
+            // Field order may vary, so check contains rather than exact match
+            assertThat(json).contains("\"w\":{\"address\":");
+            assertThat(json).contains("\"street\":\"Main St\"");
+            assertThat(json).contains("\"city\":\"NYC\"");
         }
 
         @Test
@@ -191,15 +204,18 @@ public class JsonWrappedValidationTest extends DatabindTestUtil
     class DeserializationValidationTests {
 
         @Test
-        @DisplayName("should throw InvalidDefinitionException when property is a POJO during deserialization")
-        void nonScalarPojoDeser() {
+        @DisplayName("should deserialize POJO field from wrapper object")
+        void nonScalarPojoDeser() throws Exception {
             // setup
             String json = "{\"w\":{\"address\":{\"street\":\"Main St\",\"city\":\"Springfield\"}}}";
 
-            // when/then
-            assertThatThrownBy(() -> MAPPER.readValue(json, NonScalarPojo.class))
-                .isInstanceOf(InvalidDefinitionException.class)
-                .hasMessageContaining("only supported on scalar");
+            // when
+            NonScalarPojo bean = MAPPER.readValue(json, NonScalarPojo.class);
+
+            // then
+            assertThat(bean.address).isNotNull();
+            assertThat(bean.address.street).isEqualTo("Main St");
+            assertThat(bean.address.city).isEqualTo("Springfield");
         }
 
         @Test

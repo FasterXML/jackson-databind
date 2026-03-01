@@ -1,13 +1,8 @@
 package tools.jackson.databind.util;
 
-import java.net.URI;
-import java.net.URL;
-import java.time.temporal.TemporalAccessor;
-import java.time.temporal.TemporalAmount;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -194,38 +189,5 @@ public class BeanUtil
 
     private static boolean isJodaTimeClass(String className) {
         return className.startsWith("org.joda.time.");
-    }
-
-    /*
-    /**********************************************************************
-    /* Type classification helpers
-    /**********************************************************************
-     */
-
-    /**
-     * Returns {@code true} if the given type serializes as a single JSON scalar
-     * value (not as an object or array). Includes: Java primitives and their
-     * wrappers, {@code String}, {@code Number} subtypes, {@code Enum} types, and
-     * common single-value types ({@code java.time.*}, {@code java.util.UUID},
-     * {@code java.net.URI}, {@code java.net.URL}).
-     * Container types, Map types, arrays, and custom POJOs return {@code false}.
-     *
-     * @since 3.1
-     */
-    public static boolean isScalarType(JavaType type) {
-        Class<?> raw = type.getRawClass();
-        if (raw.isPrimitive()) return true;
-        if (raw == Boolean.class || raw == Byte.class || raw == Short.class
-                || raw == Integer.class || raw == Long.class
-                || raw == Float.class || raw == Double.class
-                || raw == Character.class) return true;
-        if (raw == String.class) return true;
-        if (Number.class.isAssignableFrom(raw)) return true;
-        if (type.isEnumType()) return true;
-        if (raw == UUID.class) return true;
-        if (raw == URI.class) return true;
-        if (raw == URL.class) return true;
-        return TemporalAccessor.class.isAssignableFrom(raw)
-                || TemporalAmount.class.isAssignableFrom(raw);
     }
 }

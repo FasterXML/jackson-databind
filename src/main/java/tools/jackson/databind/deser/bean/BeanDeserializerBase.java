@@ -685,15 +685,6 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
                             prop.getName()));
                 }
 
-                // Validate: scalar-only (symmetry with serialization)
-                JavaType type = prop.getType();
-                if (!_isScalarType(type)) {
-                    ctxt.reportBadDefinition(handledType(),
-                        String.format("@JsonWrapped is only supported on scalar/primitive types; "
-                            + "found %s on property '%s'",
-                            type.toCanonical(), prop.getName()));
-                }
-
                 groups.computeIfAbsent(wrapperName, k -> new ArrayList<>()).add(prop);
             }
 
@@ -2066,7 +2057,4 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return ctxt.handleInstantiationProblem(_beanType.getRawClass(), null, t);
     }
 
-    protected boolean _isScalarType(JavaType type) {
-        return BeanUtil.isScalarType(type);
-    }
 }

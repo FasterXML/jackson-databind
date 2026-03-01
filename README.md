@@ -433,7 +433,7 @@ are set via setters or directly using fields.
 
 ### Annotations: wrapping properties
 
-`@JsonWrapped` groups one or more scalar fields into a synthetic nested JSON object — the inverse of `@JsonUnwrapped`.
+`@JsonWrapped` groups one or more fields into a synthetic nested JSON object — the inverse of `@JsonUnwrapped`. Any Jackson-serializable type (scalars, POJOs, collections, maps, arrays) can be used as an inner field.
 
 ```java
 public class Gene {
@@ -458,7 +458,11 @@ Serializing a `Gene` instance produces:
 
 Deserialization is also supported: Jackson reads the nested `"chr"` object and maps its fields back to the annotated POJO fields (round-trip).
 
-Note: only scalar/primitive fields may be wrapped — annotating a collection, map, array, or nested POJO will cause a mapping error.
+Note: non-scalar types (POJOs, collections, maps, arrays) are supported for baseline
+serialization/deserialization. Existing interaction limitations around `@JsonView`,
+`@JsonFilter`, and `@JsonInclude` on inner wrapped fields still apply — see the
+[`@JsonWrapped` Javadoc](src/main/java/tools/jackson/databind/annotation/JsonWrapped.java)
+for the full list of constraints.
 
 See the [`@JsonWrapped` Javadoc](src/main/java/tools/jackson/databind/annotation/JsonWrapped.java) for the full list of constraints.
 

@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 import com.fasterxml.jackson.annotation.JacksonAnnotation;
 
 /**
- * Annotation that groups one or more scalar bean properties into a synthetic
+ * Annotation that groups one or more bean properties into a synthetic
  * nested JSON object during serialization, and extracts them back during
  * deserialization. This is the inverse of {@link com.fasterxml.jackson.annotation.JsonUnwrapped}.
  *
@@ -41,8 +41,11 @@ import com.fasterxml.jackson.annotation.JacksonAnnotation;
  *
  * <p>Constraints:
  * <ul>
- *   <li>MVP limitation: only scalar and primitive types are currently supported as wrapped
- *       fields (containers, maps, arrays, and nested POJOs are not yet supported).</li>
+ *   <li>Non-scalar field types (POJOs, collections, maps, arrays) are supported for
+ *       baseline serialization and deserialization. Each inner field serializes under
+ *       its own name within the wrapper object. Note: existing interaction limitations
+ *       around {@code @JsonView}, {@code @JsonFilter}, and {@code @JsonInclude} on
+ *       inner wrapped fields still apply — see the remaining bullets below.</li>
  *   <li>The wrapper name ({@code value()}) must be non-empty, unless explicitly disabling
  *       wrapping: an empty {@code value()} ({@code @JsonWrapped("")}) disables wrapping —
  *       useful in mix-ins to suppress wrapping defined in a supertype.</li>

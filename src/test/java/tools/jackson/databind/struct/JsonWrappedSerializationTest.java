@@ -143,6 +143,82 @@ public class JsonWrappedSerializationTest extends DatabindTestUtil
         }
     }
 
+    static class City {
+        public String name;
+        public int population;
+
+        public City() { }
+        public City(String name, int population) {
+            this.name = name;
+            this.population = population;
+        }
+    }
+
+    static class BeanWithPojoWrapped {
+        @JsonWrapped("w")
+        public City city;
+
+        public BeanWithPojoWrapped() { }
+        public BeanWithPojoWrapped(City city) { this.city = city; }
+    }
+
+    static class BeanWithListWrapped {
+        @JsonWrapped("w")
+        public java.util.List<String> tags;
+
+        public BeanWithListWrapped() { }
+        public BeanWithListWrapped(java.util.List<String> tags) { this.tags = tags; }
+    }
+
+    static class BeanWithMapWrapped {
+        @JsonWrapped("w")
+        public java.util.Map<String, Integer> counts;
+
+        public BeanWithMapWrapped() { }
+        public BeanWithMapWrapped(java.util.Map<String, Integer> counts) { this.counts = counts; }
+    }
+
+    static class BeanWithArrayWrapped {
+        @JsonWrapped("w")
+        public String[] items;
+
+        public BeanWithArrayWrapped() { }
+        public BeanWithArrayWrapped(String[] items) { this.items = items; }
+    }
+
+    static class BeanWithMixedWrapper {
+        @JsonWrapped("w")
+        public String label;
+
+        @JsonWrapped("w")
+        public City city;
+
+        public BeanWithMixedWrapper() { }
+        public BeanWithMixedWrapper(String label, City city) {
+            this.label = label;
+            this.city = city;
+        }
+    }
+
+    static class InnerWithWrapped {
+        @JsonWrapped("sub")
+        public String x;
+
+        @JsonWrapped("sub")
+        public String y;
+
+        public InnerWithWrapped() { }
+        public InnerWithWrapped(String x, String y) { this.x = x; this.y = y; }
+    }
+
+    static class BeanWithNestedWrapping {
+        @JsonWrapped("outer")
+        public InnerWithWrapped inner;
+
+        public BeanWithNestedWrapping() { }
+        public BeanWithNestedWrapping(InnerWithWrapped inner) { this.inner = inner; }
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -368,6 +444,97 @@ public class JsonWrappedSerializationTest extends DatabindTestUtil
             String jsonWithWrapper = MAPPER.writer(filtersIncludingWrapper).writeValueAsString(bean);
             assertThat(jsonWithWrapper).contains("\"a\":\"1\"");
             assertThat(jsonWithWrapper).contains("\"b\":\"2\"");
+        }
+    }
+
+    @Nested
+    @DisplayName("non-scalar wrapper tests")
+    class NonScalarWrapperTests {
+
+        @Test
+        @DisplayName("should wrap POJO field under wrapper name")
+        void pojoInsideWrapper() throws Exception {
+            BeanWithPojoWrapped bean = new BeanWithPojoWrapped(new City("NYC", 8_000_000));
+
+            String json = MAPPER.writeValueAsString(bean);
+
+            assertThat(json).isEqualTo("{\"w\":{\"city\":{\"name\":\"NYC\",\"population\":8000000}}}");
+        }
+
+        @Test
+        @DisplayName("should wrap null POJO — null field excluded from wrapper")
+        void nullPojoInsideWrapper() throws Exception {
+            BeanWithPojoWrapped bean = new BeanWithPojoWrapped(null);
+
+            String json = MAPPER.writeValueAsString(bean);
+
+            assertThat(json).isEqualTo("{\"w\":{}}");
+        }
+
+        @Test
+        @DisplayName("should wrap List field under wrapper name")
+        void listInsideWrapper() throws Exception {
+            BeanWithListWrapped bean = new BeanWithListWrapped(
+                    java.util.Arrays.asList("java", "jackson"));
+
+            String json = MAPPER.writeValueAsString(bean);
+
+            assertThat(json).isEqualTo("{\"w\":{\"tags\":[\"java\",\"jackson\"]}}");
+        }
+
+        @Test
+        @DisplayName("should wrap empty List as empty array inside wrapper")
+        void emptyListInsideWrapper() throws Exception {
+            BeanWithListWrapped bean = new BeanWithListWrapped(java.util.Collections.emptyList());
+
+            String json = MAPPER.writeValueAsString(bean);
+
+            assertThat(json).isEqualTo("{\"w\":{\"tags\":[]}}");
+        }
+
+        @Test
+        @DisplayName("should wrap Map field under wrapper name")
+        void mapInsideWrapper() throws Exception {
+            java.util.Map<String, Integer> counts = new java.util.LinkedHashMap<>();
+            counts.put("a", 1);
+            counts.put("b", 2);
+            BeanWithMapWrapped bean = new BeanWithMapWrapped(counts);
+
+            String json = MAPPER.writeValueAsString(bean);
+
+            assertThat(json).isEqualTo("{\"w\":{\"counts\":{\"a\":1,\"b\":2}}}");
+        }
+
+        @Test
+        @DisplayName("should wrap array field under wrapper name")
+        void arrayInsideWrapper() throws Exception {
+            BeanWithArrayWrapped bean = new BeanWithArrayWrapped(new String[]{"x", "y"});
+
+            String json = MAPPER.writeValueAsString(bean);
+
+            assertThat(json).isEqualTo("{\"w\":{\"items\":[\"x\",\"y\"]}}");
+        }
+
+        @Test
+        @DisplayName("should group scalar and POJO under same wrapper name")
+        void mixedScalarAndPojoSameWrapper() throws Exception {
+            BeanWithMixedWrapper bean = new BeanWithMixedWrapper("home", new City("NYC", 8_000_000));
+
+            String json = MAPPER.writeValueAsString(bean);
+
+            assertThat(json).contains("\"w\":{");
+            assertThat(json).contains("\"label\":\"home\"");
+            assertThat(json).contains("\"city\":{\"name\":\"NYC\",\"population\":8000000}");
+        }
+
+        @Test
+        @DisplayName("should compose nested @JsonWrapped — POJO inside wrapper that itself has @JsonWrapped fields")
+        void nestedWrapping() throws Exception {
+            BeanWithNestedWrapping bean = new BeanWithNestedWrapping(new InnerWithWrapped("a", "b"));
+
+            String json = MAPPER.writeValueAsString(bean);
+
+            assertThat(json).isEqualTo("{\"outer\":{\"inner\":{\"sub\":{\"x\":\"a\",\"y\":\"b\"}}}}");
         }
     }
 }

@@ -72,6 +72,62 @@ public class JsonWrappedDeserializationTest extends DatabindTestUtil
         public MultiWrapperBean() { }
     }
 
+    static class City {
+        public String name;
+        public int population;
+        public City() { }
+    }
+
+    static class BeanWithPojoWrapped {
+        @JsonWrapped("w")
+        public City city;
+        public BeanWithPojoWrapped() { }
+    }
+
+    static class BeanWithListWrapped {
+        @JsonWrapped("w")
+        public java.util.List<String> tags;
+        public BeanWithListWrapped() { }
+    }
+
+    static class BeanWithMapWrapped {
+        @JsonWrapped("w")
+        public java.util.Map<String, Integer> counts;
+        public BeanWithMapWrapped() { }
+    }
+
+    static class BeanWithArrayWrapped {
+        @JsonWrapped("w")
+        public String[] items;
+        public BeanWithArrayWrapped() { }
+    }
+
+    static class BeanWithMixedWrapper {
+        @JsonWrapped("w")
+        public String label;
+
+        @JsonWrapped("w")
+        public City city;
+
+        public BeanWithMixedWrapper() { }
+    }
+
+    static class InnerWithWrapped {
+        @JsonWrapped("sub")
+        public String x;
+
+        @JsonWrapped("sub")
+        public String y;
+
+        public InnerWithWrapped() { }
+    }
+
+    static class BeanWithNestedWrapping {
+        @JsonWrapped("outer")
+        public InnerWithWrapped inner;
+        public BeanWithNestedWrapping() { }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Nested
@@ -302,6 +358,111 @@ public class JsonWrappedDeserializationTest extends DatabindTestUtil
             assertThat(gene.symbol).isEqualTo("TP53");
             assertThat(gene.chrId).isEqualTo("17");
             assertThat(gene.chrName).isEqualTo("chr17");
+        }
+    }
+
+    @Nested
+    @DisplayName("non-scalar deserialization tests")
+    class NonScalarDeserializationTests {
+
+        @Test
+        @DisplayName("should deserialize POJO field from wrapper object")
+        void pojoInsideWrapper() throws Exception {
+            String json = "{\"w\":{\"city\":{\"name\":\"NYC\",\"population\":8000000}}}";
+
+            BeanWithPojoWrapped bean = MAPPER.readValue(json, BeanWithPojoWrapped.class);
+
+            assertThat(bean.city).isNotNull();
+            assertThat(bean.city.name).isEqualTo("NYC");
+            assertThat(bean.city.population).isEqualTo(8_000_000);
+        }
+
+        @Test
+        @DisplayName("should deserialize null POJO field from wrapper object")
+        void nullPojoInsideWrapper() throws Exception {
+            String json = "{\"w\":{\"city\":null}}";
+
+            BeanWithPojoWrapped bean = MAPPER.readValue(json, BeanWithPojoWrapped.class);
+
+            assertThat(bean.city).isNull();
+        }
+
+        @Test
+        @DisplayName("should deserialize List field from wrapper object")
+        void listInsideWrapper() throws Exception {
+            String json = "{\"w\":{\"tags\":[\"java\",\"jackson\"]}}";
+
+            BeanWithListWrapped bean = MAPPER.readValue(json, BeanWithListWrapped.class);
+
+            assertThat(bean.tags).containsExactly("java", "jackson");
+        }
+
+        @Test
+        @DisplayName("should deserialize Map field from wrapper object")
+        void mapInsideWrapper() throws Exception {
+            String json = "{\"w\":{\"counts\":{\"a\":1,\"b\":2}}}";
+
+            BeanWithMapWrapped bean = MAPPER.readValue(json, BeanWithMapWrapped.class);
+
+            assertThat(bean.counts).containsEntry("a", 1).containsEntry("b", 2);
+        }
+
+        @Test
+        @DisplayName("should deserialize array field from wrapper object")
+        void arrayInsideWrapper() throws Exception {
+            String json = "{\"w\":{\"items\":[\"x\",\"y\"]}}";
+
+            BeanWithArrayWrapped bean = MAPPER.readValue(json, BeanWithArrayWrapped.class);
+
+            assertThat(bean.items).containsExactly("x", "y");
+        }
+
+        @Test
+        @DisplayName("should deserialize mixed scalar and POJO from same wrapper")
+        void mixedScalarAndPojoSameWrapper() throws Exception {
+            String json = "{\"w\":{\"label\":\"home\",\"city\":{\"name\":\"NYC\",\"population\":8000000}}}";
+
+            BeanWithMixedWrapper bean = MAPPER.readValue(json, BeanWithMixedWrapper.class);
+
+            assertThat(bean.label).isEqualTo("home");
+            assertThat(bean.city).isNotNull();
+            assertThat(bean.city.name).isEqualTo("NYC");
+        }
+
+        @Test
+        @DisplayName("should round-trip POJO inside wrapper")
+        void roundTripPojoInsideWrapper() throws Exception {
+            String originalJson = "{\"w\":{\"city\":{\"name\":\"NYC\",\"population\":8000000}}}";
+            BeanWithPojoWrapped bean = MAPPER.readValue(originalJson, BeanWithPojoWrapped.class);
+
+            String roundTripped = MAPPER.writeValueAsString(bean);
+
+            assertThat(roundTripped).isEqualTo(originalJson);
+        }
+
+        @Test
+        @DisplayName("should round-trip List inside wrapper")
+        void roundTripListInsideWrapper() throws Exception {
+            String originalJson = "{\"w\":{\"tags\":[\"java\",\"jackson\"]}}";
+            BeanWithListWrapped bean = MAPPER.readValue(originalJson, BeanWithListWrapped.class);
+
+            String roundTripped = MAPPER.writeValueAsString(bean);
+
+            assertThat(roundTripped).isEqualTo(originalJson);
+        }
+
+        @Test
+        @DisplayName("should compose nested @JsonWrapped — POJO inside wrapper that itself has @JsonWrapped fields")
+        void nestedWrappingRoundTrip() throws Exception {
+            String originalJson = "{\"outer\":{\"inner\":{\"sub\":{\"x\":\"a\",\"y\":\"b\"}}}}";
+            BeanWithNestedWrapping bean = MAPPER.readValue(originalJson, BeanWithNestedWrapping.class);
+
+            assertThat(bean.inner).isNotNull();
+            assertThat(bean.inner.x).isEqualTo("a");
+            assertThat(bean.inner.y).isEqualTo("b");
+
+            String roundTripped = MAPPER.writeValueAsString(bean);
+            assertThat(roundTripped).isEqualTo(originalJson);
         }
     }
 }

@@ -105,7 +105,9 @@ public abstract class BeanDescription
      * pre-computed during property collection for reuse by factory layer.
      * Returns {@code null} when no ignorals are defined.
      */
-    public abstract JsonIgnoreProperties.Value getPropertyIgnorals();
+    public JsonIgnoreProperties.Value getPropertyIgnorals() {
+        return null;
+    }
 
     /**
      * Method for locating all back-reference properties (setters, fields) bean has
@@ -131,8 +133,6 @@ public abstract class BeanDescription
      *<p>
      * Note that no other filtering (regarding visibility or other annotations)
      * is performed
-     *
-     * @since 2.13
      */
     public abstract List<AnnotatedAndMetadata<AnnotatedConstructor, JsonCreator.Mode>> getConstructorsWithMode();
 

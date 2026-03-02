@@ -129,6 +129,13 @@ public class POJOPropertiesCollector
     protected HashSet<String> _ignoredPropertyNames;
 
     /**
+     * Lazily collected class-level property ignorals (including config overrides),
+     * computed during {@link #_collectClassLevelIgnorals()} for reuse by factory
+     * layer so that {@code findPropertyIgnoralByName()} is only called once.
+     */
+    protected JsonIgnoreProperties.Value _propertyIgnorals;
+
+    /**
      * Lazily collected list of members that were annotated to
      * indicate that they represent mutators for deserializer
      * value injection.
@@ -323,6 +330,18 @@ public class POJOPropertiesCollector
             collectAll();
         }
         return _ignoredPropertyNames;
+    }
+
+    /**
+     * Accessor for class-level property ignorals (annotation plus config overrides),
+     * computed once during collection and cached for reuse by the factory layer.
+     * Returns {@code null} when no ignorals are defined.
+     */
+    public JsonIgnoreProperties.Value getPropertyIgnorals() {
+        if (!_collected) {
+            collectAll();
+        }
+        return _propertyIgnorals;
     }
 
     /**
@@ -1539,8 +1558,14 @@ ctor.creator()));
      */
     protected void _collectClassLevelIgnorals()
     {
+        // 01-Mar-2026: Use getDefaultPropertyIgnorals() instead of calling
+        //   findPropertyIgnoralByName() directly so that (a) config-level overrides
+        //   are also included (fixing an asymmetry with the factory layer) and
+        //   (b) the result can be cached in _propertyIgnorals for reuse by factories,
+        //   avoiding a second findPropertyIgnoralByName() call there.
         JsonIgnoreProperties.Value ignorals =
-            _annotationIntrospector.findPropertyIgnoralByName(_config, _classDef);
+            _config.getDefaultPropertyIgnorals(_classDef.getRawType(), _classDef);
+        _propertyIgnorals = ignorals;
         if (ignorals != null) {
             Set<String> ignored = _forSerialization
                     ? ignorals.findIgnoredForSerialization()

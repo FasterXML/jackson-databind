@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.cfg.MapperConfig;
@@ -98,6 +99,13 @@ public abstract class BeanDescription
     public abstract List<BeanPropertyDefinition> findProperties();
 
     public abstract Set<String> getIgnoredPropertyNames();
+
+    /**
+     * Accessor for class-level property ignorals (annotation plus config overrides),
+     * pre-computed during property collection for reuse by factory layer.
+     * Returns {@code null} when no ignorals are defined.
+     */
+    public abstract JsonIgnoreProperties.Value getPropertyIgnorals();
 
     /**
      * Method for locating all back-reference properties (setters, fields) bean has

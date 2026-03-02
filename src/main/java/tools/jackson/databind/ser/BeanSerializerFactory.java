@@ -624,11 +624,9 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
         final Class<?> beanClass = beanDescRef.getBeanClass();
         final AnnotatedClass classInfo = beanDescRef.getClassInfo();
         
-        // 01-May-2016, tatu: Which base type to use here gets tricky, since
-        //   it may often make most sense to use general type for overrides,
-        //   but what we have here may be more specific impl type. But for now
-        //   just use it as is.
-        JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(beanClass, classInfo);
+        // Use cached ignorals from BeanDescription (pre-computed during property
+        // collection) to avoid a redundant findPropertyIgnoralByName() call here.
+        JsonIgnoreProperties.Value ignorals = beanDescRef.get().getPropertyIgnorals();
         Set<String> ignored = null;
         if (ignorals != null) {
             ignored = ignorals.findIgnoredForSerialization();

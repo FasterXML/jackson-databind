@@ -1563,13 +1563,12 @@ ctor.creator()));
         //   are also included (fixing an asymmetry with the factory layer) and
         //   (b) the result can be cached in _propertyIgnorals for reuse by factories,
         //   avoiding a second findPropertyIgnoralByName() call there.
-        JsonIgnoreProperties.Value ignorals =
+        _propertyIgnorals =
             _config.getDefaultPropertyIgnorals(_classDef.getRawType(), _classDef);
-        _propertyIgnorals = ignorals;
-        if (ignorals != null) {
+        if (_propertyIgnorals != null) {
             Set<String> ignored = _forSerialization
-                    ? ignorals.findIgnoredForSerialization()
-                    : ignorals.findIgnoredForDeserialization();
+                    ? _propertyIgnorals.findIgnoredForSerialization()
+                    : _propertyIgnorals.findIgnoredForDeserialization();
             if (_nonNullNonEmpty(ignored)) {
                 if (_ignoredPropertyNames == null) {
                     _ignoredPropertyNames = new HashSet<>(ignored);

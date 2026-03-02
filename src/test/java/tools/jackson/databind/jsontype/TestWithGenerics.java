@@ -344,30 +344,24 @@ public class TestWithGenerics extends DatabindTestUtil
     public void testSimpleTypeCheck1735() throws Exception
     {
         final String NEF_CLASS = Nefarious1735.class.getName();
-        try {
-            MAPPER.readValue(a2q(
-"{'w':{'type':'"+NEF_CLASS+"'}}"),
-                    Wrapper1735.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "could not resolve type id");
-            verifyException(e, "not a subtype");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> MAPPER.readValue(a2q(
+                        "{'w':{'type':'"+NEF_CLASS+"'}}"),
+                        Wrapper1735.class));
+        verifyException(e, "could not resolve type id");
+        verifyException(e, "not a subtype");
     }
 
     // [databind#1735]
     @Test
     public void testNestedTypeCheck1735() throws Exception
     {
-        try {
-            MAPPER.readValue(a2q(
-"{'w':{'type':'java.util.HashMap<java.lang.String,java.lang.String>'}}"),
-                    Wrapper1735.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "could not resolve type id");
-            verifyException(e, "not a subtype");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> MAPPER.readValue(a2q(
+                        "{'w':{'type':'java.util.HashMap<java.lang.String,java.lang.String>'}}"),
+                        Wrapper1735.class));
+        verifyException(e, "could not resolve type id");
+        verifyException(e, "not a subtype");
     }
 
     // [JACKSON-356]

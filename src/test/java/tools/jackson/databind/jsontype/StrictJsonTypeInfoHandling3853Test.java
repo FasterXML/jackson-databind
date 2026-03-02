@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.OptBoolean;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidTypeIdException;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -107,9 +106,9 @@ public class StrictJsonTypeInfoHandling3853Test extends DatabindTestUtil {
     // [databind#3877]
     @Test
     public void testMissingTypeId() throws Exception {
-        final ObjectMapper ENABLED_MAPPER = JsonMapper.builder().enable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
-        final ObjectMapper DISABLED_MAPPER = JsonMapper.builder().disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
-        final ObjectMapper DEFAULT_MAPPER = JsonMapper.builder().build();
+        final ObjectMapper ENABLED_MAPPER = jsonMapperBuilder().enable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
+        final ObjectMapper DISABLED_MAPPER = jsonMapperBuilder().disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
+        final ObjectMapper DEFAULT_MAPPER = jsonMapperBuilder().build();
 
         // super types fail on missing-id no matter what
         verifyFailureMissingTypeId("{}", FalseCommand.class, ENABLED_MAPPER);
@@ -139,9 +138,9 @@ public class StrictJsonTypeInfoHandling3853Test extends DatabindTestUtil {
     // [databind#3877]
     @Test
     public void testSuccessWhenTypeIdIsProvided() throws Exception {
-        final ObjectMapper ENABLED_MAPPER = JsonMapper.builder().enable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
-        final ObjectMapper DISABLED_MAPPER = JsonMapper.builder().disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
-        final ObjectMapper DEFAULT_MAPPER = JsonMapper.builder().build();
+        final ObjectMapper ENABLED_MAPPER = jsonMapperBuilder().enable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
+        final ObjectMapper DISABLED_MAPPER = jsonMapperBuilder().disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
+        final ObjectMapper DEFAULT_MAPPER = jsonMapperBuilder().build();
 
         verifySuccessWithNonNullAndType(a2q("{'@type': 'do-false'}"), FalseCommand.class, ENABLED_MAPPER);
         verifySuccessWithNonNullAndType(a2q("{'@type': 'do-false'}"), FalseCommand.class, DEFAULT_MAPPER);
@@ -172,21 +171,15 @@ public class StrictJsonTypeInfoHandling3853Test extends DatabindTestUtil {
      */
 
     private void verifyInvalidTypeIdWithSuperclassTarget(ObjectMapper om) throws Exception {
-        try {
-            om.readValue("{}", Command.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "missing type id property '@type'");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> om.readValue("{}", Command.class));
+        verifyException(e, "missing type id property '@type'");
     }
 
     private void verifyInvalidTypeIdWithConcreteTarget(ObjectMapper om) throws Exception {
-        try {
-            om.readValue("{}", DoSomethingCommand.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "missing type id property '@type'");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> om.readValue("{}", DoSomethingCommand.class));
+        verifyException(e, "missing type id property '@type'");
     }
 
     private void verifyDeserializationWithConcreteTarget(ObjectMapper om) throws Exception {
@@ -208,11 +201,8 @@ public class StrictJsonTypeInfoHandling3853Test extends DatabindTestUtil {
     }
 
     private void verifyFailureMissingTypeId(String json, Class<?> clazz, ObjectMapper om) throws Exception {
-        try {
-            om.readValue(json, clazz);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "missing type id property '@type'");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> om.readValue(json, clazz));
+        verifyException(e, "missing type id property '@type'");
     }
 }

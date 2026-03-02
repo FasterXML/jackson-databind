@@ -13,7 +13,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#3964] MismatchedInputException, Bean not yet resolved
-class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
+public class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
 {
     /**
      * Fails : Original test
@@ -23,7 +23,7 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
             property = "id",
             scope = Tree.class
     )
-    public static class Tree {
+    static class Tree {
         protected final int id;
         protected List<Fruit> fruits;
 
@@ -51,7 +51,7 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
             property = "id",
             scope = Fruit.class
     )
-    public static class Fruit {
+    static class Fruit {
         protected final int id;
         protected List<Calories> calories;
 
@@ -90,7 +90,7 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
             property = "id",
             scope = Calories.class
     )
-    public static class Calories {
+    static class Calories {
         protected final int id;
         protected Fruit fruit;
 
@@ -120,7 +120,7 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
             property = "id",
             scope = Animal.class
     )
-    public static class Animal {
+    static class Animal {
         public final int id;
         public List<Cat> cats;
 
@@ -136,7 +136,7 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
             property = "id",
             scope = Cat.class
     )
-    public static class Cat {
+    static class Cat {
         public int id;
         public List<Food> foods;
         @JsonBackReference("id")
@@ -154,7 +154,7 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
             property = "id",
             scope = Food.class
     )
-    public static class Food {
+    static class Food {
         public int id;
         public Cat cat;
 
@@ -173,7 +173,7 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
             property = "id",
             scope = Fish.class
     )
-    public static class Fish {
+    static class Fish {
         public int id;
         public List<Squid> squids;
     }
@@ -183,7 +183,7 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
             property = "id",
             scope = Squid.class
     )
-    public static class Squid {
+    static class Squid {
         public int id;
         public List<Shrimp> shrimps;
         @JsonBackReference("id")
@@ -195,19 +195,19 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
             property = "id",
             scope = Shrimp.class
     )
-    public static class Shrimp {
+    static class Shrimp {
         public int id;
         public Squid squid;
     }
 
-    final ObjectMapper MAPPER = jsonMapperBuilder()
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
             .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
     /**
      * Original test: used to fail
      */
     @Test
-    void original() throws Exception {
+    public void testOriginalBackReference() throws Exception {
         String json = "{" +
                 "              \"id\": 1,\n" +
                 "              \"fruits\": [\n" +
@@ -233,7 +233,7 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
      * Lean version that used to fail, and Without getters and setters
      */
     @Test
-    void leanWithoutGetterAndSetters() throws Exception {
+    public void testLeanWithoutGetterAndSetters() throws Exception {
         String json = a2q("{" +
                 "              'id': 1," +
                 "              'cats': [" +
@@ -260,7 +260,7 @@ class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
      * and also without {@link JsonCreator}.
      */
     @Test
-    void leanWithoutGetterAndSettersAndCreator() throws Exception {
+    public void testLeanWithoutGetterSettersOrCreator() throws Exception {
         String json = a2q("{" +
                 "              'id': 1," +
                 "              'squids': [" +

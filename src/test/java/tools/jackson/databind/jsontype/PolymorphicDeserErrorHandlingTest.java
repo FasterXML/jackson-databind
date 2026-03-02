@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.InvalidTypeIdException;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -110,12 +109,9 @@ public class PolymorphicDeserErrorHandlingTest extends DatabindTestUtil
     {
         String json = "{\"type\": \"child2\", \"baz\":\"1\"}"; // JSON for Child2
 
-        try {
-            /*Child1 c =*/ MAPPER.readValue(json, Child1.class); // Deserializing into Child1
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "not subtype of");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> MAPPER.readValue(json, Child1.class)); // Deserializing into Child1
+        verifyException(e, "not subtype of");
     }
 
     // [databind#5016]
@@ -137,19 +133,16 @@ public class PolymorphicDeserErrorHandlingTest extends DatabindTestUtil
     // [databind#5016]: java.lang.Runnable not acceptable as safe base type
     @Test
     public void testBlockingOfRunnable() throws Exception {
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .build();
         AnimalInfo animalInfo = new AnimalInfo();
         animalInfo.thisType = new Dog5016();
         String serialized = mapper.writeValueAsString(animalInfo);
         AnimalInfo newInfo0 = mapper.readValue(serialized, AnimalInfo.class);
         assertEquals(animalInfo.thisType.name, newInfo0.thisType.name);
-        try {
-            mapper.readValue(serialized, RunnableInfo.class);
-            fail("Should not pass");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "Configured `PolymorphicTypeValidator`");
-            verifyException(e, "denies resolution of all subtypes of base type `java.lang.Runnable`");
-        }
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> mapper.readValue(serialized, RunnableInfo.class));
+        verifyException(e, "Configured `PolymorphicTypeValidator`");
+        verifyException(e, "denies resolution of all subtypes of base type `java.lang.Runnable`");
     }
 }

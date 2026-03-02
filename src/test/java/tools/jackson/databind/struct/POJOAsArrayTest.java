@@ -8,7 +8,9 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.introspect.Annotated;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
@@ -18,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class POJOAsArrayTest extends DatabindTestUtil
 {
+    // // // Inner types for basic POJO-as-Array tests
+
     static class PojoAsArrayWrapper
     {
         @JsonFormat(shape=JsonFormat.Shape.ARRAY)
@@ -232,13 +236,295 @@ public class POJOAsArrayTest extends DatabindTestUtil
         }
     }
 
+    // // // Inner types for advanced POJO-as-Array tests (views, creators)
+
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder(alphabetic=true)
+    static class CreatorAsArray
+    {
+        protected int x, y;
+        public int a, b;
+
+        @JsonCreator
+        public CreatorAsArray(@JsonProperty("x") int x, @JsonProperty("y") int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+
+        public int getX() { return x; }
+        public int getY() { return y; }
+    }
+
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder({"a","b","x","y"})
+    static class CreatorAsArrayShuffled
+    {
+        protected int x, y;
+        public int a, b;
+
+        @JsonCreator
+        public CreatorAsArrayShuffled(@JsonProperty("x") int x, @JsonProperty("y") int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+
+        public int getX() { return x; }
+        public int getY() { return y; }
+    }
+
+    static class ViewA { }
+    static class ViewB { }
+
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder(alphabetic=true)
+    static class AsArrayWithView
+    {
+        @JsonView(ViewA.class)
+        public int a;
+        @JsonView(ViewB.class)
+        public int b;
+        public int c;
+    }
+
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder(alphabetic=true)
+    static class AsArrayWithViewAndCreator
+    {
+        @JsonView(ViewA.class)
+        public int a;
+        @JsonView(ViewB.class)
+        public int b;
+        public int c;
+
+        @JsonCreator
+        public AsArrayWithViewAndCreator(@JsonProperty("a") int a,
+                @JsonProperty("b") int b,
+                @JsonProperty("c") int c)
+        {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+        }
+    }
+
+    // // // Inner types for POJO-as-Array with Builder tests
+
+    @JsonDeserialize(builder=SimpleBuilderXY.class)
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder(alphabetic=true)
+    static class ValueClassXY
+    {
+        final int _x, _y;
+
+        protected ValueClassXY(int x, int y) {
+            _x = x+1;
+            _y = y+1;
+        }
+    }
+
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder(alphabetic=true)
+    static class SimpleBuilderXY
+    {
+        public int x, y;
+
+        protected SimpleBuilderXY() { }
+        protected SimpleBuilderXY(int x0, int y0) {
+            x = x0;
+            y = y0;
+        }
+
+        public SimpleBuilderXY withX(int x0) {
+            this.x = x0;
+            return this;
+        }
+
+        public SimpleBuilderXY withY(int y0) {
+            this.y = y0;
+            return this;
+        }
+
+        public ValueClassXY build() {
+            return new ValueClassXY(x, y);
+        }
+    }
+
+    @JsonDeserialize(builder=CreatorBuilder.class)
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder(alphabetic=true)
+    static class CreatorValue
+    {
+        final int a, b, c;
+
+        protected CreatorValue(int a, int b, int c) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+        }
+    }
+
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    static class CreatorBuilder {
+        private final int a, b;
+
+        private int c;
+
+        @JsonCreator
+        public CreatorBuilder(@JsonProperty("a") int a,
+                @JsonProperty("b") int b)
+        {
+            this.a = a;
+            this.b = b;
+        }
+
+        @JsonView(String.class)
+        public CreatorBuilder withC(int v) {
+            c = v;
+            return this;
+        }
+
+        public CreatorValue build() {
+            return new CreatorValue(a, b, c);
+        }
+    }
+
+    // // // Inner types for roundtrip tests
+
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder({"content", "images"})
+    static class MediaItemAsArray
+    {
+        public enum Player { JAVA, FLASH;  }
+        public enum Size { SMALL, LARGE; }
+
+        private List<Photo> _photos;
+        private Content _content;
+
+        public MediaItemAsArray() { }
+
+        protected MediaItemAsArray(Content c)
+        {
+            _content = c;
+        }
+
+        public void addPhoto(Photo p) {
+            if (_photos == null) {
+                _photos = new ArrayList<Photo>();
+            }
+            _photos.add(p);
+        }
+
+        public List<Photo> getImages() { return _photos; }
+        public void setImages(List<Photo> p) { _photos = p; }
+
+        public Content getContent() { return _content; }
+        public void setContent(Content c) { _content = c; }
+
+        @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+        @JsonPropertyOrder({"uri","title","width","height","size"})
+        static class Photo
+        {
+            private String _uri;
+            private String _title;
+            private int _width;
+            private int _height;
+            private Size _size;
+
+            public Photo() {}
+            protected Photo(String uri, String title, int w, int h, Size s)
+            {
+              _uri = uri;
+              _title = title;
+              _width = w;
+              _height = h;
+              _size = s;
+            }
+
+          public String getUri() { return _uri; }
+          public String getTitle() { return _title; }
+          public int getWidth() { return _width; }
+          public int getHeight() { return _height; }
+          public Size getSize() { return _size; }
+
+          public void setUri(String u) { _uri = u; }
+          public void setTitle(String t) { _title = t; }
+          public void setWidth(int w) { _width = w; }
+          public void setHeight(int h) { _height = h; }
+          public void setSize(Size s) { _size = s; }
+        }
+
+        @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+        @JsonPropertyOrder({"uri","title","width","height","format","duration","size","bitrate","persons","player","copyright"})
+        public static class Content
+        {
+            private Player _player;
+            private String _uri;
+            private String _title;
+            private int _width;
+            private int _height;
+            private String _format;
+            private long _duration;
+            private long _size;
+            private int _bitrate;
+            private List<String> _persons;
+            private String _copyright;
+
+            public Content() { }
+
+            public void addPerson(String p) {
+                if (_persons == null) {
+                    _persons = new ArrayList<>();
+                }
+                _persons.add(p);
+            }
+
+            public Player getPlayer() { return _player; }
+            public String getUri() { return _uri; }
+            public String getTitle() { return _title; }
+            public int getWidth() { return _width; }
+            public int getHeight() { return _height; }
+            public String getFormat() { return _format; }
+            public long getDuration() { return _duration; }
+            public long getSize() { return _size; }
+            public int getBitrate() { return _bitrate; }
+            public List<String> getPersons() { return _persons; }
+            public String getCopyright() { return _copyright; }
+
+            public void setPlayer(Player p) { _player = p; }
+            public void setUri(String u) {  _uri = u; }
+            public void setTitle(String t) {  _title = t; }
+            public void setWidth(int w) {  _width = w; }
+            public void setHeight(int h) {  _height = h; }
+            public void setFormat(String f) {  _format = f;  }
+            public void setDuration(long d) {  _duration = d; }
+            public void setSize(long s) {  _size = s; }
+            public void setBitrate(int b) {  _bitrate = b; }
+            public void setPersons(List<String> p) {  _persons = p; }
+            public void setCopyright(String c) {  _copyright = c; }
+        }
+    }
+
+    /*
+    /*****************************************************
+    /* Mapper instances
+    /*****************************************************
+     */
+
+    private final static ObjectMapper MAPPER = newJsonMapper();
+
+    // 06-Jan-2025, tatu: NOTE! need to make sure Default View Inclusion
+    //   is enabled for view tests to work as expected
+    private final static ObjectMapper MAPPER_WITH_VIEWS = jsonMapperBuilder()
+            .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+            .build();
+
     /*
     /*****************************************************
     /* Basic tests
     /*****************************************************
      */
-
-    private final static ObjectMapper MAPPER = newJsonMapper();
 
     /**
      * Test that verifies that property annotation works
@@ -384,6 +670,201 @@ public class POJOAsArrayTest extends DatabindTestUtil
         assertEquals(3, result.y);
     }
 
+    @Test
+    public void testMedaItemRoundtrip() throws Exception
+    {
+        MediaItemAsArray.Content c = new MediaItemAsArray.Content();
+        c.setBitrate(9600);
+        c.setCopyright("none");
+        c.setDuration(360000L);
+        c.setFormat("lzf");
+        c.setHeight(640);
+        c.setSize(128000L);
+        c.setTitle("Amazing Stuff For Something Or Oth\u00CBr!");
+        c.setUri("http://multi.fario.us/index.html");
+        c.setWidth(1400);
+
+        c.addPerson("Joe Sixp\u00e2ck");
+        c.addPerson("Ezekiel");
+        c.addPerson("Sponge-Bob Squarepant\u00DF");
+
+        MediaItemAsArray input = new MediaItemAsArray(c);
+        input.addPhoto(new MediaItemAsArray.Photo());
+        input.addPhoto(new MediaItemAsArray.Photo());
+        input.addPhoto(new MediaItemAsArray.Photo());
+
+        String json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(input);
+
+        MediaItemAsArray output = MAPPER.readValue(new java.io.StringReader(json), MediaItemAsArray.class);
+        assertNotNull(output);
+
+        assertNotNull(output.getImages());
+        assertEquals(input.getImages().size(), output.getImages().size());
+        assertNotNull(output.getContent());
+        assertEquals(input.getContent().getTitle(), output.getContent().getTitle());
+        assertEquals(input.getContent().getUri(), output.getContent().getUri());
+
+        // compare re-serialization as a simple check as well
+        assertEquals(json, MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(output));
+    }
+
+    /*
+    /*****************************************************
+    /* Tests with views and creators
+    /*****************************************************
+     */
+
+    @Test
+    public void testWithView() throws Exception
+    {
+        // Ok, first, ensure that serializer will "black out" filtered properties
+        AsArrayWithView input = new AsArrayWithView();
+        input.a = 1;
+        input.b = 2;
+        input.c = 3;
+        String json = MAPPER_WITH_VIEWS.writerWithView(ViewA.class).writeValueAsString(input);
+        assertEquals("[1,null,3]", json);
+
+        // and then that conversely deserializer does something similar
+        AsArrayWithView result = MAPPER_WITH_VIEWS.readerFor(AsArrayWithView.class).withView(ViewB.class)
+                .readValue("[1,2,3]");
+        // should include 'c' (not view-able) and 'b' (include in ViewB) but not 'a'
+        assertEquals(3, result.c);
+        assertEquals(2, result.b);
+        assertEquals(0, result.a);
+    }
+
+    @Test
+    public void testWithViewAndCreator() throws Exception
+    {
+        AsArrayWithViewAndCreator result = MAPPER_WITH_VIEWS.readerFor(AsArrayWithViewAndCreator.class)
+                .withView(ViewB.class)
+                .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .readValue("[1,2,3]");
+        // should include 'c' (not view-able) and 'b' (include in ViewB) but not 'a'
+        assertEquals(3, result.c);
+        assertEquals(2, result.b);
+        assertEquals(0, result.a);
+    }
+
+    @Test
+    public void testWithCreatorsOrdered() throws Exception
+    {
+        CreatorAsArray input = new CreatorAsArray(3, 4);
+        input.a = 1;
+        input.b = 2;
+
+        // note: Creator properties get sorted ahead of others, hence not [1,2,3,4] but:
+        String json = MAPPER_WITH_VIEWS.writeValueAsString(input);
+        assertEquals("[3,4,1,2]", json);
+
+        // and should get back in proper order, too
+        CreatorAsArray output = MAPPER_WITH_VIEWS.readValue(json, CreatorAsArray.class);
+        assertEquals(1, output.a);
+        assertEquals(2, output.b);
+        assertEquals(3, output.x);
+        assertEquals(4, output.y);
+    }
+
+    // Same as above, but ordering of properties different...
+    @Test
+    public void testWithCreatorsShuffled() throws Exception
+    {
+        CreatorAsArrayShuffled input = new CreatorAsArrayShuffled(3, 4);
+        input.a = 1;
+        input.b = 2;
+
+        // note: explicit ordering overrides implicit creators-first ordering:
+        String json = MAPPER_WITH_VIEWS.writeValueAsString(input);
+        assertEquals("[1,2,3,4]", json);
+
+        // and should get back in proper order, too
+        CreatorAsArrayShuffled output = MAPPER_WITH_VIEWS.readValue(json, CreatorAsArrayShuffled.class);
+        assertEquals(1, output.a);
+        assertEquals(2, output.b);
+        assertEquals(3, output.x);
+        assertEquals(4, output.y);
+    }
+
+    /*
+    /*****************************************************
+    /* Tests with Builder pattern
+    /*****************************************************
+     */
+
+    @Test
+    public void testSimpleBuilder() throws Exception
+    {
+        ValueClassXY value = MAPPER.readValue("[1,2]", ValueClassXY.class);
+        assertEquals(2, value._x);
+        assertEquals(3, value._y);
+    }
+
+    // Won't work, but verify exception
+    @Test
+    public void testBuilderWithUpdate() throws Exception
+    {
+        try {
+            /*value =*/ MAPPER.readerFor(ValueClassXY.class)
+                    .withValueToUpdate(new ValueClassXY(6, 7))
+                    .readValue("[1,2]");
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "Deserialization of");
+            verifyException(e, "by passing existing instance");
+            verifyException(e, "ValueClassXY");
+        }
+    }
+
+    // test to ensure @JsonCreator also works with builder
+    @Test
+    public void testWithCreator() throws Exception
+    {
+        ObjectReader r = MAPPER.readerFor(CreatorValue.class)
+                .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+
+        CreatorValue value = r.readValue("[1,2,3]");
+        assertEquals(1, value.a);
+        assertEquals(2, value.b);
+        assertEquals(3, value.c);
+
+        // and should be ok with partial too?
+        value = r.readValue("[1,2]");
+        assertEquals(1, value.a);
+        assertEquals(2, value.b);
+        assertEquals(0, value.c);
+
+        value = r.readValue("[1]");
+        assertEquals(1, value.a);
+        assertEquals(0, value.b);
+        assertEquals(0, value.c);
+
+        value = r.readValue("[]");
+        assertEquals(0, value.a);
+        assertEquals(0, value.b);
+        assertEquals(0, value.c);
+    }
+
+    @Test
+    public void testWithCreatorAndView() throws Exception
+    {
+        ObjectReader reader = MAPPER_WITH_VIEWS.readerFor(CreatorValue.class);
+
+        CreatorValue value;
+
+        // First including values in view
+        value = reader.withView(String.class).readValue("[1,2,3]");
+        assertEquals(1, value.a);
+        assertEquals(2, value.b);
+        assertEquals(3, value.c);
+
+        // then not including view
+        value = reader.withView(Character.class).readValue("[1,2,3]");
+        assertEquals(1, value.a);
+        assertEquals(2, value.b);
+        assertEquals(0, value.c);
+    }
+
     /*
     /*****************************************************
     /* Failure tests
@@ -440,12 +921,6 @@ public class POJOAsArrayTest extends DatabindTestUtil
         assertEquals(1, result.attributes.size());
     }
 
-    /*
-    /*****************************************************
-    /* Failure tests
-    /*****************************************************
-     */
-
     @Test
     public void testUnknownExtraProp() throws Exception
     {
@@ -468,5 +943,29 @@ public class POJOAsArrayTest extends DatabindTestUtil
         assertEquals(13, v.value.y);
         assertTrue(v.value.complete);
         assertEquals("Foobar", v.value.name);
+    }
+
+    @Test
+    public void testBuilderUnknownExtraProp() throws Exception
+    {
+        String json = "[1, 2, 3, 4]";
+        try {
+            MAPPER.readerFor(ValueClassXY.class)
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue(json);
+            fail("should not pass with extra element");
+        } catch (MismatchedInputException e) {
+            // Looks like we get either "Unexpected JSON values" or "Unexpected JSON value(s)"
+            verifyException(e, "Unexpected JSON value");
+        }
+
+        // but actually fine if skip-unknown set
+        ValueClassXY v = MAPPER.readerFor(ValueClassXY.class)
+                .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .readValue(json);
+        assertNotNull(v);
+        // note: +1 for both so
+        assertEquals(v._x, 2);
+        assertEquals(v._y, 3);
     }
 }

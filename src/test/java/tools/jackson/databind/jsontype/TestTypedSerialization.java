@@ -93,7 +93,7 @@ public class TestTypedSerialization
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /**
      * First things first, let's ensure we can serialize using

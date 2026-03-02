@@ -1999,6 +1999,11 @@ Brandon Schmitt (@BrandonSchmitt)
  * Reported #5616: `ObjectWriter` serializes `Optional`s with subtypes incompletely
   [2.21.1]
 
+Kyrylo Merzlikin (@kirmerzlikin)
+ * Reported #5706: `TokenBuffer` serialization fails when buffer contains integer
+   encoded as String
+  [2.21.1]
+
 Lee Jiwon (@dlwldnjs1009)
  * Contributed #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
   [2.22.0]

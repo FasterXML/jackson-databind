@@ -13,7 +13,6 @@ import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.exc.InvalidNullException;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -87,7 +86,7 @@ public class EnumSetDeserializer5203Test
         SimpleModule module = new SimpleModule();
         module.addDeserializer(MyEnum.class, new EmptyStringToNullDeserializer());
 
-        return JsonMapper.builder()
+        return jsonMapperBuilder()
                 .addModule(module)
                 .changeDefaultNullHandling(n -> JsonSetter.Value.forContentNulls(nullHandling))
                 .build();

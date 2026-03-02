@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import tools.jackson.core.Base64Variants;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.json.JsonFactory;
@@ -28,6 +29,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -37,6 +39,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class NumberSerTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = sharedMapper();
+
+    private final ObjectMapper BINARY_VECTOR_MAPPER = jsonMapperBuilder()
+            .withConfigOverride(float[].class,
+                    c -> c.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.BINARY)))
+            .withConfigOverride(double[].class,
+                    c -> c.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.BINARY)))
+            .build();
 
     private final ObjectMapper NON_EMPTY_MAPPER = jsonMapperBuilder()
             .changeDefaultPropertyInclusion(v -> v.withValueInclusion(JsonInclude.Include.NON_EMPTY))
@@ -138,6 +147,46 @@ public class NumberSerTest extends DatabindTestUtil
 
     static class Bean2519Untyped {
         public Collection<BigDecimal> values = new HashSet<>();
+    }
+
+    // // // Inner types from VectorsAsBinarySerTest
+
+    private final static float[] FLOAT_VECTOR = new float[] { 1.0f, 0.5f, -1.25f };
+    private final static String FLOAT_VECTOR_STR = "[1.0,0.5,-1.25]";
+
+    private final static double[] DOUBLE_VECTOR = new double[] { -1.0, 1.5, 0.0125 };
+    private final static String DOUBLE_VECTOR_STR = "[-1.0,1.5,0.0125]";
+
+    static class BeanWithArrayFloatVector {
+        @JsonFormat(shape = JsonFormat.Shape.NATURAL)
+        public float[] vector;
+
+        protected BeanWithArrayFloatVector() { }
+        public BeanWithArrayFloatVector(float[] v) { vector = v; }
+    }
+
+    static class BeanWithBinaryFloatVector {
+        @JsonFormat(shape = JsonFormat.Shape.BINARY)
+        public float[] vector;
+
+        protected BeanWithBinaryFloatVector() { }
+        public BeanWithBinaryFloatVector(float[] v) { vector = v; }
+    }
+
+    static class BeanWithArrayDoubleVector {
+        @JsonFormat(shape = JsonFormat.Shape.NATURAL)
+        public double[] vector;
+
+        protected BeanWithArrayDoubleVector() { }
+        public BeanWithArrayDoubleVector(double[] v) { vector = v; }
+    }
+
+    static class BeanWithBinaryDoubleVector {
+        @JsonFormat(shape = JsonFormat.Shape.BINARY)
+        public double[] vector;
+
+        protected BeanWithBinaryDoubleVector() { }
+        public BeanWithBinaryDoubleVector(double[] v) { vector = v; }
     }
 
     /*
@@ -388,5 +437,123 @@ public class NumberSerTest extends DatabindTestUtil
     // default locale is en_US
     static DecimalFormat createDecimalFormatForDefaultLocale(final String pattern) {
         return new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.ENGLISH));
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, float[]/double[] as binary vectors [databind#5242]
+    /**********************************************************************
+     */
+
+    @Test
+    public void defaultFloatVectorSerialization() throws Exception {
+        String json = MAPPER.writeValueAsString(FLOAT_VECTOR);
+        assertEquals(FLOAT_VECTOR_STR, json);
+
+        float[] result = MAPPER.readValue(json, float[].class);
+        assertArrayEquals(FLOAT_VECTOR, result);
+    }
+
+    @Test
+    public void asArrayFloatVectorSerialization() throws Exception {
+        final String exp = a2q("{'vector':"+FLOAT_VECTOR_STR+"}");
+        String json = MAPPER.writeValueAsString(new BeanWithArrayFloatVector(FLOAT_VECTOR));
+        assertEquals(exp, json);
+        // And annotation overrides default shape override
+        assertEquals(exp,
+                BINARY_VECTOR_MAPPER.writeValueAsString(new BeanWithArrayFloatVector(FLOAT_VECTOR)));
+
+        BeanWithArrayFloatVector result = MAPPER.readValue(json, BeanWithArrayFloatVector.class);
+        assertArrayEquals(FLOAT_VECTOR, result.vector);
+    }
+
+    @Test
+    public void asBinaryFloatVectorSerializationRoot() throws Exception {
+        String json = BINARY_VECTOR_MAPPER.writeValueAsString(FLOAT_VECTOR);
+        assertEquals(q(base64Encode(asBinary(FLOAT_VECTOR))), json);
+
+        float[] result = BINARY_VECTOR_MAPPER.readValue(json, float[].class);
+        assertArrayEquals(FLOAT_VECTOR, result);
+    }
+
+    @Test
+    public void asBinaryFloatVectorSerializationPOJO() throws Exception {
+        String json = MAPPER.writeValueAsString(new BeanWithBinaryFloatVector(FLOAT_VECTOR));
+        assertEquals(a2q("{'vector':'"+base64Encode(asBinary(FLOAT_VECTOR))+"'}"), json);
+
+        BeanWithArrayFloatVector result = MAPPER.readValue(json, BeanWithArrayFloatVector.class);
+        assertArrayEquals(FLOAT_VECTOR, result.vector);
+    }
+
+    @Test
+    public void defaultDoubleVectorSerialization() throws Exception {
+        String json = MAPPER.writeValueAsString(DOUBLE_VECTOR);
+        assertEquals(DOUBLE_VECTOR_STR, json);
+
+        double[] result = MAPPER.readValue(json, double[].class);
+        assertArrayEquals(DOUBLE_VECTOR, result);
+    }
+
+    @Test
+    public void asArrayDoubleVectorSerialization() throws Exception {
+        String exp = a2q("{'vector':"+DOUBLE_VECTOR_STR+"}");
+        String json = MAPPER.writeValueAsString(new BeanWithArrayDoubleVector(DOUBLE_VECTOR));
+        assertEquals(exp, json);
+        // And annotation overrides default shape override
+        assertEquals(exp,
+                BINARY_VECTOR_MAPPER.writeValueAsString(new BeanWithArrayDoubleVector(DOUBLE_VECTOR)));
+
+        BeanWithArrayDoubleVector result = MAPPER.readValue(json, BeanWithArrayDoubleVector.class);
+        assertArrayEquals(DOUBLE_VECTOR, result.vector);
+    }
+
+    @Test
+    public void asBinaryDoubleVectorSerializationRoot() throws Exception {
+        String json = BINARY_VECTOR_MAPPER.writeValueAsString(DOUBLE_VECTOR);
+        assertEquals(q(base64Encode(asBinary(DOUBLE_VECTOR))), json);
+
+        double[] result = BINARY_VECTOR_MAPPER.readValue(json, double[].class);
+        assertArrayEquals(DOUBLE_VECTOR, result);
+    }
+
+    @Test
+    public void asBinaryDoubleVectorSerializationPOJO() throws Exception {
+        String json = MAPPER.writeValueAsString(new BeanWithBinaryDoubleVector(DOUBLE_VECTOR));
+        assertEquals(a2q("{'vector':'"+base64Encode(asBinary(DOUBLE_VECTOR))+"'}"), json);
+
+        BeanWithBinaryDoubleVector result = MAPPER.readValue(json, BeanWithBinaryDoubleVector.class);
+        assertArrayEquals(DOUBLE_VECTOR, result.vector);
+    }
+
+    private static byte[] asBinary(float[] vector) {
+        byte[] result = new byte[vector.length * 4];
+        for (int i = 0; i < vector.length; i++) {
+            int bits = Float.floatToIntBits(vector[i]);
+            result[i * 4] = (byte) (bits >> 24);
+            result[i * 4 + 1] = (byte) (bits >> 16);
+            result[i * 4 + 2] = (byte) (bits >> 8);
+            result[i * 4 + 3] = (byte) bits;
+        }
+        return result;
+    }
+
+    private static byte[] asBinary(double[] vector) {
+        byte[] result = new byte[vector.length * 8];
+        for (int i = 0; i < vector.length; i++) {
+            long bits = Double.doubleToLongBits(vector[i]);
+            result[i * 8] = (byte) (bits >> 56);
+            result[i * 8 + 1] = (byte) (bits >> 48);
+            result[i * 8 + 2] = (byte) (bits >> 40);
+            result[i * 8 + 3] = (byte) (bits >> 32);
+            result[i * 8 + 4] = (byte) (bits >> 24);
+            result[i * 8 + 5] = (byte) (bits >> 16);
+            result[i * 8 + 6] = (byte) (bits >> 8);
+            result[i * 8 + 7] = (byte) bits;
+        }
+        return result;
+    }
+
+    private String base64Encode(byte[] data) {
+        return Base64Variants.getDefaultVariant().encode(data, false);
     }
 }

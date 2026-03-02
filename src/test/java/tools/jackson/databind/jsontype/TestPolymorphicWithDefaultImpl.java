@@ -222,7 +222,7 @@ public class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testDeserializationWithObject() throws Exception
@@ -343,12 +343,9 @@ public class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
     {
         ObjectReader r = MAPPER.readerFor(AsPropertyWrapper.class)
                 .without(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-        try {
-            r.readValue("{ \"value\": \"\" }");
-            fail("Expected InvalidTypeIdException");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "missing type id property 'type'");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> r.readValue("{ \"value\": \"\" }"));
+        verifyException(e, "missing type id property 'type'");
     }
 
     // [databind#1533]
@@ -408,12 +405,9 @@ public class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
         final String JSON = "{\"a\":123}";
 
         // first: without registration etc, epic fail:
-        try {
-            MAPPER.readValue(JSON, SuperTypeWithoutDefault.class);
-            fail("Expected an exception");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "missing type id property '#type'");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> MAPPER.readValue(JSON, SuperTypeWithoutDefault.class));
+        verifyException(e, "missing type id property '#type'");
 
         // but then succeed when we register default impl
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());

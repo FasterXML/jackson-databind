@@ -14,7 +14,6 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.InvalidNullException;
-import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -126,38 +125,32 @@ public class EnumAltIdTest
     /**********************************************************
      */
 
-    protected final ObjectMapper MAPPER = new ObjectMapper();
-    protected final ObjectMapper MAPPER_IGNORE_CASE = jsonMapperBuilder()
+    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER_IGNORE_CASE = jsonMapperBuilder()
             .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
             .build();
 
-    protected final ObjectReader READER_DEFAULT = MAPPER.reader();
-    protected final ObjectReader READER_IGNORE_CASE = MAPPER_IGNORE_CASE.reader();
+    private final ObjectReader READER_DEFAULT = MAPPER.reader();
+    private final ObjectReader READER_IGNORE_CASE = MAPPER_IGNORE_CASE.reader();
 
     // Tests for [databind#1313], case-insensitive
 
     @Test
     public void testFailWhenCaseSensitiveAndNameIsNotUpperCase() throws IOException {
-        try {
-            READER_DEFAULT.forType(TestEnum.class).readValue("\"Jackson\"");
-            fail("InvalidFormatException expected");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "not one of the values accepted for Enum class");
-            verifyException(e, "[JACKSON, OK, RULES]");
-        }
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> READER_DEFAULT.forType(TestEnum.class).readValue("\"Jackson\""));
+        verifyException(e, "not one of the values accepted for Enum class");
+        verifyException(e, "[JACKSON, OK, RULES]");
     }
 
     @Test
     public void testFailWhenCaseSensitiveAndToStringIsUpperCase() throws IOException {
         ObjectReader r = READER_DEFAULT.forType(LowerCaseEnum.class)
                 .with(EnumFeature.READ_ENUMS_USING_TO_STRING);
-        try {
-            r.readValue("\"A\"");
-            fail("InvalidFormatException expected");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "not one of the values accepted for Enum class");
-            verifyException(e,"[a, b, c]");
-        }
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> r.readValue("\"A\""));
+        verifyException(e, "not one of the values accepted for Enum class");
+        verifyException(e,"[a, b, c]");
     }
 
     @Test
@@ -214,14 +207,10 @@ public class EnumAltIdTest
         assertEquals(TestEnum.OK, pojo.value);
 
         // including disabling acceptance
-        try {
-            READER_DEFAULT.forType(StrictCaseBean.class)
-                    .readValue(JSON);
-            fail("Should not pass");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "not one of the values accepted for Enum class");
-            verifyException(e, "[JACKSON, OK, RULES]");
-        }
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> READER_DEFAULT.forType(StrictCaseBean.class).readValue(JSON));
+        verifyException(e, "not one of the values accepted for Enum class");
+        verifyException(e, "[JACKSON, OK, RULES]");
     }
 
     /*
@@ -284,14 +273,10 @@ public class EnumAltIdTest
           .readValue(JSON);
         assertEquals(MyEnum2352_3.B, pojo.value);
         // including disabling acceptance
-        try {
-            READER_DEFAULT.forType(StrictCaseBean.class)
-              .readValue(JSON);
-            fail("Should not pass");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "not one of the values accepted for Enum class");
-            verifyException(e, "[JACKSON, OK, RULES]");
-        }
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> READER_DEFAULT.forType(StrictCaseBean.class).readValue(JSON));
+        verifyException(e, "not one of the values accepted for Enum class");
+        verifyException(e, "[JACKSON, OK, RULES]");
     }
 
     @Test
@@ -302,14 +287,10 @@ public class EnumAltIdTest
           .readValue(JSON);
         assertNull(pojo.value);
         // including disabling acceptance
-        try {
-            READER_DEFAULT.forType(StrictCaseBean.class)
-              .readValue(JSON);
-            fail("Should not pass");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "not one of the values accepted for Enum class");
-            verifyException(e, "[JACKSON, OK, RULES]");
-        }
+        InvalidFormatException e2 = assertThrows(InvalidFormatException.class,
+                () -> READER_DEFAULT.forType(StrictCaseBean.class).readValue(JSON));
+        verifyException(e2, "not one of the values accepted for Enum class");
+        verifyException(e2, "[JACKSON, OK, RULES]");
     }
 
     @Test
@@ -327,12 +308,9 @@ public class EnumAltIdTest
         final String JSON = a2q("{'value':['ok','B']}");
 
         // 05-Nov-2025, tatu: With 2.x, default was to skip nulls; with 3.x, FAIL
-        try {
-            /*NullEnumSetBean pojo =*/ READER_DEFAULT.forType(NullEnumSetBean.class)
-            .readValue(JSON);
-        } catch (InvalidNullException jex) {
-            verifyException(jex, "Invalid `null` value encountered");
-        }
+        InvalidNullException e = assertThrows(InvalidNullException.class,
+                () -> READER_DEFAULT.forType(NullEnumSetBean.class).readValue(JSON));
+        verifyException(e, "Invalid `null` value encountered");
     }
 
     /**
@@ -346,20 +324,17 @@ public class EnumAltIdTest
 
         // First, global configuration is ENABLED and JsonFeature configuration is DISABLED
         // So the test should fail
-        try {
-            JsonMapper.builder()
-                .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
-                .build()
-                .readValue(UNKNOWN_JSON, SpeedWithoutDefaultOverride.class);
-            fail();
-        } catch (InvalidFormatException e) {
-            verifyException(e, "Cannot deserialize value of type");
-            verifyException(e, "not one of the values accepted for Enum class");
-        }
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> jsonMapperBuilder()
+                    .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                    .build()
+                    .readValue(UNKNOWN_JSON, SpeedWithoutDefaultOverride.class));
+        verifyException(e, "Cannot deserialize value of type");
+        verifyException(e, "not one of the values accepted for Enum class");
 
         // Second, global configuration is DISABLED and JsonFeature configuration is ENABLED
         // So the test should pass
-        SpeedWithDefaultOverride pojo = JsonMapper.builder()
+        SpeedWithDefaultOverride pojo = jsonMapperBuilder()
             .disable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
             .build()
             .readValue(UNKNOWN_JSON, SpeedWithDefaultOverride.class);
@@ -377,14 +352,11 @@ public class EnumAltIdTest
     @Test
     public void testDefaultFromNullOverride4481() throws Exception
     {
-        try {
-            Book4481 book = MAPPER.readerFor(Book4481.class)
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readerFor(Book4481.class)
                     .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
-                    .readValue("{\"color\":\"WHITE\"}");
-            fail("Should have failed; got: "+book.color);
-        } catch (InvalidFormatException e) {
-            verifyException(e, "Cannot deserialize value of type ");
-            verifyException(e, "not one of the values accepted for Enum class");
-        }
+                    .readValue("{\"color\":\"WHITE\"}"));
+        verifyException(e, "Cannot deserialize value of type ");
+        verifyException(e, "not one of the values accepted for Enum class");
     }
 }

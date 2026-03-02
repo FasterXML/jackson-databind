@@ -13,6 +13,7 @@ import tools.jackson.databind.cfg.HandlerInstantiator;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.RecordUtil;
 
 /**
@@ -1058,13 +1059,20 @@ ctor.creator()));
 
             // First: check "Unwrapped" unless explicit name
             if (!hasExplicit) {
-                var unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(_config, param);
+                NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(_config, param);
                 if (unwrapper != null) {
-                    // If unwrapping, can use regardless of name; we will use a placeholder name
-                    // anyway to try to avoid name conflicts.
-                    PropertyName name = UnwrappedPropertyHandler.creatorParamName(param.getIndex());
-                    final POJOPropertyBuilder prop = _property(props, name);
-                    prop.addCtor(param, name, false, true, false);
+                    // If unwrapping, use a placeholder name to avoid name conflicts during
+                    // deserialization. Store the (possibly field-renamed) implicit name as
+                    // the internal name so _sortProperties() can place this property at its
+                    // declaration position without re-invoking the annotation introspector.
+                    // [databind#5716]
+                    final PropertyName placeholder = UnwrappedPropertyHandler.creatorParamName(param.getIndex());
+                    final PropertyName internalName = hasImplicit ? implName : placeholder;
+                    final POJOPropertyBuilder prop = new POJOPropertyBuilder(_config,
+                            _annotationIntrospector, _forSerialization, internalName, placeholder);
+                    prop._unwrapped = true;
+                    props.put(placeholder.getSimpleName(), prop);
+                    prop.addCtor(param, placeholder, false, true, false);
                     creatorProps.add(prop);
                     continue;
                 }
@@ -1821,6 +1829,17 @@ ctor.creator()));
                 // 16-Jan-2016, tatu: Related to [databind#1317], make sure not to accidentally
                 //    add back pruned creator properties!
 
+                // [databind#5716]: @JsonUnwrapped creator params use a placeholder name to avoid
+                // name conflicts during deserialization. The actual getter property name is stored
+                // as internalName in _addCreatorParams(), so use it here for correct ordering.
+                if (prop.isUnwrapped()) {
+                    String internalName = prop.getInternalName();
+                    POJOPropertyBuilder pb = all.get(internalName);
+                    if (pb != null) {
+                        ordered.put(internalName, pb);
+                        continue;
+                    }
+                }
                 String name = prop.getName();
                 // 27-Nov-2019, tatu: Not sure why, but we should NOT remove it from `all` tho:
 //                if (all.remove(name) != null) {

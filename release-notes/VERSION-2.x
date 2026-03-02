@@ -10,7 +10,7 @@ Project: jackson-databind
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.1 (not yet released)
+2.21.1 (22-Feb-2026)
 
 #5184: `@JsonIgnore` on record method applied to record matching
   field at deserialization
@@ -22,6 +22,9 @@ Project: jackson-databind
 #5624: dup of #5184 (see above)
 #5674: Fix NPE when deserializing `Throwable` with `null` "stackTrace"
  (fix by @pjfanning)
+#5706: `TokenBuffer` serialization fails when buffer contains integer
+  encoded as String
+ (reported by Kyrylo M)
 
 2.21.0 (18-Jan-2026)
 
@@ -236,6 +239,7 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
+2.18.6 (22-Feb-2026)
 2.18.5 (27-Oct-2025)
 
 No changes since 2.18.4

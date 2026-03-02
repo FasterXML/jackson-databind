@@ -68,14 +68,14 @@ public class TestAnnotationMerging extends DatabindTestUtil
     @Test
     public void testSharedNames() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         assertEquals("{\"x\":6}", mapper.writeValueAsString(new SharedName(6)));
     }
 
     @Test
     public void testSharedNamesFromGetterToSetter() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         String json = mapper.writeValueAsString(new SharedName2());
         assertEquals("{\"x\":1}", json);
         SharedName2 result = mapper.readValue(json, SharedName2.class);

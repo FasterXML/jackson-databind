@@ -162,6 +162,9 @@ Konstantin Labun (@kulabun)
 Oliver Drotbohm (@odrotbohm)
  * Requested #1196: Add opt-in error collection for deserialization
   [3.1.0]
+ * Requested #3591: Ignored fields not consistently exposed via
+  `BeanDescription.getIgnoredPropertyNames()`
+  [3.2.0]
 
 @sri-adarsh-kumar
  * Contributed #1196: Add opt-in error collection for deserialization

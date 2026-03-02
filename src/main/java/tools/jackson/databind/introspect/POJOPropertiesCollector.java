@@ -1534,11 +1534,11 @@ ctor.creator()));
      * ignorals into {@code _ignoredPropertyNames}, so that
      * {@link #getIgnoredPropertyNames()} returns all ignored names regardless
      * of source.
+     *
+     * @since 3.2
      */
-    protected void _collectClassLevelIgnorals() {
-        if (_annotationIntrospector == null) {
-            return;
-        }
+    protected void _collectClassLevelIgnorals()
+    {
         JsonIgnoreProperties.Value ignorals =
             _annotationIntrospector.findPropertyIgnoralByName(_config, _classDef);
         if (ignorals != null) {
@@ -1547,9 +1547,10 @@ ctor.creator()));
                     : ignorals.findIgnoredForDeserialization();
             if (ignored != null && !ignored.isEmpty()) {
                 if (_ignoredPropertyNames == null) {
-                    _ignoredPropertyNames = new HashSet<>();
+                    _ignoredPropertyNames = new HashSet<>(ignored);
+                } else {
+                    _ignoredPropertyNames.addAll(ignored);
                 }
-                _ignoredPropertyNames.addAll(ignored);
             }
         }
     }

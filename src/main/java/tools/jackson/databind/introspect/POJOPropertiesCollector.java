@@ -122,16 +122,24 @@ public class POJOPropertiesCollector
     protected LinkedList<AnnotatedMember> _jsonValueAccessors;
 
     /**
-     * Lazily collected list of properties that are explicitly ignored,
-     * including both per-property markers ({@code @JsonIgnore}) and
-     * class-level {@code @JsonIgnoreProperties} annotation.
+     * Lazily collected set of properties that are explicitly ignored, combining
+     * both per-property markers ({@code @JsonIgnore}, via {@link #_collectIgnorals})
+     * and direction-specific names derived from class-level
+     * {@code @JsonIgnoreProperties} (via {@link #_collectClassLevelIgnorals}).
+     *<p>
+     * Kept as a mutable set because {@link #_renameProperties} may remove entries
+     * (when a creator property is renamed to a previously-ignored name).
+     * {@link #_propertyIgnorals} holds the immutable class-level value in parallel.
      */
     protected HashSet<String> _ignoredPropertyNames;
 
     /**
-     * Lazily collected class-level property ignorals (including config overrides),
-     * computed during {@link #_collectClassLevelIgnorals()} for reuse by factory
-     * layer so that {@code findPropertyIgnoralByName()} is only called once.
+     * Class-level ignorals (annotation plus config overrides), computed once during
+     * {@link #_collectClassLevelIgnorals()} and exposed to the factory layer via
+     * {@link #getPropertyIgnorals()} so that {@code findPropertyIgnoralByName()} is
+     * called exactly once per type.  The direction-specific property names it contains
+     * are also copied into {@link #_ignoredPropertyNames} for internal use by
+     * {@link #_renameProperties}.
      */
     protected JsonIgnoreProperties.Value _propertyIgnorals;
 
@@ -1534,9 +1542,10 @@ ctor.creator()));
     }
 
     /**
-     * Helper method called to add explicitly ignored properties to a list
-     * of known ignored properties; this helps in proper reporting of
-     * errors.
+     * Helper method called to record a per-property ignoral (from {@code @JsonIgnore}
+     * or read/write-only rules) into {@link #_ignoredPropertyNames}.
+     * Used by {@link #_renameProperties} to skip renaming ignored properties, and
+     * surfaced externally via {@link #getIgnoredPropertyNames()}.
      */
     protected void _collectIgnorals(String name)
     {
@@ -1549,20 +1558,20 @@ ctor.creator()));
     }
 
     /**
-     * Helper method called to collect class-level {@code @JsonIgnoreProperties}
-     * ignorals into {@code _ignoredPropertyNames}, so that
-     * {@link #getIgnoredPropertyNames()} returns all ignored names regardless
-     * of source.
+     * Helper method called to collect class-level property ignorals: stores the
+     * full {@link JsonIgnoreProperties.Value} (annotation + config overrides) in
+     * {@link #_propertyIgnorals} for reuse by the factory layer, and copies the
+     * direction-specific property names into {@link #_ignoredPropertyNames} so
+     * that {@link #_renameProperties} can skip them.
+     *<p>
+     * Uses {@link MapperConfig#getDefaultPropertyIgnorals} rather than calling
+     * {@code findPropertyIgnoralByName()} directly, so that config-level overrides
+     * are included and consistent with what the factory layer sees.
      *
      * @since 3.2
      */
     protected void _collectClassLevelIgnorals()
     {
-        // 01-Mar-2026: Use getDefaultPropertyIgnorals() instead of calling
-        //   findPropertyIgnoralByName() directly so that (a) config-level overrides
-        //   are also included (fixing an asymmetry with the factory layer) and
-        //   (b) the result can be cached in _propertyIgnorals for reuse by factories,
-        //   avoiding a second findPropertyIgnoralByName() call there.
         _propertyIgnorals =
             _config.getDefaultPropertyIgnorals(_classDef.getRawType(), _classDef);
         if (_propertyIgnorals != null) {

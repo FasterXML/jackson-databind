@@ -615,17 +615,16 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
      */
 
     /**
-     * Overridable method that can filter out properties. Default implementation
-     * checks annotations class may have.
+     * Overridable method that filters out properties based on class-level
+     * {@code @JsonIgnoreProperties} / config overrides and {@code @JsonIncludeProperties}.
+     * Ignorals are read from the pre-computed {@link BeanDescription#getPropertyIgnorals()}
+     * rather than re-introspecting the class annotation.
      */
     protected List<BeanPropertyWriter> filterBeanProperties(SerializationConfig config,
             BeanDescription.Supplier beanDescRef, List<BeanPropertyWriter> props)
     {
         final Class<?> beanClass = beanDescRef.getBeanClass();
         final AnnotatedClass classInfo = beanDescRef.getClassInfo();
-        
-        // Use cached ignorals from BeanDescription (pre-computed during property
-        // collection) to avoid a redundant findPropertyIgnoralByName() call here.
         JsonIgnoreProperties.Value ignorals = beanDescRef.get().getPropertyIgnorals();
         Set<String> ignored = null;
         if (ignorals != null) {

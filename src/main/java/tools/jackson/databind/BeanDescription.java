@@ -98,12 +98,23 @@ public abstract class BeanDescription
      */
     public abstract List<BeanPropertyDefinition> findProperties();
 
+    /**
+     * Returns the combined set of property names that are marked to be ignored,
+     * from both per-property {@code @JsonIgnore} markers and class-level
+     * {@code @JsonIgnoreProperties} (annotation and config overrides).
+     * Note that the set is direction-specific: a name may appear for serialization
+     * but not deserialization, depending on the annotation attributes.
+     */
     public abstract Set<String> getIgnoredPropertyNames();
 
     /**
-     * Accessor for class-level property ignorals (annotation plus config overrides),
-     * pre-computed during property collection for reuse by factory layer.
-     * Returns {@code null} when no ignorals are defined.
+     * Returns the class-level property ignorals value (annotation plus config overrides),
+     * pre-computed during property collection.  Preferred over re-calling
+     * {@code findPropertyIgnoralByName()} in factory code since the result is cached.
+     * Returns {@code null} when neither annotation nor config override defines any ignorals.
+     *<p>
+     * Note: per-property {@code @JsonIgnore} names are NOT included here; see
+     * {@link #getIgnoredPropertyNames()} for the full combined set.
      */
     public JsonIgnoreProperties.Value getPropertyIgnorals() {
         return null;

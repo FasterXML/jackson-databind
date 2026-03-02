@@ -4,7 +4,12 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
+import tools.jackson.databind.jsontype.TypeResolverBuilder;
+import tools.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -120,5 +125,51 @@ public class RecursiveTypeTest extends DatabindTestUtil
         // baseTypeFromSub should be a ResolvedRecursiveType in this test
         JavaType baseTypeFromSub = subType.getSuperClass();
         assertNotNull(baseTypeFromSub.getSuperClass());
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests: recursive type with default typing [databind#1658]
+    /**********************************************************
+     */
+
+    @SuppressWarnings("serial")
+    static class Tree1658<T> extends HashMap<T, Tree1658<T>>
+    {
+        public Tree1658() { }
+
+        public Tree1658(List<T> children) {
+            this();
+            for (final T t : children) {
+                this.put(t, new Tree1658<T>());
+            }
+        }
+
+        public List<Tree1658<T>> getLeafTrees() {
+            return null;
+        }
+    }
+
+    // [databind#1658]
+    @Test
+    public void testRecursive1658() throws Exception
+    {
+        Tree1658<String> t = new Tree1658<String>(Arrays.asList("hello", "world"));
+        final TypeResolverBuilder<?> typer = new StdTypeResolverBuilder(JsonTypeInfo.Id.CLASS,
+                JsonTypeInfo.As.PROPERTY, null);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .setDefaultTyping(typer)
+                .build();
+        String res = mapper.writeValueAsString(t);
+        Tree1658<?> tRead = mapper.readValue(res, Tree1658.class);
+        assertNotNull(tRead);
+
+        // 30-Oct-2019, tatu: Let's actually verify that description will be safe to use, too
+        JavaType resolved = mapper.getTypeFactory()
+                .constructType(new TypeReference<Tree1658<String>> () { });
+        final String namePath = Tree1658.class.getName().replace('.', '/');
+        assertEquals("L"+namePath+";", resolved.getErasedSignature());
+        assertEquals("L"+namePath+"<Ljava/lang/String;L"+namePath+";>;",
+                resolved.getGenericSignature());
     }
 }

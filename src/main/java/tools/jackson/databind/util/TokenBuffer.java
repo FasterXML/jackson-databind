@@ -498,6 +498,9 @@ public class TokenBuffer
                         gen.writeNumber(l);
                     } else if (n instanceof Short s) {
                         gen.writeNumber(s);
+                    } else if (n instanceof String str) {
+                        // [databind#5706]
+                        gen.writeNumber(str); 
                     } else {
                         gen.writeNumber(((Number) n).intValue());
                     }
@@ -514,8 +517,8 @@ public class TokenBuffer
                         gen.writeNumber(f);
                     } else if (n == null) {
                         gen.writeNull();
-                    } else if (n instanceof String s) {
-                        gen.writeNumber(s);
+                    } else if (n instanceof String str) {
+                        gen.writeNumber(str);
                     } else {
                         throw new StreamWriteException(gen, String.format(
                                 "Unrecognized value type for VALUE_NUMBER_FLOAT: %s, cannot serialize",

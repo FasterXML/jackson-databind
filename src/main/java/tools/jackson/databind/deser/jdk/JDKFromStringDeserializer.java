@@ -15,7 +15,6 @@ import tools.jackson.core.*;
 import tools.jackson.core.util.VersionUtil;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.std.FromStringDeserializer;
-import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.ClassUtil;
 
@@ -166,7 +165,7 @@ public class JDKFromStringDeserializer
         case STD_URI:
             return URI.create(value);
         case STD_PATH:
-            // 06-Sep-2018, tatu: Offlined due to additions in [databind#2120]
+            // 06-Sep-2018, tatu: Off-lined due to additions in [databind#2120]
             return NioPathHelper.deserialize(ctxt, value);
         case STD_CLASS:
             try {
@@ -206,9 +205,8 @@ public class JDKFromStringDeserializer
 
                 int i = value.lastIndexOf(']');
                 if (i == -1) {
-                    throw new InvalidFormatException(ctxt.getParser(),
-                            "Bracketed IPv6 address must contain closing bracket",
-                            value, InetSocketAddress.class);
+                    return ctxt.handleWeirdStringValue(_valueClass, value,
+                            "Bracketed IPv6 address must contain closing bracket");
                 }
 
                 int j = value.indexOf(':', i);
@@ -345,28 +343,19 @@ public class JDKFromStringDeserializer
     }
 
     private static class NioPathHelper {
-        private static final boolean areWindowsFilePathsSupported;
-        static {
-            boolean isWindowsRootFound = false;
-            for (File file : File.listRoots()) {
-                String path = file.getPath();
-                if (path.length() >= 2 && Character.isLetter(path.charAt(0)) && path.charAt(1) == ':') {
-                    isWindowsRootFound = true;
-                    break;
-                }
-            }
-            areWindowsFilePathsSupported = isWindowsRootFound;
-        }
 
         public static Path deserialize(DeserializationContext ctxt, String value) throws JacksonException {
-            // If someone gives us an input with no : at all, treat as local path, instead of failing
-            // with invalid URI.
-            if (value.indexOf(':') < 0) {
+            // If someone gives us an input with no : at all, treat as local path,
+            // instead of failing with invalid URI.
+
+            int colonIx = value.indexOf(':');
+            if (colonIx < 0) {
                 return Paths.get(value);
             }
 
-            if (areWindowsFilePathsSupported) {
-                if (value.length() >= 2 && Character.isLetter(value.charAt(0)) && value.charAt(1) == ':') {
+            // Does it look Windows driver prefix (like "C:")?
+            if ((colonIx == 1) && Character.isLetter(value.charAt(0))) {
+                if (NioPathWindowsChecker.isWindows()) {
                     return Paths.get(value);
                 }
             }
@@ -395,6 +384,23 @@ public class JDKFromStringDeserializer
                 }
             } catch (Exception e) {
                 return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
+            }
+        }
+
+        // @since 3.1
+        private static class NioPathWindowsChecker {
+            private static final boolean _isWindows;
+            static {
+                boolean isWindows = false;
+
+                try {
+                    isWindows = System.getProperty("os.name").startsWith("Windows");
+                } catch (Exception e) { }
+                _isWindows = isWindows;
+            }
+
+            public static boolean isWindows() {
+                return _isWindows;
             }
         }
     }

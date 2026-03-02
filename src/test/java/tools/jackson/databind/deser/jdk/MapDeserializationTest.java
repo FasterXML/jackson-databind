@@ -25,8 +25,14 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 @SuppressWarnings("serial")
 public class MapDeserializationTest
 {
-    static enum Key {
-        KEY1, KEY2, WHATEVER;
+    // [databind#2757]
+    static class MyMap2757 extends LinkedHashMap<String, String> {
+        public MyMap2757() { }
+
+        public void setValue(StringWrapper w) { }
+        public void setValue(IntWrapper w) { }
+
+        public long getValue() { return 0L; }
     }
 
     static class BrokenMap
@@ -361,21 +367,21 @@ public class MapDeserializationTest
         String JSON = "{ \"KEY1\" : \"\", \"WHATEVER\" : null }";
 
         // to get typing, must use type reference
-        EnumMap<Key,String> result = MAPPER.readValue
-            (JSON, new TypeReference<EnumMap<Key,String>>() { });
+        EnumMap<CollectionDeserializationTest.Key,String> result = MAPPER.readValue
+            (JSON, new TypeReference<EnumMap<CollectionDeserializationTest.Key,String>>() { });
 
         assertNotNull(result);
         assertEquals(EnumMap.class, result.getClass());
         assertEquals(2, result.size());
 
-        assertEquals("", result.get(Key.KEY1));
+        assertEquals("", result.get(CollectionDeserializationTest.Key.KEY1));
         // null should be ok too...
-        assertTrue(result.containsKey(Key.WHATEVER));
-        assertNull(result.get(Key.WHATEVER));
+        assertTrue(result.containsKey(CollectionDeserializationTest.Key.WHATEVER));
+        assertNull(result.get(CollectionDeserializationTest.Key.WHATEVER));
 
         // plus we have nothing for this key
-        assertFalse(result.containsKey(Key.KEY2));
-        assertNull(result.get(Key.KEY2));
+        assertFalse(result.containsKey(CollectionDeserializationTest.Key.KEY2));
+        assertNull(result.get(CollectionDeserializationTest.Key.KEY2));
     }
 
     @Test
@@ -384,15 +390,15 @@ public class MapDeserializationTest
         String JSON = "{ \"KEY2\" : \"WHATEVER\" }";
 
         // to get typing, must use type reference
-        Map<?,?> result = MAPPER.readValue(JSON, new TypeReference<Map<Key,Key>>() { });
+        Map<?,?> result = MAPPER.readValue(JSON, new TypeReference<Map<CollectionDeserializationTest.Key,CollectionDeserializationTest.Key>>() { });
 
         assertNotNull(result);
         assertInstanceOf(Map.class, result);
         assertEquals(1, result.size());
 
-        assertEquals(Key.WHATEVER, result.get(Key.KEY2));
-        assertNull(result.get(Key.WHATEVER));
-        assertNull(result.get(Key.KEY1));
+        assertEquals(CollectionDeserializationTest.Key.WHATEVER, result.get(CollectionDeserializationTest.Key.KEY2));
+        assertNull(result.get(CollectionDeserializationTest.Key.WHATEVER));
+        assertNull(result.get(CollectionDeserializationTest.Key.KEY1));
     }
 
     @Test
@@ -610,5 +616,17 @@ public class MapDeserializationTest
             // instead, should get this exception:
             verifyException(e, "no default constructor found");
         }
+    }
+
+    // [databind#2757]: should allow deserialization as Map despite conflicting setters
+    @Test
+    public void testCanDeserializeMap2757() throws Exception
+    {
+        MyMap2757 input = new MyMap2757();
+        input.put("a", "b");
+        final String json = MAPPER.writeValueAsString(input);
+        MyMap2757 x = MAPPER.readValue(json, MyMap2757.class);
+        assertEquals(1, x.size());
+        assertEquals("b", input.get("a"));
     }
 }

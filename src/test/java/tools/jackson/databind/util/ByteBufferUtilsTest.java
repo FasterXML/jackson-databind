@@ -11,6 +11,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.FiveMinuteUser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ByteBufferUtilsTest extends DatabindTestUtil
 {
@@ -71,5 +72,32 @@ public class ByteBufferUtilsTest extends DatabindTestUtil
             assertEquals(bytes.length, bb.position());
             assertEquals(bytes.length, bb.limit());
         }
+    }
+
+    @Test
+    public void testByteBufferInputStreamParameterValidation() throws Exception {
+        byte[] input = new byte[] { 1, 2, 3 };
+        ByteBufferBackedInputStream stream = new ByteBufferBackedInputStream(ByteBuffer.wrap(input));
+        byte[] buffer = new byte[10];
+
+        // Test null byte array
+        assertThrows(NullPointerException.class, () -> {
+            stream.read(null, 0, 5);
+        });
+
+        // Test negative offset
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            stream.read(buffer, -1, 5);
+        });
+
+        // Test negative length
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            stream.read(buffer, 0, -1);
+        });
+
+        // Test offset + length > array length
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            stream.read(buffer, 5, 10);
+        });
     }
 }

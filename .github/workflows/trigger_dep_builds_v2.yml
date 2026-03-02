@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: Repository dispatch
-        uses: peter-evans/repository-dispatch@cf70392543065ca62813db6712a06df1c4f4ae9f # v3.0.0
+        uses: peter-evans/repository-dispatch@bada04bbc2a16bab5dd39b421320893d58a35efe # v3.0.0
         with:
           token: ${{ secrets.token }}
           repository: ${{ matrix.repo }}

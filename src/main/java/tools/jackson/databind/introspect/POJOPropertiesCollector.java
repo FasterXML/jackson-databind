@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.ConstructorDetector;
@@ -13,6 +14,7 @@ import tools.jackson.databind.cfg.HandlerInstantiator;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.RecordUtil;
 
 /**
@@ -120,11 +122,26 @@ public class POJOPropertiesCollector
     protected LinkedList<AnnotatedMember> _jsonValueAccessors;
 
     /**
-     * Lazily collected list of properties that can be implicitly
-     * ignored during serialization; only updated when collecting
-     * information for deserialization purposes
+     * Lazily collected set of properties that are explicitly ignored, combining
+     * both per-property markers ({@code @JsonIgnore}, via {@link #_collectIgnorals})
+     * and direction-specific names derived from class-level
+     * {@code @JsonIgnoreProperties} (via {@link #_collectClassLevelIgnorals}).
+     *<p>
+     * Kept as a mutable set because {@link #_renameProperties} may remove entries
+     * (when a creator property is renamed to a previously-ignored name).
+     * {@link #_propertyIgnorals} holds the immutable class-level value in parallel.
      */
     protected HashSet<String> _ignoredPropertyNames;
+
+    /**
+     * Class-level ignorals (annotation plus config overrides), computed once during
+     * {@link #_collectClassLevelIgnorals()} and exposed to the factory layer via
+     * {@link #getPropertyIgnorals()} so that {@code findPropertyIgnoralByName()} is
+     * called exactly once per type.  The direction-specific property names it contains
+     * are also copied into {@link #_ignoredPropertyNames} for internal use by
+     * {@link #_renameProperties}.
+     */
+    protected JsonIgnoreProperties.Value _propertyIgnorals;
 
     /**
      * Lazily collected list of members that were annotated to
@@ -313,10 +330,26 @@ public class POJOPropertiesCollector
 
     /**
      * Accessor for set of properties that are explicitly marked to be ignored
-     * via per-property markers (but NOT class annotations).
+     * via per-property markers ({@code @JsonIgnore}) and/or class-level
+     * {@code @JsonIgnoreProperties} annotation.
      */
     public Set<String> getIgnoredPropertyNames() {
+        if (!_collected) {
+            collectAll();
+        }
         return _ignoredPropertyNames;
+    }
+
+    /**
+     * Accessor for class-level property ignorals (annotation plus config overrides),
+     * computed once during collection and cached for reuse by the factory layer.
+     * Returns {@code null} when no ignorals are defined.
+     */
+    public JsonIgnoreProperties.Value getPropertyIgnorals() {
+        if (!_collected) {
+            collectAll();
+        }
+        return _propertyIgnorals;
     }
 
     /**
@@ -399,6 +432,8 @@ public class POJOPropertiesCollector
         // Remove ignored properties, first; this MUST precede annotation merging
         // since logic relies on knowing exactly which accessor has which annotation
         _removeUnwantedProperties(props);
+        // [databind#3591]: Also collect class-level @JsonIgnoreProperties ignorals
+        _collectClassLevelIgnorals();
         // and then remove unneeded accessors (wrt read-only, read-write)
         _removeUnwantedAccessors(props);
 
@@ -759,7 +794,7 @@ public class POJOPropertiesCollector
         // Only consider single-arg case, for now
         if (ctor.paramCount() == 1) {
             // Main thing: @JsonValue makes it delegating:
-            if ((_jsonValueAccessors != null) && !_jsonValueAccessors.isEmpty()) {
+            if (_nonNullNonEmpty(_jsonValueAccessors)) {
                 return true;
             }
         }
@@ -918,7 +953,7 @@ ctor.creator()));
             return true;
         }
         // Second: [databind#3180] @JsonValue indicates delegating
-        if ((_jsonValueAccessors != null) && !_jsonValueAccessors.isEmpty()) {
+        if (_nonNullNonEmpty(_jsonValueAccessors)) {
             return false;
         }
         if (ctor.paramCount() == 1) {
@@ -1058,13 +1093,20 @@ ctor.creator()));
 
             // First: check "Unwrapped" unless explicit name
             if (!hasExplicit) {
-                var unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(_config, param);
+                NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(_config, param);
                 if (unwrapper != null) {
-                    // If unwrapping, can use regardless of name; we will use a placeholder name
-                    // anyway to try to avoid name conflicts.
-                    PropertyName name = UnwrappedPropertyHandler.creatorParamName(param.getIndex());
-                    final POJOPropertyBuilder prop = _property(props, name);
-                    prop.addCtor(param, name, false, true, false);
+                    // If unwrapping, use a placeholder name to avoid name conflicts during
+                    // deserialization. Store the (possibly field-renamed) implicit name as
+                    // the internal name so _sortProperties() can place this property at its
+                    // declaration position without re-invoking the annotation introspector.
+                    // [databind#5716]
+                    final PropertyName placeholder = UnwrappedPropertyHandler.creatorParamName(param.getIndex());
+                    final PropertyName internalName = hasImplicit ? implName : placeholder;
+                    final POJOPropertyBuilder prop = new POJOPropertyBuilder(_config,
+                            _annotationIntrospector, _forSerialization, internalName, placeholder);
+                    prop._unwrapped = true;
+                    props.put(placeholder.getSimpleName(), prop);
+                    prop.addCtor(param, placeholder, false, true, false);
                     creatorProps.add(prop);
                     continue;
                 }
@@ -1500,17 +1542,49 @@ ctor.creator()));
     }
 
     /**
-     * Helper method called to add explicitly ignored properties to a list
-     * of known ignored properties; this helps in proper reporting of
-     * errors.
+     * Helper method called to record a per-property ignoral (from {@code @JsonIgnore}
+     * or read/write-only rules) into {@link #_ignoredPropertyNames}.
+     * Used by {@link #_renameProperties} to skip renaming ignored properties, and
+     * surfaced externally via {@link #getIgnoredPropertyNames()}.
      */
     protected void _collectIgnorals(String name)
     {
-        if (!_forSerialization && (name != null)) {
+        if (name != null) {
             if (_ignoredPropertyNames == null) {
                 _ignoredPropertyNames = new HashSet<>();
             }
             _ignoredPropertyNames.add(name);
+        }
+    }
+
+    /**
+     * Helper method called to collect class-level property ignorals: stores the
+     * full {@link JsonIgnoreProperties.Value} (annotation + config overrides) in
+     * {@link #_propertyIgnorals} for reuse by the factory layer, and copies the
+     * direction-specific property names into {@link #_ignoredPropertyNames} so
+     * that {@link #_renameProperties} can skip them.
+     *<p>
+     * Uses {@link MapperConfig#getDefaultPropertyIgnorals} rather than calling
+     * {@code findPropertyIgnoralByName()} directly, so that config-level overrides
+     * are included and consistent with what the factory layer sees.
+     *
+     * @since 3.2
+     */
+    protected void _collectClassLevelIgnorals()
+    {
+        _propertyIgnorals =
+            _config.getDefaultPropertyIgnorals(_classDef.getRawType(), _classDef);
+        if (_propertyIgnorals != null) {
+            Set<String> ignored = _forSerialization
+                    ? _propertyIgnorals.findIgnoredForSerialization()
+                    : _propertyIgnorals.findIgnoredForDeserialization();
+            if (_nonNullNonEmpty(ignored)) {
+                if (_ignoredPropertyNames == null) {
+                    _ignoredPropertyNames = new HashSet<>(ignored);
+                } else {
+                    _ignoredPropertyNames.addAll(ignored);
+                }
+            }
         }
     }
 
@@ -1821,6 +1895,17 @@ ctor.creator()));
                 // 16-Jan-2016, tatu: Related to [databind#1317], make sure not to accidentally
                 //    add back pruned creator properties!
 
+                // [databind#5716]: @JsonUnwrapped creator params use a placeholder name to avoid
+                // name conflicts during deserialization. The actual getter property name is stored
+                // as internalName in _addCreatorParams(), so use it here for correct ordering.
+                if (prop.isUnwrapped()) {
+                    String internalName = prop.getInternalName();
+                    POJOPropertyBuilder pb = all.get(internalName);
+                    if (pb != null) {
+                        ordered.put(internalName, pb);
+                        continue;
+                    }
+                }
                 String name = prop.getName();
                 // 27-Nov-2019, tatu: Not sure why, but we should NOT remove it from `all` tho:
 //                if (all.remove(name) != null) {
@@ -1979,5 +2064,10 @@ ctor.creator()));
             }
         }
         return false;
+    }
+
+    // @since 3.2
+    private final static boolean _nonNullNonEmpty(Collection<?> coll) {
+        return (coll != null) && !coll.isEmpty();
     }
 }

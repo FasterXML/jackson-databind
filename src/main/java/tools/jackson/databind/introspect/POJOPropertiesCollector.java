@@ -767,7 +767,7 @@ public class POJOPropertiesCollector
         // Only consider single-arg case, for now
         if (ctor.paramCount() == 1) {
             // Main thing: @JsonValue makes it delegating:
-            if ((_jsonValueAccessors != null) && !_jsonValueAccessors.isEmpty()) {
+            if (_nonNullNonEmpty(_jsonValueAccessors)) {
                 return true;
             }
         }
@@ -926,7 +926,7 @@ ctor.creator()));
             return true;
         }
         // Second: [databind#3180] @JsonValue indicates delegating
-        if ((_jsonValueAccessors != null) && !_jsonValueAccessors.isEmpty()) {
+        if (_nonNullNonEmpty(_jsonValueAccessors)) {
             return false;
         }
         if (ctor.paramCount() == 1) {
@@ -1545,7 +1545,7 @@ ctor.creator()));
             Set<String> ignored = _forSerialization
                     ? ignorals.findIgnoredForSerialization()
                     : ignorals.findIgnoredForDeserialization();
-            if (ignored != null && !ignored.isEmpty()) {
+            if (_nonNullNonEmpty(ignored)) {
                 if (_ignoredPropertyNames == null) {
                     _ignoredPropertyNames = new HashSet<>(ignored);
                 } else {
@@ -2031,5 +2031,10 @@ ctor.creator()));
             }
         }
         return false;
+    }
+
+    // @since 3.2
+    private final static boolean _nonNullNonEmpty(Collection<?> coll) {
+        return (coll != null) && !coll.isEmpty();
     }
 }

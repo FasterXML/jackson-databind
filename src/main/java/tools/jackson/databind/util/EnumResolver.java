@@ -2,6 +2,8 @@ package tools.jackson.databind.util;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedClass;
@@ -22,6 +24,18 @@ public class EnumResolver implements java.io.Serializable
     protected final HashMap<String, Enum<?>> _enumsById;
 
     protected final Enum<?> _defaultValue;
+
+    protected final HashMap<Integer, Enum<?>> _enumsByNumericIndex;
+
+    /**
+     * Marker for case where numeric input (JSON number or quoted number) should be
+     * resolved using numeric-index lookup derived from {@code @JsonProperty} values,
+     * instead of ordinal index (Enum.values()).
+     * <p>
+     * Intended to be enabled when {@code @JsonFormat(shape = NUMBER/ARRAY)} selects
+     * numeric representation for Enum values.
+     */
+    protected final boolean _useNumericIndexForNumbers;
 
     /**
      * Marker for case-insensitive handling
@@ -53,17 +67,19 @@ public class EnumResolver implements java.io.Serializable
      */
 
     protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums,
-            HashMap<String, Enum<?>> enumsById, Enum<?> defaultValue,
+            HashMap<String, Enum<?>> enumsById, HashMap<Integer, Enum<?>> enumsByNumericIndex, Enum<?> defaultValue,
             boolean isIgnoreCase, boolean isFromIntValue,
-            boolean hasAsValueAnnotation)
+            boolean hasAsValueAnnotation, boolean useNumericIndexForNumbers)
     {
         _enumClass = enumClass;
         _enums = enums;
         _enumsById = enumsById;
+        _enumsByNumericIndex = enumsByNumericIndex;
         _defaultValue = defaultValue;
         _isIgnoreCase = isIgnoreCase;
         _isFromIntValue = isFromIntValue;
         _hasAsValueAnnotation = hasAsValueAnnotation;
+        _useNumericIndexForNumbers = useNumericIndexForNumbers;
     }
 
     /*
@@ -90,6 +106,17 @@ public class EnumResolver implements java.io.Serializable
         final Enum<?>[] enumConstants = _enumConstants(enumCls);
         final Enum<?> defaultEnum = _enumDefault(config, annotatedClass, enumConstants);
 
+        // Determine whether numeric values should use numeric-index lookup, based on
+        // class-level @JsonFormat(shape=NUMBER/ARRAY...). Uses AnnotatedClass so Mix-ins apply.
+        boolean useNumericIndexForNumbers = false;
+        JsonFormat.Value value = ai.findFormat(config, annotatedClass);
+        if (value != null) {
+            JsonFormat.Shape shape = value.getShape();
+            if (shape != null && shape != JsonFormat.Shape.ANY && shape != JsonFormat.Shape.SCALAR) {
+                useNumericIndexForNumbers = shape.isNumeric() || shape == JsonFormat.Shape.ARRAY;
+            }
+        }
+
         // introspect
         String[] names = ai.findEnumValues(config, annotatedClass,
                 enumConstants, new String[enumConstants.length]);
@@ -98,13 +125,26 @@ public class EnumResolver implements java.io.Serializable
 
         // finally, build
         HashMap<String, Enum<?>> map = new HashMap<>();
+        HashMap<Integer, Enum<?>> numericIndexMap = null;
         for (int i = 0, len = enumConstants.length; i < len; ++i) {
             final Enum<?> enumValue = enumConstants[i];
-            String name = names[i];
+            final String rawName = names[i];
+            String name = rawName;
             if (name == null) {
                 name = enumValue.name();
             }
             map.put(name, enumValue);
+            if (rawName != null && _looksLikeInt(rawName)) {
+                try {
+                    final int numericIndex = Integer.parseInt(rawName);
+                    if (numericIndexMap == null) {
+                        numericIndexMap = new HashMap<>();
+                    }
+                    numericIndexMap.put(numericIndex, enumValue);
+                } catch (NumberFormatException e) {
+                    // out of int range, ignore
+                }
+            }
             String[] aliases = allAliases[i];
             if (aliases != null) {
                 for (String alias : aliases) {
@@ -113,8 +153,8 @@ public class EnumResolver implements java.io.Serializable
                 }
             }
         }
-        return new EnumResolver(enumCls, enumConstants, map,
-                defaultEnum, isIgnoreCase, false, false);
+        return new EnumResolver(enumCls, enumConstants, map, numericIndexMap,
+                defaultEnum, isIgnoreCase, false, false, useNumericIndexForNumbers);
     }
 
     /**
@@ -158,8 +198,8 @@ public class EnumResolver implements java.io.Serializable
                 }
             }
         }
-        return new EnumResolver(enumCls, enumConstants, map,
-                defaultEnum, isIgnoreCase, false, false);
+        return new EnumResolver(enumCls, enumConstants, map, null,
+                defaultEnum, isIgnoreCase, false, false, false);
     }
 
     /**
@@ -182,8 +222,8 @@ public class EnumResolver implements java.io.Serializable
             Enum<?> enumValue = enumConstants[i];
             map.put(String.valueOf(i), enumValue);
         }
-        return new EnumResolver(enumCls, enumConstants, map,
-                defaultEnum, isIgnoreCase, false, false);
+        return new EnumResolver(enumCls, enumConstants, map, null,
+                defaultEnum, isIgnoreCase, false, false, false);
     }
 
     /**
@@ -231,8 +271,8 @@ public class EnumResolver implements java.io.Serializable
             }
         }
 
-        return new EnumResolver(enumCls, enumConstants, map,
-                defaultEnum, isIgnoreCase, false, false);
+        return new EnumResolver(enumCls, enumConstants, map, null,
+                defaultEnum, isIgnoreCase, false, false, false);
     }
 
     /**
@@ -263,11 +303,11 @@ public class EnumResolver implements java.io.Serializable
                 throw new IllegalArgumentException("Failed to access @JsonValue of Enum value "+en+": "+e.getMessage());
             }
         }
-        return new EnumResolver(enumCls, enumConstants, map,
+        return new EnumResolver(enumCls, enumConstants, map, null,
                 defaultEnum, isIgnoreCase,
                 // 26-Sep-2021, tatu: [databind#1850] Need to consider "from int" case
                 _isIntType(accessor.getRawType()),
-                true
+                true, false
         );
     }
 
@@ -310,6 +350,29 @@ public class EnumResolver implements java.io.Serializable
                 ;
     }
 
+    private static boolean _looksLikeInt(String s) {
+        int len = s.length();
+        if (len == 0) {
+            return false;
+        }
+
+        int i = 0;
+        char c = s.charAt(0);
+        if (c == '-' || c == '+') {
+            if (len == 1) {
+                return false;
+            }
+            i = 1;
+        }
+        for (; i < len; ++i) {
+            c = s.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /*
     /**********************************************************************
     /* Public API
@@ -332,6 +395,13 @@ public class EnumResolver implements java.io.Serializable
             if (entry.getKey().equalsIgnoreCase(key)) {
                 return entry.getValue();
             }
+        }
+        return null;
+    }
+
+    public Enum<?> findEnum(int index) {
+        if (_enumsByNumericIndex != null) {
+            return _enumsByNumericIndex.get(index);
         }
         return null;
     }
@@ -365,7 +435,19 @@ public class EnumResolver implements java.io.Serializable
 
     public Class<Enum<?>> getEnumClass() { return _enumClass; }
 
+    public HashMap<Integer, Enum<?>> getNumericIndexLookup() {
+        return _enumsByNumericIndex;
+    }
+
     public int lastValidIndex() { return _enums.length-1; }
+
+    /**
+     * Accessor for checking whether numeric input should use numeric-index lookup
+     * derived from {@code @JsonProperty} values.
+     */
+    public boolean useNumericIndexForNumbers() {
+        return _useNumericIndexForNumbers;
+    }
 
     /**
      * Accessor for checking if we have a special case in which value to map

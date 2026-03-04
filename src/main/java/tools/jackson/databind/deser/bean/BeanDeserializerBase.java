@@ -177,6 +177,15 @@ public abstract class BeanDeserializerBase
     protected transient ConcurrentHashMap<ClassKey, ValueDeserializer<Object>> _subDeserializers;
 
     /**
+     * Contextual copies created via {@link #withByNameInclusion} during
+     * {@link #resolve} that need property deserializers propagated after
+     * resolution completes.
+     *
+     * @since 3.1
+     */
+    private transient List<BeanDeserializerBase> _contextualCopies;
+
+    /**
      * If one of properties has "unwrapped" value, we need separate
      * helper object
      */
@@ -479,6 +488,9 @@ public abstract class BeanDeserializerBase
     @Override
     public void resolve(DeserializationContext ctxt)
     {
+        // [databind#1755]: Track contextual copies created during resolution
+        _contextualCopies = new ArrayList<>();
+
         ExternalTypeHandler.Builder extTypes = null;
         // if ValueInstantiator can use "creator" approach, need to resolve it here...
         SettableBeanProperty[] creatorProps;
@@ -603,6 +615,13 @@ public abstract class BeanDeserializerBase
                 }
             }
         }
+
+        // [databind#1755]: Propagate resolved property deserializers to
+        // contextual copies created during resolution (via withByNameInclusion)
+        if (!_contextualCopies.isEmpty()) {
+            _propagatePropertiesToCopies();
+        }
+        _contextualCopies = null;
 
         // "any setter" may also need to be resolved now
         if ((_anySetter != null) && !_anySetter.hasValueDeserializer()) {
@@ -942,8 +961,37 @@ Working alternatives:
         if ((newNamesToIgnore != prevNamesToIgnore)
                 || (newNamesToInclude != prevNamesToInclude)) {
             contextual = contextual.withByNameInclusion(newNamesToIgnore, newNamesToInclude);
+            // [databind#1755]: Track copy for post-resolve property propagation
+            if (_contextualCopies != null) {
+                _contextualCopies.add(contextual);
+            }
         }
         return contextual;
+    }
+
+    /**
+     * Helper method called at the end of {@link #resolve} to propagate
+     * resolved property deserializers to contextual copies that were created
+     * from this (incomplete) deserializer during resolution.
+     *<p>
+     * This handles the case of self-referencing types with per-property
+     * {@code @JsonIgnoreProperties}: the copy created by
+     * {@link #withByNameInclusion} has properties with stale (non-contextualized)
+     * deserializers since the source was still being resolved.
+     *
+     * @since 3.1
+     */
+    protected void _propagatePropertiesToCopies()
+    {
+        for (BeanDeserializerBase copy : _contextualCopies) {
+            for (SettableBeanProperty resolvedProp : _beanProperties) {
+                SettableBeanProperty copyProp =
+                        copy._beanProperties.findDefinition(resolvedProp.getName());
+                if (copyProp != null) {
+                    copy._beanProperties.withProperty(resolvedProp);
+                }
+            }
+        }
     }
 
     /**

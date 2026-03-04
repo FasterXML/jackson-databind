@@ -9,9 +9,9 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.DateTimeFeature;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
@@ -294,7 +294,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testSimpleSerialization() throws Exception
@@ -316,7 +316,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     @Test
     public void testImproperExternalIdSerialization() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         assertEquals("{\"extType\":\"funk\",\"i\":3}",
                 mapper.writeValueAsString(new FunkyExternalBean()));
     }
@@ -424,9 +424,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
 
         Base b = baseContainer2.getBase();
         assertNotNull(b);
-        if (b.getClass() != Derived1.class) {
-            fail("Should have type Derived1, was "+b.getClass().getName());
-        }
+        assertInstanceOf(Derived1.class, b);
 
         Derived1 derived1 = (Derived1) b;
         assertEquals("base prop val", derived1.getBaseProperty());
@@ -514,7 +512,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     @Test
     public void testExternalTypeWithProp222() throws Exception
     {
-        JsonMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .build();
         Issue222Bean input = new Issue222Bean(13);
@@ -625,5 +623,274 @@ public class ExternalTypeIdTest extends DatabindTestUtil
         Box3008 deserOrangeBox = r.readValue("{\"type\":null,\"fruit\":null}");
         assertNull(deserOrangeBox.fruit);
         assertNull(deserOrangeBox.type); // error: "expected null, but was:<null>"
+    }
+
+    // [databind#4185]
+    static class Parent4185 {
+        @JsonIgnoreProperties("parent")
+        public Child4185 child;
+    }
+
+    static class Child4185 {
+        public Parent4185 parent;
+        public String childType;
+
+        @JsonTypeInfo(
+                use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+                property = "childType"
+        )
+        @JsonSubTypes({
+                @JsonSubTypes.Type(name = "A", value = SubChildA4185.class),
+                @JsonSubTypes.Type(name = "B", value = SubChildB4185.class),
+        })
+        public SubChild4185 subChild;
+    }
+
+    interface SubChild4185 { }
+    static class SubChildA4185 implements SubChild4185 { }
+    static class SubChildB4185 implements SubChild4185 { }
+
+    // [databind#2611]
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class Wrapper2611 {
+        private String type;
+
+        @JsonTypeInfo(
+                use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+                property = "type",
+                defaultImpl = Default2611.class
+        )
+        private Default2611 data;
+
+        @JsonCreator
+        public Wrapper2611(
+                @JsonProperty(value = "type", required = true) String type,
+                @JsonProperty(value = "data", required = true) Default2611 data
+        ) {
+            this.type = type;
+            this.data = data;
+        }
+
+        String getType() {
+            return type;
+        }
+
+        Default2611 getData() {
+            return data;
+        }
+    }
+
+    static class Default2611 {}
+
+    @JsonTypeName(value = "decimalValue")
+    public static class DecimalValue {
+        private BigDecimal value;
+        public DecimalValue() { value = new BigDecimal("111.1"); }
+
+        @JsonValue
+        public BigDecimal getValue(){ return value; }
+    }
+
+    @JsonPropertyOrder({"key","value"})
+    public static class DecimalEntry {
+        public DecimalEntry() {}
+        public String getKey() { return "num"; }
+
+        @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.EXTERNAL_PROPERTY)
+        public DecimalValue getValue(){
+            return new DecimalValue();
+        }
+    }
+
+    public static class DecimalMetadata {
+        @JsonProperty("metadata")
+        public List<DecimalEntry> getMetadata() {
+            return new ArrayList<DecimalEntry>() { {add(new DecimalEntry());} };
+        }
+    }
+
+    @JsonTypeName(value = "doubleValue")
+    public static class DoubleValue {
+        private Double value;
+        public DoubleValue() { value = 1234.25; }
+
+        @JsonValue
+        public Double getValue() { return value; }
+    }
+
+    @JsonPropertyOrder({"key","value"})
+    public static class DoubleEntry {
+        public DoubleEntry(){}
+        public String getKey(){ return "num"; }
+
+        @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.EXTERNAL_PROPERTY)
+        public DoubleValue getValue(){ return new DoubleValue(); }
+    }
+
+    public static class DoubleMetadata {
+        @JsonProperty("metadata")
+        public List<DoubleEntry> getMetadata() {
+            return new ArrayList<DoubleEntry>() { {add(new DoubleEntry());} };
+        }
+    }
+
+    // For [databind#291]
+    interface F1_291 {}
+
+    static class A291 implements F1_291 {
+        public String a;
+    }
+
+    static class B291 implements F1_291 {
+        public String b;
+    }
+
+    static interface F2_291 {}
+
+    static class C291 implements F2_291 {
+        public String c;
+    }
+
+    static class D291 implements F2_291 {
+        public String d;
+    }
+
+    static class Container291 {
+        @JsonTypeInfo(use = Id.NAME, property = "type", include = As.EXTERNAL_PROPERTY)
+        @JsonSubTypes({
+                @JsonSubTypes.Type(value = A291.class, name = "1"),
+                @JsonSubTypes.Type(value = B291.class, name = "2")})
+        public F1_291 field1;
+
+        @JsonTypeInfo(use = Id.NAME, property = "type", include = As.EXTERNAL_PROPERTY)
+        @JsonSubTypes({
+                @JsonSubTypes.Type(value = C291.class, name = "1"),
+                @JsonSubTypes.Type(value = D291.class, name = "2")})
+        public F2_291 field2;
+    }
+
+    static class ContainerWithExtra291 extends Container291 {
+        public String type;
+    }
+
+    // For [databind#96]: should allow use of default impl, if property missing
+    @Test
+    public void testWithDefaultAndMissing96() throws Exception
+    {
+        ObjectMapper mapper96 = jsonMapperBuilder()
+                .polymorphicTypeValidator(NoCheckSubTypeValidator.instance)
+                .build();
+        ExternalBeanWithDefault input = new ExternalBeanWithDefault(13);
+        // baseline: include type, verify things work:
+        String fullJson = mapper96.writeValueAsString(input);
+        ExternalBeanWithDefault output = mapper96.readValue(fullJson, ExternalBeanWithDefault.class);
+        assertNotNull(output);
+        assertNotNull(output.bean);
+        // and then try without type info...
+        ExternalBeanWithDefault defaulted = mapper96.readValue("{\"bean\":{\"value\":13}}",
+                ExternalBeanWithDefault.class);
+        assertNotNull(defaulted);
+        assertNotNull(defaulted.bean);
+        assertSame(ValueBean.class, defaulted.bean.getClass());
+    }
+
+    // [databind#4185]
+    @Test
+    public void testExternalPropertyWithJsonIgnore4185() throws Exception
+    {
+        Parent4185 parent = MAPPER.readValue(
+                a2q("{'child': {'childType': 'A', 'subChild':{} } }"),
+                Parent4185.class);
+
+        assertInstanceOf(SubChildA4185.class, parent.child.subChild);
+    }
+
+    // [databind#2611]
+    @Test
+    public void testExternalPropertyWithIgnoreUnknown2611() throws Exception
+    {
+        final String data = a2q("[{'type': 'test','data': {},'additional': {}}]");
+
+        List<Wrapper2611> result = MAPPER.readValue(data, new TypeReference<List<Wrapper2611>>() {});
+
+        assertEquals(1, result.size());
+
+        Wrapper2611 item = result.get(0);
+        assertEquals("test", item.getType());
+        assertNotNull(item.getData());
+    }
+
+    @Test
+    public void testDoubleMetadata() throws Exception {
+        DoubleMetadata doub = new DoubleMetadata();
+        String expected = "{\"metadata\":[{\"key\":\"num\",\"value\":1234.25,\"@type\":\"doubleValue\"}]}";
+        String json = MAPPER.writeValueAsString(doub);
+        assertEquals(expected, json, "Serialized json not equivalent");
+    }
+
+    @Test
+    public void testDecimalMetadata() throws Exception {
+        DecimalMetadata dec = new DecimalMetadata();
+        String expected = "{\"metadata\":[{\"key\":\"num\",\"value\":111.1,\"@type\":\"decimalValue\"}]}";
+        String json = MAPPER.writeValueAsString(dec);
+        assertEquals(expected, json, "Serialized json not equivalent");
+    }
+
+    // [databind#291]
+    @Test
+    public void testMultipleValuesSingleExtId291() throws Exception
+    {
+        // first with ext-id before values
+        _testMultipleValuesSingleExtId291(
+"{'type' : '1',\n"
++"'field1' : { 'a' : 'AAA' },\n"
++"'field2' : { 'c' : 'CCC' }\n"
++"}"
+);
+
+        // then after
+        _testMultipleValuesSingleExtId291(
+"{\n"
++"'field1' : { 'a' : 'AAA' },\n"
++"'field2' : { 'c' : 'CCC' },\n"
++"'type' : '1'\n"
++"}"
+);
+        // and then in-between
+        _testMultipleValuesSingleExtId291(
+"{\n"
++"'field1' : { 'a' : 'AAA' },\n"
++"'type' : '1',\n"
++"'field2' : { 'c' : 'CCC' }\n"
++"}"
+);
+    }
+
+    private void _testMultipleValuesSingleExtId291(String json) throws Exception
+    {
+        json = a2q(json);
+
+        // First, with base class, no type id field separately
+        {
+            Container291 c = MAPPER.readValue(json, Container291.class);
+            assertNotNull(c);
+            assertInstanceOf(A291.class, c.field1);
+            assertEquals("AAA", ((A291) c.field1).a);
+            assertInstanceOf(C291.class, c.field2);
+            assertEquals("CCC", ((C291) c.field2).c);
+        }
+
+        // then with sub-class that does have similarly named property
+        {
+            ContainerWithExtra291 c = MAPPER.readValue(json, ContainerWithExtra291.class);
+            assertNotNull(c);
+            assertEquals("1", c.type);
+            assertInstanceOf(A291.class, c.field1);
+            assertEquals("AAA", ((A291) c.field1).a);
+            assertInstanceOf(C291.class, c.field2);
+            assertEquals("CCC", ((C291) c.field2).c);
+        }
     }
 }

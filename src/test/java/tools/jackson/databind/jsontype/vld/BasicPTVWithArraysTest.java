@@ -56,31 +56,28 @@ public class BasicPTVWithArraysTest extends DatabindTestUtil
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(Good2534.class)
                 .build();
-        ObjectMapper mapper = jsonMapperBuilder()
+        final ObjectMapper mapper1 = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
                 .build();
 
-        final String json = mapper.writeValueAsString(new ObjectWrapper(new Base2534[] { new Good2534(42) }));
+        final String json = mapper1.writeValueAsString(new ObjectWrapper(new Base2534[] { new Good2534(42) }));
 
         // First test blocked case:
-        try {
-            mapper.readValue(json, ObjectWrapper.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id '[Ltools.jackson.");
-            verifyException(e, "as a subtype of");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper1.readValue(json, ObjectWrapper.class));
+        verifyException(e, "Could not resolve type id '[Ltools.jackson.");
+        verifyException(e, "as a subtype of");
 
         // and then accepted:
-        ptv = BasicPolymorphicTypeValidator.builder()
+        PolymorphicTypeValidator ptv2 = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubTypeIsArray() // key addition
                 .allowIfSubType(Good2534.class)
                 .build();
-        mapper = jsonMapperBuilder()
-                .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
+        final ObjectMapper mapper2 = jsonMapperBuilder()
+                .activateDefaultTyping(ptv2, DefaultTyping.NON_FINAL)
                 .build();
 
-        ObjectWrapper w = mapper.readValue(json, ObjectWrapper.class);
+        ObjectWrapper w = mapper2.readValue(json, ObjectWrapper.class);
         assertNotNull(w);
         assertNotNull(w.value);
         assertEquals(Base2534[].class, w.value.getClass());
@@ -89,14 +86,11 @@ public class BasicPTVWithArraysTest extends DatabindTestUtil
         assertEquals(42, arrayOut[0].x);
 
         // but ensure array-acceptance does NOT allow non-validated element types!
-        final String badJson = mapper.writeValueAsString(new ObjectWrapper(new Base2534[] { new Bad2534(13) }));
-        try {
-            mapper.readValue(badJson, ObjectWrapper.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'tools.jackson.");
-            verifyException(e, "$Bad2534");
-            verifyException(e, "as a subtype of");
-        }
+        final String badJson = mapper2.writeValueAsString(new ObjectWrapper(new Base2534[] { new Bad2534(13) }));
+        InvalidTypeIdException e2 = assertThrows(InvalidTypeIdException.class,
+                () -> mapper2.readValue(badJson, ObjectWrapper.class));
+        verifyException(e2, "Could not resolve type id 'tools.jackson.");
+        verifyException(e2, "$Bad2534");
+        verifyException(e2, "as a subtype of");
     }
 }

@@ -13,7 +13,6 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.jdk.NumberDeserializers;
 import tools.jackson.databind.deser.jdk.StringDeserializer;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.NamedType;
 import tools.jackson.databind.ser.jdk.StringSerializer;
 import tools.jackson.databind.ser.std.ToStringSerializer;
@@ -1143,7 +1142,7 @@ public class IntrospectorPairTest extends DatabindTestUtil
                 Object valueId, 
                 BeanProperty forProperty, Object beanInstance,
                 Boolean optional, Boolean useInput) {
-            if (valueId == "jjj") {
+            if ("jjj".equals(valueId)) {
                 UnreadableBean bean = new UnreadableBean();
                 bean.setValue(1);
                 return bean;
@@ -1199,7 +1198,7 @@ public class IntrospectorPairTest extends DatabindTestUtil
     @Test
     public void testMergingIntrospectorsForInjection() throws Exception {
         AnnotationIntrospector testIntrospector = new TestIntrospector();
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .injectableValues(new TestInjector())
                 .annotationIntrospector(new AnnotationIntrospectorPair(testIntrospector,
                         new JacksonAnnotationIntrospector()))

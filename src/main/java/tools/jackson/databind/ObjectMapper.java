@@ -242,7 +242,7 @@ public class ObjectMapper
      * deserializers (if it is needed)
      */
     protected final ConcurrentHashMap<JavaType, ValueDeserializer<Object>> _rootDeserializers
-        = new ConcurrentHashMap<JavaType, ValueDeserializer<Object>>(64, 0.6f, 2);
+        = new ConcurrentHashMap<>(64, 0.6f, 2);
 
     /*
     /**********************************************************************
@@ -1766,9 +1766,9 @@ public class ObjectMapper
     public void writeValue(File file, Object value) throws JacksonException
     {
         _assertNotNull("file", file);
-        SerializationContextExt prov = _serializationContext();
-        _configAndWriteValue(prov,
-                _streamFactory.createGenerator(prov, file, JsonEncoding.UTF8), value);
+        SerializationContextExt ctxt = _serializationContext();
+        _configAndWriteValue(ctxt,
+                _streamFactory.createGenerator(ctxt, file, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -1780,9 +1780,9 @@ public class ObjectMapper
     public void writeValue(Path path, Object value) throws JacksonException
     {
         _assertNotNull("path", path);
-        SerializationContextExt prov = _serializationContext();
-        _configAndWriteValue(prov,
-                _streamFactory.createGenerator(prov, path, JsonEncoding.UTF8), value);
+        SerializationContextExt ctxt = _serializationContext();
+        _configAndWriteValue(ctxt,
+                _streamFactory.createGenerator(ctxt, path, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -1799,17 +1799,17 @@ public class ObjectMapper
     public void writeValue(OutputStream out, Object value) throws JacksonException
     {
         _assertNotNull("out", out);
-        SerializationContextExt prov = _serializationContext();
-        _configAndWriteValue(prov,
-                _streamFactory.createGenerator(prov, out, JsonEncoding.UTF8), value);
+        SerializationContextExt ctxt = _serializationContext();
+        _configAndWriteValue(ctxt,
+                _streamFactory.createGenerator(ctxt, out, JsonEncoding.UTF8), value);
     }
 
     public void writeValue(DataOutput out, Object value) throws JacksonException
     {
         _assertNotNull("out", out);
-        SerializationContextExt prov = _serializationContext();
-        _configAndWriteValue(prov,
-                _streamFactory.createGenerator(prov, out), value);
+        SerializationContextExt ctxt = _serializationContext();
+        _configAndWriteValue(ctxt,
+                _streamFactory.createGenerator(ctxt, out), value);
     }
 
     /**
@@ -1825,8 +1825,8 @@ public class ObjectMapper
     public void writeValue(Writer w, Object value) throws JacksonException
     {
         _assertNotNull("w", w);
-        SerializationContextExt prov = _serializationContext();
-        _configAndWriteValue(prov, _streamFactory.createGenerator(prov, w), value);
+        SerializationContextExt ctxt = _serializationContext();
+        _configAndWriteValue(ctxt, _streamFactory.createGenerator(ctxt, w), value);
     }
 
     /**
@@ -1841,8 +1841,8 @@ public class ObjectMapper
         final BufferRecycler br = _streamFactory._getBufferRecycler();
         // alas, we have to pull the recycler directly here...
         try (SegmentedStringWriter sw = new SegmentedStringWriter(br)) {
-            SerializationContextExt prov = _serializationContext();
-            _configAndWriteValue(prov, _streamFactory.createGenerator(prov, sw), value);
+            SerializationContextExt ctxt = _serializationContext();
+            _configAndWriteValue(ctxt, _streamFactory.createGenerator(ctxt, sw), value);
             return sw.getAndClear();
         } finally {
             br.releaseToPool();
@@ -1888,17 +1888,17 @@ public class ObjectMapper
      * Method called to configure the generator as necessary and then
      * call write functionality
      */
-    protected final void _configAndWriteValue(SerializationContextExt prov,
+    protected final void _configAndWriteValue(SerializationContextExt ctxt,
             JsonGenerator g, Object value)
         throws JacksonException
     {
-        if (prov.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
+        if (ctxt.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
                 && (value instanceof AutoCloseable)) {
-            _configAndWriteCloseable(prov, g, value);
+            _configAndWriteCloseable(ctxt, g, value);
             return;
         }
         try {
-            prov.serializeValue(g, value);
+            ctxt.serializeValue(g, value);
         } catch (Exception e) {
             ClassUtil.closeOnFailAndThrowAsJacksonE(g, e);
             return;
@@ -1910,13 +1910,13 @@ public class ObjectMapper
      * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _configAndWriteCloseable(SerializationContextExt prov,
+    private final void _configAndWriteCloseable(SerializationContextExt ctxt,
             JsonGenerator g, Object value)
         throws JacksonException
     {
         AutoCloseable toClose = (AutoCloseable) value;
         try {
-            prov.serializeValue(g, value);
+            ctxt.serializeValue(g, value);
             AutoCloseable tmpToClose = toClose;
             toClose = null;
             tmpToClose.close();
@@ -2702,6 +2702,8 @@ public class ObjectMapper
                 /* FormatSchema */ null, _injectableValues);
     }
 
+    // 15-Feb-2026, tatu: Unused by databind itself
+    @Deprecated // @since 3.1
     protected DeserializationContextExt _deserializationContext(DeserializationConfig config,
             JsonParser p) {
         return _deserializationContexts.createContext(config,

@@ -277,7 +277,6 @@ public class TypeFactoryTest extends DatabindTestUtil
     }
 
     // [databind#1768]
-    @SuppressWarnings("serial")
     @Test
     public void testCanonicalWithSpaces()
     {

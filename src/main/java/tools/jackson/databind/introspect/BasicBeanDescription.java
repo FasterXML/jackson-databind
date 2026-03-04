@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.*;
@@ -244,6 +245,12 @@ public class BasicBeanDescription extends BeanDescription
             return Collections.emptySet();
         }
         return ign;
+    }
+
+    @Override
+    public JsonIgnoreProperties.Value getPropertyIgnorals() {
+        return (_propCollector == null) ? null
+                : _propCollector.getPropertyIgnorals();
     }
 
     @Override

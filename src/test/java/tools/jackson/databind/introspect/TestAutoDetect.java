@@ -114,39 +114,32 @@ public class TestAutoDetect extends DatabindTestUtil
     public void testProtectedDelegatingCtor() throws Exception
     {
         // first, default settings, with which construction works ok
-        ObjectMapper m = new ObjectMapper();
-        ProtectedBean bean = m.readValue(q("abc"), ProtectedBean.class);
+        ProtectedBean bean = MAPPER.readValue(q("abc"), ProtectedBean.class);
         assertEquals("abc", bean._a);
 
         // then by increasing visibility requirement:
-        m = jsonMapperBuilder()
+        ObjectMapper m = jsonMapperBuilder()
                 .changeDefaultVisibility(vc -> vc.withScalarConstructorVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY))
                 .build();
-        try {
-            m.readValue("\"abc\"", ProtectedBean.class);
-            fail("Expected exception for missing constructor");
-        } catch (JacksonException e) {
-            verifyException(e, InvalidDefinitionException.class, "no String-argument constructor/factory");
-        }
+        JacksonException e = assertThrows(JacksonException.class,
+                () -> m.readValue("\"abc\"", ProtectedBean.class));
+        verifyException(e, InvalidDefinitionException.class, "no String-argument constructor/factory");
     }
 
+    @Test
     public void testPrivateDelegatingCtor() throws Exception
     {
         // first, default settings, with which construction works ok
-        ObjectMapper m = new ObjectMapper();
-        PrivateBeanAnnotated bean = m.readValue(q("abc"), PrivateBeanAnnotated.class);
+        PrivateBeanAnnotated bean = MAPPER.readValue(q("abc"), PrivateBeanAnnotated.class);
         assertEquals("abc", bean.a);
 
         // but not so much without
-        try {
-            m.readValue("\"abc\"", PrivateBeanNonAnnotated.class);
-            fail("Expected exception for missing constructor");
-        } catch (JacksonException e) {
-            verifyException(e, InvalidDefinitionException.class, "no String-argument constructor/factory");
-        }
+        JacksonException e = assertThrows(JacksonException.class,
+                () -> MAPPER.readValue("\"abc\"", PrivateBeanNonAnnotated.class));
+        verifyException(e, InvalidDefinitionException.class, "no String-argument constructor/factory");
 
         // except if we lower requirement
-        m = jsonMapperBuilder()
+        ObjectMapper m = jsonMapperBuilder()
                 .changeDefaultVisibility(vc -> vc.withScalarConstructorVisibility(JsonAutoDetect.Visibility.ANY))
                 .build();
         bean = m.readValue(q("xyz"), PrivateBeanAnnotated.class);
@@ -178,14 +171,9 @@ public class TestAutoDetect extends DatabindTestUtil
         final String JSON = a2q("{'value':3}");
 
         // by default, should throw exception
-        try {
-            /*Feature1347DeserBean bean =*/
-            MAPPER.readValue(JSON, Feature1347DeserBean.class);
-            fail("Should not pass");
-        } catch (JacksonException e) { // should probably be something more specific but...
-            assertInstanceOf(DatabindException.class, e);
-            verifyException(e, "Should NOT get called");
-        }
+        DatabindException e = assertThrows(DatabindException.class,
+                () -> MAPPER.readValue(JSON, Feature1347DeserBean.class));
+        verifyException(e, "Should NOT get called");
 
         // but when instructed to ignore setter, should work
         // [databind#1947]

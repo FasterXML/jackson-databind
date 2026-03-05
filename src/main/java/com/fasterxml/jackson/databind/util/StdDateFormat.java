@@ -614,6 +614,9 @@ public class StdDateFormat
             final char c = dateStr.charAt(0);
             // [databind#5429]: extended year may have +/- prefix
             if (c == '+' || c == '-') {
+                if (_isAllDigits(dateStr, 1)) {
+                    return false;
+                }
                 return (dateStr.length() >= 11)
                     && Character.isDigit(dateStr.charAt(1));
             }
@@ -623,6 +626,17 @@ public class StdDateFormat
                 && Character.isDigit(dateStr.charAt(5));
         }
         return false;
+    }
+
+    private static boolean _isAllDigits(String str, int offset)
+    {
+        final int len = str.length();
+        for (int i = offset; i < len; ++i) {
+            if (!Character.isDigit(str.charAt(i))) {
+                return false;
+            }
+        }
+        return (offset < len);
     }
 
     private Date _parseDateFromLong(String longStr, ParsePosition pos) throws ParseException

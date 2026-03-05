@@ -633,6 +633,16 @@ public class DateDeserializationTest
     }
 
     @Test
+    public void testDateAsIntegerAmbiguous() throws Exception
+    {
+        //the number could be mistaken for a compact ISO-8601 date
+        //but it is meant as a Unix style date as long
+        DateShapeNumberIntBean dsn = MAPPER.readValue("{\"date\":20260305}",
+                DateShapeNumberIntBean.class);
+        assertEquals(new Date(20260305), dsn.date);
+    }
+
+    @Test
     public void testDateAsNumber() throws Exception
     {
         DateShapeNumberBean dsn = MAPPER.readValue("{\"date\":-1383043669935}",

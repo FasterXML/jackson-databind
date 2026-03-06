@@ -21,19 +21,6 @@ public class UnwrappedWithDelegatingDeser5728Test extends DatabindTestUtil
     static class Inner {
         public String p1;
         public String p2;
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Inner other)) return false;
-            return java.util.Objects.equals(p1, other.p1)
-                    && java.util.Objects.equals(p2, other.p2);
-        }
-
-        @Override
-        public int hashCode() {
-            return java.util.Objects.hash(p1, p2);
-        }
     }
 
     static class Outer {

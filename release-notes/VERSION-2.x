@@ -4,6 +4,13 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.21.2 (not yet released)
+
+#5729: (regression due to #5429) ISO-8601 change prevents parsing
+  negative timestamps (dates before 1970)
+ (reported by Thomas W)
+ (fixed by by Jonas K)
+
 2.21.1 (22-Feb-2026)
 
 #5184: `@JsonIgnore` on record method applied to record matching

@@ -17,6 +17,9 @@ No changes since 3.1
 #5716: `@JsonUnwrapped` properties moved to end in 3.1.0
  (reported by Viktor S)
  (fix by @cowtowncoder, w/ Claude code)
+#5728: `@JsonUnwrapped`doesn't work for delegating ValueDeserializer (even
+  one delegating to `BeanDeserializerBase`)
+ (reported by Alessandro N)
 
 3.1.0 (23-Feb-2026)
 

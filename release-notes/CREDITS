@@ -272,8 +272,14 @@ Brandon Schmitt (@BrandonSchmitt)
  
 Matthew Luckam (@mluckam)
  * Contributed #5630: Add `DelegatingSerializer`
+  [3.1.0]
 
 Kyrylo Merzlikin (@kirmerzlikin)
  * Reported #5706: `TokenBuffer` serialization fails when buffer contains integer
    encoded as String
   [3.1.0]
+
+Alessandro Nistico (@alienisty)
+ * Reported #5728: `@JsonUnwrapped`doesn't work for delegating ValueDeserializer (even
+   one delegating to `BeanDeserializerBase`)
+  [3.1.1]

@@ -248,6 +248,7 @@ public class UnwrappedPropertyHandler
         return false;
     }
 
+    // @since 3.1
     private BeanDeserializerBase _findBeanDeser(ValueDeserializer<?> deser) {
         if (deser instanceof BeanDeserializerBase bd) {
             return bd;

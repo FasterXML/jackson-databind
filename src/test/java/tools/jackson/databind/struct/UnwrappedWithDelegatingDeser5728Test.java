@@ -18,14 +18,14 @@ import static org.junit.jupiter.api.Assertions.*;
 //   with DelegatingDeserializer
 public class UnwrappedWithDelegatingDeser5728Test extends DatabindTestUtil
 {
-    static class Inner {
+    static class Inner5728 {
         public String p1;
         public String p2;
     }
 
-    static class Outer {
+    static class Outer5728 {
         @JsonUnwrapped
-        public Inner inner;
+        public Inner5728 inner;
     }
 
     // Minimal DelegatingDeserializer that just delegates everything
@@ -63,7 +63,7 @@ public class UnwrappedWithDelegatingDeser5728Test extends DatabindTestUtil
     public void testUnwrappedWithDelegatingDeserializer() throws Exception
     {
         String json = a2q("{'p1':'value1','p2':'value2'}");
-        Outer result = UNWRAP_MAPPER.readValue(json, Outer.class);
+        Outer5728 result = UNWRAP_MAPPER.readValue(json, Outer5728.class);
         assertNotNull(result.inner, "Unwrapped inner object should not be null");
         assertEquals("value1", result.inner.p1);
         assertEquals("value2", result.inner.p2);
@@ -72,11 +72,12 @@ public class UnwrappedWithDelegatingDeser5728Test extends DatabindTestUtil
     // Same test but with FAIL_ON_UNKNOWN_PROPERTIES enabled — this is
     // where the issue manifests as an UnrecognizedPropertyException
     @Test
-    public void testUnwrappedWithDelegatingDeserializerAndFailOnUnknown() throws Exception {
-        ObjectReader r = UNWRAP_MAPPER.readerFor(Outer.class)
+    public void testUnwrappedWithDelegatingDeserializerAndFailOnUnknown() throws Exception
+    {
+        ObjectReader r = UNWRAP_MAPPER.readerFor(Outer5728.class)
                 .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         String json = a2q("{'p1':'value1','p2':'value2'}");
-        Outer result = r.readValue(json);
+        Outer5728 result = r.readValue(json);
         assertNotNull(result.inner, "Unwrapped inner object should not be null");
         assertEquals("value1", result.inner.p1);
         assertEquals("value2", result.inner.p2);

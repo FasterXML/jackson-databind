@@ -1096,17 +1096,17 @@ ctor.creator()));
                 NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(_config, param);
                 if (unwrapper != null) {
                     // If unwrapping, use a placeholder name to avoid name conflicts during
-                    // deserialization. Store the (possibly field-renamed) implicit name as
+                    // deserialization. Store the implicit name as
                     // the internal name so _sortProperties() can place this property at its
                     // declaration position without re-invoking the annotation introspector.
-                    // [databind#5716]
+                    // (see [databind#5716])
                     final PropertyName placeholder = UnwrappedPropertyHandler.creatorParamName(param.getIndex());
                     final PropertyName internalName = hasImplicit ? implName : placeholder;
                     final POJOPropertyBuilder prop = new POJOPropertyBuilder(_config,
                             _annotationIntrospector, _forSerialization, internalName, placeholder);
-                    prop._unwrapped = true;
-                    props.put(placeholder.getSimpleName(), prop);
+                    prop.markAsUnwrapped();
                     prop.addCtor(param, placeholder, false, true, false);
+                    props.put(placeholder.getSimpleName(), prop);
                     creatorProps.add(prop);
                     continue;
                 }
@@ -1559,10 +1559,10 @@ ctor.creator()));
 
     /**
      * Helper method called to collect class-level property ignorals: stores the
-     * full {@link JsonIgnoreProperties.Value} (annotation + config overrides) in
-     * {@link #_propertyIgnorals} for reuse by the factory layer, and copies the
-     * direction-specific property names into {@link #_ignoredPropertyNames} so
-     * that {@link #_renameProperties} can skip them.
+     * full {@link com.fasterxml.jackson.annotation.JsonIgnoreProperties.Value}
+     * (annotation + config overrides) in {@link #_propertyIgnorals} for reuse by
+     * the factory layer, and copies the direction-specific property names into
+     * {@link #_ignoredPropertyNames} so that {@link #_renameProperties} can skip them.
      *<p>
      * Uses {@link MapperConfig#getDefaultPropertyIgnorals} rather than calling
      * {@code findPropertyIgnoralByName()} directly, so that config-level overrides

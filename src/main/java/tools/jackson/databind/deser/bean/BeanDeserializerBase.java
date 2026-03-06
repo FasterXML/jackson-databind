@@ -194,6 +194,15 @@ public abstract class BeanDeserializerBase
      */
     protected final ObjectIdReader _objectIdReader;
 
+    /**
+     * State marker to avoid infinite recursion when contextualizing properties
+     * of filtered copies for self-referential types.
+     * Similar to {@link BeanDeserializer#_currentlyTransforming}.
+     *<p>
+     * [databind#1622], [databind#1755], [databind#3355], [databind#4417]
+     */
+    protected volatile transient boolean _currentlyContextualizing;
+
     /*
     /**********************************************************************
     /* Life-cycle, construction, initialization
@@ -868,6 +877,19 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
             contextual = _handleByNameInclusion(ctxt, intr, contextual, accessor);
         }
 
+        // [databind#1622]: If a new filtered copy was created, contextualize its
+        // properties so container deserializers get content deserializers resolved,
+        // and property-based creators are constructed. Guard against infinite
+        // recursion for self-referential types using per-instance flag on source.
+        if (contextual != this && !_currentlyContextualizing) {
+            _currentlyContextualizing = true;
+            try {
+                contextual._contextualizeProperties(ctxt);
+            } finally {
+                _currentlyContextualizing = false;
+            }
+        }
+
         // One more thing: are we asked to serialize POJO as array?
         JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
         JsonFormat.Shape shape = null;
@@ -944,6 +966,52 @@ Working alternatives:
             contextual = contextual.withByNameInclusion(newNamesToIgnore, newNamesToInclude);
         }
         return contextual;
+    }
+
+    /**
+     * Helper method called to contextualize properties of a filtered copy created
+     * by {@link #_handleByNameInclusion}. This handles two issues with copies made
+     * from incomplete (mid-{@code resolve()}) source deserializers:
+     * <ul>
+     *   <li>Container properties may have un-contextualized content deserializers</li>
+     *   <li>{@code _propertyBasedCreator} may be {@code null} despite {@code _nonStandardCreation}</li>
+     * </ul>
+     *<p>
+     * [databind#1622], [databind#1755], [databind#3355], [databind#4417]
+     */
+    protected void _contextualizeProperties(DeserializationContext ctxt)
+    {
+        // If property-based creator is expected but not yet constructed
+        // (source was copied before resolve() finished), construct it now.
+        if (_nonStandardCreation && _propertyBasedCreator == null
+                && _valueInstantiator.canCreateFromObjectWith()) {
+            SettableBeanProperty[] creatorProps =
+                    _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+            if (_ignorableProps != null || _includableProps != null) {
+                for (int i = 0, end = creatorProps.length; i < end; ++i) {
+                    if (IgnorePropertiesUtil.shouldIgnore(creatorProps[i].getName(),
+                            _ignorableProps, _includableProps)) {
+                        creatorProps[i].markAsIgnorable();
+                    }
+                }
+            }
+            _propertyBasedCreator = PropertyBasedCreator.construct(ctxt,
+                    _valueInstantiator, creatorProps, _beanProperties);
+        }
+
+        // Contextualize property deserializers so container deserializers
+        // get their content deserializers resolved.
+        for (SettableBeanProperty prop : _beanProperties) {
+            if (!prop.hasValueDeserializer()) {
+                continue;
+            }
+            ValueDeserializer<?> deser = prop.getValueDeserializer();
+            ValueDeserializer<?> newDeser = ctxt.handlePrimaryContextualization(
+                    deser, prop, prop.getType());
+            if (newDeser != deser) {
+                _beanProperties.replace(prop, prop.withValueDeserializer(newDeser));
+            }
+        }
     }
 
     /**

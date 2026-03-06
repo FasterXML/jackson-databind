@@ -159,6 +159,14 @@ public class NumberDeserializers
             return AccessPattern.CONSTANT;
         }
 
+        /**
+         * @return zero for primitives ({@code 0, 0.0, false} etc.) and {@code null} for wrappers
+         */
+        @Override
+        public final Object getAbsentValue(DeserializationContext ctxt) {
+            return _nullValue;
+        }
+
         @SuppressWarnings("unchecked")
         @Override
         public final T getNullValue(DeserializationContext ctxt) {

@@ -99,7 +99,7 @@ public class CreatorNullPrimitivesTest
     public void testCreatorNullPrimitive() throws Exception {
         final ObjectReader r = MAPPER.readerFor(JsonEntity.class)
             .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
-        String json = a2q("{'x': 2}");
+        String json = a2q("{'x': 2, 'y': null}");
         try {
             r.readValue(json);
             fail("Should not have succeeded");
@@ -114,7 +114,7 @@ public class CreatorNullPrimitivesTest
     public void testCreatorNullPrimitiveInNestedObject() throws Exception {
         final ObjectReader r = MAPPER.readerFor(NestedJsonEntity.class)
                 .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
-        String json = a2q("{ 'entity': {'x': 2}}");
+        String json = a2q("{ 'entity': {'x': 2, 'y': null}}");
         try {
             r.readValue(json);
             fail("Should not have succeeded");

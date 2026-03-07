@@ -19,6 +19,12 @@ public class ByteBufferDeserializerTest extends DatabindTestUtil
         public ByteBuffer data;
     }
 
+    /*
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
+     */
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
@@ -102,5 +108,20 @@ public class ByteBufferDeserializerTest extends DatabindTestUtil
         byte[] resultBytes = new byte[result.remaining()];
         result.get(resultBytes);
         assertArrayEquals(largeData, resultBytes);
+    }
+
+    // [databind#239]
+    @Test
+    public void testByteBuffer() throws Exception
+    {
+        byte[] INPUT = new byte[] { 1, 3, 9, -1, 6 };
+        String exp = MAPPER.writeValueAsString(INPUT);
+        ByteBuffer result = MAPPER.readValue(exp,  ByteBuffer.class);
+        assertNotNull(result);
+        assertEquals(INPUT.length, result.remaining());
+        for (int i = 0; i < INPUT.length; ++i) {
+            assertEquals(INPUT[i], result.get());
+        }
+        assertEquals(0, result.remaining());
     }
 }

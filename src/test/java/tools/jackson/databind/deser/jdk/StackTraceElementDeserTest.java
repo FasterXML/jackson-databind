@@ -2,7 +2,16 @@ package tools.jackson.databind.deser.jdk;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.io.IOException;
+
+import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,7 +25,45 @@ public class StackTraceElementDeserTest extends DatabindTestUtil
         public StackTraceElement[] trace;
     }
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    // [databind#429]: mix-in that renames StackTraceElement properties
+    abstract static class StackTraceElementMixIn {
+        @JsonProperty("class")
+        public abstract String getClassName();
+
+        @JsonProperty("method")
+        public abstract String getMethodName();
+
+        @JsonProperty("file")
+        public abstract String getFileName();
+
+        @JsonProperty("line")
+        public abstract int getLineNumber();
+    }
+
+    // [databind#429]
+    static class StackTraceBean {
+        public final static int NUM = 13;
+
+        @JsonProperty("Location")
+        @JsonDeserialize(using=MyStackTraceElementDeserializer.class)
+        protected StackTraceElement location;
+    }
+
+    static class MyStackTraceElementDeserializer extends StdDeserializer<StackTraceElement>
+    {
+        public MyStackTraceElementDeserializer() { super(StackTraceElement.class); }
+
+        @Override
+        public StackTraceElement deserialize(JsonParser p,
+                DeserializationContext ctxt) {
+            p.skipChildren();
+            return new StackTraceElement("a", "b", "b", StackTraceBean.NUM);
+        }
+    }
+    
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
 
     /*
     /**********************************************************************
@@ -220,4 +267,103 @@ public class StackTraceElementDeserTest extends DatabindTestUtil
         assertNotNull(result);
         assertEquals("W", result.getClassName());
     }
+
+    /*
+    /**********************************************************************
+    /* Tests for [databind#429]: mix-in @JsonProperty support
+    /**********************************************************************
+     */
+
+    // [databind#429]
+    @Test
+    public void testDeserWithMixInPropertyNames() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .addMixIn(StackTraceElement.class, StackTraceElementMixIn.class)
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
+
+        String json = a2q("{'class':'com.example.Foo','method':'doStuff',"
+                + "'file':'Foo.java','line':42}");
+        StackTraceElement result = mapper.readValue(json, StackTraceElement.class);
+        assertNotNull(result);
+        assertEquals("com.example.Foo", result.getClassName());
+        assertEquals("doStuff", result.getMethodName());
+        assertEquals("Foo.java", result.getFileName());
+        assertEquals(42, result.getLineNumber());
+    }
+
+    // [databind#429]
+    @Test
+    public void testRoundTripWithMixIn() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .addMixIn(StackTraceElement.class, StackTraceElementMixIn.class)
+                .build();
+
+        StackTraceElement orig = new StackTraceElement(
+                "appLoader", "java.base", "17.0.1",
+                "java.lang.String", "valueOf", "String.java", 3456);
+
+        String json = mapper.writeValueAsString(orig);
+        // Verify serialization uses mix-in names
+        assertTrue(json.contains("\"class\""));
+        assertTrue(json.contains("\"method\""));
+        assertTrue(json.contains("\"file\""));
+        assertTrue(json.contains("\"line\""));
+
+        // Verify deserialization with mix-in names
+        StackTraceElement result = mapper.readValue(json, StackTraceElement.class);
+        assertEquals(orig.getClassName(), result.getClassName());
+        assertEquals(orig.getMethodName(), result.getMethodName());
+        assertEquals(orig.getFileName(), result.getFileName());
+        assertEquals(orig.getLineNumber(), result.getLineNumber());
+    }
+
+    // [databind#429]: ensure standard (no mix-in) deserialization still works
+    @Test
+    public void testStandardDeserUnaffectedByMixInFeature() throws Exception
+    {
+        // Use the default mapper without any mix-ins
+        String json = a2q("{'className':'com.example.Bar','methodName':'run',"
+                + "'fileName':'Bar.java','lineNumber':100}");
+        StackTraceElement result = MAPPER.readValue(json, StackTraceElement.class);
+        assertNotNull(result);
+        assertEquals("com.example.Bar", result.getClassName());
+        assertEquals("run", result.getMethodName());
+        assertEquals("Bar.java", result.getFileName());
+        assertEquals(100, result.getLineNumber());
+    }
+
+    // [databind#429]
+    @Test
+    public void testStackTraceElementWithCustom() throws Exception
+    {
+        // first, via bean that contains StackTraceElement
+        StackTraceBean bean = MAPPER.readValue(a2q("{'Location':'foobar'}"),
+                StackTraceBean.class);
+        assertNotNull(bean.location);
+        assertEquals(StackTraceBean.NUM, bean.location.getLineNumber());
+
+        // and then directly, iff registered
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer()))
+                .build();
+        StackTraceElement elem = mapper.readValue("123", StackTraceElement.class);
+        assertNotNull(elem);
+        assertEquals(StackTraceBean.NUM, elem.getLineNumber());
+
+        // and finally, even as part of real exception
+
+        IOException ioe = mapper.readValue(a2q("{'stackTrace':[ 123, 456 ]}"),
+                IOException.class);
+        assertNotNull(ioe);
+        StackTraceElement[] traces = ioe.getStackTrace();
+        assertNotNull(traces);
+        assertEquals(2, traces.length);
+        assertEquals(StackTraceBean.NUM, traces[0].getLineNumber());
+        assertEquals(StackTraceBean.NUM, traces[1].getLineNumber());
+    }
+
 }

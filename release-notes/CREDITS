@@ -5,12 +5,14 @@ databind core component, version 3.x
 (note: for older credits, see `CREDITS-2.x` instead)
 
 Author: Tatu Saloranta, tatu.saloranta@iki.fi: author
+(no listing below)
 
-Co-Authors (with only partial listings below):
+Co-Authors (with no / partial listings below):
 
 * Joo Hyuk Kim (@JooHyukKim)
 * PJ Fanning (@pjfanning)
 * Sim Yih Tsern (@yihtsern)
+* wrongwrong (@k163377)
 
 ----------------------------------------------------------------------------
 
@@ -116,13 +118,16 @@ Fouad Almalki (@Eng-Fouad)
   [3.1.0]
 
 Christopher Currie (@christophercurrie)
-
-* Requested #221: Support alternate radixes when writing numeric values as strings
+ * Requested #221: Support alternate radixes when writing numeric values as strings
   [3.1.0]
 
 Davyd Fridman (@tiger9800)
+ * Implemented #221: Support alternate radixes when writing numeric values as strings
+  [3.1.0]
 
-* Implemented #221: Support alternate radixes when writing numeric values as strings
+Gary Gregory (@garydgregory)
+ * Reported #429: Cannot use property annotations on `StackTraceElement` to configure
+   deserialization
   [3.1.0]
 
 Konstantin Labun (@kulabun)
@@ -140,8 +145,14 @@ Konstantin Labun (@kulabun)
  * Contributed fix for #1516: Problem with multi-argument Creator with
    `@JsonBackReference` property
   [3.1.0]
+ * Contributed fix for #1622: Failure to deserialize child object when using
+   `@JsonIgnoreProperties` to break cycle
+  [3.2.0]
  * Contributed fix for #2686: `@JsonBackReference` does not work with a builder
   [3.1.0]
+ * Contributed fix for #3355: Deserialization fails depending on the order of
+  deserialized objects with "Cannot construct instance (although at least one Creator exists)"
+  [3.2.0]
  * Contributed fix for #4629: `@JsonIncludeProperties` and `@JsonIgnoreProperties`
    ignored when deserializing Records
   [3.1.0]
@@ -157,6 +168,9 @@ Konstantin Labun (@kulabun)
 Oliver Drotbohm (@odrotbohm)
  * Requested #1196: Add opt-in error collection for deserialization
   [3.1.0]
+ * Requested #3591: Ignored fields not consistently exposed via
+  `BeanDescription.getIgnoredPropertyNames()`
+  [3.2.0]
 
 @sri-adarsh-kumar
  * Contributed #1196: Add opt-in error collection for deserialization
@@ -188,6 +202,15 @@ Kenneth Jorgensen (@kennethjor)
   `@JsonDeserialize.builderPrefix` property
   [3.1.0]
 
+Dávid Csákvári (@dodie)
+ * Requested #3079: Support `ObjectMapper.updateValue()` for Record classes
+  [3.1.0]
+
+Krzysztof Krasoń (@krzyk)
+ * Reported #3084: `Nulls.AS_EMPTY` doesn't work for collections containing
+  values without default constructor (like Records)
+  [3.1.0]
+
 Lee Jiwon (@dlwldnjs1009)
  * Fixed #3188: Skip unknown `Enum` keys in `Map` deserialization
   [3.1.0]
@@ -207,9 +230,20 @@ James Mudd (@jamesmudd)
   `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work
   [3.1.0]
 
+John Hendrikx (@hjohn)
+ * Reported #4729: Object ID handling tries (unnecessarily) to set id value on a Record
+  [3.1.0]
+ 
 Viktor Szathmáry (@phraktle)
  * Reported #5115: `@JsonUnwrapped` Record deserialization can't handle name collision
  (reported by Viktor S)
+  [3.1.0]
+ * Reported #5716: `@JsonUnwrapped` properties moved to end in 3.1.0
+  [3.1.1]
+
+Lee Chan Won (@chanwonlee)
+ * Implemented #5223: Java Records missing type information with `DefaultTyping.NON_FINAL`
+  (add `DefaultTyping.NON_FINAL_AND_RECORDS`)
   [3.1.0]
 
 Hélios Gilles (@RoiSoleil)
@@ -242,7 +276,19 @@ Flinter (@jhan0121)
 Brandon Schmitt (@BrandonSchmitt)
  * Reported #5616: `ObjectWriter` serializes `Optional`s with subtypes incompletely
   [3.1.0]
-
+ * Reported #5710: `ObjectWriter` transforms polymorphic types into a tree incompletely
+  [3.1.1]
+ 
 Matthew Luckam (@mluckam)
  * Contributed #5630: Add `DelegatingSerializer`
   [3.1.0]
+
+Kyrylo Merzlikin (@kirmerzlikin)
+ * Reported #5706: `TokenBuffer` serialization fails when buffer contains integer
+   encoded as String
+  [3.1.0]
+
+Martin Uhlen (@MartinUhlen)
+ * Requested #5734: Add `DeserializationFeature.FAIL_ON_ABSENT_FOR_PRIMITIVES` to
+   allow preventing absent-primitive failure
+  [3.2.0]

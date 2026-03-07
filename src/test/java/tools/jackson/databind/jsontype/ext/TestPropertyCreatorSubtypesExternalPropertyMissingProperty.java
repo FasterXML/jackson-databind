@@ -125,7 +125,7 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
     private final ObjectReader BOX_READER_FAIL;
 
     {
-        final ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
         BOX_READER_PASS = mapper.readerFor(Box.class)
             .without(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
             .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
@@ -235,11 +235,8 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
     }
 
     private void checkBoxException(ObjectReader reader, String json) throws Exception {
-        try {
-            reader.readValue(json);
-            fail("Should not pass");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Missing property 'fruit' for external type id 'type'");
-        }
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> reader.readValue(json));
+        verifyException(e, "Missing property 'fruit' for external type id 'type'");
     }
 }

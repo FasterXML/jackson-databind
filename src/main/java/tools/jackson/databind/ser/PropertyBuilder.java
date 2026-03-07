@@ -183,7 +183,13 @@ public class PropertyBuilder
                 //   setting is used on POJO vs global setting, as per documentation.
                 if (!_useRealPropertyDefaults) {
                     // [databind#4464] NON_DEFAULT does not work with NON_EMPTY for custom serializer
-                    valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
+                    // [databind#5312] But for Record types, default value for reference-type
+                    //   properties is always null; no need to fall back to MARKER_FOR_EMPTY
+                    //   (which would cause @JsonValue delegation to incorrectly suppress
+                    //   non-null values)
+                    if (!_beanDesc.isRecordType()) {
+                        valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
+                    }
                 }
             } else {
                 if (valueToSuppress.getClass().isArray()) {

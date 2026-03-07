@@ -83,6 +83,7 @@ module tools.jackson.databind
     opens tools.jackson.databind.format;
     opens tools.jackson.databind.interop;
     opens tools.jackson.databind.jsonschema;
+    opens tools.jackson.databind.jsontype.deduct;
     opens tools.jackson.databind.jsontype.deftyping;
     opens tools.jackson.databind.jsontype.ext;
     opens tools.jackson.databind.jsontype.jdk;
@@ -91,7 +92,6 @@ module tools.jackson.databind
     opens tools.jackson.databind.mixins;
     opens tools.jackson.databind.objectid;
     opens tools.jackson.databind.records;
-    opens tools.jackson.databind.records.tofix;
     opens tools.jackson.databind.ser.dos;
     opens tools.jackson.databind.ser.enums;
     opens tools.jackson.databind.ser.filter;

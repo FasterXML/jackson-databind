@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import tools.jackson.core.*;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.json.JsonWriteFeature;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -112,6 +113,7 @@ public class ObjectWriterTest
     public void testObjectWriterWithNode() throws Exception
     {
         ObjectWriter W = MAPPER.writer();
+        assertNotNull(W.jsonNodeFactory());
         ObjectNode stuff = W.createObjectNode();
         stuff.put("a", 5);
         ObjectWriter writer = MAPPER.writerFor(JsonNode.class);
@@ -131,6 +133,15 @@ public class ObjectWriterTest
         assertEquals(a2q("{'type':'A','value':3}"), json);
         json = writer.writeValueAsString(new ImplB(-5));
         assertEquals(a2q("{'type':'B','b':-5}"), json);
+    }
+
+    @Test
+    public void testForNoType() throws Exception
+    {
+        // Just for code coverage (branches)
+        assertNotNull(MAPPER.writerFor((Class<?>) null));
+        assertNotNull(MAPPER.writerFor((JavaType) null));
+        assertNotNull(MAPPER.writerFor((TypeReference<?>) null));
     }
 
     @Test

@@ -273,6 +273,39 @@ public class AnySetterTest extends DatabindTestUtil
         Map<String, Object> additionalProperties = new HashMap<>();
     }
 
+    // [databind#4639]
+    public static class AnySetterCreatorBean4639 {
+        int b;
+        int d;
+
+        @JsonAnySetter
+        Map<String, ?> any;
+
+        @JsonCreator
+        public AnySetterCreatorBean4639(@JsonProperty("b") int b, @JsonProperty("d") int d) {
+            this.b = b;
+            this.d = d;
+        }
+    }
+
+    // [databind#4639]
+    public static class AnySetterMethodCreatorBean4639 {
+        final int b;
+        final int d;
+        final Map<String, Object> any = new HashMap<>();
+
+        @JsonCreator
+        public AnySetterMethodCreatorBean4639(@JsonProperty("b") int b, @JsonProperty("d") int d) {
+            this.b = b;
+            this.d = d;
+        }
+
+        @JsonAnySetter
+        public void setAny(String name, Object value) {
+            any.put(name, value);
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -291,7 +324,7 @@ public class AnySetterTest extends DatabindTestUtil
         assertEquals(Integer.valueOf(3), result.get("a"));
         assertEquals(Boolean.TRUE, result.get("b"));
         Object ob = result.get("c");
-        assertTrue(ob instanceof List<?>);
+        assertInstanceOf(List.class, ob);
         List<?> l = (List<?>)ob;
         assertEquals(3, l.size());
         assertEquals(Integer.valueOf(3), l.get(2));
@@ -383,7 +416,7 @@ public class AnySetterTest extends DatabindTestUtil
         assertEquals(1, result.props.size());
         Base ob = result.props.get("a");
         assertNotNull(ob);
-        assertTrue(ob instanceof Impl);
+        assertInstanceOf(Impl.class, ob);
         assertEquals("xyz", ((Impl) ob).value);
     }
 
@@ -471,8 +504,8 @@ public class AnySetterTest extends DatabindTestUtil
         assertNotNull(stringGeneric);
         assertEquals(stringGeneric.getStaticallyMappedProperty(), "Test");
         for(Map.Entry<String, Integer> entry : stringGeneric.getDynamicallyMappedProperties().entrySet()) {
-            assertTrue(entry.getKey() instanceof String, "A key in MyGeneric<String> is not an String.");
-            assertTrue(entry.getValue() instanceof Integer, "A value in MyGeneric<Integer> is not an Integer.");
+            assertInstanceOf(String.class, entry.getKey(), "A key in MyGeneric<String> is not an String.");
+            assertInstanceOf(Integer.class, entry.getValue(), "A value in MyGeneric<Integer> is not an Integer.");
         }
         assertEquals(stringGeneric.getDynamicallyMappedProperties(), stringGenericMap);
 
@@ -508,6 +541,41 @@ public class AnySetterTest extends DatabindTestUtil
         Problem4316 result = MAPPER.readValue(json, Problem4316.class);
         assertEquals(Collections.singletonMap("key", "value"),
                 result.additionalProperties);
+    }
+
+    // [databind#4639]
+    @Test
+    public void testAnySetterFieldWithCreator4639() throws Exception
+    {
+        String json = "{\"a\":1,\"b\":2,\"c\":3,\"d\":4,\"e\":5,\"f\":6}";
+
+        AnySetterCreatorBean4639 bean = MAPPER.readValue(json, AnySetterCreatorBean4639.class);
+        assertEquals(2, bean.b);
+        assertEquals(4, bean.d);
+        Map<String, Integer> expected = new HashMap<>();
+        expected.put("a", 1);
+        expected.put("c", 3);
+        expected.put("e", 5);
+        expected.put("f", 6);
+        assertEquals(expected, bean.any);
+    }
+
+    // [databind#4639]
+    @Test
+    public void testAnySetterMethodWithCreator4639() throws Exception
+    {
+        String json = "{\"a\":1,\"b\":2,\"c\":3,\"d\":4,\"e\":5,\"f\":6}";
+
+        AnySetterMethodCreatorBean4639 bean = MAPPER.readValue(json,
+                AnySetterMethodCreatorBean4639.class);
+        assertEquals(2, bean.b);
+        assertEquals(4, bean.d);
+        Map<String, Integer> expected = new HashMap<>();
+        expected.put("a", 1);
+        expected.put("c", 3);
+        expected.put("e", 5);
+        expected.put("f", 6);
+        assertEquals(expected, bean.any);
     }
 
     /*

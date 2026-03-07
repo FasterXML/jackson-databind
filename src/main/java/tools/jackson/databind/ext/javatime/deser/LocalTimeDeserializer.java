@@ -31,6 +31,7 @@ import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 
 /**
  * Deserializer for Java 8 temporal {@link LocalTime}s.
@@ -139,24 +140,32 @@ public class LocalTimeDeserializer extends JSR310DateTimeDeserializerBase<LocalT
                 int minute = p.getIntValue();
 
                 t = p.nextToken();
-                if (t == JsonToken.END_ARRAY) {
-                    result = LocalTime.of(hour, minute);
-                } else {
-                    int second = p.getIntValue();
-                    t = p.nextToken();
+                try {
                     if (t == JsonToken.END_ARRAY) {
-                        result = LocalTime.of(hour, minute, second);
+                        result = LocalTime.of(hour, minute);
                     } else {
-                        int partialSecond = p.getIntValue();
-                        if(partialSecond < 1_000 && !shouldReadTimestampsAsNanoseconds(ctxt))
-                            partialSecond *= 1_000_000; // value is milliseconds, convert it to nanoseconds
+                        int second = p.getIntValue();
                         t = p.nextToken();
-                        if (t != JsonToken.END_ARRAY) {
-                            throw ctxt.wrongTokenException(p, handledType(), JsonToken.END_ARRAY,
-                                    "Expected array to end");
+                        if (t == JsonToken.END_ARRAY) {
+                            result = LocalTime.of(hour, minute, second);
+                        } else {
+                            int partialSecond = p.getIntValue();
+                            if(partialSecond < 1_000 && !shouldReadTimestampsAsNanoseconds(ctxt))
+                                partialSecond *= 1_000_000; // value is milliseconds, convert it to nanoseconds
+                            t = p.nextToken();
+                            if (t != JsonToken.END_ARRAY) {
+                                throw ctxt.wrongTokenException(p, handledType(), JsonToken.END_ARRAY,
+                                        "Expected array to end");
+                            }
+                            result = LocalTime.of(hour, minute, second, partialSecond);
                         }
-                        result = LocalTime.of(hour, minute, second, partialSecond);
                     }
+                } catch (DateTimeException | ArithmeticException e) {
+                    throw DateTimeParseException.from(p,
+                            String.format("Failed to deserialize %s from array value [%d,%d,...]: %s",
+                                    handledType().getName(), hour, minute, e.getMessage()),
+                            String.format("[%d,%d,...]", hour, minute),
+                            handledType(), e);
                 }
             } else {
                 result = ctxt.reportInputMismatch(handledType(),

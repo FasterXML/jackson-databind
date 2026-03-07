@@ -159,6 +159,12 @@ public abstract class TypeDeserializer
             if (base.isAssignableFrom(Integer.class)) {
                 return p.getIntValue();
             }
+            // 07-Feb-2026, tatu: [databind#3786] We should probably FIRST check
+            //   `Long.class`, as default... but due to backwards-compatibility
+            //   requirements cannot simply change
+            if (base.isAssignableFrom(Long.class)) {
+                return p.getLongValue();
+            }
             break;
 
         case VALUE_NUMBER_FLOAT:

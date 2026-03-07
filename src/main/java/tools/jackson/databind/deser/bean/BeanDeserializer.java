@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.bean;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.RecordComponent;
 import java.util.*;
 
 import tools.jackson.core.*;
@@ -250,6 +252,10 @@ public class BeanDeserializer
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
+        // [databind#3079]: Records are immutable, need to construct a new instance
+        if (_beanType.isRecordType() && _propertyBasedCreator != null) {
+            return _deserializeRecordForUpdate(p, ctxt, bean);
+        }
         if (_unwrappedPropertyHandler != null) {
             return deserializeWithUnwrapped(p, ctxt, bean);
         }
@@ -295,6 +301,120 @@ public class BeanDeserializer
             return _handleUnexpectedWithin(p, ctxt, bean);
         }
         return bean;
+    }
+
+    /**
+     * Helper method for handling "update" deserialization for Record types
+     * (which are immutable and require constructing a new instance).
+     *<p>
+     * Pre-populates creator properties from the existing Record, then
+     * overrides with values from JSON input, and constructs a new Record instance.
+     *
+     * @since 3.1
+     */
+    protected Object _deserializeRecordForUpdate(JsonParser p,
+            DeserializationContext ctxt, Object existingRecord)
+        throws JacksonException
+    {
+        final PropertyBasedCreator creator = _propertyBasedCreator;
+        PropertyValueBuffer buffer = (_anySetter != null)
+            ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter)
+            : creator.startBuilding(p, ctxt, _objectIdReader);
+
+        // Step 1: Pre-populate buffer from existing Record values
+        final Class<?> recordClass = _beanType.getRawClass();
+        final RecordComponent[] components = recordClass.getRecordComponents();
+        for (SettableBeanProperty creatorProp : creator.properties()) {
+            final int creatorIndex = creatorProp.getCreatorIndex();
+            if (creatorIndex >= 0 && creatorIndex < components.length) {
+                try {
+                    Method accessor = components[creatorIndex].getAccessor();
+                    Object value = accessor.invoke(existingRecord);
+                    buffer.assignParameter(creatorProp, value);
+                } catch (Exception e) {
+                    throw wrapAndThrow(e, recordClass, creatorProp.getName(), ctxt);
+                }
+            }
+        }
+
+        // Step 2: Parse JSON input, overriding pre-populated values
+        String propName;
+        if (p.isExpectedStartObjectToken()) {
+            propName = p.nextName();
+            if (propName == null) {
+                // Empty object: just build from pre-populated values
+                return _buildRecordFromBuffer(ctxt, creator, buffer);
+            }
+        } else if (p.hasTokenId(JsonTokenId.ID_PROPERTY_NAME)) {
+            propName = p.currentName();
+        } else {
+            // No properties to process: build from pre-populated values
+            return _buildRecordFromBuffer(ctxt, creator, buffer);
+        }
+
+        do {
+            p.nextToken(); // to point to value
+            final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+            if (creatorProp != null) {
+                // Override the pre-populated value
+                buffer.assignParameter(creatorProp,
+                        _deserializeWithErrorWrapping(p, ctxt, creatorProp));
+                continue;
+            }
+            // Regular property? Buffer it
+            // 09-Feb-2026, tatu: Records really should not have non-Creator Mutators
+            //    so leave commented out until there's clear use case
+            /*
+            int ix = _propNameMatcher.matchName(propName);
+            if (ix >= 0) {
+                SettableBeanProperty prop = _propsByIndex[ix];
+                try {
+                    buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
+                } catch (UnresolvedForwardReference reference) {
+                    // ignore for Records (unlikely but handle gracefully)
+                    p.skipChildren();
+                }
+                continue;
+            }
+            */
+            // "Any property"?
+            if (_anySetter != null) {
+                try {
+                    // 09-Feb-2026, tatu: as with Mutators, should never have non-Creator
+                    //   "any"-properties, so commento out
+                    /*
+                    if (_anySetter.isFieldType() || _anySetter.isSetterType()) {
+                        buffer.bufferAnyProperty(_anySetter, propName,
+                                _anySetter.deserialize(p, ctxt));
+                    } else {
+                        */
+                    buffer.bufferAnyParameterProperty(_anySetter, propName,
+                            _anySetter.deserialize(p, ctxt));
+                    //}
+                } catch (Exception e) {
+                    throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
+                }
+                continue;
+            }
+            if (_ignoreAllUnknown) {
+                p.skipChildren();
+                continue;
+            }
+            handleUnknownVanilla(p, ctxt, existingRecord, propName);
+        } while ((propName = p.nextName()) != null);
+
+        return _buildRecordFromBuffer(ctxt, creator, buffer);
+    }
+
+    private Object _buildRecordFromBuffer(DeserializationContext ctxt,
+            PropertyBasedCreator creator, PropertyValueBuffer buffer)
+        throws JacksonException
+    {
+        try {
+            return creator.build(ctxt, buffer);
+        } catch (Exception e) {
+            return wrapInstantiationProblem(ctxt, e);
+        }
     }
 
     /*
@@ -492,19 +612,21 @@ public class BeanDeserializer
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
 
         // First: do we have native Object Ids (like YAML)?
-        if (p.canReadObjectId()) {
-            Object id = p.getObjectId();
-            if (id != null) {
-                _handleTypedObjectId(p, ctxt, bean, id);
+        if (_objectIdReader != null) {
+            if (p.canReadObjectId()) {
+                Object id = p.getObjectId();
+                if (id != null) {
+                    _handleTypedObjectId(p, ctxt, bean, id);
+                }
             }
-        }
-        // [databind#3838]: since 2.16 Uniform handling of missing objectId
-        // only for the specific "empty JSON Object" case (and only for non-Native
-        // Object Ids, see [databind#4607]
-        else if (_objectIdReader != null && p.hasTokenId(JsonTokenId.ID_END_OBJECT)) {
-            // [databind#4610]: check if we are to skip failure
-            if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)) {
-                ctxt.reportUnresolvedObjectId(_objectIdReader, bean);
+            // [databind#3838]: since 2.16 Uniform handling of missing objectId
+            // only for the specific "empty JSON Object" case (and only for non-Native
+            // Object Ids, see [databind#4607]
+            else if (p.hasTokenId(JsonTokenId.ID_END_OBJECT)) {
+                // [databind#4610]: check if we are to skip failure
+                if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)) {
+                    ctxt.reportUnresolvedObjectId(_objectIdReader, bean);
+                }
             }
         }
         if (_injectables != null) {

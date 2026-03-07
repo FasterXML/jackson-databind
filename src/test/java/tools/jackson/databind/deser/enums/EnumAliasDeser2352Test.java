@@ -52,7 +52,7 @@ public class EnumAliasDeser2352Test
     /**********************************************************************
      */
 
-    protected final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // for [databind#2352]
     @Test

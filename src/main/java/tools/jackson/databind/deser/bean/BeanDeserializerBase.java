@@ -502,96 +502,108 @@ public abstract class BeanDeserializerBase
         }
         UnwrappedPropertyHandler unwrapped = null;
 
-        // 24-Mar-2017, tatu: Looks like we may have to iterate over
-        //   properties twice, to handle potential issues with recursive
-        //   types (see [databind#1575] f.ex).
-        // First loop: find deserializer if not yet known, but do not yet
-        // contextualize (since that can lead to problems with self-references)
-        // 22-Jan-2018, tatu: NOTE! Need not check for `isIgnorable` as that can
-        //   only happen for props in `creatorProps`
+        // [databind#3216]: If using purely delegating creator (no property-based
+        //   creator), bean properties are not used during deserialization so we
+        //   can skip resolving their deserializers. This avoids failures from
+        //   properties with types that cannot be resolved (e.g., Maps with
+        //   unsupported key types).
+        final boolean skipPropertyResolution = _valueInstantiator.canCreateUsingDelegate()
+                && (creatorProps == null);
 
-        for (SettableBeanProperty prop : _beanProperties) {
-            // [databind#962]: no eager lookup for inject-only [creator] properties
-            if (prop.hasValueDeserializer() || prop.isInjectionOnly()) {
-                continue;
-            }
-            // [databind#125]: allow use of converters
-            ValueDeserializer<?> deser = _findConvertingDeserializer(ctxt, prop);
-            if (deser == null) {
-                deser = ctxt.findNonContextualValueDeserializer(prop.getType());
-            }
-            SettableBeanProperty newProp = prop.withValueDeserializer(deser);
-            if (prop != newProp) {
-                _replaceProperty(_beanProperties, creatorProps, prop, newProp);
-            }
-        }
+        if (!skipPropertyResolution) {
+            // 24-Mar-2017, tatu: Looks like we may have to iterate over
+            //   properties twice, to handle potential issues with recursive
+            //   types (see [databind#1575] f.ex).
+            // First loop: find deserializer if not yet known, but do not yet
+            // contextualize (since that can lead to problems with self-references)
+            // 22-Jan-2018, tatu: NOTE! Need not check for `isIgnorable` as that can
+            //   only happen for props in `creatorProps`
 
-        // Second loop: contextualize, find other pieces
-        for (SettableBeanProperty origProp : _beanProperties) {
-            SettableBeanProperty prop = origProp;
-            ValueDeserializer<?> deser = prop.getValueDeserializer();
-            deser = ctxt.handlePrimaryContextualization(deser, prop, prop.getType());
-            prop = prop.withValueDeserializer(deser);
-            // Need to link managed references with matching back references
-            prop = _resolveManagedReferenceProperty(ctxt, prop);
-
-            // [databind#351]: need to wrap properties that require object id resolution.
-            if (!(prop instanceof ManagedReferenceProperty)) {
-                prop = _resolvedObjectIdProperty(ctxt, prop);
-            }
-            // Support unwrapped values (via @JsonUnwrapped)
-            NameTransformer xform = _findPropertyUnwrapper(ctxt, prop);
-            if (xform != null) {
-                ValueDeserializer<Object> orig = prop.getValueDeserializer();
-                ValueDeserializer<Object> unwrapping = orig.unwrappingDeserializer(ctxt, xform);
-
-                if ((unwrapping != orig) && (unwrapping != null)) {
-                    prop = prop.withValueDeserializer(unwrapping);
-                    if (unwrapped == null) {
-                        unwrapped = new UnwrappedPropertyHandler();
-                    }
-
-                    if (prop.isCreatorProperty()) {
-                        unwrapped.addCreatorProperty(prop);
-                    } else {
-                        unwrapped.addProperty(prop);
-                    }
-
-                    // 12-Dec-2014, tatu: As per [databind#647], we will have problems if
-                    //    the original property is left in place. So let's remove it now.
-                    // 25-Mar-2017, tatu: Wonder if this could be problematic wrt creators?
-                    //    (that is, should we remove it from creator too)
-                    _beanProperties.remove(prop);
+            for (SettableBeanProperty prop : _beanProperties) {
+                // [databind#962]: no eager lookup for inject-only [creator] properties
+                if (prop.hasValueDeserializer() || prop.isInjectionOnly()) {
                     continue;
+                }
+                // [databind#125]: allow use of converters
+                ValueDeserializer<?> deser = _findConvertingDeserializer(ctxt, prop);
+                if (deser == null) {
+                    deser = ctxt.findNonContextualValueDeserializer(prop.getType());
+                }
+                SettableBeanProperty newProp = prop.withValueDeserializer(deser);
+                if (prop != newProp) {
+                    _replaceProperty(_beanProperties, creatorProps, prop, newProp);
                 }
             }
 
-            // 26-Oct-2016, tatu: Need to have access to value deserializer to know if
-            //   merging needed, and now seems to be reasonable time to do that.
-            final PropertyMetadata md = prop.getMetadata();
-            prop = _resolveMergeAndNullSettings(ctxt, prop, md);
-
-            // non-static inner classes too:
-            prop = _resolveInnerClassValuedProperty(ctxt, prop);
-            if (prop != origProp) {
-                _replaceProperty(_beanProperties, creatorProps, origProp, prop);
-            }
-
-            // one more thing: if this property uses "external property" type inclusion,
-            // it needs different handling altogether
-            if (prop.hasValueTypeDeserializer()) {
-                TypeDeserializer typeDeser = prop.getValueTypeDeserializer();
-                if (typeDeser.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
-                    if (extTypes == null) {
-                        extTypes = ExternalTypeHandler.builder(_beanType);
-                    }
-                    extTypes.addExternal(prop, typeDeser);
-                    // In fact, remove from list of known properties to simplify later handling
-                    _beanProperties.remove(prop);
+            // Second loop: contextualize, find other pieces
+            for (SettableBeanProperty origProp : _beanProperties) {
+                if (skipPropertyResolution) {
                     continue;
+                }
+                SettableBeanProperty prop = origProp;
+                ValueDeserializer<?> deser = prop.getValueDeserializer();
+                deser = ctxt.handlePrimaryContextualization(deser, prop, prop.getType());
+                prop = prop.withValueDeserializer(deser);
+                // Need to link managed references with matching back references
+                prop = _resolveManagedReferenceProperty(ctxt, prop);
+
+                // [databind#351]: need to wrap properties that require object id resolution.
+                if (!(prop instanceof ManagedReferenceProperty)) {
+                    prop = _resolvedObjectIdProperty(ctxt, prop);
+                }
+                // Support unwrapped values (via @JsonUnwrapped)
+                NameTransformer xform = _findPropertyUnwrapper(ctxt, prop);
+                if (xform != null) {
+                    ValueDeserializer<Object> orig = prop.getValueDeserializer();
+                    ValueDeserializer<Object> unwrapping = orig.unwrappingDeserializer(ctxt, xform);
+
+                    if ((unwrapping != orig) && (unwrapping != null)) {
+                        prop = prop.withValueDeserializer(unwrapping);
+                        if (unwrapped == null) {
+                            unwrapped = new UnwrappedPropertyHandler();
+                        }
+                        if (prop.isCreatorProperty()) {
+                            unwrapped.addCreatorProperty(prop);
+                        } else {
+                            unwrapped.addProperty(prop);
+                        }
+                        // 12-Dec-2014, tatu: As per [databind#647], we will have problems if
+                        //    the original property is left in place. So let's remove it now.
+                        // 25-Mar-2017, tatu: Wonder if this could be problematic wrt creators?
+                        //    (that is, should we remove it from creator too)
+                        _beanProperties.remove(prop);
+                        continue;
+                    }
+                }
+
+                // 26-Oct-2016, tatu: Need to have access to value deserializer to know if
+                //   merging needed, and now seems to be reasonable time to do that.
+                final PropertyMetadata md = prop.getMetadata();
+                prop = _resolveMergeAndNullSettings(ctxt, prop, md);
+
+                // non-static inner classes too:
+                prop = _resolveInnerClassValuedProperty(ctxt, prop);
+                if (prop != origProp) {
+                    _replaceProperty(_beanProperties, creatorProps, origProp, prop);
+                }
+
+                // one more thing: if this property uses "external property" type inclusion,
+                // it needs different handling altogether
+                if (prop.hasValueTypeDeserializer()) {
+                    TypeDeserializer typeDeser = prop.getValueTypeDeserializer();
+                    if (typeDeser.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
+                        if (extTypes == null) {
+                            extTypes = ExternalTypeHandler.builder(_beanType);
+                        }
+                        extTypes.addExternal(prop, typeDeser);
+                        // In fact, remove from list of known properties to simplify later handling
+                        _beanProperties.remove(prop);
+                        continue;
+                    }
                 }
             }
         }
+
         // "any setter" may also need to be resolved now
         if ((_anySetter != null) && !_anySetter.hasValueDeserializer()) {
             _anySetter = _anySetter.withValueDeserializer(findDeserializer(ctxt,
@@ -807,6 +819,19 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
     public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
+        // [databind#1622], [databind#3355]: due to cyclic dependencies, sometimes
+        // resolve() called _after_ this method so we may need to separately resolve
+        // Property-based Creator. This is WRONG -- this method should NOT modify its
+        // state, but needs must
+        if (_propertyBasedCreator == null && _valueInstantiator.canCreateFromObjectWith()) {
+            // Let's guard state mutation wrt concurrency
+            synchronized (_valueInstantiator) {
+                SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+                _propertyBasedCreator = PropertyBasedCreator.construct(
+                        ctxt, _valueInstantiator, creatorProps, _beanProperties);
+            }
+        }
+
         ObjectIdReader oir = _objectIdReader;
 
         // First: may have an override for Object Id:
@@ -851,6 +876,7 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
         if (oir != null && oir != _objectIdReader) {
             contextual = contextual.withObjectIdReader(oir);
         }
+
         // And possibly add more properties to ignore
         if (accessor != null) {
             contextual = _handleByNameInclusion(ctxt, intr, contextual, accessor);
@@ -948,9 +974,28 @@ Working alternatives:
         ValueDeserializer<?> valueDeser = prop.getValueDeserializer();
         SettableBeanProperty backProp = valueDeser.findBackReference(refName);
         if (backProp == null) {
-            return ctxt.reportBadDefinition(_beanType, String.format(
+            // [databind#3304]: Provide more informative error message when the property
+            // is a container type with abstract/interface content type -- common case is
+            // when @JsonBackReference only exists on a subtype, not on the declared
+            // (abstract/interface) element type
+            JavaType propType = prop.getType();
+            String msg;
+            JavaType ct;
+            if (propType.isContainerType()
+                    && (ct = propType.getContentType()) != null
+                    && ct.isAbstract()) {
+                msg = String.format(
+"Cannot handle managed/back reference %s: no back reference property found from type %s"
++" (content type %s is abstract: `@JsonBackReference` must be defined on the abstract"
++" type or interface, not just on its subtypes)",
+ClassUtil.name(refName), ClassUtil.getTypeDescription(propType),
+ClassUtil.getTypeDescription(ct));
+            } else {
+                msg = String.format(
 "Cannot handle managed/back reference %s: no back reference property found from type %s",
-ClassUtil.name(refName), ClassUtil.getTypeDescription(prop.getType())));
+ClassUtil.name(refName), ClassUtil.getTypeDescription(propType));
+            }
+            return ctxt.reportBadDefinition(_beanType, msg);
         }
         // also: verify that type is compatible
         JavaType referredType = _beanType;
@@ -1396,6 +1441,10 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         // also: may need to set a property value as well
         SettableBeanProperty idProp = _objectIdReader.idProperty;
         if (idProp != null) {
+            // [databind#4729] Records/Creators do not have setters, skip
+            if (idProp.isCreatorProperty()) {
+                return pojo;
+            }
             return idProp.setAndReturn(ctxt, pojo, id);
         }
         return pojo;

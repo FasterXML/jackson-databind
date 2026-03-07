@@ -10,11 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.type.TypeFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BeanUtilTest extends DatabindTestUtil
 {
@@ -84,7 +80,7 @@ public class BeanUtilTest extends DatabindTestUtil
         TypeFactory tf = defaultTypeFactory();
         Object result = BeanUtil.propertyDefaultValue(tf.constructType(Date.class), true);
         assertNotNull(result);
-        assertTrue(result instanceof Date);
+        assertInstanceOf(Date.class, result);
         assertEquals(0L, ((Date) result).getTime());
     }
 
@@ -94,7 +90,7 @@ public class BeanUtilTest extends DatabindTestUtil
         TypeFactory tf = defaultTypeFactory();
         Object result = BeanUtil.propertyDefaultValue(tf.constructType(Calendar.class), true);
         assertNotNull(result);
-        assertTrue(result instanceof Calendar);
+        assertInstanceOf(Calendar.class, result);
         assertEquals(0L, ((Calendar) result).getTimeInMillis());
     }
 
@@ -104,7 +100,7 @@ public class BeanUtilTest extends DatabindTestUtil
         TypeFactory tf = defaultTypeFactory();
         Object result = BeanUtil.propertyDefaultValue(tf.constructType(GregorianCalendar.class), true);
         assertNotNull(result);
-        assertTrue(result instanceof Calendar);
+        assertInstanceOf(Calendar.class, result);
         assertEquals(0L, ((Calendar) result).getTimeInMillis());
     }
 

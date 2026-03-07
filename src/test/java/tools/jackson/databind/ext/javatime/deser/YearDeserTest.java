@@ -136,7 +136,7 @@ public class YearDeserTest extends DateTimeTestBase
                 .addMixIn(Temporal.class, MockObjectConfiguration.class)
                 .build();
         Temporal value = mapper.readValue("[\"" + Year.class.getName() + "\",2005]", Temporal.class);
-        assertTrue(value instanceof Year, "The value should be a Year.");
+        assertInstanceOf(Year.class, value, "The value should be a Year.");
         assertEquals(Year.of(2005), value, "The value is not correct.");
     }
 

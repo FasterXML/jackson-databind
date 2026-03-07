@@ -112,7 +112,7 @@ public class TestDefaultForMaps
         Object key = entry.getKey();
         assertEquals(MapKey.class, key.getClass());
         Object value = entry.getValue();
-        assertTrue(value instanceof List<?>);
+        assertInstanceOf(List.class, value);
         List<?> list = (List<?>) value;
         assertEquals(1, list.size());
         assertEquals(Integer.class, list.get(0).getClass());
@@ -125,7 +125,7 @@ public class TestDefaultForMaps
         subtypes.add(new NamedType(MapHolder.class, "mapHolder"));
         subtypes.add(new NamedType(ArrayList.class, "AList"));
         subtypes.add(new NamedType(HashMap.class, "HMap"));
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         return TypeNameIdResolver.construct(mapper.deserializationConfig(),
                 defaultTypeFactory().constructType(Object.class), subtypes, forSerialization, !forSerialization);
     }

@@ -119,7 +119,7 @@ public class TypedArraySerTest
     @Test
     public void testStringListAsObjectWrapper() throws Exception
     {
-        TypedListAsWrapper<Boolean> input = new TypedListAsWrapper<Boolean>();
+        TypedListAsWrapper<Boolean> input = new TypedListAsWrapper<>();
         input.add(true);
         input.add(null);
         input.add(false);

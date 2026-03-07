@@ -161,7 +161,7 @@ public class BuilderErrorHandlingTest extends DatabindTestUtil
             fail("Expected an exception");
         } catch (ValueInstantiationException e) {
             verifyException(e, "Missing second");
-            assertTrue(e.getCause() instanceof ValidatingValue.ValidationException);
+            assertInstanceOf(ValidatingValue.ValidationException.class, e.getCause());
         }
     }
 
@@ -174,7 +174,7 @@ public class BuilderErrorHandlingTest extends DatabindTestUtil
             fail("Expected an exception");
         } catch (ValueInstantiationException e) {
             verifyException(e, "Missing second");
-            assertTrue(e.getCause() instanceof ValidatingValue.ValidationException);
+            assertInstanceOf(ValidatingValue.ValidationException.class, e.getCause());
         }
     }
 

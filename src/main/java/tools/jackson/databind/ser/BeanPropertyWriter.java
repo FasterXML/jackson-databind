@@ -243,6 +243,18 @@ public class BeanPropertyWriter
         _typeSerializer = typeSer;
         _cfgSerializationType = serType;
 
+        // [databind#5615]: Pre-set _nonTrivialBaseType for container/generic types
+        // to avoid race condition where another thread may use this property writer
+        // before resolve() has been called on the owning BeanSerializer.
+        // Use serType if available (from @JsonSerialize(as=...)), otherwise declaredType.
+        if (ser == null) {
+            JavaType baseType = (serType != null) ? serType : declaredType;
+            if (baseType != null && !baseType.isFinal()
+                    && (baseType.isContainerType() || baseType.containedTypeCount() > 0)) {
+                _nonTrivialBaseType = baseType;
+            }
+        }
+
         _suppressNulls = suppressNulls;
         _suppressableValue = suppressableValue;
 

@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.deser;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -45,7 +44,6 @@ class RecursiveIgnoreProperties1755Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // for [databind#1755]
-    @JacksonTestFailureExpected
     @Test
     void recursiveIgnore1755() throws Exception
     {
@@ -78,7 +76,6 @@ class RecursiveIgnoreProperties1755Test extends DatabindTestUtil
     }
 
     // for [databind#4417]
-    @JacksonTestFailureExpected
     @Test
     void recursiveIgnore4417() throws Exception
     {

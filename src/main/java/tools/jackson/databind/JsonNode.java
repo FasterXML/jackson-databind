@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import tools.jackson.core.*;
@@ -37,8 +39,8 @@ import tools.jackson.databind.util.ClassUtil;
  * method {@link TreeNode#traverse}, which will result in
  * a {@link JsonParser} being constructed. This can be used for (relatively)
  * efficient conversations between different representations; and it is what
- * core databind uses for methods like {@link ObjectMapper#treeToValue(TreeNode, Class)}
- * and {@link ObjectMapper#treeAsTokens(TreeNode)}
+ * core databind uses for methods like {@link ObjectMapper#treeToValue(JsonNode, Class)}
+ * and {@link ObjectMapper#treeAsTokens(JsonNode)}
  */
 public abstract class JsonNode
     extends JacksonSerializable.Base // i.e. implements JacksonSerializable
@@ -584,7 +586,9 @@ public abstract class JsonNode
     public abstract Optional<String> stringValueOpt();
 
     /**
-     * @deprecated Use {@link #asString()} instead.
+     * Deprecated alias of {@link #stringValue()}.
+     *
+     * @deprecated Use {@link #stringValue()} instead.
      */
     @Deprecated // since 3.0
     public final String textValue() {
@@ -592,18 +596,19 @@ public abstract class JsonNode
     }
 
     /**
-     * Method that will try to convert value of this node to a {@code String}.
+     * Method that will try to convert or coerce value of this node to a {@code String}.
      * JSON Strings map naturally; other scalars map to their string representation
      * (including Binary data as Base64 encoded String);
-     * JSON {@code null}s map to empty String.
-     * Other values (including structured types like Objects and Arrays, and "missing"
-     * value) will result in a {@link JsonNodeException} being thrown.
+     * JSON {@code null}s and "missing nodes" map to empty String.
+     * Structured types like Objects and Arrays,
+     * will result in a {@link JsonNodeException} being thrown.
      *<p>
      * NOTE: this is NOT same as {@link #toString()} in that result is
      * <p>NOT VALID ENCODED JSON</p> for all nodes (although is for some, like
      * {@code NumberNode}s and {@code BooleanNode}s).
      *
-     * @return String representation of this node, if coercible; exception otherwise
+     * @return String representation of this node, if coercible (scalar type);
+     *    exception otherwise (structured type)
      *
      * @throws JsonNodeException if node cannot be coerced to a {@code String}
      */
@@ -611,17 +616,20 @@ public abstract class JsonNode
 
     /**
      * Similar to {@link #asString()}, but instead of throwing an exception for
-     * non-coercible values, will return specified default value.
+     * non-coercible values or coercing {@code null} (or missing value),
+     * will return the specified default value.
      */
     public abstract String asString(String defaultValue);
 
     /**
      * Similar to {@link #asString()}, but instead of throwing an exception for
-     * non-coercible values, will return {@code Optional.empty()}.
+     * non-coercible values or coercing {@code null} (or missing value),
+     * will return {@code Optional.empty()}.
      */
     public abstract Optional<String> asStringOpt();
 
     /**
+     * Deprecate alias of {@link #asString()}
      * @deprecated Use {@link #asString()} instead.
      */
     @Deprecated // since 3.0
@@ -688,10 +696,10 @@ public abstract class JsonNode
     public abstract Optional<Boolean> booleanValueOpt();
 
     /**
-     * Method that will try to convert value of this node to a Java {@code boolean}.
+     * Method that will try to convert or coerce value of this node to a Java {@code boolean}.
      * JSON Booleans map naturally; Integer numbers other than 0 map to true, and
-     * 0 maps to false; {@code null} maps to false
-     * and Strings 'true' and 'false' map to corresponding values.
+     * 0 maps to false; {@code null} (and missing node) maps to false
+     * and Strings {@code "true"} and {@code "false"} map to corresponding values.
      * Other values (including structured types like Objects and Arrays) will
      * result in a {@link JsonNodeException} being thrown.
      *
@@ -703,13 +711,15 @@ public abstract class JsonNode
 
     /**
      * Similar to {@link #asBoolean()}, but instead of throwing an exception for
-     * non-coercible values, will return specified default value.
+     * non-coercible values or coercing {@code null} (or missing node),
+     * will return the specified default value.
      */
     public abstract boolean asBoolean(boolean defaultValue);
 
     /**
      * Similar to {@link #asBoolean()}, but instead of throwing an exception for
-     * non-coercible values, will return {@code Optional.empty()}.
+     * non-coercible values or coercing {@code null} (or missing node),
+     * will return {@code Optional.empty()}.
      */
     public abstract Optional<Boolean> asBooleanOpt();
 
@@ -780,7 +790,9 @@ public abstract class JsonNode
      *   </li>
      *  <li>JSON Strings that represent JSON Numbers ("stringified" numbers)
      *   </li>
-     *  <li>JSON Null (converted to {@code 0}))
+     *  <li>JSON Null (coerced to {@code 0}))
+     *   </li>
+     *  <li>Missing node (coerced to {@code 0}))
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
@@ -794,7 +806,7 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #shortValue()}, but that will return specified
-     * {@code defaultValue} if this node cannot be converted to {@code short}.
+     * {@code defaultValue} if this node cannot be converted to {@code short} or if the value is {@code null}.
      *
      * @param defaultValue Value to return if this node cannot be converted to {@code short}
      *
@@ -806,7 +818,7 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #asShort()}, but that will return
      * ({@code Optional.empty()}) if this node cannot
-     * be coerced to {@code short}.
+     * be coerced to {@code short} or if the value is {@code null}.
      *
      * @return {@code Optional<Short>} value this node represents,
      * if possible to accurately represent; {@code Optional.empty()} otherwise
@@ -868,7 +880,9 @@ public abstract class JsonNode
      *   </li>
      *  <li>JSON Strings that represent JSON Numbers ("stringified" numbers)
      *   </li>
-     *  <li>JSON Null (converted to {@code 0}))
+     *  <li>JSON Null (coerced to {@code 0}))
+     *   </li>
+     *  <li>Missing node (coerced to {@code 0}))
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
@@ -882,7 +896,7 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #intValue()}, but that will return specified
-     * {@code defaultValue} if this node cannot be converted to {@code int}.
+     * {@code defaultValue} if this node cannot be converted to {@code int} or if the value is {@code null}.
      *
      * @param defaultValue Value to return if this node cannot be converted to {@code int}
      *
@@ -894,7 +908,7 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #asInt()}, but that will return
      * ({@code OptionalInt.empty()}) if this node cannot
-     * be coerced to {@code int}.
+     * be coerced to {@code int} or if the value is {@code null}.
      *
      * @return {@link OptionalInt} value this node represents,
      * if possible to accurately represent; {@code OptionalInt.empty()} otherwise
@@ -956,7 +970,9 @@ public abstract class JsonNode
      *   </li>
      *  <li>JSON Strings that represent JSON Numbers ("stringified" numbers)
      *   </li>
-     *  <li>JSON Null (converted to {@code 0}))
+     *  <li>JSON Null (coerced to {@code 0}))
+     *   </li>
+     *  <li>Missing node (coerced to {@code 0}))
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
@@ -971,7 +987,7 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #asLong()}, but that will return specified
      * {@code defaultValue} if this node cannot be coerced to {@code long}
-     * (instead of throwing an exception).
+     * (instead of throwing an exception) or if the value is {@code null}.
      *
      * @param defaultValue Value to return if this node cannot be coerced to {@code long}
      *
@@ -983,7 +999,7 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #asLong()}, but that will return
      * ({@code OptionalLong.empty()}) if this node cannot
-     * be coerced to {@code long}.
+     * be coerced to {@code long} or if the value is {@code null}.
      *
      * @return {@link OptionalLong} value this node represents (or can be coerced to),
      *    {@code OptionalLong.empty()} otherwise
@@ -1043,7 +1059,9 @@ public abstract class JsonNode
      *   </li>
      *  <li>JSON Strings that represent JSON Numbers ("stringified" numbers)
      *   </li>
-     *  <li>JSON Null (converted to {@code 0}))
+     *  <li>JSON Null (coerced to {@code BigInteger.ZERO}))
+     *   </li>
+     *  <li>Missing node (coerced to {@code BigInteger.ZERO}))
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
@@ -1056,7 +1074,7 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #asBigInteger()}, but that will return specified
-     * {@code defaultValue} if this node cannot be converted to {@link BigInteger}.
+     * {@code defaultValue} if this node cannot be converted to {@link BigInteger} or if the value is {@code null}.
      *
      * @param defaultValue Value to return if this node cannot be converted to {@link BigInteger}
      *
@@ -1068,7 +1086,7 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #bigIntegerValue()}, but that will return empty
      * ({@code Optional.empty()}) if this node cannot
-     * be converted to Java {@code BigInteger}.
+     * be converted to Java {@code BigInteger} or if the value is {@code null}.
      *
      * @return {@link BigInteger} value this node represents, as {@code Optional<BigInteger>},
      * if possible to accurately represent; {@code Optional.empty()} otherwise.
@@ -1123,7 +1141,9 @@ public abstract class JsonNode
      * <ul>
      *  <li>JSON String that represents JSON Numbers ("stringified" numbers)
      *   </li>
-     *  <li>JSON Null (converted to {@code 0.0f})
+     *  <li>JSON Null (coerced to {@code 0.0f}))
+     *   </li>
+     *  <li>Missing node (coerced to {@code 0.0f}))
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
@@ -1138,7 +1158,7 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #asFloat()}, but that will return {@code defaultValue}
-     * if this node cannot be coerced to {@code float}.
+     * if this node cannot be coerced to {@code float} or if the value is {@code null}.
      *
      * @return {@code float} value this node represents,
      * if possible to accurately represent; {@code defaultValue} otherwise
@@ -1148,7 +1168,7 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #asFloat()}, but that will return
      * ({@code Optional.empty()}) if this node cannot
-     * be coerced to {@code float}.
+     * be coerced to {@code float} or if the value is {@code null}.
      *
      * @return {@code Optional<Float>} value this node represents,
      * if possible to accurately represent; {@code Optional.empty()} otherwise
@@ -1204,7 +1224,9 @@ public abstract class JsonNode
      * <ul>
      *  <li>JSON String that represents JSON Numbers ("stringified" numbers)
      *   </li>
-     *  <li>JSON Null (converted to {@code 0.0d})
+     *  <li>JSON Null (coerced to {@code 0.0d}))
+     *   </li>
+     *  <li>Missing node (coerced to {@code 0.0d}))
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
@@ -1219,7 +1241,7 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #asDouble()}, but that will return {@code defaultValue}
-     * if this node cannot be coerced to {@code double}.
+     * if this node cannot be coerced to {@code double} or if the value is {@code null}.
      *
      * @return {@code double} value this node represents,
      * if possible to accurately represent; {@code defaultValue} otherwise
@@ -1229,7 +1251,7 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #asDouble()}, but that will return
      * ({@code OptionalDouble.empty()}) if this node cannot
-     * be coerced to {@code double}.
+     * be coerced to {@code double} or if the value is {@code null}.
      *
      * @return {@link OptionalDouble} value this node represents,
      * if possible to accurately represent; {@code OptionalDouble.empty()} otherwise
@@ -1287,7 +1309,9 @@ public abstract class JsonNode
      *   </li>
      *  <li>JSON String that represents JSON Numbers ("stringified" numbers)
      *   </li>
-     *  <li>JSON Null (converted to {@link BigDecimal#ZERO}))
+     *  <li>JSON Null (coerced to {@link BigDecimal#ZERO}))
+     *   </li>
+     *  <li>Missing node (coerced to {@link BigDecimal#ZERO}))
      *   </li>
      *  <li>POJO nodes that contain Number values
      *   </li>
@@ -1302,7 +1326,7 @@ public abstract class JsonNode
 
     /**
      * Method similar to {@link #asDecimal()}, but that will return {@code defaultValue}
-     * if this node cannot be coerced to Java {@code BigDecimal}.
+     * if this node cannot be coerced to Java {@code BigDecimal} or if the value is {@code null}.
      *
      * @return {@code BigDecimal} value this node represents,
      * if possible to accurately represent; {@code defaultValue} otherwise
@@ -1312,12 +1336,62 @@ public abstract class JsonNode
     /**
      * Method similar to {@link #asDecimal()}, but that will return empty
      * {@link Optional} ({@code Optional.empty()}) if this node cannot
-     * be coerced to {@code BigDecimal}.
+     * be coerced to {@code BigDecimal} or if the value is {@code null}.
      *
      * @return Java {@code BigDecimal} value this node represents, as {@code Optional<BigDecimal>},
      * if possible to accurately represent; {@code Optional.empty()} otherwise
      */
     public abstract Optional<BigDecimal> asDecimalOpt();
+
+    // // Container access: ArrayNode / ObjectNode
+
+    /**
+     * Method that will try to return this node as an {@link ArrayNode}:
+     * if this node is already an {@code ArrayNode}, {@code this} is returned;
+     * otherwise a {@link JsonNodeException} will be thrown.
+     *
+     * @return This node as {@link ArrayNode} (if it is one)
+     *
+     * @throws JsonNodeException if this node is not an {@link ArrayNode}
+     *
+     * @since 3.1
+     */
+    public abstract ArrayNode asArray();
+
+    /**
+     * Similar to {@link #asArray()}, but instead of throwing an exception for
+     * non-array nodes, will return {@code Optional.empty()}.
+     *
+     * @return This node as {@code Optional<ArrayNode>} (if it is an array node);
+     *   {@code Optional.empty()} otherwise
+     *
+     * @since 3.1
+     */
+    public abstract Optional<ArrayNode> asArrayOpt();
+
+    /**
+     * Method that will try to return this node as an {@link ObjectNode}:
+     * if this node is already an {@code ObjectNode}, {@code this} is returned;
+     * otherwise a {@link JsonNodeException} will be thrown.
+     *
+     * @return This node as {@link ObjectNode} (if it is one)
+     *
+     * @throws JsonNodeException if this node is not an {@link ObjectNode}
+     *
+     * @since 3.1
+     */
+    public abstract ObjectNode asObject();
+
+    /**
+     * Similar to {@link #asObject()}, but instead of throwing an exception for
+     * non-object nodes, will return {@code Optional.empty()}.
+     *
+     * @return This node as {@code Optional<ObjectNode>} (if it is an object node);
+     *   {@code Optional.empty()} otherwise
+     *
+     * @since 3.1
+     */
+    public abstract Optional<ObjectNode> asObjectOpt();
 
     /*
     /**********************************************************************
@@ -1998,6 +2072,120 @@ public abstract class JsonNode
         // To avoid abstract method, base implementation just fails
         return _reportUnsupportedOperation("`JsonNode` not of type `ObjectNode` (but `"
                 +getClass().getName()+")`, cannot call `withArrayProperty(String)` on it");
+    }
+
+    /*
+    /**********************************************************************
+    /* Public API, conversions (3.1)
+    /**********************************************************************
+     */
+
+    /**
+     * Method that applies a transformation function to this node and returns the result.
+     * This enables functional-style transformations of {@link JsonNode} objects.
+     *<p>
+     * For example:
+     *<pre>
+     *   JsonNode node = ...;
+     *   String upperCaseText = node.map(n -&gt; n.asString().toUpperCase());
+     *   Integer value = node.map(n -&gt; n.asInt() * 2);
+     *</pre>
+     *
+     * @param <R> The type of the result produced by the mapper function
+     * @param mapper Function to apply to this node
+     *
+     * @return Result of applying the mapper function to this node
+     *
+     * @since 3.1
+     */
+    public <R> R map(Function<? super JsonNode, ? extends R> mapper) {
+        return mapper.apply(this);
+    }
+
+    /**
+     * Method for handling {@code null} values: if this node represents JSON {@code null}
+     * value (that is, {@link #isNull()} returns {@code true}), returns the specified
+     * replacement value; otherwise returns {@code this} node.
+     *<p>
+     * This enables functional-style handling of null values:
+     *<pre>
+     *   JsonNode node = ...;
+     *   JsonNode nonNull = node.nullAs(defaultNode);
+     *</pre>
+     *
+     * @param replacement Value to return if this node is a null node
+     *
+     * @return {@code this} node if not null, otherwise the replacement node
+     *
+     * @since 3.1
+     */
+    public JsonNode nullAs(JsonNode replacement) {
+        return isNull() ? replacement : this;
+    }
+
+    /**
+     * Method for handling {@code null} values with deferred evaluation: if this node
+     * represents JSON {@code null} value (that is, {@link #isNull()} returns {@code true}),
+     * invokes the supplier and returns its result; otherwise returns {@code this} node
+     * without invoking the supplier.
+     *<p>
+     * This enables functional-style handling of null values with lazy evaluation:
+     *<pre>
+     *   JsonNode node = ...;
+     *   JsonNode nonNull = node.nullAs(() -&gt; computeDefault());
+     *</pre>
+     *
+     * @param supplier Supplier to invoke if this node is a null node
+     *
+     * @return {@code this} node if not null, otherwise the result from the supplier
+     *
+     * @since 3.1
+     */
+    public JsonNode nullAs(Supplier<? extends JsonNode> supplier) {
+        return isNull() ? supplier.get() : this;
+    }
+
+    /**
+     * Method for handling missing nodes: if this node is a {@link MissingNode}
+     * (that is, {@link #isMissingNode()} returns {@code true}), returns the specified
+     * replacement value; otherwise returns {@code this} node.
+     *<p>
+     * This enables functional-style handling of missing values:
+     *<pre>
+     *   JsonNode node = objectNode.path("mayNotExist");
+     *   JsonNode present = node.missingAs(defaultNode);
+     *</pre>
+     *
+     * @param replacement Value to return if this node is a missing node
+     *
+     * @return {@code this} node if not missing, otherwise the replacement node
+     *
+     * @since 3.1
+     */
+    public JsonNode missingAs(JsonNode replacement) {
+        return isMissingNode() ? replacement : this;
+    }
+
+    /**
+     * Method for handling missing nodes with deferred evaluation: if this node is a
+     * {@link MissingNode} (that is, {@link #isMissingNode()} returns {@code true}),
+     * invokes the supplier and returns its result; otherwise returns {@code this} node
+     * without invoking the supplier.
+     *<p>
+     * This enables functional-style handling of missing values with lazy evaluation:
+     *<pre>
+     *   JsonNode node = objectNode.path("mayNotExist");
+     *   JsonNode present = node.missingAs(() -&gt; computeDefault());
+     *</pre>
+     *
+     * @param supplier Supplier to invoke if this node is a missing node
+     *
+     * @return {@code this} node if not missing, otherwise the result from the supplier
+     *
+     * @since 3.1
+     */
+    public JsonNode missingAs(Supplier<? extends JsonNode> supplier) {
+        return isMissingNode() ? supplier.get() : this;
     }
 
     /*

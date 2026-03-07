@@ -431,6 +431,9 @@ Jonas Konrad (yawkat@github)
    (2.14.1)
   * Contributed fix for #4848: Avoid type pollution in `StringCollectionDeserializer`
    (2.18.3)
+  * Fixed #5729: (regression due to #5429) ISO-8601 change prevents parsing
+    negative timestamps (dates before 1970)
+   (2.21.2)
 
 Jirka Kremser (Jiri-Kremser@github)
   * Suggested #924: SequenceWriter.writeAll() could accept Iterable
@@ -1979,6 +1982,14 @@ Michael Reiche (@mikereiche)
    with name() key instead of @JsonValue key
   (2.20.0)
 
+Moritz Reyer (@MoritzR200)
+ * Contributed #5537: Add missing `@JsonIdentityInfo` handling for implicit `Collection`s with
+   `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+  (2.20.2)
+ * Contributed #5541: Add missing `@JsonIdentityInfo` handling for implicit Arrays with
+   `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+  (2.21.0)
+
 Johnny Lim (@izeye)
  * Reported #5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
   (2.21.0)
@@ -1986,3 +1997,21 @@ Johnny Lim (@izeye)
 Hélios Gilles (@RoiSoleil)
  * Contributed #5413: Add/support forward reference resolution for array values
   [2.21.0]
+
+Brandon Schmitt (@BrandonSchmitt)
+ * Reported #5616: `ObjectWriter` serializes `Optional`s with subtypes incompletely
+  [2.21.1]
+
+Kyrylo Merzlikin (@kirmerzlikin)
+ * Reported #5706: `TokenBuffer` serialization fails when buffer contains integer
+   encoded as String
+  [2.21.1]
+
+Thomas Wöckinger (@thomaswoeckinger)
+ * Reported #5729: (regression due to #5429) ISO-8601 change prevents parsing
+   negative timestamps (dates before 1970)
+  [2.21.2]
+
+Lee Jiwon (@dlwldnjs1009)
+ * Contributed #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
+  [2.22.0]

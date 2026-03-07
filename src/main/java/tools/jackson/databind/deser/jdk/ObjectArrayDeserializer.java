@@ -27,6 +27,7 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.ArrayType;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
+import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.ObjectBuffer;
 
 /**
@@ -196,7 +197,7 @@ public class ObjectArrayDeserializer
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!p.isExpectedStartArrayToken()) {
-            return handleNonArray(p, ctxt);
+            return _handleNonArray(p, ctxt);
         }
         if (_elementDeserializer.getObjectIdReader(ctxt) != null) {
             return _deserializeWithObjectId(p, ctxt);
@@ -224,7 +225,7 @@ public class ObjectArrayDeserializer
     {
         final Object[] intoValue = (Object[]) intoValue0;
         if (!p.isExpectedStartArrayToken()) {
-            Object[] arr = (Object[]) handleNonArray(p, ctxt);
+            Object[] arr = (Object[]) _handleNonArray(p, ctxt);
             if (arr == null) {
                 return intoValue;
             }
@@ -350,7 +351,7 @@ public class ObjectArrayDeserializer
         return result;
     }
 
-    protected Object handleNonArray(JsonParser p, DeserializationContext ctxt)
+    protected Object _handleNonArray(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
         // Can we do implicit coercion to a single-element array still?
@@ -358,21 +359,26 @@ public class ObjectArrayDeserializer
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (!canWrap) {
-            // 2 exceptions with Strings:
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 // One exception; byte arrays are generally serialized as base64, so that should be handled
                 // note: not `byte[]`, but `Byte[]` -- former is primitive array
                 if (_elementClass == Byte.class) {
                     return deserializeFromBase64(p, ctxt);
                 }
-                // Second: empty (and maybe blank) String
-                return _deserializeFromString(p, ctxt);
+                // [databind#3349]: for non-empty strings, delegate to handleUnexpectedToken
+                return _deserializeFromStringForContainer(p, ctxt);
             }
             return ctxt.handleUnexpectedToken(_containerType, p);
         }
-        JsonToken t = p.currentToken();
+
+        // 03-Jan-2026: [databind#5541] Support Object Id for implicit Object[]s too
+        if (_elementDeserializer.getObjectIdReader(ctxt) != null) {
+            return _wrapSingleWithObjectId(p, ctxt);
+        }
+
         Object value;
 
+        JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_NULL) {
             // 03-Feb-2017, tatu: Should this be skipped or not?
             if (_skipNullValues) {
@@ -418,10 +424,71 @@ public class ObjectArrayDeserializer
         if (_untyped) {
             result = new Object[1];
         } else {
+            // [databind#5646] Check if value is compatible with element type to avoid
+            // ArrayStoreException. Fail do not hide issue so we can hopefully fix it
+            // in future
+            if (value != null && !_elementClass.isInstance(value)) {
+                throw DatabindException.from(p,
+                        String.format(
+"Internal error: deserialized value of type %s not assignable to expected array element type %s",
+ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
+            }
             result = (Object[]) Array.newInstance(_elementClass, 1);
         }
         result[0] = value;
         return result;
+    }
+
+    // @since 2.21
+    // Copied from `_deserializeWithObjectId()`
+    protected Object[] _wrapSingleWithObjectId(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        final ObjectArrayReferringAccumulator acc = new ObjectArrayReferringAccumulator(_untyped, _elementClass);
+        Object value;
+        try {
+            if (p.hasToken(JsonToken.VALUE_NULL)) {
+                if (_skipNullValues) {
+                    return _emptyValue;
+                }
+                value = null;
+            } else {
+                if (p.hasToken(JsonToken.VALUE_STRING)) {
+                    String textValue = p.getString();
+                    // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
+                    if (textValue.isEmpty()) {
+                        final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
+                                CoercionInputShape.EmptyString);
+                        if (act != CoercionAction.Fail) {
+                            return (Object[]) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                    "empty String (\"\")");
+                        }
+                    } else if (_isBlank(textValue)) {
+                        final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), handledType(),
+                                CoercionAction.Fail);
+                        if (act != CoercionAction.Fail) {
+                            return (Object[]) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                    "blank String (all whitespace)");
+                        }
+                    }
+                    // if coercion failed, we can still add it to a list
+                }
+
+                value = _deserializeNoNullChecks(p, ctxt);
+            }
+
+            if (value == null) {
+                value = _nullProvider.getNullValue(ctxt);
+                if (value == null && _skipNullValues) {
+                    return _emptyValue;
+                }
+            }
+            acc.add(value);
+        } catch (UnresolvedForwardReference reference) {
+            ArrayReferring referring = new ArrayReferring(reference, _elementClass, acc);
+            reference.getRoid().appendReferring(referring);
+        }
+        return acc.buildArray();
     }
 
     /**
@@ -457,14 +524,16 @@ public class ObjectArrayDeserializer
         }
 
         Object[] buildArray() {
+            final int size = _accumulator.size();
             if (_untyped) {
-                _array = new Object[_accumulator.size()];
+                _array = new Object[size];
             } else {
-                _array = (Object[]) Array.newInstance(_elementType, _accumulator.size());
+                _array = (Object[]) Array.newInstance(_elementType, size);
             }
-            for (int i = 0; i < _accumulator.size(); i++) {
-                if (!(_accumulator.get(i) instanceof ArrayReferring)) {
-                    _array[i] = _accumulator.get(i);
+            for (int i = 0; i < size; i++) {
+                Object value = _accumulator.get(i);
+                if (!(value instanceof ArrayReferring)) {
+                    _array[i] = value;
                 }
             }
             return _array;
@@ -485,7 +554,8 @@ public class ObjectArrayDeserializer
         @Override
         public void handleResolvedForwardReference(DeserializationContext ctxt,
                 Object id, Object value) throws JacksonException {
-            for (int i = 0; i < _parent._accumulator.size(); i++) {
+            final int size = _parent._accumulator.size();
+            for (int i = 0; i < size; i++) {
                 if (_parent._accumulator.get(i) == this) {
                     _parent._array[i] = value;
                     return;

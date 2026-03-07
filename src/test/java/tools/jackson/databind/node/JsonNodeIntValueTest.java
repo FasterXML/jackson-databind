@@ -300,10 +300,17 @@ public class JsonNodeIntValueTest
     @Test
     public void asIntFromMiscOther()
     {
-        // NullNode -> 0 but "missing" still fails
-        _assertAsInt(0, NODES.nullNode());
+        // NullNode -> 0
+        assertEquals(0, NODES.nullNode().asInt());
 
-        _assertAsIntFailForNonNumber(NODES.missingNode());
+        // and defaulting
+        assertEquals(999_999, NODES.nullNode().asInt(999_999));
+        assertFalse(NODES.nullNode().asIntOpt().isPresent());
+
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals(0, NODES.missingNode().asInt());
+        assertEquals(999_999, NODES.missingNode().asInt(999_999));
+        assertFalse(NODES.missingNode().asIntOpt().isPresent());
     }
     
     // // // Shared helper methods: intValue()
@@ -351,7 +358,7 @@ public class JsonNodeIntValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("intValue()")
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains("value type not numeric");
 
         // assert defaulting
@@ -399,7 +406,7 @@ public class JsonNodeIntValueTest
     }
 
     private void _assertAsIntFailForNonNumber(JsonNode node) {
-        _assertAsIntFailForNonNumber(node, "value type not numeric");
+        _assertAsIntFailForNonNumber(node, "value type not coercible");
     }
 
     private void _assertAsIntFailForNonNumber(JsonNode node, String extraFailMsg) {
@@ -408,7 +415,7 @@ public class JsonNodeIntValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("asInt()")
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains(extraFailMsg);
 
         // assert defaulting

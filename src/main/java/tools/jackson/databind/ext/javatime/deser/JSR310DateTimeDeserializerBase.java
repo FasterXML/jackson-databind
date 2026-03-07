@@ -20,7 +20,7 @@ public abstract class JSR310DateTimeDeserializerBase<T>
     protected final DateTimeFormatter _formatter;
 
     /**
-     * Setting that indicates the {@Link JsonFormat.Shape} specified for this deserializer
+     * Setting that indicates the {@link Shape} specified for this deserializer
      * as a {@link com.fasterxml.jackson.annotation.JsonFormat.Shape} annotation on
      * property or class, or due to per-type "config override", or from global settings:
      * If Shape is NUMBER_INT, the input value is considered to be epoch days. If not a
@@ -165,10 +165,11 @@ public abstract class JSR310DateTimeDeserializerBase<T>
         return enabled;
     }
     
-    protected void _throwNoNumericTimestampNeedTimeZone(JsonParser p, DeserializationContext ctxt)
+    @SuppressWarnings("unchecked")
+    protected <BOGUS> BOGUS _throwNoNumericTimestampNeedTimeZone(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        ctxt.reportInputMismatch(handledType(),
+        return (BOGUS) ctxt.reportInputMismatch(handledType(),
 "raw timestamp (%d) not allowed for `%s`: need additional information such as an offset or time-zone (see class Javadocs)",
 p.getNumberValue(), handledType().getName());
     }

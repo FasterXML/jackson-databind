@@ -30,6 +30,17 @@ public class UnresolvedId {
     public Class<?> getType() { return _type; }
     public TokenStreamLocation getLocation() { return _location; }
 
+    // @since 3.1
+    public String descForException() {
+        var sb = new StringBuilder("{Object id: ");
+        if (_id instanceof String) {
+            sb.append('"').append(_id).append('"');
+        } else {
+            sb.append(_id);
+        }
+        return sb.append('}').toString();
+    }
+
     @Override
     public String toString() {
         return String.format("Object id [%s] (for %s) at %s", _id,

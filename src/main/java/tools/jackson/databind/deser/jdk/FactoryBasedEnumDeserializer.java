@@ -16,6 +16,7 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.EnumResolver;
+import tools.jackson.databind.util.ExceptionUtil;
 
 /**
  * Deserializer that uses a single-String static factory method
@@ -274,13 +275,6 @@ class FactoryBasedEnumDeserializer
     private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt)
         throws JacksonException
     {
-        t = ClassUtil.getRootCause(t);
-        // Errors to be passed as is
-        ClassUtil.throwIfError(t);
-        boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
-        if (!wrap) {
-            ClassUtil.throwIfRTE(t);
-        }
-        return t;
+        return ExceptionUtil.rethrowIfNoWrap(ctxt, ClassUtil.getRootCause(t));
     }
 }

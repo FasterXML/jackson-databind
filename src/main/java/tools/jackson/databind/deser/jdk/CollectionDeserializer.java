@@ -284,7 +284,7 @@ _containerType,
         if (p.hasToken(JsonToken.VALUE_STRING)) {
             return _deserializeFromString(p, ctxt, p.getString());
         }
-        return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
+        return _handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }
 
     @SuppressWarnings("unchecked")
@@ -303,7 +303,7 @@ _containerType,
         if (p.isExpectedStartArrayToken()) {
             return _deserializeFromArray(p, ctxt, result);
         }
-        return handleNonArray(p, ctxt, result);
+        return _handleNonArray(p, ctxt, result);
     }
 
     @Override
@@ -359,7 +359,7 @@ _containerType,
             // note: `CoercionAction.Fail` falls through because we may need to allow
             // `ACCEPT_SINGLE_VALUE_AS_ARRAY` handling later on
         }
-        return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
+        return _handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }
 
     /**
@@ -424,8 +424,8 @@ _containerType,
      * array, depending on configuration.
      */
     @SuppressWarnings("unchecked")
-    protected final Collection<Object> handleNonArray(JsonParser p, DeserializationContext ctxt,
-            Collection<Object> result)
+    protected final Collection<Object> _handleNonArray(JsonParser p,
+            DeserializationContext ctxt, Collection<Object> result)
         throws JacksonException
     {
         // Implicit arrays from single values?
@@ -436,6 +436,11 @@ _containerType,
             return (Collection<Object>) ctxt.handleUnexpectedToken(_containerType, p);
         }
         JsonToken t = p.currentToken();
+
+        // 03-Jan-2026: [databind#5537] Support Object Id for implicit Collections too
+        if (_valueDeserializer.getObjectIdReader(ctxt) != null) {
+            return _wrapSingleWithObjectId(p, ctxt, result);
+        }
 
         Object value;
 
@@ -466,19 +471,19 @@ _containerType,
             }
             // note: pass Object.class, not Object[].class, as we need element type for error info
             throw DatabindException.wrapWithPath(ctxt, e,
-                    new JacksonException.Reference(Object.class, result.size()));
+                    new JacksonException.Reference(_containerType.getContentType().getRawClass(), result.size()));
         }
         result.add(value);
         return result;
     }
 
-    protected Collection<Object> _deserializeWithObjectId(JsonParser p, DeserializationContext ctxt,
-            Collection<Object> result)
+    protected Collection<Object> _deserializeWithObjectId(JsonParser p,
+            DeserializationContext ctxt, Collection<Object> result)
         throws JacksonException
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!p.isExpectedStartArrayToken()) {
-            return handleNonArray(p, ctxt, result);
+            return _handleNonArray(p, ctxt, result);
         }
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.assignCurrentValue(result);
@@ -522,13 +527,54 @@ _containerType,
         return result;
     }
 
+    // @since 2.20.2
+    // Copied from `_deserializeWithObjectId()` above
+    protected Collection<Object> _wrapSingleWithObjectId(JsonParser p,
+            DeserializationContext ctxt, Collection<Object> result)
+        throws JacksonException
+    {
+        final CollectionReferringAccumulator referringAccumulator =
+                new CollectionReferringAccumulator(getContentType().getRawClass(), result);
+
+        try {
+            Object value;
+            if (p.hasToken(JsonToken.VALUE_NULL)) {
+                if (_skipNullValues) {
+                    return result;
+                }
+                value = null;
+            } else {
+                value = _deserializeNoNullChecks(p, ctxt);
+            }
+
+            if (value == null) {
+                value = _nullProvider.getNullValue(ctxt);
+                if (value == null) {
+                    _tryToAddNull(p, ctxt, result);
+                    return result;
+                }
+            }
+            referringAccumulator.add(value);
+        } catch (UnresolvedForwardReference reference) {
+            Referring ref = referringAccumulator.handleUnresolvedReference(reference);
+            reference.getRoid().appendReferring(ref);
+        } catch (Exception e) {
+            if (!ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)) {
+                ClassUtil.throwIfRTE(e);
+            }
+            throw DatabindException.wrapWithPath(ctxt, e,
+                    new JacksonException.Reference(result, result.size()));
+        }
+        return result;
+    }
+
     /**
      * Deserialize the content of the collection.
      * If _valueTypeDeserializer is null, use _valueDeserializer.deserialize; if non-null,
      * use _valueDeserializer.deserializeWithType to deserialize value.
      * This method only performs deserialization and does not consider _skipNullValues, _nullProvider, etc.
      */
-    protected Object _deserializeNoNullChecks(JsonParser p,DeserializationContext ctxt)
+    protected Object _deserializeNoNullChecks(JsonParser p, DeserializationContext ctxt)
     {
         if (_valueTypeDeserializer == null) {
             return _valueDeserializer.deserialize(p, ctxt);

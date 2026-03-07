@@ -62,7 +62,7 @@ public enum SerializationFeature implements ConfigFeature
      * types; if disabled, they are serialized as empty Objects,
      * i.e. without any properties.
      *<p>
-     * Note that empty types that this feature has only effect on
+     * Note that this feature has only effect on
      * those "empty" beans that do not have any recognized annotations
      * (like <code>@JsonSerialize</code>): ones that do have annotations
      * do not result in an exception being thrown.
@@ -258,21 +258,21 @@ public enum SerializationFeature implements ConfigFeature
 
     /**
      * Feature that determines whether {@code JsonInclude#content()} configured
-     * filtering is applied to elements of {@link java.util.Collection} valued
-     * properties.
+     * filtering is applied to elements of {@link java.util.Collection} and
+     * array valued properties.
      * By default, {@code content()} inclusion rules are only applied to
      * {@code Map} values and reference type contents, and are ignored for
-     * {@code Collection} elements.
+     * {@code Collection} and array elements.
      * <p>
      * When this feature is enabled, {@code JsonInclude#content()} rules
-     * are used for filtering {@code Collection} elements during serialization.
+     * are used for filtering {@code Collection} and array elements during serialization.
      * <p>
      * This feature is <b>disabled by default</b> for backwards
      * compatibility.
      *
      * @since 3.1
      */
-    APPLY_JSON_INCLUDE_FOR_COLLECTIONS(false),
+    APPLY_JSON_INCLUDE_FOR_CONTAINERS(false),
 
     /*
     /**********************************************************************

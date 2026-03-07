@@ -438,7 +438,7 @@ public abstract class BasicSerializerFactory
             return ser;
         }
         JavaType delegateType = conv.getOutputType(ctxt.getTypeFactory());
-        return new StdDelegatingSerializer(conv, delegateType, ser, null);
+        return new StdConvertingSerializer(conv, delegateType, ser, null);
     }
 
     protected Converter<Object,Object> findConverter(SerializationContext ctxt,
@@ -748,7 +748,7 @@ public abstract class BasicSerializerFactory
 
         switch (incl) {
         case NON_DEFAULT:
-            valueToSuppress = BeanUtil.getDefaultValue(contentType);
+            valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, contentType);
             if (valueToSuppress != null) {
                 if (valueToSuppress.getClass().isArray()) {
                     valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
@@ -808,7 +808,7 @@ public abstract class BasicSerializerFactory
 
         switch (incl) {
         case NON_DEFAULT:
-            valueToSuppress = BeanUtil.getDefaultValue(contentType);
+            valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, contentType);
             if (valueToSuppress != null) {
                 if (valueToSuppress.getClass().isArray()) {
                     valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
@@ -997,7 +997,7 @@ public abstract class BasicSerializerFactory
             suppressNulls = true;
             switch (incl) {
             case NON_DEFAULT:
-                valueToSuppress = BeanUtil.getDefaultValue(contentType);
+                valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, contentType);
                 if (valueToSuppress != null) {
                     if (valueToSuppress.getClass().isArray()) {
                         valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);

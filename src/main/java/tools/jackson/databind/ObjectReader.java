@@ -1,13 +1,12 @@
 package tools.jackson.databind;
 
 import java.io.*;
-import java.nio.file.Files;
+import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import tools.jackson.core.*;
-import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.filter.FilteringParserDelegate;
 import tools.jackson.core.filter.JsonPointerBasedFilter;
 import tools.jackson.core.filter.TokenFilter;
@@ -50,7 +49,7 @@ import tools.jackson.databind.util.TokenBuffer;
  * should be extended by sub-classing.
  */
 public class ObjectReader
-    implements Versioned, TreeCodec
+    implements TreeCodec<JsonNode>, Versioned
 
     // NOTE: since 3.x, NO LONGER JDK Serializable
 {
@@ -834,6 +833,13 @@ public class ObjectReader
     }
 
     /**
+     * @since 3.1
+     */
+    public JsonNodeFactory jsonNodeFactory() {
+        return _config.getNodeFactory();
+    }
+
+    /**
      * @since 3.0
      */
     public TokenStreamFactory parserFactory() {
@@ -845,6 +851,29 @@ public class ObjectReader
      */
     public TypeFactory typeFactory() {
         return _config.getTypeFactory();
+    }
+
+    /**
+     * Convenience method for constructing {@link JavaType} out of given
+     * type (typically <code>java.lang.Class</code>), but without explicit
+     * context.
+     *
+     * @since 3.1
+     */
+    public JavaType constructType(Type type) {
+        _assertNotNull("type", type);
+        return _config.getTypeFactory().constructType(type);
+    }
+
+    /**
+     * Convenience method for constructing {@link JavaType} out of given
+     * type reference.
+     *
+     * @since 3.1
+     */
+    public JavaType constructType(TypeReference<?> typeReference) {
+        _assertNotNull("typeReference", typeReference);
+        return _config.getTypeFactory().constructType(typeReference);
     }
 
     public ContextAttributes getAttributes() {
@@ -1047,23 +1076,18 @@ public class ObjectReader
      */
 
     @Override
-    public ObjectNode createObjectNode() {
-        return _config.getNodeFactory().objectNode();
-    }
-
-    @Override
     public ArrayNode createArrayNode() {
         return _config.getNodeFactory().arrayNode();
     }
 
     @Override
-    public JsonNode booleanNode(boolean b) {
-        return _config.getNodeFactory().booleanNode(b);
+    public ObjectNode createObjectNode() {
+        return _config.getNodeFactory().objectNode();
     }
 
     @Override
-    public JsonNode stringNode(String text) {
-        return _config.getNodeFactory().stringNode(text);
+    public JsonNode booleanNode(boolean b) {
+        return _config.getNodeFactory().booleanNode(b);
     }
 
     @Override
@@ -1077,14 +1101,19 @@ public class ObjectReader
     }
 
     @Override
-    public JsonParser treeAsTokens(TreeNode n) {
+    public JsonNode stringNode(String text) {
+        return _config.getNodeFactory().stringNode(text);
+    }
+    
+    @Override
+    public JsonParser treeAsTokens(JsonNode n) {
         _assertNotNull("n", n);
-        return treeAsTokens((JsonNode) n, _deserializationContext());
+        return treeAsTokens(n, _deserializationContext());
     }
 
-    protected JsonParser treeAsTokens(JsonNode n, DeserializationContext ctxt) {
+    protected JsonParser treeAsTokens(JsonNode n, DeserializationContextExt ctxt) {
         _assertNotNull("n", n);
-        return new TreeTraversingParser(n, ctxt);
+        return ctxt.assignAndReturnParser(new TreeTraversingParser(n, ctxt));
     }
 
     /**
@@ -1102,7 +1131,6 @@ public class ObjectReader
      * Note: if an object was specified with {@link #withValueToUpdate}, it
      * will be ignored.
      */
-    @SuppressWarnings("unchecked")
     @Override
     public JsonNode readTree(JsonParser p) throws JacksonException {
         _assertNotNull("p", p);
@@ -1111,7 +1139,7 @@ public class ObjectReader
 
     // Alas, can't really support this part...
     @Override
-    public void writeTree(JsonGenerator g, TreeNode tree) {
+    public void writeTree(JsonGenerator g, JsonNode tree) {
         throw new UnsupportedOperationException();
     }
 
@@ -1770,19 +1798,33 @@ public class ObjectReader
     /**********************************************************************
      */
 
-    public <T> T treeToValue(TreeNode n, Class<T> valueType) throws JacksonException
+    public <T> T treeToValue(JsonNode n, Class<T> valueType) throws JacksonException
     {
-        _assertNotNull("n", n);
+        if (n == null) {
+            return null;
+        }
         return forType(valueType).readValue(treeAsTokens(n));
     }
 
+    @Deprecated // @since 3.1
+    public <T> T treeToValue(TreeNode n, Class<T> valueType) throws JacksonException {
+        return treeToValue((JsonNode) n, valueType);
+    }
+
     /**
-     * Same as {@link #treeToValue(TreeNode, Class)} but with type-resolved target value type.
+     * Same as {@link #treeToValue(JsonNode, Class)} but with type-resolved target value type.
      */
-    public <T> T treeToValue(TreeNode n, JavaType valueType) throws JacksonException
+    public <T> T treeToValue(JsonNode n, JavaType valueType) throws JacksonException
     {
-        _assertNotNull("n", n);
-        return forType(valueType).readValue(treeAsTokens(n));
+        if (n == null) {
+            return null;
+        }
+        return forType(valueType).readValue(treeAsTokens( n));
+    }
+
+    @Deprecated // @since 3.1
+    public <T> T treeToValue(TreeNode n, JavaType valueType) throws JacksonException {
+        return treeToValue((JsonNode) n, valueType);
     }
 
     /*
@@ -1813,7 +1855,9 @@ public class ObjectReader
             // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
             result = valueToUpdate;
         } else { // pointing to event other than null
-            result = ctxt.readRootValue(p, _valueType, _findRootDeserializer(ctxt), _valueToUpdate);
+            result = ctxt.readRootValue(p, _valueType,
+                    _findRootDeserializer(ctxt), _valueToUpdate);
+            ctxt.checkUnresolvedObjectId();
         }
         // Need to consume the token too
         p.clearCurrentToken();
@@ -1841,7 +1885,9 @@ public class ObjectReader
                 // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
                 result = _valueToUpdate;
             } else {
-                result = ctxt.readRootValue(p, _valueType, _findRootDeserializer(ctxt), _valueToUpdate);
+                result = ctxt.readRootValue(p, _valueType,
+                        _findRootDeserializer(ctxt), _valueToUpdate);
+                ctxt.checkUnresolvedObjectId();
             }
             // No need to consume the token as parser gets closed anyway
             if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
@@ -1944,8 +1990,8 @@ public class ObjectReader
         if (t == null) {
             t = p.nextToken();
             if (t == null) {
-                // [databind#2211]: return `MissingNode` (supercedes [databind#1406] which dictated
-                // returning `null`
+                // [databind#2211]: return `MissingNode` (supercedes [databind#1406]
+                // which dictated returning `null`)
                 return _config.getNodeFactory().missingNode();
             }
         }
@@ -2062,22 +2108,6 @@ public class ObjectReader
     protected DeserializationContextExt _deserializationContext(JsonParser p) {
         return _contexts.createContext(_config, _schema, _injectableValues)
                 .assignParser(p);
-    }
-
-    protected InputStream _inputStream(File f) throws JacksonException {
-        try {
-            return new FileInputStream(f);
-        } catch (IOException e) {
-            throw JacksonIOException.construct(e);
-        }
-    }
-
-    protected InputStream _inputStream(Path path) throws JacksonException {
-        try {
-            return Files.newInputStream(path);
-        } catch (IOException e) {
-            throw JacksonIOException.construct(e);
-        }
     }
 
     protected final void _assertNotNull(String paramName, Object src) {

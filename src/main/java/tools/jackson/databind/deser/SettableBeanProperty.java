@@ -5,20 +5,19 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.core.*;
 import tools.jackson.core.util.InternCache;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.bean.BeanDeserializer;
 import tools.jackson.databind.deser.impl.FailingDeserializer;
 import tools.jackson.databind.deser.impl.NullsConstantProvider;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.jsontype.TypeDeserializer;
-import tools.jackson.databind.util.Annotations;
-import tools.jackson.databind.util.ClassUtil;
-import tools.jackson.databind.util.NameTransformer;
-import tools.jackson.databind.util.ViewMatcher;
+import tools.jackson.databind.util.*;
 
 /**
  * Base class for deserializable properties of a bean: contains
@@ -393,6 +392,12 @@ public abstract class SettableBeanProperty
     @Override
     public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
         return _contextAnnotations.get(acls);
+    }
+
+    @Override
+    public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType) {
+        // Not needed on deserialization side so:
+        return JsonInclude.Value.empty();
     }
 
     @Override

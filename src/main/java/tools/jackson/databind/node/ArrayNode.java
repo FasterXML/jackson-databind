@@ -68,7 +68,11 @@ public class ArrayNode
 
     @Override
     protected String _valueDesc() {
-        return "[...(" + _children.size() + " elements)]";
+        int size = _children.size();
+        if (size == 0) {
+            return "[ ]";
+        }
+        return "[...(" + size + " elements)]";
     }
     
     // note: co-variant to allow caller-side type safety
@@ -229,6 +233,16 @@ public class ArrayNode
     @Override
     public boolean isArray() {
         return true;
+    }
+
+    @Override
+    public ArrayNode asArray() {
+        return this;
+    }
+
+    @Override
+    public Optional<ArrayNode> asArrayOpt() {
+        return Optional.of(this);
     }
 
     @Override public JsonToken asToken() { return JsonToken.START_ARRAY; }
@@ -422,7 +436,7 @@ public class ArrayNode
      *
      * @return This node after adding/replacing property value (to allow chaining)
      *
-     * @throws IndexOutOfBoundsException If Array does not have specified element
+     * @throws JsonNodeException If Array does not have specified element
      *  (that is, index is outside valid range of elements in array)
      */
     public ArrayNode set(int index, JsonNode value)
@@ -430,11 +444,7 @@ public class ArrayNode
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
-        if (index < 0 || index >= _children.size()) {
-            throw new IndexOutOfBoundsException("Illegal index "+ index +", array size "+size());
-        }
-        _children.set(index, value);
-        return this;
+        return _set(index, value);
     }
 
     /**
@@ -446,7 +456,7 @@ public class ArrayNode
      *
      * @return Old value of the element, if any; null if no such element existed.
      *
-     * @throws IndexOutOfBoundsException If Array does not have specified element
+     * @throws JsonNodeException If Array does not have specified element
      *  (that is, index is outside valid range of elements in array)
      */
     public JsonNode replace(int index, JsonNode value)
@@ -455,8 +465,10 @@ public class ArrayNode
             value = nullNode();
         }
         if (index < 0 || index >= _children.size()) {
-            throw new IndexOutOfBoundsException("Illegal index "+ index +", array size "+size());
+            throw JsonNodeException.from(this,
+                    "Illegal index %d, array size %d", index, size());
         }
+        // NOTE: cannot call `_set()` since it returns `this`, NOT old value
         return _children.set(index, value);
     }
 

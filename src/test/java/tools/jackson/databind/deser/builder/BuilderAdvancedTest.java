@@ -3,12 +3,15 @@ package tools.jackson.databind.deser.builder;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BuilderAdvancedTest extends DatabindTestUtil
 {
@@ -47,6 +50,46 @@ public class BuilderAdvancedTest extends DatabindTestUtil
         }
     }
 
+    // [databind#2580]
+    @JsonDeserialize(builder=ExternalBuilder2580.class)
+    static class ExternalBean2580
+    {
+        @JsonTypeInfo(use=Id.NAME, include=As.EXTERNAL_PROPERTY, property="extType")
+        public Object value;
+
+        public ExternalBean2580(Object v) {
+            value = v;
+        }
+    }
+
+    @JsonSubTypes({ @JsonSubTypes.Type(ValueBean2580.class) })
+    static class BaseBean2580 {
+    }
+
+    @JsonTypeName("vbean")
+    static class ValueBean2580 extends BaseBean2580
+    {
+        public int value;
+
+        public ValueBean2580() { }
+        public ValueBean2580(int v) { value = v; }
+    }
+
+    static class ExternalBuilder2580
+    {
+        BaseBean2580 value;
+
+        @JsonTypeInfo(use=Id.NAME, include=As.EXTERNAL_PROPERTY, property="extType")
+        public ExternalBuilder2580 withValue(BaseBean2580 b) {
+            value = b;
+            return this;
+        }
+
+        public ExternalBean2580 build() {
+              return new ExternalBean2580(value);
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -67,5 +110,17 @@ public class BuilderAdvancedTest extends DatabindTestUtil
         assertEquals("stuffValue", bean._stuff);
     }
 
-    // NOTE: failing test from [databind#2580] moved in 3.x (included here for 2.11)
+    // [databind#2580]: regression in 3.0, fixed in 3.0.4
+    @Test
+    public void testWithExternalTypeId() throws Exception
+    {
+        ObjectMapper mapper = newJsonMapper();
+        final ExternalBean2580 input = new ExternalBean2580(new ValueBean2580(13));
+        String json = mapper.writeValueAsString(input);
+        ExternalBean2580 result = mapper.readValue(json, ExternalBean2580.class);
+        assertNotNull(result.value);
+        assertEquals(ValueBean2580.class, result.value.getClass());
+        assertEquals(13, ((ValueBean2580) result.value).value);
+    }
+
 }

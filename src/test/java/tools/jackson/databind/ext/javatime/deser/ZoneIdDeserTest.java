@@ -118,6 +118,33 @@ public class ZoneIdDeserTest extends DateTimeTestBase
         }
     }
 
+    // Test to verify that JavaTimeInitializer's ValueInstantiators.Base
+    // handles ZoneId subtypes (like the internal ZoneRegion class) via
+    // the `modifyValueInstantiator` callback -- specifically the
+    // `ZoneId.class.isAssignableFrom(raw)` branch.
+    // This exercises the code path when polymorphic type id resolves to
+    // the concrete ZoneId subtype (not ZoneId itself), bypassing the
+    // registered custom deserializer (which is keyed on ZoneId.class).
+    @Test
+    public void testPolymorphicZoneIdConcreteSubtypeDeser()
+    {
+        // ZoneId.of() returns a concrete subtype (java.time.ZoneRegion),
+        // not ZoneId itself
+        Class<?> concreteZoneIdClass = ZoneId.of("America/Denver").getClass();
+        assertNotEquals(ZoneId.class, concreteZoneIdClass,
+                "Expected concrete ZoneId subtype, not ZoneId itself");
+
+        ObjectMapper mapper = JsonMapper.builder()
+                .addMixIn(ZoneId.class, MockObjectConfiguration.class)
+                .build();
+
+        // Use the concrete class name as the type id in the wrapper array
+        ZoneId value = mapper.readValue(
+                "[\"" + concreteZoneIdClass.getName() + "\",\"America/Denver\"]",
+                ZoneId.class);
+        assertEquals(ZoneId.of("America/Denver"), value);
+    }
+
     // [module-java8#68]
     @Test
     public void testZoneIdDeserFromEmpty()

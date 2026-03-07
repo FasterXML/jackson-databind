@@ -91,7 +91,7 @@ Simplest usage is of form:
  * graph of deserializers involved).
  */
 public class ObjectMapper
-    implements TreeCodec, Versioned,
+    implements TreeCodec<JsonNode>, Versioned,
         java.io.Serializable
 {
     private static final long serialVersionUID = 3L;
@@ -242,7 +242,7 @@ public class ObjectMapper
      * deserializers (if it is needed)
      */
     protected final ConcurrentHashMap<JavaType, ValueDeserializer<Object>> _rootDeserializers
-        = new ConcurrentHashMap<JavaType, ValueDeserializer<Object>>(64, 0.6f, 2);
+        = new ConcurrentHashMap<>(64, 0.6f, 2);
 
     /*
     /**********************************************************************
@@ -886,10 +886,10 @@ public class ObjectMapper
      * @param n Root node of the tree that resulting parser will read from
      */
     @Override
-    public JsonParser treeAsTokens(TreeNode n) {
+    public JsonParser treeAsTokens(JsonNode n) {
         _assertNotNull("n", n);
-        DeserializationContext ctxt = _deserializationContext();
-        return new TreeTraversingParser((JsonNode) n, ctxt);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return ctxt.assignAndReturnParser(new TreeTraversingParser(n, ctxt));
     }
 
     /**
@@ -915,7 +915,6 @@ public class ObjectMapper
      * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      */
-    @SuppressWarnings("unchecked")
     @Override
     public JsonNode readTree(JsonParser p) throws JacksonException
     {
@@ -937,7 +936,7 @@ public class ObjectMapper
     }
 
     @Override
-    public void writeTree(JsonGenerator g, TreeNode rootNode) throws JacksonException
+    public void writeTree(JsonGenerator g, JsonNode rootNode) throws JacksonException
     {
         _assertNotNull("g", g);
         SerializationConfig config = serializationConfig();
@@ -1256,9 +1255,11 @@ public class ObjectMapper
      *<pre>
      *   objectMapper.convertValue(n, valueClass);
      *</pre>
+     *<p>
+     * Typed overload added in 3.1
      */
     @SuppressWarnings("unchecked")
-    public <T> T treeToValue(TreeNode n, Class<T> valueType)
+    public <T> T treeToValue(JsonNode n, Class<T> valueType)
         throws JacksonException
     {
         if (n == null) {
@@ -1266,7 +1267,7 @@ public class ObjectMapper
         }
         // 25-Jan-2019, tatu: [databind#2220] won't prevent existing coercions here
         // Simple cast when we just want to cast to, say, ObjectNode
-        if (TreeNode.class.isAssignableFrom(valueType)
+        if (JsonNode.class.isAssignableFrom(valueType)
                 && valueType.isAssignableFrom(n.getClass())) {
             return (T) n;
         }
@@ -1290,19 +1291,30 @@ public class ObjectMapper
         return readValue(treeAsTokens(n), valueType);
     }
 
+
     /**
-     * Same as {@link #treeToValue(TreeNode, Class)} but target type specified
+     * @deprecated Since 3.1 use overload with {@link JsonNode} as first argument
+     */
+    @Deprecated // @since 3.1
+    public <T> T treeToValue(TreeNode n, Class<T> valueType)
+        throws JacksonException
+    {
+        return treeToValue((JsonNode) n, valueType);
+    }
+
+    /**
+     * Same as {@link #treeToValue(JsonNode, Class)} but target type specified
      * using fully resolved {@link JavaType}.
      */
     @SuppressWarnings("unchecked")
-    public <T> T treeToValue(TreeNode n, JavaType valueType)
+    public <T> T treeToValue(JsonNode n, JavaType valueType)
         throws JacksonException
     {
         // Implementation copied from the type-erased variant
         if (n == null) {
             return null;
         }
-        if (valueType.isTypeOrSubTypeOf(TreeNode.class)
+        if (valueType.isTypeOrSubTypeOf(JsonNode.class)
                 && valueType.isTypeOrSuperTypeOf(n.getClass())) {
             return (T) n;
         }
@@ -1318,14 +1330,28 @@ public class ObjectMapper
         return (T) readValue(treeAsTokens(n), valueType);
     }
 
+    @Deprecated // @since 3.1
+    public <T> T treeToValue(TreeNode n, JavaType valueType)
+        throws JacksonException
+    {
+        return treeToValue((JsonNode) n, valueType);
+    }
+
     /**
-     * Same as {@link #treeToValue(TreeNode, JavaType)} but target type specified
+     * Same as {@link #treeToValue(JsonNode, JavaType)} but target type specified
      * using fully resolved {@link TypeReference}.
      */
-    public <T> T treeToValue(TreeNode n, TypeReference<T> toValueTypeRef)
+    public <T> T treeToValue(JsonNode n, TypeReference<T> toValueTypeRef)
         throws JacksonException
     {
         return treeToValue(n, constructType(toValueTypeRef));
+    }
+
+    @Deprecated // @since 3.1
+    public <T> T treeToValue(TreeNode n, TypeReference<T> toValueTypeRef)
+        throws JacksonException
+    {
+        return treeToValue((JsonNode) n, toValueTypeRef);
     }
 
     /**
@@ -1740,9 +1766,9 @@ public class ObjectMapper
     public void writeValue(File file, Object value) throws JacksonException
     {
         _assertNotNull("file", file);
-        SerializationContextExt prov = _serializationContext();
-        _configAndWriteValue(prov,
-                _streamFactory.createGenerator(prov, file, JsonEncoding.UTF8), value);
+        SerializationContextExt ctxt = _serializationContext();
+        _configAndWriteValue(ctxt,
+                _streamFactory.createGenerator(ctxt, file, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -1754,9 +1780,9 @@ public class ObjectMapper
     public void writeValue(Path path, Object value) throws JacksonException
     {
         _assertNotNull("path", path);
-        SerializationContextExt prov = _serializationContext();
-        _configAndWriteValue(prov,
-                _streamFactory.createGenerator(prov, path, JsonEncoding.UTF8), value);
+        SerializationContextExt ctxt = _serializationContext();
+        _configAndWriteValue(ctxt,
+                _streamFactory.createGenerator(ctxt, path, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -1773,17 +1799,17 @@ public class ObjectMapper
     public void writeValue(OutputStream out, Object value) throws JacksonException
     {
         _assertNotNull("out", out);
-        SerializationContextExt prov = _serializationContext();
-        _configAndWriteValue(prov,
-                _streamFactory.createGenerator(prov, out, JsonEncoding.UTF8), value);
+        SerializationContextExt ctxt = _serializationContext();
+        _configAndWriteValue(ctxt,
+                _streamFactory.createGenerator(ctxt, out, JsonEncoding.UTF8), value);
     }
 
     public void writeValue(DataOutput out, Object value) throws JacksonException
     {
         _assertNotNull("out", out);
-        SerializationContextExt prov = _serializationContext();
-        _configAndWriteValue(prov,
-                _streamFactory.createGenerator(prov, out), value);
+        SerializationContextExt ctxt = _serializationContext();
+        _configAndWriteValue(ctxt,
+                _streamFactory.createGenerator(ctxt, out), value);
     }
 
     /**
@@ -1799,8 +1825,8 @@ public class ObjectMapper
     public void writeValue(Writer w, Object value) throws JacksonException
     {
         _assertNotNull("w", w);
-        SerializationContextExt prov = _serializationContext();
-        _configAndWriteValue(prov, _streamFactory.createGenerator(prov, w), value);
+        SerializationContextExt ctxt = _serializationContext();
+        _configAndWriteValue(ctxt, _streamFactory.createGenerator(ctxt, w), value);
     }
 
     /**
@@ -1815,8 +1841,8 @@ public class ObjectMapper
         final BufferRecycler br = _streamFactory._getBufferRecycler();
         // alas, we have to pull the recycler directly here...
         try (SegmentedStringWriter sw = new SegmentedStringWriter(br)) {
-            SerializationContextExt prov = _serializationContext();
-            _configAndWriteValue(prov, _streamFactory.createGenerator(prov, sw), value);
+            SerializationContextExt ctxt = _serializationContext();
+            _configAndWriteValue(ctxt, _streamFactory.createGenerator(ctxt, sw), value);
             return sw.getAndClear();
         } finally {
             br.releaseToPool();
@@ -1862,17 +1888,17 @@ public class ObjectMapper
      * Method called to configure the generator as necessary and then
      * call write functionality
      */
-    protected final void _configAndWriteValue(SerializationContextExt prov,
+    protected final void _configAndWriteValue(SerializationContextExt ctxt,
             JsonGenerator g, Object value)
         throws JacksonException
     {
-        if (prov.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
+        if (ctxt.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
                 && (value instanceof AutoCloseable)) {
-            _configAndWriteCloseable(prov, g, value);
+            _configAndWriteCloseable(ctxt, g, value);
             return;
         }
         try {
-            prov.serializeValue(g, value);
+            ctxt.serializeValue(g, value);
         } catch (Exception e) {
             ClassUtil.closeOnFailAndThrowAsJacksonE(g, e);
             return;
@@ -1884,13 +1910,13 @@ public class ObjectMapper
      * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _configAndWriteCloseable(SerializationContextExt prov,
+    private final void _configAndWriteCloseable(SerializationContextExt ctxt,
             JsonGenerator g, Object value)
         throws JacksonException
     {
         AutoCloseable toClose = (AutoCloseable) value;
         try {
-            prov.serializeValue(g, value);
+            ctxt.serializeValue(g, value);
             AutoCloseable tmpToClose = toClose;
             toClose = null;
             tmpToClose.close();
@@ -2581,7 +2607,9 @@ public class ObjectMapper
             // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
             result = null;
         } else { // pointing to event other than null
-            result = ctxt.readRootValue(p, valueType, _findRootDeserializer(ctxt, valueType), null);
+            result = ctxt.readRootValue(p, valueType,
+                    _findRootDeserializer(ctxt, valueType), null);
+            ctxt.checkUnresolvedObjectId();
         }
         // Need to consume the token too
         p.clearCurrentToken();
@@ -2674,6 +2702,8 @@ public class ObjectMapper
                 /* FormatSchema */ null, _injectableValues);
     }
 
+    // 15-Feb-2026, tatu: Unused by databind itself
+    @Deprecated // @since 3.1
     protected DeserializationContextExt _deserializationContext(DeserializationConfig config,
             JsonParser p) {
         return _deserializationContexts.createContext(config,

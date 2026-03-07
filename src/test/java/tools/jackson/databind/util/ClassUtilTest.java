@@ -192,12 +192,7 @@ public class ClassUtilTest extends DatabindTestUtil
 
         assertEquals(Boolean.class, ClassUtil.wrapperType(Boolean.TYPE));
 
-        try {
-            ClassUtil.wrapperType(String.class);
-            fail("Should not pass");
-        } catch (IllegalArgumentException e) {
-            verifyException(e, "String is not a primitive type");
-        }
+        assertEquals(null, ClassUtil.wrapperType(String.class));
     }
 
     @Test

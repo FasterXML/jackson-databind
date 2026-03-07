@@ -295,10 +295,17 @@ public class JsonNodeLongValueTest
     @Test
     public void asLongFromMiscOther()
     {
-        // NullNode works, Missing fails
-        _assertAsLong(0L, NODES.nullNode());
+        // NullNode works
+        assertEquals(0L, NODES.nullNode().asLong());
 
-        _assertAsLongFailForNonNumber(NODES.missingNode());
+        // But also fallbacks
+        assertEquals(999999L, NODES.nullNode().asLong(999999L));
+        assertFalse(NODES.nullNode().asLongOpt().isPresent());
+
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals(0L, NODES.missingNode().asLong());
+        assertEquals(999999L, NODES.missingNode().asLong(999999L));
+        assertFalse(NODES.missingNode().asLongOpt().isPresent());
     }
     
     // // // Shared helper methods, longValue()
@@ -346,7 +353,7 @@ public class JsonNodeLongValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("longValue()")
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains("value type not numeric");
 
         // Verify default value handling
@@ -394,7 +401,7 @@ public class JsonNodeLongValueTest
     }
 
     private void _assertAsLongFailForNonNumber(JsonNode node) {
-        _assertAsLongFailForNonNumber(node, "value type not numeric");
+        _assertAsLongFailForNonNumber(node, "value type not coercible");
     }
 
     private void _assertAsLongFailForNonNumber(JsonNode node, String extraMsg) {
@@ -403,7 +410,7 @@ public class JsonNodeLongValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("asLong()")
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains(extraMsg);
 
         // Verify default value handling

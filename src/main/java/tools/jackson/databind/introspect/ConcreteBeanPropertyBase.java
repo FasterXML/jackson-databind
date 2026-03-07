@@ -4,12 +4,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
-import tools.jackson.databind.AnnotationIntrospector;
-import tools.jackson.databind.BeanProperty;
-import tools.jackson.databind.PropertyMetadata;
-import tools.jackson.databind.PropertyName;
+import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 
 /**
@@ -64,25 +60,9 @@ public abstract class ConcreteBeanPropertyBase
         return (overrides == null) ? format : format.withOverrides(overrides);
     }
 
-    @Override
-    public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType)
-    {
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        AnnotatedMember member = getMember();
-        if (member == null) {
-            JsonInclude.Value def = config.getDefaultPropertyInclusion(baseType);
-            return def;
-        }
-        JsonInclude.Value v0 = config.getDefaultInclusion(baseType, member.getRawType());
-        if (intr == null) {
-            return v0;
-        }
-        JsonInclude.Value v = intr.findPropertyInclusion(config, member);
-        if (v0 == null) {
-            return v;
-        }
-        return v0.withOverrides(v);
-    }
+    // Left abstract at this level: only implemented properly on serialization side
+    //@Override
+    //public abstract JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType);
 
     @Override
     public List<PropertyName> findAliases(MapperConfig<?> config)

@@ -5,12 +5,14 @@ databind core component, version 3.x
 (note: for older credits, see `CREDITS-2.x` instead)
 
 Author: Tatu Saloranta, tatu.saloranta@iki.fi: author
+(no listing below)
 
-Co-Authors (with only partial listings below):
+Co-Authors (with no / partial listings below):
 
 * Joo Hyuk Kim (@JooHyukKim)
 * PJ Fanning (@pjfanning)
 * Sim Yih Tsern (@yihtsern)
+* wrongwrong (@k163377)
 
 ----------------------------------------------------------------------------
 
@@ -116,13 +118,16 @@ Fouad Almalki (@Eng-Fouad)
   [3.1.0]
 
 Christopher Currie (@christophercurrie)
-
-* Requested #221: Support alternate radixes when writing numeric values as strings
+ * Requested #221: Support alternate radixes when writing numeric values as strings
   [3.1.0]
 
 Davyd Fridman (@tiger9800)
+ * Implemented #221: Support alternate radixes when writing numeric values as strings
+  [3.1.0]
 
-* Implemented #221: Support alternate radixes when writing numeric values as strings
+Gary Gregory (@garydgregory)
+ * Reported #429: Cannot use property annotations on `StackTraceElement` to configure
+   deserialization
   [3.1.0]
 
 Konstantin Labun (@kulabun)
@@ -151,30 +156,133 @@ Konstantin Labun (@kulabun)
  * Contributed fix for #5405: `@JsonFormat(shape = Shape.POJO)` does not work for
    `java.util.Map` serialization via property annotation
   [3.1.0]
+ * Contributed #5515: Support `@JsonInclude.content` for Arrays
+  [3.1.0]
 
 Oliver Drotbohm (@odrotbohm)
  * Requested #1196: Add opt-in error collection for deserialization
   [3.1.0]
+ * Requested #3591: Ignored fields not consistently exposed via
+  `BeanDescription.getIgnoredPropertyNames()`
+  [3.2.0]
 
 @sri-adarsh-kumar
  * Contributed #1196: Add opt-in error collection for deserialization
   [3.1.0]
 
+Jeff Maxwell (@jmax01)
+ * Reported #1391: Default typing adds typing info to collections even with
+  `@JsonTypeInfo(use = Id.NONE)` override
+  [3.1.0]
+
 Victor Noël (@victornoel)
  * Requested #1497: Allow skipping `@JsonUnwrapped` values if no properties matched,
-  `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled
- [3.1.0]
+   `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled
+  [3.1.0]
+ * Requested #2343: Add `JsonNode.asArray()` and `JsonNode.asObject()`
+  [3.1.0]
 
+Ulf Andersson (@ulfandersson)
+ * Reported #2124: Allow coercion of '[ ]' into empty/null String with
+   `ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT`
+  [3.1.0]
+
+Erik Hesselink (@hesselink)
+ * Reported #2617: `@JsonDeserialize.converter` from an interface doesn't work
+  [3.1.0]
+
+Kenneth Jorgensen (@kennethjor)
+ * Requested #2624: Allow overriding builder's "withPrefix" with new
+  `@JsonDeserialize.builderPrefix` property
+  [3.1.0]
+
+Dávid Csákvári (@dodie)
+ * Requested #3079: Support `ObjectMapper.updateValue()` for Record classes
+  [3.1.0]
+
+Krzysztof Krasoń (@krzyk)
+ * Reported #3084: `Nulls.AS_EMPTY` doesn't work for collections containing
+  values without default constructor (like Records)
+  [3.1.0]
+
+Lee Jiwon (@dlwldnjs1009)
+ * Fixed #3188: Skip unknown `Enum` keys in `Map` deserialization
+  [3.1.0]
+ * Implemented #3284: Backward compatibility for timezone formats of UTC Date
+   serialization
+  [3.1.0]
+ * Implemented #5621: Fix typo: MissingInjectableValueExcepion → MissingInjectableValueException
+  [3.1.0]
+
+Garret Wilson (@garretwilson)
+ * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
+   getter method auto-detection for Records
+  [3.1.0]
+
+James Mudd (@jamesmudd)
+ * Reported #4277: Deserialization `@JsonFormat(shape = JsonFormat.Shape.ARRAY)` POJO with
+  `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work
+  [3.1.0]
+
+John Hendrikx (@hjohn)
+ * Reported #4729: Object ID handling tries (unnecessarily) to set id value on a Record
+  [3.1.0]
+ 
 Viktor Szathmáry (@phraktle)
  * Reported #5115: `@JsonUnwrapped` Record deserialization can't handle name collision
  (reported by Viktor S)
+  [3.1.0]
+ * Reported #5716: `@JsonUnwrapped` properties moved to end in 3.1.0
+  [3.1.1]
+
+Lee Chan Won (@chanwonlee)
+ * Implemented #5223: Java Records missing type information with `DefaultTyping.NON_FINAL`
+  (add `DefaultTyping.NON_FINAL_AND_RECORDS`)
   [3.1.0]
 
 Hélios Gilles (@RoiSoleil)
  * Contributed #5413: Add/support forward reference resolution for array value
   [3.1.0]
 
+Francesco Chicchiriccò (@ilgrosso)
+ * Reported #5485: Unchecked conversion warning in `JsonMapper` wrt `TreeCodec.readTree()`
+  override
+  [3.1.0]
+
 Jaeheon Kim (@jher235)
  * Contributed #5522: `@JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)`
    doesn't work on custom Collection subclass
   [3.1.0]
+
+Filip Hrisafov (@filiphr)
+ * Contributed #5558: Change defaulting of `JsonNode.asXxx(defaultValue)`/`JsonNode.asXxxOpt()`
+   for `NullNode`
+  [3.1.0]
+
+Réda Housni Alaoui (@reda-alaoui)
+ * Requested #5575: Allow configuring a default serialization and deserialization view (3.x)
+  [3.1.0]
+
+Flinter (@jhan0121)
+ * Contributed #5595: Add `FunctionalScalarDeserializer` for functional-style deserialization
+  [3.1.0]
+
+Brandon Schmitt (@BrandonSchmitt)
+ * Reported #5616: `ObjectWriter` serializes `Optional`s with subtypes incompletely
+  [3.1.0]
+ * Reported #5710: `ObjectWriter` transforms polymorphic types into a tree incompletely
+  [3.1.1]
+ 
+Matthew Luckam (@mluckam)
+ * Contributed #5630: Add `DelegatingSerializer`
+  [3.1.0]
+
+Kyrylo Merzlikin (@kirmerzlikin)
+ * Reported #5706: `TokenBuffer` serialization fails when buffer contains integer
+   encoded as String
+  [3.1.0]
+
+Martin Uhlen (@MartinUhlen)
+ * Requested #5734: Add `DeserializationFeature.FAIL_ON_ABSENT_FOR_PRIMITIVES` to
+   allow preventing absent-primitive failure
+  [3.2.0]

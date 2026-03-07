@@ -17,20 +17,20 @@ jobs:
     steps:
     - name: Build Fuzzers
       id: build
-      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
+      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@3d9cfb650abdeb4893f8aa8f4e6f25d63752601d # master
       with:
         oss-fuzz-project-name: 'jackson-databind'
         dry-run: false
         language: jvm
     - name: Run Fuzzers
-      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
+      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@3d9cfb650abdeb4893f8aa8f4e6f25d63752601d # master
       with:
         oss-fuzz-project-name: 'jackson-databind'
         fuzz-seconds: 1200
         dry-run: false
         language: jvm
     - name: Upload Crash
-      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       if: failure() && steps.build.outcome == 'success'
       with:
         name: artifacts

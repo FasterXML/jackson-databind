@@ -96,7 +96,8 @@ public abstract class PropertyWriter
      * The main serialization method called by filter when property is to be written
      * as an Object property.
      */
-    public abstract void serializeAsProperty(Object value, JsonGenerator g, SerializationContext provider)
+    public abstract void serializeAsProperty(Object value, JsonGenerator g,
+            SerializationContext ctxt)
         throws Exception;
 
     /**
@@ -105,7 +106,8 @@ public abstract class PropertyWriter
      * filtered, but the underlying data format requires a placeholder of some kind.
      * This is usually the case for tabular (positional) data formats such as CSV.
      */
-    public abstract void serializeAsOmittedProperty(Object value, JsonGenerator g, SerializationContext provider)
+    public abstract void serializeAsOmittedProperty(Object value, JsonGenerator g,
+            SerializationContext ctxt)
         throws Exception;
 
     /*
@@ -124,7 +126,8 @@ public abstract class PropertyWriter
      * data format; so it is typically NOT called for fully tabular formats such as CSV,
      * where logical output is still as form of POJOs.
      */
-    public abstract void serializeAsElement(Object value, JsonGenerator g, SerializationContext provider)
+    public abstract void serializeAsElement(Object value, JsonGenerator g,
+            SerializationContext ctxt)
         throws Exception;
 
     /**
@@ -132,7 +135,8 @@ public abstract class PropertyWriter
      * but then value is to be omitted. This requires output of a placeholder value
      * of some sort; often similar to {@link #serializeAsOmittedProperty}.
      */
-    public abstract void serializeAsOmittedElement(Object value, JsonGenerator g, SerializationContext provider)
+    public abstract void serializeAsOmittedElement(Object value, JsonGenerator g,
+            SerializationContext ctxt)
         throws Exception;
 
     /*
@@ -147,5 +151,5 @@ public abstract class PropertyWriter
      */
     @Override
     public abstract void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
-            SerializationContext provider);
+            SerializationContext ctxt);
 }

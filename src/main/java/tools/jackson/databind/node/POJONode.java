@@ -2,11 +2,7 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
+import java.util.*;
 
 import tools.jackson.core.*;
 
@@ -59,13 +55,31 @@ public class POJONode
     @Override
     protected Boolean _asBoolean()
     {
-        if (_value == null) {
-            return Boolean.FALSE;
-        }
         if (_value instanceof Boolean B) {
             return B;
         }
+        if (_value == null) {
+            return Boolean.FALSE;
+        }
         return null;
+    }
+
+    @Override
+    public boolean asBoolean(boolean defaultValue) {
+        if (_value instanceof Boolean B) {
+            return B;
+        }
+        // (also covers `null` case)
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<Boolean> asBooleanOpt() {
+        if (_value instanceof Boolean B) {
+            return B ? OPT_TRUE : OPT_FALSE;
+        }
+        // (also covers `null` case)
+        return Optional.empty();
     }
 
     @Override
@@ -73,9 +87,32 @@ public class POJONode
         if (_value instanceof String str) {
              return str;
         }
+        // [databind#5583]: Null to coerce into ""
+        if (_value == null) {
+            return "";
+        }
         // 21-Mar-2025, tatu: [databind#5034] Should we consider RawValue too?
         //    (for now, won't)
+        // (also covers `null` case)
         return null;
+    }
+
+    @Override
+    public String asString(String defaultValue) {
+        if (_value instanceof String str) {
+            return str;
+        }
+        // (also covers `null` case)
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<String> asStringOpt() {
+        if (_value instanceof String str) {
+            return Optional.of(str);
+        }
+        // (also covers `null` case)
+        return Optional.empty();
     }
 
     /**
@@ -106,7 +143,6 @@ public class POJONode
         if (_value == null) {
             return 0;
         }
-
         // Next, check if the value is NOT a Number
         if (!(_value instanceof Number)) {
             // report coercion fail
@@ -117,7 +153,7 @@ public class POJONode
         Long L = _extractAsLong();
         if (L == null || L < Short.MIN_VALUE || L > Short.MAX_VALUE) {
             // report range fail
-            _reportShortCoercionRangeFail("asShort()");
+            _reportShortConversionRangeFail("asShort()");
         }
         return L.shortValue();
     }
@@ -126,9 +162,8 @@ public class POJONode
     public short asShort(short defaultValue) {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return 0;
+            return defaultValue;
         }
-
         // Next, check if the value is NOT a Number
         if (!(_value instanceof Number)) {
             return defaultValue;
@@ -146,7 +181,7 @@ public class POJONode
     public Optional<Short> asShortOpt() {
         // First, `null` same as `NullNode`
         if (_value == null) {
-            return Optional.of((short) 0);
+            return Optional.empty();
         }
 
         // Next, check if the value is NOT a Number
@@ -181,19 +216,15 @@ public class POJONode
         Long L = _extractAsLong();
         if (L == null || L < Integer.MIN_VALUE || L > Integer.MAX_VALUE) {
             // report range fail
-            _reportIntCoercionRangeFail("asInt()");
+            _reportIntConversionRangeFail("asInt()");
         }
         return L.intValue();
     }
 
     @Override
     public int asInt(int defaultValue) {
-        // First, `null` same as `NullNode`
-        if (_value == null) {
-            return 0;
-        }
-
         // Next, check if the value is NOT a Number
+        // (including `null`)
         if (!(_value instanceof Number)) {
             return defaultValue;
         }
@@ -208,12 +239,8 @@ public class POJONode
 
     @Override
     public OptionalInt asIntOpt() {
-        // First, `null` same as `NullNode`
-        if (_value == null) {
-            return OptionalInt.of(0);
-        }
-
         // Next, check if the value is NOT a Number
+        // (including `null`)
         if (!(_value instanceof Number)) {
             return OptionalInt.empty();
         }
@@ -245,23 +272,17 @@ public class POJONode
         Long L = _extractAsLong();
         if (L == null) {
             // report range fail
-            _reportLongCoercionRangeFail("asLong()");
+            _reportLongConversionRangeFail("asLong()");
         }
         return L;
     }
 
     @Override
     public long asLong(long defaultValue) {
-        // First, `null` same as `NullNode`
-        if (_value == null) {
-            return 0L;
-        }
-
-        // Next, report coercion fail if the value is NOT a Number
+        // If not a Number (including `null`), return default
         if (!(_value instanceof Number)) {
             return defaultValue;
         }
-
         // Then, extract from Number
         Long L = _extractAsLong();
         if (L == null) {
@@ -272,12 +293,7 @@ public class POJONode
 
     @Override
     public OptionalLong asLongOpt() {
-        // First, `null` same as `NullNode`
-        if (_value == null) {
-            return OptionalLong.of(0L);
-        }
-
-        // Next, report coercion fail if the value is NOT a Number
+        // If not a Number (including `null`), return empty
         if (!(_value instanceof Number)) {
             return OptionalLong.empty();
         }
@@ -311,12 +327,7 @@ public class POJONode
 
     @Override
     public BigInteger asBigInteger(BigInteger defaultValue) {
-        // First, `null` same as `NullNode`
-        if (_value == null) {
-            return BigInteger.ZERO;
-        }
-
-        // Next, check if the value is NOT a Number
+        // If not a Number (including `null`), return default
         if (!(_value instanceof Number)) {
             return defaultValue;
         }
@@ -327,12 +338,7 @@ public class POJONode
 
     @Override
     public Optional<BigInteger> asBigIntegerOpt() {
-        // First, `null` same as `NullNode`
-        if (_value == null) {
-            return Optional.of(BigInteger.ZERO);
-        }
-
-        // Next, check if the value is NOT a Number
+        // If not a Number (including `null`), return empty
         if (!(_value instanceof Number)) {
             return Optional.empty();
         }
@@ -360,19 +366,14 @@ public class POJONode
         Float F = _extractAsFloat();
         if (F == null) {
             // report range fail
-            _reportFloatCoercionRangeFail("asFloat()");
+            _reportFloatConversionRangeFail("asFloat()");
         }
         return F;
     }
 
     @Override
     public float asFloat(float defaultValue) {
-        // First, `null` same as `NullNode`
-        if (_value == null) {
-            return 0.0f;
-        }
-
-        // Next, check if the value is NOT a Number
+        // If not a Number (including `null`), return default
         if (!(_value instanceof Number)) {
             return defaultValue;
         }
@@ -387,12 +388,7 @@ public class POJONode
 
     @Override
     public Optional<Float> asFloatOpt() {
-        // First, `null` same as `NullNode`
-        if (_value == null) {
-            return Optional.of(0.0f);
-        }
-
-        // Next, check if the value is NOT a Number
+        // If not a Number (including `null`), return empty
         if (!(_value instanceof Number)) {
             return Optional.empty();
         }
@@ -424,19 +420,14 @@ public class POJONode
         Double D = _extractAsDouble();
         if (D == null) {
             // report range fail
-            _reportDoubleCoercionRangeFail("asDouble()");
+            _reportDoubleConversionRangeFail("asDouble()");
         }
         return D;
     }
 
     @Override
     public double asDouble(double defaultValue) {
-        // First, `null` same as `NullNode`
-        if (_value == null) {
-            return 0.0d;
-        }
-
-        // Next, check if the value is NOT a Number
+        // If not a Number (including `null`), return default
         if (!(_value instanceof Number)) {
             return defaultValue;
         }
@@ -451,12 +442,7 @@ public class POJONode
 
     @Override
     public OptionalDouble asDoubleOpt() {
-        // First, `null` same as `NullNode`
-        if (_value == null) {
-            return OptionalDouble.of(0.0d);
-        }
-
-        // Next, check if the value is NOT a Number
+        // If not a Number (including `null`), return empty
         if (!(_value instanceof Number)) {
             return OptionalDouble.empty();
         }
@@ -490,12 +476,7 @@ public class POJONode
 
     @Override
     public BigDecimal asDecimal(BigDecimal defaultValue) {
-        // First, `null` same as `NullNode`
-        if (_value == null) {
-            return BigDecimal.ZERO;
-        }
-
-        // Next, check if the value is NOT a Number
+        // If not a Number (including `null`), return default
         if (!(_value instanceof Number)) {
             return defaultValue;
         }
@@ -506,12 +487,7 @@ public class POJONode
 
     @Override
     public Optional<BigDecimal> asDecimalOpt() {
-        // First, `null` same as `NullNode`
-        if (_value == null) {
-            return Optional.of(BigDecimal.ZERO);
-        }
-
-        // Next, check if the value is NOT a Number
+        // If not a Number (including `null`), return empty
         if (!(_value instanceof Number)) {
             return Optional.empty();
         }
@@ -615,7 +591,8 @@ public class POJONode
      */
 
     @Override
-    public final void serialize(JsonGenerator gen, SerializationContext ctxt) throws JacksonException
+    public final void serialize(JsonGenerator gen, SerializationContext ctxt)
+        throws JacksonException
     {
         if (_value == null) {
             ctxt.defaultSerializeNullValue(gen);

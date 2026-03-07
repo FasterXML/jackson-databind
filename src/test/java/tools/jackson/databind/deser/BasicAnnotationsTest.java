@@ -9,21 +9,21 @@ import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.IntWrapper;
-import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
-import static tools.jackson.databind.testutil.DatabindTestUtil.q;
+import java.util.ArrayList;
 
 /**
  * This unit test suite tests use of basic Annotations for
  * bean deserialization; ones that indicate (non-constructor)
  * method types, explicit deserializer annotations.
  */
-public class BasicAnnotationsTest
+@SuppressWarnings("serial")
+public class BasicAnnotationsTest extends DatabindTestUtil
 {
-    /// Class for testing {@link JsonProperty} annotations
+    // Class for testing {@link JsonProperty} annotations
     final static class SizeClassSetter
     {
         int _size;
@@ -105,10 +105,31 @@ public class BasicAnnotationsTest
         public int x, y;
     }
 
+    static class ListSubClass extends ArrayList<StringWrapper> { }
+
+    /**
+     * Map class that should behave like {@link ListSubClass}, but by
+     * using annotations.
+     */
+    @JsonDeserialize(contentAs=StringWrapper.class)
+    static class AnnotatedStringList extends ArrayList<Object> { }
+
+    @JsonDeserialize(contentAs=BooleanElement.class)
+    static class AnnotatedBooleanList extends ArrayList<Object> { }
+
+    protected static class BooleanElement {
+        public Boolean b;
+
+        @JsonCreator
+        public BooleanElement(Boolean value) { b = value; }
+
+        @JsonValue public Boolean value() { return b; }
+    }
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     final static class IntsDeserializer extends StdDeserializer<int[]>
@@ -122,12 +143,12 @@ public class BasicAnnotationsTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, basic
-    /**********************************************************
+    /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testSimpleSetter() throws Exception
@@ -141,7 +162,6 @@ public class BasicAnnotationsTest
         assertEquals(-999, result._length);
     }
 
-    // Test for checking [JACKSON-64]
     @Test
     public void testSimpleSetter2() throws Exception
     {
@@ -150,7 +170,6 @@ public class BasicAnnotationsTest
         assertEquals(-3, result._x);
     }
 
-    // Checking parts of [JACKSON-120]
     @Test
     public void testSimpleSetter3() throws Exception
     {
@@ -192,9 +211,50 @@ public class BasicAnnotationsTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods, Collections
+    /**********************************************************************
+     */
+
+    /**
+     * Verifying that sub-classing works ok wrt generics information
+     */
+    @Test
+    public void testListSubClass() throws Exception
+    {
+        ListSubClass result = MAPPER.readValue("[ \"123\" ]", ListSubClass.class);
+        assertEquals(1, result.size());
+        Object value = result.get(0);
+        assertEquals(StringWrapper.class, value.getClass());
+        StringWrapper bw = (StringWrapper) value;
+        assertEquals("123", bw.str);
+    }
+
+    // Verifying that sub-classing works ok wrt generics information
+    @Test
+    public void testAnnotatedLStringList() throws Exception
+    {
+        AnnotatedStringList result = MAPPER.readValue("[ \"...\" ]", AnnotatedStringList.class);
+        assertEquals(1, result.size());
+        Object ob = result.get(0);
+        assertEquals(StringWrapper.class, ob.getClass());
+        assertEquals("...", ((StringWrapper) ob).str);
+    }
+
+    @Test
+    public void testAnnotatedBooleanList() throws Exception
+    {
+        AnnotatedBooleanList result = MAPPER.readValue("[ false ]", AnnotatedBooleanList.class);
+        assertEquals(1, result.size());
+        Object ob = result.get(0);
+        assertEquals(BooleanElement.class, ob.getClass());
+        assertFalse(((BooleanElement) ob).b);
+    }
+
+    /*
+    /**********************************************************************
     /* Test methods, annotations disabled
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test

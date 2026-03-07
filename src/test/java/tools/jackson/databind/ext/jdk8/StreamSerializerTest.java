@@ -9,6 +9,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,15 +45,38 @@ public class StreamSerializerTest extends StreamTestBase
             return foo ^ bar.hashCode();
         }
     }
-    TestBean[] empty = {};
 
-    TestBean testBean1 = new TestBean(1, "one");
+    static class StringStreamWrapper {
+        public Stream<String> value;
 
-    TestBean testBean2 = new TestBean(2, "two");
+        public StringStreamWrapper() { }
+        StringStreamWrapper(Stream<String> v) { value = v; }
+    }
 
-    TestBean[] single = { testBean1 };
+    static final class FinalValueBean {
+        public int x;
 
-    TestBean[] multipleValues = { testBean1, testBean2 };
+        public FinalValueBean() { }
+        FinalValueBean(int x) { this.x = x; }
+
+        @Override
+        public boolean equals(Object o) {
+            return (o instanceof FinalValueBean) && ((FinalValueBean) o).x == x;
+        }
+
+        @Override
+        public int hashCode() { return x; }
+    }
+    
+    final static TestBean[] empty = {};
+
+    final static TestBean testBean1 = new TestBean(1, "one");
+
+    final static TestBean testBean2 = new TestBean(2, "two");
+
+    final static TestBean[] single = { testBean1 };
+
+    final static TestBean[] multipleValues = { testBean1, testBean2 };
 
     @Test
     public void testEmptyStream() throws Exception {
@@ -93,41 +119,40 @@ public class StreamSerializerTest extends StreamTestBase
         assertClosesOnSuccess(Stream.of(multipleValues), stream -> roundTrip(stream, TestBean[].class));
     }
 
-    // 10-Jan-2025, tatu: I hate these kinds of obscure lambda-ridden tests.
-    //    They were accidentally disabled and now fail for... some reason. WTF.
-    //   (came from `jackson-modules-java8`, disabled due to JUnit 4->5 migration)
-    /*
     @Test
-    public void testStreamClosesOnRuntimeException() throws Exception {
-        String exceptionMessage = "Stream peek threw";
-        assertClosesOnRuntimeException(exceptionMessage, stream -> roundTrip(stream, TestBean[].class),
-                Stream.of(multipleValues)
-                    .peek(e -> {
-                        throw new RuntimeException(exceptionMessage);
-                    }));
+    public void testStreamWithStaticTyping() throws Exception
+    {
+        ObjectMapper mapper = DatabindTestUtil.jsonMapperBuilder()
+                .enable(MapperFeature.USE_STATIC_TYPING)
+                .build();
+        String json = mapper.writeValueAsString(
+                new StringStreamWrapper(Stream.of("a", "b", "c")));
+        assertEquals(DatabindTestUtil.a2q("{'value':['a','b','c']}"), json);
     }
 
     @Test
-    public void testStreamClosesOnSneakyIOException() throws Exception {
-        String exceptionMessage = "Stream peek threw";
-        assertClosesOnIoException(exceptionMessage, stream -> roundTrip(stream, TestBean[].class),
-                Stream.of(multipleValues)
-                    .peek(e -> {
-                        sneakyThrow(new IOException(exceptionMessage));
-                    }));
+    public void testStreamWithFinalElementType() throws Exception
+    {
+        // FinalValueBean is a final class, so createContextual() should
+        // resolve a specific content serializer even without USE_STATIC_TYPING
+        Stream<FinalValueBean> stream = Stream.of(
+                new FinalValueBean(1), new FinalValueBean(2));
+        String json = objectMapper.writeValueAsString(stream);
+        assertEquals(DatabindTestUtil.a2q("[{'x':1},{'x':2}]"), json);
     }
 
     @Test
-    public void testStreamClosesOnWrappedIoException() throws Exception {
-        final String exceptionMessage = "Stream peek threw";
-
-        assertClosesOnWrappedIoException(exceptionMessage, stream -> roundTrip(stream, TestBean[].class),
-                Stream.of(multipleValues)
-                    .peek(e -> {
-                        throw new UncheckedIOException(new IOException(exceptionMessage));
-                    }));
+    public void testStreamOfStrings() throws Exception
+    {
+        assertEquals("[\"hello\",\"world\"]",
+                objectMapper.writeValueAsString(Stream.of("hello", "world")));
     }
-    */
+
+    @Test
+    public void testStreamOfIntegers() throws Exception
+    {
+        assertEquals("[1,2,3]", objectMapper.writeValueAsString(Stream.of(1, 2, 3)));
+    }
 
     private <T, R> R[] roundTrip(Stream<T> stream, Class<R[]> clazz) {
         String json = objectMapper.writeValueAsString(stream);

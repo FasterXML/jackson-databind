@@ -2,8 +2,11 @@ package tools.jackson.databind.ser.jdk;
 
 import java.lang.annotation.Annotation;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.jsontype.TypeSerializer;
@@ -79,20 +82,26 @@ public class MapProperty extends PropertyWriter
     }
 
     @Override
+    public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType) {
+        // Not needed with this virtual wrapping; could add if needed
+        return JsonInclude.Value.empty();
+    }
+
+    @Override
     public void serializeAsProperty(Object map, JsonGenerator gen,
-            SerializationContext provider)
+            SerializationContext ctxt)
     {
-        _keySerializer.serialize(_key, gen, provider);
+        _keySerializer.serialize(_key, gen, ctxt);
         if (_typeSerializer == null) {
-            _valueSerializer.serialize(_value, gen, provider);
+            _valueSerializer.serialize(_value, gen, ctxt);
         } else {
-            _valueSerializer.serializeWithType(_value, gen, provider, _typeSerializer);
+            _valueSerializer.serializeWithType(_value, gen, ctxt, _typeSerializer);
         }
     }
 
     @Override
     public void serializeAsOmittedProperty(Object map, JsonGenerator gen,
-            SerializationContext provider)
+            SerializationContext ctxt)
     {
         if (!gen.canOmitProperties()) {
             gen.writeOmittedProperty(getName());
@@ -101,18 +110,18 @@ public class MapProperty extends PropertyWriter
 
     @Override
     public void serializeAsElement(Object map, JsonGenerator gen,
-            SerializationContext provider)
+            SerializationContext ctxt)
     {
         if (_typeSerializer == null) {
-            _valueSerializer.serialize(_value, gen, provider);
+            _valueSerializer.serialize(_value, gen, ctxt);
         } else {
-            _valueSerializer.serializeWithType(_value, gen, provider, _typeSerializer);
+            _valueSerializer.serializeWithType(_value, gen, ctxt, _typeSerializer);
         }
     }
 
     @Override
     public void serializeAsOmittedElement(Object value, JsonGenerator gen,
-            SerializationContext provider)
+            SerializationContext ctxt)
     {
         gen.writeNull();
     }
@@ -125,9 +134,9 @@ public class MapProperty extends PropertyWriter
 
     @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
-            SerializationContext provider)
+            SerializationContext ctxt)
     {
-        _property.depositSchemaProperty(objectVisitor, provider);
+        _property.depositSchemaProperty(objectVisitor, ctxt);
     }
 
     @Override

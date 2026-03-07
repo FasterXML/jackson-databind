@@ -218,30 +218,6 @@ public class AnnotationIntrospectorPair
         return b;
     }
 
-    /*
-    @Override
-    public TypeResolverBuilder<?> findPropertyTypeResolver(MapperConfig<?> config,
-            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo)
-    {
-        TypeResolverBuilder<?> b = _primary.findPropertyTypeResolver(config, ann, baseType, typeInfo);
-        if (b == null) {
-            b = _secondary.findPropertyTypeResolver(config, ann, baseType, typeInfo);
-        }
-        return b;
-    }
-
-    @Override
-    public TypeResolverBuilder<?> findPropertyContentTypeResolver(MapperConfig<?> config,
-            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo)
-    {
-        TypeResolverBuilder<?> b = _primary.findPropertyContentTypeResolver(config, ann, baseType, typeInfo);
-        if (b == null) {
-            b = _secondary.findPropertyContentTypeResolver(config, ann, baseType, typeInfo);
-        }
-        return b;
-    }
-    */
-
     @Override
     public List<NamedType> findSubtypes(MapperConfig<?> config, Annotated a)
     {
@@ -657,6 +633,12 @@ public class AnnotationIntrospectorPair
     public JsonPOJOBuilder.Value findPOJOBuilderConfig(MapperConfig<?> config, AnnotatedClass ac) {
         JsonPOJOBuilder.Value result = _primary.findPOJOBuilderConfig(config, ac);
         return (result == null) ? _secondary.findPOJOBuilderConfig(config, ac) : result;
+    }
+
+    @Override
+    public String findBuilderPrefix(MapperConfig<?> config, AnnotatedClass valueClass) {
+        String result = _primary.findBuilderPrefix(config, valueClass);
+        return (result == null) ? _secondary.findBuilderPrefix(config, valueClass) : result;
     }
 
     @Override

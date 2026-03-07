@@ -115,11 +115,13 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Constructor used when creating a new instance (compared to
      * that of creating fluent copies)
+     *
+     * @since 3.1 (added 'view' parameter)
      */
     protected MapperConfigBase(MapperBuilder<?,?> b, long mapperFeatures,
             TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
             ConfigOverrides configOverrides, ContextAttributes defaultAttrs,
-            RootNameLookup rootNames)
+            RootNameLookup rootNames, Class<?> view)
     {
         super(b.baseSettings(), mapperFeatures);
 
@@ -130,7 +132,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _mixIns = mixins;
         _rootNames = rootNames;
         _rootName = null;
-        _view = null;
+        _view = view;
         _attributes = defaultAttrs;
         _configOverrides = configOverrides;
         _datatypeFeatures = b.datatypeFeatures();
@@ -596,9 +598,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     public final JsonIgnoreProperties.Value getDefaultPropertyIgnorals(Class<?> baseType,
             AnnotatedClass actualClass)
     {
-        AnnotationIntrospector intr = getAnnotationIntrospector();
-        JsonIgnoreProperties.Value base = (intr == null) ? null
-                : intr.findPropertyIgnoralByName(this, actualClass);
+        JsonIgnoreProperties.Value base = getAnnotationIntrospector().findPropertyIgnoralByName(this, actualClass);
         JsonIgnoreProperties.Value overrides = getDefaultPropertyIgnorals(baseType);
         return JsonIgnoreProperties.Value.merge(base, overrides);
     }
@@ -607,8 +607,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     public final JsonIncludeProperties.Value getDefaultPropertyInclusions(Class<?> baseType,
             AnnotatedClass actualClass)
     {
-        AnnotationIntrospector intr = getAnnotationIntrospector();
-        return (intr == null) ? null : intr.findPropertyInclusionByName(this, actualClass);
+        return getAnnotationIntrospector().findPropertyInclusionByName(this, actualClass);
     }
 
     @Override
@@ -633,10 +632,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         } else {
             vc = getDefaultVisibilityChecker();
         }
-        AnnotationIntrospector intr = getAnnotationIntrospector();
-        if (intr != null) {
-            vc = intr.findAutoDetectVisibility(this, actualClass, vc);
-        }
+        vc = getAnnotationIntrospector().findAutoDetectVisibility(this, actualClass, vc);
         ConfigOverride overrides = _configOverrides.findOverride(baseType);
         if (overrides != null) {
             vc = vc.withOverrides(overrides.getVisibility()); // ok to pass null

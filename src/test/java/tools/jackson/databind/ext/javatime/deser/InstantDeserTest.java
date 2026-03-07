@@ -19,6 +19,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
@@ -142,7 +143,7 @@ public class InstantDeserTest extends DateTimeTestBase
     {
         // Instant can't go this low
         String input = Instant.MIN.getEpochSecond() + ".1";
-        assertThrows(DateTimeException.class, () -> READER.readValue(input));
+        assertThrows(DateTimeParseException.class, () -> READER.readValue(input));
     }
 
     /*
@@ -155,7 +156,7 @@ public class InstantDeserTest extends DateTimeTestBase
     {
         // 1ns beyond the upper-bound of Instant.
         String input = (Instant.MAX.getEpochSecond() + 1) + ".0";
-        assertThrows(DateTimeException.class, () -> READER.readValue(input));
+        assertThrows(DateTimeParseException.class, () -> READER.readValue(input));
     }
 
     @Test
@@ -163,7 +164,7 @@ public class InstantDeserTest extends DateTimeTestBase
     {
         // 1ns beyond the lower-bound of Instant.
         String input = (Instant.MIN.getEpochSecond() - 1) + ".0";
-        assertThrows(DateTimeException.class, () -> READER.readValue(input));
+        assertThrows(DateTimeParseException.class, () -> READER.readValue(input));
     }
 
     @Test
@@ -324,6 +325,25 @@ public class InstantDeserTest extends DateTimeTestBase
         assertEquals(expected.value, actual.value);
     }
 
+    @Test
+    public void testInvalidEpochSecondValue() throws Exception
+    {
+        // Test with an invalid epoch second value that causes DateTimeException
+        // Use a value beyond Instant.MAX
+        long invalidValue = Long.MAX_VALUE;
+        
+        try {
+            READER.readValue(String.valueOf(invalidValue));
+            fail("Should not pass");
+        } catch (DateTimeParseException e) {
+            // Verify it's a DateTimeParseException, not DateTimeException
+            verifyException(e, "Failed to deserialize");
+            verifyException(e, "java.time.Instant");
+            verifyException(e, String.valueOf(invalidValue));
+            verifyException(e, "Instant exceeds minimum or maximum instant");
+        }
+    }
+
     /*
     /**********************************************************************
     /* Basic deserialization from String (ISO-8601 timestamps)
@@ -371,7 +391,7 @@ public class InstantDeserTest extends DateTimeTestBase
         Temporal value = m.readValue(
                 "[\"" + Instant.class.getName() + "\",123456789.183917322]", Temporal.class
                 );
-        assertTrue(value instanceof Instant, "The value should be an Instant.");
+        assertInstanceOf(Instant.class, value, "The value should be an Instant.");
         assertEquals(date, value);
     }
 
@@ -386,7 +406,7 @@ public class InstantDeserTest extends DateTimeTestBase
         Temporal value = m.readValue(
                 "[\"" + Instant.class.getName() + "\",123456789]", Temporal.class
                 );
-        assertTrue(value instanceof Instant, "The value should be an Instant.");
+        assertInstanceOf(Instant.class, value, "The value should be an Instant.");
         assertEquals(date, value);
     }
 
@@ -402,7 +422,7 @@ public class InstantDeserTest extends DateTimeTestBase
                 "[\"" + Instant.class.getName() + "\",123456789422]", Temporal.class
                 );
 
-        assertTrue(value instanceof Instant, "The value should be an Instant.");
+        assertInstanceOf(Instant.class, value, "The value should be an Instant.");
         assertEquals(date, value);
     }
 
@@ -416,7 +436,7 @@ public class InstantDeserTest extends DateTimeTestBase
         Temporal value = m.readValue(
                 "[\"" + Instant.class.getName() + "\",\"" + FORMATTER.format(date) + "\"]", Temporal.class
                 );
-        assertTrue(value instanceof Instant, "The value should be an Instant.");
+        assertInstanceOf(Instant.class, value, "The value should be an Instant.");
         assertEquals(date, value);
     }
 

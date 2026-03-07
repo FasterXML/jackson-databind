@@ -71,6 +71,17 @@ public class POJOPropertyBuilder
      */
     protected transient AnnotationIntrospector.ReferenceProperty _referenceInfo;
 
+    /**
+     * Flag that indicates this property is marked with {@code @JsonUnwrapped}.
+     * When set on a creator (constructor) parameter, the property uses a
+     * placeholder as its external name to avoid conflicts during deserialization,
+     * while {@link #_internalName} holds the actual implicit parameter name used
+     * for declaration-order sorting.
+     *
+     * @since 3.1.1
+     */
+    protected boolean _unwrapped;
+
     public POJOPropertyBuilder(MapperConfig<?> config, AnnotationIntrospector ai,
             boolean forSerialization, PropertyName internalName) {
         this(config, ai, forSerialization, internalName, internalName);
@@ -97,11 +108,12 @@ public class POJOPropertyBuilder
         _getters = src._getters;
         _setters = src._setters;
         _forSerialization = src._forSerialization;
+        _unwrapped = src._unwrapped;
     }
 
     /*
     /**********************************************************
-    /* Mutant factory methods
+    /* Mutant factory methods, mutators
     /**********************************************************
      */
 
@@ -116,6 +128,8 @@ public class POJOPropertyBuilder
         PropertyName newName = _name.withSimpleName(newSimpleName);
         return (newName == _name) ? this : new POJOPropertyBuilder(this, newName);
     }
+
+    protected void markAsUnwrapped() { _unwrapped = true; }
 
     /*
     /**********************************************************
@@ -399,6 +413,13 @@ public class POJOPropertyBuilder
 
     @Override
     public boolean hasConstructorParameter() { return _ctorParameters != null; }
+
+    /**
+     * Returns {@code true} if this property is marked with {@code @JsonUnwrapped}.
+     *
+     * @since 3.1
+     */
+    public boolean isUnwrapped() { return _unwrapped; }
 
     @Override
     public boolean couldDeserialize() {
@@ -850,7 +871,7 @@ public class POJOPropertyBuilder
     @Override
     public JsonInclude.Value findInclusion() {
         AnnotatedMember a = getAccessor();
-        // 16-Apr-2106, tatu: Let's include per-type default inclusion too
+        // 16-Apr-2016, tatu: Let's include per-type default inclusion too
         // 17-Aug-2016, tatu: Do NOT include global, or per-type defaults, because
         //    not all of this information (specifically, enclosing type's settings)
         //    is available here

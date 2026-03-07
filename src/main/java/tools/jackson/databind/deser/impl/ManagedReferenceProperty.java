@@ -1,7 +1,6 @@
 package tools.jackson.databind.deser.impl;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
@@ -97,31 +96,30 @@ public final class ManagedReferenceProperty
         }
         // 04-Feb-2014, tatu: As per [#390], it may be necessary to switch the
         //   ordering of forward/backward references, and start with back ref.
-        if (_isContainer) { // ok, this gets ugly... but has to do for now
-            if (value instanceof Object[]) {
-                for (Object ob : (Object[]) value) {
-                    if (ob != null) {
-                        _backProperty.set(ctxt, ob, instance);
-                    }
-                }
-            } else if (value instanceof Collection<?>) {
-                for (Object ob : (Collection<?>) value) {
-                    if (ob != null) {
-                        _backProperty.set(ctxt, ob, instance);
-                    }
-                }
-            } else if (value instanceof Map<?,?>) {
-                for (Object ob : ((Map<?,?>) value).values()) {
-                    if (ob != null) {
-                        _backProperty.set(ctxt, ob, instance);
-                    }
-                }
-            } else {
-                throw new IllegalStateException("Unsupported container type (" + value.getClass().getName()
-                        + ") when resolving reference '" + _referenceName + "'");
-            }
-        } else {
+        if (!_isContainer) {
             _backProperty.set(ctxt, value, instance);
+            return;
         }
+
+        Iterable<?> iterable = _toIterable(value);
+        for (Object obj : iterable) {
+            if (obj != null) {
+                _backProperty.set(ctxt, obj, instance);
+            }
+        }
+    }
+
+    private Iterable<?> _toIterable(Object value) {
+        if (value instanceof Collection<?> coll) {
+            return coll;
+        }
+        if (value instanceof Map<?,?> map) {
+            return map.values();
+        }
+        if (value instanceof Object[] obs) {
+            return Arrays.asList(obs);
+        }
+        throw new IllegalStateException("Unsupported container type (" + value.getClass().getName()
+                + ") when resolving reference '" + _referenceName + "'");
     }
 }

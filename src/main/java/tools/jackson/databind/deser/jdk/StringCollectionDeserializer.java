@@ -236,6 +236,25 @@ public final class StringCollectionDeserializer
                     if (_skipNullValues) {
                         continue;
                     }
+                } else if (t == JsonToken.START_ARRAY) {
+                    // [databind#2124]: Support for empty array coercion to null String
+                    JsonToken nextToken = p.nextToken();
+                    if (nextToken == JsonToken.END_ARRAY) {
+                        CoercionAction act = _findCoercionFromEmptyArray(ctxt);
+                        if (act == CoercionAction.AsNull || act == CoercionAction.TryConvert) {
+                            value = null;
+                        } else if (act == CoercionAction.AsEmpty) {
+                            // Since we are using default/standard deserialization (not
+                            // custom) one, can hard-code empty String
+                            value = "";
+                        } else {
+                            // Fail case: delegate to _parseString which will throw proper error
+                            value = _parseString(p, ctxt, _nullProvider);
+                        }
+                    } else {
+                        // Non-empty array: delegate to _parseString which will throw proper error
+                        value = _parseString(p, ctxt, _nullProvider);
+                    }
                 } else {
                     value = _parseString(p, ctxt, _nullProvider);
                 }
@@ -323,8 +342,9 @@ public final class StringCollectionDeserializer
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (!canWrap) {
+            // [databind#3349]: special check for possible coercions etc
             if (p.hasToken(JsonToken.VALUE_STRING)) {
-                return _deserializeFromString(p, ctxt);
+                return _deserializeFromStringForContainer(p, ctxt);
             }
             return castToCollection(ctxt.handleUnexpectedToken(_containerType, p));
         }

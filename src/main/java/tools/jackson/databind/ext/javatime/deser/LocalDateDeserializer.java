@@ -31,6 +31,7 @@ import tools.jackson.databind.JavaType;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 
 /**
  * Deserializer for Java 8 temporal {@link LocalDate}s.
@@ -115,7 +116,15 @@ public class LocalDateDeserializer extends JSR310DateTimeDeserializerBase<LocalD
                     throw ctxt.wrongTokenException(p, handledType(), JsonToken.END_ARRAY,
                             "Expected array to end");
                 }
-                return LocalDate.of(year, month, day);
+                try {
+                    return LocalDate.of(year, month, day);
+                } catch (DateTimeException e) {
+                    throw DateTimeParseException.from(p,
+                            String.format("Failed to deserialize %s from array value [%d,%d,%d]: %s",
+                                    handledType().getName(), year, month, day, e.getMessage()),
+                            String.format("[%d,%d,%d]", year, month, day),
+                            handledType(), e);
+                }
             }
             ctxt.reportInputMismatch(handledType(),
                     "Unexpected token (%s) within Array, expected VALUE_NUMBER_INT",
@@ -132,7 +141,16 @@ public class LocalDateDeserializer extends JSR310DateTimeDeserializerBase<LocalD
 
             // issue 58 - also check for NUMBER_INT, which needs to be specified when serializing.
             if (_shape == JsonFormat.Shape.NUMBER_INT || isLenient()) {
-                return LocalDate.ofEpochDay(p.getLongValue());
+                long epochDay = p.getLongValue();
+                try {
+                    return LocalDate.ofEpochDay(epochDay);
+                } catch (DateTimeException e) {
+                    throw DateTimeParseException.from(p,
+                            String.format("Failed to deserialize %s from epoch day value %d: %s",
+                                    handledType().getName(), epochDay, e.getMessage()),
+                            String.valueOf(epochDay),
+                            handledType(), e);
+                }
             }
             return _failForNotLenient(p, ctxt, JsonToken.VALUE_STRING);
         }

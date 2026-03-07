@@ -127,6 +127,35 @@ public enum MapperFeature
     ALLOW_IS_GETTERS_FOR_NON_BOOLEAN(false),
 
     /**
+     * Feature that determines whether, for Java {@code Record} types, Jackson should
+     * only infer getter methods from actual Record components, or whether
+     * getter methods should be auto-detected based on name (and within limits
+     * of Jackson visibility as per {@code @JsonAutoDetect} and defaults).
+     * <p>
+     * When enabled (true), only getter methods matching Record component names will ever
+     * be auto-detected for serialization; helper methods like {@code getDisplayName()} on a
+     * Record with component {@code name} will NOT be serialized unless explicitly
+     * annotated with {@code @JsonProperty}.
+     * <p>
+     * When disabled (false, the default), public getter methods following JavaBean
+     * conventions may be auto-detected, which may include helper methods that are not
+     * Record components.
+     * <p>
+     * Note that:
+     * <ul>
+     *  <li>Explicit annotations ({@code @JsonProperty}, {@code @JsonGetter}, etc.)
+     *      always take precedence and will work regardless of this setting</li>
+     *  <li>This setting only affects getter detection for Records; it does NOT affect
+     *      setter or field detection, and has no effect on regular POJOs</li>
+     * </ul>
+     * <p>
+     * Feature is disabled by default for backward compatibility.
+     *
+     * @since 3.1
+     */
+    INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY(false),
+
+    /**
      * Feature that determines whether nominal property type of {@link Void} is
      * allowed for Getter methods to indicate {@code null} valued pseudo-property
      * or not. If enabled, such properties are recognized (see [databind#2675] for
@@ -462,10 +491,26 @@ public enum MapperFeature
      */
 
     /**
+     * Setting that determines whether wrapper types for primitives (like
+     * {@link java.lang.Boolean}) have default value of {@code null} (feature
+     * {@code true} / enabled) or the default matching primitive default
+     * (for {@code java.lang.Boolean} would be {@code Boolean.FALSE}) (when
+     * feature {@code false} / disabled).
+     *<p>
+     * Default value is mostly relevant for serialization inclusion checks
+     * using {@code @JsonInclude} annotation.
+     *<p>
+     * Feature is disabled by default, {@code false}, for backwards-compatibility.
+     *
+     * @since 3.1
+     */
+    WRAPPERS_DEFAULT_TO_NULL(false),
+
+    /**
      * Setting that determines what happens if an attempt is made to explicitly
      * "merge" value of a property, where value does not support merging; either
-     * merging is skipped and new value is created (<code>true</code>) or
-     * an exception is thrown (false).
+     * merging is skipped and new value is created ({@code true}) or
+     * an exception is thrown ({@code false}).
      *<p>
      * Feature is enabled by default, to allow use of merge defaults even in presence
      * of some unmergeable properties.
@@ -477,7 +522,7 @@ public enum MapperFeature
      * defined in class definitions in cases where the input data omits the relevant values.
      *<p>
      * Not all modules will respect this feature. Initially, only {@code jackson-module-scala}
-     * will respect this feature but other modules will add support over time.
+     * will respect this feature but other modules may add support over time.
      *<p>
      * Feature is enabled by default.
      *

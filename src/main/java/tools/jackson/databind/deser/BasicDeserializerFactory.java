@@ -1403,17 +1403,10 @@ factory.toString()));
             return createCollectionDeserializer(ctxt, ct, beanDescRef);
         }
         if (rawType == CLASS_MAP_ENTRY) {
-            // 28-Apr-2015, tatu: TypeFactory does it all for us already so
-            JavaType kt = type.containedTypeOrUnknown(0);
-            JavaType vt = type.containedTypeOrUnknown(1);
-            TypeDeserializer vts = (TypeDeserializer) vt.getTypeHandler();
-            if (vts == null) {
-                vts = ctxt.findTypeDeserializer(vt);
-            }
-            @SuppressWarnings("unchecked")
-            ValueDeserializer<Object> valueDeser = (ValueDeserializer<Object>) vt.getValueHandler();
-            KeyDeserializer keyDes = (KeyDeserializer) kt.getValueHandler();
-            return new MapEntryDeserializer(type, keyDes, valueDeser, vts);
+            // [databind#1419]: Check if we should deserialize as POJO instead
+            JsonFormat.Value format = beanDescRef.findExpectedFormat(Map.Entry.class);
+            return MapEntryDeserializer.construct(ctxt, type,
+                    (format.getShape() == JsonFormat.Shape.POJO));
         }
         String clsName = rawType.getName();
         if (rawType.isPrimitive() || clsName.startsWith("java.")) {

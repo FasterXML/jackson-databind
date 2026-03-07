@@ -1169,7 +1169,7 @@ public abstract class DeserializationContext
     }
 
     /**
-     * Helper method similar to {@link ObjectReader#treeToValue(TreeNode, Class)}
+     * Helper method similar to {@link ObjectReader#treeToValue(JsonNode, Class)}
      * which will read contents of given tree ({@link JsonNode})
      * and bind them into specified target type. This is often used in two-phase
      * deserialization in which content is first read as a tree, then manipulated
@@ -2153,7 +2153,7 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
     public DatabindException missingInjectableValueException(String msg,
             Object valueId,
             BeanProperty forProperty, Object beanInstance) {
-        return MissingInjectableValueExcepion.from(_parser, msg,
+        return MissingInjectableValueException.from(_parser, msg,
                 valueId, forProperty, beanInstance);
     }
 

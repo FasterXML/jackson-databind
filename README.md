@@ -15,10 +15,10 @@ Naming of classes uses word 'JSON' in many places even though there is no actual
 | Type | Status |
 | ---- | ------ |
 | Build (CI) | [![Build (github)](https://github.com/FasterXML/jackson-databind/actions/workflows/main.yml/badge.svg)](https://github.com/FasterXML/jackson-databind/actions/workflows/main.yml) |
-| Artifact | ![Maven Central](https://img.shields.io/maven-central/v/tools.jackson.core/jackson-databind) |
-| OSS Sponsorship | [![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-databind)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-databind?utm_source=maven-tools-jackson-core-jackson-databind&utm_medium=referral&utm_campaign=readme) |
+| Artifact | [![Maven Central](https://img.shields.io/maven-central/v/tools.jackson.core/jackson-databind.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/tools.jackson.core/jackson-databind) |
+| OSS Sponsorship | [![Tidelift](https://tidelift.com/badges/package/maven/tools.jackson.core:jackson-databind)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-databind?utm_source=maven-tools-jackson-core-jackson-databind&utm_medium=referral&utm_campaign=readme) |
 | Javadocs | [![Javadoc](https://javadoc.io/badge/tools.jackson.core/jackson-databind.svg)](http://www.javadoc.io/doc/tools.jackson.core/jackson-databind) |
-| Code coverage (3.0) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-databind/coverage.svg?branch=3.x)](https://codecov.io/github/FasterXML/jackson-databind?branch=3.x) |
+| Code coverage (3.x) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-databind/coverage.svg?branch=3.x)](https://codecov.io/github/FasterXML/jackson-databind?branch=3.x) |
 | OpenSSF Score | [![OpenSSF  Scorecard](https://api.securityscorecards.dev/projects/github.com/FasterXML/jackson-databind/badge)](https://securityscorecards.dev/viewer/?uri=github.com/FasterXML/jackson-databind) |
 
 # Get it!
@@ -639,7 +639,7 @@ This is particularly useful for things like REST API validation (return all vali
 
 We would love to get your contribution, whether it's in form of bug reports, Requests for Enhancement (RFE), documentation, or code patches.
 
-See [CONTRIBUTING](https://github.com/FasterXML/jackson/blob/3.x/CONTRIBUTING.md) for details on things like:
+See [CONTRIBUTING](https://github.com/FasterXML/jackson/blob/main/CONTRIBUTING.md) for details on things like:
 
 * Community, ways to interact (mailing lists, gitter)
 * Issue tracking ([GitHub Issues](https://github.com/FasterXML/jackson-databind/issues))

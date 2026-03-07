@@ -257,7 +257,7 @@ public abstract class AsArraySerializerBase<T>
             if (incl != JsonInclude.Include.USE_DEFAULTS) {
                 switch (incl) {
                     case NON_DEFAULT:
-                        valueToSuppress = BeanUtil.getDefaultValue(_elementType);
+                        valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, _elementType);
                         suppressNulls = true;
                         if (valueToSuppress != null) {
                             if (valueToSuppress.getClass().isArray()) {
@@ -389,7 +389,7 @@ public abstract class AsArraySerializerBase<T>
      */
     protected boolean _needToCheckFiltering(SerializationContext ctxt) {
         return ((_suppressableValue != null) || _suppressNulls)
-                && ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS);
+                && ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS);
     }
     
     /**

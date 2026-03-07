@@ -1,25 +1,31 @@
 package tools.jackson.databind.ext.jdk8;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.LongStream;
 
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LongStreamSerializerTest extends StreamTestBase
 {
-    final long[] empty = {};
+    static class LongStreamWrapper {
+        public LongStream value;
 
-    final long[] single = { 1L };
+        public LongStreamWrapper() { }
+        LongStreamWrapper(LongStream v) { value = v; }
+    }
 
-    final long[] multipleValues = { Long.MIN_VALUE, Long.MAX_VALUE, 1L, 0L, 6L, -3L };
+    private final long[] single = { 1L };
 
-    final String exceptionMessage = "LongStream peek threw";
+    private final long[] multipleValues = { Long.MIN_VALUE, Long.MAX_VALUE, 1L, 0L, 6L, -3L };
 
     @Test
     public void testEmptyStream() throws Exception {
 
-        assertArrayEquals(empty, roundTrip(LongStream.empty()));
+        assertArrayEquals(new long[0], roundTrip(LongStream.empty()));
     }
 
     @Test
@@ -40,40 +46,38 @@ public class LongStreamSerializerTest extends StreamTestBase
         assertClosesOnSuccess(LongStream.of(multipleValues), this::roundTrip);
     }
 
-    // 10-Jan-2025, tatu: I hate these kinds of obscure lambda-ridden tests.
-    //    They were accidentally disabled and now fail for... some reason. WTF.
-    //   (came from `jackson-modules-java8`, disabled due to JUnit 4->5 migration)
-
-    /*
     @Test
-    public void testLongStreamClosesOnRuntimeException() throws Exception {
-
-        assertClosesOnRuntimeException(exceptionMessage, this::roundTrip, LongStream.of(multipleValues)
-            .peek(e -> {
-                throw new RuntimeException(exceptionMessage);
-            }));
-
+    public void testLongStreamInWrapper() throws Exception
+    {
+        String json = objectMapper.writeValueAsString(
+                new LongStreamWrapper(LongStream.of(100L, 200L, 300L)));
+        assertEquals("{\"value\":[100,200,300]}", json);
     }
 
     @Test
-    public void testLongStreamClosesOnSneakyIOException() throws Exception {
-
-        assertClosesOnIoException(exceptionMessage, this::roundTrip, LongStream.of(multipleValues)
-            .peek(e -> {
-                sneakyThrow(new IOException(exceptionMessage));
-            }));
-
+    public void testLongStreamSingleNegative() throws Exception
+    {
+        String json = objectMapper.writeValueAsString(LongStream.of(-1L));
+        assertEquals("[-1]", json);
     }
 
     @Test
-    public void testLongStreamClosesOnWrappedIoException() {
-
-        assertClosesOnWrappedIoException(exceptionMessage, this::roundTrip, LongStream.of(multipleValues)
-            .peek(e -> {
-                throw new UncheckedIOException(new IOException(exceptionMessage));
-            }));
+    public void testLongStreamBoundaryValues() throws Exception
+    {
+        long[] values = { Long.MIN_VALUE, 0L, Long.MAX_VALUE };
+        String json = objectMapper.writeValueAsString(LongStream.of(values));
+        long[] result = objectMapper.readValue(json, long[].class);
+        assertArrayEquals(values, result);
     }
-    */
+
+    @Test
+    public void testLongStreamInWrapperCloses() throws Exception
+    {
+        final AtomicBoolean closed = new AtomicBoolean(false);
+        LongStream stream = LongStream.of(1L, 2L).onClose(() -> closed.set(true));
+        objectMapper.writeValueAsString(new LongStreamWrapper(stream));
+        assertTrue(closed.get());
+    }
 
     private long[] roundTrip(LongStream stream) {
         return objectMapper.readValue(objectMapper.writeValueAsBytes(stream), long[].class);

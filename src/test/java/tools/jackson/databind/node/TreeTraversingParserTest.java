@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.JsonParser.NumberType;
+import tools.jackson.core.JsonParser.NumberTypeFP;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.JsonNodeException;
@@ -66,6 +68,10 @@ public class TreeTraversingParserTest
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals("a", p.currentName());
         assertEquals(123, p.getIntValue());
+        assertEquals((short) 123, p.getShortValue());
+        assertEquals(123, p.getValueAsInt(-1));
+        assertEquals(123L, p.getValueAsLong(42L));
+        assertEquals(BigInteger.valueOf(123L), p.getBigIntegerValue());
         assertEquals("123", p.getString());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
@@ -79,15 +85,55 @@ public class TreeTraversingParserTest
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertNull(p.currentName());
         assertEquals(12.25, p.getDoubleValue(), 0);
+        assertEquals(12.25f, p.getFloatValue(), 0);
+        assertEquals(NumberType.DOUBLE, p.getNumberType());
+        assertEquals(NumberTypeFP.DOUBLE64, p.getNumberTypeFP());
+        assertFalse(p.isNaN());
+        try {
+            p.getShortValue();
+            fail("Should not pass");
+        } catch (InputCoercionException e) {
+            verifyException(e, "has fractional part; cannot convert to `short`");
+        }
+        try {
+            p.getIntValue();
+            fail("Should not pass");
+        } catch (InputCoercionException e) {
+            verifyException(e, "has fractional part; cannot convert to `int`");
+        }
+        assertEquals(12, p.getValueAsInt(1));
+        try {
+            p.getLongValue();
+            fail("Should not pass");
+        } catch (InputCoercionException e) {
+            verifyException(e, "has fractional part; cannot convert to `long`");
+        }
+        assertEquals(12L, p.getValueAsLong(2L));
         assertEquals("12.25", p.getString());
 
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
         assertNull(p.currentName());
+        assertNull(p.getNumberType());
+        assertEquals(NumberTypeFP.UNKNOWN, p.getNumberTypeFP());
         assertEquals(JsonToken.VALUE_NULL.asString(), p.getString());
 
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertNull(p.currentName());
         assertTrue(p.getBooleanValue());
+        try {
+            p.getValueAsInt(1);
+            fail("Should not pass");
+        } catch (InputCoercionException e) {
+            verifyException(e, "Current token (VALUE_TRUE) not numeric, cannot use numeric value accessors");
+        }
+        try {
+            p.getValueAsLong(2L);
+            fail("Should not pass");
+        } catch (InputCoercionException e) {
+            verifyException(e, "Current token (VALUE_TRUE) not numeric, cannot use numeric value accessors");
+        }
+        assertNull(p.getNumberType());
+        assertEquals(NumberTypeFP.UNKNOWN, p.getNumberTypeFP());
         assertEquals(JsonToken.VALUE_TRUE.asString(), p.getString());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
@@ -186,16 +232,21 @@ public class TreeTraversingParserTest
     {
         byte[] inputBinary = new byte[] { 1, 2, 100 };
         POJONode n = new POJONode(inputBinary);
-        JsonParser p = n.traverse(ObjectReadContext.empty());
+        try (JsonParser p = n.traverse(ObjectReadContext.empty())) {
+            assertNull(p.currentToken());
+            assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, p.nextToken());
+            byte[] data = p.getBinaryValue();
+            assertNotNull(data);
+            assertArrayEquals(inputBinary, data);
+            Object pojo = p.getEmbeddedObject();
+            assertSame(data, pojo);
 
-        assertNull(p.currentToken());
-        assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, p.nextToken());
-        byte[] data = p.getBinaryValue();
-        assertNotNull(data);
-        assertArrayEquals(inputBinary, data);
-        Object pojo = p.getEmbeddedObject();
-        assertSame(data, pojo);
-        p.close();
+            // and for code coverage
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            int count = p.readBinaryValue(Base64Variants.getDefaultVariant(), bout);
+            assertEquals(data.length, count);
+            assertArrayEquals(inputBinary, bout.toByteArray());
+        }
     }
 
     @Test
@@ -241,7 +292,7 @@ public class TreeTraversingParserTest
         try {
             p.getBinaryValue();
         } catch (JsonNodeException e) {
-            verifyException(e, "method `binaryValue()` cannot convert value");
+            verifyException(e, "method `binaryValue()` cannot coerce value");
             verifyException(e, "Illegal character");
         }
         p.close();

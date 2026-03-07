@@ -32,17 +32,17 @@ jobs:
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:
-    - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - name: Set up JDK (without deployment credentials)
       if: ${{ github.event_name == 'pull_request' || github.repository != 'FasterXML/jackson-databind' }}
-      uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+      uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
       with:
         distribution: 'temurin'
         java-version: ${{ matrix.java_version }}
         cache: 'maven'
     - name: Set up JDK with deployment credentials
       if: ${{ github.event_name != 'pull_request' && github.repository == 'FasterXML/jackson-databind' }}
-      uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+      uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
       with:
         distribution: 'temurin'
         java-version: ${{ matrix.java_version }}
@@ -74,21 +74,21 @@ jobs:
       run: ./mvnw -B -q -ff -ntp test jacoco:report
     - name: Publish code coverage
       if: ${{ matrix.release_build && github.event_name != 'pull_request' && github.repository == 'FasterXML/jackson-databind' }}
-      uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./target/site/jacoco/jacoco.xml
         flags: unittests
     - name: Upload coverage report as artifact
       if: ${{ matrix.release_build && github.event_name != 'pull_request' && github.repository == 'FasterXML/jackson-databind' }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: jacoco-report
         path: target/site/jacoco/jacoco.csv
         retention-days: 30
     - name: Download base branch coverage
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
-      uses: dawidd6/action-download-artifact@v6
+      uses: dawidd6/action-download-artifact@2536c51d3d126276eb39f74d6bc9c72ac6ef30d3 # v16
       continue-on-error: true
       with:
         workflow: main.yml
@@ -98,7 +98,7 @@ jobs:
     - name: Generate coverage summary
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
       id: jacoco
-      uses: cicirello/jacoco-badge-generator@v2.12.1
+      uses: cicirello/jacoco-badge-generator@72266185b7ee48a6fd74eaf0238395cc8b14fef8 # v2.12.1
       with:
         jacoco-csv-file: target/site/jacoco/jacoco.csv
         generate-coverage-badge: false
@@ -192,7 +192,7 @@ jobs:
         echo "$COMMENT_BODY" > pr-comment/comment-body.txt
     - name: Upload PR comment
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: pr-comment
         path: pr-comment/

@@ -24,7 +24,7 @@ import tools.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import tools.jackson.databind.ser.impl.UnsupportedTypeSerializer;
 import tools.jackson.databind.ser.jdk.MapEntryAsPOJOSerializer;
 import tools.jackson.databind.ser.jdk.MapSerializer;
-import tools.jackson.databind.ser.std.StdDelegatingSerializer;
+import tools.jackson.databind.ser.std.StdConvertingSerializer;
 import tools.jackson.databind.ser.std.ToEmptyObjectSerializer;
 import tools.jackson.databind.type.ReferenceType;
 import tools.jackson.databind.util.BeanUtil;
@@ -176,7 +176,7 @@ public class BeanSerializerFactory
             if ((ser == null) && !delegateType.isJavaLangObject()) {
                 ser = _createSerializer2(ctxt, beanDescRef, delegateType, formatOverrides, true);
             }
-            return new StdDelegatingSerializer(conv, delegateType, ser, null);
+            return new StdConvertingSerializer(conv, delegateType, ser, null);
         }
         // No, regular serializer
         return (ValueSerializer<Object>) _createSerializer2(ctxt, beanDescRef, type, formatOverrides, staticTyping);
@@ -588,8 +588,16 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
             }
             // suppress writing of back references
             AnnotationIntrospector.ReferenceProperty refType = property.findReferenceType();
-            if (refType != null && refType.isBackReference()) {
-                continue;
+            if (refType != null) {
+                // [databind#5188]: Cannot use managed/back references with Records
+                if (beanDescRef.isRecordType()) {
+                    ctxt.reportBadTypeDefinition(beanDescRef,
+                            "Cannot use `@JsonManagedReference`/`@JsonBackReference` with `java.lang.Record` type (property '%s')",
+                            property.getName());
+                }
+                if (refType.isBackReference()) {
+                    continue;
+                }
             }
             if (accessor instanceof AnnotatedMethod method) {
                 result.add(_constructWriter(ctxt, property, pb, staticTyping, method));
@@ -607,20 +615,17 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
      */
 
     /**
-     * Overridable method that can filter out properties. Default implementation
-     * checks annotations class may have.
+     * Overridable method that filters out properties based on class-level
+     * {@code @JsonIgnoreProperties} / config overrides and {@code @JsonIncludeProperties}.
+     * Ignorals are read from the pre-computed {@link BeanDescription#getPropertyIgnorals()}
+     * rather than re-introspecting the class annotation.
      */
     protected List<BeanPropertyWriter> filterBeanProperties(SerializationConfig config,
             BeanDescription.Supplier beanDescRef, List<BeanPropertyWriter> props)
     {
         final Class<?> beanClass = beanDescRef.getBeanClass();
         final AnnotatedClass classInfo = beanDescRef.getClassInfo();
-        
-        // 01-May-2016, tatu: Which base type to use here gets tricky, since
-        //   it may often make most sense to use general type for overrides,
-        //   but what we have here may be more specific impl type. But for now
-        //   just use it as is.
-        JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(beanClass, classInfo);
+        JsonIgnoreProperties.Value ignorals = beanDescRef.get().getPropertyIgnorals();
         Set<String> ignored = null;
         if (ignorals != null) {
             ignored = ignorals.findIgnoredForSerialization();

@@ -22,7 +22,10 @@ public class OptionalNumbersTest
 
         public OptionalIntBean() { value = OptionalInt.empty(); }
         OptionalIntBean(int v) {
-            value = OptionalInt.of(v);
+           this(OptionalInt.of(v));
+        }
+        OptionalIntBean(OptionalInt v) {
+            value = v;
         }
     }
 
@@ -31,7 +34,10 @@ public class OptionalNumbersTest
 
         public OptionalLongBean() { value = OptionalLong.empty(); }
         OptionalLongBean(long v) {
-            value = OptionalLong.of(v);
+            this(OptionalLong.of(v));
+        }
+        OptionalLongBean(OptionalLong v) {
+            value = v;
         }
     }
 
@@ -40,7 +46,10 @@ public class OptionalNumbersTest
 
         public OptionalDoubleBean() { value = OptionalDouble.empty(); }
         OptionalDoubleBean(double v) {
-            value = OptionalDouble.of(v);
+            this(OptionalDouble.of(v));
+        }
+        OptionalDoubleBean(OptionalDouble v) {
+            value = v;
         }
     }
 
@@ -54,6 +63,12 @@ public class OptionalNumbersTest
     /* Test methods, OptionalInt
     /**********************************************************
      */
+
+    @Test
+    public void testOptionalIntNull() throws Exception
+    {
+        assertFalse(MAPPER.readValue("null", OptionalInt.class).isPresent());
+    }
 
     @Test
     public void testOptionalIntAbsent() throws Exception
@@ -96,6 +111,18 @@ public class OptionalNumbersTest
         assertEquals(-37L, bean.value.getAsInt());
     }
 
+    @Test
+    public void testOptionalIntInvalid() throws Exception
+    {
+        try {
+            MAPPER.readValue("true", OptionalInt.class);
+            fail("Should fail");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize value of type `java.util.OptionalInt`");
+            verifyException(e, "from Boolean value (token");
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods, OptionalLong
@@ -103,9 +130,16 @@ public class OptionalNumbersTest
      */
 
     @Test
+    public void testOptionalLongNull() throws Exception
+    {
+        assertFalse(MAPPER.readValue("null", OptionalLong.class).isPresent());
+    }
+
+    @Test
     public void testOptionalLongAbsent() throws Exception
     {
-        assertFalse(MAPPER.readValue(MAPPER.writeValueAsBytes(OptionalLong.empty()), OptionalLong.class).isPresent());
+        assertFalse(MAPPER.readValue(MAPPER.writeValueAsBytes(OptionalLong.empty()),
+                OptionalLong.class).isPresent());
     }
 
     @Test
@@ -123,6 +157,23 @@ public class OptionalNumbersTest
         assertEquals(Long.MAX_VALUE, MAPPER.readValue(MAPPER.writeValueAsBytes(OptionalLong.of(Long.MAX_VALUE)), OptionalLong.class).getAsLong());
     }
 
+    @Test
+    public void testOptionalLongBoundaryValues() throws Exception {
+        // Test with Long.MAX_VALUE
+        OptionalLongBean maxWrapper = new OptionalLongBean(OptionalLong.of(Long.MAX_VALUE));
+        String maxJson = MAPPER.writeValueAsString(maxWrapper);
+        OptionalLongBean maxResult = MAPPER.readValue(maxJson, OptionalLongBean.class);
+        assertTrue(maxResult.value.isPresent());
+        assertEquals(Long.MAX_VALUE, maxResult.value.getAsLong());
+
+        // Test with Long.MIN_VALUE
+        OptionalLongBean minWrapper = new OptionalLongBean(OptionalLong.of(Long.MIN_VALUE));
+        String minJson = MAPPER.writeValueAsString(minWrapper);
+        OptionalLongBean minResult = MAPPER.readValue(minJson, OptionalLongBean.class);
+        assertTrue(minResult.value.isPresent());
+        assertEquals(Long.MIN_VALUE, minResult.value.getAsLong());
+    }
+    
     @Test
     public void testOptionalLongCoerceFromString() throws Exception
     {
@@ -166,6 +217,18 @@ public class OptionalNumbersTest
                 mapper.writeValueAsString(new OptionalLongBean()));
     }
 
+    @Test
+    public void testOptionalLongInvalid() throws Exception
+    {
+        try {
+            MAPPER.readValue("true", OptionalLong.class);
+            fail("Should fail");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize value of type `java.util.OptionalLong`");
+            verifyException(e, "from Boolean value (token");
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods, OptionalDouble
@@ -173,9 +236,16 @@ public class OptionalNumbersTest
      */
 
     @Test
+    public void testOptionalDoubleNull() throws Exception
+    {
+        assertFalse(MAPPER.readValue("null", OptionalDouble.class).isPresent());
+    }
+
+    @Test
     public void testOptionalDoubleAbsent() throws Exception
     {
-        assertFalse(MAPPER.readValue(MAPPER.writeValueAsBytes(OptionalInt.empty()), OptionalInt.class).isPresent());
+        assertFalse(MAPPER.readValue(MAPPER.writeValueAsBytes(OptionalDouble.empty()),
+                OptionalDouble.class).isPresent());
     }
 
     @Test
@@ -190,7 +260,8 @@ public class OptionalNumbersTest
     @Test
     public void testOptionalDoublePresent() throws Exception
     {
-        assertEquals(Double.MIN_VALUE, MAPPER.readValue(MAPPER.writeValueAsBytes(OptionalDouble.of(Double.MIN_VALUE)), OptionalDouble.class).getAsDouble());
+        assertEquals(Double.MIN_VALUE,
+                MAPPER.readValue(MAPPER.writeValueAsBytes(OptionalDouble.of(Double.MIN_VALUE)), OptionalDouble.class).getAsDouble());
     }
 
     @Test
@@ -285,4 +356,17 @@ public class OptionalNumbersTest
                 a2q("{'value':'-Infinity'}"), OptionalDoubleBean.class);
         assertEquals(OptionalDouble.of(Double.NEGATIVE_INFINITY), bean.value);
     }
+
+    @Test
+    public void testOptionalDoubleInvalid() throws Exception
+    {
+        try {
+            MAPPER.readValue("true", OptionalDouble.class);
+            fail("Should fail");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize value of type `java.util.OptionalDouble`");
+            verifyException(e, "from Boolean value (token");
+        }
+    }
+
 }

@@ -10,46 +10,77 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.type.TypeFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BeanUtilTest extends DatabindTestUtil
 {
     @Test
-    public void testGetDefaultValue()
+    public void testGetDefaultValueGeneral()
     {
         TypeFactory tf = defaultTypeFactory();
         // For collection/array/Map types, should give `NOT_EMPTY`:
         assertEquals(JsonInclude.Include.NON_EMPTY,
-                BeanUtil.getDefaultValue(tf.constructType(Map.class)));
+                BeanUtil.propertyDefaultValue(tf.constructType(Map.class), true));
         assertEquals(JsonInclude.Include.NON_EMPTY,
-                BeanUtil.getDefaultValue(tf.constructType(List.class)));
+                BeanUtil.propertyDefaultValue(tf.constructType(List.class), true));
         assertEquals(JsonInclude.Include.NON_EMPTY,
-                BeanUtil.getDefaultValue(tf.constructType(Object[].class)));
+                BeanUtil.propertyDefaultValue(tf.constructType(Object[].class), true));
         // as well as ReferenceTypes, String
         assertEquals(JsonInclude.Include.NON_EMPTY,
-                BeanUtil.getDefaultValue(tf.constructType(AtomicReference.class)));
+                BeanUtil.propertyDefaultValue(tf.constructType(AtomicReference.class), true));
         assertEquals("",
-                BeanUtil.getDefaultValue(tf.constructType(String.class)));
-        // primitive/wrappers have others
+                BeanUtil.propertyDefaultValue(tf.constructType(String.class), true));
+
+        // primitives have specific defaults
+        assertEquals(Boolean.FALSE,
+                BeanUtil.propertyDefaultValue(tf.constructType(Boolean.TYPE), true));
         assertEquals(Integer.valueOf(0),
-                BeanUtil.getDefaultValue(tf.constructType(Integer.class)));
+                BeanUtil.propertyDefaultValue(tf.constructType(Integer.TYPE), true));
+        assertEquals(Double.valueOf(0.0),
+                BeanUtil.propertyDefaultValue(tf.constructType(Double.TYPE), true));
 
-
-        // but POJOs have no real default
-        assertNull(BeanUtil.getDefaultValue(tf.constructType(getClass())));
+        // POJOs have no real default
+        assertNull(BeanUtil.propertyDefaultValue(tf.constructType(getClass()), true));
     }
 
+    @Test
+    public void testGetDefaultValueWrappers()
+    {
+        final TypeFactory tf = defaultTypeFactory();
+
+        // [databind#5570]: primitive wrappers (Integer, Boolean, etc.) may
+        // default to null
+        assertNull(BeanUtil.propertyDefaultValue(tf.constructType(Boolean.class), true));
+        assertNull(BeanUtil.propertyDefaultValue(tf.constructType(Integer.class), true));
+        assertNull(BeanUtil.propertyDefaultValue(tf.constructType(Double.class), true));
+
+        //... or not
+        assertEquals(Boolean.FALSE,
+                BeanUtil.propertyDefaultValue(tf.constructType(Boolean.class), false));
+        assertEquals(Integer.valueOf(0),
+                BeanUtil.propertyDefaultValue(tf.constructType(Integer.class), false));
+        assertEquals(Double.valueOf(0.0),
+                BeanUtil.propertyDefaultValue(tf.constructType(Double.class), false));
+    }
+    
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testGetDefaultValueDeprecated()
+    {
+        final TypeFactory tf = defaultTypeFactory();
+
+        assertNull(BeanUtil.getDefaultValue(tf.constructType(Boolean.class)));
+        assertNull(BeanUtil.getDefaultValue(tf.constructType(Integer.class)));
+        assertNull(BeanUtil.getDefaultValue(tf.constructType(Double.class)));
+    }
+    
     @Test
     public void testGetDefaultValueForDate()
     {
         TypeFactory tf = defaultTypeFactory();
-        Object result = BeanUtil.getDefaultValue(tf.constructType(Date.class));
+        Object result = BeanUtil.propertyDefaultValue(tf.constructType(Date.class), true);
         assertNotNull(result);
-        assertTrue(result instanceof Date);
+        assertInstanceOf(Date.class, result);
         assertEquals(0L, ((Date) result).getTime());
     }
 
@@ -57,9 +88,9 @@ public class BeanUtilTest extends DatabindTestUtil
     public void testGetDefaultValueForCalendar()
     {
         TypeFactory tf = defaultTypeFactory();
-        Object result = BeanUtil.getDefaultValue(tf.constructType(Calendar.class));
+        Object result = BeanUtil.propertyDefaultValue(tf.constructType(Calendar.class), true);
         assertNotNull(result);
-        assertTrue(result instanceof Calendar);
+        assertInstanceOf(Calendar.class, result);
         assertEquals(0L, ((Calendar) result).getTimeInMillis());
     }
 
@@ -67,9 +98,9 @@ public class BeanUtilTest extends DatabindTestUtil
     public void testGetDefaultValueForGregorianCalendar()
     {
         TypeFactory tf = defaultTypeFactory();
-        Object result = BeanUtil.getDefaultValue(tf.constructType(GregorianCalendar.class));
+        Object result = BeanUtil.propertyDefaultValue(tf.constructType(GregorianCalendar.class), true);
         assertNotNull(result);
-        assertTrue(result instanceof Calendar);
+        assertInstanceOf(Calendar.class, result);
         assertEquals(0L, ((Calendar) result).getTimeInMillis());
     }
 

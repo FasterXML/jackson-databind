@@ -51,7 +51,7 @@ public abstract class VirtualBeanPropertyWriter
         super(propDef, propDef.getPrimaryMember(), contextAnnotations, declaredType,
                 ser, typeSer, serType,
                 _suppressNulls(inclusion), _suppressableValue(inclusion),
-                includeInViews);
+                includeInViews, inclusion);
     }
 
     protected VirtualBeanPropertyWriter(VirtualBeanPropertyWriter base) {
@@ -72,7 +72,7 @@ public abstract class VirtualBeanPropertyWriter
 
     protected static Object _suppressableValue(JsonInclude.Value inclusion) {
         if (inclusion == null) {
-            return false;
+            return null;
         }
         JsonInclude.Include incl = inclusion.getValueInclusion();
         if ((incl == JsonInclude.Include.ALWAYS)
@@ -109,12 +109,12 @@ public abstract class VirtualBeanPropertyWriter
 
     /**
      * Contextualization method called on a newly constructed virtual bean property.
-     * Usually a new intance needs to be created due to finality of some of configuration
+     * Usually a new instance needs to be created due to finality of some of configuration
      * members; otherwise while recommended, creating a new instance is not strictly-speaking
      * mandatory because calls are made in thread-safe manner, as part of initialization
      * before use.
      *
-     * @param config Currenct configuration; guaranteed to be {@link SerializationConfig}
+     * @param config Current configuration; guaranteed to be {@link SerializationConfig}
      *   (just not typed since caller does not have dependency to serialization-specific types)
      * @param declaringClass Class that contains this property writer
      * @param propDef Nominal property definition to use

@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -55,7 +57,9 @@ public class ObjectIdInObjectArray5413Test extends DatabindTestUtil
     public static final record Point(int id, int x, int y) {
     }
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
 
     // [databind#5413]
     @Test
@@ -73,8 +77,8 @@ public class ObjectIdInObjectArray5413Test extends DatabindTestUtil
         triangle.setPoints(new Point[] { point_0_2, point_1_3, point_2_2 });
         draw.setAShapes(new Shape[] { square, triangle });
         draw.setPoints(new Point[] { point_0_0, point_0_2, point_2_2, point_2_0, point_1_3 });
-        final String JSON = MAPPER.writeValueAsString(draw);
-        draw = MAPPER.readValue(JSON, Draw.class);
+        final String json = MAPPER.writeValueAsString(draw);
+        draw = MAPPER.readValue(json, Draw.class);
         assertNotNull(draw);
         assertEquals(5, draw.points.length);
         assertEquals(2, draw.ashapes.length);
@@ -89,4 +93,14 @@ public class ObjectIdInObjectArray5413Test extends DatabindTestUtil
         assertSame(draw.points[2], draw.ashapes[1].points[2]);
     }
 
+    @Test
+    public void testNullHandling()
+    {
+        Draw draw = MAPPER.readValue(a2q("{'AShapes':[ null ], 'points': [ null ]}"),
+                Draw.class);
+        assertEquals(1, draw.ashapes.length);
+        assertNull(draw.ashapes[0]);
+        assertEquals(1, draw.points.length);
+        assertNull(draw.points[0]);
+    }
 }

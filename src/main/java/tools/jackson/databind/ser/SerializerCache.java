@@ -168,7 +168,7 @@ public final class SerializerCache
     }
 
     public void addAndResolveNonTypedSerializer(Class<?> type, ValueSerializer<Object> ser,
-            SerializationContext provider)
+            SerializationContext ctxt)
     {
         synchronized (this) {
             if (_sharedMap.put(new TypeKey(type, false), ser) == null) {
@@ -179,12 +179,12 @@ public final class SerializerCache
              *   this because while we do need to register instance first, we also must
              *   keep lock until resolution is complete.
              */
-            ser.resolve(provider);
+            ser.resolve(ctxt);
         }
     }
 
     public void addAndResolveNonTypedSerializer(JavaType type, ValueSerializer<Object> ser,
-            SerializationContext provider)
+            SerializationContext ctxt)
     {
         synchronized (this) {
             if (_sharedMap.put(new TypeKey(type, false), ser) == null) {
@@ -195,7 +195,7 @@ public final class SerializerCache
              *   this because while we do need to register instance first, we also must
              *   keep lock until resolution is complete.
              */
-            ser.resolve(provider);
+            ser.resolve(ctxt);
         }
     }
 
@@ -205,7 +205,7 @@ public final class SerializerCache
      */
     public void addAndResolveNonTypedSerializer(Class<?> rawType, JavaType fullType,
             ValueSerializer<Object> ser,
-            SerializationContext provider)
+            SerializationContext ctxt)
     {
         synchronized (this) {
             Object ob1 = _sharedMap.put(new TypeKey(rawType, false), ser);
@@ -213,7 +213,7 @@ public final class SerializerCache
             if ((ob1 == null) || (ob2 == null)) {
                 _readOnlyMap.set(null);
             }
-            ser.resolve(provider);
+            ser.resolve(ctxt);
         }
     }
 

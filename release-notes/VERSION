@@ -1,4 +1,3 @@
-
 Project: jackson-databind 
 Versions: 3.x (for earlier see VERSION-2.x)
 
@@ -6,11 +5,43 @@ Versions: 3.x (for earlier see VERSION-2.x)
 === Releases ===
 ------------------------------------------------------------------------
 
-3.1.0 (not yet released)
+3.2.0 (not yet released)
+
+#3216: Delegating `@JsonCreator` does not prevent unnecessary introspection
+  of properties, leading to bogus failure
+ (reported by @awildturtok)
+ (fix by @cowtowncoder, w/ Claude code)
+#3591: Ignored fields not consistently exposed via
+  `BeanDescription.getIgnoredPropertyNames()`
+ (requested by Oliver D)
+ (fix by @cowtowncoder, w/ Claude code)
+#5734: Add `DeserializationFeature.FAIL_ON_ABSENT_FOR_PRIMITIVES` to
+  allow preventing absent-primitive failure
+ (requested by Martin U)
+ (fix by @cowtowncoder, w/ Claude code)
+- Remove project-specific Android SDK compatibility level, use shared;
+  no change level itself (stillAndroid SDK 34)
+
+3.1.1 (not yet released)
+
+#5710: `ObjectWriter` transforms polymorphic types into a tree incompletely
+ (reported by Brandon S)
+ (fix by @cowtowncoder, w/ Claude code)
+#5716: `@JsonUnwrapped` properties moved to end in 3.1.0
+ (reported by Viktor S)
+ (fix by @cowtowncoder, w/ Claude code)
+#5728: `@JsonUnwrapped`doesn't work for delegating ValueDeserializer (even
+  one delegating to `BeanDeserializerBase`)
+ (reported by Alessandro N)
+
+3.1.0 (23-Feb-2026)
 
 #221: Support alternate radixes when writing numeric values as strings
  (requested by Christopher C)
  (implementation by Davyd F)
+#429: Cannot use property annotations on `StackTraceElement` to configure
+  deserialization
+ (reported by Gary G)
 #650: `@JsonUnwrapped` prevents checks for
   `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
  (reported by Konstantin L)
@@ -18,6 +49,12 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1196: Add opt-in error collection for deserialization
  (requested by @odrotbohm)
  (contributed by @sri-adarsh-kumar)
+#1391: Default typing adds typing info to collections even with
+  `@JsonTypeInfo(use = Id.NONE)` override
+ (reported by Jeff M)
+ (fix by @cowtowncoder, w/ Claude code)
+#1419: `JsonFormat.Shape.POJO`  does not work for `Map.Entry` via property annotation
+ (fix by @cowtowncoder, w/ Claude code)
 #1497: Allow skipping `@JsonUnwrapped` values if no properties matched,
   `DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED` enabled
  (requested by Victor N)
@@ -25,20 +62,72 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1516: Problem with multi-argument Creator with `@JsonBackReference` property
  (reported by @sarahlikesglitter)
  (fix by @JacksonJang)
+#1649: `@JsonInclude(content=)` not working for `Map`-valued properties via
+  POJO class annotation
+ (fix by @cowtowncoder, w/ Claude code)
 #1654: @JsonDeserialize(contentUsing=...) is ignored if content
   type is determined by @JsonTypeInfo
  (reported by @pdegoeje)
  (fix by @cowtowncoder, @JacksonJang)
 #1980: Add method `remove(JsonPointer)` in `ContainerNode`
  (fix by @cowtowncoder, w/ Claude code)
+#2124: Allow coercion of '[ ]' into empty/null String with
+  `ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT`
+ (reported by Ulf A)
+ (fix by @cowtowncoder, w/ Claude code)
+#2343: Add `JsonNode.asArray()` and `JsonNode.asObject()`
+ (requested by Victor N)
 #2438: Prevent use of setter/field in case Creator property
   already exists, duplicate value seen
+#2617: `@JsonDeserialize.converter` from an interface doesn't work
+ (reported by Erik H)
+#2624: Allow overriding builder's "withPrefix" with new
+  `@JsonDeserialize.builderPrefix` property
+ (requested by Kenneth J)
 #2686: `@JsonBackReference` does not work with a builder
  (reported by @janrieke)
  (fix by @JacksonJang)
+#3079: Support `ObjectMapper.updateValue()` for Record classes
+ (requested by Dávid C)
+#3084: `Nulls.AS_EMPTY` doesn't work for collections containing
+  values without default constructor (like Records)
+ (reported by Krzysztof K)
+ (fix by @cowtowncoder, w/ Claude code)
+#3163: Huge performance problem deserializing `java.nio.file.Path`
+  with existing Windows Samba/CIFS mounts
+ (reported by @Gaibhne)
+#3188: Skip unknown `Enum` keys in `Map` deserialization
+ (requested by @matthias-mueller)
+ (fixed by Lee Jiwon)
+#3284: Backward compatibility for timezone formats of UTC Date
+  serialization
+ (requested by @arungitan)
+ (implemented by Lee Jiwon)
+#3304: Backreference not set after deserialization for Abstract types
+  with `@JsonBackReference` only in sub-type
+ (reported by @Njimefo)
+#3349: `DeserializationProblemHandler.handleUnexpectedToken()` no longer
+  invoked for array-like types
+ (reported by @andpal)
+#3786: Deserialization of generic container (of Record type) using `EXTERNAL_PROPERTY`
+  fails for "natural" types (`boolean`/`long`/`String`/`double`) because
+  type information is missing
+ (fix by @cowtowncoder, w/ Claude code)
 #3964: Deserialization issue: MismatchedInputException, Bean not
   yet resolved
  (reported by @detomarco)
+#4118: Deserialization of a certain kinds of parametrized properties fail to
+  resolve `?` into expected bounds, resulting in `LinkedHashMap`
+ (reported by @Mariusz)
+ (fix by @cowtowncoder, w/ Claude code)
+#4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
+  getter method auto-detection for Records
+ (suggested by Garret W)
+ (fix by @cowtowncoder, w/ Claude code)
+#4277: Deserialization `@JsonFormat(shape = JsonFormat.Shape.ARRAY)` POJO with
+  `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work
+ (reported by James M)
+ (implemented by @cowtowncoder, w/ Claude code)
 #4629: `@JsonIncludeProperties` and `@JsonIgnoreProperties` ignored when
   deserializing Records
  (reported by Sim Y-T)
@@ -47,19 +136,39 @@ Versions: 3.x (for earlier see VERSION-2.x)
   creator property" when deserializing JSON with dup property to single-property Record
  (reported by @sseelmann)
  (fix contributed by @JacksonJang)
+#4708: `JsonTypeInfo.Id.DEDUCTION` should block signatures for non-instantiable
+  types (abstract classes, interfaces)
+ (implemented by @cowtowncoder, w/ Claude code)
+#4729: Object ID handling tries (unnecessarily) to set id value on a Record
+ (reported by John H)
+ (implemented by @cowtowncoder, w/ Claude code)
 #5115: `@JsonUnwrapped` Record deserialization can't handle name collision
  (reported by Viktor S)
  (fix contributed by @JacksonJang)
 #5184: `@JsonIgnore` on record method applied to record matching field
   at deserialization
  (reported by @emouty)
+#5188: Prevent use of unsupported `@JsonManagedReference`/`@JsonBackReference`
+  for Record-valued properties
+ (reported by @JBodkin-Amphora)
+ (implemented by @cowtowncoder, w/ Claude code)
+#5223: Java Records missing type information with `DefaultTyping.NON_FINAL`
+  (add `DefaultTyping.NON_FINAL_AND_RECORDS`)
+ (requested by @cndqjacndqja)
+ (implemented by @chanwonlee)
+#5285: Generics using wildcard not correctly resolved
+ (reported by @wimdeblauwe)
+ (implemented by @cowtowncoder, w/ Claude code)
+#5312: `JsonInclude.Include.NON_DEFAULT` regression for objects with `@JsonValue`
+ (reported by @LSwiatek)
+ (implemented by @cowtowncoder, w/ Claude code)
 #5350: Add `DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES` for
   selecting `null` vs "empty/absent" value when deserializing missing `Optional` value
 #5361: Fix Maven SBOM publishing (worked in 3.0.0-rc4 but not in rc5 or later)
 (date-time)#359: `InstantDeserializer` deserializes the nanosecond portion of
   fractional negative timestamps incorrectly
-#5369: Support `@JsonInclude` for `Collection`s
-  (with `SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS`)
+#5369: Support `@JsonInclude.content` for `Collection`s
+  (with `SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS`)
  (implementation by Joo-Hyuk K)
 #5405: `@JsonFormat(shape = Shape.POJO)` does not work for `java.util.Map`
   serialization via property annotation
@@ -77,6 +186,11 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fixed by Joo-Hyuk K)
 #5475: Support `@JsonDeserializeAs` annotation
  (implemented by @cowtowncoder, w/ Claude code)
+#5485: Unchecked conversion warning in `JsonMapper` wrt `TreeCodec.readTree()`
+  override
+ (reported by Francesco C)
+#5515: Support `@JsonInclude.content` for Arrays
+ (implemented by @JacksonJang)
 #5519: Add 2 new `JavaTimeFeature`s: (`TRUNCATE_TO_MSECS_ON_WRITE`,
   `TRUNCATE_TO_MSECS_ON_READ`) for truncating `java.time` values before serialization,
   after deserialization
@@ -86,9 +200,71 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (contributed by Jaeheon K)
 #5528: `TreeBuildingGenerator#writeNumber(String)` writes Number as String
  (reported by @gaeljw)
+#5541: Add missing `@JsonIdentityInfo` handling for implicit arrays with
+  `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+ (contributed by Moritz R)
+#5542: `ObjectReader.readValue()` does not fail when
+  `DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS` enabled
+ (implemented by @cowtowncoder, w/ Claude code)
+#5558: Change defaulting of `JsonNode.asXxx(defaultValue)`/`JsonNode.asXxxOpt()`
+  for `NullNode`
+ (contributed by Filip H)
+#5570: Add `MapperFeature.WRAPPERS_DEFAULT_TO_NULL` to allow configuring
+ `JsonInclude.Include.NON_DEFAULT` default for primitive wrapper types to be `null`,
+  not wrapped default of primitive
+#5575: Allow configuring a default serialization and deserialization view (3.x)
+ (requested by Réda H-A)
+ (implemented by @cowtowncoder, w/ Claude code)
+#5579: Add `JsonNode.map()` method
+#5581: Add functional conversion methods `JsonNode.nullAs()`, `JsonNode.missingAs()`
+#5583 Improve `asXxx()` method impls of `MissingNode`, `POJONode(null)`,
+  to work like `NullNode`
+ (implemented by @cowtowncoder, w/ Claude code)
+#5586: Change `IndexOutOfBoundsException` that `ArrayNode.set()`/`replace()`
+  throw to `JsonNodeException`
+#5595: Add `FunctionalScalarDeserializer` for functional-style deserialization
+ (contributed by @jhan0121)
+#5599: Reduce mutability of `JsonFormatVisitor` types in 3.1
+#5616: `ObjectWriter` serializes `Optional`s with subtypes incompletely
+ (reported by Brandon S)
+ (implemented by @cowtowncoder, w/ Claude code)
+#5621: Fix typo: MissingInjectableValueExcepion → MissingInjectableValueException
+ (implemented by Lee Jiwon)
+#5630: Add `DelegatingSerializer`
+ (contributed by Matthew L)
+#5631: Rename `StdDelegatingSerializer` to `StdConvertingSerializer` (3.0->3.1)
+#5642: Wrap `DateTimeException` and `ArithmeticException` in new
+  `DateTimeParseException` during java.time deserialization
+ (implemented by @pjfanning)
+#5646: `ObjectArrayDeserializer` may throw `ArrayStoreException` for some special cases
+ (fixed by @cowtowncoder, w/ Claude code)
+#5649: Wrap `LocalDate.ofEpochDay()` and `Instant.ofEpochSecond()` to throw
+  `DateTimeParseException` on invalid values
+ (implemented by @pjfanning)
+#5674: Fix NPE when deserializing `Throwable` with `null` "stackTrace"
+ (fix by @pjfanning)
+#5683: When deserializing using `ObjectMapper::treeToValue`, NPE occurs
+  when `JsonParser::readValueAs` is called
+ (reported by @wrongwrong)
+#5685: Fix issue where `_findSerializer()` was called with incorrect argument in
+  `StdDelegatingSerializer::isEmpty()`
+ (fixed by @wrongwrong)
+#5686: Fix NPE where code can look for an objectId when no `_objectIdReader` is set
+ (fix by @pjfanning)
+#5691: Validate `ByteBufferBackedInputStream.read()` parameters per `InputStream`
+ contract
+ (fix by @pjfanning)
+#5706: `TokenBuffer` serialization fails when buffer contains integer
+  encoded as String
+ (reported by Kyrylo M)
 
-3.0.4 (not yet released)
+3.0.4 (21-Jan-2026)
 
+#1288 (regression in 3.0.0) Type id not exposed for `JsonTypeInfo.As.EXTERNAL_PROPERTY`
+  even when `visible` set to `true`
+#2580: Regression with External type id / Build deserialization in 3.0
+#4742 (regression in 3.0.0) Deserialization with Builder, External type id,
+  `@JsonCreator` failing
 #5481: JsonMapper.Builder.modules(...) ignores changes after build() due to
   internal saveState
  (reported by @libetl)

@@ -25,8 +25,14 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 @SuppressWarnings("serial")
 public class MapDeserializationTest
 {
-    static enum Key {
-        KEY1, KEY2, WHATEVER;
+    // [databind#2757]
+    static class MyMap2757 extends LinkedHashMap<String, String> {
+        public MyMap2757() { }
+
+        public void setValue(StringWrapper w) { }
+        public void setValue(IntWrapper w) { }
+
+        public long getValue() { return 0L; }
     }
 
     static class BrokenMap
@@ -116,12 +122,12 @@ public class MapDeserializationTest
     @Test
     public void testBigUntypedMap() throws Exception
     {
-        Map<String,Object> map = new LinkedHashMap<String,Object>();
+        Map<String,Object> map = new LinkedHashMap<>();
         for (int i = 0; i < 1100; ++i) {
             if ((i & 1) == 0) {
                 map.put(String.valueOf(i), Integer.valueOf(i));
             } else {
-                Map<String,Object> map2 = new LinkedHashMap<String,Object>();
+                Map<String,Object> map2 = new LinkedHashMap<>();
                 map2.put("x", Integer.valueOf(i));
                 map.put(String.valueOf(i), map2);
             }
@@ -129,7 +135,7 @@ public class MapDeserializationTest
         String json = MAPPER.writeValueAsString(map);
         Object bound = MAPPER.readValue(json, Object.class);
 
-        assertTrue(bound instanceof Map<?,?>);
+        assertInstanceOf(Map.class, bound);
         assertEquals(map.size(), ((Map<?,?>) bound).size());
         assertEquals(map, bound);
     }
@@ -147,22 +153,19 @@ public class MapDeserializationTest
         @SuppressWarnings("unchecked")
         HashMap<String,Object> result = /*(HashMap<String,Object>)*/ MAPPER.readValue(JSON, HashMap.class);
         assertNotNull(result);
-        assertTrue(result instanceof Map<?,?>);
+        assertInstanceOf(Map.class, result);
 
         assertEquals(1, result.size());
 
         assertEquals("x", result.get("a"));
     }
 
-    /**
-     * Unit test for [JACKSON-185]
-     */
     @Test
     public void testUntypedMap3() throws Exception
     {
         String JSON = "{\"a\":[{\"a\":\"b\"},\"value\"]}";
         Map<?,?> result = MAPPER.readValue(JSON, Map.class);
-        assertTrue(result instanceof Map<?,?>);
+        assertInstanceOf(Map.class, result);
         assertEquals(1, result.size());
         Object ob = result.get("a");
         assertNotNull(ob);
@@ -176,7 +179,7 @@ public class MapDeserializationTest
             +" }"
             ;
         result = MAPPER.readValue(JSON, Map.class);
-        assertTrue(result instanceof Map<?,?>);
+        assertInstanceOf(Map.class, result);
         assertEquals(3, result.size());
     }
 
@@ -302,7 +305,7 @@ public class MapDeserializationTest
         Map<String,Integer> result = MAPPER.readValue
             (JSON, new TypeReference<Map<String,Integer>>() { });
         assertNotNull(result);
-        assertTrue(result instanceof Map<?,?>);
+        assertInstanceOf(Map.class, result);
         assertEquals(3, result.size());
 
         assertEquals(Integer.valueOf(-99), result.get("c"));
@@ -323,6 +326,37 @@ public class MapDeserializationTest
 
     /*
     /**********************************************************
+    /* Test methods, updating
+    /**********************************************************
+     */
+
+    @Test
+    public void testMapUpdate()
+    {
+        Map<String,String> map = new HashMap<>();
+        Object result = MAPPER.readerFor(Map.class)
+                .withValueToUpdate(map)
+                .readValue("{ }");
+        assertSame(map, result);
+        assertEquals(0, map.size());
+
+        result = MAPPER.readerFor(Map.class)
+                .withValueToUpdate(map)
+                .readValue("{\"key\": null }");
+        assertSame(map, result);
+        assertEquals(1, map.size());
+        assertEquals(Collections.singletonMap("key", null), map);
+
+        result = MAPPER.readerFor(Map.class)
+                .withValueToUpdate(map)
+                .readValue("{\"key\": false }");
+        assertSame(map, result);
+        assertEquals(1, map.size());
+        assertEquals(Collections.singletonMap("key", Boolean.FALSE), map);
+    }
+
+    /*
+    /**********************************************************
     /* Test methods, maps with enums
     /**********************************************************
      */
@@ -333,21 +367,21 @@ public class MapDeserializationTest
         String JSON = "{ \"KEY1\" : \"\", \"WHATEVER\" : null }";
 
         // to get typing, must use type reference
-        EnumMap<Key,String> result = MAPPER.readValue
-            (JSON, new TypeReference<EnumMap<Key,String>>() { });
+        EnumMap<CollectionDeserializationTest.Key,String> result = MAPPER.readValue
+            (JSON, new TypeReference<EnumMap<CollectionDeserializationTest.Key,String>>() { });
 
         assertNotNull(result);
         assertEquals(EnumMap.class, result.getClass());
         assertEquals(2, result.size());
 
-        assertEquals("", result.get(Key.KEY1));
+        assertEquals("", result.get(CollectionDeserializationTest.Key.KEY1));
         // null should be ok too...
-        assertTrue(result.containsKey(Key.WHATEVER));
-        assertNull(result.get(Key.WHATEVER));
+        assertTrue(result.containsKey(CollectionDeserializationTest.Key.WHATEVER));
+        assertNull(result.get(CollectionDeserializationTest.Key.WHATEVER));
 
         // plus we have nothing for this key
-        assertFalse(result.containsKey(Key.KEY2));
-        assertNull(result.get(Key.KEY2));
+        assertFalse(result.containsKey(CollectionDeserializationTest.Key.KEY2));
+        assertNull(result.get(CollectionDeserializationTest.Key.KEY2));
     }
 
     @Test
@@ -356,15 +390,15 @@ public class MapDeserializationTest
         String JSON = "{ \"KEY2\" : \"WHATEVER\" }";
 
         // to get typing, must use type reference
-        Map<?,?> result = MAPPER.readValue(JSON, new TypeReference<Map<Key,Key>>() { });
+        Map<?,?> result = MAPPER.readValue(JSON, new TypeReference<Map<CollectionDeserializationTest.Key,CollectionDeserializationTest.Key>>() { });
 
         assertNotNull(result);
-        assertTrue(result instanceof Map<?,?>);
+        assertInstanceOf(Map.class, result);
         assertEquals(1, result.size());
 
-        assertEquals(Key.WHATEVER, result.get(Key.KEY2));
-        assertNull(result.get(Key.WHATEVER));
-        assertNull(result.get(Key.KEY1));
+        assertEquals(CollectionDeserializationTest.Key.WHATEVER, result.get(CollectionDeserializationTest.Key.KEY2));
+        assertNull(result.get(CollectionDeserializationTest.Key.WHATEVER));
+        assertNull(result.get(CollectionDeserializationTest.Key.KEY1));
     }
 
     @Test
@@ -546,12 +580,29 @@ public class MapDeserializationTest
     @Test
     public void testMapError() throws Exception
     {
+        final TypeReference<?> TYPE = new TypeReference<Map<String,String>>() { };
         try {
-            Object result = MAPPER.readValue("[ 1, 2 ]",
-                    new TypeReference<Map<String,String>>() { });
+            Object result = MAPPER.readValue("[ 1, 2 ]", TYPE);
             fail("Expected an exception, but got result value: "+result);
         } catch (MismatchedInputException jex) {
-            verifyException(jex, "START_ARRAY");
+            verifyException(jex, "JsonToken.START_ARRAY");
+        }
+
+        try {
+            Object result = MAPPER.readValue("true", TYPE);
+            fail("Expected an exception, but got result value: "+result);
+        } catch (MismatchedInputException jex) {
+            verifyException(jex, "from Boolean value (token `JsonToken.VALUE_TRUE`)");
+        }
+
+        Map<String,String> map = new HashMap<>();
+        try {
+            Object result = MAPPER.readerFor(TYPE)
+                    .withValueToUpdate(map)
+                    .readValue("true");
+            fail("Expected an exception, but got result value: "+result);
+        } catch (MismatchedInputException jex) {
+            verifyException(jex, "from Boolean value (token `JsonToken.VALUE_TRUE`)");
         }
     }
 
@@ -565,5 +616,17 @@ public class MapDeserializationTest
             // instead, should get this exception:
             verifyException(e, "no default constructor found");
         }
+    }
+
+    // [databind#2757]: should allow deserialization as Map despite conflicting setters
+    @Test
+    public void testCanDeserializeMap2757() throws Exception
+    {
+        MyMap2757 input = new MyMap2757();
+        input.put("a", "b");
+        final String json = MAPPER.writeValueAsString(input);
+        MyMap2757 x = MAPPER.readValue(json, MyMap2757.class);
+        assertEquals(1, x.size());
+        assertEquals("b", input.get("a"));
     }
 }

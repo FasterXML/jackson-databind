@@ -721,8 +721,13 @@ public final class ClassUtil
      */
 
     /**
-     * Helper method used to get default value for wrappers used for primitive types
-     * (0 for Integer etc)
+     * Helper method used to get default values for for primitive types
+     * ({@code 0} for {@code int}, {@code false} for {@code boolean} etc);
+     * or {@code null} for non-primitive types
+     *
+     * @param cls Raw type to check
+     *
+     * @return Default value, if {@code cls} Wrapper type; {@code null} otherwise
      */
     public static Object defaultValue(Class<?> cls)
     {
@@ -750,14 +755,16 @@ public final class ClassUtil
         if (cls == Character.TYPE) {
             return '\0';
         }
-        throw new IllegalArgumentException("Class "+cls.getName()+" is not a primitive type");
+        // NOTE: changed in 3.1 to return `null`, not throw exception
+        return null;
     }
 
     /**
      * Helper method for finding wrapper type for given primitive type (why isn't
      * there one in JDK?).
-     * NOTE: throws {@link IllegalArgumentException} if given type is NOT primitive
-     * type (caller has to check).
+     *<p>
+     * NOTE: as of 3.1, no longer throws {@link IllegalArgumentException} if given type
+     * is NOT primitive, but returns {@code null}.
      */
     public static Class<?> wrapperType(Class<?> primitiveType)
     {
@@ -785,7 +792,8 @@ public final class ClassUtil
         if (primitiveType == Character.TYPE) {
             return Character.class;
         }
-        throw new IllegalArgumentException("Class "+primitiveType.getName()+" is not a primitive type");
+        // NOTE: changed in 3.1 to return `null`, not throw exception
+        return null;
     }
 
     /**

@@ -164,6 +164,6 @@ public final class IndexedStringListSerializer
 
     protected boolean _needToCheckFiltering(SerializationContext ctxt) {
         return ((_suppressableValue != null) || _suppressNulls)
-                && ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_COLLECTIONS);
+                && ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS);
     }
 }

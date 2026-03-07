@@ -9,7 +9,7 @@ import tools.jackson.databind.SerializationContext;
  * are being visited: this usually means POJOs, but sometimes other
  * types use it too (like {@link java.util.EnumMap}).
  */
-public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializationContext
+public interface JsonObjectFormatVisitor extends WithGettableSerializationContext
 {
     /**
      * Callback method called when a POJO property is being traversed.
@@ -35,16 +35,12 @@ public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializat
     public static class Base
         implements JsonObjectFormatVisitor
     {
-        protected SerializationContext _provider;
+        protected final SerializationContext _context;
 
-        public Base() { }
-        public Base(SerializationContext p) { _provider = p; }
-
-        @Override
-        public SerializationContext getContext() { return _provider; }
+        public Base(SerializationContext p) { _context = p; }
 
         @Override
-        public void setContext(SerializationContext p) { _provider = p; }
+        public SerializationContext getContext() { return _context; }
 
         @Override
         public void property(BeanProperty prop) { }

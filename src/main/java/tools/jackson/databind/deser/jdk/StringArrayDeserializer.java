@@ -287,9 +287,7 @@ public final class StringArrayDeserializer
                     }
                     if (t == JsonToken.VALUE_NULL) {
                         // 03-Feb-2017, tatu: Should we skip null here or not?
-                        if (_skipNullValues) {
-                            return NO_STRINGS;
-                        }
+                        value = null;
                     } else {
                         value = _parseString(p, ctxt, _nullProvider);
                     }
@@ -354,7 +352,8 @@ public final class StringArrayDeserializer
             return new String[] { value };
         }
         if (p.hasToken(JsonToken.VALUE_STRING)) {
-            return _deserializeFromString(p, ctxt);
+            // [databind#3349]: for non-empty strings, delegate to handleUnexpectedToken
+            return _deserializeFromStringForContainer(p, ctxt);
         }
         return (String[]) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }

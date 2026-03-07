@@ -354,6 +354,13 @@ public final class DeserializerCache
             if (!delegateType.hasRawClass(type.getRawClass())) {
                 beanDescRef = ctxt.lazyIntrospectBeanDescription(delegateType);
             }
+            // [databind#2617]: Need to apply type modifications
+            // (like @JsonDeserialize(as=...)) to the delegate type as well
+            JavaType newDelegateType = modifyTypeByAnnotation(ctxt, beanDescRef.getClassInfo(), delegateType);
+            if (newDelegateType != delegateType) {
+                delegateType = newDelegateType;
+                beanDescRef = ctxt.lazyIntrospectBeanDescription(delegateType);
+            }
             return new StdConvertingDeserializer<Object>(conv, delegateType,
                     _createDeserializer2(ctxt, factory, delegateType, beanDescRef));
         }

@@ -35,6 +35,7 @@ import tools.jackson.databind.ser.impl.UnknownSerializer;
 import tools.jackson.databind.ser.std.NullSerializer;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.StdDateFormat;
 import tools.jackson.databind.util.TokenBuffer;
 
 /**
@@ -1451,8 +1452,15 @@ public abstract class SerializationContext
         // At this point, all timezone configuration should have occurred, with respect
         // to default dateformat configuration. But we still better clone
         // an instance as formatters are stateful, not thread-safe.
-        DateFormat df = _config.getDateFormat();
-        _dateFormat = df = (DateFormat) df.clone();
+        DateFormat df = (DateFormat) _config.getDateFormat().clone();
+
+        // [databind#3284]: Configure zero-offset format based on DateTimeFeature
+        if (df instanceof StdDateFormat sdf
+                && isEnabled(DateTimeFeature.WRITE_UTC_AS_OFFSET)) {
+            df = sdf.withZeroOffsetAsZ(false);
+        }
+
+        _dateFormat = df;
         // [databind#939]: 26-Sep-2015, tatu: With 2.6, formatter has been (pre)configured
         // with TimeZone, so we should NOT try overriding it unlike with earlier versions
         /*

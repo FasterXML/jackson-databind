@@ -13,7 +13,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -160,17 +159,27 @@ public class MapFormatShapeTest extends DatabindTestUtil
                 result);
     }
 
-    // Can't yet use per-property overrides at all, see [databind#1419]
-
-    /*
+    // [databind#5405]: property overrides for @JsonFormat.shape for Maps
     @Test
     public void testSerializeAsPOJOViaProperty() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean476Container(1,0,3));
-        assertEquals(a2q("{'a':{'extra':13,'empty':false},'c':{'empty':false,'value':3}}"),
+        assertEquals(a2q(
+                "{'a':{'extra':13,'empty':false},'c':{'extra':13,'empty':false}}"),
                 result);
     }
 
+    // [databind#5405]
+    @Test
+    public void testSerializeAsPOJOViaFullProperty() throws Exception
+    {
+        String result = MAPPER.writeValueAsString(new Bean476Container(1,2,3));
+        assertEquals(a2q(
+                "{'a':{'extra':13,'empty':false},'b':{'value':2},'c':{'extra':13,'empty':false}}"),
+                result);
+    }
+
+    // [databind#5405]
     @Test
     public void testSerializeNaturalViaOverride() throws Exception
     {
@@ -178,7 +187,6 @@ public class MapFormatShapeTest extends DatabindTestUtil
         assertEquals(a2q("{'stuff':{'value':123}}"),
                 result);
     }
-    */
 
     /*
     /**********************************************************
@@ -194,14 +202,16 @@ public class MapFormatShapeTest extends DatabindTestUtil
         input.property = 55;
         input.put(12, 45);
         input.put(6, 88);
-        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .build();
         String json = mapper.writeValueAsString(input);
 
         assertEquals(a2q("{'property':55,'map':{'12':45,'6':88}}"), json);
 
         Map1540Implementation result = MAPPER.readValue(json, Map1540Implementation.class);
-        assertEquals(result.property, input.property);
-        assertEquals(input.getMap(), input.getMap());
+        assertEquals(input.property, result.property);
+        assertEquals(input.getMap(), result.getMap());
    }
 
     // [databind#1554]

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.InjectableValues;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.exc.MissingInjectableValueExcepion;
+import tools.jackson.databind.exc.MissingInjectableValueException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -121,19 +121,19 @@ class JacksonInject1381Test extends DatabindTestUtil
     @Test
     @DisplayName("input NO, injectable NO, useInput DEFAULT|TRUE|FALSE => exception")
     void test1() {
-        assertThrows(MissingInjectableValueExcepion.class,
+        assertThrows(MissingInjectableValueException.class,
                 () -> plainMapper.readValue(empty, InputDefault.class));
-        assertThrows(MissingInjectableValueExcepion.class,
+        assertThrows(MissingInjectableValueException.class,
                 () -> plainMapper.readValue(empty, InputDefaultConstructor.class));
 
-        assertThrows(MissingInjectableValueExcepion.class,
+        assertThrows(MissingInjectableValueException.class,
                 () -> plainMapper.readValue(empty, InputTrue.class));
-        assertThrows(MissingInjectableValueExcepion.class,
+        assertThrows(MissingInjectableValueException.class,
                 () -> plainMapper.readValue(empty, InputTrueConstructor.class));
 
-        assertThrows(MissingInjectableValueExcepion.class,
+        assertThrows(MissingInjectableValueException.class,
                 () -> plainMapper.readValue(empty, InputFalse.class));
-        assertThrows(MissingInjectableValueExcepion.class,
+        assertThrows(MissingInjectableValueException.class,
                 () -> plainMapper.readValue(empty, InputFalseConstructor.class));
     }
 
@@ -151,14 +151,14 @@ class JacksonInject1381Test extends DatabindTestUtil
     @Test
     @DisplayName("input YES, injectable NO, useInput DEFAULT|FALSE => exception")
     void test3() {
-        assertThrows(MissingInjectableValueExcepion.class,
+        assertThrows(MissingInjectableValueException.class,
                 () -> plainMapper.readValue(input, InputDefault.class));
-        assertThrows(MissingInjectableValueExcepion.class,
+        assertThrows(MissingInjectableValueException.class,
                 () -> plainMapper.readValue(input, InputDefaultConstructor.class));
 
-        assertThrows(MissingInjectableValueExcepion.class,
+        assertThrows(MissingInjectableValueException.class,
                 () -> plainMapper.readValue(input, InputFalse.class));
-        assertThrows(MissingInjectableValueExcepion.class,
+        assertThrows(MissingInjectableValueException.class,
                 () -> plainMapper.readValue(input, InputFalseConstructor.class));
     }
 

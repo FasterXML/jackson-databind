@@ -4,7 +4,36 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.21.0 (not yet released)
+2.22.0 (not yet released)
+
+#3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
+ (requested by @SaiKrishna369)
+ (contributed by Lee Jiwon)
+
+2.21.2 (not yet released)
+
+#5729: (regression due to #5429) ISO-8601 change prevents parsing
+  negative timestamps (dates before 1970)
+ (reported by Thomas W)
+ (fixed by by Jonas K)
+
+2.21.1 (22-Feb-2026)
+
+#5184: `@JsonIgnore` on record method applied to record matching
+  field at deserialization
+ (reported by @emouty)
+ (fix backported by Joo-Hyuk K)
+#5616: `ObjectWriter` serializes Reference types (`AtomicReference`,
+  `Optional`) containing subtypes incompletely
+ (reported by Brandon S)
+#5624: dup of #5184 (see above)
+#5674: Fix NPE when deserializing `Throwable` with `null` "stackTrace"
+ (fix by @pjfanning)
+#5706: `TokenBuffer` serialization fails when buffer contains integer
+  encoded as String
+ (reported by Kyrylo M)
+
+2.21.0 (18-Jan-2026)
 
 #1381: Add a way to specify "inject-only" with `@JacksonInject`
  (fix by Giulio L)
@@ -34,12 +63,21 @@ Project: jackson-databind
  (implemented by @cowtowncoder, w/ Claude code)
 #5476: Support `@JsonSerializeAs` annotation
  (implemented by @cowtowncoder, w/ Claude code)
+#5541: Add missing `@JsonIdentityInfo` handling for implicit arrays with
+  `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+ (contributed by Moritz R)
+#5542: `ObjectReader.readValue()` does not fail when
+  `DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS` enabled
+ (implemented by @cowtowncoder, w/ Claude code)
 
-2.20.2 (not yet released)
+2.20.2 (19-Jan-2026)
 
 #5393: `@JsonAnyGetter` property gets included in generated schema since 2.19.0
  (reported by @victor-noel-pfx)
  (fix by Joo-Hyuk K)
+#5537: Add missing `@JsonIdentityInfo` handling for implicit `Collection`s with
+  `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+ (contributed by Moritz R)
 
 2.20.1 (30-Oct-2025)
 
@@ -121,6 +159,9 @@ No changes since 2.19.2
  (implementation by Liam F)
 #2145: Add `JsonNode.optional(String name)` and `optional(int index)` methods
  (fix by Joo-Hyuk K)
+#2287: Allow overriding of FAIL_ON_MISSING_CREATOR_PROPERTIES / honor
+  `@JsonProperty(required = false)`
+ - Actual fix via #5020, see below
 #2461: Nested `@JsonUnwrapped` property names not correctly handled
  (reported by @plovell)
  (fix contributed by @SandeepGaur2016)
@@ -205,6 +246,7 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
+2.18.6 (22-Feb-2026)
 2.18.5 (27-Oct-2025)
 
 No changes since 2.18.4

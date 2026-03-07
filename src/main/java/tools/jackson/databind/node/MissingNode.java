@@ -1,5 +1,7 @@
 package tools.jackson.databind.node;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,14 +59,62 @@ public final class MissingNode
         return "<missing>";
     }
 
-    // // Note: not a numeric node, hence default 'asXxx()' are fine:
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods, scalar access (following NullNode behavior)
+    /**********************************************************************
+     */
+
+    @Override
+    public boolean asBoolean() {
+        return false;
+    }
+
+    @Override
+    public String asString() {
+        return "";
+    }
+
+    @Override
+    public short asShort() {
+        return 0;
+    }
+
+    @Override
+    public int asInt() {
+        return 0;
+    }
+
+    @Override
+    public long asLong() {
+        return 0L;
+    }
+
+    @Override
+    public BigInteger asBigInteger() {
+        return BigInteger.ZERO;
+    }
+
+    @Override
+    public float asFloat() {
+        return 0.0f;
+    }
+
+    @Override
+    public double asDouble() {
+        return 0.0d;
+    }
+
+    @Override
+    public BigDecimal asDecimal() {
+        return BigDecimal.ZERO;
+    }
 
     /*
-    public int asInt(int defaultValue);
-    public long asLong(long defaultValue);
-    public double asDouble(double defaultValue);
-    public boolean asBoolean(boolean defaultValue);
-    */
+    /**********************************************************************
+    /* Other JsonNode method overrides
+    /**********************************************************************
+     */
 
     @Override
     public Optional<JsonNode> asOptional() {
@@ -131,7 +181,7 @@ public final class MissingNode
      */
 
     @Override
-    public final void serialize(JsonGenerator g, SerializationContext provider)
+    public final void serialize(JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         /* Nothing to output... should we signal an error tho?
@@ -144,7 +194,7 @@ public final class MissingNode
     }
 
     @Override
-    public void serializeWithType(JsonGenerator g, SerializationContext provider,
+    public void serializeWithType(JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {

@@ -88,7 +88,7 @@ public final class SerializationConfig
             FilterProvider filterProvider)
     {
         super(b, mapperFeatures, tf, classIntr, mixins, str, configOverrides,
-                defaultAttrs, rootNames);
+                defaultAttrs, rootNames, b.defaultSerializationView());
         _serFeatures = serFeatures;
         _filterProvider = filterProvider;
         _streamWriteFeatures = streamWriteFeatures;

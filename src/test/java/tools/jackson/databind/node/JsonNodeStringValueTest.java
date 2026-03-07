@@ -123,9 +123,16 @@ public class JsonNodeStringValueTest
     @Test
     public void asStringFromNonNumberMisc()
     {
-        _assertAsStringSuccess("", NODES.nullNode());
+        assertEquals("", NODES.nullNode().asString());
 
-        _assertAsStringFailForNonString(NODES.missingNode());
+        // But also fallbacks
+        assertEquals("fallback", NODES.nullNode().asString("fallback"));
+        assertFalse(NODES.nullNode().asStringOpt().isPresent());
+
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals("", NODES.missingNode().asString());
+        assertEquals("fallback", NODES.missingNode().asString("fallback"));
+        assertFalse(NODES.missingNode().asStringOpt().isPresent());
     }
 
     // // // Helper methods:
@@ -156,8 +163,8 @@ public class JsonNodeStringValueTest
                 () ->  node.asString(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
-            .contains("cannot convert value")
-            .contains("value type not coercible to `String`");
+            .contains("cannot coerce value")
+            .contains("value type not coercible");
 
         // But also check defaulting
         assertEquals("foo", node.asString("foo"));

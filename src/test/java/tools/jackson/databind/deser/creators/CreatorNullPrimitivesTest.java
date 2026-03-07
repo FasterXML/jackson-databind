@@ -133,7 +133,7 @@ public class CreatorNullPrimitivesTest
     }
 
     // [databind#5734]: absent (missing) primitive creator properties should get
-    //   JVM defaults, not trigger FAIL_ON_NULL_FOR_PRIMITIVES
+    //   JVM defaults when FAIL_ON_ABSENT_FOR_PRIMITIVES is disabled
     @Test
     public void testCreatorAbsentPrimitiveShouldDefault() throws Exception {
         final ObjectReader r = MAPPER.readerFor(JsonEntity.class)
@@ -207,9 +207,11 @@ public class CreatorNullPrimitivesTest
     }
 
     // [databind#5734]: record with absent primitives should use JVM defaults
+    //   when FAIL_ON_ABSENT_FOR_PRIMITIVES is disabled
     @Test
     void testRecordAbsentPrimitivesShouldDefault() throws Exception {
-        // FAIL_ON_NULL_FOR_PRIMITIVES is enabled by default in 3.x
+        // FAIL_ON_NULL_FOR_PRIMITIVES is enabled by default in 3.x;
+        // FAIL_ON_ABSENT_FOR_PRIMITIVES is disabled by default
         String json = a2q("{'int2': 42, 'boolean1': true}");
         PrimitiveRecord result = MAPPER.readValue(json, PrimitiveRecord.class);
         assertEquals(0, result.int1());

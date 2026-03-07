@@ -279,7 +279,7 @@ Matthew Luckam (@mluckam)
 
 Kyrylo Merzlikin (@kirmerzlikin)
  * Reported #5706: `TokenBuffer` serialization fails when buffer contains integer
-   encoded as Stri
+   encoded as String
   [3.1.0]
 
 Martin Uhlen (@MartinUhlen)

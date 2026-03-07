@@ -174,7 +174,8 @@ public enum DeserializationFeature implements ConfigFeature
      * that feature controls behavior for explicit JSON {@code null} values,
      * while this one controls behavior when a JSON property is entirely absent.
      *<p>
-     * Feature is disabled by default (added in Jackson 3.1).
+     * Feature is disabled by default (added in Jackson 3.1); formerly
+     * value of {@link #FAIL_ON_NULL_FOR_PRIMITIVES} was used.
      *
      * @since 3.1
      */

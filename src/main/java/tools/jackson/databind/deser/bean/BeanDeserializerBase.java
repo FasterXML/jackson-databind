@@ -864,7 +864,8 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
             contextual = contextual.withObjectIdReader(oir);
         }
 
-        // [databind#1622]:
+        // [databind#1622], [databind#3355]: may need to separately resolve
+        // Property-based Creator
         if (_propertyBasedCreator == null && _valueInstantiator.canCreateFromObjectWith()) {
             SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
             _propertyBasedCreator = PropertyBasedCreator.construct(

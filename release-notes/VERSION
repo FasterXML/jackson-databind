@@ -7,10 +7,18 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.2.0 (not yet released)
 
+#1622: Failure to deserialize child object when using `@JsonIgnoreProperties`
+  to break cycle
+ (reported by @b-behan)
+ (fix by @JacksonJang)
 #3216: Delegating `@JsonCreator` does not prevent unnecessary introspection
   of properties, leading to bogus failure
  (reported by @awildturtok)
  (fix by @cowtowncoder, w/ Claude code)
+#3355: Deserialization fails depending on the order of deserialized objects with
+  "Cannot construct instance (although at least one Creator exists)"
+ (reported by @dinopraso)
+ (fix by @JacksonJang)
 #3591: Ignored fields not consistently exposed via
   `BeanDescription.getIgnoredPropertyNames()`
  (requested by Oliver D)

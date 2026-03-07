@@ -145,8 +145,14 @@ Konstantin Labun (@kulabun)
  * Contributed fix for #1516: Problem with multi-argument Creator with
    `@JsonBackReference` property
   [3.1.0]
+ * Contributed fix for #1622: Failure to deserialize child object when using
+   `@JsonIgnoreProperties` to break cycle
+  [3.2.0]
  * Contributed fix for #2686: `@JsonBackReference` does not work with a builder
   [3.1.0]
+ * Contributed fix for #3355: Deserialization fails depending on the order of
+  deserialized objects with "Cannot construct instance (although at least one Creator exists)"
+  [3.2.0]
  * Contributed fix for #4629: `@JsonIncludeProperties` and `@JsonIgnoreProperties`
    ignored when deserializing Records
   [3.1.0]

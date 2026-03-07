@@ -275,8 +275,14 @@ Brandon Schmitt (@BrandonSchmitt)
  
 Matthew Luckam (@mluckam)
  * Contributed #5630: Add `DelegatingSerializer`
+  [3.1.0]
 
 Kyrylo Merzlikin (@kirmerzlikin)
  * Reported #5706: `TokenBuffer` serialization fails when buffer contains integer
    encoded as String
   [3.1.0]
+
+Martin Uhlen (@MartinUhlen)
+ * Requested #5734: Add `DeserializationFeature.FAIL_ON_ABSENT_FOR_PRIMITIVES` to
+   allow preventing absent-primitive failure
+  [3.2.0]

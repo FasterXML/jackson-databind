@@ -172,6 +172,19 @@ public class NumberDeserializers
             return _nullValue;
         }
 
+        // @since 3.1
+        @Override
+        public Object getAbsentValue(DeserializationContext ctxt) {
+            // [databind#5734]: Absent (missing) JSON fields for primitives controlled
+            //   separately from explicit nulls (FAIL_ON_NULL_FOR_PRIMITIVES)
+            if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_ABSENT_FOR_PRIMITIVES)) {
+                return ctxt.handleNullForPrimitives(handledType(), ctxt.getParser(), this,
+"Cannot map absent (missing) value to type %s (set `DeserializationFeature.FAIL_ON_ABSENT_FOR_PRIMITIVES` to 'false' to allow)",
+                                ClassUtil.nameOf(handledType()));
+            }
+            return _nullValue;
+        }
+
         @Override
         public Object getEmptyValue(DeserializationContext ctxt) {
             return _emptyValue;

@@ -199,7 +199,10 @@ public abstract class BeanDeserializerBase
      * of filtered copies for self-referential types.
      * Similar to {@link BeanDeserializer#_currentlyTransforming}.
      *<p>
-     * [databind#1622], [databind#1755], [databind#3355], [databind#4417]
+     * See [databind#1622], [databind#1755], [databind#3355], [databind#4417]
+     * for issues solved by using this flag.
+     *
+     * @since 3.2
      */
     protected volatile transient boolean _currentlyContextualizing;
 
@@ -974,10 +977,12 @@ Working alternatives:
      * from incomplete (mid-{@code resolve()}) source deserializers:
      * <ul>
      *   <li>Container properties may have un-contextualized content deserializers</li>
-     *   <li>{@code _propertyBasedCreator} may be {@code null} despite {@code _nonStandardCreation}</li>
+     *   <li>{@code _propertyBasedCreator} may be {@code null} despite
+     * {@code _nonStandardCreation}</li>
      * </ul>
      *<p>
-     * [databind#1622], [databind#1755], [databind#3355], [databind#4417]
+     * See [databind#1622], [databind#1755], [databind#3355], [databind#4417]
+     * for issues solved.
      */
     protected void _contextualizeProperties(DeserializationContext ctxt)
     {

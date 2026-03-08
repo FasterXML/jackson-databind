@@ -243,6 +243,17 @@ public class BeanPropertyWriter
         _typeSerializer = typeSer;
         _cfgSerializationType = serType;
 
+        // [databind#5615]: Set _nonTrivialBaseType here in constructor (rather than
+        // in BeanSerializerBase.resolve()) to avoid race condition where another thread
+        // may use this property writer before resolve() has been called.
+        if (ser == null) {
+            JavaType baseType = (serType != null) ? serType : declaredType;
+            if (baseType != null && !baseType.isFinal()
+                    && (baseType.isContainerType() || baseType.hasGenericTypes())) {
+                _nonTrivialBaseType = baseType;
+            }
+        }
+
         _suppressNulls = suppressNulls;
         _suppressableValue = suppressableValue;
 
@@ -405,7 +416,10 @@ public class BeanPropertyWriter
      * Method called to define type to consider as "non-trivial" basetype,
      * needed for dynamic serialization resolution for complex (usually
      * container) types
+     *
+     * @deprecated Since 3.2, should no longer be needed
      */
+    @Deprecated // @since 3.2
     public void setNonTrivialBaseType(JavaType t) {
         _nonTrivialBaseType = t;
     }

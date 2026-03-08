@@ -15,7 +15,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#4441] @JsonSetter(nulls = Nulls.SKIP) doesn't work in some situations
-public class SkipNulls4441Test
+public class NullSkip4441Test
     extends DatabindTestUtil
 {
     static class Middle {

@@ -152,34 +152,13 @@ public enum DeserializationFeature implements ConfigFeature
     /**
      * Feature that determines whether encountering of JSON null
      * is an error when deserializing into Java primitive types
-     * (like {@code int} or {@code double}). If it is, a {@link DatabindException}
+     * (like 'int' or 'double'). If it is, a {@link DatabindException}
      * is thrown to indicate this; if not, default value is used
-     * ({@code 0} for {@code int}, {@code 0.0} for {@code double}, same defaulting as JVM uses).
-     *<p>
-     * Note that this is separate from {@link #FAIL_ON_ABSENT_FOR_PRIMITIVES} added
-     * in 3.1.
+     * (0 for 'int', 0.0 for double, same defaulting as what JVM uses).
      *<p>
      * Feature is enabled by default as of Jackson 3.0 (in 2.x it was disabled).
      */
     FAIL_ON_NULL_FOR_PRIMITIVES(true),
-
-    /**
-     * Feature that determines whether absence of a JSON property
-     * is an error when deserializing into Java primitive types
-     * (like {@code int} or {@code double}). If it is, a {@link DatabindException}
-     * is thrown to indicate this; if not, default value is used
-     * ({@code 0} for {@code int}, {@code 0.0} for {@code double}, same defaulting as JVM uses).
-     *<p>
-     * Note that this is separate from {@link #FAIL_ON_NULL_FOR_PRIMITIVES}:
-     * that feature controls behavior for explicit JSON {@code null} values,
-     * while this one controls behavior when a JSON property is entirely absent.
-     *<p>
-     * Feature is disabled by default (added in Jackson 3.1); formerly
-     * value of {@link #FAIL_ON_NULL_FOR_PRIMITIVES} was used.
-     *
-     * @since 3.1
-     */
-    FAIL_ON_ABSENT_FOR_PRIMITIVES(false),
 
     /**
      * Feature that determines what happens when type of a polymorphic
@@ -194,7 +173,7 @@ public enum DeserializationFeature implements ConfigFeature
 
     /**
      * Feature that determines whether abstract types (abstract classes, interfaces)
-     * should be ignored when building the type finger prints for polymorphic type
+     * should be ignored when building the type fingerprints for polymorphic type
      * deduction using {@link com.fasterxml.jackson.annotation.JsonTypeInfo.Id#DEDUCTION}.
      * When enabled, non-concrete types are excluded from deduction since they cannot
      * be instantiated; when disabled, they participate in deduction which may cause

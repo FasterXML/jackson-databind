@@ -289,6 +289,6 @@ Kyrylo Merzlikin (@kirmerzlikin)
   [3.1.0]
 
 Martin Uhlen (@MartinUhlen)
- * Requested #5734: Add `DeserializationFeature.FAIL_ON_ABSENT_FOR_PRIMITIVES` to
-   allow preventing absent-primitive failure
+ * Reported #5734: `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` treats
+   absent field same as explicit `null`
   [3.2.0]

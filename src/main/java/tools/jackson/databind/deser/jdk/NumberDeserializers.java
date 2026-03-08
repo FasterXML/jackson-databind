@@ -159,6 +159,18 @@ public class NumberDeserializers
             return AccessPattern.CONSTANT;
         }
 
+        /**
+         * Absent values for primitives should return JVM defaults ({@code 0, 0.0, false} etc.)
+         * and {@code null} for wrappers, regardless of
+         * {@link DeserializationFeature#FAIL_ON_NULL_FOR_PRIMITIVES}.
+         *
+         * @since 3.1
+         */
+        @Override
+        public final Object getAbsentValue(DeserializationContext ctxt) {
+            return _nullValue;
+        }
+
         @SuppressWarnings("unchecked")
         @Override
         public final T getNullValue(DeserializationContext ctxt) {
@@ -167,19 +179,6 @@ public class NumberDeserializers
             if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
                 return (T) ctxt.handleNullForPrimitives(handledType(), ctxt.getParser(), this,
 "Cannot map `null` into type %s (set `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to 'false' to allow)",
-                                ClassUtil.nameOf(handledType()));
-            }
-            return _nullValue;
-        }
-
-        // @since 3.1
-        @Override
-        public Object getAbsentValue(DeserializationContext ctxt) {
-            // [databind#5734]: Absent (missing) JSON fields for primitives controlled
-            //   separately from explicit nulls (FAIL_ON_NULL_FOR_PRIMITIVES)
-            if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_ABSENT_FOR_PRIMITIVES)) {
-                return ctxt.handleNullForPrimitives(handledType(), ctxt.getParser(), this,
-"Cannot map absent (missing) value to type %s (set `DeserializationFeature.FAIL_ON_ABSENT_FOR_PRIMITIVES` to 'false' to allow)",
                                 ClassUtil.nameOf(handledType()));
             }
             return _nullValue;

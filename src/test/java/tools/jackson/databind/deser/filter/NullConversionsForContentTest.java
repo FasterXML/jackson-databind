@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
-// For [databind#1402]; configurable null handling, for contents of
+// For testing configurable null handling, for contents of
 // Collections, Maps, arrays
 public class NullConversionsForContentTest
 {
@@ -39,6 +40,35 @@ public class NullConversionsForContentTest
     static class NullContentUndefined<T> {
         @JsonSetter // leave with defaults
         public T values;
+    }
+
+    // [databind#4200]
+    static class DelegatingWrapper4200 {
+        private final Map<String, String> value;
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        DelegatingWrapper4200(@JsonSetter(contentNulls = Nulls.FAIL)
+            Map<String, String> value)
+        {
+            this.value = value;
+        }
+
+        public Map<String, String> getValue() {
+            return value;
+        }
+    }
+
+    static class SetterWrapper4200 {
+        private Map<String, String> value;
+
+        public Map<String, String> getValue() {
+            return value;
+        }
+
+        @JsonSetter(contentNulls = Nulls.FAIL)
+        public void setValue(Map<String, String> value) {
+            this.value = value;
+        }
     }
 
     /*
@@ -173,6 +203,31 @@ public class NullConversionsForContentTest
         } catch (InvalidNullException e) {
             verifyException(e, "property \"noNulls\"");
             assertEquals(Double.TYPE, e.getTargetType());
+        }
+    }
+
+    // [databind#4200]
+    @Test
+    public void testDelegatingCreatorNulls4200() throws Exception
+    {
+        try {
+            MAPPER.readValue(a2q("{'foo': null}"), DelegatingWrapper4200.class);
+            fail("Should not pass");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value");
+        }
+    }
+
+    // [databind#4200]
+    @Test
+    public void testSetterNulls4200() throws Exception
+    {
+        try {
+            MAPPER.readValue(a2q("{'value':{'foo': null}}"),
+                    SetterWrapper4200.class);
+            fail("Should not pass");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value");
         }
     }
 

@@ -19,9 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test for [databind#5615]: Race condition with {@code @JsonIgnoreProperties}
- * and {@code @JsonTypeInfo(include = As.PROPERTY)}.
+ * and {@code @JsonTypeInfo(include = As.PROPERTY)} on serialization side
  */
-public class ThreadSafetyWithPolymorphicDeser5615Test
+public class ThreadSafetyWithPolymorphicSer5615Test
     extends DatabindTestUtil
 {
     @JsonIgnoreProperties(value = {"typ"}, allowSetters = true)
@@ -44,7 +44,7 @@ public class ThreadSafetyWithPolymorphicDeser5615Test
     }
 
     record SleepingRoom(@JsonProperty("typ") RoomType typ,
-                        @JsonProperty("animals") List<Dog> animals)
+            @JsonProperty("animals") List<Dog> animals)
         implements Room
     {
         @Override

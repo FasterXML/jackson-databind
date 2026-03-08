@@ -1,4 +1,4 @@
-package tools.jackson.databind.deser;
+package tools.jackson.databind.misc;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -21,7 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Test for [databind#5615]: Race condition with {@code @JsonIgnoreProperties}
  * and {@code @JsonTypeInfo(include = As.PROPERTY)}.
  */
-public class GitHub5615Test extends DatabindTestUtil
+public class ThreadSafetyWithPolymorphicDeser5615Test
+    extends DatabindTestUtil
 {
     @JsonIgnoreProperties(value = {"typ"}, allowSetters = true)
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "typ", visible = true)
@@ -35,13 +36,17 @@ public class GitHub5615Test extends DatabindTestUtil
     }
 
     record LivingRoom(@JsonProperty("typ") RoomType typ,
-                      @JsonProperty("animals") List<Cat> animals) implements Room {
+            @JsonProperty("animals") List<Cat> animals)
+        implements Room
+    {
         @Override
         public RoomType getTyp() { return typ; }
     }
 
     record SleepingRoom(@JsonProperty("typ") RoomType typ,
-                        @JsonProperty("animals") List<Dog> animals) implements Room {
+                        @JsonProperty("animals") List<Dog> animals)
+        implements Room
+    {
         @Override
         public RoomType getTyp() { return typ; }
     }
@@ -102,7 +107,7 @@ public class GitHub5615Test extends DatabindTestUtil
     // to trigger the race condition
     @RepeatedTest(50)
     public void testConcurrentDeserializationWithJsonIgnoreAndTypeInfo() throws Exception {
-        final JsonMapper mapper = new JsonMapper();
+        final JsonMapper mapper = newJsonMapper();
         final Result result = mapper.readValue(ROOMS_JSON, Result.class);
 
         int threadCount = 10;

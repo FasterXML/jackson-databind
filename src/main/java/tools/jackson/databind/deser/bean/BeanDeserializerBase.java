@@ -954,6 +954,7 @@ Working alternatives:
      */
     protected void _contextualizeProperties(DeserializationContext ctxt)
     {
+        _propertiesContextualized = true;
         for (SettableBeanProperty origProp : _beanProperties) {
             ValueDeserializer<?> deser = origProp.getValueDeserializer();
             if (deser != null) {

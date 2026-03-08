@@ -11,6 +11,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   to break cycle
  (reported by @b-behan)
  (fix by @JacksonJang)
+#1755: Get NPE on deserializing values with recursive `@JsonIgnoreProperties`
+ (reported by @Romain-P)
+ (fix by @cowtowncoder, w/ Claude code)
 #3216: Delegating `@JsonCreator` does not prevent unnecessary introspection
   of properties, leading to bogus failure
  (reported by @awildturtok)

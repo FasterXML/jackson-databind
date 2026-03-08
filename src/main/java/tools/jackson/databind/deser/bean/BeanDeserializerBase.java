@@ -993,7 +993,7 @@ Working alternatives:
         } else if ((prevNamesToIgnore == null) || prevNamesToIgnore.isEmpty()) {
             newNamesToIgnore = namesToIgnore;
         } else {
-            newNamesToIgnore = new HashSet<String>(prevNamesToIgnore);
+            newNamesToIgnore = new HashSet<>(prevNamesToIgnore);
             newNamesToIgnore.addAll(namesToIgnore);
         }
 
@@ -1001,8 +1001,8 @@ Working alternatives:
         final Set<String> newNamesToInclude = IgnorePropertiesUtil.combineNamesToInclude(prevNamesToInclude,
                 intr.findPropertyInclusionByName(config, accessor).getIncluded());
 
-        if ((newNamesToIgnore != prevNamesToIgnore)
-                || (newNamesToInclude != prevNamesToInclude)) {
+        if (!Objects.equals(newNamesToIgnore, prevNamesToIgnore)
+                || !Objects.equals(newNamesToInclude, prevNamesToInclude)) {
             contextual = contextual.withByNameInclusion(newNamesToIgnore, newNamesToInclude);
         }
         return contextual;

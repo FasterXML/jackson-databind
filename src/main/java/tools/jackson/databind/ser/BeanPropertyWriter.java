@@ -249,7 +249,7 @@ public class BeanPropertyWriter
         if (ser == null) {
             JavaType baseType = (serType != null) ? serType : declaredType;
             if (baseType != null && !baseType.isFinal()
-                    && (baseType.isContainerType() || baseType.containedTypeCount() > 0)) {
+                    && (baseType.isContainerType() || baseType.hasGenericTypes())) {
                 _nonTrivialBaseType = baseType;
             }
         }
@@ -416,7 +416,10 @@ public class BeanPropertyWriter
      * Method called to define type to consider as "non-trivial" basetype,
      * needed for dynamic serialization resolution for complex (usually
      * container) types
+     *
+     * @deprecated Since 3.2, should no longer be needed
      */
+    @Deprecated // @since 3.2
     public void setNonTrivialBaseType(JavaType t) {
         _nonTrivialBaseType = t;
     }

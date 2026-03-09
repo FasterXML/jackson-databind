@@ -329,6 +329,10 @@ public class ObjectArraySerializer
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
         final boolean filtered = _needToCheckFiltering(ctxt);
+        // [databind#3194]: only need per-element type id check when elements
+        // are themselves arrays (nested array case like Object[][])
+        final boolean checkArrayElementTypeId = (typeSer != null)
+                && _elementType.isArrayType();
 
         int i = 0;
         Object elem = null;
@@ -348,6 +352,11 @@ public class ObjectArraySerializer
                 }
                 if (typeSer == null) {
                     ser.serialize(elem, g, ctxt);
+                // [databind#3194]: for nested array elements, skip type id if runtime
+                // array type unwraps to final component (e.g. String[] -> String is final)
+                } else if (checkArrayElementTypeId
+                        && !_needsTypeId(ctxt, elem.getClass())) {
+                    ser.serialize(elem, g, ctxt);
                 } else {
                     ser.serializeWithType(elem, g, ctxt, typeSer);
                 }
@@ -363,6 +372,9 @@ public class ObjectArraySerializer
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
         final boolean filtered = _needToCheckFiltering(ctxt);
+        // [databind#3194]: only need per-element type id check when elements
+        // are themselves arrays (nested array case like Object[][])
+        final boolean checkArrayElementTypeId = _elementType.isArrayType();
         int i = 0;
         Object elem = null;
         try {
@@ -384,11 +396,39 @@ public class ObjectArraySerializer
                 if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                     continue;
                 }
-                serializer.serializeWithType(elem, g, ctxt, typeSer);
+                // [databind#3194]: for nested array elements, skip type id if runtime
+                // array type unwraps to final component (e.g. String[] -> String is final)
+                if (checkArrayElementTypeId
+                        && !_needsTypeId(ctxt, cc)) {
+                    serializer.serialize(elem, g, ctxt);
+                } else {
+                    serializer.serializeWithType(elem, g, ctxt, typeSer);
+                }
             }
         } catch (Exception e) {
             wrapAndThrow(ctxt, e, elem, i);
         }
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods for type id checking
+    /**********************************************************************
+     */
+
+    /**
+     * Helper method to check whether the runtime element type actually requires
+     * a type id to be serialized. This is needed because the declared element type
+     * (e.g. {@code Object[]}) may be non-final, leading to a {@link TypeSerializer}
+     * being assigned, but the runtime element type (e.g. {@code String[]}) may
+     * unwrap to a final component type that does not need type information.
+     *<p>
+     * See [databind#3194] for details.
+     *
+     * @since 3.1
+     */
+    protected boolean _needsTypeId(SerializationContext ctxt, Class<?> runtimeType) {
+        return ctxt.findTypeSerializer(ctxt.constructType(runtimeType)) != null;
     }
 
     /*

@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.jsontype.deftyping;
 
 import org.junit.jupiter.api.Test;
 
@@ -10,12 +10,11 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// [databund#3194]: Discrepancy between Type Id inclusion on serialization vs
+// [databind#3194]: Discrepancy between Type Id inclusion on serialization vs
 // expectation during deserialization causes mismatch and fails deserialization.
 class PolymorphicArrays3194Test extends DatabindTestUtil
 {
@@ -34,7 +33,7 @@ class PolymorphicArrays3194Test extends DatabindTestUtil
                 .allowIfSubTypeIsArray()
                 .allowIfSubType(Object.class)
                 .build();
-    
+
     @Test
     void twoDimensionalArrayViaUntyped() throws Exception
     {
@@ -60,7 +59,7 @@ class PolymorphicArrays3194Test extends DatabindTestUtil
         assertEquals(strs[0][1], resultStrs[0][1]);
     }
 
-    @JacksonTestFailureExpected
+    // [databind#3194]
     @Test
     void twoDimensionalArrayViaDefaultTyping() throws Exception
     {
@@ -75,16 +74,7 @@ class PolymorphicArrays3194Test extends DatabindTestUtil
                 .writerWithDefaultPrettyPrinter()
                 .writeValueAsString(instance);
 
-        // Note: we'll see something like:
-        //
-//  {
-//    "value" : [ "[[Ljava.lang.String;", [ [ "[Ljava.lang.String;", [ "1.1", "1.2" ] ], [ "[Ljava.lang.String;", [ "2.1", "2.2" ] ] ] ]
-//  }
-
-        // that is, type ids for both array levels.
-
-// System.err.println("JSON:\n"+json);
-        ArrayBean3194 result = mapper.readValue(json, ArrayBean3194.class); // fails
+        ArrayBean3194 result = mapper.readValue(json, ArrayBean3194.class);
         assertEquals(String[][].class, result.value.getClass());
         assertEquals(String[].class, result.value[0].getClass());
     }

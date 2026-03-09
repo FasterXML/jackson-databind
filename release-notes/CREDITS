@@ -288,6 +288,11 @@ Kyrylo Merzlikin (@kirmerzlikin)
    encoded as String
   [3.1.0]
 
+Klaas Dellschaft (@klaasdellschaft)
+ * Reported #3194: Deserialization of 2-dimensional arrays of final types fails when
+   using `DefaultTyping.NON_FINAL`
+  [3.2.0]
+
 Martin Uhlen (@MartinUhlen)
  * Reported #5734: `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` treats
    absent field same as explicit `null`

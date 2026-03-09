@@ -181,9 +181,20 @@ public class VisibilityForSerializationTest
                 Visibility.PUBLIC_ONLY
         );
         assertEquals(allPublic, another);
+        // Same, mostly
+        assertEquals(allPublic, allPublic.withFieldVisibility(Visibility.DEFAULT));
+        assertEquals(allPublic, allPublic.withGetterVisibility(Visibility.DEFAULT));
+        assertEquals(allPublic, allPublic.withIsGetterVisibility(Visibility.DEFAULT));
+        assertNotEquals(allPublic, allPublic.withSetterVisibility(Visibility.DEFAULT));
+        assertEquals(allPublic, allPublic.withCreatorVisibility(Visibility.DEFAULT));
 
         // Different content
         assertNotEquals(defaultInstance, allPublic);
+        assertNotEquals(allPublic, allPublic.withFieldVisibility(Visibility.PROTECTED_AND_PUBLIC));
+        assertNotEquals(allPublic, allPublic.withGetterVisibility(Visibility.PROTECTED_AND_PUBLIC));
+        assertNotEquals(allPublic, allPublic.withIsGetterVisibility(Visibility.PROTECTED_AND_PUBLIC));
+        assertNotEquals(allPublic, allPublic.withSetterVisibility(Visibility.PROTECTED_AND_PUBLIC));
+        assertNotEquals(allPublic, allPublic.withCreatorVisibility(Visibility.PROTECTED_AND_PUBLIC));
 
         // Not equal to non-VisibilityChecker
         assertNotEquals(defaultInstance, "not a VisibilityChecker");
@@ -211,8 +222,12 @@ public class VisibilityForSerializationTest
         VisibilityChecker vc = new VisibilityChecker(Visibility.DEFAULT);
         assertEquals(VisibilityChecker.defaultInstance(), vc);
 
+        // With all set to `Visibility.DEFAULT`, same as defaultInstance
         assertEquals(VisibilityChecker.defaultInstance(),
                 vc.with(Visibility.DEFAULT));
+
+        // with NONE, returns checker as-is
+        assertEquals(vc, vc.withVisibility(PropertyAccessor.NONE, Visibility.ANY));
     }
 
     @SuppressWarnings("deprecation")

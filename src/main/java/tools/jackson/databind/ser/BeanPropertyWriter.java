@@ -6,6 +6,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.annotation.JsonApplyView;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.core.JacksonException;
@@ -645,10 +646,17 @@ public class BeanPropertyWriter
         }
         g.writeName(_name);
         if (_typeSerializer == null) {
-            ser.serialize(value, g, ctxt);
+            ser.serialize(value, g, getContext(ctxt));
         } else {
-            ser.serializeWithType(value, g, ctxt, _typeSerializer);
+            ser.serializeWithType(value, g, getContext(ctxt), _typeSerializer);
         }
+    }
+
+    private SerializationContext getContext(SerializationContext context) {
+        AnnotationIntrospector intr = context.getAnnotationIntrospector();
+        Class<?> applyView = intr.findApplyView(context.getConfig(), this.getMember());
+        context = applyView != null ? context.withConfig(context.getConfig().withView(applyView != JsonApplyView.NONE.class ? applyView : null)) : context;
+        return context;
     }
 
     /**
@@ -713,9 +721,9 @@ public class BeanPropertyWriter
             }
         }
         if (_typeSerializer == null) {
-            ser.serialize(value, g, ctxt);
+            ser.serialize(value, g, getContext(ctxt));
         } else {
-            ser.serializeWithType(value, g, ctxt, _typeSerializer);
+            ser.serializeWithType(value, g, getContext(ctxt), _typeSerializer);
         }
     }
 

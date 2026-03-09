@@ -37,6 +37,14 @@ public class ViewSerializationTest extends DatabindTestUtil
         public String getB() { return "3"; }
     }
 
+    static class Bean2 {
+
+        @JsonView(ViewA.class)
+        @JsonApplyView(ViewB.class)
+        public Bean bean = new Bean();
+
+    }
+
     /**
      * Bean with mix of explicitly annotated
      * properties, and implicit ones that may or may
@@ -200,5 +208,23 @@ public class ViewSerializationTest extends DatabindTestUtil
                 .build();
         assertEquals("{}",
                 mapper.writerWithView(OtherView.class).writeValueAsString(new Foo()));
+    }
+
+    // [JACKSON_ANNOTATION-78]
+    @Test
+    public void testJsonApplyView() {
+        // Then with "ViewA", just one property
+        Bean2 bean2 = new Bean2();
+
+        StringWriter sw = new StringWriter();
+        MAPPER.writerWithView(ViewA.class).writeValue(sw, bean2);
+
+        Map<String,Object> map = MAPPER.readValue(sw.toString(), Map.class);
+        assertEquals(1, map.size());
+        Map<String,Object> beanMap = (Map<String, Object>) map.get("bean");
+
+        assertEquals(2, beanMap.size());
+        assertEquals("2", beanMap.get("aa"));
+        assertEquals("3", beanMap.get("b"));
     }
 }

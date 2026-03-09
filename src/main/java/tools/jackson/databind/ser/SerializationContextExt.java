@@ -59,6 +59,16 @@ public class SerializationContextExt
 
     /*
     /**********************************************************************
+    /* Life-cycle, factory methods
+    /**********************************************************************
+     */
+    @Override
+    public SerializationContext withConfig(SerializationConfig config) {
+        return (_config == config) ? this : new SerializationContextExt(this._streamFactory, config, this._generatorConfig, this._serializerFactory, this._serializerCache);
+    }
+
+    /*
+    /**********************************************************************
     /* Abstract method impls, factory methods
     /**********************************************************************
      */
@@ -504,6 +514,11 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
                 SerializationConfig config, GeneratorSettings genSettings,
                 SerializerFactory f, SerializerCache cache) {
             super(streamFactory, config, genSettings, f, cache);
+        }
+
+        @Override
+        public SerializationContext withConfig(SerializationConfig config) {
+            return (_config == config) ? this : new SerializationContextExt.Impl(this._streamFactory, config, this._generatorConfig, this._serializerFactory, this._serializerCache);
         }
     }
 }

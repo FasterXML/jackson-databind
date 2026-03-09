@@ -228,6 +228,13 @@ public abstract class SerializationContext
 
     /*
     /**********************************************************************
+    /* Life-cycle, factory methods
+    /**********************************************************************
+     */
+    public abstract SerializationContext withConfig(SerializationConfig config);
+
+    /*
+    /**********************************************************************
     /* ObjectWriteContext impl, config access
     /**********************************************************************
      */

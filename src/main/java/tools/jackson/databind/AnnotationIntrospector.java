@@ -572,6 +572,22 @@ public abstract class AnnotationIntrospector
     public Class<?>[] findViews(MapperConfig<?> config, Annotated a) { return null; }
 
     /**
+     * Method for checking if annotated property (represented by a field or
+     * getter/setter method) has definition for view it shall apply when processing.
+     * If null is returned, no view definition exist and property is processed with
+     * the current active view if any;
+     * otherwise it will use that view to process the property and its subtree
+     *
+     * @param config Effective mapper configuration in use
+     * @param a Annotated property (represented by a method, field or ctor parameter)
+     *
+     * @return view (represented by class) that the property will be processed with;
+     *    if null, processing will use the current view if any
+     */
+    public Class<?> findApplyView(MapperConfig<?> config, Annotated a) { return null; }
+
+
+    /**
      * Method for finding format annotations for property or class.
      * Return value is typically used by serializers and/or
      * deserializers to customize presentation aspects of the

@@ -210,6 +210,9 @@ public class VisibilityForSerializationTest
     public void testVisibilityCheckerMisc() {
         VisibilityChecker vc = new VisibilityChecker(Visibility.DEFAULT);
         assertEquals(VisibilityChecker.defaultInstance(), vc);
+
+        assertEquals(VisibilityChecker.defaultInstance(),
+                vc.with(Visibility.DEFAULT));
     }
 
     @SuppressWarnings("deprecation")

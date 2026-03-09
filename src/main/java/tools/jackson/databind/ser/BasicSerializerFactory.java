@@ -1194,8 +1194,7 @@ public abstract class BasicSerializerFactory
     protected boolean _hasDynamicTypingOnClass(SerializationContext ctxt, Class<?> rawType) {
         return ctxt.getAnnotationIntrospector()
                 .findSerializationTyping(ctxt.getConfig(),
-                        AnnotatedClassResolver.resolveWithoutSuperTypes(
-                                ctxt.getConfig(), rawType))
+                        ctxt.introspectClassAnnotations(rawType))
                 == JsonSerialize.Typing.DYNAMIC;
     }
 

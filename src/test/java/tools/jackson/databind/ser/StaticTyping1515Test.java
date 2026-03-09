@@ -1,7 +1,6 @@
 package tools.jackson.databind.ser;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +40,28 @@ class StaticTyping1515Test extends DatabindTestUtil {
         public BaseDynamic dValue = new DerivedDynamic();
     }
 
+    @JsonPropertyOrder({"map", "aMap", "dMap"})
+    static class Issue515Maps {
+        public Map<String, Base> map = new LinkedHashMap<>();
+
+        {
+            map.put("x", new Derived());
+        }
+
+        @JsonSerialize(typing = JsonSerialize.Typing.DYNAMIC)
+        public Map<String, Base> aMap = new LinkedHashMap<>();
+
+        {
+            aMap.put("x", new Derived());
+        }
+
+        public Map<String, BaseDynamic> dMap = new LinkedHashMap<>();
+
+        {
+            dMap.put("x", new DerivedDynamic());
+        }
+    }
+
     @JsonPropertyOrder({"list", "aList", "dList"})
     static class Issue515Lists {
         public List<Base> list = new ArrayList<>();
@@ -71,6 +92,12 @@ class StaticTyping1515Test extends DatabindTestUtil {
     void staticTypingForProperties() throws Exception {
         String json = STAT_MAPPER.writeValueAsString(new Issue515Singles());
         assertEquals(a2q("{'value':{'a':1},'aValue':{'a':1,'b':2},'dValue':{'a':3,'b':4}}"), json);
+    }
+
+    @Test
+    void staticTypingForMaps() throws Exception {
+        String json = STAT_MAPPER.writeValueAsString(new Issue515Maps());
+        assertEquals(a2q("{'map':{'x':{'a':1}},'aMap':{'x':{'a':1,'b':2}},'dMap':{'x':{'a':3,'b':4}}}"), json);
     }
 
     @Test

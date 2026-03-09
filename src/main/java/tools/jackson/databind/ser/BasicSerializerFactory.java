@@ -478,14 +478,9 @@ public abstract class BasicSerializerFactory
         }
         // [databind#1515]: content type class-level @JsonSerialize(typing=DYNAMIC)
         //   should override global USE_STATIC_TYPING
-        if (staticTyping && (elementType != null)) {
-            JsonSerialize.Typing t = ctxt.getAnnotationIntrospector()
-                    .findSerializationTyping(ctxt.getConfig(),
-                            AnnotatedClassResolver.resolveWithoutSuperTypes(
-                                    ctxt.getConfig(), elementType.getRawClass()));
-            if (t == JsonSerialize.Typing.DYNAMIC) {
-                staticTyping = false;
-            }
+        if (staticTyping && (elementType != null)
+                && _hasDynamicTypingOnClass(ctxt, elementType.getRawClass())) {
+            staticTyping = false;
         }
         ValueSerializer<Object> elementValueSerializer = _findContentSerializer(ctxt,
                 beanDescRef.getClassInfo());
@@ -1187,6 +1182,21 @@ public abstract class BasicSerializerFactory
     protected Object findFilterId(SerializationConfig config, BeanDescription.Supplier beanDescRef) {
         return config.getAnnotationIntrospector().findFilterId(config,
                 (Annotated)beanDescRef.getClassInfo());
+    }
+
+    /**
+     * Helper method for [databind#1515]: check if the given class has a
+     * class-level {@code @JsonSerialize(typing = DYNAMIC)} annotation,
+     * indicating that global {@code USE_STATIC_TYPING} should be overridden.
+     *
+     * @since 3.1
+     */
+    protected boolean _hasDynamicTypingOnClass(SerializationContext ctxt, Class<?> rawType) {
+        return ctxt.getAnnotationIntrospector()
+                .findSerializationTyping(ctxt.getConfig(),
+                        AnnotatedClassResolver.resolveWithoutSuperTypes(
+                                ctxt.getConfig(), rawType))
+                == JsonSerialize.Typing.DYNAMIC;
     }
 
     /**

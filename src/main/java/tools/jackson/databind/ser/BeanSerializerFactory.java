@@ -15,7 +15,6 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.TokenStreamFactory;
 import tools.jackson.core.TreeNode;
 import tools.jackson.databind.*;
-import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.cfg.SerializerFactoryConfig;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.TypeSerializer;
@@ -817,14 +816,8 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
         JavaType type = accessor.getType();
         // [databind#1515]: Check class-level annotation on declared type; allows
         //   @JsonSerialize(typing=DYNAMIC) on class to override global USE_STATIC_TYPING
-        if (staticTyping) {
-            JsonSerialize.Typing t = ctxt.getAnnotationIntrospector()
-                    .findSerializationTyping(ctxt.getConfig(),
-                            AnnotatedClassResolver.resolveWithoutSuperTypes(
-                                    ctxt.getConfig(), type.getRawClass()));
-            if (t == JsonSerialize.Typing.DYNAMIC) {
-                staticTyping = false;
-            }
+        if (staticTyping && _hasDynamicTypingOnClass(ctxt, type.getRawClass())) {
+            staticTyping = false;
         }
         BeanProperty.Std property = new BeanProperty.Std(name, type, propDef.getWrapperName(),
                 accessor, propDef.getMetadata());

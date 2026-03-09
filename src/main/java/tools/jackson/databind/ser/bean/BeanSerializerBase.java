@@ -301,10 +301,9 @@ public abstract class BeanSerializerBase
                 // if not, we don't really know the actual type until we get the instance.
                 if (type == null) {
                     type = prop.getType();
+                    // [databind#5615]: _nonTrivialBaseType now set in BeanPropertyWriter
+                    // constructor to avoid race condition
                     if (!type.isFinal()) {
-                        if (type.isContainerType() || type.containedTypeCount() > 0) {
-                            prop.setNonTrivialBaseType(type);
-                        }
                         continue;
                     }
                 }

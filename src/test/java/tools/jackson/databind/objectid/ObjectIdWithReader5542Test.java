@@ -19,12 +19,12 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class ObjectIdWithReader5542Test extends DatabindTestUtil
 {
-    static class Wrapper {
+    public static class Wrapper {
         public ValueNode node;
     }
 
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
-    static class ValueNode {
+    public static class ValueNode {
         public int value;
         public Wrapper next;
     }
@@ -36,7 +36,7 @@ public class ObjectIdWithReader5542Test extends DatabindTestUtil
      * when FAIL_ON_UNRESOLVED_OBJECT_IDS is enabled (default).
      */
     @Test
-    public void testObjectMapperFailsOnUnresolvedObjectIds() throws Exception {
+    void testObjectMapperFailsOnUnresolvedObjectIds() throws Exception {
         String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':2}}}");
 
         try {
@@ -54,7 +54,7 @@ public class ObjectIdWithReader5542Test extends DatabindTestUtil
      * This is the bug: ObjectReader.readValue(JsonParser) doesn't call checkUnresolvedObjectId()
      */
     @Test
-    public void testObjectReaderFailsOnUnresolvedObjectIds() throws Exception {
+    void testObjectReaderFailsOnUnresolvedObjectIds() throws Exception {
         String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':2}}}");
 
         ObjectReader reader = MAPPER.readerFor(Wrapper.class);
@@ -71,7 +71,7 @@ public class ObjectIdWithReader5542Test extends DatabindTestUtil
      * returns null for unresolved object IDs.
      */
     @Test
-    public void testObjectReaderWithDisabledFeature() throws Exception {
+    void testObjectReaderWithDisabledFeature() throws Exception {
         String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':2}}}");
 
         ObjectReader reader = MAPPER.readerFor(Wrapper.class)
@@ -89,7 +89,7 @@ public class ObjectIdWithReader5542Test extends DatabindTestUtil
      * Test that ObjectReader works correctly when all object IDs are resolved.
      */
     @Test
-    public void testObjectReaderWithResolvedObjectIds() throws Exception {
+    void testObjectReaderWithResolvedObjectIds() throws Exception {
         String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':1}}}");
 
         ObjectReader reader = MAPPER.readerFor(Wrapper.class);

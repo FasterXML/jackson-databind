@@ -145,8 +145,14 @@ Konstantin Labun (@kulabun)
  * Contributed fix for #1516: Problem with multi-argument Creator with
    `@JsonBackReference` property
   [3.1.0]
+ * Contributed fix for #1622: Failure to deserialize child object when using
+   `@JsonIgnoreProperties` to break cycle
+  [3.2.0]
  * Contributed fix for #2686: `@JsonBackReference` does not work with a builder
   [3.1.0]
+ * Contributed fix for #3355: Deserialization fails depending on the order of
+  deserialized objects with "Cannot construct instance (although at least one Creator exists)"
+  [3.2.0]
  * Contributed fix for #4629: `@JsonIncludeProperties` and `@JsonIgnoreProperties`
    ignored when deserializing Records
   [3.1.0]
@@ -275,8 +281,19 @@ Brandon Schmitt (@BrandonSchmitt)
  
 Matthew Luckam (@mluckam)
  * Contributed #5630: Add `DelegatingSerializer`
+  [3.1.0]
 
 Kyrylo Merzlikin (@kirmerzlikin)
  * Reported #5706: `TokenBuffer` serialization fails when buffer contains integer
    encoded as String
   [3.1.0]
+
+Klaas Dellschaft (@klaasdellschaft)
+ * Reported #3194: Deserialization of 2-dimensional arrays of final types fails when
+   using `DefaultTyping.NON_FINAL`
+  [3.2.0]
+
+Martin Uhlen (@MartinUhlen)
+ * Reported #5734: `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` treats
+   absent field same as explicit `null`
+  [3.2.0]

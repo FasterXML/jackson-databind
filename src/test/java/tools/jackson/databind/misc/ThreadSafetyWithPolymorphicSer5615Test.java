@@ -3,6 +3,7 @@ package tools.jackson.databind.misc;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -106,7 +107,7 @@ public class ThreadSafetyWithPolymorphicSer5615Test
     // Use 50 repetitions; original test uses 1000 but 50 should be enough
     // to trigger the race condition
     @RepeatedTest(50)
-    public void testConcurrentDeserializationWithJsonIgnoreAndTypeInfo() throws Exception {
+    public void testConcurrentRoundTripWithJsonIgnoreAndTypeInfo() throws Exception {
         final JsonMapper mapper = newJsonMapper();
         final Result result = mapper.readValue(ROOMS_JSON, Result.class);
 
@@ -147,5 +148,59 @@ public class ThreadSafetyWithPolymorphicSer5615Test
                         errors.stream()
                                 .map(Throwable::toString)
                                 .collect(Collectors.joining("\n"))));
+    }
+
+    // [databind#5637]: Verify serialization preserves all type ids
+    @RepeatedTest(50)
+    public void testConcurrentSerializationPreservesTypeId() throws Exception {
+        final JsonMapper mapper = newJsonMapper();
+        final Result result = mapper.readValue(ROOMS_JSON, Result.class);
+
+        int threadCount = 10;
+        CyclicBarrier barrier = new CyclicBarrier(threadCount);
+        CopyOnWriteArrayList<String> badJsons = new CopyOnWriteArrayList<>();
+        AtomicInteger totalChecks = new AtomicInteger();
+
+        List<Thread> threads = new java.util.ArrayList<>();
+        for (int i = 0; i < threadCount; i++) {
+            Thread t = new Thread(() -> {
+                try {
+                    barrier.await();
+                    for (int j = 0; j < 100; j++) {
+                        String json = mapper.writeValueAsString(result);
+                        totalChecks.incrementAndGet();
+                        // Expected: 2 rooms + 4 cats + 4 dogs = 10 "typ" fields
+                        int count = countOccurrences(json, "\"typ\"");
+                        if (count != 10) {
+                            badJsons.add("Expected 10 'typ' fields but found " + count + " in: " + json);
+                            return;
+                        }
+                    }
+                } catch (Throwable e) {
+                    badJsons.add("Exception: " + e);
+                }
+            });
+            threads.add(t);
+            t.start();
+        }
+
+        for (Thread t : threads) {
+            t.join();
+        }
+
+        assertTrue(badJsons.isEmpty(),
+                () -> String.format("Serialization produced bad JSON (%d errors out of %d checks):\n%s",
+                        badJsons.size(), totalChecks.get(),
+                        badJsons.stream().limit(5).collect(Collectors.joining("\n"))));
+    }
+
+    private static int countOccurrences(String str, String sub) {
+        int count = 0;
+        int idx = 0;
+        while ((idx = str.indexOf(sub, idx)) != -1) {
+            count++;
+            idx += sub.length();
+        }
+        return count;
     }
 }

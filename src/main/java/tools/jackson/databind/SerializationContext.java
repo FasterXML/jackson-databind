@@ -994,8 +994,9 @@ public abstract class SerializationContext
             ser = null; // never gets here
         }
         // Always cache -- and in this case both for raw and full type
-        _serializerCache.addAndResolveNonTypedSerializer(rawType, fullType, ser, this);
-        return ser;
+        // [databind#5615]: Use return value; cache may return existing (fully-resolved)
+        // serializer if another thread or cyclic resolution completed first
+        return _serializerCache.addAndResolveNonTypedSerializer(rawType, fullType, ser, this);
     }
 
     protected ValueSerializer<Object> _createAndCacheUntypedSerializer(JavaType type)
@@ -1010,8 +1011,8 @@ public abstract class SerializationContext
             throw _mappingProblem(iae, ClassUtil.exceptionMessage(iae));
         }
         // always cache -- but only full type (may be parameterized)
-        _serializerCache.addAndResolveNonTypedSerializer(type, ser, this);
-        return ser;
+        // [databind#5615]: Use return value (see above)
+        return _serializerCache.addAndResolveNonTypedSerializer(type, ser, this);
     }
 
     /**
@@ -1028,7 +1029,8 @@ public abstract class SerializationContext
         } catch (IllegalArgumentException iae) {
             throw _mappingProblem(iae, ClassUtil.exceptionMessage(iae));
         }
-        _serializerCache.addAndResolveNonTypedSerializer(rawType, fullType, ser, this);
+        // [databind#5615]: Use return value (see _createAndCacheUntypedSerializer)
+        ser = _serializerCache.addAndResolveNonTypedSerializer(rawType, fullType, ser, this);
         // Fine, we have to base instance. But how about per-property format overrides?
         if (prop == null) {
             return ser;
@@ -1050,7 +1052,8 @@ public abstract class SerializationContext
         } catch (IllegalArgumentException iae) {
             throw _mappingProblem(iae, ClassUtil.exceptionMessage(iae));
         }
-        _serializerCache.addAndResolveNonTypedSerializer(type, ser, this);
+        // [databind#5615]: Use return value (see _createAndCacheUntypedSerializer)
+        ser = _serializerCache.addAndResolveNonTypedSerializer(type, ser, this);
         // Fine, we have to base instance. But how about per-property format overrides?
         if (prop == null) {
             return ser;

@@ -1,5 +1,6 @@
 package tools.jackson.databind.ser;
 
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import tools.jackson.core.util.Snapshottable;
@@ -47,6 +48,23 @@ public final class SerializerCache
      * Most recent read-only instance, created from _sharedMap, if any.
      */
     private final transient AtomicReference<ReadOnlyClassToSerializerMap> _readOnlyMap;
+
+    /**
+     * During serializer construction we may need to keep track of partially
+     * completed serializers, to resolve cyclic dependencies. This is the
+     * map used for storing serializers before they are fully complete.
+     * Only accessed within {@code synchronized(this)} blocks.
+     *<p>
+     * Follows the same pattern as {@code DeserializerCache._incompleteDeserializers}:
+     * serializers are placed here during {@code resolve()}, then moved to
+     * {@link #_sharedMap} only after resolution is complete. This ensures that
+     * concurrent readers of {@link #_sharedMap} never see partially-resolved
+     * serializers.
+     *
+     * @since 3.2
+     */
+    private final transient HashMap<TypeKey, ValueSerializer<Object>> _incompleteSerializers
+        = new HashMap<>(8);
 
     public SerializerCache() {
         this(DEFAULT_MAX_CACHE_SIZE);
@@ -167,35 +185,71 @@ public final class SerializerCache
         }
     }
 
-    public void addAndResolveNonTypedSerializer(Class<?> type, ValueSerializer<Object> ser,
-            SerializationContext ctxt)
+    // [databind#5615]: All three addAndResolveNonTypedSerializer overloads follow
+    // the same pattern as DeserializerCache._createAndCache2: serializers are placed
+    // in _incompleteSerializers during resolve(), then moved to _sharedMap only after
+    // resolution completes. This prevents concurrent readers from seeing
+    // partially-resolved serializers.
+
+    public ValueSerializer<Object> addAndResolveNonTypedSerializer(Class<?> type,
+            ValueSerializer<Object> ser, SerializationContext ctxt)
     {
         synchronized (this) {
-            if (_sharedMap.put(new TypeKey(type, false), ser) == null) {
+            TypeKey key = new TypeKey(type, false);
+            // Check for cyclic dependency: another call up the stack may already be resolving this type
+            ValueSerializer<Object> existing = _incompleteSerializers.get(key);
+            if (existing != null) {
+                return existing;
+            }
+            // Or, another thread may have fully resolved it while we were creating ours
+            existing = _sharedMap.get(key);
+            if (existing != null) {
+                return existing;
+            }
+            int incompleteCount = _incompleteSerializers.size();
+            _incompleteSerializers.put(key, ser);
+            try {
+                ser.resolve(ctxt);
+            } finally {
+                _incompleteSerializers.remove(key);
+                if (incompleteCount == 0 && !_incompleteSerializers.isEmpty()) {
+                    _incompleteSerializers.clear();
+                }
+            }
+            if (_sharedMap.put(key, ser) == null) {
                 _readOnlyMap.set(null);
             }
-            // Need resolution to handle cyclic POJO type dependencies
-            /* 14-May-2011, tatu: Resolving needs to be done in synchronized manner;
-             *   this because while we do need to register instance first, we also must
-             *   keep lock until resolution is complete.
-             */
-            ser.resolve(ctxt);
+            return ser;
         }
     }
 
-    public void addAndResolveNonTypedSerializer(JavaType type, ValueSerializer<Object> ser,
-            SerializationContext ctxt)
+    public ValueSerializer<Object> addAndResolveNonTypedSerializer(JavaType type,
+            ValueSerializer<Object> ser, SerializationContext ctxt)
     {
         synchronized (this) {
-            if (_sharedMap.put(new TypeKey(type, false), ser) == null) {
+            TypeKey key = new TypeKey(type, false);
+            ValueSerializer<Object> existing = _incompleteSerializers.get(key);
+            if (existing != null) {
+                return existing;
+            }
+            existing = _sharedMap.get(key);
+            if (existing != null) {
+                return existing;
+            }
+            int incompleteCount = _incompleteSerializers.size();
+            _incompleteSerializers.put(key, ser);
+            try {
+                ser.resolve(ctxt);
+            } finally {
+                _incompleteSerializers.remove(key);
+                if (incompleteCount == 0 && !_incompleteSerializers.isEmpty()) {
+                    _incompleteSerializers.clear();
+                }
+            }
+            if (_sharedMap.put(key, ser) == null) {
                 _readOnlyMap.set(null);
             }
-            // Need resolution to handle cyclic POJO type dependencies
-            /* 14-May-2011, tatu: Resolving needs to be done in synchronized manner;
-             *   this because while we do need to register instance first, we also must
-             *   keep lock until resolution is complete.
-             */
-            ser.resolve(ctxt);
+            return ser;
         }
     }
 
@@ -203,17 +257,45 @@ public final class SerializerCache
      * Another alternative that will cover both access via raw type and matching
      * fully resolved type, in one fell swoop.
      */
-    public void addAndResolveNonTypedSerializer(Class<?> rawType, JavaType fullType,
+    public ValueSerializer<Object> addAndResolveNonTypedSerializer(Class<?> rawType, JavaType fullType,
             ValueSerializer<Object> ser,
             SerializationContext ctxt)
     {
         synchronized (this) {
-            Object ob1 = _sharedMap.put(new TypeKey(rawType, false), ser);
-            Object ob2 = _sharedMap.put(new TypeKey(fullType, false), ser);
+            TypeKey rawKey = new TypeKey(rawType, false);
+            TypeKey fullKey = new TypeKey(fullType, false);
+            // Check for cyclic dependency (check both keys)
+            ValueSerializer<Object> existing = _incompleteSerializers.get(fullKey);
+            if (existing != null) {
+                return existing;
+            }
+            existing = _incompleteSerializers.get(rawKey);
+            if (existing != null) {
+                return existing;
+            }
+            // Or, another thread may have fully resolved it
+            existing = _sharedMap.get(fullKey);
+            if (existing != null) {
+                return existing;
+            }
+            int incompleteCount = _incompleteSerializers.size();
+            _incompleteSerializers.put(rawKey, ser);
+            _incompleteSerializers.put(fullKey, ser);
+            try {
+                ser.resolve(ctxt);
+            } finally {
+                _incompleteSerializers.remove(rawKey);
+                _incompleteSerializers.remove(fullKey);
+                if (incompleteCount == 0 && !_incompleteSerializers.isEmpty()) {
+                    _incompleteSerializers.clear();
+                }
+            }
+            Object ob1 = _sharedMap.put(rawKey, ser);
+            Object ob2 = _sharedMap.put(fullKey, ser);
             if ((ob1 == null) || (ob2 == null)) {
                 _readOnlyMap.set(null);
             }
-            ser.resolve(ctxt);
+            return ser;
         }
     }
 
@@ -223,6 +305,7 @@ public final class SerializerCache
      */
     public synchronized void flush() {
         _sharedMap.clear();
+        _incompleteSerializers.clear();
         _readOnlyMap.set(null);
     }
 }

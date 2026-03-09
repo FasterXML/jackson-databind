@@ -65,7 +65,10 @@ public class VisibilityChecker
      * levels as indicated by given annotation instance
      *
      * @param ann Annotations to use for determining minimum visibility levels
+     *
+     * @deprecated Should use {@link #construct(JsonAutoDetect.Value)} instead.
      */
+    @Deprecated // @since 3.2
     public VisibilityChecker(JsonAutoDetect ann)
     {
         // let's combine checks for enabled/disabled, with minimum level checks:

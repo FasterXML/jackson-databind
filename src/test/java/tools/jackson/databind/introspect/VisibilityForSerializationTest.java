@@ -205,4 +205,20 @@ public class VisibilityForSerializationTest
         assertEquals(1, props.size(),
                 "Should find 1 property; properties = "+props);
     }
+
+    @Test
+    public void testVisibilityCheckerMisc() {
+        VisibilityChecker vc = new VisibilityChecker(Visibility.DEFAULT);
+        assertEquals(VisibilityChecker.defaultInstance(), vc);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testVisibilityCheckerDeprecated() {
+        JsonAutoDetect ad = EnabledGetterClass.class.getAnnotation(JsonAutoDetect.class);
+        assertNotNull(ad);
+        VisibilityChecker vc = new VisibilityChecker(ad);
+        assertEquals(Visibility.NONE, vc._isGetterMinLevel);
+        assertEquals(Visibility.DEFAULT, vc._getterMinLevel);
+    }
 }

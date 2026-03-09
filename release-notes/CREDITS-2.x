@@ -431,6 +431,9 @@ Jonas Konrad (yawkat@github)
    (2.14.1)
   * Contributed fix for #4848: Avoid type pollution in `StringCollectionDeserializer`
    (2.18.3)
+  * Fixed #5729: (regression due to #5429) ISO-8601 change prevents parsing
+    negative timestamps (dates before 1970)
+   (2.21.2)
 
 Jirka Kremser (Jiri-Kremser@github)
   * Suggested #924: SequenceWriter.writeAll() could accept Iterable
@@ -1998,6 +2001,16 @@ Hélios Gilles (@RoiSoleil)
 Brandon Schmitt (@BrandonSchmitt)
  * Reported #5616: `ObjectWriter` serializes `Optional`s with subtypes incompletely
   [2.21.1]
+
+Kyrylo Merzlikin (@kirmerzlikin)
+ * Reported #5706: `TokenBuffer` serialization fails when buffer contains integer
+   encoded as String
+  [2.21.1]
+
+Thomas Wöckinger (@thomaswoeckinger)
+ * Reported #5729: (regression due to #5429) ISO-8601 change prevents parsing
+   negative timestamps (dates before 1970)
+  [2.21.2]
 
 Lee Jiwon (@dlwldnjs1009)
  * Contributed #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method

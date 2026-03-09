@@ -185,6 +185,17 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
         assertEquals(12, array.get(1).leaf.value);
     }
 
+    @Test
+    public void testTreeToValueNullInput() throws Exception
+    {
+        // First, trivial null handling
+        assertNull(MAPPER.treeToValue(null, String.class));
+        assertNull(MAPPER.treeToValue(null, MAPPER.constructType(String.class)));
+
+        assertNull(MAPPER.reader().treeToValue(null, String.class));
+        assertNull(MAPPER.reader().treeToValue(null, MAPPER.constructType(String.class)));
+    }
+
     // [databind#1208]: should coerce POJOs at least at root level
     @Test
     public void testTreeToValueWithPOJO() throws Exception

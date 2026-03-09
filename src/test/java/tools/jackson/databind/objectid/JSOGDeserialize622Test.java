@@ -136,7 +136,7 @@ public class JSOGDeserialize622Test extends DatabindTestUtil
      * Example class using JSOGGenerator
      */
     @JsonIdentityInfo(generator=JSOGGenerator.class, property="@id")
-    public static class IdentifiableExampleJSOG {
+    static class IdentifiableExampleJSOG {
         public int foo;
         public IdentifiableExampleJSOG next;
 
@@ -146,7 +146,7 @@ public class JSOGDeserialize622Test extends DatabindTestUtil
         }
     }
 
-    public static class JSOGWrapper {
+    static class JSOGWrapper {
         public int value;
 
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
@@ -167,7 +167,7 @@ public class JSOGDeserialize622Test extends DatabindTestUtil
         public Inner(String bar) { this.bar = bar; }
     }
 
-    public static class SubInner extends Inner {
+    static class SubInner extends Inner {
         public String extra;
 
         protected SubInner() {}
@@ -178,7 +178,7 @@ public class JSOGDeserialize622Test extends DatabindTestUtil
     }
 
     @JsonIdentityInfo(generator=JSOGGenerator.class)
-    public static class Outer {
+    static class Outer {
         public String foo;
         public Inner inner1;
         public Inner inner2;
@@ -190,7 +190,7 @@ public class JSOGDeserialize622Test extends DatabindTestUtil
     /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // Basic for [databind#622]
     @Test

@@ -49,7 +49,7 @@ public class TestTypeNames extends DatabindTestUtil
     @Test
     public void testBaseTypeId1616() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         Collection<NamedType> subtypes = new StdSubtypeResolver().collectAndResolveSubtypesByTypeId(
                 mapper.deserializationConfig(),
                 // note: `null` is fine here as `AnnotatedMember`:

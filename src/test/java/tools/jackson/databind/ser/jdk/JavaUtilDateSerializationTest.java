@@ -36,6 +36,12 @@ public class JavaUtilDateSerializationTest
         public DateAsNumberBean(long l) { date = new java.util.Date(l); }
     }
 
+    static class DateAsNumberIntBean {
+        @JsonFormat(shape=JsonFormat.Shape.NUMBER_INT)
+        public Date date;
+        public DateAsNumberIntBean(long l) { date = new java.util.Date(l); }
+    }
+
     static class DateAsStringBean {
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
         public Date date;
@@ -99,6 +105,14 @@ public class JavaUtilDateSerializationTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
+
+    private final ObjectMapper WITH_TIMESTAMP_MAPPER = jsonMapperBuilder()
+            .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .build();
+
+    private final ObjectMapper WITHOUT_TIMESTAMP_MAPPER = jsonMapperBuilder()
+            .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .build();
 
     @Test
     public void testDateNumeric() throws IOException
@@ -267,6 +281,11 @@ public class JavaUtilDateSerializationTest
         json = MAPPER.writer().without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(new DateAsNumberBean(0L));
         assertEquals(a2q("{'date':0}"), json);
+
+        // test overriding writing as timestamp (Shape.NUMBER_INT)
+        json = MAPPER.writer().without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(new DateAsNumberBean(-1383043669935L));
+        assertEquals(a2q("{'date':-1383043669935}"), json);
 
         // then reverse
         json = MAPPER.writer()
@@ -534,6 +553,29 @@ public class JavaUtilDateSerializationTest
         }
     }
 
+    // [databind#5142]: verify WRITE_DATES_AS_TIMESTAMPS for JDK date types
+    @Test
+    public void testWriteDatesAsTimeStamps() throws Exception
+    {
+        // java.util.Date
+        _testTimestamp(
+                new Date(1234567890123L),
+                Date.class,
+                "1234567890123",
+                "\"2009-02-13T23:31:30.123Z\""
+        );
+
+        // java.util.Calendar
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cal.setTimeInMillis(1234567890123L);
+        _testTimestamp(
+                cal,
+                Calendar.class,
+                "1234567890123",
+                "\"2009-02-13T23:31:30.123Z\""
+        );
+    }
+
     private static Date judate(int year, int month, int day, int hour, int minutes, int seconds, int millis, String tz) {
         Calendar cal = Calendar.getInstance();
         // 23-Nov-2018, tatu: Safer this way, even though negative appears to work too
@@ -566,5 +608,18 @@ public class JavaUtilDateSerializationTest
     private void serialize(ObjectWriter w, Object date, List<String> expected) throws IOException {
         String result = w.writeValueAsString(date);
         assertTrue(expected.contains(result), "unexpected result: " + result);
+    }
+
+    private <T> void _testTimestamp(T value, Class<?> clazz, String withString, String withoutString) {
+        assertEquals(
+                withString,
+                WITH_TIMESTAMP_MAPPER.writerFor(clazz).writeValueAsString(value),
+                String.format("withTimestampMapper : Expected %s, got %s", withString, value)
+        );
+        assertEquals(
+                withoutString,
+                WITHOUT_TIMESTAMP_MAPPER.writerFor(clazz).writeValueAsString(value),
+                String.format("withoutTimestampMapper : Expected %s, got %s", withoutString, value)
+        );
     }
 }

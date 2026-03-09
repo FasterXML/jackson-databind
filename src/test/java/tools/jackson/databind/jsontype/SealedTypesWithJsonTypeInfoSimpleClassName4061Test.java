@@ -1,18 +1,12 @@
 package tools.jackson.databind.jsontype;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.junit.jupiter.api.Test;
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonMerge;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import com.fasterxml.jackson.annotation.*;
+
 import tools.jackson.databind.DeserializationConfig;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.MapperFeature;
@@ -20,6 +14,10 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.jsontype.impl.SimpleNameIdResolver;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Test for <a href="https://github.com/FasterXML/jackson-databind/issues/4061"> [databind#4061] Add

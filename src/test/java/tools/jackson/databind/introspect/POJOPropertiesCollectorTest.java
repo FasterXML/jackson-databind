@@ -239,6 +239,16 @@ public class POJOPropertiesCollectorTest
         public boolean getBloop() { return true; }
     }
 
+    // [databind#3591]: test that getIgnoredPropertyNames() includes
+    // both @JsonIgnore per-field and @JsonIgnoreProperties class-level
+    @JsonIgnoreProperties("second")
+    static class IgnoredMixed {
+        @JsonIgnore
+        public String first;
+        public String second;
+        public String third;
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -461,6 +471,26 @@ public class POJOPropertiesCollectorTest
         assertTrue(prop._getters.value.hasAnnotation(A.class));
         assertNotNull(prop._getters.next);
         assertTrue(prop._getters.next.value.hasAnnotation(A.class));
+    }
+
+    // [databind#3591]: getIgnoredPropertyNames() should include both
+    // @JsonIgnore per-field and @JsonIgnoreProperties class-level
+    @Test
+    public void testIgnoredPropertyNamesIncludesClassLevel()
+    {
+        // Deserialization
+        BeanDescription descDeser = beanDesc(MAPPER, IgnoredMixed.class, false);
+        Set<String> ignoredDeser = descDeser.getIgnoredPropertyNames();
+        assertTrue(ignoredDeser.contains("first"), "per-field @JsonIgnore should be in ignored (deser)");
+        assertTrue(ignoredDeser.contains("second"), "class-level @JsonIgnoreProperties should be in ignored (deser)");
+        assertEquals(2, ignoredDeser.size());
+
+        // Serialization: should also report ignored names
+        BeanDescription descSer = beanDesc(MAPPER, IgnoredMixed.class, true);
+        Set<String> ignoredSer = descSer.getIgnoredPropertyNames();
+        assertTrue(ignoredSer.contains("first"), "per-field @JsonIgnore should be in ignored (ser)");
+        assertTrue(ignoredSer.contains("second"), "class-level @JsonIgnoreProperties should be in ignored (ser)");
+        assertEquals(2, ignoredSer.size());
     }
 
     /*

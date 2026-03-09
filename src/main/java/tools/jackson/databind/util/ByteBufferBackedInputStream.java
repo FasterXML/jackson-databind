@@ -3,6 +3,7 @@ package tools.jackson.databind.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 /**
  * Simple {@link InputStream} implementation that exposes currently
@@ -22,6 +23,8 @@ public class ByteBufferBackedInputStream extends InputStream {
 
     @Override
     public int read(byte[] bytes, int off, int len) throws IOException {
+        Objects.requireNonNull(bytes, "bytes");
+        Objects.checkFromIndexSize(off, len, bytes.length);
         if (!_b.hasRemaining()) return -1;
         len = Math.min(len, _b.remaining());
         _b.get(bytes, off, len);

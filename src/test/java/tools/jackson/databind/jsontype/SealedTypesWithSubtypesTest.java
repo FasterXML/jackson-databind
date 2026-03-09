@@ -299,14 +299,11 @@ public class SealedTypesWithSubtypesTest extends DatabindTestUtil
 
     @Test
     public void testErrorMessage() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            mapper.readValue("{ \"type\": \"z\"}", BaseX.class);
-            fail("Should have failed");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'z' as a subtype of");
-            verifyException(e, "known type ids = [x, y]");
-        }
+        ObjectMapper mapper = newJsonMapper();
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue("{ \"type\": \"z\"}", BaseX.class));
+        verifyException(e, "Could not resolve type id 'z' as a subtype of");
+        verifyException(e, "known type ids = [x, y]");
     }
 
     @Test
@@ -325,16 +322,11 @@ public class SealedTypesWithSubtypesTest extends DatabindTestUtil
     @Test
     public void testSubclassLimits() throws Exception
     {
-        try {
-            MAPPER.readValue(a2q("{'value':['"
-                    +TheBomb.class.getName()+"',{'a':13}] }"), DateWrapper.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "not a subtype");
-            verifyException(e, TheBomb.class.getName());
-        } catch (Exception e) {
-            fail("Should have hit `InvalidTypeIdException`, not `"+e.getClass().getName()+"`: "+e);
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> MAPPER.readValue(a2q("{'value':['"
+                    +TheBomb.class.getName()+"',{'a':13}] }"), DateWrapper.class));
+        verifyException(e, "not a subtype");
+        verifyException(e, TheBomb.class.getName());
     }
 
     // [databind#1125]: properties from base class too

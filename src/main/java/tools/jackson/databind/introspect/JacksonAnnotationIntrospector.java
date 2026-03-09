@@ -669,7 +669,7 @@ public class JacksonAnnotationIntrospector
     }
     
     // @since 3.0
-    private List<NamedType> findSubtypesByJsonSubTypesAnnotation(MapperConfig<?> config,
+    protected List<NamedType> findSubtypesByJsonSubTypesAnnotation(MapperConfig<?> config,
             Annotated a, JsonSubTypes t)
     {
         JsonSubTypes.Type[] types = t.value();
@@ -691,7 +691,7 @@ public class JacksonAnnotationIntrospector
     }
 
     // @since 3.0
-    private List<NamedType> findSubtypesByJsonSubTypesAnnotationCheckRepeatedNames(String annotatedTypeName,
+    protected List<NamedType> findSubtypesByJsonSubTypesAnnotationCheckRepeatedNames(String annotatedTypeName,
             JsonSubTypes.Type[] types)
     {
         ArrayList<NamedType> result = new ArrayList<>(types.length);
@@ -720,7 +720,7 @@ public class JacksonAnnotationIntrospector
     }
     
     // @since 3.0
-    private List<NamedType> findSubtypesByPermittedSubclasses(MapperConfig<?> config,
+    protected List<NamedType> findSubtypesByPermittedSubclasses(MapperConfig<?> config,
             Annotated a, Class<?> clazz)
     {
         Class<?>[] subtypes = clazz.getPermittedSubclasses();
@@ -1024,7 +1024,7 @@ public class JacksonAnnotationIntrospector
         return _findSortAlpha(ann);
     }
 
-    private final Boolean _findSortAlpha(Annotated ann) {
+    protected Boolean _findSortAlpha(Annotated ann) {
         JsonPropertyOrder order = _findAnnotation(ann, JsonPropertyOrder.class);
         // 23-Jun-2015, tatu: as per [databind#840], let's only consider
         //  `true` to have any significance.
@@ -1491,7 +1491,7 @@ public class JacksonAnnotationIntrospector
         return PropertyName.construct(localName, namespace);
     }
 
-    private boolean _primitiveAndWrapper(Class<?> baseType, Class<?> refinement)
+    protected boolean _primitiveAndWrapper(Class<?> baseType, Class<?> refinement)
     {
         if (baseType.isPrimitive()) {
             return baseType == ClassUtil.primitiveType(refinement);
@@ -1502,7 +1502,7 @@ public class JacksonAnnotationIntrospector
         return false;
     }
 
-    private boolean _primitiveAndWrapper(JavaType baseType, Class<?> refinement)
+    protected boolean _primitiveAndWrapper(JavaType baseType, Class<?> refinement)
     {
         if (baseType.isPrimitive()) {
             return baseType.hasRawClass(ClassUtil.primitiveType(refinement));
@@ -1514,13 +1514,13 @@ public class JacksonAnnotationIntrospector
     }
 
     // @since 2.12
-    private DatabindException _databindException(String msg) {
+    protected DatabindException _databindException(String msg) {
         // not optimal as we have no parser/generator/context to pass
         return DatabindException.from((JsonParser) null, msg);
     }
 
     // @since 2.12
-    private DatabindException _databindException(Throwable t, String msg) {
+    protected DatabindException _databindException(Throwable t, String msg) {
         // not optimal as we have no parser/generator/context to pass
         return DatabindException.from((JsonParser) null, msg, t);
     }

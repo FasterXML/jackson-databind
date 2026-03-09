@@ -8,12 +8,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.DefaultBaseTypeLimitingValidator;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Unit tests for verifying that "unsafe" base type(s) for polymorphic deserialization
@@ -70,16 +69,13 @@ public class AnnotatedPolymorphicValidationTest
     {
         final String JSON = a2q("{'value':10}");
         // by default, we should NOT be allowed to deserialize due to unsafe base type
-        try {
-            /*w =*/ MAPPER.readValue(JSON, WrappedPolymorphicUntyped.class);
-            fail("Should not pass");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "Configured");
-            verifyException(e, "all subtypes of base type");
-        }
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> MAPPER.readValue(JSON, WrappedPolymorphicUntyped.class));
+        verifyException(e, "Configured");
+        verifyException(e, "all subtypes of base type");
 
         // but may with proper validator
-        ObjectMapper customMapper = JsonMapper.builder()
+        ObjectMapper customMapper = jsonMapperBuilder()
                 .polymorphicTypeValidator(new NumbersAreOkValidator())
                 .build();
 
@@ -88,14 +84,11 @@ public class AnnotatedPolymorphicValidationTest
 
         // but yet again, it is not opening up all types (just as an example)
 
-        try {
-            customMapper.readValue(JSON, WrappedPolymorphicUntypedSer.class);
-            fail("Should not pass");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "Configured");
-            verifyException(e, "all subtypes of base type");
-            verifyException(e, "java.io.Serializable");
-        }
+        InvalidDefinitionException e2 = assertThrows(InvalidDefinitionException.class,
+                () -> customMapper.readValue(JSON, WrappedPolymorphicUntypedSer.class));
+        verifyException(e2, "Configured");
+        verifyException(e2, "all subtypes of base type");
+        verifyException(e2, "java.io.Serializable");
 
     }
 }

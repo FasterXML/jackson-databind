@@ -141,6 +141,54 @@ public class VisibilityForSerializationTest
         assertFalse(result.containsKey("ok"));
     }
 
+    // [databind#5727]
+    @Test
+    public void testVisibilityCheckerHashCode() {
+        VisibilityChecker defaultInstance = VisibilityChecker.defaultInstance();
+        VisibilityChecker allPublic = VisibilityChecker.allPublicInstance();
+
+        // Same content should produce same hashCode
+        VisibilityChecker another = new VisibilityChecker(
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY
+        );
+        assertEquals(allPublic.hashCode(), another.hashCode());
+
+        // Different content should (generally) produce different hashCode
+        assertNotEquals(defaultInstance.hashCode(), allPublic.hashCode());
+    }
+
+    // [databind#5727]
+    @Test
+    public void testVisibilityCheckerEquals() {
+        VisibilityChecker defaultInstance = VisibilityChecker.defaultInstance();
+        VisibilityChecker allPublic = VisibilityChecker.allPublicInstance();
+
+        // Identity
+        assertEquals(defaultInstance, defaultInstance);
+
+        // Same content
+        VisibilityChecker another = new VisibilityChecker(
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY
+        );
+        assertEquals(allPublic, another);
+
+        // Different content
+        assertNotEquals(defaultInstance, allPublic);
+
+        // Not equal to non-VisibilityChecker
+        assertNotEquals(defaultInstance, "not a VisibilityChecker");
+    }
+
     @Test
     public void testVisibilityFeatures() throws Exception
     {

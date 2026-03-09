@@ -371,6 +371,16 @@ public class VisibilityChecker
     }
 
     @Override
+    public int hashCode() {
+        return _fieldMinLevel.ordinal()
+                + (_getterMinLevel.ordinal() << 1)
+                + (_isGetterMinLevel.ordinal() << 2)
+                + (_setterMinLevel.ordinal() << 3)
+                + (_creatorMinLevel.ordinal() << 4)
+                + (_scalarConstructorMinLevel.ordinal() << 5);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == this) return true;
         if (o instanceof VisibilityChecker other) {
@@ -381,8 +391,7 @@ public class VisibilityChecker
                     &&  _creatorMinLevel== other._creatorMinLevel
                     &&  _scalarConstructorMinLevel == other._scalarConstructorMinLevel
                     ;
-        } else {
-            return false;
         }
+        return false;
     }
 }

@@ -14,13 +14,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class RecordWithJsonIncludeTest extends DatabindTestUtil
 {
     // Basic @JsonInclude
-    record AnnotatedParamRecordClass(
+    public record AnnotatedParamRecordClass(
         @JsonInclude(JsonInclude.Include.NON_NULL)
         String omitFieldIfNull,
         String standardField
     ) { }
 
-    record AnnotatedGetterRecordClass(
+    public record AnnotatedGetterRecordClass(
         String omitFieldIfNull,
         String standardField
     ) {
@@ -32,26 +32,26 @@ public class RecordWithJsonIncludeTest extends DatabindTestUtil
     }
 
     // [databind#4629], [databind#4630]
-    record Id2Name(int id, String name) { }
+    public record Id2Name(int id, String name) { }
 
     // [databind#4629]
-    record RecordWithInclude4629(
+    public record RecordWithInclude4629(
             @JsonIncludeProperties("id") Id2Name child
     ) { }
 
-    record RecordWithIgnore4629(
+    public record RecordWithIgnore4629(
             @JsonIgnoreProperties("name") Id2Name child
     ) { }
 
     // [databind#4630]
-    record RecordWithJsonIncludeProperties(@JsonIncludeProperties("id") Id2Name child) {
+    public record RecordWithJsonIncludeProperties(@JsonIncludeProperties("id") Id2Name child) {
         @Override
         public Id2Name child() {
             return child;
         }
     }
 
-    record RecordWithJsonIgnoreProperties(@JsonIgnoreProperties("name") Id2Name child) {
+    public record RecordWithJsonIgnoreProperties(@JsonIgnoreProperties("name") Id2Name child) {
         @Override
         public Id2Name child() {
             return child;

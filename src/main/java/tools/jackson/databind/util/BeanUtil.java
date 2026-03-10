@@ -98,7 +98,9 @@ public class BeanUtil
         if (cls == String.class) {
             return "";
         }
-        if (type.isContainerType() || type.isReferenceType()) {
+        if (type.isContainerType() || type.isReferenceType()
+            // 10-Mar-2026, tatu [databind#3573]: null UUID is empty and as such default
+                || cls == UUID.class) {
             return JsonInclude.Include.NON_EMPTY;
         }
 

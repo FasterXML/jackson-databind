@@ -94,7 +94,7 @@ public class PropertyBuilder
         // do we have annotation that forces type to use (to declared type or its super type)?
         JavaType serializationType;
         try {
-            serializationType = findSerializationType(am, defaultUseStaticTyping, declaredType);
+            serializationType = findSerializationType(ctxt, am, defaultUseStaticTyping, declaredType);
         } catch (DatabindException e) {
             if (propDef == null) {
                 return ctxt.reportBadDefinition(declaredType, ClassUtil.exceptionMessage(e));
@@ -282,7 +282,8 @@ public class PropertyBuilder
      * declared type (if static typing for serialization is enabled).
      * If neither can be used (no annotations, dynamic typing), returns null.
      */
-    protected JavaType findSerializationType(Annotated a, boolean useStaticTyping, JavaType declaredType)
+    protected JavaType findSerializationType(SerializationContext ctxt,
+            Annotated a, boolean useStaticTyping, JavaType declaredType)
     {
         JavaType secondary = _annotationIntrospector.refineSerializationType(_config, a, declaredType);
 
@@ -313,9 +314,19 @@ public class PropertyBuilder
             declaredType = secondary;
         }
         // If using static typing, declared type is known to be the type...
+        // First: check property-level (member) annotation
         JsonSerialize.Typing typing = _annotationIntrospector.findSerializationTyping(_config, a);
         if ((typing != null) && (typing != JsonSerialize.Typing.DEFAULT_TYPING)) {
             useStaticTyping = (typing == JsonSerialize.Typing.STATIC);
+        }
+        // [databind#1515]: if still static, check declared type's class-level annotation;
+        //   allows @JsonSerialize(typing=DYNAMIC) on class to override global USE_STATIC_TYPING
+        else if (useStaticTyping) {
+            JsonSerialize.Typing classTyping = _annotationIntrospector.findSerializationTyping(
+                    _config, ctxt.introspectClassAnnotations(declaredType));
+            if (classTyping == JsonSerialize.Typing.DYNAMIC) {
+                useStaticTyping = false;
+            }
         }
         if (useStaticTyping) {
             // 11-Oct-2015, tatu: Make sure JavaType also "knows" static-ness...

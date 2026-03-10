@@ -1044,19 +1044,21 @@ public class BeanDeserializer
             }
             final String propName = p.currentName();
             p.nextToken();
-            // Things marked as ignorable should not be passed to any setter
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                handleIgnoredProperty(p, ctxt, bean, propName);
-                continue;
-            }
             // 29-Nov-2016, tatu: probably should try to avoid sending content
             //    both to any setter AND buffer... but, for now, the only thing
             //    we can do.
             // 19-Dec-2025: [databind#650] We can now distinguish the cases
+            // 09-Mar-2026: [databind#1075] Check unwrapped properties BEFORE ignorable,
+            //    so that @JsonIgnore on outer getter doesn't block unwrapped inner property
             if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
                 hasUnwrappedContent = true;
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
+                continue;
+            }
+            // Things marked as ignorable should not be passed to any setter
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
             // how about any setter? We'll get copies but...
@@ -1116,18 +1118,14 @@ public class BeanDeserializer
             }
             final String propName = p.currentName();
             p.nextToken();
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                handleIgnoredProperty(p, ctxt, bean, propName);
-                continue;
-            }
-            // 29-Nov-2016, tatu: probably should try to avoid sending content
-            //    both to any setter AND buffer... but, for now, the only thing
-            //    we can do.
             // 19-Dec-2025: [databind#650] We can now distinguish the cases
+            // 09-Mar-2026: [databind#1075] Check unwrapped properties BEFORE ignorable
             if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
                 hasUnwrappedContent = true;
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
+            } else if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, bean, propName);
             } else if (_anySetter == null) {
                 handleUnknownVanilla(p, ctxt, bean, propName);
             } else {

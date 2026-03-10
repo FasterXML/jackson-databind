@@ -666,16 +666,18 @@ public class BuilderBasedDeserializer
             }
             final String propName = p.currentName();
             p.nextToken();
-            // ignorable things should be ignored
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                handleIgnoredProperty(p, ctxt, bean, propName);
-                continue;
-            }
             // 29-Dec-2025: [databind#650] We can avoid buffering and passing to any props
+            // 09-Mar-2026: [databind#1075] Check unwrapped properties BEFORE ignorable,
+            //    so that @JsonIgnore on outer getter doesn't block unwrapped inner property
             if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
                 hasUnwrappedContent = true;
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
+                continue;
+            }
+            // ignorable things should be ignored
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
             // how about any setter?
@@ -723,15 +725,15 @@ public class BuilderBasedDeserializer
             }
             final String propName = p.currentName();
             p.nextToken();
-            if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
-                handleIgnoredProperty(p, ctxt, builder, propName);
-                continue;
-            }
-            // 29-Dec-2025: [databind#650] We can avoid buffering and passing to any props
+            // 09-Mar-2026: [databind#1075] Check unwrapped properties BEFORE ignorable
             if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
                 hasUnwrappedContent = true;
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
+                continue;
+            }
+            if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
+                handleIgnoredProperty(p, ctxt, builder, propName);
                 continue;
             }
             // how about any setter?

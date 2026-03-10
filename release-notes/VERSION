@@ -56,6 +56,8 @@ No changes since 3.1
   type is determined by @JsonTypeInfo
  (reported by @pdegoeje)
  (fix by @cowtowncoder, @JacksonJang)
+#1811: `@JsonAnySetter` and `@JsonUnwrapped` deserialize property twice
+ (reported by @jearton)
 #1980: Add method `remove(JsonPointer)` in `ContainerNode`
  (fix by @cowtowncoder, w/ Claude code)
 #2124: Allow coercion of '[ ]' into empty/null String with

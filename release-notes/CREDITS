@@ -293,6 +293,10 @@ Sylvain Guillope (@sguillope)
    in outer class are ignored
   [3.2.0]
 
+Benson Margulies (@benson-basis)
+ * Reported #1281: `@JsonIgnoreProperties` should work for "any getter" (for serialization)
+  [3.2.0]
+
 Klaas Dellschaft (@klaasdellschaft)
  * Reported #3194: Deserialization of 2-dimensional arrays of final types fails when
    using `DefaultTyping.NON_FINAL`

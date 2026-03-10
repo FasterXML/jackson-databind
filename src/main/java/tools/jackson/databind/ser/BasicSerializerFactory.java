@@ -461,16 +461,16 @@ public abstract class BasicSerializerFactory
             JavaType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
             boolean staticTyping)
     {
+        final JavaType elementType = type.getContentType();
         // [databind#23], 15-Mar-2013, tatu: must force static handling of root value type,
         //   with just one important exception: if value type is "untyped", let's
         //   leave it as is; no clean way to make it work.
         if (!staticTyping && type.useStaticType()) {
-            if (!type.isContainerType() || !type.getContentType().isJavaLangObject()) {
+            if (!elementType.isJavaLangObject()) {
                 staticTyping = true;
             }
         }
         // Let's see what we can learn about element/content/value type, type serializer for it:
-        JavaType elementType = type.getContentType();
         TypeSerializer elementTypeSerializer = ctxt.findTypeSerializer(elementType);
         // if elements have type serializer, cannot force static typing:
         if (elementTypeSerializer != null) {
@@ -478,8 +478,7 @@ public abstract class BasicSerializerFactory
         }
         // [databind#1515]: content type class-level @JsonSerialize(typing=DYNAMIC)
         //   should override global USE_STATIC_TYPING
-        if (staticTyping && (elementType != null)
-                && _hasDynamicTypingOnClass(ctxt, elementType)) {
+        else if (staticTyping && _hasDynamicTypingOnClass(ctxt, elementType)) {
             staticTyping = false;
         }
         ValueSerializer<Object> elementValueSerializer = _findContentSerializer(ctxt,

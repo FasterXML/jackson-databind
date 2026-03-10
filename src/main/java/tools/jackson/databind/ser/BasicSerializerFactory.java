@@ -479,7 +479,7 @@ public abstract class BasicSerializerFactory
         // [databind#1515]: content type class-level @JsonSerialize(typing=DYNAMIC)
         //   should override global USE_STATIC_TYPING
         if (staticTyping && (elementType != null)
-                && _hasDynamicTypingOnClass(ctxt, elementType.getRawClass())) {
+                && _hasDynamicTypingOnClass(ctxt, elementType)) {
             staticTyping = false;
         }
         ValueSerializer<Object> elementValueSerializer = _findContentSerializer(ctxt,
@@ -1191,17 +1191,17 @@ public abstract class BasicSerializerFactory
      *
      * @since 3.2
      */
-    protected boolean _hasDynamicTypingOnClass(SerializationContext ctxt, Class<?> rawType) {
+    protected boolean _hasDynamicTypingOnClass(SerializationContext ctxt, JavaType type) {
         return ctxt.getAnnotationIntrospector()
                 .findSerializationTyping(ctxt.getConfig(),
-                        ctxt.introspectClassAnnotations(rawType))
+                        ctxt.introspectClassAnnotations(type))
                 == JsonSerialize.Typing.DYNAMIC;
     }
 
     /**
      * Helper method to check whether global settings and/or class
      * annotations for the bean class indicate that static typing
-     * (declared types)  should be used for properties.
+     * (declared types) should be used for properties.
      * (instead of dynamic runtime types).
      */
     protected boolean usesStaticTyping(SerializationConfig config,

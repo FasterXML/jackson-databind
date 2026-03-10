@@ -816,7 +816,7 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
         JavaType type = accessor.getType();
         // [databind#1515]: Check class-level annotation on declared type; allows
         //   @JsonSerialize(typing=DYNAMIC) on class to override global USE_STATIC_TYPING
-        if (staticTyping && _hasDynamicTypingOnClass(ctxt, type.getRawClass())) {
+        if (staticTyping && _hasDynamicTypingOnClass(ctxt, type)) {
             staticTyping = false;
         }
         BeanProperty.Std property = new BeanProperty.Std(name, type, propDef.getWrapperName(),

@@ -34,7 +34,7 @@ public class JsonInclude1757Test extends DatabindTestUtil
     @Test
     public void testGlobalNonDefaultRoundTrip() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(MapperFeature.USE_REAL_NON_DEFAULT)
+                .enable(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT)
                 .changeDefaultPropertyInclusion(incl ->
                         incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
                 .build();
@@ -53,7 +53,7 @@ public class JsonInclude1757Test extends DatabindTestUtil
     @Test
     public void testGlobalNonDefaultIncludesNonDefault() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(MapperFeature.USE_REAL_NON_DEFAULT)
+                .enable(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT)
                 .changeDefaultPropertyInclusion(incl ->
                         incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
                 .build();
@@ -68,7 +68,7 @@ public class JsonInclude1757Test extends DatabindTestUtil
     @Test
     public void testGlobalNonDefaultEmptyStringNonDefault() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(MapperFeature.USE_REAL_NON_DEFAULT)
+                .enable(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT)
                 .changeDefaultPropertyInclusion(incl ->
                         incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
                 .build();
@@ -84,7 +84,7 @@ public class JsonInclude1757Test extends DatabindTestUtil
     @Test
     public void testGlobalNonDefaultSuppressesNull() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(MapperFeature.USE_REAL_NON_DEFAULT)
+                .enable(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT)
                 .changeDefaultPropertyInclusion(incl ->
                         incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
                 .build();
@@ -99,7 +99,7 @@ public class JsonInclude1757Test extends DatabindTestUtil
     @Test
     public void testGlobalNonDefaultPrimitiveField() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(MapperFeature.USE_REAL_NON_DEFAULT)
+                .enable(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT)
                 .changeDefaultPropertyInclusion(incl ->
                         incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
                 .build();
@@ -121,7 +121,7 @@ public class JsonInclude1757Test extends DatabindTestUtil
     @Test
     public void testGlobalMatchesPerClassBehavior() throws Exception {
         ObjectMapper globalMapper = jsonMapperBuilder()
-                .enable(MapperFeature.USE_REAL_NON_DEFAULT)
+                .enable(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT)
                 .changeDefaultPropertyInclusion(incl ->
                         incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
                 .build();

@@ -551,7 +551,7 @@ public enum MapperFeature
      *
      * @since 3.2
      */
-    USE_REAL_NON_DEFAULT(false)
+    USE_REAL_INCLUDE_NON_DEFAULT(false)
     ;
 
     private final boolean _defaultState;

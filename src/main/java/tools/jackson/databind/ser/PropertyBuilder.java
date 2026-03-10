@@ -75,7 +75,7 @@ public class PropertyBuilder
         if (inclPerType.getValueInclusion() == JsonInclude.Include.NON_DEFAULT) {
             _useRealPropertyDefaults = true;
         } else if (_defaultInclusion.getValueInclusion() == JsonInclude.Include.NON_DEFAULT
-                && config.isEnabled(MapperFeature.USE_REAL_NON_DEFAULT)) {
+                && config.isEnabled(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT)) {
             _useRealPropertyDefaults = true;
         } else {
             _useRealPropertyDefaults = false;

@@ -38,6 +38,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
   "Cannot construct instance (although at least one Creator exists)"
  (reported by @dinopraso)
  (fix by @JacksonJang)
+#3573: Inconsistent handling of nil `UUID` in property inclusion
+ (reported by Andrzej L)
 #3591: Ignored fields not consistently exposed via
   `BeanDescription.getIgnoredPropertyNames()`
  (requested by Oliver D)

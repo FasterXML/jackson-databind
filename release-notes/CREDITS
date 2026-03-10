@@ -298,6 +298,10 @@ Klaas Dellschaft (@klaasdellschaft)
    using `DefaultTyping.NON_FINAL`
   [3.2.0]
 
+Andrzej Leśkiewicz (@aleskiewicz)
+ * Reported #3573: Inconsistent handling of nil `UUID` in property inclusion
+  [3.2.0]
+
 Martin Uhlen (@MartinUhlen)
  * Reported #5734: `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` treats
    absent field same as explicit `null`

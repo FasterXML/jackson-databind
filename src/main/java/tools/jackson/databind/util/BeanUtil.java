@@ -3,6 +3,7 @@ package tools.jackson.databind.util;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -100,6 +101,7 @@ public class BeanUtil
         if (type.isContainerType() || type.isReferenceType()) {
             return JsonInclude.Include.NON_EMPTY;
         }
+
         // For wrapper types (Integer, Boolean, etc.), default is either null,
         // or the wrapped primitive default
         Class<?> primitiveType = ClassUtil.primitiveType(cls);

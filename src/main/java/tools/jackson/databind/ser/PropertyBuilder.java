@@ -67,7 +67,19 @@ public class PropertyBuilder
                         JsonInclude.Value.empty()));
         _defaultInclusion = JsonInclude.Value.merge(config.getDefaultPropertyInclusion(),
                 inclPerType);
-        _useRealPropertyDefaults = inclPerType.getValueInclusion() == JsonInclude.Include.NON_DEFAULT;
+        // [databind#1757]: Use "real" property defaults (from default bean instance)
+        //  when NON_DEFAULT is set per-type (b), or when set as global default (a)
+        //  AND MapperFeature.USE_REAL_NON_DEFAULT is enabled. This ensures round-trip
+        //  consistency: values that match the no-arg constructor defaults are suppressed
+        //  during serialization and restored by the constructor during deserialization.
+        if (inclPerType.getValueInclusion() == JsonInclude.Include.NON_DEFAULT) {
+            _useRealPropertyDefaults = true;
+        } else if (_defaultInclusion.getValueInclusion() == JsonInclude.Include.NON_DEFAULT
+                && config.isEnabled(MapperFeature.USE_REAL_NON_DEFAULT)) {
+            _useRealPropertyDefaults = true;
+        } else {
+            _useRealPropertyDefaults = false;
+        }
         _annotationIntrospector = _config.getAnnotationIntrospector();
     }
 
@@ -173,6 +185,10 @@ public class PropertyBuilder
                 } catch (Exception e) {
                     _throwWrapped(e, propDef.getName(), defaultBean);
                 }
+                // [databind#1757]: With NON_DEFAULT, always suppress nulls:
+                //  null is never a meaningful "non-default" value when we have
+                //  a real default instance to compare against
+                suppressNulls = true;
             } else {
                 valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, actualType);
                 suppressNulls = true;

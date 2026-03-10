@@ -1189,7 +1189,7 @@ public abstract class BasicSerializerFactory
      * class-level {@code @JsonSerialize(typing = DYNAMIC)} annotation,
      * indicating that global {@code USE_STATIC_TYPING} should be overridden.
      *
-     * @since 3.1
+     * @since 3.2
      */
     protected boolean _hasDynamicTypingOnClass(SerializationContext ctxt, Class<?> rawType) {
         return ctxt.getAnnotationIntrospector()

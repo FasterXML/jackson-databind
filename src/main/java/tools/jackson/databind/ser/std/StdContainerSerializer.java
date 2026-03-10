@@ -149,7 +149,7 @@ public abstract class StdContainerSerializer<T>
      * Helper method for [databind#1515]: check if property overrides
      * typing to DYNAMIC, allowing override of global {@code USE_STATIC_TYPING}.
      *
-     * @since 3.1
+     * @since 3.2
      */
     protected boolean _hasDynamicTypingOverride(SerializationContext ctxt, BeanProperty property) {
         if (property != null) {

@@ -549,7 +549,7 @@ public enum MapperFeature
      *<p>
      * Feature is disabled by default for backwards-compatibility.
      *
-     * @since 3.1
+     * @since 3.2
      */
     USE_REAL_NON_DEFAULT(false)
     ;

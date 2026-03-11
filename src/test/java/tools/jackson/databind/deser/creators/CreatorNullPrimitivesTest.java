@@ -76,6 +76,10 @@ public class CreatorNullPrimitivesTest
         }
     }
 
+    // [databind#5734]
+    record PrimitiveRecord(int int1, int int2, boolean boolean1, boolean boolean2) {
+    }
+
     // [databind#2977]
     static class TestClass2977 {
         @JsonProperty("aa")
@@ -84,10 +88,6 @@ public class CreatorNullPrimitivesTest
         public TestClass2977(int a) {
             this.a = a;
         }
-    }
-
-    // [databind#5734]
-    record PrimitiveRecord(int int1, int int2, boolean boolean1, boolean boolean2) {
     }
 
     /*
@@ -100,10 +100,10 @@ public class CreatorNullPrimitivesTest
 
     // [databind#2101]: ensure that the property is included in the path
     @Test
-    public void testCreatorExplicitNullPrimitive() throws Exception {
+    public void testCreatorNullPrimitive() throws Exception {
         final ObjectReader r = MAPPER.readerFor(JsonEntity.class)
             .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
-        // Explicit null should still fail
+        // [databind#5734]: explicit null should fail, but absent should not
         String json = a2q("{'x': 2, 'y': null}");
         try {
             r.readValue(json);
@@ -116,10 +116,10 @@ public class CreatorNullPrimitivesTest
     }
 
     @Test
-    public void testCreatorExplicitNullPrimitiveInNestedObject() throws Exception {
+    public void testCreatorNullPrimitiveInNestedObject() throws Exception {
         final ObjectReader r = MAPPER.readerFor(NestedJsonEntity.class)
                 .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
-        // Explicit null should still fail
+        // [databind#5734]: explicit null should fail, but absent should not
         String json = a2q("{ 'entity': {'x': 2, 'y': null}}");
         try {
             r.readValue(json);
@@ -132,8 +132,7 @@ public class CreatorNullPrimitivesTest
         }
     }
 
-    // [databind#5734]: absent (missing) primitive creator properties should get
-    //   JVM defaults when FAIL_ON_ABSENT_FOR_PRIMITIVES is disabled
+    // [databind#5734]: absent primitive creator properties should get JVM defaults
     @Test
     public void testCreatorAbsentPrimitiveShouldDefault() throws Exception {
         final ObjectReader r = MAPPER.readerFor(JsonEntity.class)
@@ -145,7 +144,7 @@ public class CreatorNullPrimitivesTest
         assertEquals(0, result.y);
     }
 
-    // [databind#5734]: absent (missing) primitive creator properties in nested objects
+    // [databind#5734]: absent primitive creator properties in nested objects
     @Test
     public void testCreatorAbsentPrimitiveInNestedObjectShouldDefault() throws Exception {
         final ObjectReader r = MAPPER.readerFor(NestedJsonEntity.class)
@@ -207,11 +206,10 @@ public class CreatorNullPrimitivesTest
     }
 
     // [databind#5734]: record with absent primitives should use JVM defaults
-    //   when FAIL_ON_ABSENT_FOR_PRIMITIVES is disabled
     @Test
     void testRecordAbsentPrimitivesShouldDefault() throws Exception {
         // FAIL_ON_NULL_FOR_PRIMITIVES is enabled by default in 3.x;
-        // FAIL_ON_ABSENT_FOR_PRIMITIVES is disabled by default
+        // absent values should still get JVM defaults
         String json = a2q("{'int2': 42, 'boolean1': true}");
         PrimitiveRecord result = MAPPER.readValue(json, PrimitiveRecord.class);
         assertEquals(0, result.int1());
@@ -229,36 +227,6 @@ public class CreatorNullPrimitivesTest
             fail("Should not have succeeded");
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot map `null` into type `boolean`");
-        }
-    }
-
-    // [databind#5734]: FAIL_ON_ABSENT_FOR_PRIMITIVES should fail on missing primitives
-    @Test
-    void testFailOnAbsentForPrimitivesEnabled() throws Exception {
-        final ObjectReader r = MAPPER.readerFor(JsonEntity.class)
-            .with(DeserializationFeature.FAIL_ON_ABSENT_FOR_PRIMITIVES);
-        String json = a2q("{'x': 2}");
-        try {
-            r.readValue(json);
-            fail("Should not have succeeded");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot map absent");
-            assertEquals(1, e.getPath().size());
-            assertEquals("y", e.getPath().get(0).getPropertyName());
-        }
-    }
-
-    // [databind#5734]: FAIL_ON_ABSENT_FOR_PRIMITIVES with record
-    @Test
-    void testFailOnAbsentForPrimitivesWithRecord() throws Exception {
-        final ObjectReader r = MAPPER.readerFor(PrimitiveRecord.class)
-            .with(DeserializationFeature.FAIL_ON_ABSENT_FOR_PRIMITIVES);
-        String json = a2q("{'int2': 42, 'boolean1': true}");
-        try {
-            r.readValue(json);
-            fail("Should not have succeeded");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot map absent");
         }
     }
 }

@@ -52,43 +52,43 @@ public class NumberSerTest extends DatabindTestUtil
             .build()
             ;
 
-    static class IntWrapper {
+    public static class IntWrapper {
         public int i;
         public IntWrapper(int value) { i = value; }
     }
 
-    static class DoubleWrapper {
+    public static class DoubleWrapper {
         public double value;
         public DoubleWrapper(double v) { value = v; }
     }
 
-    static class BigDecimalWrapper {
+    public static class BigDecimalWrapper {
         public BigDecimal value;
         public BigDecimalWrapper(BigDecimal v) { value = v; }
     }
 
-    static class IntAsString {
+    public static class IntAsString {
         @JsonFormat(shape=JsonFormat.Shape.STRING)
         @JsonProperty("value")
         public int foo = 3;
     }
 
-    static class LongAsString {
+    public static class LongAsString {
         @JsonFormat(shape=JsonFormat.Shape.STRING)
         public long value = 4;
     }
 
-    static class DoubleAsString {
+    public static class DoubleAsString {
         @JsonFormat(shape=JsonFormat.Shape.STRING)
         public double value = -0.5;
     }
 
-    static class BigIntegerAsString {
+    public static class BigIntegerAsString {
         @JsonFormat(shape=JsonFormat.Shape.STRING)
         public BigInteger value = BigInteger.valueOf(123456L);
     }
 
-    static class BigDecimalAsString {
+    public static class BigDecimalAsString {
         @JsonFormat(shape=JsonFormat.Shape.STRING)
         public BigDecimal value;
 
@@ -96,7 +96,7 @@ public class NumberSerTest extends DatabindTestUtil
         public BigDecimalAsString(BigDecimal v) { value = v; }
     }
 
-    static class NumberWrapper {
+    public static class NumberWrapper {
         // ensure it will use `Number` as statically force type, when looking for serializer
         @JsonSerialize(as=Number.class)
         public Number value;
@@ -104,7 +104,7 @@ public class NumberSerTest extends DatabindTestUtil
         public NumberWrapper(Number v) { value = v; }
     }
 
-    static class BigDecimalHolder {
+    public static class BigDecimalHolder {
         private final BigDecimal value;
 
         public BigDecimalHolder(String num) {
@@ -135,17 +135,17 @@ public class NumberSerTest extends DatabindTestUtil
     }
 
     @SuppressWarnings("serial")
-    static class MyBigDecimal extends BigDecimal {
+    public static class MyBigDecimal extends BigDecimal {
         public MyBigDecimal(String value) {
             super(value);
         }
     }
 
-    static class Bean2519Typed {
+    public static class Bean2519Typed {
         public List<BigDecimal> values = new ArrayList<>();
     }
 
-    static class Bean2519Untyped {
+    public static class Bean2519Untyped {
         public Collection<BigDecimal> values = new HashSet<>();
     }
 
@@ -157,7 +157,7 @@ public class NumberSerTest extends DatabindTestUtil
     private final static double[] DOUBLE_VECTOR = new double[] { -1.0, 1.5, 0.0125 };
     private final static String DOUBLE_VECTOR_STR = "[-1.0,1.5,0.0125]";
 
-    static class BeanWithArrayFloatVector {
+    public static class BeanWithArrayFloatVector {
         @JsonFormat(shape = JsonFormat.Shape.NATURAL)
         public float[] vector;
 
@@ -165,7 +165,7 @@ public class NumberSerTest extends DatabindTestUtil
         public BeanWithArrayFloatVector(float[] v) { vector = v; }
     }
 
-    static class BeanWithBinaryFloatVector {
+    public static class BeanWithBinaryFloatVector {
         @JsonFormat(shape = JsonFormat.Shape.BINARY)
         public float[] vector;
 
@@ -173,7 +173,7 @@ public class NumberSerTest extends DatabindTestUtil
         public BeanWithBinaryFloatVector(float[] v) { vector = v; }
     }
 
-    static class BeanWithArrayDoubleVector {
+    public static class BeanWithArrayDoubleVector {
         @JsonFormat(shape = JsonFormat.Shape.NATURAL)
         public double[] vector;
 
@@ -181,7 +181,7 @@ public class NumberSerTest extends DatabindTestUtil
         public BeanWithArrayDoubleVector(double[] v) { vector = v; }
     }
 
-    static class BeanWithBinaryDoubleVector {
+    public static class BeanWithBinaryDoubleVector {
         @JsonFormat(shape = JsonFormat.Shape.BINARY)
         public double[] vector;
 

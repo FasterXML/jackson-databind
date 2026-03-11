@@ -52,7 +52,6 @@ class ObjectIdDeserializationFailTest extends DatabindTestUtil {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    @JacksonTestFailureExpected
     @Test
     void forwardReferenceInArray() throws Exception {
         String json = "{\"employees\":["

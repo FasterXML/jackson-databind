@@ -14,6 +14,10 @@ import tools.jackson.databind.util.TokenBuffer;
  */
 public abstract class PropertyValue
 {
+    /**
+     * Note: was {@code final} before Jackson 3.2; changed to allow
+     * order-preserving appends.
+     */
     public PropertyValue next;
 
     /**

@@ -54,14 +54,11 @@ public abstract class TypeDeserializerBase
     protected ValueDeserializer<Object> _defaultImplDeserializer;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
-    /**
-     * @since 2.8
-     */
     protected TypeDeserializerBase(JavaType baseType, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl)
     {
@@ -91,9 +88,9 @@ public abstract class TypeDeserializerBase
     public abstract TypeDeserializer forProperty(BeanProperty prop);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -117,14 +114,17 @@ public abstract class TypeDeserializerBase
         return (_defaultImpl != null);
     }
 
-    public boolean isTypeIdVisible() { return _typeIdVisible; }
-
     /**
      * @since 2.9
      */
     public JavaType baseType() {
         return _baseType;
     }
+
+    /**
+     * @since 3.2
+     */
+    public boolean isTypeIdVisible() { return _typeIdVisible; }
 
     @Override
     public String toString()
@@ -138,9 +138,9 @@ public abstract class TypeDeserializerBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods for sub-classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final ValueDeserializer<Object> _findDeserializer(DeserializationContext ctxt,

@@ -248,9 +248,9 @@ public class EnumMapDeserializer
         p.assignCurrentValue(result);
 
         final boolean useObjectId = (_valueDeserializer.getObjectIdReader(ctxt) != null);
-        EnumMapReferringAccumulator referringAccumulator = null;
+        MapDeserializer.MapReferringAccumulator referringAccumulator = null;
         if (useObjectId) {
-            referringAccumulator = new EnumMapReferringAccumulator(
+            referringAccumulator = new MapDeserializer.MapReferringAccumulator(
                     _containerType.getContentType().getRawClass(), result);
         }
 
@@ -441,7 +441,7 @@ public class EnumMapDeserializer
     }
 
     private void _handleUnresolvedReference(DeserializationContext ctxt,
-            EnumMapReferringAccumulator accumulator,
+            MapDeserializer.MapReferringAccumulator accumulator,
             Object key, UnresolvedForwardReference reference)
         throws JacksonException
     {
@@ -451,68 +451,5 @@ public class EnumMapDeserializer
         }
         Referring referring = accumulator.handleUnresolvedReference(reference, key);
         reference.getRoid().appendReferring(referring);
-    }
-
-    private static class EnumMapReferringAccumulator {
-        private final Class<?> _valueType;
-        private final Map<Object, Object> _result;
-        private final List<EnumMapReferring> _accumulator = new ArrayList<>();
-
-        EnumMapReferringAccumulator(Class<?> valueType, Map<Object, Object> result) {
-            _valueType = valueType;
-            _result = result;
-        }
-
-        public void put(Object key, Object value) {
-            if (_accumulator.isEmpty()) {
-                _result.put(key, value);
-            } else {
-                _accumulator.get(_accumulator.size() - 1).next.put(key, value);
-            }
-        }
-
-        public Referring handleUnresolvedReference(UnresolvedForwardReference reference, Object key) {
-            EnumMapReferring ref = new EnumMapReferring(this, reference, _valueType, key);
-            _accumulator.add(ref);
-            return ref;
-        }
-
-        public void resolveForwardReference(DeserializationContext ctxt, Object id, Object value)
-            throws JacksonException
-        {
-            Iterator<EnumMapReferring> iterator = _accumulator.iterator();
-            Map<Object, Object> previous = _result;
-            while (iterator.hasNext()) {
-                EnumMapReferring ref = iterator.next();
-                if (ref.hasId(id)) {
-                    iterator.remove();
-                    previous.put(ref.key, value);
-                    previous.putAll(ref.next);
-                    return;
-                }
-                previous = ref.next;
-            }
-            throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
-                    + "] that wasn't previously seen as unresolved.");
-        }
-    }
-
-    private static class EnumMapReferring extends Referring {
-        private final EnumMapReferringAccumulator _parent;
-        public final Map<Object, Object> next = new LinkedHashMap<>();
-        public final Object key;
-
-        EnumMapReferring(EnumMapReferringAccumulator parent,
-                UnresolvedForwardReference ref, Class<?> valueType, Object key) {
-            super(ref, valueType);
-            _parent = parent;
-            this.key = key;
-        }
-
-        @Override
-        public void handleResolvedForwardReference(DeserializationContext ctxt,
-                Object id, Object value) throws JacksonException {
-            _parent.resolveForwardReference(ctxt, id, value);
-        }
     }
 }

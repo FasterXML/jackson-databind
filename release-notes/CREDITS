@@ -288,6 +288,11 @@ Kyrylo Merzlikin (@kirmerzlikin)
    encoded as String
   [3.1.0]
 
+Gili Tzabari (@cowwoc)
+ * Reported #639: `@JacksonInject` with `@JsonIdentityInfo` causes deserialization
+   failure (unresolved forward reference)
+  [3.2.0]
+ 
 Sylvain Guillope (@sguillope)
  * Reported #1075: `@JsonUnwrapped` fields with matching `@JsonIgnore`d getter
    in outer class are ignored
@@ -295,6 +300,11 @@ Sylvain Guillope (@sguillope)
 
 Benson Margulies (@benson-basis)
  * Reported #1281: `@JsonIgnoreProperties` should work for "any getter" (for serialization)
+  [3.2.0]
+
+Benedikt Posch (@benediktsatalia)
+ * Reported #3030: Correctly deserialize forward `@JsonIdentityInfo` references
+   when using `@JsonCreator`
   [3.2.0]
 
 Klaas Dellschaft (@klaasdellschaft)

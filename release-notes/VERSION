@@ -7,6 +7,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.2.0 (not yet released)
 
+#639: `@JacksonInject` with `@JsonIdentityInfo` causes deserialization
+  failure (unresolved forward reference)
+ (reported by Gili T)
+ (fix by @cowtowncoder, w/ Claude code)
 #1075: `@JsonUnwrapped` fields with matching `@JsonIgnore`d getter
   in outer class are ignored
  (reported by Sylvain G)
@@ -27,6 +31,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1757: Regression in `JsonInclude.Include.NON_DEFAULT` set as global default
   serialization inclusion (add new `MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT`)
  (reported by @yhack)
+ (fix by @cowtowncoder, w/ Claude code)
+#3030: Correctly deserialize forward `@JsonIdentityInfo` references
+  when using `@JsonCreator`
+ (reported by Benedikt P)
  (fix by @cowtowncoder, w/ Claude code)
 #3194: Deserialization of 2-dimensional arrays of final types fails when
   using `DefaultTyping.NON_FINAL`

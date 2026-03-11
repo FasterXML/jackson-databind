@@ -23,6 +23,10 @@ public class ThrowableDeserializer
 
     protected final static String PROP_NAME_LOCALIZED_MESSAGE = "localizedMessage";
 
+    // Properties that should not be set if value is null (would cause NPE or other issues)
+    protected final static String PROP_NAME_CAUSE = "cause";
+    protected final static String PROP_NAME_STACK_TRACE = "stackTrace";
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -110,8 +114,9 @@ public class ThrowableDeserializer
             if (prop != null) { // normal case
                 // 07-Dec-2023, tatu: [databind#4248] Interesting that "cause"
                 //    with `null` blows up. So, avoid.
-                if ("cause".equals(prop.getName())
-                        && p.hasToken(JsonToken.VALUE_NULL)) {
+                // Same for "stackTrace" - setStackTrace(null) throws NPE
+                if (p.hasToken(JsonToken.VALUE_NULL)
+                        && _shouldSkipNullValue(prop.getName())) {
                     continue;
                 }
                 if (throwable != null) {
@@ -196,7 +201,12 @@ public class ThrowableDeserializer
         if (pending != null) {
             for (int i = 0, len = pendingIx; i < len; i += 2) {
                 SettableBeanProperty prop = (SettableBeanProperty)pending[i];
-                prop.set(throwable, pending[i+1]);
+                Object value = pending[i+1];
+                // Skip null values for properties that don't accept them
+                if (value == null && _shouldSkipNullValue(prop.getName())) {
+                    continue;
+                }
+                prop.set(throwable, value);
             }
         }
 
@@ -218,6 +228,17 @@ public class ThrowableDeserializer
     /* Internal helper methods
     /**********************************************************
      */
+
+    /**
+     * Helper method to check if a property with null value should be skipped
+     * during deserialization. Some Throwable setters throw NPE when called with null.
+     *
+     * @since 2.21
+     */
+    private boolean _shouldSkipNullValue(String propertyName) {
+        return PROP_NAME_CAUSE.equals(propertyName)
+                || PROP_NAME_STACK_TRACE.equals(propertyName);
+    }
 
     /**
      * Helper method to initialize Throwable

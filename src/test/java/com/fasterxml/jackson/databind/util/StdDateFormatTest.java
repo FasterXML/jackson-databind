@@ -13,6 +13,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class StdDateFormatTest extends DatabindTestUtil
 {
+    static class TestStdDateFormat extends StdDateFormat {
+        boolean testLooksLikeISO8601(String input) {
+            return looksLikeISO8601(input);
+        }
+    }
+
     @SuppressWarnings("deprecation")
     @Test
     public void testFactories() {
@@ -146,5 +152,35 @@ public class StdDateFormatTest extends DatabindTestUtil
         } catch (java.text.ParseException e) {
             verifyException(e, "Cannot parse");
         }
+    }
+
+    @Test
+    public void testNegativeTimestampParsing() throws Exception
+    {
+        StdDateFormat f = StdDateFormat.instance.clone();
+        f.setLenient(false);
+
+        Date dt = f.parse("-1383043669935");
+        assertEquals(-1383043669935L, dt.getTime());
+    }
+
+    @Test
+    public void testShortNegativeTimestampParsing() throws Exception
+    {
+        StdDateFormat f = StdDateFormat.instance.clone();
+        f.setLenient(false);
+
+        assertEquals(-1L, f.parse("-1").getTime());
+        assertEquals(-1234567890L, f.parse("-1234567890").getTime());
+    }
+
+    @Test
+    public void testCompactNumericDateInputStillHandledAsTimestamp() throws Exception
+    {
+        TestStdDateFormat f = new TestStdDateFormat();
+        f.setLenient(false);
+
+        assertFalse(f.testLooksLikeISO8601("20250305"));
+        assertEquals(20250305L, f.parse("20250305").getTime());
     }
 }

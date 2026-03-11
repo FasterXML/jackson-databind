@@ -134,6 +134,24 @@ public class DateDeserializationTest
     }
 
     @Test
+    public void testSignedStringTimestampViaObjectMapper() throws Exception
+    {
+        long before = -1383043669935L;
+        String json = q(String.valueOf(before));
+
+        Date date = MAPPER.readValue(json, Date.class);
+        assertEquals(before, date.getTime());
+
+        Calendar calendar = MAPPER.readValue(json, Calendar.class);
+        assertEquals(before, calendar.getTimeInMillis());
+
+        assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readValue(q("+1383043669935"), Date.class));
+        assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readValue(q("+1383043669935"), Calendar.class));
+    }
+
+    @Test
     public void testDateUtilRFC1123() throws Exception
     {
         DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);

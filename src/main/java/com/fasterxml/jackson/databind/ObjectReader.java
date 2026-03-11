@@ -2114,7 +2114,9 @@ public class ObjectReader
             // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
             result = valueToUpdate;
         } else { // pointing to event other than null
-            result = ctxt.readRootValue(p, _valueType, _findRootDeserializer(ctxt), _valueToUpdate);
+            result = ctxt.readRootValue(p, _valueType,
+                    _findRootDeserializer(ctxt), _valueToUpdate);
+            ctxt.checkUnresolvedObjectId();
         }
         // Need to consume the token too
         p.clearCurrentToken();
@@ -2143,7 +2145,9 @@ public class ObjectReader
                 // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
                 result = _valueToUpdate;
             } else {
-                result = ctxt.readRootValue(p, _valueType, _findRootDeserializer(ctxt), _valueToUpdate);
+                result = ctxt.readRootValue(p, _valueType,
+                        _findRootDeserializer(ctxt), _valueToUpdate);
+                ctxt.checkUnresolvedObjectId();
             }
             // No need to consume the token as parser gets closed anyway
             if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {

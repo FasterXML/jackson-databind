@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -25,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AtomicTypeSerializationTest
     extends DatabindTestUtil
 {
-
     @SuppressWarnings("serial")
     static class UpperCasingSerializer extends StdScalarSerializer<String>
     {
@@ -178,5 +178,16 @@ public class AtomicTypeSerializationTest
     {
         assertEquals(a2q("{'maybeText':'value'}"),
                 MAPPER.writeValueAsString(new MyBean2565()));
+    }
+
+    // [databind#5616]: AtomicReference with subtype, serialization as supertype
+    @Test
+    public void testAtomicReferenceWithSubtypeProperties() throws Exception
+    {
+        String json = MAPPER.writerFor(new TypeReference<AtomicReference<Strategy>>() {})
+                .writeValueAsString(new AtomicReference<>(new Foo(99)));
+
+        // Must include subtype property "foo", not just type info
+        assertEquals("{\"type\":\"Foo\",\"foo\":99}", json);
     }
 }

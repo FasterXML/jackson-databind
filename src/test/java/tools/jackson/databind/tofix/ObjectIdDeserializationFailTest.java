@@ -36,7 +36,7 @@ class ObjectIdDeserializationFailTest extends DatabindTestUtil {
     }
 
     static enum FooEnum {
-        A, B
+        A, B, C
     }
 
     static class DefensiveCompany {
@@ -52,7 +52,6 @@ class ObjectIdDeserializationFailTest extends DatabindTestUtil {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    @JacksonTestFailureExpected
     @Test
     void forwardReferenceInArray() throws Exception {
         String json = "{\"employees\":["

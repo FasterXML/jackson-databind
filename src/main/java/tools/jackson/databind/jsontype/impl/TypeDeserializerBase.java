@@ -117,7 +117,6 @@ public abstract class TypeDeserializerBase
         return (_defaultImpl != null);
     }
 
-    @Override
     public boolean isTypeIdVisible() { return _typeIdVisible; }
 
     /**

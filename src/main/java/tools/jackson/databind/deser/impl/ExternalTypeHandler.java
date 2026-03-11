@@ -10,6 +10,7 @@ import tools.jackson.databind.deser.bean.BeanPropertyMap;
 import tools.jackson.databind.deser.bean.PropertyBasedCreator;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.jsontype.impl.TypeDeserializerBase;
 import tools.jackson.databind.util.TokenBuffer;
 
 /**
@@ -125,7 +126,8 @@ public class ExternalTypeHandler
             _typeIds[index] = typeId;
         }
         // [databind#1329]: return true (= skip setting on bean) when visible=false
-        return !prop.isTypeIdVisible();
+        return !(prop._typeDeserializer instanceof TypeDeserializerBase tdb)
+                || !tdb.isTypeIdVisible();
     }
 
     /**
@@ -536,10 +538,6 @@ public class ExternalTypeHandler
         }
 
         public String getTypePropertyName() { return _typePropertyName; }
-
-        public boolean isTypeIdVisible() {
-            return _typeDeserializer.isTypeIdVisible();
-        }
 
         public SettableBeanProperty getProperty() {
             return _property;

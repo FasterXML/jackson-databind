@@ -901,6 +901,25 @@ public abstract class DeserializationContext
     public abstract void checkUnresolvedObjectId()
         throws UnresolvedForwardReference;
 
+    /**
+     * Method called to update Object Id binding from an intermediate delegate
+     * object to the final bean produced by a delegating {@code @JsonCreator}.
+     * This is needed because when using {@code @JsonIdentityInfo} with delegating
+     * creators, the Object Id gets initially bound to the delegate (intermediate)
+     * object, but needs to point to the final converted bean.
+     *<p>
+     * Default implementation does nothing; overridden by
+     * {@link tools.jackson.databind.deser.DeserializationContextExt}.
+     *
+     * @param delegate The intermediate delegate object that was originally bound
+     * @param newItem The final bean produced by the delegating creator
+     *
+     * @since 3.2
+     */
+    public void updateObjectId(Object delegate, Object newItem) throws JacksonException {
+        // Default no-op; overridden by DeserializationContextExt
+    }
+
     /*
     /**********************************************************************
     /* Public API, type handling

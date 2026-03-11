@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -105,6 +106,44 @@ public class MapEntryFormatTest extends DatabindTestUtil
         }
     }
 
+    // [databind#1419]
+    static class BeanWithMapEntryAsPOJO {
+        @JsonFormat(shape = JsonFormat.Shape.POJO)
+        public Map.Entry<String, String> entry;
+
+        protected BeanWithMapEntryAsPOJO() { }
+
+        protected BeanWithMapEntryAsPOJO(String key, String value) {
+            Map<String, String> map = new HashMap<>();
+            map.put(key, value);
+            entry = map.entrySet().iterator().next();
+        }
+
+        @Override
+        public String toString() {
+            return "[POJO: entry = "+entry+"]";
+        }
+    }
+
+    // [databind#1419]
+    static class BeanWithComplexMapEntryAsPOJO {
+        @JsonFormat(shape = JsonFormat.Shape.POJO)
+        public Map.Entry<List<Integer>, String[]> entry;
+
+        protected BeanWithComplexMapEntryAsPOJO() { }
+
+        protected BeanWithComplexMapEntryAsPOJO(int key, String value) {
+            Map<List<Integer>, String[]> map = new HashMap<>();
+            map.put(Arrays.asList(42), new String[] { value });
+            entry = map.entrySet().iterator().next();
+        }
+
+        @Override
+        public String toString() {
+            return "[POJO: entry = "+entry+"]";
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods, basic
@@ -190,5 +229,49 @@ public class MapEntryFormatTest extends DatabindTestUtil
         Map.Entry<String,String> input = new BeanWithMapEntry("foo", "bar").entry;
         assertTrue(mapper.writeValueAsString(input).equals(a2q("{'key':'foo','value':'bar'}"))
                 || mapper.writeValueAsString(input).equals(a2q("{'value':'bar','key':'foo'}")));
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, as-POJO (Shape) [databind#1419]
+    /**********************************************************
+     */
+
+    // [databind#1419]
+    @Test
+    public void testWrappedAsObjectRoundtrip1419() throws Exception
+    {
+        BeanWithMapEntryAsPOJO input = new BeanWithMapEntryAsPOJO("foo", "bar");
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(a2q("{'entry':{'key':'foo','value':'bar'}}"), json);
+        BeanWithMapEntryAsPOJO result = MAPPER.readValue(json, BeanWithMapEntryAsPOJO.class);
+        assertEquals("foo", result.entry.getKey());
+        assertEquals("bar", result.entry.getValue());
+    }
+
+    // [databind#1419]
+    @Test
+    public void testWrappedAsComplexRoundtrip1419() throws Exception
+    {
+        BeanWithComplexMapEntryAsPOJO input = new BeanWithComplexMapEntryAsPOJO(42, "answer");
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(a2q("{'entry':{'key':[42],'value':['answer']}}"), json);
+        BeanWithComplexMapEntryAsPOJO result = MAPPER.readValue(json,
+                BeanWithComplexMapEntryAsPOJO.class);
+        assertEquals(Arrays.asList(42), result.entry.getKey());
+        assertArrayEquals(new String[] { "answer" }, result.entry.getValue());
+    }
+
+    // [databind#1419]
+    @Test
+    public void testDeserFailWithStructureMismatch1419() throws Exception
+    {
+        final ObjectMapper strictMapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
+        UnrecognizedPropertyException e = assertThrows(UnrecognizedPropertyException.class,
+                () -> strictMapper.readValue(a2q("{'entry':{'notKey': 'value'}}"),
+                        BeanWithMapEntryAsPOJO.class));
+        assertEquals("notKey", e.getPropertyName());
     }
 }

@@ -230,16 +230,33 @@ public class UnwrappedPropertyHandler
      * Helper method to collect property names from a property's deserializer.
      *
      * @return {@code true} if the property deserializer has AnySetter.
+     *
+     * @since 3.1
      */
-    private boolean _collectDeserializerPropertyNames(SettableBeanProperty prop, Set<String> names) {
+    private boolean _collectDeserializerPropertyNames(SettableBeanProperty prop,
+            Set<String> names)
+    {
         if (prop != null) {
             ValueDeserializer<?> deser = prop.getValueDeserializer();
-            if (deser instanceof BeanDeserializerBase bd) {
+            BeanDeserializerBase bd = _findBeanDeser(deser);
+            if (bd != null) {
                 // Recursively collect property names
                 bd.collectAllPropertyNamesTo(names);
                 return bd.hasAnySetter();
             }
         }
         return false;
+    }
+
+    // @since 3.1
+    private BeanDeserializerBase _findBeanDeser(ValueDeserializer<?> deser) {
+        if (deser instanceof BeanDeserializerBase bd) {
+            return bd;
+        }
+        // [databind#5728] handle delegating case
+        if (deser.getDelegatee() instanceof BeanDeserializerBase bd) {
+            return bd;
+        }
+        return null;
     }
 }

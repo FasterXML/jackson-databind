@@ -88,7 +88,6 @@ public class TestDefaultForArrays extends DatabindTestUtil
         assertInstanceOf(JsonNode.class, ob);
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     public void testNodeInEmptyArray() throws Exception
     {

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import tools.jackson.core.JsonParser.NumberType;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.jsonFormatVisitors.*;
@@ -215,6 +216,9 @@ public class NewSchemaTest extends DatabindTestUtil
     public void testBasicTraversal() throws Exception
     {
         MAPPER.acceptJsonFormatVisitor(POJO.class, new BogusJsonFormatVisitorWrapper());
+        MAPPER.acceptJsonFormatVisitor(new TypeReference<POJO>() { },
+                new BogusJsonFormatVisitorWrapper());
+
         MAPPER.acceptJsonFormatVisitor(POJOWithScalars.class, new BogusJsonFormatVisitorWrapper());
         MAPPER.acceptJsonFormatVisitor(LinkedHashMap.class, new BogusJsonFormatVisitorWrapper());
         MAPPER.acceptJsonFormatVisitor(ArrayList.class, new BogusJsonFormatVisitorWrapper());

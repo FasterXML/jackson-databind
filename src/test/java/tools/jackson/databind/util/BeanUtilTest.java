@@ -10,12 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.type.TypeFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BeanUtilTest extends DatabindTestUtil
 {
@@ -80,33 +75,31 @@ public class BeanUtilTest extends DatabindTestUtil
     }
     
     @Test
-    public void testGetDefaultValueForDate()
+    public void testGetDefaultValuesForJDKTypes()
     {
-        TypeFactory tf = defaultTypeFactory();
+        final TypeFactory tf = defaultTypeFactory();
+
+        // java.util.Date
         Object result = BeanUtil.propertyDefaultValue(tf.constructType(Date.class), true);
         assertNotNull(result);
         assertInstanceOf(Date.class, result);
         assertEquals(0L, ((Date) result).getTime());
-    }
 
-    @Test
-    public void testGetDefaultValueForCalendar()
-    {
-        TypeFactory tf = defaultTypeFactory();
-        Object result = BeanUtil.propertyDefaultValue(tf.constructType(Calendar.class), true);
+        // java.util.Calendar
+        result = BeanUtil.propertyDefaultValue(tf.constructType(Calendar.class), true);
         assertNotNull(result);
         assertInstanceOf(Calendar.class, result);
         assertEquals(0L, ((Calendar) result).getTimeInMillis());
-    }
 
-    @Test
-    public void testGetDefaultValueForGregorianCalendar()
-    {
-        TypeFactory tf = defaultTypeFactory();
-        Object result = BeanUtil.propertyDefaultValue(tf.constructType(GregorianCalendar.class), true);
+        // java.util.GregorianCalendar
+        result = BeanUtil.propertyDefaultValue(tf.constructType(GregorianCalendar.class), true);
         assertNotNull(result);
         assertInstanceOf(Calendar.class, result);
         assertEquals(0L, ((Calendar) result).getTimeInMillis());
+
+        // java.util.UUID
+        result = BeanUtil.propertyDefaultValue(tf.constructType(UUID.class), true);
+        assertEquals(JsonInclude.Include.NON_EMPTY, result);
     }
 
     @Deprecated

@@ -25,7 +25,7 @@ public class TestMixinSerForMethods
 
     // base class: just one visible property ('b')
     @SuppressWarnings("unused")
-    static class BaseClass
+    public static class BaseClass
     {
         private String a;
         private String b;
@@ -45,7 +45,7 @@ public class TestMixinSerForMethods
      * able to declare that a method is overridden (compile-time check
      * that our intended mix-in override will match a method)
      */
-    abstract static class MixIn
+    public abstract static class MixIn
         extends BaseClass
     {
         // let's make 'a' visible
@@ -59,7 +59,7 @@ public class TestMixinSerForMethods
         @JsonProperty abstract String getFoobar();
     }
 
-    static class LeafClass
+    public static class LeafClass
         extends BaseClass
     {
         public LeafClass(String a, String b) { super(a, b); }
@@ -69,9 +69,9 @@ public class TestMixinSerForMethods
         public String takeB() { return null; }
     }
 
-    static class EmptyBean { }
+    public static class EmptyBean { }
 
-    static class SimpleBean extends EmptyBean
+    public static class SimpleBean extends EmptyBean
     {
         int x() { return 42; }
     }
@@ -80,7 +80,7 @@ public class TestMixinSerForMethods
      * This mix-in is to be attached to EmptyBean, but really modify
      * methods that its subclass, SimpleBean, has.
      */
-    abstract class MixInForSimple
+    public abstract class MixInForSimple
     {
         // This should apply to sub-class
         @JsonProperty("x") abstract int x();
@@ -104,7 +104,7 @@ public class TestMixinSerForMethods
      * that masked methods (fields etc) have.
      */
     @Test
-    public void testLeafMixin() throws IOException
+    void testLeafMixin() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> result;
@@ -131,7 +131,7 @@ public class TestMixinSerForMethods
      * further by a sub-class) works as expected
      */
     @Test
-    public void testIntermediateMixin() throws IOException
+    void testIntermediateMixin() throws IOException
     {
         Map<String,Object> result;
         LeafClass bean = new LeafClass("XXX", "b2");
@@ -149,7 +149,7 @@ public class TestMixinSerForMethods
      * properly "trickle up"
      */
     @Test
-    public void testIntermediateMixin2() throws IOException
+    void testIntermediateMixin2() throws IOException
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(EmptyBean.class, MixInForSimple.class)
@@ -160,7 +160,7 @@ public class TestMixinSerForMethods
     }
 
     @Test
-    public void testSimpleMixInResolverHasMixins() {
+    void testSimpleMixInResolverHasMixins() {
         MixInHandler simple = new MixInHandler(null);
         assertFalse(simple.hasMixIns());
         simple.addLocalDefinition(String.class, Number.class);
@@ -169,7 +169,7 @@ public class TestMixinSerForMethods
 
     // [databind#688]
     @Test
-    public void testCustomResolver() throws IOException
+    void testCustomResolver() throws IOException
     {
         final MixInResolver res = new MixInResolver() {
             @Override

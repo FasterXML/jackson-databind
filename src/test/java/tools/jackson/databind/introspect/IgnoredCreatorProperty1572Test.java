@@ -1,5 +1,7 @@
 package tools.jackson.databind.introspect;
 
+import java.beans.ConstructorProperties;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
@@ -54,6 +56,18 @@ public class IgnoredCreatorProperty1572Test extends DatabindTestUtil
         }
     }
 
+    // [databind#2001]
+    static public class Foo2001 {
+        @JsonIgnore
+        public String query;
+
+        @JsonCreator
+        @ConstructorProperties("rawQuery")
+        public Foo2001(@JsonProperty("query") String rawQuery) {
+            query = rawQuery;
+        }
+    }
+
     /*
     /********************************************************
     /* Test methods
@@ -75,5 +89,12 @@ public class IgnoredCreatorProperty1572Test extends DatabindTestUtil
         assertNotNull(result);
         assertNotNull(result.innerTest);
         assertEquals("otherStr", result.innerTest.otherStr);
+    }
+
+    // [databind#2001]
+    @Test
+    public void testIgnoredFieldPresentInPropertyCreator() throws Exception {
+        Foo2001 deserialized = newJsonMapper().readValue("{\"query\": \"bar\"}", Foo2001.class);
+        assertEquals("bar", deserialized.query);
     }
 }

@@ -164,7 +164,7 @@ public class TestVisibleTypeId extends DatabindTestUtil
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testVisibleWithProperty() throws Exception
@@ -271,11 +271,8 @@ public class TestVisibleTypeId extends DatabindTestUtil
     @Test
     public void testInvalidMultipleTypeIds() throws Exception
     {
-        try {
-            MAPPER.writeValueAsString(new MultipleIds());
-            fail("Should have failed");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "multiple type ids");
-        }
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> MAPPER.writeValueAsString(new MultipleIds()));
+        verifyException(e, "multiple type ids");
     }
 }

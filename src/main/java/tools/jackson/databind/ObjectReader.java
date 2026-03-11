@@ -833,6 +833,13 @@ public class ObjectReader
     }
 
     /**
+     * @since 3.1
+     */
+    public JsonNodeFactory jsonNodeFactory() {
+        return _config.getNodeFactory();
+    }
+
+    /**
      * @since 3.0
      */
     public TokenStreamFactory parserFactory() {
@@ -1104,9 +1111,9 @@ public class ObjectReader
         return treeAsTokens(n, _deserializationContext());
     }
 
-    protected JsonParser treeAsTokens(JsonNode n, DeserializationContext ctxt) {
+    protected JsonParser treeAsTokens(JsonNode n, DeserializationContextExt ctxt) {
         _assertNotNull("n", n);
-        return new TreeTraversingParser(n, ctxt);
+        return ctxt.assignAndReturnParser(new TreeTraversingParser(n, ctxt));
     }
 
     /**
@@ -1793,7 +1800,9 @@ public class ObjectReader
 
     public <T> T treeToValue(JsonNode n, Class<T> valueType) throws JacksonException
     {
-        _assertNotNull("n", n);
+        if (n == null) {
+            return null;
+        }
         return forType(valueType).readValue(treeAsTokens(n));
     }
 
@@ -1807,7 +1816,9 @@ public class ObjectReader
      */
     public <T> T treeToValue(JsonNode n, JavaType valueType) throws JacksonException
     {
-        _assertNotNull("n", n);
+        if (n == null) {
+            return null;
+        }
         return forType(valueType).readValue(treeAsTokens( n));
     }
 

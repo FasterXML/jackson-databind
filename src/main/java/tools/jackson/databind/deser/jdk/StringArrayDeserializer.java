@@ -352,7 +352,8 @@ public final class StringArrayDeserializer
             return new String[] { value };
         }
         if (p.hasToken(JsonToken.VALUE_STRING)) {
-            return _deserializeFromString(p, ctxt);
+            // [databind#3349]: for non-empty strings, delegate to handleUnexpectedToken
+            return _deserializeFromStringForContainer(p, ctxt);
         }
         return (String[]) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }

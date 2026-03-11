@@ -5,10 +5,7 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.type.TypeReference;
 
@@ -225,6 +222,46 @@ public class EnumCreatorTest extends DatabindTestUtil
             for (Enum3280 e : Enum3280.values()) {
                 if (e.value.equals(value)) {
                     return e;
+                }
+            }
+            return null;
+        }
+    }
+
+    // [databind#5395]: @JsonCreator on Enum supporting both DELEGATING and PROPERTIES mode
+    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+    @JsonIncludeProperties({"code", "desc"})
+    enum ChannelEnum {
+        ALIPAY(0, "Alipay"),
+        WECHAT(1, "WeChat");
+
+        private final int code;
+        private final String desc;
+
+        ChannelEnum(int code, String desc) {
+            this.code = code;
+            this.desc = desc;
+        }
+
+        @JsonProperty("code")
+        public int getCode() {
+            return code;
+        }
+
+        @JsonProperty("desc")
+        public String getDesc() {
+            return desc;
+        }
+
+        @JsonCreator
+        private static ChannelEnum ofCode(@JsonProperty("code") String code) {
+            if (code == null) {
+                return null;
+            }
+            int codeInt = Integer.parseInt(code);
+            for (ChannelEnum ch : values()) {
+                if (ch.code == codeInt) {
+                    return ch;
                 }
             }
             return null;
@@ -448,5 +485,29 @@ public class EnumCreatorTest extends DatabindTestUtil
         DataClass4544 data = mapper.readValue(json, DataClass4544.class);
 
         assertEquals(DataEnum4544.TEST, data.data);
+    }
+
+    // [databind#5395]: Test PROPERTIES mode: deserialize from JSON object {"code": 1}
+    @Test
+    public void testEnumDualModeProperties5395() throws Exception {
+        String json = a2q("{'code': 1}");
+        ChannelEnum channel = MAPPER.readValue(json, ChannelEnum.class);
+        assertSame(ChannelEnum.WECHAT, channel);
+    }
+
+    // [databind#5395]: Test DELEGATING mode: deserialize from scalar value 1
+    @Test
+    public void testEnumDualModeDelegating5395() throws Exception {
+        String json = "1";
+        ChannelEnum channel = MAPPER.readValue(json, ChannelEnum.class);
+        assertSame(ChannelEnum.WECHAT, channel);
+    }
+
+    // [databind#5395]: Test with missing "code" property: should return null
+    @Test
+    public void testEnumDualModeNoCode5395() throws Exception {
+        String json = a2q("{'desc': 'Alipay'}");
+        ChannelEnum channel = MAPPER.readValue(json, ChannelEnum.class);
+        assertNull(channel);
     }
 }

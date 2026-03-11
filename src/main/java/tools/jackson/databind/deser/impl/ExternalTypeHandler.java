@@ -10,6 +10,7 @@ import tools.jackson.databind.deser.bean.BeanPropertyMap;
 import tools.jackson.databind.deser.bean.PropertyBasedCreator;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.jsontype.impl.TypeDeserializerBase;
 import tools.jackson.databind.util.TokenBuffer;
 
 /**
@@ -76,6 +77,10 @@ public class ExternalTypeHandler
      * containing POJO has similarly named property as the external type id AND
      * value is of scalar type:
      * otherwise {@link #handlePropertyValue} should be called instead.
+     *
+     * @return {@code true} if the property was handled as an external type id
+     *   AND the type id is NOT visible (meaning: caller should skip setting
+     *   this property on the bean); {@code false} otherwise
      */
     @SuppressWarnings("unchecked")
     public boolean handleTypePropertyValue(JsonParser p, DeserializationContext ctxt,
@@ -120,7 +125,13 @@ public class ExternalTypeHandler
         } else {
             _typeIds[index] = typeId;
         }
-        return true;
+        // [databind#1329]: return true (= skip setting on bean) when visible=false
+        //   unless EXTERNAL_TYPE_ID_ALWAYS_VISIBLE is enabled
+        if (ctxt.isEnabled(MapperFeature.EXTERNAL_TYPE_ID_ALWAYS_VISIBLE)) {
+            return false;
+        }
+        return !(prop._typeDeserializer instanceof TypeDeserializerBase tdb)
+                || !tdb.isTypeIdVisible();
     }
 
     /**

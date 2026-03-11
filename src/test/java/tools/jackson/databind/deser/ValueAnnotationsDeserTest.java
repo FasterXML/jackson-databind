@@ -134,6 +134,30 @@ public class ValueAnnotationsDeserTest
         }
     }
 
+    // @JsonDeserializeAs variants of CollectionHolder/MapHolder
+
+    static class CollectionHolder2
+    {
+        Collection<String> _strings;
+
+        @JsonDeserializeAs(TreeSet.class)
+        public void setStrings(Collection<String> s)
+        {
+            _strings = s;
+        }
+    }
+
+    static class MapHolder2
+    {
+        Map<String,String> _data;
+
+        @JsonDeserializeAs(TreeMap.class)
+        public void setStrings(Map<String,String> s)
+        {
+            _data = s;
+        }
+    }
+
     /* Another class for testing valid {@link JsonDeserialize} annotation
      * with 'as' parameter, but with array
      */
@@ -145,6 +169,17 @@ public class ValueAnnotationsDeserTest
         public void setStrings(Object[] o)
         {
             // should be passed instances of proper type, as per annotation
+            _strings = (String[]) o;
+        }
+    }
+
+    static class ArrayHolder2
+    {
+        String[] _strings;
+
+        @JsonDeserializeAs(String[].class)
+        public void setStrings(Object[] o)
+        {
             _strings = (String[]) o;
         }
     }
@@ -263,6 +298,40 @@ public class ValueAnnotationsDeserTest
         }
     }
 
+    // @JsonDeserializeAs variants of content classes
+
+    final static class ListContentHolder2
+    {
+        List<?> _list;
+
+        @JsonDeserializeAs(content=StringWrapper.class)
+        public void setList(List<?> l) {
+            _list = l;
+        }
+    }
+
+    final static class ArrayContentHolder2
+    {
+        Object[] _data;
+
+        @JsonDeserializeAs(content=Long.class)
+        public void setData(Object[] o)
+        {
+            _data = o;
+        }
+    }
+
+    final static class MapContentHolder2
+    {
+        Map<Object,Object> _map;
+
+        @JsonDeserializeAs(content=Integer.class)
+        public void setMap(Map<Object,Object> m)
+        {
+            _map = m;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods for @JsonDeserialize#as
@@ -302,6 +371,43 @@ public class ValueAnnotationsDeserTest
     {
         ArrayHolder result = MAPPER.readValue
             ("{ \"strings\" : [ \"test\" ] }", ArrayHolder.class);
+
+        String[] strs = result._strings;
+        assertEquals(1, strs.length);
+        assertEquals(String[].class, strs.getClass());
+        assertEquals("test", strs[0]);
+    }
+
+    @Test
+    public void testOverrideClassValidNew() throws Exception
+    {
+        CollectionHolder2 result = MAPPER.readValue
+            ("{ \"strings\" : [ \"test\" ] }", CollectionHolder2.class);
+
+        Collection<String> strs = result._strings;
+        assertEquals(1, strs.size());
+        assertEquals(TreeSet.class, strs.getClass());
+        assertEquals("test", strs.iterator().next());
+    }
+
+    @Test
+    public void testOverrideMapValidNew() throws Exception
+    {
+        MapHolder2 result = MAPPER.readValue
+            ("{ \"strings\" :  { \"a\" : 3 } }", MapHolder2.class);
+
+        Map<String,String> strs = result._data;
+        assertEquals(1, strs.size());
+        assertEquals(TreeMap.class, strs.getClass());
+        String value = strs.get("a");
+        assertEquals("3", value);
+    }
+
+    @Test
+    public void testOverrideArrayClassNew() throws Exception
+    {
+        ArrayHolder2 result = MAPPER.readValue
+            ("{ \"strings\" : [ \"test\" ] }", ArrayHolder2.class);
 
         String[] strs = result._strings;
         assertEquals(1, strs.length);
@@ -478,6 +584,43 @@ public class ValueAnnotationsDeserTest
     {
         MapContentHolder result = MAPPER.readValue("{ \"map\" : { \"a\" : 9 } }",
                                                 MapContentHolder.class);
+        Map<Object,Object> map = result._map;
+        assertEquals(1, map.size());
+        Object ob = map.values().iterator().next();
+        assertEquals(Integer.class, ob.getClass());
+        assertEquals(Integer.valueOf(9), ob);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testOverrideContentClassValidNew() throws Exception
+    {
+        ListContentHolder2 result = MAPPER.readValue("{ \"list\" : [ \"abc\" ] }", ListContentHolder2.class);
+        List<StringWrapper> list = (List<StringWrapper>)result._list;
+        assertEquals(1, list.size());
+        Object value = list.get(0);
+        assertEquals(StringWrapper.class, value.getClass());
+        assertEquals("abc", ((StringWrapper) value)._string);
+    }
+
+    @Test
+    public void testOverrideArrayContentsNew() throws Exception
+    {
+        ArrayContentHolder2 result = MAPPER.readValue("{ \"data\" : [ 1, 2, 3 ] }",
+                                                ArrayContentHolder2.class);
+        Object[] data = result._data;
+        assertEquals(3, data.length);
+        assertEquals(Long[].class, data.getClass());
+        assertEquals(1L, data[0]);
+        assertEquals(2L, data[1]);
+        assertEquals(3L, data[2]);
+    }
+
+    @Test
+    public void testOverrideMapContentsNew() throws Exception
+    {
+        MapContentHolder2 result = MAPPER.readValue("{ \"map\" : { \"a\" : 9 } }",
+                                                MapContentHolder2.class);
         Map<Object,Object> map = result._map;
         assertEquals(1, map.size());
         Object ob = map.values().iterator().next();

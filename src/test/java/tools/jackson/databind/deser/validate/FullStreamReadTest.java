@@ -34,7 +34,12 @@ public class FullStreamReadTest extends DatabindTestUtil
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
+    private final JsonMapper STRICT_MAPPER = JsonMapper.builder()
+            .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+            .build();
 
+    private final ObjectReader STRICT_R = STRICT_MAPPER.reader();
+    
     @Test
     public void testMapperAcceptTrailing()
     {
@@ -121,18 +126,14 @@ public class FullStreamReadTest extends DatabindTestUtil
     @Test
     public void testMapperFailOnTrailingWithNull()
     {
-        final JsonMapper strict = JsonMapper.builder()
-                .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
-                .build();
-
         // some still ok
-        JsonNode n = strict.readTree(JSON_OK_NULL);
+        JsonNode n = STRICT_MAPPER.readTree(JSON_OK_NULL);
         assertNotNull(n);
         assertTrue(n.isNull());
 
         // but if real content exists, will fail
         try {
-            strict.readTree(JSON_FAIL_NULL);
+            STRICT_MAPPER.readTree(JSON_FAIL_NULL);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
             verifyException(e, "Trailing token (`JsonToken.VALUE_FALSE`)");
@@ -140,7 +141,7 @@ public class FullStreamReadTest extends DatabindTestUtil
         }
 
         try {
-            strict.readValue(JSON_FAIL_NULL, List.class);
+            STRICT_MAPPER.readValue(JSON_FAIL_NULL, List.class);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
             verifyException(e, "Trailing token (`JsonToken.VALUE_FALSE`)");
@@ -150,21 +151,21 @@ public class FullStreamReadTest extends DatabindTestUtil
         // others fail conditionally: will fail on comments unless enabled
 
         try {
-            strict.readValue(JSON_OK_NULL_WITH_COMMENT, Object.class);
+            STRICT_MAPPER.readValue(JSON_OK_NULL_WITH_COMMENT, Object.class);
             fail("Should not have passed");
         } catch (StreamReadException e) {
             verifyException(e, "Unexpected character");
             verifyException(e, "maybe a (non-standard) comment");
         }
         try {
-            strict.readTree(JSON_OK_NULL_WITH_COMMENT);
+            STRICT_MAPPER.readTree(JSON_OK_NULL_WITH_COMMENT);
             fail("Should not have passed");
         } catch (StreamReadException e) {
             verifyException(e, "Unexpected character");
             verifyException(e, "maybe a (non-standard) comment");
         }
 
-        ObjectReader strictWithComments = strict.reader()
+        ObjectReader strictWithComments = STRICT_R
                 .with(JsonReadFeature.ALLOW_JAVA_COMMENTS);
         n = strictWithComments.readTree(JSON_OK_NULL);
         assertNotNull(n);
@@ -193,9 +194,8 @@ public class FullStreamReadTest extends DatabindTestUtil
     @Test
     public void testReaderFailOnTrailing()
     {
-        ObjectReader strictR = MAPPER.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
-        ObjectReader strictRForList = strictR.forType(List.class);
-        _verifyArray(strictR.readTree(JSON_OK_ARRAY));
+        ObjectReader strictRForList = STRICT_R.forType(List.class);
+        _verifyArray(STRICT_R.readTree(JSON_OK_ARRAY));
         _verifyCollection((List<?>)strictRForList.readValue(JSON_OK_ARRAY));
 
         // Will fail hard if there is a trailing token
@@ -207,7 +207,7 @@ public class FullStreamReadTest extends DatabindTestUtil
             verifyException(e, "value (bound as `java.util.List`)");
         }
         try {
-            strictR.readTree(JSON_FAIL_ARRAY);
+            STRICT_R.readTree(JSON_FAIL_ARRAY);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
             verifyException(e, "Trailing token (`JsonToken.START_ARRAY`)");
@@ -216,7 +216,7 @@ public class FullStreamReadTest extends DatabindTestUtil
 
         // ... also verify that same happens with "value to update"
         try {
-            strictR.withValueToUpdate(new ArrayList<Object>())
+            STRICT_R.withValueToUpdate(new ArrayList<Object>())
                 .readValue(JSON_FAIL_ARRAY);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
@@ -234,7 +234,7 @@ public class FullStreamReadTest extends DatabindTestUtil
             verifyException(e, "maybe a (non-standard) comment");
         }
         try {
-            strictR.readTree(JSON_OK_ARRAY_WITH_COMMENT);
+            STRICT_R.readTree(JSON_OK_ARRAY_WITH_COMMENT);
             fail("Should not have passed");
         } catch (StreamReadException e) {
             verifyException(e, "Unexpected character");
@@ -243,7 +243,7 @@ public class FullStreamReadTest extends DatabindTestUtil
 
         // but works if comments enabled etc
 
-        ObjectReader strictRWithComments = strictR.with(JsonReadFeature.ALLOW_JAVA_COMMENTS);
+        ObjectReader strictRWithComments = STRICT_R.with(JsonReadFeature.ALLOW_JAVA_COMMENTS);
 
         _verifyCollection((List<?>)strictRWithComments.forType(List.class).readValue(JSON_OK_ARRAY_WITH_COMMENT));
         _verifyArray(strictRWithComments.readTree(JSON_OK_ARRAY_WITH_COMMENT));
@@ -252,9 +252,8 @@ public class FullStreamReadTest extends DatabindTestUtil
     @Test
     public void testReaderFailOnTrailingWithNull()
     {
-        ObjectReader strictR = MAPPER.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
-        ObjectReader strictRForList = strictR.forType(List.class);
-        JsonNode n = strictR.readTree(JSON_OK_NULL);
+        ObjectReader strictRForList = STRICT_R.forType(List.class);
+        JsonNode n = STRICT_R.readTree(JSON_OK_NULL);
         assertTrue(n.isNull());
 
         // Will fail hard if there is a trailing token
@@ -267,7 +266,7 @@ public class FullStreamReadTest extends DatabindTestUtil
         }
 
         try {
-            strictR.readTree(JSON_FAIL_NULL);
+            STRICT_R.readTree(JSON_FAIL_NULL);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
             verifyException(e, "Trailing token (`JsonToken.VALUE_FALSE`)");
@@ -284,7 +283,7 @@ public class FullStreamReadTest extends DatabindTestUtil
             verifyException(e, "maybe a (non-standard) comment");
         }
         try {
-            strictR.readTree(JSON_OK_NULL_WITH_COMMENT);
+            STRICT_R.readTree(JSON_OK_NULL_WITH_COMMENT);
             fail("Should not have passed");
         } catch (StreamReadException e) {
             verifyException(e, "Unexpected character");
@@ -293,11 +292,25 @@ public class FullStreamReadTest extends DatabindTestUtil
 
         // but works if comments enabled etc
 
-        ObjectReader strictRWithComments = strictR.with(JsonReadFeature.ALLOW_JAVA_COMMENTS);
+        ObjectReader strictRWithComments = STRICT_R.with(JsonReadFeature.ALLOW_JAVA_COMMENTS);
         Object ob = strictRWithComments.forType(List.class).readValue(JSON_OK_NULL_WITH_COMMENT);
         assertNull(ob);
     }
 
+    @Test
+    public void testReaderFailOnTrailingWithUpdateValue()
+    {
+        ObjectReader r = STRICT_R.withValueToUpdate(new HashMap<String,Object>());
+        try {
+            r.readTree("{ } false");
+            fail("Should not have passed");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Trailing token (`JsonToken.VALUE_FALSE`)");
+            verifyException(e, "value (bound as `java.util.HashMap`)");
+        }
+
+    }
+    
     private void _verifyArray(JsonNode n)
     {
         assertTrue(n.isArray());

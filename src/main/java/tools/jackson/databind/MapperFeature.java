@@ -528,7 +528,49 @@ public enum MapperFeature
      *
      * @since 2.13
      */
-    APPLY_DEFAULT_VALUES(true)
+    APPLY_DEFAULT_VALUES(true),
+
+    /**
+     * Setting that determines how {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}
+     * works when set as the global default property inclusion (via
+     * {@code MapperBuilder.changeDefaultPropertyInclusion()}).
+     *<p>
+     * When disabled ({@code false}), global {@code NON_DEFAULT} uses static type-based
+     * defaults ({@code null} for objects, {@code 0} for primitives, {@code ""} for Strings).
+     * This can break round-trip consistency when bean fields have non-trivial default values
+     * (e.g. {@code String field = "a default"}).
+     *<p>
+     * When enabled ({@code true}), global {@code NON_DEFAULT} behaves the same as
+     * per-class {@code @JsonInclude(NON_DEFAULT)}: it instantiates the bean using
+     * the no-arg constructor and compares property values against that default instance.
+     * This ensures round-trip consistency: values that match the constructor defaults
+     * are suppressed during serialization and restored by the constructor during
+     * deserialization.
+     *<p>
+     * Feature is disabled by default for backwards-compatibility.
+     *
+     * @since 3.2
+     */
+    USE_REAL_INCLUDE_NON_DEFAULT(false),
+
+    /**
+     * Feature that, when enabled, forces external type id properties
+     * (see {@link com.fasterxml.jackson.annotation.JsonTypeInfo.As#EXTERNAL_PROPERTY})
+     * to always be visible to the containing bean, regardless of the
+     * {@code visible} setting in {@link com.fasterxml.jackson.annotation.JsonTypeInfo}.
+     * This restores pre-3.2 behavior where external type id properties were
+     * always deserialized into bean properties even when {@code visible=false}
+     * (the default) (see https://github.com/FasterXML/jackson-databind/issues/1329 for
+     * details)
+     *<p>
+     * When disabled (default), {@code visible=false} is respected and external
+     * type id properties are only used for type resolution, not set on the bean.
+     *<p>
+     * Feature is disabled by default.
+     *
+     * @since 3.2
+     */
+    EXTERNAL_TYPE_ID_ALWAYS_VISIBLE(false)
     ;
 
     private final boolean _defaultState;

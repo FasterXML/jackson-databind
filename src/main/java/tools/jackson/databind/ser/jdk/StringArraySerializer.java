@@ -136,10 +136,8 @@ public class StringArraySerializer
                             }
                         }
                         break;
+                    // these 2 cases behave similarly
                     case NON_ABSENT:
-                        suppressNulls = true;
-                        valueToSuppress = MARKER_FOR_EMPTY;
-                        break;
                     case NON_EMPTY:
                         suppressNulls = true;
                         valueToSuppress = MARKER_FOR_EMPTY;

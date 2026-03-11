@@ -265,6 +265,52 @@ public abstract class StdDeserializer<T>
                 value);
     }
 
+    /**
+     * Helper method for handling a String token during deserialization of
+     * a container type (Collection, Map, array etc).
+     * Checks for String-argument creator first, then empty/blank String coercion,
+     * and finally delegates to
+     * {@link DeserializationContext#handleUnexpectedToken(JavaType, JsonParser)}.
+     *<p>
+     * NOTE: compared to {@link #_deserializeFromString}, this method does NOT try
+     * coercions from String to numeric/boolean types, and does NOT call
+     * {@link DeserializationContext#handleMissingInstantiator} as a fallback: instead,
+     * calls {@link DeserializationContext#handleUnexpectedToken}.
+     *<p>
+     * [databind#3349]: Previously, some container deserializers called
+     * {@link #_deserializeFromString} which incorrectly routed
+     * non-empty Strings through {@code handleMissingInstantiator} instead of
+     * {@code handleUnexpectedToken}.
+     *
+     * @since 3.1
+     */
+    @SuppressWarnings("unchecked")
+    protected T _deserializeFromStringForContainer(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        final ValueInstantiator inst = getValueInstantiator();
+        final Class<?> rawTargetType = handledType();
+
+        if ((inst != null) && inst.canCreateFromString()) {
+            return (T) inst.createFromString(ctxt, p.getValueAsString());
+        }
+        String value = p.getValueAsString();
+        if (value.isEmpty()) {
+            final CoercionAction act = ctxt.findCoercionAction(logicalType(), rawTargetType,
+                    CoercionInputShape.EmptyString);
+            if (act != null) {
+                return (T) _deserializeFromEmptyString(p, ctxt, act,
+                        rawTargetType, "empty String (\"\")");
+            }
+        } else if (_isBlank(value)) {
+            final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), rawTargetType,
+                    CoercionAction.Fail);
+            return (T) _deserializeFromEmptyString(p, ctxt, act,
+                    rawTargetType, "blank String (all whitespace)");
+        }
+        return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+    }
+
     protected Object _deserializeFromEmptyString(JsonParser p, DeserializationContext ctxt,
             CoercionAction act, Class<?> rawTargetType, String desc) throws JacksonException
     {
@@ -1938,6 +1984,19 @@ inputDesc, _coercedTypeDesc(targetType));
                 return NullsFailProvider.constructForRootValue(type);
             }
             return NullsFailProvider.constructForProperty(prop, prop.getType().getContentType());
+        }
+        // 17-Feb-2026, tatu: [databind#3084] for content nulls, do not validate eagerly
+        //    whether the element type has a default constructor. The error should only fire
+        //    lazily if/when a null element is actually encountered during deserialization.
+        if (nulls == Nulls.AS_EMPTY) {
+            AccessPattern access = valueDeser.getEmptyAccessPattern();
+            if (access == AccessPattern.ALWAYS_NULL) {
+                return NullsConstantProvider.nuller();
+            }
+            if (access == AccessPattern.CONSTANT) {
+                return NullsConstantProvider.forValue(valueDeser.getEmptyValue(ctxt));
+            }
+            return new NullsAsEmptyProvider(valueDeser);
         }
 
         NullValueProvider prov = _findNullProvider(ctxt, prop, nulls, valueDeser);

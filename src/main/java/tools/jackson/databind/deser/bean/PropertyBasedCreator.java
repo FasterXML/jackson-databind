@@ -140,7 +140,7 @@ public final class PropertyBasedCreator
     }
 
     /**
-     * Factory method used for building actual instances to be used with POJOS:
+     * Factory method used for building actual instances to be used with POJOs:
      * resolves deserializers, checks for "null values".
      */
     public static PropertyBasedCreator construct(DeserializationContext ctxt,

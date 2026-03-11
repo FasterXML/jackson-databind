@@ -302,6 +302,11 @@ Benson Margulies (@benson-basis)
  * Reported #1281: `@JsonIgnoreProperties` should work for "any getter" (for serialization)
   [3.2.0]
 
+Raman Gupta (@rocketraman)
+ * Reported #1329: External type property (`@JsonTypeInfo(include = As.EXTERNAL_PROPERTY`))
+   deserialized even if `visible = false`
+  [3.2.0]
+  
 Balys Valentukevicius (@balysv)
  * Reported #1706: `@JsonCreator` not working properly with `@JsonIdentityInfo` when
    deserializing a collection of interfaces (immutables.io compatibility)

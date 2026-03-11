@@ -14,7 +14,7 @@ import tools.jackson.databind.util.TokenBuffer;
  */
 public abstract class PropertyValue
 {
-    public final PropertyValue next;
+    public PropertyValue next;
 
     /**
      * Value to assign when POJO has been instantiated.

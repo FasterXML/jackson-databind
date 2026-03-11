@@ -326,6 +326,10 @@ Andrzej Leśkiewicz (@aleskiewicz)
  * Reported #3573: Inconsistent handling of nil `UUID` in property inclusion
   [3.2.0]
 
+Eran Leshem (@eranl)
+ * Suggested #5353: Preserve order of `@JsonAnySetter` creator property arguments
+  [3.2.0]
+
 Martin Uhlen (@MartinUhlen)
  * Reported #5734: `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` treats
    absent field same as explicit `null`

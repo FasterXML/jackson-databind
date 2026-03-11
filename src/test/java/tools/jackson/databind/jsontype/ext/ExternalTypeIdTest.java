@@ -176,7 +176,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     static class House831 {
         protected String petType;
 
-        @JsonTypeInfo(use = Id.NAME, include = As.EXTERNAL_PROPERTY, property = "petType")
+        @JsonTypeInfo(use = Id.NAME, include = As.EXTERNAL_PROPERTY, property = "petType", visible = true)
         @JsonSubTypes({@JsonSubTypes.Type(name = "dog", value = Dog.class)})
         public Pet pet;
 
@@ -280,7 +280,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
             return value;
         }
 
-        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type", visible = true)
         @JsonSubTypes({ @JsonSubTypes.Type(name = "BIG_DECIMAL", value = BigDecimal.class) })
         @JsonSetter(value = "objectValue")
         private void setValue(Object value) {
@@ -758,13 +758,13 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     }
 
     static class Container291 {
-        @JsonTypeInfo(use = Id.NAME, property = "type", include = As.EXTERNAL_PROPERTY)
+        @JsonTypeInfo(use = Id.NAME, property = "type", include = As.EXTERNAL_PROPERTY, visible = true)
         @JsonSubTypes({
                 @JsonSubTypes.Type(value = A291.class, name = "1"),
                 @JsonSubTypes.Type(value = B291.class, name = "2")})
         public F1_291 field1;
 
-        @JsonTypeInfo(use = Id.NAME, property = "type", include = As.EXTERNAL_PROPERTY)
+        @JsonTypeInfo(use = Id.NAME, property = "type", include = As.EXTERNAL_PROPERTY, visible = true)
         @JsonSubTypes({
                 @JsonSubTypes.Type(value = C291.class, name = "1"),
                 @JsonSubTypes.Type(value = D291.class, name = "2")})

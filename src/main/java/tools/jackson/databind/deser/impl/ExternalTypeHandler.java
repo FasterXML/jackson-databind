@@ -71,47 +71,15 @@ public class ExternalTypeHandler
     }
 
     /**
-     * Method to check whether a property with given name should be set on
-     * the bean. Returns {@code false} only if the property is an external
-     * type id property with {@code visible=false}: in that case, it should
-     * only be used for type resolution and not set on the bean.
-     * Returns {@code true} for all other properties (including non-type-id
-     * properties).
-     *
-     * @since 3.0
-     */
-    @SuppressWarnings("unchecked")
-    public boolean shouldSetTypeProperty(String propName) {
-        Object ob = _nameToPropertyIndex.get(propName);
-        if (ob == null) {
-            // Not an external type property, so should be set normally
-            return true;
-        }
-        if (ob instanceof List<?>) {
-            for (Integer index : (List<Integer>) ob) {
-                ExtTypedProperty prop = _properties[index];
-                if (prop.hasTypePropertyName(propName)) {
-                    return prop.isTypeIdVisible();
-                }
-            }
-            // Property name found but not as a type property name
-            return true;
-        }
-        int index = ((Integer) ob).intValue();
-        ExtTypedProperty prop = _properties[index];
-        if (prop.hasTypePropertyName(propName)) {
-            return prop.isTypeIdVisible();
-        }
-        // Property name found but not as a type property name
-        return true;
-    }
-
-    /**
      * Method called to see if given property/value pair is an external type
      * id; and if so handle it. This is <b>only</b> to be called in case
      * containing POJO has similarly named property as the external type id AND
      * value is of scalar type:
      * otherwise {@link #handlePropertyValue} should be called instead.
+     *
+     * @return {@code true} if the property was handled as an external type id
+     *   AND the type id is NOT visible (meaning: caller should skip setting
+     *   this property on the bean); {@code false} otherwise
      */
     @SuppressWarnings("unchecked")
     public boolean handleTypePropertyValue(JsonParser p, DeserializationContext ctxt,
@@ -156,7 +124,8 @@ public class ExternalTypeHandler
         } else {
             _typeIds[index] = typeId;
         }
-        return true;
+        // [databind#1329]: return true (= skip setting on bean) when visible=false
+        return !prop.isTypeIdVisible();
     }
 
     /**

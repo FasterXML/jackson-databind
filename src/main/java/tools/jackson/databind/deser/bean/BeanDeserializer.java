@@ -1320,16 +1320,12 @@ public class BeanDeserializer
                 SettableBeanProperty prop = _propsByIndex[ix];
                 JsonToken t = p.nextToken();
                 // [JACKSON-831]: may have property AND be used as external type id:
-                if (t.isScalarValue()) {
-                    ext.handleTypePropertyValue(p, ctxt, p.currentName(), bean);
-                }
-                if (activeView != null && !prop.visibleInView(activeView)) {
-                    p.skipChildren();
+                // [databind#1329]: if so, and visible=false, skip setting on bean
+                if (t.isScalarValue()
+                        && ext.handleTypePropertyValue(p, ctxt, p.currentName(), bean)) {
                     continue;
                 }
-                // [databind#1329]: If this property is an external type id
-                //   with visible=false, skip setting it on the bean
-                if (!ext.shouldSetTypeProperty(p.currentName())) {
+                if (activeView != null && !prop.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;
                 }
@@ -1415,13 +1411,9 @@ public class BeanDeserializer
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
                 // [databind#3045]: may have property AND be used as external type id:
-                if (t.isScalarValue()) {
-                    ext.handleTypePropertyValue(p, ctxt, propName, null);
-                }
-                // [databind#1329]: If this property is an external type id
-                //   with visible=false, skip buffering it
-                if (!ext.shouldSetTypeProperty(propName)) {
-                    p.skipChildren();
+                // [databind#1329]: if so, and visible=false, skip buffering
+                if (t.isScalarValue()
+                        && ext.handleTypePropertyValue(p, ctxt, propName, null)) {
                     continue;
                 }
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));

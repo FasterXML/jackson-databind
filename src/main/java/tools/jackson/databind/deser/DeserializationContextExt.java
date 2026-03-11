@@ -121,13 +121,11 @@ public abstract class DeserializationContextExt
     @Override
     public void updateObjectId(Object delegate, Object newItem) throws JacksonException
     {
-        if (_objectIds == null) {
-            return;
-        }
-        for (ReadableObjectId roid : _objectIds.values()) {
-            if (roid.resolve() == delegate) {
-                roid.replaceBoundItem(newItem);
-                return;
+        if (_objectIds != null) {
+            for (ReadableObjectId roid : _objectIds.values()) {
+                if (roid.tryReplaceBoundItem(delegate, newItem)) {
+                    return;
+                }
             }
         }
     }

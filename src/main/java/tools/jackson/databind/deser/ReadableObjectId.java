@@ -75,17 +75,28 @@ public class ReadableObjectId
     }
 
     /**
-     * Method called to replace the bound item after a delegating {@code @JsonCreator}
-     * has converted the intermediate delegate object into the final bean.
+     * Method called to try to replace the bound item after a delegating
+     * {@code @JsonCreator} has converted the intermediate delegate object
+     * into the final bean.
      * Unlike {@link #bindItem}, this method does not go through the
      * {@link ObjectIdResolver} (which would reject re-binding) but instead
      * directly replaces the tracked item.
      *
+     * @param delegate The intermediate delegate object to match against current binding
+     * @param newItem The final bean to replace the delegate with
+     *
+     * @return {@code true} if this entry was bound to {@code delegate} and was
+     *   replaced; {@code false} if not bound to {@code delegate}
+     *
      * @since 3.2
      */
-    public void replaceBoundItem(Object newItem) {
-        _item = newItem;
-        _itemReplaced = true;
+    public boolean tryReplaceBoundItem(Object delegate, Object newItem) {
+        if (resolve() == delegate) {
+            _item = newItem;
+            _itemReplaced = true;
+            return true;
+        }
+        return false;
     }
 
     public Object resolve(){

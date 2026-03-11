@@ -247,12 +247,12 @@ public class EnumMapDeserializer
         // [databind#631]: Assign current value, to be accessible by custom deserializers
         p.assignCurrentValue(result);
 
-        final boolean useObjectId = (_valueDeserializer.getObjectIdReader(ctxt) != null);
-        MapDeserializer.MapReferringAccumulator referringAccumulator = null;
-        if (useObjectId) {
-            referringAccumulator = new MapDeserializer.MapReferringAccumulator(
-                    _containerType.getContentType().getRawClass(), result);
-        }
+        // Need to resolve ObjectIds (forward refs)?
+        MapDeserializer.MapReferringAccumulator referringAccumulator =
+            (_valueDeserializer.getObjectIdReader(ctxt) == null)
+                    ? null
+                    : new MapDeserializer.MapReferringAccumulator(
+                            _containerType.getContentType().getRawClass(), result);
 
         String keyStr;
         if (p.isExpectedStartObjectToken()) {
@@ -305,10 +305,10 @@ public class EnumMapDeserializer
                         continue;
                     }
                 }
-                if (useObjectId) {
-                    referringAccumulator.put(key, value);
-                } else {
+                if (referringAccumulator == null) {
                     result.put(key, value);
+                } else {
+                    referringAccumulator.put(key, value);
                 }
             } catch (UnresolvedForwardReference reference) {
                 _handleUnresolvedReference(ctxt, referringAccumulator, key, reference);

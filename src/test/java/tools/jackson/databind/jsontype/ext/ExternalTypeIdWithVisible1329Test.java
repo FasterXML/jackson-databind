@@ -135,4 +135,22 @@ public class ExternalTypeIdWithVisible1329Test extends DatabindTestUtil
         assertNull(result.kindForMapper,
                 "kindForMapper should be null when @JsonTypeInfo has visible=false");
     }
+
+    // Verify that EXTERNAL_TYPE_ID_ALWAYS_VISIBLE overrides visible=false
+    @Test
+    public void testExternalTypeIdAlwaysVisibleFeature() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.EXTERNAL_TYPE_ID_ALWAYS_VISIBLE)
+                .build();
+        String json = a2q("{'kindForMapper':'EMAIL','to':{'name':'Bar','email':'test@example.com'}}");
+
+        Invite2 result = mapper.readValue(json, Invite2.class);
+
+        assertNotNull(result);
+        assertNotNull(result.to);
+        assertInstanceOf(InviteToEmail.class, result.to);
+        // With EXTERNAL_TYPE_ID_ALWAYS_VISIBLE, the type property IS set even with visible=false
+        assertEquals(InviteKind.EMAIL, result.kindForMapper);
+    }
 }

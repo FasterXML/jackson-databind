@@ -551,7 +551,26 @@ public enum MapperFeature
      *
      * @since 3.2
      */
-    USE_REAL_INCLUDE_NON_DEFAULT(false)
+    USE_REAL_INCLUDE_NON_DEFAULT(false),
+
+    /**
+     * Feature that, when enabled, forces external type id properties
+     * (see {@link com.fasterxml.jackson.annotation.JsonTypeInfo.As#EXTERNAL_PROPERTY})
+     * to always be visible to the containing bean, regardless of the
+     * {@code visible} setting in {@link com.fasterxml.jackson.annotation.JsonTypeInfo}.
+     * This restores pre-3.2 behavior where external type id properties were
+     * always deserialized into bean properties even when {@code visible=false}
+     * (the default) (see https://github.com/FasterXML/jackson-databind/issues/1329 for
+     * details)
+     *<p>
+     * When disabled (default), {@code visible=false} is respected and external
+     * type id properties are only used for type resolution, not set on the bean.
+     *<p>
+     * Feature is disabled by default.
+     *
+     * @since 3.2
+     */
+    EXTERNAL_TYPE_ID_ALWAYS_VISIBLE(false)
     ;
 
     private final boolean _defaultState;

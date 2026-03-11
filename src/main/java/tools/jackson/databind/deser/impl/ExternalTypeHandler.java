@@ -126,6 +126,10 @@ public class ExternalTypeHandler
             _typeIds[index] = typeId;
         }
         // [databind#1329]: return true (= skip setting on bean) when visible=false
+        //   unless EXTERNAL_TYPE_ID_ALWAYS_VISIBLE is enabled
+        if (ctxt.isEnabled(MapperFeature.EXTERNAL_TYPE_ID_ALWAYS_VISIBLE)) {
+            return false;
+        }
         return !(prop._typeDeserializer instanceof TypeDeserializerBase tdb)
                 || !tdb.isTypeIdVisible();
     }

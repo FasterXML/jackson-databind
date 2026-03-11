@@ -117,7 +117,7 @@ public abstract class DeserializationContextExt
         return new ReadableObjectId(key);
     }
 
-    // @since 2.19
+    // @since 3.2
     @Override
     public void updateObjectId(Object delegate, Object newItem) throws JacksonException
     {

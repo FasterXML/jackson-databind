@@ -302,6 +302,11 @@ Benson Margulies (@benson-basis)
  * Reported #1281: `@JsonIgnoreProperties` should work for "any getter" (for serialization)
   [3.2.0]
 
+Balys Valentukevicius (@balysv)
+ * Reported #1706: `@JsonCreator` not working properly with `@JsonIdentityInfo` when
+   deserializing a collection of interfaces (immutables.io compatibility)
+  [3.2.0]
+
 Benedikt Posch (@benediktsatalia)
  * Reported #3030: Correctly deserialize forward `@JsonIdentityInfo` references
    when using `@JsonCreator`

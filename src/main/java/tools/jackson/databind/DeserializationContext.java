@@ -914,7 +914,7 @@ public abstract class DeserializationContext
      * @param delegate The intermediate delegate object that was originally bound
      * @param newItem The final bean produced by the delegating creator
      *
-     * @since 2.19
+     * @since 3.2
      */
     public void updateObjectId(Object delegate, Object newItem) throws JacksonException {
         // Default no-op; overridden by DeserializationContextExt

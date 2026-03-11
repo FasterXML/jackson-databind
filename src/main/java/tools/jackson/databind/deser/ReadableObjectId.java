@@ -27,7 +27,7 @@ public class ReadableObjectId
      * Flag set when {@link #replaceBoundItem} is called, indicating that
      * {@link #_item} has been replaced and should not be refreshed from resolver.
      *
-     * @since 2.19
+     * @since 3.2
      */
     protected boolean _itemReplaced;
 
@@ -81,7 +81,7 @@ public class ReadableObjectId
      * {@link ObjectIdResolver} (which would reject re-binding) but instead
      * directly replaces the tracked item.
      *
-     * @since 2.19
+     * @since 3.2
      */
     public void replaceBoundItem(Object newItem) {
         _item = newItem;

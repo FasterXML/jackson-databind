@@ -25,6 +25,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   to break cycle
  (reported by @b-behan)
  (fix by @JacksonJang)
+#1706: `@JsonCreator` not working properly with `@JsonIdentityInfo` when
+  deserializing a collection of interfaces (immutables.io compatibility)
+ (reported by Balys V)
+ (fix by @cowtowncoder, w/ Claude code)
 #1755: Get NPE on deserializing values with recursive `@JsonIgnoreProperties`
  (reported by @Romain-P)#
  (fix by @cowtowncoder, w/ Claude code)

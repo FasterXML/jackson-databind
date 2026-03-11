@@ -248,7 +248,7 @@ public class EnumMapDeserializer
         p.assignCurrentValue(result);
 
         // Need to resolve ObjectIds (forward refs)?
-        MapDeserializer.MapReferringAccumulator referringAccumulator =
+        final MapDeserializer.MapReferringAccumulator referringAccumulator =
             (_valueDeserializer.getObjectIdReader(ctxt) == null)
                     ? null
                     : new MapDeserializer.MapReferringAccumulator(

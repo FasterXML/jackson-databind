@@ -2,20 +2,14 @@ package tools.jackson.databind.ser;
 
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.TokenStreamFactory;
-import tools.jackson.core.TreeNode;
+import tools.jackson.core.*;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.SerializerFactoryConfig;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.impl.FilteredBeanPropertyWriter;
@@ -27,11 +21,7 @@ import tools.jackson.databind.ser.jdk.MapSerializer;
 import tools.jackson.databind.ser.std.StdConvertingSerializer;
 import tools.jackson.databind.ser.std.ToEmptyObjectSerializer;
 import tools.jackson.databind.type.ReferenceType;
-import tools.jackson.databind.util.BeanUtil;
-import tools.jackson.databind.util.ClassUtil;
-import tools.jackson.databind.util.Converter;
-import tools.jackson.databind.util.IgnorePropertiesUtil;
-import tools.jackson.databind.util.NativeImageUtil;
+import tools.jackson.databind.util.*;
 import tools.jackson.databind.util.SimpleBeanPropertyDefinition;
 
 /**
@@ -328,6 +318,10 @@ public class BeanSerializerFactory
         } else {
             props = removeOverlappingTypeIds(ctxt, beanDescRef, builder, props);
         }
+
+        // [databind#1410]: Verify no bean property conflicts with class-level
+        //   type id property name (for As.PROPERTY inclusion)
+        _verifyNoTypeIdPropertyConflict(ctxt, beanDescRef, props);
 
         // [databind#638]: Allow injection of "virtual" properties:
         ctxt.getAnnotationIntrospector().findAndAddVirtualProperties(config, beanDescRef.getClassInfo(), props);
@@ -773,7 +767,7 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
 
     /**
      * Helper method called to ensure that we do not have "duplicate" type ids.
-     * Added to resolve [databind#222]
+     * Added to resolve [databind#222].
      */
     protected List<BeanPropertyWriter> removeOverlappingTypeIds(SerializationContext ctxt,
             BeanDescription.Supplier beanDescRef, BeanSerializerBuilder builder,
@@ -795,7 +789,46 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
                 }
             }
         }
+
         return props;
+    }
+
+    /**
+     * Helper method that verifies that no bean property has the same name as
+     * the class-level {@code @JsonTypeInfo(include = As.PROPERTY)} type id property:
+     * if so, throws {@link InvalidDefinitionException} to indicate that
+     * {@code As.EXISTING_PROPERTY} should be used instead.
+     *<p>
+     * Added to resolve [databind#1410].
+     *
+     * @since 3.2
+     */
+    protected void _verifyNoTypeIdPropertyConflict(SerializationContext ctxt,
+            BeanDescription.Supplier beanDescRef,
+            List<BeanPropertyWriter> props)
+    {
+        JsonTypeInfo.Value typeInfo =
+                ctxt.getAnnotationIntrospector().findPolymorphicTypeInfo(
+                        ctxt.getConfig(), beanDescRef.getClassInfo());
+        if ((typeInfo == null) || (typeInfo.getInclusionType() != As.PROPERTY)) {
+            return;
+        }
+        String n = typeInfo.getPropertyName();
+        if (n == null || n.isEmpty()) {
+            n = typeInfo.getIdType().getDefaultPropertyName();
+        }
+        if (n == null) {
+            return;
+        }
+        final PropertyName typeIdPropName = PropertyName.construct(n);
+        for (BeanPropertyWriter bpw : props) {
+            if (bpw.wouldConflictWithName(typeIdPropName)) {
+                ctxt.reportBadDefinition(beanDescRef.getType(), String.format(
+"Conflict between type id property '%s' and bean property with same name; "
++"consider using `JsonTypeInfo.As.EXISTING_PROPERTY` to avoid duplication",
+                        n));
+            }
+        }
     }
 
     /*

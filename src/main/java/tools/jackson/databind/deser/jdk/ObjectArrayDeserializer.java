@@ -507,13 +507,7 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
     private static class ObjectArrayReferringAccumulator {
         private final boolean _untyped;
         private final Class<?> _elementType;
-        private final List<Object> _result = new ArrayList<>();
-        private final List<ArrayReferring> _accumulator = new ArrayList<>();
-
-        /**
-         * Built array, set by {@link #buildArray()}. Needed so that forward references
-         * resolved after array construction can patch elements in place.
-         */
+        private final List<Object> _accumulator = new ArrayList<>();
         private Object[] _array;
 
         ObjectArrayReferringAccumulator(boolean untyped, Class<?> elementType) {
@@ -522,12 +516,7 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
         }
 
         void add(Object value) {
-            if (_accumulator.isEmpty()) {
-                _result.add(value);
-            } else {
-                ArrayReferring ref = _accumulator.get(_accumulator.size() - 1);
-                ref.next.add(value);
-            }
+            _accumulator.add(value);
         }
 
         Referring handleUnresolvedReference(UnresolvedForwardReference reference) {
@@ -536,54 +525,32 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
             return ref;
         }
 
-        void resolveForwardReference(DeserializationContext ctxt, Object id, Object value)
-                throws JacksonException
-        {
-            java.util.Iterator<ArrayReferring> iterator = _accumulator.iterator();
-            List<Object> previous = _result;
-            while (iterator.hasNext()) {
-                ArrayReferring ref = iterator.next();
-                if (ref.hasId(id)) {
-                    iterator.remove();
+        void resolveForwardReference(Object id, Object value) {
+            for (int i = 0, size = _accumulator.size(); i < size; i++) {
+                if ((_accumulator.get(i) instanceof ArrayReferring ref) && ref.hasId(id)) {
                     if (_array != null) {
-                        // Already built; patch array directly at the recorded index
-                        _array[ref._arrayIndex] = value;
+                        _array[i] = value;
                     } else {
-                        // Not yet built; merge into result list maintaining order
-                        previous.add(value);
-                        previous.addAll(ref.next);
+                        _accumulator.set(i, value);
                     }
                     return;
                 }
-                previous = ref.next;
             }
             throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
                     + "] that wasn't previously seen as unresolved.");
         }
 
         Object[] buildArray() {
-            // Calculate total size: resolved values + unresolved placeholder slots + deferred values
-            int totalSize = _result.size();
-            for (ArrayReferring ref : _accumulator) {
-                totalSize += 1 + ref.next.size();
-            }
-
+            final int size = _accumulator.size();
             if (_untyped) {
-                _array = new Object[totalSize];
+                _array = new Object[size];
             } else {
-                _array = (Object[]) Array.newInstance(_elementType, totalSize);
+                _array = (Object[]) Array.newInstance(_elementType, size);
             }
-
-            int i = 0;
-            for (Object value : _result) {
-                _array[i++] = value;
-            }
-            for (ArrayReferring ref : _accumulator) {
-                ref._arrayIndex = i;
-                // leave slot null for the unresolved reference
-                i++;
-                for (Object value : ref.next) {
-                    _array[i++] = value;
+            for (int i = 0; i < size; i++) {
+                Object value = _accumulator.get(i);
+                if (!(value instanceof ArrayReferring)) {
+                    _array[i] = value;
                 }
             }
             return _array;
@@ -592,25 +559,17 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
 
     private static class ArrayReferring extends Referring {
         private final ObjectArrayReferringAccumulator _parent;
-        public final List<Object> next = new ArrayList<>();
-
-        /**
-         * Index in the built array where the resolved value should be placed.
-         * Set by {@link ObjectArrayReferringAccumulator#buildArray()} if still unresolved at build time.
-         */
-        int _arrayIndex;
 
         ArrayReferring(ObjectArrayReferringAccumulator parent,
-                UnresolvedForwardReference ref,
-                Class<?> type) {
+                UnresolvedForwardReference ref, Class<?> type) {
             super(ref, type);
             _parent = parent;
         }
 
         @Override
         public void handleResolvedForwardReference(DeserializationContext ctxt,
-                Object id, Object value) throws JacksonException {
-            _parent.resolveForwardReference(ctxt, id, value);
+                Object id, Object value) {
+            _parent.resolveForwardReference(id, value);
         }
     }
 }

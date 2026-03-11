@@ -12,6 +12,7 @@ import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * Deserializer for {@link EnumMap} values.
@@ -276,7 +277,7 @@ public class EnumMapDeserializer
                 if (!ctxt.isEnabled(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
                     return (EnumMap<?,?>) ctxt.handleWeirdStringValue(_enumClass, keyStr,
                             "value not one of declared Enum instance names for %s",
-                            _containerType.getKeyType());
+                            ClassUtil.getTypeDescription(_containerType.getKeyType()));
                 }
                 // 24-Mar-2012, tatu: Null won't work as a key anyway, so let's
                 //  just skip the entry then. But we must skip the value as well, if so.

@@ -59,12 +59,24 @@ public class SerializationContextExt
 
     /*
     /**********************************************************************
+    /* Life-cycle, secondary constructors to support
+    /* "mutant factories", with single property changes
+    /**********************************************************************
+     */
+    private SerializationContextExt(SerializationContextExt src, SerializationConfig config) {
+        super(src._streamFactory, config, src._generatorConfig, src._serializerFactory, src._serializerCache);
+        _seenObjectIds = src._seenObjectIds;
+        _objectIdGenerators = src._objectIdGenerators;
+    }
+
+    /*
+    /**********************************************************************
     /* Life-cycle, factory methods
     /**********************************************************************
      */
     @Override
-    public SerializationContext withConfig(SerializationConfig config) {
-        return (_config == config) ? this : new SerializationContextExt(this._streamFactory, config, this._generatorConfig, this._serializerFactory, this._serializerCache);
+    public SerializationContextExt withConfig(SerializationConfig config) {
+        return (_config == config) ? this : new SerializationContextExt(this, config);
     }
 
     /*
@@ -516,9 +528,13 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
             super(streamFactory, config, genSettings, f, cache);
         }
 
+        private Impl(SerializationContextExt.Impl src, SerializationConfig config) {
+            super(src, config);
+        }
+
         @Override
-        public SerializationContext withConfig(SerializationConfig config) {
-            return (_config == config) ? this : new SerializationContextExt.Impl(this._streamFactory, config, this._generatorConfig, this._serializerFactory, this._serializerCache);
+        public SerializationContextExt.Impl withConfig(SerializationConfig config) {
+            return (_config == config) ? this : new SerializationContextExt.Impl(this, config);
         }
     }
 }

@@ -6,11 +6,13 @@ import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.deser.*;
+import tools.jackson.databind.deser.ReadableObjectId.Referring;
 import tools.jackson.databind.deser.bean.PropertyBasedCreator;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * Deserializer for {@link EnumMap} values.
@@ -246,6 +248,13 @@ public class EnumMapDeserializer
         // [databind#631]: Assign current value, to be accessible by custom deserializers
         p.assignCurrentValue(result);
 
+        // Need to resolve ObjectIds (forward refs)?
+        final MapDeserializer.MapReferringAccumulator referringAccumulator =
+            (_valueDeserializer.getObjectIdReader(ctxt) == null)
+                    ? null
+                    : new MapDeserializer.MapReferringAccumulator(
+                            _containerType.getContentType().getRawClass(), result);
+
         String keyStr;
         if (p.isExpectedStartObjectToken()) {
             keyStr = p.nextName();
@@ -268,7 +277,7 @@ public class EnumMapDeserializer
                 if (!ctxt.isEnabled(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
                     return (EnumMap<?,?>) ctxt.handleWeirdStringValue(_enumClass, keyStr,
                             "value not one of declared Enum instance names for %s",
-                            _containerType.getKeyType());
+                            ClassUtil.getTypeDescription(_containerType.getKeyType()));
                 }
                 // 24-Mar-2012, tatu: Null won't work as a key anyway, so let's
                 //  just skip the entry then. But we must skip the value as well, if so.
@@ -297,10 +306,16 @@ public class EnumMapDeserializer
                         continue;
                     }
                 }
+                if (referringAccumulator == null) {
+                    result.put(key, value);
+                } else {
+                    referringAccumulator.put(key, value);
+                }
+            } catch (UnresolvedForwardReference reference) {
+                _handleUnresolvedReference(ctxt, referringAccumulator, key, reference);
             } catch (Exception e) {
                 return wrapAndThrow(ctxt, e, result, keyStr);
             }
-            result.put(key, value);
         }
         return result;
     }
@@ -424,5 +439,18 @@ public class EnumMapDeserializer
             return _valueDeserializer.deserialize(p, ctxt);
         }
         return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+    }
+
+    private void _handleUnresolvedReference(DeserializationContext ctxt,
+            MapDeserializer.MapReferringAccumulator accumulator,
+            Object key, UnresolvedForwardReference reference)
+        throws JacksonException
+    {
+        if (accumulator == null) {
+            ctxt.reportInputMismatch(this,
+                    "Unresolved forward reference but no identity info: "+reference);
+        }
+        Referring referring = accumulator.handleUnresolvedReference(reference, key);
+        reference.getRoid().appendReferring(referring);
     }
 }

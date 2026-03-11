@@ -1566,10 +1566,14 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         //   Creator handling
         final ValueDeserializer<Object> delegateDeser = _delegateDeserializer(p);
         if (delegateDeser != null) {
-            final Object bean = _valueInstantiator.createUsingDelegate(ctxt,
-                    delegateDeser.deserialize(p, ctxt));
+            final Object delegate = delegateDeser.deserialize(p, ctxt);
+            final Object bean = _valueInstantiator.createUsingDelegate(ctxt, delegate);
             if (_injectables != null) {
                 injectValues(ctxt, bean);
+            }
+            // [databind#1706]: if ObjectId was bound to delegate, re-bind to final bean
+            if (_objectIdReader != null && bean != delegate) {
+                ctxt.updateObjectId(delegate, bean);
             }
             return bean;
         }

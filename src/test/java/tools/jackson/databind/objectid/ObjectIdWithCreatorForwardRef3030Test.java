@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.objectid;
 
 import java.util.List;
 
@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -66,10 +65,8 @@ public class ObjectIdWithCreatorForwardRef3030Test extends DatabindTestUtil
         assertSame(result.bs.get(1), result.cs.get(1).getB());
     }
 
-    // Forward reference WITH @JsonCreator: cs comes before bs in JSON,
-    // and C1 uses @JsonCreator - this should work but currently fails
-    // with UnresolvedForwardReference
-    @JacksonTestFailureExpected
+    // [databind#3030] Forward reference WITH @JsonCreator: cs comes before bs
+    // in JSON, and C uses @JsonCreator
     @Test
     public void testForwardReferenceWithCreator() throws Exception
     {

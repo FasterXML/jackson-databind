@@ -7,10 +7,20 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.2.0 (not yet released)
 
+#639: `@JacksonInject` with `@JsonIdentityInfo` causes deserialization
+  failure (unresolved forward reference)
+ (reported by Gili T)
+ (fix by @cowtowncoder, w/ Claude code)
 #1075: `@JsonUnwrapped` fields with matching `@JsonIgnore`d getter
   in outer class are ignored
  (reported by Sylvain G)
  (fix by @cowtowncoder, w/ Claude code)
+#1281: `@JsonIgnoreProperties` should work for "any getter" (for serialization)
+ (reported by Benson M)
+#1329: External type property (`@JsonTypeInfo(include = As.EXTERNAL_PROPERTY`))
+  deserialized even if `visible = false`
+ (fix by @cowtowncoder, w/ Claude code)
+ (reported by Raman G)
 #1515: `@JsonSerialize(Typing.DYNAMIC)` in some cases does not override
   `MapperFeature.USE_STATIC_TYPING`
  (reported by @garkin)
@@ -19,12 +29,20 @@ Versions: 3.x (for earlier see VERSION-2.x)
   to break cycle
  (reported by @b-behan)
  (fix by @JacksonJang)
+#1706: `@JsonCreator` not working properly with `@JsonIdentityInfo` when
+  deserializing a collection of interfaces (immutables.io compatibility)
+ (reported by Balys V)
+ (fix by @cowtowncoder, w/ Claude code)
 #1755: Get NPE on deserializing values with recursive `@JsonIgnoreProperties`
  (reported by @Romain-P)#
  (fix by @cowtowncoder, w/ Claude code)
 #1757: Regression in `JsonInclude.Include.NON_DEFAULT` set as global default
   serialization inclusion (add new `MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT`)
  (reported by @yhack)
+ (fix by @cowtowncoder, w/ Claude code)
+#3030: Correctly deserialize forward `@JsonIdentityInfo` references
+  when using `@JsonCreator`
+ (reported by Benedikt P)
  (fix by @cowtowncoder, w/ Claude code)
 #3194: Deserialization of 2-dimensional arrays of final types fails when
   using `DefaultTyping.NON_FINAL`
@@ -38,6 +56,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
   "Cannot construct instance (although at least one Creator exists)"
  (reported by @dinopraso)
  (fix by @JacksonJang)
+#3573: Inconsistent handling of nil `UUID` in property inclusion
+ (reported by Andrzej L)
 #3591: Ignored fields not consistently exposed via
   `BeanDescription.getIgnoredPropertyNames()`
  (requested by Oliver D)

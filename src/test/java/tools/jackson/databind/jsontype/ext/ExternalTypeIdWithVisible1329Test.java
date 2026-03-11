@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.jsontype.ext;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -103,22 +102,19 @@ public class ExternalTypeIdWithVisible1329Test extends DatabindTestUtil
         Invite result = MAPPER.readValue(json, Invite.class);
 
         assertNotNull(result);
-        // The "kind" field is populated normally as it's a regular property
-        assertEquals(InviteKind.CONTACT, result.kind);
         assertNotNull(result.to);
         assertInstanceOf(InviteToContact.class, result.to);
         assertEquals("Foo", result.to.name);
 
-        // This is the key assertion: kindForMapper should remain null
-        // because it's not actually present in the JSON, and visible=false means
-        // the external type id should not be exposed to the bean
-        // But the bug is that Jackson populates it anyway
+        // "kind" is both a regular bean property AND the external type id property name.
+        // With visible=false, the type id value should be consumed for type resolution
+        // and NOT set on the bean.
+        assertNull(result.kind,
+                "kind should be null when @JsonTypeInfo has visible=false");
         assertNull(result.kindForMapper,
-                "kindForMapper should be null when it's not in JSON and @JsonTypeInfo has visible=false");
+                "kindForMapper should be null when it's not in JSON");
     }
 
-    // Fails due to bug: external property is populated even when visible=false
-    @JacksonTestFailureExpected
     @Test
     public void testExternalTypeIdWithVisibleFalse() throws Exception
     {
@@ -134,10 +130,27 @@ public class ExternalTypeIdWithVisible1329Test extends DatabindTestUtil
         assertEquals("Bar", result.to.name);
         assertEquals("test@example.com", ((InviteToEmail)result.to).email);
 
-        // This is the key assertion: kindForMapper should remain null
-        // because visible=false means it should only be used for type resolution,
-        // not populated in the deserialized object
+        // kindForMapper should remain null because visible=false means it
+        // should only be used for type resolution, not populated in the object
         assertNull(result.kindForMapper,
                 "kindForMapper should be null when @JsonTypeInfo has visible=false");
+    }
+
+    // Verify that EXTERNAL_TYPE_ID_ALWAYS_VISIBLE overrides visible=false
+    @Test
+    public void testExternalTypeIdAlwaysVisibleFeature() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.EXTERNAL_TYPE_ID_ALWAYS_VISIBLE)
+                .build();
+        String json = a2q("{'kindForMapper':'EMAIL','to':{'name':'Bar','email':'test@example.com'}}");
+
+        Invite2 result = mapper.readValue(json, Invite2.class);
+
+        assertNotNull(result);
+        assertNotNull(result.to);
+        assertInstanceOf(InviteToEmail.class, result.to);
+        // With EXTERNAL_TYPE_ID_ALWAYS_VISIBLE, the type property IS set even with visible=false
+        assertEquals(InviteKind.EMAIL, result.kindForMapper);
     }
 }

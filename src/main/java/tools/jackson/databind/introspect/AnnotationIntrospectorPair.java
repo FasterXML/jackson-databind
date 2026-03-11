@@ -1,13 +1,6 @@
 package tools.jackson.databind.introspect;
 
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-
 import com.fasterxml.jackson.annotation.*;
-
 import tools.jackson.core.Version;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
@@ -17,6 +10,12 @@ import tools.jackson.databind.jsontype.NamedType;
 import tools.jackson.databind.ser.BeanPropertyWriter;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.NameTransformer;
+
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Helper class that allows using 2 introspectors such that one
@@ -363,6 +362,20 @@ public class AnnotationIntrospectorPair
         Class<?>[] result = _primary.findViews(config, a);
         if (result == null) {
             result = _secondary.findViews(config, a);
+        }
+        return result;
+    }
+
+    @Override
+    public Class findApplyView(MapperConfig<?> config, Annotated a)
+    {
+        /* Theoretically this could be trickier, if multiple introspectors
+         * return non-null entries. For now, though, we'll just consider
+         * first one to return non-null to win.
+         */
+        Class<?> result = _primary.findApplyView(config, a);
+        if (result == null) {
+            result = _secondary.findApplyView(config, a);
         }
         return result;
     }

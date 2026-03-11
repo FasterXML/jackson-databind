@@ -1327,6 +1327,12 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
+                // [databind#1329]: If this property is an external type id
+                //   with visible=false, skip setting it on the bean
+                if (!ext.shouldSetTypeProperty(p.currentName())) {
+                    p.skipChildren();
+                    continue;
+                }
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
@@ -1411,6 +1417,12 @@ public class BeanDeserializer
                 // [databind#3045]: may have property AND be used as external type id:
                 if (t.isScalarValue()) {
                     ext.handleTypePropertyValue(p, ctxt, propName, null);
+                }
+                // [databind#1329]: If this property is an external type id
+                //   with visible=false, skip buffering it
+                if (!ext.shouldSetTypeProperty(propName)) {
+                    p.skipChildren();
+                    continue;
                 }
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;

@@ -74,6 +74,18 @@ public abstract class TypeDeserializer
      */
     public boolean hasDefaultImpl() { return getDefaultImpl() != null; }
 
+    /**
+     * Accessor for checking whether type id should be made "visible"
+     * to the bean being deserialized: if {@code true}, type id value
+     * will be set as a regular property value; if {@code false} (default),
+     * it will only be used for type resolution and not passed to the bean.
+     *
+     * @return {@code true} if type id is visible, {@code false} otherwise
+     *
+     * @since 3.0
+     */
+    public boolean isTypeIdVisible() { return false; }
+
     /*
     /**********************************************************
     /* Type deserialization methods

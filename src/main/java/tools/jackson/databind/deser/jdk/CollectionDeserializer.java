@@ -663,7 +663,7 @@ _containerType,
 
     /**
      * Helper class to maintain processing order of value. The resolved
-     * object associated with {@code #id} parameter from {@link #handleResolvedForwardReference(Object, Object)} 
+     * object associated with {@code #id} parameter from {@link #handleResolvedForwardReference(DeserializationContext, Object, Object)} 
      * comes before the values in {@link #next}.
      */
     private final static class CollectionReferring extends Referring {

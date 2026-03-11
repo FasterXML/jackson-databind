@@ -117,6 +117,19 @@ public abstract class DeserializationContextExt
         return new ReadableObjectId(key);
     }
 
+    // @since 3.2
+    @Override
+    public void updateObjectId(Object delegate, Object newItem) throws JacksonException
+    {
+        if (_objectIds != null) {
+            for (ReadableObjectId roid : _objectIds.values()) {
+                if (roid.tryReplaceBoundItem(delegate, newItem)) {
+                    return;
+                }
+            }
+        }
+    }
+
     @Override
     public void checkUnresolvedObjectId() throws UnresolvedForwardReference
     {

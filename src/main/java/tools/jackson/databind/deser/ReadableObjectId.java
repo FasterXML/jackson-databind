@@ -23,6 +23,14 @@ public class ReadableObjectId
      */
     protected Object _item;
 
+    /**
+     * Flag set when {@link #replaceBoundItem} is called, indicating that
+     * {@link #_item} has been replaced and should not be refreshed from resolver.
+     *
+     * @since 3.2
+     */
+    protected boolean _itemReplaced;
+
     protected final ObjectIdGenerator.IdKey _key;
 
     protected LinkedList<Referring> _referringProperties;
@@ -66,8 +74,39 @@ public class ReadableObjectId
         }
     }
 
+    /**
+     * Method called to try to replace the bound item after a delegating
+     * {@code @JsonCreator} has converted the intermediate delegate object
+     * into the final bean.
+     * Unlike {@link #bindItem}, this method does not go through the
+     * {@link ObjectIdResolver} (which would reject re-binding) but instead
+     * directly replaces the tracked item.
+     *
+     * @param delegate The intermediate delegate object to match against current binding
+     * @param newItem The final bean to replace the delegate with
+     *
+     * @return {@code true} if this entry was bound to {@code delegate} and was
+     *   replaced; {@code false} if not bound to {@code delegate}
+     *
+     * @since 3.2
+     */
+    public boolean tryReplaceBoundItem(Object delegate, Object newItem) {
+        if (resolve() == delegate) {
+            _item = newItem;
+            _itemReplaced = true;
+            return true;
+        }
+        return false;
+    }
+
     public Object resolve(){
-         return (_item = _resolver.resolveId(_key));
+        // [databind#1706] If item was replaced (e.g., after delegating creator),
+        // return the replacement instead of refreshing from resolver
+        // (which still has stale reference to the intermediate delegate object)
+        if (_itemReplaced) {
+            return _item;
+        }
+        return (_item = _resolver.resolveId(_key));
     }
 
     public boolean hasReferringProperties() {

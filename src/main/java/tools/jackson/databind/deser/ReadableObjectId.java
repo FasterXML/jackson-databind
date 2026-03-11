@@ -51,7 +51,7 @@ public class ReadableObjectId
 
     public void appendReferring(Referring currentReferring) {
         if (_referringProperties == null) {
-            _referringProperties = new LinkedList<Referring>();
+            _referringProperties = new LinkedList<>();
         }
         _referringProperties.add(currentReferring);
     }

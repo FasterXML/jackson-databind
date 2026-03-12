@@ -477,7 +477,7 @@ public enum MapperFeature implements ConfigFeature
      * {@link com.fasterxml.jackson.annotation.JsonPropertyOrder#value()} explicit
      * name-based ordering, which always takes precedence.
      *<p>
-     * Feature is enabled by default for backwards compatibility.
+     * Feature is enabled by default.
      *
      * @since 2.22
      */

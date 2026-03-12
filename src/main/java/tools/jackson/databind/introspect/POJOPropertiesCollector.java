@@ -1787,6 +1787,7 @@ ctor.creator()));
                 && _config.isEnabled(MapperFeature.SORT_PROPERTIES_BY_INDEX);
         final boolean sortCreatorsFirst = (_creatorProperties != null)
                 && (!sortAlpha || _config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+        final AnnotatedMember anyAccessor = _findAnyAccessor();
 
         String[] propertyOrder = intr.findSerializationPropertyOrder(_config, _classDef);
 
@@ -1809,8 +1810,9 @@ ctor.creator()));
         for (POJOPropertyBuilder prop : props.values()) {
             all.put(prop.getName(), prop);
         }
-        all = _putAnyGettersInTheEnd(all);
-
+        if (anyAccessor != null) {
+            all = _moveAnyAccessorToTheEnd(all, anyAccessor);
+        }
         Map<String,POJOPropertyBuilder> ordered = new LinkedHashMap<>(size+size);
         // Ok: primarily by explicit order
         if (propertyOrder != null) {
@@ -1901,23 +1903,24 @@ ctor.creator()));
         return false;
     }
 
+    private AnnotatedMember _findAnyAccessor() {
+        if (_anyGetters != null) {
+            return _anyGetters.getFirst();
+        }
+        if (_anyGetterField != null) {
+            return _anyGetterField.getFirst();
+        }
+        return null;
+    }
+
     /**
      * [databind#5215] JsonAnyGetter Serializer behavior change from 2.18.4 to 2.19.0
      * Put anyGetter in the end, before actual sorting further down {@link POJOPropertiesCollector#_sortProperties(Map)}
      */
-    private Map<String, POJOPropertyBuilder> _putAnyGettersInTheEnd(
-            Map<String, POJOPropertyBuilder> sortedProps)
+    private Map<String, POJOPropertyBuilder> _moveAnyAccessorToTheEnd(
+            Map<String, POJOPropertyBuilder> sortedProps,
+            AnnotatedMember anyAccessor)
     {
-        AnnotatedMember anyAccessor;
-
-        if (_anyGetters != null) {
-            anyAccessor = _anyGetters.getFirst();
-        } else if (_anyGetterField != null) {
-            anyAccessor = _anyGetterField.getFirst();
-        } else {
-            return sortedProps;
-        }
-
         // Here we'll use insertion-order preserving map, since possible alphabetic
         // sorting already done earlier
         Map<String, POJOPropertyBuilder> newAll = new LinkedHashMap<>(sortedProps.size() * 2);

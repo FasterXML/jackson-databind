@@ -299,7 +299,7 @@ Sylvain Guillope (@sguillope)
   [3.2.0]
 
 Benson Margulies (@benson-basis)
- * Reported #1281: `@JsonIgnoreProperties` should work for "any getter" (for serializatio
+ * Reported #1281: `@JsonIgnoreProperties` should work for "any getter" (for serialization)
   [3.2.0]
 
 Jeff Quandt (@JeffQuandt)

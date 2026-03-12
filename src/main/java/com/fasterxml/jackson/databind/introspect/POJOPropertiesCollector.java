@@ -1765,10 +1765,15 @@ ctor.creator()));
                 ? _config.shouldSortPropertiesAlphabetically()
                 : alpha.booleanValue();
         final boolean indexed = _anyIndexed(props.values());
+        final boolean useIndexOrdering = indexed
+                && _config.isEnabled(MapperFeature.SORT_PROPERTIES_BY_INDEX);
 
         String[] propertyOrder = intr.findSerializationPropertyOrder(_classDef);
 
         // no sorting? no need to shuffle, then
+        // NOTE: intentionally using `indexed` (not `useIndexOrdering`) here so that
+        // _putAnyGettersInTheEnd() and other post-processing steps are not skipped
+        // when SORT_PROPERTIES_BY_INDEX is disabled but indexed properties exist.
         if (!sortAlpha && !indexed && (_creatorProperties == null) && (propertyOrder == null)) {
             return;
         }
@@ -1808,7 +1813,7 @@ ctor.creator()));
         }
 
         // Second (starting with 2.11): index, if any:
-        if (indexed) {
+        if (useIndexOrdering) {
             Map<Integer,POJOPropertyBuilder> byIndex = new TreeMap<>();
             Iterator<Map.Entry<String,POJOPropertyBuilder>> it = all.entrySet().iterator();
             while (it.hasNext()) {

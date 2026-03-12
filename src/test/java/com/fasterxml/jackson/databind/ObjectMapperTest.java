@@ -660,4 +660,25 @@ public class ObjectMapperTest
             assertEquals(DEFAULT_TZ, w2.getConfig().getTimeZone());
         }
     }
+
+    // [databind#3064]
+    @Test
+    public void testConfigForIndexSorting() throws Exception {
+        // default: enabled
+        ObjectMapper m = newJsonMapper();
+        assertEquals(MapperFeature.SORT_PROPERTIES_BY_INDEX.enabledByDefault(),
+                m.isEnabled(MapperFeature.SORT_PROPERTIES_BY_INDEX));
+        assertEquals(MapperFeature.SORT_PROPERTIES_BY_INDEX.enabledByDefault(),
+                m.getSerializationConfig().isEnabled(MapperFeature.SORT_PROPERTIES_BY_INDEX));
+        assertEquals(MapperFeature.SORT_PROPERTIES_BY_INDEX.enabledByDefault(),
+                m.getDeserializationConfig().isEnabled(MapperFeature.SORT_PROPERTIES_BY_INDEX));
+
+        // disabled
+        m = jsonMapperBuilder()
+                .disable(MapperFeature.SORT_PROPERTIES_BY_INDEX)
+                .build();
+        assertFalse(m.isEnabled(MapperFeature.SORT_PROPERTIES_BY_INDEX));
+        assertFalse(m.getSerializationConfig().isEnabled(MapperFeature.SORT_PROPERTIES_BY_INDEX));
+        assertFalse(m.getDeserializationConfig().isEnabled(MapperFeature.SORT_PROPERTIES_BY_INDEX));
+    }
 }

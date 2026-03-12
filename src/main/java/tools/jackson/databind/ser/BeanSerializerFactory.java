@@ -316,12 +316,11 @@ public class BeanSerializerFactory
         if (props == null) {
             props = new ArrayList<>();
         } else {
-            props = removeOverlappingTypeIds(ctxt, beanDescRef, builder, props);
+            props = removeOverlappingExternalTypeIds(ctxt, beanDescRef, builder, props);
+            // [databind#1410]: Verify no bean property conflicts with class-level
+            //   type id property name (for As.PROPERTY inclusion)
+            _verifyNoTypeIdPropertyConflict(ctxt, beanDescRef, props);
         }
-
-        // [databind#1410]: Verify no bean property conflicts with class-level
-        //   type id property name (for As.PROPERTY inclusion)
-        _verifyNoTypeIdPropertyConflict(ctxt, beanDescRef, props);
 
         // [databind#638]: Allow injection of "virtual" properties:
         ctxt.getAnnotationIntrospector().findAndAddVirtualProperties(config, beanDescRef.getClassInfo(), props);
@@ -570,7 +569,7 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
         boolean staticTyping = usesStaticTyping(config, beanDescRef);
         PropertyBuilder pb = constructPropertyBuilder(config, beanDescRef);
 
-        ArrayList<BeanPropertyWriter> result = new ArrayList<BeanPropertyWriter>(properties.size());
+        ArrayList<BeanPropertyWriter> result = new ArrayList<>(properties.size());
         for (BeanPropertyDefinition property : properties) {
             final AnnotatedMember accessor = property.getAccessor();
             // Type id? Requires special handling:
@@ -769,7 +768,7 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
      * Helper method called to ensure that we do not have "duplicate" type ids.
      * Added to resolve [databind#222].
      */
-    protected List<BeanPropertyWriter> removeOverlappingTypeIds(SerializationContext ctxt,
+    protected List<BeanPropertyWriter> removeOverlappingExternalTypeIds(SerializationContext ctxt,
             BeanDescription.Supplier beanDescRef, BeanSerializerBuilder builder,
             List<BeanPropertyWriter> props)
     {
@@ -789,7 +788,6 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
                 }
             }
         }
-
         return props;
     }
 

@@ -306,7 +306,12 @@ Raman Gupta (@rocketraman)
  * Reported #1329: External type property (`@JsonTypeInfo(include = As.EXTERNAL_PROPERTY`))
    deserialized even if `visible = false`
   [3.2.0]
-  
+
+Kevin Hogeland (@khogeland)
+ * Reported #1410: Overlap between `@JsonTypeInfo.As.PROPERTY` indicated type id and field
+   with same name results in `UnrecognizedPropertyException`
+  [3.2.0]
+
 Balys Valentukevicius (@balysv)
  * Reported #1706: `@JsonCreator` not working properly with `@JsonIdentityInfo` when
    deserializing a collection of interfaces (immutables.io compatibility)

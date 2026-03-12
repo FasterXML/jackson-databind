@@ -21,6 +21,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   deserialized even if `visible = false`
  (fix by @cowtowncoder, w/ Claude code)
  (reported by Raman G)
+#1410: Overlap between `@JsonTypeInfo.As.PROPERTY` indicated type id and field
+  with same name results in `UnrecognizedPropertyException`
+ (reported by Kevin H)
+ (fix by @cowtowncoder, w/ Claude code)
 #1515: `@JsonSerialize(Typing.DYNAMIC)` in some cases does not override
   `MapperFeature.USE_STATIC_TYPING`
  (reported by @garkin)

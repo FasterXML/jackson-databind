@@ -1782,8 +1782,7 @@ ctor.creator()));
         final boolean sortAlpha = (alpha == null)
                 ? _config.shouldSortPropertiesAlphabetically()
                 : alpha.booleanValue();
-        final boolean indexed = _anyIndexed(props.values());
-        final boolean useIndexOrdering = indexed
+        final boolean useIndexOrdering = _anyIndexed(props.values())
                 && _config.isEnabled(MapperFeature.SORT_PROPERTIES_BY_INDEX);
         final boolean sortCreatorsFirst = (_creatorProperties != null)
                 && (!sortAlpha || _config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
@@ -1791,11 +1790,10 @@ ctor.creator()));
 
         String[] propertyOrder = intr.findSerializationPropertyOrder(_config, _classDef);
 
-        // no sorting? no need to shuffle, then
-        // NOTE: intentionally using `indexed` (not `useIndexOrdering`) here so that
-        // _putAnyGettersInTheEnd() and other post-processing steps are not skipped
-        // when SORT_PROPERTIES_BY_INDEX is disabled but indexed properties exist.
-        if (!sortAlpha && !indexed && (_creatorProperties == null) && (propertyOrder == null)) {
+        // no sorting? no need to shuffle, then. But note there are lots of things
+        // that do require some shuffling.
+        if (!sortAlpha && !useIndexOrdering && !sortCreatorsFirst
+                && (propertyOrder == null) && (anyAccessor == null)) {
             return;
         }
         int size = props.size();

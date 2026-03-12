@@ -29,6 +29,17 @@ public final class WritableObjectId
     }
 
     /**
+     * Check whether a back-reference can be written for this object id.
+     * Returns {@code true} if the id has been previously declared (or
+     * {@code alwaysAsId} is set) and a reference can be written.
+     *
+     * @since 2.19
+     */
+    public boolean canWriteAsReference(ObjectIdWriter w) {
+        return (id != null) && (idWritten || w.alwaysAsId);
+    }
+
+    /**
      * Method to call to write a reference to object that this id refers. Usually this
      * is done after an earlier call to {@link #writeAsDeclaration}.
      */

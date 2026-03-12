@@ -262,6 +262,13 @@ public class PropertyBuilder
         // And then, handling of unwrapping
         NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(_config, am);
         if (unwrapper != null) {
+            // [databind#1298]: @JsonUnwrapped incompatible with @JsonIdentityInfo
+            //    on the unwrapped property type
+            if (_annotationIntrospector.findObjectIdInfo(_config,
+                    ctxt.introspectClassAnnotations(declaredType)) != null) {
+                ctxt.reportBadPropertyDefinition(_beanDesc, propDef,
+                        "cannot use `@JsonUnwrapped` on property with type that has `@JsonIdentityInfo`");
+            }
             bpw = bpw.unwrappingWriter(unwrapper);
         }
         return bpw;

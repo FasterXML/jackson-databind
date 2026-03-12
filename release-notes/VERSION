@@ -52,6 +52,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   when using `@JsonCreator`
  (reported by Benedikt P)
  (fix by @cowtowncoder, w/ Claude code)
+#3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices are
+  defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
+ (reported by Christian D)
+ (contributed by Lee Jiwon)
 #3194: Deserialization of 2-dimensional arrays of final types fails when
   using `DefaultTyping.NON_FINAL`
  (reported by Klaas D)

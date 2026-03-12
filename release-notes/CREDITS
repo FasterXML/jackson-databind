@@ -219,6 +219,9 @@ Lee Jiwon (@dlwldnjs1009)
   [3.1.0]
  * Implemented #5621: Fix typo: MissingInjectableValueExcepion → MissingInjectableValueException
   [3.1.0]
+ * Contributed #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
+   are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
+  [3.2.0]
 
 Garret Wilson (@garretwilson)
  * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
@@ -325,6 +328,11 @@ Balys Valentukevicius (@balysv)
 Benedikt Posch (@benediktsatalia)
  * Reported #3030: Correctly deserialize forward `@JsonIdentityInfo` references
    when using `@JsonCreator`
+  [3.2.0]
+
+Christian Danner cdadac
+ * Reported #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
+   are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
   [3.2.0]
 
 Klaas Dellschaft (@klaasdellschaft)

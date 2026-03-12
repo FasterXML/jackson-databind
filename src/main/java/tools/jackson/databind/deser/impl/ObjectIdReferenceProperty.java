@@ -98,7 +98,7 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
                 throw DatabindException.from(p, "Unresolved forward reference but no identity info", reference);
             }
             reference.getRoid().appendReferring(new PropertyReferring(this, reference, _type.getRawClass(), instance));
-            return null;
+            return instance;
         }
     }
 

@@ -12,7 +12,6 @@ import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.impl.ExternalTypeHandler;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
-import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.introspect.AnnotatedMethod;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
@@ -69,12 +68,6 @@ public class BuilderBasedDeserializer
                 ignorableProps, ignoreAllUnknown, includableProps, hasViews);
         _targetType = targetType;
         _buildMethod = builder.getBuildMethod();
-        // 05-Mar-2012, tatu: Object Ids  not supported with builders, not yet anyway
-        if (_objectIdReader != null) {
-            String msg = "Cannot use Object Id with Builder-based deserialization (type "
-                    +ClassUtil.getTypeDescription(beanDescRef.getType())+")";
-            throw InvalidDefinitionException.from((JsonParser)null, msg, beanDescRef.getType());
-        }
     }
 
     /**
@@ -214,8 +207,18 @@ public class BuilderBasedDeserializer
         if (null == _buildMethod) {
             return builder;
         }
+        // [databind#1496]: Object Id resolution may return the target type directly
+        // (not the builder), so skip the build step in that case
+        if (!handledType().isInstance(builder)) {
+            return builder;
+        }
         try {
-            return _buildMethod.getMember().invoke(builder, (Object[]) null);
+            Object result = _buildMethod.getMember().invoke(builder, (Object[]) null);
+            // [databind#1496]: rebind Object Id from builder to built object
+            if (_objectIdReader != null && result != builder) {
+                ctxt.updateObjectId(builder, result);
+            }
+            return result;
         } catch (Exception e) {
             return wrapInstantiationProblem(ctxt, e);
         }
@@ -234,6 +237,9 @@ public class BuilderBasedDeserializer
                 return finishBuild(ctxt, _vanillaDeserialize(p, ctxt));
             }
             p.nextToken();
+            if (_objectIdReader != null) {
+                return finishBuild(ctxt, deserializeWithObjectId(p, ctxt));
+            }
             return finishBuild(ctxt, deserializeFromObject(p, ctxt));
         }
         // and then others, generally requiring use of @JsonCreator
@@ -255,6 +261,9 @@ public class BuilderBasedDeserializer
             return _deserializeFromArray(p, ctxt);
         case JsonTokenId.ID_PROPERTY_NAME:
         case JsonTokenId.ID_END_OBJECT:
+            if (_objectIdReader != null) {
+                return finishBuild(ctxt, deserializeWithObjectId(p, ctxt));
+            }
             return finishBuild(ctxt, deserializeFromObject(p, ctxt));
         default:
         }

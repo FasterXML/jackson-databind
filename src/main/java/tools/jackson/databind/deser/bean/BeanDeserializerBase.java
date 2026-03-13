@@ -669,6 +669,13 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
         } else {
             _unwrappedPropertyHandler = null;
         }
+        // [databind#2039]: combination of unwrapped and external type id not (yet) supported
+        if (_unwrappedPropertyHandler != null && _externalTypeIdHandler != null) {
+            ctxt.reportBadDefinition(_beanType, String.format(
+                    "Cannot (yet) use @JsonUnwrapped and @JsonTypeInfo(As.EXTERNAL_PROPERTY) "
+                    + "on properties of the same Bean (%s)",
+                    ClassUtil.getTypeDescription(_beanType)));
+        }
         // may need to disable vanilla processing, if unwrapped handling was enabled...
         _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
     }

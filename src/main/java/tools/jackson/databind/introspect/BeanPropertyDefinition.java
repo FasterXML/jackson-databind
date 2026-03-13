@@ -242,6 +242,11 @@ public abstract class BeanPropertyDefinition
     public Class<?>[] findViews() { return null; }
 
     /**
+     * Method used to find view to use for processing the property.
+     */
+    public Class<?> findApplyView() { return null; }
+
+    /**
      * Method used to find whether property is part of a bi-directional
      * reference.
      */

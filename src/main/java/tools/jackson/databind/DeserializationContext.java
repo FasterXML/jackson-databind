@@ -920,6 +920,58 @@ public abstract class DeserializationContext
         // Default no-op; overridden by DeserializationContextExt
     }
 
+    /**
+     * Method to register that a forward Object Id reference has been recorded
+     * against the given container object (typically a builder). Called by
+     * {@link tools.jackson.databind.deser.impl.ObjectIdReferenceProperty} when
+     * an unresolved forward reference is caught. Enables O(1) checking via
+     * {@link #hasPendingForwardRefsFor}.
+     *<p>
+     * Default implementation does nothing; overridden by
+     * {@link tools.jackson.databind.deser.DeserializationContextExt}.
+     *
+     * @param container The container/builder object the forward ref was registered against
+     *
+     * @since 3.2
+     */
+    public void addPendingForwardRef(Object container) {
+        // Default no-op
+    }
+
+    /**
+     * Method to remove a container object from the pending forward reference
+     * tracking set, called when the forward reference has been resolved.
+     *<p>
+     * Default implementation does nothing; overridden by
+     * {@link tools.jackson.databind.deser.DeserializationContextExt}.
+     *
+     * @param container The container/builder object to remove
+     *
+     * @since 3.2
+     */
+    public void removePendingForwardRef(Object container) {
+        // Default no-op
+    }
+
+    /**
+     * Method for checking whether the given container object has any pending
+     * unresolved forward Object Id references registered against it.
+     * Used by Builder-based deserialization to detect forward references
+     * that would be lost after building (since they point to the builder,
+     * not the built object).
+     *<p>
+     * Default implementation returns {@code false}; overridden by
+     * {@link tools.jackson.databind.deser.DeserializationContextExt}.
+     *
+     * @param builder The builder/container object to check
+     * @return {@code true} if there are pending forward references against this object
+     *
+     * @since 3.2
+     */
+    public boolean hasPendingForwardRefsFor(Object builder) {
+        return false;
+    }
+
     /*
     /**********************************************************************
     /* Public API, type handling

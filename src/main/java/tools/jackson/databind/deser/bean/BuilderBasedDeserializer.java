@@ -210,7 +210,25 @@ public class BuilderBasedDeserializer
         // [databind#1496]: Object Id resolution may return an already-built target
         // object (not the builder), so skip the build step in that case
         if (!handledType().isInstance(builder)) {
+            // Verify it is actually the target type, not some unexpected type
+            if (!_targetType.getRawClass().isInstance(builder)) {
+                ctxt.reportBadDefinition(_targetType, String.format(
+                        "Builder-based deserialization of %s received unexpected type `%s`"
+                        + " (expected builder type `%s` or target type `%s`)",
+                        _targetType, ClassUtil.classNameOf(builder),
+                        ClassUtil.nameOf(handledType()), ClassUtil.getTypeDescription(_targetType)));
+            }
             return builder;
+        }
+        // [databind#1496]: check for pending forward references that would be lost
+        // after building (they point to the builder, not the built object)
+        if (_objectIdReader != null && ctxt.hasPendingForwardRefsFor(builder)) {
+            ctxt.reportBadDefinition(_targetType, String.format(
+                    "Cannot resolve forward Object Id references for Builder-based type %s:"
+                    + " forward references were registered against the Builder instance,"
+                    + " which is discarded after building"
+                    + " (forward Object Id references not yet supported with Builder-based deserialization)",
+                    ClassUtil.getTypeDescription(_targetType)));
         }
         try {
             Object result = _buildMethod.getMember().invoke(builder, (Object[]) null);

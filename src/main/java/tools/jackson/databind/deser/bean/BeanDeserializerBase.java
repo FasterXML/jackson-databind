@@ -1528,7 +1528,6 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return idDeser.deserialize(bufParser, ctxt);
     }
 
-    // NOTE: currently only used by standard BeanDeserializer (not Builder-based)
     /**
      * Alternative deserialization method used when we expect to see Object Id;
      * if so, we will need to ensure that the Id is seen before anything
@@ -1536,6 +1535,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * even if JSON itself is not ordered that way. This may require
      * buffering in some cases, but usually just a simple lookup to ensure
      * that ordering is correct.
+     *<p>
+     * Used by both {@link BeanDeserializer} and
+     * {@link BuilderBasedDeserializer} (since 3.2, [databind#1496]).
      */
     protected Object deserializeWithObjectId(JsonParser p, DeserializationContext ctxt) throws JacksonException {
         return deserializeFromObject(p, ctxt);

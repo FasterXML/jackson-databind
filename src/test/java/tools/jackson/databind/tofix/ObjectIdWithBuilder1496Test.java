@@ -15,12 +15,17 @@ import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// [databind#1496]: Forward references with builder-based deserialization
-// still need work because the Object Id gets bound to the builder (not the built
-// object) before finishBuild, so forward reference resolution injects the builder
-// instead of the final object.
-class ObjectIdWithBuilder1496Test extends DatabindTestUtil {
-
+/**
+ * [databind#1496]: Forward references with builder-based deserialization
+ * still need work because the Object Id gets bound to the builder (not the built
+ * object) before finishBuild, so forward reference resolution injects the builder
+ *  instead of the final object.
+ * NOTE: this test class contains still failing tests; there is separate class,
+ * {@link tools.jackson.databind.objectid.ObjectIdWithBuilder1496Test}, for
+ * now-passing cases.
+ */
+class ObjectIdWithBuilder1496Test extends DatabindTestUtil
+{
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonDeserialize(builder = EntityBuilder.class)
     static class Entity

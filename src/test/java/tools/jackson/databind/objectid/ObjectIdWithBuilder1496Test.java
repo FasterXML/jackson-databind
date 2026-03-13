@@ -15,8 +15,15 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// [databind#1496]: Object Ids with builder-based deserialization
-class ObjectIdWithBuilder1496Test extends DatabindTestUtil {
+/**
+ * [databind#1496]: Object Ids with builder-based deserialization.
+ *<p>
+ * NOTE: this test class contains passing tests; there is separate class,
+ * {@link tools.jackson.databind.tofix.ObjectIdWithBuilder1496Test}, for
+ * remaining failing cases.
+ */
+class ObjectIdWithBuilder1496Test extends DatabindTestUtil
+{
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonDeserialize(builder = POJOBuilder.class)
     static class POJO {

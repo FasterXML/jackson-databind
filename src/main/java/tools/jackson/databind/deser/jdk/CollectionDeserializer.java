@@ -681,11 +681,6 @@ _containerType,
         public void handleResolvedForwardReference(DeserializationContext ctxt, Object id, Object value) throws JacksonException {
             _parent.resolveForwardReference(ctxt, id, value);
         }
-
-        @Override
-        public boolean refersTo(Object obj) {
-            return false;
-        }
     }
 
 }

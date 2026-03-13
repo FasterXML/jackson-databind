@@ -379,6 +379,30 @@ public enum MapperFeature
      */
     SORT_CREATOR_PROPERTIES_FIRST(true),
 
+    /**
+     * Feature that determines whether explicit
+     * {@link com.fasterxml.jackson.annotation.JsonProperty#index()} values
+     * participate in POJO property ordering.
+     * When enabled (default), properties with an explicit index are sorted by
+     * that index and placed before non-indexed properties.
+     * When disabled, index values are ignored for ordering purposes and no longer
+     * take precedence over other applicable ordering rules (such as alphabetic
+     * ordering via {@link #SORT_PROPERTIES_ALPHABETICALLY} or
+     * {@link com.fasterxml.jackson.annotation.JsonPropertyOrder#alphabetic()}).
+     *<p>
+     * Note that this feature affects POJO property ordering logic used by
+     * shared property introspection paths.
+     *<p>
+     * Note that disabling this feature does NOT affect
+     * {@link com.fasterxml.jackson.annotation.JsonPropertyOrder#value()} explicit
+     * name-based ordering, which always takes precedence.
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 3.2 (and 2.22 for 2.x)
+     */
+    SORT_PROPERTIES_BY_INDEX(true),
+
     /*
     /**********************************************************************
     /* Name-related features

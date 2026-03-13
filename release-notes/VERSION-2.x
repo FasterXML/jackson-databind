@@ -6,6 +6,10 @@ Project: jackson-databind
 
 2.22.0 (not yet released)
 
+#3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices are
+  defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
+ (reported by Christian D)
+ (contributed by Lee Jiwon)
 #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)

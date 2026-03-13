@@ -207,8 +207,8 @@ public class BuilderBasedDeserializer
         if (null == _buildMethod) {
             return builder;
         }
-        // [databind#1496]: Object Id resolution may return the target type directly
-        // (not the builder), so skip the build step in that case
+        // [databind#1496]: Object Id resolution may return an already-built target
+        // object (not the builder), so skip the build step in that case
         if (!handledType().isInstance(builder)) {
             return builder;
         }

@@ -571,5 +571,10 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
                 Object id, Object value) {
             _parent.resolveForwardReference(id, value);
         }
+
+        @Override
+        public boolean refersTo(Object obj) {
+            return false;
+        }
     }
 }

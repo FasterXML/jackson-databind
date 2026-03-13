@@ -1008,5 +1008,10 @@ public class MapDeserializer
         {
             _parent.resolveForwardReference(ctxt, id, value);
         }
+
+        @Override
+        public boolean refersTo(Object obj) {
+            return false;
+        }
     }
 }

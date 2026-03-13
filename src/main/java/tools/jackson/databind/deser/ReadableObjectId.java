@@ -24,7 +24,7 @@ public class ReadableObjectId
     protected Object _item;
 
     /**
-     * Flag set when {@link #replaceBoundItem} is called, indicating that
+     * Flag set when {@link #tryReplaceBoundItem} is called, indicating that
      * {@link #_item} has been replaced and should not be refreshed from resolver.
      *
      * @since 3.2

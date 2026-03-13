@@ -1515,5 +1515,10 @@ public class BeanDeserializer
                 _prop.set(ctxt, _bean, value);
             }
         }
+
+        @Override
+        public boolean refersTo(Object obj) {
+            return _bean == obj;
+        }
     }
 }

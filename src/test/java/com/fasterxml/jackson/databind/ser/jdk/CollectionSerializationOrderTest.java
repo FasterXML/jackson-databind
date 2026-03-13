@@ -99,6 +99,16 @@ public class CollectionSerializationOrderTest extends DatabindTestUtil
         assertEquals("[\"a\",\"b\",\"c\"]", mapper.writeValueAsString(set));
     }
 
+    // #4b: SortedSet with custom comparator — preserve comparator order
+    @Test
+    public void testSortedSetWithCustomComparatorPreserved() throws Exception {
+        ObjectMapper mapper = orderedMapper();
+        Set<String> set = new TreeSet<>(Comparator.reverseOrder());
+        set.addAll(Arrays.asList("a", "b", "c"));
+        // Even with ordering enabled, SortedSet keeps its own comparator order
+        assertEquals("[\"c\",\"b\",\"a\"]", mapper.writeValueAsString(set));
+    }
+
     // #5: EnumSet preserves ordinal order — not re-sorted
     @Test
     public void testEnumSetOrderUnchanged() throws Exception {

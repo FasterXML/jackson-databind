@@ -2046,7 +2046,7 @@ inputDesc, _coercedTypeDesc(targetType));
                     if (!vi.canCreateFromObjectWith()) {
                         final JavaType type = (prop == null) ? bd.getValueType() : prop.getType();
                         return ctxt.reportBadDefinition(type,
-                                String.format("Cannot create empty instance of %s, no default Creator", type));
+                                String.format("Cannot create empty instance of %s, no default or Properties-based Creator", type));
                     }
                 }
             }

@@ -270,7 +270,7 @@ public class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
        }
 
        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
-               property = "type")
+               property = "type", visible = true)
        @JsonTypeIdResolver(ChildBaseByParentTypeResolver3045.class)
        public void setData(Object data) {
            this.data = data;

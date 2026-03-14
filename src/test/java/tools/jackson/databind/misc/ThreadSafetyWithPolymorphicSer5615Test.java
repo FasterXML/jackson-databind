@@ -19,13 +19,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test for [databind#5615]: Race condition with {@code @JsonIgnoreProperties}
- * and {@code @JsonTypeInfo(include = As.PROPERTY)} on serialization side
+ * and {@code @JsonTypeInfo(include = As.PROPERTY)} on serialization side.
+ *<p>
+ * NOTE: modified for [databind#1410].
  */
 public class ThreadSafetyWithPolymorphicSer5615Test
     extends DatabindTestUtil
 {
-    @JsonIgnoreProperties(value = {"typ"}, allowSetters = true)
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "typ", visible = true)
+    @JsonIgnoreProperties(value = {"type"}, allowSetters = true)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
     @JsonSubTypes({
             @JsonSubTypes.Type(value = LivingRoom.class, name = "Living"),
             @JsonSubTypes.Type(value = SleepingRoom.class, name = "Sleeping")
@@ -53,8 +55,8 @@ public class ThreadSafetyWithPolymorphicSer5615Test
 
     enum RoomType { Living, Sleeping }
 
-    @JsonIgnoreProperties(value = {"typ"}, allowSetters = true)
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "typ", visible = true)
+    @JsonIgnoreProperties(value = {"type"}, allowSetters = true)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
     @JsonSubTypes({
             @JsonSubTypes.Type(value = Cat.class, name = "Cat"),
             @JsonSubTypes.Type(value = Dog.class, name = "Dog")
@@ -82,21 +84,23 @@ public class ThreadSafetyWithPolymorphicSer5615Test
             {
                 "rooms": [
                     {
+                      "type": "Living",
                       "typ": "Living",
                       "animals": [
-                            { "typ": "Cat" },
-                            { "typ": "Cat" },
-                            { "typ": "Cat" },
-                            { "typ": "Cat" }
+                            { "type": "Cat", "typ": "Cat" },
+                            { "type": "Cat", "typ": "Cat" },
+                            { "type": "Cat", "typ": "Cat" },
+                            { "type": "Cat", "typ": "Cat" }
                       ]
                     },
                     {
+                      "type": "Sleeping",
                       "typ": "Sleeping",
                       "animals": [
-                            { "typ": "Dog" },
-                            { "typ": "Dog" },
-                            { "typ": "Dog" },
-                            { "typ": "Dog" }
+                            { "type": "Dog", "typ": "Dog" },
+                            { "type": "Dog", "typ": "Dog" },
+                            { "type": "Dog", "typ": "Dog" },
+                            { "type": "Dog", "typ": "Dog" }
                       ]
                     }
                 ]

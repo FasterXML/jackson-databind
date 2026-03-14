@@ -207,6 +207,19 @@ public abstract class BeanDeserializerBase
      */
     protected volatile boolean _propertiesContextualized;
 
+    /**
+     * Re-entry guard for {@link PropertyBasedCreator} construction within
+     * {@link #createContextual}: set to {@code true} while
+     * {@code PropertyBasedCreator.construct()} is running, to prevent
+     * infinite recursion when mutually-referencing types both use
+     * property-based {@code @JsonCreator}s.
+     *<p>
+     * NOTE: only accessed within {@code synchronized (_valueInstantiator)} block.
+     *
+     * @since 3.2
+     */
+    private boolean _creatorBeingResolved;
+
     /*
     /**********************************************************************
     /* Life-cycle, construction, initialization
@@ -669,6 +682,13 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
         } else {
             _unwrappedPropertyHandler = null;
         }
+        // [databind#2039]: combination of unwrapped and external type id not (yet) supported
+        if (_unwrappedPropertyHandler != null && _externalTypeIdHandler != null) {
+            ctxt.reportBadDefinition(_beanType, String.format(
+                    "Cannot (yet) use @JsonUnwrapped and @JsonTypeInfo(As.EXTERNAL_PROPERTY) "
+                    + "on properties of the same Bean (%s)",
+                    ClassUtil.getTypeDescription(_beanType)));
+        }
         // may need to disable vanilla processing, if unwrapped handling was enabled...
         _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
     }
@@ -841,9 +861,20 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
         if (_propertyBasedCreator == null && _valueInstantiator.canCreateFromObjectWith()) {
             // Let's guard state mutation wrt concurrency
             synchronized (_valueInstantiator) {
-                SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
-                _propertyBasedCreator = PropertyBasedCreator.construct(
-                        ctxt, _valueInstantiator, creatorProps, _beanProperties);
+                // 13-Mar-2026, tatu: [kotlin-module#54]: guard against infinite recursion
+                // when mutually-referencing types both use property-based @JsonCreator:
+                // PropertyBasedCreator.construct() contextualizes creator properties,
+                // which can recurse back to createContextual() for this same type.
+                if (!_creatorBeingResolved) {
+                    _creatorBeingResolved = true;
+                    try {
+                        SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+                        _propertyBasedCreator = PropertyBasedCreator.construct(
+                                ctxt, _valueInstantiator, creatorProps, _beanProperties);
+                    } finally {
+                        _creatorBeingResolved = false;
+                    }
+                }
             }
         }
 
@@ -1519,7 +1550,6 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return idDeser.deserialize(bufParser, ctxt);
     }
 
-    // NOTE: currently only used by standard BeanDeserializer (not Builder-based)
     /**
      * Alternative deserialization method used when we expect to see Object Id;
      * if so, we will need to ensure that the Id is seen before anything
@@ -1527,6 +1557,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * even if JSON itself is not ordered that way. This may require
      * buffering in some cases, but usually just a simple lookup to ensure
      * that ordering is correct.
+     *<p>
+     * Used by both {@link BeanDeserializer} and
+     * {@link BuilderBasedDeserializer} (since 3.2, [databind#1496]).
      */
     protected Object deserializeWithObjectId(JsonParser p, DeserializationContext ctxt) throws JacksonException {
         return deserializeFromObject(p, ctxt);
@@ -1557,10 +1590,14 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         //   Creator handling
         final ValueDeserializer<Object> delegateDeser = _delegateDeserializer(p);
         if (delegateDeser != null) {
-            final Object bean = _valueInstantiator.createUsingDelegate(ctxt,
-                    delegateDeser.deserialize(p, ctxt));
+            final Object delegate = delegateDeser.deserialize(p, ctxt);
+            final Object bean = _valueInstantiator.createUsingDelegate(ctxt, delegate);
             if (_injectables != null) {
                 injectValues(ctxt, bean);
+            }
+            // [databind#1706]: if ObjectId was bound to delegate, re-bind to final bean
+            if (_objectIdReader != null && bean != delegate) {
+                ctxt.updateObjectId(delegate, bean);
             }
             return bean;
         }

@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.objectid;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -95,7 +94,6 @@ public class DefaultTypingWithObjectId2780Test extends DatabindTestUtil
     // type wrapper, because the serializer already emitted the full object above.
     // On deserialization the bare id lacks type info and is read as Integer instead
     // of being resolved to the User -- this is the bug described in #2780.
-    @JacksonTestFailureExpected
     @Test
     public void testContainerFirstThenUser() throws Exception
     {

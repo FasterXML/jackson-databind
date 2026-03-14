@@ -316,11 +316,8 @@ public class ObjectArrayDeserializer
                 }
                 acc.add(value);
             } catch (UnresolvedForwardReference reference) {
-                if (acc == null) {
-                    throw reference;
-                }
-                ArrayReferring referring = new ArrayReferring(reference, _elementClass, acc);
-                reference.getRoid().appendReferring(referring);
+                Referring ref = acc.handleUnresolvedReference(reference);
+                reference.getRoid().appendReferring(ref);
             } catch (Exception e) {
                 throw DatabindException.wrapWithPath(ctxt, e,
                         // 22-Nov-2025, tatu: Not ideal but has to do
@@ -485,8 +482,8 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
             }
             acc.add(value);
         } catch (UnresolvedForwardReference reference) {
-            ArrayReferring referring = new ArrayReferring(reference, _elementClass, acc);
-            reference.getRoid().appendReferring(referring);
+            Referring ref = acc.handleUnresolvedReference(reference);
+            reference.getRoid().appendReferring(ref);
         }
         return acc.buildArray();
     }
@@ -511,7 +508,6 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
         private final boolean _untyped;
         private final Class<?> _elementType;
         private final List<Object> _accumulator = new ArrayList<>();
-
         private Object[] _array;
 
         ObjectArrayReferringAccumulator(boolean untyped, Class<?> elementType) {
@@ -521,6 +517,27 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
 
         void add(Object value) {
             _accumulator.add(value);
+        }
+
+        Referring handleUnresolvedReference(UnresolvedForwardReference reference) {
+            ArrayReferring ref = new ArrayReferring(this, reference, _elementType);
+            _accumulator.add(ref);
+            return ref;
+        }
+
+        void resolveForwardReference(Object id, Object value) {
+            for (int i = 0, size = _accumulator.size(); i < size; i++) {
+                if ((_accumulator.get(i) instanceof ArrayReferring ref) && ref.hasId(id)) {
+                    if (_array != null) {
+                        _array[i] = value;
+                    } else {
+                        _accumulator.set(i, value);
+                    }
+                    return;
+                }
+            }
+            throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
+                    + "] that wasn't previously seen as unresolved.");
         }
 
         Object[] buildArray() {
@@ -543,25 +560,16 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
     private static class ArrayReferring extends Referring {
         private final ObjectArrayReferringAccumulator _parent;
 
-        ArrayReferring(UnresolvedForwardReference ref,
-                Class<?> type,
-                ObjectArrayReferringAccumulator acc) {
+        ArrayReferring(ObjectArrayReferringAccumulator parent,
+                UnresolvedForwardReference ref, Class<?> type) {
             super(ref, type);
-            _parent = acc;
-            _parent._accumulator.add(this);
+            _parent = parent;
         }
 
         @Override
         public void handleResolvedForwardReference(DeserializationContext ctxt,
-                Object id, Object value) throws JacksonException {
-            final int size = _parent._accumulator.size();
-            for (int i = 0; i < size; i++) {
-                if (_parent._accumulator.get(i) == this) {
-                    _parent._array[i] = value;
-                    return;
-                }
-            }
-            throw new IllegalArgumentException("Trying to resolve unknown reference: " + id);
+                Object id, Object value) {
+            _parent.resolveForwardReference(id, value);
         }
     }
 }

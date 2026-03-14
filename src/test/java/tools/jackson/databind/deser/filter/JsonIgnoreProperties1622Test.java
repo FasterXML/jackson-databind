@@ -1,4 +1,4 @@
-package tools.jackson.databind.deser;
+package tools.jackson.databind.deser.filter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -216,7 +216,6 @@ public class JsonIgnoreProperties1622Test
             }
         }
     }
-
 
     static class GrandParent {
         private String name;

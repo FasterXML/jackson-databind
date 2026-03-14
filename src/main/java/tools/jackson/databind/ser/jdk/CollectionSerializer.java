@@ -1,8 +1,6 @@
 package tools.jackson.databind.ser.jdk;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Iterator;
+import java.util.*;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.BeanProperty;
@@ -132,11 +130,20 @@ public class CollectionSerializer
             SerializationContext ctxt)
         throws JacksonException
     {
+        // [databind#3166]: sort Set elements if feature enabled
+        Collection<?> toSerialize = value;
+        if (value instanceof Set<?> && !(value instanceof SortedSet<?>)
+                && !(value instanceof EnumSet<?>)) {
+            if (ctxt.isEnabled(SerializationFeature.ORDER_SET_ENTRIES_BY_ELEMENTS)) {
+                toSerialize = _orderElements(value, ctxt);
+            }
+        }
+
         if (_elementSerializer != null) {
-            serializeContentsUsingImpl(value, g, ctxt, _elementSerializer);
+            serializeContentsUsingImpl(toSerialize, g, ctxt, _elementSerializer);
             return;
         }
-        Iterator<?> it = value.iterator();
+        Iterator<?> it = toSerialize.iterator();
         if (!it.hasNext()) {
             return;
         }
@@ -182,6 +189,42 @@ public class CollectionSerializer
             } while (it.hasNext());
         } catch (Exception e) {
             wrapAndThrow(ctxt, e, value, i);
+        }
+    }
+
+    /**
+     * Helper method to sort Set elements for deterministic serialization.
+     */
+    @SuppressWarnings("unchecked")
+    protected Collection<?> _orderElements(Collection<?> input,
+            SerializationContext ctxt)
+        throws JacksonException
+    {
+        if (input instanceof SortedSet<?>) {
+            return input;
+        }
+        if (input instanceof EnumSet<?>) {
+            return input;
+        }
+        if (input.isEmpty()) {
+            return input;
+        }
+        try {
+            List<Object> sorted = new ArrayList<>(input);
+            sorted.sort((Comparator<Object>)(Comparator<?>)
+                    Comparator.nullsLast(Comparator.naturalOrder()));
+            return sorted;
+        } catch (ClassCastException e) {
+            if (!ctxt.isEnabled(
+                    SerializationFeature.FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT)) {
+                return input;
+            }
+            ctxt.reportBadDefinition(input.getClass(),
+                "Cannot order Set entries: elements are not mutually "
+                + "Comparable, consider disabling "
+                + "`SerializationFeature.FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT`"
+                + " to simply skip sorting");
+            return input; // unreachable, reportBadDefinition throws
         }
     }
 

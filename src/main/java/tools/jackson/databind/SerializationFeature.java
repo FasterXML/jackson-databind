@@ -257,6 +257,34 @@ public enum SerializationFeature implements ConfigFeature
     FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY(false),
 
     /**
+     * Feature that determines whether {@link java.util.Set} entries are first
+     * sorted before serialization or not: if enabled, additional sorting step
+     * is performed if necessary (not necessary for
+     * {@link java.util.SortedSet}s), if disabled, no additional sorting is needed.
+     *<p>
+     * Note that sorting requires set elements to implement {@link java.lang.Comparable};
+     * behavior when encountering non-Comparable elements is controlled by
+     * {@link #FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT}.
+     *<p>
+     * Feature is disabled by default.
+     */
+    ORDER_SET_ENTRIES_BY_ELEMENTS(false),
+
+    /**
+     * Feature that determines whether to fail when attempting to sort
+     * {@link java.util.Set} entries with non-Comparable or mutually incomparable elements.
+     *<p>
+     * If enabled, will throw an exception when set elements cannot be sorted.
+     * If disabled, will silently skip sorting and use the original iteration order.
+     *<p>
+     * Note that this feature only applies when set entry ordering is enabled via
+     * {@link #ORDER_SET_ENTRIES_BY_ELEMENTS}.
+     *<p>
+     * Feature is disabled by default.
+     */
+    FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT(false),
+
+    /**
      * Feature that determines whether {@code JsonInclude#content()} configured
      * filtering is applied to elements of {@link java.util.Collection} and
      * array valued properties.

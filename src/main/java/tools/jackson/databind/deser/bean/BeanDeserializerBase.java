@@ -207,6 +207,17 @@ public abstract class BeanDeserializerBase
      */
     protected volatile boolean _propertiesContextualized;
 
+    /**
+     * Re-entry guard for {@link PropertyBasedCreator} construction within
+     * {@link #createContextual}: set to {@code true} while
+     * {@code PropertyBasedCreator.construct()} is running, to prevent
+     * infinite recursion when mutually-referencing types both use
+     * property-based {@code @JsonCreator}s.
+     *<p>
+     * NOTE: only accessed within {@code synchronized (_valueInstantiator)} block.
+     */
+    private boolean _creatorBeingResolved;
+
     /*
     /**********************************************************************
     /* Life-cycle, construction, initialization
@@ -848,9 +859,20 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
         if (_propertyBasedCreator == null && _valueInstantiator.canCreateFromObjectWith()) {
             // Let's guard state mutation wrt concurrency
             synchronized (_valueInstantiator) {
-                SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
-                _propertyBasedCreator = PropertyBasedCreator.construct(
-                        ctxt, _valueInstantiator, creatorProps, _beanProperties);
+                // [kotlin-module#54]: guard against infinite recursion when mutually-
+                // referencing types both use property-based @JsonCreator:
+                // PropertyBasedCreator.construct() contextualizes creator properties,
+                // which can recurse back to createContextual() for this same type.
+                if (!_creatorBeingResolved) {
+                    _creatorBeingResolved = true;
+                    try {
+                        SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+                        _propertyBasedCreator = PropertyBasedCreator.construct(
+                                ctxt, _valueInstantiator, creatorProps, _beanProperties);
+                    } finally {
+                        _creatorBeingResolved = false;
+                    }
+                }
             }
         }
 

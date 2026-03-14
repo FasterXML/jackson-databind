@@ -56,7 +56,7 @@ public class JsonIdentityKotlinGithub54Test
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
+    //@JacksonTestFailureExpected
     @Test
     void testDeserWithIdentityInfo() throws Exception {
         Entity1 entity1 = new Entity1("test_entity1", null, null);

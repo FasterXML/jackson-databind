@@ -378,7 +378,9 @@ public class POJOPropertiesCollector
     //    in 2.x, merged in 2.18 timeframe to 3.0 for easier merges.
     /**
      * @since 2.17
+     * @deprecated Since 3.2
      */
+    @Deprecated // since 3.2; remove from 3.3 or later
     public JsonFormat.Value getFormatOverrides() {
         if (_formatOverrides == null) {
             // Let's check both per-type defaults and annotations;
@@ -482,40 +484,6 @@ public class POJOPropertiesCollector
         _sortProperties(props);
         _properties = props;
         _collected = true;
-    }
-
-    /**
-     * [databind#5215] JsonAnyGetter Serializer behavior change from 2.18.4 to 2.19.0
-     * Put anyGetter in the end, before actual sorting further down {@link POJOPropertiesCollector#_sortProperties(Map)}
-     */
-    private Map<String, POJOPropertyBuilder> _putAnyGettersInTheEnd(
-            Map<String, POJOPropertyBuilder> sortedProps)
-    {
-        AnnotatedMember anyAccessor;
-
-        if (_anyGetters != null) {
-            anyAccessor = _anyGetters.getFirst();
-        } else if (_anyGetterField != null) {
-            anyAccessor = _anyGetterField.getFirst();
-        } else {
-            return sortedProps;
-        }
-
-        // Here we'll use insertion-order preserving map, since possible alphabetic
-        // sorting already done earlier
-        Map<String, POJOPropertyBuilder> newAll = new LinkedHashMap<>(sortedProps.size() * 2);
-        POJOPropertyBuilder anyGetterProp = null;
-        for (POJOPropertyBuilder prop : sortedProps.values()) {
-            if (prop.hasFieldOrGetter(anyAccessor)) {
-                anyGetterProp = prop;
-            } else {
-                newAll.put(prop.getName(), prop);
-            }
-        }
-        if (anyGetterProp != null) {
-            newAll.put(anyGetterProp.getName(), anyGetterProp);
-        }
-        return newAll;
     }
 
     /*
@@ -1096,17 +1064,17 @@ ctor.creator()));
                 NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(_config, param);
                 if (unwrapper != null) {
                     // If unwrapping, use a placeholder name to avoid name conflicts during
-                    // deserialization. Store the (possibly field-renamed) implicit name as
+                    // deserialization. Store the implicit name as
                     // the internal name so _sortProperties() can place this property at its
                     // declaration position without re-invoking the annotation introspector.
-                    // [databind#5716]
+                    // (see [databind#5716])
                     final PropertyName placeholder = UnwrappedPropertyHandler.creatorParamName(param.getIndex());
                     final PropertyName internalName = hasImplicit ? implName : placeholder;
                     final POJOPropertyBuilder prop = new POJOPropertyBuilder(_config,
                             _annotationIntrospector, _forSerialization, internalName, placeholder);
-                    prop._unwrapped = true;
-                    props.put(placeholder.getSimpleName(), prop);
+                    prop.markAsUnwrapped();
                     prop.addCtor(param, placeholder, false, true, false);
+                    props.put(placeholder.getSimpleName(), prop);
                     creatorProps.add(prop);
                     continue;
                 }
@@ -1559,10 +1527,10 @@ ctor.creator()));
 
     /**
      * Helper method called to collect class-level property ignorals: stores the
-     * full {@link JsonIgnoreProperties.Value} (annotation + config overrides) in
-     * {@link #_propertyIgnorals} for reuse by the factory layer, and copies the
-     * direction-specific property names into {@link #_ignoredPropertyNames} so
-     * that {@link #_renameProperties} can skip them.
+     * full {@link com.fasterxml.jackson.annotation.JsonIgnoreProperties.Value}
+     * (annotation + config overrides) in {@link #_propertyIgnorals} for reuse by
+     * the factory layer, and copies the direction-specific property names into
+     * {@link #_ignoredPropertyNames} so that {@link #_renameProperties} can skip them.
      *<p>
      * Uses {@link MapperConfig#getDefaultPropertyIgnorals} rather than calling
      * {@code findPropertyIgnoralByName()} directly, so that config-level overrides
@@ -1816,12 +1784,18 @@ ctor.creator()));
         final boolean sortAlpha = (alpha == null)
                 ? _config.shouldSortPropertiesAlphabetically()
                 : alpha.booleanValue();
-        final boolean indexed = _anyIndexed(props.values());
+        final boolean useIndexOrdering = _anyIndexed(props.values())
+                && _config.isEnabled(MapperFeature.SORT_PROPERTIES_BY_INDEX);
+        final boolean sortCreatorsFirst = (_creatorProperties != null)
+                && (!sortAlpha || _config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+        final AnnotatedMember anyAccessor = _findAnyAccessor();
 
         String[] propertyOrder = intr.findSerializationPropertyOrder(_config, _classDef);
 
-        // no sorting? no need to shuffle, then
-        if (!sortAlpha && !indexed && (_creatorProperties == null) && (propertyOrder == null)) {
+        // no sorting? no need to shuffle, then. But note there are lots of things
+        // that do require some shuffling.
+        if (!sortAlpha && !useIndexOrdering && !sortCreatorsFirst
+                && (propertyOrder == null) && (anyAccessor == null)) {
             return;
         }
         int size = props.size();
@@ -1836,8 +1810,9 @@ ctor.creator()));
         for (POJOPropertyBuilder prop : props.values()) {
             all.put(prop.getName(), prop);
         }
-        all = _putAnyGettersInTheEnd(all);
-
+        if (anyAccessor != null) {
+            all = _moveAnyAccessorToTheEnd(all, anyAccessor);
+        }
         Map<String,POJOPropertyBuilder> ordered = new LinkedHashMap<>(size+size);
         // Ok: primarily by explicit order
         if (propertyOrder != null) {
@@ -1860,7 +1835,7 @@ ctor.creator()));
         }
 
         // Second (starting with 2.11): index, if any:
-        if (indexed) {
+        if (useIndexOrdering) {
             Map<Integer,POJOPropertyBuilder> byIndex = new TreeMap<>();
             Iterator<Map.Entry<String,POJOPropertyBuilder>> it = all.entrySet().iterator();
             while (it.hasNext()) {
@@ -1879,8 +1854,7 @@ ctor.creator()));
 
         // Third by sorting Creator properties before other unordered properties
         // (unless strict ordering is requested)
-        if ((_creatorProperties != null)
-                && (!sortAlpha || _config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST))) {
+        if (sortCreatorsFirst) {
             /* As per [databind#311], this is bit delicate; but if alphabetic ordering
              * is mandated, at least ensure creator properties are in alphabetic
              * order. Related question of creator vs non-creator is punted for now,
@@ -1929,6 +1903,41 @@ ctor.creator()));
         return false;
     }
 
+    private AnnotatedMember _findAnyAccessor() {
+        if (_anyGetters != null) {
+            return _anyGetters.getFirst();
+        }
+        if (_anyGetterField != null) {
+            return _anyGetterField.getFirst();
+        }
+        return null;
+    }
+
+    /**
+     * [databind#5215] JsonAnyGetter Serializer behavior change from 2.18.4 to 2.19.0
+     * Put anyGetter in the end, before actual sorting further down {@link POJOPropertiesCollector#_sortProperties(Map)}
+     */
+    private Map<String, POJOPropertyBuilder> _moveAnyAccessorToTheEnd(
+            Map<String, POJOPropertyBuilder> sortedProps,
+            AnnotatedMember anyAccessor)
+    {
+        // Here we'll use insertion-order preserving map, since possible alphabetic
+        // sorting already done earlier
+        Map<String, POJOPropertyBuilder> newAll = new LinkedHashMap<>(sortedProps.size() * 2);
+        POJOPropertyBuilder anyGetterProp = null;
+        for (POJOPropertyBuilder prop : sortedProps.values()) {
+            if (prop.hasFieldOrGetter(anyAccessor)) {
+                anyGetterProp = prop;
+            } else {
+                newAll.put(prop.getName(), prop);
+            }
+        }
+        if (anyGetterProp != null) {
+            newAll.put(anyGetterProp.getName(), anyGetterProp);
+        }
+        return newAll;
+    }
+    
     /*
     /**********************************************************************
     /* Internal methods, conflict resolution

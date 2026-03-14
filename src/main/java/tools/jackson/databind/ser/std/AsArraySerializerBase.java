@@ -239,8 +239,10 @@ public abstract class AsArraySerializerBase<T>
         if (ser == null) {
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
+            // [databind#1515]: but allow per-property or per-content-type DYNAMIC override
             if (_elementType != null) {
-                if (_staticTyping && !_elementType.isJavaLangObject()) {
+                if (_staticTyping && !_elementType.isJavaLangObject()
+                        && !_hasDynamicTypingOverride(ctxt, property)) {
                     ser = ctxt.findContentValueSerializer(_elementType, property);
                 }
             }

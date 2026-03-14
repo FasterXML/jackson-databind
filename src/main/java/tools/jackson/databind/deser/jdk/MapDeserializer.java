@@ -929,7 +929,7 @@ public class MapDeserializer
         reference.getRoid().appendReferring(referring);
     }
 
-    private final static class MapReferringAccumulator {
+    final static class MapReferringAccumulator {
         private final Class<?> _valueType;
         private final Map<Object,Object> _result;
         /**

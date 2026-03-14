@@ -2041,9 +2041,13 @@ inputDesc, _coercedTypeDesc(targetType));
                 BeanDeserializerBase bd = (BeanDeserializerBase) valueDeser;
                 ValueInstantiator vi = bd.getValueInstantiator();
                 if (!vi.canCreateUsingDefault()) {
-                    final JavaType type = (prop == null) ? bd.getValueType() : prop.getType();
-                    return ctxt.reportBadDefinition(type,
-                            String.format("Cannot create empty instance of %s, no default Creator", type));
+                    // [databind#2572]: also allow property-based creators (will be
+                    //   called with null/empty args via createUsingDefaultOrWithoutArguments)
+                    if (!vi.canCreateFromObjectWith()) {
+                        final JavaType type = (prop == null) ? bd.getValueType() : prop.getType();
+                        return ctxt.reportBadDefinition(type,
+                                String.format("Cannot create empty instance of %s, no default or Properties-based Creator", type));
+                    }
                 }
             }
             // Second: can with pre-fetch value?

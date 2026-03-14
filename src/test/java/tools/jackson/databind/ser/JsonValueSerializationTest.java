@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JsonValueSerializationTest
     extends DatabindTestUtil
 {
-    static class ValueClass<T>
+    public static class ValueClass<T>
     {
         final T _value;
 
@@ -35,7 +35,7 @@ public class JsonValueSerializationTest
         @JsonValue T value() { return _value; }
     }
 
-    static class FieldValueClass<T>
+    public static class FieldValueClass<T>
     {
         @JsonValue(true)
         final T _value;
@@ -49,7 +49,7 @@ public class JsonValueSerializationTest
      * method. Difference is between Integer serialization, and
      * conversion to a Json String.
      */
-    final static class ToStringValueClass<T>
+    public final static class ToStringValueClass<T>
         extends ValueClass<T>
     {
         public ToStringValueClass(T value) { super(value); }
@@ -60,7 +60,7 @@ public class JsonValueSerializationTest
         @JsonValue T value() { return super.value(); }
     }
 
-    final static class ToStringValueClass2
+    public final static class ToStringValueClass2
         extends ValueClass<String>
     {
         public ToStringValueClass2(String value) { super(value); }
@@ -72,21 +72,21 @@ public class JsonValueSerializationTest
         public String[] getSomethingElse() { return new String[] { "1", "a" }; }
     }
 
-    static class ValueBase {
+    public static class ValueBase {
         public String a = "a";
     }
 
-    static class ValueType extends ValueBase {
+    public static class ValueType extends ValueBase {
         public String b = "b";
     }
 
     // Finally, let's also test static vs dynamic type
-    static class ValueWrapper {
+    public static class ValueWrapper {
         @JsonValue
         public ValueBase getX() { return new ValueType(); }
     }
 
-    static class MapBean
+    public static class MapBean
     {
         @JsonValue
         public Map<String,String> toMap()
@@ -97,7 +97,7 @@ public class JsonValueSerializationTest
         }
     }
 
-    static class MapFieldBean
+    public static class MapFieldBean
     {
         @JsonValue
         Map<String,String> stuff = new HashMap<>();
@@ -106,13 +106,13 @@ public class JsonValueSerializationTest
         }
     }
 
-    static class MapAsNumber extends HashMap<String,String>
+    public static class MapAsNumber extends HashMap<String,String>
     {
         @JsonValue
         public int value() { return 42; }
     }
 
-    static class ListAsNumber extends ArrayList<Integer>
+    public static class ListAsNumber extends ArrayList<Integer>
     {
         @JsonValue
         public int value() { return 13; }
@@ -121,7 +121,7 @@ public class JsonValueSerializationTest
     // Just to ensure it's possible to disable annotation (usually
     // via mix-ins, but here directly)
     @JsonPropertyOrder({ "x", "y" })
-    static class DisabledJsonValue {
+    public static class DisabledJsonValue {
         @JsonValue(false)
         public int x = 1;
 
@@ -129,13 +129,13 @@ public class JsonValueSerializationTest
         public int getY() { return 2; }
     }
 
-    static class IntExtBean {
+    public static class IntExtBean {
         public List<Internal> values = new ArrayList<Internal>();
 
         public void add(int v) { values.add(new Internal(v)); }
     }
 
-    static class Internal {
+    public static class Internal {
         public int value;
 
         public Internal(int v) { value = v; }
@@ -144,7 +144,7 @@ public class JsonValueSerializationTest
         public External asExternal() { return new External(this); }
     }
 
-    static class External {
+    public static class External {
         public int i;
 
         External(Internal e) { i = e.value; }
@@ -155,7 +155,7 @@ public class JsonValueSerializationTest
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "boingo")
     @JsonSubTypes(value = {@JsonSubTypes.Type(name = "boopsy", value = AdditionInterfaceImpl.class)
     })
-    static interface AdditionInterface
+    public static interface AdditionInterface
     {
         public int add(int in);
     }
@@ -180,14 +180,14 @@ public class JsonValueSerializationTest
 	    }
     }
 
-    static class Bean838 {
+    public static class Bean838 {
         @JsonValue
         public String value() {
             return "value";
         }
     }
 
-    static class Bean838Serializer extends StdScalarSerializer<Bean838>
+    public static class Bean838Serializer extends StdScalarSerializer<Bean838>
     {
         public Bean838Serializer() {
             super(Bean838.class);
@@ -201,7 +201,7 @@ public class JsonValueSerializationTest
     }
 
     // [databind#1806]
-    static class Bean1806 {
+    public static class Bean1806 {
         @JsonValue public List<Elem1806> getThings() {
             return Collections.singletonList(new Elem1806.Impl());
         }
@@ -209,7 +209,7 @@ public class JsonValueSerializationTest
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonSubTypes(@JsonSubTypes.Type(value = Elem1806.Impl.class, name = "impl"))
-    interface Elem1806 {
+    public interface Elem1806 {
         final class Impl implements Elem1806 {
             public int value = 1;
         }
@@ -217,7 +217,7 @@ public class JsonValueSerializationTest
 
     // [databind#2822]
     @JsonPropertyOrder({ "description", "b" })
-    static class A2822 {
+    public static class A2822 {
         public final String description;
 
         @JsonFormat(shape = JsonFormat.Shape.STRING)
@@ -229,7 +229,7 @@ public class JsonValueSerializationTest
         }
     }
 
-    static class B2822 {
+    public static class B2822 {
         @JsonValue
         private final BigDecimal value;
 
@@ -242,7 +242,7 @@ public class JsonValueSerializationTest
 
     /// Class for testing {@link JsonRawValue} annotations with getters returning String
     @JsonPropertyOrder(alphabetic=true)
-    final static class ClassGetter<T>
+    public final static class ClassGetter<T>
     {
         protected final T _value;
 
@@ -256,7 +256,7 @@ public class JsonValueSerializationTest
     }
 
     // [databind#348]
-    static class RawWrapped
+    public static class RawWrapped
     {
         @JsonRawValue
         private final String json;

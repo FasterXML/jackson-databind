@@ -215,6 +215,8 @@ public abstract class BeanDeserializerBase
      * property-based {@code @JsonCreator}s.
      *<p>
      * NOTE: only accessed within {@code synchronized (_valueInstantiator)} block.
+     *
+     * @since 3.2
      */
     private boolean _creatorBeingResolved;
 
@@ -859,8 +861,8 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
         if (_propertyBasedCreator == null && _valueInstantiator.canCreateFromObjectWith()) {
             // Let's guard state mutation wrt concurrency
             synchronized (_valueInstantiator) {
-                // [kotlin-module#54]: guard against infinite recursion when mutually-
-                // referencing types both use property-based @JsonCreator:
+                // 13-Mar-2026, tatu: [kotlin-module#54]: guard against infinite recursion
+                // when mutually-referencing types both use property-based @JsonCreator:
                 // PropertyBasedCreator.construct() contextualizes creator properties,
                 // which can recurse back to createContextual() for this same type.
                 if (!_creatorBeingResolved) {

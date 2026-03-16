@@ -443,7 +443,7 @@ public class EnumResolver implements java.io.Serializable
     /**
      * @since 3.2
      */
-    public Map<Integer, Enum<?>> getNumericIndexLookup() {
+    public HashMap<Integer, Enum<?>> getNumericIndexLookup() {
         return _enumsByNumericIndex;
     }
 

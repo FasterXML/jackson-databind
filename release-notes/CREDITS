@@ -344,6 +344,16 @@ Andrzej Leśkiewicz (@aleskiewicz)
  * Reported #3573: Inconsistent handling of nil `UUID` in property inclusion
   [3.2.0]
 
+Christoffer Hammarström (@kreiger)
+ * Reported #5330: `@JsonProperty`on enum values with
+  `@JsonFormat(shape = JsonFormat.Shape.NUMBER)` is ignored
+  [3.2.0]
+
+Lee Hyeonsoo (@znight1020)
+ * Fixed #5330: `@JsonProperty`on enum values with
+  `@JsonFormat(shape = JsonFormat.Shape.NUMBER)` is ignored
+  [3.2.0]
+
 Eran Leshem (@eranl)
  * Suggested #5353: Preserve order of `@JsonAnySetter` creator property arguments
   [3.2.0]

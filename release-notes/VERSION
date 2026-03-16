@@ -85,6 +85,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   `BeanDescription.getIgnoredPropertyNames()`
  (requested by Oliver D)
  (fix by @cowtowncoder, w/ Claude code)
+#5330: `@JsonProperty`on enum values with
+  `@JsonFormat(shape = JsonFormat.Shape.NUMBER)` is ignored
+ (reported by Christoffer H)
+ (fixed by Lee H)
 #5353: Preserve order of `@JsonAnySetter` creator property arguments
  (suggested by Eran L)
  (fix by @cowtowncoder, w/ Claude code)

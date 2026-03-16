@@ -26,7 +26,7 @@ public class EnumResolver implements java.io.Serializable
     /**
      * @since 3.2
      */
-    protected final HashMap<Integer, Enum<?>> _enumsByNumericIndex;
+    protected final Map<Integer, Enum<?>> _enumsByNumericIndex;
 
     protected final Enum<?> _defaultValue;
 
@@ -69,10 +69,15 @@ public class EnumResolver implements java.io.Serializable
     /**********************************************************************
      */
 
+    /**
+     * @since 3.2 (added 2 more arguments)
+     */
     protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums,
-            HashMap<String, Enum<?>> enumsById, HashMap<Integer, Enum<?>> enumsByNumericIndex, Enum<?> defaultValue,
+            HashMap<String, Enum<?>> enumsById,
+            Enum<?> defaultValue,
             boolean isIgnoreCase, boolean isFromIntValue,
-            boolean hasAsValueAnnotation, boolean useNumericIndexForNumbers)
+            boolean hasAsValueAnnotation,
+            Map<Integer, Enum<?>> enumsByNumericIndex, boolean useNumericIndexForNumbers)
     {
         _enumClass = enumClass;
         _enums = enums;
@@ -128,7 +133,7 @@ public class EnumResolver implements java.io.Serializable
 
         // finally, build
         HashMap<String, Enum<?>> map = new HashMap<>();
-        HashMap<Integer, Enum<?>> numericIndexMap = null;
+        Map<Integer, Enum<?>> numericIndexMap = null;
         for (int i = 0, len = enumConstants.length; i < len; ++i) {
             final Enum<?> enumValue = enumConstants[i];
             final String rawName = names[i];
@@ -156,15 +161,14 @@ public class EnumResolver implements java.io.Serializable
                 }
             }
         }
-        return new EnumResolver(enumCls, enumConstants, map, numericIndexMap,
-                defaultEnum, isIgnoreCase, false, false, useNumericIndexForNumbers);
+        return new EnumResolver(enumCls, enumConstants, map,
+                defaultEnum, isIgnoreCase, false, false,
+                numericIndexMap, useNumericIndexForNumbers);
     }
 
     /**
      * Factory method for constructing resolver that maps from Enum.toString() into
      * Enum value
-     *
-     * @since 2.16
      */
     public static EnumResolver constructUsingToString(DeserializationConfig config, AnnotatedClass annotatedClass) {
         // prepare data
@@ -201,8 +205,9 @@ public class EnumResolver implements java.io.Serializable
                 }
             }
         }
-        return new EnumResolver(enumCls, enumConstants, map, null,
-                defaultEnum, isIgnoreCase, false, false, false);
+        return new EnumResolver(enumCls, enumConstants, map,
+                defaultEnum, isIgnoreCase, false, false,
+                null, false);
     }
 
     /**
@@ -225,14 +230,13 @@ public class EnumResolver implements java.io.Serializable
             Enum<?> enumValue = enumConstants[i];
             map.put(String.valueOf(i), enumValue);
         }
-        return new EnumResolver(enumCls, enumConstants, map, null,
-                defaultEnum, isIgnoreCase, false, false, false);
+        return new EnumResolver(enumCls, enumConstants, map,
+                defaultEnum, isIgnoreCase, false, false,
+                null, false);
     }
 
     /**
      * Factory method for constructing an {@link EnumResolver} with {@link EnumNamingStrategy} applied.
-     *
-     * @since 2.16
      */
     public static EnumResolver constructUsingEnumNamingStrategy(DeserializationConfig config,
         AnnotatedClass annotatedClass, EnumNamingStrategy enumNamingStrategy) 
@@ -274,8 +278,9 @@ public class EnumResolver implements java.io.Serializable
             }
         }
 
-        return new EnumResolver(enumCls, enumConstants, map, null,
-                defaultEnum, isIgnoreCase, false, false, false);
+        return new EnumResolver(enumCls, enumConstants, map,
+                defaultEnum, isIgnoreCase, false, false,
+                null, false);
     }
 
     /**
@@ -306,11 +311,12 @@ public class EnumResolver implements java.io.Serializable
                 throw new IllegalArgumentException("Failed to access @JsonValue of Enum value "+en+": "+e.getMessage());
             }
         }
-        return new EnumResolver(enumCls, enumConstants, map, null,
+        return new EnumResolver(enumCls, enumConstants, map,
                 defaultEnum, isIgnoreCase,
                 // 26-Sep-2021, tatu: [databind#1850] Need to consider "from int" case
                 _isIntType(accessor.getRawType()),
-                true, false
+                true,
+                null, false
         );
     }
 
@@ -333,8 +339,6 @@ public class EnumResolver implements java.io.Serializable
 
     /**
      * Internal helper method used to resolve {@link com.fasterxml.jackson.annotation.JsonEnumDefaultValue}
-     *
-     * @since 2.16
      */
     protected static Enum<?> _enumDefault(MapperConfig<?> config,
             AnnotatedClass annotatedClass, Enum<?>[] enums) {

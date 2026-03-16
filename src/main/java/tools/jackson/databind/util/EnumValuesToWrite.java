@@ -115,6 +115,9 @@ public class EnumValuesToWrite
         return strs;
     }
 
+    /**
+     * @since 3.2
+     */
     public int resolvedIndexFor(Enum<?> en) {
         return _indexes[en.ordinal()];
     }

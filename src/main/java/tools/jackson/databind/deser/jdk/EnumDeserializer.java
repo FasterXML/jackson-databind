@@ -1,6 +1,6 @@
 package tools.jackson.databind.deser.jdk;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -40,7 +40,10 @@ public class EnumDeserializer
      */
     protected final CompactStringObjectMap _lookupByToString;
 
-    protected final HashMap<Integer, Enum<?>> _lookupByNumericIndex;
+    /**
+     * @since 3.2
+     */
+    protected final Map<Integer, Enum<?>> _lookupByNumericIndex;
 
     protected final Boolean _caseInsensitive;
 

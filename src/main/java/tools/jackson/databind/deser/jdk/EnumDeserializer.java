@@ -150,9 +150,9 @@ public class EnumDeserializer
             Boolean useDefaultValueForUnknownEnum, Boolean useNullForUnknownEnum,
             boolean useNumericIndexForNumbers) {
         if (Objects.equals(_caseInsensitive, caseInsensitive)
-          && Objects.equals(_useDefaultValueForUnknownEnum, useDefaultValueForUnknownEnum)
-          && Objects.equals(_useNullForUnknownEnum, useNullForUnknownEnum)
-          && Objects.equals(_useNumericIndexForNumbers, useNumericIndexForNumbers)) {
+                && Objects.equals(_useDefaultValueForUnknownEnum, useDefaultValueForUnknownEnum)
+                && Objects.equals(_useNullForUnknownEnum, useNullForUnknownEnum)
+                && _useNumericIndexForNumbers == useNumericIndexForNumbers) {
             return this;
         }
         return new EnumDeserializer(this, caseInsensitive,
@@ -165,11 +165,11 @@ public class EnumDeserializer
             BeanProperty property)
     {
         Boolean caseInsensitive = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
-          JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)).orElse(_caseInsensitive);
+                JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)).orElse(_caseInsensitive);
         Boolean useDefaultValueForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
-          JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)).orElse(_useDefaultValueForUnknownEnum);
+                JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)).orElse(_useDefaultValueForUnknownEnum);
         Boolean useNullForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
-          JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)).orElse(_useNullForUnknownEnum);
+                JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)).orElse(_useNullForUnknownEnum);
 
         boolean useNumericIndexForNumbers = _useNumericIndexForNumbers;
         JsonFormat.Value value = findFormatOverrides(ctxt, property, handledType());

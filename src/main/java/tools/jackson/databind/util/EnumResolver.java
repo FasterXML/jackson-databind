@@ -23,19 +23,12 @@ public class EnumResolver implements java.io.Serializable
 
     protected final HashMap<String, Enum<?>> _enumsById;
 
-    protected final Enum<?> _defaultValue;
-
+    /**
+     * @since 3.2
+     */
     protected final HashMap<Integer, Enum<?>> _enumsByNumericIndex;
 
-    /**
-     * Marker for case where numeric input (JSON number or quoted number) should be
-     * resolved using numeric-index lookup derived from {@code @JsonProperty} values,
-     * instead of ordinal index (Enum.values()).
-     * <p>
-     * Intended to be enabled when {@code @JsonFormat(shape = NUMBER/ARRAY)} selects
-     * numeric representation for Enum values.
-     */
-    protected final boolean _useNumericIndexForNumbers;
+    protected final Enum<?> _defaultValue;
 
     /**
      * Marker for case-insensitive handling
@@ -55,10 +48,20 @@ public class EnumResolver implements java.io.Serializable
     /**
      * Marker for case where enum values to match are from {@code @JsonValue}-annotated
      * method.
-     *
-     * @since 2.20
      */
     protected final boolean _hasAsValueAnnotation;
+
+    /**
+     * Marker for case where numeric input (JSON number or quoted number) should be
+     * resolved using numeric-index lookup derived from {@code @JsonProperty} values,
+     * instead of ordinal index (Enum.values()).
+     * <p>
+     * Intended to be enabled when {@code @JsonFormat(shape = NUMBER/ARRAY)} selects
+     * numeric representation for Enum values.
+     *
+     * @since 3.2
+     */
+    protected final boolean _useNumericIndexForNumbers;
 
     /*
     /**********************************************************************
@@ -435,15 +438,20 @@ public class EnumResolver implements java.io.Serializable
 
     public Class<Enum<?>> getEnumClass() { return _enumClass; }
 
-    public HashMap<Integer, Enum<?>> getNumericIndexLookup() {
+    public int lastValidIndex() { return _enums.length-1; }
+
+    /**
+     * @since 3.2
+     */
+    public Map<Integer, Enum<?>> getNumericIndexLookup() {
         return _enumsByNumericIndex;
     }
-
-    public int lastValidIndex() { return _enums.length-1; }
 
     /**
      * Accessor for checking whether numeric input should use numeric-index lookup
      * derived from {@code @JsonProperty} values.
+     *
+     * @since 3.2
      */
     public boolean useNumericIndexForNumbers() {
         return _useNumericIndexForNumbers;

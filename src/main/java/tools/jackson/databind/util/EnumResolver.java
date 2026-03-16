@@ -379,13 +379,6 @@ public class EnumResolver implements java.io.Serializable
         return null;
     }
 
-    public Enum<?> findEnum(int index) {
-        if (_enumsByNumericIndex != null) {
-            return _enumsByNumericIndex.get(index);
-        }
-        return null;
-    }
-
     public Enum<?> getEnum(int index) {
         if (index < 0 || index >= _enums.length) {
             return null;

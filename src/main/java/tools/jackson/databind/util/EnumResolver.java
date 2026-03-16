@@ -137,7 +137,7 @@ public class EnumResolver implements java.io.Serializable
                 name = enumValue.name();
             }
             map.put(name, enumValue);
-            if (rawName != null && _looksLikeInt(rawName)) {
+            if (rawName != null && NumberUtil.isValidJDKIntNumber(rawName)) {
                 try {
                     final int numericIndex = Integer.parseInt(rawName);
                     if (numericIndexMap == null) {
@@ -351,29 +351,6 @@ public class EnumResolver implements java.io.Serializable
                 || (erasedType == Short.class)
                 || (erasedType == Byte.class)
                 ;
-    }
-
-    private static boolean _looksLikeInt(String s) {
-        int len = s.length();
-        if (len == 0) {
-            return false;
-        }
-
-        int i = 0;
-        char c = s.charAt(0);
-        if (c == '-' || c == '+') {
-            if (len == 1) {
-                return false;
-            }
-            i = 1;
-        }
-        for (; i < len; ++i) {
-            c = s.charAt(i);
-            if (c < '0' || c > '9') {
-                return false;
-            }
-        }
-        return true;
     }
 
     /*

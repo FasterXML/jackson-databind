@@ -48,7 +48,7 @@ public class EnumValuesToWrite
         for (int i = 0; i < len; ++i) {
             explicitNames[i] = config.compileString(explicitNames0[i]);
             int index = i;
-            if (explicitNames0[i] != null && _looksLikeInt(explicitNames0[i])) {
+            if (explicitNames0[i] != null && NumberUtil.isValidJDKIntNumber(explicitNames0[i])) {
                 try {
                     index = Integer.parseInt(explicitNames0[i]);
                 } catch (NumberFormatException e) {
@@ -153,26 +153,4 @@ public class EnumValuesToWrite
         return serStrs;
     }
 
-    private static boolean _looksLikeInt(String str) {
-        int len = str.length();
-        if (len == 0) {
-            return false;
-        }
-
-        int i = 0;
-        char c = str.charAt(0);
-        if (c == '-' || c == '+') {
-            if (len == 1) {
-                return false;
-            }
-            i = 1;
-        }
-        for (; i < len; ++i) {
-            c = str.charAt(i);
-            if (c < '0' || c > '9') {
-                return false;
-            }
-        }
-        return true;
-    }
 }

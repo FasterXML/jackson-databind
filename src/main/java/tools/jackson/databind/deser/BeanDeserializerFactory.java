@@ -390,6 +390,13 @@ public class BeanDeserializerFactory
             PropertyName propName = objectIdInfo.getPropertyName();
             idProp = deserBuilder.findProperty(propName);
             if (idProp == null) {
+                // [databind#4014]: For abstract types (interfaces, abstract classes),
+                // the builder may not have settable properties (no setter/field).
+                // Concrete subtype deserializers will set up their own ObjectIdReader,
+                // so we can safely skip it here for the abstract type.
+                if (beanDescRef.getType().isAbstract()) {
+                    return;
+                }
                 throw new IllegalArgumentException(String.format(
 "Invalid Object Id definition for %s: cannot find property with name %s",
 ClassUtil.getTypeDescription(beanDescRef.getType()),

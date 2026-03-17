@@ -47,12 +47,12 @@ public class EnumValuesToWrite
         int[] indexes = new int[len];
         for (int i = 0; i < len; ++i) {
             explicitNames[i] = config.compileString(explicitNames0[i]);
-            int index = i;
+            int index = -1;
             if (explicitNames0[i] != null && NumberUtil.isValidJDKIntNumber(explicitNames0[i])) {
                 try {
                     index = Integer.parseInt(explicitNames0[i]);
                 } catch (NumberFormatException e) {
-                    // out of int range -> fallback to ordinal
+                    // out of int range -> no numeric index
                 }
             }
             indexes[i] = index;
@@ -116,6 +116,9 @@ public class EnumValuesToWrite
     }
 
     /**
+     * Returns the numeric index for the given enum constant derived from
+     * {@code @JsonProperty} value, or {@code -1} if no numeric index is defined.
+     *
      * @since 3.2
      */
     public int resolvedIndexFor(Enum<?> en) {

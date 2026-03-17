@@ -117,12 +117,23 @@ public class EnumValuesToWrite
 
     /**
      * Returns the numeric index for the given enum constant derived from
-     * {@code @JsonProperty} value, or {@code -1} if no numeric index is defined.
+     * a numeric {@code @JsonProperty} value, or {@code -1} if no numeric
+     * index is defined (either no {@code @JsonProperty} or non-numeric value).
      *
      * @since 3.2
      */
     public int resolvedIndexFor(Enum<?> en) {
         return _indexes[en.ordinal()];
+    }
+
+    /**
+     * Returns the explicit {@code @JsonProperty} name for the given enum constant,
+     * or {@code null} if none defined.
+     *
+     * @since 3.2
+     */
+    public SerializableString explicitNameFor(Enum<?> en) {
+        return _explicitNames[en.ordinal()];
     }
 
     private String _nameWithStrategy(MapperConfig<?> config, Enum<?> en) {

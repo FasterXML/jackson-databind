@@ -126,12 +126,19 @@ public class EnumSerializer
         if (_serializeAsNumber != null) {
             if (_serializeAsNumber) {
                 // Explicit Shape.NUMBER/ARRAY: use @JsonProperty value as number if numeric,
-                // otherwise write @JsonProperty value as String
+                // ordinal if no @JsonProperty, or @JsonProperty value as String if non-numeric
                 final int nr = _enumValuesToWrite.resolvedIndexFor(en);
                 if (nr >= 0) {
                     g.writeNumber(nr);
                 } else {
-                    g.writeString(_enumValuesToWrite.enumValueFromName(ctxt.getConfig(), en));
+                    final SerializableString explicitName = _enumValuesToWrite.explicitNameFor(en);
+                    if (explicitName != null) {
+                        // Non-numeric @JsonProperty: use as-is as String
+                        g.writeString(explicitName);
+                    } else {
+                        // No @JsonProperty: use ordinal
+                        g.writeNumber(en.ordinal());
+                    }
                 }
                 return;
             }

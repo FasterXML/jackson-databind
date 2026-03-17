@@ -1,7 +1,6 @@
 package tools.jackson.databind.ser.jdk;
 
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -36,8 +35,14 @@ public class EnumSerializer
     protected final EnumValuesToWrite _enumValuesToWrite;
 
     /**
-     * Flag that is set if we statically know serialization choice between
-     * index and textual format (null if it needs to be dynamically checked).
+     * If statically known, whether to serialize as numeric index ({@code TRUE})
+     * or as textual name ({@code FALSE}). {@code null} means not statically known:
+     * falls back to global {@code EnumFeature.WRITE_ENUMS_USING_INDEX} at runtime.
+     *<p>
+     * Note: when {@code TRUE} (explicit {@code Shape.NUMBER}), numeric
+     * {@code @JsonProperty} values are used as indexes; non-numeric values
+     * are written as-is (as Strings).
+     * When {@code null} and the global feature is enabled, ordinal is always used.
      */
     protected final Boolean _serializeAsIndex;
 
@@ -117,29 +122,31 @@ public class EnumSerializer
     public final void serialize(Enum<?> en, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
-        // Serialize as index?
-        if (_serializeAsIndex(ctxt)) {
-            if (_serializeAsIndex == null) {
-                // Global WRITE_ENUMS_USING_INDEX: always use ordinal
-                g.writeNumber(en.ordinal());
-            } else {
+        if (_serializeAsIndex != null) {
+            if (_serializeAsIndex) {
+                // Explicit Shape.NUMBER/ARRAY: use @JsonProperty index if numeric,
+                // otherwise write @JsonProperty value as String
                 final int index = _enumValuesToWrite.resolvedIndexFor(en);
                 if (index >= 0) {
-                    // Explicit Shape.NUMBER with numeric @JsonProperty: use resolved index
                     g.writeNumber(index);
                 } else {
-                    // Explicit Shape.NUMBER with non-numeric @JsonProperty: use as-is as String
                     g.writeString(_enumValuesToWrite.enumValueFromName(ctxt.getConfig(), en));
                 }
+                return;
             }
+            // Explicit Shape.STRING/NATURAL: fall through to textual serialization
+        } else if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_INDEX)) {
+            // No explicit shape, global feature: use ordinal
+            g.writeNumber(en.ordinal());
             return;
         }
+        // Textual serialization
         final MapperConfig<?> config = ctxt.getConfig();
         if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
             g.writeString(_enumValuesToWrite.enumValueFromToString(config, en));
-            return;
-        } 
-        g.writeString(_enumValuesToWrite.enumValueFromName(config, en));
+        } else {
+            g.writeString(_enumValuesToWrite.enumValueFromName(config, en));
+        }
     }
 
     /*
@@ -158,21 +165,13 @@ public class EnumSerializer
         }
         JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
         if (stringVisitor != null) {
+            final MapperConfig<?> config = ctxt.getConfig();
+            SerializableString[] values = ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                    ? _enumValuesToWrite.allEnumValuesFromToString(config)
+                    : _enumValuesToWrite.allEnumValuesFromName(config);
             Set<String> enumStrings = new LinkedHashSet<>();
-
-            List<Enum<?>> enums = _enumValuesToWrite.enums();
-            if (_serializeAsIndex(ctxt)) {
-                for (Enum<?> en : enums) {
-                    enumStrings.add(String.valueOf(en.ordinal()));
-                }
-            } else {
-                final MapperConfig<?> config = ctxt.getConfig();
-                SerializableString[] values = ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
-                        ? _enumValuesToWrite.allEnumValuesFromToString(config)
-                        : _enumValuesToWrite.allEnumValuesFromName(config);
-                for (SerializableString sstr : values) {
-                    enumStrings.add(sstr.getValue());
-                }
+            for (SerializableString sstr : values) {
+                enumStrings.add(sstr.getValue());
             }
             stringVisitor.enumTypes(enumStrings);
         }

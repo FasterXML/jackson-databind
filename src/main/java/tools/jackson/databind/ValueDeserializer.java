@@ -484,16 +484,18 @@ public abstract class ValueDeserializer<T>
      * @param names (not null) Set to add property names to; for both regular
      *   and "any" properties.
      *
-     * @since 3.1
+     * @since 3.2
      */
-    public void collectAllPropertyNamesTo(Set<String> names) {
-    }
+    public void collectAllPropertyNamesTo(Set<String> names) { }
     
     /**
-     * @since 3.1
+     * Method to check whether deserializer has "any-setter" style matching
+     * of any and all properties for an Object value.
+     *
+     * @since 3.2
      */
     public boolean hasAnySetter() {
-    	return false;
+        return false;
     }
 
     /*

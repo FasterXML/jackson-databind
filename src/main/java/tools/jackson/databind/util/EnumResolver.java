@@ -73,8 +73,7 @@ public class EnumResolver implements java.io.Serializable
      * @since 3.2 (added 2 more arguments)
      */
     protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums,
-            HashMap<String, Enum<?>> enumsById,
-            Enum<?> defaultValue,
+            HashMap<String, Enum<?>> enumsById, Enum<?> defaultValue,
             boolean isIgnoreCase, boolean isFromIntValue,
             boolean hasAsValueAnnotation,
             Map<Integer, Enum<?>> enumsByNumericIndex, boolean useNumericIndexForNumbers)
@@ -116,14 +115,9 @@ public class EnumResolver implements java.io.Serializable
 
         // Determine whether numeric values should use numeric-index lookup, based on
         // class-level @JsonFormat(shape=NUMBER/ARRAY...). Uses AnnotatedClass so Mix-ins apply.
-        boolean useNumericIndexForNumbers = false;
         JsonFormat.Value value = ai.findFormat(config, annotatedClass);
-        if (value != null) {
-            JsonFormat.Shape shape = value.getShape();
-            if (shape != null && shape != JsonFormat.Shape.ANY && shape != JsonFormat.Shape.SCALAR) {
-                useNumericIndexForNumbers = shape.isNumeric() || shape == JsonFormat.Shape.ARRAY;
-            }
-        }
+        boolean useNumericIndexForNumbers = (value != null)
+                && (value.getShape().isNumeric() || value.getShape() == JsonFormat.Shape.ARRAY);
 
         // introspect
         String[] names = ai.findEnumValues(config, annotatedClass,

@@ -119,7 +119,11 @@ public class EnumSerializer
     {
         // Serialize as index?
         if (_serializeAsIndex(ctxt)) {
-            g.writeNumber(en.ordinal());
+            if (_serializeAsIndex == null) {
+                g.writeNumber(en.ordinal());
+            } else {
+                g.writeNumber(_enumValuesToWrite.resolvedIndexFor(en));
+            }
             return;
         }
         final MapperConfig<?> config = ctxt.getConfig();

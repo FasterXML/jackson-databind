@@ -19,6 +19,7 @@ public class EnumValuesToWrite
     private final EnumNamingStrategy _enumNamingStrategy;
     private final Enum<?>[] _enumConstants;
     private final SerializableString[] _explicitNames;
+    private final int[] _indexes;
 
     private volatile SerializableString[] _enumNames;
     private volatile SerializableString[] _enumNamesLC;
@@ -27,12 +28,13 @@ public class EnumValuesToWrite
 
     private EnumValuesToWrite(AnnotatedClass annotatedClass,
             EnumNamingStrategy enumNamingStrategy,
-            Enum<?>[] enumConstants, SerializableString[] explicitNames)
+            Enum<?>[] enumConstants, SerializableString[] explicitNames, int[] indexes)
     {
         _annotatedClass = annotatedClass;
         _enumNamingStrategy = enumNamingStrategy;
         _enumConstants = enumConstants;
         _explicitNames = explicitNames;
+        _indexes = indexes;
     }
 
     public static EnumValuesToWrite construct(MapperConfig<?> config,
@@ -42,11 +44,21 @@ public class EnumValuesToWrite
     {
         final int len = explicitNames0.length;
         SerializableString[] explicitNames = new SerializableString[len];
+        int[] indexes = new int[len];
         for (int i = 0; i < len; ++i) {
             explicitNames[i] = config.compileString(explicitNames0[i]);
+            int index = i;
+            if (explicitNames0[i] != null && NumberUtil.isValidJDKIntNumber(explicitNames0[i])) {
+                try {
+                    index = Integer.parseInt(explicitNames0[i]);
+                } catch (NumberFormatException e) {
+                    // out of int range -> fallback to ordinal
+                }
+            }
+            indexes[i] = index;
         }
         return new EnumValuesToWrite(annotatedClass,
-                enumNamingStrategy, enumConstants, explicitNames);
+                enumNamingStrategy, enumConstants, explicitNames, indexes);
     }
 
     @SuppressWarnings("unchecked")
@@ -103,6 +115,13 @@ public class EnumValuesToWrite
         return strs;
     }
 
+    /**
+     * @since 3.2
+     */
+    public int resolvedIndexFor(Enum<?> en) {
+        return _indexes[en.ordinal()];
+    }
+
     private String _nameWithStrategy(MapperConfig<?> config, Enum<?> en) {
         String str = en.name();
         if (_enumNamingStrategy != null) {
@@ -136,4 +155,5 @@ public class EnumValuesToWrite
         }
         return serStrs;
     }
+
 }

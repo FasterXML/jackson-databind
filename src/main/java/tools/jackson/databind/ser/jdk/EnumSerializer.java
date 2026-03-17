@@ -16,7 +16,6 @@ import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 import tools.jackson.databind.util.EnumDefinition;
-import tools.jackson.databind.util.EnumValues;
 import tools.jackson.databind.util.EnumValuesToWrite;
 
 /**
@@ -108,7 +107,7 @@ public class EnumSerializer
      */
 
     @Deprecated // @since 3.1
-    public EnumValues getEnumValues() {
+    public tools.jackson.databind.util.EnumValues getEnumValues() {
         // 26-Nov-2025, tatu: Unfortunate, but can't really support getting
         //    such value, so better fail flamboyantly instead of quietly 
         throw new UnsupportedOperationException();
@@ -121,7 +120,7 @@ public class EnumSerializer
      */
 
     @Override
-    public final void serialize(Enum<?> en, JsonGenerator g, SerializationContext ctxt)
+    public void serialize(Enum<?> en, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         if (_serializeAsNumber != null) {

@@ -330,9 +330,13 @@ Benedikt Posch (@benediktsatalia)
    when using `@JsonCreator`
   [3.2.0]
 
-Christian Danner cdadac
+Christian Danner (@cdadac)
  * Reported #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
    are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
+  [3.2.0]
+
+Marcel Overdijk (@marceloverdijk)
+ * Suggested #3083: `@JsonIncludeProperties` could be used like `@JsonPropertyOrder`
   [3.2.0]
 
 Klaas Dellschaft (@klaasdellschaft)

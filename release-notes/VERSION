@@ -67,6 +67,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
  (reported by Christian D)
  (contributed by Lee Jiwon)
+#3083: `@JsonIncludeProperties` could be used like `@JsonPropertyOrder`
+ (suggested by Marcel O)
+ (fix by @cowtowncoder, w/ Claude code)
 #3194: Deserialization of 2-dimensional arrays of final types fails when
   using `DefaultTyping.NON_FINAL`
  (reported by Klaas D)

@@ -1,4 +1,4 @@
-package tools.jackson.databind.ser.enums;
+package tools.jackson.databind.deser.enums;
 
 import java.util.*;
 
@@ -16,11 +16,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * [databind#5330] Test that @JsonProperty value is used as numeric index for Enums with `Shape.NUMBER`
+ * [databind#5330] Deserialization: {@code @JsonProperty} value used as numeric index
+ * for Enums with {@code Shape.NUMBER}
  */
-public class EnumNumberJsonProperty5330Test extends DatabindTestUtil
+public class EnumDeserNumberJsonProperty5330Test extends DatabindTestUtil
 {
-    // no JsonFormat override: used to verify that global WRITE_ENUMS_USING_INDEX keeps ordinal semantics.
+    // no JsonFormat override: used to verify that numeric @JsonProperty is NOT used as index.
     public enum MyEnumNoFormat {
         @JsonProperty("7")
         FOO,
@@ -42,74 +43,30 @@ public class EnumNumberJsonProperty5330Test extends DatabindTestUtil
         VALUE
     }
 
-    static class EnumBean {
-        public MyEnum value = MyEnum.BAR;
-    }
-
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void shouldSerializeUsingNumericJsonPropertyAsIndexWhenNumberShapeIsEnabled() throws Exception {
-        assertEquals("7", MAPPER.writeValueAsString(MyEnum.FOO));
-
-        assertEquals(a2q("{'value':42}"), MAPPER.writeValueAsString(new EnumBean()));
-        assertEquals("[7,42]", MAPPER.writeValueAsString(Arrays.asList(MyEnum.FOO, MyEnum.BAR)));
-        assertEquals("[7]", MAPPER.writeValueAsString(EnumSet.of(MyEnum.FOO)));
-    }
-
-    @Test
-    public void shouldDeserializeFromNumericAndQuotedNumericIndexWhenNumberShapeIsEnabled() throws Exception {
+    public void shouldDeserializeFromNumericAndQuotedNumericIndex() throws Exception {
         assertEquals(MyEnum.FOO, MAPPER.readValue("7", MyEnum.class));
         assertEquals(MyEnum.FOO, MAPPER.readValue(q("7"), MyEnum.class));
     }
 
     @Test
-    public void shouldUseNumericJsonPropertyIndexForEnumMapKeysWhenNumberShapeIsEnabled() throws Exception {
-        Map<MyEnum, String> map = new HashMap<>();
-        map.put(MyEnum.FOO, "lucky");
-
-        String json = MAPPER.writeValueAsString(map);
-        assertEquals(a2q("{'7':'lucky'}"), json);
-
+    public void shouldDeserializeEnumMapKeysUsingNumericJsonPropertyIndex() throws Exception {
         JavaType type = MAPPER.getTypeFactory().constructMapType(HashMap.class, MyEnum.class, String.class);
-        Map<MyEnum, String> result = MAPPER.readValue(json, type);
+        Map<MyEnum, String> result = MAPPER.readValue(a2q("{'7':'lucky'}"), type);
 
         assertEquals(1, result.size());
         assertEquals("lucky", result.get(MyEnum.FOO));
     }
 
     @Test
-    public void shouldOverrideGlobalIndexFeatureDisableWhenNumberShapeIsEnabled() throws Exception {
-        ObjectMapper mapper = jsonMapperBuilder()
-            .disable(EnumFeature.WRITE_ENUMS_USING_INDEX)
-            .build();
-
-        assertEquals("7", mapper.writeValueAsString(MyEnum.FOO));
-    }
-
-    @Test
-    public void shouldKeepOrdinalWhenGlobalIndexFeatureIsEnabledWithoutFormatOverride() throws Exception {
-        ObjectMapper mapper = jsonMapperBuilder()
-            .enable(EnumFeature.WRITE_ENUMS_USING_INDEX)
-            .build();
-
-        // ordinal semantics: FOO=0, BAR=1 (NOT @JsonProperty("7"/"42"))
-        assertEquals("0", mapper.writeValueAsString(MyEnumNoFormat.FOO));
-        assertEquals("1", mapper.writeValueAsString(MyEnumNoFormat.BAR));
-
-        // also verify container use-cases (same serializer path)
-        assertEquals("[0,1]", mapper.writeValueAsString(Arrays.asList(MyEnumNoFormat.FOO, MyEnumNoFormat.BAR)));
-        assertEquals("[1]", mapper.writeValueAsString(EnumSet.of(MyEnumNoFormat.BAR)));
-    }
-
-    @Test
-    public void shouldFallbackToOrdinalWhenJsonPropertyIsNotNumericEvenWithNumberShapeEnabled() throws Exception {
-        assertEquals("0", MAPPER.writeValueAsString(NonNumericEnum.VALUE));
+    public void shouldFallbackToOrdinalWhenJsonPropertyIsNotNumeric() throws Exception {
         assertEquals(NonNumericEnum.VALUE, MAPPER.readValue("0", NonNumericEnum.class));
     }
 
     @Test
-    public void shouldNotUseNumericJsonPropertyIndexWithoutNumberShapeOnDeserialization() throws Exception {
+    public void shouldNotUseNumericJsonPropertyIndexWithoutNumberShape() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder().build();
 
         // numeric token: should NOT treat @JsonProperty("7"/"42") as numeric index

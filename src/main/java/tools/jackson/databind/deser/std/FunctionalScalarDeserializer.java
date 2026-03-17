@@ -34,10 +34,10 @@ import tools.jackson.databind.util.ExceptionUtil;
  * Usage examples:
  * <pre>
  * // Simple case - method reference
- * new FunctionalScalarDeserializer<>(Bar.class, Bar::of)
+ * new FunctionalScalarDeserializer&lt;>(Bar.class, Bar::of)
  *
  * // Full access case
- * new FunctionalScalarDeserializer<>(Bar.class, (p, ctx) ->
+ * new FunctionalScalarDeserializer&lt;>(Bar.class, (p, ctx) ->
  *     Bar.parse(p.getValueAsString(), ctx.getLocale()))
  * </pre>
  *

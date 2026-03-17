@@ -201,6 +201,32 @@ public abstract class BeanDeserializerBase
      */
     protected final ObjectIdReader _objectIdReader;
 
+    /**
+     * Flag set after {@code resolve()} has fully contextualized bean properties
+     * (second pass). Used by {@code createContextual()} to determine if
+     * a contextual copy's properties need re-contextualization
+     * (when copying from a partially-resolved deserializer during recursive
+     * type resolution; see [databind#1755]).
+     * Also serves as a recursion guard: set before contextualizing to
+     * prevent infinite recursion on self-referencing types.
+     *
+     * @since 3.2
+     */
+    protected volatile boolean _propertiesContextualized;
+
+    /**
+     * Re-entry guard for {@link PropertyBasedCreator} construction within
+     * {@link #createContextual}: set to {@code true} while
+     * {@code PropertyBasedCreator.construct()} is running, to prevent
+     * infinite recursion when mutually-referencing types both use
+     * property-based {@code @JsonCreator}s.
+     *<p>
+     * NOTE: only accessed within {@code synchronized (_valueInstantiator)} block.
+     *
+     * @since 3.2
+     */
+    private boolean _creatorBeingResolved;
+
     /*
     /**********************************************************************
     /* Life-cycle, construction, initialization
@@ -513,96 +539,110 @@ public abstract class BeanDeserializerBase
         }
         UnwrappedPropertyHandler unwrapped = null;
 
-        // 24-Mar-2017, tatu: Looks like we may have to iterate over
-        //   properties twice, to handle potential issues with recursive
-        //   types (see [databind#1575] f.ex).
-        // First loop: find deserializer if not yet known, but do not yet
-        // contextualize (since that can lead to problems with self-references)
-        // 22-Jan-2018, tatu: NOTE! Need not check for `isIgnorable` as that can
-        //   only happen for props in `creatorProps`
+        // [databind#3216]: If using purely delegating creator (no property-based
+        //   creator), bean properties are not used during deserialization so we
+        //   can skip resolving their deserializers. This avoids failures from
+        //   properties with types that cannot be resolved (e.g., Maps with
+        //   unsupported key types).
+        final boolean skipPropertyResolution = _valueInstantiator.canCreateUsingDelegate()
+                && (creatorProps == null);
 
-        for (SettableBeanProperty prop : _beanProperties) {
-            // [databind#962]: no eager lookup for inject-only [creator] properties
-            if (prop.hasValueDeserializer() || prop.isInjectionOnly()) {
-                continue;
-            }
-            // [databind#125]: allow use of converters
-            ValueDeserializer<?> deser = _findConvertingDeserializer(ctxt, prop);
-            if (deser == null) {
-                deser = ctxt.findNonContextualValueDeserializer(prop.getType());
-            }
-            SettableBeanProperty newProp = prop.withValueDeserializer(deser);
-            if (prop != newProp) {
-                _replaceProperty(_beanProperties, creatorProps, prop, newProp);
-            }
-        }
+        if (!skipPropertyResolution) {
+            // 24-Mar-2017, tatu: Looks like we may have to iterate over
+            //   properties twice, to handle potential issues with recursive
+            //   types (see [databind#1575] f.ex).
+            // First loop: find deserializer if not yet known, but do not yet
+            // contextualize (since that can lead to problems with self-references)
+            // 22-Jan-2018, tatu: NOTE! Need not check for `isIgnorable` as that can
+            //   only happen for props in `creatorProps`
 
-        // Second loop: contextualize, find other pieces
-        for (SettableBeanProperty origProp : _beanProperties) {
-            SettableBeanProperty prop = origProp;
-            ValueDeserializer<?> deser = prop.getValueDeserializer();
-            deser = ctxt.handlePrimaryContextualization(deser, prop, prop.getType());
-            prop = prop.withValueDeserializer(deser);
-            // Need to link managed references with matching back references
-            prop = _resolveManagedReferenceProperty(ctxt, prop);
-
-            // [databind#351]: need to wrap properties that require object id resolution.
-            if (!(prop instanceof ManagedReferenceProperty)) {
-                prop = _resolvedObjectIdProperty(ctxt, prop);
-            }
-            // Support unwrapped values (via @JsonUnwrapped)
-            NameTransformer xform = _findPropertyUnwrapper(ctxt, prop);
-            if (xform != null) {
-                ValueDeserializer<Object> orig = prop.getValueDeserializer();
-                ValueDeserializer<Object> unwrapping = orig.unwrappingDeserializer(ctxt, xform);
-
-                if ((unwrapping != orig) && (unwrapping != null)) {
-                    prop = prop.withValueDeserializer(unwrapping);
-                    if (unwrapped == null) {
-                        unwrapped = new UnwrappedPropertyHandler();
-                    }
-
-                    if (prop.isCreatorProperty()) {
-                        unwrapped.addCreatorProperty(prop);
-                    } else {
-                        unwrapped.addProperty(prop);
-                    }
-
-                    // 12-Dec-2014, tatu: As per [databind#647], we will have problems if
-                    //    the original property is left in place. So let's remove it now.
-                    // 25-Mar-2017, tatu: Wonder if this could be problematic wrt creators?
-                    //    (that is, should we remove it from creator too)
-                    _beanProperties.remove(prop);
+            for (SettableBeanProperty prop : _beanProperties) {
+                // [databind#962]: no eager lookup for inject-only [creator] properties
+                if (prop.hasValueDeserializer() || prop.isInjectionOnly()) {
                     continue;
+                }
+                // [databind#125]: allow use of converters
+                ValueDeserializer<?> deser = _findConvertingDeserializer(ctxt, prop);
+                if (deser == null) {
+                    deser = ctxt.findNonContextualValueDeserializer(prop.getType());
+                }
+                SettableBeanProperty newProp = prop.withValueDeserializer(deser);
+                if (prop != newProp) {
+                    _replaceProperty(_beanProperties, creatorProps, prop, newProp);
                 }
             }
 
-            // 26-Oct-2016, tatu: Need to have access to value deserializer to know if
-            //   merging needed, and now seems to be reasonable time to do that.
-            final PropertyMetadata md = prop.getMetadata();
-            prop = _resolveMergeAndNullSettings(ctxt, prop, md);
-
-            // non-static inner classes too:
-            prop = _resolveInnerClassValuedProperty(ctxt, prop);
-            if (prop != origProp) {
-                _replaceProperty(_beanProperties, creatorProps, origProp, prop);
-            }
-
-            // one more thing: if this property uses "external property" type inclusion,
-            // it needs different handling altogether
-            if (prop.hasValueTypeDeserializer()) {
-                TypeDeserializer typeDeser = prop.getValueTypeDeserializer();
-                if (typeDeser.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
-                    if (extTypes == null) {
-                        extTypes = ExternalTypeHandler.builder(_beanType);
-                    }
-                    extTypes.addExternal(prop, typeDeser);
-                    // In fact, remove from list of known properties to simplify later handling
-                    _beanProperties.remove(prop);
+            // Second loop: contextualize, find other pieces
+            for (SettableBeanProperty origProp : _beanProperties) {
+                if (skipPropertyResolution) {
                     continue;
+                }
+                SettableBeanProperty prop = origProp;
+                ValueDeserializer<?> deser = prop.getValueDeserializer();
+                deser = ctxt.handlePrimaryContextualization(deser, prop, prop.getType());
+                prop = prop.withValueDeserializer(deser);
+                // Need to link managed references with matching back references
+                prop = _resolveManagedReferenceProperty(ctxt, prop);
+
+                // [databind#351]: need to wrap properties that require object id resolution.
+                if (!(prop instanceof ManagedReferenceProperty)) {
+                    prop = _resolvedObjectIdProperty(ctxt, prop);
+                }
+                // Support unwrapped values (via @JsonUnwrapped)
+                NameTransformer xform = _findPropertyUnwrapper(ctxt, prop);
+                if (xform != null) {
+                    ValueDeserializer<Object> orig = prop.getValueDeserializer();
+                    ValueDeserializer<Object> unwrapping = orig.unwrappingDeserializer(ctxt, xform);
+
+                    if ((unwrapping != orig) && (unwrapping != null)) {
+                        prop = prop.withValueDeserializer(unwrapping);
+                        if (unwrapped == null) {
+                            unwrapped = new UnwrappedPropertyHandler();
+                        }
+                        if (prop.isCreatorProperty()) {
+                            unwrapped.addCreatorProperty(prop);
+                        } else {
+                            unwrapped.addProperty(prop);
+                        }
+                        // 12-Dec-2014, tatu: As per [databind#647], we will have problems if
+                        //    the original property is left in place. So let's remove it now.
+                        // 25-Mar-2017, tatu: Wonder if this could be problematic wrt creators?
+                        //    (that is, should we remove it from creator too)
+                        _beanProperties.remove(prop);
+                        continue;
+                    }
+                }
+
+                // 26-Oct-2016, tatu: Need to have access to value deserializer to know if
+                //   merging needed, and now seems to be reasonable time to do that.
+                final PropertyMetadata md = prop.getMetadata();
+                prop = _resolveMergeAndNullSettings(ctxt, prop, md);
+
+                // non-static inner classes too:
+                prop = _resolveInnerClassValuedProperty(ctxt, prop);
+                if (prop != origProp) {
+                    _replaceProperty(_beanProperties, creatorProps, origProp, prop);
+                }
+
+                // one more thing: if this property uses "external property" type inclusion,
+                // it needs different handling altogether
+                if (prop.hasValueTypeDeserializer()) {
+                    TypeDeserializer typeDeser = prop.getValueTypeDeserializer();
+                    if (typeDeser.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
+                        if (extTypes == null) {
+                            extTypes = ExternalTypeHandler.builder(_beanType);
+                        }
+                        extTypes.addExternal(prop, typeDeser);
+                        // In fact, remove from list of known properties to simplify later handling
+                        _beanProperties.remove(prop);
+                        continue;
+                    }
                 }
             }
         }
+        // [databind#1755]: mark that bean properties are fully contextualized
+        _propertiesContextualized = true;
+
         // "any setter" may also need to be resolved now
         if ((_anySetter != null) && !_anySetter.hasValueDeserializer()) {
             _anySetter = _anySetter.withValueDeserializer(findDeserializer(ctxt,
@@ -722,6 +762,13 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
             _nonStandardCreation = true;
         }
 
+        // [databind#2039]: combination of unwrapped and external type id not (yet) supported
+        if (_unwrappedPropertyHandler != null && _externalTypeIdHandler != null) {
+            ctxt.reportBadDefinition(_beanType, String.format(
+                    "Cannot (yet) use @JsonUnwrapped and @JsonTypeInfo(As.EXTERNAL_PROPERTY) "
+                    + "on properties of the same Bean (%s)",
+                    ClassUtil.getTypeDescription(_beanType)));
+        }
         // may need to disable vanilla processing, if unwrapped handling was enabled...
         _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
     }
@@ -887,6 +934,30 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
     public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
+        // [databind#1622], [databind#3355]: due to cyclic dependencies, sometimes
+        // resolve() called _after_ this method so we may need to separately resolve
+        // Property-based Creator. This is WRONG -- this method should NOT modify its
+        // state, but needs must
+        if (_propertyBasedCreator == null && _valueInstantiator.canCreateFromObjectWith()) {
+            // Let's guard state mutation wrt concurrency
+            synchronized (_valueInstantiator) {
+                // 13-Mar-2026, tatu: [kotlin-module#54]: guard against infinite recursion
+                // when mutually-referencing types both use property-based @JsonCreator:
+                // PropertyBasedCreator.construct() contextualizes creator properties,
+                // which can recurse back to createContextual() for this same type.
+                if (!_creatorBeingResolved) {
+                    _creatorBeingResolved = true;
+                    try {
+                        SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+                        _propertyBasedCreator = PropertyBasedCreator.construct(
+                                ctxt, _valueInstantiator, creatorProps, _beanProperties);
+                    } finally {
+                        _creatorBeingResolved = false;
+                    }
+                }
+            }
+        }
+
         ObjectIdReader oir = _objectIdReader;
 
         // First: may have an override for Object Id:
@@ -931,6 +1002,7 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
         if (oir != null && oir != _objectIdReader) {
             contextual = contextual.withObjectIdReader(oir);
         }
+
         // And possibly add more properties to ignore
         if (accessor != null) {
             contextual = _handleByNameInclusion(ctxt, intr, contextual, accessor);
@@ -971,7 +1043,40 @@ Working alternatives:
             }
             contextual = contextual.asArrayDeserializer();
         }
+        // [databind#1755]: If a contextual copy was created from a partially-resolved
+        // deserializer (happens during recursive type resolution), its property
+        // deserializers may not yet be contextualized (e.g. CollectionDeserializer
+        // without content deserializer). Contextualize them here.
+        // The flag also serves as recursion guard: setting it before contextualizing
+        // prevents infinite recursion on self-referencing types.
+        if (contextual != this && !_propertiesContextualized) {
+            _propertiesContextualized = true;
+            contextual._contextualizeProperties(ctxt);
+        }
         return contextual;
+    }
+
+    /**
+     * Helper method for [databind#1755]: contextualize property deserializers
+     * of a contextual copy that may have been created from a partially-resolved
+     * deserializer during recursive type resolution.
+     *
+     * @since 3.2
+     */
+    protected void _contextualizeProperties(DeserializationContext ctxt)
+    {
+        _propertiesContextualized = true;
+        for (SettableBeanProperty origProp : _beanProperties) {
+            ValueDeserializer<?> deser = origProp.getValueDeserializer();
+            if (deser != null) {
+                ValueDeserializer<?> newDeser = ctxt.handlePrimaryContextualization(
+                        deser, origProp, origProp.getType());
+                if (newDeser != deser) {
+                    SettableBeanProperty newProp = origProp.withValueDeserializer(newDeser);
+                    _beanProperties.replace(origProp, newProp);
+                }
+            }
+        }
     }
 
     protected BeanDeserializerBase _handleByNameInclusion(DeserializationContext ctxt,
@@ -999,7 +1104,7 @@ Working alternatives:
         } else if ((prevNamesToIgnore == null) || prevNamesToIgnore.isEmpty()) {
             newNamesToIgnore = namesToIgnore;
         } else {
-            newNamesToIgnore = new HashSet<String>(prevNamesToIgnore);
+            newNamesToIgnore = new HashSet<>(prevNamesToIgnore);
             newNamesToIgnore.addAll(namesToIgnore);
         }
 
@@ -1007,8 +1112,8 @@ Working alternatives:
         final Set<String> newNamesToInclude = IgnorePropertiesUtil.combineNamesToInclude(prevNamesToInclude,
                 intr.findPropertyInclusionByName(config, accessor).getIncluded());
 
-        if ((newNamesToIgnore != prevNamesToIgnore)
-                || (newNamesToInclude != prevNamesToInclude)) {
+        if (!Objects.equals(newNamesToIgnore, prevNamesToIgnore)
+                || !Objects.equals(newNamesToInclude, prevNamesToInclude)) {
             contextual = contextual.withByNameInclusion(newNamesToIgnore, newNamesToInclude);
         }
         return contextual;
@@ -1278,9 +1383,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return _needViewProcesing;
     }
 
-    /**
-     * @since 3.1
-     */
+    @Override
     public boolean hasAnySetter() {
         return _anySetter != null;
     }
@@ -1309,14 +1412,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return names;
     }
 
-    /**
-     * Method to collect all property names including nested unwrapped properties
-     *
-     * @param names (not null) Set to add property names to; for both regular
-     *   and "any" properties.
-     *
-     * @since 3.1
-     */
+    @Override
     public void collectAllPropertyNamesTo(Set<String> names) {
         for (SettableBeanProperty prop : _beanProperties) {
             names.add(prop.getName());
@@ -1534,7 +1630,6 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return idDeser.deserialize(bufParser, ctxt);
     }
 
-    // NOTE: currently only used by standard BeanDeserializer (not Builder-based)
     /**
      * Alternative deserialization method used when we expect to see Object Id;
      * if so, we will need to ensure that the Id is seen before anything
@@ -1542,6 +1637,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * even if JSON itself is not ordered that way. This may require
      * buffering in some cases, but usually just a simple lookup to ensure
      * that ordering is correct.
+     *<p>
+     * Used by both {@link BeanDeserializer} and
+     * {@link BuilderBasedDeserializer} (since 3.2, [databind#1496]).
      */
     protected Object deserializeWithObjectId(JsonParser p, DeserializationContext ctxt) throws JacksonException {
         return deserializeFromObject(p, ctxt);
@@ -1572,10 +1670,14 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         //   Creator handling
         final ValueDeserializer<Object> delegateDeser = _delegateDeserializer(p);
         if (delegateDeser != null) {
-            final Object bean = _valueInstantiator.createUsingDelegate(ctxt,
-                    delegateDeser.deserialize(p, ctxt));
+            final Object delegate = delegateDeser.deserialize(p, ctxt);
+            final Object bean = _valueInstantiator.createUsingDelegate(ctxt, delegate);
             if (_injectables != null) {
                 injectValues(ctxt, bean);
+            }
+            // [databind#1706]: if ObjectId was bound to delegate, re-bind to final bean
+            if (_objectIdReader != null && bean != delegate) {
+                ctxt.updateObjectId(delegate, bean);
             }
             return bean;
         }

@@ -16,7 +16,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.q;
 public class EnumAliasDeser2352Test
 {
     // for [databind#2352]: Support aliases on enum values
-    enum MyEnum2352_1 {
+    public enum MyEnum2352_1 {
         A,
         @JsonAlias({"singleAlias"})
         B,
@@ -24,7 +24,7 @@ public class EnumAliasDeser2352Test
         C
     }
     // for [databind#2352]: Support aliases on enum values
-    enum MyEnum2352_2 {
+    public enum MyEnum2352_2 {
         A,
         @JsonAlias({"singleAlias"})
         B,
@@ -37,7 +37,7 @@ public class EnumAliasDeser2352Test
         }
     }
     // for [databind#2352]: Support aliases on enum values
-    enum MyEnum2352_3 {
+    public enum MyEnum2352_3 {
         A,
         @JsonEnumDefaultValue
         @JsonAlias({"singleAlias"})
@@ -56,7 +56,7 @@ public class EnumAliasDeser2352Test
 
     // for [databind#2352]
     @Test
-    public void testEnumWithAlias() throws Exception {
+    void testEnumWithAlias() throws Exception {
         ObjectReader reader = MAPPER.readerFor(MyEnum2352_1.class);
         MyEnum2352_1 nonAliased = reader.readValue(q("A"));
         assertEquals(MyEnum2352_1.A, nonAliased);
@@ -70,7 +70,7 @@ public class EnumAliasDeser2352Test
 
     // for [databind#2352]
     @Test
-    public void testEnumWithAliasAndToStringSupported() throws Exception {
+    void testEnumWithAliasAndToStringSupported() throws Exception {
         ObjectReader reader = MAPPER.readerFor(MyEnum2352_2.class)
                 .with(EnumFeature.READ_ENUMS_USING_TO_STRING);
         MyEnum2352_2 nonAliased = reader.readValue(q("a"));
@@ -85,7 +85,7 @@ public class EnumAliasDeser2352Test
 
     // for [databind#2352]
     @Test
-    public void testEnumWithAliasAndDefaultForUnknownValueEnabled() throws Exception {
+    void testEnumWithAliasAndDefaultForUnknownValueEnabled() throws Exception {
         ObjectReader reader = MAPPER.readerFor(MyEnum2352_3.class)
                 .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
         MyEnum2352_3 nonAliased = reader.readValue(q("A"));

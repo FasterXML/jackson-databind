@@ -145,8 +145,14 @@ Konstantin Labun (@kulabun)
  * Contributed fix for #1516: Problem with multi-argument Creator with
    `@JsonBackReference` property
   [3.1.0]
+ * Contributed fix for #1622: Failure to deserialize child object when using
+   `@JsonIgnoreProperties` to break cycle
+  [3.2.0]
  * Contributed fix for #2686: `@JsonBackReference` does not work with a builder
   [3.1.0]
+ * Contributed fix for #3355: Deserialization fails depending on the order of
+  deserialized objects with "Cannot construct instance (although at least one Creator exists)"
+  [3.2.0]
  * Contributed fix for #4629: `@JsonIncludeProperties` and `@JsonIgnoreProperties`
    ignored when deserializing Records
   [3.1.0]
@@ -162,6 +168,9 @@ Konstantin Labun (@kulabun)
 Oliver Drotbohm (@odrotbohm)
  * Requested #1196: Add opt-in error collection for deserialization
   [3.1.0]
+ * Requested #3591: Ignored fields not consistently exposed via
+  `BeanDescription.getIgnoredPropertyNames()`
+  [3.2.0]
 
 @sri-adarsh-kumar
  * Contributed #1196: Add opt-in error collection for deserialization
@@ -210,6 +219,9 @@ Lee Jiwon (@dlwldnjs1009)
   [3.1.0]
  * Implemented #5621: Fix typo: MissingInjectableValueExcepion → MissingInjectableValueException
   [3.1.0]
+ * Contributed #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
+   are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
+  [3.2.0]
 
 Garret Wilson (@garretwilson)
  * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
@@ -272,8 +284,81 @@ Brandon Schmitt (@BrandonSchmitt)
  
 Matthew Luckam (@mluckam)
  * Contributed #5630: Add `DelegatingSerializer`
+  [3.1.0]
 
 Kyrylo Merzlikin (@kirmerzlikin)
  * Reported #5706: `TokenBuffer` serialization fails when buffer contains integer
    encoded as String
   [3.1.0]
+
+Gili Tzabari (@cowwoc)
+ * Reported #639: `@JacksonInject` with `@JsonIdentityInfo` causes deserialization
+   failure (unresolved forward reference)
+  [3.2.0]
+ 
+Sylvain Guillope (@sguillope)
+ * Reported #1075: `@JsonUnwrapped` fields with matching `@JsonIgnore`d getter
+   in outer class are ignored
+  [3.2.0]
+
+Benson Margulies (@benson-basis)
+ * Reported #1281: `@JsonIgnoreProperties` should work for "any getter" (for serialization)
+  [3.2.0]
+
+Jeff Quandt (@JeffQuandt)
+ * Reported #1298: Writing ObjectId reference for `@JsonUnwrapped` property fails
+   with obscure error message
+  [3.2.0]
+
+Raman Gupta (@rocketraman)
+ * Reported #1329: External type property (`@JsonTypeInfo(include = As.EXTERNAL_PROPERTY`))
+   deserialized even if `visible = false`
+  [3.2.0]
+
+Kevin Hogeland (@khogeland)
+ * Reported #1410: Overlap between `@JsonTypeInfo.As.PROPERTY` indicated type id and field
+   with same name results in `UnrecognizedPropertyException`
+  [3.2.0]
+
+Balys Valentukevicius (@balysv)
+ * Reported #1706: `@JsonCreator` not working properly with `@JsonIdentityInfo` when
+   deserializing a collection of interfaces (immutables.io compatibility)
+  [3.2.0]
+
+Benedikt Posch (@benediktsatalia)
+ * Reported #3030: Correctly deserialize forward `@JsonIdentityInfo` references
+   when using `@JsonCreator`
+  [3.2.0]
+
+Christian Danner cdadac
+ * Reported #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
+   are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
+  [3.2.0]
+
+Klaas Dellschaft (@klaasdellschaft)
+ * Reported #3194: Deserialization of 2-dimensional arrays of final types fails when
+   using `DefaultTyping.NON_FINAL`
+  [3.2.0]
+
+Andrzej Leśkiewicz (@aleskiewicz)
+ * Reported #3573: Inconsistent handling of nil `UUID` in property inclusion
+  [3.2.0]
+
+Christoffer Hammarström (@kreiger)
+ * Reported #5330: `@JsonProperty`on enum values with
+  `@JsonFormat(shape = JsonFormat.Shape.NUMBER)` is ignored
+  [3.2.0]
+
+Lee Hyeonsoo (@znight1020)
+ * Fixed #5330: `@JsonProperty`on enum values with
+  `@JsonFormat(shape = JsonFormat.Shape.NUMBER)` is ignored
+  [3.2.0]
+
+Eran Leshem (@eranl)
+ * Suggested #5353: Preserve order of `@JsonAnySetter` creator property arguments
+  [3.2.0]
+
+Martin Uhlen (@MartinUhlen)
+ * Reported #5734: `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` treats
+   absent field same as explicit `null`
+  [3.2.0]

@@ -6,9 +6,20 @@ Project: jackson-databind
 
 2.22.0 (not yet released)
 
+#3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices are
+  defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
+ (reported by Christian D)
+ (contributed by Lee Jiwon)
 #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
+
+2.21.2 (not yet released)
+
+#5729: (regression due to #5429) ISO-8601 change prevents parsing
+  negative timestamps (dates before 1970)
+ (reported by Thomas W)
+ (fixed by by Jonas K)
 
 2.21.1 (22-Feb-2026)
 

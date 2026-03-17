@@ -3,6 +3,7 @@ package tools.jackson.databind.util;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -65,8 +66,10 @@ public class BeanUtil
      * serialize, to determine whether to exclude value from serialization with
      * inclusion type of {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}.
      *<p>
-     * Default logic is such that for primitives, expected defaults (0 for `int`, `false` for
-     * `boolean`) are returned; for primitive wrappers (`Integer`, `Boolean`, etc), either `null`
+     * Default logic is such that for primitives, expected defaults ({@code 0} for
+     * {@code int}, {@code false} for
+     * {@code boolean}) are returned; for primitive wrappers ({@code Integer},
+     * {@code Boolean}, etc), either {@code null}
      * or wrapped default for matching primitive is returned (depending on
      * {@link MapperFeature#WRAPPERS_DEFAULT_TO_NULL} setting);
      * for Strings, empty String;
@@ -95,9 +98,12 @@ public class BeanUtil
         if (cls == String.class) {
             return "";
         }
-        if (type.isContainerType() || type.isReferenceType()) {
+        if (type.isContainerType() || type.isReferenceType()
+            // 10-Mar-2026, tatu [databind#3573]: null UUID is empty and as such default
+                || cls == UUID.class) {
             return JsonInclude.Include.NON_EMPTY;
         }
+
         // For wrapper types (Integer, Boolean, etc.), default is either null,
         // or the wrapped primitive default
         Class<?> primitiveType = ClassUtil.primitiveType(cls);

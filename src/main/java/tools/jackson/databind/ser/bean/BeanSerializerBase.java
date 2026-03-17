@@ -301,10 +301,9 @@ public abstract class BeanSerializerBase
                 // if not, we don't really know the actual type until we get the instance.
                 if (type == null) {
                     type = prop.getType();
+                    // [databind#5615]: _nonTrivialBaseType now set in BeanPropertyWriter
+                    // constructor to avoid race condition
                     if (!type.isFinal()) {
-                        if (type.isContainerType() || type.containedTypeCount() > 0) {
-                            prop.setNonTrivialBaseType(type);
-                        }
                         continue;
                     }
                 }
@@ -673,8 +672,13 @@ public abstract class BeanSerializerBase
         g.assignCurrentValue(bean);
         final ObjectIdWriter w = _objectIdWriter;
         WritableObjectId objectId = ctxt.findObjectId(bean, w.generator);
-        // If possible, write as id already
-        if (objectId.writeAsReference(g, ctxt, w)) {
+        // If possible, write as id already; but unlike non-typed case, need to
+        // wrap with type information for proper deserialization [databind#2780]
+        if (objectId.canWriteAsReference(g, ctxt, w)) {
+            WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.VALUE_NUMBER_INT);
+            typeSer.writeTypePrefix(g, ctxt, typeIdDef);
+            objectId.writeAsReference(g, ctxt, w);
+            typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
             return;
         }
         // If not, need to inject the id:

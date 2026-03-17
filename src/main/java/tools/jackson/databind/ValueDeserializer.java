@@ -1,9 +1,14 @@
 package tools.jackson.databind;
 
 import java.util.Collection;
+import java.util.Set;
 
-import tools.jackson.core.*;
-import tools.jackson.databind.deser.*;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.deser.BeanDeserializerFactory;
+import tools.jackson.databind.deser.NullValueProvider;
+import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
@@ -471,6 +476,26 @@ public abstract class ValueDeserializer<T>
      */
     public Boolean supportsUpdate(DeserializationConfig config) {
         return null;
+    }
+    
+    /**
+     * Method to collect all property names including nested unwrapped properties
+     *
+     * @param names (not null) Set to add property names to; for both regular
+     *   and "any" properties.
+     *
+     * @since 3.2
+     */
+    public void collectAllPropertyNamesTo(Set<String> names) { }
+    
+    /**
+     * Method to check whether deserializer has "any-setter" style matching
+     * of any and all properties for an Object value.
+     *
+     * @since 3.2
+     */
+    public boolean hasAnySetter() {
+        return false;
     }
 
     /*

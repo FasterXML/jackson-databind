@@ -580,7 +580,9 @@ public class BeanPropertyWriter
      * @since 2.6
      */
     public boolean wouldConflictWithName(PropertyName name) {
-        if (_wrapperName != null) {
+        // [dataformat-xml#802]: Only check wrapper name if it has an actual
+        //   simple name (not USE_DEFAULT or NO_NAME markers)
+        if (_wrapperName != null && _wrapperName.hasSimpleName()) {
             return _wrapperName.equals(name);
         }
         // Bit convoluted since our support for namespaces is spotty but:

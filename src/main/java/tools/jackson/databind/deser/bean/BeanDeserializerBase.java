@@ -1303,9 +1303,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return _needViewProcesing;
     }
 
-    /**
-     * @since 3.1
-     */
+    @Override
     public boolean hasAnySetter() {
         return _anySetter != null;
     }
@@ -1334,14 +1332,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return names;
     }
 
-    /**
-     * Method to collect all property names including nested unwrapped properties
-     *
-     * @param names (not null) Set to add property names to; for both regular
-     *   and "any" properties.
-     *
-     * @since 3.1
-     */
+    @Override
     public void collectAllPropertyNamesTo(Set<String> names) {
         for (SettableBeanProperty prop : _beanProperties) {
             names.add(prop.getName());

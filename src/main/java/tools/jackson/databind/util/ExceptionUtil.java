@@ -5,13 +5,10 @@ import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
 
 /**
- * Utility methods for dealing with exceptions/throwables
- *
- * @since 2.15
+ * Utility methods for dealing with exceptions/throwables.
  */
-public class ExceptionUtil {
-    private ExceptionUtil() {}
-
+public abstract class ExceptionUtil
+{
     /**
      * It is important never to catch all <code>Throwable</code>s. Some like
      * {@link InterruptedException} should be rethrown. Based on

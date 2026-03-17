@@ -33,10 +33,6 @@ class BuilderWithNestedFieldsTest {
         public static class ChildBuilder {
             private Integer field;
 
-            public ChildBuilder() {
-                System.out.println("ChildBuilder");
-            }
-
             public ChildBuilder withField(final Integer field) {
                 this.field = field;
                 return this;
@@ -65,10 +61,6 @@ class BuilderWithNestedFieldsTest {
         public static class ParentBuilder {
             private Child child;
 
-            public ParentBuilder() {
-                System.out.println("ParentBuilder");
-            }
-
             public ParentBuilder withChild(final Child child) {
                 this.child = child;
                 return this;
@@ -81,7 +73,7 @@ class BuilderWithNestedFieldsTest {
     }
 
     @Test
-    void shouldHandleNestedFieldWhenJacksonized2() {
+    void shouldBuildCorrectPathForNestedFields() {
         String json = """
                 {
                     "child": {

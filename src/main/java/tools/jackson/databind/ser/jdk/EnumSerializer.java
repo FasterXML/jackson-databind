@@ -1,7 +1,6 @@
 package tools.jackson.databind.ser.jdk;
 
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -17,7 +16,6 @@ import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 import tools.jackson.databind.util.EnumDefinition;
-import tools.jackson.databind.util.EnumValues;
 import tools.jackson.databind.util.EnumValuesToWrite;
 
 /**
@@ -36,10 +34,18 @@ public class EnumSerializer
     protected final EnumValuesToWrite _enumValuesToWrite;
 
     /**
-     * Flag that is set if we statically know serialization choice between
-     * index and textual format (null if it needs to be dynamically checked).
+     * If statically known, whether to serialize as numeric index ({@code TRUE})
+     * or as textual name ({@code FALSE}). {@code null} means not statically known:
+     * falls back to global {@code EnumFeature.WRITE_ENUMS_USING_INDEX} at runtime.
+     *<p>
+     * Note: when {@code TRUE} (explicit {@code Shape.NUMBER}), numeric
+     * {@code @JsonProperty} values are used as indexes; non-numeric values
+     * are written as-is (as Strings).
+     * When {@code null} and the global feature is enabled, ordinal is always used.
+     *
+     * @since 3.2 (renamed from earlier {@code _serializeAsIndex})
      */
-    protected final Boolean _serializeAsIndex;
+    protected final Boolean _serializeAsNumber;
 
     /*
     /**********************************************************************
@@ -47,11 +53,11 @@ public class EnumSerializer
     /**********************************************************************
      */
 
-    public EnumSerializer(EnumValuesToWrite enumValuesToWrite, Boolean serializeAsIndex)
+    public EnumSerializer(EnumValuesToWrite enumValuesToWrite, Boolean serializeAsNumber)
     {
         super(enumValuesToWrite.enumClass(), false);
         _enumValuesToWrite = enumValuesToWrite;
-        _serializeAsIndex = serializeAsIndex;
+        _serializeAsNumber = serializeAsNumber;
     }
 
     /**
@@ -68,13 +74,13 @@ public class EnumSerializer
         //   `EnumValues`, replaced with `EnumValuesToWrite`
         EnumValuesToWrite writer = EnumDefinition.construct(config, beanDesc.getClassInfo())
                 .valuesToWrite(config);
-        Boolean serializeAsIndex = _isShapeWrittenUsingIndex(enumClass, format, true, null);
-        return new EnumSerializer(writer, serializeAsIndex);
+        return new EnumSerializer(writer,
+                _isShapeWrittenUsingNumber(enumClass, format, true, null));
     }
 
     /**
      * To support some level of per-property configuration, we will need
-     * to make things contextual. We are limited to "textual vs index"
+     * to make things contextual. We are limited to "textual vs numeric"
      * choice here, however.
      */
     @Override
@@ -85,10 +91,10 @@ public class EnumSerializer
                 property, handledType());
         if (format != null) {
             Class<?> type = handledType();
-            Boolean serializeAsIndex = _isShapeWrittenUsingIndex(type,
-                    format, false, _serializeAsIndex);
-            if (!Objects.equals(serializeAsIndex, _serializeAsIndex)) {
-                return new EnumSerializer(_enumValuesToWrite, serializeAsIndex);
+            Boolean serializeAsNumber = _isShapeWrittenUsingNumber(type,
+                    format, false, _serializeAsNumber);
+            if (!Objects.equals(serializeAsNumber, _serializeAsNumber)) {
+                return new EnumSerializer(_enumValuesToWrite, serializeAsNumber);
             }
         }
         return this;
@@ -101,7 +107,7 @@ public class EnumSerializer
      */
 
     @Deprecated // @since 3.1
-    public EnumValues getEnumValues() {
+    public tools.jackson.databind.util.EnumValues getEnumValues() {
         // 26-Nov-2025, tatu: Unfortunate, but can't really support getting
         //    such value, so better fail flamboyantly instead of quietly 
         throw new UnsupportedOperationException();
@@ -114,24 +120,41 @@ public class EnumSerializer
      */
 
     @Override
-    public final void serialize(Enum<?> en, JsonGenerator g, SerializationContext ctxt)
+    public void serialize(Enum<?> en, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
-        // Serialize as index?
-        if (_serializeAsIndex(ctxt)) {
-            if (_serializeAsIndex == null) {
-                g.writeNumber(en.ordinal());
-            } else {
-                g.writeNumber(_enumValuesToWrite.resolvedIndexFor(en));
+        if (_serializeAsNumber != null) {
+            if (_serializeAsNumber) {
+                // Explicit Shape.NUMBER/ARRAY: use @JsonProperty value as number if numeric,
+                // ordinal if no @JsonProperty, or @JsonProperty value as String if non-numeric
+                final int nr = _enumValuesToWrite.resolvedIndexFor(en);
+                if (nr >= 0) {
+                    g.writeNumber(nr);
+                } else {
+                    final SerializableString explicitName = _enumValuesToWrite.explicitNameFor(en);
+                    if (explicitName != null) {
+                        // Non-numeric @JsonProperty: use as-is as String
+                        g.writeString(explicitName);
+                    } else {
+                        // No @JsonProperty: use ordinal
+                        g.writeNumber(en.ordinal());
+                    }
+                }
+                return;
             }
+            // Explicit Shape.STRING/NATURAL: fall through to textual serialization
+        } else if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_INDEX)) {
+            // No explicit shape, global feature: use ordinal
+            g.writeNumber(en.ordinal());
             return;
         }
+        // Textual serialization
         final MapperConfig<?> config = ctxt.getConfig();
         if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
             g.writeString(_enumValuesToWrite.enumValueFromToString(config, en));
-            return;
-        } 
-        g.writeString(_enumValuesToWrite.enumValueFromName(config, en));
+        } else {
+            g.writeString(_enumValuesToWrite.enumValueFromName(config, en));
+        }
     }
 
     /*
@@ -144,27 +167,19 @@ public class EnumSerializer
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
         SerializationContext ctxt = visitor.getContext();
-        if (_serializeAsIndex(ctxt)) {
+        if (_serializeAsNumber(ctxt)) {
             visitIntFormat(visitor, typeHint, JsonParser.NumberType.INT);
             return;
         }
         JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
         if (stringVisitor != null) {
+            final MapperConfig<?> config = ctxt.getConfig();
+            SerializableString[] values = ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                    ? _enumValuesToWrite.allEnumValuesFromToString(config)
+                    : _enumValuesToWrite.allEnumValuesFromName(config);
             Set<String> enumStrings = new LinkedHashSet<>();
-
-            List<Enum<?>> enums = _enumValuesToWrite.enums();
-            if (_serializeAsIndex(ctxt)) {
-                for (Enum<?> en : enums) {
-                    enumStrings.add(String.valueOf(en.ordinal()));
-                }
-            } else {
-                final MapperConfig<?> config = ctxt.getConfig();
-                SerializableString[] values = ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
-                        ? _enumValuesToWrite.allEnumValuesFromToString(config)
-                        : _enumValuesToWrite.allEnumValuesFromName(config);
-                for (SerializableString sstr : values) {
-                    enumStrings.add(sstr.getValue());
-                }
+            for (SerializableString sstr : values) {
+                enumStrings.add(sstr.getValue());
             }
             stringVisitor.enumTypes(enumStrings);
         }
@@ -176,19 +191,19 @@ public class EnumSerializer
     /**********************************************************************
      */
 
-    protected final boolean _serializeAsIndex(SerializationContext ctxt)
+    protected final boolean _serializeAsNumber(SerializationContext ctxt)
     {
-        if (_serializeAsIndex != null) {
-            return _serializeAsIndex;
+        if (_serializeAsNumber != null) {
+            return _serializeAsNumber;
         }
         return ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_INDEX);
     }
 
     /**
      * Helper method called to check whether serialization should be done using
-     * index (number) or not.
+     * numeric representation or not.
      */
-    protected static Boolean _isShapeWrittenUsingIndex(Class<?> enumClass,
+    protected static Boolean _isShapeWrittenUsingNumber(Class<?> enumClass,
             JsonFormat.Value format, boolean fromClass,
             Boolean defaultValue)
     {
@@ -204,7 +219,7 @@ public class EnumSerializer
         if (shape == Shape.STRING || shape == Shape.NATURAL) {
             return Boolean.FALSE;
         }
-        // 01-Oct-2014, tatu: For convenience, consider "as-array" to also mean 'yes, use index')
+        // 01-Oct-2014, tatu: For convenience, consider "as-array" to also mean 'yes, use number')
         if (shape.isNumeric() || (shape == Shape.ARRAY)) {
             return Boolean.TRUE;
         }

@@ -89,7 +89,19 @@ public class EnumSerNumberJsonProperty5330Test extends DatabindTestUtil
     }
 
     @Test
-    public void shouldFallbackToOrdinalWhenJsonPropertyIsNotNumeric() throws Exception {
-        assertEquals("0", MAPPER.writeValueAsString(NonNumericEnum.VALUE));
+    public void shouldUseJsonPropertyStringWhenNotNumericWithNumberShape() throws Exception {
+        // Non-numeric @JsonProperty with Shape.NUMBER: use @JsonProperty value as-is (String)
+        assertEquals(q("NOT_A_NUMBER"), MAPPER.writeValueAsString(NonNumericEnum.VALUE));
+    }
+
+    @Test
+    public void shouldUseOrdinalForNonNumericJsonPropertyWithGlobalIndexFeature() throws Exception {
+        // Enum WITHOUT @JsonFormat — global feature uses ordinal, ignores @JsonProperty
+        ObjectMapper mapper = jsonMapperBuilder()
+            .enable(EnumFeature.WRITE_ENUMS_USING_INDEX)
+            .build();
+
+        assertEquals("0", mapper.writeValueAsString(MyEnumNoFormat.FOO));
+        assertEquals("1", mapper.writeValueAsString(MyEnumNoFormat.BAR));
     }
 }

@@ -120,9 +120,17 @@ public class EnumSerializer
         // Serialize as index?
         if (_serializeAsIndex(ctxt)) {
             if (_serializeAsIndex == null) {
+                // Global WRITE_ENUMS_USING_INDEX: always use ordinal
                 g.writeNumber(en.ordinal());
             } else {
-                g.writeNumber(_enumValuesToWrite.resolvedIndexFor(en));
+                final int index = _enumValuesToWrite.resolvedIndexFor(en);
+                if (index >= 0) {
+                    // Explicit Shape.NUMBER with numeric @JsonProperty: use resolved index
+                    g.writeNumber(index);
+                } else {
+                    // Explicit Shape.NUMBER with non-numeric @JsonProperty: use as-is as String
+                    g.writeString(_enumValuesToWrite.enumValueFromName(ctxt.getConfig(), en));
+                }
             }
             return;
         }

@@ -41,6 +41,14 @@ public class EnumSerNumberJsonProperty5330Test extends DatabindTestUtil
         VALUE
     }
 
+    // no @JsonFormat: for verifying global WRITE_ENUMS_USING_INDEX uses ordinal
+    public enum NonNumericEnumNoFormat {
+        @JsonProperty("alpha")
+        FOO,
+        @JsonProperty("beta")
+        BAR
+    }
+
     static class EnumBean {
         public MyEnum value = MyEnum.BAR;
     }
@@ -89,7 +97,19 @@ public class EnumSerNumberJsonProperty5330Test extends DatabindTestUtil
     }
 
     @Test
-    public void shouldFallbackToOrdinalWhenJsonPropertyIsNotNumeric() throws Exception {
-        assertEquals("0", MAPPER.writeValueAsString(NonNumericEnum.VALUE));
+    public void shouldUseJsonPropertyStringWhenNotNumericWithNumberShape() throws Exception {
+        // Non-numeric @JsonProperty with Shape.NUMBER: use @JsonProperty value as-is (String)
+        assertEquals(q("NOT_A_NUMBER"), MAPPER.writeValueAsString(NonNumericEnum.VALUE));
+    }
+
+    @Test
+    public void shouldUseOrdinalForNonNumericJsonPropertyWithGlobalIndexFeatureNoFormat() throws Exception {
+        // Enum WITHOUT @JsonFormat — global feature uses ordinal, ignores @JsonProperty
+        ObjectMapper mapper = jsonMapperBuilder()
+            .enable(EnumFeature.WRITE_ENUMS_USING_INDEX)
+            .build();
+
+        assertEquals("0", mapper.writeValueAsString(NonNumericEnumNoFormat.FOO));
+        assertEquals("1", mapper.writeValueAsString(NonNumericEnumNoFormat.BAR));
     }
 }

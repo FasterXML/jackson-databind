@@ -61,7 +61,14 @@ public class EnumDeserNumberJsonProperty5330Test extends DatabindTestUtil
     }
 
     @Test
-    public void shouldFallbackToOrdinalWhenJsonPropertyIsNotNumeric() throws Exception {
+    public void shouldDeserializeNonNumericJsonPropertyFromStringWithNumberShape() throws Exception {
+        // Non-numeric @JsonProperty with Shape.NUMBER: string input matches by name
+        assertEquals(NonNumericEnum.VALUE, MAPPER.readValue(q("NOT_A_NUMBER"), NonNumericEnum.class));
+    }
+
+    @Test
+    public void shouldFallbackToOrdinalForNumericInputWhenJsonPropertyIsNotNumeric() throws Exception {
+        // Numeric input with non-numeric @JsonProperty: falls back to ordinal
         assertEquals(NonNumericEnum.VALUE, MAPPER.readValue("0", NonNumericEnum.class));
     }
 

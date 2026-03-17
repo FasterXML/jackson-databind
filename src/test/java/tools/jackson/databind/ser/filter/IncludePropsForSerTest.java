@@ -108,6 +108,14 @@ public class IncludePropsForSerTest extends DatabindTestUtil
         public int c = 3;
     }
 
+    // [databind#3083]: order=FALSE should NOT use value() as property order
+    @JsonIncludeProperties(value = {"c", "a", "b"}, order = OptBoolean.FALSE)
+    static class IncludeWithOrderFalse {
+        public int a = 1;
+        public int b = 2;
+        public int c = 3;
+    }
+
     // for [databind#1060]
     static class IncludeForListValuesXY
     {
@@ -231,5 +239,14 @@ public class IncludePropsForSerTest extends DatabindTestUtil
         // @JsonPropertyOrder should win over @JsonIncludeProperties order: b, a, c
         assertEquals(a2q("{'b':2,'a':1,'c':3}"),
                 MAPPER.writeValueAsString(new IncludeWithOrderAndPropertyOrder()));
+    }
+
+    // [databind#3083]
+    @Test
+    public void testIncludePropertiesOrderFalse() throws Exception
+    {
+        // order=FALSE should NOT impose ordering from value(); default order used
+        assertEquals(a2q("{'a':1,'b':2,'c':3}"),
+                MAPPER.writeValueAsString(new IncludeWithOrderFalse()));
     }
 }

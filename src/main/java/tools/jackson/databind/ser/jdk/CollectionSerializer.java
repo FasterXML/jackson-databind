@@ -209,6 +209,24 @@ public class CollectionSerializer
         if (input.isEmpty()) {
             return input;
         }
+        // [databind#3166] Quick pre-check: first non-null element must be Comparable
+        // (same pattern as MapSerializer._orderEntries; first element is a good enough sample)
+        for (Object elem : input) {
+            if (elem != null) {
+                if (!(elem instanceof Comparable<?>)) {
+                    if (!ctxt.isEnabled(
+                            SerializationFeature.FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT)) {
+                        return input;
+                    }
+                    ctxt.reportBadDefinition(input.getClass(),
+                        "Cannot order Set entries: elements are not mutually "
+                        + "Comparable, consider disabling "
+                        + "`SerializationFeature.FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT`"
+                        + " to simply skip sorting");
+                }
+                break;
+            }
+        }
         try {
             List<Object> sorted = new ArrayList<>(input);
             sorted.sort((Comparator<Object>)(Comparator<?>)

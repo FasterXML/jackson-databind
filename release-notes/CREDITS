@@ -56,6 +56,8 @@ Sébastien Deleuze (@sdeleuze)
   [3.0.0]
  * Requested #5112: Add a `MapperBuilder#findAndAddModules(ClassLoader)` variant
   [3.0.0]
+ * Reported #5786: Regression in `TokenBuffer#forceUseOfBigDecimal`
+  [3.1.1]
 
 Yu Han (@hannyu)
  * Contributed #5138: add `asShort()`, `asFloat()` conversion methods
@@ -346,6 +348,11 @@ Klaas Dellschaft (@klaasdellschaft)
 
 Andrzej Leśkiewicz (@aleskiewicz)
  * Reported #3573: Inconsistent handling of nil `UUID` in property inclusion
+  [3.2.0]
+
+Robert Rathsack (@robrat)
+ * Reported#4758: `ConfigOverride` using `Nulls.AS_EMPTY` does not work
+   with `@JsonManagedReference`
   [3.2.0]
 
 Christoffer Hammarström (@kreiger)

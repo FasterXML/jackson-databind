@@ -37,7 +37,7 @@ public final class ManagedReferenceProperty
 
     @Override
     protected SettableBeanProperty withDelegate(SettableBeanProperty d) {
-        throw new IllegalStateException("Should never try to reset delegate");
+        return new ManagedReferenceProperty(d, _referenceName, _backProperty, _isContainer);
     }
 
     // need to override to ensure both get fixed

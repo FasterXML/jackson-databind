@@ -350,6 +350,11 @@ Andrzej Leśkiewicz (@aleskiewicz)
  * Reported #3573: Inconsistent handling of nil `UUID` in property inclusion
   [3.2.0]
 
+Robert Rathsack (@robrat)
+ * Reported#4758: `ConfigOverride` using `Nulls.AS_EMPTY` does not work
+   with `@JsonManagedReference`
+  [3.2.0]
+
 Christoffer Hammarström (@kreiger)
  * Reported #5330: `@JsonProperty`on enum values with
   `@JsonFormat(shape = JsonFormat.Shape.NUMBER)` is ignored

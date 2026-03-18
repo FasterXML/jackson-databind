@@ -18,10 +18,41 @@ public abstract class TypeSerializerBase extends TypeSerializer
 
     protected final BeanProperty _property;
 
+    /**
+     * Whether to skip writing type id when the runtime type matches
+     * {@link #_defaultImplForSerialization}.
+     *
+     * @since 3.0
+     */
+    protected final boolean _skipWriteForDefaultImpl;
+
+    /**
+     * The default implementation class; when {@link #_skipWriteForDefaultImpl}
+     * is {@code true} and the runtime value class exactly matches this class,
+     * the type id will be suppressed during serialization.
+     *
+     * @since 3.0
+     */
+    protected final Class<?> _defaultImplForSerialization;
+
     protected TypeSerializerBase(TypeIdResolver idRes, BeanProperty property)
     {
         _idResolver = idRes;
         _property = property;
+        _skipWriteForDefaultImpl = false;
+        _defaultImplForSerialization = null;
+    }
+
+    /**
+     * @since 3.0
+     */
+    protected TypeSerializerBase(TypeIdResolver idRes, BeanProperty property,
+            boolean skipWriteForDefaultImpl, Class<?> defaultImplForSerialization)
+    {
+        _idResolver = idRes;
+        _property = property;
+        _skipWriteForDefaultImpl = skipWriteForDefaultImpl;
+        _defaultImplForSerialization = defaultImplForSerialization;
     }
 
     /*
@@ -44,6 +75,13 @@ public abstract class TypeSerializerBase extends TypeSerializer
             WritableTypeId idMetadata) throws JacksonException
     {
         _generateTypeId(ctxt, idMetadata);
+        // [databind#644]: suppress type id when runtime type matches defaultImpl
+        if (_skipWriteForDefaultImpl && idMetadata.id != null
+                && _defaultImplForSerialization != null
+                && idMetadata.forValue != null
+                && idMetadata.forValue.getClass() == _defaultImplForSerialization) {
+            idMetadata.id = null;
+        }
         // 16-Jan-2022, tatu: As per [databind#3373], skip for null typeId.
         //    And return "null" to avoid matching "writeTypeSuffix" as well.
         // 15-Jun-2024, tatu: [databind#4407] Not so fast! Output wrappers

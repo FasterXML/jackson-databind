@@ -30,10 +30,18 @@ public class AsExternalTypeSerializer extends TypeSerializerBase
         _typePropertyName = propName;
     }
 
+    public AsExternalTypeSerializer(TypeIdResolver idRes, BeanProperty property, String propName,
+            boolean skipWriteForDefaultImpl, Class<?> defaultImpl) {
+        super(idRes, property, skipWriteForDefaultImpl, defaultImpl);
+        _typePropertyName = propName;
+    }
+
     @Override
     public AsExternalTypeSerializer forProperty(SerializationContext ctxt,
             BeanProperty prop) {
-        return (_property == prop) ? this : new AsExternalTypeSerializer(_idResolver, prop, _typePropertyName);
+        return (_property == prop) ? this :
+            new AsExternalTypeSerializer(_idResolver, prop, _typePropertyName,
+                    _skipWriteForDefaultImpl, _defaultImplForSerialization);
     }
 
     @Override

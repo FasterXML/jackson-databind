@@ -24,11 +24,19 @@ public class AsPropertyTypeSerializer
         _typePropertyName = propName;
     }
 
+    public AsPropertyTypeSerializer(TypeIdResolver idRes, BeanProperty property, String propName,
+            boolean skipWriteForDefaultImpl, Class<?> defaultImpl)
+    {
+        super(idRes, property, skipWriteForDefaultImpl, defaultImpl);
+        _typePropertyName = propName;
+    }
+
     @Override
     public AsPropertyTypeSerializer forProperty(SerializationContext ctxt,
             BeanProperty prop) {
         return (_property == prop) ? this :
-            new AsPropertyTypeSerializer(_idResolver, prop, _typePropertyName);
+            new AsPropertyTypeSerializer(_idResolver, prop, _typePropertyName,
+                    _skipWriteForDefaultImpl, _defaultImplForSerialization);
     }
 
     @Override

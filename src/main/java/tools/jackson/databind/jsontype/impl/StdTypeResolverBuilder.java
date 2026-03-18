@@ -45,6 +45,14 @@ public class StdTypeResolverBuilder
      */
     protected Class<?> _defaultImpl;
 
+    /**
+     * Whether to skip writing type id during serialization when
+     * the runtime type matches {@link #_defaultImpl}.
+     *
+     * @since 3.0
+     */
+    protected Boolean _skipWriteForDefaultImpl;
+
     // Objects
 
     protected TypeIdResolver _customIdResolver;
@@ -85,6 +93,7 @@ public class StdTypeResolverBuilder
 
         _defaultImpl = defaultImpl;
         _requireTypeIdForSubtypes = base._requireTypeIdForSubtypes;
+        _skipWriteForDefaultImpl = base._skipWriteForDefaultImpl;
     }
 
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
@@ -112,18 +121,20 @@ public class StdTypeResolverBuilder
 
         TypeIdResolver idRes = idResolver(ctxt, baseType, subTypeValidator(ctxt),
                 subtypes, true, false);
+        final boolean skipWrite = Boolean.TRUE.equals(_skipWriteForDefaultImpl);
+        final Class<?> defaultImplForSer = skipWrite ? _defaultImpl : null;
         switch (_includeAs) {
         case WRAPPER_ARRAY:
-            return new AsArrayTypeSerializer(idRes, null);
+            return new AsArrayTypeSerializer(idRes, null, skipWrite, defaultImplForSer);
         case PROPERTY:
-            return new AsPropertyTypeSerializer(idRes, null, _typeProperty);
+            return new AsPropertyTypeSerializer(idRes, null, _typeProperty, skipWrite, defaultImplForSer);
         case WRAPPER_OBJECT:
-            return new AsWrapperTypeSerializer(idRes, null);
+            return new AsWrapperTypeSerializer(idRes, null, skipWrite, defaultImplForSer);
         case EXTERNAL_PROPERTY:
-            return new AsExternalTypeSerializer(idRes, null, _typeProperty);
+            return new AsExternalTypeSerializer(idRes, null, _typeProperty, skipWrite, defaultImplForSer);
         case EXISTING_PROPERTY:
         	// as per [#528]
-        	return new AsExistingPropertyTypeSerializer(idRes, null, _typeProperty);
+        	return new AsExistingPropertyTypeSerializer(idRes, null, _typeProperty, skipWrite, defaultImplForSer);
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }
@@ -245,6 +256,7 @@ public class StdTypeResolverBuilder
         _defaultImpl = settings.getDefaultImpl();
         _typeIdVisible = settings.getIdVisible();
         _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
+        _skipWriteForDefaultImpl = settings.getSkipWriteForDefaultImpl();
         return this;
     }
 

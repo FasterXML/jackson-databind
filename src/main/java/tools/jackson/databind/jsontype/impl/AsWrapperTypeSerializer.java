@@ -22,10 +22,16 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
         super(idRes, property);
     }
 
+    public AsWrapperTypeSerializer(TypeIdResolver idRes, BeanProperty property,
+            boolean skipWriteForDefaultImpl, Class<?> defaultImpl) {
+        super(idRes, property, skipWriteForDefaultImpl, defaultImpl);
+    }
+
     @Override
     public AsWrapperTypeSerializer forProperty(SerializationContext ctxt, BeanProperty prop)
     {
-        return (_property == prop) ? this : new AsWrapperTypeSerializer(_idResolver, prop);
+        return (_property == prop) ? this :
+            new AsWrapperTypeSerializer(_idResolver, prop, _skipWriteForDefaultImpl, _defaultImplForSerialization);
     }
 
     @Override

@@ -293,6 +293,16 @@ Kyrylo Merzlikin (@kirmerzlikin)
    encoded as String
   [3.1.0]
 
+Alessandro Nistico (@alienisty)
+ * Reported #5728: `@JsonUnwrapped`doesn't work for delegating ValueDeserializer (even
+   one delegating to `BeanDeserializerBase`)
+  [3.1.1]
+
+David Albrecht (@dalbrx-nitrobox)
+ * Reported and fixed #5785: Wrong path in `InvalidFormatException` for nested fields
+  and `BuilderBasedDeserializer`
+  [3.1.1]
+
 Gili Tzabari (@cowwoc)
  * Reported #639: `@JacksonInject` with `@JsonIdentityInfo` causes deserialization
    failure (unresolved forward reference)

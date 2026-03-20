@@ -123,6 +123,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5728: `@JsonUnwrapped`doesn't work for delegating ValueDeserializer (even
   one delegating to `BeanDeserializerBase`)
  (reported by Alessandro N)
+#5785: Wrong path in `InvalidFormatException` for nested fields
+  and `BuilderBasedDeserializer`
+ (reported and fixed by David A)
 #5786: Regression in `TokenBuffer#forceUseOfBigDecimal`
  (reported by Sébastien D)
  (fix by @cowtowncoder, w/ Claude code)

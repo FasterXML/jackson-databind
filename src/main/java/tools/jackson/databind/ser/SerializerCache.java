@@ -86,15 +86,22 @@ public final class SerializerCache
         _readOnlyMap = new AtomicReference<>();
     }
 
+    private SerializerCache(LookupCache<TypeKey, ValueSerializer<Object>> shared,
+                            LookupCache<TypeKey, ValueSerializer<Object>> resolvedShared) {
+        _sharedMap = shared;
+        _resolvedSharedMap = resolvedShared;
+        _readOnlyMap = new AtomicReference<>();
+    }
+
     // Since 3.0, needed to initialize cache properly: shared map would be ok but need to
     // reconstruct AtomicReference
     protected Object readResolve() {
-        return new SerializerCache(_sharedMap);
+        return new SerializerCache(_sharedMap, _resolvedSharedMap);
     }
 
     @Override
     public SerializerCache snapshot() {
-        return new SerializerCache(_sharedMap.snapshot());
+        return new SerializerCache(_sharedMap.snapshot(), _resolvedSharedMap.snapshot());
     }
 
     /**

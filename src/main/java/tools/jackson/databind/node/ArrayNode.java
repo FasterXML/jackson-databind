@@ -297,7 +297,7 @@ public class ArrayNode
      * NOTE: this returns the live <code>List</code> and not a copy.
      */
     @Override
-    public Collection<JsonNode> values() {
+    public List<JsonNode> values() {
         return _children;
     }
     
@@ -309,7 +309,7 @@ public class ArrayNode
     /**
      * Alias of {@link #values()}.
      */
-    public Collection<JsonNode> elements() {
+    public List<JsonNode> elements() {
         return values();
     }
 

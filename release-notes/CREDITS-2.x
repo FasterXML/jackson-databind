@@ -2011,3 +2011,8 @@ Thomas Wöckinger (@thomaswoeckinger)
  * Reported #5729: (regression due to #5429) ISO-8601 change prevents parsing
    negative timestamps (dates before 1970)
   [2.21.2]
+
+David Nelson (@eatdrinksleepcode)
+ * Reported #5814: Enum deserialization does not respect
+   `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
+  [2.21.2]

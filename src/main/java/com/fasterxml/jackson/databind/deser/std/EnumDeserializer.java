@@ -232,8 +232,13 @@ public class EnumDeserializer
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
+        // [databind#5814]: check both ACCEPT_CASE_INSENSITIVE_VALUES (primary) and
+        //   ACCEPT_CASE_INSENSITIVE_PROPERTIES (legacy) for case-insensitive enum matching
         Boolean caseInsensitive = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
-          JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)).orElse(_caseInsensitive);
+          JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES))
+                .orElse(Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
+                        JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES))
+                        .orElse(_caseInsensitive));
         Boolean useDefaultValueForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
           JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)).orElse(_useDefaultValueForUnknownEnum);
         Boolean useNullForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),

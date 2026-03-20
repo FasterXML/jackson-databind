@@ -10,6 +10,10 @@ Project: jackson-databind
   negative timestamps (dates before 1970)
  (reported by Thomas W)
  (fixed by by Jonas K)
+#5814: Enum deserialization does not respect
+  `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
+ (reported by David N)
+ (fix by @cowtowncoder, w/ Claude code)
 
 2.21.1 (22-Feb-2026)
 

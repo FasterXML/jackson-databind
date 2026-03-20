@@ -40,6 +40,12 @@ public class EnumAltIdTest
         public TestEnum value;
     }
 
+    // [databind#5814]
+    protected static class EnumBeanWithCaseInsensitiveValues {
+        @JsonFormat(with={ JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES })
+        public TestEnum value;
+    }
+
     protected static class DefaultEnumBean {
         @JsonFormat(with={ JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE })
         public MyEnum2352_3 value;
@@ -219,6 +225,19 @@ public class EnumAltIdTest
             verifyException(e, "not one of the values accepted for Enum class");
             verifyException(e, "[JACKSON, OK, RULES]");
         }
+    }
+
+    // [databind#5814]
+    @Test
+    public void testIgnoreCaseViaFormatValues() throws Exception
+    {
+        final String JSON = a2q("{'value':'ok'}");
+
+        // ACCEPT_CASE_INSENSITIVE_VALUES should also enable case-insensitive enum matching
+        EnumBeanWithCaseInsensitiveValues pojo = READER_DEFAULT
+            .forType(EnumBeanWithCaseInsensitiveValues.class)
+            .readValue(JSON);
+        assertEquals(TestEnum.OK, pojo.value);
     }
 
     /*

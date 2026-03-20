@@ -40,11 +40,23 @@ public final class SerializerCache
      *<p>
      * NOTE: keys are of various types (see below for key types), in addition to
      * basic {@link JavaType} used for "untyped" serializers.
+     *<p>
+     * NOTE: may contain serializers that are still being resolved (partially initialised).
+     * Use {@link #_resolvedSharedMap} for reads that must only see fully-resolved serializers.
      */
     private final LookupCache<TypeKey, ValueSerializer<Object>> _sharedMap;
 
     /**
-     * Most recent read-only instance, created from _sharedMap, if any.
+     * Resolved-only view of {@link #_sharedMap}: entries are added here
+     * <em>after</em> {@code resolve()} completes inside
+     * {@link #addAndResolveNonTypedSerializer}.
+     * Because this map never contains partially-initialised serializers, readers
+     * (see {@link #untypedValueSerializer}) can access it without holding any lock.
+     */
+    private final LookupCache<TypeKey, ValueSerializer<Object>> _resolvedSharedMap;
+
+    /**
+     * Most recent read-only instance, created from _resolvedSharedMap, if any.
      */
     private final transient AtomicReference<ReadOnlyClassToSerializerMap> _readOnlyMap;
 
@@ -58,16 +70,20 @@ public final class SerializerCache
     public SerializerCache(int maxCached) {
         int initial = Math.min(64, maxCached>>2);
         _sharedMap = new SimpleLookupCache<TypeKey, ValueSerializer<Object>>(initial, maxCached);
+        _resolvedSharedMap = new SimpleLookupCache<TypeKey, ValueSerializer<Object>>(initial, maxCached);
         _readOnlyMap = new AtomicReference<>();
     }
 
     public SerializerCache(LookupCache<TypeKey, ValueSerializer<Object>> cache) {
         _sharedMap = cache;
+        _resolvedSharedMap = cache.emptyCopy();
         _readOnlyMap = new AtomicReference<>();
     }
 
     protected SerializerCache(SimpleLookupCache<TypeKey, ValueSerializer<Object>> shared) {
         _sharedMap = shared;
+        _resolvedSharedMap = new SimpleLookupCache<TypeKey, ValueSerializer<Object>>(
+                shared._initialEntries, shared._maxEntries);
         _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
     }
 
@@ -100,7 +116,9 @@ public final class SerializerCache
         // not correctness
         ReadOnlyClassToSerializerMap m = _readOnlyMap.get();
         if (m == null) {
-            m = ReadOnlyClassToSerializerMap.from(this, _sharedMap);
+            // Build snapshot from _resolvedSharedMap so the per-thread copy only
+            // ever contains fully-resolved serializers (never partially-initialised ones).
+            m = ReadOnlyClassToSerializerMap.from(this, _resolvedSharedMap);
             _readOnlyMap.set(m);
         }
         return m;
@@ -120,19 +138,21 @@ public final class SerializerCache
      * Method that checks if the shared (and hence, synchronized) lookup Map might have
      * untyped serializer for given type.
      *<p>
-     * NOTE: Synchronized to prevent a race condition where a thread reads an unresolved
-     * serializer that was put into the shared map by another thread inside
-     * {@link #addAndResolveNonTypedSerializer} before {@code resolve()} completes.
+     * Reads from {@link #_resolvedSharedMap}, which only ever contains fully-resolved
+     * serializers (populated after {@code resolve()} completes in
+     * {@link #addAndResolveNonTypedSerializer}). No lock is needed because
+     * {@code SimpleLookupCache} / {@code PrivateMaxEntriesMap} is already thread-safe
+     * for concurrent reads, and we never expose a partially-initialised serializer here.
      * See [databind#5813].
      */
-    public synchronized ValueSerializer<Object> untypedValueSerializer(Class<?> type)
+    public ValueSerializer<Object> untypedValueSerializer(Class<?> type)
     {
-        return _sharedMap.get(new TypeKey(type, false));
+        return _resolvedSharedMap.get(new TypeKey(type, false));
     }
 
-    public synchronized ValueSerializer<Object> untypedValueSerializer(JavaType type)
+    public ValueSerializer<Object> untypedValueSerializer(JavaType type)
     {
-        return _sharedMap.get(new TypeKey(type, false));
+        return _resolvedSharedMap.get(new TypeKey(type, false));
     }
 
     public ValueSerializer<Object> typedValueSerializer(JavaType type)
@@ -185,6 +205,9 @@ public final class SerializerCache
              *   keep lock until resolution is complete.
              */
             ser.resolve(ctxt);
+            // Only add to resolved map AFTER resolve() completes; this map only ever
+            // contains fully-initialised serializers so readers need no lock. [databind#5813]
+            _resolvedSharedMap.put(new TypeKey(type, false), ser);
         }
     }
 
@@ -201,6 +224,9 @@ public final class SerializerCache
              *   keep lock until resolution is complete.
              */
             ser.resolve(ctxt);
+            // Only add to resolved map AFTER resolve() completes; this map only ever
+            // contains fully-initialised serializers so readers need no lock. [databind#5813]
+            _resolvedSharedMap.put(new TypeKey(type, false), ser);
         }
     }
 
@@ -219,6 +245,10 @@ public final class SerializerCache
                 _readOnlyMap.set(null);
             }
             ser.resolve(ctxt);
+            // Only add to resolved map AFTER resolve() completes; this map only ever
+            // contains fully-initialised serializers so readers need no lock. [databind#5813]
+            _resolvedSharedMap.put(new TypeKey(rawType, false), ser);
+            _resolvedSharedMap.put(new TypeKey(fullType, false), ser);
         }
     }
 
@@ -228,6 +258,7 @@ public final class SerializerCache
      */
     public synchronized void flush() {
         _sharedMap.clear();
+        _resolvedSharedMap.clear();
         _readOnlyMap.set(null);
     }
 }

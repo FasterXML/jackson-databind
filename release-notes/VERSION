@@ -26,6 +26,10 @@ No changes since 3.1
 #5786: Regression in `TokenBuffer#forceUseOfBigDecimal`
  (reported by Sébastien D)
  (fix by @cowtowncoder, w/ Claude code)
+#5814: Enum deserialization does not respect
+  `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
+ (reported by David N)
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.1.0 (23-Feb-2026)
 

@@ -145,8 +145,14 @@ public class EnumDeserializer
     public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
-        Boolean caseInsensitive = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
-          JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)).orElse(_caseInsensitive);
+        // [databind#5814]: check ACCEPT_CASE_INSENSITIVE_VALUES (primary),
+        //   fall back to ACCEPT_CASE_INSENSITIVE_PROPERTIES (legacy)
+        Boolean caseInsensitive = findFormatFeature(ctxt, property, handledType(),
+          JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES);
+        if (caseInsensitive == null) {
+            caseInsensitive = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
+              JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)).orElse(_caseInsensitive);
+        }
         Boolean useDefaultValueForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
           JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)).orElse(_useDefaultValueForUnknownEnum);
         Boolean useNullForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),

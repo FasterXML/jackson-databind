@@ -71,6 +71,9 @@ public class TreeBuildingGenerator
     /**********************************************************************
      */
 
+    /**
+     * @since 3.2
+     */
     TreeBuildingGenerator(ObjectWriteContext owCtxt, JsonNodeFactory nodeFactory,
             boolean stripTrailingBigDecimalZeroes)
     {
@@ -80,6 +83,11 @@ public class TreeBuildingGenerator
         _cfgStripTrailingBigDecimalZeroes = stripTrailingBigDecimalZeroes;
         _rootWriteContext = new RootContext(nodeFactory);
         _tokenWriteContext = _rootWriteContext;
+    }
+
+    @Deprecated // since 3.2
+    TreeBuildingGenerator(ObjectWriteContext owCtxt, JsonNodeFactory nodeFactory) {
+        this(owCtxt, nodeFactory, false);
     }
 
     public static TreeBuildingGenerator forSerialization(SerializationContext ctxt,

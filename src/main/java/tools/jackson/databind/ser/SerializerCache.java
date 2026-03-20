@@ -137,21 +137,39 @@ public final class SerializerCache
      * Method that checks if the shared (and hence, synchronized) lookup Map might have
      * untyped serializer for given type.
      *<p>
-     * Reads from {@link #_resolvedSharedMap}, which only ever contains fully-resolved
+     * Normally reads from {@link #_resolvedSharedMap}, which only ever contains fully-resolved
      * serializers (populated after {@code resolve()} completes in
      * {@link #addAndResolveNonTypedSerializer}). No lock is needed because
      * {@code SimpleLookupCache} / {@code PrivateMaxEntriesMap} is already thread-safe
      * for concurrent reads, and we never expose a partially-initialised serializer here.
+     *<p>
+     * Exception: when this method is called re-entrantly from within
+     * {@link #addAndResolveNonTypedSerializer} (i.e. the calling thread already holds
+     * this object's monitor, as detected by {@link Thread#holdsLock}), we fall back to
+     * {@link #_sharedMap} so that cyclic POJO type graphs can find the in-progress
+     * serializer and terminate their resolution without causing a {@link StackOverflowError}.
+     * Only the thread that is performing the resolution holds the lock, so other threads
+     * cannot reach this branch and will never observe a partially-initialised serializer.
      * See [databind#5813].
      */
     public ValueSerializer<Object> untypedValueSerializer(Class<?> type)
     {
-        return _resolvedSharedMap.get(new TypeKey(type, false));
+        TypeKey key = new TypeKey(type, false);
+        ValueSerializer<Object> ser = _resolvedSharedMap.get(key);
+        if (ser == null && Thread.holdsLock(this)) {
+            ser = _sharedMap.get(key);
+        }
+        return ser;
     }
 
     public ValueSerializer<Object> untypedValueSerializer(JavaType type)
     {
-        return _resolvedSharedMap.get(new TypeKey(type, false));
+        TypeKey key = new TypeKey(type, false);
+        ValueSerializer<Object> ser = _resolvedSharedMap.get(key);
+        if (ser == null && Thread.holdsLock(this)) {
+            ser = _sharedMap.get(key);
+        }
+        return ser;
     }
 
     public ValueSerializer<Object> typedValueSerializer(JavaType type)

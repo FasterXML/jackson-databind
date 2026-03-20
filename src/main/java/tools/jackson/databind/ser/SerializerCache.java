@@ -69,8 +69,8 @@ public final class SerializerCache
      */
     public SerializerCache(int maxCached) {
         int initial = Math.min(64, maxCached>>2);
-        _sharedMap = new SimpleLookupCache<TypeKey, ValueSerializer<Object>>(initial, maxCached);
-        _resolvedSharedMap = new SimpleLookupCache<TypeKey, ValueSerializer<Object>>(initial, maxCached);
+        _sharedMap = new SimpleLookupCache<>(initial, maxCached);
+        _resolvedSharedMap = new SimpleLookupCache<>(initial, maxCached);
         _readOnlyMap = new AtomicReference<>();
     }
 
@@ -82,9 +82,8 @@ public final class SerializerCache
 
     protected SerializerCache(SimpleLookupCache<TypeKey, ValueSerializer<Object>> shared) {
         _sharedMap = shared;
-        _resolvedSharedMap = new SimpleLookupCache<TypeKey, ValueSerializer<Object>>(
-                shared._initialEntries, shared._maxEntries);
-        _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
+        _resolvedSharedMap = shared.emptyCopy();
+        _readOnlyMap = new AtomicReference<>();
     }
 
     // Since 3.0, needed to initialize cache properly: shared map would be ok but need to

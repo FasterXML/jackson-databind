@@ -102,4 +102,44 @@ public class JsonNodeFactoryTest extends NodeTestBase
        JsonNode n3 = normMapper.readTree(String.valueOf(NON_NORMALIZED));
        assertEquals(NORMALIZED, n3.decimalValue());
    }
+
+   // [databind#5819]: STRIP_TRAILING_BIGDECIMAL_ZEROES not applied via valueToTree()
+   @Test
+   public void testBigDecimalNormalizationViaValueToTree() throws Exception
+   {
+       final BigDecimal NON_NORMALIZED = new BigDecimal("1.000");
+       final BigDecimal NORMALIZED = NON_NORMALIZED.stripTrailingZeros();
+
+       // By default, valueToTree() should NOT normalize
+       ObjectMapper defaultMapper = JsonMapper.builder().build();
+       JsonNode n1 = defaultMapper.valueToTree(NON_NORMALIZED);
+       assertEquals(NON_NORMALIZED, n1.decimalValue());
+
+       // But when STRIP_TRAILING_BIGDECIMAL_ZEROES enabled, it should normalize
+       ObjectMapper normMapper = JsonMapper.builder()
+               .enable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
+               .build();
+       JsonNode n2 = normMapper.valueToTree(NON_NORMALIZED);
+       assertEquals(NORMALIZED, n2.decimalValue());
+
+       // Also verify with an object that has BigDecimal fields
+       BigDecimalWrapper body = new BigDecimalWrapper(
+               new BigDecimal("1.000"), new BigDecimal("2.000"), new BigDecimal("3.000"));
+       JsonNode tree = normMapper.valueToTree(body);
+       assertEquals(NORMALIZED, tree.get("bd1").decimalValue());
+       assertEquals(new BigDecimal("2.000").stripTrailingZeros(), tree.get("bd2").decimalValue());
+       assertEquals(new BigDecimal("3.000").stripTrailingZeros(), tree.get("bd3").decimalValue());
+   }
+
+   static class BigDecimalWrapper {
+       public BigDecimal bd1;
+       public BigDecimal bd2;
+       public BigDecimal bd3;
+
+       BigDecimalWrapper(BigDecimal bd1, BigDecimal bd2, BigDecimal bd3) {
+           this.bd1 = bd1;
+           this.bd2 = bd2;
+           this.bd3 = bd3;
+       }
+   }
 }

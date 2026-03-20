@@ -10,6 +10,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.JsonNodeFeature;
 import tools.jackson.databind.util.RawValue;
 
 /**
@@ -388,9 +389,27 @@ public class TreeBuildingGenerator
         if (v == null) {
             writeNull();
         } else {
+            if (_objectWriteContext instanceof SerializationContext sc
+                    && sc.isEnabled(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)) {
+                v = _normalizeDecimal(v);
+            }
             _tokenWriteContext.writeNumber(_nodeFactory.numberNode(v));
         }
         return this;
+    }
+
+    /**
+     * Helper method to strip trailing zeros from a {@link BigDecimal}, used to
+     * implement {@link JsonNodeFeature#STRIP_TRAILING_BIGDECIMAL_ZEROES}.
+     */
+    protected BigDecimal _normalizeDecimal(BigDecimal v) {
+        // 24-Mar-2021, tatu: [dataformats-binary#264] barfs on a specific value...
+        //   Must skip normalization in that particular case
+        try {
+            return v.stripTrailingZeros();
+        } catch (ArithmeticException e) {
+            return v;
+        }
     }
 
     @Override

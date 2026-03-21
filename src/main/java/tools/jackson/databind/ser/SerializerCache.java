@@ -1,5 +1,6 @@
 package tools.jackson.databind.ser;
 
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import tools.jackson.core.util.Snapshottable;
@@ -63,9 +64,11 @@ public final class SerializerCache
      * once their resolution completes, so this map tends to stay empty at
      * steady state.
      *<p>
-     * Access to this map is always guarded by {@code synchronized (this)}.
+     * A plain {@link HashMap} suffices here because access is always guarded by
+     * {@code synchronized (this)} and only a tiny number of entries are ever
+     * present at once (no LRU eviction or concurrent-access overhead needed).
      */
-    private final transient LookupCache<TypeKey, ValueSerializer<Object>> _inProgressMap;
+    private final transient HashMap<TypeKey, ValueSerializer<Object>> _inProgressMap;
 
     /**
      * Most recent read-only instance, created from _sharedMap, if any.
@@ -82,19 +85,19 @@ public final class SerializerCache
     public SerializerCache(int maxCached) {
         int initial = Math.min(64, maxCached>>2);
         _sharedMap = new SimpleLookupCache<TypeKey, ValueSerializer<Object>>(initial, maxCached);
-        _inProgressMap = _sharedMap.emptyCopy();
+        _inProgressMap = new HashMap<>();
         _readOnlyMap = new AtomicReference<>();
     }
 
     public SerializerCache(LookupCache<TypeKey, ValueSerializer<Object>> cache) {
         _sharedMap = cache;
-        _inProgressMap = cache.emptyCopy();
+        _inProgressMap = new HashMap<>();
         _readOnlyMap = new AtomicReference<>();
     }
 
     protected SerializerCache(SimpleLookupCache<TypeKey, ValueSerializer<Object>> shared) {
         _sharedMap = shared;
-        _inProgressMap = shared.emptyCopy();
+        _inProgressMap = new HashMap<>();
         _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
     }
 

@@ -111,20 +111,20 @@ public class ThreadSafetyWithConverterMixin5813Test
     // when the fix is absent
     @RepeatedTest(50)
     public void testConcurrentSerializationWithConverterMixin() throws Throwable {
-        final String expectedJson = "{\n"
-                + "  \"locales\" : [ {\n"
-                + "    \"code\" : \"en\"\n"
+        final String expectedJson = a2q("{\n"
+                + "  'locales' : [ {\n"
+                + "    'code' : 'en'\n"
                 + "  }, {\n"
-                + "    \"code\" : \"de\"\n"
+                + "    'code' : 'de'\n"
                 + "  } ],\n"
-                + "  \"localizedTexts\" : [ {\n"
-                + "    \"locale\" : \"en\",\n"
-                + "    \"text\" : \"text 1\"\n"
+                + "  'localizedTexts' : [ {\n"
+                + "    'locale' : 'en',\n"
+                + "    'text' : 'text 1'\n"
                 + "  }, {\n"
-                + "    \"locale\" : \"de\",\n"
-                + "    \"text\" : \"text 2\"\n"
+                + "    'locale' : 'de',\n"
+                + "    'text' : 'text 2'\n"
                 + "  } ]\n"
-                + "}";
+                + "}");
 
         JsonMapper mapper = createMapper();
         MyObject myObject = mapper.readValue(expectedJson, MyObject.class);

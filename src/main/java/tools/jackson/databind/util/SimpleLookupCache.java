@@ -78,9 +78,6 @@ public class SimpleLookupCache<K,V>
     public V get(K key) { return _map.get(key); }
 
     @Override
-    public void remove(K key) { _map.remove(key); }
-
-    @Override
     public void clear() { _map.clear(); }
 
     @Override

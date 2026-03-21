@@ -58,6 +58,18 @@ public interface LookupCache<K,V>
     V putIfAbsent(K key, V value);
 
     /**
+     * Method for removing a single entry by key.
+     *<p>
+     * Default implementation throws {@link UnsupportedOperationException}.
+     * Implementations are required to override this method if removal is needed.
+     *
+     * @param key Key of the entry to remove.
+     */
+    default void remove(K key) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Method for removing all contents this cache has.
      */
     void clear();

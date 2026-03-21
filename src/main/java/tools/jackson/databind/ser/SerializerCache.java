@@ -26,8 +26,9 @@ import tools.jackson.databind.util.TypeKey;
  * {@link #addAndResolveNonTypedSerializer} calls, a two-phase write protocol is used:
  * newly constructed serializers are placed into {@code _inProgressMap} first, resolved
  * there (so cyclic POJO lookups can find the in-progress entry), and only moved to
- * {@code _sharedMap} after {@code resolve()} completes. {@code _inProgressMap} is then
- * cleared once the outermost resolution finishes, so it tends to stay empty at steady state.
+ * {@code _sharedMap} after {@code resolve()} completes. Each entry is removed from
+ * {@code _inProgressMap} as soon as it is promoted, so the map tends to stay empty
+ * at steady state.
  * The lock-free read path ({@link #untypedValueSerializer}) reads only from
  * {@code _sharedMap}, which therefore never contains a partially-resolved serializer.
  */
@@ -58,25 +59,13 @@ public final class SerializerCache
     /**
      * Transient staging map that holds serializers that are currently being
      * resolved ({@code resolve()} has been called but has not yet returned).
-     * Entries here are moved to {@code _sharedMap} once resolution completes.
-     * The map tends to empty out as serializers finish resolving, and is
-     * cleared entirely when the outermost {@link #addAndResolveNonTypedSerializer}
-     * call returns.
+     * Entries here are individually removed and promoted to {@code _sharedMap}
+     * once their resolution completes, so this map tends to stay empty at
+     * steady state.
      *<p>
      * Access to this map is always guarded by {@code synchronized (this)}.
      */
     private final transient LookupCache<TypeKey, ValueSerializer<Object>> _inProgressMap;
-
-    /**
-     * Tracks the nesting depth of active {@link #addAndResolveNonTypedSerializer}
-     * calls on the current thread (re-entrant, since {@code synchronized} is
-     * re-entrant in Java).  Used to determine when it is safe to clear
-     * {@code _inProgressMap}: we clear only when depth returns to zero so that
-     * nested cyclic-resolution calls still find their in-progress entries.
-     *<p>
-     * Access is always guarded by {@code synchronized (this)}.
-     */
-    private transient int _resolveDepth;
 
     /**
      * Most recent read-only instance, created from _sharedMap, if any.
@@ -237,19 +226,11 @@ public final class SerializerCache
              *   this because while we do need to register instance first, we also must
              *   keep lock until resolution is complete.
              */
-            _resolveDepth++;
-            try {
-                ser.resolve(ctxt);
-                // Resolution complete: promote to the main (fully-resolved) map
-                _sharedMap.put(key, ser);
-            } finally {
-                _resolveDepth--;
-                if (_resolveDepth == 0) {
-                    // Outermost resolution finished: clear the staging map so it
-                    // tends to stay empty at steady state
-                    _inProgressMap.clear();
-                }
-            }
+            ser.resolve(ctxt);
+            // Resolution complete: promote to the main (fully-resolved) map and remove
+            // from the staging map so _inProgressMap stays empty at steady state
+            _sharedMap.put(key, ser);
+            _inProgressMap.remove(key);
         }
     }
 
@@ -265,16 +246,9 @@ public final class SerializerCache
              *   this because while we do need to register instance first, we also must
              *   keep lock until resolution is complete.
              */
-            _resolveDepth++;
-            try {
-                ser.resolve(ctxt);
-                _sharedMap.put(key, ser);
-            } finally {
-                _resolveDepth--;
-                if (_resolveDepth == 0) {
-                    _inProgressMap.clear();
-                }
-            }
+            ser.resolve(ctxt);
+            _sharedMap.put(key, ser);
+            _inProgressMap.remove(key);
         }
     }
 
@@ -292,17 +266,11 @@ public final class SerializerCache
             _inProgressMap.put(keyRaw, ser);
             _inProgressMap.put(keyFull, ser);
             _readOnlyMap.set(null);
-            _resolveDepth++;
-            try {
-                ser.resolve(ctxt);
-                _sharedMap.put(keyRaw, ser);
-                _sharedMap.put(keyFull, ser);
-            } finally {
-                _resolveDepth--;
-                if (_resolveDepth == 0) {
-                    _inProgressMap.clear();
-                }
-            }
+            ser.resolve(ctxt);
+            _sharedMap.put(keyRaw, ser);
+            _sharedMap.put(keyFull, ser);
+            _inProgressMap.remove(keyRaw);
+            _inProgressMap.remove(keyFull);
         }
     }
 

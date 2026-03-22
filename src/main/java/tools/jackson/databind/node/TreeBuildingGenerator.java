@@ -411,7 +411,7 @@ public class TreeBuildingGenerator
         } else {
             // [databind#5819]: apply `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES`?
             if (_cfgStripTrailingBigDecimalZeroes) {
-                v = NumberUtil.stripTrailingZeroes(v);
+                v = NumberUtil.stripTrailingZeros(v);
             }
             _tokenWriteContext.writeNumber(_nodeFactory.numberNode(v));
         }

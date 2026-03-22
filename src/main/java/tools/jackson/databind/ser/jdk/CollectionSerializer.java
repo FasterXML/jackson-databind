@@ -9,6 +9,7 @@ import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.ser.impl.PropertySerializerMap;
 import tools.jackson.databind.ser.std.AsArraySerializerBase;
 import tools.jackson.databind.ser.std.StdContainerSerializer;
@@ -132,9 +133,12 @@ public class CollectionSerializer
     {
         // [databind#3166]: sort Set elements if feature enabled
         Collection<?> toSerialize = value;
-        if (value instanceof Set<?>
-            && ctxt.isEnabled(SerializationFeature.ORDER_SET_ELEMENTS)) {
-                toSerialize = _orderElements(value, ctxt);
+        if (value instanceof Set<?> set
+            && ctxt.isEnabled(SerializationFeature.ORDER_SET_ELEMENTS)
+            && !(set instanceof SortedSet<?>
+                || set instanceof EnumSet<?>
+                || set.isEmpty())) {
+            toSerialize = _orderElements(value, ctxt);
         }
 
         if (_elementSerializer != null) {
@@ -200,27 +204,22 @@ public class CollectionSerializer
             SerializationContext ctxt)
         throws JacksonException
     {
-        if (input instanceof SortedSet<?> || input instanceof EnumSet<?>
-             || input.isEmpty()) {
-            return input;
-        }
         // [databind#3166] Quick pre-check: first non-null element must be Comparable
         // (same pattern as MapSerializer._orderEntries; first element is a good enough sample)
         for (Object elem : input) {
-            if (elem != null) {
-                if (!(elem instanceof Comparable<?>)) {
-                    if (!ctxt.isEnabled(
-                            SerializationFeature.FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT)) {
-                        return input;
-                    }
-                    ctxt.reportBadDefinition(input.getClass(),
-                        "Cannot order Set entries: elements are not mutually "
-                        + "Comparable, consider disabling "
-                        + "`SerializationFeature.FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT`"
-                        + " to simply skip sorting");
+            if (!(elem instanceof Comparable<?>) && (elem != null)) {
+                if (!ctxt.isEnabled(
+                        SerializationFeature.FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT)) {
+                    return input;
                 }
-                break;
+                ctxt.reportBadDefinition(input.getClass(),
+                    String.format(
+"Cannot order `Set` entries: element of type %s is not `java.util.Comparable`,"
++" consider disabling `SerializationFeature.FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT`"
++" to simply skip sorting",
+ClassUtil.classNameOf(elem)));
             }
+            break;
         }
         try {
             List<Object> sorted = new ArrayList<>(input);
@@ -228,16 +227,13 @@ public class CollectionSerializer
                     Comparator.nullsLast(Comparator.naturalOrder()));
             return sorted;
         } catch (ClassCastException e) {
-            if (!ctxt.isEnabled(
-                    SerializationFeature.FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT)) {
+            if (!ctxt.isEnabled(SerializationFeature.FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT)) {
                 return input;
             }
-            ctxt.reportBadDefinition(input.getClass(),
-                "Cannot order Set entries: elements are not mutually "
-                + "Comparable, consider disabling "
-                + "`SerializationFeature.FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT`"
-                + " to simply skip sorting");
-            return input; // unreachable, reportBadDefinition throws
+            return ctxt.reportBadDefinition(input.getClass(),
+"Cannot order `Set` entries: elements are not mutually `java.util.Comparable`,"
++" consider disabling `SerializationFeature.FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT`"
++" to simply skip sorting");
         }
     }
 

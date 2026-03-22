@@ -109,6 +109,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5734: `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` treats
   absent field same as explicit `null`
  (reported by Martin U)
+#5821: Fix dead code and side-effect bug in `BeanPropertyWriter.toString()`
+ (fix by @pjfanning)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 

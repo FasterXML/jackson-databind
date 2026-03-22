@@ -879,6 +879,7 @@ public class BeanPropertyWriter
     public String toString() {
         StringBuilder sb = new StringBuilder(40);
         sb.append("property '").append(getName()).append("' (");
+        // 22-Mar-2026: [databind#5821] check members, not accessor
         if (_member == null) {
             sb.append("virtual");
         } else if (_member instanceof AnnotatedField) {

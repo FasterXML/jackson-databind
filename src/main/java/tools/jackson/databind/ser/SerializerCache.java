@@ -84,7 +84,7 @@ public final class SerializerCache
      */
     public SerializerCache(int maxCached) {
         int initial = Math.min(64, maxCached>>2);
-        _sharedMap = new SimpleLookupCache<TypeKey, ValueSerializer<Object>>(initial, maxCached);
+        _sharedMap = new SimpleLookupCache<>(initial, maxCached);
         _inProgressMap = new HashMap<>();
         _readOnlyMap = new AtomicReference<>();
     }
@@ -98,7 +98,7 @@ public final class SerializerCache
     protected SerializerCache(SimpleLookupCache<TypeKey, ValueSerializer<Object>> shared) {
         _sharedMap = shared;
         _inProgressMap = new HashMap<>();
-        _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
+        _readOnlyMap = new AtomicReference<>();
     }
 
     // Since 3.0, needed to initialize cache properly: shared map would be ok but need to
@@ -159,7 +159,7 @@ public final class SerializerCache
      * to return the partially-resolved serializer to break the cycle.  All other threads
      * never hold the monitor and therefore exclusively see fully-resolved entries.
      */
-    public synchronized ValueSerializer<Object> untypedValueSerializer(Class<?> type)
+    public ValueSerializer<Object> untypedValueSerializer(Class<?> type)
     {
         TypeKey key = new TypeKey(type, false);
         ValueSerializer<Object> ser = _sharedMap.get(key);
@@ -178,7 +178,7 @@ public final class SerializerCache
      * {@link #addAndResolveNonTypedSerializer} before {@code resolve()} completes.
      * See [databind#5813].
      */
-    public synchronized ValueSerializer<Object> untypedValueSerializer(JavaType type)
+    public ValueSerializer<Object> untypedValueSerializer(JavaType type)
     {
         TypeKey key = new TypeKey(type, false);
         ValueSerializer<Object> ser = _sharedMap.get(key);
@@ -192,7 +192,7 @@ public final class SerializerCache
      * Method that checks if the shared (and hence, synchronized) lookup Map might have
      * a typed serializer for given type.
      */
-    public synchronized ValueSerializer<Object> typedValueSerializer(JavaType type)
+    public ValueSerializer<Object> typedValueSerializer(JavaType type)
     {
         return _sharedMap.get(new TypeKey(type, true));
     }
@@ -201,7 +201,7 @@ public final class SerializerCache
      * Method that checks if the shared (and hence, synchronized) lookup Map might have
      * a typed serializer for given type.
      */
-    public synchronized ValueSerializer<Object> typedValueSerializer(Class<?> cls)
+    public ValueSerializer<Object> typedValueSerializer(Class<?> cls)
     {
         return _sharedMap.get(new TypeKey(cls, true));
     }

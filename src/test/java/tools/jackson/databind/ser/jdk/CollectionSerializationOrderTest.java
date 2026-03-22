@@ -14,7 +14,7 @@ import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for {@link SerializationFeature#ORDER_SET_ENTRIES_BY_ELEMENTS}
+ * Tests for {@link SerializationFeature#ORDER_SET_ELEMENTS}
  * and {@link SerializationFeature#FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT}.
  */
 public class CollectionSerializationOrderTest extends DatabindTestUtil
@@ -52,7 +52,7 @@ public class CollectionSerializationOrderTest extends DatabindTestUtil
 
     private ObjectMapper orderedMapper() {
         return jsonMapperBuilder()
-                .enable(SerializationFeature.ORDER_SET_ENTRIES_BY_ELEMENTS)
+                .enable(SerializationFeature.ORDER_SET_ELEMENTS)
                 .build();
     }
 
@@ -135,7 +135,7 @@ public class CollectionSerializationOrderTest extends DatabindTestUtil
     @Test
     public void testNonComparableElementsFail() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(SerializationFeature.ORDER_SET_ENTRIES_BY_ELEMENTS)
+                .enable(SerializationFeature.ORDER_SET_ELEMENTS)
                 .enable(SerializationFeature.FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT)
                 .build();
         Set<Object> set = new LinkedHashSet<>();
@@ -149,7 +149,7 @@ public class CollectionSerializationOrderTest extends DatabindTestUtil
     @Test
     public void testNonComparableElementsSkip() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(SerializationFeature.ORDER_SET_ENTRIES_BY_ELEMENTS)
+                .enable(SerializationFeature.ORDER_SET_ELEMENTS)
                 .disable(SerializationFeature.FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT)
                 .build();
         Set<Object> set = new LinkedHashSet<>();
@@ -215,7 +215,7 @@ public class CollectionSerializationOrderTest extends DatabindTestUtil
     @Test
     public void testPolymorphicSetSorted() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(SerializationFeature.ORDER_SET_ENTRIES_BY_ELEMENTS)
+                .enable(SerializationFeature.ORDER_SET_ELEMENTS)
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_FINAL)
                 .build();
@@ -235,7 +235,7 @@ public class CollectionSerializationOrderTest extends DatabindTestUtil
     @Test
     public void testMixedIncomparableTypes() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(SerializationFeature.ORDER_SET_ENTRIES_BY_ELEMENTS)
+                .enable(SerializationFeature.ORDER_SET_ELEMENTS)
                 .disable(SerializationFeature.FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT)
                 .build();
         Set<Object> set = new LinkedHashSet<>();
@@ -249,7 +249,7 @@ public class CollectionSerializationOrderTest extends DatabindTestUtil
     @Test
     public void testNullAndNonComparableMixed() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(SerializationFeature.ORDER_SET_ENTRIES_BY_ELEMENTS)
+                .enable(SerializationFeature.ORDER_SET_ELEMENTS)
                 .disable(SerializationFeature.FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT)
                 .build();
         Set<Object> set = new LinkedHashSet<>();

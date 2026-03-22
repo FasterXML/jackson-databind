@@ -141,7 +141,7 @@ public class StringCollectionSerializer
         // [databind#3166]: sort Set<String> if feature enabled
         Collection<String> toSerialize = value;
         if (value instanceof Set<?> && !(value instanceof SortedSet<?>)) {
-            if (ctxt.isEnabled(SerializationFeature.ORDER_SET_ENTRIES_BY_ELEMENTS)) {
+            if (ctxt.isEnabled(SerializationFeature.ORDER_SET_ELEMENTS)) {
                 List<String> sorted = new ArrayList<>(value);
                 sorted.sort(Comparator.nullsLast(Comparator.naturalOrder()));
                 toSerialize = sorted;

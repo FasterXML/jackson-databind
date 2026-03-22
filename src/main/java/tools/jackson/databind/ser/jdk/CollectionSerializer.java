@@ -132,11 +132,9 @@ public class CollectionSerializer
     {
         // [databind#3166]: sort Set elements if feature enabled
         Collection<?> toSerialize = value;
-        if (value instanceof Set<?> && !(value instanceof SortedSet<?>)
-                && !(value instanceof EnumSet<?>)) {
-            if (ctxt.isEnabled(SerializationFeature.ORDER_SET_ENTRIES_BY_ELEMENTS)) {
+        if (value instanceof Set<?>
+            && ctxt.isEnabled(SerializationFeature.ORDER_SET_ELEMENTS)) {
                 toSerialize = _orderElements(value, ctxt);
-            }
         }
 
         if (_elementSerializer != null) {
@@ -194,19 +192,16 @@ public class CollectionSerializer
 
     /**
      * Helper method to sort Set elements for deterministic serialization.
+     *
+     * @since 3.2
      */
     @SuppressWarnings("unchecked")
     protected Collection<?> _orderElements(Collection<?> input,
             SerializationContext ctxt)
         throws JacksonException
     {
-        if (input instanceof SortedSet<?>) {
-            return input;
-        }
-        if (input instanceof EnumSet<?>) {
-            return input;
-        }
-        if (input.isEmpty()) {
+        if (input instanceof SortedSet<?> || input instanceof EnumSet<?>
+             || input.isEmpty()) {
             return input;
         }
         // [databind#3166] Quick pre-check: first non-null element must be Comparable

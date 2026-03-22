@@ -257,18 +257,21 @@ public enum SerializationFeature implements ConfigFeature
     FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY(false),
 
     /**
-     * Feature that determines whether {@link java.util.Set} entries are first
-     * sorted before serialization or not: if enabled, additional sorting step
+     * Feature that determines whether entries of {@link java.util.Set}s
+     * are first sorted before serialization or not: if enabled, additional sorting step
      * is performed if necessary (not necessary for
-     * {@link java.util.SortedSet}s), if disabled, no additional sorting is needed.
+     * {@link java.util.SortedSet}s or {@link java.util.EnumSet}s),
+     * if disabled, no additional sorting is needed.
      *<p>
      * Note that sorting requires set elements to implement {@link java.lang.Comparable};
      * behavior when encountering non-Comparable elements is controlled by
      * {@link #FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT}.
      *<p>
      * Feature is disabled by default.
+     *
+     * @since 3.2
      */
-    ORDER_SET_ENTRIES_BY_ELEMENTS(false),
+    ORDER_SET_ELEMENTS(false),
 
     /**
      * Feature that determines whether to fail when attempting to sort
@@ -277,10 +280,12 @@ public enum SerializationFeature implements ConfigFeature
      * If enabled, will throw an exception when set elements cannot be sorted.
      * If disabled, will silently skip sorting and use the original iteration order.
      *<p>
-     * Note that this feature only applies when set entry ordering is enabled via
-     * {@link #ORDER_SET_ENTRIES_BY_ELEMENTS}.
+     * Note that this feature has only effect when set entry ordering is enabled via
+     * {@link #ORDER_SET_ELEMENTS}.
      *<p>
      * Feature is disabled by default.
+     *
+     * @since 3.2
      */
     FAIL_ON_ORDER_SET_BY_INCOMPARABLE_ELEMENT(false),
 

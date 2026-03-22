@@ -159,7 +159,7 @@ public final class SerializerCache
      * to return the partially-resolved serializer to break the cycle.  All other threads
      * never hold the monitor and therefore exclusively see fully-resolved entries.
      */
-    public ValueSerializer<Object> untypedValueSerializer(Class<?> type)
+    public synchronized ValueSerializer<Object> untypedValueSerializer(Class<?> type)
     {
         TypeKey key = new TypeKey(type, false);
         ValueSerializer<Object> ser = _sharedMap.get(key);
@@ -169,7 +169,16 @@ public final class SerializerCache
         return ser;
     }
 
-    public ValueSerializer<Object> untypedValueSerializer(JavaType type)
+    /**
+     * Method that checks if the shared (and hence, synchronized) lookup Map might have
+     * an untyped serializer for given type.
+     *<p>
+     * NOTE: Synchronized to prevent a race condition where a thread reads an unresolved
+     * serializer that was put into the shared map by another thread inside
+     * {@link #addAndResolveNonTypedSerializer} before {@code resolve()} completes.
+     * See [databind#5813].
+     */
+    public synchronized ValueSerializer<Object> untypedValueSerializer(JavaType type)
     {
         TypeKey key = new TypeKey(type, false);
         ValueSerializer<Object> ser = _sharedMap.get(key);
@@ -179,12 +188,20 @@ public final class SerializerCache
         return ser;
     }
 
-    public ValueSerializer<Object> typedValueSerializer(JavaType type)
+    /**
+     * Method that checks if the shared (and hence, synchronized) lookup Map might have
+     * a typed serializer for given type.
+     */
+    public synchronized ValueSerializer<Object> typedValueSerializer(JavaType type)
     {
         return _sharedMap.get(new TypeKey(type, true));
     }
 
-    public ValueSerializer<Object> typedValueSerializer(Class<?> cls)
+    /**
+     * Method that checks if the shared (and hence, synchronized) lookup Map might have
+     * a typed serializer for given type.
+     */
+    public synchronized ValueSerializer<Object> typedValueSerializer(Class<?> cls)
     {
         return _sharedMap.get(new TypeKey(cls, true));
     }

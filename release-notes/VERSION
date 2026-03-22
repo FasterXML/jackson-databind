@@ -30,6 +30,10 @@ No changes since 3.1
   `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
  (reported by David N)
  (fix by @cowtowncoder, w/ Claude code)
+#5819: `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES` not
+  working with `ObjectMapper.valueToTree()`
+ (reported by @pankajxeine)
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.1.0 (23-Feb-2026)
 

@@ -26,6 +26,9 @@ No changes since 3.1
 #5786: Regression in `TokenBuffer#forceUseOfBigDecimal`
  (reported by Sébastien D)
  (fix by @cowtowncoder, w/ Claude code)
+#5813: `JsonMapper` not thread-safe when using custom serializers
+ (reported by Stephan L)
+ (fix by @pjfanning)
 #5814: Enum deserialization does not respect
   `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
  (reported by David N)

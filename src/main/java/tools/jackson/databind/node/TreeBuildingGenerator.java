@@ -408,14 +408,30 @@ public class TreeBuildingGenerator
         if (v == null) {
             writeNull();
         } else {
-            // [databind#5819]: apply STRIP_TRAILING_BIGDECIMAL_ZEROES if enabled
+            // [databind#5819]: apply `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES`?
             if (_cfgStripTrailingBigDecimalZeroes) {
-                v = v.stripTrailingZeros();
+                v = _normalize(v);
             }
             _tokenWriteContext.writeNumber(_nodeFactory.numberNode(v));
         }
         return this;
     }
+
+    /**
+     * Helper method to strip trailing zeros from a {@link BigDecimal}, used to
+     * implement {@link JsonNodeFeature#STRIP_TRAILING_BIGDECIMAL_ZEROES}.
+     *
+     * @since 3.1.1
+     */
+    protected BigDecimal _normalize(BigDecimal v) {
+        // 21-Mar-2026, tatu: wrt [dataformats-binary#264] barfs on a specific value...
+        //   Must skip normalization in that particular case
+        try {
+            return v.stripTrailingZeros();
+        } catch (ArithmeticException e) {
+            return v;
+        }
+    }    
 
     @Override
     public JsonGenerator writeNumber(BigInteger v) {

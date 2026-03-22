@@ -20,6 +20,10 @@ Project: jackson-databind
   negative timestamps (dates before 1970)
  (reported by Thomas W)
  (fixed by by Jonas K)
+#5814: Enum deserialization does not respect
+  `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
+ (reported by David N)
+ (fix by @cowtowncoder, w/ Claude code)
 
 2.21.1 (22-Feb-2026)
 
@@ -159,6 +163,9 @@ No changes since 2.19.2
 
 2.19.0 (24-Apr-2025)
 
+#917: Unable to have two `@JsonUnwrapped` annotated object of same
+  type within one constructor
+ (reported by @smil2k)
 #1467: Support `@JsonUnwrapped` with `@JsonCreator`
  (implementation by Liam F)
 #2145: Add `JsonNode.optional(String name)` and `optional(int index)` methods

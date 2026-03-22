@@ -2,7 +2,6 @@ package tools.jackson.databind.deser.jdk;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -167,21 +166,33 @@ public class EnumDeserializer
     public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
-        Boolean caseInsensitive = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
-                JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)).orElse(_caseInsensitive);
-        Boolean useDefaultValueForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
-                JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)).orElse(_useDefaultValueForUnknownEnum);
-        Boolean useNullForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
-                JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)).orElse(_useNullForUnknownEnum);
-
+        Boolean caseInsensitive = _caseInsensitive;
+        Boolean useDefaultValueForUnknownEnum = _useDefaultValueForUnknownEnum;
+        Boolean useNullForUnknownEnum = _useNullForUnknownEnum;
         boolean useNumericIndexForNumbers = _useNumericIndexForNumbers;
-        JsonFormat.Value value = findFormatOverrides(ctxt, property, handledType());
-        if (value != null) {
-            JsonFormat.Shape shape = value.getShape();
+
+        JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
+        if (format != null) {
+            // [databind#5814]: check both ACCEPT_CASE_INSENSITIVE_VALUES (primary) and
+            //   ACCEPT_CASE_INSENSITIVE_PROPERTIES (legacy, for backwards-compatibility)
+            Boolean ci = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES);
+            if (ci == null) {
+                ci = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+            }
+            if (ci != null) {
+                caseInsensitive = ci;
+            }
+            Boolean b = format.getFeature(JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+            if (b != null) {
+                useDefaultValueForUnknownEnum = b;
+            }
+            b = format.getFeature(JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+            if (b != null) {
+                useNullForUnknownEnum = b;
+            }
+            JsonFormat.Shape shape = format.getShape();
             if (shape != null) {
-                if (shape == JsonFormat.Shape.ANY || shape == JsonFormat.Shape.SCALAR) {
-                    // keep base
-                } else {
+                if (shape != JsonFormat.Shape.ANY && shape != JsonFormat.Shape.SCALAR) {
                     useNumericIndexForNumbers = shape.isNumeric() || shape == JsonFormat.Shape.ARRAY;
                 }
             }

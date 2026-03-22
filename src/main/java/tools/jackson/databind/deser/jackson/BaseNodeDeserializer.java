@@ -14,6 +14,7 @@ import tools.jackson.databind.node.ContainerNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.util.NumberUtil;
 import tools.jackson.databind.util.RawValue;
 
 /**
@@ -545,7 +546,7 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
         if (nt == JsonParser.NumberTypeFP.BIG_DECIMAL) {
             BigDecimal nr = p.getDecimalValue();
             if (ctxt.isEnabled(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)) {
-                nr = _normalize(nr);
+                nr = NumberUtil.stripTrailingZeros(nr);
             }
             return nodeFactory.numberNode(nr);
         }
@@ -568,7 +569,7 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
             }
             BigDecimal nr = p.getDecimalValue();
             if (ctxt.isEnabled(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)) {
-                nr = _normalize(nr);
+                nr = NumberUtil.stripTrailingZeros(nr);
             }
             return nodeFactory.numberNode(nr);
         }
@@ -576,19 +577,6 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
             return nodeFactory.numberNode(p.getFloatValue());
         }
         return nodeFactory.numberNode(p.getDoubleValue());
-    }
-
-    protected BigDecimal _normalize(BigDecimal nr) {
-        // 24-Mar-2021, tatu: [dataformats-binary#264] barfs on a specific value...
-        //   Must skip normalization in that particular case. Alas, haven't found
-        //   another way to check it instead of getting "Overflow", catching
-        try {
-            nr = nr.stripTrailingZeros();
-        } catch (ArithmeticException e) {
-            // If we can't, we can't...
-            ;
-        }
-        return nr;
     }
 
     protected final JsonNode _fromEmbedded(JsonParser p, DeserializationContext ctxt)

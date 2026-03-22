@@ -303,6 +303,10 @@ David Albrecht (@dalbrx-nitrobox)
   and `BuilderBasedDeserializer`
   [3.1.1]
 
+Stephan Lutz (@stlutz)
+ * Reported #5813: `JsonMapper` not thread-safe when using custom serializers
+  [3.1.1]
+
 Gili Tzabari (@cowwoc)
  * Reported #639: `@JacksonInject` with `@JsonIdentityInfo` causes deserialization
    failure (unresolved forward reference)
@@ -382,4 +386,9 @@ Eran Leshem (@eranl)
 Martin Uhlen (@MartinUhlen)
  * Reported #5734: `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` treats
    absent field same as explicit `null`
+  [3.2.0]
+
+David Nelson (@eatdrinksleepcode)
+ * Reported #5814: Enum deserialization does not respect
+   `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
   [3.2.0]

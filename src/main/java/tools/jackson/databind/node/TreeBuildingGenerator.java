@@ -51,7 +51,7 @@ public class TreeBuildingGenerator
      * Whether to strip trailing zeroes from {@link BigDecimal} values
      * when building tree nodes.
      *
-     * @since 3.1
+     * @since 3.1.1
      */
     protected final boolean _cfgStripTrailingBigDecimalZeroes;
 
@@ -72,7 +72,7 @@ public class TreeBuildingGenerator
      */
 
     /**
-     * @since 3.2
+     * @since 3.1.1
      */
     TreeBuildingGenerator(ObjectWriteContext owCtxt, JsonNodeFactory nodeFactory,
             boolean stripTrailingBigDecimalZeroes)
@@ -85,7 +85,7 @@ public class TreeBuildingGenerator
         _tokenWriteContext = _rootWriteContext;
     }
 
-    @Deprecated // since 3.2
+    @Deprecated // @since 3.1.1
     TreeBuildingGenerator(ObjectWriteContext owCtxt, JsonNodeFactory nodeFactory) {
         this(owCtxt, nodeFactory, false);
     }

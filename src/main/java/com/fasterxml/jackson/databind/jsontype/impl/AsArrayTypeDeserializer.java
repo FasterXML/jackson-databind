@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -147,9 +146,9 @@ public class AsArrayTypeDeserializer
                 }
                 return id;
             }
-             ctxt.reportWrongTokenException(baseType(), JsonToken.START_ARRAY,
-                     "need Array value to contain `As.WRAPPER_ARRAY` type information for class "+baseTypeName());
-             return null;
+            ctxt.reportWrongTokenException(baseType(), JsonToken.START_ARRAY,
+                    "need Array value to contain `As.WRAPPER_ARRAY` type information for class "+baseTypeName());
+            return null;
         }
         // And then type id as a String
         JsonToken t = p.nextToken();

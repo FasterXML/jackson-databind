@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -98,7 +98,7 @@ public class CustomTypeIdResolverTest extends DatabindTestUtil
         public JavaType typeFromId(DatabindContext context, String id)
         {
             if ("*".equals(id)) {
-                return TypeFactory.defaultInstance().constructType(subType);
+                return context.constructType(subType);
             }
             return null;
         }

@@ -8,6 +8,7 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -300,19 +301,30 @@ public class DateSerializationTest
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         // pacific time is GMT-8; so midnight becomes 16:00 previous day:
-        serialize( mapper, judate(1969, 12, 31, 16, 00, 00, 00, "PST"), "1969-12-31/16:00 PST");
+        List<String> expectedListPST = Arrays.asList(
+                q("1969-12-31/16:00 PST"),
+                q("1969-12-31/16:00 GMT-08:00"));
+        serialize(mapper, judate(1969, 12, 31, 16, 00, 00, 00, "PST"),
+                expectedListPST );
 
         // Let's also verify that Locale won't matter too much...
         mapper.setLocale(Locale.FRANCE);
-        serialize( mapper, judate(1969, 12, 31, 16, 00, 00, 00, "PST"), "1969-12-31/16:00 PST");
+        serialize(mapper, judate(1969, 12, 31, 16, 00, 00, 00, "PST"),
+                expectedListPST);
 
         // Also: should be able to dynamically change timezone:
         ObjectWriter w = mapper.writer().with(TimeZone.getTimeZone("EST"));
-        assertEquals(q("1969-12-31/"+zoneOffset("1900")+" EST"), w.writeValueAsString(new Date(0)));
+        List<String> expectedListEST = Arrays.asList(
+                q("1969-12-31/19:00 EST"),
+                q("1969-12-31/19:00 GMT-05:00"));
+        serialize(w, new Date(0), expectedListEST);
 
         // wrt [databind#2643]
+        List<String> expectedListIRST = Arrays.asList(
+                q("1970-01-01/03:30 IRST"),
+                q("1970-01-01/03:30 GMT+03:30"));
         w = mapper.writer().with(TimeZone.getTimeZone("Asia/Tehran"));
-        assertEquals(q("1970-01-01/"+zoneOffset("0330")+" IRST"), w.writeValueAsString(new Date(0)));
+        serialize(w, new Date(0), expectedListIRST);
     }
 
     /**
@@ -394,8 +406,18 @@ public class DateSerializationTest
         assertEquals(q(expected), mapper.writeValueAsString(date));
     }
 
+    private void serialize(ObjectMapper mapper, Object date, List<String> expected) throws IOException {
+        String result = mapper.writeValueAsString(date);
+        assertTrue(expected.contains(result), "unexpected result: " + result);
+    }
+
     private void serialize(ObjectWriter w, Object date, String expected) throws IOException {
         assertEquals(q(expected), w.writeValueAsString(date));
+    }
+
+    private void serialize(ObjectWriter w, Object date, List<String> expected) throws IOException {
+        String result = w.writeValueAsString(date);
+        assertTrue(expected.contains(result), "unexpected result: " + result);
     }
 
     private String zoneOffset(String raw) {

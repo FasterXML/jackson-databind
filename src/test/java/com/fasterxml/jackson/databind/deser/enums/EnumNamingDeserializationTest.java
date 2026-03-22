@@ -15,17 +15,16 @@ import com.fasterxml.jackson.databind.annotation.EnumNaming;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import static com.fasterxml.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class EnumNamingDeserializationTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();
     private final ObjectMapper MAPPER_CI = jsonMapperBuilder()
-            .enable(ACCEPT_CASE_INSENSITIVE_ENUMS)
+            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
             .build();
 
-    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     static enum EnumFlavorA {
         PEANUT_BUTTER,
         SALTED_CARAMEL,
@@ -33,12 +32,12 @@ public class EnumNamingDeserializationTest
         VANILLA;
     }
 
-    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     static enum EnumFlavorB {
         PEANUT_BUTTER,
     }
 
-    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     static enum EnumSauceC {
         KETCH_UP,
         MAYO_NEZZ;
@@ -50,14 +49,14 @@ public class EnumNamingDeserializationTest
         SRIRACHA_MAYO;
     }
 
-    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     static enum EnumFlavorE {
         _PEANUT_BUTTER,
         PEANUT__BUTTER,
         PEANUT_BUTTER
     }
 
-    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     static enum EnumFlavorF {
         PEANUT_BUTTER,
         @JsonProperty("caramel")
@@ -89,7 +88,7 @@ public class EnumNamingDeserializationTest
         REAL_NAME
     }
 
-    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     static enum MixInEnum {
         REAL_NAME
     }
@@ -282,13 +281,26 @@ public class EnumNamingDeserializationTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(BaseEnum.class, MixInEnum.class)
                 .build();
-        
+
         // serialization
         String ser = mapper.writeValueAsString(BaseEnum.REAL_NAME);
         assertEquals(q("realName"), ser);
-        
+
         // deserialization
         BaseEnum deser = mapper.readValue(q("realName"), BaseEnum.class);
         assertEquals(BaseEnum.REAL_NAME, deser);
+    }
+
+    @Test
+    void testUseEnumMappingStrategySetInMapper() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enumNamingStrategy(EnumNamingStrategies.LowerCamelCaseStrategy.INSTANCE)
+                .build();
+
+        BaseEnum result = mapper.readValue(q("realName"), BaseEnum.class);
+        assertEquals(BaseEnum.REAL_NAME, result);
+
+        String resultString = mapper.writeValueAsString(result);
+        assertEquals(q("realName"), resultString);
     }
 }

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -70,6 +71,11 @@ public final class MissingNode
     public double asDouble(double defaultValue);
     public boolean asBoolean(boolean defaultValue);
     */
+
+    @Override
+    public Optional<JsonNode> asOptional() {
+        return Optional.empty();
+    }
 
     /*
     /**********************************************************

@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.databind.type;
 
-import com.fasterxml.jackson.annotation.*;
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.*;

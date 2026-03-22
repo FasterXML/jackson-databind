@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.cfg.MutableConfigOverride;
@@ -15,7 +16,6 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
-import java.util.Collections;
 
 /**
  * Simple interface for extensions that can be registered with {@link ObjectMapper}
@@ -53,7 +53,7 @@ public abstract class Module
      * instances are considered to be of same type, for purpose of preventing
      * multiple registrations of "same type of" module
      * (see {@link com.fasterxml.jackson.databind.MapperFeature#IGNORE_DUPLICATE_MODULE_REGISTRATIONS})
-     * If `null` is returned, every instance is considered unique.
+     * If {@code null} is returned, every instance is considered unique.
      * If non-null value is returned, equality of id Objects is used to check whether
      * modules should be considered to be "of same type"
      *<p>

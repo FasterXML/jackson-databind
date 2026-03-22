@@ -40,7 +40,8 @@ public class EnumSetPolymorphicDeser4214Test
     {
         // Need to use Default Typing to trigger issue
         ObjectMapper mapper = jsonMapperBuilder()
-                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder().allowIfBaseType(Object.class).build(),
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(Object.class).build(),
                         DefaultTyping.NON_FINAL_AND_ENUMS)
                 .build();
 

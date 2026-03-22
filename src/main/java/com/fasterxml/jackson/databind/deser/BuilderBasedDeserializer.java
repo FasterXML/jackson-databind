@@ -384,6 +384,12 @@ public class BuilderBasedDeserializer
                     p.skipChildren();
                     continue;
                 }
+                // [databind#1381]: if useInput=FALSE, skip deserialization from input
+                if (creatorProp.isInjectionOnly()) {
+                    // Skip the input value, will be injected later in PropertyValueBuffer
+                    p.skipChildren();
+                    continue;
+                }
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
                     p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
@@ -667,6 +673,13 @@ public class BuilderBasedDeserializer
                 continue;
             }
             if (creatorProp != null) {
+                // [databind#1381]: if useInput=FALSE, skip deserialization from input
+                if (creatorProp.isInjectionOnly()) {
+                    // Skip the input value, will be injected later in PropertyValueBuffer
+                    p.skipChildren();
+                    continue;
+                }
+
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
                     t = p.nextToken(); // to move to following FIELD_NAME/END_OBJECT

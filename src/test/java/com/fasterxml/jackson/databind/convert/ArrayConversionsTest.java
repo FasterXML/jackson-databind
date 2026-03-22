@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.convert;
 
+import java.lang.reflect.Array;
 import java.math.*;
 import java.util.*;
-import java.lang.reflect.Array;
 
 import org.junit.jupiter.api.Test;
 

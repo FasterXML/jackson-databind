@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.deser.std.EnumDeserializer;
@@ -126,7 +125,8 @@ public class EnumCreatorTest extends DatabindTestUtil
                 for (AnnotatedMethod am : factoryMethods) {
                     final JsonCreator creator = am.getAnnotation(JsonCreator.class);
                     if (creator != null) {
-                        return EnumDeserializer.deserializerForCreator(config, type, am, null, null);
+                        return EnumDeserializer.deserializerForCreator(
+                            config, type, am, null, null, null);
                     }
                 }
             }

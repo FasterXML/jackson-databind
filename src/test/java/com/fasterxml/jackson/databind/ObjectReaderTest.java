@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.Map.Entry;
 
 import org.junit.jupiter.api.Test;
 
@@ -13,24 +12,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
-
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BaseJsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
-
-public class ObjectReaderTest
+public class ObjectReaderTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -558,7 +551,7 @@ public class ObjectReaderTest
         ObjectMapper mapper = JsonMapper.builder().addHandler(new DeserializationProblemHandler(){
             @Override
             public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException {
-                p.readValueAsTree();
+                ctxt.readTree(p);
                 return true;
             }
         }).build();
@@ -609,7 +602,7 @@ public class ObjectReaderTest
         private final ObjectNode _delegate;
 
         CustomObjectNode(ObjectNode delegate) {
-            this._delegate = delegate;
+            _delegate = delegate;
         }
 
         @Override
@@ -623,8 +616,8 @@ public class ObjectReaderTest
         }
 
         @Override
-        public Iterator<Entry<String, JsonNode>> fields() {
-            return _delegate.fields();
+        public Set<Map.Entry<String, JsonNode>> properties() {
+            return _delegate.properties();
         }
 
         @Override

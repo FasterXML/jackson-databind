@@ -24,14 +24,6 @@ public class BeanDeserializer
     private static final long serialVersionUID = 1L;
 
     /**
-     * Lazily constructed exception used as root cause if reporting problem
-     * with creator method that returns <code>null</code> (which is not allowed)
-     *
-     * @since 2.8
-     */
-    protected transient Exception _nullFromCreator;
-
-    /**
      * State marker we need in order to avoid infinite recursion for some cases
      * (not very clean, alas, but has to do for now)
      *
@@ -361,8 +353,6 @@ public class BeanDeserializer
             return bean;
         }
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
-        // [databind#631]: Assign current value, to be accessible by custom deserializers
-        p.assignCurrentValue(bean);
 
         // First: do we have native Object Ids (like YAML)?
         if (p.canReadObjectId()) {
@@ -390,6 +380,9 @@ public class BeanDeserializer
             }
         }
         if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
+            // [databind#631]: Assign current value, to be accessible by custom serializers
+            // [databind#4184]: but only if we have at least one property
+            p.assignCurrentValue(bean);
             String propName = p.currentName();
             do {
                 p.nextToken();
@@ -444,6 +437,12 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
+                // [databind#1381]: if useInput=FALSE, skip deserialization from input
+                if (creatorProp.isInjectionOnly()) {
+                    // Skip the input value, will be injected later in PropertyValueBuffer
+                    p.skipChildren();
+                    continue;
+                }
                 value = _deserializeWithErrorWrapping(p, ctxt, creatorProp);
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, value)) {
@@ -454,14 +453,15 @@ public class BeanDeserializer
                     } catch (Exception e) {
                         bean = wrapInstantiationProblem(e, ctxt);
                     }
-                    if (bean == null) {
-                        return ctxt.handleInstantiationProblem(handledType(), null,
-                                _creatorReturnedNullException());
-                    }
                     // [databind#631]: Assign current value, to be accessible by custom serializers
                     p.assignCurrentValue(bean);
+                    // [databind#4938] Since 2.19, allow returning `null` from creator,
+                    //  but if so, need to skip all possibly relevant content
+                    if (bean == null) {
+                        _handleNullFromPropsBasedCreator(p, ctxt, unknown, referrings);
+                        return null;
+                    }
 
-                    //  polymorphic?
                     if (bean.getClass() != _beanType.getRawClass()) {
                         return handlePolymorphic(p, ctxt, p.streamReadConstraints(), bean, unknown);
                     }
@@ -482,6 +482,16 @@ public class BeanDeserializer
             if ((prop != null) &&
                 // [databind#3938]: except if it's MethodProperty
                 (!_beanType.isRecordType() || (prop instanceof MethodProperty))) {
+
+                // 12-Aug-2025, tatu: [databind#5237] Mergeable properties need
+                //    special handling: must defer deserialization until POJO
+                //    is constructed.
+                if (prop.isMerging()) {
+                    TokenBuffer tb = ctxt.bufferForInputBuffering(p);
+                    tb.copyCurrentStructure(p);
+                    buffer.bufferMergingProperty(prop, tb);
+                    continue;
+                }
                 try {
                     buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
                 } catch (UnresolvedForwardReference reference) {
@@ -491,7 +501,7 @@ public class BeanDeserializer
                     BeanReferring referring = handleUnresolvedReference(ctxt,
                             prop, buffer, reference);
                     if (referrings == null) {
-                        referrings = new ArrayList<BeanReferring>();
+                        referrings = new ArrayList<>();
                     }
                     referrings.add(referring);
                 }
@@ -542,6 +552,14 @@ public class BeanDeserializer
         } catch (Exception e) {
             return wrapInstantiationProblem(e, ctxt);
         }
+        p.assignCurrentValue(bean);
+        // [databind#4938] Since 2.19, allow returning `null` from creator,
+        //  but if so, need to skip all possibly relevant content
+        if (bean == null) {
+            _handleNullFromPropsBasedCreator(null, ctxt, unknown, referrings);
+            return null;
+        }
+
         // 13-Apr-2020, tatu: [databind#2678] need to handle injection here
         if (_injectables != null) {
             injectValues(ctxt, bean);
@@ -680,6 +698,9 @@ public class BeanDeserializer
         throws IOException
     {
         if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
+            // [databind#631]: Assign current value, to be accessible by custom serializers
+            // [databind#4184]: but only if we have at least one property
+            p.assignCurrentValue(bean);
             String propName = p.currentName();
             do {
                 p.nextToken();
@@ -871,6 +892,13 @@ public class BeanDeserializer
                 continue;
             }
             if (creatorProp != null) {
+                // [databind#1381]: if useInput=FALSE, skip deserialization from input
+                if (creatorProp.isInjectionOnly()) {
+                    // Skip the input value, will be injected later in PropertyValueBuffer
+                    p.skipChildren();
+                    continue;
+                }
+
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp,
                         _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
@@ -883,6 +911,16 @@ public class BeanDeserializer
                     }
                     // [databind#631]: Assign current value, to be accessible by custom serializers
                     p.assignCurrentValue(bean);
+                    // [databind#4938] Since 2.19, allow returning `null` from creator,
+                    //  but if so, need to skip all possibly relevant content
+                    if (bean == null) {
+                        // 13-Mar-2025, tatu: We don't have "referrings" here for some reason...
+                        //   Nor "unknown" since unwrapping makes it impossible to tell unwrapped
+                        //   and unknown apart
+                        _handleNullFromPropsBasedCreator(p, ctxt, null, null);
+                        return null;
+                    }
+
                     // if so, need to copy all remaining tokens into buffer
                     while (t == JsonToken.FIELD_NAME) {
                         // NOTE: do NOT skip name as it needs to be copied; `copyCurrentStructure` does that
@@ -941,6 +979,11 @@ public class BeanDeserializer
             }
         }
 
+        // We could still have some not-yet-set creator properties that are unwrapped.
+        // These have to be processed last, because 'tokens' contains all properties
+        // that remain after regular deserialization.
+        buffer = _unwrappedPropertyHandler.processUnwrappedCreatorProperties(p, ctxt, buffer, tokens);
+
         // We hit END_OBJECT, so:
         Object bean;
         try {
@@ -948,6 +991,14 @@ public class BeanDeserializer
         } catch (Exception e) {
             return wrapInstantiationProblem(e, ctxt);
         }
+        // [databind#4938] Since 2.19, allow returning `null` from creator,
+        //  but if so, need to skip all possibly relevant content
+        if (bean == null) {
+            // no "referrings" here either:
+            _handleNullFromPropsBasedCreator(null, ctxt, null, null);
+            return null;
+        }
+
         return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
     }
 
@@ -1056,6 +1107,13 @@ public class BeanDeserializer
                 continue;
             }
             if (creatorProp != null) {
+                // [databind#1381]: if useInput=FALSE, skip deserialization from input
+                if (creatorProp.isInjectionOnly()) {
+                    // Skip the input value, will be injected later in PropertyValueBuffer
+                    p.skipChildren();
+                    continue;
+                }
+
                 // first: let's check to see if this might be part of value with external type id:
                 // 11-Sep-2015, tatu: Important; do NOT pass buffer as last arg, but null,
                 //   since it is not the bean
@@ -1125,17 +1183,27 @@ public class BeanDeserializer
         }
     }
 
-    /**
-     * Helper method for getting a lazily construct exception to be reported
-     * to {@link DeserializationContext#handleInstantiationProblem(Class, Object, Throwable)}.
-     *
-     * @since 2.8
-     */
-    protected Exception _creatorReturnedNullException() {
-        if (_nullFromCreator == null) {
-            _nullFromCreator = new NullPointerException("JSON Creator returned null");
+    // @since 2.19
+    protected void _handleNullFromPropsBasedCreator(JsonParser p, DeserializationContext ctxt,
+            TokenBuffer unknown, List<BeanReferring> referrings)
+        throws IOException
+    {
+        if (p != null) {
+            JsonToken t = p.currentToken();
+            while (t == JsonToken.FIELD_NAME) {
+                p.nextToken();
+                p.skipChildren();
+                t = p.nextToken();
+            }
         }
-        return _nullFromCreator;
+        if (unknown != null) { // nope, just extra unknown stuff...
+            handleUnknownProperties(ctxt, null, unknown);
+        }
+        if (referrings != null) {
+            for (BeanReferring referring : referrings) {
+               referring.setBean(null);
+            }
+        }
     }
 
     /**

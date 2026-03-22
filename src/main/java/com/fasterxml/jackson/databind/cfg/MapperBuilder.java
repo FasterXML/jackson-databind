@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
@@ -514,6 +515,22 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /**
+     * Method for configuring {@link EnumNamingStrategy} to use for adapting
+     * POJO enum names (internal) into content property names (external)
+     *
+     * @param s Strategy instance to use
+     *
+     * @return Builder instance itself to allow chaining
+     *
+     * @since 2.19
+     */
+    public B enumNamingStrategy(EnumNamingStrategy s) {
+        _mapper.setEnumNamingStrategy(s);
+        return _this();
+    }
+
+
+    /**
      * Method for configuring {@link AccessorNamingStrategy} to use for auto-detecting
      * accessor ("getter") and mutator ("setter") methods based on naming of methods.
      *
@@ -707,7 +724,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * @param incl Default property inclusion to set
      *
      * @return This builder instance to allow call chaining
+     *
+     * @deprecated Since 2.20 use {@link #defaultPropertyInclusion(JsonInclude.Value)}
      */
+    @Deprecated
     public B serializationInclusion(JsonInclude.Include incl) {
         _mapper.setSerializationInclusion(incl);
         return _this();

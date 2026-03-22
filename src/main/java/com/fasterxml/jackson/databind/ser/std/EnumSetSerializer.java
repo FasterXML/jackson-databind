@@ -26,7 +26,7 @@ public class EnumSetSerializer
 
     @Override
     public EnumSetSerializer _withValueTypeSerializer(TypeSerializer vts) {
-        // no typing for enums (always "hard" type)
+        // no typing for enum elements (always strongly typed), so don't change
         return this;
     }
 
@@ -48,7 +48,7 @@ public class EnumSetSerializer
     }
 
     @Override
-    public final void serialize(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
+    public void serialize(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
             SerializerProvider provider) throws IOException
     {
         final int len = value.size();
@@ -70,15 +70,13 @@ public class EnumSetSerializer
             SerializerProvider provider)
         throws IOException
     {
+        gen.assignCurrentValue(value);
         JsonSerializer<Object> enumSer = _elementSerializer;
-        /* Need to dynamically find instance serializer; unfortunately
-         * that seems to be the only way to figure out type (no accessors
-         * to the enum class that set knows)
-         */
+        // Need to dynamically find instance serializer; unfortunately
+        // that seems to be the only way to figure out type (no accessors
+        // to the enum class that set knows)
         for (Enum<?> en : value) {
             if (enumSer == null) {
-                // 12-Jan-2010, tatu: Since enums cannot be polymorphic, let's
-                //   not bother with typed serializer variant here
                 enumSer = provider.findContentValueSerializer(en.getDeclaringClass(), _property);
             }
             enumSer.serialize(en, gen, provider);

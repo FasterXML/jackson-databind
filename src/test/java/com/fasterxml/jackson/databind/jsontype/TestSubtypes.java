@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import com.fasterxml.jackson.core.Version;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
@@ -76,7 +75,7 @@ public class TestSubtypes extends DatabindTestUtil
         public int a;
 
         public Sub(){}
-        public Sub(int a) {
+        protected Sub(int a) {
             this.a = a;
         }
     }
@@ -88,7 +87,7 @@ public class TestSubtypes extends DatabindTestUtil
         Sub sub2;
 
         public POJOWrapper(){}
-        public POJOWrapper(Sub sub1, Sub sub2) {
+        protected POJOWrapper(Sub sub1, Sub sub2) {
             this.sub1 = sub1;
             this.sub2 = sub2;
         }
@@ -165,7 +164,7 @@ public class TestSubtypes extends DatabindTestUtil
         public int c;
 
         public Impl1125() { }
-        public Impl1125(int a0, int b0, int c0) {
+        protected Impl1125(int a0, int b0, int c0) {
             a = a0;
             b = b0;
             c = c0;
@@ -176,7 +175,7 @@ public class TestSubtypes extends DatabindTestUtil
         public int def;
 
         Default1125() { }
-        public Default1125(int a0, int b0, int def0) {
+        protected Default1125(int a0, int b0, int def0) {
             a = a0;
             b = b0;
             def = def0;

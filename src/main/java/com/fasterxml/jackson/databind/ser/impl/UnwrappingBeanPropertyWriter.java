@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.util.Iterator;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -182,9 +181,7 @@ public class UnwrappingBeanPropertyWriter
     {
         JsonNode props = schemaNode.get("properties");
         if (props != null) {
-            Iterator<Entry<String, JsonNode>> it = props.fields();
-            while (it.hasNext()) {
-                Entry<String,JsonNode> entry = it.next();
+            for (Entry<String,JsonNode> entry : props.properties()) {
                 String name = entry.getKey();
                 if (_nameTransformer != null) {
                     name = _nameTransformer.transform(name);

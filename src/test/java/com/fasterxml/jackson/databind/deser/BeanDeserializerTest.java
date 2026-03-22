@@ -7,7 +7,9 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
@@ -34,7 +36,7 @@ public class BeanDeserializerTest
         public String a = "a";
 
         public Bean() { }
-        public Bean(String a, String b) {
+        protected Bean(String a, String b) {
             this.a = a;
             this.b = b;
         }
@@ -97,9 +99,10 @@ public class BeanDeserializerTest
         }
 
         @Override
-        public Object deserialize(JsonParser jp, DeserializationContext ctxt)
+        public Object deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
         {
+            p.skipChildren();
             return new Bean(a, b);
         }
     }
@@ -165,7 +168,10 @@ public class BeanDeserializerTest
         }
     }
 
-    public static class Issue1912CustomBeanDeserializer extends JsonDeserializer<Issue1912Bean> {
+    public static class Issue1912CustomBeanDeserializer
+        extends JsonDeserializer<Issue1912Bean>
+        implements ContextualDeserializer
+    {
         private BeanDeserializer defaultDeserializer;
 
         public Issue1912CustomBeanDeserializer(BeanDeserializer defaultDeserializer) {
@@ -174,15 +180,28 @@ public class BeanDeserializerTest
 
         @Override
         public Issue1912Bean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            // this is need on some cases, this populate _propertyBasedCreator
-            defaultDeserializer.resolve(ctxt);
-
             p.nextFieldName(); // read subBean
-            p.nextToken(); // read start object
+            if (p.nextToken() != JsonToken.START_OBJECT) {
+                throw new IllegalArgumentException("Unexpected token "+p.currentToken());
+            }
 
             Issue1912SubBean subBean = (Issue1912SubBean) defaultDeserializer.findProperty("subBean").deserialize(p, ctxt);
+            // Must also read trailing END_OBJECT
+            if (p.nextToken() != JsonToken.END_OBJECT) {
+                throw new IllegalArgumentException("Unexpected token "+p.currentToken());
+            }
 
             return new Issue1912Bean(subBean);
+        }
+
+        @Override
+        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+                throws JsonMappingException {
+            if (defaultDeserializer instanceof ContextualDeserializer) {
+                ContextualDeserializer cd = (ContextualDeserializer) defaultDeserializer;
+                return new Issue1912CustomBeanDeserializer((BeanDeserializer) cd.createContextual(ctxt, property));
+            }
+            return this;
         }
     }
 
@@ -241,8 +260,10 @@ public class BeanDeserializerTest
         public JsonDeserializer<?> modifyArrayDeserializer(DeserializationConfig config, ArrayType valueType,
                 BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
             return (JsonDeserializer<?>) new StdDeserializer<Object>(Object.class) {
-                @Override public Object deserialize(JsonParser jp,
-                        DeserializationContext ctxt) {
+                @Override public Object deserialize(JsonParser p,
+                        DeserializationContext ctxt) throws IOException
+                {
+                    p.skipChildren();
                     return new String[] { "foo" };
                 }
             };
@@ -254,8 +275,10 @@ public class BeanDeserializerTest
         public JsonDeserializer<?> modifyCollectionDeserializer(DeserializationConfig config, CollectionType valueType,
                 BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
             return (JsonDeserializer<?>) new StdDeserializer<Object>(Object.class) {
-                @Override public Object deserialize(JsonParser jp,
-                        DeserializationContext ctxt) {
+                @Override public Object deserialize(JsonParser p,
+                        DeserializationContext ctxt) throws IOException
+                {
+                    p.skipChildren();
                     ArrayList<String> list = new ArrayList<String>();
                     list.add("foo");
                     return list;
@@ -269,8 +292,10 @@ public class BeanDeserializerTest
         public JsonDeserializer<?> modifyMapDeserializer(DeserializationConfig config, MapType valueType,
                 BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
             return (JsonDeserializer<?>) new StdDeserializer<Object>(Object.class) {
-                @Override public Object deserialize(JsonParser jp,
-                        DeserializationContext ctxt) {
+                @Override public Object deserialize(JsonParser p,
+                        DeserializationContext ctxt) throws IOException
+                {
+                    p.skipChildren();
                     HashMap<String,String> map = new HashMap<String,String>();
                     map.put("a", "foo");
                     return map;
@@ -466,8 +491,9 @@ public class BeanDeserializerTest
 
     @Test
     public void testAddOrReplacePropertyIsUsedOnDeserialization() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new Issue1912Module());
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new Issue1912Module())
+                .build();
 
         Issue1912Bean result = mapper.readValue("{\"subBean\": {\"a\":\"foo\"}}", Issue1912Bean.class);
         assertEquals("foo_custom", result.subBean.a);

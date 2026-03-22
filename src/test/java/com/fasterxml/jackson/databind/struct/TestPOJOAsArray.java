@@ -24,7 +24,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
         public PojoAsArray value;
 
         public PojoAsArrayWrapper() { }
-        public PojoAsArrayWrapper(String name, int x, int y, boolean c) {
+        protected PojoAsArrayWrapper(String name, int x, int y, boolean c) {
             value = new PojoAsArray(name, x, y, c);
         }
     }
@@ -34,7 +34,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
         public int x, y;
 
         public NonAnnotatedXY() { }
-        public NonAnnotatedXY(int x0, int y0) {
+        protected NonAnnotatedXY(int x0, int y0) {
             x = x0;
             y = y0;
         }
@@ -49,7 +49,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
         public boolean complete;
 
         public PojoAsArray() { }
-        public PojoAsArray(String name, int x, int y, boolean c) {
+        protected PojoAsArray(String name, int x, int y, boolean c) {
             this.name = name;
             this.x = x;
             this.y = y;
@@ -66,7 +66,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
         public boolean complete;
 
         public FlatPojo() { }
-        public FlatPojo(String name, int x, int y, boolean c) {
+        protected FlatPojo(String name, int x, int y, boolean c) {
             this.name = name;
             this.x = x;
             this.y = y;
@@ -113,7 +113,7 @@ public class TestPOJOAsArray extends DatabindTestUtil
         public Map<Integer,Integer> attrs;
 
         public AsArrayWithMap() { }
-        public AsArrayWithMap(int x, int y) {
+        protected AsArrayWithMap(int x, int y) {
             attrs = new HashMap<Integer,Integer>();
             attrs.put(x, y);
         }
@@ -302,9 +302,8 @@ public class TestPOJOAsArray extends DatabindTestUtil
                 .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .readValue(json);
         assertNotNull(v);
-        // note: +1 for both so
-        assertEquals(v.value.x, 42);
-        assertEquals(v.value.y, 13);
+        assertEquals(42, v.value.x);
+        assertEquals(13, v.value.y);
         assertTrue(v.value.complete);
         assertEquals("Foobar", v.value.name);
     }

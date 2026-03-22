@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.jsontype;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
@@ -54,7 +55,7 @@ public class Generic1128Test extends DatabindTestUtil
     public void testIssue1128() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
 
         final DevMContainer devMContainer1 = new DevMContainer();
         final DevM entity = new DevM();

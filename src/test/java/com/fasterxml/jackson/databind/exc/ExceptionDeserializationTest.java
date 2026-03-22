@@ -93,7 +93,7 @@ public class ExceptionDeserializationTest
     public void testWithNullMessage() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
         String json = mapper.writeValueAsString(new IOException((String) null));
         IOException result = mapper.readValue(json, IOException.class);
         assertNotNull(result);
@@ -326,5 +326,55 @@ public class ExceptionDeserializationTest
         IOException exc = MAPPER.readValue(json, IOException.class);
         assertNotNull(exc);
         assertEquals("Message!", exc.getMessage());
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for [databind#5674]: null stackTrace handling
+    /**********************************************************
+     */
+
+    // [databind#5674]
+    @Test
+    public void testNullStackTrace() throws Exception
+    {
+        // stackTrace with null should not blow up (setStackTrace(null) throws NPE)
+        String json = a2q("{'message':'test','stackTrace':null}");
+        IOException result = MAPPER.readValue(json, IOException.class);
+        assertNotNull(result);
+        assertEquals("test", result.getMessage());
+        // Default stack trace should be preserved
+        assertNotNull(result.getStackTrace());
+    }
+
+    // [databind#5674]
+    @Test
+    public void testStackTraceDeserialization() throws Exception
+    {
+        String json = a2q("{'message':'test','stackTrace':[" +
+                "{'className':'com.example.Test','methodName':'testMethod'," +
+                "'fileName':'Test.java','lineNumber':42}]}");
+        IOException result = MAPPER.readValue(json, IOException.class);
+        assertNotNull(result);
+        assertEquals("test", result.getMessage());
+        assertNotNull(result.getStackTrace());
+        assertEquals(1, result.getStackTrace().length);
+        assertEquals("com.example.Test", result.getStackTrace()[0].getClassName());
+        assertEquals("testMethod", result.getStackTrace()[0].getMethodName());
+        assertEquals("Test.java", result.getStackTrace()[0].getFileName());
+        assertEquals(42, result.getStackTrace()[0].getLineNumber());
+    }
+
+    // [databind#5674]
+    @Test
+    public void testNullStackTraceBeforeMessage() throws Exception
+    {
+        // stackTrace with null before message should not blow up
+        String json = a2q("{'stackTrace':null,'message':'test'}");
+        IOException result = MAPPER.readValue(json, IOException.class);
+        assertNotNull(result);
+        assertEquals("test", result.getMessage());
+        // Default stack trace should be preserved
+        assertNotNull(result.getStackTrace());
     }
 }

@@ -8,15 +8,12 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -185,7 +182,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
 
   @Test
   public void testListInference() throws Exception {
-    JavaType listOfCats = TypeFactory.defaultInstance().constructParametricType(List.class, Cat.class);
+    JavaType listOfCats = defaultTypeFactory().constructParametricType(List.class, Cat.class);
     List<Cat> boxes = MAPPER.readValue(arrayOfCatsJson, listOfCats);
     assertTrue(boxes.get(0) instanceof LiveCat);
     assertTrue(boxes.get(1) instanceof DeadCat);
@@ -193,7 +190,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
 
   @Test
   public void testMapInference() throws Exception {
-    JavaType mapOfCats = TypeFactory.defaultInstance().constructParametricType(Map.class, String.class, Cat.class);
+    JavaType mapOfCats = defaultTypeFactory().constructParametricType(Map.class, String.class, Cat.class);
     Map<String, Cat> map = MAPPER.readValue(mapOfCatsJson, mapOfCats);
     assertEquals(1, map.size());
     assertTrue(map.entrySet().iterator().next().getValue() instanceof LiveCat);
@@ -281,7 +278,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
   @Test
   public void testSimpleSerialization() throws Exception {
     // Given:
-    JavaType listOfCats = TypeFactory.defaultInstance().constructParametricType(List.class, Cat.class);
+    JavaType listOfCats = defaultTypeFactory().constructParametricType(List.class, Cat.class);
     List<Cat> list = MAPPER.readValue(arrayOfCatsJson, listOfCats);
     Cat cat = list.get(0);
     // When:
@@ -293,7 +290,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
   @Test
   public void testListSerialization() throws Exception {
     // Given:
-    JavaType listOfCats = TypeFactory.defaultInstance().constructParametricType(List.class, Cat.class);
+    JavaType listOfCats = defaultTypeFactory().constructParametricType(List.class, Cat.class);
     List<Cat> list = MAPPER.readValue(arrayOfCatsJson, listOfCats);
     // When:
     String json = MAPPER.writeValueAsString(list);

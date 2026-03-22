@@ -4,6 +4,249 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.21.2 (20-Mar-2026)
+
+#5729: (regression due to #5429) ISO-8601 change prevents parsing
+  negative timestamps (dates before 1970)
+ (reported by Thomas W)
+ (fixed by by Jonas K)
+#5814: Enum deserialization does not respect
+  `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
+ (reported by David N)
+ (fix by @cowtowncoder, w/ Claude code)
+
+2.21.1 (22-Feb-2026)
+
+#5184: `@JsonIgnore` on record method applied to record matching
+  field at deserialization
+ (reported by @emouty)
+ (fix backported by Joo-Hyuk K)
+#5616: `ObjectWriter` serializes Reference types (`AtomicReference`,
+  `Optional`) containing subtypes incompletely
+ (reported by Brandon S)
+#5624: dup of #5184 (see above)
+#5674: Fix NPE when deserializing `Throwable` with `null` "stackTrace"
+ (fix by @pjfanning)
+#5706: `TokenBuffer` serialization fails when buffer contains integer
+  encoded as String
+ (reported by Kyrylo M)
+
+2.21.0 (18-Jan-2026)
+
+#1381: Add a way to specify "inject-only" with `@JacksonInject`
+ (fix by Giulio L)
+#1547: Un-deprecate `SerializationFeature.WRITE_EMPTY_JSON_ARRAYS`
+#5045: If there is a no-parameter constructor marked as `JsonCreator` and
+  a constructor reported as `DefaultCreator`, latter is incorrectly used
+ (reported by  @wrongwrong)
+#5203: Fix `null` handling of `EnumSetDeserializer`
+#5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
+ (reported by Johny L)
+#5313: Expose `getConverter()` in `StdDelegatingSerializer` for improved
+  customizability
+ (contributed by @wrongwrong)
+#5361: Fix Maven SBOM publishing
+#5368: Optimize performance of `ObjectMapper.convertValue()` when `TokenBuffer`
+  passed as `fromValue`
+ (requested by @qsLI)
+#5398: `@JsonProperty.value` + `@JsonIgnore` on setter does not work
+  anymore since 2.18.4
+ (reported by @victor-noel-pfx)
+ (fix by @cowtowncoder, w/ Claude code)
+#5413: Add/support forward reference resolution for array values
+ (contributed by Hélios G)
+#5429: Formatting and Parsing of Large ISO-8601 Dates is inconsistent
+ (reported by @DavTurns)
+#5475: Support `@JsonDeserializeAs` annotation
+ (implemented by @cowtowncoder, w/ Claude code)
+#5476: Support `@JsonSerializeAs` annotation
+ (implemented by @cowtowncoder, w/ Claude code)
+#5541: Add missing `@JsonIdentityInfo` handling for implicit arrays with
+  `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+ (contributed by Moritz R)
+#5542: `ObjectReader.readValue()` does not fail when
+  `DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS` enabled
+ (implemented by @cowtowncoder, w/ Claude code)
+
+2.20.2 (19-Jan-2026)
+
+#5393: `@JsonAnyGetter` property gets included in generated schema since 2.19.0
+ (reported by @victor-noel-pfx)
+ (fix by Joo-Hyuk K)
+#5537: Add missing `@JsonIdentityInfo` handling for implicit `Collection`s with
+  `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+ (contributed by Moritz R)
+
+2.20.1 (30-Oct-2025)
+
+#5292: `MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX` does not work with
+  Constructor parameters
+ (reported by @bananayong)
+
+2.20.0 (28-Aug-2025)
+
+#2678: `@JacksonInject` added to property overrides value from the JSON
+  even if `useInput` is `OptBoolean.TRUE`
+ (reported by Plamen T)
+ (fix by Giulio L)
+#2692: Should never call `set()` on setterless property during deserialization
+ (reported by @lbonco)
+#3072: Allow specifying `@JacksonInject` does not fail when there's no
+  corresponding value
+ (requested by Lavender S)
+ (contributed by Giulio L)
+#4136: Drop deprecated (in 2.12) `PropertyNamingStrategy` implementations
+  from 2.20
+#4218: If `@JacksonInject` is specified for field and deserialized by the Creator,
+  the inject process will be executed twice 
+ (reported by @wrongwrong)
+ (fix by Giulio L)
+#4656: `DeserializationProblemHandler.handleUnexpectedToken()` cast Object to String
+ (reported by @yacine-pc)
+#5103: Use `writeStartObject(Object forValue, int size)` for `ObjectNode`
+  serialization
+#5151: Add new exception type, `MissingInjectValueException`, to be used
+  for failed `@JacksonInject`
+#5152: Support "iPhone" style capitalized properties (add
+  `MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX`)
+#5179: Add "current token" info into `MismatchedInputException`
+#5192: Record types are broken on Android when using R8
+ (reported by @HelloOO7)
+ (fix by @pjfanning)
+#5194: Custom `Throwable` not serializable if using `JsonAutoDetect` settings
+ that only detect Fields
+ (reported by @riskop)
+#5197: Add more informative exception for back-references with `record` type
+ (fix by Joo-Hyuk K)
+#5237: Failing `@JsonMerge` with a custom Map with a `@JsonCreator` constructor
+ (reported by @nlisker)
+#5238: Immutable classes with `@JsonIdentityInfo` can be deserialized; records cannot
+ (fix by Joo-Hyuk K)
+#5242: Support "binary vectors": `@JsonFormat(shape = Shape.BINARY)` for
+  `float[]`, `double[]`
+#5257: Deprecate `URL`-taking `readValue()` methods in `ObjectMapper`, `ObjectReader`
+#5271: `EnumDeserializer` fails to deserialize Enums with @JsonValue - uses table
+  with name() key instead of @JsonValue key
+ (reported by Michael R)
+#5297: Deprecate `MapperBuilder.serializationInclusion()` (to align
+  with `ObjectMapper`, prepare for 3.0)
+- Generate SBOMs [JSTEP-14]
+
+2.19.4 (29-Oct-2025)
+2.19.3 (29-Oct-2025)
+
+No changes since 2.19.2
+
+2.19.2 (18-Jul-2025)
+
+#5202: `JsonSetter.contentNulls` ignored for `Object[]`, `String[]`
+  and `Collection<String>`
+ (fix by @wrongwrong)
+#5215: `@JsonAnyGetter` serialization order change from 2.18.4 to 2.19.0
+ (reported by Eddú M)
+ (fix by Joo-Hyuk K)
+
+2.19.1 (13-Jun-2025)
+
+#5139: In `CollectionDeserializer`, `JsonSetter.contentNulls` is sometimes ignored
+ (contributed by @wrongwrong)
+
+2.19.0 (24-Apr-2025)
+
+#917: Unable to have two `@JsonUnwrapped` annotated object of same
+  type within one constructor
+ (reported by @smil2k)
+#1467: Support `@JsonUnwrapped` with `@JsonCreator`
+ (implementation by Liam F)
+#2145: Add `JsonNode.optional(String name)` and `optional(int index)` methods
+ (fix by Joo-Hyuk K)
+#2287: Allow overriding of FAIL_ON_MISSING_CREATOR_PROPERTIES / honor
+  `@JsonProperty(required = false)`
+ - Actual fix via #5020, see below
+#2461: Nested `@JsonUnwrapped` property names not correctly handled
+ (reported by @plovell)
+ (fix contributed by @SandeepGaur2016)
+#2951: Allow inverting `@JsonProperty(access=)` with
+  `MapperFeature.INVERSE_READ_WRITE_ACCESS` to work differently on
+   server and client side
+ (requested by @qianlong)
+ (contributed by Geoffrey G)
+#3343: Allow BeanPropertyWriter Sub-classes to Override `get()` (remove `final`)
+ (requested by @alzimmermsft)
+#4388: Allow using `@JsonPropertyOrder` with "any" (`@JsonAnyGetter`)  properties
+ (fix by Joo-Hyuk K)
+#4533: Add `MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_TIMES` to disable the
+  "Java 8 date/time XYZ not supported by default" error
+ (requested by Jeff S)
+ (fix by Joo-Hyuk K)
+#4650: `PrimitiveArrayDeserializers` should deal with single String value if
+  `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY` enabled
+ (reported, fix suggested by @eeren-bm)
+#4674: Allow setting global enum naming strategy similar to property naming strategy
+ (requested by @hajdamak)
+ (contributed by Konstantin M)
+#4676: Support other enum naming strategies than camelCase
+ (requested by @hajdamak)
+ (contributed by Lars B)
+#4680: Custom key deserialiser registered for `Object.class` in nested
+  Map object is ignored when Map key type not defined
+ (reported by @devdanylo)
+ (fix by Joo-Hyuk K)
+#4771: `QName` (de)serialization ignores prefix
+ (reported by @jpraet)
+ (fix contributed by @mcvayc)
+#4772: Serialization and deserialization issue of sub-types used with
+  `JsonTypeInfo.Id.DEDUCTION` where sub-types are Object and Array
+ (reported by Eduard G)
+#4773: `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS` should not apply to Maps
+  with uncomparable keys
+ (requested by @nathanukey)
+#4801: Add `JsonNodeFeature.USE_BIG_DECIMAL_FOR_FLOATS` to allow overriding
+  `DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS`
+ (fix by Joo-Hyuk K)
+#4849 Not able to deserialize Enum with default typing after upgrading 2.15.4 -> 2.17.1
+ (reported by Kornel Zemla)
+#4863: Add basic Stream support in `JsonNode`: `valueStream()`, `propertyStream()`,
+  `forEachEntry()`
+#4867: Add `Optional<JsonNode> JsonNode.asOptional()` convenience method##
+ (fix by Joo-Hyuk K)
+#4869: Add `JsonNode.values()` to replace `elements()`
+#4896: Coercion shouldn't be necessary for Enums specifying an empty string
+ (reported by @joaocanaverde-blue)
+#4915: Cannot access attributes from `Converter`
+ (requested by @jakub-bochenski)
+ (fixed by Joo-Hyuk K)
+#4934: `DeserializationContext.readTreeAsValue()` handles null nodes
+  differently from `ObjectMapper.treeToValue()`
+ (reported by Floris W)
+#4938: Allow `@JsonCreator` annotated Creator to return `null`
+ (reported by @f-aubert)
+ (fixed by Joo-Hyuk K)
+4953: Allow clearing all caches to avoid classloader leaks
+ (contributed by Joren I)
+#4955: Add more remove methods for `ArrayNode`, `ObjectNode` [STEP-3]
+#4959: Add explicit deserializer for `ThreadGroup`
+#4961: Serialization for `JsonFormat.Shape.ARRAY` does not work when
+  there is `@JsonAnyGetter`
+ (fix by Joo-Hyuk K)
+#4963: Serializing `Map.Entry` as Bean with `@JsonFormat.shape = Shape.OBJECT`
+  fails on JDK 17+
+#4979: Allow default enums with `@JsonCreator`
+ (contributed by Will P)
+#4997: `ObjectNode` put methods should do null check for key
+#5006: Add `MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_OPTIONALS` to prevent
+  failure of `java.util.Optional` (de)serialization without Java 8 module
+#5014: Add `java.lang.Runnable` as unsafe base type in `DefaultBaseTypeLimitingValidator`
+#5020: Support new `@JsonProperty.isRequired` for overridable definition of "required-ness"
+#5027: Add `DeserializationFeature.FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED`
+ (contributed by @pjfanning)
+#5052: Minor bug in `FirstCharBasedValidator.forFirstNameRule()`: returns `null`
+  in non-default case
+#5063: `SimpleModule` not registered due to `getTypeId()` returning an empty string
+ (reported by @seadbrane)
+#5069: Add copy-constructor for `MappingIterator`
+ (contributed by @wrongwrong)
+
 2.18.6 (22-Feb-2026)
 2.18.5 (27-Oct-2025)
 

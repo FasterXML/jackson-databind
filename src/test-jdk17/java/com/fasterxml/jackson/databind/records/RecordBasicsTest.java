@@ -1,5 +1,11 @@
 package com.fasterxml.jackson.databind.records;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -10,11 +16,6 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
-import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -178,31 +179,19 @@ public class RecordBasicsTest extends DatabindTestUtil
         assertEquals(new RecordWithRename(123, "Bob"), value);
     }
 
-    /**
-     * This test-case is just for documentation purpose:
-     * GOTCHA: Annotations on header will be propagated to the field, leading to this failure.
-     *
-     * @see #testDeserializeConstructorInjectRecord()
-     */
+    // Confirmation of fix of [databind#4218]
     @Test
-    public void testDeserializeHeaderInjectRecord_WillFail() throws Exception {
-        MAPPER.setInjectableValues(new InjectableValues.Std().addValue(String.class, "Bob"));
-
-        try {
-            MAPPER.readValue("{\"id\":123}", RecordWithHeaderInject.class);
-
-            fail("should not pass");
-        } catch (IllegalArgumentException e) {
-            verifyException(e, "RecordWithHeaderInject#name");
-            verifyException(e, "Can not set final java.lang.String field");
-        }
+    public void testDeserializeHeaderInjectRecord4218() throws Exception {
+        ObjectReader reader = MAPPER.readerFor(RecordWithHeaderInject.class)
+                .with(new InjectableValues.Std().addValue(String.class, "Bob"));
+        assertNotNull(reader.readValue("{\"id\":123}"));
     }
 
     @Test
-    public void testDeserializeConstructorInjectRecord() throws Exception {
-        MAPPER.setInjectableValues(new InjectableValues.Std().addValue(String.class, "Bob"));
-
-        RecordWithConstructorInject value = MAPPER.readValue("{\"id\":123}", RecordWithConstructorInject.class);
+    public void testDeserializeConstructorInjectRecord4218() throws Exception {
+        ObjectReader reader = MAPPER.readerFor(RecordWithConstructorInject.class)
+                .with(new InjectableValues.Std().addValue(String.class, "Bob"));
+        RecordWithConstructorInject value = reader.readValue("{\"id\":123}");
         assertEquals(new RecordWithConstructorInject(123, "Bob"), value);
     }
 

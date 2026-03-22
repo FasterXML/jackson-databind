@@ -14,12 +14,12 @@ permissions:
 
 jobs:
   build:
+    # Here we DO need "os" option, to include Windows
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        # 10-Jun-2025, tatu: JDK 23 fails for Mockito, don't use
-        java_version: ['8', '11', '17', '21']
+        java_version: ['8', '17', '21', '25']
         os: ['ubuntu-24.04']
         include:
           - java_version: '8'
@@ -31,9 +31,9 @@ jobs:
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:
-    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
     - name: Set up JDK
-      uses: actions/setup-java@6a0805fcefea3d4657a47ac4c165951e33482018 # v4.2.2
+      uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
       with:
         distribution: 'temurin'
         java-version: ${{ matrix.java_version }}
@@ -54,28 +54,28 @@ jobs:
       if: ${{ matrix.release_build }}
       run: ./mvnw -B -q -ff -ntp -DskipTests animal-sniffer:check
     - name: Deploy snapshot
-      if: ${{ github.event_name != 'pull_request' && matrix.release_build && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
+      if: ${{ matrix.release_build && github.event_name != 'pull_request' && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
       env:
         CI_DEPLOY_USERNAME: ${{ secrets.CENTRAL_DEPLOY_USERNAME }}
         CI_DEPLOY_PASSWORD: ${{ secrets.CENTRAL_DEPLOY_PASSWORD }}
         # MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       run: ./mvnw -B -q -ff -DskipTests -ntp source:jar deploy
-    - name: Generate code coverage
-      if: ${{ github.event_name != 'pull_request' && matrix.release_build }}
+    - name: Generate code coverage 
+      if: ${{ matrix.release_build && github.event_name != 'pull_request' }}
       run: ./mvnw -B -q -ff -ntp test
     - name: Publish code coverage
-      if: ${{ github.event_name != 'pull_request' && matrix.release_build }}
-      uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # v4.5.0
+      if: ${{ matrix.release_build && github.event_name != 'pull_request' }}
+      uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./target/site/jacoco/jacoco.xml
+        files: ./target/site/jacoco/jacoco.xml
         flags: unittests
 
   trigger-dep-build-v2:
     name: Trigger v2 dep builds
     needs: [build]
-    # Only for pushes to default branch
-    if: ${{ github.event_name == 'push' && github.ref_name == github.event.repository.default_branch }}
+    # Only for pushes to 2.x (next 2.x being developed) branch
+    if: ${{ github.event_name == 'push' && github.ref_name == '2.x' }}
     uses: ./.github/workflows/trigger_dep_builds_v2.yml
     secrets:
       token: ${{ secrets.REPO_DISPATCH }}
@@ -83,8 +83,8 @@ jobs:
   trigger-dep-build-v3:
     name: Trigger v3 dep builds
     needs: [build]
-    # Only for pushes to default branch
-    if: ${{ github.event_name == 'push' && github.ref_name == 'master' }}
+    # Only for pushes to 3.x branch
+    if: ${{ github.event_name == 'push' && github.ref_name == '3.x' }}
     uses: ./.github/workflows/trigger_dep_builds_v3.yml
     secrets:
       token: ${{ secrets.REPO_DISPATCH }}

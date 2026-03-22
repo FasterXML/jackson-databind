@@ -5,11 +5,12 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
@@ -178,7 +179,7 @@ public class TestWithGenerics extends DatabindTestUtil
         ObjectMapper om = new ObjectMapper();
         om.activateDefaultTyping(NoCheckSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY );
-        om.setSerializationInclusion(JsonInclude.Include.NON_NULL );
+        om.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL );
         om.enable( SerializationFeature.INDENT_OUTPUT);
 
         MyClass mc = new MyClass();

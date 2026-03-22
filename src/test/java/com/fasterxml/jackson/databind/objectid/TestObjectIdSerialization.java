@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -55,7 +56,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         public IdentifiableWithProp next;
 
         public IdentifiableWithProp() { this(0, 0); }
-        public IdentifiableWithProp(int id, int value) {
+        protected IdentifiableWithProp(int id, int value) {
             this.customId = id;
             this.value = value;
         }
@@ -90,7 +91,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         public ValueNodeCustom node;
 
         public IdWrapperCustom() { }
-        public IdWrapperCustom(int id, int value) {
+        protected IdWrapperCustom(int id, int value) {
             node = new ValueNodeCustom(id, value);
         }
     }
@@ -103,7 +104,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         public int getId() { return id; }
 
         public ValueNodeCustom() { this(0, 0); }
-        public ValueNodeCustom(int id, int value) {
+        protected ValueNodeCustom(int id, int value) {
             this.id = id;
             this.value = value;
         }
@@ -149,7 +150,7 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         public TreeNode child;
 
         public TreeNode() { }
-        public TreeNode(TreeNode p, int id, String name) {
+        protected TreeNode(TreeNode p, int id, String name) {
             parent = p;
             this.id = id;
             this.name = name;

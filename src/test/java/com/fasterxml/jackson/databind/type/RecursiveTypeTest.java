@@ -5,12 +5,11 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
-
-public class RecursiveTypeTest
+public class RecursiveTypeTest extends DatabindTestUtil
 {
     // for [databind#1301]
     @SuppressWarnings("serial")
@@ -61,7 +60,7 @@ public class RecursiveTypeTest
     @Test
     public void testRecursiveType()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = defaultTypeFactory();
         JavaType type = tf.constructType(HashTree.class);
         assertNotNull(type);
     }

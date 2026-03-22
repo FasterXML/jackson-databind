@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,7 +16,7 @@ public class InnerClassDeserTest
       public Brain brain;
 
       public Dog() { }
-      public Dog(String n, boolean thinking) {
+      protected Dog(String n, boolean thinking) {
           name = n;
           brain = new Brain();
           brain.isThinking = thinking;

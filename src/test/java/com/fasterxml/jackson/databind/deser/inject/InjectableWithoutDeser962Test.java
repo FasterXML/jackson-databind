@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.OptBoolean;
+
 import com.fasterxml.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

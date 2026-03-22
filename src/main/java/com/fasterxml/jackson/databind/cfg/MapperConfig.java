@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AccessorNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -270,6 +269,13 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
 
     public final PropertyNamingStrategy getPropertyNamingStrategy() {
         return _base.getPropertyNamingStrategy();
+    }
+
+    /**
+     * @since 2.19
+     */
+    public final EnumNamingStrategy getEnumNamingStrategy() {
+        return _base.getEnumNamingStrategy();
     }
 
     // @since 2.12

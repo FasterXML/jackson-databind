@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.databind.records;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonView;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
 
 // [databind#4085]
 public class RecordWithView4085Test extends DatabindTestUtil

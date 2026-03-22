@@ -11,20 +11,19 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 /**
  * Unit tests for verifying handling of simple basic non-structured
  * types; primitives (and/or their wrappers), Strings.
  */
 public class JDKScalarsDeserTest
+    extends DatabindTestUtil
 {
     final static String NAN_STRING = "NaN";
 
@@ -130,7 +129,10 @@ public class JDKScalarsDeserTest
         public Void value;
     }
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    // [databind#4858] Changes defaults for 3.0 so ensure configs work for 2.x and 3.x
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .build();
 
     /*
     /**********************************************************
@@ -432,7 +434,7 @@ public class JDKScalarsDeserTest
 
     /**
      * Then a unit test to verify that we can conveniently bind sequence of
-     * space-separate simple values
+     * space-separated simple values
      */
     @Test
     public void testSequenceOfInts() throws Exception
@@ -444,12 +446,15 @@ public class JDKScalarsDeserTest
             sb.append(" ");
             sb.append(i);
         }
-        JsonParser jp = MAPPER.createParser(sb.toString());
-        for (int i = 0; i < NR_OF_INTS; ++i) {
-            Integer result = MAPPER.readValue(jp, Integer.class);
-            assertEquals(Integer.valueOf(i), result);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
+        try (JsonParser p = mapper.createParser(sb.toString())) {
+            for (int i = 0; i < NR_OF_INTS; ++i) {
+                Integer result = mapper.readValue(p, Integer.class);
+                assertEquals(Integer.valueOf(i), result);
+            }
         }
-        jp.close();
     }
 
     /*

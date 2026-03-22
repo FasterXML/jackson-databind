@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -78,6 +77,11 @@ public final class SetterlessProperty
     public void fixAccess(DeserializationConfig config) {
         _annotated.fixAccess(
                 config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+    }
+
+    @Override // since 2.20
+    public boolean isMerging() {
+        return true;
     }
 
     /*

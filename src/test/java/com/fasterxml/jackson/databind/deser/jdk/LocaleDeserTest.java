@@ -7,6 +7,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -260,7 +261,9 @@ public class LocaleDeserTest
     @Test
     public void testLocaleFuzz47034() throws Exception
     {
-        Locale loc = MAPPER.readValue(getClass().getResourceAsStream("/fuzz/oss-fuzz-47034.json"),
+        Locale loc = MAPPER.reader()
+                .without(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .readValue(getClass().getResourceAsStream("/fuzz/oss-fuzz-47034.json"),
                 Locale.class);
         assertNotNull(loc);
     }
@@ -270,7 +273,9 @@ public class LocaleDeserTest
     @Test
     public void testLocaleFuzz47036() throws Exception
     {
-        Locale loc = MAPPER.readValue(getClass().getResourceAsStream("/fuzz/oss-fuzz-47036.json"),
+        Locale loc = MAPPER.reader()
+                .without(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .readValue(getClass().getResourceAsStream("/fuzz/oss-fuzz-47036.json"),
                 Locale.class);
         assertNotNull(loc);
     }

@@ -12,8 +12,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.OptBoolean;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -131,6 +131,24 @@ public class DateDeserializationTest
         json = q(String.valueOf(before));
         value = MAPPER.readValue(json, java.util.Date.class);
         assertEquals(before, value.getTime());
+    }
+
+    @Test
+    public void testSignedStringTimestampViaObjectMapper() throws Exception
+    {
+        long before = -1383043669935L;
+        String json = q(String.valueOf(before));
+
+        Date date = MAPPER.readValue(json, Date.class);
+        assertEquals(before, date.getTime());
+
+        Calendar calendar = MAPPER.readValue(json, Calendar.class);
+        assertEquals(before, calendar.getTimeInMillis());
+
+        assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readValue(q("+1383043669935"), Date.class));
+        assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readValue(q("+1383043669935"), Calendar.class));
     }
 
     @Test

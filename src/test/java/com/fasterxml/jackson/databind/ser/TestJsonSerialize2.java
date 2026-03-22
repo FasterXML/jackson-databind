@@ -6,8 +6,8 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.JsonGenerator;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.NullSerializer;
@@ -192,7 +192,7 @@ public class TestJsonSerialize2
     public void testEmptyInclusionContainers() throws IOException
     {
         ObjectMapper defMapper = MAPPER;
-        ObjectMapper inclMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        ObjectMapper inclMapper = new ObjectMapper().setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
 
         ListWrapper<String> list = new ListWrapper<String>();
         assertEquals("{\"list\":[]}", defMapper.writeValueAsString(list));

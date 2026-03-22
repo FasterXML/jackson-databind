@@ -11,6 +11,7 @@ Co-Authors (with only partial listings below):
 * Joo Hyuk Kim (@JooHyukKim)
 * PJ Fanning (@pjfanning)
 * Sim Yih Tsern (@yihtsern)
+* wrongwrong (@k163377)
 
 ----------------------------------------------------------------------------
 
@@ -321,6 +322,9 @@ Michal Letynski (mletynski@github)
 Jeff Schnitzer (stickfigure@github)
   * Suggested #504: Add `DeserializationFeature.USE_LONG_FOR_INTS`
    (2.6.0)
+  * Requested #4533: Add `MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_TIMES` to disable
+    the "Java 8 date/time XYZ not supported by default" error
+   (2.19.0)
 
 Jerry Yang (islanderman@github)
   * Contributed #820: Add new method for `ObjectReader`, to bind from JSON Pointer position
@@ -427,6 +431,9 @@ Jonas Konrad (yawkat@github)
    (2.14.1)
   * Contributed fix for #4848: Avoid type pollution in `StringCollectionDeserializer`
    (2.18.3)
+  * Fixed #5729: (regression due to #5429) ISO-8601 change prevents parsing
+    negative timestamps (dates before 1970)
+   (2.21.2)
 
 Jirka Kremser (Jiri-Kremser@github)
   * Suggested #924: SequenceWriter.writeAll() could accept Iterable
@@ -1212,10 +1219,13 @@ Oleg Chtchoukine (oshatrk@github)
     to incorrect output
   (2.11.1)
 
-Joshua Shannon (retrodaredevil@github)
+Lavender Shannon (retrodaredevil@github)
   * Reported, contributed fix for #2785: Polymorphic subtypes not registering on copied
     ObjectMapper (2.11.1)
   (2.11.2)
+  * Requested #3072: Allow specifying `@JacksonInject` does not fail when there's no
+    corresponding value
+  (2.20.0)
 
 Daniel Hrabovcak (TheSpiritXIII@github)
   * Reported #2796: `TypeFactory.constructType()` does not take `TypeBindings` correctly
@@ -1520,7 +1530,7 @@ PJ Fanning (pjfanning@github)
   * Contributed #3530: Change LRUMap to just evict one entry when maxEntries reached
   (2.14.0)
   * Contributed #3837: Set transformer factory attributes to improve protection against XXE
-  (2.14.3)
+  (2.14.3
   - And NUMEROUS other contributions not listed here! (for 2.15 and above)
 
 Igor Shymko (ancane@github)
@@ -1830,6 +1840,9 @@ Eduard Gomoliako (@Gems)
  * Reported #4602: Possible wrong use of _arrayDelegateDeserializer in
    BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
   (2.18.0)
+ * Reported #4772: Serialization and deserialization issue of sub-types used with
+  `JsonTypeInfo.Id.DEDUCTION` where sub-types are Object and Array
+  (2.19.0)
 
 Mathijs Vogelzang (@mathijs81)
  * Reported #4678: Java records don't serialize with `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS`
@@ -1854,6 +1867,16 @@ wrongwrong (@k163377)
    `@JsonDeserialize(keyUsing = ...)` is overwritten by the `KeyDeserializer`
     specified in the `ObjectMapper`.
   (2.18.3)
+ * Contributed fix for #5139: In `CollectionDeserializer`, `JsonSetter.contentNulls`
+   is sometimes ignored
+  (2.19.1)
+ * Contributed fix for #5202: `JsonSetter.contentNulls` ignored for `Object[]`,
+  `String[]` and `Collection<String>`
+  (2.19.2)
+ * Reported #4218: If `@JacksonInject` is specified for field and deserialized by
+   the Creator, the inject process will be executed twice
+  (2.20.0)
+ - And many other contributions not listed here! (for 2.21 and above)
 
 Bernd Ahlers (@bernd)
  * Reported #4742: Deserialization with Builder, External type id, `@JsonCreator` failing
@@ -1893,3 +1916,103 @@ Fawzi Essam (@iifawzi)
  * Contributed fix for #5049: Duplicate creator property "b" (index 0 vs 1)
    on simple java record
   (2.18.4)
+
+Liam Feid (@fxshlein)
+ * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
+  (2.19.0)
+
+@SandeepGaur2016
+ * Contributed fix for #2461: Nested `@JsonUnwrapped` property names not correctly handled
+  (2.19.0)
+
+Geoffrey Grebert (@ggrebert)
+ * Contributed #2951: Allow inverting `@JsonProperty(access=)` so it can work differently
+   on server side and client side
+  (2.19.0)
+
+Konstantin Maliuga (@badoken)
+ * Contributed #4674: Allow setting global enum naming strategy similar to property naming strategy
+  (2.19.0)
+
+Lars Benedetto (@lbenedetto)
+ * Contributed #4676: Support other enum naming strategies than camelCase
+  (2.19.0)
+
+Floris Westerman (@FWest98)
+ * Reported #4934: `DeserializationContext.readTreeAsValue()` handles null nodes
+   differently from `ObjectMapper.treeToValue()`
+  (2.19.0)
+
+Joren Inghelbrecht (@jin-harmoney)
+ * Contributed #4953: Allow clearing all caches to avoid classloader leaks
+  (2.19.0)
+
+Will Paul (@dropofwill)
+ * Contributed #4979: Allow default enums with `@JsonCreator`
+  (2.19.0)
+
+Ryan Schmitt (@rschmitt)
+ * Contributed #5099: Fix regression in `ObjectNode.with()`
+  (2.19.0)
+
+Eddú Meléndez Gonzales (@eddumelendez)
+ * Reported #5215: `@JsonAnyGetter` serialization order change from 2.18.4 to 2.19.0
+  (2.19.2)
+
+Giulio Longfils (@giulong)
+ * Contributed fix for #2678: `@JacksonInject` added to property overrides value
+   from the JSON even if `useInput` is `OptBoolean.TRUE`
+  (2.20.0)
+ * Contributed #3072: Allow specifying `@JacksonInject` does not fail when there's no
+   corresponding value
+  (2.20.0)
+ * Contributed #4218: If `@JacksonInject` is specified for field and deserialized by
+   the Creator, the inject process will be executed twice
+  (2.20.0)
+ * Contributed #1381: Add a way to specify "inject-only" with `@JacksonInject`
+  (2.21.0)
+
+Plamen Tanov (@ptanov)
+ * Reported #2678: `@JacksonInject` added to property overrides value from the JSON
+   even if `useInput` is `OptBoolean.TRUE`
+  (2.20.0)
+
+Michael Reiche (@mikereiche)
+ * Reported #5271: `EnumDeserializer` fails to deserialize Enums with @JsonValue - uses table
+   with name() key instead of @JsonValue key
+  (2.20.0)
+
+Moritz Reyer (@MoritzR200)
+ * Contributed #5537: Add missing `@JsonIdentityInfo` handling for implicit `Collection`s with
+   `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+  (2.20.2)
+ * Contributed #5541: Add missing `@JsonIdentityInfo` handling for implicit Arrays with
+   `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+  (2.21.0)
+
+Johnny Lim (@izeye)
+ * Reported #5293: Fix minor typo in `PropertyBindingException.getMessageSuffix()`
+  (2.21.0)
+
+Hélios Gilles (@RoiSoleil)
+ * Contributed #5413: Add/support forward reference resolution for array values
+  [2.21.0]
+
+Brandon Schmitt (@BrandonSchmitt)
+ * Reported #5616: `ObjectWriter` serializes `Optional`s with subtypes incompletely
+  [2.21.1]
+
+Kyrylo Merzlikin (@kirmerzlikin)
+ * Reported #5706: `TokenBuffer` serialization fails when buffer contains integer
+   encoded as String
+  [2.21.1]
+
+Thomas Wöckinger (@thomaswoeckinger)
+ * Reported #5729: (regression due to #5429) ISO-8601 change prevents parsing
+   negative timestamps (dates before 1970)
+  [2.21.2]
+
+David Nelson (@eatdrinksleepcode)
+ * Reported #5814: Enum deserialization does not respect
+   `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
+  [2.21.2]

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
 import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
@@ -540,6 +541,57 @@ public class ArrayDeserializationTest
             String expStr = String.valueOf(i) + "." + String.valueOf(i % 10);
             assertEquals(expStr, String.valueOf(result[i]));
         }
+    }
+
+    @Test
+    public void testSingleStringToPrimitiveArray() throws Exception {
+        MAPPER.enable(ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        assertLengthValue(MAPPER.readValue("\"true\"", boolean[].class), true);
+        assertLengthValue(MAPPER.readValue("\"a\"", char[].class), 'a');
+        assertLengthValue(MAPPER.readValue("\"1\"", short[].class), (short) 1);
+        assertLengthValue(MAPPER.readValue("\"1\"", int[].class), 1);
+        assertLengthValue(MAPPER.readValue("\"1\"", long[].class), 1L);
+
+        // 06-Aug-2025, tatu: with [databind#5242] will try to access String
+        //   as Base64-encoded bytes. Need to think of whether to try to 
+        //   support Float/Double-as-single-String case or not; for now, not
+        //assertLengthValue(MAPPER.readValue("\"7.038531e-26\"", float[].class), 7.038531e-26f);
+        //assertLengthValue(MAPPER.readValue("\"1.5555\"", double[].class), 1.5555d);
+    }
+
+    private void assertLengthValue(boolean[] arr, boolean expt) {
+        assertEquals(1, arr.length);
+        assertEquals(expt, arr[0]);
+    }
+
+    private void assertLengthValue(char[] arr, char expt) {
+        assertEquals(1, arr.length);
+        assertEquals(expt, arr[0]);
+    }
+
+    private void assertLengthValue(short[] arr, short expt) {
+        assertEquals(1, arr.length);
+        assertEquals(expt, arr[0]);
+    }
+
+    private void assertLengthValue(int[] arr, int expt) {
+        assertEquals(1, arr.length);
+        assertEquals(expt, arr[0]);
+    }
+
+    private void assertLengthValue(long[] arr, long expt) {
+        assertEquals(1, arr.length);
+        assertEquals(expt, arr[0]);
+    }
+
+    void assertLengthValue(float[] arr, float expt) {
+        assertEquals(1, arr.length);
+        assertEquals(expt, arr[0]);
+    }
+
+    void assertLengthValue(double[] arr, double expt) {
+        assertEquals(1, arr.length);
+        assertEquals(expt, arr[0]);
     }
 
     /*

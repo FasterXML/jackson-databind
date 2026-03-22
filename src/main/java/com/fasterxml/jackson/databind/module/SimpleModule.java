@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 
 /**
- * Vanilla {@link com.fasterxml.jackson.databind.Module} implementation that allows registration
- * of serializers and deserializers, bean serializer
+ * Simple {@link com.fasterxml.jackson.databind.Module} implementation that allows
+ * registration  of serializers and deserializers, serializer
  * and deserializer modifiers, registration of subtypes and mix-ins
  * as well as some other commonly
  * needed aspects (addition of custom {@link AbstractTypeResolver}s,
@@ -24,10 +24,11 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
  * <p>
  * NOTE: that [de]serializers are registered as "default" [de]serializers. 
  * As a result, they will have lower priority than the ones indicated through annotations on 
- * both Class and property-associated annotations -- for example, 
+ * both {@code Class} and property-associated annotations -- for example, 
  * {@link com.fasterxml.jackson.databind.annotation.JsonDeserialize}.<br>
- * In cases where both module-based [de]serializers and annotation-based [de]serializers are registered, 
- * the [de]serializer specified by the annotation will take precedence.
+ * In cases where both module-based [de]serializers and annotation-based
+ * [de]serializers are registered, the [de]serializer specified by annotations
+ * will take precedence.
  *<p>
  * NOTE: although it is not expected that sub-types should need to
  * override {@link #setupModule(SetupContext)} method, if they choose
@@ -35,7 +36,7 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
  * to ensure that registration works as expected.
  *<p>
  * WARNING: when registering {@link JsonSerializer}s and {@link JsonDeserializer}s,
- * only type erased {@code Class} is compared: this means that usually you should
+ * only type-erased {@code Class} is compared: this means that usually you should
  * NOT use this implementation for registering structured types such as
  * {@link java.util.Collection}s or {@link java.util.Map}s: this because parametric
  * type information will not be considered and you may end up having "wrong" handler
@@ -130,12 +131,17 @@ public class SimpleModule
         // note: generate different name for direct instantiation, sub-classing;
         // this to avoid collision in former case while still addressing
         // [databind#3110]
-        _name = (getClass() == SimpleModule.class)
-                ? "SimpleModule-"+MODULE_ID_SEQ.getAndIncrement()
-                : getClass().getName();
+        _name = _generateName(getClass());
         _version = Version.unknownVersion();
         // 07-Jun-2021, tatu: [databind#3110] Not passed explicitly so...
         _hasExplicitName = false;
+    }
+
+    // @since 2.19
+    private static String _generateName(Class<?> cls) {
+        return (cls == SimpleModule.class)
+                ? "SimpleModule-"+MODULE_ID_SEQ.getAndIncrement()
+                : cls.getName();
     }
 
     /**
@@ -148,10 +154,21 @@ public class SimpleModule
 
     /**
      * Convenience constructor that will use specified Version,
-     * including name from {@link Version#getArtifactId()}.
+     * including name from {@link Version#getArtifactId()}
+     * (if available -- if not, will generate).
      */
     public SimpleModule(Version version) {
-        this(version.getArtifactId(), version);
+        // 07-Apr-2025, tatu: [databind#5063]: check that we actually have a name;
+        //    if not, generate it
+        String maybeName = version.getArtifactId();
+        // Only considered explicit if name is non-null and not empty (i.e. not generated)
+        _hasExplicitName = (maybeName != null) && !maybeName.isEmpty();
+        if (_hasExplicitName) {
+            _name = maybeName;
+        } else {
+            _name = _generateName(getClass());
+        }
+        _version = version;
     }
 
     /**
@@ -213,7 +230,7 @@ public class SimpleModule
     @Override
     public Object getTypeId()
     {
-        // 07-Jun-2021, tatu: [databind#3110] Return Type Id if name was
+        // 07-Jun-2021, tatu: [databind#3110] Return name as Type Id if name was
         //    explicitly given
         if (_hasExplicitName) {
             return _name;
@@ -227,7 +244,8 @@ public class SimpleModule
             return _name;
         }
         // And for what it is worth, this should usually do the same and we could
-        // in fact always just return `_name`. But leaving as-is for now.
+        // in fact always just return `_name`. But leaving as-is for now:
+        // will essentially return {@code getClass().getName()}.
         return super.getTypeId();
     }
 

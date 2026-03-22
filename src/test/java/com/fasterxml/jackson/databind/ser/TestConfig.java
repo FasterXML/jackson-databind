@@ -7,6 +7,7 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -77,7 +78,6 @@ public class TestConfig
     {
         SerializationConfig cfg = MAPPER.getSerializationConfig();
 
-        // First, defaults:
         assertTrue(cfg.isEnabled(MapperFeature.USE_ANNOTATIONS));
         assertTrue(cfg.isEnabled(MapperFeature.AUTO_DETECT_GETTERS));
         assertTrue(cfg.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS));
@@ -87,14 +87,14 @@ public class TestConfig
         assertFalse(cfg.isEnabled(SerializationFeature.INDENT_OUTPUT));
         assertFalse(cfg.isEnabled(MapperFeature.USE_STATIC_TYPING));
 
-        // since 1.3:
-        assertTrue(cfg.isEnabled(MapperFeature.AUTO_DETECT_IS_GETTERS));
-        // since 1.4
+        assertEquals(MapperFeature.AUTO_DETECT_IS_GETTERS.enabledByDefault(),
+                cfg.isEnabled(MapperFeature.AUTO_DETECT_IS_GETTERS));
 
-        assertTrue(cfg.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS));
-        // since 1.5
-        assertTrue(cfg.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION));
+        assertEquals(SerializationFeature.FAIL_ON_EMPTY_BEANS.enabledByDefault(),
+               cfg.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS));
 
+        assertEquals(MapperFeature.DEFAULT_VIEW_INCLUSION.enabledByDefault(),
+                cfg.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION));
     }
 
     @Test

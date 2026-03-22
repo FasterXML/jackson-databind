@@ -2,8 +2,7 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -15,10 +14,13 @@ import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
+import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
+import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
 /**
@@ -197,12 +199,18 @@ public class ObjectArrayDeserializer
         if (!p.isExpectedStartArrayToken()) {
             return handleNonArray(p, ctxt);
         }
-
+        if (_elementDeserializer.getObjectIdReader() != null) {
+            return _deserializeWithObjectId(p, ctxt);
+        }
         final ObjectBuffer buffer = ctxt.leaseObjectBuffer();
         Object[] chunk = buffer.resetAndStart();
         int ix = 0;
+        return _deserialize(p, ctxt, buffer, ix, chunk);
+    }
+
+    protected Object[] _deserialize(JsonParser p, DeserializationContext ctxt,
+            final ObjectBuffer buffer, int ix, Object[] chunk) throws JsonMappingException {
         JsonToken t;
-        final TypeDeserializer typeDeser = _elementTypeDeserializer;
 
         try {
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
@@ -213,12 +221,19 @@ public class ObjectArrayDeserializer
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value = _elementDeserializer.deserialize(p, ctxt);
+                    value = null;
                 } else {
-                    value = _elementDeserializer.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeNoNullChecks(p, ctxt);
                 }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+
                 if (ix >= chunk.length) {
                     chunk = buffer.appendCompletedChunk(chunk);
                     ix = 0;
@@ -238,6 +253,51 @@ public class ObjectArrayDeserializer
         }
         ctxt.returnObjectBuffer(buffer);
         return result;
+    }
+
+    protected Object[] _deserializeWithObjectId(JsonParser p, DeserializationContext ctxt) throws JsonMappingException {
+        final ObjectArrayReferringAccumulator acc = new ObjectArrayReferringAccumulator(_untyped, _elementClass);
+
+        JsonToken t;
+
+        int ix = 0;
+        try {
+            while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+                try {
+                    Object value;
+
+                    if (t == JsonToken.VALUE_NULL) {
+                        if (_skipNullValues) {
+                            continue;
+                        }
+                        value = null;
+                    } else {
+                        value = _deserializeNoNullChecks(p, ctxt);
+                    }
+
+                    if (value == null) {
+                        value = _nullProvider.getNullValue(ctxt);
+
+                        if (value == null && _skipNullValues) {
+                            continue;
+                        }
+                    }
+                    acc.add(value);
+                } catch (UnresolvedForwardReference reference) {
+                    ArrayReferring referring = new ArrayReferring(reference, _elementClass, acc);
+                    reference.getRoid().appendReferring(referring);
+                }
+                ++ix;
+            }
+        } catch (Exception e) {
+            boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
+            if (!wrap) {
+                ClassUtil.throwIfRTE(e);
+            }
+            throw JsonMappingException.wrapWithPath(e, acc.buildArray(), ix);
+        }
+
+        return acc.buildArray();
     }
 
     @Override
@@ -270,7 +330,6 @@ public class ObjectArrayDeserializer
         int ix = intoValue.length;
         Object[] chunk = buffer.resetAndStart(intoValue, ix);
         JsonToken t;
-        final TypeDeserializer typeDeser = _elementTypeDeserializer;
 
         try {
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
@@ -280,12 +339,19 @@ public class ObjectArrayDeserializer
                     if (_skipNullValues) {
                         continue;
                     }
-                    value = _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value = _elementDeserializer.deserialize(p, ctxt);
+                    value = null;
                 } else {
-                    value = _elementDeserializer.deserializeWithType(p, ctxt, typeDeser);
+                    value = _deserializeNoNullChecks(p, ctxt);
                 }
+
+                if (value == null) {
+                    value = _nullProvider.getNullValue(ctxt);
+
+                    if (value == null && _skipNullValues) {
+                        continue;
+                    }
+                }
+
                 if (ix >= chunk.length) {
                     chunk = buffer.appendCompletedChunk(chunk);
                     ix = 0;
@@ -321,7 +387,7 @@ public class ObjectArrayDeserializer
         // But then need to convert to wrappers
         Byte[] result = new Byte[b.length];
         for (int i = 0, len = b.length; i < len; ++i) {
-            result[i] = Byte.valueOf(b[i]);
+            result[i] = b[i];
         }
         return result;
     }
@@ -347,13 +413,18 @@ public class ObjectArrayDeserializer
             return ctxt.handleUnexpectedToken(_containerType, p);
         }
 
+        // 03-Jan-2026: [databind#5541] Support Object Id for implicit Object[]s too
+        if (_elementDeserializer.getObjectIdReader() != null) {
+            return _wrapSingleWithObjectId(p, ctxt);
+        }
+
         Object value;
         if (p.hasToken(JsonToken.VALUE_NULL)) {
             // 03-Feb-2017, tatu: Should this be skipped or not?
             if (_skipNullValues) {
                 return _emptyValue;
             }
-            value = _nullProvider.getNullValue(ctxt);
+            value = null;
         } else {
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 String textValue = p.getText();
@@ -376,12 +447,17 @@ public class ObjectArrayDeserializer
                 // if coercion failed, we can still add it to a list
             }
 
-            if (_elementTypeDeserializer == null) {
-                value = _elementDeserializer.deserialize(p, ctxt);
-            } else {
-                value = _elementDeserializer.deserializeWithType(p, ctxt, _elementTypeDeserializer);
+            value = _deserializeNoNullChecks(p, ctxt);
+        }
+
+        if (value == null) {
+            value = _nullProvider.getNullValue(ctxt);
+
+            if (value == null && _skipNullValues) {
+                return _emptyValue;
             }
         }
+
         // Ok: bit tricky, since we may want T[], not just Object[]
         Object[] result;
 
@@ -393,5 +469,127 @@ public class ObjectArrayDeserializer
         result[0] = value;
         return result;
     }
-}
 
+    // @since 2.21
+    // Copied from `_deserializeWithObjectId()`
+    protected Object[] _wrapSingleWithObjectId(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+    {
+        final ObjectArrayReferringAccumulator acc = new ObjectArrayReferringAccumulator(_untyped, _elementClass);
+        Object value;
+        try {
+            if (p.hasToken(JsonToken.VALUE_NULL)) {
+                if (_skipNullValues) {
+                    return _emptyValue;
+                }
+                value = null;
+            } else {
+                if (p.hasToken(JsonToken.VALUE_STRING)) {
+                    String textValue = p.getText();
+                    // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
+                    if (textValue.isEmpty()) {
+                        final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
+                                CoercionInputShape.EmptyString);
+                        if (act != CoercionAction.Fail) {
+                            return (Object[]) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                    "empty String (\"\")");
+                        }
+                    } else if (_isBlank(textValue)) {
+                        final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), handledType(),
+                                CoercionAction.Fail);
+                        if (act != CoercionAction.Fail) {
+                            return (Object[]) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                    "blank String (all whitespace)");
+                        }
+                    }
+                    // if coercion failed, we can still add it to a list
+                }
+
+                value = _deserializeNoNullChecks(p, ctxt);
+            }
+
+            if (value == null) {
+                value = _nullProvider.getNullValue(ctxt);
+                if (value == null && _skipNullValues) {
+                    return _emptyValue;
+                }
+            }
+            acc.add(value);
+        } catch (UnresolvedForwardReference reference) {
+            ArrayReferring referring = new ArrayReferring(reference, _elementClass, acc);
+            reference.getRoid().appendReferring(referring);
+        }
+        return acc.buildArray();
+    }
+
+    /**
+     * Deserialize the content of the map.
+     * If _elementTypeDeserializer is null, use _elementDeserializer.deserialize; if non-null,
+     * use _elementDeserializer.deserializeWithType to deserialize value.
+     * This method only performs deserialization and does not consider _skipNullValues, _nullProvider, etc.
+     * @since 2.19.2
+     */
+    protected Object _deserializeNoNullChecks(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+    {
+        if (_elementTypeDeserializer == null) {
+            return _elementDeserializer.deserialize(p, ctxt);
+        }
+        return _elementDeserializer.deserializeWithType(p, ctxt, _elementTypeDeserializer);
+    }
+
+    // @since 2.21
+    private static class ObjectArrayReferringAccumulator {
+        private final boolean _untyped;
+        private final Class<?> _elementType;
+        private final List<Object> _accumulator = new ArrayList<>();
+
+        private Object[] _array;
+
+        ObjectArrayReferringAccumulator(boolean untyped, Class<?> elementType) {
+            _untyped = untyped;
+            _elementType = elementType;
+        }
+
+        void add(Object value) {
+            _accumulator.add(value);
+        }
+
+        Object[] buildArray() {
+            if (_untyped) {
+                _array = new Object[_accumulator.size()];
+            } else {
+                _array = (Object[]) Array.newInstance(_elementType, _accumulator.size());
+            }
+            for (int i = 0; i < _accumulator.size(); i++) {
+                if (!(_accumulator.get(i) instanceof ArrayReferring)) {
+                    _array[i] = _accumulator.get(i);
+                }
+            }
+            return _array;
+        }
+    }
+
+    private static class ArrayReferring extends Referring {
+        private final ObjectArrayReferringAccumulator _parent;
+
+        ArrayReferring(UnresolvedForwardReference ref,
+                Class<?> type,
+                ObjectArrayReferringAccumulator acc) {
+            super(ref, type);
+            _parent = acc;
+            _parent._accumulator.add(this);
+        }
+
+        @Override
+        public void handleResolvedForwardReference(Object id, Object value) throws JacksonException {
+            for (int i = 0; i < _parent._accumulator.size(); i++) {
+                if (_parent._accumulator.get(i) == this) {
+                    _parent._array[i] = value;
+                    return;
+                }
+            }
+            throw new IllegalArgumentException("Trying to resolve unknown reference: " + id);
+        }
+    }
+}

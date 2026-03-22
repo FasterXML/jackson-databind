@@ -15,7 +15,6 @@ import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -312,6 +311,15 @@ public class TokenBufferTest extends DatabindTestUtil
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
                 assertEquals(new BigDecimal(num), p.getDecimalValue());
             }
+        }
+    }
+
+    // [databind#5706]
+    @Test
+    void testNumberIntAsStringSerialization() throws IOException {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber("42", true);
+            assertEquals("42", MAPPER.writeValueAsString(buf));
         }
     }
 

@@ -2,8 +2,9 @@ package com.fasterxml.jackson.databind.struct;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -19,7 +20,7 @@ public class TestUnwrappedWithPrefix extends DatabindTestUtil
         public Location location;
 
         public Unwrapping() { }
-        public Unwrapping(String str, int x, int y) {
+        protected Unwrapping(String str, int x, int y) {
             name = str;
             location = new Location(x, y);
         }
@@ -31,7 +32,7 @@ public class TestUnwrappedWithPrefix extends DatabindTestUtil
         public Unwrapping unwrapped;
 
         public DeepUnwrapping() { }
-        public DeepUnwrapping(String str, int x, int y) {
+        protected DeepUnwrapping(String str, int x, int y) {
             unwrapped = new Unwrapping(str, x, y);
         }
     }
@@ -41,7 +42,7 @@ public class TestUnwrappedWithPrefix extends DatabindTestUtil
         public int y;
 
         public Location() { }
-        public Location(int x, int y) {
+        protected Location(int x, int y) {
             this.x = x;
             this.y = y;
         }
@@ -55,7 +56,7 @@ public class TestUnwrappedWithPrefix extends DatabindTestUtil
         public Location location;
 
         public PrefixUnwrap() { }
-        public PrefixUnwrap(String str, int x, int y) {
+        protected PrefixUnwrap(String str, int x, int y) {
             name = str;
             location = new Location(x, y);
         }
@@ -67,7 +68,7 @@ public class TestUnwrappedWithPrefix extends DatabindTestUtil
         public PrefixUnwrap unwrapped;
 
         public DeepPrefixUnwrap() { }
-        public DeepPrefixUnwrap(String str, int x, int y) {
+        protected DeepPrefixUnwrap(String str, int x, int y) {
             unwrapped = new PrefixUnwrap(str, x, y);
         }
     }
@@ -83,7 +84,7 @@ public class TestUnwrappedWithPrefix extends DatabindTestUtil
         public ConfigMisc misc = new ConfigMisc();
 
         public ConfigRoot() { }
-        public ConfigRoot(String name, int value)
+        protected ConfigRoot(String name, int value)
         {
             general = new ConfigGeneral(name);
             misc.value = value;
@@ -101,7 +102,7 @@ public class TestUnwrappedWithPrefix extends DatabindTestUtil
         public int id;
 
         public ConfigAlternate() { }
-        public ConfigAlternate(int id, String name, int value)
+        protected ConfigAlternate(int id, String name, int value)
         {
             this.id = id;
             general = new ConfigGeneral(name);
@@ -115,7 +116,7 @@ public class TestUnwrappedWithPrefix extends DatabindTestUtil
         public ConfigNames names = new ConfigNames();
 
         public ConfigGeneral() { }
-        public ConfigGeneral(String name) {
+        protected ConfigGeneral(String name) {
             names.name = name;
         }
     }

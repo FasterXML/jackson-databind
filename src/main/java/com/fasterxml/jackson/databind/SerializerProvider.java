@@ -9,6 +9,7 @@ import java.util.TimeZone;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
@@ -1277,6 +1278,24 @@ public abstract class SerializerProvider
         } else {
             _nullValueSerializer.serialize(null, gen, this);
         }
+    }
+
+    /*
+    /********************************************************
+    /* Cache manipulation
+    /********************************************************
+     */
+
+    /**
+     * Method that will drop all serializers currently cached by this provider.
+     * This can be used to remove memory usage (in case some serializers are
+     * only used once or so), or to force re-construction of serializers after
+     * configuration changes for mapper than owns the provider.
+
+     * @since 2.19
+     */
+    public void flushCachedSerializers() {
+        _serializerCache.flush();
     }
 
     /*

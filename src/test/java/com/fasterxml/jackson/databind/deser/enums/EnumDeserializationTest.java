@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.cfg.EnumFeature;
@@ -162,7 +161,7 @@ public class EnumDeserializationTest
     }
 
     static enum StrictEnumCreator {
-        A, B;
+        A, B, @JsonEnumDefaultValue UNKNOWN;
 
         @JsonCreator public static StrictEnumCreator fromId(String value) {
             for (StrictEnumCreator e: values()) {
@@ -205,7 +204,6 @@ public class EnumDeserializationTest
             }
         }
     }
-
 
     @JsonDeserialize(using = AnEnumDeserializer.class, keyUsing = AnEnumKeyDeserializer.class)
     public enum LanguageCodeMixin {
@@ -280,47 +278,64 @@ public class EnumDeserializationTest
         }
     }
 
+    // [databind#4896]
+    enum YesOrNoOrEmpty4896 {
+        @JsonProperty("")
+        EMPTY,
+
+        @JsonProperty("yes")
+        YES,
+
+        @JsonProperty("no")
+        NO;
+    }
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
-    protected final ObjectMapper MAPPER = new ObjectMapper();
+    protected final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testSimple() throws Exception
     {
         // First "good" case with Strings
         String JSON = "\"OK\" \"RULES\"  null";
-        // multiple main-level mappings, need explicit parser:
-        JsonParser jp = MAPPER.createParser(JSON);
+        // multiple main-level mappings, need explicit parser
+        // (and possibly prevent validation of trailing tokens)
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
+        
+        JsonParser p = mapper.createParser(JSON);
 
-        assertEquals(TestEnum.OK, MAPPER.readValue(jp, TestEnum.class));
-        assertEquals(TestEnum.RULES, MAPPER.readValue(jp, TestEnum.class));
+        assertEquals(TestEnum.OK, mapper.readValue(p, TestEnum.class));
+        assertEquals(TestEnum.RULES, mapper.readValue(p, TestEnum.class));
 
         // should be ok; nulls are typeless; handled by mapper, not by deserializer
-        assertNull(MAPPER.readValue(jp, TestEnum.class));
+        assertNull(MAPPER.readValue(p, TestEnum.class));
 
         // and no more content beyond that...
-        assertFalse(jp.hasCurrentToken());
+        assertFalse(p.hasCurrentToken());
 
         // Then alternative with index (0 means first entry)
-        assertEquals(TestEnum.JACKSON, MAPPER.readValue(" 0 ", TestEnum.class));
+        assertEquals(TestEnum.JACKSON, mapper.readValue(" 0 ", TestEnum.class));
 
         // Then error case: unrecognized value
         try {
-            /*Object result =*/ MAPPER.readValue("\"NO-SUCH-VALUE\"", TestEnum.class);
+            /*Object result =*/ mapper.readValue("\"NO-SUCH-VALUE\"", TestEnum.class);
             fail("Expected an exception for bogus enum value...");
         } catch (MismatchedInputException jex) {
             verifyException(jex, "not one of the values accepted for Enum class");
         }
-        jp.close();
+        p.close();
     }
 
     /**
-     * Enums are considered complex if they have code (and hence sub-classes)... an
-     * example is TimeUnit
+     * Enums are considered complex if they have code (and hence sub-classes)...
+     * an example is TimeUnit
      */
     @Test
     public void testComplexEnum() throws Exception
@@ -438,7 +453,7 @@ public class EnumDeserializationTest
         assertNull(reader.forType(TestEnum.class).readValue(" 4343 "));
     }
 
-    // Ability to ignore unknown Enum values:
+    // Ability to ignore unknown Enum values as null:
 
     // [databind#1642]
     @Test
@@ -466,6 +481,19 @@ public class EnumDeserializationTest
         ClassWithEnumMapKey result = reader.forType(ClassWithEnumMapKey.class)
                 .readValue("{\"map\":{\"NO-SUCH-VALUE\":\"val\"}}");
         assertTrue(result.map.containsKey(null));
+    }
+
+    // Ability to ignore unknown Enum values as a defined default:
+
+    // [databind#4979]
+    @Test
+    public void testAllowUnknownEnumValuesReadAsDefaultWithCreatorMethod4979() throws Exception
+    {
+        ObjectReader reader = MAPPER.reader(
+            DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+        assertEquals(
+            StrictEnumCreator.UNKNOWN,
+            reader.forType(StrictEnumCreator.class).readValue("\"NO-SUCH-VALUE\""));
     }
 
     @Test
@@ -810,4 +838,15 @@ public class EnumDeserializationTest
             .isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX));
     }
 
+    // [databind#4896]
+    @Test
+    public void testEnumReadFromEmptyString() throws Exception {
+        // First, regular value
+        assertEquals(YesOrNoOrEmpty4896.YES,
+                MAPPER.readerFor(YesOrNoOrEmpty4896.class)
+                    .readValue(q("yes")));
+        assertEquals(YesOrNoOrEmpty4896.EMPTY,
+            MAPPER.readerFor(YesOrNoOrEmpty4896.class)
+                .readValue(q("")));
+    }
 }

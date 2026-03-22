@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.deser.std.*;
@@ -624,7 +623,7 @@ public class CustomDeserializersTest
         assertEquals(new Point(13, -4), result.point);
 
         // also, try some edge conditions
-        result = MAPPER.readValue(a2q("{'name':4})"), NamedPoint.class);
+        result = MAPPER.readValue(a2q("{'name':4}"), NamedPoint.class);
         assertNotNull(result);
         assertEquals("4", result.name);
         assertNull(result.point);

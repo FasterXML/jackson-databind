@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,7 +54,7 @@ public class ReadOnlyDeser1890Test
 
         Person() { }
 
-        public Person(TestEnum testEnum, String name) {
+        protected Person(TestEnum testEnum, String name) {
             this.testEnum = testEnum;
             this.name = name;
         }

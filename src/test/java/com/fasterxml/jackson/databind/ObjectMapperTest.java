@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
@@ -282,6 +283,7 @@ public class ObjectMapperTest
 
         JsonMapper m3 = m2.rebuild()
                 .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+                .enumNamingStrategy(EnumNamingStrategies.UPPER_CAMEL_CASE)
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
                 .enable(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)
                 .build();
@@ -405,6 +407,30 @@ public class ObjectMapperTest
         // may look odd, but due to "Untyped" deserializer thing, we actually have
         // 4 deserializers (int, List<?>, Map<?,?>, Object)
         assertEquals(4, m._deserializationContext._cache.cachedDeserializersCount());
+    }
+
+    @Test
+    public void testClearCaches() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+
+        // Serialize and deserialize to fill caches
+        final String JSON = "{ \"x\" : 3 }";
+        Bean bean = m.readValue(JSON, Bean.class);
+        m.writeValueAsString("test");
+
+        // Caches should not be empty
+        assertNotEquals(0, m._deserializationContext._cache.cachedDeserializersCount());
+        assertNotEquals(0, m._rootDeserializers.size());
+        assertNotEquals(0, m._serializerProvider.cachedSerializersCount());
+
+        // Clear caches
+        m.clearCaches();
+
+        // Caches should be empty
+        assertEquals(0, m._deserializationContext._cache.cachedDeserializersCount());
+        assertEquals(0, m._rootDeserializers.size());
+        assertEquals(0, m._serializerProvider.cachedSerializersCount());
     }
 
     // For [databind#689]

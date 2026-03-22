@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -216,7 +215,7 @@ public class TestTypeModifiers extends DatabindTestUtil
      */
 
     private final ObjectMapper MAPPER_WITH_MODIFIER = JsonMapper.builder()
-            .typeFactory(TypeFactory.defaultInstance().withModifier(new MyTypeModifier()))
+            .typeFactory(defaultTypeFactory().withModifier(new MyTypeModifier()))
             .build();
 
     /**

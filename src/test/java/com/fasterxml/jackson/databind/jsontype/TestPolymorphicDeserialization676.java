@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Reproduction of <a href="https://github.com/FasterXML/jackson-databind/issues/676">databind#676</a>
  * <p/>
  * Deserialization of class with generic collection inside
- * depends on how is was deserialized first time.
+ * depends on how it was deserialized first time.
  */
 public class TestPolymorphicDeserialization676 extends DatabindTestUtil
 {

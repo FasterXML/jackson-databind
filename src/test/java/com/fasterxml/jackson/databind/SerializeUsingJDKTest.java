@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-
 /**
  * Tests to verify that most core Jackson components can be serialized
  * using default JDK serialization: this feature is useful for some
@@ -28,7 +27,7 @@ public class SerializeUsingJDKTest
         protected int y;
 
         public MyPojo() { }
-        public MyPojo(int x0, int y0) {
+        protected MyPojo(int x0, int y0) {
             x = x0;
             y = y0;
         }
@@ -49,7 +48,7 @@ public class SerializeUsingJDKTest
         HashMap<String,Object> _map;
 
         public AnyBean() {
-            _map = new HashMap<String,Object>();
+            _map = new HashMap<>();
         }
 
         @JsonAnySetter
@@ -223,7 +222,7 @@ public class SerializeUsingJDKTest
     @Test
     public void testTypeFactory() throws Exception
     {
-        TypeFactory orig = TypeFactory.defaultInstance();
+        TypeFactory orig = defaultTypeFactory();
         JavaType t = orig.constructType(JavaType.class);
         assertNotNull(t);
 

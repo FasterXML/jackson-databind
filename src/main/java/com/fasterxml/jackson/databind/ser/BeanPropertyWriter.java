@@ -8,6 +8,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
@@ -222,8 +223,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
         _declaredType = declaredType;
         _serializer = (JsonSerializer<Object>) ser;
-        _dynamicSerializers = (ser == null) ? PropertySerializerMap
-                .emptyForProperties() : null;
+        _dynamicSerializers = (ser == null) ? PropertySerializerMap.emptyForProperties() : null;
         _typeSerializer = typeSer;
         _cfgSerializationType = serType;
 
@@ -325,7 +325,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
                     base._internalSettings);
         }
         _cfgSerializationType = base._cfgSerializationType;
-        _dynamicSerializers = base._dynamicSerializers;
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         _suppressNulls = base._suppressNulls;
         _suppressableValue = base._suppressableValue;
         _includeInViews = base._includeInViews;
@@ -350,7 +350,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
                     base._internalSettings);
         }
         _cfgSerializationType = base._cfgSerializationType;
-        _dynamicSerializers = base._dynamicSerializers;
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         _suppressNulls = base._suppressNulls;
         _suppressableValue = base._suppressableValue;
         _includeInViews = base._includeInViews;
@@ -759,7 +759,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     @Override
     public void serializeAsElement(Object bean, JsonGenerator gen,
-            SerializerProvider prov) throws Exception {
+            SerializerProvider prov) throws Exception
+    {
         // inlined 'get()'
         final Object value = (_accessorMethod == null) ? _field.get(bean)
                 : _accessorMethod.invoke(bean, (Object[]) null);
@@ -818,7 +819,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     @Override
     public void serializeAsPlaceholder(Object bean, JsonGenerator gen,
-            SerializerProvider prov) throws Exception {
+            SerializerProvider prov) throws Exception
+    {
         if (_nullSerializer != null) {
             _nullSerializer.serialize(null, gen, prov);
         } else {
@@ -835,7 +837,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     // Also part of BeanProperty implementation
     @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor v,
-            SerializerProvider provider) throws JsonMappingException {
+            SerializerProvider provider) throws JsonMappingException
+    {
         if (v != null) {
             if (isRequired()) {
                 v.property(this);
@@ -861,7 +864,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     @Override
     @Deprecated
     public void depositSchemaProperty(ObjectNode propertiesNode,
-            SerializerProvider provider) throws JsonMappingException {
+            SerializerProvider provider) throws JsonMappingException
+    {
         JavaType propType = getSerializationType();
         // 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas
         // it doesn't...
@@ -891,7 +895,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
     protected JsonSerializer<Object> _findAndAddDynamic(
             PropertySerializerMap map, Class<?> type,
-            SerializerProvider provider) throws JsonMappingException {
+            SerializerProvider provider) throws JsonMappingException
+    {
         PropertySerializerMap.SerializerAndMapResult result;
         if (_nonTrivialBaseType != null) {
             JavaType t = provider.constructSpecializedType(_nonTrivialBaseType,
@@ -910,14 +915,14 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     /**
      * Method that can be used to access value of the property this Object
      * describes, from given bean instance.
-     * <p>
-     * Note: method is final as it should not need to be overridden -- rather,
-     * calling method(s) ({@link #serializeAsField}) should be overridden to
-     * change the behavior
+     *<p>
+     * NOTE: was {@code final} until Jackson 2.19
      */
-    public final Object get(Object bean) throws Exception {
-        return (_accessorMethod == null) ? _field.get(bean) : _accessorMethod
-                .invoke(bean, (Object[]) null);
+    public Object get(Object bean) throws Exception
+    {
+        return (_accessorMethod == null)
+                ? _field.get(bean)
+                : _accessorMethod.invoke(bean, (Object[]) null);
     }
 
     /**
@@ -939,15 +944,27 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
             throws IOException
     {
         if (!ser.usesObjectId()) {
+            boolean writeAsNull = false;
+
             if (prov.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES)) {
                 // 05-Feb-2013, tatu: Usually a problem, but NOT if we are handling
                 // object id; this may be the case for BeanSerializers at least.
                 // 13-Feb-2014, tatu: another possible ok case: custom serializer
                 // (something OTHER than {@link BeanSerializerBase}
                 if (ser instanceof BeanSerializerBase) {
-                    prov.reportBadDefinition(getType(), "Direct self-reference leading to cycle");
+                    // 09-Jul-2025, tatu: [databind#5194] Let's suppress specific case
+                    //   of "cause" for Throwables
+                    if (_isThrowableFieldCause(prov, bean)) {
+                        writeAsNull = true;
+                    } else {
+                        prov.reportBadDefinition(getType(), "Direct self-reference leading to cycle");
+                    }
                 }
-            } else if (prov.isEnabled(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL)) {
+            } else {
+                writeAsNull = prov.isEnabled(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL);
+            }
+
+            if (writeAsNull) {
                 if (_nullSerializer != null) {
                     // 23-Oct-2019, tatu: Tricky part -- caller does not specify if it's
                     //   "as property" (in JSON Object) or "as element" (JSON array, via
@@ -965,6 +982,17 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         return false;
     }
 
+    // Helper method to recognize `Throwable.cause` Field, which has "this" as initialized
+    // value to mean "not set" (`Throwable.getCause()` translates this to `null`).
+    //
+    // @since 2.20
+    private boolean _isThrowableFieldCause(SerializerProvider prov, Object bean) {
+        return bean instanceof Throwable
+                && _member instanceof AnnotatedField
+                && "cause".equals(_name.getValue())
+                ;
+    }
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(40);

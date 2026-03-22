@@ -10,14 +10,12 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
-import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NullValueViaCreatorTest
+    extends DatabindTestUtil
 {
     protected static class Container {
         Contained<String> contained;
@@ -112,14 +110,11 @@ public class NullValueViaCreatorTest
 
     // [databind#597]: ensure that a useful exception is thrown
     @Test
-    public void testCreatorReturningNull() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public void testCreatorReturningNull() throws Exception {
+        ObjectMapper objectMapper = newJsonMapper();
+
         String json = "{ \"type\" : \"     \", \"id\" : \"000c0ffb-a0d6-4d2e-a379-4aeaaf283599\" }";
-        try {
-            objectMapper.readValue(json, JsonEntity.class);
-            fail("Should not have succeeded");
-        } catch (ValueInstantiationException e) {
-            verifyException(e, "JSON creator returned null");
-        }
+
+        assertNull(objectMapper.readValue(json, JsonEntity.class));
     }
 }

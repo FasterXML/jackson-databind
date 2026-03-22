@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
@@ -45,7 +44,6 @@ class BeanDeserializerModifier4356Test
         }
     }
 
-    @SuppressWarnings("serial")
     static SimpleModule getSimpleModuleWithDeserializerModifier() {
         return new SimpleModule().setDeserializerModifier(new BeanDeserializerModifier() {
             @Override

@@ -5,13 +5,13 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.core.Base64Variant;
 
+import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
 import com.fasterxml.jackson.databind.introspect.AccessorNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
 import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
@@ -560,6 +560,20 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     public final T with(PropertyNamingStrategy pns) {
         return _withBase(_base.withPropertyNamingStrategy(pns));
+    }
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link EnumNamingStrategy}
+     * to use.
+     *<p>
+     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
+     * if directly calling this method.
+     *
+     * @since 2.19
+     */
+    public final T with(EnumNamingStrategy ens) {
+        return _withBase(_base.withEnumNamingStrategy(ens));
     }
 
     /**

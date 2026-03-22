@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.Version;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -409,7 +408,7 @@ public class BuilderSimpleTest
     @Test
     public void testSelfBuilder777() throws Exception
     {
-        SelfBuilder777 result = MAPPER.readValue(a2q("{'x':3}'"),
+        SelfBuilder777 result = MAPPER.readValue(a2q("{'x':3}"),
                 SelfBuilder777.class);
         assertNotNull(result);
         assertEquals(3, result.x);

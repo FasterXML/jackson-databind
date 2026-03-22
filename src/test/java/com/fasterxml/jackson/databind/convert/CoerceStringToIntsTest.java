@@ -34,6 +34,8 @@ public class CoerceStringToIntsTest
         .build();
 
     private final ObjectMapper MAPPER_TO_NULL = jsonMapperBuilder()
+            // 08-Jan-2025, tatu: Need to allow null-to-int coercion for some tests
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
             .withCoercionConfig(LogicalType.Integer, cfg ->
             cfg.setCoercion(CoercionInputShape.String, CoercionAction.AsNull))
         .build();

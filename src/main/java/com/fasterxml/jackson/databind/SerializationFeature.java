@@ -141,15 +141,26 @@ public enum SerializationFeature implements ConfigFeature
       * writeValue() (or equivalent) method is called)
       * that implement {@link java.io.Closeable}
       * is called after serialization or not. If enabled, <b>close()</b> will
-      * be called after serialization completes (whether succesfully, or
+      * be called after serialization completes (whether successfully, or
       * due to an error manifested by an exception being thrown). You can
       * think of this as sort of "finally" processing.
       *<p>
       * NOTE: only affects behavior with <b>root</b> objects, and not other
       * objects reachable from the root object. Put another way, only one
       * call will be made for each 'writeValue' call.
-     *<p>
-     * Feature is disabled by default.
+      *<p>
+      * <b>This feature does not control closing of the underlying
+      * {@link java.io.OutputStream} or {@link java.io.Writer}.</b>
+      * Stream closing is handled by the streaming layer and can be configured
+      * via {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET},
+      * for example:
+      * <pre>
+      * ObjectMapper mapper = JsonMapper.builder()
+      *     .disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET)
+      *     .build();
+      * </pre>
+      * <p>
+      * Feature is disabled by default.
       */
     CLOSE_CLOSEABLE(false),
 
@@ -260,11 +271,9 @@ public enum SerializationFeature implements ConfigFeature
      * representation may mean either simple number, or an array of numbers,
      * depending on type.
      *<p>
-     * Note: whether {@link java.util.Map} keys are serialized as Strings
-     * or not is controlled using {@link #WRITE_DATE_KEYS_AS_TIMESTAMPS}.
-     *<p>
-     * Feature is enabled by default, so that period/duration are by default
-     * serialized as timestamps.
+     * Feature is enabled by default in Jackson 2.x, so that period/duration values
+     * are by default serialized as timestamps.
+     * It will be disabled by default in Jackson 3.x.
      *
      * @since 2.5
      */
@@ -357,17 +366,18 @@ public enum SerializationFeature implements ConfigFeature
      * dynamically changed on per-call basis, because its effect is considered during
      * construction of serializers and property handlers.
      *<p>
-     * Feature is enabled by default.
-     *
-     * @deprecated Since 2.8 there are better mechanism for specifying filtering; specifically
+     * NOTE: Since 2.8 there are better mechanism for specifying filtering; specifically
      *   using {@link com.fasterxml.jackson.annotation.JsonInclude} or configuration overrides.
+     *  This feature was deprecated from 2.8 through to 2.20 but no longer deprecated
+     *  since 2.21 / 3.0.
+     *<p>
+     * Feature is enabled by default.
      */
-    @Deprecated // since 2.8
     WRITE_EMPTY_JSON_ARRAYS(true),
 
     /**
-     * Feature added for interoperability, to work with oddities of
-     * so-called "BadgerFish" convention.
+     * Feature added for inter-operability (originally to work with oddities of
+     * so-called "BadgerFish" convention).
      * Feature determines handling of single element {@link java.util.Collection}s
      * and arrays: if enabled, {@link java.util.Collection}s and arrays that contain exactly
      * one element will be serialized as if that element itself was serialized.
@@ -433,6 +443,23 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is disabled by default.
      */
     ORDER_MAP_ENTRIES_BY_KEYS(false),
+
+    /**
+     * Feature that determines whether to intentionally fail when the mapper attempts to
+     * order map entries with incomparable keys by accessing the first key of the map.
+     * So depending on the Map implementation, this may not be the same key every time.
+     * <p>
+     * If enabled, will simply fail by throwing an exception.
+     * If disabled, will not throw an exception and instead simply return the original map.
+     * <p>
+     * Note that this feature will apply only when configured to order map entries by keys, either
+     * through annotation or enabling {@link #ORDER_MAP_ENTRIES_BY_KEYS}.
+     * <p>
+     * Feature is enabled by default and will default false in Jackson 3 and later.
+     *
+     * @since 2.19
+     */
+    FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY(true),
 
     /*
     /******************************************************

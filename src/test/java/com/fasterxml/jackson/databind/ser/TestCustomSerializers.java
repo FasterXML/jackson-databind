@@ -5,7 +5,6 @@ import java.io.StringWriter;
 import java.util.*;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
 
@@ -13,7 +12,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -220,6 +218,11 @@ public class TestCustomSerializers extends DatabindTestUtil
                     }
 
                     @Override
+                    public Object convert(SerializerProvider ctxt, Object value) {
+                        return value == Super4575.NULL ? null : value;
+                    }
+
+                    @Override
                     public JavaType getInputType(TypeFactory typeFactory) {
                         return typeFactory.constructType(delegateSerializer.handledType());
                     }
@@ -264,7 +267,7 @@ public class TestCustomSerializers extends DatabindTestUtil
     public void testCustomLists() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
-        JsonSerializer<?> ser = new CollectionSerializer(null, false, null, null);
+        JsonSerializer<?> ser = new CollectionSerializer(MAPPER.constructType(Object.class), false, null, null);
         final JsonSerializer<Object> collectionSerializer = (JsonSerializer<Object>) ser;
 
         module.addSerializer(Collection.class, new JsonSerializer<Collection>() {

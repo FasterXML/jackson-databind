@@ -1,5 +1,9 @@
 package com.fasterxml.jackson.databind.records;
 
+import java.math.BigDecimal;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import com.fasterxml.jackson.databind.DatabindException;
@@ -8,9 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.ConstructorDetector;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 

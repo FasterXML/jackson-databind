@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import java.util.*;
 
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.EnumFeature;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 
 /**
  * Helper class used for storing String serializations of {@code Enum}s,

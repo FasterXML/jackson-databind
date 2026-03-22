@@ -7,7 +7,6 @@ import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -15,6 +14,7 @@ import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -68,6 +68,14 @@ public class EnumDeserializer
     protected final boolean _isFromIntValue;
 
     /**
+     * Marker flag that indicates whether the Enum class has {@code @JsonValue}
+     * annotated accessor (or equivalent), used to populate {@link #_lookupByName}.
+     *
+     * @since 2.20
+     */
+    protected final boolean _hasAsValueAnnotation;
+
+    /**
      * Look up map with <b>key</b> as <code>Enum.name()</code> converted by
      * {@link EnumNamingStrategy#convertEnumToExternalName(String)}
      * and <b>value</b> as Enums.
@@ -96,6 +104,7 @@ public class EnumDeserializer
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
+        _hasAsValueAnnotation = byNameResolver.hasAsValueAnnotation();
         _enumsByIndex = byNameResolver.getRawEnums();
         _enumDefaultValue = byNameResolver.getDefaultValue();
         _caseInsensitive = caseInsensitive;
@@ -112,6 +121,7 @@ public class EnumDeserializer
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
+        _hasAsValueAnnotation = byNameResolver.hasAsValueAnnotation();
         _enumsByIndex = byNameResolver.getRawEnums();
         _enumDefaultValue = byNameResolver.getDefaultValue();
         _caseInsensitive = caseInsensitive;
@@ -128,6 +138,7 @@ public class EnumDeserializer
     {
         super(base);
         _lookupByName = base._lookupByName;
+        _hasAsValueAnnotation = base._hasAsValueAnnotation;
         _enumsByIndex = base._enumsByIndex;
         _enumDefaultValue = base._enumDefaultValue;
         _caseInsensitive = Boolean.TRUE.equals(caseInsensitive);
@@ -139,29 +150,20 @@ public class EnumDeserializer
     }
 
     /**
-     * @since 2.9
-     * @deprecated Since 2.15
-     */
-    @Deprecated
-    protected EnumDeserializer(EnumDeserializer base, Boolean caseInsensitive) {
-        this(base, caseInsensitive, null, null);
-    }
-
-    /**
-     * @deprecated Since 2.9
-     */
-    @Deprecated
-    public EnumDeserializer(EnumResolver byNameResolver) {
-        this(byNameResolver, null);
-    }
-
-    /**
-     * @deprecated Since 2.8
+     * Factory method used when Enum instances are to be deserialized
+     * using a creator (static factory method)
+     *
+     * @return Deserializer based on given factory method
+     *
+     * @since 2.8
+     * @deprecated Since 2.19
      */
     @Deprecated
     public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config,
-            Class<?> enumClass, AnnotatedMethod factory) {
-        return deserializerForCreator(config, enumClass, factory, null, null);
+             Class<?> enumClass, AnnotatedMethod factory,
+             ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps) {
+        return deserializerForCreator(config, enumClass, factory, valueInstantiator,
+                creatorProps, null);
     }
 
     /**
@@ -170,19 +172,19 @@ public class EnumDeserializer
      *
      * @return Deserializer based on given factory method
      *
-     * @since 2.8
+     * @since 2.19
      */
     public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config,
             Class<?> enumClass, AnnotatedMethod factory,
-            ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
+            ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps,
+            EnumResolver byNameResolver)
     {
         if (config.canOverrideAccessModifiers()) {
             ClassUtil.checkAndFixAccess(factory.getMember(),
                     config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
-        return new FactoryBasedEnumDeserializer(enumClass, factory,
-                factory.getParameterType(0),
-                valueInstantiator, creatorProps);
+        return new FactoryBasedEnumDeserializer(enumClass, factory, factory.getParameterType(0),
+            valueInstantiator, creatorProps, byNameResolver);
     }
 
     /**
@@ -230,8 +232,13 @@ public class EnumDeserializer
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
+        // [databind#5814]: check both ACCEPT_CASE_INSENSITIVE_VALUES (primary) and
+        //   ACCEPT_CASE_INSENSITIVE_PROPERTIES (legacy) for case-insensitive enum matching
         Boolean caseInsensitive = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
-          JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)).orElse(_caseInsensitive);
+          JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES))
+                .orElse(Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
+                        JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES))
+                        .orElse(_caseInsensitive));
         Boolean useDefaultValueForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
           JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)).orElse(_useDefaultValueForUnknownEnum);
         Boolean useNullForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
@@ -286,8 +293,12 @@ public class EnumDeserializer
         }
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         if (p.isExpectedStartObjectToken()) {
-            return _fromString(p, ctxt,
-                    ctxt.extractScalarFromObject(p, this, _valueClass));
+            String str = ctxt.extractScalarFromObject(p, this, _valueClass);
+            // 17-May-2025, tatu: [databind#4656] need to check for `null`
+            if (str == null) {
+                return ctxt.handleUnexpectedToken(_enumClass(), p);
+            }
+            return _fromString(p, ctxt, str);
         }
         return _deserializeOther(p, ctxt);
     }
@@ -314,9 +325,10 @@ public class EnumDeserializer
         if (_lookupByEnumNaming != null) {
             return _lookupByEnumNaming;
         }
-        return ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-            ? _getToStringLookup(ctxt)
-            : _lookupByName;
+        if (_hasAsValueAnnotation || !ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)) {
+            return _lookupByName;
+        }
+        return _getToStringLookup(ctxt);
     }
 
     protected Object _fromInteger(JsonParser p, DeserializationContext ctxt,
@@ -475,9 +487,10 @@ public class EnumDeserializer
             synchronized (this) {
                 lookup = _lookupByToString;
                 if (lookup == null) {
-                    lookup = EnumResolver.constructUsingToString(ctxt.getConfig(), _enumClass())
-                        .constructLookup();
-                    _lookupByToString = lookup;
+                    DeserializationConfig config = ctxt.getConfig();
+                    AnnotatedClass ac = config.introspectClassAnnotations(_enumClass()).getClassInfo();
+                    _lookupByToString = EnumResolver.constructUsingToString(config, ac)
+                            .constructLookup();
                 }
             }
         }

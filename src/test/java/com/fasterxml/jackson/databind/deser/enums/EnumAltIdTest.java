@@ -11,8 +11,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,6 +37,12 @@ public class EnumAltIdTest
 
     protected static class StrictCaseBean {
         @JsonFormat(without={ JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES })
+        public TestEnum value;
+    }
+
+    // [databind#5814]
+    protected static class EnumBeanWithCaseInsensitiveValues {
+        @JsonFormat(with={ JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES })
         public TestEnum value;
     }
 
@@ -219,6 +225,19 @@ public class EnumAltIdTest
             verifyException(e, "not one of the values accepted for Enum class");
             verifyException(e, "[JACKSON, OK, RULES]");
         }
+    }
+
+    // [databind#5814]
+    @Test
+    public void testIgnoreCaseViaFormatValues() throws Exception
+    {
+        final String JSON = a2q("{'value':'ok'}");
+
+        // ACCEPT_CASE_INSENSITIVE_VALUES should also enable case-insensitive enum matching
+        EnumBeanWithCaseInsensitiveValues pojo = READER_DEFAULT
+            .forType(EnumBeanWithCaseInsensitiveValues.class)
+            .readValue(JSON);
+        assertEquals(TestEnum.OK, pojo.value);
     }
 
     /*

@@ -1,14 +1,16 @@
 package com.fasterxml.jackson.databind.module;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.util.*;
 
-
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
@@ -202,6 +204,7 @@ public class SimpleModuleTest extends DatabindTestUtil
     static class Deserializer3787A extends JsonDeserializer<Test3787Bean> {
         @Override
         public Test3787Bean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            p.skipChildren(); // important to consume value
             Test3787Bean simpleTestBean = new Test3787Bean();
             simpleTestBean.value = "I am A";
             return simpleTestBean;
@@ -211,6 +214,7 @@ public class SimpleModuleTest extends DatabindTestUtil
     static class Deserializer3787B extends JsonDeserializer<Test3787Bean> {
         @Override
         public Test3787Bean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            p.skipChildren(); // important to consume value
             Test3787Bean simpleTestBean = new Test3787Bean();
             simpleTestBean.value = "I am B";
             return simpleTestBean;
@@ -231,35 +235,87 @@ public class SimpleModuleTest extends DatabindTestUtil
         }
     }
 
+    // For [databind#5063]
+    static class Module5063A extends SimpleModule {
+        public Module5063A() {
+            super(Version.unknownVersion());
+        }
+    }
+    
+    static class Module5063B extends SimpleModule {
+        public Module5063B() {
+            super(Version.unknownVersion());
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests; first, verifying need for custom handlers
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    @Test
+    public void testDeserializationWithoutModule() throws Exception
+    {
+        final String DOC = "{\"str\":\"ab\",\"num\":2}";
+
+        try {
+            MAPPER.readValue(DOC, CustomBean.class);
+            fail("Should have caused an exception");
+        } catch (DatabindException e) {
+            verifyException(e, "Cannot construct");
+            verifyException(e, "no creators");
+        }
+
+        // And then other variations
+        try {
+            MAPPER.readValue(new StringReader(DOC), CustomBean.class);
+            fail("Should have caused an exception");
+        } catch (DatabindException e) {
+            verifyException(e, "Cannot construct");
+            verifyException(e, "no creators");
+        }
+
+        try {
+            MAPPER.readValue(utf8Bytes(DOC), CustomBean.class);
+            fail("Should have caused an exception");
+        } catch (DatabindException e) {
+            verifyException(e, "Cannot construct");
+            verifyException(e, "no creators");
+        }
+
+        try {
+            MAPPER.readValue(new ByteArrayInputStream(utf8Bytes(DOC)), CustomBean.class);
+            fail("Should have caused an exception");
+        } catch (DatabindException e) {
+            verifyException(e, "Cannot construct");
+            verifyException(e, "no creators");
+        }
+    }
+
     /**
      * Basic test to ensure we do not have functioning default
      * serializers for custom types used in tests.
      */
     @Test
-    public void testWithoutModule()
+    public void testSerializationWithoutModule() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // first: serialization failure:
         try {
-            mapper.writeValueAsString(new CustomBean("foo", 3));
+            MAPPER.writeValueAsString(new CustomBean("foo", 3));
             fail("Should have caused an exception");
-        } catch (IOException e) {
+        } catch (DatabindException e) {
             verifyException(e, "No serializer found");
         }
 
-        // then deserialization
+        // and with another write call for test coverage
         try {
-            mapper.readValue("{\"str\":\"ab\",\"num\":2}", CustomBean.class);
+            MAPPER.writeValueAsBytes(new CustomBean("foo", 3));
             fail("Should have caused an exception");
-        } catch (IOException e) {
-            verifyException(e, "Cannot construct");
-            verifyException(e, "no creators");
+        } catch (DatabindException e) {
+            verifyException(e, "No serializer found");
         }
     }
 
@@ -492,7 +548,7 @@ public class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAddSerializerTwiceThenOnlyLatestIsKept() throws JsonProcessingException {
+    public void testAddSerializerTwiceThenOnlyLatestIsKept() throws Exception {
         SimpleModule module = new SimpleModule()
             .addSerializer(Test3787Bean.class, new Serializer3787A())
             .addSerializer(Test3787Bean.class, new Serializer3787B());
@@ -503,7 +559,7 @@ public class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAddModuleWithSerializerTwiceThenOnlyLatestIsKept() throws JsonProcessingException {
+    public void testAddModuleWithSerializerTwiceThenOnlyLatestIsKept() throws Exception {
         SimpleModule firstModule = new SimpleModule()
             .addSerializer(Test3787Bean.class, new Serializer3787A());
         SimpleModule secondModule = new SimpleModule()
@@ -520,7 +576,7 @@ public class SimpleModuleTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAddModuleWithSerializerTwiceThenOnlyLatestIsKept_reverseOrder() throws JsonProcessingException {
+    public void testAddModuleWithSerializerTwiceThenOnlyLatestIsKept_reverseOrder() throws Exception {
         SimpleModule firstModule = new SimpleModule()
             .addSerializer(Test3787Bean.class, new Serializer3787A());
         SimpleModule secondModule = new SimpleModule()
@@ -580,5 +636,16 @@ public class SimpleModuleTest extends DatabindTestUtil
             "{\"value\" : \"I am C\"}", Test3787Bean.class);
         
         assertEquals("I am A", result.value);
+    }
+
+    // For [databind#5063]
+    @Test
+    public void testDuplicateModules5063() {
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(new Module5063A())
+                .addModule(new Module5063B())
+                .build();
+        Set<Object> modules = mapper.getRegisteredModuleIds();
+        assertEquals(2, modules.size());
     }
 }

@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 
-import java.util.logging.Logger;
-
 /**
  * Class that defines how names of JSON properties ("external names")
  * are derived from names of POJO methods and fields ("internal names"),
@@ -30,71 +28,39 @@ import java.util.logging.Logger;
  * from methods (as well as lower-cases initial sequence of capitalized
  * characters).
  *<p>
- * NOTE! Since 2.12 sub-classes defined here (as well as static singleton instances thereof)
- * are deprecated due to
+ * NOTE! Since 2.12 up until 2.19, sub-classes defined here (as well as static singleton
+ * instances thereof)
+ * were deprecated due to
  * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>.
+ * They were removed in 2.20.
  * Please use constants and classes in {@link PropertyNamingStrategies} instead.
- *
+ * In particular, {@link PropertyNamingStrategies.NamingBase} is the base class
+ * to use.
  */
-@SuppressWarnings("serial")
 public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 2L;
 
-    /**
-     * @deprecated Since 2.12 deprecated. Use {@link PropertyNamingStrategies#LOWER_CAMEL_CASE} instead.
-     * See
-     * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
-     * for reasons for deprecation.
-     */
-    @Deprecated // since 2.12
-    public static final PropertyNamingStrategy LOWER_CAMEL_CASE = new PropertyNamingStrategy();
+    // // Constants for standard implementations: removed from Jackson 2.20
 
-    /**
-     * @deprecated Since 2.12 deprecated. Use {@link PropertyNamingStrategies#UPPER_CAMEL_CASE} instead.
-     * See
-     * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
-     * for reasons for deprecation.
-     */
-    @Deprecated // since 2.12
-    public static final PropertyNamingStrategy UPPER_CAMEL_CASE = new UpperCamelCaseStrategy(false);
+    //@Deprecated // since 2.12
+    //public static final PropertyNamingStrategy LOWER_CAMEL_CASE = new PropertyNamingStrategy();
 
-    /**
-     * @deprecated Since 2.12 deprecated. Use {@link PropertyNamingStrategies#SNAKE_CASE} instead.
-     * See
-     * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
-     * for reasons for deprecation.
-     */
-    @Deprecated // since 2.12
-    public static final PropertyNamingStrategy SNAKE_CASE = new SnakeCaseStrategy(false);
+    //@Deprecated // since 2.12
+    //public static final PropertyNamingStrategy UPPER_CAMEL_CASE = new UpperCamelCaseStrategy(false);
 
-    /**
-     * @deprecated Since 2.12 deprecated. Use {@link PropertyNamingStrategies#LOWER_CASE} instead.
-     * See
-     * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
-     * for reasons for deprecation.
-     */
-    @Deprecated // since 2.12
-    public static final PropertyNamingStrategy LOWER_CASE = new LowerCaseStrategy(false);
+    //@Deprecated // since 2.12
+    //public static final PropertyNamingStrategy SNAKE_CASE = new SnakeCaseStrategy(false);
 
-    /**
-     * @deprecated Since 2.12 deprecated. Use {@link PropertyNamingStrategies#KEBAB_CASE} instead.
-     * See
-     * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
-     * for reasons for deprecation.
-     */
-    @Deprecated // since 2.12
-    public static final PropertyNamingStrategy KEBAB_CASE = new KebabCaseStrategy(false);
+    //@Deprecated // since 2.12
+    //public static final PropertyNamingStrategy LOWER_CASE = new LowerCaseStrategy(false);
 
-    /**
-     * @deprecated Since 2.12 deprecated. Use {@link PropertyNamingStrategies#LOWER_DOT_CASE} instead.
-     * See
-     * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
-     * for reasons for deprecation.
-     */
-    @Deprecated // since 2.12
-    public static final PropertyNamingStrategy LOWER_DOT_CASE = new LowerDotCaseStrategy(false);
+    //@Deprecated // since 2.12
+    //public static final PropertyNamingStrategy KEBAB_CASE = new KebabCaseStrategy(false);
+
+    //@Deprecated // since 2.12
+    //public static final PropertyNamingStrategy LOWER_DOT_CASE = new LowerDotCaseStrategy(false);
 
     /*
     /**********************************************************
@@ -182,243 +148,38 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
 
     /*
     /**********************************************************
-    /* Public base class for simple implementations
+    /* Public base class for simple implementations: removed from Jackson 2.20
     /**********************************************************
      */
 
-    /**
+    /*
+     * Replaced by {@link PropertyNamingStrategies.NamingBase}.
+     *
      * @deprecated Since 2.12 deprecated. See
      * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
      * for reasons for deprecation.
      */
-    @Deprecated
-    public static abstract class PropertyNamingStrategyBase extends PropertyNamingStrategy
-    {
-        protected PropertyNamingStrategyBase() {
-            // For use via annotations: WARN
-            this(true);
-        }
-
-        protected PropertyNamingStrategyBase(boolean logWarning) {
-            super();
-            if (logWarning) {
-                final String simple = getClass().getSimpleName();
-                Logger.getLogger(getClass().getName())
-                    .warning(
-"PropertyNamingStrategy."+simple+" is used but it has been deprecated due to " +
-"risk of deadlock. Consider using PropertyNamingStrategies."+simple+" instead. " +
-"See https://github.com/FasterXML/jackson-databind/issues/2715 for more details.");
-            }
-        }
-        
-        @Override
-        public String nameForField(MapperConfig<?> config, AnnotatedField field, String defaultName)
-        {
-            return translate(defaultName);
-        }
-
-        @Override
-        public String nameForGetterMethod(MapperConfig<?> config, AnnotatedMethod method, String defaultName)
-        {
-            return translate(defaultName);
-        }
-
-        @Override
-        public String nameForSetterMethod(MapperConfig<?> config, AnnotatedMethod method, String defaultName)
-        {
-            return translate(defaultName);
-        }
-
-        @Override
-        public String nameForConstructorParameter(MapperConfig<?> config, AnnotatedParameter ctorParam,
-                String defaultName)
-        {
-            return translate(defaultName);
-        }
-
-        public abstract String translate(String propertyName);
-
-        /**
-         * Helper method to share implementation between snake and dotted case.
-         */
-        protected static String translateLowerCaseWithSeparator(final String input, final char separator)
-        {
-            if (input == null) {
-                return input; // garbage in, garbage out
-            }
-            final int length = input.length();
-            if (length == 0) {
-                return input;
-            }
-
-            final StringBuilder result = new StringBuilder(length + (length >> 1));
-            int upperCount = 0;
-            for (int i = 0; i < length; ++i) {
-                char ch = input.charAt(i);
-                char lc = Character.toLowerCase(ch);
-
-                if (lc == ch) { // lower-case letter means we can get new word
-                    // but need to check for multi-letter upper-case (acronym), where assumption
-                    // is that the last upper-case char is start of a new word
-                    if (upperCount > 1) {
-                        // so insert hyphen before the last character now
-                        result.insert(result.length() - 1, separator);
-                    }
-                    upperCount = 0;
-                } else {
-                    // Otherwise starts new word, unless beginning of string
-                    if ((upperCount == 0) && (i > 0)) {
-                        result.append(separator);
-                    }
-                    ++upperCount;
-                }
-                result.append(lc);
-            }
-            return result.toString();
-        }
-    }
+    //@Deprecated
+    //public static abstract class PropertyNamingStrategyBase extends PropertyNamingStrategy
 
     /*
     /**********************************************************
-    /* Standard implementations
+    /* Standard implementations: removed from Jackson 2.20
     /**********************************************************
      */
 
-    /**
-     * @deprecated Since 2.12 use {@link PropertyNamingStrategies.SnakeCaseStrategy} instead
-     * (see
-     * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
-     * for reason for deprecation)
-     */
-    @Deprecated // since 2.12
-    public static class SnakeCaseStrategy extends PropertyNamingStrategyBase
-    {
-        public SnakeCaseStrategy() { }
-        protected SnakeCaseStrategy(boolean logWarning) { super(logWarning); }
-        
-        @Override
-        public String translate(String input)
-        {
-            if (input == null) return input; // garbage in, garbage out
-            int length = input.length();
-            StringBuilder result = new StringBuilder(length * 2);
-            int resultLength = 0;
-            boolean wasPrevTranslated = false;
-            for (int i = 0; i < length; i++)
-            {
-                char c = input.charAt(i);
-                if (i > 0 || c != '_') // skip first starting underscore
-                {
-                    if (Character.isUpperCase(c))
-                    {
-                        if (!wasPrevTranslated && resultLength > 0 && result.charAt(resultLength - 1) != '_')
-                        {
-                            result.append('_');
-                            resultLength++;
-                        }
-                        c = Character.toLowerCase(c);
-                        wasPrevTranslated = true;
-                    }
-                    else
-                    {
-                        wasPrevTranslated = false;
-                    }
-                    result.append(c);
-                    resultLength++;
-                }
-            }
-            return resultLength > 0 ? result.toString() : input;
-        }
-    }
+    //@Deprecated // since 2.12
+    //public static class SnakeCaseStrategy extends PropertyNamingStrategyBase
 
-    /**
-     * @deprecated Since 2.12 use {@link PropertyNamingStrategies.UpperCamelCaseStrategy} instead
-     * (see
-     * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
-     * for reason for deprecation)
-     */
-    @Deprecated // since 2.12
-    public static class UpperCamelCaseStrategy extends PropertyNamingStrategyBase
-    {
-        public UpperCamelCaseStrategy() { }
-        protected UpperCamelCaseStrategy(boolean logWarning) { super(logWarning); }
+    //@Deprecated // since 2.12
+    //public static class UpperCamelCaseStrategy extends PropertyNamingStrategyBase
 
-        /**
-         * Converts camelCase to PascalCase
-         *
-         * For example, "userName" would be converted to "UserName".
-         *
-         * @param input formatted as camelCase string
-         * @return input converted to PascalCase format
-         */
-        @Override
-        public String translate(String input) {
-            if (input == null || input.isEmpty()){
-                return input; // garbage in, garbage out
-            }
-            // Replace first lower-case letter with upper-case equivalent
-            char c = input.charAt(0);
-            char uc = Character.toUpperCase(c);
-            if (c == uc) {
-                return input;
-            }
-            StringBuilder sb = new StringBuilder(input);
-            sb.setCharAt(0, uc);
-            return sb.toString();
-        }
-    }
+    //@Deprecated // since 2.12
+    //public static class LowerCaseStrategy extends PropertyNamingStrategyBase
 
-    /**
-     * @deprecated Since 2.12 use {@link PropertyNamingStrategies.LowerCaseStrategy} instead
-     * (see
-     * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
-     * for reason for deprecation)
-     */
-    @Deprecated // since 2.12
-    public static class LowerCaseStrategy extends PropertyNamingStrategyBase
-    {
-        public LowerCaseStrategy() { }
-        protected LowerCaseStrategy(boolean logWarning) { super(logWarning); }
+    //@Deprecated // since 2.12
+    //public static class KebabCaseStrategy extends PropertyNamingStrategyBase
 
-        @Override
-        public String translate(String input) {
-            return input.toLowerCase();
-        }
-    }
-
-    /**
-     * @deprecated Since 2.12 use {@link PropertyNamingStrategies.KebabCaseStrategy} instead
-     * (see
-     * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
-     * for reason for deprecation)
-     */
-    @Deprecated // since 2.12
-    public static class KebabCaseStrategy extends PropertyNamingStrategyBase
-    {
-        public KebabCaseStrategy() { }
-        protected KebabCaseStrategy(boolean logWarning) { super(logWarning); }
-
-        @Override
-        public String translate(String input) {
-            return translateLowerCaseWithSeparator(input, '-');
-        }
-    }
-
-    /**
-     * @deprecated Since 2.12 use {@link PropertyNamingStrategies.LowerDotCaseStrategy} instead
-     * (see
-     * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
-     * for reason for deprecation)
-     */
-    @Deprecated // since 2.12
-    public static class LowerDotCaseStrategy extends PropertyNamingStrategyBase
-    {
-        public LowerDotCaseStrategy() { }
-        protected LowerDotCaseStrategy(boolean logWarning) { super(logWarning); }
-
-        @Override
-        public String translate(String input){
-            return translateLowerCaseWithSeparator(input, '.');
-        }
-    }
+    //@Deprecated // since 2.12
+    //public static class LowerDotCaseStrategy extends PropertyNamingStrategyBase
 }

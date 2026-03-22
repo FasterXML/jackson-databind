@@ -5,8 +5,8 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.StringWrapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.IntWrapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.StringWrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

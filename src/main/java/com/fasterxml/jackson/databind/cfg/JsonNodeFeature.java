@@ -79,7 +79,30 @@ public enum JsonNodeFeature implements DatatypeFeature
      *
      * @since 2.16
      */
-    FAIL_ON_NAN_TO_BIG_DECIMAL_COERCION(false)
+    FAIL_ON_NAN_TO_BIG_DECIMAL_COERCION(false),
+
+    /**
+     * Determines whether floating-point numbers should be deserialized into
+     * {@link java.math.BigDecimal} when reading {@link com.fasterxml.jackson.databind.JsonNode}s.
+     * This feature provides more precise control over number deserialization for {@code JsonNode}
+     * and takes precedence over {@link com.fasterxml.jackson.databind.DeserializationFeature#USE_BIG_DECIMAL_FOR_FLOATS}
+     * if explicitly set.
+     *
+     * <p>
+     * Behavior follows these rules:
+     * <ul>
+     *   <li>If explicitly enabled, floating-point numbers will be read as {@link java.math.BigDecimal}.</li>
+     *   <li>If explicitly disabled, floating-point numbers will be read as {@link java.lang.Double}.</li>
+     *   <li>If left undefined (default), the behavior follows {@code DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS}.</li>
+     * </ul>
+     *
+     * <p>
+     * Default value is {@code false} but unless explicitly set, handling
+     * depends on more general {@code DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS}).
+     *
+     * @since 2.19
+     */
+    USE_BIG_DECIMAL_FOR_FLOATS(false),
     ;
 
     private final static int FEATURE_INDEX = DatatypeFeatures.FEATURE_INDEX_JSON_NODE;

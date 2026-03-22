@@ -2,14 +2,14 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 /**
  * Default {@link ValueInstantiator} implementation, which supports
@@ -673,7 +673,10 @@ public class StdValueInstantiator
                 if (prop == null) { // delegate
                     args[i] = delegate;
                 } else { // nope, injectable:
-                    args[i] = ctxt.findInjectableValue(prop.getInjectableValueId(), prop, null);
+                    // 09-May-2025, tatu: Not sure where to get "optional" (last arg) value...
+                    // 25-Aug-2025, tatu: ... or "useInput"
+                    args[i] = ctxt.findInjectableValue(prop.getInjectableValueId(), prop,
+                            null, null, null);
                 }
             }
             // and then try calling with full set of arguments

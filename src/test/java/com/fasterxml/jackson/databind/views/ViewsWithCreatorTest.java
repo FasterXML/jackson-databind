@@ -4,8 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -74,7 +73,11 @@ public class ViewsWithCreatorTest extends DatabindTestUtil
         }
     }
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    // Ensure `MapperFeature.DEFAULT_VIEW_INCLUSION` is enabled
+    // (its default differs b/w Jackson 2.x and 3.x)
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+            .build();
     
     // [databind#1172]
     @Test

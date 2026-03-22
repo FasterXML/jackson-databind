@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.lang.reflect.Member;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -384,6 +385,12 @@ public class POJOPropertyBuilder
     @Override
     public boolean hasField() { return _fields != null; }
 
+    // @since 2.20 additional accessor
+    public boolean hasFieldAndNothingElse() {
+        return (_fields != null)
+                && ((_getters == null) && (_setters == null) && (_ctorParameters == null));
+    }
+
     @Override
     public boolean hasConstructorParameter() { return _ctorParameters != null; }
 
@@ -415,9 +422,8 @@ public class POJOPropertyBuilder
         }
         // But if multiple, verify that they do not conflict...
         for (; next != null; next = next.next) {
-            /* [JACKSON-255] Allow masking, i.e. do not report exception if one
-             *   is in super-class from the other
-             */
+            // Allow masking, i.e. do not report exception if one
+            // is in super-class from the other
             Class<?> currClass = curr.value.getDeclaringClass();
             Class<?> nextClass = next.value.getDeclaringClass();
             if (currClass != nextClass) {
@@ -764,6 +770,24 @@ public class POJOPropertyBuilder
         return 2;
     }
 
+    // @since 2.19.2
+    public boolean hasFieldOrGetter(AnnotatedMember member) {
+        return _hasAccessor(_fields, member) || _hasAccessor(_getters, member);
+    }
+
+    private boolean _hasAccessor(Linked<? extends AnnotatedMember> node,
+            AnnotatedMember memberToMatch)
+    {
+        // AnnotatedXxx are not canonical, but underlying JDK Members are:
+        final Member rawMemberToMatch = memberToMatch.getMember();
+        for (; node != null; node = node.next) {
+            if (node.value.getMember() == rawMemberToMatch) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /*
     /**********************************************************
     /* Implementations of refinement accessors
@@ -852,12 +876,22 @@ public class POJOPropertyBuilder
     }
 
     public JsonProperty.Access findAccess() {
-        return fromMemberAnnotationsExcept(new WithMember<JsonProperty.Access>() {
+        JsonProperty.Access acc = fromMemberAnnotationsExcept(new WithMember<JsonProperty.Access>() {
             @Override
             public JsonProperty.Access withMember(AnnotatedMember member) {
                 return _annotationIntrospector.findPropertyAccess(member);
             }
         }, JsonProperty.Access.AUTO);
+
+        // [databind#2951] add feature to inverse access logic
+        if (_config.isEnabled(MapperFeature.INVERSE_READ_WRITE_ACCESS)) {
+            if (acc == JsonProperty.Access.READ_ONLY) {
+                acc = JsonProperty.Access.WRITE_ONLY;
+            } else if (acc == JsonProperty.Access.WRITE_ONLY) {
+                acc = JsonProperty.Access.READ_ONLY;
+            }
+        }
+        return acc;
     }
 
     /*
@@ -867,19 +901,19 @@ public class POJOPropertyBuilder
      */
 
     public void addField(AnnotatedField a, PropertyName name, boolean explName, boolean visible, boolean ignored) {
-        _fields = new Linked<AnnotatedField>(a, _fields, name, explName, visible, ignored);
+        _fields = new Linked<>(a, _fields, name, explName, visible, ignored);
     }
 
     public void addCtor(AnnotatedParameter a, PropertyName name, boolean explName, boolean visible, boolean ignored) {
-        _ctorParameters = new Linked<AnnotatedParameter>(a, _ctorParameters, name, explName, visible, ignored);
+        _ctorParameters = new Linked<>(a, _ctorParameters, name, explName, visible, ignored);
     }
 
     public void addGetter(AnnotatedMethod a, PropertyName name, boolean explName, boolean visible, boolean ignored) {
-        _getters = new Linked<AnnotatedMethod>(a, _getters, name, explName, visible, ignored);
+        _getters = new Linked<>(a, _getters, name, explName, visible, ignored);
     }
 
     public void addSetter(AnnotatedMethod a, PropertyName name, boolean explName, boolean visible, boolean ignored) {
-        _setters = new Linked<AnnotatedMethod>(a, _setters, name, explName, visible, ignored);
+        _setters = new Linked<>(a, _setters, name, explName, visible, ignored);
     }
 
     /**
@@ -923,14 +957,11 @@ public class POJOPropertyBuilder
         _ctorParameters = _removeIgnored(_ctorParameters);
     }
 
-    @Deprecated // since 2.12
-    public JsonProperty.Access removeNonVisible(boolean inferMutators) {
-        return removeNonVisible(inferMutators, null);
-    }
-
     /**
      * @param inferMutators Whether mutators can be "pulled in" by visible
      *    accessors or not.
+     * @param parent (nullable) Collector to add name ignorals to, if that is
+     *    desired.
      *
      * @since 2.12 (earlier had different signature)
      */
@@ -944,6 +975,7 @@ public class POJOPropertyBuilder
         if (acc == null) {
             acc = JsonProperty.Access.AUTO;
         }
+
         switch (acc) {
         case READ_ONLY:
             // [databind#2719]: Need to add ignorals, first, keeping in mind

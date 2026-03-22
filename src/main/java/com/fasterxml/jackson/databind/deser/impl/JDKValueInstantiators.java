@@ -5,7 +5,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.core.JsonLocation;
-
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -41,6 +40,10 @@ public abstract class JDKValueInstantiators
             if (raw == TreeSet.class) {
                 return new TreeSetInstantiator();
             }
+            // 01-May-2025, tatu: was missing
+            if (raw == LinkedHashSet.class) { // default impl, pre-constructed instance
+                return new LinkedHashSetInstantiator();
+            }
             if (raw == Collections.emptySet().getClass()) {
                 return new ConstantValueInstantiator(Collections.emptySet());
             }
@@ -59,6 +62,10 @@ public abstract class JDKValueInstantiators
             }
             if (raw == TreeMap.class) {
                 return new TreeMapInstantiator();
+            }
+            // 01-May-2025, tatu: was missing
+            if (Properties.class.isAssignableFrom(raw)) {
+                return new PropertiesInstantiator();
             }
             if (raw == Collections.emptyMap().getClass()) {
                 return new ConstantValueInstantiator(Collections.emptyMap());
@@ -156,6 +163,22 @@ public abstract class JDKValueInstantiators
         }
     }
 
+    // @since 2.19: was missing
+    private static class LinkedHashSetInstantiator
+        extends JDKValueInstantiator
+    {
+        private static final long serialVersionUID = 2L;
+    
+        public LinkedHashSetInstantiator() {
+            super(LinkedHashSet.class);
+        }
+    
+        @Override
+        public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
+            return new LinkedHashSet<>();
+        }
+    }
+
     // @since 2.17 [databind#4299] Instantiators for additional container classes
     private static class ConcurrentHashMapInstantiator
         extends JDKValueInstantiator
@@ -219,6 +242,22 @@ public abstract class JDKValueInstantiators
         @Override
         public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
             return new TreeMap<>();
+        }
+    }
+
+    // @since 2.19: was missing
+    private static class PropertiesInstantiator
+        extends JDKValueInstantiator
+    {
+        private static final long serialVersionUID = 2L;
+
+        public PropertiesInstantiator() {
+            super(Properties.class);
+        }
+
+        @Override
+        public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
+            return new Properties();
         }
     }
 

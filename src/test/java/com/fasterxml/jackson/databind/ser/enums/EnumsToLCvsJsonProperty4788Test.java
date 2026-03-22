@@ -22,7 +22,7 @@ public class EnumsToLCvsJsonProperty4788Test
         KETCHUP,
     }
 
-    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     public enum SauceB {
         @JsonProperty("PROPERTY_MAYO_NAIZZZZ")
         MAYO_NAIZZZZ

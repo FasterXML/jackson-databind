@@ -5,6 +5,7 @@ import java.beans.ConstructorProperties;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.fasterxml.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;

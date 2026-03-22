@@ -13,6 +13,10 @@ import com.fasterxml.jackson.core.format.MatchStrength;
  * The only addition to regular {@link JsonFactory} currently
  * is that {@link ObjectMapper} is constructed and passed as
  * the codec to use.
+ *<p>
+ * NOTE: this class is removed from Jackson 3.0 as it is no longer
+ * needed (nor can implementation as-is be supported due to changes
+ * in {@code JsonFactory}/{@code ObjectMapper} interfaces).
  */
 public class MappingJsonFactory
     extends JsonFactory

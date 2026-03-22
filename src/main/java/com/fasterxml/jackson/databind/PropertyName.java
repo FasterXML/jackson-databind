@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.databind;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-
-import java.util.Objects;
 
 /**
  * Simple value class used for containing names of properties as defined

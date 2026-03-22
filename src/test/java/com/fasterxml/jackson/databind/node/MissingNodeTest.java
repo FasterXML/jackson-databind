@@ -3,9 +3,10 @@ package com.fasterxml.jackson.databind.node;
 import java.io.StringReader;
 import java.util.Iterator;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -61,6 +62,7 @@ public class MissingNodeTest extends NodeTestBase
         assertTrue(onode.isObject());
         assertEquals(0, onode.size());
         assertFalse(onode.isMissingNode()); // real node
+        assertTrue(onode.asOptional().isPresent());
         assertNull(onode.textValue());
 
         // how about dereferencing?
@@ -73,6 +75,7 @@ public class MissingNodeTest extends NodeTestBase
         JsonNode dummyNode2 = dummyNode.path(98);
         assertNotNull(dummyNode2);
         assertTrue(dummyNode2.isMissingNode());
+        assertFalse(dummyNode2.asOptional().isPresent());
         JsonNode dummyNode3 = dummyNode.path("field");
         assertNotNull(dummyNode3);
         assertTrue(dummyNode3.isMissingNode());
@@ -91,6 +94,7 @@ public class MissingNodeTest extends NodeTestBase
         assertTrue(dummyNode.isMissingNode());
         assertNull(dummyNode.get(0));
         assertNull(dummyNode.get("myfield"));
+        assertFalse(dummyNode.asOptional().isPresent());
         dummyNode2 = dummyNode.path(98);
         assertNotNull(dummyNode2);
         assertTrue(dummyNode2.isMissingNode());

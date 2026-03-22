@@ -6,10 +6,11 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ser.impl.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.impl.*;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
@@ -186,6 +187,24 @@ public class AnyGetterTest extends DatabindTestUtil
     }
 
     // [databind#1458]: Allow `@JsonAnyGetter` on fields too
+    static class DynaFieldOrderedBean {
+        public int id = 123;
+
+        @JsonPropertyOrder(alphabetic = true)
+        @JsonAnyGetter
+        @JsonAnySetter
+        private HashMap<String,String> other = new LinkedHashMap<>();
+
+        public Map<String,String> any() {
+            return other;
+        }
+
+        public void set(String name, String value) {
+            other.put(name, value);
+        }
+    }
+
+    // [databind#1458]: Allow `@JsonAnyGetter` on fields too
     @Test
     public void testDynaFieldBean() throws Exception
     {
@@ -197,6 +216,18 @@ public class AnyGetterTest extends DatabindTestUtil
         DynaFieldBean result = MAPPER.readValue("{\"id\":2,\"name\":\"Joe\"}", DynaFieldBean.class);
         assertEquals(2, result.id);
         assertEquals("Joe", result.other.get("name"));
+    }
+
+    // [databind#4388]: Allow `@JsonPropertyOrder` AND `@JsonAnyGetter` on fields too
+    @Test
+    public void testDynaFieldOrderedBean() throws Exception
+    {
+        DynaFieldOrderedBean b = new DynaFieldOrderedBean();
+        b.set("nameC", "Cilly");
+        b.set("nameB", "Billy");
+        b.set("nameA", "Ailly");
+
+        assertEquals("{\"id\":123,\"nameA\":\"Ailly\",\"nameB\":\"Billy\",\"nameC\":\"Cilly\"}", MAPPER.writeValueAsString(b));
     }
 
     /*
@@ -276,7 +307,7 @@ public class AnyGetterTest extends DatabindTestUtil
     public void testAnyGetterWithMapperDefaultIncludeNonEmpty() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
         Bean2592NoAnnotations input = new Bean2592NoAnnotations();
         input.add("non-empty", "property");
         input.add("empty", "");
@@ -292,15 +323,14 @@ public class AnyGetterTest extends DatabindTestUtil
         FilterProvider filters = new SimpleFilterProvider()
                 .addFilter("Bean2592", SimpleBeanPropertyFilter.serializeAllExcept("something"));
         ObjectMapper mapper = new ObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY)
                 .setFilterProvider(filters);
         Bean2592WithFilter input = new Bean2592WithFilter();
         input.add("non-empty", "property");
         input.add("empty", "");
         input.add("null", null);
         String json = mapper.writeValueAsString(input);
-        // Unfortunately path for bean with filter is different. It still skips nulls.
-        assertEquals("{\"non-empty\":\"property\",\"empty\":\"\"}", json);
+        assertEquals("{\"non-empty\":\"property\"}", json);
     }
 
     // [databind#2592]

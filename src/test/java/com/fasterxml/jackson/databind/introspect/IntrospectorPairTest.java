@@ -9,11 +9,10 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.OptBoolean;
-import com.fasterxml.jackson.core.Version;
 
+import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.std.NumberDeserializers;
@@ -698,13 +697,24 @@ public class IntrospectorPairTest extends DatabindTestUtil
 
     static class TestInjector extends InjectableValues {
         @Override
-        public Object findInjectableValue(Object valueId, DeserializationContext ctxt, BeanProperty forProperty, Object beanInstance) {
+        public Object findInjectableValue(DeserializationContext ctxt,
+                Object valueId, 
+                BeanProperty forProperty, Object beanInstance,
+                Boolean optional, Boolean useInput) {
             if (valueId == "jjj") {
                 UnreadableBean bean = new UnreadableBean();
                 bean.setValue(1);
                 return bean;
             }
             return null;
+        }
+
+        @Deprecated // since 2.20
+        @Override
+        public Object findInjectableValue(Object valueId, DeserializationContext ctxt,
+                BeanProperty forProperty, Object beanInstance) {
+            throw new IllegalStateException("Deprecated: should not get called");
+            //return this.findInjectableValue(valueId, ctxt, forProperty, beanInstance, null);
         }
     }
 

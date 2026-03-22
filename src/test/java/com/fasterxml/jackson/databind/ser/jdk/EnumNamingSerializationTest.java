@@ -1,15 +1,16 @@
 package com.fasterxml.jackson.databind.ser.jdk;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.EnumNaming;
-import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-
 import java.util.EnumMap;
 import java.util.EnumSet;
 
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.EnumNaming;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,7 +24,7 @@ public class EnumNamingSerializationTest extends DatabindTestUtil {
 
     final ObjectMapper MAPPER = newJsonMapper();
 
-    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     static enum EnumFlavorA {
         CHOCOLATE_CHIPS,
         HOT_CHEETOS;
@@ -34,7 +35,7 @@ public class EnumNamingSerializationTest extends DatabindTestUtil {
         }
     }
 
-    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     static enum EnumSauceB {
         KETCH_UP,
         MAYO_NEZZ;
@@ -46,14 +47,14 @@ public class EnumNamingSerializationTest extends DatabindTestUtil {
         SRIRACHA_MAYO;
     }
 
-    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     static enum EnumFlavorD {
         _PEANUT_BUTTER,
         PEANUT__BUTTER,
         PEANUT_BUTTER
     }
 
-    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    @EnumNaming(EnumNamingStrategies.LowerCamelCaseStrategy.class)
     static enum EnumFlavorE {
         PEANUT_BUTTER,
         @JsonProperty("almond")

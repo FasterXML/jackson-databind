@@ -8,7 +8,6 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;

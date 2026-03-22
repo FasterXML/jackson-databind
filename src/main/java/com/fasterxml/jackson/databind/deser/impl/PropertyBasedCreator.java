@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonParser;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
  * Object that is used to collect arguments for non-default creator
@@ -45,6 +45,14 @@ public final class PropertyBasedCreator
      */
     protected final SettableBeanProperty[] _allProperties;
 
+    /**
+     * Indexes of properties with associated Injectable values, if any:
+     * {@code null} if none.
+     *
+     * @since 2.21
+     */
+    protected final BitSet _injectablePropIndexes;
+
     /*
     /**********************************************************
     /* Construction, initialization
@@ -61,11 +69,8 @@ public final class PropertyBasedCreator
         if (caseInsensitive) {
             _propertyLookup = CaseInsensitiveMap.construct(ctxt.getConfig().getLocale());
         } else {
-            _propertyLookup = new HashMap<String, SettableBeanProperty>();
+            _propertyLookup = new HashMap<>();
         }
-        final int len = creatorProps.length;
-        _propertyCount = len;
-        _allProperties = new SettableBeanProperty[len];
 
         // 26-Feb-2017, tatu: Let's start by aliases, so that there is no
         //    possibility of accidental override of primary names
@@ -83,6 +88,11 @@ public final class PropertyBasedCreator
                 }
             }
         }
+        final int len = creatorProps.length;
+        _propertyCount = len;
+        _allProperties = new SettableBeanProperty[len];
+        BitSet injectablePropIndexes = null;
+
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = creatorProps[i];
             _allProperties[i] = prop;
@@ -90,7 +100,29 @@ public final class PropertyBasedCreator
             if (!prop.isIgnorable()) {
                 _propertyLookup.put(prop.getName(), prop);
             }
+            if (prop.getInjectionDefinition() != null) {
+                if (injectablePropIndexes == null) {
+                    injectablePropIndexes = new BitSet(len);
+                }
+                injectablePropIndexes.set(i);
+            }
         }
+
+        _injectablePropIndexes = injectablePropIndexes;
+    }
+
+    /**
+     * @since 2.19
+     */
+    protected PropertyBasedCreator(PropertyBasedCreator base,
+            HashMap<String, SettableBeanProperty> propertyLookup,
+            SettableBeanProperty[] allProperties)
+    {
+        _propertyCount = base._propertyCount;
+        _valueInstantiator = base._valueInstantiator;
+        _injectablePropIndexes = base._injectablePropIndexes;
+        _propertyLookup = propertyLookup;
+        _allProperties = allProperties;
     }
 
     /**
@@ -150,13 +182,44 @@ public final class PropertyBasedCreator
                 caseInsensitive, false);
     }
 
-    @Deprecated // since 2.9
-    public static PropertyBasedCreator construct(DeserializationContext ctxt,
-            ValueInstantiator valueInstantiator, SettableBeanProperty[] srcCreatorProps)
-        throws JsonMappingException
+    /**
+     * Mutant factory method for constructing a map where the names of all properties
+     * are transformed using the given {@link NameTransformer}.
+     *
+     * @since 2.19
+     */
+    public PropertyBasedCreator renameAll(NameTransformer transformer)
     {
-        return construct(ctxt, valueInstantiator, srcCreatorProps,
-                ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
+        if (transformer == null || (transformer == NameTransformer.NOP)) {
+            return this;
+        }
+
+        final int len = _allProperties.length;
+        HashMap<String, SettableBeanProperty> newLookup = new HashMap<>(_propertyLookup);
+        List<SettableBeanProperty> newProps = new ArrayList<>(len);
+
+        for (SettableBeanProperty prop : _allProperties) {
+            if (prop == null) {
+                newProps.add(null);
+                continue;
+            }
+
+            SettableBeanProperty renamedProperty = prop.unwrapped(transformer);
+            String oldName = prop.getName();
+            String newName = renamedProperty.getName();
+
+            newProps.add(renamedProperty);
+
+            if (!oldName.equals(newName) && newLookup.containsKey(oldName)) {
+                newLookup.remove(oldName);
+                newLookup.put(newName, renamedProperty);
+            }
+        }
+
+        return new PropertyBasedCreator(this,
+                newLookup,
+                newProps.toArray(new SettableBeanProperty[0])
+        );
     }
 
     /*
@@ -195,7 +258,8 @@ public final class PropertyBasedCreator
      */
     public PropertyValueBuffer startBuilding(JsonParser p, DeserializationContext ctxt,
             ObjectIdReader oir) {
-        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, null);
+        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, null,
+                _injectablePropIndexes);
     }
 
     /**
@@ -206,7 +270,8 @@ public final class PropertyBasedCreator
     public PropertyValueBuffer startBuildingWithAnySetter(JsonParser p, DeserializationContext ctxt,
             ObjectIdReader oir, SettableAnyProperty anySetter
     ) {
-        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, anySetter);
+        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, anySetter,
+                _injectablePropIndexes);
     }
 
     public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer) throws IOException
@@ -220,7 +285,7 @@ public final class PropertyBasedCreator
 
             // Anything buffered?
             for (PropertyValue pv = buffer.buffered(); pv != null; pv = pv.next) {
-                pv.assign(bean);
+                pv.assign(ctxt, bean);
             }
         }
         return bean;
@@ -248,11 +313,6 @@ public final class PropertyBasedCreator
          * @since 2.11
          */
         protected final Locale _locale;
-
-        @Deprecated // since 2.11
-        public CaseInsensitiveMap() {
-            this(Locale.getDefault());
-        }
 
         // @since 2.11
         public CaseInsensitiveMap(Locale l) {

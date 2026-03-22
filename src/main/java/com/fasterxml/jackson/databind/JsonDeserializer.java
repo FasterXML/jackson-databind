@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Collection;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -77,7 +76,7 @@ public abstract class JsonDeserializer<T>
      *          ...
      *      }
      *  </pre>
-     *  Jackson consumes the two tokens (the <tt>@class</tt> field name
+     *  Jackson consumes the two tokens (the {@code @class} field name
      *  and its value) in order to learn the class and select the deserializer.
      *  Thus, the stream is pointing to the FIELD_NAME for the first field
      *  after the @class. Thus, if you want your method to work correctly

@@ -80,7 +80,11 @@ public class ViewSerializationTest extends DatabindTestUtil
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    // Ensure `MapperFeature.DEFAULT_VIEW_INCLUSION` is enabled
+    // (its default differs b/w Jackson 2.x and 3.x)
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+            .build();
 
     @SuppressWarnings("unchecked")
     @Test
@@ -192,7 +196,7 @@ public class ViewSerializationTest extends DatabindTestUtil
     public void test868() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+        mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_DEFAULT);
         String json = mapper.writerWithView(OtherView.class).writeValueAsString(new Foo());
         assertEquals(json, "{}");
     }

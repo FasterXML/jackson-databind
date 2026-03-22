@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.struct;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
@@ -87,7 +89,11 @@ public class TestPOJOAsArrayAdvanced extends DatabindTestUtil
     /*****************************************************
      */
 
-    private final static ObjectMapper MAPPER = newJsonMapper();
+    // 06-Jan-2025, tatu: NOTE! need to make sure Default View Inclusion
+    //   is enabled for tests to work as expected
+    private final static ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+            .build();
 
     @Test
     public void testWithView() throws Exception
@@ -114,6 +120,7 @@ public class TestPOJOAsArrayAdvanced extends DatabindTestUtil
     {
         AsArrayWithViewAndCreator result = MAPPER.readerFor(AsArrayWithViewAndCreator.class)
                 .withView(ViewB.class)
+                .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .readValue("[1,2,3]");
         // should include 'c' (not view-able) and 'b' (include in ViewB) but not 'a'
         assertEquals(3, result.c);

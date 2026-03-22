@@ -4,19 +4,21 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -98,7 +100,7 @@ public class NumberSerTest extends DatabindTestUtil
     }
 
     static class BigDecimalAsStringSerializer extends JsonSerializer<BigDecimal> {
-        private final DecimalFormat df = new DecimalFormat("0.0");
+        private final DecimalFormat df = createDecimalFormatForDefaultLocale("0.0");
 
         @Override
         public void serialize(BigDecimal value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
@@ -107,11 +109,17 @@ public class NumberSerTest extends DatabindTestUtil
     }
 
     static class BigDecimalAsNumberSerializer extends JsonSerializer<BigDecimal> {
-        private final DecimalFormat df = new DecimalFormat("0.0");
+        private final DecimalFormat df = createDecimalFormatForDefaultLocale("0.0");
 
         @Override
         public void serialize(BigDecimal value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             gen.writeNumber(df.format(value));
+        }
+    }
+
+    static class MyBigDecimal extends BigDecimal {
+        public MyBigDecimal(String value) {
+            super(value);
         }
     }
 
@@ -218,5 +226,28 @@ public class NumberSerTest extends DatabindTestUtil
         module.addSerializer(BigDecimal.class, new BigDecimalAsNumberSerializer());
         ObjectMapper mapper = jsonMapperBuilder().addModule(module).build();
         assertEquals(a2q("{'value':2.0}"), mapper.writeValueAsString(new BigDecimalHolder("2")));
+    }
+
+    @Test
+    public void testConfigOverrideJdkNumber() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder().withConfigOverride(BigDecimal.class,
+                        c -> c.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)))
+                .build();
+        String value = mapper.writeValueAsString(new BigDecimal("123.456"));
+        assertEquals(a2q("'123.456'"), value);
+    }
+
+    @Test
+    public void testConfigOverrideNonJdkNumber() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder().withConfigOverride(MyBigDecimal.class,
+                c -> c.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)))
+                .build();
+        String value = mapper.writeValueAsString(new MyBigDecimal("123.456"));
+        assertEquals(a2q("'123.456'"), value);
+    }
+
+    // default locale is en_US
+    static DecimalFormat createDecimalFormatForDefaultLocale(final String pattern) {
+        return new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.ENGLISH));
     }
 }

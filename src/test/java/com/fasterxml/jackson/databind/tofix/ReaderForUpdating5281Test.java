@@ -1,19 +1,19 @@
 package com.fasterxml.jackson.databind.tofix;
 
-import com.fasterxml.jackson.annotation.JsonMerge;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
-// [databind#5281] Reading into existing instance uses creator property setup instead of accessor #5281
+// [databind#5281] Reading into existing instance uses creator property setup instead
+// of accessor #5281
 public class ReaderForUpdating5281Test
     extends DatabindTestUtil
 {

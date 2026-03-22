@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
@@ -207,7 +208,7 @@ public class BeanDeserializerFactory
     {
         // 05-May-2020, tatu: Should we check for possible Shape override to "POJO"?
         //   (to let users force 'serialize-as-POJO'? Or not?
-        final String errorMsg = BeanUtil.checkUnsupportedType(type);
+        final String errorMsg = BeanUtil.checkUnsupportedType(ctxt.getConfig(), type);
         if (errorMsg != null) {
             // 30-Sep-2020, tatu: [databind#2867] Avoid checks if there is a mix-in
             //    which likely providers a handler...
@@ -786,6 +787,11 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                     }
                 }
                 */
+                if (beanDesc.isRecordType()) {
+                    ctxt.reportBadTypeDefinition(beanDesc,
+                            "Cannot add back-reference to a `java.lang.Record` type (property '%s')",
+                            refProp.getName());
+                }
                 String refName = refProp.findReferenceName();
                 builder.addBackReferenceProperty(refName, constructSettableProperty(ctxt,
                         beanDesc, refProp, refProp.getPrimaryType()));
@@ -811,11 +817,23 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
     {
         Map<Object, AnnotatedMember> raw = beanDesc.findInjectables();
         if (raw != null) {
+            final AnnotationIntrospector introspector = ctxt.getAnnotationIntrospector();
+
             for (Map.Entry<Object, AnnotatedMember> entry : raw.entrySet()) {
                 AnnotatedMember m = entry.getValue();
+                final JacksonInject.Value injectableValue = introspector.findInjectableValue(m);
+                final Boolean optional, useInput;
+
+                if (injectableValue == null) {
+                    optional = useInput = null;
+                } else {
+                    optional = injectableValue.getOptional();
+                    useInput = injectableValue.getUseInput();
+                }
                 builder.addInjectable(PropertyName.construct(m.getName()),
                         m.getType(),
-                        beanDesc.getClassAnnotations(), m, entry.getKey());
+                        beanDesc.getClassAnnotations(), m, entry.getKey(),
+                        optional, useInput);
             }
         }
     }

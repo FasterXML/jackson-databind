@@ -13,7 +13,6 @@ import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.DatatypeFeature;
 import com.fasterxml.jackson.databind.deser.DataFormatReaders;
@@ -67,7 +66,7 @@ public class ObjectReader
     protected final DefaultDeserializationContext _context;
 
     /**
-     * Factory used for constructing {@link JsonGenerator}s
+     * Factory used for constructing {@link JsonParser}s
      */
     protected final JsonFactory _parserFactory;
 
@@ -1104,7 +1103,11 @@ public class ObjectReader
      * for properly closing it once content reading is complete.
      *
      * @since 2.11
+     *
+     * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
+    @Deprecated // @since 2.20
     public JsonParser createParser(URL src) throws IOException {
         _assertNotNull("src", src);
         return _config.initialize(_parserFactory.createParser(src), _schema);
@@ -1700,7 +1703,11 @@ public class ObjectReader
      * calls {@link java.net.URL#openStream()}, meaning no special handling
      * is done. If different HTTP connection options are needed you will need
      * to create {@link java.io.InputStream} separately.
+     *
+     * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
+    @Deprecated // @since 2.20
     @SuppressWarnings("unchecked")
     public <T> T readValue(URL src) throws IOException
     {
@@ -1718,7 +1725,11 @@ public class ObjectReader
      * @param valueType Target type to bind content to
      *
      * @since 2.11
+     *
+     * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
+    @Deprecated // @since 2.20
     @SuppressWarnings("unchecked")
     public <T> T readValue(URL src, Class<T> valueType) throws IOException
     {
@@ -2009,7 +2020,11 @@ public class ObjectReader
      * to create {@link java.io.InputStream} separately.
      *
      * @param src URL to read to access JSON content to parse.
+     *
+     * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
+    @Deprecated // @since 2.20
     public <T> MappingIterator<T> readValues(URL src) throws IOException
     {
         if (_dataFormatReaders != null) {
@@ -2099,7 +2114,9 @@ public class ObjectReader
             // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
             result = valueToUpdate;
         } else { // pointing to event other than null
-            result = ctxt.readRootValue(p, _valueType, _findRootDeserializer(ctxt), _valueToUpdate);
+            result = ctxt.readRootValue(p, _valueType,
+                    _findRootDeserializer(ctxt), _valueToUpdate);
+            ctxt.checkUnresolvedObjectId();
         }
         // Need to consume the token too
         p.clearCurrentToken();
@@ -2128,7 +2145,9 @@ public class ObjectReader
                 // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
                 result = _valueToUpdate;
             } else {
-                result = ctxt.readRootValue(p, _valueType, _findRootDeserializer(ctxt), _valueToUpdate);
+                result = ctxt.readRootValue(p, _valueType,
+                        _findRootDeserializer(ctxt), _valueToUpdate);
+                ctxt.checkUnresolvedObjectId();
             }
             // No need to consume the token as parser gets closed anyway
             if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {

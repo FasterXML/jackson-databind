@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
@@ -163,7 +164,8 @@ public class MapSerializationTest extends DatabindTestUtil
     @Test
     public void testOrderByWithNulls() throws IOException
     {
-        ObjectWriter sortingW = MAPPER.writer(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+        ObjectWriter sortingW = MAPPER.writer(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+                .without(SerializationFeature.FAIL_ON_ORDER_MAP_BY_INCOMPARABLE_KEY);
         // 16-Oct-2016, tatu: but mind the null key, if any
         Map<String,Integer> mapWithNullKey = new LinkedHashMap<String,Integer>();
         mapWithNullKey.put(null, 1);

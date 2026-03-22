@@ -5,13 +5,10 @@ import java.util.LinkedList;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -56,7 +53,7 @@ public class TypedArrayDeserTest
         ObjectMapper m = new ObjectMapper();
         // uses WRAPPER_OBJECT inclusion
         String JSON = "{\""+TypedListAsWrapper.class.getName()+"\":[4,5, 6]}";
-        JavaType type = TypeFactory.defaultInstance().constructCollectionType(TypedListAsWrapper.class, Integer.class);
+        JavaType type = defaultTypeFactory().constructCollectionType(TypedListAsWrapper.class, Integer.class);
         TypedListAsWrapper<Integer> result = m.readValue(JSON, type);
         assertNotNull(result);
         assertEquals(3, result.size());
@@ -76,7 +73,7 @@ public class TypedArrayDeserTest
         ObjectMapper m = new ObjectMapper();
         // tries to use PROPERTY inclusion; but for ARRAYS (and scalars) will become ARRAY_WRAPPER
         String JSON = "[\""+TypedListAsProp.class.getName()+"\",[true, false]]";
-        JavaType type = TypeFactory.defaultInstance().constructCollectionType(TypedListAsProp.class, Boolean.class);
+        JavaType type = defaultTypeFactory().constructCollectionType(TypedListAsProp.class, Boolean.class);
         TypedListAsProp<Object> result = m.readValue(JSON, type);
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -91,7 +88,7 @@ public class TypedArrayDeserTest
         // uses OBJECT_ARRAY, works just fine
 
         String JSON = "{\""+TypedListAsWrapper.class.getName()+"\":[1, 3]}";
-        JavaType type = TypeFactory.defaultInstance().constructCollectionType(TypedListAsWrapper.class, Long.class);
+        JavaType type = defaultTypeFactory().constructCollectionType(TypedListAsWrapper.class, Long.class);
         TypedListAsWrapper<Object> result = m.readValue(JSON, type);
         assertNotNull(result);
         assertEquals(2, result.size());

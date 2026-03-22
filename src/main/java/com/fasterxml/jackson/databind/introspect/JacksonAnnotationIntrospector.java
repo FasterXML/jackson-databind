@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
@@ -36,7 +37,8 @@ public class JacksonAnnotationIntrospector
     @SuppressWarnings("unchecked")
     private final static Class<? extends Annotation>[] ANNOTATIONS_TO_INFER_SER = (Class<? extends Annotation>[])
             new Class<?>[] {
-        JsonSerialize.class,
+        JsonSerialize.class, // databind-specific
+        JsonSerializeAs.class, // since 2.21 alias (and eventual replacement) for `@JsonSerialize.as`
         JsonView.class,
         JsonFormat.class,
         JsonTypeInfo.class,
@@ -49,7 +51,8 @@ public class JacksonAnnotationIntrospector
     @SuppressWarnings("unchecked")
     private final static Class<? extends Annotation>[] ANNOTATIONS_TO_INFER_DESER = (Class<? extends Annotation>[])
             new Class<?>[] {
-        JsonDeserialize.class,
+        JsonDeserialize.class, // databind-specific
+        JsonDeserializeAs.class, // since 2.21 alias (and eventual replacement) for `@JsonDeserialize.as`
         JsonView.class,
         JsonFormat.class,
         JsonTypeInfo.class,
@@ -176,36 +179,8 @@ public class JacksonAnnotationIntrospector
     /**********************************************************
      */
 
-    /**
-     * Since 2.6, we have supported use of {@link JsonProperty} for specifying
-     * explicit serialized name
-     */
-    @Override
-    @Deprecated // since 2.8
-    public String findEnumValue(Enum<?> value)
-    {
-        // 11-Jun-2015, tatu: As per [databind#677], need to allow explicit naming.
-        //   Unfortunately cannot quite use standard AnnotatedClass here (due to various
-        //   reasons, including odd representation JVM uses); has to do for now
-        try {
-            // We know that values are actually static fields with matching name so:
-            Field f = value.getDeclaringClass().getField(value.name());
-            if (f != null) {
-                JsonProperty prop = f.getAnnotation(JsonProperty.class);
-                if (prop != null) {
-                    String n = prop.value();
-                    if (n != null && !n.isEmpty()) {
-                        return n;
-                    }
-                }
-            }
-        } catch (SecurityException e) {
-            // 17-Sep-2015, tatu: Anything we could/should do here?
-        } catch (NoSuchFieldException e) {
-            // 17-Sep-2015, tatu: should not really happen. But... can we do anything?
-        }
-        return value.name();
-    }
+    // @since 2.19 no longer overridden; been deprecated since 2.8
+    //public String findEnumValue(Enum<?> value)
 
     @Override // since 2.7
     @Deprecated // since 2.16
@@ -220,9 +195,12 @@ public class JacksonAnnotationIntrospector
                 continue;
             }
             String n = prop.value();
+            // 24-Jan-2025, tatu: [databind#4896] Should not skip "" with enums
+            /*
             if (n.isEmpty()) {
                 continue;
             }
+            */
             if (expl == null) {
                 expl = new HashMap<String,String>();
             }
@@ -250,7 +228,9 @@ public class JacksonAnnotationIntrospector
             JsonProperty property = field.getAnnotation(JsonProperty.class);
             if (property != null) {
                 String propValue = property.value();
-                if (propValue != null && !propValue.isEmpty()) {
+                if (propValue != null) {
+                    // 24-Jan-2025, tatu: [databind#4896] Should not skip "" with enums
+                    // && !propValue.isEmpty()) {
                     enumToPropertyMap.put(field.getName(), propValue);
                 }
             }
@@ -484,6 +464,11 @@ public class JacksonAnnotationIntrospector
     {
         JsonProperty ann = _findAnnotation(m, JsonProperty.class);
         if (ann != null) {
+            // 11-Mar-2025, tatu: [databind#5020] Support new "isRequired" annotation
+            OptBoolean required = ann.isRequired();
+            if (required != OptBoolean.DEFAULT) {
+                 return required.asBoolean();
+            }
             return ann.required();
         }
         return null;
@@ -937,10 +922,15 @@ public class JacksonAnnotationIntrospector
         final TypeFactory tf = config.getTypeFactory();
 
         final JsonSerialize jsonSer = _findAnnotation(a, JsonSerialize.class);
+        final JsonSerializeAs jsonSerAs = _findAnnotation(a, JsonSerializeAs.class);
 
         // Ok: start by refining the main type itself; common to all types
 
-        final Class<?> serClass = (jsonSer == null) ? null : _classIfExplicit(jsonSer.as());
+        Class<?> serClass = (jsonSer == null) ? null : _classIfExplicit(jsonSer.as());
+        // 09-Dec-2025, tatu: [databind#5476] Also check @JsonSerializeAs
+        if (serClass == null && jsonSerAs != null) {
+            serClass = _classIfExplicit(jsonSerAs.value());
+        }
         if (serClass != null) {
             if (type.hasRawClass(serClass)) {
                 // 30-Nov-2015, tatu: As per [databind#1023], need to allow forcing of
@@ -975,7 +965,11 @@ public class JacksonAnnotationIntrospector
         // First, key type (for Maps, Map-like types):
         if (type.isMapLikeType()) {
             JavaType keyType = type.getKeyType();
-            final Class<?> keyClass = (jsonSer == null) ? null : _classIfExplicit(jsonSer.keyAs());
+            Class<?> keyClass = (jsonSer == null) ? null : _classIfExplicit(jsonSer.keyAs());
+            // 09-Dec-2025, tatu: [databind#5476] Also check @JsonSerializeAs
+            if (keyClass == null && jsonSerAs != null) {
+                keyClass = _classIfExplicit(jsonSerAs.key());
+            }
             if (keyClass != null) {
                 if (keyType.hasRawClass(keyClass)) {
                     keyType = keyType.withStaticTyping();
@@ -1010,7 +1004,11 @@ public class JacksonAnnotationIntrospector
         JavaType contentType = type.getContentType();
         if (contentType != null) { // collection[like], map[like], array, reference
             // And then value types for all containers:
-           final Class<?> contentClass = (jsonSer == null) ? null : _classIfExplicit(jsonSer.contentAs());
+           Class<?> contentClass = (jsonSer == null) ? null : _classIfExplicit(jsonSer.contentAs());
+           // 09-Dec-2025, tatu: [databind#5476] Also check @JsonSerializeAs
+           if (contentClass == null && jsonSerAs != null) {
+               contentClass = _classIfExplicit(jsonSerAs.content());
+           }
            if (contentClass != null) {
                if (contentType.hasRawClass(contentClass)) {
                    contentType = contentType.withStaticTyping();
@@ -1312,9 +1310,14 @@ public class JacksonAnnotationIntrospector
         final TypeFactory tf = config.getTypeFactory();
 
         final JsonDeserialize jsonDeser = _findAnnotation(a, JsonDeserialize.class);
+        final JsonDeserializeAs jsonDeserAs = _findAnnotation(a, JsonDeserializeAs.class);
 
         // Ok: start by refining the main type itself; common to all types
-        final Class<?> valueClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.as());
+        Class<?> valueClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.as());
+        // 09-Dec-2025, tatu: [databind#5475] Also check @JsonDeserializeAs
+        if (valueClass == null && jsonDeserAs != null) {
+            valueClass = _classIfExplicit(jsonDeserAs.value());
+        }
         if ((valueClass != null) && !type.hasRawClass(valueClass)
                 && !_primitiveAndWrapper(type, valueClass)) {
             try {
@@ -1330,7 +1333,11 @@ public class JacksonAnnotationIntrospector
         // First, key type (for Maps, Map-like types):
         if (type.isMapLikeType()) {
             JavaType keyType = type.getKeyType();
-            final Class<?> keyClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.keyAs());
+            Class<?> keyClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.keyAs());
+            // 09-Dec-2025, tatu: [databind#5475] Also check @JsonDeserializeAs
+            if (keyClass == null && jsonDeserAs != null) {
+                keyClass = _classIfExplicit(jsonDeserAs.keys());
+            }
             if ((keyClass != null)
                     && !_primitiveAndWrapper(keyType, keyClass)) {
                 try {
@@ -1346,7 +1353,11 @@ public class JacksonAnnotationIntrospector
         JavaType contentType = type.getContentType();
         if (contentType != null) { // collection[like], map[like], array, reference
             // And then value types for all containers:
-            final Class<?> contentClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.contentAs());
+            Class<?> contentClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.contentAs());
+            // 09-Dec-2025, tatu: [databind#5475] Also check @JsonDeserializeAs
+            if (contentClass == null && jsonDeserAs != null) {
+                contentClass = _classIfExplicit(jsonDeserAs.content());
+            }
             if ((contentClass != null)
                     && !_primitiveAndWrapper(contentType, contentClass)) {
                 try {

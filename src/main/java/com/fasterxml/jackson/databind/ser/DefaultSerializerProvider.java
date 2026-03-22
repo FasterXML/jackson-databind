@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CacheProvider;
@@ -550,16 +551,6 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
      */
     public int cachedSerializersCount() {
         return _serializerCache.size();
-    }
-
-    /**
-     * Method that will drop all serializers currently cached by this provider.
-     * This can be used to remove memory usage (in case some serializers are
-     * only used once or so), or to force re-construction of serializers after
-     * configuration changes for mapper than owns the provider.
-     */
-    public void flushCachedSerializers() {
-        _serializerCache.flush();
     }
 
     /*

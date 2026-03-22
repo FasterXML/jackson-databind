@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 
@@ -127,7 +128,8 @@ public enum DeserializationFeature implements ConfigFeature
      * is thrown to indicate this; if not, default value is used
      * (0 for 'int', 0.0 for double, same defaulting as what JVM uses).
      *<p>
-     * Feature is disabled by default.
+     * Feature is disabled by default for Jackson 2.x: will be changed
+     * to enabled in 3.0.
      */
     FAIL_ON_NULL_FOR_PRIMITIVES(false),
 
@@ -160,7 +162,7 @@ public enum DeserializationFeature implements ConfigFeature
 
     /**
      * Feature that determines what happens when reading JSON content into tree
-     * ({@link com.fasterxml.jackson.core.TreeNode}) and a duplicate key
+     * ({@link JsonNode} and a duplicate key
      * is encountered (property name that was already seen for the JSON Object).
      * If enabled, {@link JsonMappingException} will be thrown; if disabled, no exception
      * is thrown and the new (later) value overwrites the earlier value.
@@ -252,7 +254,7 @@ public enum DeserializationFeature implements ConfigFeature
     FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY(true),
 
     /**
-     * Feature that determines behaviour for data-binding after binding the root value.
+     * Feature that determines behavior for data-binding after binding the root value.
      * If feature is enabled, one more call to
      * {@link com.fasterxml.jackson.core.JsonParser#nextToken} is made to ensure that
      * no more tokens are found (and if any is found,
@@ -265,11 +267,29 @@ public enum DeserializationFeature implements ConfigFeature
      * white space or comments, if supported by data format).
      *<p>
      * Feature is disabled by default (so that no check is made for possible trailing
-     * token(s)) for backwards compatibility reasons.
+     * token(s)) for backwards-compatibility reasons.
      *
      * @since 2.9
      */
     FAIL_ON_TRAILING_TOKENS(false),
+
+    /**
+     * Feature that determines behavior when deserializing polymorphic types that use
+     * Class-based Type Id mechanism (either
+     * {@code JsonTypeInfo.Id.CLASS} or {@code JsonTypeInfo.Id.MINIMAL_CLASS}):
+     * If enabled, an exception will be
+     * thrown if a subtype (Class) is encountered that has not been explicitly registered (by
+     * calling {@link ObjectMapper#registerSubtypes} or
+     * {@link com.fasterxml.jackson.annotation.JsonSubTypes}).
+     *<p>
+     * Note that for Type Name - based Type Id mechanism ({@code JsonTypeInfo.Id.NAME})
+     * you already need to register the subtypes but with so this feature has no effect.
+     *<p>
+     * Feature is disabled by default.
+     *
+     * @since 2.19
+     */
+    FAIL_ON_SUBTYPE_CLASS_NOT_REGISTERED(false),
 
     /**
      * Feature that determines whether Jackson code should catch
@@ -311,12 +331,27 @@ public enum DeserializationFeature implements ConfigFeature
      * by ensuring that only the properties relevant to the active view are considered during
      * deserialization, thereby preventing unintended data from being processed.
      *<p>
-     * In Jackson 2.x, this feature is disabled by default to maintain backward compatibility.
-     * In Jackson 3.x, this feature may be enabled by default.
+     * This feature is disabled by default to maintain backward compatibility
      *
      * @since 2.17
      */
     FAIL_ON_UNEXPECTED_VIEW_PROPERTIES(false),
+
+    /**
+     * Feature that determines the handling of injected properties during deserialization.
+     *<p>
+     * When enabled, if an injected property without matching value is encountered
+     * during deserialization,  an exception is thrown.
+     * When disabled, no exception is thrown.
+     * See {@link JacksonInject#optional()} for per-property override
+     * of this setting.
+     *<p>
+     * This feature is enabled by default to maintain backwards-compatibility.
+     *
+     * @see JacksonInject#optional()
+     * @since 2.20
+     */
+    FAIL_ON_UNKNOWN_INJECT_VALUE(true),
 
     /*
     /******************************************************

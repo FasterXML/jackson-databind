@@ -12,65 +12,65 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BiggerDataTest
 {
-	static class Citm
-	{
-		public Map<Integer,String> areaNames;
-		public Map<Integer,String> audienceSubCategoryNames;
-		public Map<Integer,String> blockNames;
-		public Map<Integer,String> seatCategoryNames;
-		public Map<Integer,String> subTopicNames;
-		public Map<Integer,String> subjectNames;
-		public Map<Integer,String> topicNames;
-		public Map<Integer,int[]> topicSubTopics;
-		public Map<String,String> venueNames;
+    static class Citm
+    {
+        public Map<Integer,String> areaNames;
+        public Map<Integer,String> audienceSubCategoryNames;
+        public Map<Integer,String> blockNames;
+        public Map<Integer,String> seatCategoryNames;
+        public Map<Integer,String> subTopicNames;
+        public Map<Integer,String> subjectNames;
+        public Map<Integer,String> topicNames;
+        public Map<Integer,int[]> topicSubTopics;
+        public Map<String,String> venueNames;
 
-		public Map<Integer,Event> events;
-		public List<Performance> performances;
-	}
+        public Map<Integer,Event> events;
+        public List<Performance> performances;
+    }
 
-	static class Event
-	{
-		public int id;
-		public String name;
-		public String description;
-		public String subtitle;
-		public String logo;
-		public int subjectCode;
-		public int[] topicIds;
-		public LinkedHashSet<Integer> subTopicIds;
-	}
+    static class Event
+    {
+        public int id;
+        public String name;
+        public String description;
+        public String subtitle;
+        public String logo;
+        public Integer subjectCode; // nullable
+        public int[] topicIds;
+        public LinkedHashSet<Integer> subTopicIds;
+    }
 
-	static class Performance
-	{
-		public int id;
-		public int eventId;
-		public String name;
-		public String description;
-		public String logo;
+    static class Performance
+    {
+        public int id;
+        public int eventId;
+        public String name;
+        public String description;
+        public String logo;
 
-		public List<Price> prices;
-		public List<SeatCategory> seatCategories;
+        public List<Price> prices;
+        public List<SeatCategory> seatCategories;
 
-		public long start;
-		public String seatMapImage;
-		public String venueCode;
-}
+        public long start;
+        public String seatMapImage;
+        public String venueCode;
+    }
 
-	static class Price {
-		public int amount;
-		public int audienceSubCategoryId;
-		public int seatCategoryId;
-	}
+    static class Price {
+        public int amount;
+        public int audienceSubCategoryId;
+        public int seatCategoryId;
+    }
 
-	static class SeatCategory {
-		public int seatCategoryId;
-		public List<Area> areas;
-	}
+    static class SeatCategory {
+        public int seatCategoryId;
+        public List<Area> areas;
+    }
 
-	static class Area {
-		public int areaId;
-		public int[] blockIds;
-	}
+    static class Area {
+        public int areaId;
+        public int[] blockIds;
+    }
 
     /*
     /**********************************************************

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,5 +33,17 @@ abstract class NodeTestBase extends DatabindTestUtil
         assertEquals(expDouble, n.asDouble(-19.25));
 
         assertTrue(n.isEmpty());
+    }
+
+    // Testing for non-ContainerNode (ValueNode) stream method implementations
+    //
+    // @since 2.19
+    protected void assertNonContainerStreamMethods(ValueNode n)
+    {
+        assertEquals(0, n.valueStream().count());
+        assertEquals(0, n.propertyStream().count());
+
+        // And then empty forEachEntry()
+        n.forEachEntry((k, v) -> { throw new UnsupportedOperationException(); });
     }
 }

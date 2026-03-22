@@ -8,8 +8,8 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.testutil.FiveMinuteUser;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +30,7 @@ public class PropertyMergeTest
         public AB loc = new AB(1, 2);
 
         protected Config() { }
-        public Config(int a, int b) {
+        protected Config(int a, int b) {
             loc = new AB(a, b);
         }
     }
@@ -52,7 +52,7 @@ public class PropertyMergeTest
         public int b;
 
         protected AB() { }
-        public AB(int a0, int b0) {
+        protected AB(int a0, int b0) {
             a = a0;
             b = b0;
         }

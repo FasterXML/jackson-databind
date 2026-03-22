@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.FailingDeserializer;
 import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.fasterxml.jackson.databind.util.ViewMatcher;
 
 /**
@@ -342,6 +343,16 @@ public abstract class SettableBeanProperty
      */
     public boolean isIgnorable() { return false; }
 
+    /**
+     * Whether this property requires merging of values (read-then-write)
+     *
+     * @since 2.20
+     */
+    public boolean isMerging() {
+        // Most are not merging so default to this implementation
+        return false;
+    }
+
     /*
     /**********************************************************
     /* BeanProperty impl
@@ -457,6 +468,14 @@ public abstract class SettableBeanProperty
      * value injection.
      */
     public Object getInjectableValueId() { return null; }
+
+    /**
+     * Accessor for injection definition, if this bean property supports
+     * value injection.
+     *
+     * @since 2.21
+     */
+    public JacksonInject.Value getInjectionDefinition() { return null; }
 
     /**
      * Accessor for checking whether this property is injectable, and if so,
@@ -582,6 +601,27 @@ public abstract class SettableBeanProperty
             value = _nullProvider.getNullValue(ctxt);
         }
         return value;
+    }
+
+    /**
+     * Returns a copy of this property, unwrapped using given {@link NameTransformer}.
+     *
+     * @since 2.19
+     */
+    public SettableBeanProperty unwrapped(NameTransformer xf)
+    {
+        String newName = xf.transform(getName());
+        SettableBeanProperty renamed = withSimpleName(newName);
+        JsonDeserializer<?> deser = renamed.getValueDeserializer();
+        if (deser != null) {
+            @SuppressWarnings("unchecked")
+            JsonDeserializer<Object> newDeser = (JsonDeserializer<Object>)
+                    deser.unwrappingDeserializer(xf);
+            if (newDeser != deser) {
+                renamed = renamed.withValueDeserializer(newDeser);
+            }
+        }
+        return renamed;
     }
 
     /*

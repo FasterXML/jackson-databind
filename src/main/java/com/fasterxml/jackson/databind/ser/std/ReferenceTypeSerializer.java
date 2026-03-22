@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -209,7 +210,9 @@ public abstract class ReferenceTypeSerializer<T>
             ser = _valueSerializer;
             if (ser == null) {
                 // A few conditions needed to be able to fetch serializer here:
-                if (_useStatic(provider, property, _referredType)) {
+                // [databind#5616]: If we have a TypeSerializer for polymorphic types,
+                // do NOT use static typing -- need dynamic lookup for subtypes
+                if ((typeSer == null) && _useStatic(provider, property, _referredType)) {
                     ser = _findSerializer(provider, _referredType, property);
                 }
             } else {

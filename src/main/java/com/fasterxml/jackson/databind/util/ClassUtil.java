@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -22,7 +22,20 @@ public final class ClassUtil
     private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
     private final static Ctor[] NO_CTORS = new Ctor[0];
 
-    private final static Iterator<?> EMPTY_ITERATOR = Collections.emptyIterator();
+    private final static Iterator<Object> EMPTY_ITERATOR = Collections.emptyIterator();
+
+    // 16-Jun-2025: [databind#5195]: we will dynamically access `Class.isRecord()`
+    //    added in JDK 16, earlier versions do not have it; will eval as `null`.
+    private final static Method IS_RECORD;
+    static {
+        Method m = null;
+        try {
+            m = Class.class.getMethod("isRecord");
+        } catch (NoSuchMethodException e) {
+            // no-op, will be null
+        }
+        IS_RECORD = m;
+    }
 
     /*
     /**********************************************************
@@ -36,6 +49,16 @@ public final class ClassUtil
     @SuppressWarnings("unchecked")
     public static <T> Iterator<T> emptyIterator() {
         return (Iterator<T>) EMPTY_ITERATOR;
+    }
+
+    /**
+     * @since 2.19
+     */
+    public static <T> Stream<T> emptyStream() {
+        // Looking at its implementation, seems there ought to be simpler/more
+        // efficient way to create and return a shared singleton but... no luck
+        // so far. So just use this for convenience for now:
+        return Stream.empty();
     }
 
     /*
@@ -289,8 +312,19 @@ public final class ClassUtil
      * @since 2.12
      */
     public static boolean isRecordType(Class<?> cls) {
-        Class<?> parent = cls.getSuperclass();
-        return (parent != null) && "java.lang.Record".equals(parent.getName());
+        // 16-Jun-2025: [databind#5195]: implementation changed from 2.19
+        //   where we checked if `cls.getParent() == "java.lang.Record" which
+        //   caused issues on Android, desugared cases. This is a more reliable
+        //   method for checking.
+        if (IS_RECORD == null) {
+            return false;
+        }
+        try {
+            return (Boolean) IS_RECORD.invoke(cls);
+        } catch (Exception e) {
+            // hopefully, this is not going to happen
+            return false;
+        }
     }
 
     /**
@@ -1175,6 +1209,17 @@ se.getClass().getName(), se.getMessage()),
                 || clsName.startsWith("javax.")
                 || clsName.startsWith("sun.")
                 ;
+    }
+
+    /**
+     * Similar to {@link #isJDKClass(Class)}, but for JDK core classes: those in
+     * packages under {@code java.*} but NOT under {@code javax.*} (or {@code sun.*}).
+     *
+     * @since 2.20
+     */
+    public static boolean isJDKCoreClass(Class<?> rawType) {
+        final String clsName = rawType.getName();
+        return clsName.startsWith("java.");
     }
 
     /**

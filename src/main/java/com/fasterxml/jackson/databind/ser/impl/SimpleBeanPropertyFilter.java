@@ -4,8 +4,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
 
 /**
@@ -218,6 +218,8 @@ public class SimpleBeanPropertyFilter
             writer.serializeAsField(pojo, jgen, provider);
         } else if (!jgen.canOmitFields()) { // since 2.3
             writer.serializeAsOmittedField(pojo, jgen, provider);
+        } else if (writer instanceof AnyGetterWriter) {
+            ((AnyGetterWriter) writer).getAndFilter(pojo, jgen, provider, this);
         }
     }
 

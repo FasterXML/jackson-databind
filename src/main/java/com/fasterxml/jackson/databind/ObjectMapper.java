@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
@@ -408,7 +409,7 @@ public class ObjectMapper
     protected final static BaseSettings DEFAULT_BASE = new BaseSettings(
             null, // cannot share global ClassIntrospector any more (2.5+)
             DEFAULT_ANNOTATION_INTROSPECTOR,
-             null, TypeFactory.defaultInstance(),
+            null, null, TypeFactory.defaultInstance(),
             null, StdDateFormat.instance, null,
             Locale.getDefault(),
             null, // to indicate "use Jackson default TimeZone" (UTC since Jackson 2.7)
@@ -657,7 +658,7 @@ public class ObjectMapper
         if (reg == null) {
             _registeredModuleTypes = null;
         } else {
-            _registeredModuleTypes = new LinkedHashSet<Object>(reg);
+            _registeredModuleTypes = new LinkedHashSet<>(reg);
         }
     }
 
@@ -895,7 +896,7 @@ public class ObjectMapper
                 if (_registeredModuleTypes == null) {
                     // plus let's keep them in order too, easier to debug or expose
                     // in registration order if that matter
-                    _registeredModuleTypes = new LinkedHashSet<Object>();
+                    _registeredModuleTypes = new LinkedHashSet<>();
                 }
                 // try adding; if already had it, should skip
                 if (!_registeredModuleTypes.add(typeId)) {
@@ -1122,8 +1123,13 @@ public class ObjectMapper
      * NOTE: when using the default {@link com.fasterxml.jackson.databind.module.SimpleModule}
      * constructor, its id is specified as {@code null} and as a consequence such
      * module is NOT included in returned set.
+     *<p>
+     * NOTE: this method will be replaced in Jackson 3.0 with
+     * {@code Collection<JacksonModule> registeredModules()} that will return actual Module
+     * instances, instead of ids. Such method can not be backported in 2.x due to
+     * differences in how Module registration works (2.x only has access to Module Ids)
      *
-     * @since 2.9.6
+     * @since 2.10
      */
     public Set<Object> getRegisteredModuleIds()
     {
@@ -1296,12 +1302,16 @@ public class ObjectMapper
 
     /**
      * Factory method for constructing properly initialized {@link JsonParser}
-     * to read content from specified {@link File}.
+     * to read content from specified {@link URL}.
      * Parser is not managed (or "owned") by ObjectMapper: caller is responsible
      * for properly closing it once content reading is complete.
      *
      * @since 2.11
+     *
+     * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
+    @Deprecated // @since 2.20
     public JsonParser createParser(URL src) throws IOException {
         _assertNotNull("src", src);
         return _deserializationConfig.initialize(_jsonFactory.createParser(src));
@@ -1757,6 +1767,24 @@ public class ObjectMapper
     }
 
     /**
+     * Method for setting custom enum naming strategy to use.
+     *
+     * @since 2.19
+     */
+    public ObjectMapper setEnumNamingStrategy(EnumNamingStrategy s) {
+        _serializationConfig = _serializationConfig.with(s);
+        _deserializationConfig = _deserializationConfig.with(s);
+        return this;
+    }
+
+    /**
+     * @since 2.19
+     */
+    public EnumNamingStrategy getEnumNamingStrategy() {
+        return _serializationConfig.getEnumNamingStrategy();
+    }
+
+    /**
      * Method for setting custom accessor naming strategy to use.
      *
      * @since 2.12
@@ -1830,7 +1858,14 @@ public class ObjectMapper
      *<p>
      * NOTE: behavior differs slightly from 2.8, where second argument was
      * implied to be <code>JsonInclude.Include.ALWAYS</code>.
+     *<p>
+     * NOTE: in Jackson 3.x all configuration goes through {@code ObjectMapper} builders,
+     * see {@link com.fasterxml.jackson.databind.cfg.MapperBuilder},
+     * and this method will be removed from 3.0.
+     *
+     * @deprecated Since 2.9 use {@link #setDefaultPropertyInclusion(JsonInclude.Include)}
      */
+    @Deprecated
     public ObjectMapper setSerializationInclusion(JsonInclude.Include incl) {
         setPropertyInclusion(JsonInclude.Value.construct(incl, incl));
         return this;
@@ -1838,7 +1873,7 @@ public class ObjectMapper
 
     /**
      * @since 2.7
-     * @deprecated Since 2.9 use {@link #setDefaultPropertyInclusion}
+     * @deprecated Since 2.9 use {@link #setDefaultPropertyInclusion(JsonInclude.Value)}
      */
     @Deprecated
     public ObjectMapper setPropertyInclusion(JsonInclude.Value incl) {
@@ -1849,6 +1884,10 @@ public class ObjectMapper
      * Method for setting default POJO property inclusion strategy for serialization,
      * applied for all properties for which there are no per-type or per-property
      * overrides (via annotations or config overrides).
+     *<p>
+     * NOTE: in Jackson 3.x all configuration goes through {@code ObjectMapper} builders,
+     * see {@link com.fasterxml.jackson.databind.cfg.MapperBuilder},
+     * and this method will be removed from 3.0.
      *
      * @since 2.9 (basically rename of <code>setPropertyInclusion</code>)
      */
@@ -1862,6 +1901,10 @@ public class ObjectMapper
      *<pre>
      *  setDefaultPropertyInclusion(JsonInclude.Value.construct(incl, incl));
      *</pre>
+     *<p>
+     * NOTE: in Jackson 3.x all configuration goes through {@code ObjectMapper} builders,
+     * see {@link com.fasterxml.jackson.databind.cfg.MapperBuilder},
+     * and this method will be removed from 3.0.
      *
      * @since 2.9 (basically rename of <code>setPropertyInclusion</code>)
      */
@@ -1874,6 +1917,10 @@ public class ObjectMapper
      * Method for setting default Setter configuration, regarding things like
      * merging, null-handling; used for properties for which there are
      * no per-type or per-property overrides (via annotations or config overrides).
+     *<p>
+     * NOTE: in Jackson 3.x all configuration goes through {@code ObjectMapper} builders,
+     * see {@link com.fasterxml.jackson.databind.cfg.MapperBuilder},
+     * and this method will be removed from 3.0.
      *
      * @since 2.9
      */
@@ -1887,6 +1934,10 @@ public class ObjectMapper
      * defaults, which are in effect unless overridden by
      * annotations (like <code>JsonAutoDetect</code>) or per-type
      * visibility overrides.
+     *<p>
+     * NOTE: in Jackson 3.x all configuration goes through {@code ObjectMapper} builders,
+     * see {@link com.fasterxml.jackson.databind.cfg.MapperBuilder},
+     * and this method will be removed from 3.0.
      *
      * @since 2.9
      */
@@ -1899,6 +1950,10 @@ public class ObjectMapper
      * Method for setting default Setter configuration, regarding things like
      * merging, null-handling; used for properties for which there are
      * no per-type or per-property overrides (via annotations or config overrides).
+     *<p>
+     * NOTE: in Jackson 3.x all configuration goes through {@code ObjectMapper} builders,
+     * see {@link com.fasterxml.jackson.databind.cfg.MapperBuilder},
+     * and this method will be removed from 3.0.
      *
      * @since 2.9
      */
@@ -1908,6 +1963,11 @@ public class ObjectMapper
     }
 
     /**
+     *<p>
+     * NOTE: in Jackson 3.x all configuration goes through {@code ObjectMapper} builders,
+     * see {@link com.fasterxml.jackson.databind.cfg.MapperBuilder},
+     * and this method will be removed from 3.0.
+     *
      * @since 2.10
      */
     public ObjectMapper setDefaultLeniency(Boolean b) {
@@ -3327,11 +3387,15 @@ public class ObjectMapper
      * passed-in {@link URL}.
      *<p>
      * NOTE: handling of {@link java.net.URL} is delegated to
-     * {@link JsonFactory#createParser(java.net.URL)} and usually simply
+     * {@link JsonFactory#createParser(URL)} and usually simply
      * calls {@link java.net.URL#openStream()}, meaning no special handling
      * is done. If different HTTP connection options are needed you will need
      * to create {@link java.io.InputStream} separately.
+     *
+     * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
+    @Deprecated // @since 2.20
     public JsonNode readTree(URL source) throws IOException
     {
         _assertNotNull("source", source);
@@ -3798,29 +3862,43 @@ public class ObjectMapper
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws DatabindException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
+     *
+     * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
+    @Deprecated // @since 2.20
     @SuppressWarnings("unchecked")
     public <T> T readValue(URL src, Class<T> valueType)
         throws IOException, StreamReadException, DatabindException
     {
         _assertNotNull("src", src);
-        return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
+        return (T) _readMapAndClose(_jsonFactory.createParser(src),
+                _typeFactory.constructType(valueType));
     }
 
     /**
      * Same as {@link #readValue(java.net.URL, Class)} except that target specified by {@link TypeReference}.
+     *
+     * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
+    @Deprecated // @since 2.20
     @SuppressWarnings({ "unchecked" })
     public <T> T readValue(URL src, TypeReference<T> valueTypeRef)
         throws IOException, StreamReadException, DatabindException
     {
         _assertNotNull("src", src);
-        return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
+        return (T) _readMapAndClose(_jsonFactory.createParser(src),
+                _typeFactory.constructType(valueTypeRef));
     }
 
     /**
      * Same as {@link #readValue(java.net.URL, Class)} except that target specified by {@link JavaType}.
+     *
+     * @deprecated since 2.20 deprecated as it calls {@link JsonFactory#createParser(URL)}.
+     *            Instead, use equivalent methods that take InputStream inputs instead.
      */
+    @Deprecated // @since 2.20
     @SuppressWarnings("unchecked")
     public <T> T readValue(URL src, JavaType valueType)
         throws IOException, StreamReadException, DatabindException
@@ -4615,21 +4693,33 @@ public class ObjectMapper
     protected Object _convert(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
     {
-        // inlined 'writeValue' with minor changes:
-        // first: disable wrapping when writing
-        final SerializationConfig config = getSerializationConfig().without(SerializationFeature.WRAP_ROOT_VALUE);
-        final DefaultSerializerProvider context = _serializerProvider(config);
+        // [databind#5368]: Optimize case where fromValue is already a TokenBuffer
+        // TokenBuffer has no read state, so safe to reuse directly via asParser()
+        TokenBuffer buf;
+        if (fromValue instanceof TokenBuffer) {
+            // Already a TokenBuffer, reuse it directly
+            buf = (TokenBuffer) fromValue;
+        } else {
+            // inlined 'writeValue' with minor changes:
+            // first: disable wrapping when writing
+            final SerializationConfig config = getSerializationConfig().without(SerializationFeature.WRAP_ROOT_VALUE);
+            final DefaultSerializerProvider context = _serializerProvider(config);
 
-        // Then create TokenBuffer to use as JsonGenerator
-        TokenBuffer buf = context.bufferForValueConversion(this);
-        if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-            buf = buf.forceUseOfBigDecimal(true);
+            // Then create TokenBuffer to use as JsonGenerator
+            buf = context.bufferForValueConversion(this);
+            if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                buf = buf.forceUseOfBigDecimal(true);
+            }
+            try {
+                // no need to check for closing of TokenBuffer
+                context.serializeValue(buf, fromValue);
+            } catch (IOException e) { // should not occur, no real i/o...
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
         }
-        try {
-            // no need to check for closing of TokenBuffer
-            context.serializeValue(buf, fromValue);
 
-            // then matching read, inlined 'readValue' with minor mods:
+        // then matching read, inlined 'readValue' with minor mods:
+        try {
             final JsonParser p = buf.asParser();
             Object result;
             // ok to pass in existing feature flags; unwrapping handled by mapper
@@ -4780,6 +4870,27 @@ public class ObjectMapper
 
     /*
     /**********************************************************
+    /* Extended Public API: caches
+    /**********************************************************
+     */
+
+    /**
+     * Method that will clear all caches this mapper owns.
+     *<p>
+     * This method should not be needed in normal operation, but may be
+     * useful to avoid class-loader memory leaks when reloading applications.
+     *
+     * @since 2.19
+     */
+    public void clearCaches() {
+        _rootDeserializers.clear();
+        _typeFactory.clearCache();
+        _deserializationContext.flushCachedDeserializers();
+        _serializerProvider.flushCachedSerializers();
+    }
+
+    /*
+    /**********************************************************
     /* Internal factory methods for type ids, overridable
     /**********************************************************
      */
@@ -4909,7 +5020,9 @@ public class ObjectMapper
             // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
             result = null;
         } else { // pointing to event other than null
-            result = ctxt.readRootValue(p, valueType, _findRootDeserializer(ctxt, valueType), null);
+            result = ctxt.readRootValue(p, valueType,
+                    _findRootDeserializer(ctxt, valueType), null);
+            ctxt.checkUnresolvedObjectId();
         }
         // Need to consume the token too
         p.clearCurrentToken();

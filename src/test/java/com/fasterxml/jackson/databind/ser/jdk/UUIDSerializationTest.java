@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.jdk;
 
-import java.io.IOException;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -14,6 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UUIDSerializationTest extends DatabindTestUtil
 {
+    private final static String nullUUIDStr = "00000000-0000-0000-0000-000000000000";
+    private final static UUID nullUUID = UUID.fromString(nullUUIDStr);
+
     static class UUIDWrapperVanilla {
         public UUID uuid;
 
@@ -32,7 +34,7 @@ public class UUIDSerializationTest extends DatabindTestUtil
 
     // Verify that efficient UUID codec won't mess things up:
     @Test
-    public void testBasicUUIDs() throws IOException
+    public void testBasicUUIDs() throws Exception
     {
         // first, couple of generated UUIDs:
         for (String value : new String[] {
@@ -87,5 +89,18 @@ public class UUIDSerializationTest extends DatabindTestUtil
                 .build();
         assertEquals("{\"uuid\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}",
                 m.writeValueAsString(new UUIDWrapperVanilla(nullUUID)));
+    }
+
+    // [databind#5225]: problem with tree conversion
+    @Test
+    public void testTreeConversion() throws Exception
+    {
+        // First, reported issue
+        JsonNode node = MAPPER.valueToTree(nullUUID);
+        assertEquals(nullUUIDStr, node.asText());
+
+        // and then a variations
+        Object ob = MAPPER.convertValue(nullUUID, Object.class);
+        assertEquals(String.class, ob.getClass());
     }
 }

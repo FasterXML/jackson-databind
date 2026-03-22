@@ -11,7 +11,10 @@ import org.junit.jupiter.api.Test;
 
 public class DeserializationContextTest extends DatabindTestUtil
 {
-    private final ObjectMapper MAPPER = newJsonMapper();
+    // Not testing "no nulls for primitives", so
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .build();
 
     static class Bean4934 {
         public String value;
@@ -27,10 +30,9 @@ public class DeserializationContextTest extends DatabindTestUtil
 
             assertNull(ctxt.readTreeAsValue(nodeF.nullNode(), Boolean.class));
             assertEquals(Boolean.FALSE, ctxt.readTreeAsValue(nodeF.nullNode(), Boolean.TYPE));
+            assertNull(ctxt.readTreeAsValue(nodeF.nullNode(), String.class));
 
-            // Only fixed in 2.19:
-            //assertNull(ctxt.readTreeAsValue(nodeF.nullNode(), Bean4934.class));
-
+            assertNull(ctxt.readTreeAsValue(nodeF.nullNode(), Bean4934.class));
         }
     }
 
@@ -42,12 +44,12 @@ public class DeserializationContextTest extends DatabindTestUtil
         try (JsonParser p = MAPPER.createParser("abc")) {
             DeserializationContext ctxt = MAPPER.readerFor(String.class).createDeserializationContext(p);
 
-            assertNull(ctxt.readTreeAsValue(nodeF.missingNode(), Boolean.class));
             // Absent becomes `null` for now as well
+            assertNull(ctxt.readTreeAsValue(nodeF.missingNode(), Boolean.class));
             assertNull(ctxt.readTreeAsValue(nodeF.missingNode(), Boolean.TYPE));
+            assertNull(ctxt.readTreeAsValue(nodeF.missingNode(), String.class));
 
-            // Only fixed in 2.19:
-            //assertNull(ctxt.readTreeAsValue(nodeF.missingNode(), Bean4934.class));
+            assertNull(ctxt.readTreeAsValue(nodeF.missingNode(), Bean4934.class));
         }
     }
 }

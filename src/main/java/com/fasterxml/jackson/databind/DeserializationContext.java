@@ -12,19 +12,16 @@ import com.fasterxml.jackson.annotation.ObjectIdResolver;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
-import com.fasterxml.jackson.databind.cfg.CoercionAction;
-import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
-import com.fasterxml.jackson.databind.cfg.ContextAttributes;
-import com.fasterxml.jackson.databind.cfg.DatatypeFeature;
-import com.fasterxml.jackson.databind.cfg.DatatypeFeatures;
+import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.exc.MissingInjectableValueExcepion;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -463,15 +460,30 @@ public abstract class DeserializationContext
      */
     public final JsonParser getParser() { return _parser; }
 
+    /**
+     * @since 2.20
+     */
+    public final Object findInjectableValue(Object valueId,
+            BeanProperty forProperty, Object beanInstance, Boolean optional, Boolean useInput)
+        throws JsonMappingException
+    {
+        InjectableValues injectables = _injectableValues;
+        if (injectables == null) {
+            injectables = InjectableValues.empty();
+        }
+        return injectables.findInjectableValue(this, valueId, forProperty, beanInstance,
+                optional, useInput);
+    }
+
+    /**
+     * @deprecated in 2.20 Use non-deprecated variant instead.
+     */
+    @Deprecated // since 2.20
     public final Object findInjectableValue(Object valueId,
             BeanProperty forProperty, Object beanInstance)
         throws JsonMappingException
     {
-        if (_injectableValues == null) {
-            return reportBadDefinition(ClassUtil.classOf(valueId), String.format(
-"No 'injectableValues' configured, cannot inject value with id [%s]", valueId));
-        }
-        return _injectableValues.findInjectableValue(valueId, this, forProperty, beanInstance);
+        return findInjectableValue(valueId, forProperty, beanInstance, null, null);
     }
 
     /**
@@ -707,6 +719,19 @@ public abstract class DeserializationContext
         return kd;
     }
 
+    /**
+     * Method that will drop all dynamically constructed deserializers (ones that
+     * are counted as result value for {@link DeserializerCache#cachedDeserializersCount}).
+     * This can be used to remove memory usage (in case some deserializers are
+     * only used once or so), or to force re-construction of deserializers after
+     * configuration changes for mapper than owns the provider.
+
+     * @since 2.19
+     */
+    public void flushCachedDeserializers() {
+        _cache.flushCachedDeserializers();
+    }
+
     /*
     /**********************************************************
     /* Public API, ObjectId handling
@@ -936,8 +961,13 @@ public abstract class DeserializationContext
      * Method to call in case incoming shape is Object Value (and parser thereby
      * points to {@link com.fasterxml.jackson.core.JsonToken#START_OBJECT} token),
      * but a Scalar value (potentially coercible from String value) is expected.
-     * This would typically be used to deserializer a Number, Boolean value or some other
+     * This would typically be used to deserialize a Number, Boolean value or some other
      * "simple" unstructured value type.
+     *<p>
+     * Note that expected behavior in case of extraction not succeeding changed in
+     * Jackson 2.20: now {@code null} is expected to be returned in that case (in 2.19
+     * and before, exception was to be thrown, but this prevented fallback handling
+     * via {@link DeserializationProblemHandler#handleUnexpectedToken}.
      *
      * @param p Actual parser to read content from
      * @param deser Deserializer that needs extracted String value
@@ -945,8 +975,8 @@ public abstract class DeserializationContext
      *    handles but not always (for example, deserializer for {@code int[]} would pass
      *    scalar type of {@code int})
      *
-     * @return String value found; not {@code null} (exception should be thrown if no suitable
-     *     value found)
+     * @return String value found, if any; {@code null} if none (note: changed in 2.20;
+     *   before that in 2.19 and before exception throwing was expected)
      *
      * @throws IOException If there are problems either reading content (underlying parser
      *    problem) or finding expected scalar value
@@ -955,7 +985,10 @@ public abstract class DeserializationContext
             Class<?> scalarType)
         throws IOException
     {
-        return (String) handleUnexpectedToken(scalarType, p);
+        // 17-May-2025, tatu: [databind#4656] must NOT call `handleUnexpectedToken`
+        //    since that can return value other than {@code String}
+        //return (String) handleUnexpectedToken(scalarType, p);
+        return null;
     }
 
     /*
@@ -989,9 +1022,9 @@ public abstract class DeserializationContext
             return reportBadDefinition(type,
                     "Could not find JsonDeserializer for type "+ClassUtil.getTypeDescription(type));
         }
-        return (T) deser.deserialize(p, this);
+        return (T) _readValue(p, deser);
     }
-
+    
     /**
      * Convenience method that may be used by composite or container deserializers,
      * for reading one-off values for the composite type, taking into account
@@ -1023,7 +1056,7 @@ public abstract class DeserializationContext
                     "Could not find JsonDeserializer for type %s (via property %s)",
                     ClassUtil.getTypeDescription(type), ClassUtil.nameOf(prop)));
         }
-        return (T) deser.deserialize(p, this);
+        return (T) _readValue(p, deser);
     }
 
     /**
@@ -1116,6 +1149,20 @@ public abstract class DeserializationContext
         return p;
     }
 
+    /**
+     * Helper method that should handle special cases for deserialization; most
+     * notably handling {@code null} (and possibly absent values).
+     *
+     * @since 2.19
+     */
+    private Object _readValue(JsonParser p, JsonDeserializer<Object> deser) throws IOException
+    {
+        if (p.hasToken(JsonToken.VALUE_NULL)) {
+             return deser.getNullValue(this);
+        }
+        return deser.deserialize(p, this);
+    }
+    
     /*
     /**********************************************************
     /* Methods for problem handling
@@ -2049,6 +2096,16 @@ trailingToken, ClassUtil.nameOf(targetType)
         String msg = String.format("Could not resolve subtype of %s",
                 baseType);
         return InvalidTypeIdException.from(_parser, _colonConcat(msg, extraDesc), baseType, null);
+    }
+
+    /**
+     * @since 2.20
+     */
+    public JsonMappingException missingInjectableValueException(String msg,
+            Object valueId,
+            BeanProperty forProperty, Object beanInstance) {
+        return MissingInjectableValueExcepion.from(_parser, msg,
+                valueId, forProperty, beanInstance);
     }
 
     /*

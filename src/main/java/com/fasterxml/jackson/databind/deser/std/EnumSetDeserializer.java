@@ -33,17 +33,6 @@ public class EnumSetDeserializer
     protected JsonDeserializer<Enum<?>> _enumDeserializer;
 
     /**
-     * If element instances have polymorphic type information, this
-     * is the type deserializer that can handle it.
-     *<p>
-     * NOTE: only added in 2.17 due to new {@code DefaultType} choices
-     * that allow polymorphic deserialization of {@code Enum} types.
-     *
-     * @since 2.17
-     */
-    protected final TypeDeserializer _valueTypeDeserializer;
-
-    /**
      * Handler we need for dealing with nulls.
      *
      * @since 2.10.1
@@ -74,11 +63,12 @@ public class EnumSetDeserializer
      */
 
     /**
-     * @since 2.17
+     * Main constructor for the deserializer.
+     *<p>
+     * NOTE: was temporarily deprecated in 2.17 - 2.18, restored in 2.19
      */
     @SuppressWarnings("unchecked" )
-    public EnumSetDeserializer(JavaType enumType, JsonDeserializer<?> deser,
-            TypeDeserializer valueTypeDeser)
+    public EnumSetDeserializer(JavaType enumType, JsonDeserializer<?> deser)
     {
         super(EnumSet.class);
         _enumType = enumType;
@@ -87,29 +77,19 @@ public class EnumSetDeserializer
             throw new IllegalArgumentException("Type "+enumType+" not Java Enum type");
         }
         _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;
-        _valueTypeDeserializer = valueTypeDeser;
         _unwrapSingle = null;
         _nullProvider = null;
         _skipNullValues = false;
     }
 
     /**
-     * @deprecated Since 2.17
+     * @deprecated Since 2.19 (was added in 2.17)
      */
     @Deprecated
-    public EnumSetDeserializer(JavaType enumType, JsonDeserializer<?> deser)
+    public EnumSetDeserializer(JavaType enumType, JsonDeserializer<?> deser,
+            TypeDeserializer valueTypeDeser)
     {
-        this(enumType, deser, null);
-    }
-
-    /**
-     * @since 2.7
-     * @deprecated Since 2.10.1
-     */
-    @Deprecated
-    protected EnumSetDeserializer(EnumSetDeserializer base,
-            JsonDeserializer<?> deser, Boolean unwrapSingle) {
-        this(base, deser, base._nullProvider, unwrapSingle);
+        this(enumType, deser);
     }
 
     /**
@@ -121,7 +101,6 @@ public class EnumSetDeserializer
         super(base);
         _enumType = base._enumType;
         _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;
-        _valueTypeDeserializer = base._valueTypeDeserializer;
         _nullProvider = nuller;
         _skipNullValues = NullsConstantProvider.isSkipper(nuller);
         _unwrapSingle = unwrapSingle;
@@ -135,27 +114,16 @@ public class EnumSetDeserializer
     }
 
     /**
-     * @since 2.10.1
+     * @since 2.19
      */
     public EnumSetDeserializer withResolved(JsonDeserializer<?> deser,
-            TypeDeserializer valueTypeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         if ((Objects.equals(_unwrapSingle, unwrapSingle))
                 && (_enumDeserializer == deser)
-                && (_valueTypeDeserializer == valueTypeDeser)
                 && (_nullProvider == deser)) {
             return this;
         }
         return new EnumSetDeserializer(this, deser, nuller, unwrapSingle);
-    }
-
-    /**
-     * @deprecated Since 2.17
-     */
-    @Deprecated
-    public EnumSetDeserializer withResolved(JsonDeserializer<?> deser,
-            NullValueProvider nuller, Boolean unwrapSingle) {
-        return withResolved(deser, _valueTypeDeserializer, nuller, unwrapSingle);
     }
 
     /*
@@ -171,14 +139,9 @@ public class EnumSetDeserializer
     @Override
     public boolean isCachable() {
         // One caveat: content deserializer should prevent caching
-        if ((_enumType.getValueHandler() != null)
-                // Another: polymorphic deserialization
-                || (_valueTypeDeserializer != null)) {
-            return false;
-        }
-        return true;
+        return _enumType.getValueHandler() == null;
     }
-    
+
     @Override // since 2.12
     public LogicalType logicalType() {
         return LogicalType.Collection;
@@ -220,12 +183,7 @@ public class EnumSetDeserializer
         } else { // if directly assigned, probably not yet contextual, so:
             deser = ctxt.handleSecondaryContextualization(deser, property, _enumType);
         }
-        // and finally, type deserializer needs context as well
-        TypeDeserializer valueTypeDeser = _valueTypeDeserializer;
-        if (valueTypeDeser != null) {
-            valueTypeDeser = valueTypeDeser.forProperty(property);
-        }
-        return withResolved(deser, valueTypeDeser,
+        return withResolved(deser,
                 findContentNullProvider(ctxt, property, deser), unwrapSingle);
     }
 
@@ -261,28 +219,33 @@ public class EnumSetDeserializer
     protected final EnumSet<?> _deserialize(JsonParser p, DeserializationContext ctxt,
             EnumSet result) throws IOException
     {
-        JsonToken t;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
-
         try {
+            JsonToken t;
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                 // What to do with nulls? Fail or ignore? Fail, for now (note: would fail if we
                 // passed it to EnumDeserializer, too, but in general nulls should never be passed
                 // to non-container deserializers)
                 Enum<?> value;
-                if (t == JsonToken.VALUE_NULL) {
-                    if (_skipNullValues) {
+                if ((t == JsonToken.VALUE_NULL)
+                        // [databind#5203]: Custom deserializer may return null for non-null token
+                        || (value = _enumDeserializer.deserialize(p, ctxt)) == null) {
+                    value = (Enum<?>) _nullProvider.getNullValue(ctxt);
+                    if (value == null) {
+                        if (_skipNullValues) {
+                            continue;
+                        }
+                        // EnumSet does not accept nulls, so we need to report an error
+                        // 05-Nov-2025, tatu: In case of no explicit Nulls handling; with 2.x,
+                        //   let's just skip for backward compatibility; for 3.x, FAIL
+                        /*
+                        ctxt.handleUnexpectedToken(_enumType, JsonToken.VALUE_NULL, p,
+                                "`EnumSet` of type %s does not accept `null` values",
+                                ClassUtil.getTypeDescription(_enumType));
+                                */
                         continue;
                     }
-                    value = (Enum<?>) _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value = _enumDeserializer.deserialize(p, ctxt);
-                } else {
-                    value = (Enum<?>) _enumDeserializer.deserializeWithType(p, ctxt, typeDeser);
                 }
-                if (value != null) {
-                    result.add(value);
-                }
+                result.add(value);
             }
         } catch (Exception e) {
             throw JsonMappingException.wrapWithPath(e, result, result.size());

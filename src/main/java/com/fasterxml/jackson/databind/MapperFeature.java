@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 
@@ -218,6 +219,17 @@ public enum MapperFeature implements ConfigFeature
     INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES(true),
 
     /**
+     * Feature that when enabled will allow getters with is-Prefix also for
+     * non-boolean return types; if disabled only methods that return
+     * {@code boolean} or {@code Boolean} qualify as "is getters".
+     * <p>
+     * Feature is disabled by default for backwards compatibility.
+     *
+     * @since 2.14
+     */
+    ALLOW_IS_GETTERS_FOR_NON_BOOLEAN(false),
+
+    /**
      * Feature that determines whether nominal property type of {@link Void} is
      * allowed for Getter methods to indicate {@code null} valued pseudo-property
      * or not. If enabled, such properties are recognized (see [databind#2675] for
@@ -279,6 +291,16 @@ public enum MapperFeature implements ConfigFeature
      * @since 2.7
      */
     OVERRIDE_PUBLIC_ACCESS_MODIFIERS(true),
+
+    /**
+     * Feature that inverse logic in {@link JsonProperty#access}
+     * for <code>READ_ONLY</code> and <code>WRITE_ONLY</code>.
+     *<p>
+     * Feature is disabled by default.
+     *
+     * @since 2.19
+     */
+    INVERSE_READ_WRITE_ACCESS(false),
 
     /*
     /******************************************************
@@ -366,7 +388,7 @@ public enum MapperFeature implements ConfigFeature
      * properties are included in all views if there is no
      * {@link com.fasterxml.jackson.annotation.JsonView} annotation.
      *<p>
-     * Feature is enabled by default.
+     * Feature is enabled by default in 2.x: will be disabled in 3.0.
      */
     DEFAULT_VIEW_INCLUSION(true),
 
@@ -530,15 +552,20 @@ public enum MapperFeature implements ConfigFeature
     ALLOW_EXPLICIT_PROPERTY_RENAMING(false),
 
     /**
-     * Feature that when enabled will allow getters with is-Prefix also for
-     * non-boolean return types; if disabled only methods that return
-     * {@code boolean} or {@code Boolean} qualify as "is getters".
+     * Feature that can be enabled to solve problem where an upper-case letter in
+     * the first 2 characters of Java field name (like {@code "IPhone"} or {@code "iPhone"})
+     * prevents match with property name derived from accessors (getter like
+     * {@code getIPhone()} becomes {@code "iphone"}).
+     * If enabled, additional checking is done with case-insensitive comparison (for
+     * cases of the first or second letter of Field name being upper-case) to merge
+     * accessors. If disabled, no special processing is done.
      * <p>
-     * Feature is disabled by default for backwards compatibility.
+     * Feature is disabled by default in 2.x for backwards-compatibility.
+     * It will be enabled by default in 3.0.
      *
-     * @since 2.14
+     * @since 2.20
      */
-    ALLOW_IS_GETTERS_FOR_NON_BOOLEAN(false),
+    FIX_FIELD_NAME_UPPER_CASE_PREFIX(false),
 
     /*
     /******************************************************
@@ -636,7 +663,35 @@ public enum MapperFeature implements ConfigFeature
      *
      * @since 2.13
      */
-    APPLY_DEFAULT_VALUES(true)
+    APPLY_DEFAULT_VALUES(true),
+
+    /**
+     * Feature that determines what happens if Java 8 {@link java.util.Optional} (and
+     * other related optional types) are to be serialized or deserialized, but there
+     * are no registered handlers for them.
+     * If enabled, an exception is thrown (to indicate problem, a solution for which is
+     * to register {@code jackson-datatype-jdk8} module); if disabled, the value is
+     * serialized and/or deserialized using regular POJO ("Bean") (de)serialization.
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 2.19
+     */
+    REQUIRE_HANDLERS_FOR_JAVA8_OPTIONALS(true),
+
+    /**
+     * Feature that determines what happens if Java 8 {@link java.time} (and
+     * other related Java 8 date/time types) are to be serialized or deserialized, but there
+     * are no registered handlers for them.
+     * If enabled, an exception is thrown (to indicate problem, a solution for which is
+     * to register {@code jackson-datatype-jsr310} module); if disabled, the value is
+     * serialized and/or deserialized using regular POJO ("Bean") (de)serialization.
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 2.19
+     */
+    REQUIRE_HANDLERS_FOR_JAVA8_TIMES(true),
     ;
 
     private final boolean _defaultState;

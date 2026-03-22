@@ -4,10 +4,12 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -85,7 +87,7 @@ public class ObjectNode
                 .getClass().getName() + "`)");
         }
         ObjectNode result = objectNode();
-        _children.put(exprOrProperty, result);
+        _put(exprOrProperty, result);
         return result;
     }
 
@@ -130,7 +132,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
                 .getClass().getName() + "`)");
         }
         ArrayNode result = arrayNode();
-        _children.put(exprOrProperty, result);
+        _put(exprOrProperty, result);
         return result;
     }
 
@@ -231,7 +233,6 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return putObject(propName)._withArrayAddTailProperty(tail, preferIndex);
     }
 
-
     /*
     /**********************************************************
     /* Overrides for JsonSerializable.Base
@@ -274,6 +275,11 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return _children.values().iterator();
     }
 
+    @Override // @since 2.19
+    public Iterator<JsonNode> values() {
+        return _children.values().iterator();
+    }
+
     @Override
     public JsonNode get(int index) { return null; }
 
@@ -282,9 +288,12 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return _children.get(propertyName);
     }
 
+    /**
+     * @since 2.19
+     */
     @Override
-    public Iterator<String> fieldNames() {
-        return _children.keySet().iterator();
+    public Optional<JsonNode> optional(String propertyName) {
+        return Optional.ofNullable(get(propertyName));
     }
 
     @Override
@@ -311,10 +320,18 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         return _reportRequiredViolation("No value for property '%s' of `ObjectNode`", propertyName);
     }
 
+    @Override
+    public Iterator<String> fieldNames() {
+        return _children.keySet().iterator();
+    }
+
     /**
      * Method to use for accessing all properties (with both names
      * and values) of this JSON Object.
+     *
+     * @deprecated since 2.19 Use instead {@link #properties()}.
      */
+    @Deprecated // since 2.19
     @Override
     public Iterator<Map.Entry<String, JsonNode>> fields() {
         return _children.entrySet().iterator();
@@ -330,7 +347,22 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     public Set<Map.Entry<String, JsonNode>> properties() {
         return _children.entrySet();
     }
-    
+
+    @Override // @since 2.19
+    public Stream<JsonNode> valueStream() {
+        return _children.values().stream();
+    }
+
+    @Override // @since 2.19
+    public Stream<Map.Entry<String, JsonNode>> propertyStream() {
+        return _children.entrySet().stream();
+    }
+
+    @Override // @since 2.19
+    public void forEachEntry(BiConsumer<? super String, ? super JsonNode> action) {
+        _children.forEach(action);
+    }
+
     @Override
     public boolean equals(Comparator<JsonNode> comparator, JsonNode o)
     {
@@ -456,24 +488,25 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      */
     @SuppressWarnings("deprecation")
     @Override
-    public void serialize(JsonGenerator g, SerializerProvider provider)
+    public void serialize(JsonGenerator g, SerializerProvider ctxt)
         throws IOException
     {
-        if (provider != null) {
-            boolean trimEmptyArray = !provider.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
-            boolean skipNulls = !provider.isEnabled(JsonNodeFeature.WRITE_NULL_PROPERTIES);
+        if (ctxt != null) {
+            boolean trimEmptyArray = !ctxt.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
+            boolean skipNulls = !ctxt.isEnabled(JsonNodeFeature.WRITE_NULL_PROPERTIES);
             if (trimEmptyArray || skipNulls) {
                 g.writeStartObject(this);
-                serializeFilteredContents(g, provider, trimEmptyArray, skipNulls);
+                serializeFilteredContents(g, ctxt, trimEmptyArray, skipNulls);
                 g.writeEndObject();
                 return;
             }
         }
-        g.writeStartObject(this);
-        for (Map.Entry<String, JsonNode> en : _contentsToSerialize(provider).entrySet()) {
-            JsonNode value = en.getValue();
+        Map<String, JsonNode> contents = _contentsToSerialize(ctxt);
+        // 25-Apr-2025, tatu: [databind#5103] Pass size (some formats can optimize)
+        g.writeStartObject(this, contents.size());
+        for (Map.Entry<String, JsonNode> en : contents.entrySet()) {
             g.writeFieldName(en.getKey());
-            value.serialize(g, provider);
+            en.getValue().serialize(g, ctxt);
         }
         g.writeEndObject();
     }
@@ -585,13 +618,15 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         if (value == null) {
             value = nullNode();
         }
-        _children.put(propertyName, value);
-        return (T) this;
+        return (T) _put(propertyName, value);
     }
 
     /**
      * Method for adding given properties to this object node, overriding
      * any existing values for those properties.
+     *<p>
+     * NOTE: {@code null} keys are not allowed; ({@code null} values get
+     * converted to a {@link NullNode}).
      *<p>
      * NOTE: co-variant return type since 2.10
      *
@@ -609,7 +644,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
             if (n == null) {
                 n = nullNode();
             }
-            _children.put(en.getKey(), n);
+            _put(en.getKey(), n);
         }
         return (T) this;
     }
@@ -637,7 +672,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      * Method for replacing value of specific property with passed
      * value, and returning value (or null if none).
      *
-     * @param propertyName Property of which value to replace
+     * @param propertyName Property of which value to replace: must not be {@code null}
      * @param value Value to set property to, replacing old value if any
      *
      * @return Old value of the property; null if there was no such property
@@ -650,7 +685,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
-        return _children.put(propertyName, value);
+        return _children.put(Objects.requireNonNull(propertyName), value);
     }
 
     /**
@@ -698,7 +733,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     /**
      * Method that will set specified property, replacing old value, if any.
      *
-     * @param propertyName Name of property to set
+     * @param propertyName Name of property to set (must not be {@code null})
      * @param value Value to set to property; if null, will be converted
      *   to a {@link NullNode} first  (to remove a property, call
      *   {@link #remove} instead).
@@ -714,7 +749,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
-        return _children.put(propertyName, value);
+        return _children.put(Objects.requireNonNull(propertyName), value);
     }
 
     /**
@@ -731,7 +766,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *  }
      *</code>
      *
-     * @param propertyName Name of property to set
+     * @param propertyName Name of property to set (must not be {@code null})
      * @param value Value to set to property (if and only if it had no value previously);
      *  if null, will be converted to a {@link NullNode} first.
      *
@@ -745,7 +780,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
-        return _children.putIfAbsent(propertyName, value);
+        return _children.putIfAbsent(Objects.requireNonNull(propertyName), value);
     }
 
     /**
@@ -783,6 +818,12 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     public ObjectNode removeAll()
     {
         _children.clear();
+        return this;
+    }
+
+    @Override
+    public ObjectNode removeIf(Predicate<? super JsonNode> predicate) {
+        _children.values().removeIf(predicate);
         return this;
     }
 
@@ -922,8 +963,7 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      */
     public ObjectNode putNull(String propertyName)
     {
-        _children.put(propertyName, nullNode());
-        return this;
+        return _put(propertyName, nullNode());
     }
 
     /**
@@ -941,8 +981,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Short v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, Short v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : numberNode(v.shortValue()));
     }
 
@@ -955,8 +995,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, int v) {
-        return _put(fieldName, numberNode(v));
+    public ObjectNode put(String propertyName, int v) {
+        return _put(propertyName, numberNode(v));
     }
 
     /**
@@ -965,8 +1005,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Integer v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, Integer v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : numberNode(v.intValue()));
     }
 
@@ -979,8 +1019,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, long v) {
-        return _put(fieldName, numberNode(v));
+    public ObjectNode put(String propertyName, long v) {
+        return _put(propertyName, numberNode(v));
     }
 
     /**
@@ -995,8 +1035,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Long v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, Long v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : numberNode(v.longValue()));
     }
 
@@ -1005,8 +1045,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, float v) {
-        return _put(fieldName, numberNode(v));
+    public ObjectNode put(String propertyName, float v) {
+        return _put(propertyName, numberNode(v));
     }
 
     /**
@@ -1015,8 +1055,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Float v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, Float v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : numberNode(v.floatValue()));
     }
 
@@ -1025,8 +1065,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, double v) {
-        return _put(fieldName, numberNode(v));
+    public ObjectNode put(String propertyName, double v) {
+        return _put(propertyName, numberNode(v));
     }
 
     /**
@@ -1035,8 +1075,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Double v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, Double v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : numberNode(v.doubleValue()));
     }
 
@@ -1045,8 +1085,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, BigDecimal v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, BigDecimal v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : numberNode(v));
     }
 
@@ -1057,8 +1097,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @since 2.9
      */
-    public ObjectNode put(String fieldName, BigInteger v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, BigInteger v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : numberNode(v));
     }
 
@@ -1067,8 +1107,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, String v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, String v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : textNode(v));
     }
 
@@ -1077,8 +1117,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, boolean v) {
-        return _put(fieldName, booleanNode(v));
+    public ObjectNode put(String propertyName, boolean v) {
+        return _put(propertyName, booleanNode(v));
     }
 
     /**
@@ -1087,8 +1127,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Boolean v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, Boolean v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : booleanNode(v.booleanValue()));
     }
 
@@ -1097,8 +1137,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      *
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, byte[] v) {
-        return _put(fieldName, (v == null) ? nullNode()
+    public ObjectNode put(String propertyName, byte[] v) {
+        return _put(propertyName, (v == null) ? nullNode()
                 : binaryNode(v));
     }
 
@@ -1139,9 +1179,10 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     /**********************************************************
      */
 
-    protected ObjectNode _put(String fieldName, JsonNode value)
+    // @since 2.19
+    protected ObjectNode _put(String propertyName, JsonNode value)
     {
-        _children.put(fieldName, value);
+        _children.put(Objects.requireNonNull(propertyName), value);
         return this;
     }
 }

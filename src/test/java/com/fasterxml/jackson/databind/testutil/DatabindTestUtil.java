@@ -5,8 +5,10 @@ import java.lang.annotation.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
@@ -272,13 +274,16 @@ public class DatabindTestUtil
 
     public static enum ABC { A, B, C; }
 
+    @JsonPropertyOrder({"x", "y"})
     public static class Point {
         public int x, y;
 
         protected Point() { } // for deser
-        public Point(int x0, int y0) {
-            x = x0;
-            y = y0;
+
+        @JsonIgnore
+        public Point(int x, int y) {
+            this.x = x;
+            this.y = y;
         }
 
         @Override
@@ -367,7 +372,7 @@ public class DatabindTestUtil
 
     public static TypeFactory newTypeFactory() {
         // this is a work-around; no null modifier added
-        return TypeFactory.defaultInstance().withModifier(null);
+        return defaultTypeFactory().withModifier(null);
     }
 
     /*
@@ -560,6 +565,11 @@ public class DatabindTestUtil
         return TimeZone.getTimeZone("GMT");
     }
 
+    // Separated out since "default" TypeFactory instance handling differs
+    // between 2.x and 3.x
+    public static TypeFactory defaultTypeFactory() {
+        return TypeFactory.defaultInstance();
+    }
 
     protected JsonParser createParserUsingReader(String input)
         throws IOException

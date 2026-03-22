@@ -5,12 +5,10 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.core.Base64Variant;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AccessorNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
-import com.fasterxml.jackson.databind.introspect.DefaultAccessorNamingStrategy;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -66,6 +64,13 @@ public final class BaseSettings
      * Custom property naming strategy in use, if any.
      */
     protected final PropertyNamingStrategy _propertyNamingStrategy;
+
+    /**
+     * Custom enum naming strategy in use, if any.
+     *
+     * @since 2.19
+     */
+    protected final EnumNamingStrategy _enumNamingStrategy;
 
     /**
      * Provider for creating {@link AccessorNamingStrategy} instances to use
@@ -157,10 +162,10 @@ public final class BaseSettings
      */
 
     /**
-     * @since 2.16
+     * @since 2.19
      */
     public BaseSettings(ClassIntrospector ci, AnnotationIntrospector ai,
-            PropertyNamingStrategy pns, TypeFactory tf,
+            PropertyNamingStrategy pns, EnumNamingStrategy ens, TypeFactory tf,
             TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi,
             Locale locale, TimeZone tz, Base64Variant defaultBase64,
             PolymorphicTypeValidator ptv, AccessorNamingStrategy.Provider accNaming,
@@ -169,6 +174,7 @@ public final class BaseSettings
         _classIntrospector = ci;
         _annotationIntrospector = ai;
         _propertyNamingStrategy = pns;
+        _enumNamingStrategy = ens;
         _typeFactory = tf;
         _typeResolverBuilder = typer;
         _dateFormat = dateFormat;
@@ -179,6 +185,21 @@ public final class BaseSettings
         _typeValidator = ptv;
         _accessorNaming = accNaming;
         _cacheProvider = cacheProvider;
+    }
+
+    /**
+     * @since 2.16
+     * @deprecated Since 2.19, use variant that takes {@link EnumNamingStrategy} instead.
+     */
+    @Deprecated
+    public BaseSettings(ClassIntrospector ci, AnnotationIntrospector ai,
+            PropertyNamingStrategy pns, TypeFactory tf,
+            TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi,
+            Locale locale, TimeZone tz, Base64Variant defaultBase64,
+            PolymorphicTypeValidator ptv, AccessorNamingStrategy.Provider accNaming,
+            CacheProvider cacheProvider)
+    {
+        this(ci, ai, pns, null, tf, typer, dateFormat, hi, locale, tz, defaultBase64, ptv, accNaming, cacheProvider);
     }
 
     /**
@@ -196,17 +217,6 @@ public final class BaseSettings
                 DefaultCacheProvider.defaultInstance());
     }
 
-    @Deprecated // since 2.12
-    public BaseSettings(ClassIntrospector ci, AnnotationIntrospector ai,
-            PropertyNamingStrategy pns, TypeFactory tf,
-            TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi,
-            Locale locale, TimeZone tz, Base64Variant defaultBase64,
-            PolymorphicTypeValidator ptv)
-    {
-        this(ci, ai, pns, tf, typer, dateFormat, hi, locale, tz, defaultBase64, ptv,
-                new DefaultAccessorNamingStrategy.Provider(), DefaultCacheProvider.defaultInstance());
-    }
-
     /**
      * Turns out we are not necessarily 100% stateless, alas, since {@link ClassIntrospector}
      * typically has a cache. So this method is needed for deep copy() of Mapper.
@@ -217,6 +227,7 @@ public final class BaseSettings
         return new BaseSettings(_classIntrospector.copy(),
             _annotationIntrospector,
             _propertyNamingStrategy,
+            _enumNamingStrategy,
             _typeFactory,
             _typeResolverBuilder,
             _dateFormat,
@@ -239,8 +250,8 @@ public final class BaseSettings
         if (_classIntrospector == ci) {
             return this;
         }
-        return new BaseSettings(ci, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
+        return new BaseSettings(ci, _annotationIntrospector, _propertyNamingStrategy, _enumNamingStrategy,
+                _typeFactory, _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
@@ -248,8 +259,8 @@ public final class BaseSettings
         if (_annotationIntrospector == ai) {
             return this;
         }
-        return new BaseSettings(_classIntrospector, ai, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
+        return new BaseSettings(_classIntrospector, ai, _propertyNamingStrategy, _enumNamingStrategy,
+                _typeFactory, _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
@@ -275,8 +286,20 @@ public final class BaseSettings
         if (_propertyNamingStrategy == pns) {
             return this;
         }
-        return new BaseSettings(_classIntrospector, _annotationIntrospector, pns, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
+        return new BaseSettings(_classIntrospector, _annotationIntrospector, pns, _enumNamingStrategy,
+                _typeFactory, _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
+    }
+
+    /**
+     * @since 2.19
+     */
+    public BaseSettings withEnumNamingStrategy(EnumNamingStrategy ens) {
+        if (_enumNamingStrategy == ens) {
+            return this;
+        }
+        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, ens,
+                _typeFactory, _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
@@ -285,8 +308,8 @@ public final class BaseSettings
         if (_accessorNaming == p) {
             return this;
         }
-        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
+        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _enumNamingStrategy,
+                _typeFactory, _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _typeValidator, p, _cacheProvider);
     }
 
@@ -294,8 +317,8 @@ public final class BaseSettings
         if (_typeFactory == tf) {
             return this;
         }
-        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, tf,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
+        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _enumNamingStrategy,
+                tf, _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
@@ -303,8 +326,8 @@ public final class BaseSettings
         if (_typeResolverBuilder == typer) {
             return this;
         }
-        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
-                typer, _dateFormat, _handlerInstantiator, _locale,
+        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _enumNamingStrategy,
+                _typeFactory, typer, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
@@ -317,8 +340,8 @@ public final class BaseSettings
         if ((df != null) && hasExplicitTimeZone()) {
             df = _force(df, _timeZone);
         }
-        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, df, _handlerInstantiator, _locale,
+        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _enumNamingStrategy,
+                _typeFactory, _typeResolverBuilder, df, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
@@ -326,8 +349,8 @@ public final class BaseSettings
         if (_handlerInstantiator == hi) {
             return this;
         }
-        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, hi, _locale,
+        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _enumNamingStrategy,
+                _typeFactory, _typeResolverBuilder, _dateFormat, hi, _locale,
                 _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
@@ -335,8 +358,8 @@ public final class BaseSettings
         if (_locale == l) {
             return this;
         }
-        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator, l,
+        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _enumNamingStrategy,
+                _typeFactory,_typeResolverBuilder, _dateFormat, _handlerInstantiator, l,
                 _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
@@ -358,7 +381,7 @@ public final class BaseSettings
 
         DateFormat df = _force(_dateFormat, (tz == null) ? DEFAULT_TIMEZONE : tz);
         return new BaseSettings(_classIntrospector, _annotationIntrospector,
-                _propertyNamingStrategy, _typeFactory,
+                _propertyNamingStrategy, _enumNamingStrategy, _typeFactory,
                 _typeResolverBuilder, df, _handlerInstantiator, _locale,
                 tz, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
@@ -371,7 +394,7 @@ public final class BaseSettings
             return this;
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector,
-                _propertyNamingStrategy, _typeFactory,
+                _propertyNamingStrategy, _enumNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, base64, _typeValidator, _accessorNaming, _cacheProvider);
     }
@@ -384,7 +407,7 @@ public final class BaseSettings
             return this;
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector,
-                _propertyNamingStrategy, _typeFactory,
+                _propertyNamingStrategy, _enumNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, v, _accessorNaming, _cacheProvider);
     }
@@ -400,7 +423,7 @@ public final class BaseSettings
             return this;
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector,
-                _propertyNamingStrategy, _typeFactory,
+                _propertyNamingStrategy, _enumNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _typeValidator, _accessorNaming, cacheProvider);
     }
@@ -421,6 +444,13 @@ public final class BaseSettings
 
     public PropertyNamingStrategy getPropertyNamingStrategy() {
         return _propertyNamingStrategy;
+    }
+
+    /**
+     * @since 2.19
+     */
+    public EnumNamingStrategy getEnumNamingStrategy() {
+        return _enumNamingStrategy;
     }
 
     public AccessorNamingStrategy.Provider getAccessorNaming() {

@@ -170,13 +170,17 @@ public final class SerializerCache
     }
 
     /**
-     * Method that checks if the shared (and hence, synchronized) lookup Map might have
-     * an untyped serializer for given type.
+     * Returns the fully-resolved untyped serializer for the given type, or {@code null}
+     * if not yet cached. Reads from {@code _sharedMap} which only contains fully-resolved
+     * entries, so no lock is needed.
      *<p>
-     * NOTE: Synchronized to prevent a race condition where a thread reads an unresolved
-     * serializer that was put into the shared map by another thread inside
-     * {@link #addAndResolveNonTypedSerializer} before {@code resolve()} completes.
-     * See [databind#5813].
+     * During cyclic POJO resolution the resolving thread may re-enter this method before
+     * the in-progress serializer has been promoted to {@code _sharedMap}. In that case,
+     * because the calling thread already holds the monitor (via
+     * {@code synchronized (this)} in {@link #addAndResolveNonTypedSerializer}),
+     * {@link Thread#holdsLock} is {@code true} and we fall back to {@code _inProgressMap}
+     * to return the partially-resolved serializer to break the cycle.  All other threads
+     * never hold the monitor and therefore exclusively see fully-resolved entries.
      */
     public ValueSerializer<Object> untypedValueSerializer(JavaType type)
     {
@@ -240,17 +244,20 @@ public final class SerializerCache
             TypeKey key = new TypeKey(type, false);
             // Stage in _inProgressMap so cyclic-resolution re-entrant lookups can find it
             _inProgressMap.put(key, ser);
-            _readOnlyMap.set(null);
-            // Need resolution to handle cyclic POJO type dependencies
-            /* 14-May-2011, tatu: Resolving needs to be done in synchronized manner;
-             *   this because while we do need to register instance first, we also must
-             *   keep lock until resolution is complete.
-             */
-            ser.resolve(ctxt);
-            // Resolution complete: promote to the main (fully-resolved) map and remove
-            // from the staging map so _inProgressMap stays empty at steady state
-            _sharedMap.put(key, ser);
-            _inProgressMap.remove(key);
+            try {
+                // Need resolution to handle cyclic POJO type dependencies
+                /* 14-May-2011, tatu: Resolving needs to be done in synchronized manner;
+                 *   this because while we do need to register instance first, we also must
+                 *   keep lock until resolution is complete.
+                 */
+                ser.resolve(ctxt);
+                // Resolution complete: promote to the main (fully-resolved) map
+                _sharedMap.put(key, ser);
+                _readOnlyMap.set(null);
+            } finally {
+                // Clean up staging map so _inProgressMap stays empty at steady state
+                _inProgressMap.remove(key);
+            }
         }
     }
 
@@ -260,15 +267,18 @@ public final class SerializerCache
         synchronized (this) {
             TypeKey key = new TypeKey(type, false);
             _inProgressMap.put(key, ser);
-            _readOnlyMap.set(null);
-            // Need resolution to handle cyclic POJO type dependencies
-            /* 14-May-2011, tatu: Resolving needs to be done in synchronized manner;
-             *   this because while we do need to register instance first, we also must
-             *   keep lock until resolution is complete.
-             */
-            ser.resolve(ctxt);
-            _sharedMap.put(key, ser);
-            _inProgressMap.remove(key);
+            try {
+                // Need resolution to handle cyclic POJO type dependencies
+                /* 14-May-2011, tatu: Resolving needs to be done in synchronized manner;
+                 *   this because while we do need to register instance first, we also must
+                 *   keep lock until resolution is complete.
+                 */
+                ser.resolve(ctxt);
+                _sharedMap.put(key, ser);
+                _readOnlyMap.set(null);
+            } finally {
+                _inProgressMap.remove(key);
+            }
         }
     }
 
@@ -285,12 +295,15 @@ public final class SerializerCache
             TypeKey keyFull = new TypeKey(fullType, false);
             _inProgressMap.put(keyRaw, ser);
             _inProgressMap.put(keyFull, ser);
-            _readOnlyMap.set(null);
-            ser.resolve(ctxt);
-            _sharedMap.put(keyRaw, ser);
-            _sharedMap.put(keyFull, ser);
-            _inProgressMap.remove(keyRaw);
-            _inProgressMap.remove(keyFull);
+            try {
+                ser.resolve(ctxt);
+                _sharedMap.put(keyRaw, ser);
+                _sharedMap.put(keyFull, ser);
+                _readOnlyMap.set(null);
+            } finally {
+                _inProgressMap.remove(keyRaw);
+                _inProgressMap.remove(keyFull);
+            }
         }
     }
 

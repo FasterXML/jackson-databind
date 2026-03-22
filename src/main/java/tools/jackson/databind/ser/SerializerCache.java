@@ -67,6 +67,8 @@ public final class SerializerCache
      * A plain {@link HashMap} suffices here because access is always guarded by
      * {@code synchronized (this)} and only a tiny number of entries are ever
      * present at once (no LRU eviction or concurrent-access overhead needed).
+     *
+     * @since 3.2
      */
     private final transient HashMap<TypeKey, ValueSerializer<Object>> _inProgressMap;
 
@@ -74,6 +76,17 @@ public final class SerializerCache
      * Most recent read-only instance, created from _sharedMap, if any.
      */
     private final transient AtomicReference<ReadOnlyClassToSerializerMap> _readOnlyMap;
+
+    /**
+     * Separate lock for {@link #_makeReadOnlyLookupMap()} so that rebuilding
+     * the read-only snapshot does not compete with the main monitor used by
+     * {@link #addAndResolveNonTypedSerializer} during {@code resolve()}.
+     * This avoids blocking read threads behind potentially long serializer
+     * resolution during warmup.
+     *
+     * @since 3.2
+     */
+    private final transient Object _readOnlyMapLock = new Object();
 
     public SerializerCache() {
         this(DEFAULT_MAX_CACHE_SIZE);
@@ -125,15 +138,19 @@ public final class SerializerCache
         return _makeReadOnlyLookupMap();
     }
 
-    private final synchronized ReadOnlyClassToSerializerMap _makeReadOnlyLookupMap() {
-        // double-locking; safe, but is it really needed? Not doing that is only a perf problem,
-        // not correctness
-        ReadOnlyClassToSerializerMap m = _readOnlyMap.get();
-        if (m == null) {
-            m = ReadOnlyClassToSerializerMap.from(this, _sharedMap);
-            _readOnlyMap.set(m);
+    private ReadOnlyClassToSerializerMap _makeReadOnlyLookupMap() {
+        // Use a dedicated lock so that rebuilding the read-only snapshot
+        // does not block behind a long resolve() in addAndResolveNonTypedSerializer.
+        // _sharedMap is thread-safe (PrivateMaxEntriesMap) so iterating it
+        // concurrently with put() is safe (weakly consistent).
+        synchronized (_readOnlyMapLock) {
+            ReadOnlyClassToSerializerMap m = _readOnlyMap.get();
+            if (m == null) {
+                m = ReadOnlyClassToSerializerMap.from(this, _sharedMap);
+                _readOnlyMap.set(m);
+            }
+            return m;
         }
-        return m;
     }
 
     /*

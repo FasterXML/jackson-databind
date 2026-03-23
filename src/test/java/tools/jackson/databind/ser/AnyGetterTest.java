@@ -15,6 +15,7 @@ import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.ser.std.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AnyGetterTest extends DatabindTestUtil
@@ -757,6 +758,19 @@ public class AnyGetterTest extends DatabindTestUtil
 
         String json = MAPPER.writeValueAsString(bean);
         assertEquals(a2q("{'id':1,'name':'test'}"), json);
+    }
+
+    // [databind#3604]: Non-ObjectNode JsonNode (e.g. ArrayNode) should fail with clear error
+    @Test
+    public void testAnyGetterWithArrayNodeFails() throws Exception
+    {
+        JsonNodeAnyGetterFieldBean bean = new JsonNodeAnyGetterFieldBean();
+        bean.id = 1;
+        bean.extra = MAPPER.createArrayNode().add(1).add(2);
+
+        DatabindException ex = assertThrows(DatabindException.class,
+                () -> MAPPER.writeValueAsString(bean));
+        assertThat(ex.getMessage()).contains("ObjectNode");
     }
 
     // For [databind#5215]: Any-getter should be sorted last, by default

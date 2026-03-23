@@ -69,9 +69,14 @@ public class AnyGetterWriter extends BeanPropertyWriter
             return;
         }
         // [databind#3604]: Support ObjectNode/JsonNode for @JsonAnyGetter
-        if (value instanceof ObjectNode objectNode) {
-            _serializeObjectNodeEntries(objectNode, gen, provider);
-            return;
+        if (value instanceof JsonNode) {
+            if (value instanceof ObjectNode objectNode) {
+                _serializeObjectNodeEntries(objectNode, gen, provider);
+                return;
+            }
+            provider.reportBadDefinition(_property.getType(), String.format(
+                    "Value returned by 'any-getter' %s() not `ObjectNode` but `%s`; only `ObjectNode`s can be used as `@JsonAnyGetter` values",
+                    _accessor.getName(), value.getClass().getName()));
         }
         if (!(value instanceof Map<?,?>)) {
             provider.reportBadDefinition(_property.getType(), String.format(
@@ -100,10 +105,15 @@ public class AnyGetterWriter extends BeanPropertyWriter
             return;
         }
         // [databind#3604]: Support ObjectNode/JsonNode for @JsonAnyGetter
-        if (value instanceof ObjectNode objectNode) {
-            // No special filtering support for ObjectNode (yet); just serialize entries
-            _serializeObjectNodeEntries(objectNode, gen, provider);
-            return;
+        if (value instanceof JsonNode) {
+            if (value instanceof ObjectNode objectNode) {
+                // No special filtering support for ObjectNode (yet); just serialize entries
+                _serializeObjectNodeEntries(objectNode, gen, provider);
+                return;
+            }
+            provider.reportBadDefinition(_property.getType(), String.format(
+                    "Value returned by 'any-getter' %s() not `ObjectNode` but `%s`; only `ObjectNode`s can be used as `@JsonAnyGetter` values",
+                    _accessor.getName(), value.getClass().getName()));
         }
         if (!(value instanceof Map<?,?>)) {
             provider.reportBadDefinition(_property.getType(),

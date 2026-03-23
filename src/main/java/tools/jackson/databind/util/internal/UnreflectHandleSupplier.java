@@ -14,7 +14,8 @@ import tools.jackson.databind.util.ClassUtil;
  */
 public abstract class UnreflectHandleSupplier implements Supplier<MethodHandle> {
     private final MethodType asType;
-    private volatile MethodHandle cachedHandle;
+    private boolean initialized;
+    private Supplier<MethodHandle> delegate = this::initialize;
 
     public UnreflectHandleSupplier(MethodType asType) {
         this.asType = asType;
@@ -22,24 +23,21 @@ public abstract class UnreflectHandleSupplier implements Supplier<MethodHandle> 
 
     @Override
     public MethodHandle get() {
-        MethodHandle h = cachedHandle;
-        if (h == null) {
-            h = initialize();
-        }
-        return h;
+        return delegate.get();
     }
 
-    private synchronized MethodHandle initialize() {
-        MethodHandle h = cachedHandle;
-        if (h == null) {
+    synchronized MethodHandle initialize() {
+        if (!initialized) {
+            MethodHandle mh;
             try {
-                h = postprocess(unreflect());
+                mh = postprocess(unreflect());
             } catch (IllegalAccessException e) {
                 throw ClassUtil.sneakyThrow(e);
             }
-            cachedHandle = h;
+            delegate = () -> mh;
+            initialized = true;
         }
-        return h;
+        return delegate.get();
     }
 
     protected MethodHandle postprocess(MethodHandle mh) {

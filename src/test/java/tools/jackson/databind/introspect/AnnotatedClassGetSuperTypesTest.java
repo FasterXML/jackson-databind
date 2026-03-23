@@ -58,7 +58,7 @@ public class AnnotatedClassGetSuperTypesTest extends DatabindTestUtil
                 Serializable.class, SimpleBean.class);
     }
 
-    // Multi-level: interfaces depth-first, then recurse up the class hierarchy
+    // Multi-level: at each level, interfaces before super-class, recursing up
     @Test
     public void testGetSuperTypesForMultiLevel() {
         AnnotatedClass ac = _resolve(MultiLevel.class);

@@ -317,9 +317,6 @@ public class BeanSerializerFactory
             props = new ArrayList<>();
         } else {
             props = removeOverlappingExternalTypeIds(ctxt, beanDescRef, builder, props);
-            // [databind#1410]: Verify no bean property conflicts with class-level
-            //   type id property name (for As.PROPERTY inclusion)
-            _verifyNoTypeIdPropertyConflict(ctxt, beanDescRef, props);
         }
 
         // [databind#638]: Allow injection of "virtual" properties:
@@ -338,6 +335,12 @@ public class BeanSerializerFactory
         //    (initially, `CharSequence` with its `isEmpty()` default impl)
         props = filterUnwantedJDKProperties(config, beanDescRef, props);
         props = filterBeanProperties(config, beanDescRef, props);
+
+        // [databind#1410]: Verify no bean property conflicts with class-level
+        //   type id property name (for As.PROPERTY inclusion)
+        // [databind#5615]: Must be done after filterBeanProperties() so that
+        //   @JsonIgnoreProperties-ignored properties are excluded first
+        _verifyNoTypeIdPropertyConflict(ctxt, beanDescRef, props);
 
         // Need to allow reordering of properties to serialize
         if (_factoryConfig.hasSerializerModifiers()) {

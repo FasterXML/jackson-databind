@@ -46,7 +46,9 @@ public final class AnnotatedClass
 
     /**
      * Ordered set of super classes and interfaces of the
-     * class itself: included in order of precedence
+     * class itself: included in order of precedence of annotations
+     * inherited (starting with immediate super-class and
+     * super-interfaces, then their super types).
      */
     protected final List<JavaType> _superTypes;
 
@@ -262,6 +264,21 @@ public final class AnnotatedClass
             _nonStaticInnerClass = B = ClassUtil.isNonStaticInnerClass(_class);
         }
         return B.booleanValue();
+    }
+
+    /**
+     * Accessor for super-types of class (or interface) represented by this
+     * {@link AnnotatedClass}, excluding {@link java.lang.Object}.
+     *
+     * @return Set of super-types in decreasing precedence, the order in which
+     *   annotations are inherited from super types (super Classes and interfaces)
+     *
+     * @since 3.2
+     */
+    public List<JavaType> getSuperTypes() {
+        return _superTypes.isEmpty()
+                ? Collections.emptyList()
+                : Collections.unmodifiableList(_superTypes);
     }
 
     /*

@@ -53,6 +53,10 @@ public class AnyGetterWriter extends BeanPropertyWriter
     @SuppressWarnings("unchecked")
     public void resolve(SerializationContext provider)
     {
+        // [databind#3604]: _serializer may be null for ObjectNode/JsonNode any-getters
+        if (_serializer == null) {
+            return;
+        }
         // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
         ValueSerializer<?> ser = provider.handlePrimaryContextualization(_serializer, _property);
         _serializer = (ValueSerializer<Object>) ser;

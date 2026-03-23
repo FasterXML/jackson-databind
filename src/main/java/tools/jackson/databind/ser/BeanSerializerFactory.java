@@ -366,11 +366,11 @@ public class BeanSerializerFactory
 
             // [databind#3604]: Support ObjectNode/JsonNode for @JsonAnyGetter
             if (JsonNode.class.isAssignableFrom(anyType.getRawClass())) {
-                // For JsonNode-valued any-getters, value type is JsonNode
+                // For JsonNode-valued any-getters, value type is JsonNode;
+                // no default serializer needed since AnyGetterWriter handles
+                // ObjectNode entries directly (anySer may still be non-null
+                // from custom @JsonSerialize annotation above)
                 valueType = ctxt.constructType(JsonNode.class);
-                if (anySer == null) {
-                    anySer = ctxt.findValueSerializer(anyType);
-                }
             } else {
                 // copied from BasicSerializerFactory.buildMapSerializer():
                 valueType = anyType.getContentType();

@@ -6,6 +6,7 @@ import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
+import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.ser.jdk.MapSerializer;
 
 /**
@@ -67,6 +68,11 @@ public class AnyGetterWriter extends BeanPropertyWriter
         if (value == null) {
             return;
         }
+        // [databind#3604]: Support ObjectNode/JsonNode for @JsonAnyGetter
+        if (value instanceof ObjectNode objectNode) {
+            _serializeObjectNodeEntries(objectNode, gen, provider);
+            return;
+        }
         if (!(value instanceof Map<?,?>)) {
             provider.reportBadDefinition(_property.getType(), String.format(
                     "Value returned by 'any-getter' %s() not java.util.Map but %s",
@@ -93,6 +99,12 @@ public class AnyGetterWriter extends BeanPropertyWriter
         if (value == null) {
             return;
         }
+        // [databind#3604]: Support ObjectNode/JsonNode for @JsonAnyGetter
+        if (value instanceof ObjectNode objectNode) {
+            // No special filtering support for ObjectNode (yet); just serialize entries
+            _serializeObjectNodeEntries(objectNode, gen, provider);
+            return;
+        }
         if (!(value instanceof Map<?,?>)) {
             provider.reportBadDefinition(_property.getType(),
                     String.format("Value returned by 'any-getter' (%s()) not java.util.Map but %s",
@@ -106,6 +118,22 @@ public class AnyGetterWriter extends BeanPropertyWriter
         }
         // ... not sure how custom handler would do it
         _serializer.serialize(value, gen, provider);
+    }
+
+    /**
+     * Helper method for serializing entries of an {@link ObjectNode}
+     * as individual properties (for {@code @JsonAnyGetter} support).
+     *
+     * @since 3.0
+     */
+    protected void _serializeObjectNodeEntries(ObjectNode objectNode,
+            JsonGenerator gen, SerializationContext provider)
+        throws Exception
+    {
+        for (Map.Entry<String, JsonNode> entry : objectNode.properties()) {
+            gen.writeName(entry.getKey());
+            entry.getValue().serialize(gen, provider);
+        }
     }
 
     @Override

@@ -11,6 +11,7 @@ import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.ser.std.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -324,6 +325,32 @@ public class AnyGetterTest extends DatabindTestUtil
         public Map<String, Object> getSecondProperties() {
             return super.secondProperties;
         }
+    }
+
+    // [databind#3604]: Allow ObjectNode for @JsonAnyGetter (field)
+    static class ObjectNodeAnyGetterFieldBean {
+        public int id;
+
+        @JsonAnyGetter
+        public ObjectNode extra;
+    }
+
+    // [databind#3604]: Allow ObjectNode for @JsonAnyGetter (method)
+    static class ObjectNodeAnyGetterMethodBean {
+        public int id;
+        private ObjectNode extra;
+
+        @JsonAnyGetter
+        public ObjectNode getExtra() { return extra; }
+        public void setExtra(ObjectNode extra) { this.extra = extra; }
+    }
+
+    // [databind#3604]: Allow JsonNode for @JsonAnyGetter (field)
+    static class JsonNodeAnyGetterFieldBean {
+        public int id;
+
+        @JsonAnyGetter
+        public JsonNode extra;
     }
 
     // For [databind#5215]: Any-getter should be sorted last, by default
@@ -675,6 +702,61 @@ public class AnyGetterTest extends DatabindTestUtil
         base.childEntities.child2 = 3;
         base.products = new HashMap<>();
         base.products.put("product1", 4);
+    }
+
+    // [databind#3604]: Allow ObjectNode field for @JsonAnyGetter
+    @Test
+    public void testAnyGetterWithObjectNodeField() throws Exception
+    {
+        ObjectNodeAnyGetterFieldBean bean = new ObjectNodeAnyGetterFieldBean();
+        bean.id = 1;
+        bean.extra = MAPPER.createObjectNode();
+        bean.extra.put("a", 2);
+        bean.extra.put("b", "text");
+
+        String json = MAPPER.writeValueAsString(bean);
+        assertEquals(a2q("{'id':1,'a':2,'b':'text'}"), json);
+    }
+
+    // [databind#3604]: Allow ObjectNode method for @JsonAnyGetter
+    @Test
+    public void testAnyGetterWithObjectNodeMethod() throws Exception
+    {
+        ObjectNodeAnyGetterMethodBean bean = new ObjectNodeAnyGetterMethodBean();
+        bean.id = 1;
+        ObjectNode node = MAPPER.createObjectNode();
+        node.put("x", true);
+        node.put("y", 42);
+        bean.setExtra(node);
+
+        String json = MAPPER.writeValueAsString(bean);
+        assertEquals(a2q("{'id':1,'x':true,'y':42}"), json);
+    }
+
+    // [databind#3604]: Null ObjectNode for @JsonAnyGetter should be fine
+    @Test
+    public void testAnyGetterWithNullObjectNode() throws Exception
+    {
+        ObjectNodeAnyGetterFieldBean bean = new ObjectNodeAnyGetterFieldBean();
+        bean.id = 1;
+        bean.extra = null;
+
+        String json = MAPPER.writeValueAsString(bean);
+        assertEquals(a2q("{'id':1}"), json);
+    }
+
+    // [databind#3604]: JsonNode (ObjectNode) field for @JsonAnyGetter
+    @Test
+    public void testAnyGetterWithJsonNodeField() throws Exception
+    {
+        JsonNodeAnyGetterFieldBean bean = new JsonNodeAnyGetterFieldBean();
+        bean.id = 1;
+        ObjectNode node = MAPPER.createObjectNode();
+        node.put("name", "test");
+        bean.extra = node;
+
+        String json = MAPPER.writeValueAsString(bean);
+        assertEquals(a2q("{'id':1,'name':'test'}"), json);
     }
 
     // For [databind#5215]: Any-getter should be sorted last, by default

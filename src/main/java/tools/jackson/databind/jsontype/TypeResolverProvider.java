@@ -1,10 +1,17 @@
 package tools.jackson.databind.jsontype;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import tools.jackson.databind.*;
+import tools.jackson.databind.AnnotationIntrospector;
+import tools.jackson.databind.DeserializationConfig;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.SerializationConfig;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.Annotated;
 import tools.jackson.databind.introspect.AnnotatedClass;
@@ -269,16 +276,33 @@ public class TypeResolverProvider
             if (typeInfo.getIdType() == JsonTypeInfo.Id.NONE) {
                 return NO_RESOLVER;
             }
+
+            List<JavaType> superTypes;
             // 13-Aug-2011, tatu: One complication; external id
             //   only works for properties; so if declared for a Class, we will need
             //   to map it to "PROPERTY" instead of "EXTERNAL_PROPERTY"
-            if (ann instanceof AnnotatedClass) {
+            if (ann instanceof AnnotatedClass annotatedClass) {
                 JsonTypeInfo.As inclusion = typeInfo.getInclusionType();
                 if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
                     typeInfo = typeInfo.withInclusionType(JsonTypeInfo.As.PROPERTY);
                 }
+
+            	// Search for the annotation through the parent classes/hierarchies
+            	// BEWARE: What if the annotation appears on multiple places? Is there any specific ordering?
+                superTypes = annotatedClass.getSuperTypes();
+            } else {
+            	// when method/field annotated, declared type MUST be intended base type
+            	superTypes = List.of();
             }
-            b = _constructStdTypeResolverBuilder(config, typeInfo, baseType);
+
+            // Look for the javaType holding @JsonTypeInfo, so it can be used as referential package for JsonTypeInfo.Id.MINIMAL_CLASS"
+        	Optional<JavaType> optJavaType = superTypes.stream().filter(type -> null != type.getRawClass().getAnnotation(JsonTypeInfo.class)).findFirst();
+        	
+        	// Fallback on the provided baseType if we can not find the annotation from the parent hierarchy of classes
+        	// Or no fallback, as we want to keep the information later we had no clear annotationHolder
+        	JavaType annotatedClass = optJavaType.orElse(null);
+            
+            b = _constructStdTypeResolverBuilder(config, typeInfo, baseType, annotatedClass);
         }
         // Does it define a custom type id resolver?
         Object customIdResolverOb = ai.findTypeIdResolver(config, ann);
@@ -297,7 +321,7 @@ public class TypeResolverProvider
     }
 
     protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
-            JsonTypeInfo.Value typeInfo, JavaType baseType) {
-        return new StdTypeResolverBuilder(typeInfo);
+            JsonTypeInfo.Value typeInfo, JavaType baseType, JavaType annotatedClass) {
+        return new StdTypeResolverBuilder(typeInfo, annotatedClass);
     }
 }

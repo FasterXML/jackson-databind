@@ -438,7 +438,7 @@ anyField.getName()));
                 if (!Map.class.isAssignableFrom(type)
                         && !JsonNode.class.isAssignableFrom(type)) {
                     throw new IllegalArgumentException(String.format(
-                            "Invalid 'any-getter' annotation on method %s(): return type is not instance of java.util.Map or JsonNode",
+                            "Invalid 'any-getter' annotation on method `%s()`: return type is not instance of `java.util.Map` or `JsonNode`",
                             anyGetter.getName()));
                 }
                 return anyGetter;
@@ -451,7 +451,7 @@ anyField.getName()));
                 if (!Map.class.isAssignableFrom(type)
                         && !JsonNode.class.isAssignableFrom(type)) {
                     throw new IllegalArgumentException(String.format(
-                            "Invalid 'any-getter' annotation on field '%s': type is not instance of java.util.Map or JsonNode",
+                            "Invalid 'any-getter' annotation on field '%s': type is not instance of `java.util.Map` or `JsonNode`",
                             anyField.getName()));
                 }
                 return anyField;

@@ -224,6 +224,9 @@ Lee Jiwon (@dlwldnjs1009)
  * Contributed #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
    are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
   [3.2.0]
+ * Implemented #3166: Ability to sort `Set`s before serialization (add
+   `SerializationFeature.ORDER_SET_ELEMENTS`)
+  [3.2.0]
 
 Garret Wilson (@garretwilson)
  * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore

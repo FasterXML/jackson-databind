@@ -2012,6 +2012,11 @@ Thomas Wöckinger (@thomaswoeckinger)
    negative timestamps (dates before 1970)
   [2.21.2]
 
+David Nelson (@eatdrinksleepcode)
+ * Reported #5814: Enum deserialization does not respect
+   `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
+  [2.21.2]
+
 Christian Danner cdadac
  * Reported #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
    are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`

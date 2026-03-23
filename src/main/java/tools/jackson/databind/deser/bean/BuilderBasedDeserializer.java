@@ -381,10 +381,11 @@ public class BuilderBasedDeserializer
         for (int ix = p.currentNameMatch(_propertyNameMatcher); ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) { // normal case
                 p.nextToken();
+                String currentName = p.currentName();
                 try {
                     bean = _propertiesByIndex[ix].deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, p.currentName(), ctxt);
+                    throw wrapAndThrow(e, bean, currentName, ctxt);
                 }
                 continue;
             }

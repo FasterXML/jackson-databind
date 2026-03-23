@@ -1,5 +1,7 @@
 package tools.jackson.databind.util;
 
+import java.math.BigDecimal;
+
 /**
  * Shared utility methods for number validation.
  *
@@ -44,4 +46,15 @@ public abstract class NumberUtil
         return false;
     }
 
+    public static BigDecimal stripTrailingZeros(BigDecimal nr) {
+        // 24-Mar-2021, tatu: [dataformats-binary#264] barfs on a specific value...
+        //   Must skip normalization in that particular case. Alas, haven't found
+        //   another way to check it instead of getting "Overflow", catching
+        try {
+            return nr.stripTrailingZeros();
+        } catch (ArithmeticException e) {
+            // If we can't, we can't...
+            return nr;
+        }
+    }
 }

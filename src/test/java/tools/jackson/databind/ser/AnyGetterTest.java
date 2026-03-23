@@ -760,6 +760,18 @@ public class AnyGetterTest extends DatabindTestUtil
         assertEquals(a2q("{'id':1,'name':'test'}"), json);
     }
 
+    // [databind#3604]: Empty ObjectNode for @JsonAnyGetter should produce no extra properties
+    @Test
+    public void testAnyGetterWithEmptyObjectNode() throws Exception
+    {
+        ObjectNodeAnyGetterFieldBean bean = new ObjectNodeAnyGetterFieldBean();
+        bean.id = 1;
+        bean.extra = MAPPER.createObjectNode();
+
+        String json = MAPPER.writeValueAsString(bean);
+        assertEquals(a2q("{'id':1}"), json);
+    }
+
     // [databind#3604]: Non-ObjectNode JsonNode (e.g. ArrayNode) should fail with clear error
     @Test
     public void testAnyGetterWithArrayNodeFails() throws Exception

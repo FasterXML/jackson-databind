@@ -138,7 +138,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
      * Helper method for serializing entries of an {@link ObjectNode}
      * as individual properties (for {@code @JsonAnyGetter} support).
      *
-     * @since 3.0
+     * @since 3.2
      */
     protected void _serializeObjectNodeEntries(ObjectNode objectNode,
             JsonGenerator gen, SerializationContext provider)

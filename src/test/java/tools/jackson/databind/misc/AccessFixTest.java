@@ -12,8 +12,8 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // Test(s) to verify that forced access works as expected
-// @Isolated: installs a custom SecurityManager which would leak into
-// concurrently running tests, causing spurious SecurityExceptions.
+// 22-Mar-2026, tatu: @Isolated: installs a custom SecurityManager which
+// might leak into concurrently running tests, causing spurious SecurityExceptions.
 @Isolated
 public class AccessFixTest extends DatabindTestUtil
 {

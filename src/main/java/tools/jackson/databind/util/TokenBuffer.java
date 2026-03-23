@@ -1514,6 +1514,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         protected final boolean _hasNativeIds;
 
+        // @since 3.1.1
+        protected final boolean _forceBigDecimal;
+
         /*
         /******************************************************************
         /* Parsing state
@@ -1565,6 +1568,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _hasNativeTypeIds = hasNativeTypeIds;
             _hasNativeObjectIds = hasNativeObjectIds;
             _hasNativeIds = (hasNativeTypeIds || hasNativeObjectIds);
+            _forceBigDecimal = _source._forceBigDecimal;
         }
 
         public void setLocation(TokenStreamLocation l) {
@@ -1900,8 +1904,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 // For integers, only big values are deferred (see _copyBufferValue)
                 // so BIG_INTEGER is appropriate; for floats, default parsing
                 // produces Double (not BigDecimal) -- see [databind#3524]
-                return (_currToken == JsonToken.VALUE_NUMBER_FLOAT)
-                        ? NumberType.DOUBLE : NumberType.BIG_INTEGER;
+                // But: [databind#5786] must respect _forceBigDecimal setting
+                if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
+                    return _forceBigDecimal
+                            ? NumberType.BIG_DECIMAL : NumberType.DOUBLE;
+                }
+                return NumberType.BIG_INTEGER;
             }
             return null;
         }
@@ -1917,14 +1925,19 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 // 11-Feb-2026, tatu: If deferred, type specifically not known,
                 //    caller to decide (unlike with `getNumberType()` that has
                 //    no "unknown" option).
-                if (n instanceof String) return NumberTypeFP.DOUBLE64;
+                // But: [databind#5786] must respect _forceBigDecimal setting
+                if (n instanceof String) {
+                    return _forceBigDecimal
+                            ? NumberTypeFP.BIG_DECIMAL : NumberTypeFP.DOUBLE64;
+                }
             }
             return NumberTypeFP.UNKNOWN;
         }
 
         @Override
         public final Number getNumberValue() {
-            return _numberValue(-1, false);
+            // [databind#5786]: respect _forceBigDecimal for deferred float values
+            return _numberValue(-1, _forceBigDecimal);
         }
 
         @Override
@@ -1942,8 +1955,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 throw _constructNotNumericType(_currToken, targetNumType);
             }
             Object value = _currentObject();
-            if (value instanceof Number number) {
-                return number;
+            if (value instanceof Number nr) {
+                return nr;
             }
             // Difficult to really support numbers-as-Strings; but let's try.
             // NOTE: no access to DeserializationConfig, unfortunately, so cannot
@@ -1951,8 +1964,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
             // 12-Jan-2021, tatu: Is this really needed, and for what? CSV, XML?
             if (value instanceof String str) {
-                final int len = str.length();
                 if (_currToken == JsonToken.VALUE_NUMBER_INT) {
+                    final int len = str.length();
                     // 08-Dec-2023, tatu: Note -- deferred numbers' validity (wrt input token)
                     //    has been verified by underlying `JsonParser`: no need to check again
                     if (preferBigNumbers

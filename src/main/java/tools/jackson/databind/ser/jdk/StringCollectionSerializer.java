@@ -138,10 +138,19 @@ public class StringCollectionSerializer
              SerializationContext ctxt, boolean filtered)
             throws JacksonException
     {
-        int i = 0;
+        // [databind#3166]: sort Set<String> if feature enabled
+        Collection<String> toSerialize = value;
+        if (value instanceof Set<?> && !(value instanceof SortedSet<?>)) {
+            if (ctxt.isEnabled(SerializationFeature.ORDER_SET_ELEMENTS)) {
+                List<String> sorted = new ArrayList<>(value);
+                sorted.sort(Comparator.nullsLast(Comparator.naturalOrder()));
+                toSerialize = sorted;
+            }
+        }
 
+        int i = 0;
         try {
-            for (String str : value) {
+            for (String str : toSerialize) {
                 if (str == null) {
                     if (filtered && _suppressNulls) {
                         ++i;

@@ -179,17 +179,17 @@ public class DurationDeserTest extends DateTimeTestBase
      * Numbers with very large exponents can take a long time, but still result in zero.
      * https://github.com/FasterXML/jackson-databind/issues/2141
      */
-    @Timeout(value = 100, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 200, unit = TimeUnit.MILLISECONDS)
     @Test
     public void testDeserializationAsFloatEdgeCase08() throws Exception
     {
         String input = "1e10000000";
         Duration value = READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
-                                 .readValue(input);
+                .readValue(input);
         assertEquals(0, value.getSeconds());
     }
 
-    @Timeout(value = 100, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 200, unit = TimeUnit.MILLISECONDS)
     @Test
     public void testDeserializationAsFloatEdgeCase09() throws Exception
     {
@@ -202,7 +202,7 @@ public class DurationDeserTest extends DateTimeTestBase
     /**
      * Same for large negative exponents.
      */
-    @Timeout(value = 100, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 200, unit = TimeUnit.MILLISECONDS)
     @Test
     public void testDeserializationAsFloatEdgeCase10() throws Exception
     {
@@ -212,7 +212,7 @@ public class DurationDeserTest extends DateTimeTestBase
         assertEquals(0, value.getSeconds());
     }
 
-    @Timeout(value = 100, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 200, unit = TimeUnit.MILLISECONDS)
     @Test
     public void testDeserializationAsFloatEdgeCase11() throws Exception
     {

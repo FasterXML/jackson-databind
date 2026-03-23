@@ -36,6 +36,12 @@ public class JavaUtilDateSerializationTest
         public DateAsNumberBean(long l) { date = new java.util.Date(l); }
     }
 
+    static class DateAsNumberIntBean {
+        @JsonFormat(shape=JsonFormat.Shape.NUMBER_INT)
+        public Date date;
+        public DateAsNumberIntBean(long l) { date = new java.util.Date(l); }
+    }
+
     static class DateAsStringBean {
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
         public Date date;
@@ -275,6 +281,11 @@ public class JavaUtilDateSerializationTest
         json = MAPPER.writer().without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(new DateAsNumberBean(0L));
         assertEquals(a2q("{'date':0}"), json);
+
+        // test overriding writing as timestamp (Shape.NUMBER_INT)
+        json = MAPPER.writer().without(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(new DateAsNumberBean(-1383043669935L));
+        assertEquals(a2q("{'date':-1383043669935}"), json);
 
         // then reverse
         json = MAPPER.writer()

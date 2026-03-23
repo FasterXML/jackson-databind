@@ -41,12 +41,9 @@ public abstract class ConcreteBeanPropertyBase
 
     @Override
     public JsonFormat.Value findFormatOverrides(MapperConfig<?> config) {
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        if (intr != null) {
-            AnnotatedMember member = getMember();
-            if (member != null) {
-                return intr.findFormat(config, member);
-            }
+        AnnotatedMember member = getMember();
+        if (member != null) {
+            return config.getAnnotationIntrospector().findFormat(config, member);
         }
         return null;
     }
@@ -69,12 +66,9 @@ public abstract class ConcreteBeanPropertyBase
     {
         List<PropertyName> aliases = _aliases;
         if (aliases == null) {
-            AnnotationIntrospector intr = config.getAnnotationIntrospector();
-            if (intr != null) {
-                final AnnotatedMember member = getMember();
-                if (member != null) {
-                    aliases = intr.findPropertyAliases(config, member);
-                }
+            final AnnotatedMember member = getMember();
+            if (member != null) {
+                aliases = config.getAnnotationIntrospector().findPropertyAliases(config, member);
             }
             if (aliases == null) {
                 aliases = Collections.emptyList();

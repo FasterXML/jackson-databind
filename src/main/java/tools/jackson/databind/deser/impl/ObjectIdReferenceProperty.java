@@ -98,7 +98,10 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
                 throw DatabindException.from(p, "Unresolved forward reference but no identity info", reference);
             }
             reference.getRoid().appendReferring(new PropertyReferring(this, reference, _type.getRawClass(), instance));
-            return null;
+            // [databind#1496]: track that this container has pending forward refs
+            // (used by BuilderBasedDeserializer to detect refs lost after building)
+            ctxt.addPendingForwardRef(instance);
+            return instance;
         }
     }
 
@@ -132,7 +135,14 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
                 throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
                         + "] that wasn't previously seen as unresolved.");
             }
+            // [databind#1496]: forward ref resolved, remove from pending set
+            ctxt.removePendingForwardRef(_pojo);
             _parent.set(ctxt, _pojo, value);
+        }
+
+        @Override
+        public boolean refersTo(Object obj) {
+            return _pojo == obj;
         }
     }
 }

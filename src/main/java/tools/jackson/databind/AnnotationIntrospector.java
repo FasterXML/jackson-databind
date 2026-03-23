@@ -145,6 +145,23 @@ public abstract class AnnotationIntrospector
          * @return Null if no indicator found; {@code True} or {@code False} otherwise
          */
         public Boolean isOutputAsCData(MapperConfig<?> config, Annotated ann);
+
+        /**
+         * Method for finding the fully-qualified inner element name specified via
+         * {@code @JacksonXmlProperty} (or similar) on a property accessor.
+         * Used to recover the inner element name for wrapped collections when
+         * the property name has been set to the wrapper name.
+         *
+         * @param config Configuration settings in effect
+         * @param ann Annotated entity to introspect
+         *
+         * @return Inner element name if explicitly specified; null otherwise.
+         *
+         * @since 3.2
+         */
+        default PropertyName findXmlPropertyInnerName(MapperConfig<?> config, Annotated ann) {
+            return null;
+        }
     }
 
     /*

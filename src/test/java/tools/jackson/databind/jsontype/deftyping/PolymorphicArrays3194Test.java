@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.jsontype.deftyping;
 
 import org.junit.jupiter.api.Test;
 
@@ -10,17 +10,31 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// [databund#3194]: Discrepancy between Type Id inclusion on serialization vs
+// [databind#3194]: Discrepancy between Type Id inclusion on serialization vs
 // expectation during deserialization causes mismatch and fails deserialization.
 class PolymorphicArrays3194Test extends DatabindTestUtil
 {
     static final class ArrayBean3194 {
         public Object[][] value;
+    }
+
+    static final class UntypedBean3194 {
+        public Object value;
+    }
+
+    static final class Bean3194 {
+        public int x;
+        public String y;
+
+        protected Bean3194() { }
+        Bean3194(int x, String y) {
+            this.x = x;
+            this.y = y;
+        }
     }
 
     static class UntypedWrapper3195 {
@@ -34,7 +48,7 @@ class PolymorphicArrays3194Test extends DatabindTestUtil
                 .allowIfSubTypeIsArray()
                 .allowIfSubType(Object.class)
                 .build();
-    
+
     @Test
     void twoDimensionalArrayViaUntyped() throws Exception
     {
@@ -60,7 +74,7 @@ class PolymorphicArrays3194Test extends DatabindTestUtil
         assertEquals(strs[0][1], resultStrs[0][1]);
     }
 
-    @JacksonTestFailureExpected
+    // [databind#3194]
     @Test
     void twoDimensionalArrayViaDefaultTyping() throws Exception
     {
@@ -75,17 +89,49 @@ class PolymorphicArrays3194Test extends DatabindTestUtil
                 .writerWithDefaultPrettyPrinter()
                 .writeValueAsString(instance);
 
-        // Note: we'll see something like:
-        //
-//  {
-//    "value" : [ "[[Ljava.lang.String;", [ [ "[Ljava.lang.String;", [ "1.1", "1.2" ] ], [ "[Ljava.lang.String;", [ "2.1", "2.2" ] ] ] ]
-//  }
-
-        // that is, type ids for both array levels.
-
-// System.err.println("JSON:\n"+json);
-        ArrayBean3194 result = mapper.readValue(json, ArrayBean3194.class); // fails
+        ArrayBean3194 result = mapper.readValue(json, ArrayBean3194.class);
         assertEquals(String[][].class, result.value.getClass());
         assertEquals(String[].class, result.value[0].getClass());
+    }
+
+    // [databind#3194]: same as above but for primitive (int) 2D arrays
+    @Test
+    void twoDimensionalPrimitiveArrayViaDefaultTyping() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper
+                .builder()
+                .activateDefaultTyping(OBJECT_ALLOWING_VALIDATOR, DefaultTyping.NON_FINAL)
+                .build();
+
+        // int[][] cannot be assigned to Object[][], so use Object field wrapper
+        UntypedBean3194 input = new UntypedBean3194();
+        input.value = new int[][]{{1, 2}, {3, 4}};
+        String json = mapper.writeValueAsString(input);
+
+        UntypedBean3194 result = mapper.readValue(json, UntypedBean3194.class);
+        assertEquals(int[][].class, result.value.getClass());
+        int[][] arr = (int[][]) result.value;
+        assertEquals(2, arr[0][1]);
+        assertEquals(4, arr[1][1]);
+    }
+
+    // [databind#3194]: same as above but for POJO (non-final) 2D arrays
+    @Test
+    void twoDimensionalPojoArrayViaDefaultTyping() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper
+                .builder()
+                .activateDefaultTyping(OBJECT_ALLOWING_VALIDATOR, DefaultTyping.NON_FINAL)
+                .build();
+
+        ArrayBean3194 instance = new ArrayBean3194();
+        instance.value = new Bean3194[][]{{new Bean3194(1, "a")}, {new Bean3194(2, "b")}};
+        String json = mapper.writeValueAsString(instance);
+
+        ArrayBean3194 result = mapper.readValue(json, ArrayBean3194.class);
+        assertEquals(Bean3194[][].class, result.value.getClass());
+        assertEquals(Bean3194[].class, result.value[0].getClass());
+        assertEquals(1, ((Bean3194) result.value[0][0]).x);
+        assertEquals("b", ((Bean3194) result.value[1][0]).y);
     }
 }

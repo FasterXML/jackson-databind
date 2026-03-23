@@ -7,9 +7,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 // From https://github.com/FasterXML/jackson-module-kotlin/issues/308
 /**
@@ -17,7 +17,8 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
  * {@link JsonProperty} on a private setter method works correctly.
  * The private method "unpacks" the JSON property value to a different field.
  */
-public class KotlinIssue308JsonIgnoreTest
+public class KotlinIssueGH308JsonIgnoreTest
+    extends DatabindTestUtil
 {
     static class TestDto
     {

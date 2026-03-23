@@ -901,6 +901,69 @@ public abstract class DeserializationContext
     public abstract void checkUnresolvedObjectId()
         throws UnresolvedForwardReference;
 
+    /**
+     * Method called to update Object Id binding from an intermediate delegate
+     * object to the final bean produced by a delegating {@code @JsonCreator}.
+     * This is needed because when using {@code @JsonIdentityInfo} with delegating
+     * creators, the Object Id gets initially bound to the delegate (intermediate)
+     * object, but needs to point to the final converted bean.
+     *<p>
+     * Implemented by
+     * {@link tools.jackson.databind.deser.DeserializationContextExt}.
+     *
+     * @param delegate The intermediate delegate object that was originally bound
+     * @param newItem The final bean produced by the delegating creator
+     *
+     * @since 3.2
+     */
+    public abstract void updateObjectId(Object delegate, Object newItem) throws JacksonException;
+
+    /**
+     * Method to register that a forward Object Id reference has been recorded
+     * against the given container object (typically a builder). Called by
+     * {@link tools.jackson.databind.deser.impl.ObjectIdReferenceProperty} when
+     * an unresolved forward reference is caught. Enables O(1) checking via
+     * {@link #hasPendingForwardRefsFor}.
+     *<p>
+     * Implemented by
+     * {@link tools.jackson.databind.deser.DeserializationContextExt}.
+     *
+     * @param container The container/builder object the forward ref was registered against
+     *
+     * @since 3.2
+     */
+    public abstract void addPendingForwardRef(Object container);
+
+    /**
+     * Method to remove a container object from the pending forward reference
+     * tracking set, called when the forward reference has been resolved.
+     *<p>
+     * Implemented by
+     * {@link tools.jackson.databind.deser.DeserializationContextExt}.
+     *
+     * @param container The container/builder object to remove
+     *
+     * @since 3.2
+     */
+    public abstract void removePendingForwardRef(Object container);
+
+    /**
+     * Method for checking whether the given container object has any pending
+     * unresolved forward Object Id references registered against it.
+     * Used by Builder-based deserialization to detect forward references
+     * that would be lost after building (since they point to the builder,
+     * not the built object).
+     *<p>
+     * Implemented by
+     * {@link tools.jackson.databind.deser.DeserializationContextExt}.
+     *
+     * @param builder The builder/container object to check
+     * @return {@code true} if there are pending forward references against this object
+     *
+     * @since 3.2
+     */
+    public abstract boolean hasPendingForwardRefsFor(Object builder);
+
     /*
     /**********************************************************************
     /* Public API, type handling

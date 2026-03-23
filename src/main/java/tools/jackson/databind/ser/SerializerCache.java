@@ -118,24 +118,46 @@ public final class SerializerCache
 
     /**
      * Method that checks if the shared (and hence, synchronized) lookup Map might have
-     * untyped serializer for given type.
+     * an untyped serializer for given type.
+     *<p>
+     * NOTE: Synchronized to prevent a race condition where a thread reads an unresolved
+     * serializer that was put into the shared map by another thread inside
+     * {@link #addAndResolveNonTypedSerializer} before {@code resolve()} completes.
+     * See [databind#5813].
      */
-    public ValueSerializer<Object> untypedValueSerializer(Class<?> type)
+    public synchronized ValueSerializer<Object> untypedValueSerializer(Class<?> type)
     {
         return _sharedMap.get(new TypeKey(type, false));
     }
 
-    public ValueSerializer<Object> untypedValueSerializer(JavaType type)
+    /**
+     * Method that checks if the shared (and hence, synchronized) lookup Map might have
+     * an untyped serializer for given type.
+     *<p>
+     * NOTE: Synchronized to prevent a race condition where a thread reads an unresolved
+     * serializer that was put into the shared map by another thread inside
+     * {@link #addAndResolveNonTypedSerializer} before {@code resolve()} completes.
+     * See [databind#5813].
+     */
+    public synchronized ValueSerializer<Object> untypedValueSerializer(JavaType type)
     {
         return _sharedMap.get(new TypeKey(type, false));
     }
 
-    public ValueSerializer<Object> typedValueSerializer(JavaType type)
+    /**
+     * Method that checks if the shared (and hence, synchronized) lookup Map might have
+     * a typed serializer for given type.
+     */
+    public synchronized ValueSerializer<Object> typedValueSerializer(JavaType type)
     {
         return _sharedMap.get(new TypeKey(type, true));
     }
 
-    public ValueSerializer<Object> typedValueSerializer(Class<?> cls)
+    /**
+     * Method that checks if the shared (and hence, synchronized) lookup Map might have
+     * a typed serializer for given type.
+     */
+    public synchronized ValueSerializer<Object> typedValueSerializer(Class<?> cls)
     {
         return _sharedMap.get(new TypeKey(cls, true));
     }

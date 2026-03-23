@@ -1016,7 +1016,15 @@ public class JacksonAnnotationIntrospector
     @Override
     public String[] findSerializationPropertyOrder(MapperConfig<?> config, AnnotatedClass ac) {
         JsonPropertyOrder order = _findAnnotation(ac, JsonPropertyOrder.class);
-        return (order == null) ? null : order.value();
+        if (order != null) {
+            return order.value();
+        }
+        // [databind#3083]: @JsonIncludeProperties with order=true defines property order
+        JsonIncludeProperties incl = _findAnnotation(ac, JsonIncludeProperties.class);
+        if (incl != null && incl.order().asPrimitive()) {
+            return incl.value();
+        }
+        return null;
     }
 
     @Override

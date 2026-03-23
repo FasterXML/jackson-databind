@@ -47,7 +47,7 @@ public final class AnnotatedClass
     /**
      * Ordered set of super classes and interfaces of the
      * class itself: included in order of precedence of annotations
-     * inherited (starting with immediate super-interfacees, recursively,
+     * inherited (starting with immediate super-interfaces, recursively,
      * and then super-class, its super-interfaces, and so forth.
      *<br>
      * NOTE: does NOT include {@link java.lang.Object}.
@@ -272,7 +272,7 @@ public final class AnnotatedClass
      * Accessor for super-types of class (or interface) represented by this
      * {@link AnnotatedClass}, excluding {@link java.lang.Object}.
      *
-     * @return Set of super-types in decreasing precedence, the order in which
+     * @return List of super-types in decreasing precedence, the order in which
      *   annotations are inherited from super types (first immediate
      *   super interfaces and their super interfaces; then immediate super
      *   class and its super interfaces, super class, and so on).

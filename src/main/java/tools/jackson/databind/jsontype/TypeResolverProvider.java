@@ -277,7 +277,7 @@ public class TypeResolverProvider
                 return NO_RESOLVER;
             }
 
-            List<JavaType> superTypes;
+            JavaType detectedBaseType;
             // 13-Aug-2011, tatu: One complication; external id
             //   only works for properties; so if declared for a Class, we will need
             //   to map it to "PROPERTY" instead of "EXTERNAL_PROPERTY"
@@ -287,22 +287,13 @@ public class TypeResolverProvider
                     typeInfo = typeInfo.withInclusionType(JsonTypeInfo.As.PROPERTY);
                 }
 
-            	// Search for the annotation through the parent classes/hierarchies
-            	// BEWARE: What if the annotation appears on multiple places? Is there any specific ordering?
-                superTypes = annotatedClass.getSuperTypes();
+                detectedBaseType = ai.findPolymorphicBaseType(config, annotatedClass, typeInfo, baseType);
             } else {
             	// when method/field annotated, declared type MUST be intended base type
-            	superTypes = List.of();
+            	detectedBaseType = null;
             }
 
-            // Look for the javaType holding @JsonTypeInfo, so it can be used as referential package for JsonTypeInfo.Id.MINIMAL_CLASS"
-        	Optional<JavaType> optJavaType = superTypes.stream().filter(type -> null != type.getRawClass().getAnnotation(JsonTypeInfo.class)).findFirst();
-        	
-        	// Fallback on the provided baseType if we can not find the annotation from the parent hierarchy of classes
-        	// Or no fallback, as we want to keep the information later we had no clear annotationHolder
-        	JavaType annotatedClass = optJavaType.orElse(null);
-            
-            b = _constructStdTypeResolverBuilder(config, typeInfo, baseType, annotatedClass);
+            b = _constructStdTypeResolverBuilder(config, typeInfo, baseType, detectedBaseType);
         }
         // Does it define a custom type id resolver?
         Object customIdResolverOb = ai.findTypeIdResolver(config, ann);
@@ -321,7 +312,7 @@ public class TypeResolverProvider
     }
 
     protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
-            JsonTypeInfo.Value typeInfo, JavaType baseType, JavaType annotatedClass) {
-        return new StdTypeResolverBuilder(typeInfo, annotatedClass);
+            JsonTypeInfo.Value typeInfo, JavaType baseType, JavaType detectedBaseType) {
+        return new StdTypeResolverBuilder(typeInfo, detectedBaseType);
     }
 }

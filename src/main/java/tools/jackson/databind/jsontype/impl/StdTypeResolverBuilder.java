@@ -27,7 +27,7 @@ public class StdTypeResolverBuilder
     /**
      * The type representing the base class. Typically the class holding the JsonTypeInfo annotation
      */
-    protected JavaType _jsonTypeInfoAnnotatedClass;
+    protected JavaType _detectedBaseType;
 
     protected String _typeProperty;
 
@@ -62,11 +62,11 @@ public class StdTypeResolverBuilder
 
     public StdTypeResolverBuilder() { }
 
-    public StdTypeResolverBuilder(JsonTypeInfo.Value settings, JavaType annotatedClass) {
+    public StdTypeResolverBuilder(JsonTypeInfo.Value settings, JavaType detectedBaseType) {
         if (settings != null) {
             withSettings(settings);
         }
-        this._jsonTypeInfoAnnotatedClass = annotatedClass;
+        this._detectedBaseType = detectedBaseType;
     }
 
     public StdTypeResolverBuilder(JsonTypeInfo.Id idType,
@@ -295,7 +295,7 @@ public class StdTypeResolverBuilder
         if (_customIdResolver != null) { return _customIdResolver; }
         if (_idType == null) throw new IllegalStateException("Cannot build, 'init()' not yet called");
         
-        JavaType actualBaseType = _jsonTypeInfoAnnotatedClass != null ? _jsonTypeInfoAnnotatedClass : baseType;
+        JavaType actualBaseType = _detectedBaseType != null ? _detectedBaseType : baseType;
         
         switch (_idType) {
         case DEDUCTION: // Deduction produces class names to be resolved

@@ -283,8 +283,8 @@ public class BasicBeanDescription extends BeanDescription
                 Class<?> type = anyMethod.getRawParameterType(0);
                 if ((type != String.class) && (type != Object.class)) {
                     throw new IllegalArgumentException(String.format(
-"Invalid 'any-setter' annotation on method '%s()': first argument not of type String or Object, but %s",
-anyMethod.getName(), type.getName()));
+"Invalid 'any-setter' annotation on method '%s()': first argument not of type `String` or `Object`, but %s",
+anyMethod.getName(), ClassUtil.nameOf(type)));
                 }
                 return anyMethod;
             }
@@ -438,7 +438,7 @@ anyField.getName()));
                 if (!Map.class.isAssignableFrom(type)
                         && !JsonNode.class.isAssignableFrom(type)) {
                     throw new IllegalArgumentException(String.format(
-                            "Invalid 'any-getter' annotation on method `%s()`: return type is not instance of `java.util.Map` or `JsonNode`",
+                            "Invalid 'any-getter' annotation on method '%s()': return type is not instance of `java.util.Map` or `JsonNode`",
                             anyGetter.getName()));
                 }
                 return anyGetter;

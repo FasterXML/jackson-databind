@@ -81,6 +81,38 @@ public class ObjectIdWithTypeInfo4014Test extends DatabindTestUtil
         public void setFoo(FooWithSetter foo) { this.foo = foo; }
     }
 
+    // Wrapper-array variants: exercises AsArrayTypeDeserializer fix
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_ARRAY, property = "@c")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "@id")
+    public interface WrapperArrayEntity {
+        @JsonProperty("@id")
+        Integer getId();
+    }
+
+    static class WrapFoo implements WrapperArrayEntity {
+        private final Integer id;
+        private WrapBar bar;
+
+        @JsonCreator
+        public WrapFoo(@JsonProperty("@id") Integer id) { this.id = id; }
+
+        @Override @JsonProperty("@id") public Integer getId() { return id; }
+        public WrapBar getBar() { return bar; }
+        public void setBar(WrapBar bar) { this.bar = bar; }
+    }
+
+    static class WrapBar implements WrapperArrayEntity {
+        private final Integer id;
+        private WrapFoo foo;
+
+        @JsonCreator
+        public WrapBar(@JsonProperty("@id") Integer id) { this.id = id; }
+
+        @Override @JsonProperty("@id") public Integer getId() { return id; }
+        public WrapFoo getFoo() { return foo; }
+        public void setFoo(WrapFoo foo) { this.foo = foo; }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#4014]: simple round-trip via interface (setter-based)
@@ -148,6 +180,40 @@ public class ObjectIdWithTypeInfo4014Test extends DatabindTestUtil
         assertInstanceOf(Foo.class, result);
 
         Foo resultFoo = (Foo) result;
+        assertEquals(1, resultFoo.getId());
+        assertNotNull(resultFoo.getBar());
+        assertEquals(2, resultFoo.getBar().getId());
+        assertSame(resultFoo, resultFoo.getBar().getFoo());
+    }
+
+    // [databind#4014]: simple round-trip with WRAPPER_ARRAY
+    @Test
+    public void testSimpleDeserializationWrapperArray() throws Exception
+    {
+        WrapFoo foo = new WrapFoo(1);
+        String json = MAPPER.writeValueAsString(foo);
+        WrapperArrayEntity result = MAPPER.readValue(json, WrapperArrayEntity.class);
+        assertNotNull(result);
+        assertInstanceOf(WrapFoo.class, result);
+        assertEquals(1, ((WrapFoo) result).getId());
+    }
+
+    // [databind#4014]: circular references with WRAPPER_ARRAY
+    @Test
+    public void testCircularReferenceWrapperArray() throws Exception
+    {
+        WrapFoo foo = new WrapFoo(1);
+        WrapBar bar = new WrapBar(2);
+        foo.setBar(bar);
+        bar.setFoo(foo);
+
+        String json = MAPPER.writeValueAsString(foo);
+
+        WrapperArrayEntity result = MAPPER.readValue(json, WrapperArrayEntity.class);
+        assertNotNull(result);
+        assertInstanceOf(WrapFoo.class, result);
+
+        WrapFoo resultFoo = (WrapFoo) result;
         assertEquals(1, resultFoo.getId());
         assertNotNull(resultFoo.getBar());
         assertEquals(2, resultFoo.getBar().getId());

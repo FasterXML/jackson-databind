@@ -24,7 +24,7 @@ public class ReadableObjectId
     protected Object _item;
 
     /**
-     * Flag set when {@link #replaceBoundItem} is called, indicating that
+     * Flag set when {@link #tryReplaceBoundItem} is called, indicating that
      * {@link #_item} has been replaced and should not be refreshed from resolver.
      *
      * @since 3.2
@@ -187,6 +187,21 @@ public class ReadableObjectId
 
         public boolean hasId(Object id) {
             return id.equals(_reference.getUnresolvedId());
+        }
+
+        /**
+         * Method for checking if this forward reference was registered against
+         * the given container instance (the object that will receive the resolved
+         * value). Used for detecting issues with Builder-based deserialization
+         * where the container (builder) is discarded after building.
+         *
+         * @param obj The object to check against
+         * @return {@code true} if this referring was registered against {@code obj}
+         *
+         * @since 3.2
+         */
+        public boolean refersTo(Object obj) {
+            return false;
         }
     }
 }

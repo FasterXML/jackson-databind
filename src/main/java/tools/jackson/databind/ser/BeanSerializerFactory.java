@@ -9,6 +9,7 @@ import tools.jackson.core.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.SerializerFactoryConfig;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.impl.FilteredBeanPropertyWriter;
@@ -21,6 +22,7 @@ import tools.jackson.databind.ser.std.StdConvertingSerializer;
 import tools.jackson.databind.ser.std.ToEmptyObjectSerializer;
 import tools.jackson.databind.type.ReferenceType;
 import tools.jackson.databind.util.*;
+import tools.jackson.databind.util.SimpleBeanPropertyDefinition;
 
 /**
  * Factory class that can provide serializers for any regular Java beans
@@ -314,7 +316,7 @@ public class BeanSerializerFactory
         if (props == null) {
             props = new ArrayList<>();
         } else {
-            props = removeOverlappingTypeIds(ctxt, beanDescRef, builder, props);
+            props = removeOverlappingExternalTypeIds(ctxt, beanDescRef, builder, props);
         }
 
         // [databind#638]: Allow injection of "virtual" properties:
@@ -334,6 +336,12 @@ public class BeanSerializerFactory
         props = filterUnwantedJDKProperties(config, beanDescRef, props);
         props = filterBeanProperties(config, beanDescRef, props);
 
+        // [databind#1410]: Verify no bean property conflicts with class-level
+        //   type id property name (for As.PROPERTY inclusion)
+        // [databind#5615]: Must be done after filterBeanProperties() so that
+        //   @JsonIgnoreProperties-ignored properties are excluded first
+        _verifyNoTypeIdPropertyConflict(ctxt, beanDescRef, props);
+
         // Need to allow reordering of properties to serialize
         if (_factoryConfig.hasSerializerModifiers()) {
             for (ValueSerializerModifier mod : _factoryConfig.serializerModifiers()) {
@@ -352,19 +360,29 @@ public class BeanSerializerFactory
         AnnotatedMember anyGetter = beanDescRef.get().findAnyGetter();
         if (anyGetter != null) {
             JavaType anyType = anyGetter.getType();
-            // copied from BasicSerializerFactory.buildMapSerializer():
-            JavaType valueType = anyType.getContentType();
-            TypeSerializer typeSer = ctxt.findTypeSerializer(valueType);
-            // last 2 nulls; don't know key, value serializers (yet)
             // 23-Feb-2015, tatu: As per [databind#705], need to support custom serializers
             ValueSerializer<?> anySer = findSerializerFromAnnotation(ctxt, anyGetter);
-            if (anySer == null) {
-                // TODO: support '@JsonIgnoreProperties' with any setter?
-                anySer = MapSerializer.construct(
-                        anyType, config.isEnabled(MapperFeature.USE_STATIC_TYPING),
-                        typeSer, null, null, /*filterId*/ null,
-                        /* ignored props*/ (Set<String>) null,
-                        /* included props*/ (Set<String>) null);
+            JavaType valueType;
+
+            // [databind#3604]: Support ObjectNode/JsonNode for @JsonAnyGetter
+            if (JsonNode.class.isAssignableFrom(anyType.getRawClass())) {
+                // For JsonNode-valued any-getters, value type is JsonNode;
+                // no default serializer needed since AnyGetterWriter handles
+                // ObjectNode entries directly (anySer may still be non-null
+                // from custom @JsonSerialize annotation above)
+                valueType = ctxt.constructType(JsonNode.class);
+            } else {
+                // copied from BasicSerializerFactory.buildMapSerializer():
+                valueType = anyType.getContentType();
+                if (anySer == null) {
+                    TypeSerializer typeSer = ctxt.findTypeSerializer(valueType);
+                    // TODO: support '@JsonIgnoreProperties' with any setter?
+                    anySer = MapSerializer.construct(
+                            anyType, config.isEnabled(MapperFeature.USE_STATIC_TYPING),
+                            typeSer, null, null, /*filterId*/ null,
+                            /* ignored props*/ (Set<String>) null,
+                            /* included props*/ (Set<String>) null);
+                }
             }
             // TODO: can we find full PropertyName?
             PropertyName name = PropertyName.construct(anyGetter.getName());
@@ -564,7 +582,7 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
         boolean staticTyping = usesStaticTyping(config, beanDescRef);
         PropertyBuilder pb = constructPropertyBuilder(config, beanDescRef);
 
-        ArrayList<BeanPropertyWriter> result = new ArrayList<BeanPropertyWriter>(properties.size());
+        ArrayList<BeanPropertyWriter> result = new ArrayList<>(properties.size());
         for (BeanPropertyDefinition property : properties) {
             final AnnotatedMember accessor = property.getAccessor();
             // Type id? Requires special handling:
@@ -761,9 +779,9 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
 
     /**
      * Helper method called to ensure that we do not have "duplicate" type ids.
-     * Added to resolve [databind#222]
+     * Added to resolve [databind#222].
      */
-    protected List<BeanPropertyWriter> removeOverlappingTypeIds(SerializationContext ctxt,
+    protected List<BeanPropertyWriter> removeOverlappingExternalTypeIds(SerializationContext ctxt,
             BeanDescription.Supplier beanDescRef, BeanSerializerBuilder builder,
             List<BeanPropertyWriter> props)
     {
@@ -784,6 +802,44 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
             }
         }
         return props;
+    }
+
+    /**
+     * Helper method that verifies that no bean property has the same name as
+     * the class-level {@code @JsonTypeInfo(include = As.PROPERTY)} type id property:
+     * if so, throws {@link InvalidDefinitionException} to indicate that
+     * {@code As.EXISTING_PROPERTY} should be used instead.
+     *<p>
+     * Added to resolve [databind#1410].
+     *
+     * @since 3.2
+     */
+    protected void _verifyNoTypeIdPropertyConflict(SerializationContext ctxt,
+            BeanDescription.Supplier beanDescRef,
+            List<BeanPropertyWriter> props)
+    {
+        JsonTypeInfo.Value typeInfo =
+                ctxt.getAnnotationIntrospector().findPolymorphicTypeInfo(
+                        ctxt.getConfig(), beanDescRef.getClassInfo());
+        if ((typeInfo == null) || (typeInfo.getInclusionType() != As.PROPERTY)) {
+            return;
+        }
+        String n = typeInfo.getPropertyName();
+        if (n == null || n.isEmpty()) {
+            n = typeInfo.getIdType().getDefaultPropertyName();
+        }
+        if (n == null) {
+            return;
+        }
+        final PropertyName typeIdPropName = PropertyName.construct(n);
+        for (BeanPropertyWriter bpw : props) {
+            if (bpw.wouldConflictWithName(typeIdPropName)) {
+                ctxt.reportBadDefinition(beanDescRef.getType(), String.format(
+"Conflict between type id property '%s' and bean property with same name; "
++"consider using `JsonTypeInfo.As.EXISTING_PROPERTY` to avoid duplication",
+                        n));
+            }
+        }
     }
 
     /*

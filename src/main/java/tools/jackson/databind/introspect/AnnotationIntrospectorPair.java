@@ -199,6 +199,16 @@ public class AnnotationIntrospectorPair
         return v;
     }
 
+    @Override // @since 3.2
+    public JavaType findPolymorphicBaseType(MapperConfig<?> config,
+            AnnotatedClass ac, JsonTypeInfo.Value typeInfo, JavaType assumedBaseType) {
+        JavaType t = _primary.findPolymorphicBaseType(config, ac, typeInfo, assumedBaseType);
+        if (t == null) {
+            t = _secondary.findPolymorphicBaseType(config, ac, typeInfo, assumedBaseType);
+        }
+        return t;
+    }
+
     @Override
     public Object findTypeResolverBuilder(MapperConfig<?> config,
             Annotated ann) {

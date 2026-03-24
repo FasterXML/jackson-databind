@@ -613,6 +613,20 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    public JavaType findPolymorphicBaseType(MapperConfig<?> config,
+            AnnotatedClass ac, JsonTypeInfo.Value typeInfo, JavaType assumedBaseType) {
+        for (JavaType type : ac.getSuperTypes()) {
+            // 23-Mar-2026, tatu: Unusual in that we do not (and can not) use
+            //   `_findAnnotation()` and must resort to direct lookup. This
+            //   means we will miss mix-in annotations but it is what it is...
+            JsonTypeInfo t = type.getRawClass().getAnnotation(JsonTypeInfo.class);
+            if (t != null) {
+                return type;
+            }
+        }
+        return null;
+    }
+    @Override
     public Object findTypeResolverBuilder(MapperConfig<?> config,
             Annotated ann) {
         JsonTypeResolver a = _findAnnotation(ann, JsonTypeResolver.class);

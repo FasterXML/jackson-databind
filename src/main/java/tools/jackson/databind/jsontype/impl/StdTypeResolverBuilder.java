@@ -25,9 +25,13 @@ public class StdTypeResolverBuilder
     protected JsonTypeInfo.As _includeAs;
     
     /**
-     * The type representing the base class. Typically the class holding the JsonTypeInfo annotation
+     * The type representing the base class introspected from annotation (as opposed to
+     * declared type assumed as base type). Typically based on {@code @JsonTypeInfo}
+     * annotation.
+     *
+     * @since 3.2
      */
-    protected JavaType _jsonTypeInfoAnnotatedClass;
+    protected final JavaType _introspectedBaseType;
 
     protected String _typeProperty;
 
@@ -60,13 +64,15 @@ public class StdTypeResolverBuilder
     /**********************************************************************
      */
 
-    public StdTypeResolverBuilder() { }
+    public StdTypeResolverBuilder() {
+        _introspectedBaseType = null;
+    }
 
-    public StdTypeResolverBuilder(JsonTypeInfo.Value settings, JavaType annotatedClass) {
+    public StdTypeResolverBuilder(JsonTypeInfo.Value settings, JavaType introspectedBaseType) {
         if (settings != null) {
             withSettings(settings);
         }
-        this._jsonTypeInfoAnnotatedClass = annotatedClass;
+        _introspectedBaseType = introspectedBaseType;
     }
 
     public StdTypeResolverBuilder(JsonTypeInfo.Id idType,
@@ -78,6 +84,7 @@ public class StdTypeResolverBuilder
         _idType = idType;
         _includeAs = idAs;
         _typeProperty = _propName(propName, _idType);
+        _introspectedBaseType = null;
     }
 
     protected StdTypeResolverBuilder(StdTypeResolverBuilder base,
@@ -91,6 +98,7 @@ public class StdTypeResolverBuilder
 
         _defaultImpl = defaultImpl;
         _requireTypeIdForSubtypes = base._requireTypeIdForSubtypes;
+        _introspectedBaseType = base._introspectedBaseType;
     }
 
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
@@ -128,8 +136,11 @@ public class StdTypeResolverBuilder
         case EXTERNAL_PROPERTY:
             return new AsExternalTypeSerializer(idRes, null, _typeProperty);
         case EXISTING_PROPERTY:
-        	// as per [#528]
-        	return new AsExistingPropertyTypeSerializer(idRes, null, _typeProperty);
+        	    // as per [#528]
+            return new AsExistingPropertyTypeSerializer(idRes, null, _typeProperty);
+        // 23-Mar-2026, tatu: ... none?
+        case NOTHING:
+            return null;
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }
@@ -138,7 +149,9 @@ public class StdTypeResolverBuilder
     public TypeDeserializer buildTypeDeserializer(DeserializationContext ctxt,
             JavaType baseType, Collection<NamedType> subtypes)
     {
-        if (_idType == JsonTypeInfo.Id.NONE) { return null; }
+        if (_idType == JsonTypeInfo.Id.NONE) {
+            return null;
+        }
         // 03-Oct-2016, tatu: As per [databind#1395] better prevent use for primitives,
         //    regardless of setting
         if (baseType.isPrimitive()) {
@@ -176,6 +189,9 @@ public class StdTypeResolverBuilder
         case EXTERNAL_PROPERTY:
             return new AsExternalTypeDeserializer(baseType, idRes,
                     _typeProperty, _typeIdVisible, defaultImpl);
+        // 23-Mar-2026, tatu: ... none?
+        case NOTHING:
+            return null;
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }
@@ -288,11 +304,16 @@ public class StdTypeResolverBuilder
             Collection<NamedType> subtypes, boolean forSer, boolean forDeser)
     {
         // Custom id resolver?
-        if (_customIdResolver != null) { return _customIdResolver; }
-        if (_idType == null) throw new IllegalStateException("Cannot build, 'init()' not yet called");
+        if (_customIdResolver != null) {
+            return _customIdResolver;
+        }
+        if (_idType == null) {
+            throw new IllegalStateException("Cannot build, 'init()' not yet called");
+        }
         
-        JavaType actualBaseType = _jsonTypeInfoAnnotatedClass != null ? _jsonTypeInfoAnnotatedClass : baseType;
-        
+        final JavaType actualBaseType = (_introspectedBaseType == null)
+                ? baseType:  _introspectedBaseType;
+
         switch (_idType) {
         case DEDUCTION: // Deduction produces class names to be resolved
         case CLASS:

@@ -73,6 +73,13 @@ public class StdTypeResolverBuilder
         _detectedBaseType = detectedBaseType;
     }
 
+    @Deprecated(since = "Prefer similar constructor accepting a JavaType detectedBaseType")
+    public StdTypeResolverBuilder(JsonTypeInfo.Id idType,
+            JsonTypeInfo.As idAs, String propName)
+    {
+        this(idType, idAs, propName, null);
+    }
+
     public StdTypeResolverBuilder(JsonTypeInfo.Id idType,
             JsonTypeInfo.As idAs, String propName, JavaType detectedBaseType)
     {

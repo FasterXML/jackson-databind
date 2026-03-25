@@ -25,9 +25,11 @@ public class StdTypeResolverBuilder
     protected JsonTypeInfo.As _includeAs;
     
     /**
-     * The type representing the base class. Typically the class holding the JsonTypeInfo annotation
+     * The type representing the base class. Typically the class holding the JsonTypeInfo annotation.
+     * 
+     * @since 3.2
      */
-    protected JavaType _detectedBaseType;
+    protected final JavaType _detectedBaseType;
 
     protected String _typeProperty;
 
@@ -60,17 +62,19 @@ public class StdTypeResolverBuilder
     /**********************************************************************
      */
 
-    public StdTypeResolverBuilder() { }
+    public StdTypeResolverBuilder() { 
+        this._detectedBaseType = null;
+    }
 
     public StdTypeResolverBuilder(JsonTypeInfo.Value settings, JavaType detectedBaseType) {
         if (settings != null) {
             withSettings(settings);
         }
-        this._detectedBaseType = detectedBaseType;
+        _detectedBaseType = detectedBaseType;
     }
 
     public StdTypeResolverBuilder(JsonTypeInfo.Id idType,
-            JsonTypeInfo.As idAs, String propName)
+            JsonTypeInfo.As idAs, String propName, JavaType detectedBaseType)
     {
         if (idType == null) {
             throw new IllegalArgumentException("idType cannot be null");
@@ -78,6 +82,7 @@ public class StdTypeResolverBuilder
         _idType = idType;
         _includeAs = idAs;
         _typeProperty = _propName(propName, _idType);
+        _detectedBaseType = detectedBaseType;
     }
 
     protected StdTypeResolverBuilder(StdTypeResolverBuilder base,
@@ -91,10 +96,11 @@ public class StdTypeResolverBuilder
 
         _defaultImpl = defaultImpl;
         _requireTypeIdForSubtypes = base._requireTypeIdForSubtypes;
+        _detectedBaseType = base._detectedBaseType;
     }
 
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
-        return new StdTypeResolverBuilder(JsonTypeInfo.Id.NONE, null, null);
+        return new StdTypeResolverBuilder(JsonTypeInfo.Id.NONE, null, null, null);
     }
 
     @Override

@@ -11,6 +11,7 @@ import tools.jackson.databind.jsontype.TestSubtypesSubPackage.SuperType.InnerTyp
 import tools.jackson.databind.jsontype.subpackage.SubCSubPackage;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
+// For [databind#4983]: `JsonTypeInfo.Id.MINIMAL_CLASS` generates invalid type on sub-package
 public class TestSubtypesSubPackage extends DatabindTestUtil
 {
 	// Extended by SubCSubPackage which is in a sub package

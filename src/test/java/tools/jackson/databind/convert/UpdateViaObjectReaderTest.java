@@ -418,8 +418,8 @@ public class UpdateViaObjectReaderTest
             MAPPER.readValue(a2q("{'value':42}"), anonBean.getClass());
             fail("Should not pass");
         } catch (DatabindException e) {
-            System.err.println("ANON ERROR: " + e.getMessage());
             verifyException(e, "Cannot construct instance of");
+            verifyException(e, "local/anonymous class");
         }
     }
 
@@ -434,8 +434,8 @@ public class UpdateViaObjectReaderTest
             MAPPER.readValue(a2q("{'x':42}"), LocalBean.class);
             fail("Should not pass");
         } catch (DatabindException e) {
-            System.err.println("LOCAL ERROR: " + e.getMessage());
             verifyException(e, "Cannot construct instance of");
+            verifyException(e, "local/anonymous class");
         }
     }
 

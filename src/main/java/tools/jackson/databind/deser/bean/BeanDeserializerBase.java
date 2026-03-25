@@ -1608,6 +1608,11 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         //   inner classes -- with one and only one exception; that of default constructor!
         //   -- so let's indicate it
         Class<?> raw = _beanType.getRawClass();
+        // [databind#3229]: Give a more specific message for local/anonymous classes
+        if (ClassUtil.isLocalType(raw, true) != null) {
+            return ctxt.handleMissingInstantiator(raw, null, p,
+"cannot construct instance of local/anonymous class (consider using `readerForUpdating()` to update an existing instance instead)");
+        }
         if (ClassUtil.isNonStaticInnerClass(raw)) {
             return ctxt.handleMissingInstantiator(raw, null, p,
 "non-static inner classes like this can only by instantiated using default, no-argument constructor");

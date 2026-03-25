@@ -122,8 +122,10 @@ public class StdTypeResolverBuilder
         case EXTERNAL_PROPERTY:
             return new AsExternalTypeSerializer(idRes, null, _typeProperty);
         case EXISTING_PROPERTY:
-        	// as per [#528]
-        	return new AsExistingPropertyTypeSerializer(idRes, null, _typeProperty);
+            // as per [#528]
+            return new AsExistingPropertyTypeSerializer(idRes, null, _typeProperty);
+        case NOTHING:
+            return null;
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }
@@ -170,6 +172,8 @@ public class StdTypeResolverBuilder
         case EXTERNAL_PROPERTY:
             return new AsExternalTypeDeserializer(baseType, idRes,
                     _typeProperty, _typeIdVisible, defaultImpl);
+        case NOTHING:
+            return null;
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }

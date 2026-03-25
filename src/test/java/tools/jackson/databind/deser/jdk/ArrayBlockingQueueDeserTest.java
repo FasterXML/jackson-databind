@@ -15,15 +15,15 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class ArrayBlockingQueueDeserTest extends DatabindTestUtil
 {
-    static class StringQueueBean {
+    public static class StringQueueBean {
         public ArrayBlockingQueue<String> items;
     }
 
-    static class IntQueueBean {
+    public static class IntQueueBean {
         public ArrayBlockingQueue<Integer> numbers;
     }
 
-    static class PojoItem {
+    public static class PojoItem {
         public String name;
         public int value;
     }
@@ -37,7 +37,7 @@ public class ArrayBlockingQueueDeserTest extends DatabindTestUtil
      */
 
     @Test
-    public void testEmptyQueue() throws Exception
+    void testEmptyQueue() throws Exception
     {
         ArrayBlockingQueue<String> result = MAPPER.readValue("[]",
                 new TypeReference<ArrayBlockingQueue<String>>() { });
@@ -46,7 +46,7 @@ public class ArrayBlockingQueueDeserTest extends DatabindTestUtil
     }
 
     @Test
-    public void testSingleElementQueue() throws Exception
+    void testSingleElementQueue() throws Exception
     {
         ArrayBlockingQueue<String> result = MAPPER.readValue("[\"hello\"]",
                 new TypeReference<ArrayBlockingQueue<String>>() { });
@@ -56,7 +56,7 @@ public class ArrayBlockingQueueDeserTest extends DatabindTestUtil
     }
 
     @Test
-    public void testMultipleElementQueue() throws Exception
+    void testMultipleElementQueue() throws Exception
     {
         ArrayBlockingQueue<Integer> result = MAPPER.readValue("[1, 2, 3, 4, 5]",
                 new TypeReference<ArrayBlockingQueue<Integer>>() { });
@@ -70,7 +70,7 @@ public class ArrayBlockingQueueDeserTest extends DatabindTestUtil
     }
 
     @Test
-    public void testQueueWithStrings() throws Exception
+    void testQueueWithStrings() throws Exception
     {
         ArrayBlockingQueue<String> result = MAPPER.readValue(
                 a2q("['a','b','c']"),
@@ -89,7 +89,7 @@ public class ArrayBlockingQueueDeserTest extends DatabindTestUtil
      */
 
     @Test
-    public void testQueueWithPojo() throws Exception
+    void testQueueWithPojo() throws Exception
     {
         ArrayBlockingQueue<PojoItem> result = MAPPER.readValue(
                 a2q("[{'name':'first','value':1},{'name':'second','value':2}]"),
@@ -108,7 +108,7 @@ public class ArrayBlockingQueueDeserTest extends DatabindTestUtil
      */
 
     @Test
-    public void testQueueAsProperty() throws Exception
+    void testQueueAsProperty() throws Exception
     {
         StringQueueBean result = MAPPER.readValue(
                 a2q("{'items':['x','y','z']}"), StringQueueBean.class);
@@ -119,7 +119,7 @@ public class ArrayBlockingQueueDeserTest extends DatabindTestUtil
     }
 
     @Test
-    public void testEmptyQueueAsProperty() throws Exception
+    void testEmptyQueueAsProperty() throws Exception
     {
         StringQueueBean result = MAPPER.readValue(
                 a2q("{'items':[]}"), StringQueueBean.class);
@@ -129,7 +129,7 @@ public class ArrayBlockingQueueDeserTest extends DatabindTestUtil
     }
 
     @Test
-    public void testIntQueueAsProperty() throws Exception
+    void testIntQueueAsProperty() throws Exception
     {
         IntQueueBean result = MAPPER.readValue(
                 a2q("{'numbers':[10,20,30]}"), IntQueueBean.class);
@@ -148,7 +148,7 @@ public class ArrayBlockingQueueDeserTest extends DatabindTestUtil
      */
 
     @Test
-    public void testRoundTrip() throws Exception
+    void testRoundTrip() throws Exception
     {
         ArrayBlockingQueue<String> orig = new ArrayBlockingQueue<>(5);
         orig.add("alpha");
@@ -166,7 +166,7 @@ public class ArrayBlockingQueueDeserTest extends DatabindTestUtil
     }
 
     @Test
-    public void testNullElementsInQueueFails() throws Exception
+    void testNullElementsInQueueFails() throws Exception
     {
         // ArrayBlockingQueue does NOT allow null elements; deserialization
         // should fail (ABQ constructor rejects nulls)
@@ -181,7 +181,7 @@ public class ArrayBlockingQueueDeserTest extends DatabindTestUtil
     }
 
     @Test
-    public void testLargeQueue() throws Exception
+    void testLargeQueue() throws Exception
     {
         StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < 100; i++) {

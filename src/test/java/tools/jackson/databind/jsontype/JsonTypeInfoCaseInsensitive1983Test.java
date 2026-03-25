@@ -10,7 +10,7 @@ import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // Tests wrt [databind#1983]
 public class JsonTypeInfoCaseInsensitive1983Test extends DatabindTestUtil
@@ -21,28 +21,25 @@ public class JsonTypeInfoCaseInsensitive1983Test extends DatabindTestUtil
             @JsonSubTypes.Type(value = Equal.class, name = "eq"),
             @JsonSubTypes.Type(value = NotEqual.class, name = "notEq"),
     })
-    static abstract class Filter {
+    public static abstract class Filter {
     }
 
-    static class Equal extends Filter { }
+    public static class Equal extends Filter { }
 
-    static class NotEqual extends Filter { }
+    public static class NotEqual extends Filter { }
 
     // verify failures when exact matching required:
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testReadMixedCaseSubclass() throws Exception
+    void readMixedCaseSubclass() throws Exception
     {
         final String serialised = "{\"Operation\":\"NoTeQ\"}";
 
         // first: mismatch with value unless case-sensitivity disabled:
-        try {
-            MAPPER.readValue(serialised, Filter.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'NoTeQ'");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> MAPPER.readValue(serialised, Filter.class));
+        verifyException(e, "Could not resolve type id 'NoTeQ'");
 
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES)
@@ -54,16 +51,13 @@ public class JsonTypeInfoCaseInsensitive1983Test extends DatabindTestUtil
     }
 
     @Test
-    public void testReadMixedCasePropertyName() throws Exception
+    void readMixedCasePropertyName() throws Exception
     {
         final String serialised = "{\"oPeRaTioN\":\"notEq\"}";
         // first: mismatch with property name unless case-sensitivity disabled:
-        try {
-            MAPPER.readValue(serialised, Filter.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "missing type id property");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> MAPPER.readValue(serialised, Filter.class));
+        verifyException(e, "missing type id property");
 
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)

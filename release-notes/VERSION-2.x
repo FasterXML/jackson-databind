@@ -6,11 +6,26 @@ Project: jackson-databind
 
 2.22.0 (not yet released)
 
+#3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices are
+  defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
+ (reported by Christian D)
+ (contributed by Lee Jiwon)
 #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.1 (not yet released)
+2.21.2 (20-Mar-2026)
+
+#5729: (regression due to #5429) ISO-8601 change prevents parsing
+  negative timestamps (dates before 1970)
+ (reported by Thomas W)
+ (fixed by by Jonas K)
+#5814: Enum deserialization does not respect
+  `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
+ (reported by David N)
+ (fix by @cowtowncoder, w/ Claude code)
+
+2.21.1 (22-Feb-2026)
 
 #5184: `@JsonIgnore` on record method applied to record matching
   field at deserialization
@@ -22,6 +37,9 @@ Project: jackson-databind
 #5624: dup of #5184 (see above)
 #5674: Fix NPE when deserializing `Throwable` with `null` "stackTrace"
  (fix by @pjfanning)
+#5706: `TokenBuffer` serialization fails when buffer contains integer
+  encoded as String
+ (reported by Kyrylo M)
 
 2.21.0 (18-Jan-2026)
 
@@ -145,6 +163,9 @@ No changes since 2.19.2
 
 2.19.0 (24-Apr-2025)
 
+#917: Unable to have two `@JsonUnwrapped` annotated object of same
+  type within one constructor
+ (reported by @smil2k)
 #1467: Support `@JsonUnwrapped` with `@JsonCreator`
  (implementation by Liam F)
 #2145: Add `JsonNode.optional(String name)` and `optional(int index)` methods
@@ -236,6 +257,7 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
+2.18.6 (22-Feb-2026)
 2.18.5 (27-Oct-2025)
 
 No changes since 2.18.4

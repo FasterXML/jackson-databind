@@ -10,9 +10,12 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.ser.std.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AnyGetterTest extends DatabindTestUtil
@@ -76,7 +79,6 @@ public class AnyGetterTest extends DatabindTestUtil
         }
 
         @JsonSerialize(using = Issue705Serializer.class)
-//    @JsonSerialize(converter = MyConverter.class)
         @JsonAnyGetter
         public Map<String, String> getParameters(){
             return stuff;
@@ -199,6 +201,186 @@ public class AnyGetterTest extends DatabindTestUtil
         }
     }
 
+    // For [databind#518]
+    @JsonPropertyOrder(alphabetic = true)
+    static class Bean518
+    {
+        public int b;
+        protected Map<String,Object> extra = new HashMap<>();
+        public int a;
+
+        public Bean518(int a, int b, Map<String,Object> x) {
+            this.a = a;
+            this.b = b;
+            extra = x;
+        }
+
+        @JsonAnyGetter
+        public Map<String,Object> getExtra() { return extra; }
+    }
+
+    // For [databind#4388]
+    static class BaseWithProperties {
+        public String entityName;
+        public int entityId;
+        public Integer totalTests;
+        @JsonAnyGetter
+        public Map<String, Object> products;
+        @JsonUnwrapped
+        public Location childEntities;
+    }
+
+    @JsonPropertyOrder({"childEntities", "entityId", "totalTests", "entityName", "products"})
+    static class PojoPropertyVersion1 extends BaseWithProperties { }
+
+    @JsonPropertyOrder({"entityId", "totalTests", "childEntities", "products", "entityName"})
+    static class PojoPropertyVersion2 extends BaseWithProperties { }
+
+    @JsonPropertyOrder({"childEntities", "entityId", "totalTests", "entityName", "products"})
+    static class PojoUnwrappedVersion1 extends BaseWithProperties { }
+
+    @JsonPropertyOrder({"entityId", "totalTests", "childEntities", "entityName", "products"})
+    static class PojoUnwrappedVersion2 extends BaseWithProperties { }
+
+    @JsonPropertyOrder({"child1", "child2"})
+    static class Location {
+        public int child1;
+        public int child2;
+    }
+
+    @JsonIgnoreProperties("b")
+    static class IgnorePropertiesOnFieldPojo {
+        public int a = 1, b = 2;
+        @JsonAnyGetter
+        public Map<String, Object> map = new HashMap<>();
+    }
+
+    @JsonPropertyOrder({"a", "b"})
+    static class IgnorePropertiesOnAnyGetterPojo {
+        public int a = 1, b = 2;
+        @JsonIgnoreProperties("b")
+        @JsonAnyGetter
+        public Map<String, Object> map = new HashMap<>();
+    }
+
+    static class IgnoreOnFieldPojo {
+        public int a = 1;
+        @JsonIgnore
+        public int b = 2;
+        @JsonAnyGetter
+        public Map<String, Object> map = new HashMap<>();
+    }
+
+    static class AlphabeticOrderOnAnyGetterBean {
+        @JsonPropertyOrder(alphabetic = true)
+        @JsonAnyGetter
+        public Map<String, Object> map = new LinkedHashMap<>();
+    }
+
+    @JsonPropertyOrder(alphabetic = true)
+    static class AlphabeticOrderOnClassBean {
+        public int c = 3, a = 1, b = 2;
+        @JsonAnyGetter
+        public Map<String, Object> map = new LinkedHashMap<>();
+    }
+
+    static class LinkUnlinkConflictPojo {
+        private Map<String, Object> properties = new HashMap<>();
+
+        @JsonAnyGetter
+        public Map<String, Object> getProperties() {
+            properties.put("key", "value");
+            return properties;
+        }
+
+        @JsonIgnore
+        public String getProperties(String key) {
+            return "unrelated";
+        }
+
+        @JsonIgnore
+        public String getKey() {
+            return "unrelated";
+        }
+    }
+
+    @JsonPropertyOrder({ "firstProperty", "secondProperties", "thirdProperty", "fourthProperty" })
+    static class PrivateAnyGetterPojo {
+        public int firstProperty = 1, fourthProperty = 4, thirdProperty = 3;
+
+        @JsonAnyGetter
+        private Map<String, Object> secondProperties = new HashMap<>();
+
+        public PrivateAnyGetterPojo add(String key, Object value) {
+            secondProperties.put(key, value);
+            return this;
+        }
+
+        public Map<String, Object> secondProperties() {
+            return secondProperties;
+        }
+    }
+
+    @JsonPropertyOrder({ "firstProperty", "secondProperties", "thirdProperty", "fourthProperty" })
+    static class PrivateAnyGetterPojoSorted extends PrivateAnyGetterPojo {
+        public Map<String, Object> getSecondProperties() {
+            return super.secondProperties;
+        }
+    }
+
+    // [databind#3604]: Allow ObjectNode for @JsonAnyGetter (field)
+    static class ObjectNodeAnyGetterFieldBean {
+        public int id;
+
+        @JsonAnyGetter
+        public ObjectNode extra;
+    }
+
+    // [databind#3604]: Allow ObjectNode for @JsonAnyGetter (method)
+    static class ObjectNodeAnyGetterMethodBean {
+        public int id;
+        private ObjectNode extra;
+
+        @JsonAnyGetter
+        public ObjectNode getExtra() { return extra; }
+        public void setExtra(ObjectNode extra) { this.extra = extra; }
+    }
+
+    // [databind#3604]: Allow JsonNode for @JsonAnyGetter (field)
+    static class JsonNodeAnyGetterFieldBean {
+        public int id;
+
+        @JsonAnyGetter
+        public JsonNode extra;
+    }
+
+    // For [databind#5215]: Any-getter should be sorted last, by default
+    static class DynaBean5215 {
+        public String l;
+        public String j;
+        public String a;
+
+        protected Map<String, Object> extensions = new LinkedHashMap<>();
+
+        @JsonAnyGetter
+        public Map<String, Object> getExtensions() {
+            return extensions;
+        }
+
+        @JsonAnySetter
+        public void addExtension(String name, Object value) {
+            extensions.put(name, value);
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     // [databind#1458]: Allow `@JsonAnyGetter` on fields too
     @Test
     public void testDynaFieldBean() throws Exception
@@ -224,14 +406,6 @@ public class AnyGetterTest extends DatabindTestUtil
 
         assertEquals("{\"id\":123,\"nameA\":\"Ailly\",\"nameB\":\"Billy\",\"nameC\":\"Cilly\"}", MAPPER.writeValueAsString(b));
     }
-
-    /*
-    /**********************************************************
-    /* Test methods
-    /**********************************************************
-     */
-
-    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testSimpleAnyBean() throws Exception
@@ -364,5 +538,273 @@ public class AnyGetterTest extends DatabindTestUtil
         input.add("null", null);
         String json = mapper.writeValueAsString(input);
         assertEquals("{\"non-empty\":\"property\"}", json);
+    }
+
+    // For [databind#518]
+    @Test
+    void anyBeanWithSort518() throws Exception
+    {
+        Map<String,Object> extra = new LinkedHashMap<>();
+        extra.put("y", 4);
+        extra.put("x", 3);
+        String json = MAPPER.writeValueAsString(new Bean518(2, 1, extra));
+        assertEquals(a2q("{'a':2,'b':1,'y':4,'x':3}"), json);
+    }
+
+    // For [databind#4388]
+    @Test
+    public void testSerializationOrderVersion1() throws Exception {
+        PojoPropertyVersion1 input = new PojoPropertyVersion1();
+        _configureValues(input);
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(a2q("{" +
+                "'child1':3," +
+                "'child2':3," +
+                "'entityId':1," +
+                "'totalTests':2," +
+                "'entityName':'Bob'," +
+                "'product1':4}"),
+            json);
+    }
+
+    @Test
+    public void testSerializationOrderVersion2() throws Exception {
+        PojoPropertyVersion2 input = new PojoPropertyVersion2();
+        _configureValues(input);
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(a2q("{" +
+                "'entityId':1," +
+                "'totalTests':2," +
+                "'child1':3," +
+                "'child2':3," +
+                "'product1':4," +
+                "'entityName':'Bob'}"),
+            json);
+    }
+
+    @Test
+    public void testSerializationOrderUnwrappedVersion1() throws Exception {
+        PojoUnwrappedVersion1 input = new PojoUnwrappedVersion1();
+        _configureValues(input);
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(a2q("{" +
+                "'child1':3," +
+                "'child2':3," +
+                "'entityId':1," +
+                "'totalTests':2," +
+                "'entityName':'Bob'," +
+                "'product1':4}"),
+            json);
+    }
+
+    @Test
+    public void testSerializationOrderUnwrappedVersion2() throws Exception {
+        PojoUnwrappedVersion2 input = new PojoUnwrappedVersion2();
+        _configureValues(input);
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(a2q("{" +
+                "'entityId':1," +
+                "'totalTests':2," +
+                "'child1':3," +
+                "'child2':3," +
+                "'entityName':'Bob'," +
+                "'product1':4}"),
+            json);
+    }
+
+    @Test
+    public void testIgnoreProperties() throws Exception {
+        // Respect @JsonIgnoreProperties 'b' from Pojo, but not from map
+        IgnorePropertiesOnFieldPojo bean = new IgnorePropertiesOnFieldPojo();
+        bean.map.put("b", 3);
+        assertEquals(a2q("{'a':1,'b':3}"), MAPPER.writeValueAsString(bean));
+
+        // Respect @JsonIgnoreProperties 'b' from Pojo, but not from map
+        IgnorePropertiesOnAnyGetterPojo bean2 = new IgnorePropertiesOnAnyGetterPojo();
+        bean2.map.put("b", 3);
+        assertEquals(a2q("{'a':1,'b':2}"), MAPPER.writeValueAsString(bean2));
+
+        // Respect @JsonIgnore from Pojo, but not from map
+        IgnoreOnFieldPojo bean3 = new IgnoreOnFieldPojo();
+        bean3.map.put("b", 3);
+        assertEquals(a2q("{'a':1,'b':3}"), MAPPER.writeValueAsString(bean3));
+    }
+
+    // Sorting works on @JsonAnyGetter, when adding @JsonPropertyOrder directly on the AnyGetter method
+    @Test
+    public void testSortingOnAnyGetter() throws Exception {
+        AlphabeticOrderOnAnyGetterBean bean = new AlphabeticOrderOnAnyGetterBean();
+        bean.map.put("zd", 4);
+        bean.map.put("zc", 3);
+        bean.map.put("za", 1);
+        bean.map.put("zb", 2);
+        assertEquals(a2q("{" +
+            "'za':1," +
+            "'zb':2," +
+            "'zc':3," +
+            "'zd':4}"), MAPPER.writeValueAsString(bean));
+    }
+
+    // Sorting does not work on @JsonAnyGetter, when adding @JsonPropertyOrder on the class
+    @Test
+    public void testSortingOnClassNotPropagateToAnyGetter() throws Exception {
+        AlphabeticOrderOnClassBean bean = new AlphabeticOrderOnClassBean();
+        bean.map.put("zc", 3);
+        bean.map.put("za", 1);
+        bean.map.put("zb", 2);
+        assertEquals(a2q("{" +
+            "'a':1," +
+            "'b':2," +
+            "'c':3," +
+            "'zc':3," +
+            "'za':1," +
+            "'zb':2}"), MAPPER.writeValueAsString(bean));
+    }
+
+    @Test
+    public void testLinkUnlinkWithJsonIgnore() throws Exception {
+        LinkUnlinkConflictPojo pojo = new LinkUnlinkConflictPojo();
+        String json = MAPPER.writeValueAsString(pojo);
+        assertEquals(a2q("{'key':'value'}"), json);
+    }
+
+    @Test
+    public void testPrivateAnyGetter() throws Exception {
+        PrivateAnyGetterPojo pojo = new PrivateAnyGetterPojo();
+        pojo.add("secondProperty", 2);
+        String json = MAPPER.writeValueAsString(pojo);
+        assertEquals(a2q("{" +
+                "'firstProperty':1," +
+                "'thirdProperty':3," +
+                "'fourthProperty':4," +
+                "'secondProperty':2}"),
+            json);
+    }
+
+    @Test
+    public void testPrivateAnyGetterSorted() throws Exception {
+        PrivateAnyGetterPojoSorted pojo = new PrivateAnyGetterPojoSorted();
+        pojo.add("secondProperty", 2);
+        String json = MAPPER.writeValueAsString(pojo);
+        assertEquals(a2q("{" +
+                "'firstProperty':1," +
+                "'secondProperty':2," +
+                "'thirdProperty':3," +
+                "'fourthProperty':4}"),
+            json);
+    }
+
+    private void _configureValues(BaseWithProperties base) {
+        base.entityId = 1;
+        base.entityName = "Bob";
+        base.totalTests = 2;
+        base.childEntities = new Location();
+        base.childEntities.child1 = 3;
+        base.childEntities.child2 = 3;
+        base.products = new HashMap<>();
+        base.products.put("product1", 4);
+    }
+
+    // [databind#3604]: Allow ObjectNode field for @JsonAnyGetter
+    @Test
+    public void testAnyGetterWithObjectNodeField() throws Exception
+    {
+        ObjectNodeAnyGetterFieldBean bean = new ObjectNodeAnyGetterFieldBean();
+        bean.id = 1;
+        bean.extra = MAPPER.createObjectNode();
+        bean.extra.put("a", 2);
+        bean.extra.put("b", "text");
+
+        String json = MAPPER.writeValueAsString(bean);
+        assertEquals(a2q("{'id':1,'a':2,'b':'text'}"), json);
+    }
+
+    // [databind#3604]: Allow ObjectNode method for @JsonAnyGetter
+    @Test
+    public void testAnyGetterWithObjectNodeMethod() throws Exception
+    {
+        ObjectNodeAnyGetterMethodBean bean = new ObjectNodeAnyGetterMethodBean();
+        bean.id = 1;
+        ObjectNode node = MAPPER.createObjectNode();
+        node.put("x", true);
+        node.put("y", 42);
+        bean.setExtra(node);
+
+        String json = MAPPER.writeValueAsString(bean);
+        assertEquals(a2q("{'id':1,'x':true,'y':42}"), json);
+    }
+
+    // [databind#3604]: Null ObjectNode for @JsonAnyGetter should be fine
+    @Test
+    public void testAnyGetterWithNullObjectNode() throws Exception
+    {
+        ObjectNodeAnyGetterFieldBean bean = new ObjectNodeAnyGetterFieldBean();
+        bean.id = 1;
+        bean.extra = null;
+
+        String json = MAPPER.writeValueAsString(bean);
+        assertEquals(a2q("{'id':1}"), json);
+    }
+
+    // [databind#3604]: JsonNode (ObjectNode) field for @JsonAnyGetter
+    @Test
+    public void testAnyGetterWithJsonNodeField() throws Exception
+    {
+        JsonNodeAnyGetterFieldBean bean = new JsonNodeAnyGetterFieldBean();
+        bean.id = 1;
+        ObjectNode node = MAPPER.createObjectNode();
+        node.put("name", "test");
+        bean.extra = node;
+
+        String json = MAPPER.writeValueAsString(bean);
+        assertEquals(a2q("{'id':1,'name':'test'}"), json);
+    }
+
+    // [databind#3604]: Empty ObjectNode for @JsonAnyGetter should produce no extra properties
+    @Test
+    public void testAnyGetterWithEmptyObjectNode() throws Exception
+    {
+        ObjectNodeAnyGetterFieldBean bean = new ObjectNodeAnyGetterFieldBean();
+        bean.id = 1;
+        bean.extra = MAPPER.createObjectNode();
+
+        String json = MAPPER.writeValueAsString(bean);
+        assertEquals(a2q("{'id':1}"), json);
+    }
+
+    // [databind#3604]: Non-ObjectNode JsonNode (e.g. ArrayNode) should fail with clear error
+    @Test
+    public void testAnyGetterWithArrayNodeFails() throws Exception
+    {
+        JsonNodeAnyGetterFieldBean bean = new JsonNodeAnyGetterFieldBean();
+        bean.id = 1;
+        bean.extra = MAPPER.createArrayNode().add(1).add(2);
+
+        DatabindException ex = assertThrows(DatabindException.class,
+                () -> MAPPER.writeValueAsString(bean));
+        assertThat(ex.getMessage()).contains("ObjectNode");
+    }
+
+    // For [databind#5215]: Any-getter should be sorted last, by default
+    @Test
+    public void dynaBean5215() throws Exception
+    {
+        final ObjectMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true)
+                .build();
+
+        DynaBean5215 b = new DynaBean5215();
+        b.a = "1";
+        b.j = "2";
+        b.l = "3";
+        b.addExtension("z", "5");
+        b.addExtension("b", "4");
+        assertEquals(a2q("{" +
+                "'a':'1'," +
+                "'j':'2'," +
+                "'l':'3'," +
+                "'b':'4'," +
+                "'z':'5'}"), mapper.writeValueAsString(b));
     }
 }

@@ -98,7 +98,7 @@ public class TypedContainerSerTest
     static class Issue508A { }
     static class Issue508B extends Issue508A { }
 
-    private final static ObjectMapper mapper = new ObjectMapper();
+    private final static ObjectMapper mapper = newJsonMapper();
 
     /*
     /**********************************************************

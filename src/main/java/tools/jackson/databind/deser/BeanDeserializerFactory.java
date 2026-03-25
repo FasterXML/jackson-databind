@@ -515,18 +515,12 @@ ClassUtil.name(propName)));
                 : null;
         final boolean hasCreatorProps = (creatorProps != null);
 
-        // 01-May-2016, tatu: Which base type to use here gets tricky, since
-        //   it may often make most sense to use general type for overrides,
-        //   but what we have here may be more specific impl type. But for now
-        //   just use it as is.
-        JsonIgnoreProperties.Value ignorals = ctxt.getConfig()
-                .getDefaultPropertyIgnorals(beanDesc.getBeanClass(),
-                        beanDesc.getClassInfo());
+        // Class-level ignorals (annotation + config overrides): pre-computed during
+        // property collection, so no second findPropertyIgnoralByName() call needed.
+        JsonIgnoreProperties.Value ignorals = beanDesc.getPropertyIgnorals();
         Set<String> ignored;
         if (ignorals != null) {
-            boolean ignoreAny = ignorals.getIgnoreUnknown();
-            builder.setIgnoreUnknownProperties(ignoreAny);
-            // Or explicit/implicit definitions?
+            builder.setIgnoreUnknownProperties(ignorals.getIgnoreUnknown());
             ignored = ignorals.findIgnoredForDeserialization();
             for (String propName : ignored) {
                 builder.addIgnorable(propName);
@@ -554,6 +548,9 @@ ClassUtil.name(propName)));
         } else {
             // 23-Jan-2018, tatu: although [databind#1805] would suggest we should block
             //   properties regardless, for now only consider unless there's any setter...
+            // NOTE: getIgnoredPropertyNames() adds per-property @JsonIgnore names on top
+            //   of the class-level names already registered above; the overlap is harmless
+            //   (builder uses a Set internally).
             Collection<String> ignored2 = beanDesc.getIgnoredPropertyNames();
             if (ignored2 != null) {
                 for (String propName : ignored2) {
@@ -1051,12 +1048,10 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         if (ClassUtil.isProxyType(type)) {
             throw new IllegalArgumentException("Cannot deserialize Proxy class "+type.getName()+" as a Bean");
         }
-        // also: can't deserialize some local classes: static are ok; in-method not;
-        // other non-static inner classes are ok
-        typeStr = ClassUtil.isLocalType(type, true);
-        if (typeStr != null) {
-            throw new IllegalArgumentException("Cannot deserialize Class "+type.getName()+" (of type "+typeStr+") as a Bean");
-        }
+        // [databind#3229]: Local/anonymous classes cannot be instantiated but
+        //   can still be updated via `readerForUpdating()`. So let them through
+        //   here; if actual instantiation is attempted, `ValueInstantiator` will
+        //   fail with a clear error.
         return true;
     }
 

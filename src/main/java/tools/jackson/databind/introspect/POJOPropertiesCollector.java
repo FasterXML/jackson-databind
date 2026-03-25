@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.ConstructorDetector;
@@ -13,6 +14,7 @@ import tools.jackson.databind.cfg.HandlerInstantiator;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.RecordUtil;
 
 /**
@@ -120,11 +122,26 @@ public class POJOPropertiesCollector
     protected LinkedList<AnnotatedMember> _jsonValueAccessors;
 
     /**
-     * Lazily collected list of properties that can be implicitly
-     * ignored during serialization; only updated when collecting
-     * information for deserialization purposes
+     * Lazily collected set of properties that are explicitly ignored, combining
+     * both per-property markers ({@code @JsonIgnore}, via {@link #_collectIgnorals})
+     * and direction-specific names derived from class-level
+     * {@code @JsonIgnoreProperties} (via {@link #_collectClassLevelIgnorals}).
+     *<p>
+     * Kept as a mutable set because {@link #_renameProperties} may remove entries
+     * (when a creator property is renamed to a previously-ignored name).
+     * {@link #_propertyIgnorals} holds the immutable class-level value in parallel.
      */
     protected HashSet<String> _ignoredPropertyNames;
+
+    /**
+     * Class-level ignorals (annotation plus config overrides), computed once during
+     * {@link #_collectClassLevelIgnorals()} and exposed to the factory layer via
+     * {@link #getPropertyIgnorals()} so that {@code findPropertyIgnoralByName()} is
+     * called exactly once per type.  The direction-specific property names it contains
+     * are also copied into {@link #_ignoredPropertyNames} for internal use by
+     * {@link #_renameProperties}.
+     */
+    protected JsonIgnoreProperties.Value _propertyIgnorals;
 
     /**
      * Lazily collected list of members that were annotated to
@@ -313,10 +330,26 @@ public class POJOPropertiesCollector
 
     /**
      * Accessor for set of properties that are explicitly marked to be ignored
-     * via per-property markers (but NOT class annotations).
+     * via per-property markers ({@code @JsonIgnore}) and/or class-level
+     * {@code @JsonIgnoreProperties} annotation.
      */
     public Set<String> getIgnoredPropertyNames() {
+        if (!_collected) {
+            collectAll();
+        }
         return _ignoredPropertyNames;
+    }
+
+    /**
+     * Accessor for class-level property ignorals (annotation plus config overrides),
+     * computed once during collection and cached for reuse by the factory layer.
+     * Returns {@code null} when no ignorals are defined.
+     */
+    public JsonIgnoreProperties.Value getPropertyIgnorals() {
+        if (!_collected) {
+            collectAll();
+        }
+        return _propertyIgnorals;
     }
 
     /**
@@ -345,7 +378,9 @@ public class POJOPropertiesCollector
     //    in 2.x, merged in 2.18 timeframe to 3.0 for easier merges.
     /**
      * @since 2.17
+     * @deprecated Since 3.2
      */
+    @Deprecated // since 3.2; remove from 3.3 or later
     public JsonFormat.Value getFormatOverrides() {
         if (_formatOverrides == null) {
             // Let's check both per-type defaults and annotations;
@@ -399,6 +434,8 @@ public class POJOPropertiesCollector
         // Remove ignored properties, first; this MUST precede annotation merging
         // since logic relies on knowing exactly which accessor has which annotation
         _removeUnwantedProperties(props);
+        // [databind#3591]: Also collect class-level @JsonIgnoreProperties ignorals
+        _collectClassLevelIgnorals();
         // and then remove unneeded accessors (wrt read-only, read-write)
         _removeUnwantedAccessors(props);
 
@@ -447,40 +484,6 @@ public class POJOPropertiesCollector
         _sortProperties(props);
         _properties = props;
         _collected = true;
-    }
-
-    /**
-     * [databind#5215] JsonAnyGetter Serializer behavior change from 2.18.4 to 2.19.0
-     * Put anyGetter in the end, before actual sorting further down {@link POJOPropertiesCollector#_sortProperties(Map)}
-     */
-    private Map<String, POJOPropertyBuilder> _putAnyGettersInTheEnd(
-            Map<String, POJOPropertyBuilder> sortedProps)
-    {
-        AnnotatedMember anyAccessor;
-
-        if (_anyGetters != null) {
-            anyAccessor = _anyGetters.getFirst();
-        } else if (_anyGetterField != null) {
-            anyAccessor = _anyGetterField.getFirst();
-        } else {
-            return sortedProps;
-        }
-
-        // Here we'll use insertion-order preserving map, since possible alphabetic
-        // sorting already done earlier
-        Map<String, POJOPropertyBuilder> newAll = new LinkedHashMap<>(sortedProps.size() * 2);
-        POJOPropertyBuilder anyGetterProp = null;
-        for (POJOPropertyBuilder prop : sortedProps.values()) {
-            if (prop.hasFieldOrGetter(anyAccessor)) {
-                anyGetterProp = prop;
-            } else {
-                newAll.put(prop.getName(), prop);
-            }
-        }
-        if (anyGetterProp != null) {
-            newAll.put(anyGetterProp.getName(), anyGetterProp);
-        }
-        return newAll;
     }
 
     /*
@@ -759,7 +762,7 @@ public class POJOPropertiesCollector
         // Only consider single-arg case, for now
         if (ctor.paramCount() == 1) {
             // Main thing: @JsonValue makes it delegating:
-            if ((_jsonValueAccessors != null) && !_jsonValueAccessors.isEmpty()) {
+            if (_nonNullNonEmpty(_jsonValueAccessors)) {
                 return true;
             }
         }
@@ -918,7 +921,7 @@ ctor.creator()));
             return true;
         }
         // Second: [databind#3180] @JsonValue indicates delegating
-        if ((_jsonValueAccessors != null) && !_jsonValueAccessors.isEmpty()) {
+        if (_nonNullNonEmpty(_jsonValueAccessors)) {
             return false;
         }
         if (ctor.paramCount() == 1) {
@@ -1058,13 +1061,20 @@ ctor.creator()));
 
             // First: check "Unwrapped" unless explicit name
             if (!hasExplicit) {
-                var unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(_config, param);
+                NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(_config, param);
                 if (unwrapper != null) {
-                    // If unwrapping, can use regardless of name; we will use a placeholder name
-                    // anyway to try to avoid name conflicts.
-                    PropertyName name = UnwrappedPropertyHandler.creatorParamName(param.getIndex());
-                    final POJOPropertyBuilder prop = _property(props, name);
-                    prop.addCtor(param, name, false, true, false);
+                    // If unwrapping, use a placeholder name to avoid name conflicts during
+                    // deserialization. Store the implicit name as
+                    // the internal name so _sortProperties() can place this property at its
+                    // declaration position without re-invoking the annotation introspector.
+                    // (see [databind#5716])
+                    final PropertyName placeholder = UnwrappedPropertyHandler.creatorParamName(param.getIndex());
+                    final PropertyName internalName = hasImplicit ? implName : placeholder;
+                    final POJOPropertyBuilder prop = new POJOPropertyBuilder(_config,
+                            _annotationIntrospector, _forSerialization, internalName, placeholder);
+                    prop.markAsUnwrapped();
+                    prop.addCtor(param, placeholder, false, true, false);
+                    props.put(placeholder.getSimpleName(), prop);
                     creatorProps.add(prop);
                     continue;
                 }
@@ -1500,17 +1510,49 @@ ctor.creator()));
     }
 
     /**
-     * Helper method called to add explicitly ignored properties to a list
-     * of known ignored properties; this helps in proper reporting of
-     * errors.
+     * Helper method called to record a per-property ignoral (from {@code @JsonIgnore}
+     * or read/write-only rules) into {@link #_ignoredPropertyNames}.
+     * Used by {@link #_renameProperties} to skip renaming ignored properties, and
+     * surfaced externally via {@link #getIgnoredPropertyNames()}.
      */
     protected void _collectIgnorals(String name)
     {
-        if (!_forSerialization && (name != null)) {
+        if (name != null) {
             if (_ignoredPropertyNames == null) {
                 _ignoredPropertyNames = new HashSet<>();
             }
             _ignoredPropertyNames.add(name);
+        }
+    }
+
+    /**
+     * Helper method called to collect class-level property ignorals: stores the
+     * full {@link com.fasterxml.jackson.annotation.JsonIgnoreProperties.Value}
+     * (annotation + config overrides) in {@link #_propertyIgnorals} for reuse by
+     * the factory layer, and copies the direction-specific property names into
+     * {@link #_ignoredPropertyNames} so that {@link #_renameProperties} can skip them.
+     *<p>
+     * Uses {@link MapperConfig#getDefaultPropertyIgnorals} rather than calling
+     * {@code findPropertyIgnoralByName()} directly, so that config-level overrides
+     * are included and consistent with what the factory layer sees.
+     *
+     * @since 3.2
+     */
+    protected void _collectClassLevelIgnorals()
+    {
+        _propertyIgnorals =
+            _config.getDefaultPropertyIgnorals(_classDef.getRawType(), _classDef);
+        if (_propertyIgnorals != null) {
+            Set<String> ignored = _forSerialization
+                    ? _propertyIgnorals.findIgnoredForSerialization()
+                    : _propertyIgnorals.findIgnoredForDeserialization();
+            if (_nonNullNonEmpty(ignored)) {
+                if (_ignoredPropertyNames == null) {
+                    _ignoredPropertyNames = new HashSet<>(ignored);
+                } else {
+                    _ignoredPropertyNames.addAll(ignored);
+                }
+            }
         }
     }
 
@@ -1742,12 +1784,18 @@ ctor.creator()));
         final boolean sortAlpha = (alpha == null)
                 ? _config.shouldSortPropertiesAlphabetically()
                 : alpha.booleanValue();
-        final boolean indexed = _anyIndexed(props.values());
+        final boolean useIndexOrdering = _anyIndexed(props.values())
+                && _config.isEnabled(MapperFeature.SORT_PROPERTIES_BY_INDEX);
+        final boolean sortCreatorsFirst = (_creatorProperties != null)
+                && (!sortAlpha || _config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+        final AnnotatedMember anyAccessor = _findAnyAccessor();
 
         String[] propertyOrder = intr.findSerializationPropertyOrder(_config, _classDef);
 
-        // no sorting? no need to shuffle, then
-        if (!sortAlpha && !indexed && (_creatorProperties == null) && (propertyOrder == null)) {
+        // no sorting? no need to shuffle, then. But note there are lots of things
+        // that do require some shuffling.
+        if (!sortAlpha && !useIndexOrdering && !sortCreatorsFirst
+                && (propertyOrder == null) && (anyAccessor == null)) {
             return;
         }
         int size = props.size();
@@ -1762,8 +1810,9 @@ ctor.creator()));
         for (POJOPropertyBuilder prop : props.values()) {
             all.put(prop.getName(), prop);
         }
-        all = _putAnyGettersInTheEnd(all);
-
+        if (anyAccessor != null) {
+            all = _moveAnyAccessorToTheEnd(all, anyAccessor);
+        }
         Map<String,POJOPropertyBuilder> ordered = new LinkedHashMap<>(size+size);
         // Ok: primarily by explicit order
         if (propertyOrder != null) {
@@ -1786,7 +1835,7 @@ ctor.creator()));
         }
 
         // Second (starting with 2.11): index, if any:
-        if (indexed) {
+        if (useIndexOrdering) {
             Map<Integer,POJOPropertyBuilder> byIndex = new TreeMap<>();
             Iterator<Map.Entry<String,POJOPropertyBuilder>> it = all.entrySet().iterator();
             while (it.hasNext()) {
@@ -1805,8 +1854,7 @@ ctor.creator()));
 
         // Third by sorting Creator properties before other unordered properties
         // (unless strict ordering is requested)
-        if ((_creatorProperties != null)
-                && (!sortAlpha || _config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST))) {
+        if (sortCreatorsFirst) {
             /* As per [databind#311], this is bit delicate; but if alphabetic ordering
              * is mandated, at least ensure creator properties are in alphabetic
              * order. Related question of creator vs non-creator is punted for now,
@@ -1821,6 +1869,17 @@ ctor.creator()));
                 // 16-Jan-2016, tatu: Related to [databind#1317], make sure not to accidentally
                 //    add back pruned creator properties!
 
+                // [databind#5716]: @JsonUnwrapped creator params use a placeholder name to avoid
+                // name conflicts during deserialization. The actual getter property name is stored
+                // as internalName in _addCreatorParams(), so use it here for correct ordering.
+                if (prop.isUnwrapped()) {
+                    String internalName = prop.getInternalName();
+                    POJOPropertyBuilder pb = all.get(internalName);
+                    if (pb != null) {
+                        ordered.put(internalName, pb);
+                        continue;
+                    }
+                }
                 String name = prop.getName();
                 // 27-Nov-2019, tatu: Not sure why, but we should NOT remove it from `all` tho:
 //                if (all.remove(name) != null) {
@@ -1844,6 +1903,41 @@ ctor.creator()));
         return false;
     }
 
+    private AnnotatedMember _findAnyAccessor() {
+        if (_anyGetters != null) {
+            return _anyGetters.getFirst();
+        }
+        if (_anyGetterField != null) {
+            return _anyGetterField.getFirst();
+        }
+        return null;
+    }
+
+    /**
+     * [databind#5215] JsonAnyGetter Serializer behavior change from 2.18.4 to 2.19.0
+     * Put anyGetter in the end, before actual sorting further down {@link POJOPropertiesCollector#_sortProperties(Map)}
+     */
+    private Map<String, POJOPropertyBuilder> _moveAnyAccessorToTheEnd(
+            Map<String, POJOPropertyBuilder> sortedProps,
+            AnnotatedMember anyAccessor)
+    {
+        // Here we'll use insertion-order preserving map, since possible alphabetic
+        // sorting already done earlier
+        Map<String, POJOPropertyBuilder> newAll = new LinkedHashMap<>(sortedProps.size() * 2);
+        POJOPropertyBuilder anyGetterProp = null;
+        for (POJOPropertyBuilder prop : sortedProps.values()) {
+            if (prop.hasFieldOrGetter(anyAccessor)) {
+                anyGetterProp = prop;
+            } else {
+                newAll.put(prop.getName(), prop);
+            }
+        }
+        if (anyGetterProp != null) {
+            newAll.put(anyGetterProp.getName(), anyGetterProp);
+        }
+        return newAll;
+    }
+    
     /*
     /**********************************************************************
     /* Internal methods, conflict resolution
@@ -1979,5 +2073,10 @@ ctor.creator()));
             }
         }
         return false;
+    }
+
+    // @since 3.2
+    private final static boolean _nonNullNonEmpty(Collection<?> coll) {
+        return (coll != null) && !coll.isEmpty();
     }
 }

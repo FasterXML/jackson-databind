@@ -21,7 +21,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUti
      */
     static class Box {
         public String type;
-        @JsonTypeInfo(use = Id.NAME, include = As.EXTERNAL_PROPERTY, property = "type")
+        @JsonTypeInfo(use = Id.NAME, include = As.EXTERNAL_PROPERTY, property = "type", visible = true)
         public Fruit fruit;
 
         public Box() {
@@ -241,20 +241,14 @@ public class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUti
     }
 
     private void checkBoxDatabindException(ObjectReader r, String json) throws Exception {
-        try {
-            r.forType(Box.class).readValue(json);
-            fail("Should not pass");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Missing property 'fruit' for external type id 'type'");
-        }
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> r.forType(Box.class).readValue(json));
+        verifyException(e, "Missing property 'fruit' for external type id 'type'");
     }
 
     private void checkReqBoxDatabindException(ObjectReader r, String json) throws Exception {
-        try {
-            r.forType(ReqBox.class).readValue(json);
-            fail("Should not pass");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Missing property 'fruit' for external type id 'type'");
-        }
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> r.forType(ReqBox.class).readValue(json));
+        verifyException(e, "Missing property 'fruit' for external type id 'type'");
     }
 }

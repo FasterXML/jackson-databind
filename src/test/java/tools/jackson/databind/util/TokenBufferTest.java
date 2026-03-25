@@ -310,6 +310,15 @@ public class TokenBufferTest extends DatabindTestUtil
         }
     }
 
+    // [databind#5706]
+    @Test
+    void testNumberIntAsStringSerialization() throws IOException {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber("42", true);
+            assertEquals("42", MAPPER.writeValueAsString(buf));
+        }
+    }
+
     @Test
     public void testParentContext() throws IOException
     {
@@ -1369,6 +1378,30 @@ public class TokenBufferTest extends DatabindTestUtil
             try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 assertEquals(NumberType.BIG_INTEGER, p.getNumberType());
+            }
+        }
+
+        // [databind#5786] String-based float with forceUseOfBigDecimal -> BIG_DECIMAL
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.forceUseOfBigDecimal(true);
+            buf.writeNumber("1E+2");
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(NumberType.BIG_DECIMAL, p.getNumberType());
+                assertEquals(NumberTypeFP.BIG_DECIMAL, p.getNumberTypeFP());
+                // Also verify actual value is BigDecimal
+                Number numValue = p.getNumberValue();
+                assertInstanceOf(BigDecimal.class, numValue);
+            }
+        }
+
+        // [databind#5786] Without forceUseOfBigDecimal, default is DOUBLE
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber("1E+2");
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(NumberType.DOUBLE, p.getNumberType());
+                assertEquals(NumberTypeFP.DOUBLE64, p.getNumberTypeFP());
             }
         }
     }

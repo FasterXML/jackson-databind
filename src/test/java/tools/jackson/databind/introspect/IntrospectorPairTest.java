@@ -13,7 +13,6 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.jdk.NumberDeserializers;
 import tools.jackson.databind.deser.jdk.StringDeserializer;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.NamedType;
 import tools.jackson.databind.ser.jdk.StringSerializer;
 import tools.jackson.databind.ser.std.ToStringSerializer;
@@ -178,6 +177,12 @@ public class IntrospectorPairTest extends DatabindTestUtil
         @Override
         public String findTypeName(MapperConfig<?> config, AnnotatedClass ac) {
             return (String) values.get("findTypeName");
+        }
+
+        @Override
+        public JavaType findPolymorphicBaseType(MapperConfig<?> config,
+                AnnotatedClass ac, JsonTypeInfo.Value typeInfo, JavaType assumedBaseType) {
+            return (JavaType) values.get("findPolymorphicBaseType");
         }
 
         @Override
@@ -874,6 +879,38 @@ public class IntrospectorPairTest extends DatabindTestUtil
     }
 
     @Test
+    public void testFindPolymorphicBaseType() {
+        ObjectMapper mapper = newJsonMapper();
+        JavaType stringType = mapper.constructType(String.class);
+        JavaType intType = mapper.constructType(Integer.class);
+
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findPolymorphicBaseType", stringType);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("findPolymorphicBaseType", intType);
+
+        // Both null -> null
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
+                .findPolymorphicBaseType(null, null, null, null));
+
+        // Primary wins when both return non-null
+        assertSame(stringType,
+                new AnnotationIntrospectorPair(intr1, intr2)
+                        .findPolymorphicBaseType(null, null, null, null));
+        assertSame(intType,
+                new AnnotationIntrospectorPair(intr2, intr1)
+                        .findPolymorphicBaseType(null, null, null, null));
+
+        // Falls back to secondary when primary returns null
+        assertSame(intType,
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2)
+                        .findPolymorphicBaseType(null, null, null, null));
+        assertSame(stringType,
+                new AnnotationIntrospectorPair(intr1, NO_ANNOTATIONS)
+                        .findPolymorphicBaseType(null, null, null, null));
+    }
+
+    @Test
     public void testFindSubtypes() {
         NamedType type1 = new NamedType(String.class, "string");
         NamedType type2 = new NamedType(Integer.class, "integer");
@@ -1143,7 +1180,7 @@ public class IntrospectorPairTest extends DatabindTestUtil
                 Object valueId, 
                 BeanProperty forProperty, Object beanInstance,
                 Boolean optional, Boolean useInput) {
-            if (valueId == "jjj") {
+            if ("jjj".equals(valueId)) {
                 UnreadableBean bean = new UnreadableBean();
                 bean.setValue(1);
                 return bean;
@@ -1199,7 +1236,7 @@ public class IntrospectorPairTest extends DatabindTestUtil
     @Test
     public void testMergingIntrospectorsForInjection() throws Exception {
         AnnotationIntrospector testIntrospector = new TestIntrospector();
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .injectableValues(new TestInjector())
                 .annotationIntrospector(new AnnotationIntrospectorPair(testIntrospector,
                         new JacksonAnnotationIntrospector()))

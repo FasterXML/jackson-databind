@@ -367,6 +367,11 @@ Andrzej Leśkiewicz (@aleskiewicz)
  * Reported #3573: Inconsistent handling of nil `UUID` in property inclusion
   [3.2.0]
 
+Knut Wannheden (@knutwannheden)
+ * Reported, contributed fix for #4014: No way to combine `@JsonTypeInfo(include = As.PROPERTY)`
+   and `@JsonIdentityInfo(generator = PropertyGenerator.class)`
+  [3.2.0]
+
 Robert Rathsack (@robrat)
  * Reported#4758: `ConfigOverride` using `Nulls.AS_EMPTY` does not work
    with `@JsonManagedReference`

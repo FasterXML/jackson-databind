@@ -97,6 +97,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #3604: Allow use of `JsonNode` field for `@JsonAnyGetter`
  (fix by @cowtowncoder, w/ Claude code)
+#4014: No way to combine `@JsonTypeInfo(include = As.PROPERTY)` and
+  `@JsonIdentityInfo(generator = PropertyGenerator.class)`
+ (reported, fix by Knut W)
 #4758: `ConfigOverride` using `Nulls.AS_EMPTY` does not work
   with `@JsonManagedReference`
  (reported by Robert R)

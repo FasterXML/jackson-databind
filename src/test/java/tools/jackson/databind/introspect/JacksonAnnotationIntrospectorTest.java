@@ -181,4 +181,101 @@ public class JacksonAnnotationIntrospectorTest
         EnumExample result = mapper.readValue(q("value1"), EnumExample.class);
         assertEquals(EnumExample.VALUE1, result);
     }
+
+    /*
+    /**********************************************************************
+    /* Test methods, findPolymorphicBaseType
+    /**********************************************************************
+     */
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+    static class AnnotatedBase { }
+
+    static class AnnotatedSub extends AnnotatedBase { }
+
+    static class AnnotatedSubSub extends AnnotatedSub { }
+
+    static class UnannotatedBase { }
+
+    static class UnannotatedSub extends UnannotatedBase { }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+    interface AnnotatedIface { }
+
+    static class ImplOfAnnotatedIface implements AnnotatedIface { }
+
+    // [databind#4983]: findPolymorphicBaseType walks supertypes to find @JsonTypeInfo
+    @Test
+    public void testFindPolymorphicBaseTypeWithAnnotatedParent() throws Exception
+    {
+        ObjectMapper mapper = newJsonMapper();
+        JacksonAnnotationIntrospector intr = new JacksonAnnotationIntrospector();
+        SerializationConfig config = mapper.serializationConfig();
+
+        // For a direct subclass of an annotated base, should find the base type
+        JavaType subType = mapper.constructType(AnnotatedSub.class);
+        AnnotatedClass ac = AnnotatedClassResolver.resolve(config, subType, config);
+        JavaType result = intr.findPolymorphicBaseType(config, ac, null, subType);
+        assertNotNull(result);
+        assertEquals(AnnotatedBase.class, result.getRawClass());
+    }
+
+    @Test
+    public void testFindPolymorphicBaseTypeWithDeepHierarchy() throws Exception
+    {
+        ObjectMapper mapper = newJsonMapper();
+        JacksonAnnotationIntrospector intr = new JacksonAnnotationIntrospector();
+        SerializationConfig config = mapper.serializationConfig();
+
+        // For a sub-sub-class, should still find the annotated ancestor
+        JavaType subSubType = mapper.constructType(AnnotatedSubSub.class);
+        AnnotatedClass ac = AnnotatedClassResolver.resolve(config, subSubType, config);
+        JavaType result = intr.findPolymorphicBaseType(config, ac, null, subSubType);
+        assertNotNull(result);
+        // Should find first annotated supertype (AnnotatedBase)
+        assertEquals(AnnotatedBase.class, result.getRawClass());
+    }
+
+    @Test
+    public void testFindPolymorphicBaseTypeNoAnnotation() throws Exception
+    {
+        ObjectMapper mapper = newJsonMapper();
+        JacksonAnnotationIntrospector intr = new JacksonAnnotationIntrospector();
+        SerializationConfig config = mapper.serializationConfig();
+
+        // No @JsonTypeInfo anywhere in the hierarchy -> null
+        JavaType type = mapper.constructType(UnannotatedSub.class);
+        AnnotatedClass ac = AnnotatedClassResolver.resolve(config, type, config);
+        JavaType result = intr.findPolymorphicBaseType(config, ac, null, type);
+        assertNull(result);
+    }
+
+    @Test
+    public void testFindPolymorphicBaseTypeWithAnnotatedInterface() throws Exception
+    {
+        ObjectMapper mapper = newJsonMapper();
+        JacksonAnnotationIntrospector intr = new JacksonAnnotationIntrospector();
+        SerializationConfig config = mapper.serializationConfig();
+
+        // Class implementing an annotated interface -> should find the interface
+        JavaType implType = mapper.constructType(ImplOfAnnotatedIface.class);
+        AnnotatedClass ac = AnnotatedClassResolver.resolve(config, implType, config);
+        JavaType result = intr.findPolymorphicBaseType(config, ac, null, implType);
+        assertNotNull(result);
+        assertEquals(AnnotatedIface.class, result.getRawClass());
+    }
+
+    @Test
+    public void testFindPolymorphicBaseTypeOnAnnotatedClassItself() throws Exception
+    {
+        ObjectMapper mapper = newJsonMapper();
+        JacksonAnnotationIntrospector intr = new JacksonAnnotationIntrospector();
+        SerializationConfig config = mapper.serializationConfig();
+
+        // The annotated class itself has no supertypes with @JsonTypeInfo -> null
+        JavaType baseType = mapper.constructType(AnnotatedBase.class);
+        AnnotatedClass ac = AnnotatedClassResolver.resolve(config, baseType, config);
+        JavaType result = intr.findPolymorphicBaseType(config, ac, null, baseType);
+        assertNull(result);
+    }
 }

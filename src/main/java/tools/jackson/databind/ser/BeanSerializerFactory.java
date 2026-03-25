@@ -317,9 +317,6 @@ public class BeanSerializerFactory
             props = new ArrayList<>();
         } else {
             props = removeOverlappingExternalTypeIds(ctxt, beanDescRef, builder, props);
-            // [databind#1410]: Verify no bean property conflicts with class-level
-            //   type id property name (for As.PROPERTY inclusion)
-            _verifyNoTypeIdPropertyConflict(ctxt, beanDescRef, props);
         }
 
         // [databind#638]: Allow injection of "virtual" properties:
@@ -339,6 +336,12 @@ public class BeanSerializerFactory
         props = filterUnwantedJDKProperties(config, beanDescRef, props);
         props = filterBeanProperties(config, beanDescRef, props);
 
+        // [databind#1410]: Verify no bean property conflicts with class-level
+        //   type id property name (for As.PROPERTY inclusion)
+        // [databind#5615]: Must be done after filterBeanProperties() so that
+        //   @JsonIgnoreProperties-ignored properties are excluded first
+        _verifyNoTypeIdPropertyConflict(ctxt, beanDescRef, props);
+
         // Need to allow reordering of properties to serialize
         if (_factoryConfig.hasSerializerModifiers()) {
             for (ValueSerializerModifier mod : _factoryConfig.serializerModifiers()) {
@@ -357,19 +360,29 @@ public class BeanSerializerFactory
         AnnotatedMember anyGetter = beanDescRef.get().findAnyGetter();
         if (anyGetter != null) {
             JavaType anyType = anyGetter.getType();
-            // copied from BasicSerializerFactory.buildMapSerializer():
-            JavaType valueType = anyType.getContentType();
-            TypeSerializer typeSer = ctxt.findTypeSerializer(valueType);
-            // last 2 nulls; don't know key, value serializers (yet)
             // 23-Feb-2015, tatu: As per [databind#705], need to support custom serializers
             ValueSerializer<?> anySer = findSerializerFromAnnotation(ctxt, anyGetter);
-            if (anySer == null) {
-                // TODO: support '@JsonIgnoreProperties' with any setter?
-                anySer = MapSerializer.construct(
-                        anyType, config.isEnabled(MapperFeature.USE_STATIC_TYPING),
-                        typeSer, null, null, /*filterId*/ null,
-                        /* ignored props*/ (Set<String>) null,
-                        /* included props*/ (Set<String>) null);
+            JavaType valueType;
+
+            // [databind#3604]: Support ObjectNode/JsonNode for @JsonAnyGetter
+            if (JsonNode.class.isAssignableFrom(anyType.getRawClass())) {
+                // For JsonNode-valued any-getters, value type is JsonNode;
+                // no default serializer needed since AnyGetterWriter handles
+                // ObjectNode entries directly (anySer may still be non-null
+                // from custom @JsonSerialize annotation above)
+                valueType = ctxt.constructType(JsonNode.class);
+            } else {
+                // copied from BasicSerializerFactory.buildMapSerializer():
+                valueType = anyType.getContentType();
+                if (anySer == null) {
+                    TypeSerializer typeSer = ctxt.findTypeSerializer(valueType);
+                    // TODO: support '@JsonIgnoreProperties' with any setter?
+                    anySer = MapSerializer.construct(
+                            anyType, config.isEnabled(MapperFeature.USE_STATIC_TYPING),
+                            typeSer, null, null, /*filterId*/ null,
+                            /* ignored props*/ (Set<String>) null,
+                            /* included props*/ (Set<String>) null);
+                }
             }
             // TODO: can we find full PropertyName?
             PropertyName name = PropertyName.construct(anyGetter.getName());

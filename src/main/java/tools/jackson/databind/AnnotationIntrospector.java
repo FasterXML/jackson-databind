@@ -451,6 +451,29 @@ public abstract class AnnotationIntrospector
     }
 
     /**
+     * Method called to figure out true base type to use for polymorphic serialization
+     * (usually NOT needed on deserialization side), instead of "assumed" base type
+     * which may be from runtime type and "too specific" (sub-type) due to way
+     * serialization type handling works (value and type serializers constructed
+     * for concrete implementation type, not actual base type that declares polymorphic
+     * handling).
+     *
+     * @param config Effective mapper configuration in use
+     * @param ac Class for which type info was resolved
+     * @param typeInfo Polymorphic type info introspected (usually via {@link #findPolymorphicTypeInfo})
+     * @param assumedBaseType Base type assumed before calling this method (and used
+     *    unless we can detect true base type)
+     *
+     * @return True polymorphic base type if detected; {@code null} if not.
+     *
+     * @since 3.2
+     */
+    public JavaType findPolymorphicBaseType(MapperConfig<?> config,
+            AnnotatedClass ac, JsonTypeInfo.Value typeInfo, JavaType assumedBaseType) {
+        return null;
+    }
+
+    /**
      * @param config Effective mapper configuration in use
      * @param ann Annotated entity to introspect
      *

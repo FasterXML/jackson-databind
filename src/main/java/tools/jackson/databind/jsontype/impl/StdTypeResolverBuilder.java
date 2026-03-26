@@ -66,7 +66,10 @@ public class StdTypeResolverBuilder
         this._detectedBaseType = null;
     }
 
-    @Deprecated(since = "Prefer similar constructor accepting a JavaType detectedBaseType")
+    /**
+     * @deprecated Prefer similar constructor accepting a JavaType detectedBaseType
+     */
+    @Deprecated(since = "3.2")
     public StdTypeResolverBuilder(JsonTypeInfo.Value settings) {
     	this(settings, null);
     }
@@ -83,7 +86,10 @@ public class StdTypeResolverBuilder
         _detectedBaseType = detectedBaseType;
     }
 
-    @Deprecated(since = "Prefer similar constructor accepting a JavaType detectedBaseType")
+    /**
+     * @deprecated Prefer similar constructor accepting a JavaType detectedBaseType
+     */
+    @Deprecated(since = "3.2")
     public StdTypeResolverBuilder(JsonTypeInfo.Id idType,
             JsonTypeInfo.As idAs, String propName)
     {

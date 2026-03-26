@@ -66,6 +66,16 @@ public class StdTypeResolverBuilder
         this._detectedBaseType = null;
     }
 
+    @Deprecated(since = "Prefer similar constructor accepting a JavaType detectedBaseType")
+    public StdTypeResolverBuilder(JsonTypeInfo.Value settings) {
+    	this(settings, null);
+    }
+
+    /**
+     * The type representing the base class. Typically the class holding the JsonTypeInfo annotation.
+     * 
+     * @since 3.2
+     */
     public StdTypeResolverBuilder(JsonTypeInfo.Value settings, JavaType detectedBaseType) {
         if (settings != null) {
             withSettings(settings);
@@ -80,6 +90,9 @@ public class StdTypeResolverBuilder
         this(idType, idAs, propName, null);
     }
 
+    /**
+     * @since 3.2
+     */
     public StdTypeResolverBuilder(JsonTypeInfo.Id idType,
             JsonTypeInfo.As idAs, String propName, JavaType detectedBaseType)
     {

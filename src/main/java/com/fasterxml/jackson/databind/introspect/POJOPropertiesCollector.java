@@ -723,17 +723,19 @@ public class POJOPropertiesCollector
         // and use annotations to find explicitly chosen Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
             // Start with Constructors as they have higher precedence
-
-            // 08-Sep-2025, tatu: [databind#5045] Need to ensure 0-param ("default")
-            //   constructor considered if annotated (disabled case handled above).
-            if (zeroParamsConstructor != null && zeroParamsConstructor.isAnnotated()) {
-                creators.setPropertiesBased(_config, zeroParamsConstructor, "explicit");
-            }
-
             _addExplicitlyAnnotatedCreators(creators, constructors, props, false);
             // followed by Factory methods (lower precedence)
             _addExplicitlyAnnotatedCreators(creators, factories, props,
                     creators.hasPropertiesBased());
+
+            // 08-Sep-2025, tatu: [databind#5045] Need to ensure 0-param ("default")
+            //   constructor considered if annotated (disabled case handled above).
+            // 27-Mar-2026, [databind#5840] But only if no other properties-based
+            //   creator was found (multi-arg @JsonCreator takes precedence over 0-arg one)
+            if (zeroParamsConstructor != null && zeroParamsConstructor.isAnnotated()
+                    && !creators.hasPropertiesBased()) {
+                creators.setPropertiesBased(_config, zeroParamsConstructor, "explicit");
+            }
         }
 
         // If no Explicitly annotated creators (or Primary one) found, look
@@ -742,6 +744,7 @@ public class POJOPropertiesCollector
             // only discover constructor Creators?
             _addCreatorsWithAnnotatedNames(creators, constructors, primaryCreator);
         }
+
 
         // But if no annotation-based Creators found, find/use Primary Creator
         // detected earlier, if any

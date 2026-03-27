@@ -311,8 +311,20 @@ public class TypeResolverProvider
         return b;
     }
 
+    /**
+     * @since 3.2
+     */
     protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
             JsonTypeInfo.Value typeInfo, JavaType baseType, JavaType detectedBaseType) {
         return new StdTypeResolverBuilder(typeInfo, detectedBaseType);
+    }
+
+    // 27-Mar-2026, tatu: NOTE: overridden by `jackson-dataformat-xml`, careful
+    // with signature changes
+    //
+    @Deprecated(since = "3.2")
+    protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
+            JsonTypeInfo.Value typeInfo, JavaType baseType) {
+        return _constructStdTypeResolverBuilder(config, typeInfo, null);
     }
 }

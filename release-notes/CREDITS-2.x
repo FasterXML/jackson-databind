@@ -2016,3 +2016,8 @@ David Nelson (@eatdrinksleepcode)
  * Reported #5814: Enum deserialization does not respect
    `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
   [2.21.2]
+
+Alexey Tsvetkov (@AlexeyTsvetkov)
+ * Reported #5840: Jackson 2.21 throws Conflicting property-based creators if both
+   default (0-arg) and multi-arg constructor annotated
+  [2.21.3]

@@ -1,17 +1,10 @@
 package tools.jackson.databind.jsontype;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import tools.jackson.databind.AnnotationIntrospector;
-import tools.jackson.databind.DeserializationConfig;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializationConfig;
-import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.Annotated;
 import tools.jackson.databind.introspect.AnnotatedClass;
@@ -311,8 +304,20 @@ public class TypeResolverProvider
         return b;
     }
 
+    /**
+     * @since 3.2
+     */
     protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
             JsonTypeInfo.Value typeInfo, JavaType baseType, JavaType detectedBaseType) {
         return new StdTypeResolverBuilder(typeInfo, detectedBaseType);
+    }
+
+    // 27-Mar-2026, tatu: NOTE: overridden by `jackson-dataformat-xml`, careful
+    // with signature changes
+    //
+    @Deprecated(since = "3.2")
+    protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
+            JsonTypeInfo.Value typeInfo, JavaType baseType) {
+        return _constructStdTypeResolverBuilder(config, typeInfo, null);
     }
 }

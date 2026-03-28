@@ -682,6 +682,26 @@ public class BeanDeserializer
         PropertyValueBuffer buffer = (_anySetter != null)
             ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter)
             : creator.startBuilding(p, ctxt, _objectIdReader);
+
+        // [dataformats-text#22]: Handle native Object Ids (e.g. YAML anchors) that
+        // are exposed via parser.getObjectId() rather than as a JSON property.
+        // The standard path (no-arg constructor) handles this after bean creation,
+        // but for property-based creators we need to capture the id value early
+        // so that PropertyValueBuffer.handleIdValue() can bind it after construction.
+        if (_objectIdReader != null && p.canReadObjectId()) {
+            Object rawId = p.getObjectId();
+            if (rawId != null) {
+                Object id;
+                ValueDeserializer<Object> idDeser = _objectIdReader.getDeserializer();
+                if (idDeser.handledType() == rawId.getClass()) {
+                    id = rawId;
+                } else {
+                    id = _convertObjectId(p, ctxt, rawId, idDeser);
+                }
+                buffer.assignNativeObjectId(id);
+            }
+        }
+
         TokenBuffer unknown = null;
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         JsonToken t = p.currentToken();

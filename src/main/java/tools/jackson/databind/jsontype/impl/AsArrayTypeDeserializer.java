@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import tools.jackson.core.*;
 import tools.jackson.core.util.JsonParserSequence;
 import tools.jackson.databind.*;
+import tools.jackson.databind.deser.UnresolvedForwardReference;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.jsontype.TypeIdResolver;
 import tools.jackson.databind.util.ClassUtil;
@@ -112,7 +113,21 @@ public class AsArrayTypeDeserializer
         if (hadStartArray && p.currentToken() == JsonToken.END_ARRAY) {
             return deser.getNullValue(ctxt);
         }
-        Object value = deser.deserialize(p, ctxt);
+        Object value;
+        try {
+            value = deser.deserialize(p, ctxt);
+        } catch (UnresolvedForwardReference e) {
+            // [databind#4014]: ensure wrapper array END_ARRAY is consumed even
+            // on forward-reference exception (circular refs with @JsonTypeInfo +
+            // @JsonIdentityInfo) so parser is left at correct position for caller.
+            if (hadStartArray) {
+                p.skipChildren();
+                if (p.currentToken() != JsonToken.END_ARRAY) {
+                    p.nextToken();
+                }
+            }
+            throw e;
+        }
         // And then need the closing END_ARRAY
         if (hadStartArray && p.nextToken() != JsonToken.END_ARRAY) {
             ctxt.reportWrongTokenException(baseType(), JsonToken.END_ARRAY,

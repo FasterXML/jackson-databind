@@ -1472,12 +1472,17 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
                     return deserializeFromObjectId(p, ctxt);
                 }
                 // but, with 2.5+, a simple Object-wrapped value also legal:
-                if (t == JsonToken.START_OBJECT) {
-                    t = p.nextToken();
-                }
-                if ((t == JsonToken.PROPERTY_NAME) && _objectIdReader.maySerializeAsObject()
-                        && _objectIdReader.isValidReferencePropertyName(p.currentName(), p)) {
-                    return deserializeFromObjectId(p, ctxt);
+                // [databind#4014]: only consume START_OBJECT when Object Id may
+                // actually be serialized as an Object; otherwise we'd advance
+                // past START_OBJECT without consuming the matching END_OBJECT.
+                if (_objectIdReader.maySerializeAsObject()) {
+                    if (t == JsonToken.START_OBJECT) {
+                        t = p.nextToken();
+                    }
+                    if ((t == JsonToken.PROPERTY_NAME)
+                            && _objectIdReader.isValidReferencePropertyName(p.currentName(), p)) {
+                        return deserializeFromObjectId(p, ctxt);
+                    }
                 }
             }
         }

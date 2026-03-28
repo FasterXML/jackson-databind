@@ -306,7 +306,12 @@ public class CreatorProperty
         String clsDesc = (_annotated == null) ? "UNKNOWN TYPE"
                 : ClassUtil.getClassDescription(_annotated.getOwner().getDeclaringClass());
         final String msg = String.format(
-                "No fallback setter/field defined for creator property %s (of %s)",
+                "No fallback setter/field defined for creator property %s (of %s)"
+                +"; this is needed when a creator property is part of a forward reference"
+                +" (e.g. circular Object Id reference resolved via `@JsonIdentityInfo`)."
+                +" To fix this, either add a setter method for the property,"
+                +" make the field non-private (public),"
+                +" or use a no-argument constructor instead of `@JsonCreator`",
                         ClassUtil.name(getName()), clsDesc);
         // Hmmmh. Should we return quietly (NOP), or error?
         // Perhaps better to throw an exception, since it's generally an error.

@@ -186,6 +186,21 @@ public class TestJsonTypeInfoJsonValue {
 		}
 	}
 
+
+	public static enum CustomOption_WithJsonValue implements SomeOption {
+		C, D;
+
+		@JsonValue
+		public String asString() {
+			return this.name();
+		}
+
+		@JsonCreator
+		public static CustomOption forValue(String value) {
+			return CustomOption.valueOf(value.toUpperCase(Locale.US));
+		}
+	}
+
 	public static enum OptionWithoutJsonTypeInfo {
 		E, F;
 
@@ -197,7 +212,7 @@ public class TestJsonTypeInfoJsonValue {
 	}
 
 	@Test
-	public void testEnum_Native_string() {
+	public void testEnum_Native() {
 		NativeOption matcher = NativeOption.A;
 
 		ObjectMapper objectMapper = new ObjectMapper();
@@ -210,8 +225,21 @@ public class TestJsonTypeInfoJsonValue {
 	}
 
 	@Test
-	public void testEnum_Custom_string() {
+	public void testEnum_Custom() {
 		CustomOption matcher = CustomOption.C;
+
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		String asString = objectMapper.writeValueAsString(matcher);
+		Assertions.assertThat(asString).isEqualTo("[\"TestJsonTypeInfoJsonValue$CustomOption\",\"C\"]");
+
+		SomeOption fromString = objectMapper.readValue(asString, SomeOption.class);
+		Assertions.assertThat(fromString).isSameAs(matcher);
+	}
+
+	@Test
+	public void testEnum_Custom_jsonValue() {
+		CustomOption_WithJsonValue matcher = CustomOption_WithJsonValue.C;
 
 		ObjectMapper objectMapper = new ObjectMapper();
 

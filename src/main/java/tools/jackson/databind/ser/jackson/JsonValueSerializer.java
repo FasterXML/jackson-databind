@@ -182,6 +182,7 @@ public class JsonValueSerializer
                  */
                 boolean forceTypeInformation;
                 if (_accessor == null) {
+                	// Why do we forceTypeInformation if the type is natural? Shouldn't it be the contrary?
                 	forceTypeInformation = isNaturalTypeWithStdHandling(_valueType.getRawClass(), ser);
                 } else {
                 	// We came here due to a `@JsonValue`: the type of the accessed value is irrelevant as it is not the type of the original value

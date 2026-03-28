@@ -17,7 +17,7 @@ import tools.jackson.databind.ObjectMapper;
 // tools.jackson.databind.ser.BasicSerializerFactory.findSerializerByAnnotations(SerializationContext, JavaType, Supplier)
 public class TestJsonTypeInfoJsonValue {
 
-	@JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+	@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS,
 			include = JsonTypeInfo.As.PROPERTY,
 			property = "type",
 			defaultImpl = AroundString.class)
@@ -80,14 +80,14 @@ public class TestJsonTypeInfoJsonValue {
 	}
 
 	public static class HasAround {
-		AroundSomething c;
+		AroundSomething wrapped;
 
-		public AroundSomething getC() {
-			return c;
+		public AroundSomething getWrapped() {
+			return wrapped;
 		}
 
-		public void setC(AroundSomething c) {
-			this.c = c;
+		public void setC(AroundSomething wrapped) {
+			this.wrapped = wrapped;
 		}
 	}
 
@@ -101,14 +101,14 @@ public class TestJsonTypeInfoJsonValue {
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		String asString = objectMapper.writeValueAsString(wrapper);
-		Assertions.assertThat(asString).isEqualTo("{\"c\":\"foo\"}");
+		Assertions.assertThat(asString).isEqualTo("{\"wrapped\":\"foo\"}");
 
 		HasAround fromString = objectMapper.readValue(asString, HasAround.class);
-		Assertions.assertThat(fromString.getC().getInner()).isEqualTo("foo");
+		Assertions.assertThat(fromString.getWrapped().getInner()).isEqualTo("foo");
 	}
 
 	@Test
-	public void aroundObject() {
+	public void aroundObject_simpleType() {
 		AroundObject matcher = new AroundObject("foo");
 
 		HasAround wrapper = new HasAround();
@@ -117,10 +117,27 @@ public class TestJsonTypeInfoJsonValue {
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		String asString = objectMapper.writeValueAsString(wrapper);
-		Assertions.assertThat(asString).isEqualTo("{\"c\":\"foo\"}");
+		Assertions.assertThat(asString).isEqualTo("{\"wrapped\":\"foo\"}");
 
 		HasAround fromString = objectMapper.readValue(asString, HasAround.class);
-		Assertions.assertThat(fromString.getC().getInner()).isEqualTo("foo");
+		Assertions.assertThat(fromString.getWrapped().getInner()).isEqualTo("foo");
+	}
+
+	@Test
+	public void aroundObject_complexType() {
+		AroundObject matcher = new AroundObject(Map.of("foo", "bar"));
+
+		HasAround wrapper = new HasAround();
+		wrapper.setC(matcher);
+
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		String asString = objectMapper.writeValueAsString(wrapper);
+		Assertions.assertThat(asString)
+				.isEqualTo("{\"wrapped\":{\"type\":\".TestJsonTypeInfoJsonValue$AroundObject\",\"foo\":\"bar\"}}");
+
+		HasAround fromString = objectMapper.readValue(asString, HasAround.class);
+		Assertions.assertThat(fromString.getWrapped().getInner()).isEqualTo(Map.of("foo", "bar"));
 	}
 
 	@Test
@@ -136,7 +153,7 @@ public class TestJsonTypeInfoJsonValue {
 		String asString = objectMapper.writeValueAsString(wrapper);
 		Assertions.assertThat(asString)
 				.isEqualTo(
-						"{\"c\":{\"type\":\"TestJsonTypeInfoJsonValue$AroundObject_NotJsonValue\",\"inner\":\"foo\"}}");
+						"{\"wrapped\":{\"type\":\".TestJsonTypeInfoJsonValue$AroundObject_NotJsonValue\",\"inner\":\"foo\"}}");
 	}
 
 	@JsonTypeInfo(use = JsonTypeInfo.Id.NAME,

@@ -365,6 +365,16 @@ public class PropertyValueBuffer
     }
 
     /**
+     * Method called to assign a "native" Object Id value (such as YAML anchor)
+     * that has already been converted to the expected type.
+     *
+     * @since 3.2
+     */
+    public void assignNativeObjectId(Object id) {
+        _idValue = id;
+    }
+
+    /**
      * Helper method called to handle Object Id value collected earlier, if any
      */
     public Object handleIdValue(final DeserializationContext ctxt, Object bean) throws JacksonException

@@ -417,6 +417,22 @@ public class BuilderBasedDeserializer
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+
+        // [dataformats-text#22]: Handle native Object Ids (e.g. YAML anchors)
+        if (_objectIdReader != null && p.canReadObjectId()) {
+            Object rawId = p.getObjectId();
+            if (rawId != null) {
+                Object id;
+                ValueDeserializer<Object> idDeser = _objectIdReader.getDeserializer();
+                if (idDeser.handledType() == rawId.getClass()) {
+                    id = rawId;
+                } else {
+                    id = _convertObjectId(p, ctxt, rawId, idDeser);
+                }
+                buffer.assignNativeObjectId(id);
+            }
+        }
+
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
         // 04-Jan-2010, tatu: May need to collect unknown properties for polymorphic cases

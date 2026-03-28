@@ -22,7 +22,7 @@ public abstract class TypeSerializerBase extends TypeSerializer
      * Whether to skip writing type id when the runtime type matches
      * {@link #_defaultImplForSerialization}.
      *
-     * @since 3.0
+     * @since 3.2
      */
     protected final boolean _skipWriteForDefaultImpl;
 
@@ -31,7 +31,7 @@ public abstract class TypeSerializerBase extends TypeSerializer
      * is {@code true} and the runtime value class exactly matches this class,
      * the type id will be suppressed during serialization.
      *
-     * @since 3.0
+     * @since 3.2
      */
     protected final Class<?> _defaultImplForSerialization;
 
@@ -44,7 +44,7 @@ public abstract class TypeSerializerBase extends TypeSerializer
     }
 
     /**
-     * @since 3.0
+     * @since 3.2
      */
     protected TypeSerializerBase(TypeIdResolver idRes, BeanProperty property,
             boolean skipWriteForDefaultImpl, Class<?> defaultImplForSerialization)

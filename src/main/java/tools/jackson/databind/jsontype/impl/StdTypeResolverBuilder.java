@@ -56,7 +56,7 @@ public class StdTypeResolverBuilder
      * Whether to skip writing type id during serialization when
      * the runtime type matches {@link #_defaultImpl}.
      *
-     * @since 3.0
+     * @since 3.2
      */
     protected Boolean _skipWriteForDefaultImpl;
 

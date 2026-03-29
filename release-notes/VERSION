@@ -125,6 +125,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (reported by Martin U)
 #5821: Fix dead code and side-effect bug in `BeanPropertyWriter.toString()`
  (fix by @pjfanning)
+#5851: Regression of `JsonTypeInfo.Id.MINIMAL_CLASS` in the 3.x branch
+ (reported by @wrongwrong)
+ (fix by @cowtowncoder, w/ Claude code)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 

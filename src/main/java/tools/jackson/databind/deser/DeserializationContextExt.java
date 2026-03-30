@@ -28,6 +28,16 @@ public abstract class DeserializationContextExt
     private List<ObjectIdResolver> _objectIdResolvers;
 
     /**
+     * Identity-based set tracking container objects (typically builders) that have
+     * unresolved forward Object Id references registered against them.
+     * Populated by {@link #addPendingForwardRef} and checked by
+     * {@link #hasPendingForwardRefsFor} in O(1) time, avoiding costly scans.
+     *
+     * @since 3.2
+     */
+    private Set<Object> _buildersWithForwardRefs;
+
+    /**
      * Constructor that will pass specified deserializer factory and
      * cache: cache may be null (in which case default implementation
      * will be used), factory cannot be null
@@ -128,6 +138,36 @@ public abstract class DeserializationContextExt
                 }
             }
         }
+        // If we get here, no ObjectId entry was bound to the delegate. This indicates
+        // a problem: caller expected to rebind Object Id from delegate/builder to the
+        // final object, but no matching entry was found.
+        reportBadDefinition(constructType(newItem.getClass()), String.format(
+                "Failed to update Object Id: no ObjectId entry found bound to delegate of type `%s`"
+                + " (target type `%s`)",
+                ClassUtil.classNameOf(delegate), ClassUtil.classNameOf(newItem)));
+    }
+
+    // @since 3.2
+    @Override
+    public void addPendingForwardRef(Object container) {
+        if (_buildersWithForwardRefs == null) {
+            _buildersWithForwardRefs = Collections.newSetFromMap(new IdentityHashMap<>());
+        }
+        _buildersWithForwardRefs.add(container);
+    }
+
+    // @since 3.2
+    @Override
+    public void removePendingForwardRef(Object container) {
+        if (_buildersWithForwardRefs != null) {
+            _buildersWithForwardRefs.remove(container);
+        }
+    }
+
+    // @since 3.2
+    @Override
+    public boolean hasPendingForwardRefsFor(Object builder) {
+        return (_buildersWithForwardRefs != null) && _buildersWithForwardRefs.contains(builder);
     }
 
     @Override

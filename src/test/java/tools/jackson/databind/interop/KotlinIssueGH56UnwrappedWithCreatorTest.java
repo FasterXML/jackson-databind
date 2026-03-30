@@ -15,7 +15,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Reproduction of Kotlin modules `Github56.kt` test wrt failure
-public class KotlinIssue56UnwrappedWithCreatorTest
+public class KotlinIssueGH56UnwrappedWithCreatorTest
     extends DatabindTestUtil
 {
     private final ObjectMapper mapper = newJsonMapper();

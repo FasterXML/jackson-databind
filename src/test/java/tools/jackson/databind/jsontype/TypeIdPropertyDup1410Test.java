@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.jsontype;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,12 +6,14 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ExternalTypeIdDup1410Test extends DatabindTestUtil
+// [databind#1410]: Bean property name overlapping with class-level type id
+//   property should fail with helpful message
+public class TypeIdPropertyDup1410Test extends DatabindTestUtil
 {
     enum EnvironmentEventSource { BACKEND; }
 
@@ -56,12 +58,6 @@ public class ExternalTypeIdDup1410Test extends DatabindTestUtil
             resultData = results;
         }
 
-        public static BackendEvent create(String environmentName, String message,
-                                          String status, Object results) {
-            return new BackendEvent(environmentName, message,
-                    status, results);
-        }
-
         @Override
         public EnvironmentEventSource getSource() {
             return EnvironmentEventSource.BACKEND;
@@ -81,17 +77,16 @@ public class ExternalTypeIdDup1410Test extends DatabindTestUtil
         }
     }
 
-    @JacksonTestFailureExpected
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    // [databind#1410]
     @Test
-    void dupProps() throws Exception {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .build();
+    void dupPropsFailsWithHelpfulMessage() throws Exception {
         EnvironmentEvent event = new BackendEvent("foo", "hello", "bar", null);
-        String ser = mapper
-                .writerWithDefaultPrettyPrinter()
-                .writeValueAsString(event);
-        mapper.readValue(ser, EnvironmentEvent.class);
-        assertNotNull(ser);
+        InvalidDefinitionException ex = assertThrows(
+                InvalidDefinitionException.class,
+                () -> MAPPER.writeValueAsString(event));
+        verifyException(ex, "Conflict between type id property");
+        verifyException(ex, "EXISTING_PROPERTY");
     }
 }

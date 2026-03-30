@@ -2,6 +2,7 @@ package tools.jackson.databind.deser.std;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
@@ -177,5 +178,15 @@ public abstract class DelegatingDeserializer
     @Override
     public Boolean supportsUpdate(DeserializationConfig config) {
         return _delegatee.supportsUpdate(config);
+    }
+    
+    @Override
+    public void collectAllPropertyNamesTo(Set<String> names) {
+    	_delegatee.collectAllPropertyNamesTo(names);
+    }
+    
+    @Override
+    public boolean hasAnySetter() {
+    	return _delegatee.hasAnySetter();
     }
 }

@@ -607,7 +607,9 @@ public class BeanPropertyWriter
      * @since 2.6
      */
     public boolean wouldConflictWithName(PropertyName name) {
-        if (_wrapperName != null) {
+        // [dataformat-xml#802]: Only check wrapper name if it has an actual
+        //   simple name (not USE_DEFAULT or NO_NAME markers)
+        if (_wrapperName != null && _wrapperName.hasSimpleName()) {
             return _wrapperName.equals(name);
         }
         // Bit convoluted since our support for namespaces is spotty but:
@@ -908,11 +910,13 @@ public class BeanPropertyWriter
     public String toString() {
         StringBuilder sb = new StringBuilder(40);
         sb.append("property '").append(getName()).append("' (");
-        if (_accessor != null) {
-            sb.append("via methodhandle ")
-                    .append(_accessor);
-        } else {
+        // 22-Mar-2026: [databind#5821] check members, not accessor
+        if (_member == null) {
             sb.append("virtual");
+        } else if (_member instanceof AnnotatedField) {
+            sb.append("field '").append(_member.getName()).append("'");
+        } else {
+            sb.append("method '").append(_member.getName()).append("()'");
         }
         if (_serializer == null) {
             sb.append(", no static serializer");

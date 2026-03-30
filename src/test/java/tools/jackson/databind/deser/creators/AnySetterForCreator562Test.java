@@ -1,7 +1,9 @@
 package tools.jackson.databind.deser.creators;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -183,7 +185,8 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
                 PojoWithNodeAnySetter.class);
 
         assertEquals("value", pojo.a);
-        assertEquals(a2q("{'c':111,'b':42}"), pojo.anySetterNode + "");
+        // [databind#5353]: order should match input JSON property order
+        assertEquals(a2q("{'b':42,'c':111}"), pojo.anySetterNode + "");
 
         // Also ok to get nothing, resulting in empty ObjectNode
         pojo = MAPPER.readValue(a2q("{'a':'ok'}"), PojoWithNodeAnySetter.class);
@@ -235,6 +238,25 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
         } catch (MismatchedInputException e) {
             verifyException(e, "Missing creator property");
         }
+    }
+
+    // [databind#5353]: Verify that @JsonAnySetter creator parameter preserves
+    // JSON property order (uses LinkedHashMap)
+    @Test
+    public void anySetterCreatorPreservesOrder5353() throws Exception
+    {
+        POJO562 pojo = MAPPER.readValue(a2q(
+                "{'a':'value', 'd':4, 'c':3, 'b':2}"
+                ),
+                POJO562.class);
+
+        assertEquals("value", pojo.a);
+        // Verify order matches input JSON
+        ArrayList<String> keys = new ArrayList<>(pojo.stuff.keySet());
+        assertEquals(3, keys.size());
+        assertEquals("d", keys.get(0));
+        assertEquals("c", keys.get(1));
+        assertEquals("b", keys.get(2));
     }
 
     @Test

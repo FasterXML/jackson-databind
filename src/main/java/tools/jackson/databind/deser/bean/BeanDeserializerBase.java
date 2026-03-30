@@ -207,6 +207,19 @@ public abstract class BeanDeserializerBase
      */
     protected volatile boolean _propertiesContextualized;
 
+    /**
+     * Re-entry guard for {@link PropertyBasedCreator} construction within
+     * {@link #createContextual}: set to {@code true} while
+     * {@code PropertyBasedCreator.construct()} is running, to prevent
+     * infinite recursion when mutually-referencing types both use
+     * property-based {@code @JsonCreator}s.
+     *<p>
+     * NOTE: only accessed within {@code synchronized (_valueInstantiator)} block.
+     *
+     * @since 3.2
+     */
+    private boolean _creatorBeingResolved;
+
     /*
     /**********************************************************************
     /* Life-cycle, construction, initialization
@@ -669,6 +682,13 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
         } else {
             _unwrappedPropertyHandler = null;
         }
+        // [databind#2039]: combination of unwrapped and external type id not (yet) supported
+        if (_unwrappedPropertyHandler != null && _externalTypeIdHandler != null) {
+            ctxt.reportBadDefinition(_beanType, String.format(
+                    "Cannot (yet) use @JsonUnwrapped and @JsonTypeInfo(As.EXTERNAL_PROPERTY) "
+                    + "on properties of the same Bean (%s)",
+                    ClassUtil.getTypeDescription(_beanType)));
+        }
         // may need to disable vanilla processing, if unwrapped handling was enabled...
         _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
     }
@@ -841,9 +861,20 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
         if (_propertyBasedCreator == null && _valueInstantiator.canCreateFromObjectWith()) {
             // Let's guard state mutation wrt concurrency
             synchronized (_valueInstantiator) {
-                SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
-                _propertyBasedCreator = PropertyBasedCreator.construct(
-                        ctxt, _valueInstantiator, creatorProps, _beanProperties);
+                // 13-Mar-2026, tatu: [kotlin-module#54]: guard against infinite recursion
+                // when mutually-referencing types both use property-based @JsonCreator:
+                // PropertyBasedCreator.construct() contextualizes creator properties,
+                // which can recurse back to createContextual() for this same type.
+                if (!_creatorBeingResolved) {
+                    _creatorBeingResolved = true;
+                    try {
+                        SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+                        _propertyBasedCreator = PropertyBasedCreator.construct(
+                                ctxt, _valueInstantiator, creatorProps, _beanProperties);
+                    } finally {
+                        _creatorBeingResolved = false;
+                    }
+                }
             }
         }
 
@@ -1272,9 +1303,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return _needViewProcesing;
     }
 
-    /**
-     * @since 3.1
-     */
+    @Override
     public boolean hasAnySetter() {
         return _anySetter != null;
     }
@@ -1303,14 +1332,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return names;
     }
 
-    /**
-     * Method to collect all property names including nested unwrapped properties
-     *
-     * @param names (not null) Set to add property names to; for both regular
-     *   and "any" properties.
-     *
-     * @since 3.1
-     */
+    @Override
     public void collectAllPropertyNamesTo(Set<String> names) {
         for (SettableBeanProperty prop : _beanProperties) {
             names.add(prop.getName());
@@ -1450,12 +1472,17 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
                     return deserializeFromObjectId(p, ctxt);
                 }
                 // but, with 2.5+, a simple Object-wrapped value also legal:
-                if (t == JsonToken.START_OBJECT) {
-                    t = p.nextToken();
-                }
-                if ((t == JsonToken.PROPERTY_NAME) && _objectIdReader.maySerializeAsObject()
-                        && _objectIdReader.isValidReferencePropertyName(p.currentName(), p)) {
-                    return deserializeFromObjectId(p, ctxt);
+                // [databind#4014]: only consume START_OBJECT when Object Id may
+                // actually be serialized as an Object; otherwise we'd advance
+                // past START_OBJECT without consuming the matching END_OBJECT.
+                if (_objectIdReader.maySerializeAsObject()) {
+                    if (t == JsonToken.START_OBJECT) {
+                        t = p.nextToken();
+                    }
+                    if ((t == JsonToken.PROPERTY_NAME)
+                            && _objectIdReader.isValidReferencePropertyName(p.currentName(), p)) {
+                        return deserializeFromObjectId(p, ctxt);
+                    }
                 }
             }
         }
@@ -1528,7 +1555,6 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return idDeser.deserialize(bufParser, ctxt);
     }
 
-    // NOTE: currently only used by standard BeanDeserializer (not Builder-based)
     /**
      * Alternative deserialization method used when we expect to see Object Id;
      * if so, we will need to ensure that the Id is seen before anything
@@ -1536,6 +1562,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * even if JSON itself is not ordered that way. This may require
      * buffering in some cases, but usually just a simple lookup to ensure
      * that ordering is correct.
+     *<p>
+     * Used by both {@link BeanDeserializer} and
+     * {@link BuilderBasedDeserializer} (since 3.2, [databind#1496]).
      */
     protected Object deserializeWithObjectId(JsonParser p, DeserializationContext ctxt) throws JacksonException {
         return deserializeFromObject(p, ctxt);
@@ -1584,6 +1613,11 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         //   inner classes -- with one and only one exception; that of default constructor!
         //   -- so let's indicate it
         Class<?> raw = _beanType.getRawClass();
+        // [databind#3229]: Give a more specific message for local/anonymous classes
+        if (ClassUtil.isLocalType(raw, true) != null) {
+            return ctxt.handleMissingInstantiator(raw, null, p,
+"cannot construct instance of local/anonymous class (consider using `readerForUpdating()` to update an existing instance instead)");
+        }
         if (ClassUtil.isNonStaticInnerClass(raw)) {
             return ctxt.handleMissingInstantiator(raw, null, p,
 "non-static inner classes like this can only by instantiated using default, no-argument constructor");

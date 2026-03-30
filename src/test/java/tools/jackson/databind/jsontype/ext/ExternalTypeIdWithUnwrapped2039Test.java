@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.jsontype.ext;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,11 +6,10 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-class ExternalTypeIdWithUnwrapped2039Test extends DatabindTestUtil {
+class ExternalTypeIdWithUnwrapped2039Test extends DatabindTestUtil
+{
     static class MainType2039 {
         public String text;
 
@@ -42,7 +41,7 @@ class ExternalTypeIdWithUnwrapped2039Test extends DatabindTestUtil {
         public boolean bool;
     }
 
-    @JacksonTestFailureExpected
+    // [databind#2039]: @JsonUnwrapped and EXTERNAL_PROPERTY not yet supported together
     @Test
     void externalWithUnwrapped2039() throws Exception {
         final ObjectMapper mapper = newJsonMapper();
@@ -55,13 +54,11 @@ class ExternalTypeIdWithUnwrapped2039Test extends DatabindTestUtil {
                 + "  'bool': true\n"
                 + "}\n"
                 + "}");
-        final MainType2039 main = mapper.readValue(json, MainType2039.class);
 
-        assertEquals("this is A", main.text);
-        assertEquals("yes", main.wrapped.wrapped);
-
-        assertNotNull(main.sub);
-        assertEquals(SubA2039.class, main.sub.getClass()); // <- fails here
-        assertTrue(((SubA2039) main.sub).bool);
+        // Should fail with informative message, not silently produce wrong result
+        DatabindException ex = assertThrows(DatabindException.class,
+                () -> mapper.readValue(json, MainType2039.class));
+        verifyException(ex, "Cannot (yet) use @JsonUnwrapped");
+        verifyException(ex, "EXTERNAL_PROPERTY");
     }
 }

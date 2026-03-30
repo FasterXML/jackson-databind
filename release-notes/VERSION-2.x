@@ -6,16 +6,31 @@ Project: jackson-databind
 
 2.22.0 (not yet released)
 
+#3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices are
+  defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
+ (reported by Christian D)
+ (contributed by Lee Jiwon)
 #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.2 (not yet released)
+2.21.3 (not yet released)
+
+#5840: Jackson 2.21 throws Conflicting property-based creators if both
+  default (0-arg) and multi-arg constructor annotated
+ (reported by Alexey T)
+ (fix by @pjfanning)
+
+2.21.2 (20-Mar-2026)
 
 #5729: (regression due to #5429) ISO-8601 change prevents parsing
   negative timestamps (dates before 1970)
  (reported by Thomas W)
  (fixed by by Jonas K)
+#5814: Enum deserialization does not respect
+  `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
+ (reported by David N)
+ (fix by @cowtowncoder, w/ Claude code)
 
 2.21.1 (22-Feb-2026)
 
@@ -155,6 +170,9 @@ No changes since 2.19.2
 
 2.19.0 (24-Apr-2025)
 
+#917: Unable to have two `@JsonUnwrapped` annotated object of same
+  type within one constructor
+ (reported by @smil2k)
 #1467: Support `@JsonUnwrapped` with `@JsonCreator`
  (implementation by Liam F)
 #2145: Add `JsonNode.optional(String name)` and `optional(int index)` methods

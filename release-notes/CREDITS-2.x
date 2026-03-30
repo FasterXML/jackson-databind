@@ -2012,6 +2012,24 @@ Thomas Wöckinger (@thomaswoeckinger)
    negative timestamps (dates before 1970)
   [2.21.2]
 
+David Nelson (@eatdrinksleepcode)
+ * Reported #5814: Enum deserialization does not respect
+   `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
+  [2.21.2]
+
+Alexey Tsvetkov (@AlexeyTsvetkov)
+ * Reported #5840: Jackson 2.21 throws Conflicting property-based creators if both
+   default (0-arg) and multi-arg constructor annotated
+  [2.21.3]
+
+Christian Danner cdadac
+ * Reported #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
+   are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
+  [2.22.0]
+
 Lee Jiwon (@dlwldnjs1009)
+ * Contributed #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
+   are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
+  [2.22.0]
  * Contributed #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
   [2.22.0]

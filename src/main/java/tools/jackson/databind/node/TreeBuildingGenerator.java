@@ -10,6 +10,8 @@ import tools.jackson.core.*;
 import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.JsonNodeFeature;
+import tools.jackson.databind.util.NumberUtil;
 import tools.jackson.databind.util.RawValue;
 
 /**
@@ -46,6 +48,14 @@ public class TreeBuildingGenerator
      */
     protected final int _streamWriteFeatures;
 
+    /**
+     * Whether to strip trailing zeroes from {@link BigDecimal} values
+     * when building tree nodes.
+     *
+     * @since 3.1.1
+     */
+    protected final boolean _cfgStripTrailingBigDecimalZeroes;
+
     /*
     /**********************************************************************
     /* Output state
@@ -62,18 +72,29 @@ public class TreeBuildingGenerator
     /**********************************************************************
      */
 
-    TreeBuildingGenerator(ObjectWriteContext owCtxt, JsonNodeFactory nodeFactory)
+    /**
+     * @since 3.1.1
+     */
+    TreeBuildingGenerator(ObjectWriteContext owCtxt, JsonNodeFactory nodeFactory,
+            boolean stripTrailingBigDecimalZeroes)
     {
         _objectWriteContext = owCtxt;
         _nodeFactory = nodeFactory;
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
+        _cfgStripTrailingBigDecimalZeroes = stripTrailingBigDecimalZeroes;
         _rootWriteContext = new RootContext(nodeFactory);
         _tokenWriteContext = _rootWriteContext;
     }
 
+    @Deprecated // @since 3.1.1
+    TreeBuildingGenerator(ObjectWriteContext owCtxt, JsonNodeFactory nodeFactory) {
+        this(owCtxt, nodeFactory, false);
+    }
+
     public static TreeBuildingGenerator forSerialization(SerializationContext ctxt,
             JsonNodeFactory nodeFactory) {
-        return new TreeBuildingGenerator(ctxt, nodeFactory);
+        return new TreeBuildingGenerator(ctxt, nodeFactory,
+                (ctxt != null) && ctxt.isEnabled(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES));
     }
 
     public JsonNode treeBuilt() {
@@ -388,6 +409,10 @@ public class TreeBuildingGenerator
         if (v == null) {
             writeNull();
         } else {
+            // [databind#5819]: apply `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES`?
+            if (_cfgStripTrailingBigDecimalZeroes) {
+                v = NumberUtil.stripTrailingZeros(v);
+            }
             _tokenWriteContext.writeNumber(_nodeFactory.numberNode(v));
         }
         return this;

@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -257,15 +258,11 @@ public class POJOPropertiesCollectorTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-
-    // 18-Feb-2024, tatu: Not sure exactly when these were commented out,
-    //   noticed during JUnit5 conversion
-    /*
     @Test
     public void testSimple()
     {
-        POJOPropertiesCollector coll =
-        Map<String, POJOPropertyBuilder> props = beanPropMap(MAPPER, Simple.class, true);
+        POJOPropertiesCollector coll = collector(MAPPER,  Simple.class, false);
+        Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
         POJOPropertyBuilder prop = props.get("value");
         assertNotNull(prop);
@@ -278,8 +275,7 @@ public class POJOPropertiesCollectorTest
     public void testSimpleFieldVisibility()
     {
         // false -> deserialization
-        POJOPropertiesCollector coll = collector(MAPPER,
-        		SimpleFieldDeser.class, false);
+        POJOPropertiesCollector coll = collector(MAPPER, SimpleFieldDeser.class, false);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
         POJOPropertyBuilder prop = props.get("values");
@@ -393,7 +389,7 @@ public class POJOPropertiesCollectorTest
     {
         ObjectMapper m = jsonMapperBuilder()
                 .changeDefaultVisibility(vc ->
-                    vc.withVisibility(PropertyAccessor.GETTER, Visibility.NONE))
+                    vc.withVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE))
                 .build();
         POJOPropertiesCollector coll = collector(m, SimpleGetterVisibility.class, true);
         // should be 1, expect that we disabled getter auto-detection, so
@@ -408,12 +404,12 @@ public class POJOPropertiesCollectorTest
         Map<String, ?> props = beanPropMap(MAPPER, ImplicitIgnores.class, false);
         assertEquals(1, props.size());
         // but also have 2 ignored properties
+        POJOPropertiesCollector coll = collector(MAPPER, ImplicitIgnores.class, false);
         Collection<String> ign = coll.getIgnoredPropertyNames();
         assertEquals(2, ign.size());
         assertTrue(ign.contains("a"));
         assertTrue(ign.contains("b"));
     }
-    */
 
     @Test
     public void testSimpleOrderingForDeserialization()
@@ -493,6 +489,16 @@ public class POJOPropertiesCollectorTest
         assertEquals(2, ignoredSer.size());
     }
 
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testFormatOverridesDeprcated()
+    {
+        POJOPropertiesCollector coll = collector(MAPPER,  Simple.class, false);
+        JsonFormat.Value format = coll.getFormatOverrides();
+        assertNotNull(format);
+        assertEquals(JsonFormat.Shape.ANY, format.getShape());
+    }
+
     /*
     /**********************************************************************
     /* Helper methods
@@ -518,5 +524,31 @@ public class POJOPropertiesCollectorTest
                 ? ObjectMapperTestAccess.beanDescriptionForSer(m0, cls)
                 : ObjectMapperTestAccess.beanDescriptionForDeser(m0, cls)
         ;
+    }
+
+    protected POJOPropertiesCollector collector(ObjectMapper mapper,
+            Class<?> cls, boolean forSerialization)
+    {
+        MapperConfig<?> config = forSerialization
+                ? mapper.serializationConfig()
+                : mapper.deserializationConfig();
+        AnnotatedClass classDef = forSerialization
+                ? ObjectMapperTestAccess.annotatedClassForSer(mapper, cls)
+                : ObjectMapperTestAccess.annotatedClassForDeser(mapper, cls);
+        return new TestPOJOPropertiesCollector(config,
+                forSerialization, mapper.constructType(cls),
+                classDef,
+                config.getAccessorNaming());
+    }
+
+    // @since 3.2
+    static class TestPOJOPropertiesCollector extends POJOPropertiesCollector
+    {
+        public TestPOJOPropertiesCollector(MapperConfig<?> config, boolean forSerialization,
+                JavaType type, AnnotatedClass classDef,
+                AccessorNamingStrategy.Provider accessorNaming) {
+            super(config, forSerialization, type, classDef,
+                    accessorNaming.forPOJO(config, classDef));
+        }
     }
 }

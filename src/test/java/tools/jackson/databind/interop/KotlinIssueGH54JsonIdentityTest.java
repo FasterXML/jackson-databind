@@ -1,17 +1,18 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.interop;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import com.fasterxml.jackson.annotation.*;
+
+import tools.jackson.databind.ObjectMapper;
+
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // From https://github.com/FasterXML/jackson-module-kotlin/issues/54
-public class JsonIdentityKotlinGithub54Test
+public class KotlinIssueGH54JsonIdentityTest
+    extends DatabindTestUtil
 {
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
     static class Entity1 {
@@ -56,7 +57,7 @@ public class JsonIdentityKotlinGithub54Test
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
+    //@JacksonTestFailureExpected
     @Test
     void testDeserWithIdentityInfo() throws Exception {
         Entity1 entity1 = new Entity1("test_entity1", null, null);
@@ -68,6 +69,7 @@ public class JsonIdentityKotlinGithub54Test
 
         String json = MAPPER.writeValueAsString(entity1);
 
-        MAPPER.readValue(json, Entity1.class);
+        Entity1 result = MAPPER.readValue(json, Entity1.class);
+        assertNotNull(result);
     }
 }

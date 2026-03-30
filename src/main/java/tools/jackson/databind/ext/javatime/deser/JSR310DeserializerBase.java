@@ -31,6 +31,7 @@ import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.NumberUtil;
 
 /**
  * Base class that indicates that all JSR310 datatypes are deserialized from scalar JSON types.
@@ -128,7 +129,8 @@ abstract class JSR310DeserializerBase<T> extends StdScalarDeserializer<T>
         // 30-Sep-2020, tatu: Need to support "numbers as Strings" for data formats
         //    that only have String values for scalars (CSV, Properties, XML)
         // NOTE: we do allow negative values, but has to fit in 64-bits:
-        return _isIntNumber(str) && NumberInput.inLongRange(str, (str.charAt(0) == '-'));
+        return NumberUtil.isValidJDKIntNumber(str)
+                && NumberInput.inLongRange(str, (str.charAt(0) == '-'));
     }
 
     protected <BOGUS> BOGUS _reportWrongToken(DeserializationContext context,

@@ -14,7 +14,7 @@ No changes since 3.1
 #5857: `TypeFactory._fromParamType` StackOverflowError with mutually recursive
   generic bounds (regression in 3.1.0, introduced by fix for [databind#5285])
  (reported by @sylvaindd)
- (fix by @Copilot)
+ (fix by @pjfanning w/ @Copilot)
 
 3.1.1 (27-Mar-2026)
 

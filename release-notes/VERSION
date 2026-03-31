@@ -125,8 +125,18 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (reported by Martin U)
 #5821: Fix dead code and side-effect bug in `BeanPropertyWriter.toString()`
  (fix by @pjfanning)
+#5851: Regression of `JsonTypeInfo.Id.MINIMAL_CLASS` in the 3.x branch
+ (reported by @wrongwrong)
+ (fix by @cowtowncoder, w/ Claude code)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
+
+3.1.2 (not yet released)
+
+#5857: `TypeFactory._fromParamType` StackOverflowError with mutually recursive
+  generic bounds (regression in 3.1.0, introduced by fix for [databind#5285])
+ (reported by @sylvaindd)
+ (fix by @pjfanning w/ @Copilot)
 
 3.1.1 (27-Mar-2026)
 

@@ -95,19 +95,11 @@ jobs:
         branch: ${{ github.event.pull_request.base.ref }}
         name: jacoco-report
         path: base-coverage/
-    - name: Generate coverage summary
-      if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
-      id: jacoco
-      uses: cicirello/jacoco-badge-generator@72266185b7ee48a6fd74eaf0238395cc8b14fef8 # v2.12.1
-      with:
-        jacoco-csv-file: target/site/jacoco/jacoco.csv
-        generate-coverage-badge: false
-        generate-branches-badge: false
-        generate-summary: true
     - name: Generate coverage comment
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
       run: |
-        # Helper functions
+        # Parse JaCoCo CSV to compute coverage percentage
+        # Columns: GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED(4),INSTRUCTION_COVERED(5),BRANCH_MISSED(6),BRANCH_COVERED(7),...
         parse_coverage() {
           local csv_file=$1 col_missed=$2 col_covered=$3
           awk -F',' -v m="$col_missed" -v c="$col_covered" \
@@ -139,9 +131,9 @@ jobs:
           }'
         }
 
-        # Convert decimal to percentage and round to 1 decimal place
-        COVERAGE=$(awk -v cov="${{ steps.jacoco.outputs.coverage }}" 'BEGIN { printf "%.2f", cov * 100 }')
-        BRANCHES=$(awk -v br="${{ steps.jacoco.outputs.branches }}" 'BEGIN { printf "%.2f", br * 100 }')
+        # Compute current coverage from JaCoCo CSV
+        COVERAGE=$(parse_coverage "target/site/jacoco/jacoco.csv" 4 5)
+        BRANCHES=$(parse_coverage "target/site/jacoco/jacoco.csv" 6 7)
 
         # Check if base coverage artifact was downloaded and calculate deltas
         HAS_DELTA=false

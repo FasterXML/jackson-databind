@@ -1665,7 +1665,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
      * @return {@code true} if the type variable's bound directly or indirectly
      *   references the declaring class
      *
-     * @since 3.1.2
+     * @since 3.1
      */
     protected boolean _isSelfReferentialTypeParameter(TypeVariable<?> typeVar, Class<?> declaringClass) {
         Type[] bounds = typeVar.getBounds();

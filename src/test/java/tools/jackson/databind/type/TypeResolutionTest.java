@@ -198,4 +198,48 @@ public class TypeResolutionTest extends DatabindTestUtil
         // R has no explicit bound, so ? should stay as Object
         assertEquals(Object.class, jacksonType.containedType(1).getRawClass());
     }
+
+    /*
+    /**********************************************************
+    /* Unit tests: mutually recursive generic bounds [databind#5857]
+    /**********************************************************
+     */
+
+    // [databind#5857] Type hierarchy with mutually recursive wildcard bounds.
+    // The cycle: RuleSetRevisionDTO5857 -> bound RuleSetDTO5857<?> -> bound RuleSetRevisionDTO5857<?,?> -> ...
+    // This is the regression introduced by PR #5639 (fix for [databind#5285]):
+    // _isSelfReferentialTypeParameter only checked direct self-reference, not mutual recursion.
+    abstract static class RuleSetRevisionDTO5857<
+        RS extends RuleSetDTO5857<?>,
+        RSR extends RuleSetRuleDTO5857<?, ?>> {}
+
+    abstract static class RuleSetDTO5857<
+        RSRV extends RuleSetRevisionDTO5857<?, ?>> {}
+
+    abstract static class RuleSetRuleDTO5857<
+        RR,
+        RS extends RuleSetRevisionDTO5857<?, ?>> {}
+
+    // [databind#5857]: constructing a parameterized type with wildcard args must not
+    // cause StackOverflowError when the type variable bounds form a mutual recursion cycle.
+    @Test
+    void mutuallyRecursiveBoundsNoStackOverflow() {
+        TypeFactory tf = defaultTypeFactory();
+        // Should NOT throw StackOverflowError
+        JavaType t = tf.constructType(new TypeReference<List<RuleSetRevisionDTO5857<?, ?>>>() {});
+        assertNotNull(t);
+        assertEquals(List.class, t.getRawClass());
+        assertEquals(RuleSetRevisionDTO5857.class, t.getContentType().getRawClass());
+    }
+
+    // [databind#5857]: constructing a collection type with the raw abstract class
+    // (no wildcards) must not cause StackOverflowError either.
+    @Test
+    void mutuallyRecursiveBoundsConstructCollectionType() {
+        TypeFactory tf = defaultTypeFactory();
+        JavaType t = tf.constructCollectionType(List.class, RuleSetRevisionDTO5857.class);
+        assertNotNull(t);
+        assertEquals(List.class, t.getRawClass());
+        assertEquals(RuleSetRevisionDTO5857.class, t.getContentType().getRawClass());
+    }
 }

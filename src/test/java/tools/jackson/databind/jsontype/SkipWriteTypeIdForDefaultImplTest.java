@@ -10,7 +10,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for {@link JsonTypeInfo#skipWriteForDefaultImpl()} feature,
+ * Tests for {@link JsonTypeInfo#writeTypeIdForDefaultImpl()} feature,
  * which allows suppressing type id serialization when the runtime type
  * matches {@code defaultImpl}.
  *
@@ -23,7 +23,7 @@ public class SkipWriteTypeIdForDefaultImplTest extends DatabindTestUtil
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
             property = "@type",
             defaultImpl = DefaultDog.class,
-            skipWriteForDefaultImpl = OptBoolean.TRUE)
+            writeTypeIdForDefaultImpl = OptBoolean.FALSE)
     @JsonSubTypes({
         @JsonSubTypes.Type(value = DefaultDog.class, name = "dog"),
         @JsonSubTypes.Type(value = Cat.class, name = "cat")
@@ -49,7 +49,7 @@ public class SkipWriteTypeIdForDefaultImplTest extends DatabindTestUtil
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_ARRAY,
             defaultImpl = DefaultDog2.class,
-            skipWriteForDefaultImpl = OptBoolean.TRUE)
+            writeTypeIdForDefaultImpl = OptBoolean.FALSE)
     @JsonSubTypes({
         @JsonSubTypes.Type(value = DefaultDog2.class, name = "dog"),
         @JsonSubTypes.Type(value = Cat2.class, name = "cat")
@@ -70,7 +70,7 @@ public class SkipWriteTypeIdForDefaultImplTest extends DatabindTestUtil
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT,
             defaultImpl = DefaultDog3.class,
-            skipWriteForDefaultImpl = OptBoolean.TRUE)
+            writeTypeIdForDefaultImpl = OptBoolean.FALSE)
     @JsonSubTypes({
         @JsonSubTypes.Type(value = DefaultDog3.class, name = "dog"),
         @JsonSubTypes.Type(value = Cat3.class, name = "cat")
@@ -93,7 +93,7 @@ public class SkipWriteTypeIdForDefaultImplTest extends DatabindTestUtil
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
                 property = "@type",
                 defaultImpl = DefaultDog4.class,
-                skipWriteForDefaultImpl = OptBoolean.TRUE)
+                writeTypeIdForDefaultImpl = OptBoolean.FALSE)
         @JsonSubTypes({
             @JsonSubTypes.Type(value = DefaultDog4.class, name = "dog"),
             @JsonSubTypes.Type(value = Cat4.class, name = "cat")

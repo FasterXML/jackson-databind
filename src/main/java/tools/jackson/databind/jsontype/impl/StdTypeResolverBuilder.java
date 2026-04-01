@@ -298,7 +298,8 @@ public class StdTypeResolverBuilder
         _defaultImpl = settings.getDefaultImpl();
         _typeIdVisible = settings.getIdVisible();
         _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
-        _skipWriteForDefaultImpl = settings.getSkipWriteForDefaultImpl();
+        Boolean writeTypeId = settings.getWriteTypeIdForDefaultImpl();
+        _skipWriteForDefaultImpl = (writeTypeId != null) ? !writeTypeId : null;
         return this;
     }
 

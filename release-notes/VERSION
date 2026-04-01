@@ -128,6 +128,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5851: Regression of `JsonTypeInfo.Id.MINIMAL_CLASS` in the 3.x branch
  (reported by @wrongwrong)
  (fix by @cowtowncoder, w/ Claude code)
+#5860: Add new extension point for `ObjectMapper`, `ObjectWriter`: handler
+ `GeneratorInitializer` called immediately after `JsonGenerator` created,
+  before used
+(fix by @cowtowncoder, w/ Claude code)
 #5861: Allow injecting `MissingNode` for "absent" `JsonNode` via Creator (with
   `JsonNodeFeature.MAP_ABSENT_TO_MISSING`)
  (fix by @cowtowncoder, w/ Claude code)

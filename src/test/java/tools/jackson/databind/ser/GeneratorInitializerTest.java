@@ -59,7 +59,7 @@ public class GeneratorInitializerTest extends DatabindTestUtil
         final AtomicInteger count1 = new AtomicInteger();
         final AtomicInteger count2 = new AtomicInteger();
         ObjectWriter writer = _mapperWith(count1).writer()
-                .withGeneratorInitializer((config, gen) -> count2.incrementAndGet());
+                .with((config, gen) -> count2.incrementAndGet());
 
         writer.writeValueAsString(42);
         assertEquals(0, count1.get(), "Original initializer should NOT be called");
@@ -71,7 +71,7 @@ public class GeneratorInitializerTest extends DatabindTestUtil
     {
         final AtomicInteger count = new AtomicInteger();
         ObjectWriter writer = _mapperWith(count).writer()
-                .withGeneratorInitializer(null);
+                .with((GeneratorInitializer) null);
 
         writer.writeValueAsString(42);
         assertEquals(0, count.get(), "No initializer should be called after clearing");

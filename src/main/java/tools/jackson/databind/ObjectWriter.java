@@ -561,7 +561,7 @@ public class ObjectWriter
      *
      * @since 3.2
      */
-    public ObjectWriter withGeneratorInitializer(GeneratorInitializer init) {
+    public ObjectWriter with(GeneratorInitializer init) {
         return _new(this, _config.withGeneratorInitializer(init));
     }
 

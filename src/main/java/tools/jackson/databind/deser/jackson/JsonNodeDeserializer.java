@@ -73,7 +73,7 @@ public class JsonNodeDeserializer
     public Object getAbsentValue(DeserializationContext ctxt) {
         // [databind#5861] Optionally map absent to MissingNode
         if (ctxt.isEnabled(JsonNodeFeature.MAP_ABSENT_TO_MISSING)) {
-            return MissingNode.getInstance();
+            return ctxt.getNodeFactory().missingNode();
         }
         return null;
     }

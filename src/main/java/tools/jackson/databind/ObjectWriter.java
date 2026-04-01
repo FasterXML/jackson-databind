@@ -553,6 +553,17 @@ public class ObjectWriter
         return _new(_generatorSettings.withRootValueSeparator(sep), _prefetch);
     }
 
+    /**
+     * Fluent factory method for constructing a new instance with specified
+     * {@link tools.jackson.databind.cfg.GeneratorInitializer} to call on newly
+     * constructed {@link JsonGenerator}s before use.
+     *
+     * @since 3.2
+     */
+    public ObjectWriter withGeneratorInitializer(tools.jackson.databind.cfg.GeneratorInitializer init) {
+        return _new(this, _config.withGeneratorInitializer(init));
+    }
+
     /*
     /**********************************************************************
     /* Public API: constructing Generator that are properly linked to `ObjectWriteContext`
@@ -569,7 +580,8 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(OutputStream target) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializationContext(), target);
+        return _initializeGenerator(
+                _generatorFactory.createGenerator(_serializationContext(), target));
     }
 
     /**
@@ -582,7 +594,8 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(OutputStream target, JsonEncoding enc) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializationContext(), target, enc);
+        return _initializeGenerator(
+                _generatorFactory.createGenerator(_serializationContext(), target, enc));
     }
 
     /**
@@ -595,7 +608,8 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(Writer target) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializationContext(), target);
+        return _initializeGenerator(
+                _generatorFactory.createGenerator(_serializationContext(), target));
     }
 
     /**
@@ -608,7 +622,8 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(File target, JsonEncoding enc) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializationContext(), target, enc);
+        return _initializeGenerator(
+                _generatorFactory.createGenerator(_serializationContext(), target, enc));
     }
 
     /**
@@ -621,7 +636,8 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(Path target, JsonEncoding enc) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializationContext(), target, enc);
+        return _initializeGenerator(
+                _generatorFactory.createGenerator(_serializationContext(), target, enc));
     }
 
     /**
@@ -634,7 +650,8 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(DataOutput target) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializationContext(), target);
+        return _initializeGenerator(
+                _generatorFactory.createGenerator(_serializationContext(), target));
     }
 
     /*
@@ -674,7 +691,7 @@ public class ObjectWriter
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, false,
-                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
+                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8)), true);
     }
 
     /**
@@ -696,7 +713,7 @@ public class ObjectWriter
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, false,
-                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
+                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8)), true);
     }
 
     /**
@@ -734,7 +751,7 @@ public class ObjectWriter
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, false,
-                _generatorFactory.createGenerator(ctxt, target), true);
+                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target)), true);
     }
 
     /**
@@ -752,14 +769,14 @@ public class ObjectWriter
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, false,
-                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
+                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8)), true);
     }
 
     public SequenceWriter writeValues(DataOutput target) throws JacksonException {
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, false,
-                _generatorFactory.createGenerator(ctxt, target), true);
+                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target)), true);
     }
 
     /**
@@ -781,7 +798,7 @@ public class ObjectWriter
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, true,
-                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
+                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8)), true);
     }
 
     /**
@@ -805,7 +822,7 @@ public class ObjectWriter
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, true,
-                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
+                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8)), true);
     }
 
     /**
@@ -846,7 +863,7 @@ public class ObjectWriter
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, true,
-                _generatorFactory.createGenerator(ctxt, target), true);
+                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target)), true);
     }
 
     /**
@@ -866,14 +883,14 @@ public class ObjectWriter
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, true,
-                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
+                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8)), true);
     }
 
     public SequenceWriter writeValuesAsArray(DataOutput target) throws JacksonException {
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, true,
-                _generatorFactory.createGenerator(ctxt, target), true);
+                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target)), true);
     }
 
     /*
@@ -1120,6 +1137,7 @@ public class ObjectWriter
     protected final void _configAndWriteValue(SerializationContextExt ctxt,
             JsonGenerator gen, Object value) throws JacksonException
     {
+        _initializeGenerator(gen);
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
                 && (value instanceof AutoCloseable)) {
             _writeCloseable(gen, value);
@@ -1261,6 +1279,20 @@ public class ObjectWriter
                             +" for format "+_generatorFactory.getFormatName());
             }
         }
+    }
+
+    /**
+     * Helper method that applies configured {@link tools.jackson.databind.cfg.GeneratorInitializer},
+     * if any, to the given generator and returns it.
+     *
+     * @since 3.2
+     */
+    protected JsonGenerator _initializeGenerator(JsonGenerator gen) {
+        tools.jackson.databind.cfg.GeneratorInitializer init = _config.getGeneratorInitializer();
+        if (init != null) {
+            init.initialize(_config, gen);
+        }
+        return gen;
     }
 
     protected final void _assertNotNull(String paramName, Object src) {

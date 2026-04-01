@@ -15,6 +15,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.util.*;
 import tools.jackson.databind.cfg.ContextAttributes;
 import tools.jackson.databind.cfg.DatatypeFeature;
+import tools.jackson.databind.cfg.GeneratorInitializer;
 import tools.jackson.databind.cfg.GeneratorSettings;
 import tools.jackson.databind.cfg.SerializationContexts;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -555,12 +556,12 @@ public class ObjectWriter
 
     /**
      * Fluent factory method for constructing a new instance with specified
-     * {@link tools.jackson.databind.cfg.GeneratorInitializer} to call on newly
+     * {@link GeneratorInitializer} to call on newly
      * constructed {@link JsonGenerator}s before use.
      *
      * @since 3.2
      */
-    public ObjectWriter withGeneratorInitializer(tools.jackson.databind.cfg.GeneratorInitializer init) {
+    public ObjectWriter withGeneratorInitializer(GeneratorInitializer init) {
         return _new(this, _config.withGeneratorInitializer(init));
     }
 
@@ -1282,13 +1283,13 @@ public class ObjectWriter
     }
 
     /**
-     * Helper method that applies configured {@link tools.jackson.databind.cfg.GeneratorInitializer},
+     * Helper method that applies configured {@link GeneratorInitializer},
      * if any, to the given generator and returns it.
      *
      * @since 3.2
      */
     protected JsonGenerator _initializeGenerator(JsonGenerator gen) {
-        tools.jackson.databind.cfg.GeneratorInitializer init = _config.getGeneratorInitializer();
+        GeneratorInitializer init = _config.getGeneratorInitializer();
         if (init != null) {
             init.initialize(_config, gen);
         }

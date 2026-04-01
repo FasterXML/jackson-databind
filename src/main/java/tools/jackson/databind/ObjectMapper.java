@@ -2587,13 +2587,13 @@ public class ObjectMapper
     }
 
     /**
-     * Helper method that applies configured {@link tools.jackson.databind.cfg.GeneratorInitializer},
+     * Helper method that applies configured {@link GeneratorInitializer},
      * if any, to the given generator and returns it.
      *
      * @since 3.2
      */
     protected JsonGenerator _initializeGenerator(JsonGenerator gen) {
-        tools.jackson.databind.cfg.GeneratorInitializer init = _serializationConfig.getGeneratorInitializer();
+        GeneratorInitializer init = _serializationConfig.getGeneratorInitializer();
         if (init != null) {
             init.initialize(_serializationConfig, gen);
         }

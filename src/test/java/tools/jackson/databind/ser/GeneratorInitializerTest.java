@@ -1,8 +1,8 @@
 package tools.jackson.databind.ser;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
@@ -10,12 +10,12 @@ import org.junit.jupiter.api.io.TempDir;
 
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.SequenceWriter;
 import tools.jackson.databind.cfg.GeneratorInitializer;
 import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -596,7 +596,7 @@ public class GeneratorInitializerTest extends DatabindTestUtil
     {
         final AtomicInteger count = new AtomicInteger();
         ObjectWriter w = _writerWith(count);
-        tools.jackson.databind.JsonNode node = w.valueToTree(java.util.Map.of("a", 1));
+        JsonNode node = w.valueToTree(Map.of("a", 1));
         assertNotNull(node);
         assertTrue(node.isObject());
         assertEquals(1, count.get());

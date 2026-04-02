@@ -42,6 +42,15 @@ public abstract class TypeSerializerBase extends TypeSerializer
         _skipTypeIdFor = skipTypeIdFor;
     }
 
+    /**
+     * @deprecated Since 3.2 use variant with 3 arguments
+     */
+    @Deprecated // @since 3.2
+    protected TypeSerializerBase(TypeIdResolver idRes, BeanProperty property)
+    {
+        this(idRes, property, null);
+    }
+
     /*
     /**********************************************************
     /* Base implementations, simple accessors

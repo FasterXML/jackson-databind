@@ -18,9 +18,11 @@ public class AsPropertyTypeSerializer
 {
     protected final String _typePropertyName;
 
-    public AsPropertyTypeSerializer(TypeIdResolver idRes, BeanProperty property, String propName)
+    /** @since 3.2 */
+    public AsPropertyTypeSerializer(TypeIdResolver idRes, BeanProperty property, String propName,
+            Class<?> skipTypeIdFor)
     {
-        super(idRes, property);
+        super(idRes, property, skipTypeIdFor);
         _typePropertyName = propName;
     }
 
@@ -28,7 +30,8 @@ public class AsPropertyTypeSerializer
     public AsPropertyTypeSerializer forProperty(SerializationContext ctxt,
             BeanProperty prop) {
         return (_property == prop) ? this :
-            new AsPropertyTypeSerializer(_idResolver, prop, _typePropertyName);
+            new AsPropertyTypeSerializer(_idResolver, prop, _typePropertyName,
+                    _skipTypeIdFor);
     }
 
     @Override

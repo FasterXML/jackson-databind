@@ -91,6 +91,7 @@ public abstract class MapperBuilderState
     protected final SerializerFactory _serializerFactory;
     protected final FilterProvider _filterProvider;
     protected final PrettyPrinter _defaultPrettyPrinter;
+    protected final GeneratorInitializer _generatorInitializer;
 
     /*
     /**********************************************************************
@@ -178,6 +179,7 @@ public abstract class MapperBuilderState
         _serializationContexts = src._serializationContexts; // no snapshot needed (uses `forMapper()`)
         _filterProvider = Snapshottable.takeSnapshot(src._filterProvider);
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _generatorInitializer = src._generatorInitializer;
 
         // Factories for deserialization
         _deserializerFactory = src._deserializerFactory;

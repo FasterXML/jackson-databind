@@ -45,7 +45,7 @@ public class EnumSetDeserializationWithDefaultTyping4849Test
 
         StdTypeResolverBuilder stdTypeResolverBuilder = resolverBuilder
                 .init(JsonTypeInfo.Value.construct(JsonTypeInfo.Id.CLASS, JsonTypeInfo.As.PROPERTY,
-                        "", Object.class, false, null),
+                        "", Object.class, false, null, null),
                         null);
 
         return jsonMapperBuilder()

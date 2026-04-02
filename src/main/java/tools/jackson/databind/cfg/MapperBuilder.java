@@ -157,6 +157,14 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     protected PrettyPrinter _defaultPrettyPrinter;
 
+    /**
+     * Optional {@link GeneratorInitializer} to call after constructing
+     * {@link tools.jackson.core.JsonGenerator} instances.
+     *
+     * @since 3.2
+     */
+    protected GeneratorInitializer _generatorInitializer;
+
     /*
     /**********************************************************************
     /* Factories etc for deserialization
@@ -361,6 +369,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _serializerFactory = state._serializerFactory;
         _filterProvider = state._filterProvider;
         _defaultPrettyPrinter = state._defaultPrettyPrinter;
+        _generatorInitializer = state._generatorInitializer;
 
         // Factories for deserialization
         _deserializationContexts = state._deserializationContexts;
@@ -640,6 +649,13 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public FilterProvider filterProvider() {
         return _filterProvider;
+    }
+
+    /**
+     * @since 3.2
+     */
+    public GeneratorInitializer generatorInitializer() {
+        return _generatorInitializer;
     }
 
     public PrettyPrinter defaultPrettyPrinter() {
@@ -1375,6 +1391,18 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B defaultPrettyPrinter(PrettyPrinter pp) {
         _defaultPrettyPrinter = pp;
+        return _this();
+    }
+
+    /**
+     * Method for configuring a {@link GeneratorInitializer} to be called immediately
+     * after a {@link tools.jackson.core.JsonGenerator} is constructed by the mapper,
+     * before it is used for serialization or returned to the caller.
+     *
+     * @since 3.2
+     */
+    public B generatorInitializer(GeneratorInitializer init) {
+        _generatorInitializer = init;
         return _this();
     }
 

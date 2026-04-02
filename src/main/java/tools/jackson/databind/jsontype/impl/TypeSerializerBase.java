@@ -18,10 +18,28 @@ public abstract class TypeSerializerBase extends TypeSerializer
 
     protected final BeanProperty _property;
 
-    protected TypeSerializerBase(TypeIdResolver idRes, BeanProperty property)
+    /**
+     * When non-null, the default implementation class for which the type id
+     * will be suppressed during serialization: if the runtime value class
+     * exactly matches this class, no type id is written.
+     * When {@code null}, type id is always written.
+     *
+     * @since 3.2
+     */
+    protected final Class<?> _skipTypeIdFor;
+
+    /**
+     * @param skipTypeIdFor if non-null, type id will be suppressed during
+     *   serialization when the runtime value class exactly matches this class
+     *
+     * @since 3.2
+     */
+    protected TypeSerializerBase(TypeIdResolver idRes, BeanProperty property,
+            Class<?> skipTypeIdFor)
     {
         _idResolver = idRes;
         _property = property;
+        _skipTypeIdFor = skipTypeIdFor;
     }
 
     /*
@@ -44,6 +62,12 @@ public abstract class TypeSerializerBase extends TypeSerializer
             WritableTypeId idMetadata) throws JacksonException
     {
         _generateTypeId(ctxt, idMetadata);
+        // [databind#644]: suppress type id when runtime type matches defaultImpl
+        if (_skipTypeIdFor != null && idMetadata.id != null
+                && idMetadata.forValue != null
+                && idMetadata.forValue.getClass() == _skipTypeIdFor) {
+            idMetadata.id = null;
+        }
         // 16-Jan-2022, tatu: As per [databind#3373], skip for null typeId.
         //    And return "null" to avoid matching "writeTypeSuffix" as well.
         // 15-Jun-2024, tatu: [databind#4407] Not so fast! Output wrappers

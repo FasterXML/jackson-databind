@@ -241,7 +241,7 @@ James Mudd (@jamesmudd)
 John Hendrikx (@hjohn)
  * Reported #4729: Object ID handling tries (unnecessarily) to set id value on a Record
   [3.1.0]
- 
+
 Viktor Szathmáry (@phraktle)
  * Reported #5115: `@JsonUnwrapped` Record deserialization can't handle name collision
  (reported by Viktor S)
@@ -310,6 +310,11 @@ Stephan Lutz (@stlutz)
  * Reported #5813: `JsonMapper` not thread-safe when using custom serializers
   [3.1.1]
 
+Lavender Shannon (@retrodaredevil)
+ * Reported #5865: `@JsonIgnoreProperties` does not work alongside
+   `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
+  [3.1.2]
+
 Gili Tzabari (@cowwoc)
  * Reported #639: `@JacksonInject` with `@JsonIdentityInfo` causes deserialization
    failure (unresolved forward reference)
@@ -367,9 +372,19 @@ Andrzej Leśkiewicz (@aleskiewicz)
  * Reported #3573: Inconsistent handling of nil `UUID` in property inclusion
   [3.2.0]
 
+Knut Wannheden (@knutwannheden)
+ * Reported, contributed fix for #4014: No way to combine `@JsonTypeInfo(include = As.PROPERTY)`
+   and `@JsonIdentityInfo(generator = PropertyGenerator.class)`
+  [3.2.0]
+
 Robert Rathsack (@robrat)
  * Reported#4758: `ConfigOverride` using `Nulls.AS_EMPTY` does not work
    with `@JsonManagedReference`
+  [3.2.0]
+
+Benoit Chatain Lacelle (@blacelle)
+ * Reported, fixed #4983: `JsonTypeInfo.Id.MINIMAL_CLASS` generates invalid type
+   on sub-package
   [3.2.0]
 
 Christoffer Hammarström (@kreiger)

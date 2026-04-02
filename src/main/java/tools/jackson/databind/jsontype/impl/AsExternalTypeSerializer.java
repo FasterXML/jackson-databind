@@ -25,11 +25,6 @@ public class AsExternalTypeSerializer extends TypeSerializerBase
 {
     protected final String _typePropertyName;
 
-    public AsExternalTypeSerializer(TypeIdResolver idRes, BeanProperty property, String propName) {
-        super(idRes, property);
-        _typePropertyName = propName;
-    }
-
     public AsExternalTypeSerializer(TypeIdResolver idRes, BeanProperty property, String propName,
             Class<?> skipTypeIdFor) {
         super(idRes, property, skipTypeIdFor);

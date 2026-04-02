@@ -28,14 +28,10 @@ public abstract class TypeSerializerBase extends TypeSerializer
      */
     protected final Class<?> _skipTypeIdFor;
 
-    protected TypeSerializerBase(TypeIdResolver idRes, BeanProperty property)
-    {
-        _idResolver = idRes;
-        _property = property;
-        _skipTypeIdFor = null;
-    }
-
     /**
+     * @param skipTypeIdFor if non-null, type id will be suppressed during
+     *   serialization when the runtime value class exactly matches this class
+     *
      * @since 3.2
      */
     protected TypeSerializerBase(TypeIdResolver idRes, BeanProperty property,

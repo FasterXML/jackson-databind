@@ -114,6 +114,29 @@ public class SkipWriteTypeIdForDefaultImplTest extends DatabindTestUtil
         public int lives;
     }
 
+    // -- EXISTING_PROPERTY variant
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY,
+            property = "type",
+            defaultImpl = DefaultDog5.class,
+            writeTypeIdForDefaultImpl = OptBoolean.FALSE)
+    @JsonSubTypes({
+        @JsonSubTypes.Type(value = DefaultDog5.class, name = "dog"),
+        @JsonSubTypes.Type(value = Cat5.class, name = "cat")
+    })
+    static class Animal5 {
+        public String name;
+        public String type;
+    }
+
+    static class DefaultDog5 extends Animal5 {
+        public String breed;
+    }
+
+    static class Cat5 extends Animal5 {
+        public int lives;
+    }
+
     // -- defaultImpl is the base type itself
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
@@ -333,6 +356,21 @@ public class SkipWriteTypeIdForDefaultImplTest extends DatabindTestUtil
     }
 
     @Test
+    public void testExternalPropertyDefaultImplRoundTrip() throws Exception
+    {
+        AnimalWrapper wrapper = new AnimalWrapper();
+        DefaultDog4 dog = new DefaultDog4();
+        dog.name = "Rex";
+        dog.breed = "Lab";
+        wrapper.animal = dog;
+        String json = MAPPER.writeValueAsString(wrapper);
+        AnimalWrapper result = MAPPER.readValue(json, AnimalWrapper.class);
+        assertTrue(result.animal instanceof DefaultDog4);
+        assertEquals("Rex", result.animal.name);
+        assertEquals("Lab", ((DefaultDog4) result.animal).breed);
+    }
+
+    @Test
     public void testExternalPropertyNonDefaultHasTypeId() throws Exception
     {
         AnimalWrapper wrapper = new AnimalWrapper();
@@ -342,6 +380,40 @@ public class SkipWriteTypeIdForDefaultImplTest extends DatabindTestUtil
         wrapper.animal = cat;
         String json = MAPPER.writeValueAsString(wrapper);
         assertTrue(json.contains("\"@type\":\"cat\""), "Type id should be present for non-default type; got: " + json);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods: EXISTING_PROPERTY inclusion
+    /**********************************************************************
+     */
+
+    @Test
+    public void testExistingPropertyDefaultImplTypeFieldStillWritten() throws Exception
+    {
+        DefaultDog5 dog = new DefaultDog5();
+        dog.name = "Rex";
+        dog.breed = "Lab";
+        dog.type = "dog";
+        String json = MAPPER.writerFor(Animal5.class).writeValueAsString(dog);
+        // With EXISTING_PROPERTY, the "type" field is a real bean property so it
+        // is always written by the bean serializer even though the TypeSerializer
+        // suppresses the type id. This is expected.
+        assertTrue(json.contains("\"type\":\"dog\""),
+                "Existing property should still be written as bean property; got: " + json);
+        assertTrue(json.contains("\"name\":\"Rex\""));
+    }
+
+    @Test
+    public void testExistingPropertyNonDefaultHasTypeId() throws Exception
+    {
+        Cat5 cat = new Cat5();
+        cat.name = "Whiskers";
+        cat.lives = 9;
+        cat.type = "cat";
+        String json = MAPPER.writerFor(Animal5.class).writeValueAsString(cat);
+        assertTrue(json.contains("\"type\":\"cat\""),
+                "Type property should be present for non-default type; got: " + json);
     }
 
     /*

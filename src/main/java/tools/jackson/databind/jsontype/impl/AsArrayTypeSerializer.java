@@ -12,10 +12,6 @@ import tools.jackson.databind.jsontype.TypeIdResolver;
  */
 public class AsArrayTypeSerializer extends TypeSerializerBase
 {
-    public AsArrayTypeSerializer(TypeIdResolver idRes, BeanProperty property) {
-        super(idRes, property);
-    }
-
     public AsArrayTypeSerializer(TypeIdResolver idRes, BeanProperty property,
             Class<?> skipTypeIdFor) {
         super(idRes, property, skipTypeIdFor);

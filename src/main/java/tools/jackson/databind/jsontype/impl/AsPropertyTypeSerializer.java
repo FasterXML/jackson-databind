@@ -18,12 +18,6 @@ public class AsPropertyTypeSerializer
 {
     protected final String _typePropertyName;
 
-    public AsPropertyTypeSerializer(TypeIdResolver idRes, BeanProperty property, String propName)
-    {
-        super(idRes, property);
-        _typePropertyName = propName;
-    }
-
     public AsPropertyTypeSerializer(TypeIdResolver idRes, BeanProperty property, String propName,
             Class<?> skipTypeIdFor)
     {

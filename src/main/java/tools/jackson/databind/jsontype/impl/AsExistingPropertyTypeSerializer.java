@@ -17,13 +17,6 @@ public class AsExistingPropertyTypeSerializer
     protected final String _typePropertyName;
 
     public AsExistingPropertyTypeSerializer(TypeIdResolver idRes,
-            BeanProperty property, String propName)
-    {
-        super(idRes, property);
-        _typePropertyName = propName;
-    }
-
-    public AsExistingPropertyTypeSerializer(TypeIdResolver idRes,
             BeanProperty property, String propName,
             Class<?> skipTypeIdFor)
     {

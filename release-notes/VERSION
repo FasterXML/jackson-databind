@@ -11,6 +11,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
   failure (unresolved forward reference)
  (reported by Gili T)
  (fix by @cowtowncoder, w/ Claude code)
+#644: Allow skipping writing of type id if type to serialize is `defaultImpl`
+ (implemented by @cowtowncoder, w/ Claude code)
 #1075: `@JsonUnwrapped` fields with matching `@JsonIgnore`d getter
   in outer class are ignored
  (reported by Sylvain G)

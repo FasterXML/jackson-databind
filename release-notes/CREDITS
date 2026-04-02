@@ -310,6 +310,11 @@ Stephan Lutz (@stlutz)
  * Reported #5813: `JsonMapper` not thread-safe when using custom serializers
   [3.1.1]
 
+Lavender Shannon (@retrodaredevil)
+ * Reported #5865: `@JsonIgnoreProperties` does not work alongside
+   `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
+  [3.1.2]
+
 Gili Tzabari (@cowwoc)
  * Reported #639: `@JacksonInject` with `@JsonIdentityInfo` causes deserialization
    failure (unresolved forward reference)

@@ -18,6 +18,7 @@ import tools.jackson.databind.util.ClassUtil;
  */
 public class AsWrapperTypeSerializer extends TypeSerializerBase
 {
+    /** @since 3.2 */
     public AsWrapperTypeSerializer(TypeIdResolver idRes, BeanProperty property,
             Class<?> skipTypeIdFor) {
         super(idRes, property, skipTypeIdFor);

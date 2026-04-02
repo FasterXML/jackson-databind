@@ -18,6 +18,7 @@ public class AsPropertyTypeSerializer
 {
     protected final String _typePropertyName;
 
+    /** @since 3.2 */
     public AsPropertyTypeSerializer(TypeIdResolver idRes, BeanProperty property, String propName,
             Class<?> skipTypeIdFor)
     {

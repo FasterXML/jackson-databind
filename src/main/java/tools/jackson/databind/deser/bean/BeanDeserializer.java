@@ -730,9 +730,9 @@ public class BeanDeserializer
                     continue;
                 }
                 // [databind#4629] Need to check for ignored properties for Creator properties since
-                // Records will have a valid 'creatorProp', so if we don't
-                // check for ignore first, the ignore configuration will be bypassed.
-                if (isRecord && IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
+                // so if we don't check for ignore first, the ignore configuration will be bypassed.
+                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                     handleIgnoredProperty(p, ctxt, handledType(), propName);
                     continue;
                 }
@@ -1196,7 +1196,6 @@ public class BeanDeserializer
         TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
 
-        final boolean isRecord = _beanType.isRecordType();
         boolean hasUnwrappedContent = false;
         JsonToken t = p.currentToken();
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
@@ -1217,9 +1216,9 @@ public class BeanDeserializer
                     continue;
                 }
                 // [databind#4629] Need to check for ignored properties for Creator properties since
-                // Records will have a valid 'creatorProp', so if we don't
-                // check for ignore first, the ignore configuration will be bypassed.
-                if (isRecord && IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
+                // so if we don't check for ignore first, the ignore configuration will be bypassed.
+                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                     handleIgnoredProperty(p, ctxt, handledType(), propName);
                     continue;
                 }

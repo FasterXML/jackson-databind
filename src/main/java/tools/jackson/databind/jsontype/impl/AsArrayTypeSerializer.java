@@ -17,15 +17,15 @@ public class AsArrayTypeSerializer extends TypeSerializerBase
     }
 
     public AsArrayTypeSerializer(TypeIdResolver idRes, BeanProperty property,
-            boolean skipWriteForDefaultImpl, Class<?> defaultImpl) {
-        super(idRes, property, skipWriteForDefaultImpl, defaultImpl);
+            Class<?> skipTypeIdFor) {
+        super(idRes, property, skipTypeIdFor);
     }
 
     @Override
     public AsArrayTypeSerializer forProperty(SerializationContext ctxt,
             BeanProperty prop) {
         return (_property == prop) ? this :
-            new AsArrayTypeSerializer(_idResolver, prop, _skipWriteForDefaultImpl, _defaultImplForSerialization);
+            new AsArrayTypeSerializer(_idResolver, prop, _skipTypeIdFor);
     }
 
     @Override

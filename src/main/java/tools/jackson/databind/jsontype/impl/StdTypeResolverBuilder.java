@@ -159,20 +159,22 @@ public class StdTypeResolverBuilder
 
         TypeIdResolver idRes = idResolver(ctxt, baseType, subTypeValidator(ctxt),
                 subtypes, true, false);
-        final boolean skipWrite = Boolean.TRUE.equals(_skipWriteForDefaultImpl);
-        final Class<?> defaultImplForSer = skipWrite ? _defaultImpl : null;
+        // [databind#644]: when enabled, pass defaultImpl class so type id can be
+        // suppressed for exact matches; null means "always write type id"
+        final Class<?> skipTypeIdFor = Boolean.TRUE.equals(_skipWriteForDefaultImpl)
+                ? _defaultImpl : null;
         switch (_includeAs) {
         case WRAPPER_ARRAY:
-            return new AsArrayTypeSerializer(idRes, null, skipWrite, defaultImplForSer);
+            return new AsArrayTypeSerializer(idRes, null, skipTypeIdFor);
         case PROPERTY:
-            return new AsPropertyTypeSerializer(idRes, null, _typeProperty, skipWrite, defaultImplForSer);
+            return new AsPropertyTypeSerializer(idRes, null, _typeProperty, skipTypeIdFor);
         case WRAPPER_OBJECT:
-            return new AsWrapperTypeSerializer(idRes, null, skipWrite, defaultImplForSer);
+            return new AsWrapperTypeSerializer(idRes, null, skipTypeIdFor);
         case EXTERNAL_PROPERTY:
-            return new AsExternalTypeSerializer(idRes, null, _typeProperty, skipWrite, defaultImplForSer);
+            return new AsExternalTypeSerializer(idRes, null, _typeProperty, skipTypeIdFor);
         case EXISTING_PROPERTY:
             // as per [#528]
-            return new AsExistingPropertyTypeSerializer(idRes, null, _typeProperty, skipWrite, defaultImplForSer);
+            return new AsExistingPropertyTypeSerializer(idRes, null, _typeProperty, skipTypeIdFor);
         case NOTHING:
             return null;
         }

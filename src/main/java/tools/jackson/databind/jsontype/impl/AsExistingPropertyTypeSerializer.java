@@ -25,9 +25,9 @@ public class AsExistingPropertyTypeSerializer
 
     public AsExistingPropertyTypeSerializer(TypeIdResolver idRes,
             BeanProperty property, String propName,
-            boolean skipWriteForDefaultImpl, Class<?> defaultImpl)
+            Class<?> skipTypeIdFor)
     {
-        super(idRes, property, skipWriteForDefaultImpl, defaultImpl);
+        super(idRes, property, skipTypeIdFor);
         _typePropertyName = propName;
     }
 
@@ -36,7 +36,7 @@ public class AsExistingPropertyTypeSerializer
             BeanProperty prop) {
         return (_property == prop) ? this :
             new AsExistingPropertyTypeSerializer(_idResolver, prop, _typePropertyName,
-                    _skipWriteForDefaultImpl, _defaultImplForSerialization);
+                    _skipTypeIdFor);
     }
 
     @Override

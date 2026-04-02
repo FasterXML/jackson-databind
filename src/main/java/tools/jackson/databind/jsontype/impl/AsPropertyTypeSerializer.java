@@ -25,9 +25,9 @@ public class AsPropertyTypeSerializer
     }
 
     public AsPropertyTypeSerializer(TypeIdResolver idRes, BeanProperty property, String propName,
-            boolean skipWriteForDefaultImpl, Class<?> defaultImpl)
+            Class<?> skipTypeIdFor)
     {
-        super(idRes, property, skipWriteForDefaultImpl, defaultImpl);
+        super(idRes, property, skipTypeIdFor);
         _typePropertyName = propName;
     }
 
@@ -36,7 +36,7 @@ public class AsPropertyTypeSerializer
             BeanProperty prop) {
         return (_property == prop) ? this :
             new AsPropertyTypeSerializer(_idResolver, prop, _typePropertyName,
-                    _skipWriteForDefaultImpl, _defaultImplForSerialization);
+                    _skipTypeIdFor);
     }
 
     @Override

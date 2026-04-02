@@ -19,40 +19,31 @@ public abstract class TypeSerializerBase extends TypeSerializer
     protected final BeanProperty _property;
 
     /**
-     * Whether to skip writing type id when the runtime type matches
-     * {@link #_defaultImplForSerialization}.
+     * When non-null, the default implementation class for which the type id
+     * will be suppressed during serialization: if the runtime value class
+     * exactly matches this class, no type id is written.
+     * When {@code null}, type id is always written.
      *
      * @since 3.2
      */
-    protected final boolean _skipWriteForDefaultImpl;
-
-    /**
-     * The default implementation class; when {@link #_skipWriteForDefaultImpl}
-     * is {@code true} and the runtime value class exactly matches this class,
-     * the type id will be suppressed during serialization.
-     *
-     * @since 3.2
-     */
-    protected final Class<?> _defaultImplForSerialization;
+    protected final Class<?> _skipTypeIdFor;
 
     protected TypeSerializerBase(TypeIdResolver idRes, BeanProperty property)
     {
         _idResolver = idRes;
         _property = property;
-        _skipWriteForDefaultImpl = false;
-        _defaultImplForSerialization = null;
+        _skipTypeIdFor = null;
     }
 
     /**
      * @since 3.2
      */
     protected TypeSerializerBase(TypeIdResolver idRes, BeanProperty property,
-            boolean skipWriteForDefaultImpl, Class<?> defaultImplForSerialization)
+            Class<?> defaultImplToSkipTypeId)
     {
         _idResolver = idRes;
         _property = property;
-        _skipWriteForDefaultImpl = skipWriteForDefaultImpl;
-        _defaultImplForSerialization = defaultImplForSerialization;
+        _skipTypeIdFor = defaultImplToSkipTypeId;
     }
 
     /*
@@ -76,10 +67,9 @@ public abstract class TypeSerializerBase extends TypeSerializer
     {
         _generateTypeId(ctxt, idMetadata);
         // [databind#644]: suppress type id when runtime type matches defaultImpl
-        if (_skipWriteForDefaultImpl && idMetadata.id != null
-                && _defaultImplForSerialization != null
+        if (_skipTypeIdFor != null && idMetadata.id != null
                 && idMetadata.forValue != null
-                && idMetadata.forValue.getClass() == _defaultImplForSerialization) {
+                && idMetadata.forValue.getClass() == _skipTypeIdFor) {
             idMetadata.id = null;
         }
         // 16-Jan-2022, tatu: As per [databind#3373], skip for null typeId.

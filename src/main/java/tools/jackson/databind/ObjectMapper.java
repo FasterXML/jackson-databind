@@ -761,7 +761,8 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(OutputStream out) throws JacksonException {
         _assertNotNull("out", out);
-        return _streamFactory.createGenerator(_serializationContext(), out);
+        return _initializeGenerator(
+                _streamFactory.createGenerator(_serializationContext(), out));
     }
 
     /**
@@ -774,7 +775,8 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws JacksonException {
         _assertNotNull("out", out);
-        return _streamFactory.createGenerator(_serializationContext(), out, enc);
+        return _initializeGenerator(
+                _streamFactory.createGenerator(_serializationContext(), out, enc));
     }
 
     /**
@@ -787,7 +789,8 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(Writer w) throws JacksonException {
         _assertNotNull("w", w);
-        return _streamFactory.createGenerator(_serializationContext(), w);
+        return _initializeGenerator(
+                _streamFactory.createGenerator(_serializationContext(), w));
     }
 
     /**
@@ -800,7 +803,8 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(File f, JsonEncoding enc) throws JacksonException {
         _assertNotNull("f", f);
-        return _streamFactory.createGenerator(_serializationContext(), f, enc);
+        return _initializeGenerator(
+                _streamFactory.createGenerator(_serializationContext(), f, enc));
     }
 
     /**
@@ -813,7 +817,8 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(Path path, JsonEncoding enc) throws JacksonException {
         _assertNotNull("path", path);
-        return _streamFactory.createGenerator(_serializationContext(), path, enc);
+        return _initializeGenerator(
+                _streamFactory.createGenerator(_serializationContext(), path, enc));
     }
 
     /**
@@ -826,7 +831,8 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(DataOutput out) throws JacksonException {
         _assertNotNull("out", out);
-        return _streamFactory.createGenerator(_serializationContext(), out);
+        return _initializeGenerator(
+                _streamFactory.createGenerator(_serializationContext(), out));
     }
 
     /*
@@ -1892,6 +1898,7 @@ public class ObjectMapper
             JsonGenerator g, Object value)
         throws JacksonException
     {
+        _initializeGenerator(g);
         if (ctxt.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
                 && (value instanceof AutoCloseable)) {
             _configAndWriteCloseable(ctxt, g, value);
@@ -2577,6 +2584,20 @@ public class ObjectMapper
         // 03-Oct-2017, tatu: Should be ok to pass "empty" generator settings...
         return _serializationContexts.createContext(serializationConfig(),
                 GeneratorSettings.empty());
+    }
+
+    /**
+     * Helper method that applies configured {@link GeneratorInitializer},
+     * if any, to the given generator and returns it.
+     *
+     * @since 3.2
+     */
+    protected JsonGenerator _initializeGenerator(JsonGenerator gen) {
+        GeneratorInitializer init = _serializationConfig.getGeneratorInitializer();
+        if (init != null) {
+            init.initialize(_serializationConfig, gen);
+        }
+        return gen;
     }
 
     /*

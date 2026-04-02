@@ -39,11 +39,11 @@ public abstract class TypeSerializerBase extends TypeSerializer
      * @since 3.2
      */
     protected TypeSerializerBase(TypeIdResolver idRes, BeanProperty property,
-            Class<?> defaultImplToSkipTypeId)
+            Class<?> skipTypeIdFor)
     {
         _idResolver = idRes;
         _property = property;
-        _skipTypeIdFor = defaultImplToSkipTypeId;
+        _skipTypeIdFor = skipTypeIdFor;
     }
 
     /*

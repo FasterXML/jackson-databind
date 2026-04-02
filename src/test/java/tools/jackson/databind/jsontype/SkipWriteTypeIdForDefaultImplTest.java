@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * which allows suppressing type id serialization when the runtime type
  * matches {@code defaultImpl}.
  *
- * @since 3.0
+ * @since 3.2
  */
 public class SkipWriteTypeIdForDefaultImplTest extends DatabindTestUtil
 {
@@ -26,7 +26,8 @@ public class SkipWriteTypeIdForDefaultImplTest extends DatabindTestUtil
             writeTypeIdForDefaultImpl = OptBoolean.FALSE)
     @JsonSubTypes({
         @JsonSubTypes.Type(value = DefaultDog.class, name = "dog"),
-        @JsonSubTypes.Type(value = Cat.class, name = "cat")
+        @JsonSubTypes.Type(value = Cat.class, name = "cat"),
+        @JsonSubTypes.Type(value = Puppy.class, name = "puppy")
     })
     static class Animal {
         public String name;
@@ -113,6 +114,29 @@ public class SkipWriteTypeIdForDefaultImplTest extends DatabindTestUtil
         public int lives;
     }
 
+    // -- defaultImpl is the base type itself
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
+            property = "@type",
+            defaultImpl = AnimalBase.class,
+            writeTypeIdForDefaultImpl = OptBoolean.FALSE)
+    @JsonSubTypes({
+        @JsonSubTypes.Type(value = AnimalBase.class, name = "base"),
+        @JsonSubTypes.Type(value = DogBase.class, name = "dog"),
+        @JsonSubTypes.Type(value = CatBase.class, name = "cat")
+    })
+    static class AnimalBase {
+        public String name;
+    }
+
+    static class DogBase extends AnimalBase {
+        public String breed;
+    }
+
+    static class CatBase extends AnimalBase {
+        public int lives;
+    }
+
     // -- Feature OFF (default behavior)
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
@@ -169,22 +193,15 @@ public class SkipWriteTypeIdForDefaultImplTest extends DatabindTestUtil
     @Test
     public void testPropertySubclassOfDefaultImplHasTypeId() throws Exception
     {
-        // Puppy extends DefaultDog (the defaultImpl), but exact match only
-        // Since Puppy is not registered in @JsonSubTypes we need NAME resolution...
-        // Actually, let's test with the registered types. The key point is:
-        // exact class match (==) not instanceof
-        // Puppy is a subclass of DefaultDog, so it should NOT be suppressed.
-        // But since Puppy isn't in @JsonSubTypes, it would fail to serialize with NAME.
-        // Let's test differently: serialize DefaultDog as Animal -- type id skipped.
-        // Then serialize Cat -- type id present.
-        // That proves exact-match logic works.
-
-        // Just verify the defaultImpl exact-match behavior
-        DefaultDog dog = new DefaultDog();
-        dog.name = "Rex";
-        dog.breed = "Lab";
-        String json = MAPPER.writerFor(Animal.class).writeValueAsString(dog);
-        assertFalse(json.contains("@type"), "Type id should be skipped for defaultImpl; got: " + json);
+        // Puppy extends DefaultDog (the defaultImpl) but is not itself the defaultImpl.
+        // Since skip uses exact class match (==), Puppy should still get a type id.
+        Puppy puppy = new Puppy();
+        puppy.name = "Tiny";
+        puppy.breed = "Poodle";
+        puppy.isSmall = true;
+        String json = MAPPER.writerFor(Animal.class).writeValueAsString(puppy);
+        assertTrue(json.contains("\"@type\":\"puppy\""),
+                "Type id should be present for subclass of defaultImpl; got: " + json);
     }
 
     @Test
@@ -325,6 +342,34 @@ public class SkipWriteTypeIdForDefaultImplTest extends DatabindTestUtil
         wrapper.animal = cat;
         String json = MAPPER.writeValueAsString(wrapper);
         assertTrue(json.contains("\"@type\":\"cat\""), "Type id should be present for non-default type; got: " + json);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods: defaultImpl is the base type
+    /**********************************************************************
+     */
+
+    @Test
+    public void testBaseTypeAsDefaultImplSkipped() throws Exception
+    {
+        // When defaultImpl is the base type itself, exact match skips type id
+        AnimalBase base = new AnimalBase();
+        base.name = "Generic";
+        String json = MAPPER.writerFor(AnimalBase.class).writeValueAsString(base);
+        assertFalse(json.contains("@type"), "Type id should be skipped for base-type defaultImpl; got: " + json);
+    }
+
+    @Test
+    public void testBaseTypeAsDefaultImplSubclassHasTypeId() throws Exception
+    {
+        // Subclass of the base-type defaultImpl should still get type id
+        DogBase dog = new DogBase();
+        dog.name = "Rex";
+        dog.breed = "Lab";
+        String json = MAPPER.writerFor(AnimalBase.class).writeValueAsString(dog);
+        assertTrue(json.contains("\"@type\":\"dog\""),
+                "Type id should be present for subclass when defaultImpl is base type; got: " + json);
     }
 
     /*

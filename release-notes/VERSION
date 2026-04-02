@@ -15,6 +15,10 @@ No changes since 3.1
   generic bounds (regression in 3.1.0, introduced by fix for [databind#5285])
  (reported by @sylvaindd)
  (fix by @pjfanning w/ @Copilot)
+#5865: `@JsonIgnoreProperties` does not work alongside
+  `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
+ (reported by Lavender S)
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.1.1 (27-Mar-2026)
 

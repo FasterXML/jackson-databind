@@ -760,6 +760,11 @@ public class BeanDeserializer
                 }
             }
 
+            // [databind#5865] Things marked as ignorable should not be passed to any setter
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
+                continue;
+            }
             // "any property"?
             if (_anySetter != null) {
                 try {
@@ -782,11 +787,6 @@ public class BeanDeserializer
             if (_ignoreAllUnknown) {
                 // 22-Aug-2021, tatu: [databind#3252] must ensure we do skip the whole value
                 p.skipChildren();
-                continue;
-            }
-            // [databind#5865] Things marked as ignorable should not be passed to any setter
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
             // Ok then, let's collect the whole field; name and value

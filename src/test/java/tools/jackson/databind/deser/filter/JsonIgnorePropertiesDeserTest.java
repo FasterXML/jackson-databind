@@ -194,5 +194,35 @@ public class JsonIgnorePropertiesDeserTest
         assertNotNull(value.getValue());
         assertEquals("my_name", value.getValue().name);
     }
+
+    // [databind#5865]: @JsonIgnoreProperties should work with FAIL_ON_UNKNOWN_PROPERTIES
+    @Test
+    public void testIgnorePropertiesWithFailOnUnknown5865() throws Exception
+    {
+        // Test with Record type
+        final ObjectMapper strictMapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
+        final String json = a2q("{'name':'test','type':'animal'}");
+
+        Simple5865Record result = strictMapper.readValue(json, Simple5865Record.class);
+        assertNotNull(result);
+        assertEquals("test", result.name);
+
+        // Test with POJO type
+        Simple5865Pojo pojoResult = strictMapper.readValue(json, Simple5865Pojo.class);
+        assertNotNull(pojoResult);
+        assertEquals("test", pojoResult.name);
+    }
+
+    // [databind#5865]
+    @JsonIgnoreProperties({"type"})
+    record Simple5865Record(String name) { }
+
+    // [databind#5865]
+    @JsonIgnoreProperties({"type"})
+    static class Simple5865Pojo {
+        public String name;
+    }
 }
 

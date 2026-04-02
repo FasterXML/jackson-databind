@@ -776,6 +776,11 @@ public class BeanDeserializer
                 }
                 continue;
             }
+            // [databind#5865] Things marked as ignorable should not be passed to any setter
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
+                continue;
+            }
             // 29-Mar-2021, tatu: [databind#3082] May skip collection if we know
             //    they'd just get ignored (note: any-setter handled above; unwrapped
             //    properties also separately handled)

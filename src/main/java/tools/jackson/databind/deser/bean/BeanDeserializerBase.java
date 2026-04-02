@@ -1804,6 +1804,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         }
         if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
             handleIgnoredProperty(p, ctxt, beanOrClass, propName);
+            return;
         }
         // Otherwise use default handling (call handler(s); if not
         // handled, throw exception or skip depending on settings)

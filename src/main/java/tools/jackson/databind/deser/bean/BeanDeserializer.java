@@ -706,7 +706,6 @@ public class BeanDeserializer
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         JsonToken t = p.currentToken();
         List<BeanReferring> referrings = null;
-        final boolean isRecord = _beanType.isRecordType();
 
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();

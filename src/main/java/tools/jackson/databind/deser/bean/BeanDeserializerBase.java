@@ -1512,7 +1512,12 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         }
 
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
-        roid.bindItem(ctxt, pojo);
+        // [dataformats-text#292]: skip if already bound to this object
+        // (may happen with polymorphic builder deserialization where the subtype
+        // deserializer already handled ObjectId binding via finishBuild/updateObjectId)
+        if (roid.resolve() != pojo) {
+            roid.bindItem(ctxt, pojo);
+        }
         // also: may need to set a property value as well
         SettableBeanProperty idProp = _objectIdReader.idProperty;
         if (idProp != null) {

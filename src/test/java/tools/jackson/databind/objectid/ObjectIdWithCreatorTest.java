@@ -6,7 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -131,6 +134,115 @@ public class ObjectIdWithCreatorTest extends DatabindTestUtil
         public void setId(String v) { _setterId = v; }
     }
 
+    // // // [databind#3030]: Forward reference with @JsonCreator
+
+    static class ContainerABC3030 {
+        public List<RefTarget3030> bs;
+        public List<RefSource3030> cs;
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    static class RefTarget3030 {
+        public String id;
+    }
+
+    static class RefSource3030 {
+        private RefTarget3030 b;
+
+        @JsonCreator
+        public RefSource3030(@JsonProperty("b") RefTarget3030 b) {
+            this.b = b;
+        }
+
+        @JsonGetter("b")
+        public RefTarget3030 getB() {
+            return b;
+        }
+    }
+
+    // // // [databind#1706]: @JsonCreator(mode=DELEGATING) with @JsonIdentityInfo
+
+    @JsonSerialize(as = ImmutableItem1706.class)
+    @JsonDeserialize(as = ImmutableItem1706.class)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
+    interface Item1706 {
+        Integer getId();
+        String getName();
+    }
+
+    static class ImmutableItem1706 implements Item1706 {
+        private final Integer id;
+        private final String name;
+
+        ImmutableItem1706(Integer id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        @Override
+        public Integer getId() { return id; }
+
+        @Override
+        public String getName() { return name; }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        static ImmutableItem1706 fromJson(MutableItem1706 json) {
+            return new ImmutableItem1706(json.id, json.name);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ImmutableItem1706 that = (ImmutableItem1706) o;
+            return id.equals(that.id) && name.equals(that.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * id.hashCode() + name.hashCode();
+        }
+    }
+
+    @JsonDeserialize
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE)
+    static class MutableItem1706 implements Item1706 {
+        private String name;
+        private Integer id;
+
+        public void setId(Integer id) { this.id = id; }
+        public void setName(String name) { this.name = name; }
+
+        @Override
+        public String getName() { throw new UnsupportedOperationException(); }
+
+        @Override
+        public Integer getId() { throw new UnsupportedOperationException(); }
+    }
+
+    // // // [databind#639]: ObjectId with @JacksonInject
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
+    public static final class InjectParent639 {
+        @JsonProperty
+        public InjectChild639 child;
+
+        @JsonCreator
+        public InjectParent639(@JacksonInject("context") String context) {
+        }
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
+    public static final class InjectChild639 {
+        @JsonProperty
+        private final InjectParent639 parent;
+
+        @JsonCreator
+        public InjectChild639(@JsonProperty("parent") InjectParent639 parent) {
+            this.parent = parent;
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests, PropertyGenerator + @JsonCreator [databind#687]
@@ -235,5 +347,91 @@ public class ObjectIdWithCreatorTest extends DatabindTestUtil
         assertNotNull(result);
         assertEquals("myId", result._id,
             "Incorrect creator-passed-id (setter id: ["+result._setterId+"])");
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, Forward reference with @JsonCreator [databind#3030]
+    /**********************************************************
+     */
+
+    // No forward reference: Bs comes before Cs in JSON
+    @Test
+    public void testNoForwardReferenceWithCreator3030() throws Exception
+    {
+        String json = "{\"bs\":[{\"id\":\"b1\"},{\"id\":\"b2\"}],\"cs\":[{\"b\":\"b1\"},{\"b\":\"b2\"}]}";
+
+        ContainerABC3030 result = MAPPER.readValue(json, ContainerABC3030.class);
+
+        assertNotNull(result);
+        assertEquals(2, result.bs.size());
+        assertEquals(2, result.cs.size());
+        assertEquals("b1", result.bs.get(0).id);
+        assertEquals("b2", result.bs.get(1).id);
+        assertSame(result.bs.get(0), result.cs.get(0).getB());
+        assertSame(result.bs.get(1), result.cs.get(1).getB());
+    }
+
+    // [databind#3030] Forward reference WITH @JsonCreator: cs comes before bs
+    @Test
+    public void testForwardReferenceWithCreator3030() throws Exception
+    {
+        String json = "{\"cs\":[{\"b\":\"b1\"},{\"b\":\"b2\"}],\"bs\":[{\"id\":\"b1\"},{\"id\":\"b2\"}]}";
+
+        ContainerABC3030 result = MAPPER.readValue(json, ContainerABC3030.class);
+
+        assertNotNull(result);
+        assertEquals(2, result.bs.size());
+        assertEquals(2, result.cs.size());
+        assertSame(result.bs.get(0), result.cs.get(0).getB());
+        assertSame(result.bs.get(1), result.cs.get(1).getB());
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, @JsonCreator(mode=DELEGATING) [databind#1706]
+    /**********************************************************
+     */
+
+    // [databind#1706]
+    @Test
+    public void testObjectIdWithDelegatingCreator() throws Exception
+    {
+        ImmutableItem1706 item = new ImmutableItem1706(1, "test");
+
+        String json = MAPPER.writeValueAsString(java.util.Arrays.asList(item, item));
+
+        List<Item1706> result = MAPPER.readValue(json, new TypeReference<List<Item1706>>() {});
+
+        assertEquals(2, result.size());
+        assertInstanceOf(ImmutableItem1706.class, result.get(0),
+                "First item should be ImmutableItem1706");
+        assertInstanceOf(ImmutableItem1706.class, result.get(1),
+                "Second item (back-reference) should be ImmutableItem1706, not intermediate MutableItem1706");
+        assertEquals(result.get(0), result.get(1));
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, ObjectId with @JacksonInject [databind#639]
+    /**********************************************************
+     */
+
+    // [databind#639]
+    @Test
+    public void testObjectIdWithInjectable639() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .injectableValues(new InjectableValues.Std().
+                        addValue("context", "Stuff"))
+                .build();
+        InjectParent639 parent = new InjectParent639("foo");
+        InjectChild639 child = new InjectChild639(parent);
+        parent.child = child;
+
+        String json = mapper.writeValueAsString(parent);
+        parent = mapper.readValue(json, InjectParent639.class);
+        assertNotNull(parent);
+        assertNotNull(parent.child);
     }
 }

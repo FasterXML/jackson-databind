@@ -307,6 +307,23 @@ public class BeanDeserializerFactory
      * Note that implementation is mostly copied from the regular
      * BeanDeserializer build method.
      */
+    /**
+     * @deprecated Since 3.2 use
+     *   {@link #buildBuilderBasedDeserializer(DeserializationContext, JavaType, BeanDescription.Supplier, BeanDescription.Supplier)}
+     *   instead
+     */
+    @Deprecated // since 3.2
+    @SuppressWarnings("unchecked")
+    protected ValueDeserializer<Object> buildBuilderBasedDeserializer(
+    		DeserializationContext ctxt, JavaType valueType,
+    		BeanDescription.Supplier builderDescRef)
+    {
+        return buildBuilderBasedDeserializer(ctxt, valueType, builderDescRef, builderDescRef);
+    }
+
+    /**
+     * @since 3.2
+     */
     @SuppressWarnings("unchecked")
     protected ValueDeserializer<Object> buildBuilderBasedDeserializer(
     		DeserializationContext ctxt, JavaType valueType,

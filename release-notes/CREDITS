@@ -214,7 +214,9 @@ Lee Jiwon (@dlwldnjs1009)
   [3.1.0]
  * Fixed #5867: Fix `Map.Entry` deserialization for property-level
    `Shape.NATURAL` override
-  [3.1.0]
+  [3.1.2]
+ * Fixed  #5870: `EnumMap` and `EnumSet` properties ignore `@JsonDeserialize(contentConverter)`
+  [3.1.2]
 
 Garret Wilson (@garretwilson)
  * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore

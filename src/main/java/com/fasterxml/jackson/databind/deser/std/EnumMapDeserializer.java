@@ -176,6 +176,8 @@ public class EnumMapDeserializer
             keyDeser = ctxt.findKeyDeserializer(_containerType.getKeyType(), property);
         }
         JsonDeserializer<?> valueDeser = _valueDeserializer;
+        // [databind#5870]: May have a content converter
+        valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
         final JavaType vt = _containerType.getContentType();
         if (valueDeser == null) {
             valueDeser = ctxt.findContextualValueDeserializer(vt, property);

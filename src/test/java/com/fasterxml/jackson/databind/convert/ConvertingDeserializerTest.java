@@ -87,6 +87,25 @@ public class ConvertingDeserializerTest
         public Map<String,Point> values;
     }
 
+    // [databind#5870]
+    enum EnumKey { A, B }
+
+    static class PointWrapperEnumMap {
+        @JsonDeserialize(contentConverter=PointConverter.class)
+        public EnumMap<EnumKey, Point> values;
+    }
+
+    static class PointWrapperEnumSet {
+        @JsonDeserialize(contentConverter=EnumKeyConverter.class)
+        public EnumSet<EnumKey> values;
+    }
+
+    static class EnumKeyConverter extends StdConverter<String, EnumKey> {
+        @Override public EnumKey convert(String value) {
+            return EnumKey.valueOf(value.toUpperCase());
+        }
+    }
+
     static class PointWrapperReference {
         @JsonDeserialize(contentConverter=PointConverter.class)
         public AtomicReference<Point> ref;
@@ -217,6 +236,32 @@ public class ConvertingDeserializerTest
         assertNotNull(p);
         assertEquals(1, p.x);
         assertEquals(2, p.y);
+    }
+
+    // [databind#5870]
+    @Test
+    public void testPropertyAnnotationForEnumMaps() throws Exception
+    {
+        PointWrapperEnumMap map = MAPPER.readerFor(PointWrapperEnumMap.class)
+                .readValue(a2q("{'values':{'A':[1,2]}}"));
+        assertNotNull(map);
+        assertNotNull(map.values);
+        assertEquals(1, map.values.size());
+        Point p = map.values.get(EnumKey.A);
+        assertNotNull(p);
+        assertEquals(1, p.x);
+        assertEquals(2, p.y);
+    }
+
+    // [databind#5870]
+    @Test
+    public void testPropertyAnnotationForEnumSets() throws Exception
+    {
+        PointWrapperEnumSet set = MAPPER.readerFor(PointWrapperEnumSet.class)
+                .readValue(a2q("{'values':['a','b']}"));
+        assertNotNull(set);
+        assertNotNull(set.values);
+        assertEquals(EnumSet.of(EnumKey.A, EnumKey.B), set.values);
     }
 
     @Test

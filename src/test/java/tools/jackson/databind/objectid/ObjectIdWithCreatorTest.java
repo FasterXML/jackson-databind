@@ -399,7 +399,7 @@ public class ObjectIdWithCreatorTest extends DatabindTestUtil
     {
         ImmutableItem1706 item = new ImmutableItem1706(1, "test");
 
-        String json = MAPPER.writeValueAsString(java.util.Arrays.asList(item, item));
+        String json = MAPPER.writeValueAsString(Arrays.asList(item, item));
 
         List<Item1706> result = MAPPER.readValue(json, new TypeReference<List<Item1706>>() {});
 

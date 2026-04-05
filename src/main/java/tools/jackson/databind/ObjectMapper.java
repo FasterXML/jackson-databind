@@ -2697,8 +2697,10 @@ public class ObjectMapper
                 try {
                     resultNode = (JsonNode) ctxt.readRootValue(p, valueType,
                             _findRootDeserializer(ctxt, valueType), null);
+                } catch (JacksonException e) {
+                  throw e;
                 } catch (RuntimeException e) {
-                    // 05-Apr-2026, tatu: Parsers should only throw JacksonException but some
+                    // 05-Apr-2026: Parsers should only throw JacksonException but some
                     //   format backends may throw RuntimeException on corrupt input (e.g.
                     //   IndexOutOfBoundsException from TextBuffer). Wrap as StreamReadException.
                     //   See https://github.com/FasterXML/jackson-dataformats-text/pull/648

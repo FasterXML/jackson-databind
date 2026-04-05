@@ -2694,8 +2694,17 @@ public class ObjectMapper
             if (t == JsonToken.VALUE_NULL) {
                 resultNode = cfg.getNodeFactory().nullNode();
             } else {
-                resultNode = (JsonNode) ctxt.readRootValue(p, valueType,
-                        _findRootDeserializer(ctxt, valueType), null);
+                try {
+                    resultNode = (JsonNode) ctxt.readRootValue(p, valueType,
+                            _findRootDeserializer(ctxt, valueType), null);
+                } catch (RuntimeException e) {
+                    // 05-Apr-2026, tatu: Parsers should only throw JacksonException but some
+                    //   format backends may throw RuntimeException on corrupt input (e.g.
+                    //   IndexOutOfBoundsException from TextBuffer). Wrap as StreamReadException.
+                    //   See https://github.com/FasterXML/jackson-dataformats-text/pull/648
+                    throw new StreamReadException(p,
+                            "Unexpected character (corrupt input): " + e.getMessage(), e);
+                }
                 // No ObjectIds so can ignore
 //              ctxt.checkUnresolvedObjectId();
             }

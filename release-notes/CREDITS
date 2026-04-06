@@ -304,3 +304,8 @@ Lavender Shannon (@retrodaredevil)
  * Reported #5865: `@JsonIgnoreProperties` does not work alongside
    `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
   [3.1.2]
+
+Aleksandr Georgievskii (@ageorgievskii)
+ * Reported #5884: Exception when using `@JsonUnwrapped` alongside with `@JsonAlias`
+   on another property
+  [3.1.2]

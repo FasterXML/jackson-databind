@@ -44,7 +44,7 @@ public class BeanPropertyMap
      * Configuration of alias mappings, if any (`null` if none),
      * aligned with properties in <code>_propsInOrder</code>
      */
-    private final PropertyName[][] _aliasDefs;
+    private PropertyName[][] _aliasDefs;
 
     private final Locale _locale;
 
@@ -211,6 +211,9 @@ public class BeanPropertyMap
         }
         final int len = _propsInOrder.length;
         ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(len);
+        // [databind#5884]: Must also filter _aliasDefs to stay aligned with properties
+        List<PropertyName[]> newAliasList = (_aliasDefs != null)
+                ? new ArrayList<PropertyName[]>(len) : null;
 
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = _propsInOrder[i];
@@ -219,13 +222,18 @@ public class BeanPropertyMap
             if (!toExclude.contains(prop.getName())) {
                 if (!IgnorePropertiesUtil.shouldIgnore(prop.getName(), toExclude, toInclude)) {
                     newProps.add(prop);
+                    if (newAliasList != null) {
+                        newAliasList.add(_aliasDefs[i]);
+                    }
                 }
             }
         }
+        PropertyName[][] newAliases = (newAliasList != null)
+                ? newAliasList.toArray(new PropertyName[0][]) : _aliasDefs;
         // should we try to re-index? Apparently no need
         // 17-Nov-2017, tatu: do NOT try to change indexes since this could lead to discrepancies
         //    (unless we actually copy property instances)
-        return new BeanPropertyMap(newProps, _aliasDefs, _locale, _caseInsensitive, false);
+        return new BeanPropertyMap(newProps, newAliases, _locale, _caseInsensitive, false);
     }
 
     /**
@@ -252,20 +260,26 @@ public class BeanPropertyMap
     {
         final String key = propToRm.getName();
         ArrayList<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>(_propsInOrder.length);
-        boolean found = false;
-        for (SettableBeanProperty prop : _propsInOrder) {
-            if (!found) {
-                String match = prop.getName();
-                if (found = match.equals(key)) {
-                    continue;
-                }
+        int foundIndex = -1;
+        for (int i = 0, end = _propsInOrder.length; i < end; ++i) {
+            if (foundIndex < 0 && _propsInOrder[i].getName().equals(key)) {
+                foundIndex = i;
+                continue;
             }
-            props.add(prop);
+            props.add(_propsInOrder[i]);
         }
-        if (!found) {
+        if (foundIndex < 0) {
             throw new NoSuchElementException("No entry '"+propToRm.getName()+"' found, can't remove");
         }
         _propsInOrder = props.toArray(new SettableBeanProperty[0]);
+        // [databind#5884]: Must also update _aliasDefs to stay aligned with _propsInOrder
+        if (_aliasDefs != null) {
+            PropertyName[][] newAliases = new PropertyName[_aliasDefs.length - 1][];
+            System.arraycopy(_aliasDefs, 0, newAliases, 0, foundIndex);
+            System.arraycopy(_aliasDefs, foundIndex + 1, newAliases, foundIndex,
+                    _aliasDefs.length - foundIndex - 1);
+            _aliasDefs = newAliases;
+        }
     }
 
     /*

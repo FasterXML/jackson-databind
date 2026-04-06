@@ -24,6 +24,10 @@ No changes since 3.1
  (fixed by Lee Jiwon)
 #5870: `EnumMap` and `EnumSet` properties ignore `@JsonDeserialize(contentConverter)`
  (fixed by Lee Jiwon)
+#5884: Exception when using `@JsonUnwrapped` alongside with `@JsonAlias`
+  on another property
+ (reported by Aleksandr G)
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.1.1 (27-Mar-2026)
 

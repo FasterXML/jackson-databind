@@ -260,7 +260,7 @@ public class BeanPropertyMap
     {
         final String key = propToRm.getName();
         final int len = _propsInOrder.length;
-        ArrayList<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>(len);
+        ArrayList<SettableBeanProperty> props = new ArrayList<>(len);
         // [databind#5884]: Must also update _aliasDefs to stay aligned with _propsInOrder
         ArrayList<PropertyName[]> aliases = (_aliasDefs != null)
                 ? new ArrayList<PropertyName[]>(len) : null;
@@ -276,7 +276,7 @@ public class BeanPropertyMap
             }
         }
         if (!found) {
-            throw new NoSuchElementException("No entry '"+propToRm.getName()+"' found, can't remove");
+            throw new NoSuchElementException("Internal error on `BeanPropertyMap.remove()`: no entry '"+propToRm.getName()+"' found, can't remove");
         }
         _propsInOrder = props.toArray(new SettableBeanProperty[0]);
         if (aliases != null) {

@@ -210,7 +210,7 @@ public class BeanPropertyMap
             toExclude = Collections.emptySet();
         }
         final int len = _propsInOrder.length;
-        ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(len);
+        ArrayList<SettableBeanProperty> newProps = new ArrayList<>(len);
         // [databind#5884]: Must also filter _aliasDefs to stay aligned with properties
         List<PropertyName[]> newAliasList = (_aliasDefs != null)
                 ? new ArrayList<PropertyName[]>(len) : null;
@@ -259,26 +259,28 @@ public class BeanPropertyMap
     public void remove(SettableBeanProperty propToRm)
     {
         final String key = propToRm.getName();
-        ArrayList<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>(_propsInOrder.length);
-        int foundIndex = -1;
-        for (int i = 0, end = _propsInOrder.length; i < end; ++i) {
-            if (foundIndex < 0 && _propsInOrder[i].getName().equals(key)) {
-                foundIndex = i;
+        final int len = _propsInOrder.length;
+        ArrayList<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>(len);
+        // [databind#5884]: Must also update _aliasDefs to stay aligned with _propsInOrder
+        ArrayList<PropertyName[]> aliases = (_aliasDefs != null)
+                ? new ArrayList<PropertyName[]>(len) : null;
+        boolean found = false;
+        for (int i = 0; i < len; ++i) {
+            if (!found && _propsInOrder[i].getName().equals(key)) {
+                found = true;
                 continue;
             }
             props.add(_propsInOrder[i]);
+            if (aliases != null) {
+                aliases.add(_aliasDefs[i]);
+            }
         }
-        if (foundIndex < 0) {
+        if (!found) {
             throw new NoSuchElementException("No entry '"+propToRm.getName()+"' found, can't remove");
         }
         _propsInOrder = props.toArray(new SettableBeanProperty[0]);
-        // [databind#5884]: Must also update _aliasDefs to stay aligned with _propsInOrder
-        if (_aliasDefs != null) {
-            PropertyName[][] newAliases = new PropertyName[_aliasDefs.length - 1][];
-            System.arraycopy(_aliasDefs, 0, newAliases, 0, foundIndex);
-            System.arraycopy(_aliasDefs, foundIndex + 1, newAliases, foundIndex,
-                    _aliasDefs.length - foundIndex - 1);
-            _aliasDefs = newAliases;
+        if (aliases != null) {
+            _aliasDefs = aliases.toArray(new PropertyName[0][]);
         }
     }
 

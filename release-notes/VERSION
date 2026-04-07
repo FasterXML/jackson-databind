@@ -87,6 +87,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #3229: Existing instance of a local/anonymous Class cannot be updated
  (reported by @avshenuk)
  (fix by @cowtowncoder, w/ Claude code)
+#3316: Deserialization of a date with `@JsonFormat` specified with locale
+  that is not a language tag
+ (reported by @MarkDavoren)
+ (fix by @cowtowncoder, w/ Claude code)
 #3355: Deserialization fails depending on the order of deserialized objects with
   "Cannot construct instance (although at least one Creator exists)"
  (reported by @dinopraso)

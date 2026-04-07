@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.introspect.AnnotatedMember;
@@ -219,7 +220,7 @@ public class CreatorProperty
             Object instance) throws JacksonException
     {
         _verifySetter();
-        _fallbackSetter.set(ctxt, instance, deserialize(p, ctxt));
+        _fallbackSetter.set(ctxt, instance, _deserializeForSetter(p, ctxt));
     }
 
     @Override
@@ -227,7 +228,7 @@ public class CreatorProperty
             DeserializationContext ctxt, Object instance) throws JacksonException
     {
         _verifySetter();
-        return _fallbackSetter.setAndReturn(ctxt, instance, deserialize(p, ctxt));
+        return _fallbackSetter.setAndReturn(ctxt, instance, _deserializeForSetter(p, ctxt));
     }
 
     @Override
@@ -293,6 +294,36 @@ public class CreatorProperty
     /* Internal helper methods
     /**********************************************************************
      */
+
+    /**
+     * Helper method for {@code deserializeAndSet} and {@code deserializeSetAndReturn}:
+     * deserializes value using the fallback setter's type if it differs from the
+     * creator parameter type.
+     *<p>
+     * [databind#5281]: When updating an existing instance, the creator parameter type
+     * (e.g. {@code String[]} from varargs) may differ from the setter/field type
+     * (e.g. {@code Collection<String>}). Must deserialize using the setter's type
+     * to avoid {@code ClassCastException}.
+     */
+    private Object _deserializeForSetter(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        // Common case: types match, use this property's (already resolved) deserializer
+        if (_fallbackSetter.getType().equals(_type)) {
+            return deserialize(p, ctxt);
+        }
+        // Types differ: find deserializer for the fallback setter's type
+        if (p.hasToken(JsonToken.VALUE_NULL)) {
+            return _nullProvider.getNullValue(ctxt);
+        }
+        ValueDeserializer<Object> deser = ctxt.findContextualValueDeserializer(
+                _fallbackSetter.getType(), _fallbackSetter);
+        Object value = deser.deserialize(p, ctxt);
+        if (value == null) {
+            value = _nullProvider.getNullValue(ctxt);
+        }
+        return value;
+    }
 
     private final void _verifySetter() throws JacksonException {
         if (_fallbackSetter == null) {

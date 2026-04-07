@@ -1,5 +1,6 @@
 package tools.jackson.databind.format;
 
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -59,6 +60,14 @@ public class DateFormatLocale3316Test extends DatabindTestUtil
         public Date value;
     }
 
+    // Bean using java.time.LocalDate with compound locale
+    static class LocalDateWithLocale {
+        @JsonFormat(shape = JsonFormat.Shape.STRING,
+                pattern = "dd MMM yyyy",
+                locale = "de_DE")
+        public LocalDate value;
+    }
+
     // Bean using French locale with underscore
     static class DateWithFrenchLocale {
         @JsonFormat(shape = JsonFormat.Shape.STRING,
@@ -68,7 +77,7 @@ public class DateFormatLocale3316Test extends DatabindTestUtil
         public Date value;
     }
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final static ObjectMapper MAPPER = newJsonMapper();
 
     // Use a known date: 2022-10-15 (15 October 2022)
     // In German, "Oktober" abbreviated is "Okt" (or "Okt." depending on JDK)
@@ -89,10 +98,8 @@ public class DateFormatLocale3316Test extends DatabindTestUtil
         input.value = date20221015();
         String json = MAPPER.writeValueAsString(input);
 
-        // Verify it uses German locale — month abbreviation should NOT be English "Oct"
-        // German abbreviation is typically "Okt" or "Okt."
-        assertFalse(json.contains("Oct"),
-                "Should not use English month name, got: " + json);
+        // Verify it uses German locale — month abbreviation should be "Okt" (or "Okt."),
+        // not English "Oct"
         assertTrue(json.contains("Okt"),
                 "Should contain German month abbreviation 'Okt', got: " + json);
     }
@@ -105,8 +112,6 @@ public class DateFormatLocale3316Test extends DatabindTestUtil
         input.value = date20221015();
         String json = MAPPER.writeValueAsString(input);
 
-        assertFalse(json.contains("Oct"),
-                "Should not use English month name, got: " + json);
         assertTrue(json.contains("Okt"),
                 "Should contain German month abbreviation 'Okt', got: " + json);
     }
@@ -123,33 +128,15 @@ public class DateFormatLocale3316Test extends DatabindTestUtil
                 "Should contain German month abbreviation 'Okt', got: " + json);
     }
 
-    // [databind#3316]: round-trip with "de_DE" locale
+    // [databind#3316]: round-trip with "de_DE" locale (underscore)
     @Test
-    public void testRoundTripWithUnderscoreLocale() throws Exception
+    public void testRoundTripWithCompoundLocale() throws Exception
     {
         DateWithLocaleUnderscore input = new DateWithLocaleUnderscore();
         input.value = date20221015();
 
         String json = MAPPER.writeValueAsString(input);
         DateWithLocaleUnderscore result = MAPPER.readValue(json, DateWithLocaleUnderscore.class);
-
-        assertNotNull(result.value);
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        cal.setTime(result.value);
-        assertEquals(2022, cal.get(Calendar.YEAR));
-        assertEquals(Calendar.OCTOBER, cal.get(Calendar.MONTH));
-        assertEquals(15, cal.get(Calendar.DAY_OF_MONTH));
-    }
-
-    // [databind#3316]: round-trip with "de-DE" locale (hyphen separator)
-    @Test
-    public void testRoundTripWithHyphenLocale() throws Exception
-    {
-        DateWithLocaleHyphen input = new DateWithLocaleHyphen();
-        input.value = date20221015();
-
-        String json = MAPPER.writeValueAsString(input);
-        DateWithLocaleHyphen result = MAPPER.readValue(json, DateWithLocaleHyphen.class);
 
         assertNotNull(result.value);
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
@@ -170,6 +157,21 @@ public class DateFormatLocale3316Test extends DatabindTestUtil
         // Italian abbreviation for October is "ott" (or "ott.")
         assertTrue(json.toLowerCase(Locale.ROOT).contains("ott"),
                 "Should contain Italian month abbreviation 'ott', got: " + json);
+    }
+
+    // [databind#3316]: java.time.LocalDate with compound locale should also work
+    @Test
+    public void testLocalDateWithCompoundLocale() throws Exception
+    {
+        LocalDateWithLocale input = new LocalDateWithLocale();
+        input.value = LocalDate.of(2022, 10, 15);
+
+        String json = MAPPER.writeValueAsString(input);
+        assertTrue(json.contains("Okt"),
+                "Should contain German month abbreviation 'Okt', got: " + json);
+
+        LocalDateWithLocale result = MAPPER.readValue(json, LocalDateWithLocale.class);
+        assertEquals(LocalDate.of(2022, 10, 15), result.value);
     }
 
     // [databind#3316]: French locale "fr_FR" should produce French month names

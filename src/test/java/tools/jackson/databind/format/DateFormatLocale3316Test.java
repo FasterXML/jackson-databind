@@ -50,11 +50,11 @@ public class DateFormatLocale3316Test extends DatabindTestUtil
         public Date value;
     }
 
-    // Bean using locale with variant (e.g. "en_US_POSIX")
+    // Bean using Italian locale with variant
     static class DateWithLocaleVariant {
         @JsonFormat(shape = JsonFormat.Shape.STRING,
                 pattern = "dd MMM yyyy",
-                locale = "en_US_POSIX",
+                locale = "it_IT_POSIX",
                 timezone = "UTC")
         public Date value;
     }
@@ -159,7 +159,7 @@ public class DateFormatLocale3316Test extends DatabindTestUtil
         assertEquals(15, cal.get(Calendar.DAY_OF_MONTH));
     }
 
-    // [databind#3316]: locale with variant ("en_US_POSIX") should work
+    // [databind#3316]: locale with variant ("it_IT_POSIX") should work
     @Test
     public void testSerializationWithLocaleVariant() throws Exception
     {
@@ -167,9 +167,9 @@ public class DateFormatLocale3316Test extends DatabindTestUtil
         input.value = date20221015();
         String json = MAPPER.writeValueAsString(input);
 
-        // en_US_POSIX should produce English month name
-        assertTrue(json.contains("Oct"),
-                "Should contain English month abbreviation 'Oct', got: " + json);
+        // Italian abbreviation for October is "ott" (or "ott.")
+        assertTrue(json.toLowerCase(Locale.ROOT).contains("ott"),
+                "Should contain Italian month abbreviation 'ott', got: " + json);
     }
 
     // [databind#3316]: French locale "fr_FR" should produce French month names

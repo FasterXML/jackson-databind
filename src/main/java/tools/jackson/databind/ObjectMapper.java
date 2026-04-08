@@ -1236,18 +1236,14 @@ public class ObjectMapper
             }
         }
         */
-        try {
-            if (config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
-                    && (value instanceof AutoCloseable)) {
-                _writeCloseableValue(g, value, config);
-            } else {
-                _serializationContext(config).serializeValue(g, value);
-                if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-                    g.flush();
-                }
+        if (config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
+                && (value instanceof AutoCloseable)) {
+            _writeCloseableValue(g, value, config);
+        } else {
+            _serializationContext(config).serializeValue(g, value);
+            if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
+                g.flush();
             }
-        } catch (JacksonException e) {
-            throw _clearLocationIfNeeded(config, e);
         }
     }
 
@@ -1902,23 +1898,19 @@ public class ObjectMapper
             JsonGenerator g, Object value)
         throws JacksonException
     {
-        try {
-            _initializeGenerator(g);
-            if (ctxt.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
-                    && (value instanceof AutoCloseable)) {
-                _configAndWriteCloseable(ctxt, g, value);
-                return;
-            }
-            try {
-                ctxt.serializeValue(g, value);
-            } catch (Exception e) {
-                ClassUtil.closeOnFailAndThrowAsJacksonE(g, e);
-                return;
-            }
-            g.close();
-        } catch (JacksonException e) {
-            throw _clearLocationIfNeeded(ctxt.getConfig(), e);
+        _initializeGenerator(g);
+        if (ctxt.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
+                && (value instanceof AutoCloseable)) {
+            _configAndWriteCloseable(ctxt, g, value);
+            return;
         }
+        try {
+            ctxt.serializeValue(g, value);
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsJacksonE(g, e);
+            return;
+        }
+        g.close();
     }
 
     /**
@@ -2616,13 +2608,13 @@ public class ObjectMapper
 
     /**
      * Helper method to clear location from exception if
-     * {@link MapperFeature#EXCLUDE_LOCATION_IN_EXCEPTIONS} is enabled.
+     * {@link DeserializationFeature#EXCLUDE_LOCATION_IN_EXCEPTIONS} is enabled.
      *
      * @since 3.2
      */
     private static <T extends JacksonException> T _clearLocationIfNeeded(
-            MapperConfigBase<?,?> config, T e) {
-        if (config.isEnabled(MapperFeature.EXCLUDE_LOCATION_IN_EXCEPTIONS)) {
+            DeserializationConfig config, T e) {
+        if (config.isEnabled(DeserializationFeature.EXCLUDE_LOCATION_IN_EXCEPTIONS)) {
             e.clearLocation();
         }
         return e;

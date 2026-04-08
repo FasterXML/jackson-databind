@@ -10,7 +10,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for {@link MapperFeature#EXCLUDE_LOCATION_IN_EXCEPTIONS}.
+ * Tests for {@link DeserializationFeature#EXCLUDE_LOCATION_IN_EXCEPTIONS}.
  *
  * @since 3.2
  */
@@ -38,7 +38,7 @@ public class ExceptionLocationClearTest extends DatabindTestUtil
     public void testExcludeLocationOnReadValue() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
-                .enable(MapperFeature.EXCLUDE_LOCATION_IN_EXCEPTIONS)
+                .enable(DeserializationFeature.EXCLUDE_LOCATION_IN_EXCEPTIONS)
                 .build();
         try {
             mapper.readValue("{ broken }", Point.class);
@@ -54,7 +54,7 @@ public class ExceptionLocationClearTest extends DatabindTestUtil
     public void testExcludeLocationViaObjectReader() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
-                .enable(MapperFeature.EXCLUDE_LOCATION_IN_EXCEPTIONS)
+                .enable(DeserializationFeature.EXCLUDE_LOCATION_IN_EXCEPTIONS)
                 .build();
         ObjectReader reader = mapper.readerFor(Point.class);
         try {
@@ -71,7 +71,7 @@ public class ExceptionLocationClearTest extends DatabindTestUtil
     public void testExcludeLocationOnReadTree() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
-                .enable(MapperFeature.EXCLUDE_LOCATION_IN_EXCEPTIONS)
+                .enable(DeserializationFeature.EXCLUDE_LOCATION_IN_EXCEPTIONS)
                 .build();
         try {
             mapper.readTree("{ broken }");
@@ -87,7 +87,7 @@ public class ExceptionLocationClearTest extends DatabindTestUtil
     public void testExcludeLocationOnDatabindException() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
-                .enable(MapperFeature.EXCLUDE_LOCATION_IN_EXCEPTIONS)
+                .enable(DeserializationFeature.EXCLUDE_LOCATION_IN_EXCEPTIONS)
                 .build();
         try {
             // Invalid type coercion should produce a DatabindException

@@ -1835,12 +1835,12 @@ public class ObjectReader
 
     /**
      * Helper method to clear location from exception if
-     * {@link MapperFeature#EXCLUDE_LOCATION_IN_EXCEPTIONS} is enabled.
+     * {@link DeserializationFeature#EXCLUDE_LOCATION_IN_EXCEPTIONS} is enabled.
      *
      * @since 3.2
      */
     private <T extends JacksonException> T _clearLocationIfNeeded(T e) {
-        if (_config.isEnabled(MapperFeature.EXCLUDE_LOCATION_IN_EXCEPTIONS)) {
+        if (_config.isEnabled(DeserializationFeature.EXCLUDE_LOCATION_IN_EXCEPTIONS)) {
             e.clearLocation();
         }
         return e;

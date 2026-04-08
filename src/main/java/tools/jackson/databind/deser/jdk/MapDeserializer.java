@@ -96,7 +96,7 @@ public class MapDeserializer
      * Flag used to check, whether the {@link tools.jackson.core.StreamReadCapability#DUPLICATE_PROPERTIES}
      * can be applied, because the Map has declared value type of {@code java.lang.Object}.
      */
-    protected boolean _checkDupSquash;
+    protected final boolean _checkDupSquash;
 
     /**
      * Flag that indicates whether value merging should be applied when
@@ -166,7 +166,7 @@ public class MapDeserializer
     }
 
     /**
-     * @since 2.12
+     * @since 3.2 (added {@code mergeValues})
      */
     protected MapDeserializer(MapDeserializer src,
             KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser,

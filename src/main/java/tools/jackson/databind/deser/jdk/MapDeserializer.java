@@ -162,19 +162,18 @@ public class MapDeserializer
             NullValueProvider nuller,
             Set<String> ignorable)
     {
-       this(src, keyDeser, valueDeser, valueTypeDeser, nuller, ignorable, null, src._mergeValues);
+       this(src, keyDeser,valueDeser, valueTypeDeser, nuller, ignorable, null);
     }
 
     /**
-     * @since 3.2 (added {@code mergeValues})
+     * @since 2.12
      */
     protected MapDeserializer(MapDeserializer src,
             KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser,
             NullValueProvider nuller,
             Set<String> ignorable,
-            Set<String> includable,
-            boolean mergeValues)
+            Set<String> includable)
     {
         super(src, nuller, src._unwrapSingle);
         _keyDeserializer = keyDeser;
@@ -190,6 +189,28 @@ public class MapDeserializer
 
         _standardStringKey = _isStdKeyDeser(_containerType, keyDeser);
         _checkDupSquash = src._checkDupSquash;
+        _mergeValues = src._mergeValues;
+    }
+
+    /**
+     * @since 3.2
+     */
+    protected MapDeserializer(MapDeserializer src, boolean mergeValues)
+    {
+        super(src);
+        _keyDeserializer = src._keyDeserializer;
+        _valueDeserializer = src._valueDeserializer;
+        _valueTypeDeserializer = src._valueTypeDeserializer;
+        _valueInstantiator = src._valueInstantiator;
+        _propertyBasedCreator = src._propertyBasedCreator;
+        _delegateDeserializer = src._delegateDeserializer;
+        _hasDefaultCreator = src._hasDefaultCreator;
+        _ignorableProperties = src._ignorableProperties;
+        _includableProperties = src._includableProperties;
+        _inclusionChecker = src._inclusionChecker;
+
+        _standardStringKey = src._standardStringKey;
+        _checkDupSquash = src._checkDupSquash;
         _mergeValues = mergeValues;
     }
 
@@ -202,8 +223,7 @@ public class MapDeserializer
             NullValueProvider nuller,
             Set<String> ignorable)
     {
-        return withResolved(keyDeser, valueTypeDeser, valueDeser, nuller, ignorable,
-                _includableProperties, _mergeValues);
+        return withResolved(keyDeser, valueTypeDeser, valueDeser, nuller, ignorable, _includableProperties);
     }
 
     /**
@@ -213,18 +233,26 @@ public class MapDeserializer
     protected MapDeserializer withResolved(KeyDeserializer keyDeser,
             TypeDeserializer valueTypeDeser, ValueDeserializer<?> valueDeser,
             NullValueProvider nuller,
-            Set<String> ignorable, Set<String> includable,
-            boolean mergeValues)
+            Set<String> ignorable, Set<String> includable)
     {
         if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser)
                 && (_valueTypeDeserializer == valueTypeDeser) && (_nullProvider == nuller)
-                && (_ignorableProperties == ignorable) && (_includableProperties == includable)
-                && (_mergeValues == mergeValues)) {
+                && (_ignorableProperties == ignorable) && (_includableProperties == includable)) {
             return this;
         }
         return new MapDeserializer(this,
                 keyDeser, (ValueDeserializer<Object>) valueDeser, valueTypeDeser,
-                nuller, ignorable, includable, mergeValues);
+                nuller, ignorable, includable);
+    }
+
+    /**
+     * @since 3.2
+     */
+    protected MapDeserializer withMergeValues(boolean mergeValues) {
+        if (_mergeValues == mergeValues) {
+            return this;
+        }
+        return new MapDeserializer(this, mergeValues);
     }
 
     /**
@@ -366,12 +394,14 @@ public class MapDeserializer
                 }
             }
         }
+        MapDeserializer deser = withResolved(keyDeser, vtd, valueDeser,
+                findContentNullProvider(ctxt, property, valueDeser), ignored, included);
         // [databind#3205]: Check if content type has mergeable disabled
         Boolean contentMergeable = ctxt.getConfig().getDefaultMergeable(vt.getRawClass());
-        boolean mergeValues = !Boolean.FALSE.equals(contentMergeable);
-        return withResolved(keyDeser, vtd, valueDeser,
-                findContentNullProvider(ctxt, property, valueDeser), ignored, included,
-                mergeValues);
+        if (Boolean.FALSE.equals(contentMergeable)) {
+            deser = deser.withMergeValues(false);
+        }
+        return deser;
     }
 
     /*

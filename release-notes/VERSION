@@ -80,6 +80,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   using `DefaultTyping.NON_FINAL`
  (reported by Klaas D)
  (fix by @cowtowncoder, w/ Claude code)
+#3205: ConfigOverrides for merging are not applied for items inside containers
+ (reported by Daniel G)
+ (fix by @cowtowncoder, w/ Claude code)
 #3216: Delegating `@JsonCreator` does not prevent unnecessary introspection
   of properties, leading to bogus failure
  (reported by @awildturtok)

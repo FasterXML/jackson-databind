@@ -378,6 +378,10 @@ Klaas Dellschaft (@klaasdellschaft)
    using `DefaultTyping.NON_FINAL`
   [3.2.0]
 
+Daniel Gerhardt (@dgerhardt)
+ * Reported #3205: ConfigOverrides for merging are not applied for items inside containers
+  [3.2.0]
+
 Andrzej Leśkiewicz (@aleskiewicz)
  * Reported #3573: Inconsistent handling of nil `UUID` in property inclusion
   [3.2.0]

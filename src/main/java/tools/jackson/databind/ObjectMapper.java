@@ -2654,7 +2654,7 @@ public class ObjectMapper
             }
             return result;
         } catch (JacksonException e) {
-            throw _clearLocationIfNeeded(deserializationConfig(), e);
+            throw _clearLocationIfNeeded(ctxt.getConfig(), e);
         }
     }
 
@@ -2684,7 +2684,7 @@ public class ObjectMapper
             }
             return result;
         } catch (JacksonException e) {
-            throw _clearLocationIfNeeded(deserializationConfig(), e);
+            throw _clearLocationIfNeeded(ctxt.getConfig(), e);
         }
     }
 
@@ -2724,7 +2724,7 @@ public class ObjectMapper
             }
             return resultNode;
         } catch (JacksonException e) {
-            throw _clearLocationIfNeeded(deserializationConfig(), e);
+            throw _clearLocationIfNeeded(ctxt.getConfig(), e);
         }
     }
 

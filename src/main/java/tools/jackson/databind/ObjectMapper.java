@@ -1236,14 +1236,18 @@ public class ObjectMapper
             }
         }
         */
-        if (config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
-                && (value instanceof AutoCloseable)) {
-            _writeCloseableValue(g, value, config);
-        } else {
-            _serializationContext(config).serializeValue(g, value);
-            if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-                g.flush();
+        try {
+            if (config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
+                    && (value instanceof AutoCloseable)) {
+                _writeCloseableValue(g, value, config);
+            } else {
+                _serializationContext(config).serializeValue(g, value);
+                if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
+                    g.flush();
+                }
             }
+        } catch (JacksonException e) {
+            throw _clearLocationIfNeeded(config, e);
         }
     }
 
@@ -1898,19 +1902,23 @@ public class ObjectMapper
             JsonGenerator g, Object value)
         throws JacksonException
     {
-        _initializeGenerator(g);
-        if (ctxt.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
-                && (value instanceof AutoCloseable)) {
-            _configAndWriteCloseable(ctxt, g, value);
-            return;
-        }
         try {
-            ctxt.serializeValue(g, value);
-        } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsJacksonE(g, e);
-            return;
+            _initializeGenerator(g);
+            if (ctxt.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
+                    && (value instanceof AutoCloseable)) {
+                _configAndWriteCloseable(ctxt, g, value);
+                return;
+            }
+            try {
+                ctxt.serializeValue(g, value);
+            } catch (Exception e) {
+                ClassUtil.closeOnFailAndThrowAsJacksonE(g, e);
+                return;
+            }
+            g.close();
+        } catch (JacksonException e) {
+            throw _clearLocationIfNeeded(ctxt.getConfig(), e);
         }
-        g.close();
     }
 
     /**
@@ -2607,37 +2615,55 @@ public class ObjectMapper
      */
 
     /**
+     * Helper method to clear location from exception if
+     * {@link MapperFeature#EXCLUDE_LOCATION_IN_EXCEPTIONS} is enabled.
+     *
+     * @since 3.2
+     */
+    private static <T extends JacksonException> T _clearLocationIfNeeded(
+            MapperConfigBase<?,?> config, T e) {
+        if (config.isEnabled(MapperFeature.EXCLUDE_LOCATION_IN_EXCEPTIONS)) {
+            e.clearLocation();
+        }
+        return e;
+    }
+
+    /**
      * Actual implementation of value reading+binding operation.
      */
     protected Object _readValue(DeserializationContextExt ctxt, JsonParser p,
             JavaType valueType)
         throws JacksonException
     {
-        // First: may need to read the next token, to initialize
-        // state (either before first read from parser, or after
-        // previous token has been cleared)
-        final Object result;
-        JsonToken t = _initForReading(p, valueType);
+        try {
+            // First: may need to read the next token, to initialize
+            // state (either before first read from parser, or after
+            // previous token has been cleared)
+            final Object result;
+            JsonToken t = _initForReading(p, valueType);
 
-        if (t == JsonToken.VALUE_NULL) {
-            // Ask deserializer what 'null value' to use:
-            result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
-        } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
-            result = null;
-        } else if (t == JsonToken.NOT_AVAILABLE) {
-            // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
-            result = null;
-        } else { // pointing to event other than null
-            result = ctxt.readRootValue(p, valueType,
-                    _findRootDeserializer(ctxt, valueType), null);
-            ctxt.checkUnresolvedObjectId();
+            if (t == JsonToken.VALUE_NULL) {
+                // Ask deserializer what 'null value' to use:
+                result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
+            } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
+                result = null;
+            } else if (t == JsonToken.NOT_AVAILABLE) {
+                // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
+                result = null;
+            } else { // pointing to event other than null
+                result = ctxt.readRootValue(p, valueType,
+                        _findRootDeserializer(ctxt, valueType), null);
+                ctxt.checkUnresolvedObjectId();
+            }
+            // Need to consume the token too
+            p.clearCurrentToken();
+            if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+                _verifyNoTrailingTokens(p, ctxt, valueType);
+            }
+            return result;
+        } catch (JacksonException e) {
+            throw _clearLocationIfNeeded(deserializationConfig(), e);
         }
-        // Need to consume the token too
-        p.clearCurrentToken();
-        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
-            _verifyNoTrailingTokens(p, ctxt, valueType);
-        }
-        return result;
     }
 
     protected Object _readMapAndClose(DeserializationContextExt ctxt,
@@ -2665,6 +2691,8 @@ public class ObjectMapper
                 _verifyNoTrailingTokens(p, ctxt, valueType);
             }
             return result;
+        } catch (JacksonException e) {
+            throw _clearLocationIfNeeded(deserializationConfig(), e);
         }
     }
 
@@ -2703,6 +2731,8 @@ public class ObjectMapper
                 _verifyNoTrailingTokens(p, ctxt, valueType);
             }
             return resultNode;
+        } catch (JacksonException e) {
+            throw _clearLocationIfNeeded(deserializationConfig(), e);
         }
     }
 

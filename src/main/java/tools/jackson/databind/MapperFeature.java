@@ -594,7 +594,19 @@ public enum MapperFeature
      *
      * @since 3.2
      */
-    EXTERNAL_TYPE_ID_ALWAYS_VISIBLE(false)
+    EXTERNAL_TYPE_ID_ALWAYS_VISIBLE(false),
+
+    /**
+     * Feature that, when enabled, causes location information to be
+     * automatically cleared from {@link JacksonException} instances thrown
+     * during reading/writing, preventing potentially sensitive input data
+     * from appearing in exception messages and logs.
+     *<p>
+     * Feature is disabled by default.
+     *
+     * @since 3.2
+     */
+    EXCLUDE_LOCATION_IN_EXCEPTIONS(false)
     ;
 
     private final boolean _defaultState;

@@ -1132,25 +1132,42 @@ public class ObjectWriter
     }
     
     /**
+     * Helper method to clear location from exception if
+     * {@link MapperFeature#EXCLUDE_LOCATION_IN_EXCEPTIONS} is enabled.
+     *
+     * @since 3.2
+     */
+    private <T extends JacksonException> T _clearLocationIfNeeded(T e) {
+        if (_config.isEnabled(MapperFeature.EXCLUDE_LOCATION_IN_EXCEPTIONS)) {
+            e.clearLocation();
+        }
+        return e;
+    }
+
+    /**
      * Method called to configure the generator as necessary and then
      * call write functionality
      */
     protected final void _configAndWriteValue(SerializationContextExt ctxt,
             JsonGenerator gen, Object value) throws JacksonException
     {
-        _initializeGenerator(gen);
-        if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
-                && (value instanceof AutoCloseable)) {
-            _writeCloseable(gen, value);
-            return;
-        }
         try {
-            _prefetch.serialize(gen, value, ctxt);
-        } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, e);
-            return;
+            _initializeGenerator(gen);
+            if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
+                    && (value instanceof AutoCloseable)) {
+                _writeCloseable(gen, value);
+                return;
+            }
+            try {
+                _prefetch.serialize(gen, value, ctxt);
+            } catch (Exception e) {
+                ClassUtil.closeOnFailAndThrowAsJacksonE(gen, e);
+                return;
+            }
+            gen.close();
+        } catch (JacksonException e) {
+            throw _clearLocationIfNeeded(e);
         }
-        gen.close();
     }
 
     /**

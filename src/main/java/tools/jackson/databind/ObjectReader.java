@@ -1834,37 +1834,54 @@ public class ObjectReader
      */
 
     /**
+     * Helper method to clear location from exception if
+     * {@link MapperFeature#EXCLUDE_LOCATION_IN_EXCEPTIONS} is enabled.
+     *
+     * @since 3.2
+     */
+    private <T extends JacksonException> T _clearLocationIfNeeded(T e) {
+        if (_config.isEnabled(MapperFeature.EXCLUDE_LOCATION_IN_EXCEPTIONS)) {
+            e.clearLocation();
+        }
+        return e;
+    }
+
+    /**
      * Actual implementation of value reading+binding operation.
      */
     protected Object _bind(DeserializationContextExt ctxt,
             JsonParser p, Object valueToUpdate) throws JacksonException
     {
-        // First: may need to read the next token, to initialize state (either
-        // before first read from parser, or after previous token has been cleared)
-        Object result;
-        JsonToken t = _initForReading(ctxt, p);
-        if (t == JsonToken.VALUE_NULL) {
-            if (valueToUpdate == null) {
-                result = _findRootDeserializer(ctxt).getNullValue(ctxt);
-            } else {
+        try {
+            // First: may need to read the next token, to initialize state (either
+            // before first read from parser, or after previous token has been cleared)
+            Object result;
+            JsonToken t = _initForReading(ctxt, p);
+            if (t == JsonToken.VALUE_NULL) {
+                if (valueToUpdate == null) {
+                    result = _findRootDeserializer(ctxt).getNullValue(ctxt);
+                } else {
+                    result = valueToUpdate;
+                }
+            } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = valueToUpdate;
+            } else if (t == JsonToken.NOT_AVAILABLE) {
+                // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
+                result = valueToUpdate;
+            } else { // pointing to event other than null
+                result = ctxt.readRootValue(p, _valueType,
+                        _findRootDeserializer(ctxt), _valueToUpdate);
+                ctxt.checkUnresolvedObjectId();
             }
-        } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
-            result = valueToUpdate;
-        } else if (t == JsonToken.NOT_AVAILABLE) {
-            // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
-            result = valueToUpdate;
-        } else { // pointing to event other than null
-            result = ctxt.readRootValue(p, _valueType,
-                    _findRootDeserializer(ctxt), _valueToUpdate);
-            ctxt.checkUnresolvedObjectId();
+            // Need to consume the token too
+            p.clearCurrentToken();
+            if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+                _verifyNoTrailingTokens(p, ctxt, _valueType);
+            }
+            return result;
+        } catch (JacksonException e) {
+            throw _clearLocationIfNeeded(e);
         }
-        // Need to consume the token too
-        p.clearCurrentToken();
-        if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
-            _verifyNoTrailingTokens(p, ctxt, _valueType);
-        }
-        return result;
     }
 
     protected Object _bindAndClose(DeserializationContextExt ctxt,
@@ -1894,6 +1911,8 @@ public class ObjectReader
                 _verifyNoTrailingTokens(p, ctxt, _valueType);
             }
             return result;
+        } catch (JacksonException e) {
+            throw _clearLocationIfNeeded(e);
         }
     }
 
@@ -1936,7 +1955,7 @@ public class ObjectReader
             return result;
 
         } catch (DeferredBindingException e) {
-            throw e; // Already properly formatted
+            throw _clearLocationIfNeeded(e); // Already properly formatted
 
         } catch (DatabindException e) {
             // Hard failure occurred; attach collected problems as suppressed
@@ -1946,13 +1965,13 @@ public class ObjectReader
                     // Limit was hit - throw DeferredBindingException as primary exception
                     DeferredBindingException dbe = new DeferredBindingException(p, bucket, true);
                     dbe.addSuppressed(e); // Original error as suppressed for debugging
-                    throw dbe;
+                    throw _clearLocationIfNeeded(dbe);
                 } else {
                     // Hard failure unrelated to limit - keep original as primary
                     e.addSuppressed(new DeferredBindingException(p, bucket, false));
                 }
             }
-            throw e;
+            throw _clearLocationIfNeeded(e);
         }
     }
 

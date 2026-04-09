@@ -373,7 +373,6 @@ public class EnumMapDeserializer
                 }
                 // 24-Mar-2012, tatu: Null won't work as a key anyway, so let's
                 //  just skip the entry then. But we must skip the value as well, if so.
-                p.nextToken();
                 p.skipChildren();
                 continue;
             }

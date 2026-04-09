@@ -215,7 +215,10 @@ Lee Jiwon (@dlwldnjs1009)
  * Fixed #5867: Fix `Map.Entry` deserialization for property-level
    `Shape.NATURAL` override
   [3.1.2]
- * Fixed  #5870: `EnumMap` and `EnumSet` properties ignore `@JsonDeserialize(contentConverter)`
+ * Fixed #5870: `EnumMap` and `EnumSet` properties ignore `@JsonDeserialize(contentConverter)`
+  [3.1.2]
+ * Fixed #5891: `EnumMapDeserializer._deserializeUsingProperties()` corrupts parser
+   state after skipping unknown enum keys
   [3.1.2]
 
 Garret Wilson (@garretwilson)

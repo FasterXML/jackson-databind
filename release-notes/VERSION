@@ -28,6 +28,9 @@ No changes since 3.1
   on another property
  (reported by Aleksandr G)
  (fix by @cowtowncoder, w/ Claude code)
+#5891: `EnumMapDeserializer._deserializeUsingProperties()` corrupts parser
+  state after skipping unknown enum keys
+ (fixed by Lee Jiwon)
 
 3.1.1 (27-Mar-2026)
 

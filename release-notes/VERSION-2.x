@@ -12,6 +12,9 @@ Project: jackson-databind
  (fix by @pjfanning)
 #5870: `EnumMap` and `EnumSet` properties ignore `@JsonDeserialize(contentConverter)`
  (fixed by Lee Jiwon)
+#5891: `EnumMapDeserializer._deserializeUsingProperties()` corrupts parser
+  state after skipping unknown enum keys
+ (fixed by Lee Jiwon)
 
 2.21.2 (20-Mar-2026)
 

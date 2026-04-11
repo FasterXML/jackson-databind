@@ -2023,6 +2023,6 @@ Alexey Tsvetkov (@AlexeyTsvetkov)
   [2.21.3]
 
 Kenta Yoshii (@KentaYoshii)
- * Reported #5898: `DoubleDeserializer` rejects "+INF"/"+Infinite" despite accepting
-   "INF"/"Infinite" and "-INF"/"-Infinite"
+ * Reported #5898: `DoubleDeserializer` rejects "+INF"/"+Infinity" despite accepting
+   "INF"/"Infinity" and "-INF"/"-Infinity"
   [2.21.3]

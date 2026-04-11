@@ -15,8 +15,8 @@ Project: jackson-databind
 #5891: `EnumMapDeserializer._deserializeUsingProperties()` corrupts parser
   state after skipping unknown enum keys
  (fixed by Lee Jiwon)
-#5898: `DoubleDeserializer` rejects "+INF"/"+Infinite" despite accepting
-  "INF"/"Infinite" and "-INF"/"-Infinite"
+#5898: `DoubleDeserializer` rejects "+INF"/"+Infinity" despite accepting
+  "INF"/"Infinity" and "-INF"/"-Infinity"
  (reported by Kenta Y)
  (fix by @cowtowncoder)
 

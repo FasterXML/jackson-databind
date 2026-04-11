@@ -1586,6 +1586,10 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         // do we have it resolved?
         Object pojo = roid.resolve();
         if (pojo == null) { // not yet; should wait...
+            // [databind#2955]: if we are not to fail on unresolved Object Ids, return null
+            if (!ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)) {
+                return null;
+            }
             throw new UnresolvedForwardReference(p,
                     "Could not resolve Object Id ["+id+"] (for "+_beanType+").",
                     p.currentLocation(), roid);

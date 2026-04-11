@@ -1235,6 +1235,8 @@ public abstract class StdDeserializer<T>
         if (!text.isEmpty()) {
             switch (text.charAt(0)) {
             case 'I':
+            // 11-Apr-2026, [databind#5898]: accept "+Infinity", "+INF"
+            case '+':
                 if (_isPosInf(text)) {
                     return Float.POSITIVE_INFINITY;
                 }
@@ -1393,6 +1395,8 @@ public abstract class StdDeserializer<T>
         if (!text.isEmpty()) {
             switch (text.charAt(0)) {
             case 'I':
+            // 11-Apr-2026, [databind#5898]: accept "+Infinity", "+INF"
+            case '+':
                 if (_isPosInf(text)) {
                     return Double.POSITIVE_INFINITY;
                 }

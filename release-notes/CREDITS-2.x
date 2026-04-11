@@ -2021,3 +2021,8 @@ Alexey Tsvetkov (@AlexeyTsvetkov)
  * Reported #5840: Jackson 2.21 throws Conflicting property-based creators if both
    default (0-arg) and multi-arg constructor annotated
   [2.21.3]
+
+Kenta Yoshii (@KentaYoshii)
+ * Reported #5898: `DoubleDeserializer` rejects "+INF"/"+Infinite" despite accepting
+   "INF"/"Infinite" and "-INF"/"-Infinite"
+  [2.21.3]

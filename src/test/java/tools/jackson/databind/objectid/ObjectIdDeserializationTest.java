@@ -284,6 +284,15 @@ public class ObjectIdDeserializationTest extends DatabindTestUtil
         public int hashCode() { return name.hashCode(); }
     }
 
+    // // // For [databind#2955]: unresolved scalar Object Id with FAIL_ON_UNRESOLVED_OBJECT_IDS disabled
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    static class Node2955 {
+        public int id;
+        public String name;
+        public Node2955 ref;
+    }
+
     // // // For ObjectReader + FAIL_ON_UNRESOLVED_OBJECT_IDS [databind#5542]
 
     public static class ReaderWrapper5542 {
@@ -897,5 +906,39 @@ public class ObjectIdDeserializationTest extends DatabindTestUtil
             assertNotNull(wrapper.node);
             assertSame(wrapper.node, wrapper.node.next.node);
         }
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, [databind#2955]: unresolved scalar Object Ids
+    /**********************************************************
+     */
+
+    // [databind#2955]: default behavior should throw on unresolved scalar Object Id
+    @Test
+    public void testUnresolvedScalarObjectIdFails2955() throws Exception {
+        // Node with id=1 references node with id=999 which doesn't exist
+        String json = a2q("{'id':1,'name':'a','ref':{'id':2,'name':'b','ref':999}}");
+
+        try {
+            MAPPER.readValue(json, Node2955.class);
+            fail("Should have thrown UnresolvedForwardReference");
+        } catch (UnresolvedForwardReference e) {
+            verifyException(e, "Object id");
+        }
+    }
+
+    // [databind#2955]: with feature disabled, unresolved scalar Object Id should become null
+    @Test
+    public void testUnresolvedScalarObjectIdAsNull2955() throws Exception {
+        String json = a2q("{'id':1,'name':'a','ref':{'id':2,'name':'b','ref':999}}");
+
+        Node2955 result = DISABLED_MAPPER.readValue(json, Node2955.class);
+        assertNotNull(result);
+        assertEquals("a", result.name);
+        assertNotNull(result.ref);
+        assertEquals("b", result.ref.name);
+        // unresolved id=999 should become null instead of throwing
+        assertNull(result.ref.ref);
     }
 }

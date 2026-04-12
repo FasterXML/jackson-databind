@@ -150,7 +150,14 @@ Versions: 3.x (for earlier see VERSION-2.x)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 
-3.1.2 (not yet released)
+3.1.3 (not yet released)
+
+#5898: `DoubleDeserializer` rejects "+INF"/"+Infinity" despite accepting
+  "INF"/"Infinity" and "-INF"/"-Infinity"
+ (reported by Kenta Y)
+ (fix by @cowtowncoder)
+
+3.1.2 (11-Apr-2026)
 
 #5857: `TypeFactory._fromParamType` StackOverflowError with mutually recursive
   generic bounds (regression in 3.1.0, introduced by fix for [databind#5285])

@@ -2022,6 +2022,11 @@ Alexey Tsvetkov (@AlexeyTsvetkov)
    default (0-arg) and multi-arg constructor annotated
   [2.21.3]
 
+Kenta Yoshii (@KentaYoshii)
+ * Reported #5898: `DoubleDeserializer` rejects "+INF"/"+Infinity" despite accepting
+   "INF"/"Infinity" and "-INF"/"-Infinity"
+  [2.21.3]
+
 Christian Danner cdadac
  * Reported #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
    are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`

@@ -311,12 +311,32 @@ public class JDKNumberDeserTest
         assertEquals(Double.valueOf(Double.NEGATIVE_INFINITY), result);
     }
 
+    // [databind#5898]: accept "+INF" and "+Infinity" as positive infinity
+    @Test
+    public void testDoublePlusInf5898() throws Exception
+    {
+        assertEquals(Double.POSITIVE_INFINITY, MAPPER.readValue(q("+Infinity"), Double.class));
+        assertEquals(Double.POSITIVE_INFINITY, MAPPER.readValue(q("+Infinity"), Double.TYPE));
+        assertEquals(Double.POSITIVE_INFINITY, MAPPER.readValue(q("+INF"), Double.class));
+        assertEquals(Double.POSITIVE_INFINITY, MAPPER.readValue(q("+INF"), Double.TYPE));
+    }
+
+    // [databind#5898]: accept "+INF" and "+Infinity" as positive infinity
+    @Test
+    public void testFloatPlusInf5898() throws Exception
+    {
+        assertEquals(Float.POSITIVE_INFINITY, MAPPER.readValue(q("+Infinity"), Float.class));
+        assertEquals(Float.POSITIVE_INFINITY, MAPPER.readValue(q("+Infinity"), Float.TYPE));
+        assertEquals(Float.POSITIVE_INFINITY, MAPPER.readValue(q("+INF"), Float.class));
+        assertEquals(Float.POSITIVE_INFINITY, MAPPER.readValue(q("+INF"), Float.TYPE));
+    }
+
     /*
     /**********************************************************************
     /* Tests, other
     /**********************************************************************
      */
-    
+
     // 01-Mar-2017, tatu: This is bit tricky... in some ways, mapping to "empty value"
     //    would be best; but due to legacy reasons becomes `null` at this point
     @Test

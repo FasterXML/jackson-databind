@@ -328,6 +328,11 @@ Aleksandr Georgievskii (@ageorgievskii)
    on another property
   [3.1.2]
 
+Kenta Yoshii (@KentaYoshii)
+ * Reported #5898: `DoubleDeserializer` rejects "+INF"/"+Infinity" despite accepting
+   "INF"/"Infinity" and "-INF"/"-Infinity"
+  [3.1.2]
+
 Gili Tzabari (@cowwoc)
  * Reported #639: `@JacksonInject` with `@JsonIdentityInfo` causes deserialization
    failure (unresolved forward reference)

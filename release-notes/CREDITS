@@ -367,6 +367,10 @@ Balys Valentukevicius (@balysv)
    deserializing a collection of interfaces (immutables.io compatibility)
   [3.2.0]
 
+Vitaly Barkhatov (@vbarhatov)
+ * Reported #2736: Unable to deserialize `@JsonUnwrapped` `Optional<>` field
+  [3.2.0]
+
 Andrey Ustalakov (@austalakov)
  * Reported #2955: Handling UnresolvedForwardReference by pre-processing illegal values
   [3.2.0]

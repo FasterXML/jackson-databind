@@ -57,6 +57,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #2572: Can't deserialize inner class if default setter is `Nulls.AS_EMPTY`
  (reported by @XakepSDK)
  (fix by @cowtowncoder, w/ Claude code)
+#2736: Unable to deserialize `@JsonUnwrapped` `Optional<>` field
+ (reported by Vitaly B)
+ (fix by @cowtowncoder, w/ Claude code)
 #2780: Deserialization with Default Typing and `@JsonIdentityInfo`
   in untyped collections fails
  (reported by @ alex-t0)

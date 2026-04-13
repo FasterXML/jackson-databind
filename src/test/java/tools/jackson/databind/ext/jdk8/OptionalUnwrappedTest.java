@@ -108,6 +108,21 @@ public class OptionalUnwrappedTest
         assertEquals("Springfield", actual.additionalData.get().address);
     }
 
+    // [databind#2736]: when no properties for the unwrapped child appear in
+    //   input, the child bean is still instantiated (with null fields) and
+    //   wrapped in a present Optional — consistent with how plain
+    //   `@JsonUnwrapped Child` always yields an instance.
+    @Test
+    public void testDeserializeUnwrappedOptionalNoChildProps() throws Exception {
+        String json = "{\"name\":\"Homer\"}";
+        Person2736 actual = MAPPER.readValue(json, Person2736.class);
+        assertNotNull(actual.mainData);
+        assertEquals("Homer", actual.mainData.name);
+        assertNotNull(actual.additionalData);
+        assertTrue(actual.additionalData.isPresent());
+        assertNull(actual.additionalData.get().address);
+    }
+
     // for [datatype-jdk8#26]
     @Test
     public void testPropogatePrefixToSchema() throws Exception {

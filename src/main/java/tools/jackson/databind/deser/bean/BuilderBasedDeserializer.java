@@ -446,6 +446,7 @@ public class BuilderBasedDeserializer
 
         // 04-Jan-2010, tatu: May need to collect unknown properties for polymorphic cases
         TokenBuffer unknown = null;
+        final boolean skipUnknown = _shouldSkipUnknowns(ctxt);
 
         JsonToken t = p.currentToken();
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
@@ -505,6 +506,10 @@ public class BuilderBasedDeserializer
             // "any" property?
             if (_anySetter != null) {
                 buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                continue;
+            }
+            if (skipUnknown) {
+                p.skipChildren();
                 continue;
             }
             // Ok then, let's collect the whole field; name and value

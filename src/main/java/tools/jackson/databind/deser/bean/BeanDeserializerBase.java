@@ -1885,6 +1885,20 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     /**
+     * True when an unknown property may be skipped at the source rather than
+     * buffered: either {@link #_ignoreAllUnknown} is set, or (per [databind#5897])
+     * the bean type is final and unknowns would be silently discarded anyway.
+     */
+    protected final boolean _shouldSkipUnknowns(DeserializationContext ctxt) {
+        if (_ignoreAllUnknown) {
+            return true;
+        }
+        return _beanType.isFinal()
+                && ctxt.getConfig().getProblemHandlers() == null
+                && !ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    }
+
+    /**
      * Helper method called for an unknown property, when using "vanilla"
      * processing.
      *

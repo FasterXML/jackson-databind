@@ -35,6 +35,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   `MapperFeature.USE_STATIC_TYPING`
  (reported by @garkin)
  (fix by @cowtowncoder, w/ Claude code)
+#1546: Resolving forward references with `@JsonManagedReference`/
+  `@JsonBackReference` into `Set` may corrupt `hashCode`-based lookups
+ (reported by Niels D)
+ (fix by @cowtowncoder, w/ Claude code)
 #1622: Failure to deserialize child object when using `@JsonIgnoreProperties`
   to break cycle
  (reported by @b-behan)

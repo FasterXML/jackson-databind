@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.objectid;
 
 import java.util.*;
 
@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -234,7 +233,6 @@ public class JsonIdentityHashCodeIssue1546Test extends DatabindTestUtil
     // This test currently FAILS, demonstrating the bug
     // Child objects are added to HashSet before parent back-reference is set,
     // causing hashCode to change after insertion
-    @JacksonTestFailureExpected
     @Test
     public void testHashSetCorruptionWithBackReferences() throws Exception
     {

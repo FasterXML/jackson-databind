@@ -1572,7 +1572,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * Used by both {@link BeanDeserializer} and
      * {@link BuilderBasedDeserializer} (since 3.2, [databind#1496]).
      */
-    protected Object deserializeWithObjectId(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+    protected Object deserializeWithObjectId(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
         return deserializeFromObject(p, ctxt);
     }
 
@@ -1587,15 +1589,10 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
         // do we have it resolved?
         Object pojo = roid.resolve();
-        if (pojo == null) {
-            // 12-Apr-2026: [databind#2955]: if we are not to fail on unresolved
-            //     Object Ids, return null
-            if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)) {
-                throw new UnresolvedForwardReference(p,
-                        "Could not resolve Object Id ["+id+"] (for "+_beanType+").",
-                        p.currentLocation(), roid);
-            }
-            // fall through
+        if (pojo == null) { // not yet; should wait...
+            throw new UnresolvedForwardReference(p,
+                    "Could not resolve Object Id ["+id+"] (for "+_beanType+").",
+                    p.currentLocation(), roid);
         }
         return pojo;
     }

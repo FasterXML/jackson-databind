@@ -293,6 +293,26 @@ public class ObjectIdDeserializationTest extends DatabindTestUtil
         public Node2955 ref;
     }
 
+    // // // For [databind#2955] / jackson-jaxrs-providers#189: mixed forward, invalid,
+    //       missing and inline references with FAIL_ON_UNRESOLVED_OBJECT_IDS disabled
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "name", scope = Value2955.class)
+    static class Value2955 {
+        public String name;
+        public Integer value;
+    }
+
+    static class Owned2955 {
+        public String name;
+        public Value2955 optionalValue;
+    }
+
+    static class Owner2955 {
+        public List<Owned2955> owned = new ArrayList<>();
+        public List<Value2955> values = new ArrayList<>();
+    }
+
     // // // For ObjectReader + FAIL_ON_UNRESOLVED_OBJECT_IDS [databind#5542]
 
     public static class ReaderWrapper5542 {
@@ -940,5 +960,37 @@ public class ObjectIdDeserializationTest extends DatabindTestUtil
         assertEquals("b", result.ref.name);
         // unresolved id=999 should become null instead of throwing
         assertNull(result.ref.ref);
+    }
+
+    // [databind#2955] / jackson-jaxrs-providers#189: with feature disabled, valid forward
+    // references must still resolve (not get prematurely turned into null), while genuinely
+    // unresolvable scalar references become null.
+    @Test
+    public void testForwardAndUnresolvedScalarObjectIds2955() throws Exception {
+        String json = a2q("{"
+                + "'owned':["
+                + "  {'name':'foo','optionalValue':'vFoo'},"
+                + "  {'name':'bar','optionalValue':'notAValidRef'},"
+                + "  {'name':'baz'},"
+                + "  {'name':'qux','optionalValue':{'name':'vQux','value':3}}"
+                + "],"
+                + "'values':["
+                + "  {'name':'vFoo','value':1},"
+                + "  {'name':'vBar','value':2}"
+                + "]}");
+
+        Owner2955 owner = DISABLED_MAPPER.readValue(json, Owner2955.class);
+
+        assertEquals(4, owner.owned.size());
+        // Forward reference "vFoo" appears later in "values"; must resolve, not be null
+        assertNotNull(owner.owned.get(0).optionalValue);
+        assertEquals(Integer.valueOf(1), owner.owned.get(0).optionalValue.value);
+        // Reference that never appears anywhere -> null (feature disabled)
+        assertNull(owner.owned.get(1).optionalValue);
+        // No reference at all -> null
+        assertNull(owner.owned.get(2).optionalValue);
+        // Inline definition -> resolved directly
+        assertNotNull(owner.owned.get(3).optionalValue);
+        assertEquals(Integer.valueOf(3), owner.owned.get(3).optionalValue.value);
     }
 }

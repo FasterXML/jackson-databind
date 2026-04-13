@@ -362,6 +362,10 @@ Kevin Hogeland (@khogeland)
    with same name results in `UnrecognizedPropertyException`
   [3.2.0]
 
+Davide Maestroni (@davide-maestroni)
+ * Reported #1528: `@JsonTypeInfo` visible property set to `null` in defaultImpl class
+  [3.2.0]
+
 Balys Valentukevicius (@balysv)
  * Reported #1706: `@JsonCreator` not working properly with `@JsonIdentityInfo` when
    deserializing a collection of interfaces (immutables.io compatibility)

@@ -35,6 +35,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
   `MapperFeature.USE_STATIC_TYPING`
  (reported by @garkin)
  (fix by @cowtowncoder, w/ Claude code)
+#1528: `@JsonTypeInfo` visible property set to `null` in defaultImpl class
+ (reported by Davide M)
 #1622: Failure to deserialize child object when using `@JsonIgnoreProperties`
   to break cycle
  (reported by @b-behan)

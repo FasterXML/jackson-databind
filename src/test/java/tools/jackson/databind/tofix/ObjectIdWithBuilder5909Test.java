@@ -16,7 +16,8 @@ import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * [databind#1496]: Forward Object Id references that appear inside a
+ * [databind#5909] (follow-up to [databind#1496]: Forward Object Id references
+ * that appear inside a
  * {@link java.util.Collection}-typed property of a Builder-based type are
  * silently resolved to the Builder instance instead of the built target.
  * <p>
@@ -30,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * requires a separate mechanism to re-bind collection-item references from the
  * builder to the built object.
  */
-class ObjectIdWithBuilder1496Test extends DatabindTestUtil
+class ObjectIdWithBuilder5909Test extends DatabindTestUtil
 {
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonDeserialize(builder = EntityBuilder.class)

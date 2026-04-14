@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * [databind#1496]: Object Ids with builder-based deserialization.
  *<p>
  * NOTE: this test class contains passing tests; there is separate class,
- * {@link tools.jackson.databind.tofix.ObjectIdWithBuilder1496Test}, for
+ * {@link tools.jackson.databind.tofix.ObjectIdWithBuilder5909Test}, for
  * remaining failing cases.
  */
 class ObjectIdWithBuilder1496Test extends DatabindTestUtil

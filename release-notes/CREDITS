@@ -393,6 +393,10 @@ Marcel Overdijk (@marceloverdijk)
  * Suggested #3083: `@JsonIncludeProperties` could be used like `@JsonPropertyOrder`
   [3.2.0]
 
+Christof Tinnes (@chtinnes)
+ * Reported #3169: `@JsonIncludeProperties` does not work together with `@JsonIdentityInfo`
+  [3.2.0]
+
 Auke Schrijnen (@auke-)
  * Reported #3185: `@JsonIdentityInfo` with `@JsonCreator` incorrectly sets a field
   [3.2.0]

@@ -189,4 +189,5 @@ class ObjectIdWithBuilder1496Test extends DatabindTestUtil
             verifyException(e, "Builder-based");
         }
     }
+
 }

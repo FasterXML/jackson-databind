@@ -283,6 +283,18 @@ public class ExistingPropertyTest extends DatabindTestUtil
     private static final List<Car> carList = Arrays.asList(camry, accord);
     private static final String carListJson = "[" + camryJson + "," + accordJson + "]";
 
+    // [databind#1528]
+    @JsonTypeInfo(use = Id.NAME, include = As.EXISTING_PROPERTY,
+            property = "type", visible = true, defaultImpl = Default1528.class)
+    @JsonSubTypes({@Type(value = Child1528.class, name = "child")})
+    static class Parent1528 {
+        @JsonProperty("type")
+        public String type = null;
+    }
+
+    static class Default1528 extends Parent1528 { }
+    static class Child1528 extends Parent1528 { }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -556,4 +568,12 @@ public class ExistingPropertyTest extends DatabindTestUtil
         assertThat(json).contains("\"value\":123.5");
     }
 
+    // [databind#1528]
+    @Test
+    public void testNullTypePreservedWithDefaultImpl1528() throws Exception
+    {
+        String s = MAPPER.writeValueAsString(new Parent1528());
+        Parent1528 parent = MAPPER.readValue(s, Parent1528.class);
+        assertNull(parent.type);
+    }
 }

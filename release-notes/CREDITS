@@ -393,6 +393,10 @@ Marcel Overdijk (@marceloverdijk)
  * Suggested #3083: `@JsonIncludeProperties` could be used like `@JsonPropertyOrder`
   [3.2.0]
 
+Auke Schrijnen (@auke-)
+ * Reported #3185: `@JsonIdentityInfo` with `@JsonCreator` incorrectly sets a field
+  [3.2.0]
+
 Klaas Dellschaft (@klaasdellschaft)
  * Reported #3194: Deserialization of 2-dimensional arrays of final types fails when
    using `DefaultTyping.NON_FINAL`

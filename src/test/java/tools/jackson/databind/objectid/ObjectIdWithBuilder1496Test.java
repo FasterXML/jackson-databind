@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -168,5 +169,24 @@ class ObjectIdWithBuilder1496Test extends DatabindTestUtil
 
         // second.ref -> first (back reference, already built)
         assertSame(first, second.getRef());
+    }
+
+    // [databind#1496]: forward Object Id references are not (yet) supported with
+    // Builder-based deserialization; verify we fail with a clear, actionable error
+    // message instead of silently injecting the builder or throwing something generic.
+    @Test
+    void forwardReferenceReportsClearError() throws Exception
+    {
+        String json = a2q("{'entities':["
+                + "{'id':1,'ref':2,'refs':[]},"
+                + "{'id':2,'refs':[]}"
+                + "]}");
+        try {
+            MAPPER.readValue(json, EntityContainer.class);
+            fail("Expected InvalidDefinitionException for forward reference with Builder");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "Cannot resolve forward Object Id references");
+            verifyException(e, "Builder-based");
+        }
     }
 }

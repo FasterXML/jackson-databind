@@ -11,6 +11,7 @@
     <artifactId>jackson-base</artifactId>
     <version>3.2.0-SNAPSHOT</version>
   </parent>
+
   <groupId>tools.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
   <version>3.2.0-SNAPSHOT</version>

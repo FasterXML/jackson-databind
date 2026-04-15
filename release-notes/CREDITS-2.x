@@ -2017,6 +2017,16 @@ David Nelson (@eatdrinksleepcode)
    `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
   [2.21.2]
 
+Alexey Tsvetkov (@AlexeyTsvetkov)
+ * Reported #5840: Jackson 2.21 throws Conflicting property-based creators if both
+   default (0-arg) and multi-arg constructor annotated
+  [2.21.3]
+
+Kenta Yoshii (@KentaYoshii)
+ * Reported #5898: `DoubleDeserializer` rejects "+INF"/"+Infinity" despite accepting
+   "INF"/"Infinity" and "-INF"/"-Infinity"
+  [2.21.3]
+
 Christian Danner cdadac
  * Reported #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
    are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`

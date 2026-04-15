@@ -200,6 +200,20 @@ public class BuilderBasedDeserializer
         return Boolean.FALSE;
     }
 
+    // [databind#5897]: for builder-based deser, polymorphism is determined by what
+    // `build()` returns vs the declared target type — the builder class itself may
+    // be final while still producing subtypes of a non-final target. Check
+    // `_targetType` (built value type) rather than `_beanType` (builder class).
+    @Override
+    protected boolean _shouldSkipUnknowns(DeserializationContext ctxt) {
+        if (_ignoreAllUnknown) {
+            return true;
+        }
+        return _targetType.isFinal()
+                && ctxt.getConfig().getProblemHandlers() == null
+                && !ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    }
+
     protected Object finishBuild(DeserializationContext ctxt, Object builder)
             throws JacksonException
     {
@@ -369,6 +383,15 @@ public class BuilderBasedDeserializer
             return deserializeFromObjectUsingNonDefault(p, ctxt);
         }
         Object bean = _valueInstantiator.createUsingDefault(ctxt);
+        // [dataformats-text#292]: Handle native Object Ids (e.g. YAML anchors)
+        if (_objectIdReader != null) {
+            if (p.canReadObjectId()) {
+                Object id = p.getObjectId();
+                if (id != null) {
+                    _handleTypedObjectId(p, ctxt, bean, id);
+                }
+            }
+        }
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
@@ -417,12 +440,29 @@ public class BuilderBasedDeserializer
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+
+        // [dataformats-text#22]: Handle native Object Ids (e.g. YAML anchors)
+        if (_objectIdReader != null && p.canReadObjectId()) {
+            Object rawId = p.getObjectId();
+            if (rawId != null) {
+                Object id;
+                ValueDeserializer<Object> idDeser = _objectIdReader.getDeserializer();
+                if (idDeser.handledType() == rawId.getClass()) {
+                    id = rawId;
+                } else {
+                    id = _convertObjectId(p, ctxt, rawId, idDeser);
+                }
+                buffer.assignNativeObjectId(id);
+            }
+        }
+
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
         // 04-Jan-2010, tatu: May need to collect unknown properties for polymorphic cases
         TokenBuffer unknown = null;
 
         JsonToken t = p.currentToken();
+        final boolean skipUnknown = _shouldSkipUnknowns(ctxt);
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             p.nextToken(); // to point to value
@@ -480,6 +520,10 @@ public class BuilderBasedDeserializer
             // "any" property?
             if (_anySetter != null) {
                 buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                continue;
+            }
+            if (skipUnknown) {
+                p.skipChildren();
                 continue;
             }
             // Ok then, let's collect the whole field; name and value

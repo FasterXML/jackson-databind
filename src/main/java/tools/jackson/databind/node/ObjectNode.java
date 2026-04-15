@@ -64,7 +64,7 @@ public class ObjectNode
 
     @Override
     protected String _valueDesc() {
-        return "{...(" + _children.size() + " properties}]";
+        return "{...(" + _children.size() + " properties)}";
     }
 
     /* Question: should this delegate to `JsonNodeFactory`? It does not absolutely

@@ -11,6 +11,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
   failure (unresolved forward reference)
  (reported by Gili T)
  (fix by @cowtowncoder, w/ Claude code)
+#644: Allow skipping writing of type id if type to serialize is `defaultImpl`
+ (implemented by @cowtowncoder, w/ Claude code)
 #1075: `@JsonUnwrapped` fields with matching `@JsonIgnore`d getter
   in outer class are ignored
  (reported by Sylvain G)
@@ -29,9 +31,18 @@ Versions: 3.x (for earlier see VERSION-2.x)
   with same name results in `UnrecognizedPropertyException`
  (reported by Kevin H)
  (fix by @cowtowncoder, w/ Claude code)
+#1496: Support use of Object IDs with Builders
+ (reported by @gary-sedgwick)
+ (fix by @cowtowncoder, w/ Claude code)
 #1515: `@JsonSerialize(Typing.DYNAMIC)` in some cases does not override
   `MapperFeature.USE_STATIC_TYPING`
  (reported by @garkin)
+ (fix by @cowtowncoder, w/ Claude code)
+#1528: `@JsonTypeInfo` visible property set to `null` in defaultImpl class
+ (reported by Davide M)
+#1546: Resolving forward references with `@JsonManagedReference`/
+  `@JsonBackReference` into `Set` may corrupt `hashCode`-based lookups
+ (reported by Niels D)
  (fix by @cowtowncoder, w/ Claude code)
 #1622: Failure to deserialize child object when using `@JsonIgnoreProperties`
   to break cycle
@@ -55,9 +66,15 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #2572: Can't deserialize inner class if default setter is `Nulls.AS_EMPTY`
  (reported by @XakepSDK)
  (fix by @cowtowncoder, w/ Claude code)
+#2736: Unable to deserialize `@JsonUnwrapped` `Optional<>` field
+ (reported by Vitaly B)
+ (fix by @cowtowncoder, w/ Claude code)
 #2780: Deserialization with Default Typing and `@JsonIdentityInfo`
   in untyped collections fails
  (reported by @ alex-t0)
+ (fix by @cowtowncoder, w/ Claude code)
+#2955: Handling UnresolvedForwardReference by pre-processing illegal values
+ (reported by Andrey U)
  (fix by @cowtowncoder, w/ Claude code)
 #3030: Correctly deserialize forward `@JsonIdentityInfo` references
   when using `@JsonCreator`
@@ -74,13 +91,27 @@ Versions: 3.x (for earlier see VERSION-2.x)
   `SerializationFeature.ORDER_SET_ELEMENTS`)
  (requested by @mjustin)
  (implemented by @Lee Jiwon)
+#3169: `@JsonIncludeProperties` does not work together with `@JsonIdentityInfo`
+ (reported by Christof T)
+#3185: `@JsonIdentityInfo` with `@JsonCreator` incorrectly sets a field
+ (reported by Auke S)
 #3194: Deserialization of 2-dimensional arrays of final types fails when
   using `DefaultTyping.NON_FINAL`
  (reported by Klaas D)
  (fix by @cowtowncoder, w/ Claude code)
+#3205: ConfigOverrides for merging are not applied for items inside containers
+ (reported by Daniel G)
+ (fix by @cowtowncoder, w/ Claude code)
 #3216: Delegating `@JsonCreator` does not prevent unnecessary introspection
   of properties, leading to bogus failure
  (reported by @awildturtok)
+ (fix by @cowtowncoder, w/ Claude code)
+#3229: Existing instance of a local/anonymous Class cannot be updated
+ (reported by @avshenuk)
+ (fix by @cowtowncoder, w/ Claude code)
+#3316: Deserialization of a date with `@JsonFormat` specified with locale
+  that is not a language tag
+ (reported by @MarkDavoren)
  (fix by @cowtowncoder, w/ Claude code)
 #3355: Deserialization fails depending on the order of deserialized objects with
   "Cannot construct instance (although at least one Creator exists)"
@@ -94,10 +125,15 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #3604: Allow use of `JsonNode` field for `@JsonAnyGetter`
  (fix by @cowtowncoder, w/ Claude code)
+#4014: No way to combine `@JsonTypeInfo(include = As.PROPERTY)` and
+  `@JsonIdentityInfo(generator = PropertyGenerator.class)`
+ (reported, fix by Knut W)
 #4758: `ConfigOverride` using `Nulls.AS_EMPTY` does not work
   with `@JsonManagedReference`
  (reported by Robert R)
  (fix by @cowtowncoder, w/ Claude code)
+#4983: `JsonTypeInfo.Id.MINIMAL_CLASS` generates invalid type on sub-package
+ (reported, fix by Benoit C-L)
 #5330: `@JsonProperty`on enum values with
   `@JsonFormat(shape = JsonFormat.Shape.NUMBER)` is ignored
  (reported by Christoffer H)
@@ -117,10 +153,59 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (reported by Martin U)
 #5821: Fix dead code and side-effect bug in `BeanPropertyWriter.toString()`
  (fix by @pjfanning)
+#5851: Regression of `JsonTypeInfo.Id.MINIMAL_CLASS` in the 3.x branch
+ (reported by @wrongwrong)
+ (fix by @cowtowncoder, w/ Claude code)
+#5860: Add new extension point for `ObjectMapper`, `ObjectWriter`: handler
+ `GeneratorInitializer` called immediately after `JsonGenerator` created,
+  before used
+(fix by @cowtowncoder, w/ Claude code)
+#5861: Allow injecting `MissingNode` for "absent" `JsonNode` via Creator (with
+  `JsonNodeFeature.MAP_ABSENT_TO_MISSING`)
+ (fix by @cowtowncoder, w/ Claude code)
+#5872: ObjectId resolution with Builder fails for interface types
+  (`UnresolvedForwardReference`)
+ (fix by @cowtowncoder, w/ Claude code)
+#5897: Excessive `TokenBuffer` allocations when deserializing records
+ (fix by Viktor S, w/ Claude code)
+#5911: Deserialization failed with `@JsonUnwrapped` and `@JsonAlias` on
+  a property of the unwrapped type
+ (reported by Lucas C)
+ (fix by @cowtowncoder, w/ Claude code)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 
-3.1.1 (not yet released)
+3.1.3 (not yet released)
+
+#5898: `DoubleDeserializer` rejects "+INF"/"+Infinity" despite accepting
+  "INF"/"Infinity" and "-INF"/"-Infinity"
+ (reported by Kenta Y)
+ (fix by @cowtowncoder)
+
+3.1.2 (11-Apr-2026)
+
+#5857: `TypeFactory._fromParamType` StackOverflowError with mutually recursive
+  generic bounds (regression in 3.1.0, introduced by fix for [databind#5285])
+ (reported by @sylvaindd)
+ (fix by @pjfanning w/ @Copilot)
+#5865: `@JsonIgnoreProperties` does not work alongside
+  `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
+ (reported by Lavender S)
+ (fix by @cowtowncoder, w/ Claude code)
+#5867: Fix `Map.Entry` deserialization for property-level
+  `Shape.NATURAL` override
+ (fixed by Lee Jiwon)
+#5870: `EnumMap` and `EnumSet` properties ignore `@JsonDeserialize(contentConverter)`
+ (fixed by Lee Jiwon)
+#5884: Exception when using `@JsonUnwrapped` alongside with `@JsonAlias`
+  on another property
+ (reported by Aleksandr G)
+ (fix by @cowtowncoder, w/ Claude code)
+#5891: `EnumMapDeserializer._deserializeUsingProperties()` corrupts parser
+  state after skipping unknown enum keys
+ (fixed by Lee Jiwon)
+
+3.1.1 (27-Mar-2026)
 
 #5710: `ObjectWriter` transforms polymorphic types into a tree incompletely
  (reported by Brandon S)
@@ -148,6 +233,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   working with `ObjectMapper.valueToTree()`
  (reported by @pankajxeine)
  (fix by @cowtowncoder, w/ Claude code)
+#5840: Jackson 2.21 throws Conflicting property-based creators if both
+  default (0-arg) and multi-arg constructor annotated
+ (reported by Alexey T)
+ (fix by @pjfanning)
 
 3.1.0 (23-Feb-2026)
 

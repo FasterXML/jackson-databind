@@ -1337,6 +1337,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         for (SettableBeanProperty prop : _beanProperties) {
             names.add(prop.getName());
         }
+        // [databind#5911]: also include alias names so outer bean can route
+        // @JsonAlias-matched properties into this unwrapped deserializer.
+        _beanProperties.collectAliasNames(names);
         if (_unwrappedPropertyHandler != null) {
             _unwrappedPropertyHandler.collectUnwrappedPropertyNamesTo(names);
         }
@@ -1472,12 +1475,17 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
                     return deserializeFromObjectId(p, ctxt);
                 }
                 // but, with 2.5+, a simple Object-wrapped value also legal:
-                if (t == JsonToken.START_OBJECT) {
-                    t = p.nextToken();
-                }
-                if ((t == JsonToken.PROPERTY_NAME) && _objectIdReader.maySerializeAsObject()
-                        && _objectIdReader.isValidReferencePropertyName(p.currentName(), p)) {
-                    return deserializeFromObjectId(p, ctxt);
+                // [databind#4014]: only consume START_OBJECT when Object Id may
+                // actually be serialized as an Object; otherwise we'd advance
+                // past START_OBJECT without consuming the matching END_OBJECT.
+                if (_objectIdReader.maySerializeAsObject()) {
+                    if (t == JsonToken.START_OBJECT) {
+                        t = p.nextToken();
+                    }
+                    if ((t == JsonToken.PROPERTY_NAME)
+                            && _objectIdReader.isValidReferencePropertyName(p.currentName(), p)) {
+                        return deserializeFromObjectId(p, ctxt);
+                    }
                 }
             }
         }
@@ -1507,7 +1515,12 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         }
 
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
-        roid.bindItem(ctxt, pojo);
+        // [dataformats-text#292]: skip if already bound to this object
+        // (may happen with polymorphic builder deserialization where the subtype
+        // deserializer already handled ObjectId binding via finishBuild/updateObjectId)
+        if (roid.resolve() != pojo) {
+            roid.bindItem(ctxt, pojo);
+        }
         // also: may need to set a property value as well
         SettableBeanProperty idProp = _objectIdReader.idProperty;
         if (idProp != null) {
@@ -1529,7 +1542,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      */
     @SuppressWarnings("resource") // TokenBuffers don't need close, nor parser thereof
     protected Object _convertObjectId(JsonParser p, DeserializationContext ctxt,
-            Object rawId, ValueDeserializer<Object> idDeser) throws JacksonException
+            Object rawId, ValueDeserializer<Object> idDeser)
+        throws JacksonException
     {
         TokenBuffer buf = ctxt.bufferForInputBuffering(p);
         if (rawId instanceof String rString) {
@@ -1561,7 +1575,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * Used by both {@link BeanDeserializer} and
      * {@link BuilderBasedDeserializer} (since 3.2, [databind#1496]).
      */
-    protected Object deserializeWithObjectId(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+    protected Object deserializeWithObjectId(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
         return deserializeFromObject(p, ctxt);
     }
 
@@ -1569,7 +1585,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * Method called in cases where it looks like we got an Object Id
      * to parse and use as a reference.
      */
-    protected Object deserializeFromObjectId(JsonParser p, DeserializationContext ctxt) throws JacksonException
+    protected Object deserializeFromObjectId(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         Object id = _objectIdReader.readObjectReference(p, ctxt);
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
@@ -1584,7 +1601,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     protected Object deserializeFromObjectUsingNonDefault(JsonParser p,
-            DeserializationContext ctxt) throws JacksonException
+            DeserializationContext ctxt)
+        throws JacksonException
     {
         // 02-Jul-2024, tatu: [databind#4602] Need to tweak regular and "array" delegating
         //   Creator handling
@@ -1608,6 +1626,11 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         //   inner classes -- with one and only one exception; that of default constructor!
         //   -- so let's indicate it
         Class<?> raw = _beanType.getRawClass();
+        // [databind#3229]: Give a more specific message for local/anonymous classes
+        if (ClassUtil.isLocalType(raw, true) != null) {
+            return ctxt.handleMissingInstantiator(raw, null, p,
+"cannot construct instance of local/anonymous class (consider using `readerForUpdating()` to update an existing instance instead)");
+        }
         if (ClassUtil.isNonStaticInnerClass(raw)) {
             return ctxt.handleMissingInstantiator(raw, null, p,
 "non-static inner classes like this can only by instantiated using default, no-argument constructor");
@@ -1865,6 +1888,30 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     /**
+     * True when unknown properties can be skipped via {@code skipChildren()}
+     * instead of buffered into a {@link TokenBuffer}. The buffer is otherwise
+     * needed for polymorphic replay (tokens unknown to the base may be known
+     * to a resolved subtype) or {@link #handleUnknownProperties}. Returns
+     * true when {@link #_ignoreAllUnknown} is set, or (per [databind#5897])
+     * the bean type is {@code final} (no subtype possible), no
+     * {@link DeserializationProblemHandler}s are registered, and
+     * {@link DeserializationFeature#FAIL_ON_UNKNOWN_PROPERTIES} is disabled.
+     *<p>
+     * May be overridden by subclasses (notably {@code BuilderBasedDeserializer})
+     * where the type relevant to polymorphic replay differs from {@code _beanType}.
+     *
+     * @since 3.2
+     */
+    protected boolean _shouldSkipUnknowns(DeserializationContext ctxt) {
+        if (_ignoreAllUnknown) {
+            return true;
+        }
+        return _beanType.isFinal()
+                && ctxt.getConfig().getProblemHandlers() == null
+                && !ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    }
+
+    /**
      * Helper method called for an unknown property, when using "vanilla"
      * processing.
      *
@@ -1906,6 +1953,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         }
         if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
             handleIgnoredProperty(p, ctxt, beanOrClass, propName);
+            return;
         }
         // Otherwise use default handling (call handler(s); if not
         // handled, throw exception or skip depending on settings)

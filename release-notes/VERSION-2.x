@@ -14,6 +14,22 @@ Project: jackson-databind
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
+2.21.3 (not yet released)
+
+#5840: Jackson 2.21 throws Conflicting property-based creators if both
+  default (0-arg) and multi-arg constructor annotated
+ (reported by Alexey T)
+ (fix by @pjfanning)
+#5870: `EnumMap` and `EnumSet` properties ignore `@JsonDeserialize(contentConverter)`
+ (fixed by Lee Jiwon)
+#5891: `EnumMapDeserializer._deserializeUsingProperties()` corrupts parser
+  state after skipping unknown enum keys
+ (fixed by Lee Jiwon)
+#5898: `DoubleDeserializer` rejects "+INF"/"+Infinity" despite accepting
+  "INF"/"Infinity" and "-INF"/"-Infinity"
+ (reported by Kenta Y)
+ (fix by @cowtowncoder)
+
 2.21.2 (20-Mar-2026)
 
 #5729: (regression due to #5429) ISO-8601 change prevents parsing

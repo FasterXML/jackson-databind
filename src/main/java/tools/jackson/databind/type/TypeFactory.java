@@ -1640,17 +1640,30 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
     }
 
     /**
-     * Helper method to determine if a type parameter is directly self-referential,
-     * meaning its bound references the declaring class itself.
-     * For example, in {@code class Foo<T extends Foo<?>>}, T is self-referential.
-     * This is used to handle recursive wildcard types correctly (see [databind#4118]).
+     * Helper method to determine if a type parameter is self-referential (directly
+     * or via one level of mutual recursion), meaning its bound ultimately references
+     * the declaring class.
      *<p>
-     * NOTE: does NOT check for indirect (nested) self-references: should be rare
-     * in practice but potential concern.
+     * Direct self-reference: {@code class Foo<T extends Foo<?>>} — T's bound IS Foo.
+     *<p>
+     * Mutual (indirect) self-reference: {@code class A<T extends B<?>>} where
+     * {@code class B<U extends A<?,?>>} — T's bound (B) has a TypeVariable (U)
+     * whose bound refers back to A. This is the case introduced by [databind#5857].
+     *<p>
+     * Detecting these cycles prevents infinite recursion in the wildcard bound
+     * resolution added for [databind#5285] (PR #5639), which was the regression
+     * source for [databind#5857]: that code replaces an unbounded wildcard with the
+     * TypeVariable's declared bound, but did not guard against mutually recursive
+     * bound chains.
+     *<p>
+     * NOTE: only checks one level of indirection (A → B → A). Deeper chains
+     * (A → B → C → A) are not handled and remain theoretically possible but are
+     * extremely rare in practice.
      *
      * @param typeVar Type variable to check
      * @param declaringClass The class that declares this type variable
-     * @return {@code true} if the type variable's bound references the declaring class
+     * @return {@code true} if the type variable's bound directly or indirectly
+     *   references the declaring class
      *
      * @since 3.1
      */
@@ -1663,12 +1676,38 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         // Check the first bound (typically the important one)
         Type bound = bounds[0];
 
-        // May be directly the class (raw type bound)
+        // Direct self-reference: bound is the raw declaring class
         if (bound == declaringClass) {
             return true;
         }
 
-        // Or if bound is a ParameterizedType, check if its raw type is the declaring class
-       return (bound instanceof ParameterizedType pt && pt.getRawType() == declaringClass);
+        if (!(bound instanceof ParameterizedType pt)) {
+            return false;
+        }
+
+        // Direct self-reference via parameterized type (e.g. T extends Foo<T>)
+        if (pt.getRawType() == declaringClass) {
+            return true;
+        }
+
+        // [databind#5857] Indirect (mutual) recursion: bound's class itself has
+        // TypeVariables whose bounds reference declaringClass. For example:
+        //   class A<T extends B<?>> and class B<U extends A<?,?>>
+        // T's bound (B) is not A, but B's TypeVariable U has a bound that IS A.
+        // Treating T as self-referential here breaks the infinite recursion cycle
+        // that was introduced by the wildcard-bound resolution in [databind#5285].
+        Class<?> boundClass = (Class<?>) pt.getRawType();
+        for (TypeVariable<?> innerVar : boundClass.getTypeParameters()) {
+            for (Type innerBound : innerVar.getBounds()) {
+                if (innerBound == declaringClass) {
+                    return true;
+                }
+                if (innerBound instanceof ParameterizedType innerPt
+                        && innerPt.getRawType() == declaringClass) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

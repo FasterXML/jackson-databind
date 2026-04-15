@@ -166,9 +166,7 @@ public class BeanDeserializerFactory
         }
         BeanDescription.Supplier builderDescRef = ctxt.lazyIntrospectBeanDescriptionForBuilder(builderType,
                 valueBeanDescRef.get());
-        // 20-Aug-2020, tatu: May want to change at some point to pass "valueBeanDesc"
-        //    too; no urgent need at this point
-        return buildBuilderBasedDeserializer(ctxt, valueType, builderDescRef);
+        return buildBuilderBasedDeserializer(ctxt, valueType, builderDescRef, valueBeanDescRef);
     }
 
     /**
@@ -309,10 +307,28 @@ public class BeanDeserializerFactory
      * Note that implementation is mostly copied from the regular
      * BeanDeserializer build method.
      */
+    /**
+     * @deprecated Since 3.2 use
+     *   {@link #buildBuilderBasedDeserializer(DeserializationContext, JavaType, BeanDescription.Supplier, BeanDescription.Supplier)}
+     *   instead
+     */
+    @Deprecated // since 3.2
     @SuppressWarnings("unchecked")
     protected ValueDeserializer<Object> buildBuilderBasedDeserializer(
     		DeserializationContext ctxt, JavaType valueType,
     		BeanDescription.Supplier builderDescRef)
+    {
+        return buildBuilderBasedDeserializer(ctxt, valueType, builderDescRef, builderDescRef);
+    }
+
+    /**
+     * @since 3.2
+     */
+    @SuppressWarnings("unchecked")
+    protected ValueDeserializer<Object> buildBuilderBasedDeserializer(
+    		DeserializationContext ctxt, JavaType valueType,
+    		BeanDescription.Supplier builderDescRef,
+    		BeanDescription.Supplier valueBeanDescRef)
     {
         // Creators, anyone? (to create builder itself)
         ValueInstantiator valueInstantiator;
@@ -333,7 +349,13 @@ public class BeanDeserializerFactory
         deserBuilder.setValueInstantiator(valueInstantiator);
          // And then "with methods" for deserializing from JSON Object
         addBeanProps(ctxt, builderDescRef, deserBuilder);
+        // [databind#5872]: Try builder class first for ObjectIdReader; if not found,
+        //   fall back to value type (target type) which may have @JsonIdentityInfo
+        //   inherited from an interface or parent class
         addObjectIdReader(ctxt, builderDescRef, deserBuilder);
+        if (deserBuilder.getObjectIdReader() == null) {
+            addObjectIdReader(ctxt, valueBeanDescRef, deserBuilder);
+        }
 
         // managed/back reference fields/setters need special handling... first part
         // [databind#2686]: For Builder pattern, pass target type so that back-reference
@@ -390,6 +412,13 @@ public class BeanDeserializerFactory
             PropertyName propName = objectIdInfo.getPropertyName();
             idProp = deserBuilder.findProperty(propName);
             if (idProp == null) {
+                // [databind#4014]: For abstract types (interfaces, abstract classes),
+                // the builder may not have settable properties (no setter/field).
+                // Concrete subtype deserializers will set up their own ObjectIdReader,
+                // so we can safely skip it here for the abstract type.
+                if (beanDescRef.getType().isAbstract()) {
+                    return;
+                }
                 throw new IllegalArgumentException(String.format(
 "Invalid Object Id definition for %s: cannot find property with name %s",
 ClassUtil.getTypeDescription(beanDescRef.getType()),
@@ -1050,12 +1079,10 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         if (ClassUtil.isProxyType(type)) {
             throw new IllegalArgumentException("Cannot deserialize Proxy class "+type.getName()+" as a Bean");
         }
-        // also: can't deserialize some local classes: static are ok; in-method not;
-        // other non-static inner classes are ok
-        typeStr = ClassUtil.isLocalType(type, true);
-        if (typeStr != null) {
-            throw new IllegalArgumentException("Cannot deserialize Class "+type.getName()+" (of type "+typeStr+") as a Bean");
-        }
+        // [databind#3229]: Local/anonymous classes cannot be instantiated but
+        //   can still be updated via `readerForUpdating()`. So let them through
+        //   here; if actual instantiation is attempted, `ValueInstantiator` will
+        //   fail with a clear error.
         return true;
     }
 

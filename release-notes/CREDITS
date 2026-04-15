@@ -252,10 +252,11 @@ John Hendrikx (@hjohn)
 
 Viktor Szathmáry (@phraktle)
  * Reported #5115: `@JsonUnwrapped` Record deserialization can't handle name collision
- (reported by Viktor S)
   [3.1.0]
  * Reported #5716: `@JsonUnwrapped` properties moved to end in 3.1.0
   [3.1.1]
+ * Fixed #5897: Excessive `TokenBuffer` allocations when deserializing records
+  [3.2.0]
 
 Lee Chan Won (@chanwonlee)
  * Implemented #5223: Java Records missing type information with `DefaultTyping.NON_FINAL`

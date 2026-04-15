@@ -167,7 +167,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
   (`UnresolvedForwardReference`)
  (fix by @cowtowncoder, w/ Claude code)
 #5897: Excessive `TokenBuffer` allocations when deserializing records
- (fix by @phraktle, w/ Claude code)
+ (fix by Viktor S, w/ Claude code)
 #5911: Deserialization failed with `@JsonUnwrapped` and `@JsonAlias` on
   a property of the unwrapped type
  (reported by Lucas C)

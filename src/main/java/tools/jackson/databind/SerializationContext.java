@@ -106,7 +106,7 @@ public abstract class SerializationContext
     /**
      * View used for currently active serialization, if any.
      */
-    protected final Class<?> _activeView;
+    protected Class<?> _activeView;
 
     /*
     /**********************************************************************
@@ -225,13 +225,6 @@ public abstract class SerializationContext
 
         _knownSerializers = src._knownSerializers;
     }
-
-    /*
-    /**********************************************************************
-    /* Life-cycle, factory methods
-    /**********************************************************************
-     */
-    public abstract SerializationContext withConfig(SerializationConfig config);
 
     /*
     /**********************************************************************
@@ -363,6 +356,9 @@ public abstract class SerializationContext
 
     @Override
     public final Class<?> getActiveView() { return _activeView; }
+
+    public final void setActiveView(Class<?> activeView) { _activeView = activeView; }
+
 
     @Override
     public final boolean canOverrideAccessModifiers() {

@@ -687,15 +687,18 @@ public class BeanPropertyWriter
             }
         }
         g.writeName(_name);
-        if (_typeSerializer == null) {
-            ser.serialize(value, g, getContextForAppliedView(ctxt));
-        } else {
-            ser.serializeWithType(value, g, getContextForAppliedView(ctxt), _typeSerializer);
-        }
-    }
 
-    private SerializationContext getContextForAppliedView(SerializationContext context) {
-        return _applyView != null && _applyView != context.getActiveView() ? context.withConfig(context.getConfig().withView(_applyView != JsonApplyView.NONE.class ? _applyView : null)) : context;
+        Class<?> currentActiveView = ctxt.getActiveView();
+        try {
+            ctxt.setActiveView(getAppliedView(ctxt));
+            if (_typeSerializer == null) {
+                ser.serialize(value, g, ctxt);
+            } else {
+                ser.serializeWithType(value, g, ctxt, _typeSerializer);
+            }
+        } finally {
+            ctxt.setActiveView(currentActiveView);
+        }
     }
 
     /**
@@ -759,10 +762,25 @@ public class BeanPropertyWriter
                 return;
             }
         }
-        if (_typeSerializer == null) {
-            ser.serialize(value, g, getContextForAppliedView(ctxt));
+
+        Class<?> currentActiveView = ctxt.getActiveView();
+        try {
+            ctxt.setActiveView(getAppliedView(ctxt));
+            if (_typeSerializer == null) {
+                ser.serialize(value, g, ctxt);
+            } else {
+                ser.serializeWithType(value, g, ctxt, _typeSerializer);
+            }
+        } finally {
+            ctxt.setActiveView(currentActiveView);
+        }
+    }
+
+    private Class<?> getAppliedView(SerializationContext context) {
+        if (_applyView == null) {
+            return context.getActiveView();
         } else {
-            ser.serializeWithType(value, g, getContextForAppliedView(ctxt), _typeSerializer);
+            return _applyView != JsonApplyView.NONE.class ? _applyView : null;
         }
     }
 

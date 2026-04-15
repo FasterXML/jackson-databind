@@ -1,6 +1,13 @@
 package tools.jackson.databind.introspect;
 
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
 import com.fasterxml.jackson.annotation.*;
+
 import tools.jackson.core.Version;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
@@ -10,12 +17,6 @@ import tools.jackson.databind.jsontype.NamedType;
 import tools.jackson.databind.ser.BeanPropertyWriter;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.NameTransformer;
-
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Helper class that allows using 2 introspectors such that one

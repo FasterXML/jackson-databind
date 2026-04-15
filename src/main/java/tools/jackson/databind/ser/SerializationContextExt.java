@@ -59,28 +59,6 @@ public class SerializationContextExt
 
     /*
     /**********************************************************************
-    /* Life-cycle, secondary constructors to support
-    /* "mutant factories", with single property changes
-    /**********************************************************************
-     */
-    private SerializationContextExt(SerializationContextExt src, SerializationConfig config) {
-        super(src._streamFactory, config, src._generatorConfig, src._serializerFactory, src._serializerCache);
-        _seenObjectIds = src._seenObjectIds;
-        _objectIdGenerators = src._objectIdGenerators;
-    }
-
-    /*
-    /**********************************************************************
-    /* Life-cycle, factory methods
-    /**********************************************************************
-     */
-    @Override
-    public SerializationContextExt withConfig(SerializationConfig config) {
-        return (_config == config) ? this : new SerializationContextExt(this, config);
-    }
-
-    /*
-    /**********************************************************************
     /* Abstract method impls, factory methods
     /**********************************************************************
      */
@@ -526,15 +504,6 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
                 SerializationConfig config, GeneratorSettings genSettings,
                 SerializerFactory f, SerializerCache cache) {
             super(streamFactory, config, genSettings, f, cache);
-        }
-
-        private Impl(SerializationContextExt.Impl src, SerializationConfig config) {
-            super(src, config);
-        }
-
-        @Override
-        public SerializationContextExt.Impl withConfig(SerializationConfig config) {
-            return (_config == config) ? this : new SerializationContextExt.Impl(this, config);
         }
     }
 }

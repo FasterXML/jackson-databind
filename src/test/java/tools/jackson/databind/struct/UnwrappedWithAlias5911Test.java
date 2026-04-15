@@ -1,6 +1,8 @@
 package tools.jackson.databind.struct;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
@@ -46,6 +48,27 @@ public class UnwrappedWithAlias5911Test extends DatabindTestUtil {
             "{ \"aa\": \"Hi\", \"b\": \"there\" }", Outer.class);
         assertEquals("Hi", o.inner.c);
         assertEquals("there", o.b);
+    }
+
+    static class CreatorInner {
+        final String c;
+        @JsonCreator
+        CreatorInner(@JsonProperty("c") @JsonAlias("a") String c) {
+            this.c = c;
+        }
+    }
+    static class CreatorOuter {
+        @JsonUnwrapped
+        public CreatorInner inner;
+        public String b;
+    }
+
+    @Test
+    void testCreatorPojoAlias() throws Exception {
+        CreatorOuter o = MAPPER.readValue(
+            "{ \"a\": \"Hello\", \"b\": \"World!\" }", CreatorOuter.class);
+        assertEquals("Hello", o.inner.c);
+        assertEquals("World!", o.b);
     }
 
     @Test

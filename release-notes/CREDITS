@@ -252,10 +252,11 @@ John Hendrikx (@hjohn)
 
 Viktor Szathmáry (@phraktle)
  * Reported #5115: `@JsonUnwrapped` Record deserialization can't handle name collision
- (reported by Viktor S)
   [3.1.0]
  * Reported #5716: `@JsonUnwrapped` properties moved to end in 3.1.0
   [3.1.1]
+ * Fixed #5897: Excessive `TokenBuffer` allocations when deserializing records
+  [3.2.0]
 
 Lee Chan Won (@chanwonlee)
  * Implemented #5223: Java Records missing type information with `DefaultTyping.NON_FINAL`
@@ -393,6 +394,14 @@ Marcel Overdijk (@marceloverdijk)
  * Suggested #3083: `@JsonIncludeProperties` could be used like `@JsonPropertyOrder`
   [3.2.0]
 
+Christof Tinnes (@chtinnes)
+ * Reported #3169: `@JsonIncludeProperties` does not work together with `@JsonIdentityInfo`
+  [3.2.0]
+
+Auke Schrijnen (@auke-)
+ * Reported #3185: `@JsonIdentityInfo` with `@JsonCreator` incorrectly sets a field
+  [3.2.0]
+
 Klaas Dellschaft (@klaasdellschaft)
  * Reported #3194: Deserialization of 2-dimensional arrays of final types fails when
    using `DefaultTyping.NON_FINAL`
@@ -443,4 +452,9 @@ Martin Uhlen (@MartinUhlen)
 David Nelson (@eatdrinksleepcode)
  * Reported #5814: Enum deserialization does not respect
    `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
+  [3.2.0]
+
+Lucas Cloarec (@lucascloarec)
+ * Reported #5911: Deserialization failed with `@JsonUnwrapped` and `@JsonAlias`
+   on a property of the unwrapped type
   [3.2.0]

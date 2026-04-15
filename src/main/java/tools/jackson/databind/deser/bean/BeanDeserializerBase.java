@@ -1337,6 +1337,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         for (SettableBeanProperty prop : _beanProperties) {
             names.add(prop.getName());
         }
+        // [databind#5911]: also include alias names so outer bean can route
+        // @JsonAlias-matched properties into this unwrapped deserializer.
+        _beanProperties.collectAliasNames(names);
         if (_unwrappedPropertyHandler != null) {
             _unwrappedPropertyHandler.collectUnwrappedPropertyNamesTo(names);
         }
@@ -1882,6 +1885,30 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             handleUnknownProperty(bufferParser, ctxt, bean, propName);
         }
         return bean;
+    }
+
+    /**
+     * True when unknown properties can be skipped via {@code skipChildren()}
+     * instead of buffered into a {@link TokenBuffer}. The buffer is otherwise
+     * needed for polymorphic replay (tokens unknown to the base may be known
+     * to a resolved subtype) or {@link #handleUnknownProperties}. Returns
+     * true when {@link #_ignoreAllUnknown} is set, or (per [databind#5897])
+     * the bean type is {@code final} (no subtype possible), no
+     * {@link DeserializationProblemHandler}s are registered, and
+     * {@link DeserializationFeature#FAIL_ON_UNKNOWN_PROPERTIES} is disabled.
+     *<p>
+     * May be overridden by subclasses (notably {@code BuilderBasedDeserializer})
+     * where the type relevant to polymorphic replay differs from {@code _beanType}.
+     *
+     * @since 3.2
+     */
+    protected boolean _shouldSkipUnknowns(DeserializationContext ctxt) {
+        if (_ignoreAllUnknown) {
+            return true;
+        }
+        return _beanType.isFinal()
+                && ctxt.getConfig().getProblemHandlers() == null
+                && !ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     /**

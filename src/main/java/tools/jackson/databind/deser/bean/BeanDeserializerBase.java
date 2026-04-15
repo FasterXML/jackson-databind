@@ -1885,9 +1885,16 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     /**
-     * True when an unknown property may be skipped at the source rather than
-     * buffered: either {@link #_ignoreAllUnknown} is set, or (per [databind#5897])
-     * the bean type is final and unknowns would be silently discarded anyway.
+     * True when unknown properties can be skipped via {@code skipChildren()}
+     * instead of buffered into a {@link TokenBuffer}. The buffer is otherwise
+     * needed for polymorphic replay (tokens unknown to the base may be known
+     * to a resolved subtype) or {@link #handleUnknownProperties}. Returns
+     * true when {@link #_ignoreAllUnknown} is set, or (per [databind#5897])
+     * the bean type is {@code final} (no subtype possible), no
+     * {@link DeserializationProblemHandler}s are registered, and
+     * {@link DeserializationFeature#FAIL_ON_UNKNOWN_PROPERTIES} is disabled.
+     *
+     * @since 3.2
      */
     protected final boolean _shouldSkipUnknowns(DeserializationContext ctxt) {
         if (_ignoreAllUnknown) {

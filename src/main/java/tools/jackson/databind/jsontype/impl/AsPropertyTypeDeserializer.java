@@ -88,6 +88,12 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
              */
             return _deserializeTypedUsingDefaultImpl(p, ctxt, null, _msgForMissingId);
         }
+
+        // [dataformats-text#25]: Capture native Object Id (e.g. YAML anchor)
+        //  at first PROPERTY_NAME position; it may get lost during
+        //  property scanning/buffering below.
+        final Object nativeObjectId = p.canReadObjectId() ? p.getObjectId() : null;
+
         // Ok, let's try to find the property. But first, need token buffer...
         TokenBuffer tb = null;
         final boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
@@ -105,6 +111,11 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             }
             if (tb == null) {
                 tb = ctxt.bufferForInputBuffering(p);
+                // [dataformats-text#25]: Preserve native Object Id in buffered content
+                //  so it is available to BeanDeserializer for Object Id registration
+                if (nativeObjectId != null) {
+                    tb.writeObjectId(nativeObjectId);
+                }
             }
             tb.writeName(name);
             tb.copyCurrentStructure(p);

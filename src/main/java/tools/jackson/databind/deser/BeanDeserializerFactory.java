@@ -166,9 +166,7 @@ public class BeanDeserializerFactory
         }
         BeanDescription.Supplier builderDescRef = ctxt.lazyIntrospectBeanDescriptionForBuilder(builderType,
                 valueBeanDescRef.get());
-        // 20-Aug-2020, tatu: May want to change at some point to pass "valueBeanDesc"
-        //    too; no urgent need at this point
-        return buildBuilderBasedDeserializer(ctxt, valueType, builderDescRef);
+        return buildBuilderBasedDeserializer(ctxt, valueType, builderDescRef, valueBeanDescRef);
     }
 
     /**
@@ -309,10 +307,28 @@ public class BeanDeserializerFactory
      * Note that implementation is mostly copied from the regular
      * BeanDeserializer build method.
      */
+    /**
+     * @deprecated Since 3.2 use
+     *   {@link #buildBuilderBasedDeserializer(DeserializationContext, JavaType, BeanDescription.Supplier, BeanDescription.Supplier)}
+     *   instead
+     */
+    @Deprecated // since 3.2
     @SuppressWarnings("unchecked")
     protected ValueDeserializer<Object> buildBuilderBasedDeserializer(
     		DeserializationContext ctxt, JavaType valueType,
     		BeanDescription.Supplier builderDescRef)
+    {
+        return buildBuilderBasedDeserializer(ctxt, valueType, builderDescRef, builderDescRef);
+    }
+
+    /**
+     * @since 3.2
+     */
+    @SuppressWarnings("unchecked")
+    protected ValueDeserializer<Object> buildBuilderBasedDeserializer(
+    		DeserializationContext ctxt, JavaType valueType,
+    		BeanDescription.Supplier builderDescRef,
+    		BeanDescription.Supplier valueBeanDescRef)
     {
         // Creators, anyone? (to create builder itself)
         ValueInstantiator valueInstantiator;
@@ -333,7 +349,13 @@ public class BeanDeserializerFactory
         deserBuilder.setValueInstantiator(valueInstantiator);
          // And then "with methods" for deserializing from JSON Object
         addBeanProps(ctxt, builderDescRef, deserBuilder);
+        // [databind#5872]: Try builder class first for ObjectIdReader; if not found,
+        //   fall back to value type (target type) which may have @JsonIdentityInfo
+        //   inherited from an interface or parent class
         addObjectIdReader(ctxt, builderDescRef, deserBuilder);
+        if (deserBuilder.getObjectIdReader() == null) {
+            addObjectIdReader(ctxt, valueBeanDescRef, deserBuilder);
+        }
 
         // managed/back reference fields/setters need special handling... first part
         // [databind#2686]: For Builder pattern, pass target type so that back-reference

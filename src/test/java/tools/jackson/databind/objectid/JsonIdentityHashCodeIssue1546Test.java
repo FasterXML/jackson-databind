@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.objectid;
 
 import java.util.*;
 
@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -109,13 +108,14 @@ public class JsonIdentityHashCodeIssue1546Test extends DatabindTestUtil
         public void setProducts(Set<Product> products) { this.products = products; }
     }
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    
     // Test case demonstrating the HashSet corruption issue with @JsonIdentityReference
     // This test case is based on the original issue report and comments
     @Test
     public void testHashSetCorruptionWithIdentityReferences() throws Exception
     {
-        ObjectMapper mapper = newJsonMapper();
-
         // Create test data
         Product p1 = new Product("product-1", "Apple");
         Product p2 = new Product("product-2", "Cherry");
@@ -138,11 +138,11 @@ public class JsonIdentityHashCodeIssue1546Test extends DatabindTestUtil
         root.getOrders().add(order2);
 
         // Serialize
-        String json = mapper.writeValueAsString(root);
+        String json = MAPPER.writeValueAsString(root);
         // System.out.println("JSON: " + json);
 
         // Deserialize
-        Root deserialized = mapper.readValue(json, Root.class);
+        Root deserialized = MAPPER.readValue(json, Root.class);
 
         // Verify products were deserialized
         assertEquals(3, deserialized.getProducts().size());
@@ -231,15 +231,12 @@ public class JsonIdentityHashCodeIssue1546Test extends DatabindTestUtil
         }
     }
 
-    // This test currently FAILS, demonstrating the bug
-    // Child objects are added to HashSet before parent back-reference is set,
+    // This test originally failed, demonstrating the bug.
+    // Child objects were added to HashSet before parent back-reference is set,
     // causing hashCode to change after insertion
-    @JacksonTestFailureExpected
     @Test
     public void testHashSetCorruptionWithBackReferences() throws Exception
     {
-        ObjectMapper mapper = newJsonMapper();
-
         // Create parent with children
         Parent parent = new Parent();
         parent.setId("parent-1");
@@ -259,10 +256,10 @@ public class JsonIdentityHashCodeIssue1546Test extends DatabindTestUtil
         parent.getChildren().add(child2);
 
         // Serialize
-        String json = mapper.writeValueAsString(parent);
+        String json = MAPPER.writeValueAsString(parent);
 
         // Deserialize
-        Parent deserialized = mapper.readValue(json, Parent.class);
+        Parent deserialized = MAPPER.readValue(json, Parent.class);
 
         // Verify children were deserialized
         assertEquals(2, deserialized.getChildren().size());
@@ -270,13 +267,11 @@ public class JsonIdentityHashCodeIssue1546Test extends DatabindTestUtil
         // Get a child from the set
         Child deserializedChild = deserialized.getChildren().iterator().next();
 
-        // THIS IS THE BUG: contains() fails because child's parent reference
+        // THIS WAS THE BUG: contains() would fail because child's parent reference
         // was set AFTER the child was added to the HashSet, changing its hashCode
         assertTrue(deserialized.getChildren().contains(deserializedChild),
-            "HashSet should contain the child - but fails because parent back-reference " +
-            "was set after child was added to the HashSet");
+            "HashSet should contain the child");
 
-        // Remove should also fail
         Set<Child> childrenCopy = new HashSet<>(deserialized.getChildren());
         assertTrue(childrenCopy.remove(deserializedChild),
             "Should be able to remove child from HashSet");

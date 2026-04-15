@@ -1,7 +1,5 @@
 package tools.jackson.databind.objectid;
 
-import java.util.*;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
@@ -26,9 +24,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class NativeObjectIdAndTypeIdTest extends DatabindTestUtil
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper types for Object Id tests
-    /**********************************************************
+    /**********************************************************************
      */
 
     // Simple bean with Object Identity using IntSequenceGenerator
@@ -71,9 +69,9 @@ public class NativeObjectIdAndTypeIdTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper types for Type Id tests
-    /**********************************************************
+    /**********************************************************************
      */
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")
@@ -99,9 +97,9 @@ public class NativeObjectIdAndTypeIdTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper types combining Object Id + Type Id
-    /**********************************************************
+    /**********************************************************************
      */
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
@@ -117,10 +115,16 @@ public class NativeObjectIdAndTypeIdTest extends DatabindTestUtil
         public int extra;
     }
 
+    // Wrapper for verifying Object Id registration via back-reference
+    static class TypedIdNodeWrapper {
+        public TypedIdNode first;
+        public TypedIdNode second;
+    }
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods: Native Object Id
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -224,9 +228,9 @@ public class NativeObjectIdAndTypeIdTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods: Native Type Id
-    /**********************************************************
+    /**********************************************************************
      */
 
     // Native Type Id with AS_PROPERTY -- type id written before START_OBJECT
@@ -309,9 +313,9 @@ public class NativeObjectIdAndTypeIdTest extends DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods: Combined Object Id + Type Id
-    /**********************************************************
+    /**********************************************************************
      */
 
     // Both native Object Id and native Type Id on same object
@@ -341,10 +345,58 @@ public class NativeObjectIdAndTypeIdTest extends DatabindTestUtil
         assertEquals(7, ((TypedIdNodeSub) result).extra);
     }
 
+    // [dataformats-text#25]: Native Object Id must survive property buffering
+    // in AsPropertyTypeDeserializer when the @type property is NOT the first
+    // property (so earlier properties get buffered into a TokenBuffer).
+    @Test
+    public void testNativeObjectIdPreservedDuringTypePropertyBuffering() throws Exception
+    {
+        TokenBuffer buf = new TokenBuffer(null, true);
+        buf.writeStartObject();
+
+        // "first": full object — native Object Id, type as a regular property,
+        //   with @type deliberately NOT the first property to trigger buffering
+        buf.writeName("first");
+        // No writeTypeId() here: type info is a JSON property, not native
+        buf.writeStartObject();
+        buf.writeObjectId(1);       // native Object Id on first PROPERTY_NAME
+        buf.writeName("name");      // buffered (not @type)
+        buf.writeString("buffered");
+        buf.writeName("extra");     // buffered (not @type)
+        buf.writeNumber(42);
+        buf.writeName("@type");     // type property found after buffering
+        buf.writeString("sub");
+        buf.writeEndObject();
+
+        // Clear leaked native Object Id state before writing outer properties.
+        // (TokenBuffer's writeObjectId() persists until explicitly overwritten;
+        //  real format parsers like YAML scope ids per-token automatically.)
+        buf.writeObjectId(null);
+
+        // "second": back-reference that should resolve to the same instance
+        buf.writeName("second");
+        buf.writeNumber(1);         // object id reference
+
+        buf.writeEndObject();
+
+        JsonParser p = buf.asParser(ObjectReadContext.empty());
+        TypedIdNodeWrapper result = MAPPER.readValue(p, TypedIdNodeWrapper.class);
+        p.close();
+        buf.close();
+
+        assertNotNull(result.first);
+        assertInstanceOf(TypedIdNodeSub.class, result.first);
+        assertEquals("buffered", result.first.name);
+        assertEquals(42, ((TypedIdNodeSub) result.first).extra);
+        // Critical: back-reference resolves only if native Object Id
+        // survived the property buffering in AsPropertyTypeDeserializer
+        assertSame(result.first, result.second);
+    }
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods: TokenBuffer parser native id API
-    /**********************************************************
+    /**********************************************************************
      */
 
     // Verify that TokenBuffer parser correctly reports native id capabilities

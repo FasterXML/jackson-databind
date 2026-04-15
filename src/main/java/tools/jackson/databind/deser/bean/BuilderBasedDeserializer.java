@@ -369,6 +369,15 @@ public class BuilderBasedDeserializer
             return deserializeFromObjectUsingNonDefault(p, ctxt);
         }
         Object bean = _valueInstantiator.createUsingDefault(ctxt);
+        // [dataformats-text#292]: Handle native Object Ids (e.g. YAML anchors)
+        if (_objectIdReader != null) {
+            if (p.canReadObjectId()) {
+                Object id = p.getObjectId();
+                if (id != null) {
+                    _handleTypedObjectId(p, ctxt, bean, id);
+                }
+            }
+        }
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }

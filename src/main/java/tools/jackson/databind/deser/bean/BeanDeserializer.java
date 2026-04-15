@@ -706,7 +706,6 @@ public class BeanDeserializer
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         JsonToken t = p.currentToken();
         List<BeanReferring> referrings = null;
-        final boolean isRecord = _beanType.isRecordType();
 
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
@@ -730,9 +729,9 @@ public class BeanDeserializer
                     continue;
                 }
                 // [databind#4629] Need to check for ignored properties for Creator properties since
-                // Records will have a valid 'creatorProp', so if we don't
-                // check for ignore first, the ignore configuration will be bypassed.
-                if (isRecord && IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
+                // so if we don't check for ignore first, the ignore configuration will be bypassed.
+                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                     handleIgnoredProperty(p, ctxt, handledType(), propName);
                     continue;
                 }
@@ -792,6 +791,11 @@ public class BeanDeserializer
                 }
             }
 
+            // [databind#5865] Things marked as ignorable should not be passed to any setter
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
+                continue;
+            }
             // "any property"?
             if (_anySetter != null) {
                 try {
@@ -1191,7 +1195,6 @@ public class BeanDeserializer
         TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
 
-        final boolean isRecord = _beanType.isRecordType();
         boolean hasUnwrappedContent = false;
         JsonToken t = p.currentToken();
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
@@ -1212,9 +1215,9 @@ public class BeanDeserializer
                     continue;
                 }
                 // [databind#4629] Need to check for ignored properties for Creator properties since
-                // Records will have a valid 'creatorProp', so if we don't
-                // check for ignore first, the ignore configuration will be bypassed.
-                if (isRecord && IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
+                // so if we don't check for ignore first, the ignore configuration will be bypassed.
+                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                     handleIgnoredProperty(p, ctxt, handledType(), propName);
                     continue;
                 }

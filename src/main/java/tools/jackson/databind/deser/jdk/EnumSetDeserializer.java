@@ -151,6 +151,8 @@ public class EnumSetDeserializer
         final Boolean unwrapSingle = findFormatFeature(ctxt, property, EnumSet.class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         ValueDeserializer<?> deser = _enumDeserializer;
+        // [databind#5870]: May have a content converter
+        deser = findConvertingContentDeserializer(ctxt, property, deser);
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(_enumType, property);
         } else { // if directly assigned, probably not yet contextual, so:

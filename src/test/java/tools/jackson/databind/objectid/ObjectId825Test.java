@@ -1,6 +1,7 @@
 package tools.jackson.databind.objectid;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -124,6 +125,32 @@ public class ObjectId825Test extends DatabindTestUtil
         private static final long serialVersionUID = 1L;
     }
 
+    // // // [databind#2780]: Default Typing + @JsonIdentityInfo in untyped collections
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    static class User2780 {
+        public int id;
+        public String login;
+
+        public User2780() {}
+        public User2780(int id, String login) {
+            this.id = id;
+            this.login = login;
+        }
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    static class UserContainer2780 {
+        public int id;
+        public User2780 user;
+
+        public UserContainer2780() {}
+        public UserContainer2780(int id, User2780 user) {
+            this.id = id;
+            this.user = user;
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests, simple hierarchy [databind#825]
@@ -223,5 +250,75 @@ public class ObjectId825Test extends DatabindTestUtil
 
         CTC result = mapper.readValue(INPUT, CTC.class);
         assertNotNull(result);
+    }
+
+    /*
+    /**********************************************************************
+    /* Unit tests, default typing + untyped collections [databind#2780]
+    /**********************************************************************
+     */
+
+    // User appears first: back-reference resolves correctly
+    @Test
+    public void testUserFirstThenContainer2780() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .activateDefaultTyping(NoCheckSubTypeValidator.instance, DefaultTyping.NON_FINAL)
+            .build();
+
+        User2780 user = new User2780(42, "cool_man");
+        UserContainer2780 container = new UserContainer2780(1, user);
+
+        List<Object> list = new ArrayList<>();
+        list.add(user);
+        list.add(container);
+
+        String json = mapper.writeValueAsString(list);
+        List<?> result = mapper.readValue(json, List.class);
+
+        assertEquals(2, result.size());
+        assertInstanceOf(User2780.class, result.get(0), "First element should be User2780");
+        assertInstanceOf(UserContainer2780.class, result.get(1), "Second element should be UserContainer2780");
+
+        User2780 resultUser = (User2780) result.get(0);
+        UserContainer2780 resultContainer = (UserContainer2780) result.get(1);
+
+        assertEquals(42, resultUser.id);
+        assertEquals("cool_man", resultUser.login);
+        assertSame(resultUser, resultContainer.user,
+            "Back-reference in container should point to the same User2780 instance");
+    }
+
+    // [databind#2780]: Container appears first, bare id back-reference must resolve with type info
+    @Test
+    public void testContainerFirstThenUser2780() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .activateDefaultTyping(NoCheckSubTypeValidator.instance, DefaultTyping.NON_FINAL)
+            .build();
+
+        User2780 user = new User2780(42, "cool_man");
+        UserContainer2780 container = new UserContainer2780(1, user);
+
+        List<Object> list = new ArrayList<>();
+        list.add(container);
+        list.add(user);
+
+        String json = mapper.writeValueAsString(list);
+        List<?> result = mapper.readValue(json, List.class);
+
+        assertEquals(2, result.size());
+        assertInstanceOf(UserContainer2780.class, result.get(0),
+            "First element should be UserContainer2780");
+        assertInstanceOf(User2780.class, result.get(1),
+            "Second element should be User2780 (not Integer) -- bare id back-reference must be resolved with type info");
+
+        UserContainer2780 resultContainer = (UserContainer2780) result.get(0);
+        User2780 resultUser = (User2780) result.get(1);
+
+        assertEquals(42, resultUser.id);
+        assertEquals("cool_man", resultUser.login);
+        assertSame(resultUser, resultContainer.user,
+            "Container's user field and the list's second element should be the same instance");
     }
 }

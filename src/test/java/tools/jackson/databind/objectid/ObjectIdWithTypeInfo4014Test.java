@@ -1,12 +1,10 @@
 package tools.jackson.databind.objectid;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -111,6 +109,114 @@ public class ObjectIdWithTypeInfo4014Test extends DatabindTestUtil
         @Override @JsonProperty("@id") public Integer getId() { return id; }
         public WrapFoo getFoo() { return foo; }
         public void setFoo(WrapFoo foo) { this.foo = foo; }
+    }
+
+    // // // [databind#5872]: ObjectId with type info, interface/class base type, +/- builder
+
+    static class Container5872 {
+        @JsonProperty
+        public List<Base5872> list;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+    @JsonSubTypes({@JsonSubTypes.Type(name = "Derived", value = Derived5872.class)})
+    @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
+    interface Base5872 {
+    }
+
+    static class Derived5872 implements Base5872 {
+        @JsonProperty
+        public String a;
+    }
+
+    static class ContainerWithClass5872 {
+        @JsonProperty
+        public List<BaseClass5872> list;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+    @JsonSubTypes({@JsonSubTypes.Type(name = "DerivedFromClass", value = DerivedFromClass5872.class)})
+    @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
+    static class BaseClass5872 {
+    }
+
+    static class DerivedFromClass5872 extends BaseClass5872 {
+        @JsonProperty
+        public String a;
+    }
+
+    static class ContainerInterfaceWithBuilder5872 {
+        @JsonProperty
+        public List<BaseWithBuilder5872> list;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+    @JsonSubTypes({@JsonSubTypes.Type(name = "DerivedWithBuilder", value = DerivedWithBuilder5872.class)})
+    @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class,
+            resolver = SimpleObjectIdResolver.class)
+    interface BaseWithBuilder5872 {
+    }
+
+    @tools.jackson.databind.annotation.JsonDeserialize(builder = DerivedWithBuilder5872.DerivedBuilder.class)
+    static class DerivedWithBuilder5872 implements BaseWithBuilder5872 {
+        @JsonProperty
+        public String a;
+
+        DerivedWithBuilder5872(String a) {
+            this.a = a;
+        }
+
+        @tools.jackson.databind.annotation.JsonPOJOBuilder(withPrefix = "", buildMethodName = "build")
+        public static class DerivedBuilder {
+            private String a;
+
+            @JsonProperty
+            public DerivedBuilder a(String a) {
+                this.a = a;
+                return this;
+            }
+
+            public DerivedWithBuilder5872 build() {
+                return new DerivedWithBuilder5872(this.a);
+            }
+        }
+    }
+
+    static class ContainerClassWithBuilder5872 {
+        @JsonProperty
+        public List<BaseClassWithBuilder5872> list;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+    @JsonSubTypes({@JsonSubTypes.Type(name = "DerivedClassBuilder", value = DerivedClassWithBuilder5872.class)})
+    @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class,
+            resolver = SimpleObjectIdResolver.class)
+    static class BaseClassWithBuilder5872 {
+    }
+
+    @tools.jackson.databind.annotation.JsonDeserialize(builder = DerivedClassWithBuilder5872.DerivedBuilder.class)
+    static class DerivedClassWithBuilder5872 extends BaseClassWithBuilder5872 {
+        @JsonProperty
+        public String a;
+
+        DerivedClassWithBuilder5872(String a) {
+            this.a = a;
+        }
+
+        @tools.jackson.databind.annotation.JsonPOJOBuilder(withPrefix = "", buildMethodName = "build")
+        public static class DerivedBuilder {
+            private String a;
+
+            @JsonProperty
+            public DerivedBuilder a(String a) {
+                this.a = a;
+                return this;
+            }
+
+            public DerivedClassWithBuilder5872 build() {
+                return new DerivedClassWithBuilder5872(this.a);
+            }
+        }
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -218,5 +324,95 @@ public class ObjectIdWithTypeInfo4014Test extends DatabindTestUtil
         assertNotNull(resultFoo.getBar());
         assertEquals(2, resultFoo.getBar().getId());
         assertSame(resultFoo, resultFoo.getBar().getFoo());
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, ObjectId + type info + interface/class base [databind#5872]
+    /**********************************************************
+     */
+
+    // [databind#5872]: ObjectId with interface base type (no builder)
+    @Test
+    public void testObjectIdWithInterfaceBaseType5872() throws Exception
+    {
+        String json = a2q("{'list':["
+                + "{'@type':'Derived','@id':'id1','a':'foo'},"
+                + "'id1'"
+                + "]}");
+        Container5872 container = MAPPER.readValue(json, Container5872.class);
+        assertNotNull(container);
+        assertNotNull(container.list);
+        assertEquals(2, container.list.size());
+
+        Base5872 first = container.list.get(0);
+        assertEquals(Derived5872.class, first.getClass());
+        assertEquals("foo", ((Derived5872) first).a);
+
+        Base5872 second = container.list.get(1);
+        assertSame(first, second);
+    }
+
+    // [databind#5872]: ObjectId with class base type (no builder)
+    @Test
+    public void testObjectIdWithClassBaseType5872() throws Exception
+    {
+        String json = a2q("{'list':["
+                + "{'@type':'DerivedFromClass','@id':'id1','a':'foo'},"
+                + "'id1'"
+                + "]}");
+        ContainerWithClass5872 container = MAPPER.readValue(json, ContainerWithClass5872.class);
+        assertNotNull(container);
+        assertNotNull(container.list);
+        assertEquals(2, container.list.size());
+
+        BaseClass5872 first = container.list.get(0);
+        assertEquals(DerivedFromClass5872.class, first.getClass());
+        assertEquals("foo", ((DerivedFromClass5872) first).a);
+
+        BaseClass5872 second = container.list.get(1);
+        assertSame(first, second);
+    }
+
+    // [databind#5872]: ObjectId with interface base type + builder
+    @Test
+    public void testObjectIdWithInterfaceAndBuilder5872() throws Exception
+    {
+        String json = a2q("{'list':["
+                + "{'@type':'DerivedWithBuilder','@id':'id1','a':'foo'},"
+                + "'id1'"
+                + "]}");
+        ContainerInterfaceWithBuilder5872 container = MAPPER.readValue(json, ContainerInterfaceWithBuilder5872.class);
+        assertNotNull(container);
+        assertNotNull(container.list);
+        assertEquals(2, container.list.size());
+
+        BaseWithBuilder5872 first = container.list.get(0);
+        assertEquals(DerivedWithBuilder5872.class, first.getClass());
+        assertEquals("foo", ((DerivedWithBuilder5872) first).a);
+
+        BaseWithBuilder5872 second = container.list.get(1);
+        assertSame(first, second);
+    }
+
+    // [databind#5872]: ObjectId with class base type + builder
+    @Test
+    public void testObjectIdWithClassAndBuilder5872() throws Exception
+    {
+        String json = a2q("{'list':["
+                + "{'@type':'DerivedClassBuilder','@id':'id1','a':'foo'},"
+                + "'id1'"
+                + "]}");
+        ContainerClassWithBuilder5872 container = MAPPER.readValue(json, ContainerClassWithBuilder5872.class);
+        assertNotNull(container);
+        assertNotNull(container.list);
+        assertEquals(2, container.list.size());
+
+        BaseClassWithBuilder5872 first = container.list.get(0);
+        assertEquals(DerivedClassWithBuilder5872.class, first.getClass());
+        assertEquals("foo", ((DerivedClassWithBuilder5872) first).a);
+
+        BaseClassWithBuilder5872 second = container.list.get(1);
+        assertSame(first, second);
     }
 }

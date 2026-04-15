@@ -200,6 +200,20 @@ public class BuilderBasedDeserializer
         return Boolean.FALSE;
     }
 
+    // [databind#5897]: for builder-based deser, polymorphism is determined by what
+    // `build()` returns vs the declared target type — the builder class itself may
+    // be final while still producing subtypes of a non-final target. Check
+    // `_targetType` (built value type) rather than `_beanType` (builder class).
+    @Override
+    protected boolean _shouldSkipUnknowns(DeserializationContext ctxt) {
+        if (_ignoreAllUnknown) {
+            return true;
+        }
+        return _targetType.isFinal()
+                && ctxt.getConfig().getProblemHandlers() == null
+                && !ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    }
+
     protected Object finishBuild(DeserializationContext ctxt, Object builder)
             throws JacksonException
     {
@@ -446,9 +460,9 @@ public class BuilderBasedDeserializer
 
         // 04-Jan-2010, tatu: May need to collect unknown properties for polymorphic cases
         TokenBuffer unknown = null;
-        final boolean skipUnknown = _shouldSkipUnknowns(ctxt);
 
         JsonToken t = p.currentToken();
+        final boolean skipUnknown = _shouldSkipUnknowns(ctxt);
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             p.nextToken(); // to point to value

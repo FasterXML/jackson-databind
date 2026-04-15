@@ -1893,10 +1893,13 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * the bean type is {@code final} (no subtype possible), no
      * {@link DeserializationProblemHandler}s are registered, and
      * {@link DeserializationFeature#FAIL_ON_UNKNOWN_PROPERTIES} is disabled.
+     *<p>
+     * May be overridden by subclasses (notably {@code BuilderBasedDeserializer})
+     * where the type relevant to polymorphic replay differs from {@code _beanType}.
      *
      * @since 3.2
      */
-    protected final boolean _shouldSkipUnknowns(DeserializationContext ctxt) {
+    protected boolean _shouldSkipUnknowns(DeserializationContext ctxt) {
         if (_ignoreAllUnknown) {
             return true;
         }

@@ -452,3 +452,8 @@ David Nelson (@eatdrinksleepcode)
  * Reported #5814: Enum deserialization does not respect
    `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
   [3.2.0]
+
+Lucas Cloarec (@lucascloarec)
+ * Reported #5911: Deserialization failed with `@JsonUnwrapped` and `@JsonAlias`
+   on a property of the unwrapped type
+  [3.2.0]

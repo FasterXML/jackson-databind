@@ -166,6 +166,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5872: ObjectId resolution with Builder fails for interface types
   (`UnresolvedForwardReference`)
  (fix by @cowtowncoder, w/ Claude code)
+#5911: Deserialization failed with `@JsonUnwrapped` and `@JsonAlias` on
+  a property of the unwrapped type
+ (reported by Lucas C)
+ (fix by @cowtowncoder, w/ Claude code)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 

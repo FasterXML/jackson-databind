@@ -284,6 +284,35 @@ public class ObjectIdDeserializationTest extends DatabindTestUtil
         public int hashCode() { return name.hashCode(); }
     }
 
+    // // // For [databind#2955]: unresolved scalar Object Id with FAIL_ON_UNRESOLVED_OBJECT_IDS disabled
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    static class Node2955 {
+        public int id;
+        public String name;
+        public Node2955 ref;
+    }
+
+    // // // For [databind#2955] / jackson-jaxrs-providers#189: mixed forward, invalid,
+    //       missing and inline references with FAIL_ON_UNRESOLVED_OBJECT_IDS disabled
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "name", scope = Value2955.class)
+    static class Value2955 {
+        public String name;
+        public Integer value;
+    }
+
+    static class Owned2955 {
+        public String name;
+        public Value2955 optionalValue;
+    }
+
+    static class Owner2955 {
+        public List<Owned2955> owned = new ArrayList<>();
+        public List<Value2955> values = new ArrayList<>();
+    }
+
     // // // For ObjectReader + FAIL_ON_UNRESOLVED_OBJECT_IDS [databind#5542]
 
     public static class ReaderWrapper5542 {
@@ -897,5 +926,71 @@ public class ObjectIdDeserializationTest extends DatabindTestUtil
             assertNotNull(wrapper.node);
             assertSame(wrapper.node, wrapper.node.next.node);
         }
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, [databind#2955]: unresolved scalar Object Ids
+    /**********************************************************
+     */
+
+    // [databind#2955]: default behavior should throw on unresolved scalar Object Id
+    @Test
+    public void testUnresolvedScalarObjectIdFails2955() throws Exception {
+        // Node with id=1 references node with id=999 which doesn't exist
+        String json = a2q("{'id':1,'name':'a','ref':{'id':2,'name':'b','ref':999}}");
+
+        try {
+            MAPPER.readValue(json, Node2955.class);
+            fail("Should have thrown UnresolvedForwardReference");
+        } catch (UnresolvedForwardReference e) {
+            verifyException(e, "Object id");
+        }
+    }
+
+    // [databind#2955]: with feature disabled, unresolved scalar Object Id should become null
+    @Test
+    public void testUnresolvedScalarObjectIdAsNull2955() throws Exception {
+        String json = a2q("{'id':1,'name':'a','ref':{'id':2,'name':'b','ref':999}}");
+
+        Node2955 result = DISABLED_MAPPER.readValue(json, Node2955.class);
+        assertNotNull(result);
+        assertEquals("a", result.name);
+        assertNotNull(result.ref);
+        assertEquals("b", result.ref.name);
+        // unresolved id=999 should become null instead of throwing
+        assertNull(result.ref.ref);
+    }
+
+    // [databind#2955] / jackson-jaxrs-providers#189: with feature disabled, valid forward
+    // references must still resolve (not get prematurely turned into null), while genuinely
+    // unresolvable scalar references become null.
+    @Test
+    public void testForwardAndUnresolvedScalarObjectIds2955() throws Exception {
+        String json = a2q("{"
+                + "'owned':["
+                + "  {'name':'foo','optionalValue':'vFoo'},"
+                + "  {'name':'bar','optionalValue':'notAValidRef'},"
+                + "  {'name':'baz'},"
+                + "  {'name':'qux','optionalValue':{'name':'vQux','value':3}}"
+                + "],"
+                + "'values':["
+                + "  {'name':'vFoo','value':1},"
+                + "  {'name':'vBar','value':2}"
+                + "]}");
+
+        Owner2955 owner = DISABLED_MAPPER.readValue(json, Owner2955.class);
+
+        assertEquals(4, owner.owned.size());
+        // Forward reference "vFoo" appears later in "values"; must resolve, not be null
+        assertNotNull(owner.owned.get(0).optionalValue);
+        assertEquals(Integer.valueOf(1), owner.owned.get(0).optionalValue.value);
+        // Reference that never appears anywhere -> null (feature disabled)
+        assertNull(owner.owned.get(1).optionalValue);
+        // No reference at all -> null
+        assertNull(owner.owned.get(2).optionalValue);
+        // Inline definition -> resolved directly
+        assertNotNull(owner.owned.get(3).optionalValue);
+        assertEquals(Integer.valueOf(3), owner.owned.get(3).optionalValue.value);
     }
 }

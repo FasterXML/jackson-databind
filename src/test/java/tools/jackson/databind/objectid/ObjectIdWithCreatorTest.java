@@ -134,6 +134,24 @@ public class ObjectIdWithCreatorTest extends DatabindTestUtil
         public void setId(String v) { _setterId = v; }
     }
 
+    // // // [databind#3185]: PropertyGenerator + @JsonCreator must not overwrite
+    // // //                   final field after construction
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    static class Pojo3185 {
+        private final String fieldForId;
+
+        @JsonCreator
+        public Pojo3185(@JsonProperty("id") String fieldForId) {
+            this.fieldForId = fieldForId + "-from-constructor";
+        }
+
+        @JsonGetter("id")
+        public String getFieldForId() {
+            return fieldForId;
+        }
+    }
+
     // // // [databind#3030]: Forward reference with @JsonCreator
 
     static class ContainerABC3030 {
@@ -347,6 +365,23 @@ public class ObjectIdWithCreatorTest extends DatabindTestUtil
         assertNotNull(result);
         assertEquals("myId", result._id,
             "Incorrect creator-passed-id (setter id: ["+result._setterId+"])");
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, PropertyGenerator + @JsonCreator [databind#3185]
+    /**********************************************************
+     */
+
+    // [databind#3185]: value computed in creator must be preserved; id field
+    // must NOT be written to after construction (breaks final fields + GraalVM
+    // native image). Fixed as a side-effect of [databind#5238].
+    @Test
+    public void testCreatorValuePreservedWithIdentityInfo3185() throws Exception
+    {
+        Pojo3185 result = MAPPER.readValue(
+                a2q("{'id': 'valueFromJson'}"), Pojo3185.class);
+        assertEquals("valueFromJson-from-constructor", result.getFieldForId());
     }
 
     /*

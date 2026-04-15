@@ -96,7 +96,17 @@ public class MapDeserializer
      * Flag used to check, whether the {@link tools.jackson.core.StreamReadCapability#DUPLICATE_PROPERTIES}
      * can be applied, because the Map has declared value type of {@code java.lang.Object}.
      */
-    protected boolean _checkDupSquash;
+    protected final boolean _checkDupSquash;
+
+    /**
+     * Flag that indicates whether value merging should be applied when
+     * deserializing content (Map values) during Map merge operation.
+     * Set to {@code false} when content type has ConfigOverride with
+     * {@code mergeable = false}.
+     *
+     * @since 3.2
+     */
+    protected final boolean _mergeValues;
 
     /*
     /**********************************************************************
@@ -119,6 +129,7 @@ public class MapDeserializer
         _standardStringKey = _isStdKeyDeser(mapType, keyDeser);
         _inclusionChecker = null;
         _checkDupSquash = mapType.getContentType().hasRawClass(Object.class);
+        _mergeValues = true;
     }
 
     /**
@@ -142,6 +153,7 @@ public class MapDeserializer
 
         _standardStringKey = src._standardStringKey;
         _checkDupSquash = src._checkDupSquash;
+        _mergeValues = src._mergeValues;
     }
 
     protected MapDeserializer(MapDeserializer src,
@@ -177,6 +189,29 @@ public class MapDeserializer
 
         _standardStringKey = _isStdKeyDeser(_containerType, keyDeser);
         _checkDupSquash = src._checkDupSquash;
+        _mergeValues = src._mergeValues;
+    }
+
+    /**
+     * @since 3.2
+     */
+    protected MapDeserializer(MapDeserializer src, boolean mergeValues)
+    {
+        super(src);
+        _keyDeserializer = src._keyDeserializer;
+        _valueDeserializer = src._valueDeserializer;
+        _valueTypeDeserializer = src._valueTypeDeserializer;
+        _valueInstantiator = src._valueInstantiator;
+        _propertyBasedCreator = src._propertyBasedCreator;
+        _delegateDeserializer = src._delegateDeserializer;
+        _hasDefaultCreator = src._hasDefaultCreator;
+        _ignorableProperties = src._ignorableProperties;
+        _includableProperties = src._includableProperties;
+        _inclusionChecker = src._inclusionChecker;
+
+        _standardStringKey = src._standardStringKey;
+        _checkDupSquash = src._checkDupSquash;
+        _mergeValues = mergeValues;
     }
 
     /**
@@ -208,6 +243,16 @@ public class MapDeserializer
         return new MapDeserializer(this,
                 keyDeser, (ValueDeserializer<Object>) valueDeser, valueTypeDeser,
                 nuller, ignorable, includable);
+    }
+
+    /**
+     * @since 3.2
+     */
+    protected MapDeserializer withMergeValues(boolean mergeValues) {
+        if (_mergeValues == mergeValues) {
+            return this;
+        }
+        return new MapDeserializer(this, mergeValues);
     }
 
     /**
@@ -349,8 +394,14 @@ public class MapDeserializer
                 }
             }
         }
-        return withResolved(keyDeser, vtd, valueDeser,
+        MapDeserializer deser = withResolved(keyDeser, vtd, valueDeser,
                 findContentNullProvider(ctxt, property, valueDeser), ignored, included);
+        // [databind#3205]: Check if content type has mergeable disabled
+        Boolean contentMergeable = ctxt.getConfig().getDefaultMergeable(vt.getRawClass());
+        if (Boolean.FALSE.equals(contentMergeable)) {
+            deser = deser.withMergeValues(false);
+        }
+        return deser;
     }
 
     /*
@@ -771,7 +822,9 @@ public class MapDeserializer
                     result.put(key, _nullProvider.getNullValue(ctxt));
                     continue;
                 }
-                Object old = result.get(key);
+                // [databind#3205]: Only attempt to merge content values if
+                // content type's ConfigOverride allows it
+                Object old = _mergeValues ? result.get(key) : null;
                 Object value;
                 if (old != null) {
                     if (typeDeser == null) {
@@ -841,7 +894,9 @@ public class MapDeserializer
                     result.put(key, _nullProvider.getNullValue(ctxt));
                     continue;
                 }
-                Object old = result.get(key);
+                // [databind#3205]: Only attempt to merge content values if
+                // content type's ConfigOverride allows it
+                Object old = _mergeValues ? result.get(key) : null;
                 Object value;
                 if (old != null) {
                     if (typeDeser == null) {

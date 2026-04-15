@@ -1337,6 +1337,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         for (SettableBeanProperty prop : _beanProperties) {
             names.add(prop.getName());
         }
+        // [databind#5911]: also include alias names so outer bean can route
+        // @JsonAlias-matched properties into this unwrapped deserializer.
+        _beanProperties.collectAliasNames(names);
         if (_unwrappedPropertyHandler != null) {
             _unwrappedPropertyHandler.collectUnwrappedPropertyNamesTo(names);
         }

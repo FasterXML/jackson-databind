@@ -146,6 +146,21 @@ public class ObjectIdSerializationTest extends DatabindTestUtil
         }
     }
 
+    // // // [databind#3169]: @JsonIncludeProperties + @JsonIdentityInfo
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "deviceId")
+    static class Device3169 {
+        public java.util.UUID deviceId;
+        public String name;
+        public String category;
+    }
+
+    static class Config3169 {
+        @JsonIncludeProperties({"name"})
+        public Device3169 device;
+        public Device3169 deviceAgain;
+    }
+
     // // // Error case
 
     // no "id" property
@@ -447,6 +462,33 @@ public class ObjectIdSerializationTest extends DatabindTestUtil
         } catch (DatabindException e) {
             fail("Should not have duplicates, but JSON content has: "+json);
         }
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, @JsonIncludeProperties + @JsonIdentityInfo [databind#3169]
+    /**********************************************************
+     */
+
+    // [databind#3169]: @JsonIncludeProperties at reference site should narrow
+    // properties of the identity-info'd target, not collapse it to just the id.
+    @Test
+    public void testIncludePropertiesWithIdentityInfo3169() throws Exception
+    {
+        Device3169 d = new Device3169();
+        d.deviceId = java.util.UUID.fromString("b16c3254-ee2e-11e7-8c3f-fa085a82f01f");
+        d.name = "Thermostat";
+        d.category = "HVAC";
+        Config3169 c = new Config3169();
+        c.device = d;
+        // second reference verifies identity-info is actually engaged
+        c.deviceAgain = d;
+
+        String json = MAPPER.writeValueAsString(c);
+        // First occurrence should honor @JsonIncludeProperties({"name"}) — only
+        // "name", and importantly NOT collapsed to just the deviceId string.
+        assertTrue(json.contains("\"device\":{\"name\":\"Thermostat\"}"),
+                "Expected narrowed first occurrence, got: " + json);
     }
 
     /*

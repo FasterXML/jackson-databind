@@ -31,6 +31,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   with same name results in `UnrecognizedPropertyException`
  (reported by Kevin H)
  (fix by @cowtowncoder, w/ Claude code)
+#1496: Support use of Object IDs with Builders
+ (reported by @gary-sedgwick)
+ (fix by @cowtowncoder, w/ Claude code)
 #1515: `@JsonSerialize(Typing.DYNAMIC)` in some cases does not override
   `MapperFeature.USE_STATIC_TYPING`
  (reported by @garkin)
@@ -88,6 +91,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   `SerializationFeature.ORDER_SET_ELEMENTS`)
  (requested by @mjustin)
  (implemented by @Lee Jiwon)
+#3169: `@JsonIncludeProperties` does not work together with `@JsonIdentityInfo`
+ (reported by Christof T)
+#3185: `@JsonIdentityInfo` with `@JsonCreator` incorrectly sets a field
+ (reported by Auke S)
 #3194: Deserialization of 2-dimensional arrays of final types fails when
   using `DefaultTyping.NON_FINAL`
  (reported by Klaas D)

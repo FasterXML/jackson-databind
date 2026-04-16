@@ -451,12 +451,27 @@ public class ExternalTypeHandler
             _beanType = t;
         }
 
-        public void addExternal(SettableBeanProperty property, TypeDeserializer typeDeser)
+        public void addExternal(SettableBeanProperty property, TypeDeserializer typeDeser) {
+            addExternal(property, typeDeser, null);
+        }
+
+        /**
+         * Variant that also accepts aliases of the value property, so that an
+         * external type id can resolve value via an aliased property name.
+         */
+        // [databind#3209]
+        public void addExternal(SettableBeanProperty property, TypeDeserializer typeDeser,
+                List<PropertyName> valueAliases)
         {
             Integer index = _properties.size();
             _properties.add(new ExtTypedProperty(property, typeDeser));
             _addPropertyIndex(property.getName(), index);
             _addPropertyIndex(typeDeser.getPropertyName(), index);
+            if (valueAliases != null) {
+                for (PropertyName alias : valueAliases) {
+                    _addPropertyIndex(alias.getSimpleName(), index);
+                }
+            }
         }
 
         private void _addPropertyIndex(String name, Integer index) {

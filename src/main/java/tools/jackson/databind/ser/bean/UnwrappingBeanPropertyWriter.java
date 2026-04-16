@@ -77,6 +77,10 @@ public class UnwrappingBeanPropertyWriter
         return true;
     }
 
+    public NameTransformer getNameTransformer() {
+        return _nameTransformer;
+    }
+
     @Override
     public void serializeAsProperty(Object bean, JsonGenerator gen, SerializationContext prov)
         throws Exception

@@ -12,6 +12,7 @@ import tools.jackson.databind.cfg.SerializerFactoryConfig;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.ser.bean.UnwrappingBeanPropertyWriter;
 import tools.jackson.databind.ser.impl.FilteredBeanPropertyWriter;
 import tools.jackson.databind.ser.impl.ObjectIdWriter;
 import tools.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
@@ -341,6 +342,12 @@ public class BeanSerializerFactory
         // [databind#5615]: Must be done after filterBeanProperties() so that
         //   @JsonIgnoreProperties-ignored properties are excluded first
         _verifyNoTypeIdPropertyConflict(ctxt, beanDescRef, props);
+
+        // [databind#2883]: Check for property name conflicts between
+        //   unwrapped properties and regular bean properties
+        if (_hasUnwrappedProperties(props)) {
+            _verifyNoUnwrappedPropertyConflict(ctxt, props);
+        }
 
         // Need to allow reordering of properties to serialize
         if (_factoryConfig.hasSerializerModifiers()) {
@@ -838,6 +845,70 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
 "Conflict between type id property '%s' and bean property with same name; "
 +"consider using `JsonTypeInfo.As.EXISTING_PROPERTY` to avoid duplication",
                         n));
+            }
+        }
+    }
+
+    /**
+     * Quick check to see if any properties use {@code @JsonUnwrapped};
+     * used to avoid heavier-weight {@link #_verifyNoUnwrappedPropertyConflict}
+     * processing when not needed.
+     *
+     * @since 3.2
+     */
+    protected boolean _hasUnwrappedProperties(List<BeanPropertyWriter> props)
+    {
+        for (BeanPropertyWriter bpw : props) {
+            if (bpw.isUnwrapping()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Method that verifies that no unwrapped ({@code @JsonUnwrapped}) property
+     * produces property names that conflict with regular bean property names.
+     *<p>
+     * Added to resolve [databind#2883].
+     *
+     * @since 3.2
+     */
+    protected void _verifyNoUnwrappedPropertyConflict(SerializationContext ctxt,
+            List<BeanPropertyWriter> props)
+    {
+        final Set<String> regularNames = new HashSet<>();
+        final List<UnwrappingBeanPropertyWriter> unwrappedProps = new ArrayList<>();
+
+        for (BeanPropertyWriter bpw : props) {
+            if (bpw.isUnwrapping() && (bpw instanceof UnwrappingBeanPropertyWriter)) {
+                unwrappedProps.add((UnwrappingBeanPropertyWriter) bpw);
+            } else {
+                regularNames.add(bpw.getName());
+            }
+        }
+
+        for (UnwrappingBeanPropertyWriter unwrappedProp : unwrappedProps) {
+            final JavaType unwrappedType = unwrappedProp.getType();
+            if (unwrappedType == null || unwrappedType.isJavaLangObject()
+                    || unwrappedType.isContainerType() || unwrappedType.isPrimitive()) {
+                continue;
+            }
+            final NameTransformer transformer = unwrappedProp.getNameTransformer();
+            final BeanDescription unwrappedDesc = ctxt.introspectBeanDescription(unwrappedType);
+            final List<BeanPropertyDefinition> unwrappedBeanProps = unwrappedDesc.findProperties();
+
+            for (BeanPropertyDefinition propDef : unwrappedBeanProps) {
+                String transformedName = (transformer != null)
+                        ? transformer.transform(propDef.getName())
+                        : propDef.getName();
+                if (regularNames.contains(transformedName)) {
+                    ctxt.reportBadDefinition(unwrappedType, String.format(
+"Conflict between unwrapped property '%s' (of type %s)"
++" and regular bean property with same name;"
++" consider using `@JsonUnwrapped(prefix=...)` to avoid name collision",
+                            transformedName, ClassUtil.getTypeDescription(unwrappedType)));
+                }
             }
         }
     }

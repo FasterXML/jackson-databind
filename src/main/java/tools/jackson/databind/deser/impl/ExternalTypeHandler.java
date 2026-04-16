@@ -451,6 +451,7 @@ public class ExternalTypeHandler
             _beanType = t;
         }
 
+        @Deprecated // since 3.2; use variant that accepts aliases
         public void addExternal(SettableBeanProperty property, TypeDeserializer typeDeser) {
             addExternal(property, typeDeser, null);
         }
@@ -458,6 +459,8 @@ public class ExternalTypeHandler
         /**
          * Variant that also accepts aliases of the value property, so that an
          * external type id can resolve value via an aliased property name.
+         *
+         * @since 3.2
          */
         // [databind#3209]
         public void addExternal(SettableBeanProperty property, TypeDeserializer typeDeser,

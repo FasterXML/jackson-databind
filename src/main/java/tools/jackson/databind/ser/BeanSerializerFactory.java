@@ -877,14 +877,17 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
     protected void _verifyNoUnwrappedPropertyConflict(SerializationContext ctxt,
             List<BeanPropertyWriter> props)
     {
-        final Set<String> regularNames = new HashSet<>();
+        // Collect all property names seen so far: starts with regular properties,
+        // then each unwrapped type's transformed names are added so that later
+        // unwrapped types are checked against both regular AND earlier unwrapped names
+        final Set<String> seenNames = new HashSet<>();
         final List<UnwrappingBeanPropertyWriter> unwrappedProps = new ArrayList<>();
 
         for (BeanPropertyWriter bpw : props) {
             if (bpw.isUnwrapping() && (bpw instanceof UnwrappingBeanPropertyWriter)) {
                 unwrappedProps.add((UnwrappingBeanPropertyWriter) bpw);
             } else {
-                regularNames.add(bpw.getName());
+                seenNames.add(bpw.getName());
             }
         }
 
@@ -902,10 +905,10 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
                 String transformedName = (transformer != null)
                         ? transformer.transform(propDef.getName())
                         : propDef.getName();
-                if (regularNames.contains(transformedName)) {
+                if (!seenNames.add(transformedName)) {
                     ctxt.reportBadDefinition(unwrappedType, String.format(
 "Conflict between unwrapped property '%s' (of type %s)"
-+" and regular bean property with same name;"
++" and another property with same name;"
 +" consider using `@JsonUnwrapped(prefix=...)` to avoid name collision",
                             transformedName, ClassUtil.getTypeDescription(unwrappedType)));
                 }

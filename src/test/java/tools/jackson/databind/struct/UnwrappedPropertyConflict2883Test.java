@@ -57,6 +57,22 @@ public class UnwrappedPropertyConflict2883Test extends DatabindTestUtil
         }
     }
 
+    // Two unwrapped types that both produce a property named "id"
+    static class TwoUnwrappedConflict {
+        @JsonUnwrapped
+        public HasId1 first = new HasId1();
+        @JsonUnwrapped
+        public HasId2 second = new HasId2();
+    }
+
+    static class HasId1 {
+        public int id = 1;
+    }
+
+    static class HasId2 {
+        public int id = 2;
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
@@ -72,6 +88,15 @@ public class UnwrappedPropertyConflict2883Test extends DatabindTestUtil
     public void testUnwrappedNoConflictWithPrefix() throws Exception {
         String json = MAPPER.writeValueAsString(new OuterNoConflict());
         assertNotNull(json);
+    }
+
+    @Test
+    public void testTwoUnwrappedConflictDetected() throws Exception {
+        InvalidDefinitionException ex = assertThrows(
+                InvalidDefinitionException.class,
+                () -> MAPPER.writeValueAsString(new TwoUnwrappedConflict()));
+        verifyException(ex, "Conflict between unwrapped property");
+        verifyException(ex, "'id'");
     }
 
     @Test

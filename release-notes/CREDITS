@@ -317,3 +317,8 @@ Kenta Yoshii (@KentaYoshii)
  * Reported #5898: `DoubleDeserializer` rejects "+INF"/"+Infinity" despite accepting
    "INF"/"Infinity" and "-INF"/"-Infinity"
   [3.1.2]
+
+Marco Brakmann (@ML-Marco)
+ * Reported #5918: Creator properties always come first in 3.x
+  [3.1.3]
+ 

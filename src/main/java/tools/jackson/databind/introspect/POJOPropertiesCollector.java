@@ -1757,8 +1757,11 @@ ctor.creator()));
 
         String[] propertyOrder = intr.findSerializationPropertyOrder(_config, _classDef);
 
+        final boolean sortCreatorsFirst = (_creatorProperties != null)
+                && _config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST);
+
         // no sorting? no need to shuffle, then
-        if (!sortAlpha && !indexed && (_creatorProperties == null) && (propertyOrder == null)) {
+        if (!sortAlpha && !indexed && !sortCreatorsFirst && (propertyOrder == null)) {
             return;
         }
         int size = props.size();
@@ -1816,8 +1819,7 @@ ctor.creator()));
 
         // Third by sorting Creator properties before other unordered properties
         // (unless strict ordering is requested)
-        if ((_creatorProperties != null)
-                && (!sortAlpha || _config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST))) {
+        if (sortCreatorsFirst) {
             /* As per [databind#311], this is bit delicate; but if alphabetic ordering
              * is mandated, at least ensure creator properties are in alphabetic
              * order. Related question of creator vs non-creator is punted for now,

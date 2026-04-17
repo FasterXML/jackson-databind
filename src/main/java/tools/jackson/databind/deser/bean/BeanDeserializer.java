@@ -704,6 +704,7 @@ public class BeanDeserializer
 
         TokenBuffer unknown = null;
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
+        final boolean skipUnknown = _shouldSkipUnknowns(ctxt);
         JsonToken t = p.currentToken();
         List<BeanReferring> referrings = null;
 
@@ -814,8 +815,9 @@ public class BeanDeserializer
             }
             // 29-Mar-2021, tatu: [databind#3082] May skip collection if we know
             //    they'd just get ignored (note: any-setter handled above; unwrapped
-            //    properties also separately handled)
-            if (_ignoreAllUnknown) {
+            //    properties also separately handled). Covers `_ignoreAllUnknown` and
+            //    [databind#5897] (final type, no handlers, `FAIL_ON_UNKNOWN_PROPERTIES` off).
+            if (skipUnknown) {
                 // 22-Aug-2021, tatu: [databind#3252] must ensure we do skip the whole value
                 p.skipChildren();
                 continue;

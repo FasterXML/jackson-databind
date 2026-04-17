@@ -9,7 +9,17 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 No changes since 3.1
 
-3.1.2 (not yet released)
+3.1.3 (not yet released)
+
+#5898: `DoubleDeserializer` rejects "+INF"/"+Infinity" despite accepting
+  "INF"/"Infinity" and "-INF"/"-Infinity"
+ (reported by Kenta Y)
+ (fix by @cowtowncoder)
+#5918: Creator properties always come first in 3.x
+ (reported by Marco B)
+ (fix by @cowtowncoder)
+
+3.1.2 (11-Apr-2026)
 
 #5857: `TypeFactory._fromParamType` StackOverflowError with mutually recursive
   generic bounds (regression in 3.1.0, introduced by fix for [databind#5285])
@@ -19,6 +29,18 @@ No changes since 3.1
   `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
  (reported by Lavender S)
  (fix by @cowtowncoder, w/ Claude code)
+#5867: Fix `Map.Entry` deserialization for property-level
+  `Shape.NATURAL` override
+ (fixed by Lee Jiwon)
+#5870: `EnumMap` and `EnumSet` properties ignore `@JsonDeserialize(contentConverter)`
+ (fixed by Lee Jiwon)
+#5884: Exception when using `@JsonUnwrapped` alongside with `@JsonAlias`
+  on another property
+ (reported by Aleksandr G)
+ (fix by @cowtowncoder, w/ Claude code)
+#5891: `EnumMapDeserializer._deserializeUsingProperties()` corrupts parser
+  state after skipping unknown enum keys
+ (fixed by Lee Jiwon)
 
 3.1.1 (27-Mar-2026)
 

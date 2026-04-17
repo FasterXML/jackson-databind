@@ -212,6 +212,14 @@ Lee Jiwon (@dlwldnjs1009)
   [3.1.0]
  * Implemented #5621: Fix typo: MissingInjectableValueExcepion → MissingInjectableValueException
   [3.1.0]
+ * Fixed #5867: Fix `Map.Entry` deserialization for property-level
+   `Shape.NATURAL` override
+  [3.1.2]
+ * Fixed #5870: `EnumMap` and `EnumSet` properties ignore `@JsonDeserialize(contentConverter)`
+  [3.1.2]
+ * Fixed #5891: `EnumMapDeserializer._deserializeUsingProperties()` corrupts parser
+   state after skipping unknown enum keys
+  [3.1.2]
 
 Garret Wilson (@garretwilson)
  * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
@@ -299,3 +307,18 @@ Lavender Shannon (@retrodaredevil)
  * Reported #5865: `@JsonIgnoreProperties` does not work alongside
    `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
   [3.1.2]
+
+Aleksandr Georgievskii (@ageorgievskii)
+ * Reported #5884: Exception when using `@JsonUnwrapped` alongside with `@JsonAlias`
+   on another propert
+  [3.1.2]
+
+Kenta Yoshii (@KentaYoshii)
+ * Reported #5898: `DoubleDeserializer` rejects "+INF"/"+Infinity" despite accepting
+   "INF"/"Infinity" and "-INF"/"-Infinity"
+  [3.1.2]
+
+Marco Brakmann (@ML-Marco)
+ * Reported #5918: Creator properties always come first in 3.x
+  [3.1.3]
+ 

@@ -1064,7 +1064,7 @@ public abstract class StdDeserializer<T>
         }
 
         final CoercionAction act = _checkFromStringCoercion(ctxt, text,
-                LogicalType.Integer, Float.TYPE);
+                LogicalType.Float, Float.TYPE);
         if (act == CoercionAction.AsNull) {
             // 03-May-2021, tatu: Might not be allowed (should we do "empty" check?)
             return (float) _verifyNullForPrimitive(ctxt, p, 0.0f);
@@ -1110,6 +1110,8 @@ public abstract class StdDeserializer<T>
         if (!text.isEmpty()) {
             switch (text.charAt(0)) {
             case 'I':
+            // 11-Apr-2026, [databind#5898]: accept "+Infinity", "+INF"
+            case '+':
                 if (_isPosInf(text)) {
                     return Float.POSITIVE_INFINITY;
                 }
@@ -1182,7 +1184,7 @@ public abstract class StdDeserializer<T>
         }
 
         final CoercionAction act = _checkFromStringCoercion(ctxt, text,
-                LogicalType.Integer, Double.TYPE);
+                LogicalType.Float, Double.TYPE);
         if (act == CoercionAction.AsNull) {
             // 03-May-2021, tatu: Might not be allowed (should we do "empty" check?)
             return (double)_verifyNullForPrimitive(ctxt, p, 0.0);
@@ -1233,6 +1235,8 @@ public abstract class StdDeserializer<T>
         if (!text.isEmpty()) {
             switch (text.charAt(0)) {
             case 'I':
+            // 11-Apr-2026, [databind#5898]: accept "+Infinity", "+INF"
+            case '+':
                 if (_isPosInf(text)) {
                     return Double.POSITIVE_INFINITY;
                 }
@@ -1446,7 +1450,9 @@ public abstract class StdDeserializer<T>
     }
 
     protected final boolean _isPosInf(String text) {
-        return "Infinity".equals(text) || "INF".equals(text);
+        return "Infinity".equals(text) || "INF".equals(text)
+                // 11-Apr-2026, [databind#5898]: also accept:
+                || "+Infinity".equals(text) || "+INF".equals(text);
     }
 
     protected final boolean _isNaN(String text) { return "NaN".equals(text); }

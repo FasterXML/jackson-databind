@@ -181,6 +181,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   "INF"/"Infinity" and "-INF"/"-Infinity"
  (reported by Kenta Y)
  (fix by @cowtowncoder)
+#5918: Creator properties always come first in 3.x
+ (reported by Marco B)
+ (fix by @cowtowncoder)
 
 3.1.2 (11-Apr-2026)
 

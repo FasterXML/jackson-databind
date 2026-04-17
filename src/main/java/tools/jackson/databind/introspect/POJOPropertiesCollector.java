@@ -702,7 +702,7 @@ public class POJOPropertiesCollector
                 if (_isDelegatingConstructor(primaryCreator)) {
                     // 08-Oct-2024, tatu: [databind#4724] Only add if no explicit
                     //    candidates added
-                    if (!creators.hasDelegating()) {
+                    if (!creators.hasDelegating() && !creators.hasExplicitPropertiesBased()) {
                         // ... not technically explicit but simpler this way
                         creators.addExplicitDelegating(primaryCreator);
                     }

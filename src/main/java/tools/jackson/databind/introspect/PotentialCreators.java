@@ -10,6 +10,7 @@ public class PotentialCreators
      * Property-based Creator found, if any
      */
     public PotentialCreator propertiesBased;
+    private String propertiesBasedMode;
 
     private List<PotentialCreator> explicitDelegating;
 
@@ -33,6 +34,7 @@ public class PotentialCreators
                     mode, propertiesBased.creator(), ctor.creator()));
         }
         propertiesBased = ctor.introspectParamNames(config);
+        propertiesBasedMode = mode;
     }
 
     public void addExplicitDelegating(PotentialCreator ctor)
@@ -63,6 +65,9 @@ public class PotentialCreators
     
     public boolean hasPropertiesBased() {
         return (propertiesBased != null);
+    }
+    public boolean hasExplicitPropertiesBased() {
+        return hasPropertiesBased() && "explicit".equals(propertiesBasedMode);
     }
 
     public boolean hasPropertiesBasedOrDelegating() {

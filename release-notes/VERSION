@@ -102,6 +102,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #3205: ConfigOverrides for merging are not applied for items inside containers
  (reported by Daniel G)
  (fix by @cowtowncoder, w/ Claude code)
+#3209: Polymorphism with aliases fails to utilize alias fields
+ (reported by @Dragas)
+ (fix by @cowtowncoder, w/ Claude code)
 #3216: Delegating `@JsonCreator` does not prevent unnecessary introspection
   of properties, leading to bogus failure
  (reported by @awildturtok)

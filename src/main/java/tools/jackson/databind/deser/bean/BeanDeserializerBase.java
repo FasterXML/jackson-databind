@@ -621,7 +621,8 @@ public abstract class BeanDeserializerBase
                         if (extTypes == null) {
                             extTypes = ExternalTypeHandler.builder(_beanType);
                         }
-                        extTypes.addExternal(prop, typeDeser);
+                        extTypes.addExternal(prop, typeDeser,
+                                prop.findAliases(ctxt.getConfig()));
                         // In fact, remove from list of known properties to simplify later handling
                         _beanProperties.remove(prop);
                         continue;

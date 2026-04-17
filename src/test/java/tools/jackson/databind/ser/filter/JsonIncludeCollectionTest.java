@@ -286,6 +286,28 @@ public class JsonIncludeCollectionTest extends DatabindTestUtil
         public Iterable<Integer> values = new Iterable5369(1);
     }
 
+    // Wildcard-typed Iterable so that `_elementSerializer` stays null and
+    // per-element serializers are resolved dynamically at serialize time.
+    static class IterableOfObjects implements Iterable<Object>
+    {
+        private final List<Object> values;
+
+        IterableOfObjects(Object... items) { values = Arrays.asList(items); }
+
+        @Override
+        public Iterator<Object> iterator() { return values.iterator(); }
+    }
+
+    static class BeanWithIterableNonEmpty
+    {
+        @JsonInclude(content = JsonInclude.Include.NON_EMPTY)
+        public Iterable<Object> values;
+
+        BeanWithIterableNonEmpty(Object... items) {
+            values = new IterableOfObjects(items);
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#5369]
@@ -452,5 +474,21 @@ public class JsonIncludeCollectionTest extends DatabindTestUtil
         pojo.values = new Iterable5369(1, null, 2, 3, 5369);
 
         assertEquals("{\"values\":[5369]}", MAPPER_CONTAINERS.writeValueAsString(pojo));
+    }
+
+    // Regression: when `_elementSerializer` is not resolved statically (wildcard/Object element type),
+    // per-element dynamic serializer must be passed to `_shouldSerializeElement` so that
+    // `serializer.isEmpty(ctxt, elem)` is consulted for NON_EMPTY content inclusion.
+    @Test
+    public void testIterableNonEmptyWithWildcardElementType() throws Exception
+    {
+        BeanWithIterableNonEmpty pojo = new BeanWithIterableNonEmpty(
+                Collections.emptyMap(),
+                Collections.singletonMap("k", "v"),
+                Collections.emptyList(),
+                Collections.singletonList("x"));
+
+        assertEquals(a2q("{'values':[{'k':'v'},['x']]}"),
+                MAPPER_CONTAINERS.writeValueAsString(pojo));
     }
 }

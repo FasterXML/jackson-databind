@@ -229,6 +229,8 @@ Lee Jiwon (@dlwldnjs1009)
  * Fixed #5891: `EnumMapDeserializer._deserializeUsingProperties()` corrupts parser
    state after skipping unknown enum keys
   [3.1.2]
+ * Fixed #5925: Pass dynamic serializer for `Iterable` content filtering
+  [3.1.3]
  * Contributed #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
    are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
   [3.2.0]

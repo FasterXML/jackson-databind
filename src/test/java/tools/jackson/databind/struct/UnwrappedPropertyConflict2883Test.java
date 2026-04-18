@@ -2,6 +2,7 @@ package tools.jackson.databind.struct;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
@@ -205,6 +206,27 @@ public class UnwrappedPropertyConflict2883Test extends DatabindTestUtil
     public void testSelfReferentialUnwrapDoesNotHang() throws Exception {
         String json = MAPPER.writeValueAsString(new SelfUnwrapped());
         assertTrue(json.contains("\"id\":1"));
+    }
+
+    // Inner field that would otherwise clash with outer is ignored via @JsonIgnore,
+    // so it never appears in the inner serializer's effective properties and the
+    // check must accept the configuration.
+    static class OuterConflictResolvedByIgnore {
+        public int id = 0;
+        @JsonUnwrapped
+        public IgnoredIdHolder inner = new IgnoredIdHolder();
+    }
+
+    static class IgnoredIdHolder {
+        @JsonIgnore
+        public int id = 99;
+        public int other = 7;
+    }
+
+    @Test
+    public void testNoConflictWhenUnwrappedPropertyIsIgnored() throws Exception {
+        String json = MAPPER.writeValueAsString(new OuterConflictResolvedByIgnore());
+        assertEquals("{\"id\":0,\"other\":7}", json);
     }
 
     // Regular "l3" at outer coexists with inner Level2 that has @JsonUnwrapped

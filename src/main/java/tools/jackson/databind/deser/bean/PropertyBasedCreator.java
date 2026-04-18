@@ -219,12 +219,13 @@ public final class PropertyBasedCreator
             //    values deserialize from their own JSON object (not a flattened one).
             String oldName = prop.getName();
             String newName = InternCache.instance.intern(transformer.transform(oldName));
-            SettableBeanProperty renamedProperty = oldName.equals(newName)
-                    ? prop : prop.withSimpleName(newName);
-
+            if (oldName.equals(newName)) {
+                newProps.add(prop);
+                continue;
+            }
+            SettableBeanProperty renamedProperty = prop.withSimpleName(newName);
             newProps.add(renamedProperty);
-
-            if (!oldName.equals(newName) && newLookup.containsKey(oldName)) {
+            if (newLookup.containsKey(oldName)) {
                 newLookup.remove(oldName);
                 newLookup.put(newName, renamedProperty);
             }

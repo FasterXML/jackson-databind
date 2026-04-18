@@ -182,9 +182,9 @@ public class BeanPropertyMap
             // [databind#3178]: only rename the property name here; do NOT propagate
             //    the transformer to the value deserializer, since non-unwrapped nested
             //    values deserialize from their own JSON object (not a flattened one).
-            String newName = transformer.transform(orig.getName());
-            newName = InternCache.instance.intern(newName);
-            newProps.add(orig.withSimpleName(newName));
+            String oldName = orig.getName();
+            String newName = InternCache.instance.intern(transformer.transform(oldName));
+            newProps.add(oldName.equals(newName) ? orig : orig.withSimpleName(newName));
         }
         // 26-Feb-2017, tatu: Probably SHOULD handle renaming wrt Aliases?
         // NOTE: do NOT try reassigning indexes of properties; number doesn't change

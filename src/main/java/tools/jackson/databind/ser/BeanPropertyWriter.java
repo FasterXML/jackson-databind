@@ -179,8 +179,9 @@ public class BeanPropertyWriter
     protected final Class<?>[] _includeInViews;
 
     /**
-     * Alternate set of property writers used when applyView is
-     * available for the Bean.
+     * View to apply for this property when applyView is available for the Bean.
+     *
+     * @since 3.2
      */
     protected final Class<?> _applyView;
 
@@ -687,17 +688,25 @@ public class BeanPropertyWriter
             }
         }
         g.writeName(_name);
-
-        Class<?> currentActiveView = ctxt.getActiveView();
-        try {
-            ctxt.setActiveView(getAppliedView(ctxt));
-            if (_typeSerializer == null) {
-                ser.serialize(value, g, ctxt);
-            } else {
-                ser.serializeWithType(value, g, ctxt, _typeSerializer);
+        if (_applyView == null) {
+            doSerialize(value, g, ctxt, ser);
+        } else {
+            Class<?> currentActiveView = ctxt.getActiveView();
+            try {
+                ctxt.setActiveView(_applyView != JsonApplyView.NONE.class ? _applyView : null);
+                doSerialize(value, g, ctxt, ser);
             }
-        } finally {
-            ctxt.setActiveView(currentActiveView);
+            finally {
+                ctxt.setActiveView(currentActiveView);
+            }
+        }
+    }
+
+    private void doSerialize(Object value, JsonGenerator g, SerializationContext ctxt, ValueSerializer<Object> ser) {
+        if (_typeSerializer == null) {
+            ser.serialize(value, g, ctxt);
+        } else {
+            ser.serializeWithType(value, g, ctxt, _typeSerializer);
         }
     }
 
@@ -763,26 +772,20 @@ public class BeanPropertyWriter
             }
         }
 
-        Class<?> currentActiveView = ctxt.getActiveView();
-        try {
-            ctxt.setActiveView(getAppliedView(ctxt));
-            if (_typeSerializer == null) {
-                ser.serialize(value, g, ctxt);
-            } else {
-                ser.serializeWithType(value, g, ctxt, _typeSerializer);
+        if (_applyView == null) {
+            doSerialize(value, g, ctxt, ser);
+        } else {
+            Class<?> currentActiveView = ctxt.getActiveView();
+            try {
+                ctxt.setActiveView(_applyView != JsonApplyView.NONE.class ? _applyView : null);
+                doSerialize(value, g, ctxt, ser);
             }
-        } finally {
-            ctxt.setActiveView(currentActiveView);
+            finally {
+                ctxt.setActiveView(currentActiveView);
+            }
         }
     }
 
-    private Class<?> getAppliedView(SerializationContext context) {
-        if (_applyView == null) {
-            return context.getActiveView();
-        } else {
-            return _applyView != JsonApplyView.NONE.class ? _applyView : null;
-        }
-    }
 
     /**
      * Method called to serialize a placeholder used in tabular output when real

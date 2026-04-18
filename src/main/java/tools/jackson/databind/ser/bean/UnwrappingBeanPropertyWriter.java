@@ -152,6 +152,7 @@ public class UnwrappingBeanPropertyWriter
         return (ser == null) ? null : _asUnwrapping(ser);
     }
 
+    // @since 3.2
     private ValueSerializer<Object> _asUnwrapping(ValueSerializer<Object> ser)
     {
         NameTransformer t = _nameTransformer;

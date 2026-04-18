@@ -381,9 +381,13 @@ public abstract class BeanSerializerBase
         // also checked against earlier unwrapped properties'.
         final Set<String> seenNames = new HashSet<>(_props.length);
         for (BeanPropertyWriter p : _props) {
-            if (!(p instanceof UnwrappingBeanPropertyWriter)) {
-                seenNames.add(p.getName());
+            // Skip unwrapped props here (handled below); also skip AnyGetterWriter,
+            // since its emitted property names come from runtime map keys rather
+            // than from its own getName().
+            if (p instanceof UnwrappingBeanPropertyWriter || p instanceof AnyGetterWriter) {
+                continue;
             }
+            seenNames.add(p.getName());
         }
         for (BeanPropertyWriter p : _props) {
             if (!(p instanceof UnwrappingBeanPropertyWriter unwrapped)) {

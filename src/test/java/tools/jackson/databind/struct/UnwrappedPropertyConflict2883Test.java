@@ -2,9 +2,11 @@ package tools.jackson.databind.struct;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -73,6 +75,49 @@ public class UnwrappedPropertyConflict2883Test extends DatabindTestUtil
         public int id = 2;
     }
 
+    // [databind#2883]: rename via @JsonProperty on inner field should be
+    // respected when detecting conflicts
+    static class OuterRenameConflict {
+        public int id = 0;
+        @JsonUnwrapped
+        public RenamedToId inner = new RenamedToId();
+    }
+
+    static class RenamedToId {
+        @JsonProperty("id")
+        public int internalKey = 7;
+    }
+
+    // Inner field name collides with outer only AFTER snake-case naming strategy
+    // ("fooBar" -> "foo_bar") is applied by the mapper.
+    static class OuterNamingStrategyConflict {
+        public int fooBar = 1;
+        @JsonUnwrapped
+        public HasFooBar inner = new HasFooBar();
+    }
+
+    static class HasFooBar {
+        public int fooBar = 2;
+    }
+
+    // Nested unwrapping: Level1 has @JsonUnwrapped Level2 which itself has
+    // @JsonUnwrapped Level3. Documents current single-level check scope.
+    static class Level1 {
+        public String a = "a";
+        @JsonUnwrapped
+        public Level2 l2 = new Level2();
+    }
+
+    static class Level2 {
+        public String b = "b";
+        @JsonUnwrapped
+        public Level3 l3 = new Level3();
+    }
+
+    static class Level3 {
+        public String c = "c";
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
@@ -82,12 +127,15 @@ public class UnwrappedPropertyConflict2883Test extends DatabindTestUtil
                 () -> MAPPER.writeValueAsString(new OuterConflict()));
         verifyException(ex, "Conflict between unwrapped property");
         verifyException(ex, "'b'");
+        // Error should also identify the offending unwrapped type
+        verifyException(ex, "InnerC");
     }
 
     @Test
     public void testUnwrappedNoConflictWithPrefix() throws Exception {
         String json = MAPPER.writeValueAsString(new OuterNoConflict());
-        assertNotNull(json);
+        // Outer's own `b` stays as "b"; unwrapped InnerC's `b` becomes "c_b"
+        assertEquals("{\"b\":{\"ba\":3},\"c_b\":{\"da\":4}}", json);
     }
 
     @Test
@@ -105,5 +153,38 @@ public class UnwrappedPropertyConflict2883Test extends DatabindTestUtil
         assertTrue(json.contains("\"name\":\"test\""));
         assertTrue(json.contains("\"x\":1"));
         assertTrue(json.contains("\"y\":2"));
+    }
+
+    // Conflict arises via `@JsonProperty` rename on the inner type; check must
+    // use post-rename name (the one actually emitted), not the Java field name.
+    @Test
+    public void testConflictViaJsonPropertyRename() throws Exception {
+        InvalidDefinitionException ex = assertThrows(
+                InvalidDefinitionException.class,
+                () -> MAPPER.writeValueAsString(new OuterRenameConflict()));
+        verifyException(ex, "Conflict between unwrapped property");
+        verifyException(ex, "'id'");
+    }
+
+    // Conflict arises via PropertyNamingStrategy (both outer.fooBar and
+    // unwrapped inner.fooBar become "foo_bar"); check must use post-transform name.
+    @Test
+    public void testConflictViaNamingStrategy() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+                .build();
+        InvalidDefinitionException ex = assertThrows(
+                InvalidDefinitionException.class,
+                () -> mapper.writeValueAsString(new OuterNamingStrategyConflict()));
+        verifyException(ex, "Conflict between unwrapped property");
+        verifyException(ex, "'foo_bar'");
+    }
+
+    // Nested unwrapping without conflicts flattens all levels; documents that
+    // the check traverses through each unwrapped serializer's final property names.
+    @Test
+    public void testNestedUnwrappedNoConflict() throws Exception {
+        String json = MAPPER.writeValueAsString(new Level1());
+        assertEquals("{\"a\":\"a\",\"b\":\"b\",\"c\":\"c\"}", json);
     }
 }

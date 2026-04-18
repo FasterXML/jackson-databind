@@ -393,6 +393,14 @@ public abstract class BeanSerializerBase
             if (!(p instanceof UnwrappingBeanPropertyWriter unwrapped)) {
                 continue;
             }
+            // Skip self-referential unwrap to avoid spurious self-conflicts
+            // and potential infinite recursion while resolving the inner
+            // serializer. Self-referential @JsonUnwrapped is structurally
+            // broken (would infinite-loop on any non-null value) but nothing
+            // here enforces that; runtime will error out if exercised.
+            if (unwrapped.getType().getRawClass() == _beanType.getRawClass()) {
+                continue;
+            }
             // Inner serializer may be a custom (non-BeanSerializerBase) impl;
             // without access to its effective property names we cannot check it.
             if (!(unwrapped.findUnwrappingSerializer(ctxt) instanceof BeanSerializerBase innerSer)) {

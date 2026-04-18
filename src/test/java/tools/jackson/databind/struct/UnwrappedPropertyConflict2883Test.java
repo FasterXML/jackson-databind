@@ -100,6 +100,15 @@ public class UnwrappedPropertyConflict2883Test extends DatabindTestUtil
         public int fooBar = 2;
     }
 
+    // Self-referential @JsonUnwrapped: not a sensible model (structurally
+    // infinite) but conflict-detection must not infinite-recurse or stack
+    // overflow while building the serializer for such a type.
+    static class SelfUnwrapped {
+        public int id = 1;
+        @JsonUnwrapped
+        public SelfUnwrapped self;
+    }
+
     // Nested unwrapping: Level1 has @JsonUnwrapped Level2 which itself has
     // @JsonUnwrapped Level3. Documents current single-level check scope.
     static class Level1 {
@@ -186,5 +195,15 @@ public class UnwrappedPropertyConflict2883Test extends DatabindTestUtil
     public void testNestedUnwrappedNoConflict() throws Exception {
         String json = MAPPER.writeValueAsString(new Level1());
         assertEquals("{\"a\":\"a\",\"b\":\"b\",\"c\":\"c\"}", json);
+    }
+
+    // Conflict-detection must tolerate self-referential @JsonUnwrapped without
+    // infinite recursion. Serialization of such a value is nonsensical (would
+    // infinite-loop), but building/resolving the serializer must not hang.
+    // We give self=null here so we never actually try to serialize the cycle.
+    @Test
+    public void testSelfReferentialUnwrapDoesNotHang() throws Exception {
+        String json = MAPPER.writeValueAsString(new SelfUnwrapped());
+        assertTrue(json.contains("\"id\":1"));
     }
 }

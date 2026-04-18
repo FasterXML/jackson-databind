@@ -77,8 +77,16 @@ public class UnwrappingBeanPropertyWriter
         return true;
     }
 
+    /**
+     * Accessor for {@link NameTransformer} this writer uses to transform
+     * property names of the unwrapped type.
+     * Never returns {@code null}: {@link NameTransformer#NOP} is returned
+     * when no transformation is configured.
+     *
+     * @since 3.2
+     */
     public NameTransformer getNameTransformer() {
-        return _nameTransformer;
+        return (_nameTransformer == null) ? NameTransformer.NOP : _nameTransformer;
     }
 
     @Override

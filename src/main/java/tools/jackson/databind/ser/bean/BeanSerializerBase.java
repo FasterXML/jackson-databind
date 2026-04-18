@@ -407,7 +407,16 @@ public abstract class BeanSerializerBase
                 continue;
             }
             for (Iterator<PropertyWriter> it = innerSer.properties(); it.hasNext(); ) {
-                String name = it.next().getName();
+                PropertyWriter innerProp = it.next();
+                // Skip nested UnwrappingBeanPropertyWriters: their own `getName()` is
+                // the Java field name of a further unwrapped property, which is NOT
+                // what gets emitted (its contents are unwrapped at that level). Means
+                // conflicts across more than one level of nesting aren't detected, but
+                // false positives are avoided.
+                if (innerProp instanceof UnwrappingBeanPropertyWriter) {
+                    continue;
+                }
+                String name = innerProp.getName();
                 if (!seenNames.add(name)) {
                     ctxt.reportBadDefinition(_beanType, String.format(
 "Conflict between unwrapped property '%s' (of type %s)"

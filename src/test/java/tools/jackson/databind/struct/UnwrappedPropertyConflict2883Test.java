@@ -206,4 +206,23 @@ public class UnwrappedPropertyConflict2883Test extends DatabindTestUtil
         String json = MAPPER.writeValueAsString(new SelfUnwrapped());
         assertTrue(json.contains("\"id\":1"));
     }
+
+    // Regular "l3" at outer coexists with inner Level2 that has @JsonUnwrapped
+    // Level3 (field named `l3`). The inner Level2's own `l3` name is not
+    // emitted (it's unwrapped away), so this is NOT a real conflict.
+    // Regression test: the check must not treat inner UnwrappingBeanPropertyWriter
+    // field names as emitted names.
+    static class OuterWithPhantomCollision {
+        public String l3 = "outer";
+        @JsonUnwrapped
+        public Level2 inner = new Level2();
+    }
+
+    @Test
+    public void testNoFalseConflictWithNestedUnwrappedFieldName() throws Exception {
+        String json = MAPPER.writeValueAsString(new OuterWithPhantomCollision());
+        assertTrue(json.contains("\"l3\":\"outer\""), json);
+        assertTrue(json.contains("\"b\":\"b\""), json);
+        assertTrue(json.contains("\"c\":\"c\""), json);
+    }
 }

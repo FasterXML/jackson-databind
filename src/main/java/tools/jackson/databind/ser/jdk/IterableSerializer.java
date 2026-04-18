@@ -126,7 +126,7 @@ public class IterableSerializer
                 }
                 // [databind#5369] Support `@JsonInclude` in `Collection`
                 //                Let's do filtering before serialization
-                if (needsFiltering && !_shouldSerializeElement(ctxt, elem, _elementSerializer)) {
+                if (needsFiltering && !_shouldSerializeElement(ctxt, elem, serializer)) {
                     continue;
                 }
                 if (typeSer == null) {

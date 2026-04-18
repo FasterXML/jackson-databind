@@ -73,6 +73,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   in untyped collections fails
  (reported by @ alex-t0)
  (fix by @cowtowncoder, w/ Claude code)
+#2883: Annotation `@JsonUnwrapped` can serialize duplicate properties
+ (reported by Michał R)
+ (fix by @cowtowncoder, w/ Claude code)
 #2955: Handling UnresolvedForwardReference by pre-processing illegal values
  (reported by Andrey U)
  (fix by @cowtowncoder, w/ Claude code)

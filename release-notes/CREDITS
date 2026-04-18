@@ -382,6 +382,10 @@ Vitaly Barkhatov (@vbarhatov)
  * Reported #2736: Unable to deserialize `@JsonUnwrapped` `Optional<>` field
   [3.2.0]
 
+Michał Rowicki (@wyhasany)
+ * Reported #2883: Annotation `@JsonUnwrapped` can serialize duplicate properties
+  [3.2.0]
+
 Andrey Ustalakov (@austalakov)
  * Reported #2955: Handling UnresolvedForwardReference by pre-processing illegal values
   [3.2.0]

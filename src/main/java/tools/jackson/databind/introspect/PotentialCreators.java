@@ -10,7 +10,14 @@ public class PotentialCreators
      * Property-based Creator found, if any
      */
     public PotentialCreator propertiesBased;
-    private String propertiesBasedMode;
+
+    /**
+     * Whether {@link #propertiesBased} was registered via
+     * {@link #setExplicitPropertiesBased} (i.e. from an explicit
+     * {@code @JsonCreator}-style annotation), as opposed to an implicit
+     * or primary fallback.
+     */
+    private boolean propertiesBasedExplicit;
 
     private List<PotentialCreator> explicitDelegating;
 
@@ -28,13 +35,29 @@ public class PotentialCreators
     // mode -> "explicit", "implicit" etc
     public void setPropertiesBased(MapperConfig<?> config, PotentialCreator ctor, String mode)
     {
+        _setPropertiesBased(config, ctor, mode, false);
+    }
+
+    /**
+     * Variant of {@link #setPropertiesBased} for creators coming from explicit
+     * {@code @JsonCreator}-style annotations; records that the registered
+     * creator is {@code explicit} so later fallback logic can defer to it.
+     */
+    public void setExplicitPropertiesBased(MapperConfig<?> config, PotentialCreator ctor)
+    {
+        _setPropertiesBased(config, ctor, "explicit", true);
+    }
+
+    private void _setPropertiesBased(MapperConfig<?> config, PotentialCreator ctor,
+            String mode, boolean explicit)
+    {
         if (propertiesBased != null) {
             throw new IllegalArgumentException(String.format(
                     "Conflicting property-based creators: already had %s creator %s, encountered another: %s",
                     mode, propertiesBased.creator(), ctor.creator()));
         }
         propertiesBased = ctor.introspectParamNames(config);
-        propertiesBasedMode = mode;
+        propertiesBasedExplicit = explicit;
     }
 
     public void addExplicitDelegating(PotentialCreator ctor)
@@ -66,8 +89,9 @@ public class PotentialCreators
     public boolean hasPropertiesBased() {
         return (propertiesBased != null);
     }
+
     public boolean hasExplicitPropertiesBased() {
-        return hasPropertiesBased() && "explicit".equals(propertiesBasedMode);
+        return propertiesBasedExplicit;
     }
 
     public boolean hasPropertiesBasedOrDelegating() {

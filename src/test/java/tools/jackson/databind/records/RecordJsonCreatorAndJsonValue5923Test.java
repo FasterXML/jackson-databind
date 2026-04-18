@@ -1,16 +1,22 @@
 package tools.jackson.databind.records;
 
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+
 import tools.jackson.databind.ObjectMapper;
-import java.util.Map;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class RecordJsonCreatorAndJsonValue5923Test {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+// [databind#5923] Record with @JsonCreator(mode=PROPERTIES) factory + @JsonValue
+//   fails to deserialize
+public class RecordJsonCreatorAndJsonValue5923Test extends DatabindTestUtil
+{
     public record Inner(@JsonProperty(required = true, value = "innerValue") boolean innerValue) {}
 
     public record Outer(Inner bools) {
@@ -25,11 +31,17 @@ public class RecordJsonCreatorAndJsonValue5923Test {
         }
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = { true, false })
-    public void testDeserializationBug(boolean testVal) throws Exception {
-        var om = new ObjectMapper();
-        var bw = om.readValue(String.format("{ \"renamed\": %s }", testVal), Outer.class);
-        Assertions.assertEquals(testVal, bw.bools.innerValue, String.valueOf(bw));
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    @Test
+    public void testDeserializationTrue() throws Exception {
+        Outer bw = MAPPER.readValue("{ \"renamed\": true }", Outer.class);
+        assertEquals(true, bw.bools.innerValue);
+    }
+
+    @Test
+    public void testDeserializationFalse() throws Exception {
+        Outer bw = MAPPER.readValue("{ \"renamed\": false }", Outer.class);
+        assertEquals(false, bw.bools.innerValue);
     }
 }

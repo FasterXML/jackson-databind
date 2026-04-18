@@ -2,6 +2,8 @@ package tools.jackson.databind.struct;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import tools.jackson.databind.ObjectMapper;
@@ -48,6 +50,28 @@ public class Unwrapped3178Test extends DatabindTestUtil
         }
     }
 
+    // Creator-based Inner: forces unwrapping rename through PropertyBasedCreator
+    static class InnerCreator {
+        public String name;
+        public Location location;
+
+        @JsonCreator
+        public InnerCreator(@JsonProperty("name") String name,
+                @JsonProperty("location") Location location) {
+            this.name = name;
+            this.location = location;
+        }
+    }
+
+    static class WithPrefixCreator {
+        @JsonUnwrapped(prefix = "_")
+        public InnerCreator unwrapped;
+        public WithPrefixCreator() { }
+        public WithPrefixCreator(String str, int x, int y) {
+            unwrapped = new InnerCreator(str, new Location(x, y));
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
@@ -67,6 +91,19 @@ public class Unwrapped3178Test extends DatabindTestUtil
         WithPrefix source = new WithPrefix("Bubba", 2, 3);
         String json = MAPPER.writeValueAsString(source);
         WithPrefix bean = MAPPER.readValue(json, WithPrefix.class);
+        assertNotNull(bean.unwrapped);
+        assertNotNull(bean.unwrapped.location);
+        assertEquals(source.unwrapped.name, bean.unwrapped.name);
+        assertEquals(source.unwrapped.location.x, bean.unwrapped.location.x);
+        assertEquals(source.unwrapped.location.y, bean.unwrapped.location.y);
+    }
+
+    // Variant of #3178 that exercises the PropertyBasedCreator rename path
+    @Test
+    public void testPrefixedUnwrappingDeserializeWithCreator() throws Exception {
+        WithPrefixCreator source = new WithPrefixCreator("Bubba", 2, 3);
+        String json = MAPPER.writeValueAsString(source);
+        WithPrefixCreator bean = MAPPER.readValue(json, WithPrefixCreator.class);
         assertNotNull(bean.unwrapped);
         assertNotNull(bean.unwrapped.location);
         assertEquals(source.unwrapped.name, bean.unwrapped.name);

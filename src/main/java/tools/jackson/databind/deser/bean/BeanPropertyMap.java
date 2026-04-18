@@ -172,7 +172,7 @@ public class BeanPropertyMap
         }
         // Try to retain insertion ordering as well
         final int len = _propsInOrder.length;
-        ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(_propsInOrder.length);
+        ArrayList<SettableBeanProperty> newProps = new ArrayList<>(_propsInOrder.length);
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty orig = _propsInOrder[i];
             if (orig == null) {

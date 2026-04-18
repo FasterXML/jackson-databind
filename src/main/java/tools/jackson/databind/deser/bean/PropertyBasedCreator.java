@@ -4,6 +4,7 @@ import java.util.*;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.util.InternCache;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.SettableAnyProperty;
@@ -213,9 +214,13 @@ public final class PropertyBasedCreator
                 continue;
             }
 
-            SettableBeanProperty renamedProperty = prop.unwrapped(ctxt, transformer);
+            // [databind#3178]: only rename the property name here; do NOT propagate
+            //    the transformer to the value deserializer, since non-unwrapped nested
+            //    values deserialize from their own JSON object (not a flattened one).
             String oldName = prop.getName();
-            String newName = renamedProperty.getName();
+            String newName = InternCache.instance.intern(transformer.transform(oldName));
+            SettableBeanProperty renamedProperty = oldName.equals(newName)
+                    ? prop : prop.withSimpleName(newName);
 
             newProps.add(renamedProperty);
 

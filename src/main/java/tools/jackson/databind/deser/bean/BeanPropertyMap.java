@@ -184,8 +184,12 @@ public class BeanPropertyMap
                 continue;
             }
             String oldName = orig.getName();
-            String newName = ctxt.canonicalizeString(transformer.transform(oldName));
-            newProps.add(oldName.equals(newName) ? orig : orig.withSimpleName(newName));
+            String newName = transformer.transform(oldName);
+            if (oldName.equals(newName)) {
+                newProps.add(orig);
+                continue;
+            }
+            newProps.add(orig.withSimpleName(ctxt.canonicalizeString(newName)));
         }
         // 26-Feb-2017, tatu: Probably SHOULD handle renaming wrt Aliases?
         // NOTE: do NOT try reassigning indexes of properties; number doesn't change

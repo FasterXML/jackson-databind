@@ -218,11 +218,12 @@ public final class PropertyBasedCreator
             }
 
             String oldName = prop.getName();
-            String newName = ctxt.canonicalizeString(transformer.transform(oldName));
+            String newName = transformer.transform(oldName);
             if (oldName.equals(newName)) {
                 newProps.add(prop);
                 continue;
             }
+            newName = ctxt.canonicalizeString(newName);
             SettableBeanProperty renamedProperty = prop.withSimpleName(newName);
             newProps.add(renamedProperty);
             if (newLookup.containsKey(oldName)) {

@@ -78,7 +78,7 @@ public class Unwrapped3178Test extends DatabindTestUtil
     public void testUnwrappingDeserialize() throws Exception {
         WithoutPrefix source = new WithoutPrefix("Bubba", 2, 3);
         String json = MAPPER.writeValueAsString(source);
-        assertEquals("{\"name\":\"Bubba\",\"location\":{\"x\":2,\"y\":3}}", json);
+        assertEquals("{\"location\":{\"x\":2,\"y\":3},\"name\":\"Bubba\"}", json);
         WithoutPrefix bean = MAPPER.readValue(json, WithoutPrefix.class);
         assertNotNull(bean.unwrapped);
         assertNotNull(bean.unwrapped.location);
@@ -91,7 +91,7 @@ public class Unwrapped3178Test extends DatabindTestUtil
     public void testPrefixedUnwrappingDeserialize() throws Exception {
         WithPrefix source = new WithPrefix("Bubba", 2, 3);
         String json = MAPPER.writeValueAsString(source);
-        assertEquals("{\"_name\":\"Bubba\",\"_location\":{\"x\":2,\"y\":3}}", json);
+        assertEquals("{\"_location\":{\"x\":2,\"y\":3},\"_name\":\"Bubba\"}", json);
         WithPrefix bean = MAPPER.readValue(json, WithPrefix.class);
         assertNotNull(bean.unwrapped);
         assertNotNull(bean.unwrapped.location);

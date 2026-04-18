@@ -190,6 +190,33 @@ public class EnumMapDeserializationTest
         assertEquals(2, map.size());
     }
 
+    // [databind#5891]: extra p.nextToken() in _deserializeUsingProperties()
+    //   corrupts parser state when skipping unknown enum key
+    @Test
+    public void testUnknownKeyAsNullWithPropertyBasedCreator() throws Exception
+    {
+        ObjectReader r = MAPPER.readerFor(FromPropertiesEnumMap.class)
+                .with(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+
+        _verifyFromPropertiesEnumMap(r.readValue(a2q(
+                "{'NOPE':'skip','a':13,'RULES':'jackson','b':-731,'OK':'yes'}")));
+
+        // Unknown-key values are skipped before deserializing into EnumMap<String>.
+        _verifyFromPropertiesEnumMap(r.readValue(a2q(
+                "{'NOPE':{'nested':'value'},'a':13,'RULES':'jackson','b':-731,'OK':'yes'}")));
+        _verifyFromPropertiesEnumMap(r.readValue(a2q(
+                "{'NOPE':[1,2,3],'a':13,'RULES':'jackson','b':-731,'OK':'yes'}")));
+    }
+
+    private void _verifyFromPropertiesEnumMap(FromPropertiesEnumMap map)
+    {
+        assertEquals(13, map.a0);
+        assertEquals(-731, map.b0);
+        assertEquals("jackson", map.get(TestEnum.RULES));
+        assertEquals("yes", map.get(TestEnum.OK));
+        assertEquals(2, map.size());
+    }
+
     /*
     /**********************************************************
     /* Test methods: polymorphic

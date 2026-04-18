@@ -231,6 +231,22 @@ public class MapEntryFormatTest extends DatabindTestUtil
                 || mapper.writeValueAsString(input).equals(a2q("{'value':'bar','key':'foo'}")));
     }
 
+    // [databind#1419]: Property-level NATURAL should reverse global POJO override on deserialization
+    @Test
+    public void testDefaultPOJOOverrideWithPropertyNatural() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Map.Entry.class,
+                        o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.POJO)))
+                .build();
+        // BeanWithMapEntry.entry has @JsonFormat(shape=NATURAL),
+        // so despite global POJO default, this property should use natural format
+        String json = a2q("{'entry':{'foo':'bar'}}");
+        BeanWithMapEntry result = mapper.readValue(json, BeanWithMapEntry.class);
+        assertEquals("foo", result.entry.getKey());
+        assertEquals("bar", result.entry.getValue());
+    }
+
     /*
     /**********************************************************
     /* Test methods, as-POJO (Shape) [databind#1419]

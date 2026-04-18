@@ -221,6 +221,16 @@ Lee Jiwon (@dlwldnjs1009)
   [3.1.0]
  * Implemented #5621: Fix typo: MissingInjectableValueExcepion → MissingInjectableValueException
   [3.1.0]
+ * Fixed #5867: Fix `Map.Entry` deserialization for property-level
+   `Shape.NATURAL` override
+  [3.1.2]
+ * Fixed  #5870: `EnumMap` and `EnumSet` properties ignore `@JsonDeserialize(contentConverter)`
+  [3.1.2] 
+ * Fixed #5891: `EnumMapDeserializer._deserializeUsingProperties()` corrupts parser
+   state after skipping unknown enum keys
+  [3.1.2]
+ * Fixed #5925: Pass dynamic serializer for `Iterable` content filtering
+  [3.1.3]
  * Contributed #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
    are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
   [3.2.0]
@@ -244,10 +254,11 @@ John Hendrikx (@hjohn)
 
 Viktor Szathmáry (@phraktle)
  * Reported #5115: `@JsonUnwrapped` Record deserialization can't handle name collision
- (reported by Viktor S)
   [3.1.0]
  * Reported #5716: `@JsonUnwrapped` properties moved to end in 3.1.0
   [3.1.1]
+ * Fixed #5897: Excessive `TokenBuffer` allocations when deserializing records
+  [3.2.0]
 
 Lee Chan Won (@chanwonlee)
  * Implemented #5223: Java Records missing type information with `DefaultTyping.NON_FINAL`
@@ -315,6 +326,20 @@ Lavender Shannon (@retrodaredevil)
    `DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`
   [3.1.2]
 
+Aleksandr Georgievskii (@ageorgievskii)
+ * Reported #5884: Exception when using `@JsonUnwrapped` alongside with `@JsonAlias`
+   on another property
+  [3.1.2]
+
+Kenta Yoshii (@KentaYoshii)
+ * Reported #5898: `DoubleDeserializer` rejects "+INF"/"+Infinity" despite accepting
+   "INF"/"Infinity" and "-INF"/"-Infinity"
+  [3.1.2]
+
+Marco Brakmann (@ML-Marco)
+ * Reported #5918: Creator properties always come first in 3.x
+  [3.1.3]
+
 Gili Tzabari (@cowwoc)
  * Reported #639: `@JacksonInject` with `@JsonIdentityInfo` causes deserialization
    failure (unresolved forward reference)
@@ -344,9 +369,25 @@ Kevin Hogeland (@khogeland)
    with same name results in `UnrecognizedPropertyException`
   [3.2.0]
 
+Davide Maestroni (@davide-maestroni)
+ * Reported #1528: `@JsonTypeInfo` visible property set to `null` in defaultImpl class
+  [3.2.0]
+
 Balys Valentukevicius (@balysv)
  * Reported #1706: `@JsonCreator` not working properly with `@JsonIdentityInfo` when
    deserializing a collection of interfaces (immutables.io compatibility)
+  [3.2.0]
+
+Vitaly Barkhatov (@vbarhatov)
+ * Reported #2736: Unable to deserialize `@JsonUnwrapped` `Optional<>` field
+  [3.2.0]
+
+Michał Rowicki (@wyhasany)
+ * Reported #2883: Annotation `@JsonUnwrapped` can serialize duplicate properties
+  [3.2.0]
+
+Andrey Ustalakov (@austalakov)
+ * Reported #2955: Handling UnresolvedForwardReference by pre-processing illegal values
   [3.2.0]
 
 Benedikt Posch (@benediktsatalia)
@@ -363,9 +404,21 @@ Marcel Overdijk (@marceloverdijk)
  * Suggested #3083: `@JsonIncludeProperties` could be used like `@JsonPropertyOrder`
   [3.2.0]
 
+Christof Tinnes (@chtinnes)
+ * Reported #3169: `@JsonIncludeProperties` does not work together with `@JsonIdentityInfo`
+  [3.2.0]
+
+Auke Schrijnen (@auke-)
+ * Reported #3185: `@JsonIdentityInfo` with `@JsonCreator` incorrectly sets a field
+  [3.2.0]
+
 Klaas Dellschaft (@klaasdellschaft)
  * Reported #3194: Deserialization of 2-dimensional arrays of final types fails when
    using `DefaultTyping.NON_FINAL`
+  [3.2.0]
+
+Daniel Gerhardt (@dgerhardt)
+ * Reported #3205: ConfigOverrides for merging are not applied for items inside containers
   [3.2.0]
 
 Andrzej Leśkiewicz (@aleskiewicz)
@@ -409,4 +462,9 @@ Martin Uhlen (@MartinUhlen)
 David Nelson (@eatdrinksleepcode)
  * Reported #5814: Enum deserialization does not respect
    `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
+  [3.2.0]
+
+Lucas Cloarec (@lucascloarec)
+ * Reported #5911: Deserialization failed with `@JsonUnwrapped` and `@JsonAlias`
+   on a property of the unwrapped type
   [3.2.0]

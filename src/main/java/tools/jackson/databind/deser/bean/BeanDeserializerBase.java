@@ -632,7 +632,8 @@ public abstract class BeanDeserializerBase
                         if (extTypes == null) {
                             extTypes = ExternalTypeHandler.builder(_beanType);
                         }
-                        extTypes.addExternal(prop, typeDeser);
+                        extTypes.addExternal(prop, typeDeser,
+                                prop.findAliases(ctxt.getConfig()));
                         // In fact, remove from list of known properties to simplify later handling
                         _beanProperties.remove(prop);
                         continue;
@@ -1417,6 +1418,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         for (SettableBeanProperty prop : _beanProperties) {
             names.add(prop.getName());
         }
+        // [databind#5911]: also include alias names so outer bean can route
+        // @JsonAlias-matched properties into this unwrapped deserializer.
+        _beanProperties.collectAliasNames(names);
         if (_unwrappedPropertyHandler != null) {
             _unwrappedPropertyHandler.collectUnwrappedPropertyNamesTo(names);
         }
@@ -1592,7 +1596,12 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         }
 
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
-        roid.bindItem(ctxt, pojo);
+        // [dataformats-text#292]: skip if already bound to this object
+        // (may happen with polymorphic builder deserialization where the subtype
+        // deserializer already handled ObjectId binding via finishBuild/updateObjectId)
+        if (roid.resolve() != pojo) {
+            roid.bindItem(ctxt, pojo);
+        }
         // also: may need to set a property value as well
         SettableBeanProperty idProp = _objectIdReader.idProperty;
         if (idProp != null) {
@@ -1614,7 +1623,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      */
     @SuppressWarnings("resource") // TokenBuffers don't need close, nor parser thereof
     protected Object _convertObjectId(JsonParser p, DeserializationContext ctxt,
-            Object rawId, ValueDeserializer<Object> idDeser) throws JacksonException
+            Object rawId, ValueDeserializer<Object> idDeser)
+        throws JacksonException
     {
         TokenBuffer buf = ctxt.bufferForInputBuffering(p);
         if (rawId instanceof String rString) {
@@ -1646,7 +1656,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * Used by both {@link BeanDeserializer} and
      * {@link BuilderBasedDeserializer} (since 3.2, [databind#1496]).
      */
-    protected Object deserializeWithObjectId(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+    protected Object deserializeWithObjectId(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
         return deserializeFromObject(p, ctxt);
     }
 
@@ -1654,7 +1666,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * Method called in cases where it looks like we got an Object Id
      * to parse and use as a reference.
      */
-    protected Object deserializeFromObjectId(JsonParser p, DeserializationContext ctxt) throws JacksonException
+    protected Object deserializeFromObjectId(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         Object id = _objectIdReader.readObjectReference(p, ctxt);
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
@@ -1669,7 +1682,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     protected Object deserializeFromObjectUsingNonDefault(JsonParser p,
-            DeserializationContext ctxt) throws JacksonException
+            DeserializationContext ctxt)
+        throws JacksonException
     {
         // 02-Jul-2024, tatu: [databind#4602] Need to tweak regular and "array" delegating
         //   Creator handling
@@ -1952,6 +1966,30 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             handleUnknownProperty(bufferParser, ctxt, bean, propName);
         }
         return bean;
+    }
+
+    /**
+     * True when unknown properties can be skipped via {@code skipChildren()}
+     * instead of buffered into a {@link TokenBuffer}. The buffer is otherwise
+     * needed for polymorphic replay (tokens unknown to the base may be known
+     * to a resolved subtype) or {@link #handleUnknownProperties}. Returns
+     * true when {@link #_ignoreAllUnknown} is set, or (per [databind#5897])
+     * the bean type is {@code final} (no subtype possible), no
+     * {@link DeserializationProblemHandler}s are registered, and
+     * {@link DeserializationFeature#FAIL_ON_UNKNOWN_PROPERTIES} is disabled.
+     *<p>
+     * May be overridden by subclasses (notably {@code BuilderBasedDeserializer})
+     * where the type relevant to polymorphic replay differs from {@code _beanType}.
+     *
+     * @since 3.2
+     */
+    protected boolean _shouldSkipUnknowns(DeserializationContext ctxt) {
+        if (_ignoreAllUnknown) {
+            return true;
+        }
+        return _beanType.isFinal()
+                && ctxt.getConfig().getProblemHandlers() == null
+                && !ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     /**

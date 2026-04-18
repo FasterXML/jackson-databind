@@ -405,7 +405,7 @@ public class MapEntryDeserializer
         {
             // May override back to standard too:
             if (Boolean.FALSE.equals(_shouldDeserializeAsPOJO(ctxt, property))) {
-                return constructAsPOJO(ctxt, _valueType)
+                return constructDefault(ctxt, _valueType)
                         ._createContextual2(ctxt, property);
             }
             return _createContextual2(ctxt, property);

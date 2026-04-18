@@ -155,6 +155,8 @@ public class EnumMapDeserializer
             keyDeser = ctxt.findKeyDeserializer(_containerType.getKeyType(), property);
         }
         ValueDeserializer<?> valueDeser = _valueDeserializer;
+        // [databind#5870]: May have a content converter
+        valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
         final JavaType vt = _containerType.getContentType();
         if (valueDeser == null) {
             valueDeser = ctxt.findContextualValueDeserializer(vt, property);
@@ -386,7 +388,6 @@ public class EnumMapDeserializer
                 }
                 // 24-Mar-2012, tatu: Null won't work as a key anyway, so let's
                 //  just skip the entry then. But we must skip the value as well, if so.
-                p.nextToken();
                 p.skipChildren();
                 continue;
             }

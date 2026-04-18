@@ -4,6 +4,7 @@ import java.util.*;
 
 import tools.jackson.core.TokenStreamFactory;
 import tools.jackson.core.sym.PropertyNameMatcher;
+import tools.jackson.core.util.InternCache;
 import tools.jackson.core.util.Named;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.PropertyName;
@@ -174,8 +175,16 @@ public class BeanPropertyMap
         ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(_propsInOrder.length);
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty orig = _propsInOrder[i];
-            SettableBeanProperty prop = orig.unwrapped(ctxt, transformer);
-            newProps.add(prop);
+            if (orig == null) {
+                newProps.add(null);
+                continue;
+            }
+            // [databind#3178]: only rename the property name here; do NOT propagate
+            //    the transformer to the value deserializer, since non-unwrapped nested
+            //    values deserialize from their own JSON object (not a flattened one).
+            String newName = transformer.transform(orig.getName());
+            newName = InternCache.instance.intern(newName);
+            newProps.add(orig.withSimpleName(newName));
         }
         // 26-Feb-2017, tatu: Probably SHOULD handle renaming wrt Aliases?
         // NOTE: do NOT try reassigning indexes of properties; number doesn't change

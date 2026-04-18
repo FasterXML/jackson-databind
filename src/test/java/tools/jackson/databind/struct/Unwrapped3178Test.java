@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.struct;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -63,7 +62,6 @@ public class Unwrapped3178Test extends DatabindTestUtil
         assertEquals(source.unwrapped.location.y, bean.unwrapped.location.y);
     }
 
-    @JacksonTestFailureExpected
     @Test
     public void testPrefixedUnwrappingDeserialize() throws Exception {
         WithPrefix source = new WithPrefix("Bubba", 2, 3);

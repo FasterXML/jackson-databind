@@ -96,6 +96,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (implemented by @Lee Jiwon)
 #3169: `@JsonIncludeProperties` does not work together with `@JsonIdentityInfo`
  (reported by Christof T)
+#3178: `@JsonUnwrapped` deserialization results in empty nested object when using prefix
+ (reported by @chimmi)
+ (fix by @cowtowncoder, w/ Claude code)
 #3185: `@JsonIdentityInfo` with `@JsonCreator` incorrectly sets a field
  (reported by Auke S)
 #3194: Deserialization of 2-dimensional arrays of final types fails when

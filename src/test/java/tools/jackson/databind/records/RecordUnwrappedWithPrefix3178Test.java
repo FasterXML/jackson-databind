@@ -25,6 +25,7 @@ public class RecordUnwrappedWithPrefix3178Test extends DatabindTestUtil
     public void testPrefixedUnwrappingWithRecord() throws Exception {
         WithPrefix source = new WithPrefix(new Inner("Bubba", new Location(2, 3)));
         String json = MAPPER.writeValueAsString(source);
+        assertEquals("{\"_name\":\"Bubba\",\"_location\":{\"x\":2,\"y\":3}}", json);
         WithPrefix bean = MAPPER.readValue(json, WithPrefix.class);
         assertNotNull(bean.unwrapped());
         assertNotNull(bean.unwrapped().location());

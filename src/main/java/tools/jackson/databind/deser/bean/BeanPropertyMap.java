@@ -160,8 +160,13 @@ public class BeanPropertyMap
     }
 
     /**
-     * Mutant factory method for constructing a map where all entries use given
-     * prefix
+     * Mutant factory method for constructing a map where property <i>names</i>
+     * are transformed using the given {@link NameTransformer}.
+     *<p>
+     * NOTE: transformer is applied to property names only; value deserializers
+     * are left untouched. Non-unwrapped nested values deserialize from their
+     * own JSON object (not a flattened one), so propagating a prefix/suffix
+     * into their property names would be incorrect (see [databind#3178]).
      */
     public BeanPropertyMap renameAll(DeserializationContext ctxt,
             NameTransformer transformer)
@@ -178,9 +183,6 @@ public class BeanPropertyMap
                 newProps.add(null);
                 continue;
             }
-            // [databind#3178]: only rename the property name here; do NOT propagate
-            //    the transformer to the value deserializer, since non-unwrapped nested
-            //    values deserialize from their own JSON object (not a flattened one).
             String oldName = orig.getName();
             String newName = ctxt.canonicalizeString(transformer.transform(oldName));
             newProps.add(oldName.equals(newName) ? orig : orig.withSimpleName(newName));

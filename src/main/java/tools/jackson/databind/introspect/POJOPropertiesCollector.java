@@ -1790,7 +1790,7 @@ ctor.creator()));
         final boolean useIndexOrdering = _anyIndexed(props.values())
                 && _config.isEnabled(MapperFeature.SORT_PROPERTIES_BY_INDEX);
         final boolean sortCreatorsFirst = (_creatorProperties != null)
-                && (!sortAlpha || _config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+                && _config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST);
         final AnnotatedMember anyAccessor = _findAnyAccessor();
 
         String[] propertyOrder = intr.findSerializationPropertyOrder(_config, _classDef);

@@ -4,7 +4,6 @@ import java.util.*;
 
 import tools.jackson.core.TokenStreamFactory;
 import tools.jackson.core.sym.PropertyNameMatcher;
-import tools.jackson.core.util.InternCache;
 import tools.jackson.core.util.Named;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.PropertyName;
@@ -183,7 +182,7 @@ public class BeanPropertyMap
             //    the transformer to the value deserializer, since non-unwrapped nested
             //    values deserialize from their own JSON object (not a flattened one).
             String oldName = orig.getName();
-            String newName = InternCache.instance.intern(transformer.transform(oldName));
+            String newName = ctxt.canonicalizeString(transformer.transform(oldName));
             newProps.add(oldName.equals(newName) ? orig : orig.withSimpleName(newName));
         }
         // 26-Feb-2017, tatu: Probably SHOULD handle renaming wrt Aliases?

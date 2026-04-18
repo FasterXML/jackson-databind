@@ -6,6 +6,7 @@ import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.*;
 
+import tools.jackson.core.util.InternCache;
 import tools.jackson.databind.cfg.DatatypeFeature;
 import tools.jackson.databind.cfg.DatatypeFeatures;
 import tools.jackson.databind.cfg.HandlerInstantiator;
@@ -427,6 +428,25 @@ public abstract class DatabindContext
     public abstract PropertyName findRootName(JavaType rootType);
 
     public abstract PropertyName findRootName(Class<?> rawRootType);
+
+    /*
+    /**********************************************************************
+    /* Misc helper methods
+    /**********************************************************************
+     */
+
+    /**
+     * Helper method for applying default canonicalization method (currently
+     * {@code String.intern()}) for String, returning canonical instance.
+     *
+     * @since 3.2
+     */
+    public String canonicalizeString(String str) {
+        if (str == null) {
+            return str;
+        }
+        return InternCache.instance.intern(str);
+    }
 
     /*
     /**********************************************************************

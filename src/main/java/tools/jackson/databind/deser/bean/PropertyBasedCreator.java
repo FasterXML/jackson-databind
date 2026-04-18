@@ -4,7 +4,6 @@ import java.util.*;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
-import tools.jackson.core.util.InternCache;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.SettableAnyProperty;
@@ -218,7 +217,7 @@ public final class PropertyBasedCreator
             //    the transformer to the value deserializer, since non-unwrapped nested
             //    values deserialize from their own JSON object (not a flattened one).
             String oldName = prop.getName();
-            String newName = InternCache.instance.intern(transformer.transform(oldName));
+            String newName = ctxt.canonicalizeString(transformer.transform(oldName));
             if (oldName.equals(newName)) {
                 newProps.add(prop);
                 continue;

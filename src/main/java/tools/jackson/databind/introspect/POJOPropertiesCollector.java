@@ -708,7 +708,7 @@ public class POJOPropertiesCollector
                     }
                 } else { // primary creator is properties-based
                     if (!creators.hasPropertiesBased()) {
-                        creators.setPropertiesBased(_config, primaryCreator, "Primary");
+                        creators.setPropertiesBased(_config, primaryCreator, "primary");
                     }
                 }
             }

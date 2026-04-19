@@ -52,15 +52,13 @@ public class ExternalTypeIdDuplicate2844Test extends DatabindTestUtil
     }
 
     // Targeting the subtype directly should also not emit two type keys.
+    // The reported bug output was: {"type":"dog","type":"GermanShepherd"}
     @Test
     public void testDirectSerializationTargetingSubtype() throws Exception
     {
         Dog dog = new Dog("GermanShepherd");
         String json = MAPPER.writeValueAsString(dog);
-        int firstIdx = json.indexOf("\"type\"");
-        int secondIdx = json.indexOf("\"type\"", firstIdx + 1);
-        assertEquals(-1, secondIdx,
-                "Should not emit duplicate 'type' keys; got: " + json);
+        assertEquals(a2q("{'type':'GermanShepherd'}"), json);
     }
 
     // Regression: wrapped case must still round-trip correctly. The outer

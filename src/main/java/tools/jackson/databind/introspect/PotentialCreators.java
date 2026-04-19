@@ -32,7 +32,9 @@ public class PotentialCreators
     /**********************************************************************
      */
     
-    // mode -> "explicit", "implicit" etc
+    // {@code mode} is used only for diagnostic messages (e.g. "implicit",
+    // "Primary"); for creators from an explicit {@code @JsonCreator} annotation
+    // use {@link #setExplicitPropertiesBased} instead.
     public void setPropertiesBased(MapperConfig<?> config, PotentialCreator ctor, String mode)
     {
         _setPropertiesBased(config, ctor, mode, false);

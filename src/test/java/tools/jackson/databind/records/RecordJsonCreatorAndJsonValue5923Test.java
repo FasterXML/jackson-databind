@@ -44,4 +44,19 @@ public class RecordJsonCreatorAndJsonValue5923Test extends DatabindTestUtil
         Outer bw = MAPPER.readValue("{ \"renamed\": false }", Outer.class);
         assertEquals(false, bw.bools.innerValue);
     }
+
+    @Test
+    public void testSerializationViaJsonValue() throws Exception {
+        assertEquals("{\"renamed\":true}",
+                MAPPER.writeValueAsString(new Outer(new Inner(true))));
+        assertEquals("{\"renamed\":false}",
+                MAPPER.writeValueAsString(new Outer(new Inner(false))));
+    }
+
+    @Test
+    public void testRoundTrip() throws Exception {
+        Outer original = new Outer(new Inner(true));
+        Outer roundTripped = MAPPER.readValue(MAPPER.writeValueAsString(original), Outer.class);
+        assertEquals(original.bools.innerValue, roundTripped.bools.innerValue);
+    }
 }

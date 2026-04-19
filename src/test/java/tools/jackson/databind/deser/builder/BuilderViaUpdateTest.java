@@ -99,6 +99,9 @@ public class BuilderViaUpdateTest
             verifyException(e, "Deserialization of");
             verifyException(e, "by passing existing instance");
             verifyException(e, "ValueClassXY");
+            // Hint should name the Builder class as the expected update-value type
+            verifyException(e, "pass a Builder");
+            verifyException(e, "SimpleBuilderXY");
         }
     }
 

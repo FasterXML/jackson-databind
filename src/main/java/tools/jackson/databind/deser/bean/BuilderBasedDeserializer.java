@@ -324,8 +324,11 @@ public class BuilderBasedDeserializer
             return finishBuild(ctxt, _deserialize(p, ctxt, value));
         }
         return ctxt.reportBadDefinition(_targetType, String.format(
-                "Deserialization of %s by passing existing instance (of %s) not supported",
-                ClassUtil.getTypeDescription(_targetType), ClassUtil.classNameOf(value)));
+                "Deserialization of %s by passing existing instance (of %s) not supported:"
+                + " for Builder-based deserialization, pass a Builder (of %s) instance instead",
+                ClassUtil.getTypeDescription(_targetType),
+                ClassUtil.classNameOf(value),
+                ClassUtil.nameOf(handledType())));
     }
 
     /*

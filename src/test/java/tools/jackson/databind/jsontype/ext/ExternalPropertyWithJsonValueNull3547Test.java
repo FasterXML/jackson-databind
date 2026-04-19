@@ -98,4 +98,8 @@ public class ExternalPropertyWithJsonValueNull3547Test extends DatabindTestUtil
         assertInstanceOf(FooType.class, out.value);
         assertEquals("foobar", out.value.getValue());
     }
+
+    // 18-Apr-2026, tatu: Note: no deser test for surrogate `null` value as
+    //   it is not quite clear what should happen (or rather, how to make
+    //   round-trip handling work as expected)
 }

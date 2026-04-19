@@ -126,6 +126,11 @@ Versions: 3.x (for earlier see VERSION-2.x)
   "Cannot construct instance (although at least one Creator exists)"
  (reported by @dinopraso)
  (fix by @JacksonJang)
+#3547: When using type id with `As.EXTERNAL_PROPERTY` together with
+  `@JsonValue` inside type the serialiser omits external type id field
+  from result when `@JsonValue` value is null
+ (reported by Aurimas N)
+ (fix by @cowtowncoder, w/ Claude code)
 #3573: Inconsistent handling of nil `UUID` in property inclusion
  (reported by Andrzej L)
 #3591: Ignored fields not consistently exposed via

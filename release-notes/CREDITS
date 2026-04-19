@@ -426,6 +426,12 @@ Daniel Gerhardt (@dgerhardt)
  * Reported #3205: ConfigOverrides for merging are not applied for items inside containers
   [3.2.0]
 
+Aurimas Niekis (@aurimasniekis)
+ * Reported #3547: When using type id with `As.EXTERNAL_PROPERTY` together with
+  `@JsonValue` inside type the serialiser omits external type id field
+  from result when `@JsonValue` value is null
+  [3.2.0]
+
 Andrzej Leśkiewicz (@aleskiewicz)
  * Reported #3573: Inconsistent handling of nil `UUID` in property inclusion
   [3.2.0]

@@ -63,6 +63,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   same bean doesn't work
  (reported by @tlevavasseur-innovantic)
  (fix by @cowtowncoder, w/ Claude code)
+#2100: Using `ObjectReader.withValueToUpdate()` with JsonPOJOBuilder
+  no longer working
+ (reported by Leonid T)
+ (fix by @cowtowncoder, w/ Claude code)
 #2572: Can't deserialize inner class if default setter is `Nulls.AS_EMPTY`
  (reported by @XakepSDK)
  (fix by @cowtowncoder, w/ Claude code)

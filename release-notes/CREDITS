@@ -383,6 +383,11 @@ Balys Valentukevicius (@balysv)
    deserializing a collection of interfaces (immutables.io compatibility)
   [3.2.0]
 
+Leonid Talalaev (@ltalal)
+ * Reported #2100: Using `ObjectReader.withValueToUpdate()` with JsonPOJOBuilder
+  no longer working
+  [3.2.0]
+
 Vitaly Barkhatov (@vbarhatov)
  * Reported #2736: Unable to deserialize `@JsonUnwrapped` `Optional<>` field
   [3.2.0]

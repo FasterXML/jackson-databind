@@ -2,6 +2,7 @@ package tools.jackson.databind.jsontype.ext;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -13,6 +14,8 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#3547]: When combining `As.EXTERNAL_PROPERTY` with `@JsonValue`, the serializer
 // used to omit the external type id field when the `@JsonValue` return value was null.
@@ -33,7 +36,7 @@ public class ExternalPropertyWithJsonValueNull3547Test extends DatabindTestUtil
 
     public static class FooType extends AbstractGenericType {
         public FooType() { super(); }
-        public FooType(String value) { super(value); }
+        @JsonCreator public FooType(String value) { super(value); }
     }
 
     public static class Container {
@@ -75,5 +78,24 @@ public class ExternalPropertyWithJsonValueNull3547Test extends DatabindTestUtil
         Container container = new Container();
         String json = MAPPER.writeValueAsString(container);
         assertEquals("{\"value\":null}", json);
+    }
+
+    @Test
+    public void deserializeWithNonNullJsonValue() throws Exception {
+        String json = "{\"value\":\"foobar\",\"type\":\"" + FooType.class.getName() + "\"}";
+        Container container = MAPPER.readValue(json, Container.class);
+        assertNotNull(container.value);
+        assertInstanceOf(FooType.class, container.value);
+        assertEquals("foobar", container.value.getValue());
+    }
+
+    @Test
+    public void roundtripWithNonNullJsonValue() throws Exception {
+        Container in = new Container();
+        in.setValue(new FooType("foobar"));
+        String json = MAPPER.writeValueAsString(in);
+        Container out = MAPPER.readValue(json, Container.class);
+        assertInstanceOf(FooType.class, out.value);
+        assertEquals("foobar", out.value.getValue());
     }
 }

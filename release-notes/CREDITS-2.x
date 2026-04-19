@@ -2026,3 +2026,8 @@ Kenta Yoshii (@KentaYoshii)
  * Reported #5898: `DoubleDeserializer` rejects "+INF"/"+Infinity" despite accepting
    "INF"/"Infinity" and "-INF"/"-Infinity"
   [2.21.3]
+
+Joshua Arnold (@josharnold52)
+ * Reported, fixed #5923: Deserialization behavior change with Records,
+   `@JsonCreator` and `@JsonValue`
+  [2.21.3]

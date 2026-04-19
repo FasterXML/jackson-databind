@@ -11,6 +11,16 @@ public class PotentialCreators
      */
     public PotentialCreator propertiesBased;
 
+    /**
+     * Whether {@link #propertiesBased} was registered via
+     * {@link #setExplicitPropertiesBased} (i.e. from an explicit
+     * {@code @JsonCreator}-style annotation), as opposed to an implicit
+     * or primary fallback.
+     *
+     * @since 2.21.3
+     */
+    private boolean propertiesBasedExplicit;
+
     private List<PotentialCreator> explicitDelegating;
 
     private List<PotentialCreator> implicitDelegatingConstructors;
@@ -24,8 +34,28 @@ public class PotentialCreators
     /**********************************************************************
      */
     
-    // mode -> "explicit", "implicit" etc
+    // {@code mode} is used only for diagnostic messages (e.g. "implicit",
+    // "primary"); for creators from an explicit {@code @JsonCreator} annotation
+    // use {@link #setExplicitPropertiesBased} instead.
     public void setPropertiesBased(MapperConfig<?> config, PotentialCreator ctor, String mode)
+    {
+        _setPropertiesBased(config, ctor, mode, false);
+    }
+
+    /**
+     * Variant of {@link #setPropertiesBased} for creators coming from explicit
+     * {@code @JsonCreator}-style annotations; records that the registered
+     * creator is {@code explicit} so later fallback logic can defer to it.
+     *
+     * @since 2.21.3
+     */
+    public void setExplicitPropertiesBased(MapperConfig<?> config, PotentialCreator ctor)
+    {
+        _setPropertiesBased(config, ctor, "explicit", true);
+    }
+
+    private void _setPropertiesBased(MapperConfig<?> config, PotentialCreator ctor,
+            String mode, boolean explicit)
     {
         if (propertiesBased != null) {
             throw new IllegalArgumentException(String.format(
@@ -33,6 +63,7 @@ public class PotentialCreators
                     mode, propertiesBased.creator(), ctor.creator()));
         }
         propertiesBased = ctor.introspectParamNames(config);
+        propertiesBasedExplicit = explicit;
     }
 
     public void addExplicitDelegating(PotentialCreator ctor)
@@ -63,6 +94,13 @@ public class PotentialCreators
     
     public boolean hasPropertiesBased() {
         return (propertiesBased != null);
+    }
+
+    /**
+     * @since 2.21.3
+     */
+    public boolean hasExplicitPropertiesBased() {
+        return propertiesBasedExplicit;
     }
 
     public boolean hasPropertiesBasedOrDelegating() {

@@ -19,6 +19,8 @@ Project: jackson-databind
   "INF"/"Infinity" and "-INF"/"-Infinity"
  (reported by Kenta Y)
  (fix by @cowtowncoder)
+#5923: Deserialization behavior change with Records, `@JsonCreator` and `@JsonValue`
+ (reported, fixed by Joshua A)
 
 2.21.2 (20-Mar-2026)
 

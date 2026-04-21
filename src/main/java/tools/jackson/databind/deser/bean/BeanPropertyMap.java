@@ -160,8 +160,13 @@ public class BeanPropertyMap
     }
 
     /**
-     * Mutant factory method for constructing a map where all entries use given
-     * prefix
+     * Mutant factory method for constructing a map where property <i>names</i>
+     * are transformed using the given {@link NameTransformer}.
+     *<p>
+     * NOTE: transformer is applied to property names only; value deserializers
+     * are left untouched. Non-unwrapped nested values deserialize from their
+     * own JSON object (not a flattened one), so propagating a prefix/suffix
+     * into their property names would be incorrect (see [databind#3178]).
      */
     public BeanPropertyMap renameAll(DeserializationContext ctxt,
             NameTransformer transformer)
@@ -171,11 +176,20 @@ public class BeanPropertyMap
         }
         // Try to retain insertion ordering as well
         final int len = _propsInOrder.length;
-        ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(_propsInOrder.length);
+        ArrayList<SettableBeanProperty> newProps = new ArrayList<>(_propsInOrder.length);
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty orig = _propsInOrder[i];
-            SettableBeanProperty prop = orig.unwrapped(ctxt, transformer);
-            newProps.add(prop);
+            if (orig == null) {
+                newProps.add(null);
+                continue;
+            }
+            String oldName = orig.getName();
+            String newName = transformer.transform(oldName);
+            if (oldName.equals(newName)) {
+                newProps.add(orig);
+                continue;
+            }
+            newProps.add(orig.withSimpleName(ctxt.canonicalizeString(newName)));
         }
         // 26-Feb-2017, tatu: Probably SHOULD handle renaming wrt Aliases?
         // NOTE: do NOT try reassigning indexes of properties; number doesn't change

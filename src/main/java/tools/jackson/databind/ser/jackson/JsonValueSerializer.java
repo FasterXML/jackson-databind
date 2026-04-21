@@ -274,6 +274,24 @@ public class JsonValueSerializer
         }
         // and if we got null, can also just write it directly
         if (value == null) {
+            // [databind#3547]: With `EXTERNAL_PROPERTY` inclusion the type id lives on
+            // the parent object, so even if the `@JsonValue` accessor returns null we
+            // must still emit the type id (derived from the non-null bean) so the parent
+            // writes its external "type" property.
+            //
+            // Scoped to EXTERNAL_PROPERTY only: the parent has already committed to a
+            // sibling "type" field, so dropping it leaves the container in a
+            // schema-inconsistent state. Wrapper modes (WRAPPER_ARRAY / WRAPPER_OBJECT)
+            // have the same roundtrip gap in principle, but changing those would alter
+            // the JSON wire format for null values (bare `null` vs. `["id",null]`) and
+            // risk regressing callers relying on the current output.
+            if (typeSer0.getTypeInclusion() == As.EXTERNAL_PROPERTY) {
+                WritableTypeId typeIdDef = typeSer0.writeTypePrefix(gen, ctxt,
+                        typeSer0.typeId(bean, JsonToken.VALUE_NULL));
+                ctxt.defaultSerializeNullValue(gen);
+                typeSer0.writeTypeSuffix(gen, ctxt, typeIdDef);
+                return;
+            }
             ctxt.defaultSerializeNullValue(gen);
             return;
         }

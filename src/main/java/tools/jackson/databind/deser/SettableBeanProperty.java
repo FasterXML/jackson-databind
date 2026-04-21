@@ -609,6 +609,13 @@ public abstract class SettableBeanProperty
 
     /**
      * Returns a copy of this property, unwrapped using given {@link NameTransformer}.
+     *<p>
+     * NOTE: this is the <i>propagating</i> rename — the transformer is applied both to
+     * the property name AND recursively to the value deserializer (via
+     * {@link ValueDeserializer#unwrappingDeserializer}). This is correct for properties
+     * stored in an {@code UnwrappedPropertyHandler} (where nested {@code @JsonUnwrapped}
+     * must inherit the prefix/suffix), but wrong for ordinary non-unwrapped properties —
+     * those should be renamed by name only (see [databind#3178]).
      *
      * @since 2.19
      */

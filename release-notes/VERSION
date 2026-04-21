@@ -63,6 +63,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   same bean doesn't work
  (reported by @tlevavasseur-innovantic)
  (fix by @cowtowncoder, w/ Claude code)
+#2100: Using `ObjectReader.withValueToUpdate()` with JsonPOJOBuilder
+  no longer working
+ (reported by Leonid T)
+ (fix by @cowtowncoder, w/ Claude code)
 #2572: Can't deserialize inner class if default setter is `Nulls.AS_EMPTY`
  (reported by @XakepSDK)
  (fix by @cowtowncoder, w/ Claude code)
@@ -72,6 +76,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #2780: Deserialization with Default Typing and `@JsonIdentityInfo`
   in untyped collections fails
  (reported by @ alex-t0)
+ (fix by @cowtowncoder, w/ Claude code)
+#2883: Annotation `@JsonUnwrapped` can serialize duplicate properties
+ (reported by Michał R)
  (fix by @cowtowncoder, w/ Claude code)
 #2955: Handling UnresolvedForwardReference by pre-processing illegal values
  (reported by Andrey U)
@@ -93,6 +100,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (implemented by @Lee Jiwon)
 #3169: `@JsonIncludeProperties` does not work together with `@JsonIdentityInfo`
  (reported by Christof T)
+#3178: `@JsonUnwrapped` deserialization results in empty nested object when using prefix
+ (reported by @chimmi)
+ (fix by @cowtowncoder, w/ Claude code)
 #3185: `@JsonIdentityInfo` with `@JsonCreator` incorrectly sets a field
  (reported by Auke S)
 #3194: Deserialization of 2-dimensional arrays of final types fails when
@@ -101,6 +111,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #3205: ConfigOverrides for merging are not applied for items inside containers
  (reported by Daniel G)
+ (fix by @cowtowncoder, w/ Claude code)
+#3209: Polymorphism with aliases fails to utilize alias fields
+ (reported by @Dragas)
  (fix by @cowtowncoder, w/ Claude code)
 #3216: Delegating `@JsonCreator` does not prevent unnecessary introspection
   of properties, leading to bogus failure
@@ -117,6 +130,11 @@ Versions: 3.x (for earlier see VERSION-2.x)
   "Cannot construct instance (although at least one Creator exists)"
  (reported by @dinopraso)
  (fix by @JacksonJang)
+#3547: When using type id with `As.EXTERNAL_PROPERTY` together with
+  `@JsonValue` inside type the serialiser omits external type id field
+  from result when `@JsonValue` value is null
+ (reported by Aurimas N)
+ (fix by @cowtowncoder, w/ Claude code)
 #3573: Inconsistent handling of nil `UUID` in property inclusion
  (reported by Andrzej L)
 #3591: Ignored fields not consistently exposed via
@@ -181,6 +199,15 @@ Versions: 3.x (for earlier see VERSION-2.x)
   "INF"/"Infinity" and "-INF"/"-Infinity"
  (reported by Kenta Y)
  (fix by @cowtowncoder)
+#5918: Creator properties always come first in 3.x
+ (reported by Marco B)
+ (fix by @cowtowncoder)
+#5923: Deserialization behavior change with Records, `@JsonCreator` and `@JsonValue`
+ (reported, fixed by Joshua A)
+#5925: Pass dynamic serializer for `Iterable` content filtering
+ (fixed by Lee Jiwon)
+#5931: Fix `AtomicLongDeserializer` value truncation on coerced values
+ (fixed by Lee Jiwon)
 
 3.1.2 (11-Apr-2026)
 

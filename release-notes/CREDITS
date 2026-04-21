@@ -231,6 +231,8 @@ Lee Jiwon (@dlwldnjs1009)
   [3.1.2]
  * Fixed #5925: Pass dynamic serializer for `Iterable` content filtering
   [3.1.3]
+ * Fixed #5931: Fix `AtomicLongDeserializer` value truncation on coerced values
+  [3.1.3]
  * Contributed #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
    are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
   [3.2.0]
@@ -340,6 +342,11 @@ Marco Brakmann (@ML-Marco)
  * Reported #5918: Creator properties always come first in 3.x
   [3.1.3]
 
+Joshua Arnold (@josharnold52)
+ * Reported, fixed #5923: Deserialization behavior change with Records,
+   `@JsonCreator` and `@JsonValue`
+  [3.1.3]
+
 Gili Tzabari (@cowwoc)
  * Reported #639: `@JacksonInject` with `@JsonIdentityInfo` causes deserialization
    failure (unresolved forward reference)
@@ -376,6 +383,11 @@ Davide Maestroni (@davide-maestroni)
 Balys Valentukevicius (@balysv)
  * Reported #1706: `@JsonCreator` not working properly with `@JsonIdentityInfo` when
    deserializing a collection of interfaces (immutables.io compatibility)
+  [3.2.0]
+
+Leonid Talalaev (@ltalal)
+ * Reported #2100: Using `ObjectReader.withValueToUpdate()` with JsonPOJOBuilder
+  no longer working
   [3.2.0]
 
 Vitaly Barkhatov (@vbarhatov)
@@ -419,6 +431,12 @@ Klaas Dellschaft (@klaasdellschaft)
 
 Daniel Gerhardt (@dgerhardt)
  * Reported #3205: ConfigOverrides for merging are not applied for items inside containers
+  [3.2.0]
+
+Aurimas Niekis (@aurimasniekis)
+ * Reported #3547: When using type id with `As.EXTERNAL_PROPERTY` together with
+  `@JsonValue` inside type the serialiser omits external type id field
+  from result when `@JsonValue` value is null
   [3.2.0]
 
 Andrzej Leśkiewicz (@aleskiewicz)

@@ -680,7 +680,7 @@ public class POJOPropertiesCollector
             //   creator was found (multi-arg @JsonCreator takes precedence over 0-arg one)
             if (zeroParamsConstructor != null && zeroParamsConstructor.isAnnotated()
                     && !creators.hasPropertiesBased()) {
-                creators.setPropertiesBased(_config, zeroParamsConstructor, "explicit");
+                creators.setExplicitPropertiesBased(_config, zeroParamsConstructor);
             }
         }
 
@@ -702,13 +702,13 @@ public class POJOPropertiesCollector
                 if (_isDelegatingConstructor(primaryCreator)) {
                     // 08-Oct-2024, tatu: [databind#4724] Only add if no explicit
                     //    candidates added
-                    if (!creators.hasDelegating()) {
+                    if (!creators.hasDelegating() && !creators.hasExplicitPropertiesBased()) {
                         // ... not technically explicit but simpler this way
                         creators.addExplicitDelegating(primaryCreator);
                     }
                 } else { // primary creator is properties-based
                     if (!creators.hasPropertiesBased()) {
-                        creators.setPropertiesBased(_config, primaryCreator, "Primary");
+                        creators.setPropertiesBased(_config, primaryCreator, "primary");
                     }
                 }
             }
@@ -890,7 +890,7 @@ public class POJOPropertiesCollector
             if (isPropsBased) {
                 // Skipping done if we already got higher-precedence Creator
                 if (!skipPropsBased) {
-                    collector.setPropertiesBased(_config, ctor, "explicit");
+                    collector.setExplicitPropertiesBased(_config, ctor);
                 }
             } else {
                 collector.addExplicitDelegating(ctor);

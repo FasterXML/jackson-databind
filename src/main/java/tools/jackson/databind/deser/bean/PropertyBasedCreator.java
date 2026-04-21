@@ -191,8 +191,12 @@ public final class PropertyBasedCreator
     }
 
     /**
-     * Mutant factory method for constructing a map where the names of all properties
+     * Mutant factory method for constructing a creator where property <i>names</i>
      * are transformed using the given {@link NameTransformer}.
+     *<p>
+     * NOTE: transformer is applied to property names only; value deserializers
+     * are left untouched. See {@link BeanPropertyMap#renameAll} for rationale
+     * (see [databind#3178]).
      *
      * @since 2.19
      */
@@ -213,13 +217,16 @@ public final class PropertyBasedCreator
                 continue;
             }
 
-            SettableBeanProperty renamedProperty = prop.unwrapped(ctxt, transformer);
             String oldName = prop.getName();
-            String newName = renamedProperty.getName();
-
+            String newName = transformer.transform(oldName);
+            if (oldName.equals(newName)) {
+                newProps.add(prop);
+                continue;
+            }
+            newName = ctxt.canonicalizeString(newName);
+            SettableBeanProperty renamedProperty = prop.withSimpleName(newName);
             newProps.add(renamedProperty);
-
-            if (!oldName.equals(newName) && newLookup.containsKey(oldName)) {
+            if (newLookup.containsKey(oldName)) {
                 newLookup.remove(oldName);
                 newLookup.put(newName, renamedProperty);
             }

@@ -7,11 +7,15 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
+import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.*;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * Unit tests for verifying JSON view functionality: ability to declaratively
@@ -73,6 +77,9 @@ public class ViewSerializationTest extends DatabindTestUtil
         @JsonView(WebView.class)
         public int getFoo() { return 3; }
     }
+
+    // [databind#5937]
+    static class Bean5937 { }
 
     /*
     /**********************************************************
@@ -200,5 +207,102 @@ public class ViewSerializationTest extends DatabindTestUtil
                 .build();
         assertEquals("{}",
                 mapper.writerWithView(OtherView.class).writeValueAsString(new Foo()));
+    }
+
+    // [databind#5937]
+    @Test
+    public void testWithActiveView() throws Exception
+    {
+        final Class<?>[] insideView = new Class<?>[1];
+        final Class<?>[] afterView = new Class<?>[1];
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addSerializer(Bean5937.class, new StdSerializer<Bean5937>(Bean5937.class) {
+                            @Override
+                            public void serialize(Bean5937 value, JsonGenerator g,
+                                    SerializationContext ctxt) {
+                                ctxt.withActiveView(ViewA.class, () -> {
+                                    insideView[0] = ctxt.getActiveView();
+                                });
+                                afterView[0] = ctxt.getActiveView();
+                                g.writeStartObject();
+                                g.writeEndObject();
+                            }
+                        }))
+                .build();
+
+        // No initial view: inside == ViewA, after reverts to null
+        mapper.writeValueAsString(new Bean5937());
+        assertSame(ViewA.class, insideView[0]);
+        assertNull(afterView[0]);
+
+        // With initial view ViewB: inside == ViewA, after reverts to ViewB
+        mapper.writerWithView(ViewB.class).writeValueAsString(new Bean5937());
+        assertSame(ViewA.class, insideView[0]);
+        assertSame(ViewB.class, afterView[0]);
+    }
+
+    // [databind#5937]: active view must be reverted even if callback throws
+    @Test
+    public void testWithActiveViewRevertsOnThrow() throws Exception
+    {
+        final Class<?>[] afterView = new Class<?>[1];
+        final RuntimeException boom = new RuntimeException("boom");
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addSerializer(Bean5937.class, new StdSerializer<Bean5937>(Bean5937.class) {
+                            @Override
+                            public void serialize(Bean5937 value, JsonGenerator g,
+                                    SerializationContext ctxt) {
+                                try {
+                                    ctxt.withActiveView(ViewA.class, () -> { throw boom; });
+                                } catch (RuntimeException e) {
+                                    if (e != boom) throw e;
+                                }
+                                afterView[0] = ctxt.getActiveView();
+                                g.writeStartObject();
+                                g.writeEndObject();
+                            }
+                        }))
+                .build();
+
+        mapper.writerWithView(ViewB.class).writeValueAsString(new Bean5937());
+        assertSame(ViewB.class, afterView[0]);
+    }
+
+    // [databind#5937]: nested withActiveView calls must each revert to the
+    //   view in effect at their entry
+    @Test
+    public void testWithActiveViewNested() throws Exception
+    {
+        final Class<?>[] innerView = new Class<?>[1];
+        final Class<?>[] betweenView = new Class<?>[1];
+        final Class<?>[] afterView = new Class<?>[1];
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addSerializer(Bean5937.class, new StdSerializer<Bean5937>(Bean5937.class) {
+                            @Override
+                            public void serialize(Bean5937 value, JsonGenerator g,
+                                    SerializationContext ctxt) {
+                                ctxt.withActiveView(ViewA.class, () -> {
+                                    ctxt.withActiveView(ViewAA.class, () -> {
+                                        innerView[0] = ctxt.getActiveView();
+                                    });
+                                    betweenView[0] = ctxt.getActiveView();
+                                });
+                                afterView[0] = ctxt.getActiveView();
+                                g.writeStartObject();
+                                g.writeEndObject();
+                            }
+                        }))
+                .build();
+
+        mapper.writerWithView(ViewB.class).writeValueAsString(new Bean5937());
+        assertSame(ViewAA.class, innerView[0]);
+        assertSame(ViewA.class, betweenView[0]);
+        assertSame(ViewB.class, afterView[0]);
     }
 }

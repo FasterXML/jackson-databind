@@ -330,15 +330,22 @@ public class CreatorProperty
         if (_fallbackSetterTypeMatches) {
             return deserialize(p, ctxt);
         }
-        // Types differ: find deserializer for the fallback setter's type
+        // Types differ: find deserializer for the fallback setter's type, and use
+        // the fallback setter's NullValueProvider so that its `@JsonSetter(nulls=...)`
+        // (or equivalent) policy is honored instead of the creator parameter's.
         if (p.hasToken(JsonToken.VALUE_NULL)) {
-            return _nullProvider.getNullValue(ctxt);
+            return _fallbackSetter.getNullValueProvider().getNullValue(ctxt);
         }
         ValueDeserializer<Object> deser = ctxt.findContextualValueDeserializer(
                 _fallbackSetter.getType(), _fallbackSetter);
-        Object value = deser.deserialize(p, ctxt);
+        // If fallback setter has a TypeDeserializer (polymorphism via @JsonTypeInfo),
+        // honor it instead of plain deserialize()
+        final TypeDeserializer typeDeser = _fallbackSetter.getValueTypeDeserializer();
+        Object value = (typeDeser == null)
+                ? deser.deserialize(p, ctxt)
+                : deser.deserializeWithType(p, ctxt, typeDeser);
         if (value == null) {
-            value = _nullProvider.getNullValue(ctxt);
+            value = _fallbackSetter.getNullValueProvider().getNullValue(ctxt);
         }
         return value;
     }

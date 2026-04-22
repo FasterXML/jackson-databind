@@ -57,6 +57,17 @@ public class CreatorProperty
      */
     protected SettableBeanProperty _fallbackSetter;
 
+    /**
+     * Pre-computed flag that is {@code true} if {@link #_fallbackSetter}'s
+     * declared type matches this property's (creator parameter) type, so that
+     * the existing value deserializer can be reused when reading into an
+     * existing instance. Cached to avoid repeating the type comparison on
+     * every call to {@link #deserializeAndSet}/{@link #deserializeSetAndReturn}.
+     *
+     * @since 3.2
+     */
+    protected boolean _fallbackSetterTypeMatches;
+
     protected final int _creatorIndex;
 
     /**
@@ -112,6 +123,7 @@ public class CreatorProperty
         _annotated = src._annotated;
         _injectableValue = src._injectableValue;
         _fallbackSetter = src._fallbackSetter;
+        _fallbackSetterTypeMatches = src._fallbackSetterTypeMatches;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
     }
@@ -122,6 +134,7 @@ public class CreatorProperty
         _annotated = src._annotated;
         _injectableValue = src._injectableValue;
         _fallbackSetter = src._fallbackSetter;
+        _fallbackSetterTypeMatches = src._fallbackSetterTypeMatches;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
     }
@@ -132,6 +145,7 @@ public class CreatorProperty
         _annotated = src._annotated;
         _injectableValue = src._injectableValue;
         _fallbackSetter = src._fallbackSetter;
+        _fallbackSetterTypeMatches = src._fallbackSetterTypeMatches;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
     }
@@ -177,6 +191,8 @@ public class CreatorProperty
      */
     public void setFallbackSetter(SettableBeanProperty fallbackSetter) {
         _fallbackSetter = fallbackSetter;
+        _fallbackSetterTypeMatches = (fallbackSetter != null)
+                && _type.equals(fallbackSetter.getType());
     }
 
     @Override
@@ -311,7 +327,7 @@ public class CreatorProperty
         throws JacksonException
     {
         // Common case: types match, use this property's (already resolved) deserializer
-        if (_fallbackSetter.getType().equals(_type)) {
+        if (_fallbackSetterTypeMatches) {
             return deserialize(p, ctxt);
         }
         // Types differ: find deserializer for the fallback setter's type

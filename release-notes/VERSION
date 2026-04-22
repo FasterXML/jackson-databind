@@ -152,6 +152,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #4983: `JsonTypeInfo.Id.MINIMAL_CLASS` generates invalid type on sub-package
  (reported, fix by Benoit C-L)
+#5281: Reading into existing instance uses creator property setup instead
+  of mutator (setter, field)
+ (reported by @odrotbohm)
+ (fix by @cowtowncoder, w/ Claude code)
 #5330: `@JsonProperty`on enum values with
   `@JsonFormat(shape = JsonFormat.Shape.NUMBER)` is ignored
  (reported by Christoffer H)

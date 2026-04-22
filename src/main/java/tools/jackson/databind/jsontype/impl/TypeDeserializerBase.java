@@ -232,16 +232,15 @@ public abstract class TypeDeserializerBase
     }
 
     /**
-     * Variant called when the caller has already resolved the type id out-of-band
-     * (for example, {@link tools.jackson.databind.deser.impl.ExternalTypeHandler}
-     * for {@link JsonTypeInfo.As#EXTERNAL_PROPERTY}), and wants to invoke the
-     * subtype deserializer directly on the value without any re-encoding that
-     * would otherwise leak synthetic tokens into the parser's stream context.
-     *<p>
-     * Pre-condition: {@code p} is positioned on the first token of the value.
+     * Fast-path override: resolve subtype deserializer from the type id via the
+     * existing lookup cache and invoke it directly on the value, avoiding the
+     * synthetic {@code WRAPPER_ARRAY} encoding used by the default implementation
+     * on {@link TypeDeserializer}. Keeps {@link JsonParser#streamReadContext()}
+     * clean for custom {@link ValueDeserializer}s examining parsing state.
      *
      * @since 3.2 (fix for [databind#2747])
      */
+    @Override
     public Object deserializeTypedWithKnownTypeId(JsonParser p, DeserializationContext ctxt,
             String typeId)
         throws JacksonException

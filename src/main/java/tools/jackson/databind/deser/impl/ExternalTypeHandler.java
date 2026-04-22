@@ -388,7 +388,6 @@ public class ExternalTypeHandler
         return tokens;
     }
 
-    @SuppressWarnings("resource")
     protected final Object _deserialize(JsonParser p, DeserializationContext ctxt,
             int index, String typeId) throws JacksonException
     {
@@ -399,23 +398,11 @@ public class ExternalTypeHandler
         if (t == JsonToken.VALUE_NULL) {
             return null;
         }
-        // [databind#2747]: when possible, invoke subtype deserializer directly on
-        // the buffered value — this avoids the wrapper-array encoding below, which
-        // otherwise exposes a synthetic array in `JsonParser.streamReadContext()`
-        // to any custom deserializer examining parsing state.
-        if (extProp._typeDeserializer instanceof TypeDeserializerBase tdb) {
-            return tdb.deserializeTypedWithKnownTypeId(p2, ctxt, typeId);
-        }
-        TokenBuffer merged = ctxt.bufferForInputBuffering(p);
-        merged.writeStartArray();
-        merged.writeString(typeId);
-        merged.copyCurrentStructure(p2);
-        merged.writeEndArray();
-
-        // needs to point to START_OBJECT (or whatever first token is)
-        JsonParser mp = merged.asParser(ctxt, p);
-        mp.nextToken();
-        return extProp.getProperty().deserialize(mp, ctxt);
+        // [databind#2747]: invoke subtype deserializer via the known-type-id entry
+        // point so the standard impls skip the wrapper-array re-encoding (which
+        // would otherwise expose a synthetic array in `JsonParser.streamReadContext()`
+        // to any custom deserializer examining parsing state).
+        return extProp._typeDeserializer.deserializeTypedWithKnownTypeId(p2, ctxt, typeId);
     }
 
     // 03-Aug-2022, tatu: [databind#3533] to handle absent value matching:
@@ -435,7 +422,6 @@ public class ExternalTypeHandler
         return _properties[index].getProperty().deserialize(mp, ctxt);
     }
 
-    @SuppressWarnings("resource")
     protected final void _deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object bean, int index, String typeId) throws JacksonException
     {
@@ -453,28 +439,12 @@ public class ExternalTypeHandler
             prop.set(ctxt, bean, null);
             return;
         }
-        // [databind#2747]: when possible, invoke subtype deserializer directly on
-        // the buffered value — this avoids the wrapper-array encoding below, which
-        // otherwise exposes a synthetic array in `JsonParser.streamReadContext()`
-        // to any custom deserializer examining parsing state.
-        if (extProp._typeDeserializer instanceof TypeDeserializerBase tdb) {
-            Object value = tdb.deserializeTypedWithKnownTypeId(p2, ctxt, typeId);
-            prop.set(ctxt, bean, value);
-            return;
-        }
-
-        // Fallback: mix type id and buffered value using "wrapper-array" encoding
-        // so the standard type deserializer path can consume them together.
-        TokenBuffer merged = ctxt.bufferForInputBuffering(p);
-        merged.writeStartArray();
-        merged.writeString(typeId);
-
-        merged.copyCurrentStructure(p2);
-        merged.writeEndArray();
-        // needs to point to START_OBJECT (or whatever first token is)
-        JsonParser mp = merged.asParser(ctxt, p);
-        mp.nextToken();
-        prop.deserializeAndSet(mp, ctxt, bean);
+        // [databind#2747]: invoke subtype deserializer via the known-type-id entry
+        // point so the standard impls skip the wrapper-array re-encoding (which
+        // would otherwise expose a synthetic array in `JsonParser.streamReadContext()`
+        // to any custom deserializer examining parsing state).
+        Object value = extProp._typeDeserializer.deserializeTypedWithKnownTypeId(p2, ctxt, typeId);
+        prop.set(ctxt, bean, value);
     }
 
     /*

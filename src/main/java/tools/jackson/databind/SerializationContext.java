@@ -245,6 +245,7 @@ public abstract class SerializationContext
      * @since 3.2
      */
     public void withActiveView(Class<?> viewToApply, Runnable callback)
+        throws JacksonException
     {
         final Class<?> currentView = _activeView;
         _activeView = viewToApply;

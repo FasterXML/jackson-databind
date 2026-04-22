@@ -604,12 +604,32 @@ public abstract class AnnotationIntrospector
      * {@link AnnotatedClass}
      *
      * @param config Effective mapper configuration in use
-     * @param a Annotated property (represented by a method, field or ctor parameter)
+     * @param a Annotated property (represented by a method, field or constructor parameter)
      *
      * @return Array of views (represented by classes) that the property is included in;
      *    if null, always included (same as returning array containing <code>Object.class</code>)
      */
     public Class<?>[] findViews(MapperConfig<?> config, Annotated a) { return null; }
+
+    /**
+     * Method for checking if annotated property (represented by a field or
+     * getter/setter method) has definition for view that shall be applied to
+     * property value (and its child properties) when processing.
+     * If {@code null} is returned, no view definition exist and property is processed with
+     * the current active view if any;
+     * otherwise it will use that view to process the property and its subtree.
+     * NOTE: special value of {@link com.fasterxml.jackson.annotation.JsonApplyView.NONE}
+     * can be used to indicate "disable View processing for property".
+     *
+     * @param config Effective mapper configuration in use
+     * @param a Annotated property (represented by a method, field or constructor parameter)
+     *
+     * @return view (represented by class) that the property will be processed with;
+     *    if null, processing will use the current view if any
+     *
+     * @since 3.2
+     */
+    public Class<?> findApplyView(MapperConfig<?> config, Annotated a) { return null; }
 
     /**
      * Method for finding format annotations for property or class.

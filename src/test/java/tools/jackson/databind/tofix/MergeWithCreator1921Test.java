@@ -18,7 +18,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 // improved since combination of Creator + Setter(s)/field is legit; but use
 // of Creator always means that operation is not true merge.
 // But added test just in case future brings us a good idea of way forward.
-class MergeWithCreator1921Test extends DatabindTestUtil {
+//
+// 22-Apr-2026, tatu: Issue close as "wont-fix"; should test be removed?
+class MergeWithCreator1921Test extends DatabindTestUtil
+{
     static class Account {
         @JsonMerge(value = OptBoolean.TRUE)
         private final Validity validity;

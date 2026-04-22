@@ -378,12 +378,8 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Class findApplyView(MapperConfig<?> config, Annotated a)
+    public Class<?> findApplyView(MapperConfig<?> config, Annotated a)
     {
-        /* Theoretically this could be trickier, if multiple introspectors
-         * return non-null entries. For now, though, we'll just consider
-         * first one to return non-null to win.
-         */
         Class<?> result = _primary.findApplyView(config, a);
         if (result == null) {
             result = _secondary.findApplyView(config, a);

@@ -53,11 +53,14 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (reported by Balys V)
  (fix by @cowtowncoder, w/ Claude code)
 #1755: Get NPE on deserializing values with recursive `@JsonIgnoreProperties`
- (reported by @Romain-P)#
+ (reported by @Romain-P)
  (fix by @cowtowncoder, w/ Claude code)
 #1757: Regression in `JsonInclude.Include.NON_DEFAULT` set as global default
   serialization inclusion (add new `MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT`)
  (reported by @yhack)
+ (fix by @cowtowncoder, w/ Claude code)
+#1921: Reader for updating do not use `@JsonCreator` constructor
+ (reported by Patrik M)
  (fix by @cowtowncoder, w/ Claude code)
 #2039: `@JsonUnwrapped` and `JsonTypeInfo.As.EXTERNAL_PROPERTY` in the
   same bean doesn't work

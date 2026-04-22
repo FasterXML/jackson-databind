@@ -195,6 +195,17 @@ public class CreatorProperty
                 && _type.equals(fallbackSetter.getType());
     }
 
+    /**
+     * @return True if a non-creator mutator (setter or field) is available
+     *    for assigning this property's value into an existing instance;
+     *    false if this property can only be assigned via the creator.
+     *
+     * @since 3.2
+     */
+    public boolean hasFallbackSetter() {
+        return _fallbackSetter != null;
+    }
+
     @Override
     public void markAsIgnorable() {
         _ignorable = true;

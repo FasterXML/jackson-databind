@@ -385,6 +385,10 @@ Balys Valentukevicius (@balysv)
    deserializing a collection of interfaces (immutables.io compatibility)
   [3.2.0]
 
+Patrik Mihalcin (@pmihalcin)
+ * Reported #1921: Reader for updating do not use `@JsonCreator` constructor
+  [3.2.0]
+
 Leonid Talalaev (@ltalal)
  * Reported #2100: Using `ObjectReader.withValueToUpdate()` with JsonPOJOBuilder
   no longer working

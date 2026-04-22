@@ -768,7 +768,6 @@ public class BeanPropertyWriter
         }
     }
 
-
     /**
      * Method called to serialize a placeholder used in tabular output when real
      * value is not to be included (is filtered out), but when we need an entry

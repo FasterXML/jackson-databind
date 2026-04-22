@@ -390,9 +390,6 @@ public abstract class SerializationContext
     @Override
     public final Class<?> getActiveView() { return _activeView; }
 
-    public final void setActiveView(Class<?> activeView) { _activeView = activeView; }
-
-
     @Override
     public final boolean canOverrideAccessModifiers() {
         return _config.canOverrideAccessModifiers();

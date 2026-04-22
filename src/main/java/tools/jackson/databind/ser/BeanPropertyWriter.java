@@ -689,24 +689,11 @@ public class BeanPropertyWriter
         }
         g.writeName(_name);
         if (_applyView == null) {
-            doSerialize(value, g, ctxt, ser);
+            _serialize(value, g, ctxt, ser);
         } else {
-            Class<?> currentActiveView = ctxt.getActiveView();
-            try {
-                ctxt.setActiveView(_applyView != JsonApplyView.NONE.class ? _applyView : null);
-                doSerialize(value, g, ctxt, ser);
-            }
-            finally {
-                ctxt.setActiveView(currentActiveView);
-            }
-        }
-    }
-
-    private void doSerialize(Object value, JsonGenerator g, SerializationContext ctxt, ValueSerializer<Object> ser) {
-        if (_typeSerializer == null) {
-            ser.serialize(value, g, ctxt);
-        } else {
-            ser.serializeWithType(value, g, ctxt, _typeSerializer);
+            ValueSerializer<Object> actualSer = ser;
+            ctxt.withActiveView(_applyView != JsonApplyView.NONE.class ? _applyView : null,
+                    () -> _serialize(value, g, ctxt, actualSer));
         }
     }
 
@@ -773,16 +760,11 @@ public class BeanPropertyWriter
         }
 
         if (_applyView == null) {
-            doSerialize(value, g, ctxt, ser);
+            _serialize(value, g, ctxt, ser);
         } else {
-            Class<?> currentActiveView = ctxt.getActiveView();
-            try {
-                ctxt.setActiveView(_applyView != JsonApplyView.NONE.class ? _applyView : null);
-                doSerialize(value, g, ctxt, ser);
-            }
-            finally {
-                ctxt.setActiveView(currentActiveView);
-            }
+            ValueSerializer<Object> actualSer = ser;
+            ctxt.withActiveView(_applyView != JsonApplyView.NONE.class ? _applyView : null,
+                    () -> _serialize(value, g, ctxt, actualSer));
         }
     }
 
@@ -805,6 +787,16 @@ public class BeanPropertyWriter
         }
     }
 
+    // @since 3.2
+    private final void _serialize(Object value, JsonGenerator g, SerializationContext ctxt,
+            ValueSerializer<Object> ser) {
+        if (_typeSerializer == null) {
+            ser.serialize(value, g, ctxt);
+        } else {
+            ser.serializeWithType(value, g, ctxt, _typeSerializer);
+        }
+    }
+    
     /*
     /**********************************************************************
     /* PropertyWriter methods (schema generation)

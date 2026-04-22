@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.deser.merge;
 
 import java.util.Objects;
 
@@ -9,17 +9,13 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-// For [databind#1921]: Creator method not used when merging even if there is
-// no feasible alternative. Unclear whether this can even theoretically be
-// improved since combination of Creator + Setter(s)/field is legit; but use
-// of Creator always means that operation is not true merge.
-// But added test just in case future brings us a good idea of way forward.
-//
-// 22-Apr-2026, tatu: Issue close as "wont-fix"; should test be removed?
+// For [databind#1921]: when merge target type is fully immutable (all properties
+// assigned via @JsonCreator, no setters/fields/any-setter), update-mode falls
+// back to creator-based construction so that creator-enforced invariants fire —
+// instead of throwing InvalidDefinitionException for the missing fallback setter.
 class MergeWithCreator1921Test extends DatabindTestUtil
 {
     static class Account {
@@ -70,7 +66,6 @@ class MergeWithCreator1921Test extends DatabindTestUtil
         }
     }
 
-    @JacksonTestFailureExpected
     @Test
     void mergeWithCreator() throws Exception {
         final String JSON = "{ \"validity\": { \"validFrom\": \"2018-02-01\", \"validTo\": \"2018-01-31\" } }";

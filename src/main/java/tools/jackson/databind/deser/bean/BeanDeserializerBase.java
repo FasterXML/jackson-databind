@@ -1316,6 +1316,30 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return _beanProperties.size();
     }
 
+    /**
+     * [databind#1921]: Check whether any property can assign a value into an
+     * existing instance — either via setter/field mutator, any-setter, or as
+     * a {@link CreatorProperty} that has a fallback setter. Returns false for
+     * fully-immutable types whose only assignment path is via {@code @JsonCreator}.
+     *
+     * @since 3.2
+     */
+    protected boolean _hasUpdateableProperties() {
+        if (_anySetter != null) {
+            return true;
+        }
+        for (SettableBeanProperty prop : _beanProperties) {
+            if (prop instanceof CreatorProperty) {
+                if (((CreatorProperty) prop).hasFallbackSetter()) {
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public Collection<Object> getKnownPropertyNames() {
         ArrayList<Object> names = new ArrayList<>();

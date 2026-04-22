@@ -232,6 +232,24 @@ public abstract class TypeDeserializerBase
     }
 
     /**
+     * Fast-path override: resolve subtype deserializer from the type id via the
+     * existing lookup cache and invoke it directly on the value, avoiding the
+     * synthetic {@code WRAPPER_ARRAY} encoding used by the default implementation
+     * on {@link TypeDeserializer}. Keeps {@link JsonParser#streamReadContext()}
+     * clean for custom {@link ValueDeserializer}s examining parsing state.
+     *
+     * @since 3.2 (fix for [databind#2747])
+     */
+    @Override
+    public Object deserializeTypedWithKnownTypeId(JsonParser p, DeserializationContext ctxt,
+            String typeId)
+        throws JacksonException
+    {
+        ValueDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
+        return deser.deserialize(p, ctxt);
+    }
+
+    /**
      * Helper method called when {@link JsonParser} indicates that it can use
      * so-called native type ids, and such type id has been found.
      */

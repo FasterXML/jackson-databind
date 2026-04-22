@@ -232,6 +232,11 @@ public class IntrospectorPairTest extends DatabindTestUtil
             return (JsonSerialize.Typing) values.get("findSerializationTyping");
         }
 
+        @Override
+        public Class<?> findApplyView(MapperConfig<?> config, Annotated a) {
+            return (Class<?>) values.get("findApplyView");
+        }
+
         /*
         /******************************************************
         /* Deserialization introspection
@@ -664,6 +669,33 @@ public class IntrospectorPairTest extends DatabindTestUtil
                 new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr1).findSerializationTyping(null, null));
         assertEquals(JsonSerialize.Typing.DYNAMIC,
                 new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2).findSerializationTyping(null, null));
+    }
+
+    // [databind#5754]
+    @Test
+    public void testFindApplyView() throws Exception
+    {
+        // Using arbitrary Class objects as stand-ins for View classes
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findApplyView", Integer.class);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("findApplyView", String.class);
+
+        // Both null -> null
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
+                .findApplyView(null, null));
+
+        // Primary takes precedence
+        assertEquals(Integer.class,
+                new AnnotationIntrospectorPair(intr1, intr2).findApplyView(null, null));
+        assertEquals(String.class,
+                new AnnotationIntrospectorPair(intr2, intr1).findApplyView(null, null));
+
+        // If primary returns null, secondary is used
+        assertEquals(Integer.class,
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr1).findApplyView(null, null));
+        assertEquals(String.class,
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2).findApplyView(null, null));
     }
 
     @Test

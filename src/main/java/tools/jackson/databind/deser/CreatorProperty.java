@@ -18,9 +18,9 @@ import tools.jackson.databind.util.ClassUtil;
 /**
  * This concrete sub-class implements property that is passed
  * via Creator (constructor or static factory method).
- * It is not a full-featured implementation in that its set method
- * should usually not be called for primary mutation -- instead, value must separately passed --
- * but some aspects are still needed (specifically, injection).
+ * It is not a full-featured implementation in that its set method should
+ * usually not be called for primary mutation -- instead, value must be passed
+ * separately -- but some aspects are still needed (specifically, injection).
  *<p>
  * Note on injectable values: unlike with other mutators, where
  * deserializer and injecting are separate, here we treat the two as related
@@ -304,6 +304,8 @@ public class CreatorProperty
      * (e.g. {@code String[]} from varargs) may differ from the setter/field type
      * (e.g. {@code Collection<String>}). Must deserialize using the setter's type
      * to avoid {@code ClassCastException}.
+     *
+     * @since 3.2
      */
     private Object _deserializeForSetter(JsonParser p, DeserializationContext ctxt)
         throws JacksonException

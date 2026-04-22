@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.jsontype.ext;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,7 +8,6 @@ import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -55,18 +54,23 @@ class ParsingContextExtTypeId2747Test extends DatabindTestUtil {
    }
 
    // [databind#2747]
-    @JacksonTestFailureExpected
     @Test
     void locationAccessWithExtTypeId() throws Exception {
         ObjectReader objectReader = newJsonMapper().readerFor(Wrapper.class);
 
+        // Scalar value payload
         Wrapper wrapper = objectReader.readValue("{" +
                 "\"type\":\"location\"," +
                 "\"wrapped\": 1" +
                 "}");
-        // expecting wrapper.wrapped.value == "wrapped" but is "wrapped[1]"
-        // due to way `ExternalTypeHandler` exposes value as if "wrapper-array" was used for
-        // type id, value
+        assertEquals("/wrapped", ((Location) wrapper.wrapped).value);
+
+        // Structured (Object) value payload: previously threw MismatchedInputException
+        // "expected closing END_ARRAY" because of the synthetic WRAPPER_ARRAY.
+        wrapper = objectReader.readValue("{" +
+                "\"type\":\"location\"," +
+                "\"wrapped\": {}" +
+                "}");
         assertEquals("/wrapped", ((Location) wrapper.wrapped).value);
     }
 }

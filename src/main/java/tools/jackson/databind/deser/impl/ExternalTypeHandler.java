@@ -369,11 +369,19 @@ public class ExternalTypeHandler
     protected final Object _deserialize(JsonParser p, DeserializationContext ctxt,
             int index, String typeId) throws JacksonException
     {
+        final ExtTypedProperty extProp = _properties[index];
         JsonParser p2 = _tokens[index].asParser(ctxt, p);
         JsonToken t = p2.nextToken();
         // 29-Sep-2015, tatu: As per [databind#942], nulls need special support
         if (t == JsonToken.VALUE_NULL) {
             return null;
+        }
+        // [databind#2747]: when possible, invoke subtype deserializer directly on
+        // the buffered value — this avoids the wrapper-array encoding below, which
+        // otherwise exposes a synthetic array in `JsonParser.streamReadContext()`
+        // to any custom deserializer examining parsing state.
+        if (extProp._typeDeserializer instanceof TypeDeserializerBase tdb) {
+            return tdb.deserializeTypedWithKnownTypeId(p2, ctxt, typeId);
         }
         TokenBuffer merged = ctxt.bufferForInputBuffering(p);
         merged.writeStartArray();
@@ -384,7 +392,7 @@ public class ExternalTypeHandler
         // needs to point to START_OBJECT (or whatever first token is)
         JsonParser mp = merged.asParser(ctxt, p);
         mp.nextToken();
-        return _properties[index].getProperty().deserialize(mp, ctxt);
+        return extProp.getProperty().deserialize(mp, ctxt);
     }
 
     // 03-Aug-2022, tatu: [databind#3533] to handle absent value matching:
@@ -413,15 +421,27 @@ public class ExternalTypeHandler
             ctxt.reportInputMismatch(_beanType, "Internal error in external Type Id handling: `null` type id passed");
         }
 
-        // Ok: time to mix type id, value; and we will actually use "wrapper-array"
-        // style to ensure we can handle all kinds of JSON constructs.
+        final ExtTypedProperty extProp = _properties[index];
+        final SettableBeanProperty prop = extProp.getProperty();
         JsonParser p2 = _tokens[index].asParser(ctxt, p);
         JsonToken t = p2.nextToken();
         // 29-Sep-2015, tatu: As per [databind#942], nulls need special support
         if (t == JsonToken.VALUE_NULL) {
-            _properties[index].getProperty().set(ctxt, bean, null);
+            prop.set(ctxt, bean, null);
             return;
         }
+        // [databind#2747]: when possible, invoke subtype deserializer directly on
+        // the buffered value — this avoids the wrapper-array encoding below, which
+        // otherwise exposes a synthetic array in `JsonParser.streamReadContext()`
+        // to any custom deserializer examining parsing state.
+        if (extProp._typeDeserializer instanceof TypeDeserializerBase tdb) {
+            Object value = tdb.deserializeTypedWithKnownTypeId(p2, ctxt, typeId);
+            prop.set(ctxt, bean, value);
+            return;
+        }
+
+        // Fallback: mix type id and buffered value using "wrapper-array" encoding
+        // so the standard type deserializer path can consume them together.
         TokenBuffer merged = ctxt.bufferForInputBuffering(p);
         merged.writeStartArray();
         merged.writeString(typeId);
@@ -431,7 +451,7 @@ public class ExternalTypeHandler
         // needs to point to START_OBJECT (or whatever first token is)
         JsonParser mp = merged.asParser(ctxt, p);
         mp.nextToken();
-        _properties[index].getProperty().deserializeAndSet(mp, ctxt, bean);
+        prop.deserializeAndSet(mp, ctxt, bean);
     }
 
     /*

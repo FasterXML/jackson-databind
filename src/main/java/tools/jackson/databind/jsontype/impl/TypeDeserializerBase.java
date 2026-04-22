@@ -232,6 +232,25 @@ public abstract class TypeDeserializerBase
     }
 
     /**
+     * Variant called when the caller has already resolved the type id out-of-band
+     * (for example, {@link tools.jackson.databind.deser.impl.ExternalTypeHandler}
+     * for {@link JsonTypeInfo.As#EXTERNAL_PROPERTY}), and wants to invoke the
+     * subtype deserializer directly on the value without any re-encoding that
+     * would otherwise leak synthetic tokens into the parser's stream context.
+     *<p>
+     * Pre-condition: {@code p} is positioned on the first token of the value.
+     *
+     * @since 3.2 (fix for [databind#2747])
+     */
+    public Object deserializeTypedWithKnownTypeId(JsonParser p, DeserializationContext ctxt,
+            String typeId)
+        throws JacksonException
+    {
+        ValueDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
+        return deser.deserialize(p, ctxt);
+    }
+
+    /**
      * Helper method called when {@link JsonParser} indicates that it can use
      * so-called native type ids, and such type id has been found.
      */

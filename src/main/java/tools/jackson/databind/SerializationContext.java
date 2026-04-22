@@ -106,7 +106,10 @@ public abstract class SerializationContext
     /**
      * View used for currently active serialization, if any.
      *<p>
-     * NOTE: non-{@code final} since 3.2
+     * NOTE: non-{@code final} since 3.2, to allow temporary override via
+     * {@link #withActiveView(Class, Runnable)}. Mutation is safe because
+     * runtime {@link SerializationContext} instances are per-call (not
+     * blueprints) and therefore not shared across threads.
      */
     protected Class<?> _activeView;
 

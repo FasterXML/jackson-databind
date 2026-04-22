@@ -154,12 +154,11 @@ class MergeWithCreator1921Test extends DatabindTestUtil
         assertNull(result.getPayload().b);
     }
 
-    // Empty JSON object on a fully-immutable merge target: post-fix this
-    // rebuilds with null creator args instead of the pre-fix no-op-return.
-    // If we later decide the no-op was preferable, reposition the new
-    // branch past the `propName == null` short-circuit and update this test.
+    // Empty JSON object on a fully-immutable merge target: the new branch is
+    // positioned after the 3-arg path's `propName == null` short-circuit, so
+    // empty `{}` still no-ops and the existing payload is preserved.
     @Test
-    void emptyJsonOnImmutableMergeTargetBuildsFreshInstance() throws Exception {
+    void emptyJsonOnImmutableMergeTargetPreservesExisting() throws Exception {
         final ObjectMapper mapper = newJsonMapper();
         MergeWrapper wrapper = new MergeWrapper();
         OptionalFields oldPayload = new OptionalFields("kept-a", "kept-b");
@@ -169,9 +168,9 @@ class MergeWithCreator1921Test extends DatabindTestUtil
                 .readValue("{\"payload\":{}}");
 
         assertSame(wrapper, result);
-        assertNotSame(oldPayload, result.getPayload());
-        assertNull(result.getPayload().a);
-        assertNull(result.getPayload().b);
+        assertSame(oldPayload, result.getPayload());
+        assertEquals("kept-a", result.getPayload().a);
+        assertEquals("kept-b", result.getPayload().b);
     }
 
     // Regression guard: when a creator property has a fallback setter, the

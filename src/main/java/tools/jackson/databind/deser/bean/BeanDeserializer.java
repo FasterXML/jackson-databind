@@ -256,15 +256,6 @@ public class BeanDeserializer
         if (_beanType.isRecordType() && _propertyBasedCreator != null) {
             return _deserializeRecordForUpdate(p, ctxt, bean);
         }
-        // [databind#1921]: Immutable POJO whose only assignment path is @JsonCreator:
-        // existing instance cannot be updated in-place (no setters/fields/any-setter),
-        // so construct a new instance via the creator. This discards existing values
-        // (true per-property merge requires getter introspection; out of scope here).
-        if (_propertyBasedCreator != null && !_hasUpdateableProperties()) {
-            // Delegate to 2-arg entry point so JSON-Object START token handling
-            // (advance past `{`) matches the fresh-deserialize path.
-            return deserialize(p, ctxt);
-        }
         if (_unwrappedPropertyHandler != null) {
             return deserializeWithUnwrapped(p, ctxt, bean);
         }
@@ -283,6 +274,15 @@ public class BeanDeserializer
             propName = p.currentName();
         } else {
             return bean;
+        }
+        // [databind#1921]: Immutable POJO whose only assignment path is @JsonCreator:
+        // existing instance cannot be updated in-place (no setters/fields/any-setter),
+        // so construct a new instance via the creator. This discards existing values
+        // (true per-property merge requires getter introspection; out of scope here).
+        // Positioned after the `propName == null` / non-object short-circuits so that
+        // empty-object and non-object updates continue to return `bean` unchanged.
+        if (_propertyBasedCreator != null && !_hasUpdateableProperties()) {
+            return deserializeFromObject(p, ctxt);
         }
         if (_needViewProcesing) {
             Class<?> view = ctxt.getActiveView();

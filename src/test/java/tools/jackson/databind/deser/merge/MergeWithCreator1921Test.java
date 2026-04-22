@@ -1,6 +1,6 @@
 package tools.jackson.databind.deser.merge;
 
-import java.util.Objects;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +10,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 // For [databind#1921]: when merge target type is fully immutable (all properties
 // assigned via @JsonCreator, no setters/fields/any-setter), update-mode falls
@@ -66,6 +66,49 @@ class MergeWithCreator1921Test extends DatabindTestUtil
         }
     }
 
+    // Mergeable wrapper (no-arg ctor + setter) whose payload is fully-immutable,
+    // used to exercise the fix at the inner-property level under a normal merge.
+    static class MergeWrapper {
+        @JsonMerge
+        private OptionalFields payload;
+        public OptionalFields getPayload() { return payload; }
+        public void setPayload(OptionalFields p) { payload = p; }
+    }
+
+    static class OptionalFields {
+        public final String a;
+        public final String b;
+        @JsonCreator
+        public OptionalFields(@JsonProperty("a") String a, @JsonProperty("b") String b) {
+            this.a = a;
+            this.b = b;
+        }
+    }
+
+    // Mixed: @JsonCreator param AND a setter/field for the same property.
+    // The fallback setter means _hasUpdateableProperties() returns true,
+    // so the new fix branch must NOT apply; update-mode keeps the existing
+    // instance and assigns via the setter.
+    static class CreatorPlusSetter {
+        private String a;
+        @JsonCreator
+        public CreatorPlusSetter(@JsonProperty("a") String a) { this.a = a; }
+        public String getA() { return a; }
+        public void setA(String a) { this.a = a; }
+    }
+
+    // Creator-only + @JsonAnySetter. _anySetter != null flips
+    // _hasUpdateableProperties() to true, so the fix must NOT apply;
+    // any-setter can carry the update into the existing instance.
+    static class CreatorPlusAnySetter {
+        public final String a;
+        public final Map<String, Object> extras = new LinkedHashMap<>();
+        @JsonCreator
+        public CreatorPlusAnySetter(@JsonProperty("a") String a) { this.a = a; }
+        @JsonAnySetter
+        public void put(String key, Object value) { extras.put(key, value); }
+    }
+
     @Test
     void mergeWithCreator() throws Exception {
         final String JSON = "{ \"validity\": { \"validFrom\": \"2018-02-01\", \"validTo\": \"2018-01-31\" } }";
@@ -89,5 +132,72 @@ class MergeWithCreator1921Test extends DatabindTestUtil
             verifyException(e, "Cannot construct");
             verifyException(e, Validity.VALID_TO_CANT_BE_BEFORE_VALID_FROM);
         }
+    }
+
+    // Partial JSON on fully-immutable merge target: narrow fix discards the
+    // existing payload and rebuilds via creator, so fields absent from JSON
+    // become null rather than inheriting the prior value. A fuller fix
+    // (mirroring _deserializeRecordForUpdate for POJOs) would preserve them.
+    @Test
+    void partialMergeOfImmutableDiscardsExistingValues() throws Exception {
+        final ObjectMapper mapper = newJsonMapper();
+        MergeWrapper wrapper = new MergeWrapper();
+        OptionalFields oldPayload = new OptionalFields("old-a", "old-b");
+        wrapper.setPayload(oldPayload);
+
+        MergeWrapper result = mapper.readerForUpdating(wrapper)
+                .readValue("{\"payload\":{\"a\":\"new-a\"}}");
+
+        assertSame(wrapper, result);
+        assertNotSame(oldPayload, result.getPayload());
+        assertEquals("new-a", result.getPayload().a);
+        assertNull(result.getPayload().b);
+    }
+
+    // Empty JSON object on a fully-immutable merge target: post-fix this
+    // rebuilds with null creator args instead of the pre-fix no-op-return.
+    // If we later decide the no-op was preferable, reposition the new
+    // branch past the `propName == null` short-circuit and update this test.
+    @Test
+    void emptyJsonOnImmutableMergeTargetBuildsFreshInstance() throws Exception {
+        final ObjectMapper mapper = newJsonMapper();
+        MergeWrapper wrapper = new MergeWrapper();
+        OptionalFields oldPayload = new OptionalFields("kept-a", "kept-b");
+        wrapper.setPayload(oldPayload);
+
+        MergeWrapper result = mapper.readerForUpdating(wrapper)
+                .readValue("{\"payload\":{}}");
+
+        assertSame(wrapper, result);
+        assertNotSame(oldPayload, result.getPayload());
+        assertNull(result.getPayload().a);
+        assertNull(result.getPayload().b);
+    }
+
+    // Regression guard: when a creator property has a fallback setter, the
+    // new branch must NOT trigger; existing instance is updated in-place.
+    @Test
+    void creatorWithFallbackSetterUpdatesExistingInstance() throws Exception {
+        final ObjectMapper mapper = newJsonMapper();
+        CreatorPlusSetter existing = new CreatorPlusSetter("old");
+        CreatorPlusSetter result = mapper.readerForUpdating(existing)
+                .readValue("{\"a\":\"new\"}");
+
+        assertSame(existing, result);
+        assertEquals("new", result.getA());
+    }
+
+    // Regression guard: @JsonAnySetter alone is enough to consider the type
+    // updateable; existing instance is updated in-place via the any-setter.
+    @Test
+    void creatorWithAnySetterUpdatesExistingInstance() throws Exception {
+        final ObjectMapper mapper = newJsonMapper();
+        CreatorPlusAnySetter existing = new CreatorPlusAnySetter("kept");
+        CreatorPlusAnySetter result = mapper.readerForUpdating(existing)
+                .readValue("{\"x\":\"y\"}");
+
+        assertSame(existing, result);
+        assertEquals("kept", result.a);
+        assertEquals("y", result.extras.get("x"));
     }
 }

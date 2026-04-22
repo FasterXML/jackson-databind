@@ -177,6 +177,18 @@ public abstract class BeanDeserializerBase
     protected transient ConcurrentHashMap<ClassKey, ValueDeserializer<Object>> _subDeserializers;
 
     /**
+     * [databind#1921]: Lazily computed cache for {@link #_hasUpdateableProperties()}.
+     * {@code null} until the first call; safe under concurrent reads/writes since
+     * the computation is pure and the cached reference is an immutable Boolean
+     * (benign race at worst causes redundant computation).
+     * Intentionally not propagated by copy constructors — copies recompute lazily
+     * so the cache stays consistent with a potentially-different property set.
+     *
+     * @since 3.2
+     */
+    protected transient volatile Boolean _hasUpdateablePropertiesFlag;
+
+    /**
      * If one of properties has "unwrapped" value, we need separate
      * helper object
      */
@@ -1321,10 +1333,21 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * existing instance — either via setter/field mutator, any-setter, or as
      * a {@link CreatorProperty} that has a fallback setter. Returns false for
      * fully-immutable types whose only assignment path is via {@code @JsonCreator}.
+     * Result is cached lazily in {@link #_hasUpdateablePropertiesFlag}.
      *
      * @since 3.2
      */
     protected boolean _hasUpdateableProperties() {
+        Boolean cached = _hasUpdateablePropertiesFlag;
+        if (cached != null) {
+            return cached;
+        }
+        boolean result = _computeHasUpdateableProperties();
+        _hasUpdateablePropertiesFlag = result;
+        return result;
+    }
+
+    private boolean _computeHasUpdateableProperties() {
         if (_anySetter != null) {
             return true;
         }

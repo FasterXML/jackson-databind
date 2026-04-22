@@ -20,6 +20,36 @@ class ParsingContextExtTypeId2747Test extends DatabindTestUtil {
         public String type;
     }
 
+    // Creator-based wrapper: value flows through `ExternalTypeHandler.complete(p, ctxt, buffer, creator)`
+    // which uses `_deserialize` (not `_deserializeAndSet`).
+    static class CreatorWrapper {
+        final String type;
+
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type",
+                include = JsonTypeInfo.As.EXTERNAL_PROPERTY)
+        @JsonSubTypes(@JsonSubTypes.Type(Location.class))
+        final Tag wrapped;
+
+        @JsonCreator
+        CreatorWrapper(@JsonProperty("type") String type,
+                @JsonProperty("wrapped") Tag wrapped) {
+            this.type = type;
+            this.wrapped = wrapped;
+        }
+    }
+
+    // defaultImpl wrapper: when type-id property is missing, complete() resolves to
+    // the default type via `extProp.getDefaultTypeId(ctxt)` and feeds that id through
+    // the same fast path.
+    static class DefaultImplWrapper {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type",
+                include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+                defaultImpl = Location.class)
+        public Tag wrapped;
+
+        public String type;
+    }
+
     @JsonSubTypes(@JsonSubTypes.Type(Location.class))
     interface Tag {
     }
@@ -88,5 +118,34 @@ class ParsingContextExtTypeId2747Test extends DatabindTestUtil {
                 "\"type\":\"location\"" +
                 "}");
         assertEquals("/wrapped", ((Location) wrapper.wrapped).value);
+    }
+
+    // [databind#2747]: creator path routes through `_deserialize()` rather than
+    // `_deserializeAndSet()` — verify the fix applies there too.
+    @Test
+    void locationAccessWithExtTypeIdCreator() throws Exception {
+        ObjectReader objectReader = newJsonMapper().readerFor(CreatorWrapper.class);
+
+        CreatorWrapper w = objectReader.readValue("{" +
+                "\"type\":\"location\"," +
+                "\"wrapped\": 1" +
+                "}");
+        assertEquals("/wrapped", ((Location) w.wrapped).value);
+
+        w = objectReader.readValue("{" +
+                "\"wrapped\": {}," +
+                "\"type\":\"location\"" +
+                "}");
+        assertEquals("/wrapped", ((Location) w.wrapped).value);
+    }
+
+    // [databind#2747]: defaultImpl path — type-id property missing in JSON, type id
+    // is resolved via `extProp.getDefaultTypeId(ctxt)` and fed through the fast path.
+    @Test
+    void locationAccessWithExtTypeIdDefaultImpl() throws Exception {
+        ObjectReader objectReader = newJsonMapper().readerFor(DefaultImplWrapper.class);
+
+        DefaultImplWrapper w = objectReader.readValue("{\"wrapped\": {}}");
+        assertEquals("/wrapped", ((Location) w.wrapped).value);
     }
 }

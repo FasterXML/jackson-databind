@@ -67,8 +67,8 @@ class ParsingContextExtTypeId2747Test extends DatabindTestUtil {
         }
     }
 
-   static class LocationDeserializer extends ValueDeserializer<Location>
-   {
+    static class LocationDeserializer extends ValueDeserializer<Location>
+    {
         @Override
         public Location deserialize(JsonParser p, DeserializationContext ctxt)
         {
@@ -77,13 +77,13 @@ class ParsingContextExtTypeId2747Test extends DatabindTestUtil {
         }
     }
 
-   static String getCurrentLocationAsString(JsonParser p)
-   {
-       // This suffices to give actual path
-       return p.streamReadContext().pathAsPointer().toString();
-   }
+    static String getCurrentLocationAsString(JsonParser p)
+    {
+        // This suffices to give actual path
+        return p.streamReadContext().pathAsPointer().toString();
+    }
 
-   // [databind#2747]
+    // [databind#2747]
     @Test
     void locationAccessWithExtTypeId() throws Exception {
         ObjectReader objectReader = newJsonMapper().readerFor(Wrapper.class);

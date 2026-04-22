@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.introspect.AnnotatedMember;
@@ -17,9 +18,9 @@ import tools.jackson.databind.util.ClassUtil;
 /**
  * This concrete sub-class implements property that is passed
  * via Creator (constructor or static factory method).
- * It is not a full-featured implementation in that its set method
- * should usually not be called for primary mutation -- instead, value must separately passed --
- * but some aspects are still needed (specifically, injection).
+ * It is not a full-featured implementation in that its set method should
+ * usually not be called for primary mutation -- instead, value must be passed
+ * separately -- but some aspects are still needed (specifically, injection).
  *<p>
  * Note on injectable values: unlike with other mutators, where
  * deserializer and injecting are separate, here we treat the two as related
@@ -55,6 +56,17 @@ public class CreatorProperty
      * set before any use.
      */
     protected SettableBeanProperty _fallbackSetter;
+
+    /**
+     * Pre-computed flag that is {@code true} if {@link #_fallbackSetter}'s
+     * declared type matches this property's (creator parameter) type, so that
+     * the existing value deserializer can be reused when reading into an
+     * existing instance. Cached to avoid repeating the type comparison on
+     * every call to {@link #deserializeAndSet}/{@link #deserializeSetAndReturn}.
+     *
+     * @since 3.2
+     */
+    protected boolean _fallbackSetterTypeMatches;
 
     protected final int _creatorIndex;
 
@@ -111,6 +123,7 @@ public class CreatorProperty
         _annotated = src._annotated;
         _injectableValue = src._injectableValue;
         _fallbackSetter = src._fallbackSetter;
+        _fallbackSetterTypeMatches = src._fallbackSetterTypeMatches;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
     }
@@ -121,6 +134,7 @@ public class CreatorProperty
         _annotated = src._annotated;
         _injectableValue = src._injectableValue;
         _fallbackSetter = src._fallbackSetter;
+        _fallbackSetterTypeMatches = src._fallbackSetterTypeMatches;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
     }
@@ -131,6 +145,7 @@ public class CreatorProperty
         _annotated = src._annotated;
         _injectableValue = src._injectableValue;
         _fallbackSetter = src._fallbackSetter;
+        _fallbackSetterTypeMatches = src._fallbackSetterTypeMatches;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
     }
@@ -176,6 +191,8 @@ public class CreatorProperty
      */
     public void setFallbackSetter(SettableBeanProperty fallbackSetter) {
         _fallbackSetter = fallbackSetter;
+        _fallbackSetterTypeMatches = (fallbackSetter != null)
+                && _type.equals(fallbackSetter.getType());
     }
 
     @Override
@@ -219,7 +236,7 @@ public class CreatorProperty
             Object instance) throws JacksonException
     {
         _verifySetter();
-        _fallbackSetter.set(ctxt, instance, deserialize(p, ctxt));
+        _fallbackSetter.set(ctxt, instance, _deserializeForSetter(p, ctxt));
     }
 
     @Override
@@ -227,7 +244,7 @@ public class CreatorProperty
             DeserializationContext ctxt, Object instance) throws JacksonException
     {
         _verifySetter();
-        return _fallbackSetter.setAndReturn(ctxt, instance, deserialize(p, ctxt));
+        return _fallbackSetter.setAndReturn(ctxt, instance, _deserializeForSetter(p, ctxt));
     }
 
     @Override
@@ -293,6 +310,48 @@ public class CreatorProperty
     /* Internal helper methods
     /**********************************************************************
      */
+
+    /**
+     * Helper method for {@code deserializeAndSet} and {@code deserializeSetAndReturn}:
+     * deserializes value using the fallback setter's type if it differs from the
+     * creator parameter type.
+     *<p>
+     * [databind#5281]: When updating an existing instance, the creator parameter type
+     * (e.g. {@code String[]} from varargs) may differ from the setter/field type
+     * (e.g. {@code Collection<String>}). Must deserialize using the setter's type
+     * to avoid {@code ClassCastException}.
+     *
+     * @since 3.2
+     */
+    private Object _deserializeForSetter(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        // Common case: types match, use this property's (already resolved) deserializer
+        if (_fallbackSetterTypeMatches) {
+            return deserialize(p, ctxt);
+        }
+        // Types differ: find deserializer for the fallback setter's type.
+        // Note: we use `_nullProvider` (this CreatorProperty's) rather than the
+        // fallback setter's: `BeanPropertyDefinition` merges annotations across
+        // accessors, so `@JsonSetter(nulls=...)` on the setter is already reflected
+        // here via `BeanDeserializerBase.resolve()`, whereas the fallback setter
+        // itself is stored as a raw `MethodProperty` and never contextualized.
+        if (p.hasToken(JsonToken.VALUE_NULL)) {
+            return _nullProvider.getNullValue(ctxt);
+        }
+        ValueDeserializer<Object> deser = ctxt.findContextualValueDeserializer(
+                _fallbackSetter.getType(), _fallbackSetter);
+        // If fallback setter has a TypeDeserializer (polymorphism via @JsonTypeInfo),
+        // honor it instead of plain deserialize()
+        final TypeDeserializer typeDeser = _fallbackSetter.getValueTypeDeserializer();
+        Object value = (typeDeser == null)
+                ? deser.deserialize(p, ctxt)
+                : deser.deserializeWithType(p, ctxt, typeDeser);
+        if (value == null) {
+            value = _nullProvider.getNullValue(ctxt);
+        }
+        return value;
+    }
 
     private final void _verifySetter() throws JacksonException {
         if (_fallbackSetter == null) {

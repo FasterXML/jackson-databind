@@ -7,6 +7,7 @@ import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.util.TokenBuffer;
 
 /**
  * Interface for deserializing type information from JSON content, to
@@ -125,6 +126,39 @@ public abstract class TypeDeserializer
      * (which may be Map, Collection, wrapper/primitive etc).
      */
     public abstract Object deserializeTypedFromAny(JsonParser p, DeserializationContext ctxt) throws JacksonException;
+
+    /**
+     * Variant called when the caller has already resolved the type id out-of-band
+     * (for example, by {@code ExternalTypeHandler} handling
+     * {@link As#EXTERNAL_PROPERTY}) and wants to invoke the subtype deserializer
+     * directly on the value without re-parsing the type id from the stream.
+     *<p>
+     * Default implementation packages value and type id into a synthetic
+     * {@code WRAPPER_ARRAY} token stream and routes through
+     * {@link #deserializeTypedFromArray} — preserving pre-3.2 behavior for any
+     * subclass that does not override. Subclasses that can resolve the subtype
+     * deserializer from a type id directly should override to avoid exposing
+     * synthetic tokens in the parser's stream context to any custom
+     * {@link ValueDeserializer}.
+     *<p>
+     * Pre-condition: {@code p} is positioned on the first token of the value.
+     *
+     * @since 3.2 (fix for [databind#2747])
+     */
+    @SuppressWarnings("resource")
+    public Object deserializeTypedWithKnownTypeId(JsonParser p, DeserializationContext ctxt,
+            String typeId)
+        throws JacksonException
+    {
+        TokenBuffer merged = ctxt.bufferForInputBuffering(p);
+        merged.writeStartArray();
+        merged.writeString(typeId);
+        merged.copyCurrentStructure(p);
+        merged.writeEndArray();
+        JsonParser mp = merged.asParser(ctxt, p);
+        mp.nextToken();
+        return deserializeTypedFromArray(mp, ctxt);
+    }
 
     /*
     /**********************************************************

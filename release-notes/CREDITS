@@ -394,6 +394,11 @@ Vitaly Barkhatov (@vbarhatov)
  * Reported #2736: Unable to deserialize `@JsonUnwrapped` `Optional<>` field
   [3.2.0]
 
+David Attia (@dattia-dev)
+ * Reported #2747: `@JsonTypeInfo(include = EXTERNAL_PROPERTY)` exposes bogus array
+   via `JsonStreamContext` during deserialization
+  [3.2.0]
+
 Michał Rowicki (@wyhasany)
  * Reported #2883: Annotation `@JsonUnwrapped` can serialize duplicate properties
   [3.2.0]

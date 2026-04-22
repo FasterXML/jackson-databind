@@ -72,5 +72,21 @@ class ParsingContextExtTypeId2747Test extends DatabindTestUtil {
                 "\"wrapped\": {}" +
                 "}");
         assertEquals("/wrapped", ((Location) wrapper.wrapped).value);
+
+        // Type-id property appearing AFTER value: the value is buffered first and
+        // replayed only once the type id is known. Without pinning the TokenBuffer's
+        // parent context at buffering time, the outer parser's `currentName` has
+        // advanced to "type" by replay time and leaks into the deserializer's view.
+        wrapper = objectReader.readValue("{" +
+                "\"wrapped\": 1," +
+                "\"type\":\"location\"" +
+                "}");
+        assertEquals("/wrapped", ((Location) wrapper.wrapped).value);
+
+        wrapper = objectReader.readValue("{" +
+                "\"wrapped\": {}," +
+                "\"type\":\"location\"" +
+                "}");
+        assertEquals("/wrapped", ((Location) wrapper.wrapped).value);
     }
 }

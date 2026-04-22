@@ -12,6 +12,7 @@ import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.jsontype.impl.TypeDeserializerBase;
 import tools.jackson.databind.util.TokenBuffer;
+import tools.jackson.databind.util.TokenBufferReadContext;
 
 /**
  * Helper class that is used to flatten JSON structure when using
@@ -166,7 +167,7 @@ public class ExternalTypeHandler
                     _typeIds[it.next()] = typeId;
                 }
             } else {
-                TokenBuffer tokens = ctxt.bufferAsCopyOfValue(p);
+                TokenBuffer tokens = _bufferValueWithPinnedContext(ctxt, p);
                 _tokens[index] = tokens;
                 while (it.hasNext()) {
                     _tokens[it.next()] = tokens;
@@ -188,7 +189,7 @@ public class ExternalTypeHandler
             canDeserialize = (bean != null) && (_tokens[index] != null);
         } else {
             @SuppressWarnings("resource")
-            TokenBuffer tokens = ctxt.bufferAsCopyOfValue(p);
+            TokenBuffer tokens = _bufferValueWithPinnedContext(ctxt, p);
             _tokens[index] = tokens;
             canDeserialize = (bean != null) && (_typeIds[index] != null);
         }
@@ -363,6 +364,28 @@ public class ExternalTypeHandler
             }
         }
         return bean;
+    }
+
+    /**
+     * Buffer the value at parser's current position, pinning the buffer's parent
+     * context to a snapshot of the outer parser's context at this moment. Without
+     * the snapshot the TokenBuffer would hold a live reference to the outer
+     * parser's context, whose {@code currentName} mutates as the parser advances
+     * past this property — replaying the buffer later (after the type-id property
+     * has been seen) would then expose the wrong name in
+     * {@link JsonParser#streamReadContext()} to any custom deserializer.
+     * [databind#2747]
+     *
+     * @since 3.2
+     */
+    @SuppressWarnings("resource")
+    private static TokenBuffer _bufferValueWithPinnedContext(DeserializationContext ctxt, JsonParser p)
+        throws JacksonException
+    {
+        TokenBuffer tokens = ctxt.bufferAsCopyOfValue(p);
+        tokens.overrideParentContext(
+                TokenBufferReadContext.createRootContext(p.streamReadContext()));
+        return tokens;
     }
 
     @SuppressWarnings("resource")

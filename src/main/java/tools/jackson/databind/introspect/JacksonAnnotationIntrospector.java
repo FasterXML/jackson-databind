@@ -548,6 +548,13 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    public Class<?> findApplyView(MapperConfig<?> config, Annotated a)
+    {
+        JsonApplyView ann = _findAnnotation(a, JsonApplyView.class);
+        return (ann == null) ? null : ann.value();
+    }
+
+    @Override
     /**
      * Specific implementation that will use following tie-breaker on
      * given setter parameter types:

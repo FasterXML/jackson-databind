@@ -540,6 +540,28 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
                     + "] that wasn't previously seen as unresolved.");
         }
 
+        /**
+         * Replace a resolved item in the accumulator or built array. Called when
+         * the bound item is rebound (e.g., builder → built object).
+         *
+         * @since 3.2
+         */
+        void replaceResolvedItem(Object oldItem, Object newItem) {
+            if (_array != null) {
+                for (int i = 0; i < _array.length; i++) {
+                    if (_array[i] == oldItem) {
+                        _array[i] = newItem;
+                    }
+                }
+            } else {
+                for (int i = 0, size = _accumulator.size(); i < size; i++) {
+                    if (_accumulator.get(i) == oldItem) {
+                        _accumulator.set(i, newItem);
+                    }
+                }
+            }
+        }
+
         Object[] buildArray() {
             final int size = _accumulator.size();
             if (_untyped) {
@@ -570,6 +592,11 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
         public void handleResolvedForwardReference(DeserializationContext ctxt,
                 Object id, Object value) {
             _parent.resolveForwardReference(id, value);
+        }
+
+        @Override
+        public void handleItemRebind(Object oldItem, Object newItem) {
+            _parent.replaceResolvedItem(oldItem, newItem);
         }
     }
 }

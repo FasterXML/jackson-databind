@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.objectid;
 
 import java.util.List;
 
@@ -11,25 +11,14 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * [databind#5909] (follow-up to [databind#1496]: Forward Object Id references
- * that appear inside a
- * {@link java.util.Collection}-typed property of a Builder-based type are
- * silently resolved to the Builder instance instead of the built target.
- * <p>
- * Unlike direct forward references on scalar properties -- which now fail with
- * a clear {@code InvalidDefinitionException} (see
- * {@link tools.jackson.databind.objectid.ObjectIdWithBuilder1496Test}) -- the
- * collection-item path does not go through
- * {@code ObjectIdReferenceProperty.deserializeSetAndReturn}, so
- * {@code addPendingForwardRef} is never called and the guard in
- * {@code BuilderBasedDeserializer.finishBuild} does not trip. Fixing this
- * requires a separate mechanism to re-bind collection-item references from the
- * builder to the built object.
+ * that appear inside a {@link java.util.Collection}-typed property of a
+ * Builder-based type must be correctly resolved to the built target object,
+ * not the Builder instance.
  */
 class ObjectIdWithBuilder5909Test extends DatabindTestUtil
 {
@@ -76,10 +65,6 @@ class ObjectIdWithBuilder5909Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    // First entity's `refs` list holds a forward reference (id 2) resolved only
-    // after entity 2 has been deserialized; the slot currently ends up holding
-    // the EntityBuilder instance instead of the built Entity.
-    @JacksonTestFailureExpected
     @Test
     public void forwardReferenceInCollection() throws Exception
     {

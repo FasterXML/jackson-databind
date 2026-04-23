@@ -134,6 +134,7 @@ public abstract class DeserializationContextExt
         if (_objectIds != null) {
             for (ReadableObjectId roid : _objectIds.values()) {
                 if (roid.tryReplaceBoundItem(delegate, newItem)) {
+                    roid.notifyReferringsOfRebind(delegate, newItem);
                     return;
                 }
             }

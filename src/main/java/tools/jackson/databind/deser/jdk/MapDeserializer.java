@@ -1036,6 +1036,27 @@ public class MapDeserializer
             throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
                     + "] that wasn't previously seen as unresolved.");
         }
+
+        /**
+         * Replace a resolved item in the result map. Called when the bound item
+         * is rebound (e.g., builder → built object).
+         *
+         * @since 3.2
+         */
+        public void replaceResolvedItem(Object oldItem, Object newItem) {
+            replaceInMap(_result, oldItem, newItem);
+            for (MapReferring ref : _accumulator) {
+                replaceInMap(ref.next, oldItem, newItem);
+            }
+        }
+
+        private static void replaceInMap(Map<Object, Object> map, Object oldItem, Object newItem) {
+            for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                if (entry.getValue() == oldItem) {
+                    entry.setValue(newItem);
+                }
+            }
+        }
     }
 
     /**
@@ -1062,6 +1083,11 @@ public class MapDeserializer
             throws JacksonException
         {
             _parent.resolveForwardReference(ctxt, id, value);
+        }
+
+        @Override
+        public void handleItemRebind(Object oldItem, Object newItem) {
+            _parent.replaceResolvedItem(oldItem, newItem);
         }
     }
 }

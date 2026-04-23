@@ -659,6 +659,39 @@ _containerType,
             throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
                     + "] that wasn't previously seen as unresolved.");
         }
+
+        /**
+         * Replace a resolved item in the result collection. Called when the bound
+         * item is rebound (e.g., builder → built object) via
+         * {@link Referring#handleItemRebind}.
+         *
+         * @since 3.2
+         */
+        public void replaceResolvedItem(Object oldItem, Object newItem) {
+            if (_result instanceof List<Object> list) {
+                for (int i = 0, len = list.size(); i < len; i++) {
+                    if (list.get(i) == oldItem) {
+                        list.set(i, newItem);
+                    }
+                }
+            } else {
+                // For non-list collections, remove and re-add is not safe during iteration,
+                // so use stream-based replacement via iterator
+                for (Iterator<Object> it = _result.iterator(); it.hasNext(); ) {
+                    if (it.next() == oldItem) {
+                        it.remove();
+                    }
+                }
+                _result.add(newItem);
+            }
+            for (CollectionReferring ref : _accumulator) {
+                for (int i = 0, len = ref.next.size(); i < len; i++) {
+                    if (ref.next.get(i) == oldItem) {
+                        ref.next.set(i, newItem);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -680,6 +713,11 @@ _containerType,
         @Override
         public void handleResolvedForwardReference(DeserializationContext ctxt, Object id, Object value) throws JacksonException {
             _parent.resolveForwardReference(ctxt, id, value);
+        }
+
+        @Override
+        public void handleItemRebind(Object oldItem, Object newItem) {
+            _parent.replaceResolvedItem(oldItem, newItem);
         }
     }
 

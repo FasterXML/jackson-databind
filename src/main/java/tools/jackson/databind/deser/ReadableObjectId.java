@@ -1,8 +1,10 @@
 package tools.jackson.databind.deser;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
@@ -34,6 +36,15 @@ public class ReadableObjectId
     protected final ObjectIdGenerator.IdKey _key;
 
     protected LinkedList<Referring> _referringProperties;
+
+    /**
+     * Referring properties that have already been resolved via {@link #bindItem}.
+     * Kept alive so that {@link #notifyReferringsOfRebind} can propagate
+     * builder-to-built-object replacements (e.g., after {@code finishBuild}).
+     *
+     * @since 3.2
+     */
+    protected List<Referring> _resolvedReferringProperties;
 
     protected ObjectIdResolver _resolver;
 
@@ -69,7 +80,13 @@ public class ReadableObjectId
             Iterator<Referring> it = _referringProperties.iterator();
             _referringProperties = null;
             while (it.hasNext()) {
-                it.next().handleResolvedForwardReference(ctxt, id, ob);
+                Referring ref = it.next();
+                ref.handleResolvedForwardReference(ctxt, id, ob);
+                // Keep for potential rebind after Builder finishBuild
+                if (_resolvedReferringProperties == null) {
+                    _resolvedReferringProperties = new ArrayList<>();
+                }
+                _resolvedReferringProperties.add(ref);
             }
         }
     }
@@ -97,6 +114,24 @@ public class ReadableObjectId
             return true;
         }
         return false;
+    }
+
+    /**
+     * Method called after {@link #tryReplaceBoundItem} to notify previously-resolved
+     * {@link Referring} instances that the bound item has been replaced (e.g.,
+     * builder → built object). Collection-like Referring implementations should
+     * override {@link Referring#handleItemRebind} to swap the old item for the new one.
+     *
+     * @since 3.2
+     */
+    public void notifyReferringsOfRebind(Object oldItem, Object newItem)
+            throws JacksonException
+    {
+        if (_resolvedReferringProperties != null) {
+            for (Referring ref : _resolvedReferringProperties) {
+                ref.handleItemRebind(oldItem, newItem);
+            }
+        }
     }
 
     public Object resolve(){
@@ -200,6 +235,24 @@ public class ReadableObjectId
          *
          * @since 3.2
          */
+        /**
+         * Called when the resolved item has been rebound (e.g., builder → built object).
+         * Implementations that hold resolved values in mutable containers (collections,
+         * arrays, maps) should replace the old item with the new one. Default no-op
+         * since scalar property references are set on the POJO directly and captured
+         * via constructor before build.
+         *
+         * @param oldItem The previous item (e.g., the builder)
+         * @param newItem The replacement item (e.g., the built object)
+         *
+         * @since 3.2
+         */
+        public void handleItemRebind(Object oldItem, Object newItem)
+                throws JacksonException
+        {
+            // no-op by default
+        }
+
         public boolean refersTo(Object obj) {
             return false;
         }

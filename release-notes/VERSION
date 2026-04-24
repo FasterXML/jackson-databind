@@ -15,6 +15,10 @@ No changes since 3.1
   "INF"/"Infinity" and "-INF"/"-Infinity"
  (reported by Kenta Y)
  (fix by @cowtowncoder)
+#5911: Deserialization failed with `@JsonUnwrapped` and `@JsonAlias` on
+  a property of the unwrapped type
+ (reported by Lucas C)
+ (fix by @cowtowncoder, w/ Claude code)
 #5918: Creator properties always come first in 3.x
  (reported by Marco B)
  (fix by @cowtowncoder)

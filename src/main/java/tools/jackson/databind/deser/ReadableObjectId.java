@@ -225,17 +225,6 @@ public class ReadableObjectId
         }
 
         /**
-         * Method for checking if this forward reference was registered against
-         * the given container instance (the object that will receive the resolved
-         * value). Used for detecting issues with Builder-based deserialization
-         * where the container (builder) is discarded after building.
-         *
-         * @param obj The object to check against
-         * @return {@code true} if this referring was registered against {@code obj}
-         *
-         * @since 3.2
-         */
-        /**
          * Called when the resolved item has been rebound (e.g., builder → built object).
          * Implementations that hold resolved values in mutable containers (collections,
          * arrays, maps) should replace the old item with the new one. Default no-op

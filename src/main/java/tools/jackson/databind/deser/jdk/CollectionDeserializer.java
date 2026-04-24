@@ -675,8 +675,8 @@ _containerType,
                     }
                 }
             } else {
-                // For non-list collections, remove and re-add is not safe during iteration,
-                // so use stream-based replacement via iterator
+                // Non-list collections (e.g. Set): no index-based replace, so
+                // remove the old entry via iterator and add the new one.
                 for (Iterator<Object> it = _result.iterator(); it.hasNext(); ) {
                     if (it.next() == oldItem) {
                         it.remove();

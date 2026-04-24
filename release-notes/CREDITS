@@ -336,4 +336,7 @@ Joshua Arnold (@josharnold52)
    `@JsonCreator` and `@JsonValue`
   [3.1.3]
 
-
+Michael Orzechowski (@MikeBlink)
+ * Reported #5941: `MapperBuilder.addModule()` does not recursively register transitive
+   module dependencies (3.x regression from 2.x)
+  [3.1.3]

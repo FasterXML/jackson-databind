@@ -28,6 +28,9 @@ No changes since 3.1
  (fixed by Lee Jiwon)
 #5931: Fix `AtomicLongDeserializer` value truncation on coerced values
  (fixed by Lee Jiwon)
+#5941: `MapperBuilder.addModule()` does not recursively register transitive
+  module dependencies (3.x regression from 2.x)
+ (reported by Michael O)
 
 3.1.2 (11-Apr-2026)
 

@@ -79,14 +79,14 @@ public class ReadableObjectId
         if (_referringProperties != null) {
             Iterator<Referring> it = _referringProperties.iterator();
             _referringProperties = null;
+            // [databind#5909]: retain Referrings even after resolution so a later
+            // updateObjectId() (Builder -> built object) can re-fire them.
+            if (_resolvedReferringProperties == null) {
+                _resolvedReferringProperties = new ArrayList<>();
+            }
             while (it.hasNext()) {
                 Referring ref = it.next();
                 ref.handleResolvedForwardReference(ctxt, id, ob);
-                // [databind#5909]: retain even after resolution so a later
-                // updateObjectId() (Builder -> built object) can re-fire them.
-                if (_resolvedReferringProperties == null) {
-                    _resolvedReferringProperties = new ArrayList<>();
-                }
                 _resolvedReferringProperties.add(ref);
             }
         }

@@ -668,7 +668,9 @@ _containerType,
          * @since 3.2
          */
         public void replaceResolvedItem(Object oldItem, Object newItem) {
-            if (_result instanceof List<Object> list) {
+            if (_result instanceof List<?>) {
+                @SuppressWarnings("unchecked")
+                List<Object> list = (List<Object>) _result;
                 for (int i = 0, len = list.size(); i < len; i++) {
                     if (list.get(i) == oldItem) {
                         list.set(i, newItem);
@@ -676,13 +678,18 @@ _containerType,
                 }
             } else {
                 // Non-list collections (e.g. Set): no index-based replace, so
-                // remove the old entry via iterator and add the new one.
+                // remove old entries via iterator and re-add the same number
+                // of new ones to preserve count.
+                int removed = 0;
                 for (Iterator<Object> it = _result.iterator(); it.hasNext(); ) {
                     if (it.next() == oldItem) {
                         it.remove();
+                        removed++;
                     }
                 }
-                _result.add(newItem);
+                for (int i = 0; i < removed; i++) {
+                    _result.add(newItem);
+                }
             }
             for (CollectionReferring ref : _accumulator) {
                 for (int i = 0, len = ref.next.size(); i < len; i++) {

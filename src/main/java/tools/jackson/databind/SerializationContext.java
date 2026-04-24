@@ -105,8 +105,13 @@ public abstract class SerializationContext
 
     /**
      * View used for currently active serialization, if any.
+     *<p>
+     * NOTE: non-{@code final} since 3.2, to allow temporary override via
+     * {@link #withActiveView(Class, Runnable)}. Mutation is safe because
+     * runtime {@link SerializationContext} instances are per-call (not
+     * blueprints) and therefore not shared across threads.
      */
-    protected final Class<?> _activeView;
+    protected Class<?> _activeView;
 
     /*
     /**********************************************************************
@@ -224,6 +229,34 @@ public abstract class SerializationContext
         _attributes = src._attributes;
 
         _knownSerializers = src._knownSerializers;
+    }
+
+    /*
+    /**********************************************************************
+    /* State-changing
+    /**********************************************************************
+     */
+
+    /**
+     * Method for overriding active view during processing of given
+     * {@code callback} (and reverting to currently active view once
+     * that is complete)
+     *
+     * @param viewToApply Active view to use during {@code callback} execution
+     * @param callback Callback to call for processing with overridden view
+     *
+     * @since 3.2
+     */
+    public void withActiveView(Class<?> viewToApply, Runnable callback)
+        throws JacksonException
+    {
+        final Class<?> currentView = _activeView;
+        _activeView = viewToApply;
+        try {
+            callback.run();
+        } finally {
+            _activeView = currentView;
+        }
     }
 
     /*

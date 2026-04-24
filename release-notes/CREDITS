@@ -385,6 +385,10 @@ Balys Valentukevicius (@balysv)
    deserializing a collection of interfaces (immutables.io compatibility)
   [3.2.0]
 
+Patrik Mihalcin (@pmihalcin)
+ * Reported #1921: Reader for updating do not use `@JsonCreator` constructor
+  [3.2.0]
+
 Leonid Talalaev (@ltalal)
  * Reported #2100: Using `ObjectReader.withValueToUpdate()` with JsonPOJOBuilder
   no longer working
@@ -392,6 +396,11 @@ Leonid Talalaev (@ltalal)
 
 Vitaly Barkhatov (@vbarhatov)
  * Reported #2736: Unable to deserialize `@JsonUnwrapped` `Optional<>` field
+  [3.2.0]
+
+David Attia (@dattia-dev)
+ * Reported #2747: `@JsonTypeInfo(include = EXTERNAL_PROPERTY)` exposes bogus array
+   via `JsonStreamContext` during deserialization
   [3.2.0]
 
 Michał Rowicki (@wyhasany)

@@ -668,6 +668,8 @@ _containerType,
          * @since 3.2
          */
         public void replaceResolvedItem(Object oldItem, Object newItem) {
+            // Identity (==) match: oldItem is the exact builder instance we
+            // bound earlier; equals() may not even be defined on builders.
             if (_result instanceof List<?>) {
                 @SuppressWarnings("unchecked")
                 List<Object> list = (List<Object>) _result;
@@ -691,6 +693,8 @@ _containerType,
                     _result.add(newItem);
                 }
             }
+            // Same item may also live in a still-pending accumulator slot
+            // if a later forward ref hasn't yet been resolved.
             for (CollectionReferring ref : _accumulator) {
                 for (int i = 0, len = ref.next.size(); i < len; i++) {
                     if (ref.next.get(i) == oldItem) {

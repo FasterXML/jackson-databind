@@ -1045,12 +1045,15 @@ public class MapDeserializer
          */
         public void replaceResolvedItem(Object oldItem, Object newItem) {
             replaceInMap(_result, oldItem, newItem);
+            // Pending accumulator entries may also hold the old item if a later
+            // forward ref hasn't yet resolved.
             for (MapReferring ref : _accumulator) {
                 replaceInMap(ref.next, oldItem, newItem);
             }
         }
 
         private static void replaceInMap(Map<Object, Object> map, Object oldItem, Object newItem) {
+            // Identity match: oldItem is the exact bound delegate (e.g. Builder).
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
                 if (entry.getValue() == oldItem) {
                     entry.setValue(newItem);

@@ -82,7 +82,8 @@ public class ReadableObjectId
             while (it.hasNext()) {
                 Referring ref = it.next();
                 ref.handleResolvedForwardReference(ctxt, id, ob);
-                // Keep for potential rebind after Builder finishBuild
+                // [databind#5909]: retain even after resolution so a later
+                // updateObjectId() (Builder -> built object) can re-fire them.
                 if (_resolvedReferringProperties == null) {
                     _resolvedReferringProperties = new ArrayList<>();
                 }
@@ -242,6 +243,17 @@ public class ReadableObjectId
             // no-op by default
         }
 
+        /**
+         * Method for checking if this forward reference was registered against
+         * the given container instance (the object that will receive the resolved
+         * value). Used for detecting issues with Builder-based deserialization
+         * where the container (builder) is discarded after building.
+         *
+         * @param obj The object to check against
+         * @return {@code true} if this referring was registered against {@code obj}
+         *
+         * @since 3.2
+         */
         public boolean refersTo(Object obj) {
             return false;
         }

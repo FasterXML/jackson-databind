@@ -547,6 +547,9 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
          * @since 3.2
          */
         void replaceResolvedItem(Object oldItem, Object newItem) {
+            // Identity match: oldItem is the exact bound delegate (e.g. Builder).
+            // Note: only effective for untyped arrays; typed arrays of the built
+            // type fail earlier with ArrayStoreException at bindItem time.
             if (_array != null) {
                 for (int i = 0; i < _array.length; i++) {
                     if (_array[i] == oldItem) {

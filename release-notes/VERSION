@@ -197,9 +197,6 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #5897: Excessive `TokenBuffer` allocations when deserializing records
  (fix by Viktor S, w/ Claude code)
-#5911: Deserialization failed with `@JsonUnwrapped` and `@JsonAlias` on
-  a property of the unwrapped type
- (reported by Lucas C)
 #5937: Add `SerializationContext.withActiveView()`
  (implemented by @cowtowncoder)
 - Remove project-specific Android SDK compatibility level, use shared;
@@ -211,6 +208,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   "INF"/"Infinity" and "-INF"/"-Infinity"
  (reported by Kenta Y)
  (fix by @cowtowncoder)
+#5911: Deserialization failed with `@JsonUnwrapped` and `@JsonAlias` on
+  a property of the unwrapped type
+ (reported by Lucas C)
+ (fix by @cowtowncoder, w/ Claude code)
 #5918: Creator properties always come first in 3.x
  (reported by Marco B)
  (fix by @cowtowncoder)
@@ -220,6 +221,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fixed by Lee Jiwon)
 #5931: Fix `AtomicLongDeserializer` value truncation on coerced values
  (fixed by Lee Jiwon)
+#5941: `MapperBuilder.addModule()` does not recursively register transitive
+  module dependencies (3.x regression from 2.x)
+ (reported by Michael O)
 
 3.1.2 (11-Apr-2026)
 

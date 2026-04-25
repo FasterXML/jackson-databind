@@ -1326,8 +1326,10 @@ public abstract class DeserializationContext
         }
         // Do we know properties that are expected instead?
         Collection<Object> propIds = (deser == null) ? null : deser.getKnownPropertyNames();
-        throw UnrecognizedPropertyException.from(_parser,
-                instanceOrClass, propName, propIds);
+        // 24-Apr-2026, tatu: use caller-supplied parser (may be a TokenBuffer replay
+        //   parser during polymorphic deserialization) rather than the top-level
+        //   `_parser`, so the reported location reflects the actual offending token.
+        throw UnrecognizedPropertyException.from(p, instanceOrClass, propName, propIds);
     }
 
     /**

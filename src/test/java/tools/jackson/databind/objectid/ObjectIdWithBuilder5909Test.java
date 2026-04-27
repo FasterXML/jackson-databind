@@ -1,5 +1,6 @@
 package tools.jackson.databind.objectid;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -205,6 +206,91 @@ class ObjectIdWithBuilder5909Test extends DatabindTestUtil
 
         assertEquals(1, first.getRefs().size());
         assertSame(second, first.getRefs().get("k"));
+    }
+
+    // Same forward id appearing multiple times in one List: every slot must be
+    // rebound, not just the first.
+    @Test
+    public void duplicateForwardReferenceInList() throws Exception
+    {
+        String json = a2q("{'entities':["
+                + "{'id':1,'refs':[2,2,2]},"
+                + "{'id':2,'refs':[]}"
+                + "]}");
+
+        EntityContainer container = MAPPER.readValue(json, EntityContainer.class);
+        Entity first = container.entities.get(0);
+        Entity second = container.entities.get(1);
+
+        assertEquals(3, first.getRefs().size());
+        assertSame(second, first.getRefs().get(0));
+        assertSame(second, first.getRefs().get(1));
+        assertSame(second, first.getRefs().get(2));
+    }
+
+    // Multiple distinct forward ids in one List, all needing rebind.
+    @Test
+    public void multipleForwardReferencesInList() throws Exception
+    {
+        String json = a2q("{'entities':["
+                + "{'id':1,'refs':[2,3]},"
+                + "{'id':2,'refs':[]},"
+                + "{'id':3,'refs':[]}"
+                + "]}");
+
+        EntityContainer container = MAPPER.readValue(json, EntityContainer.class);
+        assertEquals(3, container.entities.size());
+
+        Entity first = container.entities.get(0);
+        Entity second = container.entities.get(1);
+        Entity third = container.entities.get(2);
+
+        assertEquals(2, first.getRefs().size());
+        assertSame(second, first.getRefs().get(0));
+        assertSame(third, first.getRefs().get(1));
+    }
+
+    // Multi-element LinkedHashSet with two forward refs: insertion order must
+    // be preserved across the snapshot/clear/replay rebind path.
+    @Test
+    public void forwardReferencesInSetPreserveOrder() throws Exception
+    {
+        String json = a2q("{'entities':["
+                + "{'id':1,'refs':[2,3]},"
+                + "{'id':2,'refs':[]},"
+                + "{'id':3,'refs':[]}"
+                + "]}");
+
+        EntitySetContainer container = MAPPER.readValue(json, EntitySetContainer.class);
+        EntitySet first = container.entities.get(0);
+        EntitySet second = container.entities.get(1);
+        EntitySet third = container.entities.get(2);
+
+        assertEquals(2, first.getRefs().size());
+        Iterator<EntitySet> it = first.getRefs().iterator();
+        assertSame(second, it.next(), "first forward ref should keep its position");
+        assertSame(third, it.next(), "second forward ref should keep its position");
+    }
+
+    // Multi-entry Map: forward and resolved refs in the same Map, distinct keys.
+    @Test
+    public void multipleForwardReferencesInMap() throws Exception
+    {
+        String json = a2q("{'entities':["
+                + "{'id':1,'refs':{'a':2,'b':3,'c':2}},"
+                + "{'id':2,'refs':{}},"
+                + "{'id':3,'refs':{}}"
+                + "]}");
+
+        EntityMapContainer container = MAPPER.readValue(json, EntityMapContainer.class);
+        EntityMap first = container.entities.get(0);
+        EntityMap second = container.entities.get(1);
+        EntityMap third = container.entities.get(2);
+
+        assertEquals(3, first.getRefs().size());
+        assertSame(second, first.getRefs().get("a"));
+        assertSame(third, first.getRefs().get("b"));
+        assertSame(second, first.getRefs().get("c"));
     }
 
 }

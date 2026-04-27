@@ -678,19 +678,15 @@ _containerType,
                         list.set(i, newItem);
                     }
                 }
-            } else {
-                // Non-list collections (e.g. Set): no index-based replace, so
-                // remove old entries via iterator and re-add the same number
-                // of new ones to preserve count.
-                int removed = 0;
-                for (Iterator<Object> it = _result.iterator(); it.hasNext(); ) {
-                    if (it.next() == oldItem) {
-                        it.remove();
-                        removed++;
-                    }
-                }
-                for (int i = 0; i < removed; i++) {
-                    _result.add(newItem);
+            } else if (_containsIdentity(_result, oldItem)) {
+                // Non-list collections (e.g. LinkedHashSet, TreeSet): snapshot,
+                // clear, and replay with substitution so insertion order /
+                // comparator-based ordering is preserved and counts stay correct
+                // for any Collection impl.
+                List<Object> snapshot = new ArrayList<>(_result);
+                _result.clear();
+                for (Object item : snapshot) {
+                    _result.add(item == oldItem ? newItem : item);
                 }
             }
             // Same item may also live in a still-pending accumulator slot
@@ -702,6 +698,15 @@ _containerType,
                     }
                 }
             }
+        }
+
+        private static boolean _containsIdentity(Collection<?> coll, Object target) {
+            for (Object item : coll) {
+                if (item == target) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 

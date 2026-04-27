@@ -8,7 +8,9 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import tools.jackson.databind.*;
@@ -296,6 +298,64 @@ class ObjectIdWithBuilder5909Test extends DatabindTestUtil
         assertSame(second, first.getRefs().get("a"));
         assertSame(third, first.getRefs().get("b"));
         assertSame(second, first.getRefs().get("c"));
+    }
+
+    // ---- Property-based-creator builder variant: exercises the
+    // PropertyValueBuffer.handleIdValue rebind path, distinct from
+    // setter-based builders which go via ObjectIdValueProperty.
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonDeserialize(builder = EntityCreatorBuilder.class)
+    static class EntityCreator
+    {
+        public final long id;
+        public final List<EntityCreator> refs;
+
+        EntityCreator(long id, List<EntityCreator> refs) {
+            this.id = id;
+            this.refs = refs;
+        }
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonPOJOBuilder(withPrefix = "")
+    static class EntityCreatorBuilder
+    {
+        private final long id;
+        private final List<EntityCreator> refs;
+
+        @JsonCreator
+        EntityCreatorBuilder(@JsonProperty("id") long id,
+                @JsonProperty("refs") List<EntityCreator> refs) {
+            this.id = id;
+            this.refs = refs;
+        }
+
+        public EntityCreator build() {
+            return new EntityCreator(id, refs);
+        }
+    }
+
+    static class EntityCreatorContainer
+    {
+        public List<EntityCreator> entities;
+    }
+
+    @Test
+    public void forwardReferenceInCollection_propertyCreatorBuilder() throws Exception
+    {
+        String json = a2q("{'entities':["
+                + "{'id':1,'refs':[2]},"
+                + "{'id':2,'refs':[]}"
+                + "]}");
+
+        EntityCreatorContainer container = MAPPER.readValue(json, EntityCreatorContainer.class);
+        EntityCreator first = container.entities.get(0);
+        EntityCreator second = container.entities.get(1);
+
+        assertEquals(1, first.refs.size());
+        assertSame(second, first.refs.get(0),
+                "forward ref must be rebound from Builder to built object via PropertyValueBuffer path");
     }
 
 }

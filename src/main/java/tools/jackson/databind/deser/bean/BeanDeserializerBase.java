@@ -401,7 +401,10 @@ public abstract class BeanDeserializerBase
             // 18-Nov-2012, tatu: May or may not have annotations for id property;
             //   but no easy access. But hard to see id property being optional,
             //   so let's consider required at this point.
-            ObjectIdValueProperty idProp = new ObjectIdValueProperty(oir, PropertyMetadata.STD_REQUIRED);
+            // [databind#5909]: builder-based subclasses rebind id'd instance
+            // from Builder to built object via finishBuild — flag accordingly.
+            ObjectIdValueProperty idProp = new ObjectIdValueProperty(oir,
+                    PropertyMetadata.STD_REQUIRED, this instanceof BuilderBasedDeserializer);
             _beanProperties = src._beanProperties.withProperty(idProp);
             _vanillaProcessing = false;
         }
@@ -1567,6 +1570,10 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         // (may happen with polymorphic builder deserialization where the subtype
         // deserializer already handled ObjectId binding via finishBuild/updateObjectId)
         if (roid.resolve() != pojo) {
+            // [databind#5909]: builder-based path will rebuild via finishBuild
+            if (this instanceof BuilderBasedDeserializer) {
+                roid.markMayRebind();
+            }
             roid.bindItem(ctxt, pojo);
         }
         // also: may need to set a property value as well

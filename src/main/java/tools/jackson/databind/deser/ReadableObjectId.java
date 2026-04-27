@@ -41,10 +41,23 @@ public class ReadableObjectId
      * Referring properties that have already been resolved via {@link #bindItem}.
      * Kept alive so that {@link #notifyReferringsOfRebind} can propagate
      * builder-to-built-object replacements (e.g., after {@code finishBuild}).
+     * Only populated when {@link #_mayRebind} is set, since plain (non-Builder)
+     * deserialization never calls {@code updateObjectId} and would otherwise
+     * retain Referrings as dead memory.
      *
      * @since 3.2
      */
     protected List<Referring> _resolvedReferringProperties;
+
+    /**
+     * Flag set by callers (e.g., builder-based id property) to indicate that
+     * the bound item is a transient delegate that may later be rebuilt via
+     * {@link DeserializationContext#updateObjectId}; only then is it worth
+     * retaining resolved Referrings for {@link #notifyReferringsOfRebind}.
+     *
+     * @since 3.2
+     */
+    protected boolean _mayRebind;
 
     protected ObjectIdResolver _resolver;
 
@@ -68,6 +81,18 @@ public class ReadableObjectId
     }
 
     /**
+     * Mark this entry as potentially rebindable (e.g., bound to a Builder
+     * instance whose {@code finishBuild} will later trigger
+     * {@link DeserializationContext#updateObjectId}). Enables retention of
+     * resolved Referrings so {@link #notifyReferringsOfRebind} can fire.
+     *
+     * @since 3.2
+     */
+    public void markMayRebind() {
+        _mayRebind = true;
+    }
+
+    /**
      * Method called to assign actual POJO to which ObjectId refers to: will
      * also handle referring properties, if any, by assigning POJO.
      */
@@ -79,15 +104,19 @@ public class ReadableObjectId
         if (_referringProperties != null) {
             Iterator<Referring> it = _referringProperties.iterator();
             _referringProperties = null;
-            // [databind#5909]: retain Referrings even after resolution so a later
-            // updateObjectId() (Builder -> built object) can re-fire them.
-            if (_resolvedReferringProperties == null) {
+            // [databind#5909]: only retain Referrings when the bound item may
+            // later be rebound (e.g., Builder -> built object). For plain
+            // POJO deserialization no rebind ever fires, so retention would
+            // be pure dead memory.
+            if (_mayRebind && _resolvedReferringProperties == null) {
                 _resolvedReferringProperties = new ArrayList<>();
             }
             while (it.hasNext()) {
                 Referring ref = it.next();
                 ref.handleResolvedForwardReference(ctxt, id, ob);
-                _resolvedReferringProperties.add(ref);
+                if (_mayRebind) {
+                    _resolvedReferringProperties.add(ref);
+                }
             }
         }
     }

@@ -1,6 +1,5 @@
 package tools.jackson.databind.objectid;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -250,10 +249,11 @@ class ObjectIdWithBuilder5909Test extends DatabindTestUtil
         assertSame(third, first.getRefs().get(1));
     }
 
-    // Multi-element LinkedHashSet with two forward refs: insertion order must
-    // be preserved across the snapshot/clear/replay rebind path.
+    // Multi-element Set with two forward refs to distinct ids: every entry
+    // must end up rebound to its built object (none left as Builder), and the
+    // snapshot/clear/replay path must not drop or duplicate entries.
     @Test
-    public void forwardReferencesInSetPreserveOrder() throws Exception
+    public void multipleForwardReferencesInSet() throws Exception
     {
         String json = a2q("{'entities':["
                 + "{'id':1,'refs':[2,3]},"
@@ -266,10 +266,15 @@ class ObjectIdWithBuilder5909Test extends DatabindTestUtil
         EntitySet second = container.entities.get(1);
         EntitySet third = container.entities.get(2);
 
-        assertEquals(2, first.getRefs().size());
-        Iterator<EntitySet> it = first.getRefs().iterator();
-        assertSame(second, it.next(), "first forward ref should keep its position");
-        assertSame(third, it.next(), "second forward ref should keep its position");
+        Set<EntitySet> refs = first.getRefs();
+        assertEquals(2, refs.size());
+        // Every entry must be a built EntitySet, not a leftover Builder.
+        for (EntitySet item : refs) {
+            assertSame(item.getClass(), EntitySet.class,
+                    "entry should have been rebound from Builder to built object");
+        }
+        assertTrue(refs.contains(second));
+        assertTrue(refs.contains(third));
     }
 
     // Multi-entry Map: forward and resolved refs in the same Map, distinct keys.

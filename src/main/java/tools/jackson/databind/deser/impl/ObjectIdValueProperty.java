@@ -28,6 +28,10 @@ public final class ObjectIdValueProperty
      */
     protected final boolean _mayRebind;
 
+    /**
+     * @deprecated Since 3.2
+     */
+    @Deprecated
     public ObjectIdValueProperty(ObjectIdReader objectIdReader,
             PropertyMetadata metadata)
     {

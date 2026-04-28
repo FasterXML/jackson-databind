@@ -561,13 +561,19 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
          * </ul>
          * Added with [databind#5946] (follow-up to [databind#5909]).
          *
+         * @param oldItem Item to replace (Builder)
+         * @param newItem Item to replace {@code oldItem} with (Built value)
+         *
          * @since 3.2
          */
         void replaceResolvedItem(ArrayReferring forRef, Object oldItem, Object newItem) {
             if (_array == null) {
                 return;
             }
-            for (int i = 0, size = _accumulator.size(); i < size; i++) {
+            // No early return on `forRef` match: the same `oldItem` may also
+            // occupy other slots if the same id was forward-referenced more
+            // than once, and we want to swap them all in a single pass.
+            for (int i = 0, size = _accumulator.size(); i < size; ++i) {
                 Object slot = _accumulator.get(i);
                 if (slot == forRef || slot == oldItem) {
                     _array[i] = newItem;

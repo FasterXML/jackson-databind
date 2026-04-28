@@ -500,3 +500,8 @@ David Nelson (@eatdrinksleepcode)
  * Reported #5814: Enum deserialization does not respect
    `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
   [3.2.0]
+
+Daniel Purnomo (@kyooosukedn)
+ * Fixed #5909: Forward Object Id references inside Collection properties
+   leak Builder instance (follow-up to #1496)
+  [3.2.0]

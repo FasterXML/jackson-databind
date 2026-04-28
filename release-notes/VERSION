@@ -197,6 +197,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #5897: Excessive `TokenBuffer` allocations when deserializing records
  (fix by Viktor S, w/ Claude code)
+#5909: Forward Object Id references inside Collection properties
+  leak Builder instance (follow-up to #1496)
+ (fix by Daniel P)
 #5937: Add `SerializationContext.withActiveView()`
  (implemented by @cowtowncoder)
 - Remove project-specific Android SDK compatibility level, use shared;

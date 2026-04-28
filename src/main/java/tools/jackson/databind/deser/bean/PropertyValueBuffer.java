@@ -111,6 +111,16 @@ public class PropertyValueBuffer
      */
     protected final BitSet _injectablePropIndexes;
 
+    /**
+     * Set when the owning deserializer is Builder-based, so the constructed
+     * bean is a transient Builder that will later be rebuilt via
+     * {@code finishBuild} and trigger {@code updateObjectId}. See
+     * [databind#5909].
+     *
+     * @since 3.2
+     */
+    protected final boolean _mayRebind;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -119,10 +129,22 @@ public class PropertyValueBuffer
 
     /**
      * @since 3.1
+     * @deprecated Since 3.2
      */
+    @Deprecated
     public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
             ObjectIdReader oir, SettableAnyProperty anyParamSetter,
             BitSet injectablePropIndexes)
+    {
+        this(p, ctxt, paramCount, oir, anyParamSetter, injectablePropIndexes, false);
+    }
+
+    /**
+     * @since 3.2
+     */
+    public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
+            ObjectIdReader oir, SettableAnyProperty anyParamSetter,
+            BitSet injectablePropIndexes, boolean mayRebind)
     {
         _parser = p;
         _context = ctxt;
@@ -142,6 +164,7 @@ public class PropertyValueBuffer
         }
         _injectablePropIndexes = (injectablePropIndexes == null)
                 ? null : (BitSet) injectablePropIndexes.clone();
+        _mayRebind = mayRebind;
     }
 
     /**
@@ -382,6 +405,9 @@ public class PropertyValueBuffer
         if (_objectIdReader != null) {
             if (_idValue != null) {
                 ReadableObjectId roid = ctxt.findObjectId(_idValue, _objectIdReader.generator, _objectIdReader.resolver);
+                if (_mayRebind) {
+                    roid.markMayRebind();
+                }
                 roid.bindItem(ctxt, bean);
                 // also: may need to set a property value as well
                 SettableBeanProperty idProp = _objectIdReader.idProperty;

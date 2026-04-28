@@ -348,7 +348,7 @@ public class EnumMapDeserializer
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         // null -> no ObjectIdReader for EnumMaps
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null, false);
 
         String keyName;
         if (p.isExpectedStartObjectToken()) {

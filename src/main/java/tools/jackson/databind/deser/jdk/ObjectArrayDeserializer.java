@@ -529,7 +529,16 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
             for (int i = 0, size = _accumulator.size(); i < size; i++) {
                 if ((_accumulator.get(i) instanceof ArrayReferring ref) && ref.hasId(id)) {
                     if (_array != null) {
-                        _array[i] = value;
+                        // [databind#5946]: if `value` is a transient delegate (Builder
+                        // or @JsonCreator(DELEGATING) intermediate) whose runtime type
+                        // isn't assignable to the typed array's component, writing
+                        // would throw `ArrayStoreException`. Defer: leave the
+                        // ArrayReferring in place; `replaceResolvedItem` will write
+                        // the final value once `updateObjectId` fires the rebind.
+                        if (_untyped || value == null || _elementType.isInstance(value)) {
+                            _array[i] = value;
+                            _accumulator.set(i, value);
+                        }
                     } else {
                         _accumulator.set(i, value);
                     }
@@ -538,6 +547,39 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
             }
             throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
                     + "] that wasn't previously seen as unresolved.");
+        }
+
+        /**
+         * Replace a resolved item after Builder→built (or delegate→bean) rebind.
+         * Handles two cases:
+         * <ul>
+         *  <li>Slot was deferred (still holds the {@code forRef} ArrayReferring
+         *      because {@code oldItem} wasn't assignable to the array's
+         *      component type): write {@code newItem} into the array now.</li>
+         *  <li>Slot holds {@code oldItem} (delegate was assignable and was
+         *      stored): swap to {@code newItem}.</li>
+         * </ul>
+         * Added with [databind#5946] (follow-up to [databind#5909]).
+         *
+         * @param oldItem Item to replace (Builder)
+         * @param newItem Item to replace {@code oldItem} with (Built value)
+         *
+         * @since 3.2
+         */
+        void replaceResolvedItem(ArrayReferring forRef, Object oldItem, Object newItem) {
+            if (_array == null) {
+                return;
+            }
+            // No early return on `forRef` match: the same `oldItem` may also
+            // occupy other slots if the same id was forward-referenced more
+            // than once, and we want to swap them all in a single pass.
+            for (int i = 0, size = _accumulator.size(); i < size; ++i) {
+                Object slot = _accumulator.get(i);
+                if (slot == forRef || slot == oldItem) {
+                    _array[i] = newItem;
+                    _accumulator.set(i, newItem);
+                }
+            }
         }
 
         Object[] buildArray() {
@@ -570,6 +612,11 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
         public void handleResolvedForwardReference(DeserializationContext ctxt,
                 Object id, Object value) {
             _parent.resolveForwardReference(id, value);
+        }
+
+        @Override
+        public void handleItemRebind(Object oldItem, Object newItem) {
+            _parent.replaceResolvedItem(this, oldItem, newItem);
         }
     }
 }

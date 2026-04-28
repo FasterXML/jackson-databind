@@ -544,12 +544,15 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
          * Replace a resolved item in the accumulator or built array. Called when
          * the bound item is rebound (e.g., builder → built object).
          *
+         * @param oldItem Item to replace (Builder)
+         * @param newItem Item to replace {@code oldItem} with (Built value)
+         *
          * @since 3.2
          */
         void replaceResolvedItem(Object oldItem, Object newItem) {
-            // Identity match: oldItem is the exact bound delegate (e.g. Builder).
-            // Note: only effective for untyped arrays; typed arrays of the built
-            // type fail earlier with ArrayStoreException at bindItem time.
+            // Note: only effective for "untyped" arrays ({@code Object[]});
+            // typed arrays of the built type fail earlier with ArrayStoreException
+            // at bindItem time.
             if (_array != null) {
                 for (int i = 0; i < _array.length; i++) {
                     if (_array[i] == oldItem) {

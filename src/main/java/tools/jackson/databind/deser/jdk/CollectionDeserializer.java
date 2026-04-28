@@ -665,13 +665,13 @@ _containerType,
          * item is rebound (e.g., builder → built object) via
          * {@link Referring#handleItemRebind}.
          *
+         * @param oldItem Item to replace (Builder)
+         * @param newItem Item to replace {@code oldItem} with (Built value)
+         *
          * @since 3.2
          */
         public void replaceResolvedItem(Object oldItem, Object newItem) {
-            // Identity (==) match: oldItem is the exact builder instance we
-            // bound earlier; equals() may not even be defined on builders.
             if (_result instanceof List<?>) {
-                @SuppressWarnings("unchecked")
                 List<Object> list = (List<Object>) _result;
                 for (int i = 0, len = list.size(); i < len; i++) {
                     if (list.get(i) == oldItem) {
@@ -700,6 +700,7 @@ _containerType,
             }
         }
 
+        // @since 3.2
         private static boolean _containsIdentity(Collection<?> coll, Object target) {
             for (Object item : coll) {
                 if (item == target) {

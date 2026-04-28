@@ -1041,6 +1041,9 @@ public class MapDeserializer
          * Replace a resolved item in the result map. Called when the bound item
          * is rebound (e.g., builder → built object).
          *
+         * @param oldItem Item to replace (Builder)
+         * @param newItem Item to replace {@code oldItem} with (Built value)
+         *
          * @since 3.2
          */
         public void replaceResolvedItem(Object oldItem, Object newItem) {
@@ -1070,7 +1073,7 @@ public class MapDeserializer
     static class MapReferring extends Referring {
         private final MapReferringAccumulator _parent;
 
-        public final Map<Object, Object> next = new LinkedHashMap<Object, Object>();
+        public final Map<Object, Object> next = new LinkedHashMap<>();
         public final Object key;
 
         MapReferring(MapReferringAccumulator parent, UnresolvedForwardReference ref,

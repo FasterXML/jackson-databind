@@ -360,7 +360,7 @@ public class BeanPropertyMap
      * Method for collecting all alias names defined for properties in this
      * map into given set.
      *
-     * @since 3.2
+     * @since 3.1.3
      */
     public void collectAliasNames(Set<String> names) {
         if (_aliasDefs == null) {

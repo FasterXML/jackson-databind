@@ -231,6 +231,8 @@ Lee Jiwon (@dlwldnjs1009)
   [3.1.2]
  * Fixed #5925: Pass dynamic serializer for `Iterable` content filtering
   [3.1.3]
+ * Fixed #5931: Fix `AtomicLongDeserializer` value truncation on coerced values
+  [3.1.3]
  * Contributed #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
    are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
   [3.2.0]
@@ -336,6 +338,11 @@ Kenta Yoshii (@KentaYoshii)
    "INF"/"Infinity" and "-INF"/"-Infinity"
   [3.1.2]
 
+Lucas Cloarec (@lucascloarec)
+ * Reported #5911: Deserialization failed with `@JsonUnwrapped` and `@JsonAlias`
+   on a property of the unwrapped type
+  [3.1.3]
+
 Marco Brakmann (@ML-Marco)
  * Reported #5918: Creator properties always come first in 3.x
   [3.1.3]
@@ -343,6 +350,11 @@ Marco Brakmann (@ML-Marco)
 Joshua Arnold (@josharnold52)
  * Reported, fixed #5923: Deserialization behavior change with Records,
    `@JsonCreator` and `@JsonValue`
+  [3.1.3]
+
+Michael Orzechowski (@MikeBlink)
+ * Reported #5941: `MapperBuilder.addModule()` does not recursively register transitive
+   module dependencies (3.x regression from 2.x)
   [3.1.3]
 
 Gili Tzabari (@cowwoc)
@@ -383,8 +395,22 @@ Balys Valentukevicius (@balysv)
    deserializing a collection of interfaces (immutables.io compatibility)
   [3.2.0]
 
+Patrik Mihalcin (@pmihalcin)
+ * Reported #1921: Reader for updating do not use `@JsonCreator` constructor
+  [3.2.0]
+
+Leonid Talalaev (@ltalal)
+ * Reported #2100: Using `ObjectReader.withValueToUpdate()` with JsonPOJOBuilder
+  no longer working
+  [3.2.0]
+
 Vitaly Barkhatov (@vbarhatov)
  * Reported #2736: Unable to deserialize `@JsonUnwrapped` `Optional<>` field
+  [3.2.0]
+
+David Attia (@dattia-dev)
+ * Reported #2747: `@JsonTypeInfo(include = EXTERNAL_PROPERTY)` exposes bogus array
+   via `JsonStreamContext` during deserialization
   [3.2.0]
 
 Michał Rowicki (@wyhasany)
@@ -424,6 +450,12 @@ Klaas Dellschaft (@klaasdellschaft)
 
 Daniel Gerhardt (@dgerhardt)
  * Reported #3205: ConfigOverrides for merging are not applied for items inside containers
+  [3.2.0]
+
+Aurimas Niekis (@aurimasniekis)
+ * Reported #3547: When using type id with `As.EXTERNAL_PROPERTY` together with
+  `@JsonValue` inside type the serialiser omits external type id field
+  from result when `@JsonValue` value is null
   [3.2.0]
 
 Andrzej Leśkiewicz (@aleskiewicz)
@@ -469,7 +501,7 @@ David Nelson (@eatdrinksleepcode)
    `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
   [3.2.0]
 
-Lucas Cloarec (@lucascloarec)
- * Reported #5911: Deserialization failed with `@JsonUnwrapped` and `@JsonAlias`
-   on a property of the unwrapped type
+Daniel Purnomo (@kyooosukedn)
+ * Fixed #5909: Forward Object Id references inside Collection properties
+   leak Builder instance (follow-up to #1496)
   [3.2.0]

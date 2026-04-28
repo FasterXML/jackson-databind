@@ -379,7 +379,7 @@ public class BeanAsArrayDeserializer
         throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, false);
 
         final SettableBeanProperty[] props = _orderedProperties;
         final int propCount = props.length;

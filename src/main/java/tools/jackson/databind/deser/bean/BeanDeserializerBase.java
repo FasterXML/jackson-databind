@@ -177,6 +177,18 @@ public abstract class BeanDeserializerBase
     protected transient ConcurrentHashMap<ClassKey, ValueDeserializer<Object>> _subDeserializers;
 
     /**
+     * [databind#1921]: Lazily computed cache for {@link #_hasUpdateableProperties()}.
+     * {@code null} until the first call; safe under concurrent reads/writes since
+     * the computation is pure and the cached reference is an immutable Boolean
+     * (benign race at worst causes redundant computation).
+     * Intentionally not propagated by copy constructors — copies recompute lazily
+     * so the cache stays consistent with a potentially-different property set.
+     *
+     * @since 3.2
+     */
+    protected transient volatile Boolean _hasUpdateablePropertiesFlag;
+
+    /**
      * If one of properties has "unwrapped" value, we need separate
      * helper object
      */
@@ -389,7 +401,10 @@ public abstract class BeanDeserializerBase
             // 18-Nov-2012, tatu: May or may not have annotations for id property;
             //   but no easy access. But hard to see id property being optional,
             //   so let's consider required at this point.
-            ObjectIdValueProperty idProp = new ObjectIdValueProperty(oir, PropertyMetadata.STD_REQUIRED);
+            // [databind#5909]: builder-based subclasses rebind id'd instance
+            // from Builder to built object via finishBuild — flag accordingly.
+            ObjectIdValueProperty idProp = new ObjectIdValueProperty(oir,
+                    PropertyMetadata.STD_REQUIRED, this instanceof BuilderBasedDeserializer);
             _beanProperties = src._beanProperties.withProperty(idProp);
             _vanillaProcessing = false;
         }
@@ -1316,6 +1331,41 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return _beanProperties.size();
     }
 
+    /**
+     * [databind#1921]: Check whether any property can assign a value into an
+     * existing instance — either via setter/field mutator, any-setter, or as
+     * a {@link CreatorProperty} that has a fallback setter. Returns false for
+     * fully-immutable types whose only assignment path is via {@code @JsonCreator}.
+     * Result is cached lazily in {@link #_hasUpdateablePropertiesFlag}.
+     *
+     * @since 3.2
+     */
+    protected boolean _hasUpdateableProperties() {
+        Boolean cached = _hasUpdateablePropertiesFlag;
+        if (cached != null) {
+            return cached;
+        }
+        boolean result = _computeHasUpdateableProperties();
+        _hasUpdateablePropertiesFlag = result;
+        return result;
+    }
+
+    private boolean _computeHasUpdateableProperties() {
+        if (_anySetter != null) {
+            return true;
+        }
+        for (SettableBeanProperty prop : _beanProperties) {
+            if (prop instanceof CreatorProperty) {
+                if (((CreatorProperty) prop).hasFallbackSetter()) {
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public Collection<Object> getKnownPropertyNames() {
         ArrayList<Object> names = new ArrayList<>();
@@ -1520,6 +1570,10 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         // (may happen with polymorphic builder deserialization where the subtype
         // deserializer already handled ObjectId binding via finishBuild/updateObjectId)
         if (roid.resolve() != pojo) {
+            // [databind#5909]: builder-based path will rebuild via finishBuild
+            if (this instanceof BuilderBasedDeserializer) {
+                roid.markMayRebind();
+            }
             roid.bindItem(ctxt, pojo);
         }
         // also: may need to set a property value as well
@@ -1609,7 +1663,22 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         //   Creator handling
         final ValueDeserializer<Object> delegateDeser = _delegateDeserializer(p);
         if (delegateDeser != null) {
-            final Object delegate = delegateDeser.deserialize(p, ctxt);
+            // [databind#5909]: signal delegate-bind-pending so that any ROID
+            // bound during delegate deserialization retains resolved Referrings
+            // — needed for collection-property forward refs to be rebound after
+            // updateObjectId(delegate, bean) below.
+            final boolean track = _objectIdReader != null;
+            if (track) {
+                ctxt.enterDelegateBindPending();
+            }
+            final Object delegate;
+            try {
+                delegate = delegateDeser.deserialize(p, ctxt);
+            } finally {
+                if (track) {
+                    ctxt.exitDelegateBindPending();
+                }
+            }
             final Object bean = _valueInstantiator.createUsingDelegate(ctxt, delegate);
             if (_injectables != null) {
                 injectValues(ctxt, bean);

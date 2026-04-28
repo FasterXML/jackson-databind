@@ -306,25 +306,29 @@ public class BuilderBasedDeserializer
      * Secondary deserialization method, called in cases where POJO
      * instance is created as part of deserialization, potentially
      * after collecting some or all of the properties to set.
+     *<p>
+     * For Builder-based deserialization, this is supported only when the
+     * caller passes a {@link #handledType() Builder} instance (see
+     * [databind#2100]); the builder is used as the mutable accumulator,
+     * JSON properties are applied to it, and {@code build()} is then
+     * invoked to produce the target value. Passing an already-built value
+     * is not supported, because builder-backed POJOs are typically
+     * immutable and there is no general way to re-populate builder state
+     * from a built instance.
      */
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt,
     		Object value) throws JacksonException
     {
-        // 26-Oct-2016, tatu: I cannot see any of making this actually
-        //    work correctly, so let's indicate problem right away
-        JavaType valueType = _targetType;
-        // Did they try to give us builder?
-        Class<?> builderRawType = handledType();
-        Class<?> instRawType = value.getClass();
-        if (builderRawType.isAssignableFrom(instRawType)) {
-            return ctxt.reportBadDefinition(valueType, String.format(
-                    "Deserialization of %s by passing existing Builder (%s) instance not supported",
-                    valueType, builderRawType.getName()));
+        if (handledType().isAssignableFrom(value.getClass())) {
+            return finishBuild(ctxt, _deserialize(p, ctxt, value));
         }
-        return ctxt.reportBadDefinition(valueType, String.format(
-                "Deserialization of %s by passing existing instance (of %s) not supported",
-                valueType, instRawType.getName()));
+        return ctxt.reportBadDefinition(_targetType, String.format(
+                "Deserialization of %s by passing existing instance (of %s) not supported:"
+                + " for Builder-based deserialization, pass a Builder (of %s) instance instead",
+                ClassUtil.getTypeDescription(_targetType),
+                ClassUtil.classNameOf(value),
+                ClassUtil.nameOf(handledType())));
     }
 
     /*
@@ -439,7 +443,8 @@ public class BuilderBasedDeserializer
         throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        // [databind#5909]: builder will be rebuilt via finishBuild
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, true);
 
         // [dataformats-text#22]: Handle native Object Ids (e.g. YAML anchors)
         if (_objectIdReader != null && p.canReadObjectId()) {
@@ -825,7 +830,8 @@ public class BuilderBasedDeserializer
         throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        // [databind#5909]: builder will be rebuilt via finishBuild
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, true);
 
         TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();

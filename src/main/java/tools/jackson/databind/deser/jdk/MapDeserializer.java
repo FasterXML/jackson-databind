@@ -690,7 +690,7 @@ public class MapDeserializer
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         // null -> no ObjectIdReader for Maps (yet?)
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null, false);
 
         String key;
         if (p.isExpectedStartObjectToken()) {
@@ -1036,6 +1036,33 @@ public class MapDeserializer
             throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
                     + "] that wasn't previously seen as unresolved.");
         }
+
+        /**
+         * Replace a resolved item in the result map. Called when the bound item
+         * is rebound (e.g., builder → built object).
+         *
+         * @param oldItem Item to replace (Builder)
+         * @param newItem Item to replace {@code oldItem} with (Built value)
+         *
+         * @since 3.2
+         */
+        public void replaceResolvedItem(Object oldItem, Object newItem) {
+            replaceInMap(_result, oldItem, newItem);
+            // Pending accumulator entries may also hold the old item if a later
+            // forward ref hasn't yet resolved.
+            for (MapReferring ref : _accumulator) {
+                replaceInMap(ref.next, oldItem, newItem);
+            }
+        }
+
+        private static void replaceInMap(Map<Object, Object> map, Object oldItem, Object newItem) {
+            // Identity match: oldItem is the exact bound delegate (e.g. Builder).
+            for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                if (entry.getValue() == oldItem) {
+                    entry.setValue(newItem);
+                }
+            }
+        }
     }
 
     /**
@@ -1046,7 +1073,7 @@ public class MapDeserializer
     static class MapReferring extends Referring {
         private final MapReferringAccumulator _parent;
 
-        public final Map<Object, Object> next = new LinkedHashMap<Object, Object>();
+        public final Map<Object, Object> next = new LinkedHashMap<>();
         public final Object key;
 
         MapReferring(MapReferringAccumulator parent, UnresolvedForwardReference ref,
@@ -1062,6 +1089,11 @@ public class MapDeserializer
             throws JacksonException
         {
             _parent.resolveForwardReference(ctxt, id, value);
+        }
+
+        @Override
+        public void handleItemRebind(Object oldItem, Object newItem) {
+            _parent.replaceResolvedItem(oldItem, newItem);
         }
     }
 }

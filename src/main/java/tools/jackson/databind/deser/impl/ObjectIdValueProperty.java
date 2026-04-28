@@ -19,12 +19,35 @@ public final class ObjectIdValueProperty
 {
     protected final ObjectIdReader _objectIdReader;
 
+    /**
+     * Set when the owning deserializer is Builder-based, so the bound id'd
+     * instance is a transient Builder that will later be rebuilt via
+     * {@code finishBuild} and trigger {@code updateObjectId}.
+     *
+     * @since 3.2
+     */
+    protected final boolean _mayRebind;
+
+    /**
+     * @deprecated Since 3.2
+     */
+    @Deprecated
     public ObjectIdValueProperty(ObjectIdReader objectIdReader,
             PropertyMetadata metadata)
+    {
+        this(objectIdReader, metadata, false);
+    }
+
+    /**
+     * @since 3.2
+     */
+    public ObjectIdValueProperty(ObjectIdReader objectIdReader,
+            PropertyMetadata metadata, boolean mayRebind)
     {
         super(objectIdReader.propertyName, objectIdReader.getIdType(), metadata,
                 objectIdReader.getDeserializer());
         _objectIdReader = objectIdReader;
+        _mayRebind = mayRebind;
     }
 
     protected ObjectIdValueProperty(ObjectIdValueProperty src, ValueDeserializer<?> deser,
@@ -32,11 +55,13 @@ public final class ObjectIdValueProperty
     {
         super(src, deser, nva);
         _objectIdReader = src._objectIdReader;
+        _mayRebind = src._mayRebind;
     }
 
     protected ObjectIdValueProperty(ObjectIdValueProperty src, PropertyName newName) {
         super(src, newName);
         _objectIdReader = src._objectIdReader;
+        _mayRebind = src._mayRebind;
     }
 
     @Override
@@ -96,6 +121,9 @@ public final class ObjectIdValueProperty
         }
         Object id = _valueDeserializer.deserialize(p, ctxt);
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
+        if (_mayRebind) {
+            roid.markMayRebind();
+        }
         roid.bindItem(ctxt, instance);
         // also: may need to set a property value as well
         SettableBeanProperty idProp = _objectIdReader.idProperty;

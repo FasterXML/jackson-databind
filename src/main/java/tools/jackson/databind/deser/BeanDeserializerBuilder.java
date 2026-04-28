@@ -400,7 +400,8 @@ public class BeanDeserializerBuilder
             //   but no easy access. But hard to see id property being optional,
             //   so let's consider required at this point.
             props = _addIdProp(_properties,
-                    new ObjectIdValueProperty(_objectIdReader, PropertyMetadata.STD_REQUIRED));
+                    new ObjectIdValueProperty(_objectIdReader,
+                            PropertyMetadata.STD_REQUIRED, false));
         }
         return new BeanDeserializer(this,
                 _beanDescRef, _constructPropMap(props), _backRefProperties, _ignorableProps, _ignoreAllUnknown, _includableProps,
@@ -451,8 +452,11 @@ public class BeanDeserializerBuilder
         if (_objectIdReader != null) {
             // May or may not have annotations for id property; but no easy access.
             // But hard to see id property being optional, so let's consider required at this point.
+            // [databind#5909]: builder-based deser will rebind id'd instance from
+            // Builder to built object via finishBuild's updateObjectId — flag it.
             props = _addIdProp(_properties,
-                    new ObjectIdValueProperty(_objectIdReader, PropertyMetadata.STD_REQUIRED));
+                    new ObjectIdValueProperty(_objectIdReader,
+                            PropertyMetadata.STD_REQUIRED, true));
         } else {
             props = _properties.values();
         }

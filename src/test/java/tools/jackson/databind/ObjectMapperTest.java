@@ -315,6 +315,40 @@ public class ObjectMapperTest extends DatabindTestUtil
         assertEquals(Arrays.asList("dep1", "dep2", "main"), ids);
     }
 
+    // [databind#5941]: transitive (multi-level) module dependencies must all be registered
+    @Test
+    public void testRegisterTransitiveModuleDependencies() {
+        final SimpleModule moduleA = new SimpleModule() {
+            @Override
+            public Object getRegistrationId() { return "A"; }
+        };
+        final SimpleModule moduleB = new SimpleModule() {
+            @Override
+            public Iterable<? extends JacksonModule> getDependencies() {
+                return Arrays.asList(moduleA);
+            }
+            @Override
+            public Object getRegistrationId() { return "B"; }
+        };
+        final SimpleModule moduleC = new SimpleModule() {
+            @Override
+            public Iterable<? extends JacksonModule> getDependencies() {
+                return Arrays.asList(moduleB);
+            }
+            @Override
+            public Object getRegistrationId() { return "C"; }
+        };
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(moduleC)
+                .build();
+
+        List<Object> ids = mapper.registeredModules().stream()
+                .map(JacksonModule::getRegistrationId)
+                .toList();
+        assertEquals(Arrays.asList("A", "B", "C"), ids);
+    }
+
     @Test
     public void testHasExplicitTimeZone() throws Exception
     {

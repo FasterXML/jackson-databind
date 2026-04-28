@@ -672,6 +672,7 @@ _containerType,
          */
         public void replaceResolvedItem(Object oldItem, Object newItem) {
             if (_result instanceof List<?>) {
+                @SuppressWarnings("unchecked")
                 List<Object> list = (List<Object>) _result;
                 for (int i = 0, len = list.size(); i < len; i++) {
                     if (list.get(i) == oldItem) {

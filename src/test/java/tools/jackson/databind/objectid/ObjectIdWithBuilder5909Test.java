@@ -22,9 +22,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * [databind#5909] (follow-up to [databind#1496]: Forward Object Id references
- * that appear inside a {@link java.util.Collection}-typed property of a
- * Builder-based type must be correctly resolved to the built target object,
- * not the Builder instance.
+ * that appear inside a {@link java.util.List}, {@link java.util.Set}, or
+ * {@link java.util.Map}-typed property of a Builder-based type must be
+ * correctly resolved to the built target object, not the Builder instance.
+ * Also covers builder-with-property-creator (via {@code @JsonCreator}), and
+ * documents the typed-array limitation.
  */
 class ObjectIdWithBuilder5909Test extends DatabindTestUtil
 {
@@ -272,7 +274,7 @@ class ObjectIdWithBuilder5909Test extends DatabindTestUtil
         assertEquals(2, refs.size());
         // Every entry must be a built EntitySet, not a leftover Builder.
         for (EntitySet item : refs) {
-            assertSame(item.getClass(), EntitySet.class,
+            assertEquals(EntitySet.class, item.getClass(),
                     "entry should have been rebound from Builder to built object");
         }
         assertTrue(refs.contains(second));
@@ -342,7 +344,7 @@ class ObjectIdWithBuilder5909Test extends DatabindTestUtil
     }
 
     @Test
-    public void forwardReferenceInCollection_propertyCreatorBuilder() throws Exception
+    public void forwardReferenceInCollectionWithPropertyCreatorBuilder() throws Exception
     {
         String json = a2q("{'entities':["
                 + "{'id':1,'refs':[2]},"
@@ -356,6 +358,71 @@ class ObjectIdWithBuilder5909Test extends DatabindTestUtil
         assertEquals(1, first.refs.size());
         assertSame(second, first.refs.get(0),
                 "forward ref must be rebound from Builder to built object via PropertyValueBuffer path");
+    }
+
+    // ---- Array variant: documents the current limitation for typed arrays.
+    // A forward Object Id reference inside a typed `Entity[]` property of a
+    // Builder-based type cannot resolve to the Builder (different runtime type
+    // than the array's component) — the JVM rejects the store with
+    // `ArrayStoreException` during `resolveForwardReference`, well before the
+    // builder→built rebind path added by [databind#5909] could run.
+    //
+    // This is a regression test for the documented behavior referenced by
+    // {@link tools.jackson.databind.deser.jdk.ObjectArrayDeserializer.ObjectArrayReferringAccumulator#replaceResolvedItem(Object, Object)}.
+    // Untyped `Object[]` arrays don't reach the same path because the default
+    // element deserializer (UntypedObjectDeserializer) has no ObjectIdReader,
+    // so the accumulator/forward-ref path isn't taken at all.
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonDeserialize(builder = EntityArrayBuilder.class)
+    static class EntityArray
+    {
+        public final long id;
+        public final EntityArray[] refs;
+
+        EntityArray(long id, EntityArray[] refs) {
+            this.id = id;
+            this.refs = refs;
+        }
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonPOJOBuilder(withPrefix = "")
+    static class EntityArrayBuilder
+    {
+        private long id;
+        private EntityArray[] refs;
+
+        public EntityArrayBuilder id(long id) { this.id = id; return this; }
+        public EntityArrayBuilder refs(EntityArray[] refs) { this.refs = refs; return this; }
+
+        public EntityArray build() { return new EntityArray(id, refs); }
+    }
+
+    static class EntityArrayContainer
+    {
+        public List<EntityArray> entities;
+    }
+
+    @Test
+    public void forwardReferenceInTypedArrayFailsArrayStoreException() throws Exception
+    {
+        String json = a2q("{'entities':["
+                + "{'id':1,'refs':[2]},"
+                + "{'id':2,'refs':[]}"
+                + "]}");
+
+        // Typed `EntityArray[]` cannot hold an `EntityArrayBuilder` instance.
+        // The forward-ref resolution writes the builder into the array slot
+        // (in resolveForwardReference) and the JVM throws ArrayStoreException.
+        Throwable thrown = assertThrows(Throwable.class,
+                () -> MAPPER.readValue(json, EntityArrayContainer.class));
+        Throwable root = thrown;
+        while (root.getCause() != null && root != root.getCause()) {
+            root = root.getCause();
+        }
+        assertEquals(ArrayStoreException.class, root.getClass(),
+                "expected ArrayStoreException, got: " + root);
     }
 
 }

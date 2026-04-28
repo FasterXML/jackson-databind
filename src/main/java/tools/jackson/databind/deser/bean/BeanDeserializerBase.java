@@ -1663,7 +1663,22 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         //   Creator handling
         final ValueDeserializer<Object> delegateDeser = _delegateDeserializer(p);
         if (delegateDeser != null) {
-            final Object delegate = delegateDeser.deserialize(p, ctxt);
+            // [databind#5909]: signal delegate-bind-pending so that any ROID
+            // bound during delegate deserialization retains resolved Referrings
+            // — needed for collection-property forward refs to be rebound after
+            // updateObjectId(delegate, bean) below.
+            final boolean track = _objectIdReader != null;
+            if (track) {
+                ctxt.enterDelegateBindPending();
+            }
+            final Object delegate;
+            try {
+                delegate = delegateDeser.deserialize(p, ctxt);
+            } finally {
+                if (track) {
+                    ctxt.exitDelegateBindPending();
+                }
+            }
             final Object bean = _valueInstantiator.createUsingDelegate(ctxt, delegate);
             if (_injectables != null) {
                 injectValues(ctxt, bean);

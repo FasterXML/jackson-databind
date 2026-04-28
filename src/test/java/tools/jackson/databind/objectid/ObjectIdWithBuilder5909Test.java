@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
+import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -423,6 +425,77 @@ class ObjectIdWithBuilder5909Test extends DatabindTestUtil
         }
         assertEquals(ArrayStoreException.class, root.getClass(),
                 "expected ArrayStoreException, got: " + root);
+    }
+
+    // ---- Delegating-creator variant ([databind#1706] + collection forward
+    // refs): the bound id'd instance is a transient delegate (Mutable*) which
+    // is replaced via updateObjectId after createUsingDelegate. Forward refs
+    // inside a Collection-typed property must be rebound to the final bean,
+    // not left pointing at the discarded delegate.
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
+    @JsonSerialize(as = ImmutableEntity1706.class)
+    @JsonDeserialize(as = ImmutableEntity1706.class)
+    interface Entity1706 {
+        long getId();
+        List<Entity1706> getRefs();
+    }
+
+    static class ImmutableEntity1706 implements Entity1706 {
+        private final long id;
+        private final List<Entity1706> refs;
+
+        ImmutableEntity1706(long id, List<Entity1706> refs) {
+            this.id = id;
+            this.refs = refs;
+        }
+
+        @Override public long getId() { return id; }
+        @Override public List<Entity1706> getRefs() { return refs; }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        static ImmutableEntity1706 fromJson(MutableEntity1706 m) {
+            return new ImmutableEntity1706(m.id, m.refs);
+        }
+    }
+
+    // @JsonDeserialize (no `as`) override on MutableEntity1706 cancels the
+    // `as=ImmutableEntity1706` inherited from Entity1706 — needed so the
+    // delegate type isn't (mis)narrowed during delegate-deserializer lookup.
+    @JsonDeserialize
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+    static class MutableEntity1706 implements Entity1706 {
+        public long id;
+        public List<Entity1706> refs;
+
+        @Override public long getId() { throw new UnsupportedOperationException(); }
+        @Override public List<Entity1706> getRefs() { throw new UnsupportedOperationException(); }
+    }
+
+    static class Entity1706Container {
+        public List<Entity1706> entities;
+    }
+
+    @Test
+    public void forwardReferenceInCollectionWithDelegatingCreator() throws Exception
+    {
+        // First entity refs the second by @id forward; second is materialized later.
+        String json = a2q("{'entities':["
+                + "{'@id':1,'id':10,'refs':[2]},"
+                + "{'@id':2,'id':20,'refs':[]}"
+                + "]}");
+
+        Entity1706Container container = MAPPER.readValue(json, Entity1706Container.class);
+        Entity1706 first = container.entities.get(0);
+        Entity1706 second = container.entities.get(1);
+
+        // Both must be the *built* immutable bean, not the leftover Mutable delegate
+        assertEquals(ImmutableEntity1706.class, first.getClass());
+        assertEquals(ImmutableEntity1706.class, second.getClass());
+
+        assertEquals(1, first.getRefs().size());
+        assertSame(second, first.getRefs().get(0),
+                "forward ref must be rebound from delegate to built bean");
     }
 
 }

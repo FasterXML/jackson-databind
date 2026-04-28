@@ -135,12 +135,26 @@ public abstract class DeserializationContext
      * Type of {@link ValueDeserializer} on which {@link ValueDeserializer#createContextual}
      * is being called currently.
      */
-    protected LinkedNode<JavaType> _currentType;
+    protected transient LinkedNode<JavaType> _currentType;
 
     /**
      * Lazily constructed {@link ClassIntrospector} instance: created from "blueprint"
      */
     protected transient ClassIntrospector _classIntrospector;
+
+    /**
+     * Re-entrant counter tracking nested {@code @JsonCreator(mode=DELEGATING)}
+     * deserializations that will trigger {@link #updateObjectId} after the
+     * delegate is built. Bracketed by
+     * {@link #enterDelegateBindPending}/{@link #exitDelegateBindPending}.
+     * While positive, any {@code ReadableObjectId.bindItem} call must retain
+     * resolved Referrings so the eventual delegate→bean rebind can replay them
+     * (e.g. for forward Object Id refs inside Collection/Map properties).
+     * See [databind#5909].
+     *
+     * @since 3.2
+     */
+    protected transient int _delegateBindDepth;
 
     /*
     /**********************************************************************
@@ -963,6 +977,40 @@ public abstract class DeserializationContext
      * @since 3.2
      */
     public abstract boolean hasPendingForwardRefsFor(Object builder);
+
+    /**
+     * Mark entry into a {@code @JsonCreator(mode=DELEGATING)} deserialization
+     * that will subsequently call {@link #updateObjectId} to swap delegate→bean.
+     * While the depth counter is positive, any {@code bindItem} call retains
+     * resolved Referrings so the eventual rebind can replay them (e.g. for
+     * forward Object Id refs inside Collection/Map properties).
+     * Re-entrant; must be paired with {@link #exitDelegateBindPending} in a
+     * try/finally.
+     *
+     * @since 3.2 ([databind#5909])
+     */
+    public void enterDelegateBindPending() {
+        _delegateBindDepth++;
+    }
+
+    /**
+     * Pair to {@link #enterDelegateBindPending}; decrements the depth counter.
+     *
+     * @since 3.2 ([databind#5909])
+     */
+    public void exitDelegateBindPending() {
+        _delegateBindDepth--;
+    }
+
+    /**
+     * @return {@code true} when currently inside a delegate-bind window
+     *   established by {@link #enterDelegateBindPending}.
+     *
+     * @since 3.2 ([databind#5909])
+     */
+    public boolean isDelegateBindPending() {
+        return _delegateBindDepth > 0;
+    }
 
     /*
     /**********************************************************************

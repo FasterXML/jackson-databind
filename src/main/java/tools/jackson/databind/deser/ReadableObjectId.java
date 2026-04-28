@@ -98,6 +98,13 @@ public class ReadableObjectId
      */
     public void bindItem(DeserializationContext ctxt, Object ob) throws JacksonException
     {
+        // [databind#5909]: bound item may also be a delegate that the outer
+        // deserializer (with @JsonCreator(mode=DELEGATING)) is about to replace
+        // via updateObjectId. The delegate's own deserializer doesn't know it
+        // is being used as a delegate, so the outer signals via context.
+        if (!_mayRebind && ctxt.isDelegateBindPending()) {
+            _mayRebind = true;
+        }
         _resolver.bindItem(_key, ob);
         _item = ob;
         Object id = _key.key;

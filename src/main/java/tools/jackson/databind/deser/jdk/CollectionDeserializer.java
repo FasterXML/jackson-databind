@@ -659,6 +659,57 @@ _containerType,
             throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
                     + "] that wasn't previously seen as unresolved.");
         }
+
+        /**
+         * Replace a resolved item in the result collection. Called when the bound
+         * item is rebound (e.g., builder → built object) via
+         * {@link Referring#handleItemRebind}.
+         *
+         * @param oldItem Item to replace (Builder)
+         * @param newItem Item to replace {@code oldItem} with (Built value)
+         *
+         * @since 3.2
+         */
+        public void replaceResolvedItem(Object oldItem, Object newItem) {
+            if (_result instanceof List<?>) {
+                @SuppressWarnings("unchecked")
+                List<Object> list = (List<Object>) _result;
+                for (int i = 0, len = list.size(); i < len; i++) {
+                    if (list.get(i) == oldItem) {
+                        list.set(i, newItem);
+                    }
+                }
+            } else if (_containsIdentity(_result, oldItem)) {
+                // Non-list collections (e.g. LinkedHashSet, TreeSet): snapshot,
+                // clear, and replay with substitution so insertion order /
+                // comparator-based ordering is preserved and counts stay correct
+                // for any Collection impl.
+                List<Object> snapshot = new ArrayList<>(_result);
+                _result.clear();
+                for (Object item : snapshot) {
+                    _result.add(item == oldItem ? newItem : item);
+                }
+            }
+            // Same item may also live in a still-pending accumulator slot
+            // if a later forward ref hasn't yet been resolved.
+            for (CollectionReferring ref : _accumulator) {
+                for (int i = 0, len = ref.next.size(); i < len; i++) {
+                    if (ref.next.get(i) == oldItem) {
+                        ref.next.set(i, newItem);
+                    }
+                }
+            }
+        }
+
+        // @since 3.2
+        private static boolean _containsIdentity(Collection<?> coll, Object target) {
+            for (Object item : coll) {
+                if (item == target) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     /**
@@ -680,6 +731,11 @@ _containerType,
         @Override
         public void handleResolvedForwardReference(DeserializationContext ctxt, Object id, Object value) throws JacksonException {
             _parent.resolveForwardReference(ctxt, id, value);
+        }
+
+        @Override
+        public void handleItemRebind(Object oldItem, Object newItem) {
+            _parent.replaceResolvedItem(oldItem, newItem);
         }
     }
 

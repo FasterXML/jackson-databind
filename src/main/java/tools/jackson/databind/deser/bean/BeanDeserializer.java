@@ -327,8 +327,8 @@ public class BeanDeserializer
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = (_anySetter != null)
-            ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter)
-            : creator.startBuilding(p, ctxt, _objectIdReader);
+            ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter, false)
+            : creator.startBuilding(p, ctxt, _objectIdReader, false);
 
         // Step 1: Pre-populate buffer from existing Record values
         final Class<?> recordClass = _beanType.getRawClass();
@@ -689,8 +689,8 @@ public class BeanDeserializer
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = (_anySetter != null)
-            ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter)
-            : creator.startBuilding(p, ctxt, _objectIdReader);
+            ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter, false)
+            : creator.startBuilding(p, ctxt, _objectIdReader, false);
 
         // [dataformats-text#22]: Handle native Object Ids (e.g. YAML anchors) that
         // are exposed via parser.getObjectId() rather than as a JSON property.
@@ -1201,7 +1201,7 @@ public class BeanDeserializer
         //    Ok however to pass via setter or field.
 
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, false);
 
         TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
@@ -1409,7 +1409,7 @@ public class BeanDeserializer
     {
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, false);
 
         for (JsonToken t = p.currentToken(); t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
@@ -1548,11 +1548,6 @@ public class BeanDeserializer
             } else {
                 _prop.set(ctxt, _bean, value);
             }
-        }
-
-        @Override
-        public boolean refersTo(Object obj) {
-            return _bean == obj;
         }
     }
 }

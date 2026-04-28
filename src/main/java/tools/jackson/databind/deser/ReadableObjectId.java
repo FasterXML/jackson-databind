@@ -1,8 +1,10 @@
 package tools.jackson.databind.deser;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
@@ -35,6 +37,28 @@ public class ReadableObjectId
 
     protected LinkedList<Referring> _referringProperties;
 
+    /**
+     * Referring properties that have already been resolved via {@link #bindItem}.
+     * Kept alive so that {@link #notifyReferringsOfRebind} can propagate
+     * builder-to-built-object replacements (e.g., after {@code finishBuild}).
+     * Only populated when {@link #_mayRebind} is set, since plain (non-Builder)
+     * deserialization never calls {@code updateObjectId} and would otherwise
+     * retain Referrings as dead memory.
+     *
+     * @since 3.2
+     */
+    protected List<Referring> _resolvedReferringProperties;
+
+    /**
+     * Flag set by callers (e.g., builder-based id property) to indicate that
+     * the bound item is a transient delegate that may later be rebuilt via
+     * {@link DeserializationContext#updateObjectId}; only then is it worth
+     * retaining resolved Referrings for {@link #notifyReferringsOfRebind}.
+     *
+     * @since 3.2
+     */
+    protected boolean _mayRebind;
+
     protected ObjectIdResolver _resolver;
 
     public ReadableObjectId(ObjectIdGenerator.IdKey key) {
@@ -57,19 +81,49 @@ public class ReadableObjectId
     }
 
     /**
+     * Mark this entry as potentially rebindable (e.g., bound to a Builder
+     * instance whose {@code finishBuild} will later trigger
+     * {@link DeserializationContext#updateObjectId}). Enables retention of
+     * resolved Referrings so {@link #notifyReferringsOfRebind} can fire.
+     *
+     * @since 3.2
+     */
+    public void markMayRebind() {
+        _mayRebind = true;
+    }
+
+    /**
      * Method called to assign actual POJO to which ObjectId refers to: will
      * also handle referring properties, if any, by assigning POJO.
      */
     public void bindItem(DeserializationContext ctxt, Object ob) throws JacksonException
     {
+        // [databind#5909]: bound item may also be a delegate that the outer
+        // deserializer (with @JsonCreator(mode=DELEGATING)) is about to replace
+        // via updateObjectId. The delegate's own deserializer doesn't know it
+        // is being used as a delegate, so the outer signals via context.
+        if (!_mayRebind && ctxt.isDelegateBindPending()) {
+            _mayRebind = true;
+        }
         _resolver.bindItem(_key, ob);
         _item = ob;
         Object id = _key.key;
         if (_referringProperties != null) {
             Iterator<Referring> it = _referringProperties.iterator();
             _referringProperties = null;
+            // [databind#5909]: only retain Referrings when the bound item may
+            // later be rebound (e.g., Builder -> built object). For plain
+            // POJO deserialization no rebind ever fires, so retention would
+            // be pure dead memory.
+            if (_mayRebind && _resolvedReferringProperties == null) {
+                _resolvedReferringProperties = new ArrayList<>();
+            }
             while (it.hasNext()) {
-                it.next().handleResolvedForwardReference(ctxt, id, ob);
+                Referring ref = it.next();
+                ref.handleResolvedForwardReference(ctxt, id, ob);
+                if (_mayRebind) {
+                    _resolvedReferringProperties.add(ref);
+                }
             }
         }
     }
@@ -97,6 +151,27 @@ public class ReadableObjectId
             return true;
         }
         return false;
+    }
+
+    /**
+     * Method called after {@link #tryReplaceBoundItem} to notify previously-resolved
+     * {@link Referring} instances that the bound item has been replaced (e.g.,
+     * builder → built object). Collection-like Referring implementations should
+     * override {@link Referring#handleItemRebind} to swap the old item for the new one.
+     *
+     * @since 3.2
+     */
+    public void notifyReferringsOfRebind(Object oldItem, Object newItem)
+            throws JacksonException
+    {
+        if (_resolvedReferringProperties != null) {
+            for (Referring ref : _resolvedReferringProperties) {
+                ref.handleItemRebind(oldItem, newItem);
+            }
+            // Referrings have served their purpose; release for GC. A given
+            // ROID's bound item is rebuilt at most once.
+            _resolvedReferringProperties = null;
+        }
     }
 
     public Object resolve(){
@@ -190,18 +265,21 @@ public class ReadableObjectId
         }
 
         /**
-         * Method for checking if this forward reference was registered against
-         * the given container instance (the object that will receive the resolved
-         * value). Used for detecting issues with Builder-based deserialization
-         * where the container (builder) is discarded after building.
+         * Called when the resolved item has been rebound (e.g., builder → built object).
+         * Implementations that hold resolved values in mutable containers (collections,
+         * arrays, maps) should replace the old item with the new one. Default no-op
+         * since scalar property references are set on the POJO directly and captured
+         * via constructor before build.
          *
-         * @param obj The object to check against
-         * @return {@code true} if this referring was registered against {@code obj}
+         * @param oldItem The previous item (e.g., the builder)
+         * @param newItem The replacement item (e.g., the built object)
          *
          * @since 3.2
          */
-        public boolean refersTo(Object obj) {
-            return false;
+        public void handleItemRebind(Object oldItem, Object newItem)
+                throws JacksonException
+        {
+            // no-op by default
         }
     }
 }

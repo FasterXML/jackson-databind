@@ -134,6 +134,9 @@ public abstract class DeserializationContextExt
         if (_objectIds != null) {
             for (ReadableObjectId roid : _objectIds.values()) {
                 if (roid.tryReplaceBoundItem(delegate, newItem)) {
+                    // [databind#5909]: forward refs already resolved to the
+                    // delegate (e.g. Builder) need to be swapped to newItem too.
+                    roid.notifyReferringsOfRebind(delegate, newItem);
                     return;
                 }
             }

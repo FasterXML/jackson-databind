@@ -1104,15 +1104,29 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         }
 
         // 10-Sep-2019, tatu: [databind#2432] Module dependencies; need to add first
-        //   but unlike main module, do NOT replace module if already added
+        //   but unlike main module, do NOT replace module if already added.
+        // 24-Apr-2026, tatu: [databind#5941] Walk dependencies transitively to match
+        //   2.x recursive behavior
         for (JacksonModule dep : module.getDependencies()) {
-            _verifyModuleMetadata(dep);
-            _modules.putIfAbsent(dep.getRegistrationId(), dep);
+            _addDependency(dep);
         }
         _modules.put(moduleId, module);
         // [databind#5481]: invalidate cached state when modules are modified
         _savedState = null;
         return _this();
+    }
+
+    private void _addDependency(JacksonModule module)
+    {
+        _verifyModuleMetadata(module);
+        final Object moduleId = module.getRegistrationId();
+        if (_modules.containsKey(moduleId)) {
+            return;
+        }
+        for (JacksonModule dep : module.getDependencies()) {
+            _addDependency(dep);
+        }
+        _modules.put(moduleId, module);
     }
 
     private void _verifyModuleMetadata(JacksonModule module)

@@ -529,7 +529,16 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
             for (int i = 0, size = _accumulator.size(); i < size; i++) {
                 if ((_accumulator.get(i) instanceof ArrayReferring ref) && ref.hasId(id)) {
                     if (_array != null) {
-                        _array[i] = value;
+                        // [databind#5946]: if `value` is a transient delegate (Builder
+                        // or @JsonCreator(DELEGATING) intermediate) whose runtime type
+                        // isn't assignable to the typed array's component, writing
+                        // would throw `ArrayStoreException`. Defer: leave the
+                        // ArrayReferring in place; `replaceResolvedItem` will write
+                        // the final value once `updateObjectId` fires the rebind.
+                        if (_untyped || value == null || _elementType.isInstance(value)) {
+                            _array[i] = value;
+                            _accumulator.set(i, value);
+                        }
                     } else {
                         _accumulator.set(i, value);
                     }
@@ -540,16 +549,32 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
                     + "] that wasn't previously seen as unresolved.");
         }
 
-        // [databind#5909]: no `replaceResolvedItem` here, unlike Collection/Map
-        // accumulators. The Builder→built rebind path is unreachable for arrays:
-        //  - Typed arrays (e.g. `Entity[]`) cannot store the Builder instance,
-        //    so `resolveForwardReference` throws `ArrayStoreException` before
-        //    any rebind could fire.
-        //  - Untyped `Object[]` arrays don't trigger the forward-ref accumulator
-        //    at all because the default element deserializer
-        //    ({@code UntypedObjectDeserializer}) has no `ObjectIdReader`.
-        // Regression covered by
-        // {@code ObjectIdWithBuilder5909Test#forwardReferenceInTypedArrayFailsArrayStoreException}.
+        /**
+         * Replace a resolved item after Builder→built (or delegate→bean) rebind.
+         * Handles two cases:
+         * <ul>
+         *  <li>Slot was deferred (still holds the {@code forRef} ArrayReferring
+         *      because {@code oldItem} wasn't assignable to the array's
+         *      component type): write {@code newItem} into the array now.</li>
+         *  <li>Slot holds {@code oldItem} (delegate was assignable and was
+         *      stored): swap to {@code newItem}.</li>
+         * </ul>
+         * Added with [databind#5946] (follow-up to [databind#5909]).
+         *
+         * @since 3.2
+         */
+        void replaceResolvedItem(ArrayReferring forRef, Object oldItem, Object newItem) {
+            if (_array == null) {
+                return;
+            }
+            for (int i = 0, size = _accumulator.size(); i < size; i++) {
+                Object slot = _accumulator.get(i);
+                if (slot == forRef || slot == oldItem) {
+                    _array[i] = newItem;
+                    _accumulator.set(i, newItem);
+                }
+            }
+        }
 
         Object[] buildArray() {
             final int size = _accumulator.size();
@@ -583,7 +608,9 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
             _parent.resolveForwardReference(id, value);
         }
 
-        // [databind#5909]: no `handleItemRebind` override. The default no-op is
-        // correct for arrays — see comment in ObjectArrayReferringAccumulator.
+        @Override
+        public void handleItemRebind(Object oldItem, Object newItem) {
+            _parent.replaceResolvedItem(this, oldItem, newItem);
+        }
     }
 }

@@ -23,12 +23,13 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * [databind#5909] (follow-up to [databind#1496]: Forward Object Id references
- * that appear inside a {@link java.util.List}, {@link java.util.Set}, or
+ * Tests for [databind#5909] (follow-up to [databind#1496]): Forward Object Id
+ * references that appear inside a {@link java.util.Collection}, or
  * {@link java.util.Map}-typed property of a Builder-based type must be
  * correctly resolved to the built target object, not the Builder instance.
- * Also covers builder-with-property-creator (via {@code @JsonCreator}), and
- * documents the typed-array limitation.
+ * Also covers builder-with-property-creator ({@code @JsonCreator}),                                    
+ * delegating-creator ({@code [databind#1706]}), and documents the   
+ * typed-array limitation. 
  */
 class ObjectIdWithBuilder5909Test extends DatabindTestUtil
 {

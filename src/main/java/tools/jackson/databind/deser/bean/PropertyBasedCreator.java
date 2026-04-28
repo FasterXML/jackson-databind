@@ -287,11 +287,13 @@ public final class PropertyBasedCreator
 
     /**
      * Method called when starting to build a bean instance.
-     *
-     * @since 3.2 ([databind#5909]) — {@code mayRebind} signals that the
+     *<p>
+     * The {@code mayRebind} flag (added with [databind#5909]) signals that the
      * constructed instance is a Builder that will be rebuilt via
      * {@code finishBuild}, so resolved Object Id Referrings need to be retained
      * for later replay.
+     *
+     * @since 3.2
      */
     public PropertyValueBuffer startBuilding(JsonParser p, DeserializationContext ctxt,
             ObjectIdReader oir, boolean mayRebind) {
@@ -312,8 +314,11 @@ public final class PropertyBasedCreator
 
     /**
      * Method called when starting to build a bean instance.
+     *<p>
+     * See {@link #startBuilding(JsonParser, DeserializationContext, ObjectIdReader, boolean)}
+     * for the meaning of {@code mayRebind} ([databind#5909]).
      *
-     * @since 3.2 See ([databind#5909])
+     * @since 3.2
      */
     public PropertyValueBuffer startBuildingWithAnySetter(JsonParser p,
             DeserializationContext ctxt,

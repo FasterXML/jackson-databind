@@ -987,7 +987,7 @@ public abstract class DeserializationContext
      * Re-entrant; must be paired with {@link #exitDelegateBindPending} in a
      * try/finally.
      *
-     * @since 3.2 ([databind#5909])
+     * @since 3.2
      */
     public void enterDelegateBindPending() {
         _delegateBindDepth++;
@@ -996,7 +996,7 @@ public abstract class DeserializationContext
     /**
      * Pair to {@link #enterDelegateBindPending}; decrements the depth counter.
      *
-     * @since 3.2 ([databind#5909])
+     * @since 3.2
      */
     public void exitDelegateBindPending() {
         _delegateBindDepth--;
@@ -1006,7 +1006,7 @@ public abstract class DeserializationContext
      * @return {@code true} when currently inside a delegate-bind window
      *   established by {@link #enterDelegateBindPending}.
      *
-     * @since 3.2 ([databind#5909])
+     * @since 3.2
      */
     public boolean isDelegateBindPending() {
         return _delegateBindDepth > 0;

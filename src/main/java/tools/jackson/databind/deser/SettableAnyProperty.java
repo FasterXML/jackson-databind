@@ -300,11 +300,6 @@ public abstract class SettableAnyProperty
             }
             _parent.set(ctxt, _pojo, _propName, value);
         }
-
-        @Override
-        public boolean refersTo(Object obj) {
-            return _pojo == obj;
-        }
     }
 
     /*

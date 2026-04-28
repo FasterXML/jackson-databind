@@ -540,33 +540,16 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
                     + "] that wasn't previously seen as unresolved.");
         }
 
-        /**
-         * Replace a resolved item in the accumulator or built array. Called when
-         * the bound item is rebound (e.g., builder → built object).
-         *
-         * @param oldItem Item to replace (Builder)
-         * @param newItem Item to replace {@code oldItem} with (Built value)
-         *
-         * @since 3.2
-         */
-        void replaceResolvedItem(Object oldItem, Object newItem) {
-            // Note: only effective for "untyped" arrays ({@code Object[]});
-            // typed arrays of the built type fail earlier with ArrayStoreException
-            // at bindItem time.
-            if (_array != null) {
-                for (int i = 0; i < _array.length; i++) {
-                    if (_array[i] == oldItem) {
-                        _array[i] = newItem;
-                    }
-                }
-            } else {
-                for (int i = 0, size = _accumulator.size(); i < size; i++) {
-                    if (_accumulator.get(i) == oldItem) {
-                        _accumulator.set(i, newItem);
-                    }
-                }
-            }
-        }
+        // [databind#5909]: no `replaceResolvedItem` here, unlike Collection/Map
+        // accumulators. The Builder→built rebind path is unreachable for arrays:
+        //  - Typed arrays (e.g. `Entity[]`) cannot store the Builder instance,
+        //    so `resolveForwardReference` throws `ArrayStoreException` before
+        //    any rebind could fire.
+        //  - Untyped `Object[]` arrays don't trigger the forward-ref accumulator
+        //    at all because the default element deserializer
+        //    ({@code UntypedObjectDeserializer}) has no `ObjectIdReader`.
+        // Regression covered by
+        // {@code ObjectIdWithBuilder5909Test#forwardReferenceInTypedArrayFailsArrayStoreException}.
 
         Object[] buildArray() {
             final int size = _accumulator.size();
@@ -600,9 +583,7 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
             _parent.resolveForwardReference(id, value);
         }
 
-        @Override
-        public void handleItemRebind(Object oldItem, Object newItem) {
-            _parent.replaceResolvedItem(oldItem, newItem);
-        }
+        // [databind#5909]: no `handleItemRebind` override. The default no-op is
+        // correct for arrays — see comment in ObjectArrayReferringAccumulator.
     }
 }

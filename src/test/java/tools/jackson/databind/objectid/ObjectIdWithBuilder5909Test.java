@@ -145,6 +145,47 @@ class ObjectIdWithBuilder5909Test extends DatabindTestUtil
         public List<EntityMap> entities;
     }
 
+    // ---- Property-based-creator builder variant: exercises the
+    // PropertyValueBuffer.handleIdValue rebind path, distinct from
+    // setter-based builders which go via ObjectIdValueProperty.
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonDeserialize(builder = EntityCreatorBuilder.class)
+    static class EntityCreator
+    {
+        public final long id;
+        public final List<EntityCreator> refs;
+
+        EntityCreator(long id, List<EntityCreator> refs) {
+            this.id = id;
+            this.refs = refs;
+        }
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonPOJOBuilder(withPrefix = "")
+    static class EntityCreatorBuilder
+    {
+        private final long id;
+        private final List<EntityCreator> refs;
+
+        @JsonCreator
+        EntityCreatorBuilder(@JsonProperty("id") long id,
+                @JsonProperty("refs") List<EntityCreator> refs) {
+            this.id = id;
+            this.refs = refs;
+        }
+
+        public EntityCreator build() {
+            return new EntityCreator(id, refs);
+        }
+    }
+
+    static class EntityCreatorContainer
+    {
+        public List<EntityCreator> entities;
+    }
+    
     // NOTE: An equivalent test for `Entity[]`-typed properties is intentionally
     // omitted: typed arrays of the built type fail earlier with ArrayStoreException
     // when the Builder is stored into `_array` during bindItem, well before the
@@ -300,47 +341,6 @@ class ObjectIdWithBuilder5909Test extends DatabindTestUtil
         assertSame(second, first.getRefs().get("a"));
         assertSame(third, first.getRefs().get("b"));
         assertSame(second, first.getRefs().get("c"));
-    }
-
-    // ---- Property-based-creator builder variant: exercises the
-    // PropertyValueBuffer.handleIdValue rebind path, distinct from
-    // setter-based builders which go via ObjectIdValueProperty.
-
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-    @JsonDeserialize(builder = EntityCreatorBuilder.class)
-    static class EntityCreator
-    {
-        public final long id;
-        public final List<EntityCreator> refs;
-
-        EntityCreator(long id, List<EntityCreator> refs) {
-            this.id = id;
-            this.refs = refs;
-        }
-    }
-
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-    @JsonPOJOBuilder(withPrefix = "")
-    static class EntityCreatorBuilder
-    {
-        private final long id;
-        private final List<EntityCreator> refs;
-
-        @JsonCreator
-        EntityCreatorBuilder(@JsonProperty("id") long id,
-                @JsonProperty("refs") List<EntityCreator> refs) {
-            this.id = id;
-            this.refs = refs;
-        }
-
-        public EntityCreator build() {
-            return new EntityCreator(id, refs);
-        }
-    }
-
-    static class EntityCreatorContainer
-    {
-        public List<EntityCreator> entities;
     }
 
     @Test

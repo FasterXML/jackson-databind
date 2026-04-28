@@ -161,6 +161,9 @@ public class ReadableObjectId
             for (Referring ref : _resolvedReferringProperties) {
                 ref.handleItemRebind(oldItem, newItem);
             }
+            // Referrings have served their purpose; release for GC. A given
+            // ROID's bound item is rebuilt at most once.
+            _resolvedReferringProperties = null;
         }
     }
 

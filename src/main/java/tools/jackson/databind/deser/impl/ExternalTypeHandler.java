@@ -10,7 +10,9 @@ import tools.jackson.databind.deser.bean.BeanPropertyMap;
 import tools.jackson.databind.deser.bean.PropertyBasedCreator;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.jsontype.impl.TypeDeserializerBase;
 import tools.jackson.databind.util.TokenBuffer;
+import tools.jackson.databind.util.TokenBufferReadContext;
 
 /**
  * Helper class that is used to flatten JSON structure when using
@@ -76,6 +78,10 @@ public class ExternalTypeHandler
      * containing POJO has similarly named property as the external type id AND
      * value is of scalar type:
      * otherwise {@link #handlePropertyValue} should be called instead.
+     *
+     * @return {@code true} if the property was handled as an external type id
+     *   AND the type id is NOT visible (meaning: caller should skip setting
+     *   this property on the bean); {@code false} otherwise
      */
     @SuppressWarnings("unchecked")
     public boolean handleTypePropertyValue(JsonParser p, DeserializationContext ctxt,
@@ -120,7 +126,13 @@ public class ExternalTypeHandler
         } else {
             _typeIds[index] = typeId;
         }
-        return true;
+        // [databind#1329]: return true (= skip setting on bean) when visible=false
+        //   unless EXTERNAL_TYPE_ID_ALWAYS_VISIBLE is enabled
+        if (ctxt.isEnabled(MapperFeature.EXTERNAL_TYPE_ID_ALWAYS_VISIBLE)) {
+            return false;
+        }
+        return !(prop._typeDeserializer instanceof TypeDeserializerBase tdb)
+                || !tdb.isTypeIdVisible();
     }
 
     /**
@@ -155,7 +167,7 @@ public class ExternalTypeHandler
                     _typeIds[it.next()] = typeId;
                 }
             } else {
-                TokenBuffer tokens = ctxt.bufferAsCopyOfValue(p);
+                TokenBuffer tokens = _bufferValueWithPinnedContext(ctxt, p);
                 _tokens[index] = tokens;
                 while (it.hasNext()) {
                     _tokens[it.next()] = tokens;
@@ -177,7 +189,7 @@ public class ExternalTypeHandler
             canDeserialize = (bean != null) && (_tokens[index] != null);
         } else {
             @SuppressWarnings("resource")
-            TokenBuffer tokens = ctxt.bufferAsCopyOfValue(p);
+            TokenBuffer tokens = _bufferValueWithPinnedContext(ctxt, p);
             _tokens[index] = tokens;
             canDeserialize = (bean != null) && (_typeIds[index] != null);
         }
@@ -354,26 +366,43 @@ public class ExternalTypeHandler
         return bean;
     }
 
+    /**
+     * Buffer the value at parser's current position, pinning the buffer's parent
+     * context to a snapshot of the outer parser's context at this moment. Without
+     * the snapshot the TokenBuffer would hold a live reference to the outer
+     * parser's context, whose {@code currentName} mutates as the parser advances
+     * past this property — replaying the buffer later (after the type-id property
+     * has been seen) would then expose the wrong name in
+     * {@link JsonParser#streamReadContext()} to any custom deserializer.
+     * [databind#2747]
+     *
+     * @since 3.2
+     */
     @SuppressWarnings("resource")
+    private static TokenBuffer _bufferValueWithPinnedContext(DeserializationContext ctxt, JsonParser p)
+        throws JacksonException
+    {
+        TokenBuffer tokens = ctxt.bufferAsCopyOfValue(p);
+        tokens.overrideParentContext(
+                TokenBufferReadContext.createRootContext(p.streamReadContext()));
+        return tokens;
+    }
+
     protected final Object _deserialize(JsonParser p, DeserializationContext ctxt,
             int index, String typeId) throws JacksonException
     {
+        final ExtTypedProperty extProp = _properties[index];
         JsonParser p2 = _tokens[index].asParser(ctxt, p);
         JsonToken t = p2.nextToken();
         // 29-Sep-2015, tatu: As per [databind#942], nulls need special support
         if (t == JsonToken.VALUE_NULL) {
             return null;
         }
-        TokenBuffer merged = ctxt.bufferForInputBuffering(p);
-        merged.writeStartArray();
-        merged.writeString(typeId);
-        merged.copyCurrentStructure(p2);
-        merged.writeEndArray();
-
-        // needs to point to START_OBJECT (or whatever first token is)
-        JsonParser mp = merged.asParser(ctxt, p);
-        mp.nextToken();
-        return _properties[index].getProperty().deserialize(mp, ctxt);
+        // [databind#2747]: invoke subtype deserializer via the known-type-id entry
+        // point so the standard impls skip the wrapper-array re-encoding (which
+        // would otherwise expose a synthetic array in `JsonParser.streamReadContext()`
+        // to any custom deserializer examining parsing state).
+        return extProp._typeDeserializer.deserializeTypedWithKnownTypeId(p2, ctxt, typeId);
     }
 
     // 03-Aug-2022, tatu: [databind#3533] to handle absent value matching:
@@ -393,7 +422,6 @@ public class ExternalTypeHandler
         return _properties[index].getProperty().deserialize(mp, ctxt);
     }
 
-    @SuppressWarnings("resource")
     protected final void _deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object bean, int index, String typeId) throws JacksonException
     {
@@ -402,25 +430,21 @@ public class ExternalTypeHandler
             ctxt.reportInputMismatch(_beanType, "Internal error in external Type Id handling: `null` type id passed");
         }
 
-        // Ok: time to mix type id, value; and we will actually use "wrapper-array"
-        // style to ensure we can handle all kinds of JSON constructs.
+        final ExtTypedProperty extProp = _properties[index];
+        final SettableBeanProperty prop = extProp.getProperty();
         JsonParser p2 = _tokens[index].asParser(ctxt, p);
         JsonToken t = p2.nextToken();
         // 29-Sep-2015, tatu: As per [databind#942], nulls need special support
         if (t == JsonToken.VALUE_NULL) {
-            _properties[index].getProperty().set(ctxt, bean, null);
+            prop.set(ctxt, bean, null);
             return;
         }
-        TokenBuffer merged = ctxt.bufferForInputBuffering(p);
-        merged.writeStartArray();
-        merged.writeString(typeId);
-
-        merged.copyCurrentStructure(p2);
-        merged.writeEndArray();
-        // needs to point to START_OBJECT (or whatever first token is)
-        JsonParser mp = merged.asParser(ctxt, p);
-        mp.nextToken();
-        _properties[index].getProperty().deserializeAndSet(mp, ctxt, bean);
+        // [databind#2747]: invoke subtype deserializer via the known-type-id entry
+        // point so the standard impls skip the wrapper-array re-encoding (which
+        // would otherwise expose a synthetic array in `JsonParser.streamReadContext()`
+        // to any custom deserializer examining parsing state).
+        Object value = extProp._typeDeserializer.deserializeTypedWithKnownTypeId(p2, ctxt, typeId);
+        prop.set(ctxt, bean, value);
     }
 
     /*
@@ -440,12 +464,30 @@ public class ExternalTypeHandler
             _beanType = t;
         }
 
-        public void addExternal(SettableBeanProperty property, TypeDeserializer typeDeser)
+        @Deprecated // since 3.2; use variant that accepts aliases
+        public void addExternal(SettableBeanProperty property, TypeDeserializer typeDeser) {
+            addExternal(property, typeDeser, null);
+        }
+
+        /**
+         * Variant that also accepts aliases of the value property, so that an
+         * external type id can resolve value via an aliased property name.
+         *
+         * @since 3.2
+         */
+        // [databind#3209]
+        public void addExternal(SettableBeanProperty property, TypeDeserializer typeDeser,
+                List<PropertyName> valueAliases)
         {
             Integer index = _properties.size();
             _properties.add(new ExtTypedProperty(property, typeDeser));
             _addPropertyIndex(property.getName(), index);
             _addPropertyIndex(typeDeser.getPropertyName(), index);
+            if (valueAliases != null) {
+                for (PropertyName alias : valueAliases) {
+                    _addPropertyIndex(alias.getSimpleName(), index);
+                }
+            }
         }
 
         private void _addPropertyIndex(String name, Integer index) {

@@ -27,6 +27,7 @@ import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.Converter;
+import tools.jackson.databind.util.NumberUtil;
 
 /**
  * Base class for common deserializers. Contains shared
@@ -1064,7 +1065,7 @@ public abstract class StdDeserializer<T>
         }
 
         final CoercionAction act = _checkFromStringCoercion(ctxt, text,
-                LogicalType.Integer, Float.TYPE);
+                LogicalType.Float, Float.TYPE);
         if (act == CoercionAction.AsNull) {
             // 03-May-2021, tatu: Might not be allowed (should we do "empty" check?)
             return (float) _verifyNullForPrimitive(ctxt, p, 0.0f);
@@ -1110,6 +1111,8 @@ public abstract class StdDeserializer<T>
         if (!text.isEmpty()) {
             switch (text.charAt(0)) {
             case 'I':
+            // 11-Apr-2026, [databind#5898]: accept "+Infinity", "+INF"
+            case '+':
                 if (_isPosInf(text)) {
                     return Float.POSITIVE_INFINITY;
                 }
@@ -1182,7 +1185,7 @@ public abstract class StdDeserializer<T>
         }
 
         final CoercionAction act = _checkFromStringCoercion(ctxt, text,
-                LogicalType.Integer, Double.TYPE);
+                LogicalType.Float, Double.TYPE);
         if (act == CoercionAction.AsNull) {
             // 03-May-2021, tatu: Might not be allowed (should we do "empty" check?)
             return (double)_verifyNullForPrimitive(ctxt, p, 0.0);
@@ -1233,6 +1236,8 @@ public abstract class StdDeserializer<T>
         if (!text.isEmpty()) {
             switch (text.charAt(0)) {
             case 'I':
+            // 11-Apr-2026, [databind#5898]: accept "+Infinity", "+INF"
+            case '+':
                 if (_isPosInf(text)) {
                     return Double.POSITIVE_INFINITY;
                 }
@@ -1446,7 +1451,9 @@ public abstract class StdDeserializer<T>
     }
 
     protected final boolean _isPosInf(String text) {
-        return "Infinity".equals(text) || "INF".equals(text);
+        return "Infinity".equals(text) || "INF".equals(text)
+                // 11-Apr-2026, [databind#5898]: also accept:
+                || "+Infinity".equals(text) || "+INF".equals(text);
     }
 
     protected final boolean _isNaN(String text) { return "NaN".equals(text); }
@@ -1801,35 +1808,11 @@ inputDesc, _coercedTypeDesc(targetType));
      * Helper method to check whether given text refers to what looks like a clean simple
      * integer number, consisting of optional sign followed by a sequence of digits.
      *<p>
-     * Note that definition is quite loose as leading zeroes are allowed, in addition
-     * to plus sign (not just minus).
+     * Since 3.2 calls {@link NumberUtil#isValidJDKIntNumber(String)}
      */
-    protected final boolean _isIntNumber(String text)
+    protected boolean _isIntNumber(String text)
     {
-        final int len = text.length();
-        if (len > 0) {
-            char c = text.charAt(0);
-            // skip leading sign (plus not allowed for strict JSON numbers but...)
-            int i;
-
-            if (c == '-' || c == '+') {
-                if (len == 1) {
-                    return false;
-                }
-                i = 1;
-            } else {
-                i = 0;
-            }
-            // We will allow leading
-            for (; i < len; ++i) {
-                int ch = text.charAt(i);
-                if (ch > '9' || ch < '0') {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
+        return NumberUtil.isValidJDKIntNumber(text);
     }
 
     /*
@@ -2041,9 +2024,13 @@ inputDesc, _coercedTypeDesc(targetType));
                 BeanDeserializerBase bd = (BeanDeserializerBase) valueDeser;
                 ValueInstantiator vi = bd.getValueInstantiator();
                 if (!vi.canCreateUsingDefault()) {
-                    final JavaType type = (prop == null) ? bd.getValueType() : prop.getType();
-                    return ctxt.reportBadDefinition(type,
-                            String.format("Cannot create empty instance of %s, no default Creator", type));
+                    // [databind#2572]: also allow property-based creators (will be
+                    //   called with null/empty args via createUsingDefaultOrWithoutArguments)
+                    if (!vi.canCreateFromObjectWith()) {
+                        final JavaType type = (prop == null) ? bd.getValueType() : prop.getType();
+                        return ctxt.reportBadDefinition(type,
+                                String.format("Cannot create empty instance of %s, no default or Properties-based Creator", type));
+                    }
                 }
             }
             // Second: can with pre-fetch value?

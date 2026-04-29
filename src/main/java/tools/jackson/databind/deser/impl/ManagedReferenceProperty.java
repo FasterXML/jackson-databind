@@ -37,7 +37,7 @@ public final class ManagedReferenceProperty
 
     @Override
     protected SettableBeanProperty withDelegate(SettableBeanProperty d) {
-        throw new IllegalStateException("Should never try to reset delegate");
+        return new ManagedReferenceProperty(d, _referenceName, _backProperty, _isContainer);
     }
 
     // need to override to ensure both get fixed
@@ -98,6 +98,26 @@ public final class ManagedReferenceProperty
         //   ordering of forward/backward references, and start with back ref.
         if (!_isContainer) {
             _backProperty.set(ctxt, value, instance);
+            return;
+        }
+
+        // [databind#1546]: if the container is a Set, children's hashCode may
+        // depend on the back-reference being injected. Mutating elements while
+        // they remain in the Set would corrupt its internal state, so drain,
+        // mutate, then re-insert.
+        if (value instanceof Set<?>) {
+            @SuppressWarnings("unchecked")
+            Set<Object> set = (Set<Object>) value;
+            Object[] elements = set.toArray();
+            set.clear();
+            for (Object obj : elements) {
+                if (obj != null) {
+                    _backProperty.set(ctxt, obj, instance);
+                }
+            }
+            for (Object obj : elements) {
+                set.add(obj);
+            }
             return;
         }
 

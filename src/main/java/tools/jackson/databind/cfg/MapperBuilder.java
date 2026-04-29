@@ -157,6 +157,14 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     protected PrettyPrinter _defaultPrettyPrinter;
 
+    /**
+     * Optional {@link GeneratorInitializer} to call after constructing
+     * {@link tools.jackson.core.JsonGenerator} instances.
+     *
+     * @since 3.2
+     */
+    protected GeneratorInitializer _generatorInitializer;
+
     /*
     /**********************************************************************
     /* Factories etc for deserialization
@@ -361,6 +369,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _serializerFactory = state._serializerFactory;
         _filterProvider = state._filterProvider;
         _defaultPrettyPrinter = state._defaultPrettyPrinter;
+        _generatorInitializer = state._generatorInitializer;
 
         // Factories for deserialization
         _deserializationContexts = state._deserializationContexts;
@@ -640,6 +649,13 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public FilterProvider filterProvider() {
         return _filterProvider;
+    }
+
+    /**
+     * @since 3.2
+     */
+    public GeneratorInitializer generatorInitializer() {
+        return _generatorInitializer;
     }
 
     public PrettyPrinter defaultPrettyPrinter() {
@@ -1088,15 +1104,29 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         }
 
         // 10-Sep-2019, tatu: [databind#2432] Module dependencies; need to add first
-        //   but unlike main module, do NOT replace module if already added
+        //   but unlike main module, do NOT replace module if already added.
+        // 24-Apr-2026, tatu: [databind#5941] Walk dependencies transitively to match
+        //   2.x recursive behavior
         for (JacksonModule dep : module.getDependencies()) {
-            _verifyModuleMetadata(dep);
-            _modules.putIfAbsent(dep.getRegistrationId(), dep);
+            _addDependency(dep);
         }
         _modules.put(moduleId, module);
         // [databind#5481]: invalidate cached state when modules are modified
         _savedState = null;
         return _this();
+    }
+
+    private void _addDependency(JacksonModule module)
+    {
+        _verifyModuleMetadata(module);
+        final Object moduleId = module.getRegistrationId();
+        if (_modules.containsKey(moduleId)) {
+            return;
+        }
+        for (JacksonModule dep : module.getDependencies()) {
+            _addDependency(dep);
+        }
+        _modules.put(moduleId, module);
     }
 
     private void _verifyModuleMetadata(JacksonModule module)
@@ -1375,6 +1405,18 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B defaultPrettyPrinter(PrettyPrinter pp) {
         _defaultPrettyPrinter = pp;
+        return _this();
+    }
+
+    /**
+     * Method for configuring a {@link GeneratorInitializer} to be called immediately
+     * after a {@link tools.jackson.core.JsonGenerator} is constructed by the mapper,
+     * before it is used for serialization or returned to the caller.
+     *
+     * @since 3.2
+     */
+    public B generatorInitializer(GeneratorInitializer init) {
+        _generatorInitializer = init;
         return _this();
     }
 

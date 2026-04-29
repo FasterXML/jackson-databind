@@ -67,7 +67,19 @@ public class PropertyBuilder
                         JsonInclude.Value.empty()));
         _defaultInclusion = JsonInclude.Value.merge(config.getDefaultPropertyInclusion(),
                 inclPerType);
-        _useRealPropertyDefaults = inclPerType.getValueInclusion() == JsonInclude.Include.NON_DEFAULT;
+        // [databind#1757]: Use "real" property defaults (from default bean instance)
+        //  when NON_DEFAULT is set per-type (b), or when set as global default (a)
+        //  AND MapperFeature.USE_REAL_NON_DEFAULT is enabled. This ensures round-trip
+        //  consistency: values that match the no-arg constructor defaults are suppressed
+        //  during serialization and restored by the constructor during deserialization.
+        if (inclPerType.getValueInclusion() == JsonInclude.Include.NON_DEFAULT) {
+            _useRealPropertyDefaults = true;
+        } else if (_defaultInclusion.getValueInclusion() == JsonInclude.Include.NON_DEFAULT
+                && config.isEnabled(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT)) {
+            _useRealPropertyDefaults = true;
+        } else {
+            _useRealPropertyDefaults = false;
+        }
         _annotationIntrospector = _config.getAnnotationIntrospector();
     }
 
@@ -94,7 +106,7 @@ public class PropertyBuilder
         // do we have annotation that forces type to use (to declared type or its super type)?
         JavaType serializationType;
         try {
-            serializationType = findSerializationType(am, defaultUseStaticTyping, declaredType);
+            serializationType = findSerializationType(ctxt, am, defaultUseStaticTyping, declaredType);
         } catch (DatabindException e) {
             if (propDef == null) {
                 return ctxt.reportBadDefinition(declaredType, ClassUtil.exceptionMessage(e));
@@ -173,6 +185,10 @@ public class PropertyBuilder
                 } catch (Exception e) {
                     _throwWrapped(e, propDef.getName(), defaultBean);
                 }
+                // [databind#1757]: With NON_DEFAULT, always suppress nulls:
+                //  null is never a meaningful "non-default" value when we have
+                //  a real default instance to compare against
+                suppressNulls = true;
             } else {
                 valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, actualType);
                 suppressNulls = true;
@@ -246,6 +262,13 @@ public class PropertyBuilder
         // And then, handling of unwrapping
         NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(_config, am);
         if (unwrapper != null) {
+            // [databind#1298]: @JsonUnwrapped incompatible with @JsonIdentityInfo
+            //    on the unwrapped property type
+            if (_annotationIntrospector.findObjectIdInfo(_config,
+                    ctxt.introspectClassAnnotations(declaredType)) != null) {
+                ctxt.reportBadPropertyDefinition(_beanDesc, propDef,
+                        "cannot use `@JsonUnwrapped` on property with type that has `@JsonIdentityInfo`");
+            }
             bpw = bpw.unwrappingWriter(unwrapper);
         }
         return bpw;
@@ -282,7 +305,8 @@ public class PropertyBuilder
      * declared type (if static typing for serialization is enabled).
      * If neither can be used (no annotations, dynamic typing), returns null.
      */
-    protected JavaType findSerializationType(Annotated a, boolean useStaticTyping, JavaType declaredType)
+    protected JavaType findSerializationType(SerializationContext ctxt,
+            Annotated a, boolean useStaticTyping, JavaType declaredType)
     {
         JavaType secondary = _annotationIntrospector.refineSerializationType(_config, a, declaredType);
 
@@ -313,9 +337,19 @@ public class PropertyBuilder
             declaredType = secondary;
         }
         // If using static typing, declared type is known to be the type...
+        // First: check property-level (member) annotation
         JsonSerialize.Typing typing = _annotationIntrospector.findSerializationTyping(_config, a);
         if ((typing != null) && (typing != JsonSerialize.Typing.DEFAULT_TYPING)) {
             useStaticTyping = (typing == JsonSerialize.Typing.STATIC);
+        }
+        // [databind#1515]: if still static, check declared type's class-level annotation;
+        //   allows @JsonSerialize(typing=DYNAMIC) on class to override global USE_STATIC_TYPING
+        else if (useStaticTyping) {
+            JsonSerialize.Typing classTyping = _annotationIntrospector.findSerializationTyping(
+                    _config, ctxt.introspectClassAnnotations(declaredType));
+            if (classTyping == JsonSerialize.Typing.DYNAMIC) {
+                useStaticTyping = false;
+            }
         }
         if (useStaticTyping) {
             // 11-Oct-2015, tatu: Make sure JavaType also "knows" static-ness...

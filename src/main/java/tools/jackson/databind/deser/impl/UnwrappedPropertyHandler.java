@@ -8,7 +8,6 @@ import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.SettableBeanProperty;
-import tools.jackson.databind.deser.bean.BeanDeserializerBase;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.TokenBuffer;
@@ -230,14 +229,18 @@ public class UnwrappedPropertyHandler
      * Helper method to collect property names from a property's deserializer.
      *
      * @return {@code true} if the property deserializer has AnySetter.
+     *
+     * @since 3.1
      */
-    private boolean _collectDeserializerPropertyNames(SettableBeanProperty prop, Set<String> names) {
+    private boolean _collectDeserializerPropertyNames(SettableBeanProperty prop,
+            Set<String> names)
+    {
         if (prop != null) {
             ValueDeserializer<?> deser = prop.getValueDeserializer();
-            if (deser instanceof BeanDeserializerBase bd) {
+            if (deser != null) {
                 // Recursively collect property names
-                bd.collectAllPropertyNamesTo(names);
-                return bd.hasAnySetter();
+            	deser.collectAllPropertyNamesTo(names);
+                return deser.hasAnySetter();
             }
         }
         return false;

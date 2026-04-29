@@ -113,7 +113,7 @@ public class POJOPropertyBuilder
 
     /*
     /**********************************************************
-    /* Mutant factory methods
+    /* Mutant factory methods, mutators
     /**********************************************************
      */
 
@@ -128,6 +128,8 @@ public class POJOPropertyBuilder
         PropertyName newName = _name.withSimpleName(newSimpleName);
         return (newName == _name) ? this : new POJOPropertyBuilder(this, newName);
     }
+
+    protected void markAsUnwrapped() { _unwrapped = true; }
 
     /*
     /**********************************************************

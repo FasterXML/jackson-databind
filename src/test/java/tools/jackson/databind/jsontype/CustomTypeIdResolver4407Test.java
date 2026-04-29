@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 // for [databind#4407]
 public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 {
-    static class Wrapper4407Prop {
+    public static class Wrapper4407Prop {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
                 include = JsonTypeInfo.As.PROPERTY,
                 defaultImpl = Default4407.class,
@@ -28,7 +28,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
         }
     }
 
-    static class Wrapper4407PropNull {
+    public static class Wrapper4407PropNull {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
                 include = JsonTypeInfo.As.PROPERTY,
                 defaultImpl = Default4407.class,
@@ -42,7 +42,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
         }
     }
 
-    static class Wrapper4407WrapperArray {
+    public static class Wrapper4407WrapperArray {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
                 include = JsonTypeInfo.As.WRAPPER_ARRAY,
                 defaultImpl = Default4407.class)
@@ -55,7 +55,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
         }
     }
 
-    static class Wrapper4407WrapperArrayNull {
+    public static class Wrapper4407WrapperArrayNull {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
                 include = JsonTypeInfo.As.WRAPPER_ARRAY,
                 defaultImpl = Default4407.class)
@@ -68,7 +68,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
         }
     }
 
-    static class Wrapper4407WrapperObject {
+    public static class Wrapper4407WrapperObject {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
                 include = JsonTypeInfo.As.WRAPPER_OBJECT,
                 defaultImpl = Default4407.class)
@@ -81,7 +81,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
         }
     }
 
-    static class Wrapper4407WrapperObjectNull {
+    public static class Wrapper4407WrapperObjectNull {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
                 include = JsonTypeInfo.As.WRAPPER_OBJECT,
                 defaultImpl = Default4407.class)
@@ -95,31 +95,31 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
     }
 
     @JsonSubTypes({ @JsonSubTypes.Type(value = Impl4407.class) })
-    static class Base4407 { }
+    public static class Base4407 { }
 
-    static class Impl4407 extends Base4407 {
+    public static class Impl4407 extends Base4407 {
         public String value;
 
         Impl4407() { }
         public Impl4407(String v) { value = v; }
     }
 
-    static class Default4407 extends Base4407 {
+    public static class Default4407 extends Base4407 {
         public String value;
 
         Default4407() { }
         public Default4407(String v) { value = v; }
     }
     
-    static class Resolver4407_typex extends Resolver4407Base {
+    public static class Resolver4407_typex extends Resolver4407Base {
         public Resolver4407_typex() { super("typeX"); }
     }
 
-    static class Resolver4407_null extends Resolver4407Base {
+    public static class Resolver4407_null extends Resolver4407Base {
         public Resolver4407_null() { super(null); }
     }
 
-    static abstract class Resolver4407Base implements TypeIdResolver {
+    public static abstract class Resolver4407Base implements TypeIdResolver {
         private final String _typeId;
 
         Resolver4407Base(String typeId) {
@@ -174,7 +174,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     // [databind#4407]: with "as-property" type id
     @Test
-    public void testTypeIdProp4407NonNull() throws Exception
+    void testTypeIdProp4407NonNull() throws Exception
     {
         // First, check out "normal" case of non-null type id
         final String EXP = a2q("{'wrapped':{'type':'typeX','value':'xyz'}}");
@@ -187,7 +187,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
     }
 
     @Test
-    public void testTypeIdProp4407Null() throws Exception
+    void testTypeIdProp4407Null() throws Exception
     {
         // And then null one
         final String EXP = a2q("{'wrapped':{'value':'xyz'}}");
@@ -202,7 +202,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     // [databind#4407]: with "as-wrapper-array" type id
     @Test
-    public void testTypeIdWrapperArray4407NonNull() throws Exception
+    void testTypeIdWrapperArray4407NonNull() throws Exception
     {
         // First, check out "normal" case of non-null type id
         final String EXP = a2q("{'wrapped':['typeX',{'value':'xyz'}]}");
@@ -215,7 +215,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
     }
 
     @Test
-    public void testTypeIdWrapperArray4407Null() throws Exception
+    void testTypeIdWrapperArray4407Null() throws Exception
     {
         // And then null one
         final String EXP = a2q("{'wrapped':{'value':'xyz'}}");
@@ -229,7 +229,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
 
     // [databind#4407]: with "as-wrapper-object" type id
     @Test
-    public void testTypeIdWrapperObject4407NonNull() throws Exception
+    void testTypeIdWrapperObject4407NonNull() throws Exception
     {
         // First, check out "normal" case of non-null type id
         final String EXP = a2q("{'wrapped':{'typeX':{'value':'xyz'}}}");
@@ -242,7 +242,7 @@ public class CustomTypeIdResolver4407Test extends DatabindTestUtil
     }
 
     @Test
-    public void testTypeIdWrapperObject4407Null() throws Exception
+    void testTypeIdWrapperObject4407Null() throws Exception
     {
         // And then null one
         final String EXP = a2q("{'wrapped':{'value':'xyz'}}");

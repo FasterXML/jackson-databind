@@ -56,6 +56,27 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
         }
     }
 
+    // [databind#1281]
+    public static class AnyBeanWithMultipleIgnores
+    {
+        public String name = "bob";
+
+        private Map<String, String> properties = new LinkedHashMap<String, String>();
+        {
+            properties.put("a", "1");
+            properties.put("secret", "s");
+            properties.put("b", "2");
+            properties.put("internal", "i");
+        }
+
+        @JsonAnyGetter
+        @JsonIgnoreProperties({ "secret", "internal" })
+        public Map<String, String> anyProperties()
+        {
+            return properties;
+        }
+    }
+
     // [databind#1655]
     @JsonFilter("CustomFilter")
     static class OuterObject {
@@ -104,6 +125,15 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
     {
         assertEquals(a2q("{'a':'1','b':'3'}"),
                 MAPPER.writeValueAsString(new AnyBeanWithIgnores()));
+    }
+
+    // [databind#1281]: @JsonIgnoreProperties on @JsonAnyGetter method should
+    //   filter multiple map entries, coexist with regular properties
+    @Test
+    public void testAnyGetterIgnoreProperties1281() throws Exception
+    {
+        assertEquals(a2q("{'name':'bob','a':'1','b':'2'}"),
+                MAPPER.writeValueAsString(new AnyBeanWithMultipleIgnores()));
     }
 
     // [databind#1655]

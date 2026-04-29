@@ -102,4 +102,35 @@ public class JsonNodeFactoryTest extends NodeTestBase
        JsonNode n3 = normMapper.readTree(String.valueOf(NON_NORMALIZED));
        assertEquals(NORMALIZED, n3.decimalValue());
    }
+
+   // [databind#5819]: STRIP_TRAILING_BIGDECIMAL_ZEROES should also apply via valueToTree()
+   @Test
+   public void testBigDecimalNormalizationViaValueToTree() throws Exception
+   {
+       final BigDecimal BD_WITH_TRAILING = new BigDecimal("1.000");
+       final BigDecimal BD_NORMALIZED = BD_WITH_TRAILING.stripTrailingZeros();
+
+       // By default, no normalization
+       JsonNode n1 = MAPPER.valueToTree(BD_WITH_TRAILING);
+       assertEquals(BD_WITH_TRAILING, n1.decimalValue());
+
+       // With STRIP_TRAILING_BIGDECIMAL_ZEROES enabled, should normalize
+       ObjectMapper normMapper = JsonMapper.builder()
+               .enable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
+               .build();
+       JsonNode n2 = normMapper.valueToTree(BD_WITH_TRAILING);
+       assertEquals(BD_NORMALIZED, n2.decimalValue());
+
+       // Also test within a POJO (the original reported use case)
+       ObjectNode tree = normMapper.valueToTree(
+               new java.util.LinkedHashMap<String, BigDecimal>() {{
+                   put("bd1", new BigDecimal("1.000"));
+                   put("bd2", new BigDecimal("2.00"));
+                   put("bd3", new BigDecimal("3000"));
+               }});
+       assertEquals(BD_NORMALIZED, tree.get("bd1").decimalValue());
+       assertEquals(new BigDecimal("2").stripTrailingZeros(), tree.get("bd2").decimalValue());
+       // 3000 -> 3E+3 after stripTrailingZeros
+       assertEquals(new BigDecimal("3000").stripTrailingZeros(), tree.get("bd3").decimalValue());
+   }
 }

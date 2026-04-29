@@ -26,10 +26,10 @@ public class JacksonTestFailureExpectedInterceptor
             // do-nothing, we do expect an exception
             return;
         }
-        handleUnexpectePassingTest(invocationContext);
+        handleUnexpectedPassingTest(invocationContext);
     }
 
-    private void handleUnexpectePassingTest(ReflectiveInvocationContext<Method> invocationContext) {
+    private void handleUnexpectedPassingTest(ReflectiveInvocationContext<Method> invocationContext) {
         // Collect information we need
         Object targetClass = invocationContext.getTargetClass();
         Object testMethod = invocationContext.getExecutable().getName();

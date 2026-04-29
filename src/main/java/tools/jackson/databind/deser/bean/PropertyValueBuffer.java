@@ -96,12 +96,30 @@ public class PropertyValueBuffer
     protected PropertyValue _anyParamBuffered;
 
     /**
+     * Tail pointer for {@code _anyParamBuffered} linked list, so that we can
+     * append (instead of prepend) to preserve JSON property order.
+     *
+     * @since 3.1
+     */
+    protected PropertyValue _anyParamBufferedTail;
+
+    /**
      * Indexes properties that are injectable, if any; {@code null} if none,
      * cleared as they are injected.
      *
      * @since 2.21
      */
     protected final BitSet _injectablePropIndexes;
+
+    /**
+     * Set when the owning deserializer is Builder-based, so the constructed
+     * bean is a transient Builder that will later be rebuilt via
+     * {@code finishBuild} and trigger {@code updateObjectId}. See
+     * [databind#5909].
+     *
+     * @since 3.2
+     */
+    protected final boolean _mayRebind;
 
     /*
     /**********************************************************************
@@ -111,10 +129,22 @@ public class PropertyValueBuffer
 
     /**
      * @since 3.1
+     * @deprecated Since 3.2
      */
+    @Deprecated
     public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
             ObjectIdReader oir, SettableAnyProperty anyParamSetter,
             BitSet injectablePropIndexes)
+    {
+        this(p, ctxt, paramCount, oir, anyParamSetter, injectablePropIndexes, false);
+    }
+
+    /**
+     * @since 3.2
+     */
+    public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
+            ObjectIdReader oir, SettableAnyProperty anyParamSetter,
+            BitSet injectablePropIndexes, boolean mayRebind)
     {
         _parser = p;
         _context = ctxt;
@@ -134,6 +164,7 @@ public class PropertyValueBuffer
         }
         _injectablePropIndexes = (injectablePropIndexes == null)
                 ? null : (BitSet) injectablePropIndexes.clone();
+        _mayRebind = mayRebind;
     }
 
     /**
@@ -357,6 +388,16 @@ public class PropertyValueBuffer
     }
 
     /**
+     * Method called to assign a "native" Object Id value (such as YAML anchor)
+     * that has already been converted to the expected type.
+     *
+     * @since 3.2
+     */
+    public void assignNativeObjectId(Object id) {
+        _idValue = id;
+    }
+
+    /**
      * Helper method called to handle Object Id value collected earlier, if any
      */
     public Object handleIdValue(final DeserializationContext ctxt, Object bean) throws JacksonException
@@ -364,6 +405,9 @@ public class PropertyValueBuffer
         if (_objectIdReader != null) {
             if (_idValue != null) {
                 ReadableObjectId roid = ctxt.findObjectId(_idValue, _objectIdReader.generator, _objectIdReader.resolver);
+                if (_mayRebind) {
+                    roid.markMayRebind();
+                }
                 roid.bindItem(ctxt, bean);
                 // also: may need to set a property value as well
                 SettableBeanProperty idProp = _objectIdReader.idProperty;
@@ -430,8 +474,15 @@ public class PropertyValueBuffer
         _buffered = new PropertyValue.Map(_buffered, value, key);
     }
 
+    // [databind#5353]: append (not prepend) to preserve JSON property order
     public void bufferAnyParameterProperty(SettableAnyProperty prop, String propName, Object value) {
-        _anyParamBuffered = new PropertyValue.AnyParameter(_anyParamBuffered, value, prop, propName);
+        PropertyValue newEntry = new PropertyValue.AnyParameter(null, value, prop, propName);
+        if (_anyParamBufferedTail == null) {
+            _anyParamBuffered = newEntry;
+        } else {
+            _anyParamBufferedTail.next = newEntry;
+        }
+        _anyParamBufferedTail = newEntry;
     }
 
     public void bufferMergingProperty(SettableBeanProperty prop, TokenBuffer buffered) {

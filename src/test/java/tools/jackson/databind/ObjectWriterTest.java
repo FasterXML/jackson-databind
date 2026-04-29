@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.SerializedString;
@@ -40,6 +41,18 @@ public class ObjectWriterTest
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
+
+    // [databind#1687] Views for valueToTree
+    static class ViewA { }
+    static class ViewB { }
+
+    static class ViewBean {
+        @JsonView(ViewA.class)
+        public String a = "1";
+
+        @JsonView(ViewB.class)
+        public String b = "2";
+    }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
     static class PolyBase {
@@ -193,6 +206,28 @@ public class ObjectWriterTest
         newW = w.with(newLocale);
         assertNotSame(w, newW);
         assertSame(newW, newW.with(newLocale));
+    }
+
+    // [databind#1687]: Verify that `ObjectWriter.valueToTree()` respects `@JsonView`
+    @Test
+    public void testValueToTreeWithView() throws Exception
+    {
+        ViewBean input = new ViewBean();
+
+        // ViewA: should include "a" but not "b"
+        JsonNode treeA = MAPPER.writerWithView(ViewA.class).valueToTree(input);
+        assertTrue(treeA.has("a"));
+        assertFalse(treeA.has("b"));
+
+        // ViewB: should include "b" but not "a"
+        JsonNode treeB = MAPPER.writerWithView(ViewB.class).valueToTree(input);
+        assertFalse(treeB.has("a"));
+        assertTrue(treeB.has("b"));
+
+        // Verify valueToTree matches writeValueAsString for same view
+        ObjectWriter writerA = MAPPER.writerWithView(ViewA.class);
+        assertEquals(MAPPER.readTree(writerA.writeValueAsString(input)),
+                writerA.valueToTree(input));
     }
 
     private Locale notTheDefaultLocale() {

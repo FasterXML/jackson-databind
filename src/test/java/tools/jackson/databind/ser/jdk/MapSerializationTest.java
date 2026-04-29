@@ -30,7 +30,7 @@ public class MapSerializationTest extends DatabindTestUtil
     // // // Inner types from MapSerializationTest
 
     @JsonSerialize(using=PseudoMapSerializer.class)
-    static class PseudoMap extends LinkedHashMap<String,String>
+    public static class PseudoMap extends LinkedHashMap<String,String>
     {
         public PseudoMap(String... values) {
             for (int i = 0, len = values.length; i < len; i += 2) {
@@ -51,7 +51,7 @@ public class MapSerializationTest extends DatabindTestUtil
     }
 
     // [databind#335]
-    static class MapOrderingBean {
+    public static class MapOrderingBean {
         @JsonPropertyOrder(alphabetic=true)
         public LinkedHashMap<String,Integer> map;
 
@@ -67,7 +67,7 @@ public class MapSerializationTest extends DatabindTestUtil
     // for [databind#691]
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
     @JsonTypeName("mymap")
-    static class MapWithTypedValues extends LinkedHashMap<String,String> { }
+    public static class MapWithTypedValues extends LinkedHashMap<String,String> { }
 
     @JsonTypeInfo(use = Id.CLASS)
     public static class Mixin691 { }
@@ -98,7 +98,7 @@ public class MapSerializationTest extends DatabindTestUtil
     static class WatMap extends HashMap<Wat,Boolean> { }
 
     // [databind#943]
-    static class UCString {
+    public static class UCString {
         private String value;
 
         public UCString(String v) {
@@ -111,7 +111,7 @@ public class MapSerializationTest extends DatabindTestUtil
         }
     }
 
-    enum AbcLC {
+    public enum AbcLC {
         A, B, C;
 
         @JsonValue
@@ -121,7 +121,7 @@ public class MapSerializationTest extends DatabindTestUtil
     }
 
     // [databind#2306]
-    static class JsonValue2306Key {
+    public static class JsonValue2306Key {
         @JsonValue
         private String id;
 
@@ -131,7 +131,7 @@ public class MapSerializationTest extends DatabindTestUtil
     }
 
     // [databind#2871]
-    static class Inner2871 {
+    public static class Inner2871 {
         @JsonKey
         String key;
 
@@ -149,7 +149,7 @@ public class MapSerializationTest extends DatabindTestUtil
         }
     }
 
-    static class Outer2871 {
+    public static class Outer2871 {
         @JsonKey
         @JsonValue
         Inner2871 inner;
@@ -159,7 +159,7 @@ public class MapSerializationTest extends DatabindTestUtil
         }
     }
 
-    static class NoKeyOuter {
+    public static class NoKeyOuter {
         @JsonValue
         Inner2871 inner;
 
@@ -178,7 +178,7 @@ public class MapSerializationTest extends DatabindTestUtil
         }
     }
 
-    static class NotKarlBean
+    public static class NotKarlBean
     {
         public Map<String,Integer> map = new HashMap<String,Integer>();
         {
@@ -186,7 +186,7 @@ public class MapSerializationTest extends DatabindTestUtil
         }
     }
 
-    static class KarlBean
+    public static class KarlBean
     {
         @JsonSerialize(keyUsing = KarlSerializer.class)
         public Map<String,Integer> map = new HashMap<String,Integer>();
@@ -195,15 +195,15 @@ public class MapSerializationTest extends DatabindTestUtil
         }
     }
 
-    static enum OuterEnum {
+    public enum OuterEnum {
         inner;
     }
 
-    enum ABCKey {
+    public enum ABCKey {
         A, B, C
     }
 
-    static class ABCMapWrapper {
+    public static class ABCMapWrapper {
         public Map<ABCKey,String> stuff = new HashMap<ABCKey,String>();
         public ABCMapWrapper() {
             stuff.put(ABCKey.B, "bar");
@@ -211,9 +211,9 @@ public class MapSerializationTest extends DatabindTestUtil
     }
 
     @JsonSerialize(keyUsing = ABCKeySerializer.class)
-    static enum ABCMixin { }
+    public static enum ABCMixin { }
 
-    static class BAR<T> {
+    public static class BAR<T> {
         T value;
 
         public BAR(T value) {

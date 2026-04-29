@@ -1380,6 +1380,30 @@ public class TokenBufferTest extends DatabindTestUtil
                 assertEquals(NumberType.BIG_INTEGER, p.getNumberType());
             }
         }
+
+        // [databind#5786] String-based float with forceUseOfBigDecimal -> BIG_DECIMAL
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.forceUseOfBigDecimal(true);
+            buf.writeNumber("1E+2");
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(NumberType.BIG_DECIMAL, p.getNumberType());
+                assertEquals(NumberTypeFP.BIG_DECIMAL, p.getNumberTypeFP());
+                // Also verify actual value is BigDecimal
+                Number numValue = p.getNumberValue();
+                assertInstanceOf(BigDecimal.class, numValue);
+            }
+        }
+
+        // [databind#5786] Without forceUseOfBigDecimal, default is DOUBLE
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber("1E+2");
+            try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(NumberType.DOUBLE, p.getNumberType());
+                assertEquals(NumberTypeFP.DOUBLE64, p.getNumberTypeFP());
+            }
+        }
     }
 
     // Cover getBinaryValue from VALUE_STRING (base64 decode path)

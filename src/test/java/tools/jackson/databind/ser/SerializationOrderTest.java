@@ -137,6 +137,45 @@ public class SerializationOrderTest
         public int getC() { return c; }
     }
 
+    // For [databind#5918]
+    static class BeanForGH5918 {
+        private String notes;
+        private String firstName;
+        private String lastName;
+
+        @JsonCreator
+        public BeanForGH5918(@JsonProperty("lastName") String lastName,
+                @JsonProperty("firstName") String firstName) {
+            this.firstName = firstName;
+            this.lastName = lastName;
+        }
+
+        public String getNotes() { return notes; }
+        public void setNotes(String notes) { this.notes = notes; }
+        public String getFirstName() { return firstName; }
+        public String getLastName() { return lastName; }
+    }
+
+    // For [databind#3064]
+    @JsonPropertyOrder(alphabetic = true)
+    static class AlphaWithIndexBean {
+        @JsonProperty(index = 2)
+        public int c;
+        @JsonProperty(index = 0)
+        public int a;
+        public int b;
+    }
+
+    // For [databind#3064]: explicit name order + index
+    @JsonPropertyOrder({ "b", "a" })
+    static class ExplicitOrderWithIndexBean {
+        @JsonProperty(index = 2)
+        public int c;
+        @JsonProperty(index = 0)
+        public int a;
+        public int b;
+    }
+
     /*
     /*********************************************
     /* Unit tests
@@ -245,5 +284,62 @@ public class SerializationOrderTest
 
         assertEquals(a2q("{'a':2,'b':0,'c':1}"),
                 STRICT_ALPHA_MAPPER.writeValueAsString(new BeanForStrictOrdering(1, 2)));
+    }
+
+    // [databind#3064]: default behavior — class-level alphabetic + index → index wins
+    @Test
+    public void testAlphabeticWithIndexDefaultBehavior() throws Exception {
+        // AlphaWithIndexBean has @JsonPropertyOrder(alphabetic=true)
+        // but index is enabled by default, so indexed props (a:0, c:2) come first
+        assertEquals(a2q("{'a':0,'c':0,'b':0}"),
+                MAPPER.writeValueAsString(new AlphaWithIndexBean()));
+    }
+
+    // [databind#3064]: index disabled → class-level alphabetic annotation wins
+    @Test
+    public void testAlphabeticWithIndexDisabled() throws Exception {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.SORT_PROPERTIES_BY_INDEX)
+                .build();
+        assertEquals(a2q("{'a':0,'b':0,'c':0}"),
+                mapper.writeValueAsString(new AlphaWithIndexBean()));
+    }
+
+    // [databind#3064]: global alphabetic + index disabled → alphabetic wins
+    @Test
+    public void testGlobalAlphabeticWithIndexDisabled() throws Exception {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .disable(MapperFeature.SORT_PROPERTIES_BY_INDEX)
+                .build();
+        assertEquals(a2q("{'a':0,'b':0,'c':0}"),
+                mapper.writeValueAsString(new AlphaWithIndexBean()));
+    }
+
+    // [databind#3064]: explicit name order takes precedence even when index disabled
+    @Test
+    public void testExplicitNameOrderWinsWhenIndexDisabled() throws Exception {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.SORT_PROPERTIES_BY_INDEX)
+                .build();
+        assertEquals(a2q("{'b':0,'a':0,'c':0}"),
+                mapper.writeValueAsString(new ExplicitOrderWithIndexBean()));
+    }
+
+    // [databind#5918]: disabling SORT_CREATOR_PROPERTIES_FIRST should work
+    //   even when SORT_PROPERTIES_ALPHABETICALLY is also disabled
+    @Test
+    public void testCreatorPropsNotFirstWhenBothSortingDisabled() throws Exception {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .disable(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST)
+                .build();
+        BeanForGH5918 person = new BeanForGH5918("last", "first");
+        person.setNotes("notes");
+        String json = mapper.writeValueAsString(person);
+        // Creator properties (lastName, firstName) should NOT be forced first;
+        // "notes" should appear before them based on declaration order
+        assertEquals(a2q("{'notes':'notes','firstName':'first','lastName':'last'}"),
+                json);
     }
 }

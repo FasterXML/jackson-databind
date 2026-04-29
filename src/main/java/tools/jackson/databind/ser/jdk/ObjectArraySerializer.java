@@ -329,6 +329,10 @@ public class ObjectArraySerializer
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
         final boolean filtered = _needToCheckFiltering(ctxt);
+        // [databind#3194]: only need per-element type id check when elements
+        // are themselves arrays (nested array case like Object[][])
+        final TypeIdCheck typeIdCheck = ((typeSer != null) && _elementType.isArrayType())
+                ? new TypeIdCheck() : null;
 
         int i = 0;
         Object elem = null;
@@ -348,6 +352,11 @@ public class ObjectArraySerializer
                 }
                 if (typeSer == null) {
                     ser.serialize(elem, g, ctxt);
+                // [databind#3194]: for nested array elements, skip type id if runtime
+                // array type unwraps to final component (e.g. String[] -> String is final)
+                } else if ((typeIdCheck != null)
+                        && !typeIdCheck.needsTypeId(ctxt, elem.getClass())) {
+                    ser.serialize(elem, g, ctxt);
                 } else {
                     ser.serializeWithType(elem, g, ctxt, typeSer);
                 }
@@ -363,6 +372,10 @@ public class ObjectArraySerializer
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
         final boolean filtered = _needToCheckFiltering(ctxt);
+        // [databind#3194]: only need per-element type id check when elements
+        // are themselves arrays (nested array case like Object[][])
+        final TypeIdCheck typeIdCheck = _elementType.isArrayType()
+                ? new TypeIdCheck() : null;
         int i = 0;
         Object elem = null;
         try {
@@ -384,10 +397,48 @@ public class ObjectArraySerializer
                 if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                     continue;
                 }
-                serializer.serializeWithType(elem, g, ctxt, typeSer);
+                // [databind#3194]: for nested array elements, skip type id if runtime
+                // array type unwraps to final component (e.g. String[] -> String is final)
+                if ((typeIdCheck != null)
+                        && !typeIdCheck.needsTypeId(ctxt, cc)) {
+                    serializer.serialize(elem, g, ctxt);
+                } else {
+                    serializer.serializeWithType(elem, g, ctxt, typeSer);
+                }
             }
         } catch (Exception e) {
             wrapAndThrow(ctxt, e, elem, i);
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper class for type id checking
+    /**********************************************************************
+     */
+
+    /**
+     * One-entry cache for checking whether the runtime array element type
+     * requires a type id. In practice elements of a typed array are almost
+     * always the same type, so this avoids repeated {@code findTypeSerializer}
+     * lookups.
+     *<p>
+     * See [databind#3194] for details.
+     *
+     * @since 3.1
+     */
+    protected static final class TypeIdCheck {
+        private Class<?> _cachedClass;
+        private boolean _cachedResult;
+
+        public boolean needsTypeId(SerializationContext ctxt, Class<?> runtimeType) {
+            if (runtimeType == _cachedClass) {
+                return _cachedResult;
+            }
+            _cachedClass = runtimeType;
+            _cachedResult = ctxt.findTypeSerializer(
+                    ctxt.constructType(runtimeType)) != null;
+            return _cachedResult;
         }
     }
 

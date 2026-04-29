@@ -16,10 +16,12 @@ public class AsExistingPropertyTypeSerializer
 {
     protected final String _typePropertyName;
 
+    /** @since 3.2 */
     public AsExistingPropertyTypeSerializer(TypeIdResolver idRes,
-            BeanProperty property, String propName)
+            BeanProperty property, String propName,
+            Class<?> skipTypeIdFor)
     {
-        super(idRes, property);
+        super(idRes, property, skipTypeIdFor);
         _typePropertyName = propName;
     }
 
@@ -27,7 +29,8 @@ public class AsExistingPropertyTypeSerializer
     public AsExistingPropertyTypeSerializer forProperty(SerializationContext ctxt,
             BeanProperty prop) {
         return (_property == prop) ? this :
-            new AsExistingPropertyTypeSerializer(_idResolver, prop, _typePropertyName);
+            new AsExistingPropertyTypeSerializer(_idResolver, prop, _typePropertyName,
+                    _skipTypeIdFor);
     }
 
     @Override

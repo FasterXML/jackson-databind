@@ -77,27 +77,25 @@ public class ByteBufferUtilsTest extends DatabindTestUtil
     @Test
     public void testByteBufferInputStreamParameterValidation() throws Exception {
         byte[] input = new byte[] { 1, 2, 3 };
-        ByteBufferBackedInputStream stream = new ByteBufferBackedInputStream(ByteBuffer.wrap(input));
-        byte[] buffer = new byte[10];
+        try (ByteBufferBackedInputStream stream = new ByteBufferBackedInputStream(ByteBuffer.wrap(input))) {
+            byte[] buffer = new byte[10];
 
-        // Test null byte array
-        assertThrows(NullPointerException.class, () -> {
-            stream.read(null, 0, 5);
-        });
-
-        // Test negative offset
-        assertThrows(IndexOutOfBoundsException.class, () -> {
-            stream.read(buffer, -1, 5);
-        });
-
-        // Test negative length
-        assertThrows(IndexOutOfBoundsException.class, () -> {
-            stream.read(buffer, 0, -1);
-        });
-
-        // Test offset + length > array length
-        assertThrows(IndexOutOfBoundsException.class, () -> {
-            stream.read(buffer, 5, 10);
-        });
+            // Test null byte array
+            assertThrows(NullPointerException.class, () -> {
+                stream.read(null, 0, 5);
+            });
+            // Test negative offset
+            assertThrows(IndexOutOfBoundsException.class, () -> {
+                stream.read(buffer, -1, 5);
+            });
+            // Test negative length
+            assertThrows(IndexOutOfBoundsException.class, () -> {
+                stream.read(buffer, 0, -1);
+            });
+            // Test offset + length > array length
+            assertThrows(IndexOutOfBoundsException.class, () -> {
+                stream.read(buffer, 5, 10);
+            });
+        }
     }
 }

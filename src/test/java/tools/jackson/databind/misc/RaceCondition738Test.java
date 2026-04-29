@@ -15,7 +15,7 @@ public class RaceCondition738Test extends DatabindTestUtil
 {
     static abstract class AbstractHasSubTypes implements HasSubTypes { }
 
-    static class TypeOne extends AbstractHasSubTypes {
+    public static class TypeOne extends AbstractHasSubTypes {
         private final String id;
         public TypeOne(String id) {
             this.id = id;
@@ -38,7 +38,7 @@ public class RaceCondition738Test extends DatabindTestUtil
         String getType();
     }
 
-    static class Wrapper {
+    public static class Wrapper {
         private final HasSubTypes hasSubTypes;
 
         Wrapper(HasSubTypes hasSubTypes) {

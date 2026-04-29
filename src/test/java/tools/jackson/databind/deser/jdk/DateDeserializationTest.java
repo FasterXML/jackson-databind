@@ -45,6 +45,16 @@ public class DateDeserializationTest
         public Date date;
     }
 
+    static class DateShapeNumberBean {
+        @JsonFormat(shape=JsonFormat.Shape.NUMBER)
+        public Date date;
+    }
+
+    static class DateShapeNumberIntBean {
+        @JsonFormat(shape=JsonFormat.Shape.NUMBER_INT)
+        public Date date;
+    }
+
     static class CalendarBean {
         Calendar _v;
         void setV(Calendar v) { _v = v; }
@@ -132,6 +142,24 @@ public class DateDeserializationTest
         json = q(String.valueOf(before));
         value = MAPPER.readValue(json, java.util.Date.class);
         assertEquals(before, value.getTime());
+    }
+
+    @Test
+    public void testSignedStringTimestampViaObjectMapper() throws Exception
+    {
+        long before = -1383043669935L;
+        String json = q(String.valueOf(before));
+
+        Date date = MAPPER.readValue(json, Date.class);
+        assertEquals(before, date.getTime());
+
+        Calendar calendar = MAPPER.readValue(json, Calendar.class);
+        assertEquals(before, calendar.getTimeInMillis());
+
+        assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readValue(q("+1383043669935"), Date.class));
+        assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readValue(q("+1383043669935"), Calendar.class));
     }
 
     @Test
@@ -605,6 +633,46 @@ public class DateDeserializationTest
         assertEquals(Calendar.JANUARY, c.get(Calendar.MONTH));
         assertEquals(1, c.get(Calendar.DAY_OF_MONTH));
         assertEquals(9, c.get(Calendar.HOUR_OF_DAY));
+    }
+
+    @Test
+    public void testDateAsInteger() throws Exception
+    {
+        DateShapeNumberIntBean dsn = MAPPER.readValue("{\"date\":-1383043669935}",
+                DateShapeNumberIntBean.class);
+        Calendar c = Calendar.getInstance(getUTCTimeZone());
+        c.setTimeInMillis(dsn.date.getTime());
+        assertEquals(1926, c.get(Calendar.YEAR));
+        assertEquals(Calendar.MARCH, c.get(Calendar.MONTH));
+        assertEquals(5, c.get(Calendar.DAY_OF_MONTH));
+        assertEquals(13, c.get(Calendar.HOUR_OF_DAY));
+        assertEquals(12, c.get(Calendar.MINUTE));
+        assertEquals(10, c.get(Calendar.SECOND));
+    }
+
+    @Test
+    public void testDateAsIntegerAmbiguous() throws Exception
+    {
+        //the number could be mistaken for a compact ISO-8601 date
+        //but it is meant as a Unix style date as long
+        DateShapeNumberIntBean dsn = MAPPER.readValue("{\"date\":20260305}",
+                DateShapeNumberIntBean.class);
+        assertEquals(new Date(20260305), dsn.date);
+    }
+
+    @Test
+    public void testDateAsNumber() throws Exception
+    {
+        DateShapeNumberBean dsn = MAPPER.readValue("{\"date\":-1383043669935}",
+                DateShapeNumberBean.class);
+        Calendar c = Calendar.getInstance(getUTCTimeZone());
+        c.setTimeInMillis(dsn.date.getTime());
+        assertEquals(1926, c.get(Calendar.YEAR));
+        assertEquals(Calendar.MARCH, c.get(Calendar.MONTH));
+        assertEquals(5, c.get(Calendar.DAY_OF_MONTH));
+        assertEquals(13, c.get(Calendar.HOUR_OF_DAY));
+        assertEquals(12, c.get(Calendar.MINUTE));
+        assertEquals(10, c.get(Calendar.SECOND));
     }
 
     // [databind#1651]

@@ -199,6 +199,16 @@ public class AnnotationIntrospectorPair
         return v;
     }
 
+    @Override // @since 3.2
+    public JavaType findPolymorphicBaseType(MapperConfig<?> config,
+            AnnotatedClass ac, JsonTypeInfo.Value typeInfo, JavaType assumedBaseType) {
+        JavaType t = _primary.findPolymorphicBaseType(config, ac, typeInfo, assumedBaseType);
+        if (t == null) {
+            t = _secondary.findPolymorphicBaseType(config, ac, typeInfo, assumedBaseType);
+        }
+        return t;
+    }
+
     @Override
     public Object findTypeResolverBuilder(MapperConfig<?> config,
             Annotated ann) {
@@ -373,6 +383,20 @@ public class AnnotationIntrospectorPair
         Class<?>[] result = _primary.findViews(config, a);
         if (result == null) {
             result = _secondary.findViews(config, a);
+        }
+        return result;
+    }
+
+    @Override
+    public Class<?> findApplyView(MapperConfig<?> config, Annotated a)
+    {
+        /* Theoretically this could be trickier, if multiple introspectors
+         * return non-null entries. For now, though, we'll just consider
+         * first one to return non-null to win.
+         */
+        Class<?> result = _primary.findApplyView(config, a);
+        if (result == null) {
+            result = _secondary.findApplyView(config, a);
         }
         return result;
     }

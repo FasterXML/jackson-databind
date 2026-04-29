@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.annotation.JsonWrapped;
+import com.fasterxml.jackson.annotation.JsonWrapped;
 import tools.jackson.databind.ser.FilterProvider;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
 import tools.jackson.databind.ser.std.SimpleFilterProvider;

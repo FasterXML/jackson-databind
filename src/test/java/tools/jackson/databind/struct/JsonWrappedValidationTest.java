@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.annotation.JsonWrapped;
+import com.fasterxml.jackson.annotation.JsonWrapped;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.testutil.DatabindTestUtil;

@@ -6,6 +6,7 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonWrapped;
 
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.Version;

@@ -461,10 +461,8 @@ Deserialization is also supported: Jackson reads the nested `"chr"` object and m
 Note: non-scalar types (POJOs, collections, maps, arrays) are supported for baseline
 serialization/deserialization. Existing interaction limitations around `@JsonView`,
 `@JsonFilter`, and `@JsonInclude` on inner wrapped fields still apply — see the
-[`@JsonWrapped` Javadoc](src/main/java/tools/jackson/databind/annotation/JsonWrapped.java)
+[`@JsonWrapped` Javadoc](https://github.com/FasterXML/jackson-annotations/blob/2.x/src/main/java/com/fasterxml/jackson/annotation/JsonWrapped.java)
 for the full list of constraints.
-
-See the [`@JsonWrapped` Javadoc](src/main/java/tools/jackson/databind/annotation/JsonWrapped.java) for the full list of constraints.
 
 ## Tutorial: fancier stuff, conversions
 

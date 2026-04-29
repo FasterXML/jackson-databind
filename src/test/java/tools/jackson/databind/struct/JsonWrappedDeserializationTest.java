@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
-import tools.jackson.databind.annotation.JsonWrapped;
+import com.fasterxml.jackson.annotation.JsonWrapped;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;

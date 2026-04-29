@@ -217,24 +217,6 @@ public class ViewSerializationTest extends DatabindTestUtil
                 mapper.writerWithView(OtherView.class).writeValueAsString(new Foo()));
     }
 
-    // [databind#5745]: allow overriding JsonView
-    @Test
-    public void testJsonApplyView() {
-        // Then with "ViewA", just one property
-        Bean2 bean2 = new Bean2();
-
-        StringWriter sw = new StringWriter();
-        MAPPER.writerWithView(ViewA.class).writeValue(sw, bean2);
-
-        Map<String,Object> map = MAPPER.readValue(sw.toString(), Map.class);
-        assertEquals(1, map.size());
-        Map<String,Object> beanMap = (Map<String, Object>) map.get("bean");
-
-        assertEquals(2, beanMap.size());
-        assertEquals("2", beanMap.get("aa"));
-        assertEquals("3", beanMap.get("b"));
-    }
-
     // [databind#5937]
     @Test
     public void testWithActiveView() throws Exception

@@ -537,4 +537,58 @@ public class JsonWrappedSerializationTest extends DatabindTestUtil
             assertThat(json).isEqualTo("{\"outer\":{\"inner\":{\"sub\":{\"x\":\"a\",\"y\":\"b\"}}}}");
         }
     }
+
+    /*
+    /**********************************************************************
+    /* enabled=false tests
+    /**********************************************************************
+     */
+
+    static class GeneDisableWrapMixin {
+        @JsonWrapped(value = "chr", enabled = false)
+        @JsonProperty("id")
+        public String chrId;
+
+        @JsonWrapped(value = "chr", enabled = false)
+        @JsonProperty("name")
+        public String chrName;
+    }
+
+    static class GeneDirectDisabled {
+        public String symbol;
+        @JsonWrapped(value = "chr", enabled = false) @JsonProperty("id")  public String chrId;
+        @JsonWrapped(value = "chr", enabled = false) @JsonProperty("name") public String chrName;
+    }
+
+    @Nested
+    @DisplayName("enabled=false tests")
+    class EnabledFalseTests {
+
+        @Test
+        @DisplayName("should serialize flat when mix-in sets enabled=false on @JsonWrapped fields")
+        void enabledFalseViaFieldMixinDisablesSerialization() throws Exception {
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .addMixIn(Gene.class, GeneDisableWrapMixin.class)
+                    .build();
+            Gene g = new Gene("BRCA1", "17", "chr17");
+
+            String json = mapper.writeValueAsString(g);
+
+            assertThat(json).doesNotContain("\"chr\":{");
+            assertThat(json).contains("\"id\":\"17\"");
+            assertThat(json).contains("\"name\":\"chr17\"");
+        }
+
+        @Test
+        @DisplayName("should serialize flat when @JsonWrapped(enabled=false) placed directly on fields")
+        void directEnabledFalseDisablesWrapping() throws Exception {
+            GeneDirectDisabled g = new GeneDirectDisabled();
+            g.symbol = "TP53"; g.chrId = "17"; g.chrName = "chr17";
+
+            String json = MAPPER.writeValueAsString(g);
+
+            assertThat(json).doesNotContain("\"chr\":{");
+            assertThat(json).contains("\"id\":\"17\"");
+        }
+    }
 }

@@ -521,7 +521,9 @@ public class JacksonAnnotationIntrospector
     @Override
     public String findWrappedGroupName(MapperConfig<?> config, AnnotatedMember member) {
         JsonWrapped ann = _findAnnotation(member, JsonWrapped.class);
-        if (ann == null) {
+        // if not enabled, just means annotation is not enabled; not necessarily
+        // that wrapping should not be done (relevant when using chained introspectors)
+        if (ann == null || !ann.enabled()) {
             return null;
         }
         return ann.value(); // "" means disabled; non-empty means active

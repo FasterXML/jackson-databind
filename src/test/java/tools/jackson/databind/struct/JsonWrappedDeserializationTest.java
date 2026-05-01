@@ -465,4 +465,40 @@ public class JsonWrappedDeserializationTest extends DatabindTestUtil
             assertThat(roundTripped).isEqualTo(originalJson);
         }
     }
+
+    /*
+    /**********************************************************************
+    /* enabled=false tests
+    /**********************************************************************
+     */
+
+    static class GeneDisableWrapMixin {
+        @JsonWrapped(value = "chr", enabled = false)
+        @JsonProperty("id")
+        public String chrId;
+
+        @JsonWrapped(value = "chr", enabled = false)
+        @JsonProperty("name")
+        public String chrName;
+    }
+
+    @Nested
+    @DisplayName("enabled=false tests")
+    class EnabledFalseTests {
+
+        @Test
+        @DisplayName("should deserialize flat JSON when mix-in sets enabled=false on @JsonWrapped fields")
+        void enabledFalseViaFieldMixinDisablesDeserialization() throws Exception {
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .addMixIn(Gene.class, GeneDisableWrapMixin.class)
+                    .build();
+            String json = "{\"symbol\":\"BRCA1\",\"id\":\"17\",\"name\":\"chr17\"}";
+
+            Gene g = mapper.readValue(json, Gene.class);
+
+            assertThat(g.symbol).isEqualTo("BRCA1");
+            assertThat(g.chrId).isEqualTo("17");
+            assertThat(g.chrName).isEqualTo("chr17");
+        }
+    }
 }

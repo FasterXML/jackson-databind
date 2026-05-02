@@ -10,9 +10,20 @@ Project: jackson-databind
   defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
  (reported by Christian D)
  (contributed by Lee Jiwon)
+#3316: Deserialization of a date with `@JsonFormat` specified with locale
+  that is not a language tag
+ (reported by @MarkDavoren)
+ (fix by @cowtowncoder, w/ Claude code)
+#3573: Inconsistent handling of nil `UUID` in property inclusion
+ (reported by Andrzej L)
 #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
+
+2.21.4 (not yet released)
+
+#5931: Fix `AtomicLongDeserializer` value truncation on coerced values
+ (fixed by Lee Jiwon)
 
 2.21.3 (28-Apr-2026)
 

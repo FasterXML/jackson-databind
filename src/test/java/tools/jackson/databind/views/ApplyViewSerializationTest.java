@@ -1,14 +1,16 @@
 package tools.jackson.databind.views;
 
+import java.io.StringWriter;
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonApplyView;
 import com.fasterxml.jackson.annotation.JsonView;
-import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-
-import java.io.StringWriter;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,7 +25,6 @@ public class ApplyViewSerializationTest extends DatabindTestUtil
     static class ViewA { }
     static class ViewAA extends ViewA { }
     static class ViewB { }
-    static class ViewBB extends ViewB { }
 
     static class Bean
     {
@@ -76,7 +77,8 @@ public class ApplyViewSerializationTest extends DatabindTestUtil
     @SuppressWarnings("unchecked")
     @Test
     public void testJsonApplyView() {
-        // Then with "ViewA", just one property
+        // With "ViewA" active: both Bean2 properties are @JsonView(ViewA), so both
+        // serialize, but each applies its own override view to the nested Bean.
         Bean2 bean2 = new Bean2();
 
         StringWriter sw = new StringWriter();
@@ -101,7 +103,8 @@ public class ApplyViewSerializationTest extends DatabindTestUtil
     @SuppressWarnings("unchecked")
     @Test
     public void testJsonApplyViewNested() {
-        // Then with "ViewAA", just three properties
+        // With "ViewAA" active (extends ViewA): all three Bean3 properties are
+        // @JsonView(ViewA), so all serialize; verify nested @JsonApplyView still applies.
         Bean3 bean3 = new Bean3();
 
         StringWriter sw = new StringWriter();

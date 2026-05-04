@@ -246,13 +246,15 @@ public class PropertyBuilder
         if (views == null) {
             views = _beanDesc.findDefaultViews();
         }
+        Class<?> applyView = propDef.findApplyView();
+
         // [databind#1649]: Pass the computed inclusion value (which includes
         // contextual annotations) so BeanPropertyWriter can use it directly
         // instead of re-computing in findPropertyInclusion()
         BeanPropertyWriter bpw = _constructPropertyWriter(propDef,
                 am, _beanDesc.getClassAnnotations(), declaredType,
                 ser, typeSer, serializationType, suppressNulls, valueToSuppress, views,
-                inclV);
+                inclV, applyView);
 
         // How about custom null serializer?
         Object serDef = _annotationIntrospector.findNullSerializer(_config, am);
@@ -285,12 +287,12 @@ public class PropertyBuilder
             JavaType declaredType,
             ValueSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             boolean suppressNulls, Object suppressableValue,
-            Class<?>[] includeInViews, JsonInclude.Value inclusion)
+            Class<?>[] includeInViews, JsonInclude.Value inclusion, Class<?> applyView)
     {
         return new BeanPropertyWriter(propDef,
                 member, contextAnnotations, declaredType,
                 ser, typeSer, serType, suppressNulls, suppressableValue, includeInViews,
-                inclusion);
+                inclusion, applyView);
     }
 
     /*

@@ -827,6 +827,11 @@ public class POJOPropertyBuilder
     }
 
     @Override
+    public Class<?> findApplyView() {
+        return _annotationIntrospector.findApplyView(_config, getPrimaryMember());
+    }
+
+    @Override
     public AnnotationIntrospector.ReferenceProperty findReferenceType() {
         // 30-Mar-2017, tatu: Access lazily but retain information since it needs
         //   to be accessed multiple times during processing.

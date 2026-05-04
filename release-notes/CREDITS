@@ -496,6 +496,10 @@ Martin Uhlen (@MartinUhlen)
    absent field same as explicit `null`
   [3.2.0]
 
+Frederic Aubert (@f-aubert)
+ * Contributed #5745: Ability to change active JsonView on submodels (with `@JsonApplyView`)
+  [3.2.0]
+
 David Nelson (@eatdrinksleepcode)
  * Reported #5814: Enum deserialization does not respect
    `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override

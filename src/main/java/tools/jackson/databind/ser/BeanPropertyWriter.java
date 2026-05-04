@@ -226,7 +226,9 @@ public class BeanPropertyWriter
     }
 
     /**
-     * @deprecated Since 3.2
+     * @deprecated Since 3.2 use {@link #BeanPropertyWriter(BeanPropertyDefinition,
+     *     AnnotatedMember, Annotations, JavaType, ValueSerializer, TypeSerializer,
+     *     JavaType, boolean, Object, Class[], JsonInclude.Value, Class)} instead.
      */
     @Deprecated // @since 3.2
     public BeanPropertyWriter(BeanPropertyDefinition propDef,
@@ -787,7 +789,7 @@ public class BeanPropertyWriter
     }
 
     // @since 3.2
-    private final void _serialize(Object value, JsonGenerator g, SerializationContext ctxt,
+    private void _serialize(Object value, JsonGenerator g, SerializationContext ctxt,
             ValueSerializer<Object> ser) {
         if (_typeSerializer == null) {
             ser.serialize(value, g, ctxt);
@@ -795,7 +797,7 @@ public class BeanPropertyWriter
             ser.serializeWithType(value, g, ctxt, _typeSerializer);
         }
     }
-    
+
     /*
     /**********************************************************************
     /* PropertyWriter methods (schema generation)

@@ -44,7 +44,7 @@ public class ApplyViewSerializationTest extends DatabindTestUtil
         public Bean beanWithApplyViewB = new Bean();
 
         @JsonView(ViewA.class)
-        @JsonApplyView
+        @JsonApplyView(JsonApplyView.NONE.class)
         public Bean beanWithApplyNoneView = new Bean();
     }
 
@@ -73,6 +73,7 @@ public class ApplyViewSerializationTest extends DatabindTestUtil
             .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
             .build();
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testJsonApplyView() {
         // Then with "ViewA", just one property
@@ -81,7 +82,7 @@ public class ApplyViewSerializationTest extends DatabindTestUtil
         StringWriter sw = new StringWriter();
         MAPPER.writerWithView(ViewA.class).writeValue(sw, bean2);
 
-        Map<String,Object> bean2Map = MAPPER.readValue(sw.toString(), Map.class);
+        Map<?,?> bean2Map = MAPPER.readValue(sw.toString(), Map.class);
         assertEquals(2, bean2Map.size());
 
         Map<String,Object> beanWithApplyViewBMap = (Map<String, Object>) bean2Map.get("beanWithApplyViewB");
@@ -97,6 +98,7 @@ public class ApplyViewSerializationTest extends DatabindTestUtil
         assertEquals("3", beanWithApplyNoneViewMap.get("b"));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testJsonApplyViewNested() {
         // Then with "ViewAA", just three properties
@@ -105,7 +107,7 @@ public class ApplyViewSerializationTest extends DatabindTestUtil
         StringWriter sw = new StringWriter();
         MAPPER.writerWithView(ViewAA.class).writeValue(sw, bean3);
 
-        Map<String,Object> bean3Map = MAPPER.readValue(sw.toString(), Map.class);
+        Map<?,?> bean3Map = MAPPER.readValue(sw.toString(), Map.class);
         assertEquals(3, bean3Map.size());
 
         Map<String,Object> beanMap = (Map<String, Object>) bean3Map.get("bean");
@@ -122,8 +124,7 @@ public class ApplyViewSerializationTest extends DatabindTestUtil
         assertEquals("2", nestedBeanWithApplyViewBMap.get("aa"));
         assertEquals("3", nestedBeanWithApplyViewBMap.get("b"));
 
-        Map<String,Object> bean2WithApplyViewBMap = (Map<String, Object>) bean3Map.get("bean2WithApplyViewB");
+        Map<?,?> bean2WithApplyViewBMap = (Map<String, Object>) bean3Map.get("bean2WithApplyViewB");
         assertEquals(0, bean2WithApplyViewBMap.size());
     }
-
 }

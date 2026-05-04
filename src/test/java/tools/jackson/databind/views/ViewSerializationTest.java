@@ -41,14 +41,6 @@ public class ViewSerializationTest extends DatabindTestUtil
         public String getB() { return "3"; }
     }
 
-    static class Bean2 {
-
-        @JsonView(ViewA.class)
-        @JsonApplyView(ViewB.class)
-        public Bean bean = new Bean();
-
-    }
-
     /**
      * Bean with mix of explicitly annotated
      * properties, and implicit ones that may or may

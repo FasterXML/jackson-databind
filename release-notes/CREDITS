@@ -497,7 +497,7 @@ Martin Uhlen (@MartinUhlen)
   [3.2.0]
 
 Frederic Aubert (@f-aubert)
- * Contributed #5745: Ability to change active JsonView on submodels (with `@JsonApplyView')
+ * Contributed #5745: Ability to change active JsonView on submodels (with `@JsonApplyView`)
   [3.2.0]
 
 David Nelson (@eatdrinksleepcode)

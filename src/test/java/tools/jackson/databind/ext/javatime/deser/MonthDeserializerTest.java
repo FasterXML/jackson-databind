@@ -324,11 +324,11 @@ public class MonthDeserializerTest extends DateTimeTestBase
     @Test
     public void testDeserializationAsArrayWithWrongToken() throws Exception
     {
-        // [databind#5957]: Boolean in array without UNWRAP should fail (UNWRAP check fires first)
+        // [databind#5957]: Boolean is not a coercible token shape; report token-type mismatch
         assertError(
             () -> readerForOneBased().readValue("[true]"),
             MismatchedInputException.class,
-            "UNWRAP_SINGLE_VALUE_ARRAYS"
+            "Expected VALUE_NUMBER_INT"
         );
     }
 
@@ -346,22 +346,22 @@ public class MonthDeserializerTest extends DateTimeTestBase
     @Test
     public void testDeserializationAsArrayWithFloatUnwrapDisabled() throws Exception
     {
-        // [databind#5957]: Float in array without UNWRAP should fail (UNWRAP check fires first)
+        // [databind#5957]: Float is not a coercible token shape; report token-type mismatch
         assertError(
             () -> readerForOneBased().readValue("[1.5]"),
             MismatchedInputException.class,
-            "UNWRAP_SINGLE_VALUE_ARRAYS"
+            "Expected VALUE_NUMBER_INT"
         );
     }
 
     @Test
     public void testDeserializationAsArrayWithObjectUnwrapDisabled() throws Exception
     {
-        // [databind#5957]: Object in array without UNWRAP should fail (UNWRAP check fires first)
+        // [databind#5957]: Object is not a coercible token shape; report token-type mismatch
         assertError(
             () -> readerForOneBased().readValue("[{}]"),
             MismatchedInputException.class,
-            "UNWRAP_SINGLE_VALUE_ARRAYS"
+            "Expected VALUE_NUMBER_INT"
         );
     }
 

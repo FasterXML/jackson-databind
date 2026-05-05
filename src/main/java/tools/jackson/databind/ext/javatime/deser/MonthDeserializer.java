@@ -8,8 +8,6 @@ import java.util.stream.Collectors;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.DateTimeFeature;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -80,50 +78,9 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
             }
             // fall through
         } else if (p.isExpectedStartArrayToken()) {
-            // [databind#5957]: Respect coercion settings; do not accept empty or single-element
-            // arrays unless the corresponding DeserializationFeature is enabled.
-            JsonToken t = p.nextToken();
-            if (t == JsonToken.END_ARRAY) {
-                final CoercionAction act = _findCoercionFromEmptyArray(ctxt);
-                if (act == CoercionAction.AsNull || act == CoercionAction.TryConvert) {
-                    return null;
-                }
-                if (act == CoercionAction.AsEmpty) {
-                    return (Month) getEmptyValue(ctxt);
-                }
-                return (Month) ctxt.handleUnexpectedToken(getValueType(ctxt),
-                        JsonToken.START_ARRAY, p, "Cannot deserialize `Month` from empty JSON Array");
-            }
-            // Validate token shape before checking UNWRAP, so inputs like [true], [1.5]
-            // or [{}] get a token-type diagnostic instead of a misleading suggestion to
-            // enable UNWRAP_SINGLE_VALUE_ARRAYS (which would not help).
-            if (t != JsonToken.VALUE_NUMBER_INT
-                    && t != JsonToken.VALUE_STRING
-                    && t != JsonToken.VALUE_EMBEDDED_OBJECT) {
-                return _reportWrongToken(ctxt, JsonToken.VALUE_NUMBER_INT, "month");
-            }
-            if (!ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                return (Month) ctxt.handleUnexpectedToken(getValueType(ctxt),
-                        JsonToken.START_ARRAY, p,
-                        "Cannot deserialize `Month` out of START_ARRAY token: enable `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS`");
-            }
-            if (t == JsonToken.VALUE_STRING || t == JsonToken.VALUE_EMBEDDED_OBJECT) {
-                final Month parsed = deserialize(p, ctxt);
-                if (p.nextToken() != JsonToken.END_ARRAY) {
-                    handleMissingEndArrayForSingle(p, ctxt);
-                }
-                return parsed;
-            }
-            int month = p.getIntValue();
-            if (p.nextToken() != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(p, handledType(), JsonToken.END_ARRAY,
-                        "Expected array to end");
-            }
-            if (Month.JANUARY.getValue() <= month && month <= Month.DECEMBER.getValue()) {
-                return Month.of(month);
-            }
-            return (Month) ctxt.handleWeirdNumberValue(handledType(),
-                month, "month number outside 1-12 range for 1-based `Month`s");
+            // [databind#5957]: Delegate to standard array handling so empty arrays
+            // and single-element unwrapping respect coercion / UNWRAP_SINGLE_VALUE_ARRAYS.
+            return _deserializeFromArray(p, ctxt);
         } else if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
             return (Month) p.getEmbeddedObject();
         }

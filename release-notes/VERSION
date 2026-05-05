@@ -12,7 +12,9 @@ No changes since 3.1
 3.1.4 (not yet released)
 
 #5950: Improve `UUIDeserializer` error handling
- (reported by Omkhar A)
+ (reported, fix suggested by Omkhar A)
+#5956: Fix problem with float-to-byte range check
+ (reported, fix suggested by Omkhar A)
 
 3.1.3 (01-May-2026)
 

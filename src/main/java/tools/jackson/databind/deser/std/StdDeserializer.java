@@ -573,7 +573,7 @@ public abstract class StdDeserializer<T>
             // 11-Oct-2025, tatu: [databind#5240] Cumbersome as there is no
             //  `getValueAsByte()` that'd avoid checks. So need to work around.
             int i = p.getValueAsInt();
-            if (_shortOverflow(i)) {
+            if (_byteOverflow(i)) {
                 // Let's trigger overflow handling
                 return p.getByteValue();
             }

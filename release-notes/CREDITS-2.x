@@ -1893,3 +1893,7 @@ Fawzi Essam (@iifawzi)
  * Contributed fix for #5049: Duplicate creator property "b" (index 0 vs 1)
    on simple java record
   (2.18.4)
+
+OA (---)
+ * Reported #5950: Improve `UUIDeserializer` error handling
+  (2.18.8)

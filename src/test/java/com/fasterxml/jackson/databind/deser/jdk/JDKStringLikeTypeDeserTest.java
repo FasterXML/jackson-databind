@@ -204,6 +204,11 @@ public class JDKStringLikeTypeDeserTest
         address = MAPPER.readValue(q(HOST_AND_PORT), InetSocketAddress.class);
         assertEquals(HOST, address.getHostName());
         assertEquals(80, address.getPort());
+
+        // [databind#]: should NOT resolve address
+        address = MAPPER.readValue(q("localhost:9999"), InetSocketAddress.class);
+        assertTrue(address.isUnresolved(),
+                "`InetSocketAddress` resolved localhost during deserialization: "+ address);
     }
 
     @Test

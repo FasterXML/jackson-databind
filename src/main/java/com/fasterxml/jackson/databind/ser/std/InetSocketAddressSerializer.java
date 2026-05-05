@@ -19,7 +19,8 @@ public class InetSocketAddressSerializer
     public InetSocketAddressSerializer() { super(InetSocketAddress.class); }
 
     @Override
-    public void serialize(InetSocketAddress value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    public void serialize(InetSocketAddress value, JsonGenerator g, SerializerProvider ctxt)
+        throws IOException
     {
         InetAddress addr = value.getAddress();
         String str = addr == null ? value.getHostName() : addr.toString().trim();
@@ -35,17 +36,18 @@ public class InetSocketAddressSerializer
             }
         }
 
-        jgen.writeString(str + ":" + value.getPort());
+        g.writeString(str + ":" + value.getPort());
     }
 
     @Override
     public void serializeWithType(InetSocketAddress value, JsonGenerator g,
-            SerializerProvider provider, TypeSerializer typeSer) throws IOException
+            SerializerProvider ctxt, TypeSerializer typeSer)
+        throws IOException
     {
         // Better ensure we don't use specific sub-classes...
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
                 typeSer.typeId(value, InetSocketAddress.class, JsonToken.VALUE_STRING));
-        serialize(value, g, provider);
+        serialize(value, g, ctxt);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }
 }

@@ -488,7 +488,8 @@ _coercedTypeDesc());
         }
 
         protected InetSocketAddress _inetSocketAddress(String host, int port) {
-            return new InetSocketAddress(host, port);
+            // 05-May-2026, tatu: [databind#5951] Prevent DNS lookup:
+            return InetSocketAddress.createUnresolved(host, port);
         }
     }
 

@@ -91,14 +91,14 @@ public class YearDeserializer extends JSR310DateTimeDeserializerBase<Year>
             return (Year) p.getEmbeddedObject();
         }
         // 30-Sep-2020, tatu: New! "Scalar from Object" (mostly for XML)
-        if (t == JsonToken.START_OBJECT) {
+        if (p.isExpectedStartObjectToken()) {
             final String str = ctxt.extractScalarFromObject(p, this, handledType());
             // 17-May-2025, tatu: [databind#4656] need to check for `null`
             if (str != null) {
                 return _fromString(p, ctxt, str);
             }
             // fall through
-        } else if (p.hasToken(JsonToken.START_ARRAY)){
+        } else if (p.isExpectedStartArrayToken()){
             return _deserializeFromArray(p, ctxt);
         }
         return _handleUnexpectedToken(ctxt, p, JsonToken.VALUE_STRING, JsonToken.VALUE_NUMBER_INT);

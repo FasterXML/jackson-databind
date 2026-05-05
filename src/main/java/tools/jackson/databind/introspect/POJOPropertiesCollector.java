@@ -122,24 +122,41 @@ public class POJOPropertiesCollector
     protected LinkedList<AnnotatedMember> _jsonValueAccessors;
 
     /**
-     * Lazily collected set of properties that are explicitly ignored, combining
-     * both per-property markers ({@code @JsonIgnore}, via {@link #_collectIgnorals})
-     * and direction-specific names derived from class-level
-     * {@code @JsonIgnoreProperties} (via {@link #_collectClassLevelIgnorals}).
+     * Per-property ignorals: names collected from {@code @JsonIgnore} markers and
+     * read/write-only access rules via {@link #_collectIgnorals}.
      *<p>
      * Kept as a mutable set because {@link #_renameProperties} may remove entries
-     * (when a creator property is renamed to a previously-ignored name).
-     * {@link #_propertyIgnorals} holds the immutable class-level value in parallel.
+     * for {@code [databind#2001]} when a per-property ignoral is overridden by a
+     * creator parameter renamed to the same name.  Class-level ignorals are tracked
+     * in {@link #_classLevelIgnoredPropertyNames} instead so they remain immune to
+     * that rescue.
      */
     protected HashSet<String> _ignoredPropertyNames;
+
+    /**
+     * Class-level ignorals: direction-specific names derived from
+     * {@code @JsonIgnoreProperties} (annotation plus config overrides), copied here
+     * from {@link #_propertyIgnorals} during {@link #_collectClassLevelIgnorals()}.
+     *<p>
+     * Held separately from {@link #_ignoredPropertyNames} so that the
+     * {@code [databind#2001]} creator-rename rescue does not strip them: class-level
+     * ignorals are absolute, per-property ignorals can be overridden by creators.
+     */
+    protected HashSet<String> _classLevelIgnoredPropertyNames;
+
+    /**
+     * Snapshot of {@link #_ignoredPropertyNames} taken just before the
+     * {@code [databind#2001]} creator-rename rescue can fire, used by
+     * {@link #getNonRescuedIgnoredPropertyNames()}. Null when no rescue happened
+     * (in which case {@link #_ignoredPropertyNames} itself is still complete).
+     */
+    protected HashSet<String> _nonRescuedIgnoredPropertyNames;
 
     /**
      * Class-level ignorals (annotation plus config overrides), computed once during
      * {@link #_collectClassLevelIgnorals()} and exposed to the factory layer via
      * {@link #getPropertyIgnorals()} so that {@code findPropertyIgnoralByName()} is
-     * called exactly once per type.  The direction-specific property names it contains
-     * are also copied into {@link #_ignoredPropertyNames} for internal use by
-     * {@link #_renameProperties}.
+     * called exactly once per type.
      */
     protected JsonIgnoreProperties.Value _propertyIgnorals;
 
@@ -329,33 +346,69 @@ public class POJOPropertiesCollector
     }
 
     /**
-     * Accessor for the set of property names marked ignored by per-property
-     * {@code @JsonIgnore} markers, class-level {@code @JsonIgnoreProperties},
-     * or read/write-only access rules. Filtered by direction (ser vs. deser)
-     * at collection time.
+     * Accessor for the full set of property names marked ignored — combining
+     * per-property {@code @JsonIgnore} markers, class-level
+     * {@code @JsonIgnoreProperties}, and read/write-only access rules. Filtered
+     * by direction (ser vs. deser) at collection time.
      *<p>
-     * <b>Important:</b> this set has dual purpose and is NOT a complete runtime
-     * ignore-list:
-     * <ul>
-     *   <li>It is consumed internally by {@link #_renameProperties} to know which
-     *       names to skip when linking renamed properties to creator parameters.
-     *   <li>For that linking to work for {@code [databind#2001]}, names that turn
-     *       out to match a creator parameter are <em>removed</em> from the set
-     *       during rename (see the {@code _replaceCreatorProperty} branch in
-     *       {@link #_renameProperties}, guarded by {@code [databind#2118]}).
-     * </ul>
-     * As a result, class-level {@code @JsonIgnoreProperties} names that collide
-     * with creator parameters disappear from this set. Factory code that needs
-     * the full effective ignore-list (e.g. to populate a deserializer's
-     * {@code _ignorableProps}) must combine this accessor with
-     * {@link #getPropertyIgnorals()} — the canonical pattern is in
-     * {@code BeanDeserializerFactory#addBeanProps}.
+     * Per-property names that have been "rescued" by the {@code [databind#2001]}
+     * creator-rename redirect are excluded from this set; class-level names are
+     * not subject to that rescue and always appear here. This is the set factory
+     * code should consult to populate a deserializer's runtime ignore-list (see
+     * {@code BeanDeserializerFactory#addBeanProps}). For the un-rescued
+     * per-property view see {@link #getNonRescuedIgnoredPropertyNames()}.
      */
     public Set<String> getIgnoredPropertyNames() {
         if (!_collected) {
             collectAll();
         }
-        return _ignoredPropertyNames;
+        if (_classLevelIgnoredPropertyNames == null) {
+            return _ignoredPropertyNames;
+        }
+        if (_ignoredPropertyNames == null) {
+            return _classLevelIgnoredPropertyNames;
+        }
+        HashSet<String> result = new HashSet<>(_ignoredPropertyNames.size()
+                + _classLevelIgnoredPropertyNames.size());
+        result.addAll(_ignoredPropertyNames);
+        result.addAll(_classLevelIgnoredPropertyNames);
+        return result;
+    }
+
+    /**
+     * Accessor for the per-property ignorals view <em>before</em> any
+     * {@code [databind#2001]} creator-rename rescue is applied: includes every
+     * per-property {@code @JsonIgnore} or read/write-only name that was originally
+     * collected, even those later overridden by a creator parameter renamed to
+     * the same name. Class-level {@code @JsonIgnoreProperties} names are also
+     * included (they are never rescued in the first place).
+     *<p>
+     * Most callers should use {@link #getIgnoredPropertyNames()} instead — this
+     * accessor exists for the rare case where a caller needs to know about
+     * names that <em>would</em> have been ignored but for the rescue.
+     */
+    public Set<String> getNonRescuedIgnoredPropertyNames() {
+        if (!_collected) {
+            collectAll();
+        }
+        // Snapshot of pre-rescue per-property names is captured into
+        // _nonRescuedIgnoredPropertyNames just before strip-out can fire (see
+        // _renameProperties); it is null when no rescue ever happened, in which
+        // case _ignoredPropertyNames itself is still the full pre-rescue view.
+        Set<String> base = (_nonRescuedIgnoredPropertyNames != null)
+                ? _nonRescuedIgnoredPropertyNames
+                : _ignoredPropertyNames;
+        if (_classLevelIgnoredPropertyNames == null) {
+            return (base == null) ? Collections.emptySet() : base;
+        }
+        if (base == null) {
+            return _classLevelIgnoredPropertyNames;
+        }
+        HashSet<String> result = new HashSet<>(base.size()
+                + _classLevelIgnoredPropertyNames.size());
+        result.addAll(base);
+        result.addAll(_classLevelIgnoredPropertyNames);
+        return result;
     }
 
     /**
@@ -363,11 +416,10 @@ public class POJOPropertiesCollector
      * computed once during collection and cached for reuse by the factory layer.
      * Returns {@code null} when no ignorals are defined.
      *<p>
-     * Carries only class-level ignorals, in their original (un-stripped) form —
-     * unlike {@link #getIgnoredPropertyNames()}, this is not subject to the
-     * creator-parameter strip-out described in {@code [databind#2001]}. Factory
-     * code building a runtime ignore-list should consult both accessors; see the
-     * caveat on {@link #getIgnoredPropertyNames()}.
+     * Carries only class-level ignorals, in their original (un-stripped) form.
+     * Equivalent to the class-level subset of {@link #getIgnoredPropertyNames()},
+     * but in {@link JsonIgnoreProperties.Value} form (which also carries
+     * {@code ignoreUnknown}, {@code allowGetters}/{@code allowSetters}, etc.).
      */
     public JsonIgnoreProperties.Value getPropertyIgnorals() {
         if (!_collected) {
@@ -1557,7 +1609,9 @@ ctor.creator()));
      * full {@link com.fasterxml.jackson.annotation.JsonIgnoreProperties.Value}
      * (annotation + config overrides) in {@link #_propertyIgnorals} for reuse by
      * the factory layer, and copies the direction-specific property names into
-     * {@link #_ignoredPropertyNames} so that {@link #_renameProperties} can skip them.
+     * {@link #_classLevelIgnoredPropertyNames} (held separately from
+     * {@link #_ignoredPropertyNames} so the {@code [databind#2001]} creator-rename
+     * rescue does not strip them — class-level ignorals are absolute).
      *<p>
      * Uses {@link MapperConfig#getDefaultPropertyIgnorals} rather than calling
      * {@code findPropertyIgnoralByName()} directly, so that config-level overrides
@@ -1574,10 +1628,10 @@ ctor.creator()));
                     ? _propertyIgnorals.findIgnoredForSerialization()
                     : _propertyIgnorals.findIgnoredForDeserialization();
             if (_nonNullNonEmpty(ignored)) {
-                if (_ignoredPropertyNames == null) {
-                    _ignoredPropertyNames = new HashSet<>(ignored);
+                if (_classLevelIgnoredPropertyNames == null) {
+                    _classLevelIgnoredPropertyNames = new HashSet<>(ignored);
                 } else {
-                    _ignoredPropertyNames.addAll(ignored);
+                    _classLevelIgnoredPropertyNames.addAll(ignored);
                 }
             }
         }
@@ -1604,7 +1658,10 @@ ctor.creator()));
             //   on accessors that are NOT ignored (e.g., @JsonProperty on getter but @JsonIgnore on setter).
             //   NOTE: For Records we need to be more conservative as constructor parameters may have
             //   both annotations but generated accessors don't always inherit @JsonIgnore
-            if (_ignoredPropertyNames != null && _ignoredPropertyNames.contains(prop.getName())) {
+            // 04-May-2026: [databind#5952] Check both per-property and class-level
+            //   ignoral sets (previously a single combined set; now separated to keep
+            //   class-level names immune from creator-rename rescue).
+            if (_isIgnored(prop.getName())) {
                 // For Records: always skip (safer due to annotation inheritance issues)
                 // For regular classes: only skip if NO explicit names on non-ignored accessors
                 if (isRecordType() || !prop.anyExplicitsWithoutIgnoral()) {
@@ -1666,14 +1723,17 @@ ctor.creator()));
                     //
                     //    Chances are this is not the last tweak we need but... that bridge then etc
 
-                    // 04-May-2026: Side effect to be aware of — this strip-out makes
-                    //   _ignoredPropertyNames (and {@link #getIgnoredPropertyNames()})
-                    //   incomplete as a runtime ignore-list whenever a class-level
-                    //   @JsonIgnoreProperties name collides with a creator parameter.
-                    //   Factory code (see BeanDeserializerFactory#addBeanProps) must
-                    //   therefore also consult getPropertyIgnorals() to recover the
-                    //   stripped class-level names. See [databind#5952] for context.
-                    if (_ignoredPropertyNames != null) {
+                    // 04-May-2026, tatu: [databind#5952] Operates only on the
+                    //   per-property set (_ignoredPropertyNames). Class-level names
+                    //   (in _classLevelIgnoredPropertyNames) are absolute and must
+                    //   never be rescued — that is what previously required the
+                    //   factory layer to maintain a parallel un-stripped class-level
+                    //   loop. Snapshot the un-rescued per-property view here so
+                    //   getNonRescuedIgnoredPropertyNames() can still report it.
+                    if (_ignoredPropertyNames != null && _ignoredPropertyNames.contains(name)) {
+                        if (_nonRescuedIgnoredPropertyNames == null) {
+                            _nonRescuedIgnoredPropertyNames = new HashSet<>(_ignoredPropertyNames);
+                        }
                         _ignoredPropertyNames.remove(name);
                     }
                 }
@@ -2113,5 +2173,12 @@ ctor.creator()));
     // @since 3.2
     private final static boolean _nonNullNonEmpty(Collection<?> coll) {
         return (coll != null) && !coll.isEmpty();
+    }
+
+    // @since 3.2
+    private boolean _isIgnored(String name) {
+        return (_ignoredPropertyNames != null && _ignoredPropertyNames.contains(name))
+                || (_classLevelIgnoredPropertyNames != null
+                    && _classLevelIgnoredPropertyNames.contains(name));
     }
 }

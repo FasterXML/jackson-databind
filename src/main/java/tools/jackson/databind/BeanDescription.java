@@ -99,22 +99,36 @@ public abstract class BeanDescription
     public abstract List<BeanPropertyDefinition> findProperties();
 
     /**
-     * Returns the set of property names that are marked to be ignored, from both
-     * per-property {@code @JsonIgnore} markers and class-level
-     * {@code @JsonIgnoreProperties} (annotation and config overrides).
-     * The set is direction-specific: a name may appear for serialization but not
+     * Returns the full set of property names marked ignored — combining per-property
+     * {@code @JsonIgnore} markers, class-level {@code @JsonIgnoreProperties}
+     * (annotation and config overrides), and read/write-only access rules. The set
+     * is direction-specific: a name may appear for serialization but not
      * deserialization, depending on the annotation attributes.
      *<p>
-     * <b>Caveat for factory layers:</b> this set is <em>not</em> a complete runtime
-     * ignore-list. Names that collide with a creator parameter may have been
-     * removed during property renaming (see {@code [databind#2001]} /
-     * {@code [databind#2118]} handling in {@code POJOPropertiesCollector}). When
-     * building a deserializer's ignorable-property set, factories must therefore
-     * combine this with {@link #getPropertyIgnorals()}'s direction-specific names
-     * to get the full effective set. See
-     * {@code BeanDeserializerFactory#addBeanProps} for the canonical pattern.
+     * Per-property names that have been "rescued" by a creator parameter renamed
+     * to the same name (see {@code [databind#2001]}) are excluded; class-level
+     * names are absolute and always appear. This is the canonical accessor for
+     * building a deserializer's runtime ignore-list — factory code does not need
+     * to combine it with {@link #getPropertyIgnorals()}.
      */
     public abstract Set<String> getIgnoredPropertyNames();
+
+    /**
+     * Returns the un-rescued view of {@link #getIgnoredPropertyNames()}: includes
+     * per-property names that {@code [databind#2001]} would later rescue when a
+     * creator parameter is renamed to the same name. Class-level names are
+     * included exactly as in the rescued view (they are absolute either way).
+     *<p>
+     * Default implementation returns {@link #getIgnoredPropertyNames()}; subclasses
+     * backed by a property collector override to return the un-rescued set. Most
+     * callers should use {@link #getIgnoredPropertyNames()}; this exists for
+     * tooling that needs to inspect the original ignoral declarations.
+     *
+     * @since 3.2
+     */
+    public Set<String> getNonRescuedIgnoredPropertyNames() {
+        return getIgnoredPropertyNames();
+    }
 
     /**
      * Returns the class-level property ignorals value (annotation plus config overrides),
@@ -122,10 +136,10 @@ public abstract class BeanDescription
      * {@code findPropertyIgnoralByName()} in factory code since the result is cached.
      * Returns {@code null} when neither annotation nor config override defines any ignorals.
      *<p>
-     * Note: this only carries class-level ignorals. Per-property {@code @JsonIgnore}
-     * names live in {@link #getIgnoredPropertyNames()} instead. Neither accessor on
-     * its own is a complete runtime ignore-list — see the caveat on
-     * {@link #getIgnoredPropertyNames()}.
+     * Equivalent to the class-level subset of {@link #getIgnoredPropertyNames()}
+     * but in {@link JsonIgnoreProperties.Value} form, which additionally carries
+     * the {@code ignoreUnknown}, {@code allowGetters}, {@code allowSetters}, and
+     * {@code merge} attributes.
      */
     public JsonIgnoreProperties.Value getPropertyIgnorals() {
         return null;

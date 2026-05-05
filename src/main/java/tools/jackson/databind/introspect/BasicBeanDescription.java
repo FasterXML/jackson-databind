@@ -248,6 +248,12 @@ public class BasicBeanDescription extends BeanDescription
     }
 
     @Override
+    public Set<String> getNonRescuedIgnoredPropertyNames() {
+        return (_propCollector == null) ? Collections.emptySet()
+                : _propCollector.getNonRescuedIgnoredPropertyNames();
+    }
+
+    @Override
     public JsonIgnoreProperties.Value getPropertyIgnorals() {
         return (_propCollector == null) ? null
                 : _propCollector.getPropertyIgnorals();

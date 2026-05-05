@@ -127,9 +127,11 @@ public class POJOPropertiesCollector
      *<p>
      * Kept as a mutable set because {@link #_renameProperties} may remove entries
      * for {@code [databind#2001]} when a per-property ignoral is overridden by a
-     * creator parameter renamed to the same name.  Class-level ignorals are tracked
-     * in {@link #_classLevelIgnoredPropertyNames} instead so they remain immune to
-     * that rescue.
+     * creator parameter renamed to the same name. The pre-rescue state is
+     * captured into {@link #_nonRescuedIgnoredPropertyNames} on the first such
+     * removal so {@link #getNonRescuedIgnoredPropertyNames()} can still report
+     * it. Class-level ignorals are tracked in {@link #_classLevelIgnoredNames}
+     * instead so they remain immune to that rescue.
      */
     protected HashSet<String> _perPropertyIgnoredNames;
 
@@ -141,14 +143,18 @@ public class POJOPropertiesCollector
      * Held separately from {@link #_perPropertyIgnoredNames} so that the
      * {@code [databind#2001]} creator-rename rescue does not strip them: class-level
      * ignorals are absolute, per-property ignorals can be overridden by creators.
+     *
+     * @since 3.2
      */
-    protected HashSet<String> _classLevelIgnoredPropertyNames;
+    protected HashSet<String> _classLevelIgnoredNames;
 
     /**
      * Snapshot of {@link #_perPropertyIgnoredNames} taken just before the
      * {@code [databind#2001]} creator-rename rescue can fire, used by
      * {@link #getNonRescuedIgnoredPropertyNames()}. Null when no rescue happened
      * (in which case {@link #_perPropertyIgnoredNames} itself is still complete).
+     *
+     * @since 3.2
      */
     protected HashSet<String> _nonRescuedIgnoredPropertyNames;
 
@@ -159,7 +165,7 @@ public class POJOPropertiesCollector
      * called exactly once per type.
      *<p>
      * The direction-specific name set carried here is also mirrored into
-     * {@link #_classLevelIgnoredPropertyNames} for inclusion in
+     * {@link #_classLevelIgnoredNames} for inclusion in
      * {@link #getIgnoredPropertyNames()}; this field additionally retains the
      * {@code ignoreUnknown}, {@code allowGetters}/{@code allowSetters}, and
      * {@code merge} attributes which the simple name set does not.
@@ -375,16 +381,16 @@ public class POJOPropertiesCollector
         if (!_collected) {
             collectAll();
         }
-        if (_classLevelIgnoredPropertyNames == null) {
+        if (_classLevelIgnoredNames == null) {
             return _perPropertyIgnoredNames;
         }
         if (_perPropertyIgnoredNames == null) {
-            return _classLevelIgnoredPropertyNames;
+            return _classLevelIgnoredNames;
         }
         HashSet<String> result = new HashSet<>(_perPropertyIgnoredNames.size()
-                + _classLevelIgnoredPropertyNames.size());
+                + _classLevelIgnoredNames.size());
         result.addAll(_perPropertyIgnoredNames);
-        result.addAll(_classLevelIgnoredPropertyNames);
+        result.addAll(_classLevelIgnoredNames);
         return result;
     }
 
@@ -399,6 +405,8 @@ public class POJOPropertiesCollector
      * Most callers should use {@link #getIgnoredPropertyNames()} instead — this
      * accessor exists for the rare case where a caller needs to know about
      * names that <em>would</em> have been ignored but for the rescue.
+     *
+     * @since 3.2
      */
     public Set<String> getNonRescuedIgnoredPropertyNames() {
         if (!_collected) {
@@ -411,16 +419,16 @@ public class POJOPropertiesCollector
         Set<String> base = (_nonRescuedIgnoredPropertyNames != null)
                 ? _nonRescuedIgnoredPropertyNames
                 : _perPropertyIgnoredNames;
-        if (_classLevelIgnoredPropertyNames == null) {
+        if (_classLevelIgnoredNames == null) {
             return (base == null) ? Collections.emptySet() : base;
         }
         if (base == null) {
-            return _classLevelIgnoredPropertyNames;
+            return _classLevelIgnoredNames;
         }
         HashSet<String> result = new HashSet<>(base.size()
-                + _classLevelIgnoredPropertyNames.size());
+                + _classLevelIgnoredNames.size());
         result.addAll(base);
-        result.addAll(_classLevelIgnoredPropertyNames);
+        result.addAll(_classLevelIgnoredNames);
         return result;
     }
 
@@ -1622,7 +1630,7 @@ ctor.creator()));
      * full {@link com.fasterxml.jackson.annotation.JsonIgnoreProperties.Value}
      * (annotation + config overrides) in {@link #_propertyIgnorals} for reuse by
      * the factory layer, and copies the direction-specific property names into
-     * {@link #_classLevelIgnoredPropertyNames} (held separately from
+     * {@link #_classLevelIgnoredNames} (held separately from
      * {@link #_perPropertyIgnoredNames} so the {@code [databind#2001]} creator-rename
      * rescue does not strip them — class-level ignorals are absolute).
      *<p>
@@ -1641,10 +1649,10 @@ ctor.creator()));
                     ? _propertyIgnorals.findIgnoredForSerialization()
                     : _propertyIgnorals.findIgnoredForDeserialization();
             if (_nonNullNonEmpty(ignored)) {
-                if (_classLevelIgnoredPropertyNames == null) {
-                    _classLevelIgnoredPropertyNames = new HashSet<>(ignored);
+                if (_classLevelIgnoredNames == null) {
+                    _classLevelIgnoredNames = new HashSet<>(ignored);
                 } else {
-                    _classLevelIgnoredPropertyNames.addAll(ignored);
+                    _classLevelIgnoredNames.addAll(ignored);
                 }
             }
         }
@@ -1738,7 +1746,7 @@ ctor.creator()));
 
                     // 04-May-2026, tatu: [databind#5952] Operates only on the
                     //   per-property set (_perPropertyIgnoredNames). Class-level names
-                    //   (in _classLevelIgnoredPropertyNames) are absolute and must
+                    //   (in _classLevelIgnoredNames) are absolute and must
                     //   never be rescued — that is what previously required the
                     //   factory layer to maintain a parallel un-stripped class-level
                     //   loop. Snapshot the un-rescued per-property view here so
@@ -2197,9 +2205,9 @@ ctor.creator()));
      *
      * @since 3.2
      */
-    boolean _isIgnored(String name) {
+    final boolean _isIgnored(String name) {
         return (_perPropertyIgnoredNames != null && _perPropertyIgnoredNames.contains(name))
-                || (_classLevelIgnoredPropertyNames != null
-                    && _classLevelIgnoredPropertyNames.contains(name));
+                || (_classLevelIgnoredNames != null
+                    && _classLevelIgnoredNames.contains(name));
     }
 }

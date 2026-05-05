@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import tools.jackson.core.*;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.DateTimeFeature;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -79,12 +80,26 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
             }
             // fall through
         } else if (p.isExpectedStartArrayToken()) {
+            // [JDB-040]: Respect coercion settings; do not accept empty or single-element
+            // arrays unless the corresponding DeserializationFeature is enabled.
             JsonToken t = p.nextToken();
             if (t == JsonToken.END_ARRAY) {
-                return null;
+                final CoercionAction act = _findCoercionFromEmptyArray(ctxt);
+                if (act == CoercionAction.AsNull || act == CoercionAction.TryConvert) {
+                    return null;
+                }
+                if (act == CoercionAction.AsEmpty) {
+                    return (Month) getEmptyValue(ctxt);
+                }
+                return (Month) ctxt.handleUnexpectedToken(getValueType(ctxt),
+                        JsonToken.START_ARRAY, p, "Cannot deserialize `Month` from empty JSON Array");
             }
-            if ((t == JsonToken.VALUE_STRING || t == JsonToken.VALUE_EMBEDDED_OBJECT)
-                    && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            if (!ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                return (Month) ctxt.handleUnexpectedToken(getValueType(ctxt),
+                        JsonToken.START_ARRAY, p,
+                        "Cannot deserialize `Month` out of START_ARRAY token: enable `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS`");
+            }
+            if ((t == JsonToken.VALUE_STRING || t == JsonToken.VALUE_EMBEDDED_OBJECT)) {
                 final Month parsed = deserialize(p, ctxt);
                 if (p.nextToken() != JsonToken.END_ARRAY) {
                     handleMissingEndArrayForSingle(p, ctxt);

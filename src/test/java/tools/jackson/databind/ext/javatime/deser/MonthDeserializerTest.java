@@ -261,78 +261,107 @@ public class MonthDeserializerTest extends DateTimeTestBase
     @Test
     public void testDeserializationAsEmptyArray() throws Exception
     {
-        // Empty array returns null
-        Month result = readerForOneBased().readValue("[]");
+        // [JDB-040]: Empty array now requires ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT to return null
+        assertError(
+            () -> readerForOneBased().readValue("[]"),
+            MismatchedInputException.class,
+            "Cannot deserialize"
+        );
+    }
+
+    @Test
+    public void testDeserializationAsEmptyArray_withFeatureEnabled() throws Exception
+    {
+        ObjectMapper mapper = newMapper().rebuild()
+                .enable(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT).build();
+        Month result = mapper.readerFor(Month.class).readValue("[]");
         assertNull(result);
     }
 
     @Test
     public void testDeserializationAsArrayWithIntValue() throws Exception
     {
-        // Array with single int value (interpreted as 1-based month)
-        Month result = readerForOneBased().readValue("[3]");
+        // [JDB-040]: Single-element int array now requires UNWRAP_SINGLE_VALUE_ARRAYS
+        assertError(
+            () -> readerForOneBased().readValue("[3]"),
+            MismatchedInputException.class,
+            "UNWRAP_SINGLE_VALUE_ARRAYS"
+        );
+    }
+
+    @Test
+    public void testDeserializationAsArrayWithIntValue_withFeatureEnabled() throws Exception
+    {
+        ObjectMapper mapper = newMapper().rebuild()
+                .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS).build();
+        Month result = mapper.readerFor(Month.class).readValue("[3]");
         assertEquals(Month.MARCH, result);
     }
 
     @Test
     public void testDeserializationAsArrayWithIntValue_zeroBased() throws Exception
     {
-        // Array with single int value (0-based mode still uses Month.of for array)
-        Month result = readerForZeroBased().readValue("[3]");
-        assertEquals(Month.MARCH, result);
+        // [JDB-040]: Single-element int array now requires UNWRAP_SINGLE_VALUE_ARRAYS
+        assertError(
+            () -> readerForZeroBased().readValue("[3]"),
+            MismatchedInputException.class,
+            "UNWRAP_SINGLE_VALUE_ARRAYS"
+        );
     }
 
     @Test
     public void testDeserializationAsArrayWithMoreThanOneElement() throws Exception
     {
+        // [JDB-040]: Multi-element arrays fail with UNWRAP_SINGLE_VALUE_ARRAYS message
+        // (since UNWRAP check fires before individual token checks)
         assertError(
             () -> readerForOneBased().readValue("[1, 2]"),
             MismatchedInputException.class,
-            "Expected array to end"
+            "UNWRAP_SINGLE_VALUE_ARRAYS"
         );
     }
 
     @Test
     public void testDeserializationAsArrayWithWrongToken() throws Exception
     {
-        // Boolean in array without UNWRAP should fail with specific error
+        // [JDB-040]: Boolean in array without UNWRAP should fail (UNWRAP check fires first)
         assertError(
             () -> readerForOneBased().readValue("[true]"),
             MismatchedInputException.class,
-            "Expected VALUE_NUMBER_INT"
+            "UNWRAP_SINGLE_VALUE_ARRAYS"
         );
     }
 
     @Test
     public void testDeserializationAsArrayWithStringUnwrapDisabled() throws Exception
     {
-        // String in array without UNWRAP_SINGLE_VALUE_ARRAYS should fail
+        // [JDB-040]: String in array without UNWRAP_SINGLE_VALUE_ARRAYS should fail
         assertError(
             () -> readerForOneBased().readValue("[\"JANUARY\"]"),
             MismatchedInputException.class,
-            "Expected VALUE_NUMBER_INT"
+            "UNWRAP_SINGLE_VALUE_ARRAYS"
         );
     }
 
     @Test
     public void testDeserializationAsArrayWithFloatUnwrapDisabled() throws Exception
     {
-        // Float in array without UNWRAP should fail
+        // [JDB-040]: Float in array without UNWRAP should fail (UNWRAP check fires first)
         assertError(
             () -> readerForOneBased().readValue("[1.5]"),
             MismatchedInputException.class,
-            "Expected VALUE_NUMBER_INT"
+            "UNWRAP_SINGLE_VALUE_ARRAYS"
         );
     }
 
     @Test
     public void testDeserializationAsArrayWithObjectUnwrapDisabled() throws Exception
     {
-        // Object in array without UNWRAP should fail
+        // [JDB-040]: Object in array without UNWRAP should fail (UNWRAP check fires first)
         assertError(
             () -> readerForOneBased().readValue("[{}]"),
             MismatchedInputException.class,
-            "Expected VALUE_NUMBER_INT"
+            "UNWRAP_SINGLE_VALUE_ARRAYS"
         );
     }
 

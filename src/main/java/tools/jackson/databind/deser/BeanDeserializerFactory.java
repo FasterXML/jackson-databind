@@ -574,19 +574,14 @@ ClassUtil.name(propName)));
         SettableAnyProperty anySetter = _resolveAnySetter(ctxt, beanDescRef, creatorProps);
         if (anySetter != null) {
             builder.setAnySetter(anySetter);
-        } else {
-            // 23-Jan-2018, tatu: although [databind#1805] would suggest we should block
-            //   properties regardless, for now only consider unless there's any setter...
-            // NOTE: getIgnoredPropertyNames() adds per-property @JsonIgnore names on top
-            //   of the class-level names already registered above; the overlap is harmless
-            //   (builder uses a Set internally).
-            Collection<String> ignored2 = beanDesc.getIgnoredPropertyNames();
-            if (ignored2 != null) {
-                for (String propName : ignored2) {
-                    // allow ignoral of similarly named JSON property, but do not force;
-                    // latter means NOT adding this to 'ignored':
-                    builder.addIgnorable(propName);
-                }
+        }
+        // [databind#5952]: per-property @JsonIgnore names must be registered as ignorable
+        // regardless of whether an any-setter exists, so the any-setter does not receive
+        // properties the user explicitly marked as ignored.
+        Collection<String> ignored2 = beanDesc.getIgnoredPropertyNames();
+        if (ignored2 != null) {
+            for (String propName : ignored2) {
+                builder.addIgnorable(propName);
             }
         }
         final boolean useGettersAsSetters = ctxt.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS);

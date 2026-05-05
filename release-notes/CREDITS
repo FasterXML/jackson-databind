@@ -355,6 +355,8 @@ Joshua Arnold (@josharnold52)
 Omkhar Arasaratnam (@omkhar)
  * Reported #5950: Improve `UUIDeserializer` error handling
   [3.1.4]
+ * Reported #5952: `@JsonIgnore` does not prevent passing of property to `@JsonAnySetter`
+  [3.2.0]
 
 Michael Orzechowski (@MikeBlink)
  * Reported #5941: `MapperBuilder.addModule()` does not recursively register transitive

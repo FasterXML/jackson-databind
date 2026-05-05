@@ -381,17 +381,7 @@ public class POJOPropertiesCollector
         if (!_collected) {
             collectAll();
         }
-        if (_classLevelIgnoredNames == null) {
-            return _perPropertyIgnoredNames;
-        }
-        if (_perPropertyIgnoredNames == null) {
-            return _classLevelIgnoredNames;
-        }
-        HashSet<String> result = new HashSet<>(_perPropertyIgnoredNames.size()
-                + _classLevelIgnoredNames.size());
-        result.addAll(_perPropertyIgnoredNames);
-        result.addAll(_classLevelIgnoredNames);
-        return result;
+        return _unionWithClassLevel(_perPropertyIgnoredNames);
     }
 
     /**
@@ -416,20 +406,10 @@ public class POJOPropertiesCollector
         // _nonRescuedIgnoredPropertyNames just before strip-out can fire (see
         // _renameProperties); it is null when no rescue ever happened, in which
         // case _perPropertyIgnoredNames itself is still the full pre-rescue view.
-        Set<String> base = (_nonRescuedIgnoredPropertyNames != null)
+        Set<String> perPropertyView = (_nonRescuedIgnoredPropertyNames != null)
                 ? _nonRescuedIgnoredPropertyNames
                 : _perPropertyIgnoredNames;
-        if (_classLevelIgnoredNames == null) {
-            return (base == null) ? Collections.emptySet() : base;
-        }
-        if (base == null) {
-            return _classLevelIgnoredNames;
-        }
-        HashSet<String> result = new HashSet<>(base.size()
-                + _classLevelIgnoredNames.size());
-        result.addAll(base);
-        result.addAll(_classLevelIgnoredNames);
-        return result;
+        return _unionWithClassLevel(perPropertyView);
     }
 
     /**
@@ -2209,5 +2189,29 @@ ctor.creator()));
         return (_perPropertyIgnoredNames != null && _perPropertyIgnoredNames.contains(name))
                 || (_classLevelIgnoredNames != null
                     && _classLevelIgnoredNames.contains(name));
+    }
+
+    /**
+     * Returns the union of {@code base} (a per-property ignoral view) with
+     * {@link #_classLevelIgnoredNames}. Avoids allocation when one or both inputs
+     * are {@code null} or when only one of the two sets is present, and falls
+     * back to {@link Collections#emptySet()} when both are {@code null}. Shared
+     * by {@link #getIgnoredPropertyNames()} and
+     * {@link #getNonRescuedIgnoredPropertyNames()}.
+     *
+     * @since 3.2
+     */
+    private Set<String> _unionWithClassLevel(Set<String> base) {
+        if (_classLevelIgnoredNames == null) {
+            return (base == null) ? Collections.emptySet() : base;
+        }
+        if (base == null) {
+            return _classLevelIgnoredNames;
+        }
+        HashSet<String> result = new HashSet<>(base.size()
+                + _classLevelIgnoredNames.size());
+        result.addAll(base);
+        result.addAll(_classLevelIgnoredNames);
+        return result;
     }
 }

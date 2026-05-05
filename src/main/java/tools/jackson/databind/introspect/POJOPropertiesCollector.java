@@ -329,9 +329,27 @@ public class POJOPropertiesCollector
     }
 
     /**
-     * Accessor for set of properties that are explicitly marked to be ignored
-     * via per-property markers ({@code @JsonIgnore}) and/or class-level
-     * {@code @JsonIgnoreProperties} annotation.
+     * Accessor for the set of property names marked ignored by per-property
+     * {@code @JsonIgnore} markers, class-level {@code @JsonIgnoreProperties},
+     * or read/write-only access rules. Filtered by direction (ser vs. deser)
+     * at collection time.
+     *<p>
+     * <b>Important:</b> this set has dual purpose and is NOT a complete runtime
+     * ignore-list:
+     * <ul>
+     *   <li>It is consumed internally by {@link #_renameProperties} to know which
+     *       names to skip when linking renamed properties to creator parameters.
+     *   <li>For that linking to work for {@code [databind#2001]}, names that turn
+     *       out to match a creator parameter are <em>removed</em> from the set
+     *       during rename (see the {@code _replaceCreatorProperty} branch in
+     *       {@link #_renameProperties}, guarded by {@code [databind#2118]}).
+     * </ul>
+     * As a result, class-level {@code @JsonIgnoreProperties} names that collide
+     * with creator parameters disappear from this set. Factory code that needs
+     * the full effective ignore-list (e.g. to populate a deserializer's
+     * {@code _ignorableProps}) must combine this accessor with
+     * {@link #getPropertyIgnorals()} — the canonical pattern is in
+     * {@code BeanDeserializerFactory#addBeanProps}.
      */
     public Set<String> getIgnoredPropertyNames() {
         if (!_collected) {
@@ -344,6 +362,12 @@ public class POJOPropertiesCollector
      * Accessor for class-level property ignorals (annotation plus config overrides),
      * computed once during collection and cached for reuse by the factory layer.
      * Returns {@code null} when no ignorals are defined.
+     *<p>
+     * Carries only class-level ignorals, in their original (un-stripped) form —
+     * unlike {@link #getIgnoredPropertyNames()}, this is not subject to the
+     * creator-parameter strip-out described in {@code [databind#2001]}. Factory
+     * code building a runtime ignore-list should consult both accessors; see the
+     * caveat on {@link #getIgnoredPropertyNames()}.
      */
     public JsonIgnoreProperties.Value getPropertyIgnorals() {
         if (!_collected) {
@@ -1641,6 +1665,14 @@ ctor.creator()));
                     //    ignoral is ONLY removed if there was matching creator property.
                     //
                     //    Chances are this is not the last tweak we need but... that bridge then etc
+
+                    // 04-May-2026: Side effect to be aware of — this strip-out makes
+                    //   _ignoredPropertyNames (and {@link #getIgnoredPropertyNames()})
+                    //   incomplete as a runtime ignore-list whenever a class-level
+                    //   @JsonIgnoreProperties name collides with a creator parameter.
+                    //   Factory code (see BeanDeserializerFactory#addBeanProps) must
+                    //   therefore also consult getPropertyIgnorals() to recover the
+                    //   stripped class-level names. See [databind#5952] for context.
                     if (_ignoredPropertyNames != null) {
                         _ignoredPropertyNames.remove(name);
                     }

@@ -99,11 +99,20 @@ public abstract class BeanDescription
     public abstract List<BeanPropertyDefinition> findProperties();
 
     /**
-     * Returns the combined set of property names that are marked to be ignored,
-     * from both per-property {@code @JsonIgnore} markers and class-level
+     * Returns the set of property names that are marked to be ignored, from both
+     * per-property {@code @JsonIgnore} markers and class-level
      * {@code @JsonIgnoreProperties} (annotation and config overrides).
-     * Note that the set is direction-specific: a name may appear for serialization
-     * but not deserialization, depending on the annotation attributes.
+     * The set is direction-specific: a name may appear for serialization but not
+     * deserialization, depending on the annotation attributes.
+     *<p>
+     * <b>Caveat for factory layers:</b> this set is <em>not</em> a complete runtime
+     * ignore-list. Names that collide with a creator parameter may have been
+     * removed during property renaming (see {@code [databind#2001]} /
+     * {@code [databind#2118]} handling in {@code POJOPropertiesCollector}). When
+     * building a deserializer's ignorable-property set, factories must therefore
+     * combine this with {@link #getPropertyIgnorals()}'s direction-specific names
+     * to get the full effective set. See
+     * {@code BeanDeserializerFactory#addBeanProps} for the canonical pattern.
      */
     public abstract Set<String> getIgnoredPropertyNames();
 
@@ -113,8 +122,10 @@ public abstract class BeanDescription
      * {@code findPropertyIgnoralByName()} in factory code since the result is cached.
      * Returns {@code null} when neither annotation nor config override defines any ignorals.
      *<p>
-     * Note: per-property {@code @JsonIgnore} names are NOT included here; see
-     * {@link #getIgnoredPropertyNames()} for the full combined set.
+     * Note: this only carries class-level ignorals. Per-property {@code @JsonIgnore}
+     * names live in {@link #getIgnoredPropertyNames()} instead. Neither accessor on
+     * its own is a complete runtime ignore-list — see the caveat on
+     * {@link #getIgnoredPropertyNames()}.
      */
     public JsonIgnoreProperties.Value getPropertyIgnorals() {
         return null;

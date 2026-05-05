@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.ObjectMapper;
@@ -33,6 +34,13 @@ public class RecordCreatorWithAnySetterTest
             @JsonProperty String field,
             @JsonAnySetter Map<String, Object> anySetter
         ) {}
+
+    // [databind#5952]
+    record UserRecordWithAnySetter5952(
+            String name,
+            @JsonIgnore String sensitiveField,
+            @JsonAnySetter Map<String, Object> extras
+    ) {}
 
     /*
     /**********************************************************************
@@ -77,5 +85,16 @@ public class RecordCreatorWithAnySetterTest
         assertEquals("value", result.field());
         assertEquals(Map.of("unmapped1", "value1", "unmapped2", "value2"),
                 result.anySetter());
+    }
+
+    // [databind#5952]: per-property @JsonIgnore on a record component must block
+    // routing to the any-setter
+    @Test
+    public void testJsonIgnoreOnRecordComponentNotPassedToAnySetter5952() throws Exception {
+        UserRecordWithAnySetter5952 u = MAPPER.readValue(
+                a2q("{'name':'alice','sensitiveField':'secret','other':'val'}"),
+                UserRecordWithAnySetter5952.class);
+        assertEquals("alice", u.name());
+        assertEquals(Map.of("other", "val"), u.extras());
     }
 }

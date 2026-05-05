@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.*;
+import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.util.ClassUtil;
@@ -193,6 +194,40 @@ public class JDKScalarsDeserTest
 
         result = MAPPER.readValue(" 39.07", Byte.class);
         assertEquals(Byte.valueOf((byte)39), result);
+    }
+
+    // [databind#5240]: float-to-Byte overflow must not silently wrap-around
+    @Test
+    public void testByteFromFloatOverflow() throws Exception
+    {
+        // Values outside [-128, 255] (the supported byte/unsigned-byte range)
+        // should fail rather than be silently truncated to a byte.
+        // Wrapper Byte:
+        try {
+            Byte b = MAPPER.readValue("300.5", Byte.class);
+            fail("Should have failed for value out of `byte` range; got "+b);
+        } catch (InputCoercionException e) {
+            verifyException(e, "out of range of `byte`");
+        }
+        try {
+            Byte b = MAPPER.readValue("-200.5", Byte.class);
+            fail("Should have failed for value out of `byte` range; got "+b);
+        } catch (InputCoercionException e) {
+            verifyException(e, "out of range of `byte`");
+        }
+        // Primitive byte (via property):
+        try {
+            PrimitivesBean bean = MAPPER.readValue("{\"byteValue\":300.5}", PrimitivesBean.class);
+            fail("Should have failed for value out of `byte` range; got "+bean.byteValue);
+        } catch (InputCoercionException e) {
+            verifyException(e, "out of range of `byte`");
+        }
+        try {
+            PrimitivesBean bean = MAPPER.readValue("{\"byteValue\":-200.5}", PrimitivesBean.class);
+            fail("Should have failed for value out of `byte` range; got "+bean.byteValue);
+        } catch (InputCoercionException e) {
+            verifyException(e, "out of range of `byte`");
+        }
     }
 
     @Test

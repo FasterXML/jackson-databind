@@ -545,15 +545,13 @@ ClassUtil.name(propName)));
         final boolean hasCreatorProps = (creatorProps != null);
 
         // Class-level ignorals (annotation + config overrides): pre-computed during
-        // property collection, so no second findPropertyIgnoralByName() call needed.
+        // property collection. Surface the direction-specific name set so we can
+        // pass it to filterBeanProps() and the ignoreUnknown flag to the builder.
         JsonIgnoreProperties.Value ignorals = beanDesc.getPropertyIgnorals();
         Set<String> ignored;
         if (ignorals != null) {
             builder.setIgnoreUnknownProperties(ignorals.getIgnoreUnknown());
             ignored = ignorals.findIgnoredForDeserialization();
-            for (String propName : ignored) {
-                builder.addIgnorable(propName);
-            }
         } else {
             ignored = Collections.emptySet();
         }
@@ -574,20 +572,15 @@ ClassUtil.name(propName)));
         SettableAnyProperty anySetter = _resolveAnySetter(ctxt, beanDescRef, creatorProps);
         if (anySetter != null) {
             builder.setAnySetter(anySetter);
-        } else {
-            // 23-Jan-2018, tatu: although [databind#1805] would suggest we should block
-            //   properties regardless, for now only consider unless there's any setter...
-            // NOTE: getIgnoredPropertyNames() adds per-property @JsonIgnore names on top
-            //   of the class-level names already registered above; the overlap is harmless
-            //   (builder uses a Set internally).
-            Collection<String> ignored2 = beanDesc.getIgnoredPropertyNames();
-            if (ignored2 != null) {
-                for (String propName : ignored2) {
-                    // allow ignoral of similarly named JSON property, but do not force;
-                    // latter means NOT adding this to 'ignored':
-                    builder.addIgnorable(propName);
-                }
-            }
+        }
+        // [databind#5952]: register the full deser-side ignore-list (per-property
+        // @JsonIgnore, class-level @JsonIgnoreProperties, read-only access rules)
+        // unconditionally, so the any-setter does not receive properties the user
+        // explicitly marked as ignored. getIgnoredPropertyNames() returns the
+        // already-merged set with the [databind#2001] creator-rename rescue
+        // applied to per-property names only — class-level names remain absolute.
+        for (String propName : beanDesc.getIgnoredPropertyNames()) {
+            builder.addIgnorable(propName);
         }
         final boolean useGettersAsSetters = ctxt.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS);
         // 24-Sep-2017, tatu: Legacy setting removed from 3.x, not sure if other visibility checks

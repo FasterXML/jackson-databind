@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.security.Permission;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Isolated;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -11,6 +12,9 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // Test(s) to verify that forced access works as expected
+// 22-Mar-2026, tatu: @Isolated: installs a custom SecurityManager which
+// might leak into concurrently running tests, causing spurious SecurityExceptions.
+@Isolated
 public class AccessFixTest extends DatabindTestUtil
 {
     static class CauseBlockingSecurityManager

@@ -137,13 +137,13 @@ public class TestDefaultForScalars
     {
         Data data = new Data();
         data.key = 1L;
-        Map<String, Object> mapData = new HashMap<String, Object>();
+        Map<String, Object> mapData = new HashMap<>();
         mapData.put("longInMap", 2L);
         mapData.put("longAsField", data);
 
         // Configure Jackson to preserve types
         StdTypeResolverBuilder resolver = new StdTypeResolverBuilder(JsonTypeInfo.Id.CLASS,
-                JsonTypeInfo.As.PROPERTY, "__t");
+                JsonTypeInfo.As.PROPERTY, "__t", null);
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .polymorphicTypeValidator(new NoCheckSubTypeValidator())

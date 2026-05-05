@@ -14,10 +14,11 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class ReadRecoveryTest extends DatabindTestUtil
 {
-    static class Bean {
+    public static class Bean {
         public int a, b;
 
-        @Override public String toString() { return "{Bean, a="+a+", b="+b+"}"; }
+        @Override
+        public String toString() { return "{Bean, a="+a+", b="+b+"}"; }
     }
 
     /*
@@ -92,29 +93,28 @@ public class ReadRecoveryTest extends DatabindTestUtil
     {
         final String JSON = a2q("[{'a':3},{'a':27,'foo':[1,2],'b':{'x':3}}  ,{'a':1,'b':2}  ]");
 
-        MappingIterator<Bean> it = MAPPER.readerFor(Bean.class)
+        try (MappingIterator<Bean> it = MAPPER.readerFor(Bean.class)
                 .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .readValues(JSON);
-        Bean bean = it.nextValue();
-
-        assertNotNull(bean);
-        assertEquals(3, bean.a);
-
-        // second one problematic
-        try {
-            it.nextValue();
-        } catch (UnrecognizedPropertyException e) {
-            verifyException(e, "Unrecognized property \"foo\"");
+                .readValues(JSON)) {
+            Bean bean = it.nextValue();
+        
+            assertNotNull(bean);
+            assertEquals(3, bean.a);
+        
+            // second one problematic
+            try {
+                it.nextValue();
+            } catch (UnrecognizedPropertyException e) {
+                verifyException(e, "Unrecognized property \"foo\"");
+            }
+        
+            // but should recover nicely
+            bean = it.nextValue();
+            assertNotNull(bean);
+            assertEquals(1, bean.a);
+            assertEquals(2, bean.b);
+        
+            assertFalse(it.hasNextValue());
         }
-
-        // but should recover nicely
-        bean = it.nextValue();
-        assertNotNull(bean);
-        assertEquals(1, bean.a);
-        assertEquals(2, bean.b);
-
-        assertFalse(it.hasNextValue());
-
-        it.close();
     }
 }

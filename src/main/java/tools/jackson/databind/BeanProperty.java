@@ -347,7 +347,7 @@ public interface BeanProperty extends FullyNamed
         }
 
         @Override
-        public com.fasterxml.jackson.annotation.JsonInclude.Value findPropertyInclusion(
+        public JsonInclude.Value findPropertyInclusion(
                 MapperConfig<?> config, Class<?> baseType)
         {
             return null;

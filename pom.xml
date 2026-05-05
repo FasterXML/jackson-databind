@@ -9,11 +9,12 @@
   <parent>
     <groupId>tools.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>3.1.4-SNAPSHOT</version>
+    <version>3.2.0-SNAPSHOT</version>
   </parent>
+
   <groupId>tools.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>3.1.4-SNAPSHOT</version>
+  <version>3.2.0-SNAPSHOT</version>
   <name>jackson-databind</name>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
   <url>https://github.com/FasterXML/jackson</url>
@@ -30,7 +31,7 @@
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-databind.git</developerConnection>
     <url>https://github.com/FasterXML/jackson-databind</url>
-    <tag>jackson-databind-3.1.3</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
@@ -44,21 +45,6 @@
     <argLine>--add-opens=java.base/java.lang=tools.jackson.databind
              --add-opens=java.base/java.util=tools.jackson.databind
     </argLine>
-
-    <!-- 12-Nov-2022, tatu: [databind#3659] Verify Android SDK compatibility.
-
-      Baseline compatibility:
-
-      * Jackson 2.13: compatible with Android SDK 24 and up
-      * Jackson 2.14 - 2.18: compatible with Android SDK 26 and up
-      * Jackson 3.0: compatible with Android SDK 34 and up (need Record access)
-      -->
-
-    <version.android.sdk>34</version.android.sdk>
-    <!-- 24-Mar-2025, tatu: Latest as of now:
-	 https://mvnrepository.com/artifact/com.toasttab.android/gummy-bears-api-34
-      -->
-    <version.android.sdk.signature>0.12.0</version.android.sdk.signature>
 
     <version.bytebuddy>1.18.4</version.bytebuddy>
     <version.mockito>5.21.0</version.mockito>
@@ -81,7 +67,7 @@
     <packageVersion.package>tools.jackson.databind.cfg</packageVersion.package>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2026-05-01T17:34:03Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2026-02-23T21:12:24Z</project.build.outputTimestamp>
   </properties>
 
   <dependencyManagement>
@@ -218,8 +204,8 @@
         <configuration>
           <links combine.children="append">
             <!-- 08-Aug-2025, tatu: 3.x retains dep to annotations 2.x -->
-            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-annotations/2.21</link>
-            <link>https://javadoc.io/doc/tools.jackson.core/jackson-core/2.21.0</link>
+            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-annotations/latest</link>
+            <link>https://javadoc.io/doc/tools.jackson.core/jackson-core/latest</link>
           </links>
         </configuration>
       </plugin>
@@ -271,20 +257,12 @@
 
       <!-- 12-Nov-2022, tatu: [databind#3659] add verification of compatibility
            wrt Android SDK versions using AnimalSniffer with "gummy bears" signatures.
-           To be run from CI, but manually with:
-
-             mvn animal-sniffer:check
         -->
+      <!-- 24-Feb-2026, tatu: Starting with 3.2, use common defaults for ASDK level -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>animal-sniffer-maven-plugin</artifactId>
-        <version>1.27</version>
         <configuration>
-          <signature>
-            <groupId>com.toasttab.android</groupId>
-            <artifactId>gummy-bears-api-${version.android.sdk}</artifactId>
-            <version>${version.android.sdk.signature}</version>
-          </signature>
           <ignores>
             <!-- These are only accessed (safely) via "Java7SupportImpl.java" so ignore
               -->

@@ -8,7 +8,6 @@ import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.SettableBeanProperty;
-import tools.jackson.databind.deser.bean.BeanDeserializerBase;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.TokenBuffer;
@@ -238,25 +237,12 @@ public class UnwrappedPropertyHandler
     {
         if (prop != null) {
             ValueDeserializer<?> deser = prop.getValueDeserializer();
-            BeanDeserializerBase bd = _findBeanDeser(deser);
-            if (bd != null) {
+            if (deser != null) {
                 // Recursively collect property names
-                bd.collectAllPropertyNamesTo(names);
-                return bd.hasAnySetter();
+            	deser.collectAllPropertyNamesTo(names);
+                return deser.hasAnySetter();
             }
         }
         return false;
-    }
-
-    // @since 3.1
-    private BeanDeserializerBase _findBeanDeser(ValueDeserializer<?> deser) {
-        if (deser instanceof BeanDeserializerBase bd) {
-            return bd;
-        }
-        // [databind#5728] handle delegating case
-        if (deser.getDelegatee() instanceof BeanDeserializerBase bd) {
-            return bd;
-        }
-        return null;
     }
 }

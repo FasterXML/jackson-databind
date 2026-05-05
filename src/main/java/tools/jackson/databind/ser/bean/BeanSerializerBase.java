@@ -301,10 +301,9 @@ public abstract class BeanSerializerBase
                 // if not, we don't really know the actual type until we get the instance.
                 if (type == null) {
                     type = prop.getType();
+                    // [databind#5615]: _nonTrivialBaseType now set in BeanPropertyWriter
+                    // constructor to avoid race condition
                     if (!type.isFinal()) {
-                        if (type.isContainerType() || type.containedTypeCount() > 0) {
-                            prop.setNonTrivialBaseType(type);
-                        }
                         continue;
                     }
                 }
@@ -343,6 +342,88 @@ public abstract class BeanSerializerBase
             BeanPropertyWriter prop = _props[i];
             if (prop instanceof AnyGetterWriter anyGetterWriter) {
                 anyGetterWriter.resolve(ctxt);
+            }
+        }
+
+        // [databind#2883]: now that inner serializers (and their post-transformation
+        // property names) are known, verify no unwrapped property clashes with any
+        // other property
+        _verifyNoUnwrappedPropertyConflict(ctxt);
+    }
+
+    /**
+     * Called at end of {@link #resolve} to verify that no property produced by an
+     * unwrapped ({@code @JsonUnwrapped}) property collides with a regular property
+     * (or with an earlier unwrapped property) by name.
+     *<p>
+     * Relies on inner unwrapping serializers having been assigned by
+     * {@link UnwrappingBeanPropertyWriter#assignSerializer}, so that their
+     * already-renamed {@code _props} can be consulted directly; this avoids
+     * re-introspecting the unwrapped type and re-applying name transformations.
+     *
+     * @since 3.2
+     */
+    protected void _verifyNoUnwrappedPropertyConflict(SerializationContext ctxt)
+    {
+        // Fast-path: no unwrapped properties, nothing to check
+        boolean anyUnwrapped = false;
+        for (BeanPropertyWriter p : _props) {
+            if (p instanceof UnwrappingBeanPropertyWriter) {
+                anyUnwrapped = true;
+                break;
+            }
+        }
+        if (!anyUnwrapped) {
+            return;
+        }
+
+        // seenNames grows as we go so a later unwrapped property's names are
+        // also checked against earlier unwrapped properties'.
+        final Set<String> seenNames = new HashSet<>(_props.length);
+        for (BeanPropertyWriter p : _props) {
+            // Skip unwrapped props here (handled below); also skip AnyGetterWriter,
+            // since its emitted property names come from runtime map keys rather
+            // than from its own getName().
+            if (p instanceof UnwrappingBeanPropertyWriter || p instanceof AnyGetterWriter) {
+                continue;
+            }
+            seenNames.add(p.getName());
+        }
+        for (BeanPropertyWriter p : _props) {
+            if (!(p instanceof UnwrappingBeanPropertyWriter unwrapped)) {
+                continue;
+            }
+            // Skip self-referential unwrap to avoid spurious self-conflicts
+            // and potential infinite recursion while resolving the inner
+            // serializer. Self-referential @JsonUnwrapped is structurally
+            // broken (would infinite-loop on any non-null value) but nothing
+            // here enforces that; runtime will error out if exercised.
+            if (unwrapped.getType().getRawClass() == _beanType.getRawClass()) {
+                continue;
+            }
+            // Inner serializer may be a custom (non-BeanSerializerBase) impl;
+            // without access to its effective property names we cannot check it.
+            if (!(unwrapped.findUnwrappingSerializer(ctxt) instanceof BeanSerializerBase innerSer)) {
+                continue;
+            }
+            for (Iterator<PropertyWriter> it = innerSer.properties(); it.hasNext(); ) {
+                PropertyWriter innerProp = it.next();
+                // Skip nested UnwrappingBeanPropertyWriters: their own `getName()` is
+                // the Java field name of a further unwrapped property, which is NOT
+                // what gets emitted (its contents are unwrapped at that level). Means
+                // conflicts across more than one level of nesting aren't detected, but
+                // false positives are avoided.
+                if (innerProp instanceof UnwrappingBeanPropertyWriter) {
+                    continue;
+                }
+                String name = innerProp.getName();
+                if (!seenNames.add(name)) {
+                    ctxt.reportBadDefinition(_beanType, String.format(
+"Conflict between unwrapped property '%s' (of type %s)"
++" and another property with same name;"
++" consider using `@JsonUnwrapped(prefix=...)` to avoid name collision",
+                            name, ClassUtil.getTypeDescription(unwrapped.getType())));
+                }
             }
         }
     }
@@ -673,8 +754,23 @@ public abstract class BeanSerializerBase
         g.assignCurrentValue(bean);
         final ObjectIdWriter w = _objectIdWriter;
         WritableObjectId objectId = ctxt.findObjectId(bean, w.generator);
-        // If possible, write as id already
-        if (objectId.writeAsReference(g, ctxt, w)) {
+        // If possible, write as id already; but unlike non-typed case, may need to
+        // wrap with type information for proper deserialization [databind#2780]
+        if (objectId.canWriteAsReference(g, ctxt, w)) {
+            // [databind#5851]: Only wrap with type info for wrapping inclusion styles
+            //   (WRAPPER_ARRAY, WRAPPER_OBJECT). For PROPERTY/EXISTING_PROPERTY/EXTERNAL_PROPERTY
+            //   styles, the type context is already established by the property and wrapping
+            //   a scalar id reference would produce unexpected output (e.g. array wrapper fallback).
+            final JsonTypeInfo.As inclusion = typeSer.getTypeInclusion();
+            if (inclusion == JsonTypeInfo.As.WRAPPER_ARRAY
+                    || inclusion == JsonTypeInfo.As.WRAPPER_OBJECT) {
+                WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.VALUE_NUMBER_INT);
+                typeSer.writeTypePrefix(g, ctxt, typeIdDef);
+                objectId.writeAsReference(g, ctxt, w);
+                typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
+            } else {
+                objectId.writeAsReference(g, ctxt, w);
+            }
             return;
         }
         // If not, need to inject the id:

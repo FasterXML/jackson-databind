@@ -96,7 +96,17 @@ public class MapDeserializer
      * Flag used to check, whether the {@link tools.jackson.core.StreamReadCapability#DUPLICATE_PROPERTIES}
      * can be applied, because the Map has declared value type of {@code java.lang.Object}.
      */
-    protected boolean _checkDupSquash;
+    protected final boolean _checkDupSquash;
+
+    /**
+     * Flag that indicates whether value merging should be applied when
+     * deserializing content (Map values) during Map merge operation.
+     * Set to {@code false} when content type has ConfigOverride with
+     * {@code mergeable = false}.
+     *
+     * @since 3.2
+     */
+    protected final boolean _mergeValues;
 
     /*
     /**********************************************************************
@@ -119,6 +129,7 @@ public class MapDeserializer
         _standardStringKey = _isStdKeyDeser(mapType, keyDeser);
         _inclusionChecker = null;
         _checkDupSquash = mapType.getContentType().hasRawClass(Object.class);
+        _mergeValues = true;
     }
 
     /**
@@ -142,6 +153,7 @@ public class MapDeserializer
 
         _standardStringKey = src._standardStringKey;
         _checkDupSquash = src._checkDupSquash;
+        _mergeValues = src._mergeValues;
     }
 
     protected MapDeserializer(MapDeserializer src,
@@ -177,6 +189,29 @@ public class MapDeserializer
 
         _standardStringKey = _isStdKeyDeser(_containerType, keyDeser);
         _checkDupSquash = src._checkDupSquash;
+        _mergeValues = src._mergeValues;
+    }
+
+    /**
+     * @since 3.2
+     */
+    protected MapDeserializer(MapDeserializer src, boolean mergeValues)
+    {
+        super(src);
+        _keyDeserializer = src._keyDeserializer;
+        _valueDeserializer = src._valueDeserializer;
+        _valueTypeDeserializer = src._valueTypeDeserializer;
+        _valueInstantiator = src._valueInstantiator;
+        _propertyBasedCreator = src._propertyBasedCreator;
+        _delegateDeserializer = src._delegateDeserializer;
+        _hasDefaultCreator = src._hasDefaultCreator;
+        _ignorableProperties = src._ignorableProperties;
+        _includableProperties = src._includableProperties;
+        _inclusionChecker = src._inclusionChecker;
+
+        _standardStringKey = src._standardStringKey;
+        _checkDupSquash = src._checkDupSquash;
+        _mergeValues = mergeValues;
     }
 
     /**
@@ -208,6 +243,16 @@ public class MapDeserializer
         return new MapDeserializer(this,
                 keyDeser, (ValueDeserializer<Object>) valueDeser, valueTypeDeser,
                 nuller, ignorable, includable);
+    }
+
+    /**
+     * @since 3.2
+     */
+    protected MapDeserializer withMergeValues(boolean mergeValues) {
+        if (_mergeValues == mergeValues) {
+            return this;
+        }
+        return new MapDeserializer(this, mergeValues);
     }
 
     /**
@@ -349,8 +394,14 @@ public class MapDeserializer
                 }
             }
         }
-        return withResolved(keyDeser, vtd, valueDeser,
+        MapDeserializer deser = withResolved(keyDeser, vtd, valueDeser,
                 findContentNullProvider(ctxt, property, valueDeser), ignored, included);
+        // [databind#3205]: Check if content type has mergeable disabled
+        Boolean contentMergeable = ctxt.getConfig().getDefaultMergeable(vt.getRawClass());
+        if (Boolean.FALSE.equals(contentMergeable)) {
+            deser = deser.withMergeValues(false);
+        }
+        return deser;
     }
 
     /*
@@ -639,7 +690,7 @@ public class MapDeserializer
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         // null -> no ObjectIdReader for Maps (yet?)
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null, false);
 
         String key;
         if (p.isExpectedStartObjectToken()) {
@@ -771,7 +822,9 @@ public class MapDeserializer
                     result.put(key, _nullProvider.getNullValue(ctxt));
                     continue;
                 }
-                Object old = result.get(key);
+                // [databind#3205]: Only attempt to merge content values if
+                // content type's ConfigOverride allows it
+                Object old = _mergeValues ? result.get(key) : null;
                 Object value;
                 if (old != null) {
                     if (typeDeser == null) {
@@ -841,7 +894,9 @@ public class MapDeserializer
                     result.put(key, _nullProvider.getNullValue(ctxt));
                     continue;
                 }
-                Object old = result.get(key);
+                // [databind#3205]: Only attempt to merge content values if
+                // content type's ConfigOverride allows it
+                Object old = _mergeValues ? result.get(key) : null;
                 Object value;
                 if (old != null) {
                     if (typeDeser == null) {
@@ -929,7 +984,7 @@ public class MapDeserializer
         reference.getRoid().appendReferring(referring);
     }
 
-    private final static class MapReferringAccumulator {
+    final static class MapReferringAccumulator {
         private final Class<?> _valueType;
         private final Map<Object,Object> _result;
         /**
@@ -981,6 +1036,33 @@ public class MapDeserializer
             throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
                     + "] that wasn't previously seen as unresolved.");
         }
+
+        /**
+         * Replace a resolved item in the result map. Called when the bound item
+         * is rebound (e.g., builder → built object).
+         *
+         * @param oldItem Item to replace (Builder)
+         * @param newItem Item to replace {@code oldItem} with (Built value)
+         *
+         * @since 3.2
+         */
+        public void replaceResolvedItem(Object oldItem, Object newItem) {
+            replaceInMap(_result, oldItem, newItem);
+            // Pending accumulator entries may also hold the old item if a later
+            // forward ref hasn't yet resolved.
+            for (MapReferring ref : _accumulator) {
+                replaceInMap(ref.next, oldItem, newItem);
+            }
+        }
+
+        private static void replaceInMap(Map<Object, Object> map, Object oldItem, Object newItem) {
+            // Identity match: oldItem is the exact bound delegate (e.g. Builder).
+            for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                if (entry.getValue() == oldItem) {
+                    entry.setValue(newItem);
+                }
+            }
+        }
     }
 
     /**
@@ -991,7 +1073,7 @@ public class MapDeserializer
     static class MapReferring extends Referring {
         private final MapReferringAccumulator _parent;
 
-        public final Map<Object, Object> next = new LinkedHashMap<Object, Object>();
+        public final Map<Object, Object> next = new LinkedHashMap<>();
         public final Object key;
 
         MapReferring(MapReferringAccumulator parent, UnresolvedForwardReference ref,
@@ -1007,6 +1089,11 @@ public class MapDeserializer
             throws JacksonException
         {
             _parent.resolveForwardReference(ctxt, id, value);
+        }
+
+        @Override
+        public void handleItemRebind(Object oldItem, Object newItem) {
+            _parent.replaceResolvedItem(oldItem, newItem);
         }
     }
 }

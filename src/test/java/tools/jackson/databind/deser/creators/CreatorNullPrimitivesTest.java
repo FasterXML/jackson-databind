@@ -76,6 +76,10 @@ public class CreatorNullPrimitivesTest
         }
     }
 
+    // [databind#5734]
+    record PrimitiveRecord(int int1, int int2, boolean boolean1, boolean boolean2) {
+    }
+
     // [databind#2977]
     static class TestClass2977 {
         @JsonProperty("aa")
@@ -99,7 +103,8 @@ public class CreatorNullPrimitivesTest
     public void testCreatorNullPrimitive() throws Exception {
         final ObjectReader r = MAPPER.readerFor(JsonEntity.class)
             .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
-        String json = a2q("{'x': 2}");
+        // [databind#5734]: explicit null should fail, but absent should not
+        String json = a2q("{'x': 2, 'y': null}");
         try {
             r.readValue(json);
             fail("Should not have succeeded");
@@ -114,7 +119,8 @@ public class CreatorNullPrimitivesTest
     public void testCreatorNullPrimitiveInNestedObject() throws Exception {
         final ObjectReader r = MAPPER.readerFor(NestedJsonEntity.class)
                 .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
-        String json = a2q("{ 'entity': {'x': 2}}");
+        // [databind#5734]: explicit null should fail, but absent should not
+        String json = a2q("{ 'entity': {'x': 2, 'y': null}}");
         try {
             r.readValue(json);
             fail("Should not have succeeded");
@@ -124,6 +130,30 @@ public class CreatorNullPrimitivesTest
             assertEquals("y", e.getPath().get(1).getPropertyName());
             assertEquals("entity", e.getPath().get(0).getPropertyName());
         }
+    }
+
+    // [databind#5734]: absent primitive creator properties should get JVM defaults
+    @Test
+    public void testCreatorAbsentPrimitiveShouldDefault() throws Exception {
+        final ObjectReader r = MAPPER.readerFor(JsonEntity.class)
+            .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+        // Missing "y" should default to 0, not fail
+        String json = a2q("{'x': 2}");
+        JsonEntity result = r.readValue(json);
+        assertEquals(2, result.x);
+        assertEquals(0, result.y);
+    }
+
+    // [databind#5734]: absent primitive creator properties in nested objects
+    @Test
+    public void testCreatorAbsentPrimitiveInNestedObjectShouldDefault() throws Exception {
+        final ObjectReader r = MAPPER.readerFor(NestedJsonEntity.class)
+                .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+        // Missing "y" in nested entity should default to 0, not fail
+        String json = a2q("{ 'entity': {'x': 2}}");
+        NestedJsonEntity result = r.readValue(json);
+        assertEquals(2, result.entity.x);
+        assertEquals(0, result.entity.y);
     }
 
     // [databind#988]
@@ -173,5 +203,30 @@ public class CreatorNullPrimitivesTest
                 .build();
         TestClass2977 result = mapper.readValue(a2q("{'aa': 8}"), TestClass2977.class);
         assertEquals(8, result.a);
+    }
+
+    // [databind#5734]: record with absent primitives should use JVM defaults
+    @Test
+    void testRecordAbsentPrimitivesShouldDefault() throws Exception {
+        // FAIL_ON_NULL_FOR_PRIMITIVES is enabled by default in 3.x;
+        // absent values should still get JVM defaults
+        String json = a2q("{'int2': 42, 'boolean1': true}");
+        PrimitiveRecord result = MAPPER.readValue(json, PrimitiveRecord.class);
+        assertEquals(0, result.int1());
+        assertEquals(42, result.int2());
+        assertEquals(true, result.boolean1());
+        assertEquals(false, result.boolean2());
+    }
+
+    // [databind#5734]: record with explicit null primitives should still fail
+    @Test
+    void testRecordExplicitNullPrimitiveShouldFail() throws Exception {
+        String json = a2q("{'int1': 111, 'int2': 222, 'boolean1': true, 'boolean2': null}");
+        try {
+            MAPPER.readValue(json, PrimitiveRecord.class);
+            fail("Should not have succeeded");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot map `null` into type `boolean`");
+        }
     }
 }

@@ -265,7 +265,8 @@ public class BeanAsArrayBuilderDeserializer
         throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        // [databind#5909]: builder will be rebuilt via finishBuild
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, true);
 
         final SettableBeanProperty[] props = _orderedProperties;
         final int propCount = props.length;

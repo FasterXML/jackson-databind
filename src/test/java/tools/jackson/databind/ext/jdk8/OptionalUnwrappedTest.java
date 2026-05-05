@@ -71,6 +71,58 @@ public class OptionalUnwrappedTest
                 MAPPER.writeValueAsString(new Bean("foo", Optional.<Bean2>empty())));
     }
 
+    // [databind#2736]
+    static class Person2736 {
+        @JsonUnwrapped
+        public MainData2736 mainData;
+        @JsonUnwrapped
+        public Optional<AdditionalData2736> additionalData;
+    }
+
+    static class MainData2736 {
+        public String name;
+    }
+
+    static class AdditionalData2736 {
+        public String address;
+    }
+
+    // [databind#2736]
+    @Test
+    public void testDeserializeUnwrappedOptional() throws Exception {
+        Person2736 expected = new Person2736();
+        expected.mainData = new MainData2736();
+        expected.mainData.name = "Homer";
+        expected.additionalData = Optional.of(new AdditionalData2736());
+        expected.additionalData.get().address = "Springfield";
+
+        String json = MAPPER.writeValueAsString(expected);
+        assertTrue(json.contains("\"name\":\"Homer\""));
+        assertTrue(json.contains("\"address\":\"Springfield\""));
+
+        Person2736 actual = MAPPER.readValue(json, Person2736.class);
+        assertNotNull(actual.mainData);
+        assertEquals("Homer", actual.mainData.name);
+        assertNotNull(actual.additionalData);
+        assertTrue(actual.additionalData.isPresent());
+        assertEquals("Springfield", actual.additionalData.get().address);
+    }
+
+    // [databind#2736]: when no properties for the unwrapped child appear in
+    //   input, the child bean is still instantiated (with null fields) and
+    //   wrapped in a present Optional — consistent with how plain
+    //   `@JsonUnwrapped Child` always yields an instance.
+    @Test
+    public void testDeserializeUnwrappedOptionalNoChildProps() throws Exception {
+        String json = "{\"name\":\"Homer\"}";
+        Person2736 actual = MAPPER.readValue(json, Person2736.class);
+        assertNotNull(actual.mainData);
+        assertEquals("Homer", actual.mainData.name);
+        assertNotNull(actual.additionalData);
+        assertTrue(actual.additionalData.isPresent());
+        assertNull(actual.additionalData.get().address);
+    }
+
     // for [datatype-jdk8#26]
     @Test
     public void testPropogatePrefixToSchema() throws Exception {

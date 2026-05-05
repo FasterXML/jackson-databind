@@ -231,7 +231,7 @@ class FactoryBasedEnumDeserializer
     protected Object deserializeEnumUsingPropertyBased(final JsonParser p, final DeserializationContext ctxt,
     		final PropertyBasedCreator creator) throws JacksonException
     {
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null, false);
 
         JsonToken t = p.currentToken();
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {

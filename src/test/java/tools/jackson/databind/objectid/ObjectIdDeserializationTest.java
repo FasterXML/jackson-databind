@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
 
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.ContextAttributes;
 import tools.jackson.databind.deser.UnresolvedForwardReference;
@@ -244,6 +246,85 @@ public class ObjectIdDeserializationTest extends DatabindTestUtil
         public InjectableB(@JacksonInject("i2") String injected) { }
     }
 
+    // // // For testForwardReferenceInEnumMap
+
+    static class EnumMapCompany {
+        public EnumMap<FooEnum, Employee> employees;
+    }
+
+    static enum FooEnum {
+        A, B, C
+    }
+
+    // // // For testOrdering1388 [databind#1388]
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
+    public static class NamedThing {
+        private final UUID id;
+        private final String name;
+
+        @JsonCreator
+        public NamedThing(@JsonProperty("id") UUID id, @JsonProperty("name") String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public UUID getId() { return id; }
+        public String getName() { return name; }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            NamedThing that = (NamedThing) o;
+            return that.id.equals(id) && that.name.equals(name);
+        }
+
+        @Override
+        public int hashCode() { return name.hashCode(); }
+    }
+
+    // // // For [databind#2955]: unresolved scalar Object Id with FAIL_ON_UNRESOLVED_OBJECT_IDS disabled
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    static class Node2955 {
+        public int id;
+        public String name;
+        public Node2955 ref;
+    }
+
+    // // // For [databind#2955] / jackson-jaxrs-providers#189: mixed forward, invalid,
+    //       missing and inline references with FAIL_ON_UNRESOLVED_OBJECT_IDS disabled
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "name", scope = Value2955.class)
+    static class Value2955 {
+        public String name;
+        public Integer value;
+    }
+
+    static class Owned2955 {
+        public String name;
+        public Value2955 optionalValue;
+    }
+
+    static class Owner2955 {
+        public List<Owned2955> owned = new ArrayList<>();
+        public List<Value2955> values = new ArrayList<>();
+    }
+
+    // // // For ObjectReader + FAIL_ON_UNRESOLVED_OBJECT_IDS [databind#5542]
+
+    public static class ReaderWrapper5542 {
+        public ReaderValueNode5542 node;
+    }
+
+    @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
+    public static class ReaderValueNode5542 {
+        public int value;
+        public ReaderWrapper5542 next;
+    }
+
     // // // For testWithFieldsInBaseClass [databind#1083]
 
     @JsonTypeInfo(
@@ -271,7 +352,7 @@ public class ObjectIdDeserializationTest extends DatabindTestUtil
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     private final static String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"value\":13,\"next\":1}";
 
@@ -689,5 +770,227 @@ public class ObjectIdDeserializationTest extends DatabindTestUtil
         assertNotNull(output);
         assertNotNull(output.b);
         assertSame(output, output.b.a);
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, forward reference in EnumMap
+    /**********************************************************
+     */
+
+    @Test
+    public void testForwardReferenceInEnumMap() throws Exception {
+        String json = "{\"employees\":{"
+                + "\"A\":{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
+                + "\"B\": 2,"
+                + "\"C\":{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
+                + "}}";
+        EnumMapCompany company = MAPPER.readValue(json, EnumMapCompany.class);
+        assertEquals(3, company.employees.size());
+        Employee firstEmployee = company.employees.get(FooEnum.A);
+        Employee secondEmployee = company.employees.get(FooEnum.B);
+        assertEquals(1, firstEmployee.id);
+        assertEquals(2, secondEmployee.id);
+        assertEquals(1, firstEmployee.reports.size());
+        assertSame(secondEmployee, firstEmployee.reports.get(0));
+        assertSame(firstEmployee, secondEmployee.manager);
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, ObjectId reordering [databind#1388]
+    /**********************************************************
+     */
+
+    private final TypeReference<List<NamedThing>> NAMED_THING_LIST_TYPE =
+            new TypeReference<List<NamedThing>>() { };
+
+    // [databind#1388]
+    @Test
+    public void testOrdering1388() throws Exception
+    {
+        final UUID id = UUID.fromString("a59aa02c-fe3c-43f8-9b5a-5fe01878a818");
+        final NamedThing thing = new NamedThing(id, "Hello");
+
+        {
+            final String json = MAPPER.writeValueAsString(Arrays.asList(thing, thing, thing));
+            final List<NamedThing> list = MAPPER.readValue(json, NAMED_THING_LIST_TYPE);
+            _assertAllSame(list);
+            assertTrue(json.equals("[{\"@id\":1,\"id\":\"a59aa02c-fe3c-43f8-9b5a-5fe01878a818\",\"name\":\"Hello\"},1,1]"));
+        }
+
+        // now move it around to have forward references
+        {
+            final String json = "[1,1,{\"@id\":1,\"id\":\"a59aa02c-fe3c-43f8-9b5a-5fe01878a818\",\"name\":\"Hello\"}]";
+            final List<NamedThing> forward = MAPPER.readValue(json, NAMED_THING_LIST_TYPE);
+            _assertAllSame(forward);
+        }
+
+        // next, move @id to between properties
+        {
+            final String json = a2q("[{'id':'a59aa02c-fe3c-43f8-9b5a-5fe01878a818','@id':1,'name':'Hello'}, 1, 1]");
+            final List<NamedThing> forward = MAPPER.readValue(json, NAMED_THING_LIST_TYPE);
+            _assertAllSame(forward);
+        }
+
+        // and last, move @id to be not the first key in the object
+        {
+            final String json = a2q("[{'id':'a59aa02c-fe3c-43f8-9b5a-5fe01878a818','name':'Hello','@id':1}, 1, 1]");
+            final List<NamedThing> forward = MAPPER.readValue(json, NAMED_THING_LIST_TYPE);
+            _assertAllSame(forward);
+        }
+    }
+
+    @Test
+    public void testNullsNoObjectId() throws Exception
+    {
+        final List<NamedThing> l = MAPPER.readValue("[null]", NAMED_THING_LIST_TYPE);
+        assertEquals(1, l.size());
+        assertNull(l.get(0));
+    }
+
+    @Test
+    public void testUnresolvedObjectIdReordering() throws Exception
+    {
+        try {
+            MAPPER.readValue("[123]", NAMED_THING_LIST_TYPE);
+            fail("Should not pass");
+        } catch (UnresolvedForwardReference e) {
+            verifyException(e, "Unresolved forward references: [{Object id: 123}]");
+        }
+    }
+
+    private void _assertAllSame(List<?> entries) {
+        Object first = entries.get(0);
+        for (int i = 0, end = entries.size(); i < end; ++i) {
+            if (first != entries.get(i)) {
+                fail("Mismatch: entry #"+i+" not same as #0");
+            }
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, ObjectReader + FAIL_ON_UNRESOLVED_OBJECT_IDS [databind#5542]
+    /**********************************************************
+     */
+
+    @Test
+    public void testObjectMapperFailsOnUnresolvedObjectIds5542() throws Exception {
+        String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':2}}}");
+
+        try {
+            MAPPER.readValue(json, ReaderWrapper5542.class);
+            fail("Should have thrown UnresolvedForwardReference");
+        } catch (UnresolvedForwardReference e) {
+            verifyException(e, "Unresolved forward reference");
+        }
+    }
+
+    @Test
+    public void testObjectReaderFailsOnUnresolvedObjectIds5542() throws Exception {
+        String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':2}}}");
+
+        ObjectReader reader = MAPPER.readerFor(ReaderWrapper5542.class);
+        try (JsonParser p = MAPPER.createParser(json)) {
+            reader.readValue(p);
+            fail("Should have thrown UnresolvedForwardReference");
+        } catch (UnresolvedForwardReference e) {
+            verifyException(e, "Unresolved forward reference");
+        }
+    }
+
+    @Test
+    public void testObjectReaderWithDisabledFeature5542() throws Exception {
+        String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':2}}}");
+
+        ObjectReader reader = MAPPER.readerFor(ReaderWrapper5542.class)
+                .without(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS);
+
+        try (JsonParser p = MAPPER.createParser(json)) {
+            ReaderWrapper5542 wrapper = reader.readValue(p);
+            assertNotNull(wrapper);
+            assertNotNull(wrapper.node);
+            assertNull(wrapper.node.next.node);
+        }
+    }
+
+    @Test
+    public void testObjectReaderWithResolvedObjectIds5542() throws Exception {
+        String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':1}}}");
+
+        ObjectReader reader = MAPPER.readerFor(ReaderWrapper5542.class);
+        try (JsonParser p = MAPPER.createParser(json)) {
+            ReaderWrapper5542 wrapper = reader.readValue(p);
+            assertNotNull(wrapper);
+            assertNotNull(wrapper.node);
+            assertSame(wrapper.node, wrapper.node.next.node);
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, [databind#2955]: unresolved scalar Object Ids
+    /**********************************************************
+     */
+
+    // [databind#2955]: default behavior should throw on unresolved scalar Object Id
+    @Test
+    public void testUnresolvedScalarObjectIdFails2955() throws Exception {
+        // Node with id=1 references node with id=999 which doesn't exist
+        String json = a2q("{'id':1,'name':'a','ref':{'id':2,'name':'b','ref':999}}");
+
+        try {
+            MAPPER.readValue(json, Node2955.class);
+            fail("Should have thrown UnresolvedForwardReference");
+        } catch (UnresolvedForwardReference e) {
+            verifyException(e, "Object id");
+        }
+    }
+
+    // [databind#2955]: with feature disabled, unresolved scalar Object Id should become null
+    @Test
+    public void testUnresolvedScalarObjectIdAsNull2955() throws Exception {
+        String json = a2q("{'id':1,'name':'a','ref':{'id':2,'name':'b','ref':999}}");
+
+        Node2955 result = DISABLED_MAPPER.readValue(json, Node2955.class);
+        assertNotNull(result);
+        assertEquals("a", result.name);
+        assertNotNull(result.ref);
+        assertEquals("b", result.ref.name);
+        // unresolved id=999 should become null instead of throwing
+        assertNull(result.ref.ref);
+    }
+
+    // [databind#2955] / jackson-jaxrs-providers#189: with feature disabled, valid forward
+    // references must still resolve (not get prematurely turned into null), while genuinely
+    // unresolvable scalar references become null.
+    @Test
+    public void testForwardAndUnresolvedScalarObjectIds2955() throws Exception {
+        String json = a2q("{"
+                + "'owned':["
+                + "  {'name':'foo','optionalValue':'vFoo'},"
+                + "  {'name':'bar','optionalValue':'notAValidRef'},"
+                + "  {'name':'baz'},"
+                + "  {'name':'qux','optionalValue':{'name':'vQux','value':3}}"
+                + "],"
+                + "'values':["
+                + "  {'name':'vFoo','value':1},"
+                + "  {'name':'vBar','value':2}"
+                + "]}");
+
+        Owner2955 owner = DISABLED_MAPPER.readValue(json, Owner2955.class);
+
+        assertEquals(4, owner.owned.size());
+        // Forward reference "vFoo" appears later in "values"; must resolve, not be null
+        assertNotNull(owner.owned.get(0).optionalValue);
+        assertEquals(Integer.valueOf(1), owner.owned.get(0).optionalValue.value);
+        // Reference that never appears anywhere -> null (feature disabled)
+        assertNull(owner.owned.get(1).optionalValue);
+        // No reference at all -> null
+        assertNull(owner.owned.get(2).optionalValue);
+        // Inline definition -> resolved directly
+        assertNotNull(owner.owned.get(3).optionalValue);
+        assertEquals(Integer.valueOf(3), owner.owned.get(3).optionalValue.value);
     }
 }

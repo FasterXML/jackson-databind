@@ -13,7 +13,7 @@ jobs:
     if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
     steps:
     - name: Download comment artifact
-      uses: dawidd6/action-download-artifact@883bc3da0e2f55ddd0a8fc8e99378551c1991a55 # v13
+      uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
       with:
         name: pr-comment
         path: pr-comment/

@@ -1,7 +1,7 @@
 package tools.jackson.databind.deser.jdk;
 
+import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -39,10 +39,23 @@ public class EnumDeserializer
      */
     protected final CompactStringObjectMap _lookupByToString;
 
+    /**
+     * @since 3.2
+     */
+    protected final Map<Integer, Enum<?>> _lookupByNumericIndex;
+
     protected final Boolean _caseInsensitive;
 
     private Boolean _useDefaultValueForUnknownEnum;
     private Boolean _useNullForUnknownEnum;
+
+    /**
+     * Marker flag to indicate whether numeric input (JSON number or quoted number)
+     * should use numeric-index lookup derived from {@code @JsonProperty} values.
+     * Intended to be enabled when {@code @JsonFormat(shape = NUMBER/ARRAY)} selects
+     * numeric representation for Enum values.
+     */
+    protected final boolean _useNumericIndexForNumbers;
 
     /**
      * Marker flag for cases where we expect actual integral value for Enum,
@@ -77,10 +90,13 @@ public class EnumDeserializer
         _isFromIntValue = byNameResolver.isFromIntValue();
         _lookupByEnumNaming = byEnumNamingResolver == null ? null : byEnumNamingResolver.constructLookup();
         _lookupByToString = toStringResolver == null ? null : toStringResolver.constructLookup();
+        _lookupByNumericIndex = byNameResolver.getNumericIndexLookup();
+        _useNumericIndexForNumbers = byNameResolver.useNumericIndexForNumbers();
     }
 
     protected EnumDeserializer(EnumDeserializer base, boolean caseInsensitive,
-            Boolean useDefaultValueForUnknownEnum, Boolean useNullForUnknownEnum)
+            Boolean useDefaultValueForUnknownEnum, Boolean useNullForUnknownEnum,
+            boolean useNumericIndexForNumbers)
     {
         super(base);
         _lookupByName = base._lookupByName;
@@ -93,6 +109,8 @@ public class EnumDeserializer
         _useNullForUnknownEnum = useNullForUnknownEnum;
         _lookupByEnumNaming = base._lookupByEnumNaming;
         _lookupByToString = base._lookupByToString;
+        _lookupByNumericIndex = base._lookupByNumericIndex;
+        _useNumericIndexForNumbers = useNumericIndexForNumbers;
     }
 
     /**
@@ -131,34 +149,57 @@ public class EnumDeserializer
     }
 
     public EnumDeserializer withResolved(Boolean caseInsensitive,
-            Boolean useDefaultValueForUnknownEnum, Boolean useNullForUnknownEnum) {
+            Boolean useDefaultValueForUnknownEnum, Boolean useNullForUnknownEnum,
+            boolean useNumericIndexForNumbers) {
         if (Objects.equals(_caseInsensitive, caseInsensitive)
-          && Objects.equals(_useDefaultValueForUnknownEnum, useDefaultValueForUnknownEnum)
-          && Objects.equals(_useNullForUnknownEnum, useNullForUnknownEnum)) {
+                && Objects.equals(_useDefaultValueForUnknownEnum, useDefaultValueForUnknownEnum)
+                && Objects.equals(_useNullForUnknownEnum, useNullForUnknownEnum)
+                && _useNumericIndexForNumbers == useNumericIndexForNumbers) {
             return this;
         }
         return new EnumDeserializer(this, caseInsensitive,
-                useDefaultValueForUnknownEnum, useNullForUnknownEnum);
+                useDefaultValueForUnknownEnum, useNullForUnknownEnum,
+                useNumericIndexForNumbers);
     }
 
     @Override
     public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
-        // [databind#5814]: check ACCEPT_CASE_INSENSITIVE_VALUES (primary),
-        //   fall back to ACCEPT_CASE_INSENSITIVE_PROPERTIES (legacy)
-        Boolean caseInsensitive = findFormatFeature(ctxt, property, handledType(),
-          JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES);
-        if (caseInsensitive == null) {
-            caseInsensitive = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
-              JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)).orElse(_caseInsensitive);
+        Boolean caseInsensitive = _caseInsensitive;
+        Boolean useDefaultValueForUnknownEnum = _useDefaultValueForUnknownEnum;
+        Boolean useNullForUnknownEnum = _useNullForUnknownEnum;
+        boolean useNumericIndexForNumbers = _useNumericIndexForNumbers;
+
+        JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
+        if (format != null) {
+            // [databind#5814]: check both ACCEPT_CASE_INSENSITIVE_VALUES (primary) and
+            //   ACCEPT_CASE_INSENSITIVE_PROPERTIES (legacy, for backwards-compatibility)
+            Boolean ci = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES);
+            if (ci == null) {
+                ci = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+            }
+            if (ci != null) {
+                caseInsensitive = ci;
+            }
+            Boolean b = format.getFeature(JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+            if (b != null) {
+                useDefaultValueForUnknownEnum = b;
+            }
+            b = format.getFeature(JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+            if (b != null) {
+                useNullForUnknownEnum = b;
+            }
+            JsonFormat.Shape shape = format.getShape();
+            if (shape != null) {
+                if (shape != JsonFormat.Shape.ANY && shape != JsonFormat.Shape.SCALAR) {
+                    useNumericIndexForNumbers = shape.isNumeric() || shape == JsonFormat.Shape.ARRAY;
+                }
+            }
         }
-        Boolean useDefaultValueForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
-          JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)).orElse(_useDefaultValueForUnknownEnum);
-        Boolean useNullForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
-          JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)).orElse(_useNullForUnknownEnum);
-        
-        return withResolved(caseInsensitive, useDefaultValueForUnknownEnum, useNullForUnknownEnum);
+
+        return withResolved(caseInsensitive, useDefaultValueForUnknownEnum, useNullForUnknownEnum,
+                useNumericIndexForNumbers);
     }
 
     /*
@@ -269,6 +310,12 @@ public class EnumDeserializer
         case TryConvert:
         default:
         }
+        if (_useNumericIndexForNumbers && _lookupByNumericIndex != null) {
+            Object match = _lookupByNumericIndex.get(index);
+            if (match != null) {
+                return match;
+            }
+        }
         if (index >= 0 && index < _enumsByIndex.length) {
             return _enumsByIndex[index];
         }
@@ -351,6 +398,12 @@ public class EnumDeserializer
                                 return ctxt.handleWeirdStringValue(_enumClass(), name,
 "value looks like quoted Enum index, but `DeserializationFeature.ALLOW_COERCION_OF_SCALARS` prevents use"
                                         );
+                            }
+                            if (_useNumericIndexForNumbers && _lookupByNumericIndex != null) {
+                                Object match = _lookupByNumericIndex.get(index);
+                                if (match != null) {
+                                    return match;
+                                }
                             }
                             if (index >= 0 && index < _enumsByIndex.length) {
                                 return _enumsByIndex[index];

@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.cfg.MapperConfig;
@@ -97,7 +98,38 @@ public abstract class BeanDescription
      */
     public abstract List<BeanPropertyDefinition> findProperties();
 
+    /**
+     * Returns the set of property names that are marked to be ignored, from both
+     * per-property {@code @JsonIgnore} markers and class-level
+     * {@code @JsonIgnoreProperties} (annotation and config overrides).
+     * The set is direction-specific: a name may appear for serialization but not
+     * deserialization, depending on the annotation attributes.
+     *<p>
+     * <b>Caveat for factory layers:</b> this set is <em>not</em> a complete runtime
+     * ignore-list. Names that collide with a creator parameter may have been
+     * removed during property renaming (see {@code [databind#2001]} /
+     * {@code [databind#2118]} handling in {@code POJOPropertiesCollector}). When
+     * building a deserializer's ignorable-property set, factories must therefore
+     * combine this with {@link #getPropertyIgnorals()}'s direction-specific names
+     * to get the full effective set. See
+     * {@code BeanDeserializerFactory#addBeanProps} for the canonical pattern.
+     */
     public abstract Set<String> getIgnoredPropertyNames();
+
+    /**
+     * Returns the class-level property ignorals value (annotation plus config overrides),
+     * pre-computed during property collection.  Preferred over re-calling
+     * {@code findPropertyIgnoralByName()} in factory code since the result is cached.
+     * Returns {@code null} when neither annotation nor config override defines any ignorals.
+     *<p>
+     * Note: this only carries class-level ignorals. Per-property {@code @JsonIgnore}
+     * names live in {@link #getIgnoredPropertyNames()} instead. Neither accessor on
+     * its own is a complete runtime ignore-list — see the caveat on
+     * {@link #getIgnoredPropertyNames()}.
+     */
+    public JsonIgnoreProperties.Value getPropertyIgnorals() {
+        return null;
+    }
 
     /**
      * Method for locating all back-reference properties (setters, fields) bean has
@@ -123,8 +155,6 @@ public abstract class BeanDescription
      *<p>
      * Note that no other filtering (regarding visibility or other annotations)
      * is performed
-     *
-     * @since 2.13
      */
     public abstract List<AnnotatedAndMetadata<AnnotatedConstructor, JsonCreator.Mode>> getConstructorsWithMode();
 

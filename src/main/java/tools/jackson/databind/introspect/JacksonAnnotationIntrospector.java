@@ -548,6 +548,13 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    public Class<?> findApplyView(MapperConfig<?> config, Annotated a)
+    {
+        JsonApplyView ann = _findAnnotation(a, JsonApplyView.class);
+        return (ann == null) ? null : ann.value();
+    }
+
+    @Override
     /**
      * Specific implementation that will use following tie-breaker on
      * given setter parameter types:
@@ -612,6 +619,20 @@ public class JacksonAnnotationIntrospector
         return (t == null) ? null : JsonTypeInfo.Value.from(t);
     }
 
+    @Override
+    public JavaType findPolymorphicBaseType(MapperConfig<?> config,
+            AnnotatedClass ac, JsonTypeInfo.Value typeInfo, JavaType assumedBaseType) {
+        for (JavaType type : ac.getSuperTypes()) {
+            // 23-Mar-2026, tatu: Unusual in that we do not (and can not) use
+            //   `_findAnnotation()` and must resort to direct lookup. This
+            //   means we will miss mix-in annotations but it is what it is...
+            JsonTypeInfo t = type.getRawClass().getAnnotation(JsonTypeInfo.class);
+            if (t != null) {
+                return type;
+            }
+        }
+        return null;
+    }
     @Override
     public Object findTypeResolverBuilder(MapperConfig<?> config,
             Annotated ann) {
@@ -1016,7 +1037,15 @@ public class JacksonAnnotationIntrospector
     @Override
     public String[] findSerializationPropertyOrder(MapperConfig<?> config, AnnotatedClass ac) {
         JsonPropertyOrder order = _findAnnotation(ac, JsonPropertyOrder.class);
-        return (order == null) ? null : order.value();
+        if (order != null) {
+            return order.value();
+        }
+        // [databind#3083]: @JsonIncludeProperties with order=true defines property order
+        JsonIncludeProperties incl = _findAnnotation(ac, JsonIncludeProperties.class);
+        if (incl != null && incl.order().asPrimitive()) {
+            return incl.value();
+        }
+        return null;
     }
 
     @Override

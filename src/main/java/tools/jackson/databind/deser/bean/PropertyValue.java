@@ -14,7 +14,11 @@ import tools.jackson.databind.util.TokenBuffer;
  */
 public abstract class PropertyValue
 {
-    public final PropertyValue next;
+    /**
+     * Note: was {@code final} before Jackson 3.2; changed to allow
+     * order-preserving appends.
+     */
+    public PropertyValue next;
 
     /**
      * Value to assign when POJO has been instantiated.

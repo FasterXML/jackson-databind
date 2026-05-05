@@ -113,7 +113,7 @@ public class POJOPropertyBuilder
 
     /*
     /**********************************************************
-    /* Mutant factory methods
+    /* Mutant factory methods, mutators
     /**********************************************************
      */
 
@@ -128,6 +128,8 @@ public class POJOPropertyBuilder
         PropertyName newName = _name.withSimpleName(newSimpleName);
         return (newName == _name) ? this : new POJOPropertyBuilder(this, newName);
     }
+
+    protected void markAsUnwrapped() { _unwrapped = true; }
 
     /*
     /**********************************************************
@@ -822,6 +824,11 @@ public class POJOPropertyBuilder
     @Override
     public Class<?>[] findViews() {
         return _annotationIntrospector.findViews(_config, getPrimaryMember());
+    }
+
+    @Override
+    public Class<?> findApplyView() {
+        return _annotationIntrospector.findApplyView(_config, getPrimaryMember());
     }
 
     @Override

@@ -135,12 +135,26 @@ public abstract class DeserializationContext
      * Type of {@link ValueDeserializer} on which {@link ValueDeserializer#createContextual}
      * is being called currently.
      */
-    protected LinkedNode<JavaType> _currentType;
+    protected transient LinkedNode<JavaType> _currentType;
 
     /**
      * Lazily constructed {@link ClassIntrospector} instance: created from "blueprint"
      */
     protected transient ClassIntrospector _classIntrospector;
+
+    /**
+     * Re-entrant counter tracking nested {@code @JsonCreator(mode=DELEGATING)}
+     * deserializations that will trigger {@link #updateObjectId} after the
+     * delegate is built. Bracketed by
+     * {@link #enterDelegateBindPending}/{@link #exitDelegateBindPending}.
+     * While positive, any {@code ReadableObjectId.bindItem} call must retain
+     * resolved Referrings so the eventual delegate→bean rebind can replay them
+     * (e.g. for forward Object Id refs inside Collection/Map properties).
+     * See [databind#5909].
+     *
+     * @since 3.2
+     */
+    protected transient int _delegateBindDepth;
 
     /*
     /**********************************************************************
@@ -901,6 +915,103 @@ public abstract class DeserializationContext
     public abstract void checkUnresolvedObjectId()
         throws UnresolvedForwardReference;
 
+    /**
+     * Method called to update Object Id binding from an intermediate delegate
+     * object to the final bean produced by a delegating {@code @JsonCreator}.
+     * This is needed because when using {@code @JsonIdentityInfo} with delegating
+     * creators, the Object Id gets initially bound to the delegate (intermediate)
+     * object, but needs to point to the final converted bean.
+     *<p>
+     * Implemented by
+     * {@link tools.jackson.databind.deser.DeserializationContextExt}.
+     *
+     * @param delegate The intermediate delegate object that was originally bound
+     * @param newItem The final bean produced by the delegating creator
+     *
+     * @since 3.2
+     */
+    public abstract void updateObjectId(Object delegate, Object newItem) throws JacksonException;
+
+    /**
+     * Method to register that a forward Object Id reference has been recorded
+     * against the given container object (typically a builder). Called by
+     * {@link tools.jackson.databind.deser.impl.ObjectIdReferenceProperty} when
+     * an unresolved forward reference is caught. Enables O(1) checking via
+     * {@link #hasPendingForwardRefsFor}.
+     *<p>
+     * Implemented by
+     * {@link tools.jackson.databind.deser.DeserializationContextExt}.
+     *
+     * @param container The container/builder object the forward ref was registered against
+     *
+     * @since 3.2
+     */
+    public abstract void addPendingForwardRef(Object container);
+
+    /**
+     * Method to remove a container object from the pending forward reference
+     * tracking set, called when the forward reference has been resolved.
+     *<p>
+     * Implemented by
+     * {@link tools.jackson.databind.deser.DeserializationContextExt}.
+     *
+     * @param container The container/builder object to remove
+     *
+     * @since 3.2
+     */
+    public abstract void removePendingForwardRef(Object container);
+
+    /**
+     * Method for checking whether the given container object has any pending
+     * unresolved forward Object Id references registered against it.
+     * Used by Builder-based deserialization to detect forward references
+     * that would be lost after building (since they point to the builder,
+     * not the built object).
+     *<p>
+     * Implemented by
+     * {@link tools.jackson.databind.deser.DeserializationContextExt}.
+     *
+     * @param builder The builder/container object to check
+     * @return {@code true} if there are pending forward references against this object
+     *
+     * @since 3.2
+     */
+    public abstract boolean hasPendingForwardRefsFor(Object builder);
+
+    /**
+     * Mark entry into a {@code @JsonCreator(mode=DELEGATING)} deserialization
+     * that will subsequently call {@link #updateObjectId} to swap delegate→bean.
+     * While the depth counter is positive, any {@code bindItem} call retains
+     * resolved Referrings so the eventual rebind can replay them (e.g. for
+     * forward Object Id refs inside Collection/Map properties).
+     * Re-entrant; must be paired with {@link #exitDelegateBindPending} in a
+     * try/finally.
+     *
+     * @since 3.2
+     */
+    public void enterDelegateBindPending() {
+        _delegateBindDepth++;
+    }
+
+    /**
+     * Pair to {@link #enterDelegateBindPending}; decrements the depth counter.
+     *
+     * @since 3.2
+     */
+    public void exitDelegateBindPending() {
+        _delegateBindDepth--;
+    }
+
+    /**
+     * @return {@code true} when currently inside a delegate-bind window
+     *   established by {@link #enterDelegateBindPending}.
+     *
+     * @since 3.2
+     */
+    public boolean isDelegateBindPending() {
+        return _delegateBindDepth > 0;
+    }
+
     /*
     /**********************************************************************
     /* Public API, type handling
@@ -1263,8 +1374,10 @@ public abstract class DeserializationContext
         }
         // Do we know properties that are expected instead?
         Collection<Object> propIds = (deser == null) ? null : deser.getKnownPropertyNames();
-        throw UnrecognizedPropertyException.from(_parser,
-                instanceOrClass, propName, propIds);
+        // 24-Apr-2026, tatu: use caller-supplied parser (may be a TokenBuffer replay
+        //   parser during polymorphic deserialization) rather than the top-level
+        //   `_parser`, so the reported location reflects the actual offending token.
+        throw UnrecognizedPropertyException.from(p, instanceOrClass, propName, propIds);
     }
 
     /**

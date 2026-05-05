@@ -140,7 +140,7 @@ public final class PropertyBasedCreator
     }
 
     /**
-     * Factory method used for building actual instances to be used with POJOS:
+     * Factory method used for building actual instances to be used with POJOs:
      * resolves deserializers, checks for "null values".
      */
     public static PropertyBasedCreator construct(DeserializationContext ctxt,
@@ -191,8 +191,12 @@ public final class PropertyBasedCreator
     }
 
     /**
-     * Mutant factory method for constructing a map where the names of all properties
+     * Mutant factory method for constructing a creator where property <i>names</i>
      * are transformed using the given {@link NameTransformer}.
+     *<p>
+     * NOTE: transformer is applied to property names only; value deserializers
+     * are left untouched. See {@link BeanPropertyMap#renameAll} for rationale
+     * (see [databind#3178]).
      *
      * @since 2.19
      */
@@ -213,13 +217,16 @@ public final class PropertyBasedCreator
                 continue;
             }
 
-            SettableBeanProperty renamedProperty = prop.unwrapped(ctxt, transformer);
             String oldName = prop.getName();
-            String newName = renamedProperty.getName();
-
+            String newName = transformer.transform(oldName);
+            if (oldName.equals(newName)) {
+                newProps.add(prop);
+                continue;
+            }
+            newName = ctxt.canonicalizeString(newName);
+            SettableBeanProperty renamedProperty = prop.withSimpleName(newName);
             newProps.add(renamedProperty);
-
-            if (!oldName.equals(newName) && newLookup.containsKey(oldName)) {
+            if (newLookup.containsKey(oldName)) {
                 newLookup.remove(oldName);
                 newLookup.put(newName, renamedProperty);
             }
@@ -269,23 +276,56 @@ public final class PropertyBasedCreator
 
     /**
      * Method called when starting to build a bean instance.
+     *
+     * @deprecated Since 3.2
      */
+    @Deprecated
     public PropertyValueBuffer startBuilding(JsonParser p, DeserializationContext ctxt,
             ObjectIdReader oir) {
-        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, null,
-                _injectablePropIndexes);
+        return startBuilding(p, ctxt, oir, false);
     }
 
     /**
      * Method called when starting to build a bean instance.
+     *<p>
+     * The {@code mayRebind} flag (added with [databind#5909]) signals that the
+     * constructed instance is a Builder that will be rebuilt via
+     * {@code finishBuild}, so resolved Object Id Referrings need to be retained
+     * for later replay.
      *
-     * @since 2.18 (added SettableAnyProperty parameter)
+     * @since 3.2
      */
-    public PropertyValueBuffer startBuildingWithAnySetter(JsonParser p, DeserializationContext ctxt,
+    public PropertyValueBuffer startBuilding(JsonParser p, DeserializationContext ctxt,
+            ObjectIdReader oir, boolean mayRebind) {
+        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, null,
+                _injectablePropIndexes, mayRebind);
+    }
+
+    /**
+     * @deprecated Since 3.2
+     */
+    @Deprecated
+    public PropertyValueBuffer startBuildingWithAnySetter(JsonParser p,
+            DeserializationContext ctxt,
             ObjectIdReader oir, SettableAnyProperty anySetter
     ) {
+        return startBuildingWithAnySetter(p, ctxt, oir, anySetter, false);
+    }
+
+    /**
+     * Method called when starting to build a bean instance.
+     *<p>
+     * See {@link #startBuilding(JsonParser, DeserializationContext, ObjectIdReader, boolean)}
+     * for the meaning of {@code mayRebind} ([databind#5909]).
+     *
+     * @since 3.2
+     */
+    public PropertyValueBuffer startBuildingWithAnySetter(JsonParser p,
+            DeserializationContext ctxt,
+            ObjectIdReader oir, SettableAnyProperty anySetter, boolean mayRebind
+    ) {
         return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, anySetter,
-                _injectablePropIndexes);
+                _injectablePropIndexes, mayRebind);
     }
 
     public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer)

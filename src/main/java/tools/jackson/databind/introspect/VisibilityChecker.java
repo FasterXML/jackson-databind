@@ -65,7 +65,10 @@ public class VisibilityChecker
      * levels as indicated by given annotation instance
      *
      * @param ann Annotations to use for determining minimum visibility levels
+     *
+     * @deprecated Should use {@link #construct(JsonAutoDetect.Value)} instead.
      */
+    @Deprecated // @since 3.2
     public VisibilityChecker(JsonAutoDetect ann)
     {
         // let's combine checks for enabled/disabled, with minimum level checks:
@@ -371,6 +374,16 @@ public class VisibilityChecker
     }
 
     @Override
+    public int hashCode() {
+        return _fieldMinLevel.ordinal()
+                + (_getterMinLevel.ordinal() << 1)
+                + (_isGetterMinLevel.ordinal() << 2)
+                + (_setterMinLevel.ordinal() << 3)
+                + (_creatorMinLevel.ordinal() << 4)
+                + (_scalarConstructorMinLevel.ordinal() << 5);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == this) return true;
         if (o instanceof VisibilityChecker other) {
@@ -381,8 +394,7 @@ public class VisibilityChecker
                     &&  _creatorMinLevel== other._creatorMinLevel
                     &&  _scalarConstructorMinLevel == other._scalarConstructorMinLevel
                     ;
-        } else {
-            return false;
         }
+        return false;
     }
 }

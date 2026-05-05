@@ -69,47 +69,41 @@ public class EnumDeserMixin2787Test
     /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER_ENUM_MIXIN
+        = mapperWithMixIn(Enum2787.class, EnumMixin2787.class);
 
     @Test
     public void testEnumDeserSuccess() throws Exception {
-        ObjectMapper mapper = mapperWithMixIn(Enum2787.class, EnumMixin2787.class);
-
-        Enum2787 result = mapper.readValue(q("B_MIXIN_PROP"), Enum2787.class);
-
-        assertEquals(Enum2787.ITEM_B, result);
+        assertEquals(Enum2787.ITEM_B,
+                MAPPER_ENUM_MIXIN.readValue(q("B_MIXIN_PROP"), Enum2787.class));
     }
 
     @Test
     public void testEnumMixinRoundTripSerDeser() throws Exception {
         // ser -> deser
-        ObjectMapper mapper = mapperWithMixIn(Enum2787.class, EnumMixin2787.class);
         // from
-        String result = mapper.writeValueAsString(Enum2787.ITEM_B);
+        String result = MAPPER_ENUM_MIXIN.writeValueAsString(Enum2787.ITEM_B);
         assertEquals(q("B_MIXIN_PROP"), result);
         // to
-        Enum2787 result2 = mapper.readValue(result, Enum2787.class);
+        Enum2787 result2 = MAPPER_ENUM_MIXIN.readValue(result, Enum2787.class);
         assertEquals(Enum2787.ITEM_B, result2);
     }
 
     @Test
     public void testEnumMixinRoundTripDeserSer() throws Exception {
         // deser -> ser
-        ObjectMapper mapper = mapperWithMixIn(Enum2787.class, EnumMixin2787.class);
         // from
-        Enum2787 result = mapper.readValue(q("B_MIXIN_PROP"), Enum2787.class);
+        Enum2787 result = MAPPER_ENUM_MIXIN.readValue(q("B_MIXIN_PROP"), Enum2787.class);
         assertEquals(Enum2787.ITEM_B, result);
         // to
-        String value = mapper.writeValueAsString(result);
+        String value = MAPPER_ENUM_MIXIN.writeValueAsString(result);
         assertEquals(q("B_MIXIN_PROP"), value);
     }
 
     @Test
     public void testBeanMixin() throws Exception {
         ObjectMapper mapper = mapperWithMixIn(Bean2787.class, BeanMixin2787.class);
-
         Bean2787 result = mapper.readValue(a2q("{'x_mixin': 'value'}"), Bean2787.class);
-
         assertEquals("value", result.x);
     }
 
@@ -125,69 +119,56 @@ public class EnumDeserMixin2787Test
 
     @Test
     public void testEnumDeserSuccessMissingFromMixIn() throws Exception {
-        ObjectMapper mapper = mapperWithMixIn(Enum2787.class, EnumMixin2787.class);
-
-        Enum2787 result = mapper.readValue(q("ITEM_ORIGIN"), Enum2787.class);
-
-        assertEquals(Enum2787.ITEM_ORIGIN, result);
+        assertEquals(Enum2787.ITEM_ORIGIN,
+                MAPPER_ENUM_MIXIN.readValue(q("ITEM_ORIGIN"), Enum2787.class));
     }
 
     @Test
     public void testEnumDeserMixinFail() throws Exception {
-        ObjectMapper mapper = mapperWithMixIn(Enum2787.class, EnumMixin2787.class);
-
         // fail for Bean property name
         InvalidFormatException e = assertThrows(InvalidFormatException.class,
-                () -> mapper.readValue(q("tax10"), Enum2787.class));
+                () -> MAPPER_ENUM_MIXIN.readValue(q("tax10"), Enum2787.class));
         verifyException(e, "tax10", "not one of the values accepted for Enum class");
 
         // fail for Bean's JsonProperty because overridden
         InvalidFormatException e2 = assertThrows(InvalidFormatException.class,
-                () -> mapper.readValue(q("B_ORIGIN_PROP"), Enum2787.class));
+                () -> MAPPER_ENUM_MIXIN.readValue(q("B_ORIGIN_PROP"), Enum2787.class));
         verifyException(e2, "B_ORIGIN_PROP", "not one of the values accepted for Enum class");
     }
 
     @Test
     public void testMixInItselfNonJsonProperty() throws Exception {
-        ObjectMapper mapper = mapperWithMixIn(Enum2787.class, EnumMixin2787.class);
-
-        EnumMixin2787 result = mapper.readValue(q("ITEM_MIXIN"), EnumMixin2787.class);
+        EnumMixin2787 result = MAPPER_ENUM_MIXIN.readValue(q("ITEM_MIXIN"), EnumMixin2787.class);
 
         assertEquals(EnumMixin2787.ITEM_MIXIN, result);
     }
 
     @Test
     public void testMixInValueForTargetClass() throws Exception {
-        ObjectMapper mapper = mapperWithMixIn(Enum2787.class, EnumMixin2787.class);
-
         InvalidFormatException e = assertThrows(InvalidFormatException.class,
-                () -> mapper.readValue(q("tax30"), Enum2787.class));
+                () -> MAPPER_ENUM_MIXIN.readValue(q("tax30"), Enum2787.class));
         verifyException(e, " String \"tax30\": not one of the values accepted for Enum class:");
     }
 
     @Test
     public void testMixinOnEnumValuesThrowWhenUnknown() throws Exception {
-        ObjectMapper mapper = mapperWithMixIn(Enum2787.class, EnumMixin2787.class);
-
         InvalidFormatException e = assertThrows(InvalidFormatException.class,
-                () -> mapper.readValue(q("should-not-exist"), Enum2787.class));
+                () -> MAPPER_ENUM_MIXIN.readValue(q("should-not-exist"), Enum2787.class));
         verifyException(e, "should-not-exist", "not one of the values accepted for Enum class");
     }
 
     @Test
     public void testMixinForWrapper() throws Exception {
-        ObjectMapper mapper = mapperWithMixIn(Enum2787.class, EnumMixin2787.class);
-
-        EnumWrapper result = mapper.readValue(a2q("{'value': 'C_MIXIN_ALIAS_1'}"), EnumWrapper.class);
+        EnumWrapper result = MAPPER_ENUM_MIXIN.readValue(a2q("{'value': 'C_MIXIN_ALIAS_1'}"), EnumWrapper.class);
 
         assertEquals(Enum2787.ITEM_C, result.value);
     }
 
-    private ObjectMapper mapperWithMixIn(Class<?> target, Class<?> mixin) {
+    private static ObjectMapper mapperWithMixIn(Class<?> target, Class<?> mixin) {
         return builderWithMixIn(target, mixin).build();
     }
 
-    private JsonMapper.Builder builderWithMixIn(Class<?> target, Class<?> mixin) {
+    private static JsonMapper.Builder builderWithMixIn(Class<?> target, Class<?> mixin) {
         return jsonMapperBuilder().disable(EnumFeature.READ_ENUMS_USING_TO_STRING)
                 .addMixIn(target, mixin);
     }

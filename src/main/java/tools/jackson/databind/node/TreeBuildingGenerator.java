@@ -11,6 +11,7 @@ import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.JsonNodeFeature;
+import tools.jackson.databind.util.NumberUtil;
 import tools.jackson.databind.util.RawValue;
 
 /**
@@ -410,28 +411,12 @@ public class TreeBuildingGenerator
         } else {
             // [databind#5819]: apply `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES`?
             if (_cfgStripTrailingBigDecimalZeroes) {
-                v = _normalize(v);
+                v = NumberUtil.stripTrailingZeros(v);
             }
             _tokenWriteContext.writeNumber(_nodeFactory.numberNode(v));
         }
         return this;
     }
-
-    /**
-     * Helper method to strip trailing zeros from a {@link BigDecimal}, used to
-     * implement {@link JsonNodeFeature#STRIP_TRAILING_BIGDECIMAL_ZEROES}.
-     *
-     * @since 3.1.1
-     */
-    protected BigDecimal _normalize(BigDecimal v) {
-        // 21-Mar-2026, tatu: wrt [dataformats-binary#264] barfs on a specific value...
-        //   Must skip normalization in that particular case
-        try {
-            return v.stripTrailingZeros();
-        } catch (ArithmeticException e) {
-            return v;
-        }
-    }    
 
     @Override
     public JsonGenerator writeNumber(BigInteger v) {

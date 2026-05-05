@@ -129,16 +129,40 @@ public class UnwrappingBeanPropertyWriter
     public void assignSerializer(ValueSerializer<Object> ser)
     {
         if (ser != null) {
-            NameTransformer t = _nameTransformer;
-            if (ser.isUnwrappingSerializer()
-                    // as per [databind#2060], need to also check this, in case someone writes
-                    // custom implementation that does not extend standard implementation:
-                    && ser instanceof UnwrappingBeanSerializer unwrappingBeanSerializer) {
-                t = NameTransformer.chainedTransformer(t, unwrappingBeanSerializer._nameTransformer);
-            }
-            ser = ser.unwrappingSerializer(t);
+            ser = _asUnwrapping(ser);
         }
         super.assignSerializer(ser);
+    }
+
+    /**
+     * Resolves the effective unwrapping serializer for this property, constructing it
+     * on demand if {@link #assignSerializer} was not called (which happens when the
+     * declared type is non-final, since {@code resolve} defers to dynamic resolution).
+     * Used for [databind#2883] conflict detection.
+     *
+     * @since 3.2
+     */
+    public ValueSerializer<Object> findUnwrappingSerializer(SerializationContext ctxt)
+    {
+        ValueSerializer<Object> ser = getSerializer();
+        if (ser != null) {
+            return ser;
+        }
+        ser = ctxt.findPrimaryPropertySerializer(getType(), this);
+        return (ser == null) ? null : _asUnwrapping(ser);
+    }
+
+    // @since 3.2
+    private ValueSerializer<Object> _asUnwrapping(ValueSerializer<Object> ser)
+    {
+        NameTransformer t = _nameTransformer;
+        if (ser.isUnwrappingSerializer()
+                // as per [databind#2060], need to also check this, in case someone writes
+                // custom implementation that does not extend standard implementation:
+                && ser instanceof UnwrappingBeanSerializer unwrappingBeanSerializer) {
+            t = NameTransformer.chainedTransformer(t, unwrappingBeanSerializer._nameTransformer);
+        }
+        return ser.unwrappingSerializer(t);
     }
 
     /*

@@ -23,6 +23,13 @@ public class StdTypeResolverBuilder
     protected JsonTypeInfo.Id _idType;
 
     protected JsonTypeInfo.As _includeAs;
+    
+    /**
+     * The type representing the base class. Typically the class holding the JsonTypeInfo annotation.
+     * 
+     * @since 3.2
+     */
+    protected final JavaType _detectedBaseType;
 
     protected String _typeProperty;
 
@@ -45,6 +52,16 @@ public class StdTypeResolverBuilder
      */
     protected Class<?> _defaultImpl;
 
+    /**
+     * Whether to skip writing type id during serialization when
+     * the runtime type matches {@link #_defaultImpl}: {@code Boolean.TRUE}
+     * to skip, {@code Boolean.FALSE} to always write, {@code null} if
+     * not explicitly configured (default behavior, type id always written).
+     *
+     * @since 3.2
+     */
+    protected Boolean _skipWriteForDefaultImpl;
+
     // Objects
 
     protected TypeIdResolver _customIdResolver;
@@ -55,16 +72,45 @@ public class StdTypeResolverBuilder
     /**********************************************************************
      */
 
-    public StdTypeResolverBuilder() { }
+    public StdTypeResolverBuilder() { 
+        this._detectedBaseType = null;
+    }
 
+    /**
+     * @deprecated Prefer similar constructor accepting a JavaType detectedBaseType
+     */
+    @Deprecated(since = "3.2")
     public StdTypeResolverBuilder(JsonTypeInfo.Value settings) {
+    	this(settings, null);
+    }
+
+    /**
+     * The type representing the base class. Typically the class holding the JsonTypeInfo annotation.
+     * 
+     * @since 3.2
+     */
+    public StdTypeResolverBuilder(JsonTypeInfo.Value settings, JavaType detectedBaseType) {
         if (settings != null) {
             withSettings(settings);
         }
+        _detectedBaseType = detectedBaseType;
     }
 
+    /**
+     * @deprecated Prefer similar constructor accepting a JavaType detectedBaseType
+     */
+    @Deprecated(since = "3.2")
     public StdTypeResolverBuilder(JsonTypeInfo.Id idType,
             JsonTypeInfo.As idAs, String propName)
+    {
+        this(idType, idAs, propName, null);
+    }
+
+    /**
+     * @since 3.2
+     */
+    public StdTypeResolverBuilder(JsonTypeInfo.Id idType,
+            JsonTypeInfo.As idAs, String propName, JavaType detectedBaseType)
     {
         if (idType == null) {
             throw new IllegalArgumentException("idType cannot be null");
@@ -72,6 +118,7 @@ public class StdTypeResolverBuilder
         _idType = idType;
         _includeAs = idAs;
         _typeProperty = _propName(propName, _idType);
+        _detectedBaseType = detectedBaseType;
     }
 
     protected StdTypeResolverBuilder(StdTypeResolverBuilder base,
@@ -85,10 +132,12 @@ public class StdTypeResolverBuilder
 
         _defaultImpl = defaultImpl;
         _requireTypeIdForSubtypes = base._requireTypeIdForSubtypes;
+        _skipWriteForDefaultImpl = base._skipWriteForDefaultImpl;
+        _detectedBaseType = base._detectedBaseType;
     }
 
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
-        return new StdTypeResolverBuilder(JsonTypeInfo.Id.NONE, null, null);
+        return new StdTypeResolverBuilder(JsonTypeInfo.Id.NONE, null, null, null);
     }
 
     @Override
@@ -112,18 +161,24 @@ public class StdTypeResolverBuilder
 
         TypeIdResolver idRes = idResolver(ctxt, baseType, subTypeValidator(ctxt),
                 subtypes, true, false);
+        // [databind#644]: when enabled, pass defaultImpl class so type id can be
+        // suppressed for exact matches; null means "always write type id"
+        final Class<?> skipTypeIdFor = Boolean.TRUE.equals(_skipWriteForDefaultImpl)
+                ? _defaultImpl : null;
         switch (_includeAs) {
         case WRAPPER_ARRAY:
-            return new AsArrayTypeSerializer(idRes, null);
+            return new AsArrayTypeSerializer(idRes, null, skipTypeIdFor);
         case PROPERTY:
-            return new AsPropertyTypeSerializer(idRes, null, _typeProperty);
+            return new AsPropertyTypeSerializer(idRes, null, _typeProperty, skipTypeIdFor);
         case WRAPPER_OBJECT:
-            return new AsWrapperTypeSerializer(idRes, null);
+            return new AsWrapperTypeSerializer(idRes, null, skipTypeIdFor);
         case EXTERNAL_PROPERTY:
-            return new AsExternalTypeSerializer(idRes, null, _typeProperty);
+            return new AsExternalTypeSerializer(idRes, null, _typeProperty, skipTypeIdFor);
         case EXISTING_PROPERTY:
-        	// as per [#528]
-        	return new AsExistingPropertyTypeSerializer(idRes, null, _typeProperty);
+            // as per [#528]
+            return new AsExistingPropertyTypeSerializer(idRes, null, _typeProperty, skipTypeIdFor);
+        case NOTHING:
+            return null;
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }
@@ -170,6 +225,8 @@ public class StdTypeResolverBuilder
         case EXTERNAL_PROPERTY:
             return new AsExternalTypeDeserializer(baseType, idRes,
                     _typeProperty, _typeIdVisible, defaultImpl);
+        case NOTHING:
+            return null;
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }
@@ -245,6 +302,8 @@ public class StdTypeResolverBuilder
         _defaultImpl = settings.getDefaultImpl();
         _typeIdVisible = settings.getIdVisible();
         _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
+        Boolean writeTypeId = settings.getWriteTypeIdForDefaultImpl();
+        _skipWriteForDefaultImpl = (writeTypeId != null) ? !writeTypeId : null;
         return this;
     }
 
@@ -284,17 +343,20 @@ public class StdTypeResolverBuilder
         // Custom id resolver?
         if (_customIdResolver != null) { return _customIdResolver; }
         if (_idType == null) throw new IllegalStateException("Cannot build, 'init()' not yet called");
+        
+        JavaType actualBaseType = _detectedBaseType != null ? _detectedBaseType : baseType;
+        
         switch (_idType) {
         case DEDUCTION: // Deduction produces class names to be resolved
         case CLASS:
-            return ClassNameIdResolver.construct(baseType, subtypes, subtypeValidator);
+            return ClassNameIdResolver.construct(actualBaseType, subtypes, subtypeValidator);
         case MINIMAL_CLASS:
-            return MinimalClassNameIdResolver.construct(baseType, subtypes, subtypeValidator);
+            return MinimalClassNameIdResolver.construct(actualBaseType, subtypes, subtypeValidator);
         case SIMPLE_NAME:
-            return SimpleNameIdResolver.construct(ctxt.getConfig(), baseType,
+            return SimpleNameIdResolver.construct(ctxt.getConfig(), actualBaseType,
                     subtypes, forSer, forDeser);
         case NAME:
-            return TypeNameIdResolver.construct(ctxt.getConfig(), baseType,
+            return TypeNameIdResolver.construct(ctxt.getConfig(), actualBaseType,
                     subtypes, forSer, forDeser);
         case NONE: // hmmh. should never get this far with 'none'
             return null;

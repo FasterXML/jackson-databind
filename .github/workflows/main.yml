@@ -74,40 +74,32 @@ jobs:
       run: ./mvnw -B -q -ff -ntp test jacoco:report
     - name: Publish code coverage
       if: ${{ matrix.release_build && github.event_name != 'pull_request' && github.repository == 'FasterXML/jackson-databind' }}
-      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./target/site/jacoco/jacoco.xml
         flags: unittests
     - name: Upload coverage report as artifact
       if: ${{ matrix.release_build && github.event_name != 'pull_request' && github.repository == 'FasterXML/jackson-databind' }}
-      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: jacoco-report
         path: target/site/jacoco/jacoco.csv
         retention-days: 30
     - name: Download base branch coverage
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
-      uses: dawidd6/action-download-artifact@883bc3da0e2f55ddd0a8fc8e99378551c1991a55 # v13
+      uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
       continue-on-error: true
       with:
         workflow: main.yml
         branch: ${{ github.event.pull_request.base.ref }}
         name: jacoco-report
         path: base-coverage/
-    - name: Generate coverage summary
-      if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
-      id: jacoco
-      uses: cicirello/jacoco-badge-generator@72266185b7ee48a6fd74eaf0238395cc8b14fef8 # v2.12.1
-      with:
-        jacoco-csv-file: target/site/jacoco/jacoco.csv
-        generate-coverage-badge: false
-        generate-branches-badge: false
-        generate-summary: true
     - name: Generate coverage comment
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
       run: |
-        # Helper functions
+        # Parse JaCoCo CSV to compute coverage percentage
+        # Columns: GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED(4),INSTRUCTION_COVERED(5),BRANCH_MISSED(6),BRANCH_COVERED(7),...
         parse_coverage() {
           local csv_file=$1 col_missed=$2 col_covered=$3
           awk -F',' -v m="$col_missed" -v c="$col_covered" \
@@ -139,9 +131,9 @@ jobs:
           }'
         }
 
-        # Convert decimal to percentage and round to 1 decimal place
-        COVERAGE=$(awk -v cov="${{ steps.jacoco.outputs.coverage }}" 'BEGIN { printf "%.2f", cov * 100 }')
-        BRANCHES=$(awk -v br="${{ steps.jacoco.outputs.branches }}" 'BEGIN { printf "%.2f", br * 100 }')
+        # Compute current coverage from JaCoCo CSV
+        COVERAGE=$(parse_coverage "target/site/jacoco/jacoco.csv" 4 5)
+        BRANCHES=$(parse_coverage "target/site/jacoco/jacoco.csv" 6 7)
 
         # Check if base coverage artifact was downloaded and calculate deltas
         HAS_DELTA=false
@@ -192,7 +184,7 @@ jobs:
         echo "$COMMENT_BODY" > pr-comment/comment-body.txt
     - name: Upload PR comment
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
-      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: pr-comment
         path: pr-comment/

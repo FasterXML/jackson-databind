@@ -159,6 +159,18 @@ public class NumberDeserializers
             return AccessPattern.CONSTANT;
         }
 
+        /**
+         * Absent values for primitives should return JVM defaults ({@code 0, 0.0, false} etc.)
+         * and {@code null} for wrappers, regardless of
+         * {@link DeserializationFeature#FAIL_ON_NULL_FOR_PRIMITIVES}.
+         *
+         * @since 3.1
+         */
+        @Override
+        public final Object getAbsentValue(DeserializationContext ctxt) {
+            return _nullValue;
+        }
+
         @SuppressWarnings("unchecked")
         @Override
         public final T getNullValue(DeserializationContext ctxt) {

@@ -2,7 +2,7 @@ package tools.jackson.databind.jsontype;
 
 import java.util.Collection;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
@@ -269,16 +269,24 @@ public class TypeResolverProvider
             if (typeInfo.getIdType() == JsonTypeInfo.Id.NONE) {
                 return NO_RESOLVER;
             }
+
+            JavaType detectedBaseType;
             // 13-Aug-2011, tatu: One complication; external id
             //   only works for properties; so if declared for a Class, we will need
             //   to map it to "PROPERTY" instead of "EXTERNAL_PROPERTY"
-            if (ann instanceof AnnotatedClass) {
+            if (ann instanceof AnnotatedClass annotatedClass) {
                 JsonTypeInfo.As inclusion = typeInfo.getInclusionType();
                 if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
                     typeInfo = typeInfo.withInclusionType(JsonTypeInfo.As.PROPERTY);
                 }
+
+                detectedBaseType = ai.findPolymorphicBaseType(config, annotatedClass, typeInfo, baseType);
+            } else {
+            	// when method/field annotated, declared type MUST be intended base type
+            	detectedBaseType = null;
             }
-            b = _constructStdTypeResolverBuilder(config, typeInfo, baseType);
+
+            b = _constructStdTypeResolverBuilder(config, typeInfo, baseType, detectedBaseType);
         }
         // Does it define a custom type id resolver?
         Object customIdResolverOb = ai.findTypeIdResolver(config, ann);
@@ -296,8 +304,20 @@ public class TypeResolverProvider
         return b;
     }
 
+    /**
+     * @since 3.2
+     */
+    protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
+            JsonTypeInfo.Value typeInfo, JavaType baseType, JavaType detectedBaseType) {
+        return new StdTypeResolverBuilder(typeInfo, detectedBaseType);
+    }
+
+    // 27-Mar-2026, tatu: NOTE: overridden by `jackson-dataformat-xml`, careful
+    // with signature changes
+    //
+    @Deprecated(since = "3.2")
     protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
             JsonTypeInfo.Value typeInfo, JavaType baseType) {
-        return new StdTypeResolverBuilder(typeInfo);
+        return _constructStdTypeResolverBuilder(config, typeInfo, null);
     }
 }

@@ -162,7 +162,7 @@ def export_to_json(issues: List[Dict], filename: str):
             'updated_at': issue['updated_at']
         })
 
-    with open(filename, 'w') as f:
+    with open(filename, 'w', encoding="utf-8") as f:
         json.dump(simplified_issues, f, indent=2)
 
     print(f"\nExported {len(issues)} issues to {filename}")

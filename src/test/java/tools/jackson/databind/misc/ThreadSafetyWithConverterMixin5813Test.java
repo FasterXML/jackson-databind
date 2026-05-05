@@ -1,10 +1,6 @@
 package tools.jackson.databind.misc;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Collectors;
@@ -30,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@code resolve()} completes.
  */
 public class ThreadSafetyWithConverterMixin5813Test
-        extends DatabindTestUtil
+    extends DatabindTestUtil
 {
     static class LocaleToStringConverter extends StdConverter<Locale, String> {
         @Override
@@ -110,13 +106,7 @@ public class ThreadSafetyWithConverterMixin5813Test
     // Use 50 repetitions; this should be enough to reliably trigger the race condition
     // when the fix is absent
     @RepeatedTest(50)
-    public void testConcurrentSerializationWithConverterMixin() throws Exception {
-        for (int round = 0; round < 50; round++) {
-            _testConcurrentSerializationWithConverterMixin();
-        }
-    }
-
-    private void _testConcurrentSerializationWithConverterMixin() throws Exception {
+    public void testConcurrentSerializationWithConverterMixin() throws Throwable {
         final String expectedJson = a2q("{\n"
                 + "  'locales' : [ {\n"
                 + "    'code' : 'en'\n"
@@ -151,8 +141,8 @@ public class ThreadSafetyWithConverterMixin5813Test
                         if (!expectedNormalized.equals(normalized)) {
                             errors.add(new AssertionError(
                                     "Serialization produced wrong output.\n"
-                                            + "Expected: " + expectedNormalized + "\n"
-                                            + "Actual:   " + normalized));
+                                    + "Expected: " + expectedNormalized + "\n"
+                                    + "Actual:   " + normalized));
                             return;
                         }
                     }

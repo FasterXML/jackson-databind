@@ -12,7 +12,6 @@ import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.impl.ExternalTypeHandler;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
-import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.introspect.AnnotatedMethod;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
@@ -69,12 +68,6 @@ public class BuilderBasedDeserializer
                 ignorableProps, ignoreAllUnknown, includableProps, hasViews);
         _targetType = targetType;
         _buildMethod = builder.getBuildMethod();
-        // 05-Mar-2012, tatu: Object Ids  not supported with builders, not yet anyway
-        if (_objectIdReader != null) {
-            String msg = "Cannot use Object Id with Builder-based deserialization (type "
-                    +ClassUtil.getTypeDescription(beanDescRef.getType())+")";
-            throw InvalidDefinitionException.from((JsonParser)null, msg, beanDescRef.getType());
-        }
     }
 
     /**
@@ -207,6 +200,20 @@ public class BuilderBasedDeserializer
         return Boolean.FALSE;
     }
 
+    // [databind#5897]: for builder-based deser, polymorphism is determined by what
+    // `build()` returns vs the declared target type — the builder class itself may
+    // be final while still producing subtypes of a non-final target. Check
+    // `_targetType` (built value type) rather than `_beanType` (builder class).
+    @Override
+    protected boolean _shouldSkipUnknowns(DeserializationContext ctxt) {
+        if (_ignoreAllUnknown) {
+            return true;
+        }
+        return _targetType.isFinal()
+                && ctxt.getConfig().getProblemHandlers() == null
+                && !ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    }
+
     protected Object finishBuild(DeserializationContext ctxt, Object builder)
             throws JacksonException
     {
@@ -214,8 +221,36 @@ public class BuilderBasedDeserializer
         if (null == _buildMethod) {
             return builder;
         }
+        // [databind#1496]: Object Id resolution may return an already-built target
+        // object (not the builder), so skip the build step in that case
+        if (!handledType().isInstance(builder)) {
+            // Verify it is actually the target type, not some unexpected type
+            if (!_targetType.getRawClass().isInstance(builder)) {
+                ctxt.reportBadDefinition(_targetType, String.format(
+                        "Builder-based deserialization of %s received unexpected type `%s`"
+                        + " (expected builder type `%s` or target type `%s`)",
+                        _targetType, ClassUtil.classNameOf(builder),
+                        ClassUtil.nameOf(handledType()), ClassUtil.getTypeDescription(_targetType)));
+            }
+            return builder;
+        }
+        // [databind#1496]: check for pending forward references that would be lost
+        // after building (they point to the builder, not the built object)
+        if (_objectIdReader != null && ctxt.hasPendingForwardRefsFor(builder)) {
+            ctxt.reportBadDefinition(_targetType, String.format(
+                    "Cannot resolve forward Object Id references for Builder-based type %s:"
+                    + " forward references were registered against the Builder instance,"
+                    + " which is discarded after building"
+                    + " (forward Object Id references not yet supported with Builder-based deserialization)",
+                    ClassUtil.getTypeDescription(_targetType)));
+        }
         try {
-            return _buildMethod.getMember().invoke(builder, (Object[]) null);
+            Object result = _buildMethod.getMember().invoke(builder, (Object[]) null);
+            // [databind#1496]: rebind Object Id from builder to built object
+            if (_objectIdReader != null && result != builder) {
+                ctxt.updateObjectId(builder, result);
+            }
+            return result;
         } catch (Exception e) {
             return wrapInstantiationProblem(ctxt, e);
         }
@@ -234,6 +269,9 @@ public class BuilderBasedDeserializer
                 return finishBuild(ctxt, _vanillaDeserialize(p, ctxt));
             }
             p.nextToken();
+            if (_objectIdReader != null) {
+                return finishBuild(ctxt, deserializeWithObjectId(p, ctxt));
+            }
             return finishBuild(ctxt, deserializeFromObject(p, ctxt));
         }
         // and then others, generally requiring use of @JsonCreator
@@ -255,6 +293,9 @@ public class BuilderBasedDeserializer
             return _deserializeFromArray(p, ctxt);
         case JsonTokenId.ID_PROPERTY_NAME:
         case JsonTokenId.ID_END_OBJECT:
+            if (_objectIdReader != null) {
+                return finishBuild(ctxt, deserializeWithObjectId(p, ctxt));
+            }
             return finishBuild(ctxt, deserializeFromObject(p, ctxt));
         default:
         }
@@ -265,25 +306,29 @@ public class BuilderBasedDeserializer
      * Secondary deserialization method, called in cases where POJO
      * instance is created as part of deserialization, potentially
      * after collecting some or all of the properties to set.
+     *<p>
+     * For Builder-based deserialization, this is supported only when the
+     * caller passes a {@link #handledType() Builder} instance (see
+     * [databind#2100]); the builder is used as the mutable accumulator,
+     * JSON properties are applied to it, and {@code build()} is then
+     * invoked to produce the target value. Passing an already-built value
+     * is not supported, because builder-backed POJOs are typically
+     * immutable and there is no general way to re-populate builder state
+     * from a built instance.
      */
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt,
     		Object value) throws JacksonException
     {
-        // 26-Oct-2016, tatu: I cannot see any of making this actually
-        //    work correctly, so let's indicate problem right away
-        JavaType valueType = _targetType;
-        // Did they try to give us builder?
-        Class<?> builderRawType = handledType();
-        Class<?> instRawType = value.getClass();
-        if (builderRawType.isAssignableFrom(instRawType)) {
-            return ctxt.reportBadDefinition(valueType, String.format(
-                    "Deserialization of %s by passing existing Builder (%s) instance not supported",
-                    valueType, builderRawType.getName()));
+        if (handledType().isAssignableFrom(value.getClass())) {
+            return finishBuild(ctxt, _deserialize(p, ctxt, value));
         }
-        return ctxt.reportBadDefinition(valueType, String.format(
-                "Deserialization of %s by passing existing instance (of %s) not supported",
-                valueType, instRawType.getName()));
+        return ctxt.reportBadDefinition(_targetType, String.format(
+                "Deserialization of %s by passing existing instance (of %s) not supported:"
+                + " for Builder-based deserialization, pass a Builder (of %s) instance instead",
+                ClassUtil.getTypeDescription(_targetType),
+                ClassUtil.classNameOf(value),
+                ClassUtil.nameOf(handledType())));
     }
 
     /*
@@ -342,6 +387,15 @@ public class BuilderBasedDeserializer
             return deserializeFromObjectUsingNonDefault(p, ctxt);
         }
         Object bean = _valueInstantiator.createUsingDefault(ctxt);
+        // [dataformats-text#292]: Handle native Object Ids (e.g. YAML anchors)
+        if (_objectIdReader != null) {
+            if (p.canReadObjectId()) {
+                Object id = p.getObjectId();
+                if (id != null) {
+                    _handleTypedObjectId(p, ctxt, bean, id);
+                }
+            }
+        }
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
@@ -389,13 +443,31 @@ public class BuilderBasedDeserializer
         throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        // [databind#5909]: builder will be rebuilt via finishBuild
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, true);
+
+        // [dataformats-text#22]: Handle native Object Ids (e.g. YAML anchors)
+        if (_objectIdReader != null && p.canReadObjectId()) {
+            Object rawId = p.getObjectId();
+            if (rawId != null) {
+                Object id;
+                ValueDeserializer<Object> idDeser = _objectIdReader.getDeserializer();
+                if (idDeser.handledType() == rawId.getClass()) {
+                    id = rawId;
+                } else {
+                    id = _convertObjectId(p, ctxt, rawId, idDeser);
+                }
+                buffer.assignNativeObjectId(id);
+            }
+        }
+
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
         // 04-Jan-2010, tatu: May need to collect unknown properties for polymorphic cases
         TokenBuffer unknown = null;
 
         JsonToken t = p.currentToken();
+        final boolean skipUnknown = _shouldSkipUnknowns(ctxt);
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             p.nextToken(); // to point to value
@@ -453,6 +525,10 @@ public class BuilderBasedDeserializer
             // "any" property?
             if (_anySetter != null) {
                 buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                continue;
+            }
+            if (skipUnknown) {
+                p.skipChildren();
                 continue;
             }
             // Ok then, let's collect the whole field; name and value
@@ -667,16 +743,18 @@ public class BuilderBasedDeserializer
             }
             final String propName = p.currentName();
             p.nextToken();
-            // ignorable things should be ignored
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                handleIgnoredProperty(p, ctxt, bean, propName);
-                continue;
-            }
             // 29-Dec-2025: [databind#650] We can avoid buffering and passing to any props
+            // 09-Mar-2026: [databind#1075] Check unwrapped properties BEFORE ignorable,
+            //    so that @JsonIgnore on outer getter doesn't block unwrapped inner property
             if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
                 hasUnwrappedContent = true;
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
+                continue;
+            }
+            // ignorable things should be ignored
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
             // how about any setter?
@@ -724,15 +802,15 @@ public class BuilderBasedDeserializer
             }
             final String propName = p.currentName();
             p.nextToken();
-            if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
-                handleIgnoredProperty(p, ctxt, builder, propName);
-                continue;
-            }
-            // 29-Dec-2025: [databind#650] We can avoid buffering and passing to any props
+            // 09-Mar-2026: [databind#1075] Check unwrapped properties BEFORE ignorable
             if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
                 hasUnwrappedContent = true;
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
+                continue;
+            }
+            if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
+                handleIgnoredProperty(p, ctxt, builder, propName);
                 continue;
             }
             // how about any setter?
@@ -752,7 +830,8 @@ public class BuilderBasedDeserializer
         throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        // [databind#5909]: builder will be rebuilt via finishBuild
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, true);
 
         TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();

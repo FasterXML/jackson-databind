@@ -18,14 +18,17 @@ import tools.jackson.databind.util.ClassUtil;
  */
 public class AsWrapperTypeSerializer extends TypeSerializerBase
 {
-    public AsWrapperTypeSerializer(TypeIdResolver idRes, BeanProperty property) {
-        super(idRes, property);
+    /** @since 3.2 */
+    public AsWrapperTypeSerializer(TypeIdResolver idRes, BeanProperty property,
+            Class<?> skipTypeIdFor) {
+        super(idRes, property, skipTypeIdFor);
     }
 
     @Override
     public AsWrapperTypeSerializer forProperty(SerializationContext ctxt, BeanProperty prop)
     {
-        return (_property == prop) ? this : new AsWrapperTypeSerializer(_idResolver, prop);
+        return (_property == prop) ? this :
+            new AsWrapperTypeSerializer(_idResolver, prop, _skipTypeIdFor);
     }
 
     @Override

@@ -397,6 +397,16 @@ public class JDKStringLikeTypeDeserTest
         } catch (InvalidFormatException e) {
             verifyException(e, "non-hex character 'x'");
         }
+
+        // 04-May-2026, tatu: Specific invalid input to try
+        try {
+            MAPPER.readValue(q("76e6d183-5f68-4afa-b94a-922c1fdb83f\u007F"), UUID.class);
+            fail("Should fail on invalid UUID string");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "non-hex character");
+            verifyException(e, "(value 0x7F)");
+        }
+        
         // should also test from-bytes version, but that's trickier... leave for now.
     }
 

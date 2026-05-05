@@ -100,7 +100,7 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
             if (t != JsonToken.VALUE_NUMBER_INT
                     && t != JsonToken.VALUE_STRING
                     && t != JsonToken.VALUE_EMBEDDED_OBJECT) {
-                return _reportWrongToken(ctxt, JsonToken.VALUE_NUMBER_INT, Integer.class.getName());
+                return _reportWrongToken(ctxt, JsonToken.VALUE_NUMBER_INT, "month");
             }
             if (!ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 return (Month) ctxt.handleUnexpectedToken(getValueType(ctxt),

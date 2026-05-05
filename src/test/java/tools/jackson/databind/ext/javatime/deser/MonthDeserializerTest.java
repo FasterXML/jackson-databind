@@ -313,7 +313,6 @@ public class MonthDeserializerTest extends DateTimeTestBase
     public void testDeserializationAsArrayWithMoreThanOneElement() throws Exception
     {
         // [databind#5957]: Multi-element arrays fail with UNWRAP_SINGLE_VALUE_ARRAYS message
-        // (since UNWRAP check fires before individual token checks)
         assertError(
             () -> readerForOneBased().readValue("[1, 2]"),
             MismatchedInputException.class,

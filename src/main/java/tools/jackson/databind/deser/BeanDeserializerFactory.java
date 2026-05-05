@@ -551,6 +551,11 @@ ClassUtil.name(propName)));
         if (ignorals != null) {
             builder.setIgnoreUnknownProperties(ignorals.getIgnoreUnknown());
             ignored = ignorals.findIgnoredForDeserialization();
+            // NOTE: must register class-level ignorals here separately from the
+            // per-property loop below: per [databind#2001]/[databind#2118], names
+            // that collide with creator parameters get stripped out of
+            // POJOPropertiesCollector#_ignoredPropertyNames during rename, so
+            // beanDesc.getIgnoredPropertyNames() does NOT cover them.
             for (String propName : ignored) {
                 builder.addIgnorable(propName);
             }
@@ -575,9 +580,12 @@ ClassUtil.name(propName)));
         if (anySetter != null) {
             builder.setAnySetter(anySetter);
         }
-        // [databind#5952]: per-property @JsonIgnore names must be registered as ignorable
-        // regardless of whether an any-setter exists, so the any-setter does not receive
-        // properties the user explicitly marked as ignored.
+        // [databind#5952]: per-property @JsonIgnore (and read-only access rules) must
+        // be registered as ignorable regardless of whether an any-setter exists, so
+        // the any-setter does not receive properties the user explicitly marked as
+        // ignored. (Class-level @JsonIgnoreProperties names are registered separately
+        // above; this is needed because creator-prop renaming may remove class-level
+        // names from POJOPropertiesCollector#_ignoredPropertyNames.)
         Collection<String> ignored2 = beanDesc.getIgnoredPropertyNames();
         if (ignored2 != null) {
             for (String propName : ignored2) {

@@ -80,7 +80,7 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
             }
             // fall through
         } else if (p.isExpectedStartArrayToken()) {
-            // [JDB-040]: Respect coercion settings; do not accept empty or single-element
+            // [databind#5957]: Respect coercion settings; do not accept empty or single-element
             // arrays unless the corresponding DeserializationFeature is enabled.
             JsonToken t = p.nextToken();
             if (t == JsonToken.END_ARRAY) {

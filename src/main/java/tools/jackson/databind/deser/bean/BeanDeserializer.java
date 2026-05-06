@@ -1410,6 +1410,8 @@ public class BeanDeserializer
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, false);
+        // [databind#5958]: capture active view so type-ID properties respect @JsonView restrictions
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
         for (JsonToken t = p.currentToken(); t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
@@ -1444,6 +1446,12 @@ public class BeanDeserializer
             int ix = _propNameMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
+                // [databind#5958]: check view before storing external type ID so that a
+                // view-restricted type discriminator is not processed in other views.
+                if (activeView != null && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // [databind#3045]: may have property AND be used as external type id:
                 // [databind#1329]: if so, and visible=false, skip buffering
                 if (t.isScalarValue()

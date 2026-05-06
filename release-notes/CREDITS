@@ -363,6 +363,9 @@ Omkhar Arasaratnam (@omkhar)
   [3.1.4]
  * Contributed fix for #5957: Improve `java.time.Month` deserialization validation
   [3.1.4]
+ * Contributed fix for #5958: `@JsonView` ignored with
+   `@JsonTypeInfo(include = As.EXTERNAL_PROPERTY)`
+  [3.2.0]
 
 Michael Orzechowski (@MikeBlink)
  * Reported #5941: `MapperBuilder.addModule()` does not recursively register transitive

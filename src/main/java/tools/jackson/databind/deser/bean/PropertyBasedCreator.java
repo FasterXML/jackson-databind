@@ -249,6 +249,8 @@ public final class PropertyBasedCreator
     /**
      * Returns all creator properties in creator-index order, including ones
      * marked ignorable (which {@link #properties()} excludes).
+     *<p>
+     * Returned array is shared internal state; callers must not mutate it.
      *
      * @since 3.2
      */

@@ -2,10 +2,13 @@ package tools.jackson.databind.records;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.OptBoolean;
 
+import tools.jackson.databind.InjectableValues;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -13,17 +16,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * [databind#5966]: Record updateValue() bypasses @JsonIgnore and @JsonView checks.
- *
- * Commit 7ec2a83f added _deserializeRecordForUpdate() for Records. The new method
- * parses JSON properties and assigns them to creator parameters without checking:
- *   - @JsonIgnore / @JsonIgnoreProperties on record components
- *   - @JsonView visibility on creator properties
- *   - isInjectionOnly() (injection-only creator params)
- *
- * The main _deserializeUsingPropertyBased path at line 731 DOES check activeView and
- * at line 744 checks IgnorePropertiesUtil.shouldIgnore(); the new Record path omits both.
- *
- * Proof: live_runtime_proof (JUnit 5).
  */
 public class RecordUpdateValueIgnoreView5966Test extends DatabindTestUtil
 {
@@ -49,13 +41,18 @@ public class RecordUpdateValueIgnoreView5966Test extends DatabindTestUtil
         @JsonView(AdminView.class) String adminField
     ) {}
 
+    public record InjectRecord(
+        String name,
+        @JacksonInject(value = "injected-key", useInput = OptBoolean.FALSE) String injected
+    ) {}
+
     // --- Tests ---
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
     /**
-     * NEGATIVE CONTROL: normal (non-update) deserialization of a Record with
-     * @JsonIgnore must reject the ignored field. Must pass before and after patch.
+     * Normal (non-update) deserialization of a Record with
+     * @JsonIgnore must reject the ignored field.
      */
     @Test
     public void testJsonIgnore_normalDeser_negativeControl() throws Exception {
@@ -68,16 +65,7 @@ public class RecordUpdateValueIgnoreView5966Test extends DatabindTestUtil
     }
 
     /**
-     * EXPLOIT PATH: ObjectMapper.updateValue() for a Record with @JsonIgnore.
-     *
-     * Security assertion: @JsonIgnore must prevent the attacker-supplied JSON value
-     * from being assigned to the "secret" component.  Because PropertyBasedCreator
-     * excludes ignored components from its lookup table, findCreatorProperty("secret")
-     * returns null and the JSON value is rejected.
-     *
-     * Data-integrity assertion: the pre-existing record value "original-secret"
-     * must be retained — _deserializeRecordForUpdate pre-populates ALL creator
-     * components from the source record, including ignored ones.
+     * ObjectMapper.updateValue() for a Record with @JsonIgnore.
      */
     @Test
     public void test5966_updateValueBypassesJsonIgnore() throws Exception {
@@ -97,9 +85,7 @@ public class RecordUpdateValueIgnoreView5966Test extends DatabindTestUtil
     }
 
     /**
-     * EXPLOIT PATH: ObjectMapper.updateValue() with @JsonIgnoreProperties on Record.
-     *
-     * Security assertion: @JsonIgnoreProperties must prevent the JSON value from being
+     * Verify that @JsonIgnoreProperties prevents the JSON value from being
      * assigned. Data-integrity assertion: original "original-pw" must be retained.
      */
     @Test
@@ -120,14 +106,8 @@ public class RecordUpdateValueIgnoreView5966Test extends DatabindTestUtil
     }
 
     /**
-     * EXPLOIT PATH: ObjectMapper.updateValue() with @JsonView — admin-only field
+     * ObjectMapper.updateValue() with @JsonView — admin-only field
      * must not be updated when active view is PublicView.
-     *
-     * Jackson 3.x defaults DEFAULT_VIEW_INCLUSION=false, so each Record component
-     * that should be visible in PublicView must carry @JsonView(PublicView.class).
-     * With PublicView active:
-     *   - publicField (@JsonView(PublicView.class)) IS visible → updated from JSON
-     *   - adminField  (@JsonView(AdminView.class))  is NOT visible → kept from original
      */
     @Test
     public void test5966_updateValueBypassesJsonView() throws Exception {
@@ -143,10 +123,48 @@ public class RecordUpdateValueIgnoreView5966Test extends DatabindTestUtil
         assertEquals("new-public", updated.publicField());
         // adminField has @JsonView(AdminView.class); with PublicView active it must not be updated
         assertNotEquals("HACKED-ADMIN", updated.adminField(),
-            "[databind#5966] VULNERABLE: updateValue() bypassed @JsonView on Record component. " +
+            "[databind#5966] updateValue() bypassed @JsonView on Record component. " +
             "adminField was overwritten to: " + updated.adminField());
         // The original adminField value must be preserved (pre-populated in Step 1)
         assertEquals("admin-original", updated.adminField(),
-            "[databind#5966] VULNERABLE: adminField should remain 'admin-original' but was: " + updated.adminField());
+            "[databind#5966] adminField should remain 'admin-original' but was: " + updated.adminField());
+    }
+
+    /**
+     * ObjectMapper.updateValue() with @JacksonInject(useInput=FALSE) on a Record
+     * component: JSON value must be skipped, injected value must take effect.
+     */
+    @Test
+    public void test5966_updateValueRespectsInjectionOnly() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .injectableValues(new InjectableValues.Std().addValue("injected-key", "INJECTED"))
+            .build();
+        InjectRecord original = new InjectRecord("alice", "original-injected");
+        String maliciousJson = "{\"name\":\"alice\",\"injected\":\"HACKED\"}";
+
+        InjectRecord updated = mapper.updateValue(original, mapper.readTree(maliciousJson));
+
+        assertEquals("alice", updated.name());
+        assertNotEquals("HACKED", updated.injected(),
+            "[databind#5966] updateValue() bypassed isInjectionOnly() on Record component. " +
+            "injected was overwritten to: " + updated.injected());
+        assertEquals("INJECTED", updated.injected(),
+            "[databind#5966] injected component should hold the injected value but was: " + updated.injected());
+    }
+
+    /**
+     * Empty-JSON updateValue() of a Record with @JsonIgnore: pre-populate must
+     * retain the source record's value for ignored components when no JSON
+     * properties are provided to override.
+     */
+    @Test
+    public void test5966_updateValueEmptyJsonRetainsIgnored() throws Exception {
+        SecretRecord original = new SecretRecord("alice", "original-secret");
+
+        SecretRecord updated = MAPPER.updateValue(original, MAPPER.readTree("{}"));
+
+        assertEquals("alice", updated.name());
+        assertEquals("original-secret", updated.secret(),
+            "[databind#5966] empty-JSON update should retain original secret but was: " + updated.secret());
     }
 }

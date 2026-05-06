@@ -17,15 +17,11 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * [databind#5969]: @JsonView bypass for setterless creator properties.
  *
- * Commit e40aaee8 (Fix #2692) changed BeanDeserializer._deserializeUsingPropertyBased()
- * from checking {@code prop instanceof MergingSettableBeanProperty} to {@code prop.isMerging()},
- * and made SetterlessProperty.isMerging() return true. This allows collection-typed setterless
- * properties to be populated via the merging buffer path.
- *
- * Security regression: the {@code isMerging()} branch in the regular-property buffering section
- * has no {@code prop.visibleInView(activeView)} check. For a class with an @JsonCreator
- * constructor and a setterless collection property annotated @JsonView(Admin.class),
- * an attacker using a Public view can still populate the Admin-only collection.
+ * Regression introduced when setterless collection properties were enrolled
+ * in the merging buffer path of {@code BeanDeserializer._deserializeUsingPropertyBased()}:
+ * the regular-property buffering branch had no {@code prop.visibleInView(activeView)} check,
+ * so a setterless collection annotated {@code @JsonView(Admin.class)} could still be populated
+ * when deserializing under a non-Admin view via a class with a {@code @JsonCreator} constructor.
  */
 public class SetterlessViewBypass5969Test extends DatabindTestUtil
 {

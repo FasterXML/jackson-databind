@@ -184,15 +184,15 @@ public class JDKStringLikeTypeDeserTest
     public void testInetSocketAddress() throws IOException
     {
         InetSocketAddress address = MAPPER.readValue(q("127.0.0.1"), InetSocketAddress.class);
-        assertEquals("127.0.0.1", address.getAddress().getHostAddress());
+        assertEquals("127.0.0.1", address.getHostName());
 
         InetSocketAddress ip6 = MAPPER.readValue(
                 q("2001:db8:85a3:8d3:1319:8a2e:370:7348"), InetSocketAddress.class);
-        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6.getAddress().getHostAddress());
+        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6.getHostName());
 
         InetSocketAddress ip6port = MAPPER.readValue(
                 q("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"), InetSocketAddress.class);
-        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6port.getAddress().getHostAddress());
+        assertEquals("[2001:db8:85a3:8d3:1319:8a2e:370:7348]", ip6port.getHostName());
         assertEquals(443, ip6port.getPort());
 
         // should we try resolving host names? That requires connectivity...
@@ -205,7 +205,7 @@ public class JDKStringLikeTypeDeserTest
         assertEquals(HOST, address.getHostName());
         assertEquals(80, address.getPort());
 
-        // [databind#]: should NOT resolve address
+        // [databind#5951]: should NOT resolve address
         address = MAPPER.readValue(q("localhost:9999"), InetSocketAddress.class);
         assertTrue(address.isUnresolved(),
                 "`InetSocketAddress` resolved localhost during deserialization: "+ address);

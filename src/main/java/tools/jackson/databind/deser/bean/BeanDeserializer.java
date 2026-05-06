@@ -361,10 +361,23 @@ public class BeanDeserializer
             return _buildRecordFromBuffer(ctxt, creator, buffer);
         }
 
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
+
         do {
             p.nextToken(); // to point to value
             final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
+                // [databind#5966] Honor @JsonView visibility, injection-only on creator parameters
+                if (((activeView != null) && !creatorProp.visibleInView(activeView))
+                        || creatorProp.isInjectionOnly()) {
+                    p.skipChildren();
+                    continue;
+                }
+                // [databind#5966] Honor @JsonIgnoreProperties on creator parameters
+                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                    handleIgnoredProperty(p, ctxt, handledType(), propName);
+                    continue;
+                }
                 // Override the pre-populated value
                 buffer.assignParameter(creatorProp,
                         _deserializeWithErrorWrapping(p, ctxt, creatorProp));

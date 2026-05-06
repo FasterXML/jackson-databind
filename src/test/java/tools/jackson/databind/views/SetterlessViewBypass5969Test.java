@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.views;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -69,7 +68,6 @@ public class SetterlessViewBypass5969Test extends DatabindTestUtil
 
     // Exploit path: roles appears BEFORE the creator property "name", forcing the
     // regular-property buffering path. Under PublicView, roles must remain empty.
-    @JacksonTestFailureExpected
     @Test
     public void testSetterlessViewBypassInCreatorDeser() throws Exception {
         CreatorBean result = MAPPER
@@ -84,7 +82,6 @@ public class SetterlessViewBypass5969Test extends DatabindTestUtil
     }
 
     // Exploit path: roles appears AFTER the creator property.
-    @JacksonTestFailureExpected
     @Test
     public void testSetterlessViewBypass_rolesAfterCreator() throws Exception {
         CreatorBean result = MAPPER

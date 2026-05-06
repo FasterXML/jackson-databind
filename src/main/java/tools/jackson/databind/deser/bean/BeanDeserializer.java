@@ -728,6 +728,13 @@ public class BeanDeserializer
             int ix = _propNameMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
+                // [databind#5969]: must honor active view here too -- otherwise
+                // setterless/merging collection properties hidden by view can be
+                // populated via the buffering path below.
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // [databind#3724]: Special handling because Records' ignored creator props
                 // weren't removed (to help in creating constructor-backed PropertyCreator)
                 // so they ended up in _beanProperties, unlike POJO (whose ignored

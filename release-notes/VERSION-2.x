@@ -12,6 +12,8 @@ Project: jackson-databind
  (reported by Omkhar A)
 #5951: Improve `InetSocketAddress` deserialization
  (reported by Omkhar A)
+#5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+ (fixed by Omkhar A)
 
 2.21.3 (28-Apr-2026)
 

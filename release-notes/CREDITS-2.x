@@ -1922,6 +1922,8 @@ Omkhar Arasaratnam (@omkhar)
   (2.18.8)
  * Reported #5951: Improve `InetSocketAddress` deserialization
   (2.18.8)
+ * Contributed fix for #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+  (2.21.4)
 
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`

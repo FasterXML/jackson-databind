@@ -345,6 +345,9 @@ Omkhar Arasaratnam (@omkhar)
   [3.1.4]
  * Contributed fix for #5957: Improve `java.time.Month` deserialization validation
   [3.1.4]
+ * Contributed fix for #5962: Case-insensitive deserialization may use
+   wrong `@JsonIgnoreProperties`
+  [3.1.4]
 
 Michael Orzechowski (@MikeBlink)
  * Reported #5941: `MapperBuilder.addModule()` does not recursively register transitive

@@ -330,10 +330,15 @@ public class BeanDeserializer
             ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter, false)
             : creator.startBuilding(p, ctxt, _objectIdReader, false);
 
-        // Step 1: Pre-populate buffer from existing Record values
+        // Step 1: Pre-populate buffer from existing Record values, including
+        // components marked ignorable so their original values are retained
+        // (JSON cannot overwrite them; see Step 2).
         final Class<?> recordClass = _beanType.getRawClass();
         final RecordComponent[] components = recordClass.getRecordComponents();
-        for (SettableBeanProperty creatorProp : creator.properties()) {
+        for (SettableBeanProperty creatorProp : creator.creatorPropertiesInOrder()) {
+            if (creatorProp == null) {
+                continue;
+            }
             final int creatorIndex = creatorProp.getCreatorIndex();
             if (creatorIndex >= 0 && creatorIndex < components.length) {
                 try {

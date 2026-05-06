@@ -73,12 +73,11 @@ public class RecordUpdateValueIgnoreView5966Test extends DatabindTestUtil
      * Security assertion: @JsonIgnore must prevent the attacker-supplied JSON value
      * from being assigned to the "secret" component.  Because PropertyBasedCreator
      * excludes ignored components from its lookup table, findCreatorProperty("secret")
-     * returns null and the JSON value is already rejected (secret = null, not "HACKED").
+     * returns null and the JSON value is rejected.
      *
-     * Separate data-integrity note: the pre-existing record value "original-secret"
-     * is also lost (becomes null) because _deserializeRecordForUpdate pre-populates
-     * only non-ignored components.  That is a separate functional deficiency tracked
-     * independently; it is NOT the injection-bypass risk asserted here.
+     * Data-integrity assertion: the pre-existing record value "original-secret"
+     * must be retained — _deserializeRecordForUpdate pre-populates ALL creator
+     * components from the source record, including ignored ones.
      */
     @Test
     public void test5966_updateValueBypassesJsonIgnore() throws Exception {
@@ -89,18 +88,19 @@ public class RecordUpdateValueIgnoreView5966Test extends DatabindTestUtil
 
         assertEquals("alice", updated.name());
         // @JsonIgnore on "secret" must prevent the attacker JSON value from taking effect.
-        // (secret may be null due to the data-integrity issue above; it must NOT be "HACKED")
         assertNotEquals("HACKED", updated.secret(),
             "[databind#5966] VULNERABLE: updateValue() bypassed @JsonIgnore on Record component. " +
             "secret was overwritten to: " + updated.secret());
+        // Original value must be retained (not nulled out).
+        assertEquals("original-secret", updated.secret(),
+            "[databind#5966] secret should retain original value but was: " + updated.secret());
     }
 
     /**
      * EXPLOIT PATH: ObjectMapper.updateValue() with @JsonIgnoreProperties on Record.
      *
      * Security assertion: @JsonIgnoreProperties must prevent the JSON value from being
-     * assigned.  Same note as above: the original "original-pw" value is lost (null)
-     * due to the data-integrity issue with pre-populate, but "HACKED" must not appear.
+     * assigned. Data-integrity assertion: original "original-pw" must be retained.
      */
     @Test
     public void test5966_updateValueBypassesJsonIgnoreProperties() throws Exception {
@@ -114,6 +114,9 @@ public class RecordUpdateValueIgnoreView5966Test extends DatabindTestUtil
         assertNotEquals("HACKED", updated.password(),
             "[databind#5966] VULNERABLE: updateValue() bypassed @JsonIgnoreProperties on Record. " +
             "password was overwritten to: " + updated.password());
+        // Original value must be retained (not nulled out).
+        assertEquals("original-pw", updated.password(),
+            "[databind#5966] password should retain original value but was: " + updated.password());
     }
 
     /**

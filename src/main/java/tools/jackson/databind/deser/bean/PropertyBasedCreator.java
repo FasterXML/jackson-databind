@@ -248,6 +248,16 @@ public final class PropertyBasedCreator
         return _propertyLookup.values();
     }
 
+    /**
+     * Returns all creator properties in creator-index order, including ones
+     * marked ignorable (which {@link #properties()} excludes).
+     *
+     * @since 3.2
+     */
+    public SettableBeanProperty[] creatorPropertiesInOrder() {
+        return _propertiesInOrder;
+    }
+
     public SettableBeanProperty findCreatorProperty(String name) {
         return _propertyLookup.get(name);
     }

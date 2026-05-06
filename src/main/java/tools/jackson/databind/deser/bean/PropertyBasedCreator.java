@@ -50,8 +50,6 @@ public final class PropertyBasedCreator
     /**
      * Indexes of properties with associated Injectable values, if any:
      * {@code null} if none.
-     *
-     * @since 2.21
      */
     protected final BitSet _injectablePropIndexes;
 
@@ -254,7 +252,7 @@ public final class PropertyBasedCreator
      *
      * @since 3.2
      */
-    public SettableBeanProperty[] creatorPropertiesInOrder() {
+    public SettableBeanProperty[] allPropertiesInOrder() {
         return _propertiesInOrder;
     }
 

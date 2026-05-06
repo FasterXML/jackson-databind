@@ -335,7 +335,7 @@ public class BeanDeserializer
         // (JSON cannot overwrite them; see Step 2).
         final Class<?> recordClass = _beanType.getRawClass();
         final RecordComponent[] components = recordClass.getRecordComponents();
-        for (SettableBeanProperty creatorProp : creator.creatorPropertiesInOrder()) {
+        for (SettableBeanProperty creatorProp : creator.allPropertiesInOrder()) {
             if (creatorProp == null) {
                 continue;
             }

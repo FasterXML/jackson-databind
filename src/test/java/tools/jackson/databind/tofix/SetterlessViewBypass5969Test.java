@@ -16,7 +16,7 @@ import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * JDB-005: @JsonView bypass for setterless creator properties.
+ * [databind#5969]: @JsonView bypass for setterless creator properties.
  *
  * Commit e40aaee8 (Fix #2692) changed BeanDeserializer._deserializeUsingPropertyBased()
  * from checking {@code prop instanceof MergingSettableBeanProperty} to {@code prop.isMerging()},
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * constructor and a setterless collection property annotated @JsonView(Admin.class),
  * an attacker using a Public view can still populate the Admin-only collection.
  */
-public class SecurityPocJdb005Test extends DatabindTestUtil
+public class SetterlessViewBypass5969Test extends DatabindTestUtil
 {
     static class PublicView {}
     static class AdminView extends PublicView {}
@@ -71,7 +71,7 @@ public class SecurityPocJdb005Test extends DatabindTestUtil
     // regular-property buffering path. Under PublicView, roles must remain empty.
     @JacksonTestFailureExpected
     @Test
-    public void testJdb005_setterlessViewBypassInCreatorDeser() throws Exception {
+    public void testSetterlessViewBypassInCreatorDeser() throws Exception {
         CreatorBean result = MAPPER
                 .readerWithView(PublicView.class)
                 .forType(CreatorBean.class)
@@ -79,14 +79,14 @@ public class SecurityPocJdb005Test extends DatabindTestUtil
 
         assertEquals("alice", result.getName());
         assertTrue(result.getRoles().isEmpty(),
-                "JDB-005 VULNERABLE: setterless property @JsonView(AdminView) was " +
+                "[databind#5969] VULNERABLE: setterless property @JsonView(AdminView) was " +
                 "populated in PublicView via isMerging() buffer path. roles = " + result.getRoles());
     }
 
     // Exploit path: roles appears AFTER the creator property.
     @JacksonTestFailureExpected
     @Test
-    public void testJdb005_setterlessViewBypass_rolesAfterCreator() throws Exception {
+    public void testSetterlessViewBypass_rolesAfterCreator() throws Exception {
         CreatorBean result = MAPPER
                 .readerWithView(PublicView.class)
                 .forType(CreatorBean.class)
@@ -94,6 +94,6 @@ public class SecurityPocJdb005Test extends DatabindTestUtil
 
         assertEquals("alice", result.getName());
         assertTrue(result.getRoles().isEmpty(),
-                "JDB-005 VULNERABLE: roles populated in PublicView. roles = " + result.getRoles());
+                "[databind#5969] VULNERABLE: roles populated in PublicView. roles = " + result.getRoles());
     }
 }

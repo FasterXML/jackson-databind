@@ -51,7 +51,7 @@ public class SetterlessViewBypass5969Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    // Negative control: Admin view should populate both name and roles.
+    // Regular case: Admin view should populate both name and roles.
     @Test
     public void testAdminView_negativeControl() throws Exception {
         CreatorBean result = MAPPER
@@ -62,7 +62,7 @@ public class SetterlessViewBypass5969Test extends DatabindTestUtil
         assertEquals(List.of("admin"), result.getRoles());
     }
 
-    // Exploit path: roles appears BEFORE the creator property "name", forcing the
+    // Formerly failing case: roles appears BEFORE the creator property "name", forcing the
     // regular-property buffering path. Under PublicView, roles must remain empty.
     @Test
     public void testSetterlessViewBypassInCreatorDeser() throws Exception {
@@ -73,11 +73,11 @@ public class SetterlessViewBypass5969Test extends DatabindTestUtil
 
         assertEquals("alice", result.getName());
         assertTrue(result.getRoles().isEmpty(),
-                "[databind#5969] VULNERABLE: setterless property @JsonView(AdminView) was " +
+                "[databind#5969] setterless property @JsonView(AdminView) was " +
                 "populated in PublicView via isMerging() buffer path. roles = " + result.getRoles());
     }
 
-    // Exploit path: roles appears AFTER the creator property.
+    // Formerly failing case: roles appears AFTER the creator property.
     @Test
     public void testSetterlessViewBypass_rolesAfterCreator() throws Exception {
         CreatorBean result = MAPPER
@@ -87,6 +87,6 @@ public class SetterlessViewBypass5969Test extends DatabindTestUtil
 
         assertEquals("alice", result.getName());
         assertTrue(result.getRoles().isEmpty(),
-                "[databind#5969] VULNERABLE: roles populated in PublicView. roles = " + result.getRoles());
+                "[databind#5969] roles populated in PublicView. roles = " + result.getRoles());
     }
 }

@@ -47,6 +47,20 @@ public class JsonIgnoreSetterFieldBypass5398Test extends DatabindTestUtil
         }
     }
 
+    // Sibling shape: READ_ONLY access on getter rather than @JsonIgnore on setter.
+    static class ReadOnlyRenamedGetter {
+        private String prop;
+
+        @JsonProperty(value = "renamedProp", access = JsonProperty.Access.READ_ONLY)
+        public String getProp() {
+            return prop;
+        }
+
+        public void setProp(String prop) {
+            this.prop = prop;
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
@@ -100,4 +114,38 @@ public class JsonIgnoreSetterFieldBypass5398Test extends DatabindTestUtil
         assertNotNull(result);
         assertNull(result.getProp());
     }
+
+    // Bypass must also stay closed when INFER_PROPERTY_MUTATORS is disabled,
+    // i.e. the fix is not just an artifact of inference being on.
+    @Test
+    public void inferMutatorsDisabledStillBlocksWrite() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.INFER_PROPERTY_MUTATORS)
+                .build();
+        RenamedGetterIgnoredSetter result = mapper.readValue(
+                "{\"renamedProp\":\"someValue\"}",
+                RenamedGetterIgnoredSetter.class);
+        assertNotNull(result);
+        assertNull(result.getProp());
+    }
+
+    // Sibling: @JsonProperty(access = READ_ONLY) on the renamed getter must
+    // produce the same outcome — serialize under the new name, not write
+    // back via the inferred field mutator.
+    @Test
+    public void readOnlyRenamedGetterIsSerializeOnly() throws Exception
+    {
+        ReadOnlyRenamedGetter bean = new ReadOnlyRenamedGetter();
+        bean.setProp("someValue");
+        assertEquals("{\"renamedProp\":\"someValue\"}",
+                MAPPER.writeValueAsString(bean));
+
+        ReadOnlyRenamedGetter result = MAPPER.readValue(
+                "{\"renamedProp\":\"someValue\"}",
+                ReadOnlyRenamedGetter.class);
+        assertNotNull(result);
+        assertNull(result.getProp());
+    }
+
 }

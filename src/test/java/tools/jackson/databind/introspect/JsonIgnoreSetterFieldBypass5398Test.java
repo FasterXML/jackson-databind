@@ -1,0 +1,103 @@
+package tools.jackson.databind.introspect;
+
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.*;
+
+import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Tests covering the [databind#5398] follow-up: when a property's setter is
+ * {@code @JsonIgnore}d (and the getter carries {@code @JsonProperty} that
+ * keeps the property non-ignored as a whole), the inferred field mutator
+ * retained via {@code MapperFeature.INFER_PROPERTY_MUTATORS} must NOT be
+ * used to bypass the ignored setter. The property should remain
+ * serialization-only (read-only).
+ */
+public class JsonIgnoreSetterFieldBypass5398Test extends DatabindTestUtil
+{
+    static class RenamedGetterIgnoredSetter {
+        private String prop;
+
+        @JsonProperty("renamedProp")
+        public String getProp() {
+            return prop;
+        }
+
+        @JsonIgnore
+        public void setProp(String prop) {
+            this.prop = prop;
+        }
+    }
+
+    static class StandardGetterIgnoredSetter {
+        private String prop;
+
+        @JsonProperty
+        public String getProp() {
+            return prop;
+        }
+
+        @JsonIgnore
+        public void setProp(String prop) {
+            this.prop = prop;
+        }
+    }
+
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    @Test
+    public void renamedGetterStillSerializes() throws Exception
+    {
+        RenamedGetterIgnoredSetter bean = new RenamedGetterIgnoredSetter();
+        bean.setProp("someValue");
+        assertEquals("{\"renamedProp\":\"someValue\"}",
+                MAPPER.writeValueAsString(bean));
+    }
+
+    @Test
+    public void standardGetterStillSerializes() throws Exception
+    {
+        StandardGetterIgnoredSetter bean = new StandardGetterIgnoredSetter();
+        bean.setProp("someValue");
+        assertEquals("{\"prop\":\"someValue\"}",
+                MAPPER.writeValueAsString(bean));
+    }
+
+    // The renamed property must be read-only: @JsonIgnore on the setter
+    // blocks the write, and the inferred field mutator must not bypass it.
+    @Test
+    public void renamedIgnoredSetterDoesNotBypassViaField() throws Exception
+    {
+        RenamedGetterIgnoredSetter result = MAPPER.readValue(
+                "{\"renamedProp\":\"someValue\"}",
+                RenamedGetterIgnoredSetter.class);
+        assertNotNull(result);
+        assertNull(result.getProp());
+    }
+
+    @Test
+    public void standardIgnoredSetterDoesNotBypassViaField() throws Exception
+    {
+        StandardGetterIgnoredSetter result = MAPPER.readValue(
+                "{\"prop\":\"someValue\"}",
+                StandardGetterIgnoredSetter.class);
+        assertNotNull(result);
+        assertNull(result.getProp());
+    }
+
+    // Control: feeding the implicit field name (rather than the renamed
+    // public name) also does not write the field.
+    @Test
+    public void implicitFieldNameDoesNotWriteWhenSetterIgnored() throws Exception
+    {
+        RenamedGetterIgnoredSetter result = MAPPER.readerFor(RenamedGetterIgnoredSetter.class)
+                .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .readValue("{\"prop\":\"someValue\"}");
+        assertNotNull(result);
+        assertNull(result.getProp());
+    }
+}

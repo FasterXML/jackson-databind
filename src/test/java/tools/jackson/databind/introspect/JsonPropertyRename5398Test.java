@@ -55,7 +55,7 @@ public class JsonPropertyRename5398Test extends DatabindTestUtil
         assertEquals("{\"renamedProp\":\"someValue\"}", json);
 
         // @JsonIgnore on the setter prevents write access to the backing field
-        // (JDB-004 fix: inferred non-visible field mutator stripped when setter is @JsonIgnore).
+        // ([databind#5967] fix: inferred non-visible field mutator stripped when setter is @JsonIgnore).
         // Deserialization of "renamedProp" is blocked; field stays at its default (null).
         TestRename5398 result = MAPPER.readValue(json, TestRename5398.class);
         assertNotNull(result);

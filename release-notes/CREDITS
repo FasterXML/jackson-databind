@@ -348,6 +348,8 @@ Omkhar Arasaratnam (@omkhar)
  * Contributed fix for #5962: Case-insensitive deserialization may use
    wrong `@JsonIgnoreProperties`
   [3.1.4]
+ * Contributed fix for #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+  [3.1.4]
 
 Michael Orzechowski (@MikeBlink)
  * Reported #5941: `MapperBuilder.addModule()` does not recursively register transitive

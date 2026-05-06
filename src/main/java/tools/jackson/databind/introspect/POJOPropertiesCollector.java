@@ -1552,7 +1552,7 @@ ctor.creator()));
                 if (isRecordType() || !prop.anyExplicitsWithoutIgnoral()) {
                     continue;
                 }
-                // [JDB-004]: Strip inferred non-visible field mutators to preserve @JsonIgnore
+                // [databind#5967]: Strip inferred non-visible field mutators to preserve @JsonIgnore
                 // semantics. The ignored name was collected because couldDeserialize()==false,
                 // meaning any retained fields are non-visible (kept only by INFER_PROPERTY_MUTATORS).
                 // Removing them ensures the renamed property remains read-only (serialization only).

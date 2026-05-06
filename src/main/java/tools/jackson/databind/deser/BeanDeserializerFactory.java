@@ -1108,6 +1108,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         return status.booleanValue();
     }
 
+    @SuppressWarnings("deprecation")
     protected void _validateSubType(DeserializationContext ctxt, JavaType type,
             BeanDescription.Supplier beanDescRef)
     {

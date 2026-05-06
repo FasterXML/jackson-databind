@@ -12,7 +12,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * JDB-003: Record updateValue() bypasses @JsonIgnore and @JsonView checks.
+ * [databind#5966]: Record updateValue() bypasses @JsonIgnore and @JsonView checks.
  *
  * Commit 7ec2a83f added _deserializeRecordForUpdate() for Records. The new method
  * parses JSON properties and assigns them to creator parameters without checking:
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * Proof: live_runtime_proof (JUnit 5).
  */
-public class RecordUpdateValueIgnoreView5965Test extends DatabindTestUtil
+public class RecordUpdateValueIgnoreView5966Test extends DatabindTestUtil
 {
     // --- View classes ---
     static class PublicView {}
@@ -81,7 +81,7 @@ public class RecordUpdateValueIgnoreView5965Test extends DatabindTestUtil
      * independently; it is NOT the injection-bypass risk asserted here.
      */
     @Test
-    public void testJdb003_updateValueBypassesJsonIgnore() throws Exception {
+    public void test5966_updateValueBypassesJsonIgnore() throws Exception {
         SecretRecord original = new SecretRecord("alice", "original-secret");
         String maliciousJson = "{\"name\":\"alice\",\"secret\":\"HACKED\"}";
 
@@ -91,7 +91,7 @@ public class RecordUpdateValueIgnoreView5965Test extends DatabindTestUtil
         // @JsonIgnore on "secret" must prevent the attacker JSON value from taking effect.
         // (secret may be null due to the data-integrity issue above; it must NOT be "HACKED")
         assertNotEquals("HACKED", updated.secret(),
-            "JDB-003 VULNERABLE: updateValue() bypassed @JsonIgnore on Record component. " +
+            "[databind#5966] VULNERABLE: updateValue() bypassed @JsonIgnore on Record component. " +
             "secret was overwritten to: " + updated.secret());
     }
 
@@ -103,7 +103,7 @@ public class RecordUpdateValueIgnoreView5965Test extends DatabindTestUtil
      * due to the data-integrity issue with pre-populate, but "HACKED" must not appear.
      */
     @Test
-    public void testJdb003_updateValueBypassesJsonIgnoreProperties() throws Exception {
+    public void test5966_updateValueBypassesJsonIgnoreProperties() throws Exception {
         IgnoredPropsRecord original = new IgnoredPropsRecord("alice", "original-pw");
         String maliciousJson = "{\"username\":\"alice\",\"password\":\"HACKED\"}";
 
@@ -112,7 +112,7 @@ public class RecordUpdateValueIgnoreView5965Test extends DatabindTestUtil
         assertEquals("alice", updated.username());
         // @JsonIgnoreProperties({"password"}) must block the attacker value.
         assertNotEquals("HACKED", updated.password(),
-            "JDB-003 VULNERABLE: updateValue() bypassed @JsonIgnoreProperties on Record. " +
+            "[databind#5966] VULNERABLE: updateValue() bypassed @JsonIgnoreProperties on Record. " +
             "password was overwritten to: " + updated.password());
     }
 
@@ -127,7 +127,7 @@ public class RecordUpdateValueIgnoreView5965Test extends DatabindTestUtil
      *   - adminField  (@JsonView(AdminView.class))  is NOT visible → kept from original
      */
     @Test
-    public void testJdb003_updateValueBypassesJsonView() throws Exception {
+    public void test5966_updateValueBypassesJsonView() throws Exception {
         ViewRecord original = new ViewRecord("public-val", "admin-original");
         String maliciousJson = "{\"publicField\":\"new-public\",\"adminField\":\"HACKED-ADMIN\"}";
 
@@ -140,10 +140,10 @@ public class RecordUpdateValueIgnoreView5965Test extends DatabindTestUtil
         assertEquals("new-public", updated.publicField());
         // adminField has @JsonView(AdminView.class); with PublicView active it must not be updated
         assertNotEquals("HACKED-ADMIN", updated.adminField(),
-            "JDB-003 VULNERABLE: updateValue() bypassed @JsonView on Record component. " +
+            "[databind#5966] VULNERABLE: updateValue() bypassed @JsonView on Record component. " +
             "adminField was overwritten to: " + updated.adminField());
         // The original adminField value must be preserved (pre-populated in Step 1)
         assertEquals("admin-original", updated.adminField(),
-            "JDB-003 VULNERABLE: adminField should remain 'admin-original' but was: " + updated.adminField());
+            "[databind#5966] VULNERABLE: adminField should remain 'admin-original' but was: " + updated.adminField());
     }
 }

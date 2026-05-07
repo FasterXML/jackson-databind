@@ -121,7 +121,13 @@ public class UnwrappedPropertyHandler
     public PropertyValueBuffer processUnwrappedCreatorProperties(JsonParser originalParser,
             DeserializationContext ctxt, PropertyValueBuffer values, TokenBuffer buffered)
     {
+        // [databind#5971]: honor active @JsonView -- skip creator properties not
+        // visible in the active view rather than populating them from buffered input.
+        final Class<?> activeView = ctxt.getActiveView();
         for (SettableBeanProperty prop : _creatorProperties) {
+            if ((activeView != null) && !prop.visibleInView(activeView)) {
+                continue;
+            }
             JsonParser p = buffered.asParserOnFirstToken(ctxt);
             values.assignParameter(prop, prop.deserialize(p, ctxt));
         }

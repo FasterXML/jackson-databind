@@ -25,6 +25,8 @@ No changes since 3.1
  (fixed by Omkhar A)
 #5969: `@JsonView` by-passed for some "setterless" creator properties
  (fixed by Omkhar A)
+#5971: `@JsonView` by-passed for unwrapped creator parameters
+ (fixed by Omkhar A)
 
 3.1.3 (01-May-2026)
 

@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.records;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,17 +8,16 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.annotation.JsonNaming;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 // [databind#5974]: Record `@JsonIgnore` bypass with naming strategy.
 // `POJOPropertiesCollector._removeUnwantedIgnorals()` records the implicit
-// component name in `_ignoredPropertyNames` BEFORE `_renameUsing()` applies the
-// configured naming strategy, so the renamed JSON key (e.g. "internal_role")
-// is not recognized as ignored and gets assigned to the constructor parameter.
+// component name in `_ignoredPropertyNames` before `_renameUsing()` applies the
+// configured naming strategy; without the rename-aware ignore propagation the
+// renamed JSON key (e.g. "internal_role") slipped past the ignore check and was
+// bound to the constructor parameter.
 class RecordIgnoreNamingStrategy5974Test extends DatabindTestUtil
 {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
@@ -29,7 +28,6 @@ class RecordIgnoreNamingStrategy5974Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    // Negative control: nothing tries to set the ignored component.
     @Test
     public void testNormalDeserialization() throws Exception {
         SensitiveRecord result = MAPPER.readValue(
@@ -38,9 +36,6 @@ class RecordIgnoreNamingStrategy5974Test extends DatabindTestUtil
         assertNull(result.internalRole());
     }
 
-    // Exploit path: the renamed snake_case key for the @JsonIgnore component
-    // bypasses the ignore check and the value is bound to `internalRole`.
-    @JacksonTestFailureExpected
     @Test
     public void testRenamedIgnoredRecordComponentBypass() throws Exception {
         SensitiveRecord result = MAPPER.readValue(
@@ -48,8 +43,6 @@ class RecordIgnoreNamingStrategy5974Test extends DatabindTestUtil
                 SensitiveRecord.class);
 
         assertEquals("alice", result.username());
-        assertNotEquals("ADMIN", result.internalRole(),
-                "[databind#5974]: @JsonIgnore on Record component bypassed after naming "
-                        + "strategy rename; internalRole = " + result.internalRole());
+        assertNull(result.internalRole());
     }
 }

@@ -26,6 +26,13 @@ class RecordIgnoreNamingStrategy5974Test extends DatabindTestUtil
             @JsonIgnore String internalRole
     ) {}
 
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class SensitivePojo {
+        public String username;
+        @JsonIgnore
+        public String internalRole;
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
@@ -44,5 +51,19 @@ class RecordIgnoreNamingStrategy5974Test extends DatabindTestUtil
 
         assertEquals("alice", result.username());
         assertNull(result.internalRole());
+    }
+
+    // POJO analog of the Record case. Non-Record path drops the @JsonIgnore
+    // property before _renameUsing() runs so this never had the same exploit,
+    // but the assertion locks in the broader contract that an ignored field
+    // cannot be populated via the naming-strategy-renamed JSON key.
+    @Test
+    public void testRenamedIgnoredPojoFieldBypass() throws Exception {
+        SensitivePojo result = MAPPER.readValue(
+                a2q("{'username':'alice','internal_role':'ADMIN'}"),
+                SensitivePojo.class);
+
+        assertEquals("alice", result.username);
+        assertNull(result.internalRole);
     }
 }

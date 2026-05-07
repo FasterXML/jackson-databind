@@ -14,12 +14,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-// [JDB-008]: Record `@JsonIgnore` bypass with naming strategy.
+// [databind#5974]: Record `@JsonIgnore` bypass with naming strategy.
 // `POJOPropertiesCollector._removeUnwantedIgnorals()` records the implicit
 // component name in `_ignoredPropertyNames` BEFORE `_renameUsing()` applies the
 // configured naming strategy, so the renamed JSON key (e.g. "internal_role")
 // is not recognized as ignored and gets assigned to the constructor parameter.
-class RecordIgnoreNamingStrategyJDB008Test extends DatabindTestUtil
+class RecordIgnoreNamingStrategy5974Test extends DatabindTestUtil
 {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public record SensitiveRecord(
@@ -49,7 +49,7 @@ class RecordIgnoreNamingStrategyJDB008Test extends DatabindTestUtil
 
         assertEquals("alice", result.username());
         assertNotEquals("ADMIN", result.internalRole(),
-                "JDB-008: @JsonIgnore on Record component bypassed after naming "
+                "[databind#5974]: @JsonIgnore on Record component bypassed after naming "
                         + "strategy rename; internalRole = " + result.internalRole());
     }
 }

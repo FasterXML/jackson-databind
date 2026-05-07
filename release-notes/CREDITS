@@ -354,6 +354,8 @@ Omkhar Arasaratnam (@omkhar)
   [3.1.4]
  * Contributed fix for #5971: `@JsonView` by-passed for unwrapped creator parameters
   [3.1.4]
+ * Contributed fix for #5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
+  [3.1.4]
 
 Michael Orzechowski (@MikeBlink)
  * Reported #5941: `MapperBuilder.addModule()` does not recursively register transitive

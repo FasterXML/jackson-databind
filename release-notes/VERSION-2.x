@@ -14,6 +14,8 @@ Project: jackson-databind
  (reported by Omkhar A)
 #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
  (fixed by Omkhar A)
+#5969: `@JsonView` by-passed for some "setterless" creator properties
+ (fixed by Omkhar A)
 
 2.21.3 (28-Apr-2026)
 

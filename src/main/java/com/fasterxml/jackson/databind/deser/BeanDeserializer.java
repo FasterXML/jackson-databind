@@ -483,6 +483,13 @@ public class BeanDeserializer
                 // [databind#3938]: except if it's MethodProperty
                 (!_beanType.isRecordType() || (prop instanceof MethodProperty))) {
 
+                // [databind#5969]: must honor active view here too -- otherwise
+                // setterless/merging collection properties hidden by view can be
+                // populated via the buffering path below.
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // 12-Aug-2025, tatu: [databind#5237] Mergeable properties need
                 //    special handling: must defer deserialization until POJO
                 //    is constructed.

@@ -159,6 +159,18 @@ public class POJOPropertiesCollector
     protected HashSet<String> _nonRescuedIgnoredPropertyNames;
 
     /**
+     * Subset of {@link #_perPropertyIgnoredNames} populated only by the
+     * "explicit name" branch of {@link POJOPropertyBuilder#removeNonVisible}'s
+     * {@code READ_ONLY} handling — i.e., names added because a sibling
+     * READ_ONLY accessor exposes them via {@code @JsonProperty}. These are the
+     * only ignorals that may be rescued in {@link #_renameProperties} for
+     * non-renamed creator-bound names ({@code [databind#5975]}).
+     *
+     * @since 3.2
+     */
+    protected HashSet<String> _readOnlyAccessorExplicitIgnoredNames;
+
+    /**
      * Class-level ignorals (annotation plus config overrides), computed once during
      * {@link #_collectClassLevelIgnorals()} and exposed to the factory layer via
      * {@link #getPropertyIgnorals()} so that {@code findPropertyIgnoralByName()} is
@@ -1606,6 +1618,30 @@ ctor.creator()));
     }
 
     /**
+     * Variant of {@link #_collectIgnorals(String)} called from
+     * {@link POJOPropertyBuilder#removeNonVisible} when a {@code READ_ONLY}
+     * accessor's <i>explicit</i> name (e.g., {@code @JsonProperty(value = "...")})
+     * is added to per-property ignorals. Tracked separately so that names added
+     * this way can be rescued by {@link #_renameProperties} when they collide
+     * with a sibling creator parameter ({@code [databind#5975]}); names added
+     * via the simpler {@link #_collectIgnorals(String)} path (e.g., from
+     * {@code @JsonIgnore} on a record component) remain immune to that rescue.
+     *
+     * @since 3.2
+     */
+    protected void _collectReadOnlyAccessorExplicitIgnoral(String name)
+    {
+        if (name == null) {
+            return;
+        }
+        _collectIgnorals(name);
+        if (_readOnlyAccessorExplicitIgnoredNames == null) {
+            _readOnlyAccessorExplicitIgnoredNames = new HashSet<>();
+        }
+        _readOnlyAccessorExplicitIgnoredNames.add(name);
+    }
+
+    /**
      * Helper method called to collect class-level property ignorals: stores the
      * full {@link com.fasterxml.jackson.annotation.JsonIgnoreProperties.Value}
      * (annotation + config overrides) in {@link #_propertyIgnorals} for reuse by
@@ -1742,6 +1778,30 @@ ctor.creator()));
                         }
                         _perPropertyIgnoredNames.remove(name);
                     }
+                }
+            }
+        }
+
+        // 07-May-2026, tatu: [databind#5975] Companion rescue for properties that
+        //   were NOT renamed but share a name with a creator parameter. A sibling
+        //   READ_ONLY field/getter whose explicit name matches a creator parameter's
+        //   implicit name will have added that name to per-property ignorals via
+        //   POJOPropertyBuilder.removeNonVisible(); the rescue above only triggers
+        //   for renamed entries, so non-renamed creator-bound names need this pass.
+        //   Limited to ignorals from the READ_ONLY explicit-name path so unrelated
+        //   ignorals (e.g., @JsonIgnore on a record component) remain in effect.
+        if (_readOnlyAccessorExplicitIgnoredNames != null && _perPropertyIgnoredNames != null) {
+            for (POJOPropertyBuilder prop : props.values()) {
+                if (!prop.hasConstructorParameter()) {
+                    continue;
+                }
+                String name = prop.getName();
+                if (_readOnlyAccessorExplicitIgnoredNames.contains(name)
+                        && _perPropertyIgnoredNames.contains(name)) {
+                    if (_nonRescuedIgnoredPropertyNames == null) {
+                        _nonRescuedIgnoredPropertyNames = new HashSet<>(_perPropertyIgnoredNames);
+                    }
+                    _perPropertyIgnoredNames.remove(name);
                 }
             }
         }

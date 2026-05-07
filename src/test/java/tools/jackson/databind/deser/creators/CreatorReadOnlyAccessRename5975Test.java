@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.deser.creators;
 
 import org.junit.jupiter.api.Test;
 
@@ -7,13 +7,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// [databind#5975] Parameters with an implicit name that matches the name of a
-// READ_ONLY property are ignored during deserialization.
-class ImplicitNameReadOnly5975Test extends DatabindTestUtil
+// [databind#5975]: A creator parameter whose implicit name matches the explicit
+// name of a sibling READ_ONLY field/getter must still receive its value during
+// deserialization.
+class CreatorReadOnlyAccessRename5975Test extends DatabindTestUtil
 {
     public static class Bean {
         @JsonProperty(value = "uri", access = JsonProperty.Access.READ_ONLY)
@@ -27,7 +27,6 @@ class ImplicitNameReadOnly5975Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
     @Test
     public void testImplicitNameWithReadOnly() throws Exception {
         Bean read = MAPPER.readValue("{\"uri\":\"foo\"}", Bean.class);

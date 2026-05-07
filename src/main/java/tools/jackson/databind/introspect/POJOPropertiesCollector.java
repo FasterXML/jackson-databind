@@ -1615,7 +1615,7 @@ ctor.creator()));
      * @since 3.2
      */
     boolean _hasCreatorBoundProperty(String name) {
-        if (name == null || _creatorProperties == null) {
+        if (_creatorProperties == null) {
             return false;
         }
         for (POJOPropertyBuilder p : _creatorProperties) {

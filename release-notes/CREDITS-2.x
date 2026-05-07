@@ -1926,6 +1926,8 @@ Omkhar Arasaratnam (@omkhar)
   (2.21.4)
  * Contributed fix for #5969: `@JsonView` by-passed for some "setterless" creator properties
   (2.21.4)
+ * Contributed fix for #5971: `@JsonView` by-passed for unwrapped creator parameters
+  (2.21.4)
 
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`

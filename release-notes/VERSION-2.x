@@ -16,6 +16,8 @@ Project: jackson-databind
  (fixed by Omkhar A)
 #5969: `@JsonView` by-passed for some "setterless" creator properties
  (fixed by Omkhar A)
+#5971: `@JsonView` by-passed for unwrapped creator parameters
+ (fixed by Omkhar A)
 
 2.21.3 (28-Apr-2026)
 

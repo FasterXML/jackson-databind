@@ -85,7 +85,13 @@ public class UnwrappedPropertyHandler
             DeserializationContext ctxt, PropertyValueBuffer values, TokenBuffer buffered)
         throws IOException
     {
+        // [databind#5971]: honor active @JsonView -- skip creator properties not
+        // visible in the active view rather than populating them from buffered input.
+        final Class<?> activeView = ctxt.getActiveView();
         for (SettableBeanProperty prop : _creatorProperties) {
+            if ((activeView != null) && !prop.visibleInView(activeView)) {
+                continue;
+            }
             JsonParser p = buffered.asParser(originalParser.streamReadConstraints());
             p.nextToken();
             values.assignParameter(prop, prop.deserialize(p, ctxt));

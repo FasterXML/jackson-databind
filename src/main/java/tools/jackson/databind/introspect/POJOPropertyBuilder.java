@@ -1007,11 +1007,15 @@ public class POJOPropertyBuilder
             // and possible explicit names
             if (parent != null) {
                 parent._collectIgnorals(getName());
-                // [databind#5975]: Track the explicit-name additions separately so
-                // POJOPropertiesCollector can rescue ignorals that collide with a
-                // sibling creator parameter without affecting other ignoral sources.
                 for (PropertyName pn : findExplicitNames()) {
-                    parent._collectReadOnlyAccessorExplicitIgnoral(pn.getSimpleName());
+                    String simpleName = pn.getSimpleName();
+                    // [databind#5975]: Skip ignoral when the explicit name is owned
+                    // by a sibling creator parameter; that creator is a legitimate
+                    // write target despite this accessor being READ_ONLY.
+                    if (parent._hasCreatorBoundProperty(simpleName)) {
+                        continue;
+                    }
+                    parent._collectIgnorals(simpleName);
                 }
             }
             // Remove setters, creators for sure, but fields too if deserializing

@@ -18,21 +18,26 @@ import static org.junit.jupiter.api.Assertions.*;
  * approve arrays whose component type would itself be denied by the configured
  * sub-class allow-list.
  *<p>
- * Pre-fix the matcher returned {@code clazz.isArray()} unconditionally. With default
- * typing on an {@code Object}-typed field, an attacker could ship a wrapper-array
- * type id naming {@code FakeGadget[]}: the validator approved the array type, and
- * because the array's component type was concrete and final there was no per-element
- * type id (and therefore no further PTV invocation) -- {@code ObjectArrayDeserializer}
- * ran the plain bean deserializer for each element, materializing {@code FakeGadget}
- * instances despite not being in the allow-list.
+ * Pre-fix the call appended a {@code TypeMatcher} returning {@code clazz.isArray()}
+ * unconditionally. With default typing on an {@code Object}-typed field, an attacker
+ * could ship a wrapper-array type id naming {@code FakeGadget[]}: the validator
+ * approved the array type, and because the array's component type was concrete and
+ * final there was no per-element type id (and therefore no further PTV invocation)
+ * -- {@code ObjectArrayDeserializer} ran the plain bean deserializer for each
+ * element, materializing {@code FakeGadget} instances despite not being in the
+ * allow-list.
  *<p>
- * Post-fix the array matcher delegates the component-type check back to the rest of
- * the builder's sub-class matchers, so {@code FakeGadget[]} is denied unless
- * {@code FakeGadget} itself is also allow-listed.
+ * Post-fix the call sets a flag; {@code validateSubType()} unwraps any array
+ * (recursively for nested arrays) and validates the innermost element type
+ * against the existing sub-class matchers. Primitive, abstract, and interface
+ * element types are accepted without an explicit allow-list entry: primitives
+ * can't carry gadget chains; abstract / interface elements are not directly
+ * instantiable and rely on per-element type-id resolution which itself triggers
+ * a PTV check on the concrete sub-type.
  */
 public class BasicPTVArrayComponentBypassTest extends DatabindTestUtil
 {
-    /** Records every constructor invocation; lets the test prove that an
+    /** Records every constructor invocation; lets the tests prove that an
      *  un-allow-listed type is not actually instantiated. */
     static final List<String> INSTANTIATIONS = new ArrayList<>();
 
@@ -46,10 +51,10 @@ public class BasicPTVArrayComponentBypassTest extends DatabindTestUtil
         }
     }
 
-    /** A type that IS in the allow-list, present so the PTV configuration is
-     *  realistic (an explicit allow-list plus arrays). */
+    /** Type that IS in the allow-list, used to verify the positive path through
+     *  the unwrap-then-match fall-through. */
     static final class SafePayload {
-        public String data;
+        public int data;
         public SafePayload() { }
     }
 
@@ -58,23 +63,27 @@ public class BasicPTVArrayComponentBypassTest extends DatabindTestUtil
         protected ObjectWrapper() { }
     }
 
-    // For [databind#5981]: with the validator engaged (no allowIfBaseType escape
-    // hatch into LaissezFaire), a direct FakeGadget value must be denied AND the
-    // same FakeGadget wrapped as FakeGadget[] must also be denied -- the array
-    // matcher must not bypass the component-type allow-list.
-    @Test
-    public void arrayMatcherMustNotBypassComponentAllowList() throws Exception
-    {
+    private ObjectMapper mapperWithSafePayloadAndArrays() {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(SafePayload.class)
                 .allowIfSubTypeIsArray()
                 .build();
-        ObjectMapper mapper = jsonMapperBuilder()
+        return jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
                 .build();
+    }
+
+    // For [databind#5981]: with the validator engaged (no allowIfBaseType escape
+    // hatch into LaissezFaire), a direct FakeGadget value must be denied AND the
+    // same FakeGadget wrapped as FakeGadget[] must also be denied -- the element
+    // type must not bypass the allow-list just because it is wrapped in an array.
+    @Test
+    public void directGadgetAndGadgetArrayBothDenied() throws Exception
+    {
+        ObjectMapper mapper = mapperWithSafePayloadAndArrays();
 
         // (a) Direct FakeGadget: denied. Sanity check that the validator is actually
-        // engaged with this configuration.
+        // engaged with this configuration (i.e. not swapped out for LaissezFaire).
         final String classId = FakeGadget.class.getName();
         final String directJson = "{\"value\":[\"" + classId + "\",{\"cmd\":\"x\"}]}";
         INSTANTIATIONS.clear();
@@ -86,9 +95,10 @@ public class BasicPTVArrayComponentBypassTest extends DatabindTestUtil
                 "FakeGadget must not be instantiated when its bare class is denied;"
                         + " observed=" + INSTANTIATIONS);
 
-        // (b) FakeGadget wrapped as FakeGadget[]: pre-fix this slipped through via
-        // allowIfSubTypeIsArray() ignoring the component type. Post-fix the array
-        // matcher delegates the component check to the peer matchers and denies it.
+        // (b) FakeGadget wrapped as FakeGadget[]: pre-fix this slipped through,
+        // because the array matcher approved every array regardless of element type.
+        // Post-fix the validator unwraps the array and runs the innermost element
+        // type through the same allow-list, which denies FakeGadget.
         final String arrayId = "[L" + classId + ";";
         final String arrayJson = "{\"value\":[\"" + arrayId + "\",[{\"cmd\":\"x\"}]]}";
         INSTANTIATIONS.clear();
@@ -99,5 +109,68 @@ public class BasicPTVArrayComponentBypassTest extends DatabindTestUtil
         assertEquals(0, INSTANTIATIONS.size(),
                 "FakeGadget must not be instantiated when its array form is denied;"
                         + " observed=" + INSTANTIATIONS);
+    }
+
+    // For [databind#5981]: the unwrap loop in validateSubType() must recurse for
+    // nested arrays so that FakeGadget[][] is denied for the same reason
+    // FakeGadget[] is denied -- the innermost element is what matters.
+    @Test
+    public void nestedGadgetArrayAlsoDenied() throws Exception
+    {
+        ObjectMapper mapper = mapperWithSafePayloadAndArrays();
+
+        final String classId = FakeGadget.class.getName();
+        final String nestedArrayId = "[[L" + classId + ";";
+        // FakeGadget[][] with a single inner FakeGadget[] containing one FakeGadget.
+        // If the unwrap stopped at one level (e.g. FakeGadget[]), the outer match
+        // would short-circuit ALLOWED; the recursive unwrap to FakeGadget is what
+        // makes this denial correct.
+        final String json = "{\"value\":[\"" + nestedArrayId + "\","
+                + "[[{\"cmd\":\"x\"}]]]}";
+        INSTANTIATIONS.clear();
+        InvalidTypeIdException denied = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json, ObjectWrapper.class),
+                "FakeGadget[][] must be denied: innermost element FakeGadget is not allow-listed");
+        verifyException(denied, nestedArrayId);
+        assertEquals(0, INSTANTIATIONS.size(),
+                "FakeGadget must not be instantiated when its nested-array form is denied;"
+                        + " observed=" + INSTANTIATIONS);
+    }
+
+    // For [databind#5981]: positive path. Confirms the unwrap-then-match fall-through
+    // works for an allow-listed concrete component type -- SafePayload[] is approved
+    // because validateSubType unwraps to SafePayload and the existing allow-list
+    // matcher matches it.
+    @Test
+    public void allowListedConcreteComponentArrayAccepted() throws Exception
+    {
+        ObjectMapper mapper = mapperWithSafePayloadAndArrays();
+
+        final String arrayId = "[L" + SafePayload.class.getName() + ";";
+        final String json = "{\"value\":[\"" + arrayId + "\",[{\"data\":42}]]}";
+
+        ObjectWrapper out = mapper.readValue(json, ObjectWrapper.class);
+        assertNotNull(out);
+        assertNotNull(out.value);
+        assertEquals(SafePayload[].class, out.value.getClass());
+        SafePayload[] arr = (SafePayload[]) out.value;
+        assertEquals(1, arr.length);
+        assertEquals(42, arr[0].data);
+    }
+
+    // For [databind#5981]: primitive-element arrays are accepted via the primitive
+    // exemption (no allow-list entry needed for {@code int}). Primitive arrays
+    // cannot carry gadget chains, so this exemption is safe.
+    @Test
+    public void primitiveComponentArrayAccepted() throws Exception
+    {
+        ObjectMapper mapper = mapperWithSafePayloadAndArrays();
+
+        // JVM internal name for int[] is "[I"
+        final String json = "{\"value\":[\"[I\",[1,2,3]]}";
+        ObjectWrapper out = mapper.readValue(json, ObjectWrapper.class);
+        assertNotNull(out);
+        assertEquals(int[].class, out.value.getClass());
+        assertArrayEquals(new int[] { 1, 2, 3 }, (int[]) out.value);
     }
 }

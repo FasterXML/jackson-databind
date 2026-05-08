@@ -1015,10 +1015,9 @@ public class POJOPropertyBuilder
                     // companion case (a creator parameter renamed to a name that
                     // was already ignored) is handled by the [databind#2118] rescue
                     // in POJOPropertiesCollector._renameProperties.
-                    if (parent._hasCreatorBoundProperty(simpleName)) {
-                        continue;
+                    if (!parent.hasCreatorBoundProperty(simpleName)) {
+                        parent._collectIgnorals(simpleName);
                     }
-                    parent._collectIgnorals(simpleName);
                 }
             }
             // Remove setters, creators for sure, but fields too if deserializing

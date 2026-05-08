@@ -84,6 +84,16 @@ class StaticTyping1515Test extends DatabindTestUtil {
         }
     }
 
+    @JsonPropertyOrder({"array", "aArray", "dArray"})
+    static class Issue515Arrays {
+        public Base[] array = new Base[] { new Derived() };
+
+        @JsonSerialize(typing = JsonSerialize.Typing.DYNAMIC)
+        public Base[] aArray = new Base[] { new Derived() };
+
+        public BaseDynamic[] dArray = new BaseDynamic[] { new DerivedDynamic() };
+    }
+
     private final ObjectMapper STAT_MAPPER = jsonMapperBuilder()
             .enable(MapperFeature.USE_STATIC_TYPING)
             .build();
@@ -104,5 +114,11 @@ class StaticTyping1515Test extends DatabindTestUtil {
     void staticTypingForLists() throws Exception {
         String json = STAT_MAPPER.writeValueAsString(new Issue515Lists());
         assertEquals(a2q("{'list':[{'a':1}],'aList':[{'a':1,'b':2}],'dList':[{'a':3,'b':4}]}"), json);
+    }
+
+    @Test
+    void staticTypingForObjectArrays() throws Exception {
+        String json = STAT_MAPPER.writeValueAsString(new Issue515Arrays());
+        assertEquals(a2q("{'array':[{'a':1}],'aArray':[{'a':1,'b':2}],'dArray':[{'a':3,'b':4}]}"), json);
     }
 }

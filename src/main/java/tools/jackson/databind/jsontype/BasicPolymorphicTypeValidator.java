@@ -299,7 +299,17 @@ public class BasicPolymorphicTypeValidator
          * per-element type-id resolution which itself runs the polymorphic type
          * validator on the concrete sub-type.
          *<p>
-         * NOTE: behavior change in 3.1.4 for [databind#5981]): prior versions added a
+         * NOTE: the array-element check runs as part of {@code validateSubType()},
+         * so it only applies when name-based sub-type matchers (see
+         * {@link #allowIfSubType(Pattern)} / {@link #allowIfSubType(String)}) have
+         * NOT already approved the array's class name -- per
+         * {@link tools.jackson.databind.DatabindContext#resolveAndValidateSubType},
+         * a {@code validateSubClassName} of {@code ALLOWED} skips the subsequent
+         * {@code validateSubType} call. In practice typical name matchers do not
+         * match array class names (which start with {@code [L} / {@code [I} etc.),
+         * so this is normally not a concern.
+         *<p>
+         * NOTE (behavior change in 3.1.4 for [databind#5981]): prior versions added a
          * matcher that approved every array regardless of element type, which let
          * an attacker bypass an explicit sub-class allow-list by wrapping a denied
          * class as an array (e.g. {@code Evil[]}) -- the array matched, the
@@ -409,9 +419,11 @@ public class BasicPolymorphicTypeValidator
      */
     protected final TypeMatcher[] _subClassMatchers;
 
-    // [databind#5981]: when true, validateSubType() unwraps arrays (recursively
-    // for nested arrays) and validates the innermost element type against the
-    // sub-class matchers.
+    /**
+     * [databind#5981]: when true, validateSubType() unwraps arrays (recursively
+     * for nested arrays) and validates the innermost element type against the
+     * sub-class matchers.
+     */
     protected final boolean _acceptArrayTypes;
 
     protected BasicPolymorphicTypeValidator(Set<Class<?>> invalidBaseTypes,

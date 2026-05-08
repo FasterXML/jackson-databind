@@ -17,33 +17,20 @@ import static org.junit.jupiter.api.Assertions.*;
  * [databind#5981] {@code BasicPolymorphicTypeValidator.allowIfSubTypeIsArray()} must not
  * approve arrays whose component type would itself be denied by the configured
  * sub-class allow-list.
- *<p>
- * Pre-fix the call appended a {@code TypeMatcher} returning {@code clazz.isArray()}
- * unconditionally. With default typing on an {@code Object}-typed field, an attacker
- * could ship a wrapper-array type id naming {@code FakeGadget[]}: the validator
- * approved the array type, and because the array's component type was concrete and
- * final there was no per-element type id (and therefore no further PTV invocation)
- * -- {@code ObjectArrayDeserializer} ran the plain bean deserializer for each
- * element, materializing {@code FakeGadget} instances despite not being in the
- * allow-list.
- *<p>
- * Post-fix the call sets a flag; {@code validateSubType()} unwraps any array
- * (recursively for nested arrays) and validates the innermost element type
- * against the existing sub-class matchers. Primitive, abstract, and interface
- * element types are accepted without an explicit allow-list entry: primitives
- * can't carry gadget chains; abstract / interface elements are not directly
- * instantiable and rely on per-element type-id resolution which itself triggers
- * a PTV check on the concrete sub-type.
  */
 public class BasicPTVArrayComponentBypassTest extends DatabindTestUtil
 {
-    /** Records every constructor invocation; lets the tests prove that an
-     *  un-allow-listed type is not actually instantiated. */
+    /**
+     * Records every constructor invocation; lets the tests prove that an
+     *  un-allow-listed type is not actually instantiated.
+     */
     static final List<String> INSTANTIATIONS = new ArrayList<>();
 
-    /** Stand-in "unsafe" type. Completely benign in itself -- only side effect is
-     *  recording its own instantiation. {@code final} so default typing emits no
-     *  per-element type id, which is the configuration the bypass exploited. */
+    /**
+     * Stand-in "unsafe" type. Completely benign in itself -- only side effect is
+     * recording its own instantiation. {@code final} so default typing emits no
+     * per-element type id, which is the configuration the bypass exploited.
+     */
     static final class FakeGadget {
         public String cmd;
         public FakeGadget() {
@@ -51,8 +38,10 @@ public class BasicPTVArrayComponentBypassTest extends DatabindTestUtil
         }
     }
 
-    /** Type that IS in the allow-list, used to verify the positive path through
-     *  the unwrap-then-match fall-through. */
+    /**
+     * Type that IS in the allow-list, used to verify the positive path through
+     * the unwrap-then-match fall-through.
+     */
     static final class SafePayload {
         public int data;
         public SafePayload() { }
@@ -61,16 +50,6 @@ public class BasicPTVArrayComponentBypassTest extends DatabindTestUtil
     static final class ObjectWrapper {
         public Object value;
         protected ObjectWrapper() { }
-    }
-
-    private ObjectMapper mapperWithSafePayloadAndArrays() {
-        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
-                .allowIfSubType(SafePayload.class)
-                .allowIfSubTypeIsArray()
-                .build();
-        return jsonMapperBuilder()
-                .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
-                .build();
     }
 
     // For [databind#5981]: with the validator engaged (no allowIfBaseType escape
@@ -173,4 +152,15 @@ public class BasicPTVArrayComponentBypassTest extends DatabindTestUtil
         assertEquals(int[].class, out.value.getClass());
         assertArrayEquals(new int[] { 1, 2, 3 }, (int[]) out.value);
     }
+
+    private ObjectMapper mapperWithSafePayloadAndArrays() {
+        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType(SafePayload.class)
+                .allowIfSubTypeIsArray()
+                .build();
+        return jsonMapperBuilder()
+                .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
+                .build();
+    }
 }
+

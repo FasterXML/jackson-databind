@@ -1,5 +1,6 @@
 package tools.jackson.databind.jsontype;
 
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -86,6 +87,11 @@ public class BasicPolymorphicTypeValidator
          * Collected Class-based matchers for sub types to allow.
          */
         protected List<TypeMatcher> _subTypeClassMatchers;
+
+        // [databind#5981]: when true, validateSubType() unwraps arrays (recursively
+        // for nested arrays) and validates the innermost element type against
+        // {@code _subTypeClassMatchers}.
+        protected boolean _acceptArrayTypes = false;
 
         protected Builder() { }
 
@@ -271,24 +277,30 @@ public class BasicPolymorphicTypeValidator
         }
 
         /**
-         * Method for appending matcher that will allow all subtypes that are Java arrays
-         * (regardless of element type). Note that this does NOT validate element type
-         * itself as long as Polymorphic Type handling is enabled for element type: this
-         * is the case with all standard "Default Typing" inclusion criteria as well as for
-         * annotation ({@code @JsonTypeInfo}) use case (since annotation only applies to element
-         * types, not container).
+         * Method for enabling validation of Java array sub-types: when called, the
+         * validator unwraps any array (recursively for nested arrays) and validates
+         * the innermost element type against the configured sub-class matchers.
+         * Arrays of primitive, abstract, or interface element types are accepted
+         * without an explicit allow-list entry: primitives can't carry gadget chains;
+         * abstract / interface elements are not directly instantiable and rely on
+         * per-element type-id resolution which itself runs the polymorphic type
+         * validator on the concrete sub-type.
+         *<p>
+         * NOTE (behavior change in 3.x for [databind#5981]): prior versions added a
+         * matcher that approved every array regardless of element type, which let
+         * an attacker bypass an explicit sub-class allow-list by wrapping a denied
+         * class as an array (e.g. {@code Evil[]}) -- the array matched, the
+         * component was instantiated via plain bean deserialization without any
+         * further validator invocation. Callers that relied on "allow every array"
+         * must now also allow-list the element types they intend to accept.
          *<p>
          * NOTE: not used with other Java collection types ({@link java.util.List}s,
-         *    {@link java.util.Collection}s), mostly since use of generic types as polymorphic
-         *    values is not (well) supported.
+         * {@link java.util.Collection}s), mostly since use of generic types as polymorphic
+         * values is not (well) supported.
          */
         public Builder allowIfSubTypeIsArray() {
-            return _appendSubClassMatcher(new TypeMatcher() {
-                @Override
-                public boolean match(DatabindContext ctxt, Class<?> clazz) {
-                    return clazz.isArray();
-                }
-            });
+            _acceptArrayTypes = true; // [databind#5981]
+            return this;
         }
 
         /**
@@ -323,7 +335,8 @@ public class BasicPolymorphicTypeValidator
             return new BasicPolymorphicTypeValidator(_invalidBaseTypes,
                     (_baseTypeMatchers == null) ? null : _baseTypeMatchers.toArray(new TypeMatcher[0]),
                     (_subTypeNameMatchers == null) ? null : _subTypeNameMatchers.toArray(new NameMatcher[0]),
-                    (_subTypeClassMatchers == null) ? null : _subTypeClassMatchers.toArray(new TypeMatcher[0])
+                    (_subTypeClassMatchers == null) ? null : _subTypeClassMatchers.toArray(new TypeMatcher[0]),
+                    _acceptArrayTypes // [databind#5981]
             );
         }
 
@@ -383,13 +396,27 @@ public class BasicPolymorphicTypeValidator
      */
     protected final TypeMatcher[] _subClassMatchers;
 
+    // [databind#5981]: when true, validateSubType() unwraps arrays (recursively
+    // for nested arrays) and validates the innermost element type against the
+    // sub-class matchers.
+    protected final boolean _acceptArrayTypes;
+
     protected BasicPolymorphicTypeValidator(Set<Class<?>> invalidBaseTypes,
             TypeMatcher[] baseTypeMatchers,
             NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers) {
+        this(invalidBaseTypes, baseTypeMatchers, subTypeNameMatchers, subClassMatchers, false);
+    }
+
+    // [databind#5981]
+    protected BasicPolymorphicTypeValidator(Set<Class<?>> invalidBaseTypes,
+            TypeMatcher[] baseTypeMatchers,
+            NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers,
+            boolean acceptArrayTypes) {
         _invalidBaseTypes = invalidBaseTypes;
         _baseTypeMatchers = baseTypeMatchers;
         _subTypeNameMatchers = subTypeNameMatchers;
         _subClassMatchers = subClassMatchers;
+        _acceptArrayTypes = acceptArrayTypes;
     }
 
     public static Builder builder() {
@@ -434,8 +461,25 @@ public class BasicPolymorphicTypeValidator
     @Override
     public Validity validateSubType(DatabindContext ctxt, JavaType baseType, JavaType subType)
     {
+        Class<?> subClass = subType.getRawClass();
+        // [databind#5981]: if array handling is enabled, unwrap (recursively for
+        // nested arrays) and validate the innermost element type. Primitive,
+        // abstract, and interface element types are accepted without an explicit
+        // allow-list entry: primitives can't carry gadget chains; abstract /
+        // interface elements are not directly instantiable and rely on per-element
+        // type-id resolution which itself triggers a PTV check on the concrete
+        // sub-type. Otherwise fall through to the regular sub-class matcher loop
+        // with the unwrapped element type.
+        if (_acceptArrayTypes && subClass.isArray()) {
+            do {
+                subClass = subClass.getComponentType();
+            } while (subClass.isArray());
+            if (subClass.isPrimitive() || subClass.isInterface()
+                    || Modifier.isAbstract(subClass.getModifiers())) {
+                return Validity.ALLOWED;
+            }
+        }
         if (_subClassMatchers != null)  {
-            final Class<?> subClass = subType.getRawClass();
             for (TypeMatcher m : _subClassMatchers) {
                 if (m.match(ctxt, subClass)) {
                     return Validity.ALLOWED;

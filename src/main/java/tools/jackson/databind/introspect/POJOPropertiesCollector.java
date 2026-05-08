@@ -1614,7 +1614,7 @@ ctor.creator()));
      *
      * @since 3.2
      */
-    boolean _hasCreatorBoundProperty(String name) {
+    protected boolean _hasCreatorBoundProperty(String name) {
         if (_creatorProperties == null) {
             return false;
         }

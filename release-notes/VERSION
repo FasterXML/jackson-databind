@@ -213,6 +213,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #5958: `@JsonView` ignored with `@JsonTypeInfo(include = As.EXTERNAL_PROPERTY)`
  (fix by Omkhar A)
 #5960: Deprecate un-maintained `tools.jackson.databind.jsontype.impl.SubTypeValidator`
+#5975: Parameters with an `ImplicitPropertyName` that matches the name of
+  a property marked as `READ_ONLY` are ignored during deserialization
+ (reported by @wrongwrong)
+ (fix by @cowtowncoder, w/ Claude code)
 #5977: Apply per-property DYNAMIC typing override to `ObjectArraySerializer`
  (fix by Lee Jiwon)
 - Remove project-specific Android SDK compatibility level, use shared;

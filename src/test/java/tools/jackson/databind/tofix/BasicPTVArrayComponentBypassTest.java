@@ -1,4 +1,4 @@
-package tools.jackson.databind.jsontype.vld;
+package tools.jackson.databind.tofix;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,7 @@ import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,6 +60,7 @@ public class BasicPTVArrayComponentBypassTest extends DatabindTestUtil
     }
 
     // For [databind#5981]
+    @JacksonTestFailureExpected
     @Test
     public void allowIfSubTypeIsArrayMustValidateComponentType() throws Exception
     {
@@ -123,6 +125,7 @@ public class BasicPTVArrayComponentBypassTest extends DatabindTestUtil
     // engaged, and asserts:
     //   (a) a direct FakeGadget value IS denied, and
     //   (b) FakeGadget[] still slips through via allowIfSubTypeIsArray().
+    @JacksonTestFailureExpected
     @Test
     public void arrayMatcherBypassesValidatorEvenWhenDirectClassIsDenied() throws Exception
     {

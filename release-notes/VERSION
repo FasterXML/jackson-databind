@@ -211,8 +211,14 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (reported by Omkhar A)
  (fix by @cowtowncoder, w/ Claude code)
 #5958: `@JsonView` ignored with `@JsonTypeInfo(include = As.EXTERNAL_PROPERTY)`
- (fixed by Omkhar A)
+ (fix by Omkhar A)
 #5960: Deprecate un-maintained `tools.jackson.databind.jsontype.impl.SubTypeValidator`
+#5975: Parameters with an `ImplicitPropertyName` that matches the name of
+  a property marked as `READ_ONLY` are ignored during deserialization
+ (reported by @wrongwrong)
+ (fix by @cowtowncoder, w/ Claude code)
+#5977: Apply per-property DYNAMIC typing override to `ObjectArraySerializer`
+ (fix by Lee Jiwon)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 
@@ -228,6 +234,18 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by Omkhar A)
 #5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
  (fixed by Omkhar A)
+#5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+ (fixed by Omkhar A)
+#5969: `@JsonView` by-passed for some "setterless" creator properties
+ (fixed by Omkhar A)
+#5971: `@JsonView` by-passed for unwrapped creator parameters
+ (fixed by Omkhar A)
+#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
+ (fixed by Omkhar A)
+#5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
+  should validate element type
+ (reported by Omkhar A)
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.1.3 (01-May-2026)
 

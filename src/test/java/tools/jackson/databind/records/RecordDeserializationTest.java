@@ -6,11 +6,18 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 
+import tools.jackson.core.JsonParser;
+
+import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.NopAnnotationIntrospector;
 import tools.jackson.databind.introspect.VisibilityChecker;
@@ -42,6 +49,39 @@ public class RecordDeserializationTest extends DatabindTestUtil
     }
 
     private record PrivateRecord3906(String string, int integer) {
+    }
+
+    // [databind#5683]
+    @JsonDeserialize(using = Inner5683.Deser.class)
+    public record Inner5683(@JsonValue long value) {
+        static class Deser extends StdDeserializer<Inner5683> {
+            protected Deser() { super(Inner5683.class); }
+
+            @Override
+            public Inner5683 deserialize(JsonParser p, DeserializationContext ctxt) {
+                return new Inner5683(p.readValueAs(Long.class));
+            }
+        }
+    }
+
+    public record Outer5683(Inner5683 inner) { }
+
+    // [databind#4690]
+    record DuplicatePropRecord4690(String first) { }
+
+    static class DuplicatePropPojo4690 {
+        private String first;
+
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        DuplicatePropPojo4690(String first) { this.first = first; }
+
+        public void setFirst(String first) {
+            this.first = first;
+        }
+
+        public String getFirst() {
+            return first;
+        }
     }
 
     /*
@@ -167,5 +207,71 @@ public class RecordDeserializationTest extends DatabindTestUtil
                 mapper.readValue("{}", Record3906.class));
         assertEquals(new PrivateRecord3906(null, 0),
                 mapper.readValue("{}", PrivateRecord3906.class));
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, custom deserializer via JsonParser [databind#5683]
+    /**********************************************************************
+     */
+
+    // [databind#5683]
+    @Test
+    public void testIssue5683()
+    {
+        final ObjectMapper mapper = newJsonMapper();
+        final String json = "{\"inner\":\"123\"}";
+        final JsonNode tree = mapper.readTree(json);
+
+        Outer5683 value;
+
+        value = mapper.readValue(json, Outer5683.class);
+        assertEquals(123L, value.inner.value());
+
+        value = mapper.treeToValue(tree, Outer5683.class);
+        assertEquals(123L, value.inner.value());
+
+        value = mapper.reader().treeToValue(tree, Outer5683.class);
+        assertEquals(123L, value.inner.value());
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, duplicate properties in JSON [databind#4690]
+    /**********************************************************************
+     */
+
+    // [databind#4690] InvalidDefinitionException "No fallback setter/field defined
+    // for creator property" when deserializing JSON with duplicated property to
+    // single-property Record
+    @Test
+    void testDuplicatePropertyDeserialization() throws Exception {
+        final ObjectMapper mapper = newJsonMapper();
+        final String json = a2q("{'first':'value','first':'value2'}");
+
+        DuplicatePropRecord4690 result = mapper.readValue(json, DuplicatePropRecord4690.class);
+
+        assertNotNull(result);
+        assertEquals("value2", result.first());
+    }
+
+    // [databind#4690]
+    @Test
+    void testDuplicatePropertyDeserialization2() throws Exception {
+        final ObjectMapper mapper = newJsonMapper();
+        final String json = a2q("{'first':'value','second':'test1','first':'value2'}");
+
+        DuplicatePropRecord4690 result = mapper.readValue(json, DuplicatePropRecord4690.class);
+        assertEquals("value2", result.first());
+    }
+
+    // [databind#4690]
+    @Test
+    void testDuplicatePropertyClassDeserialization() throws Exception {
+        final ObjectMapper mapper = newJsonMapper();
+        final String json = a2q("{'first':'value','second':'test1','first':'value2'}");
+
+        DuplicatePropPojo4690 result = mapper.readValue(json, DuplicatePropPojo4690.class);
+        assertEquals("value2", result.getFirst());
     }
 }

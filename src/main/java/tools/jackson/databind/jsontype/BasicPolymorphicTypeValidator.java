@@ -18,7 +18,18 @@ import tools.jackson.databind.JavaType;
  *<br>
  * For example:
  *<pre>
- *  [ADD EXAMPLE HERE]
+ *  PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+ *          // base type that polymorphism is enabled for
+ *          .allowIfBaseType(MyValue.class)
+ *          // accept any subtype of MyValue under our own package
+ *          .allowIfSubType("com.example.values.")
+ *          // and any concrete subtype of this specific safe interface
+ *          .allowIfSubType(SafeMarker.class)
+ *          .build();
+ *
+ *  ObjectMapper mapper = JsonMapper.builder()
+ *          .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
+ *          .build();
  *</pre>
  */
 public class BasicPolymorphicTypeValidator

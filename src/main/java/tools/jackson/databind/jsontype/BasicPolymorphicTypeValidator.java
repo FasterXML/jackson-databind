@@ -1,5 +1,6 @@
 package tools.jackson.databind.jsontype;
 
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -271,22 +272,51 @@ public class BasicPolymorphicTypeValidator
         }
 
         /**
-         * Method for appending matcher that will allow all subtypes that are Java arrays
-         * (regardless of element type). Note that this does NOT validate element type
-         * itself as long as Polymorphic Type handling is enabled for element type: this
-         * is the case with all standard "Default Typing" inclusion criteria as well as for
-         * annotation ({@code @JsonTypeInfo}) use case (since annotation only applies to element
-         * types, not container).
+         * Method for appending matcher that will allow subtypes that are Java arrays
+         * <i>whose component type is itself allowed by same validator</i> (or is primitive,
+         * abstract, or an interface).
+         * Primitive component types cannot trigger gadget chains; abstract / interface
+         * component types defer to the per-element type-id resolution path which
+         * itself runs the polymorphic type validator on the concrete sub-type.
+         *<p>
+         * NOTE (behavior change in 3.x for [databind#5981]): prior versions did not
+         * validate the array's component type separately, which would let an attacker by-pass
+         * type validation by wrapping an otherwise denied class as an array
+         * (e.g. {@code Evil[]}) -- the array matched, the component was instantiated
+         * via plain bean deserialization without any further validator invocation.
          *<p>
          * NOTE: not used with other Java collection types ({@link java.util.List}s,
-         *    {@link java.util.Collection}s), mostly since use of generic types as polymorphic
-         *    values is not (well) supported.
+         * {@link java.util.Collection}s), mostly since use of generic types as polymorphic
+         * values is not (well) supported.
          */
         public Builder allowIfSubTypeIsArray() {
             return _appendSubClassMatcher(new TypeMatcher() {
                 @Override
                 public boolean match(DatabindContext ctxt, Class<?> clazz) {
-                    return clazz.isArray();
+                    if (!clazz.isArray()) {
+                        return false;
+                    }
+                    // [databind#5981]: delegate component-type approval back to the
+                    // peer sub-class matchers on this builder. Primitives can't carry
+                    // gadget chains; abstract / interface component types defer to the
+                    // per-element type-id resolution path which itself runs the PTV.
+                    final Class<?> compType = clazz.getComponentType();
+                    if (compType.isPrimitive()
+                            || compType.isInterface()
+                            || Modifier.isAbstract(compType.getModifiers())) {
+                        return true;
+                    }
+                    if (_subTypeClassMatchers != null) {
+                        for (TypeMatcher peer : _subTypeClassMatchers) {
+                            if (peer == this) {
+                                continue;
+                            }
+                            if (peer.match(ctxt, compType)) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
                 }
             });
         }

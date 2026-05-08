@@ -18,7 +18,18 @@ import tools.jackson.databind.JavaType;
  *<br>
  * For example:
  *<pre>
- *  [ADD EXAMPLE HERE]
+ * PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+ *     // base type that polymorphism is enabled for
+ *     .allowIfBaseType(MyValue.class)
+ *     // accept any subtype of MyValue under our own package
+ *     .allowIfSubType("com.example.values.")
+ *     // and any concrete subtype of this specific safe interface
+ *     .allowIfSubType(SafeMarker.class)
+ *     .build();
+ *
+ *  ObjectMapper mapper = JsonMapper.builder()
+ *          .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
+ *          .build();
  *</pre>
  */
 public class BasicPolymorphicTypeValidator
@@ -88,9 +99,11 @@ public class BasicPolymorphicTypeValidator
          */
         protected List<TypeMatcher> _subTypeClassMatchers;
 
-        // [databind#5981]: when true, validateSubType() unwraps arrays (recursively
-        // for nested arrays) and validates the innermost element type against
-        // {@code _subTypeClassMatchers}.
+        /**
+         * [databind#5981]: when true, validateSubType() unwraps arrays (recursively
+         * for nested arrays) and validates the innermost element type against
+         * {@code _subTypeClassMatchers}.
+         */
         protected boolean _acceptArrayTypes = false;
 
         protected Builder() { }
@@ -105,8 +118,8 @@ public class BasicPolymorphicTypeValidator
          *    builder.allowIfBaseType(MyBaseType.class)
          *</pre>
          * would indicate that any polymorphic properties where declared base type
-         * is {@code MyBaseType} (or subclass thereof) would allow all legal (assignment-compatible)
-         * subtypes.
+         * is {@code MyBaseType} (or subclass thereof) would allow all legal
+         * (assignment-compatible) subtypes.
          */
         public Builder allowIfBaseType(final Class<?> baseOfBase) {
             return _appendBaseMatcher(new TypeMatcher() {
@@ -286,7 +299,7 @@ public class BasicPolymorphicTypeValidator
          * per-element type-id resolution which itself runs the polymorphic type
          * validator on the concrete sub-type.
          *<p>
-         * NOTE (behavior change in 3.x for [databind#5981]): prior versions added a
+         * NOTE: behavior change in 3.1.4 for [databind#5981]): prior versions added a
          * matcher that approved every array regardless of element type, which let
          * an attacker bypass an explicit sub-class allow-list by wrapping a denied
          * class as an array (e.g. {@code Evil[]}) -- the array matched, the
@@ -299,7 +312,7 @@ public class BasicPolymorphicTypeValidator
          * values is not (well) supported.
          */
         public Builder allowIfSubTypeIsArray() {
-            _acceptArrayTypes = true; // [databind#5981]
+            _acceptArrayTypes = true;
             return this;
         }
 

@@ -1902,3 +1902,6 @@ Omkhar Arasaratnam (@omkhar)
  * Reported #5974: `@JsonIgnore` on Record property ignored with
    `PropertyNamingStrategy`
   (2.18.8)
+ * Reported #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
+   should validate element type
+  (2.18.8)

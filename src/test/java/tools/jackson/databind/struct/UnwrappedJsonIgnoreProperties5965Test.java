@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import tools.jackson.databind.ObjectMapper;
@@ -31,6 +32,25 @@ public class UnwrappedJsonIgnoreProperties5965Test extends DatabindTestUtil
 
     @JsonIgnoreProperties({"admin"})
     static class OuterWithIgnoreProperties {
+        @JsonUnwrapped
+        public Inner inner = new Inner();
+    }
+
+    // [databind#5965]: outer @JsonIgnoreProperties carries `ignoreUnknown`
+    // alongside the explicit `value` list. Both must continue to work when
+    // unwrapping is in play.
+    @JsonIgnoreProperties(value = {"admin"}, ignoreUnknown = true)
+    static class OuterWithIgnoreUnknown {
+        @JsonUnwrapped
+        public Inner inner = new Inner();
+    }
+
+    // The unwrapped wrapper field's *property name* ("inner") must appear in
+    // the include set, otherwise filterBeanProps drops the wrapper at
+    // construction time and unwrapping never fires (orthogonal pre-existing
+    // limitation, not in scope for this fix).
+    @JsonIncludeProperties({"inner", "name"})
+    static class OuterWithIncludeProperties {
         @JsonUnwrapped
         public Inner inner = new Inner();
     }
@@ -79,5 +99,39 @@ public class UnwrappedJsonIgnoreProperties5965Test extends DatabindTestUtil
         assertFalse(result.inner.extra.containsKey("secret"),
                 "@JsonIgnoreProperties({'secret'}) bypassed via @JsonUnwrapped + "
                 + "@JsonAnySetter; inner.extra=" + result.inner.extra);
+    }
+
+    // ignoreUnknown=true on the outer must coexist with the explicit ignore
+    // list: "admin" is blocked, "extraneous" is silently dropped (no
+    // UnrecognizedPropertyException), "name" still flows to the inner.
+    @Test
+    public void testIgnorePropertiesIgnoreUnknownInteraction() throws Exception
+    {
+        String json = a2q("{'admin':'INJECTED','extraneous':'whatever','name':'alice'}");
+
+        OuterWithIgnoreUnknown result = MAPPER.readValue(json, OuterWithIgnoreUnknown.class);
+
+        assertNull(result.inner.admin,
+                "@JsonIgnoreProperties value list bypassed; admin=" + result.inner.admin);
+        assertEquals("alice", result.inner.name);
+    }
+
+    // Outer @JsonIncludeProperties — the dual of @JsonIgnoreProperties — must
+    // also forbid a non-included name from sneaking through unwrapping. The
+    // include set lists the wrapper field name "inner" (so unwrapping fires)
+    // plus the legitimate inner name "name".
+    @Test
+    public void testIncludePropertiesBypassedViaUnwrapped() throws Exception
+    {
+        String maliciousJson = a2q("{'admin':'INJECTED','name':'alice'}");
+
+        OuterWithIncludeProperties result = MAPPER.readValue(maliciousJson,
+                OuterWithIncludeProperties.class);
+
+        assertNull(result.inner.admin,
+                "@JsonIncludeProperties on outer class was bypassed by "
+                + "@JsonUnwrapped inner field; 'admin' should be null but was: "
+                + result.inner.admin);
+        assertEquals("alice", result.inner.name);
     }
 }

@@ -709,8 +709,14 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
                     .getDefaultPropertyInclusions(_beanType.getRawClass(), ac);
             Set<String> outerIgnore = (ignVal == null) ? null : ignVal.findIgnoredForDeserialization();
             if (outerIgnore != null && outerIgnore.isEmpty()) {
+                // Empty ignore-set means "ignore nothing" — equivalent to no
+                // constraint, so collapse to null as a hot-path micro-opt.
                 outerIgnore = null;
             }
+            // Note: include-set is *not* collapsed when empty — empty include
+            // means "include nothing" (block everything), which is semantically
+            // distinct from null ("no constraint"). The {@code null} from
+            // {@code getIncluded()} itself is the no-constraint signal.
             Set<String> outerInclude = (incVal == null) ? null : incVal.getIncluded();
             _unwrappedPropertyHandler = unwrapped.initializeUnwrappedPropertyNames(
                     outerIgnore, outerInclude);

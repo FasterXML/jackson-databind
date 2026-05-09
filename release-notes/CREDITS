@@ -239,6 +239,8 @@ Lee Jiwon (@dlwldnjs1009)
  * Implemented #3166: Ability to sort `Set`s before serialization (add
    `SerializationFeature.ORDER_SET_ELEMENTS`)
   [3.2.0]
+ * Fixed #5977: Apply per-property DYNAMIC typing override to `ObjectArraySerializer`
+  [3.2.0]
 
 Garret Wilson (@garretwilson)
  * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
@@ -351,6 +353,35 @@ Joshua Arnold (@josharnold52)
  * Reported, fixed #5923: Deserialization behavior change with Records,
    `@JsonCreator` and `@JsonValue`
   [3.1.3]
+
+Omkhar Arasaratnam (@omkhar)
+ * Reported, suggested fix for #5950: Improve `UUIDeserializer` error handling
+  [3.1.4]
+ * Reported, suggested fix for #5951: Improve `InetSocketAddress` deserialization
+  [3.1.4]
+ * Reported #5952: `@JsonIgnore` does not prevent passing of property to `@JsonAnySetter`
+  [3.2.0]
+ * Reported, suggested fix for #5956: Fix problem with float-to-byte range check
+  [3.1.4]
+ * Contributed fix for #5957: Improve `java.time.Month` deserialization validation
+  [3.1.4]
+ * Contributed fix for #5958: `@JsonView` ignored with
+   `@JsonTypeInfo(include = As.EXTERNAL_PROPERTY)`
+  [3.2.0]
+ * Contributed fix for #5962: Case-insensitive deserialization may use
+   wrong `@JsonIgnoreProperties`
+  [3.1.4]
+ * Contributed fix for #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+  [3.1.4]
+ * Contributed fix for #5969: `@JsonView` by-passed for some "setterless" creator properties
+  [3.1.4]
+ * Contributed fix for #5971: `@JsonView` by-passed for unwrapped creator parameters
+  [3.1.4]
+ * Contributed fix for #5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
+  [3.1.4]
+ * Reported #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
+   should validate element type
+  [3.1.4]
 
 Michael Orzechowski (@MikeBlink)
  * Reported #5941: `MapperBuilder.addModule()` does not recursively register transitive
@@ -494,6 +525,10 @@ Eran Leshem (@eranl)
 Martin Uhlen (@MartinUhlen)
  * Reported #5734: `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` treats
    absent field same as explicit `null`
+  [3.2.0]
+
+Frederic Aubert (@f-aubert)
+ * Contributed #5745: Ability to change active JsonView on submodels (with `@JsonApplyView`)
   [3.2.0]
 
 David Nelson (@eatdrinksleepcode)

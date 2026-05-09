@@ -11,7 +11,9 @@ import tools.jackson.databind.exc.InvalidFormatException;
 
 public class UUIDDeserializer extends FromStringDeserializer<UUID>
 {
-    final static int[] HEX_DIGITS = new int[127];
+    private static final int HEX_ARRAY_LEN = 128;
+    protected static final int[] HEX_DIGITS = new int[HEX_ARRAY_LEN];
+
     static {
         Arrays.fill(HEX_DIGITS, -1);
         for (int i = 0; i < 10; ++i) { HEX_DIGITS['0' + i] = i; }
@@ -106,13 +108,13 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
         final char c1 = str.charAt(index);
         final char c2 = str.charAt(index+1);
 
-        if (c1 <= 127 && c2 <= 127) {
+        if (c1 < HEX_ARRAY_LEN && c2 < HEX_ARRAY_LEN) {
             int hex = (HEX_DIGITS[c1] << 4) | HEX_DIGITS[c2];
             if (hex >= 0) {
                 return hex;
             }
         }
-        if (c1 > 127 || HEX_DIGITS[c1] < 0) {
+        if (c1 >= HEX_ARRAY_LEN || HEX_DIGITS[c1] < 0) {
             return _badChar(str, index, ctxt, c1);
         }
         return _badChar(str, index+1, ctxt, c2);
@@ -121,10 +123,11 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
     int _badChar(String uuidStr, int index, DeserializationContext ctxt, char c) {
         // 15-May-2016, tatu: Ideally should not throw, but call `handleWeirdStringValue`...
         //   however, control flow is gnarly here, so for now just throw
+        char ch = Character.isISOControl(c) ? '?' : c;
         throw ctxt.weirdStringException(uuidStr, handledType(),
                 String.format(
                 "Non-hex character '%c' (value 0x%s), not valid for UUID String",
-                c, Integer.toHexString(c)));
+                ch, Integer.toHexString(c)));
     }
 
     private UUID _fromBytes(byte[] bytes, DeserializationContext ctxt) {

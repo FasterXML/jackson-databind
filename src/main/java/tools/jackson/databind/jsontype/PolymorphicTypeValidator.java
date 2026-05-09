@@ -54,21 +54,22 @@ public abstract class PolymorphicTypeValidator
      */
     public enum Validity {
         /**
-         * Value that indicates that Class name or Class is allowed for use without further checking
+         * Value that indicates that Class name or Class is allowed for use without further checks.
          */
         ALLOWED,
+
         /**
-         * Value that indicates that Class name or Class is NOT allowed and no further checks are
-         * needed or allowed
+         * Value that indicates that Class name or Class is NOT allowed and no further checks
+         * are needed or allowed.
          */
         DENIED,
 
         /**
-         * Value that indicates that Class name or Class validity cannot be confirmed by validator
-         * and further checks are needed.
+         * Value that indicates that Class name or Class validity cannot be confirmed
+         * by the validator and further checks are needed.
          *<p>
-         * Typically if validator cannot establish validity from Type Id or Class (name), eventual
-         * determination will be {@code DENIED}, for safety reasons.
+         * Typically if the validator cannot establish validity from Type Id or Class (name),
+         * eventual determination will be {@code DENIED} for safety reasons.
          */
         INDETERMINATE
     }
@@ -77,13 +78,13 @@ public abstract class PolymorphicTypeValidator
      * Method called when a property with polymorphic value is encountered, and a
      * {@code TypeResolverBuilder} is needed. Intent is to allow early determination
      * of cases where subtyping is completely denied (for example for security reasons),
-     * or, conversely, allowed for allow subtypes (when base type guarantees that all subtypes
+     * or, conversely, allowed for all subtypes (when base type guarantees that all subtypes
      * are known to be safe). Check can be thought of as both optimization (for latter case)
      * and eager-fail (for former case) to give better feedback.
      *
      * @param ctxt Context for resolution: typically will be {@code DeserializationContext}
-     * @param baseType Nominal base type used for polymorphic handling: subtypes MUST be instances
-     *   of this type and assignment compatibility is verified by Jackson core
+     * @param baseType Nominal base type used for polymorphic handling: subtypes MUST be
+     *   instances of this type and assignment compatibility is verified by Jackson core
      *
      * @return Determination of general validity of all subtypes of given base type; if
      *    {@link Validity#ALLOWED} returned, all subtypes will automatically be accepted without

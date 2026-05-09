@@ -166,7 +166,8 @@ public class ObjectArraySerializer
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
             if (_elementType != null) {
-                if (_staticTyping && !_elementType.isJavaLangObject()) {
+                if (_staticTyping && !_elementType.isJavaLangObject()
+                        && !_hasDynamicTypingOverride(ctxt, property)) {
                     ser = ctxt.findContentValueSerializer(_elementType, property);
                 }
             }

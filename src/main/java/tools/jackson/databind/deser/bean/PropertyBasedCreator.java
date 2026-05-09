@@ -50,8 +50,6 @@ public final class PropertyBasedCreator
     /**
      * Indexes of properties with associated Injectable values, if any:
      * {@code null} if none.
-     *
-     * @since 2.21
      */
     protected final BitSet _injectablePropIndexes;
 
@@ -246,6 +244,18 @@ public final class PropertyBasedCreator
 
     public Collection<SettableBeanProperty> properties() {
         return _propertyLookup.values();
+    }
+
+    /**
+     * Returns all creator properties in creator-index order, including ones
+     * marked ignorable (which {@link #properties()} excludes).
+     *<p>
+     * Returned array is shared internal state; callers must not mutate it.
+     *
+     * @since 3.2
+     */
+    public SettableBeanProperty[] allPropertiesInOrder() {
+        return _propertiesInOrder;
     }
 
     public SettableBeanProperty findCreatorProperty(String name) {

@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -79,31 +78,9 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
             }
             // fall through
         } else if (p.isExpectedStartArrayToken()) {
-            JsonToken t = p.nextToken();
-            if (t == JsonToken.END_ARRAY) {
-                return null;
-            }
-            if ((t == JsonToken.VALUE_STRING || t == JsonToken.VALUE_EMBEDDED_OBJECT)
-                    && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                final Month parsed = deserialize(p, ctxt);
-                if (p.nextToken() != JsonToken.END_ARRAY) {
-                    handleMissingEndArrayForSingle(p, ctxt);
-                }
-                return parsed;
-            }
-            if (t != JsonToken.VALUE_NUMBER_INT) {
-                return _reportWrongToken(ctxt, JsonToken.VALUE_NUMBER_INT, Integer.class.getName());
-            }
-            int month = p.getIntValue();
-            if (p.nextToken() != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(p, handledType(), JsonToken.END_ARRAY,
-                        "Expected array to end");
-            }
-            if (Month.JANUARY.getValue() <= month && month <= Month.DECEMBER.getValue()) {
-                return Month.of(month);
-            }
-            return (Month) ctxt.handleWeirdNumberValue(handledType(),
-                month, "month number outside 1-12 range for 1-based `Month`s");
+            // [databind#5957]: Delegate to standard array handling so empty arrays
+            // and single-element unwrapping respect coercion / UNWRAP_SINGLE_VALUE_ARRAYS.
+            return _deserializeFromArray(p, ctxt);
         } else if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
             return (Month) p.getEmbeddedObject();
         }

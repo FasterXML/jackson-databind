@@ -6,6 +6,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.annotation.JsonApplyView;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.core.JacksonException;
@@ -178,6 +179,13 @@ public class BeanPropertyWriter
     protected final Class<?>[] _includeInViews;
 
     /**
+     * View to apply for this property when applyView is available for the Bean.
+     *
+     * @since 3.2
+     */
+    protected final Class<?> _applyView;
+
+    /**
      * Inclusion settings for this property, pre-computed in {@code PropertyBuilder}
      * by merging global defaults, type defaults, and property-level annotations,
      * including contextual annotations from the enclosing class.
@@ -214,13 +222,31 @@ public class BeanPropertyWriter
     {
         this(propDef, member, contextAnnotations, declaredType,
                 ser, typeSer, serType, suppressNulls, suppressableValue,
-                includeInViews, null);
+                includeInViews, null, null);
     }
 
     /**
-     * Constructor with additional inclusion parameter.
+     * @deprecated Since 3.2 use {@link #BeanPropertyWriter(BeanPropertyDefinition,
+     *     AnnotatedMember, Annotations, JavaType, ValueSerializer, TypeSerializer,
+     *     JavaType, boolean, Object, Class[], JsonInclude.Value, Class)} instead.
+     */
+    @Deprecated // @since 3.2
+    public BeanPropertyWriter(BeanPropertyDefinition propDef,
+            AnnotatedMember member, Annotations contextAnnotations,
+            JavaType declaredType,
+            ValueSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
+            boolean suppressNulls, Object suppressableValue,
+            Class<?>[] includeInViews, JsonInclude.Value inclusion)
+    {
+        this(propDef, member, contextAnnotations, declaredType,
+                ser, typeSer, serType, suppressNulls, suppressableValue,
+                includeInViews, inclusion, null);
+    }
+
+    /**
+     * Constructor with additional inclusion and applyView parameter.
      *
-     * @since 3.1
+     * @since 3.2
      */
     @SuppressWarnings("unchecked")
     public BeanPropertyWriter(BeanPropertyDefinition propDef,
@@ -228,7 +254,7 @@ public class BeanPropertyWriter
             JavaType declaredType,
             ValueSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             boolean suppressNulls, Object suppressableValue,
-            Class<?>[] includeInViews, JsonInclude.Value inclusion)
+            Class<?>[] includeInViews, JsonInclude.Value inclusion, Class<?> applyView)
     {
         super(propDef);
         _member = member;
@@ -260,6 +286,7 @@ public class BeanPropertyWriter
         // this will be resolved later on, unless nulls are to be suppressed
         _nullSerializer = null;
         _includeInViews = includeInViews;
+        _applyView = applyView;
         _inclusion = (inclusion == null) ? JsonInclude.Value.empty() : inclusion;
     }
 
@@ -276,6 +303,7 @@ public class BeanPropertyWriter
         _name = null;
         _wrapperName = null;
         _includeInViews = null;
+        _applyView = null;
 
         _declaredType = null;
         _serializer = null;
@@ -323,6 +351,7 @@ public class BeanPropertyWriter
         _suppressNulls = base._suppressNulls;
         _suppressableValue = base._suppressableValue;
         _includeInViews = base._includeInViews;
+        _applyView = base._applyView;
         _typeSerializer = base._typeSerializer;
         _nonTrivialBaseType = base._nonTrivialBaseType;
         _inclusion = base._inclusion;
@@ -347,6 +376,7 @@ public class BeanPropertyWriter
         _suppressNulls = base._suppressNulls;
         _suppressableValue = base._suppressableValue;
         _includeInViews = base._includeInViews;
+        _applyView = base._applyView;
         _typeSerializer = base._typeSerializer;
         _nonTrivialBaseType = base._nonTrivialBaseType;
         _inclusion = base._inclusion;
@@ -660,10 +690,12 @@ public class BeanPropertyWriter
             }
         }
         g.writeName(_name);
-        if (_typeSerializer == null) {
-            ser.serialize(value, g, ctxt);
+        if (_applyView == null) {
+            _serialize(value, g, ctxt, ser);
         } else {
-            ser.serializeWithType(value, g, ctxt, _typeSerializer);
+            ValueSerializer<Object> actualSer = ser;
+            ctxt.withActiveView(_applyView != JsonApplyView.NONE.class ? _applyView : null,
+                    () -> _serialize(value, g, ctxt, actualSer));
         }
     }
 
@@ -728,10 +760,13 @@ public class BeanPropertyWriter
                 return;
             }
         }
-        if (_typeSerializer == null) {
-            ser.serialize(value, g, ctxt);
+
+        if (_applyView == null) {
+            _serialize(value, g, ctxt, ser);
         } else {
-            ser.serializeWithType(value, g, ctxt, _typeSerializer);
+            ValueSerializer<Object> actualSer = ser;
+            ctxt.withActiveView(_applyView != JsonApplyView.NONE.class ? _applyView : null,
+                    () -> _serialize(value, g, ctxt, actualSer));
         }
     }
 
@@ -750,6 +785,16 @@ public class BeanPropertyWriter
             _nullSerializer.serialize(null, g, prov);
         } else {
             g.writeNull();
+        }
+    }
+
+    // @since 3.2
+    private void _serialize(Object value, JsonGenerator g, SerializationContext ctxt,
+            ValueSerializer<Object> ser) {
+        if (_typeSerializer == null) {
+            ser.serialize(value, g, ctxt);
+        } else {
+            ser.serializeWithType(value, g, ctxt, _typeSerializer);
         }
     }
 

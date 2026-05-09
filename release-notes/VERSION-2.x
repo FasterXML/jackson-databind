@@ -10,11 +10,38 @@ Project: jackson-databind
   defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
  (reported by Christian D)
  (contributed by Lee Jiwon)
+#3316: Deserialization of a date with `@JsonFormat` specified with locale
+  that is not a language tag
+ (reported by @MarkDavoren)
+ (fix by @cowtowncoder, w/ Claude code)
+#3573: Inconsistent handling of nil `UUID` in property inclusion
+ (reported by Andrzej L)
 #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.3 (not yet released)
+2.21.4 (not yet released)
+
+#5931: Fix `AtomicLongDeserializer` value truncation on coerced values
+ (fixed by Lee Jiwon)
+#5950: Improve `UUIDeserializer` error handling#
+ (reported by Omkhar A)
+#5951: Improve `InetSocketAddress` deserialization
+ (reported by Omkhar A)
+#5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+ (fixed by Omkhar A)
+#5969: `@JsonView` by-passed for some "setterless" creator properties
+ (fixed by Omkhar A)
+#5971: `@JsonView` by-passed for unwrapped creator parameters
+ (fixed by Omkhar A)
+#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
+ (reported by Omkhar A)
+#5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
+  should validate element type
+ (reported by Omkhar A)
+ (fix by @cowtowncoder, w/ Claude code)
+
+2.21.3 (28-Apr-2026)
 
 #5840: Jackson 2.21 throws Conflicting property-based creators if both
   default (0-arg) and multi-arg constructor annotated
@@ -275,6 +302,20 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
+2.18.8 (not yet released)
+
+#5950: Improve `UUIDeserializer` error handling
+ (reported by Omkhar A)
+#5951: Improve `InetSocketAddress` deserialization
+ (reported by Omkhar A)
+#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
+ (reported by Omkhar A)
+#5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
+  should validate element type
+ (reported by Omkhar A)
+ (fix by @cowtowncoder, w/ Claude code)
+
+2.18.7 (24-Apr-2026)
 2.18.6 (22-Feb-2026)
 2.18.5 (27-Oct-2025)
 

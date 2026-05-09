@@ -99,7 +99,14 @@ public class UUIDDeserializationTest
         } catch (InvalidFormatException e) {
             verifyException(e, "non-hex character 'x'");
         }
-        // should also test from-bytes version, but that's trickier... leave for now.
+        // 04-May-2026, tatu: [databind#5950]: specific invalid input to try
+        try {
+            MAPPER.readValue(q("76e6d183-5f68-4afa-b94a-922c1fdb83f\u007F"), UUID.class);
+            fail("Should fail on invalid UUID string");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "non-hex character");
+            verifyException(e, "(value 0x7F)");
+        }
     }
 
     @Test

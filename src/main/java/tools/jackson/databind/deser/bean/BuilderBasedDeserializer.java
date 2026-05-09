@@ -809,7 +809,7 @@ public class BuilderBasedDeserializer
                 tokens.copyCurrentStructure(p);
                 continue;
             }
-            if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, builder, propName);
                 continue;
             }

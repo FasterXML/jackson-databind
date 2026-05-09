@@ -93,34 +93,22 @@ public class UnwrappedPropertyHandler
     }
 
     /**
-     * Creates a new UnwrappedPropertyHandler with initialized unwrapped property names cache.
+     * Creates a new UnwrappedPropertyHandler with initialized unwrapped
+     * property names cache and the outer bean's class-level
+     * {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties} name sets
+     * applied. The latter are consulted by
+     * {@link #hasUnwrappedProperty(String)} so a name forbidden at the outer
+     * class level is never routed into an inner unwrapped deserializer (see
+     * [databind#5965]).
      *
-     * @since 3.1
+     * @since 3.1 (3.2: added outer-filter parameters for [databind#5965])
      */
-    public UnwrappedPropertyHandler initializeUnwrappedPropertyNames() {
+    public UnwrappedPropertyHandler initializeUnwrappedPropertyNames(
+            Set<String> outerClassLevelIgnore,
+            Set<String> outerClassLevelInclude) {
         Set<String> unwrappedNames = new HashSet<>();
         boolean hasAnySetter = _collectUnwrappedPropertyNames(_properties, _creatorProperties, unwrappedNames);
         return new UnwrappedPropertyHandler(_creatorProperties, _properties, unwrappedNames, hasAnySetter,
-                _outerClassLevelIgnore, _outerClassLevelInclude);
-    }
-
-    /**
-     * Returns a copy of this handler with the outer bean's class-level
-     * {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties} name sets
-     * applied. These are consulted by {@link #hasUnwrappedProperty(String)} so
-     * a name forbidden at the outer class level is never routed into an inner
-     * unwrapped deserializer (see [databind#5965]).
-     *
-     * @since 3.2
-     */
-    public UnwrappedPropertyHandler withOuterClassLevelFilters(Set<String> outerClassLevelIgnore,
-            Set<String> outerClassLevelInclude) {
-        if (Objects.equals(outerClassLevelIgnore, _outerClassLevelIgnore)
-                && Objects.equals(outerClassLevelInclude, _outerClassLevelInclude)) {
-            return this;
-        }
-        return new UnwrappedPropertyHandler(_creatorProperties, _properties,
-                _unwrappedPropertyNames, _hasUnwrappedAnySetter,
                 outerClassLevelIgnore, outerClassLevelInclude);
     }
 

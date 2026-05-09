@@ -712,8 +712,8 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
                 outerIgnore = null;
             }
             Set<String> outerInclude = (incVal == null) ? null : incVal.getIncluded();
-            _unwrappedPropertyHandler = unwrapped.initializeUnwrappedPropertyNames()
-                    .withOuterClassLevelFilters(outerIgnore, outerInclude);
+            _unwrappedPropertyHandler = unwrapped.initializeUnwrappedPropertyNames(
+                    outerIgnore, outerInclude);
         } else {
             _unwrappedPropertyHandler = null;
         }

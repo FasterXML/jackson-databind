@@ -45,22 +45,51 @@ public class UnwrappedPropertyHandler
      */
     protected final boolean _hasUnwrappedAnySetter;
 
+    /**
+     * Class-level {@code @JsonIgnoreProperties} names from the <em>outer</em>
+     * bean (deserialization-direction subset). Names listed here must not be
+     * routed to any unwrapped inner deserializer — including the inner
+     * {@code @JsonAnySetter} fallback path. {@code null} means "no constraint".
+     *<p>
+     * Per-property {@code @JsonIgnore} names are intentionally <em>not</em>
+     * included: those participate in the post-#1075 dispatch order which lets
+     * an inner unwrapped property of the same name still be deserialized.
+     *
+     * @since 3.2 (databind#5965)
+     */
+    protected final Set<String> _outerClassLevelIgnore;
+
+    /**
+     * Class-level {@code @JsonIncludeProperties} names from the outer bean.
+     * When non-{@code null}, only names in this set may reach unwrapped inner
+     * deserializers. {@code null} means "no constraint".
+     *
+     * @since 3.2 (databind#5965)
+     */
+    protected final Set<String> _outerClassLevelInclude;
+
     public UnwrappedPropertyHandler() {
         _creatorProperties = new ArrayList<>();
         _properties = new ArrayList<>();
         // placeholder: won't be modified in-place
         _unwrappedPropertyNames = Collections.emptySet();
         _hasUnwrappedAnySetter = false;
+        _outerClassLevelIgnore = null;
+        _outerClassLevelInclude = null;
     }
 
     protected UnwrappedPropertyHandler(List<SettableBeanProperty> creatorProps,
             List<SettableBeanProperty> props,
             Set<String> unwrappedPropertyNames,
-            boolean hasUnwrappedAnySetter) {
+            boolean hasUnwrappedAnySetter,
+            Set<String> outerClassLevelIgnore,
+            Set<String> outerClassLevelInclude) {
         _creatorProperties = creatorProps;
         _properties = props;
         _unwrappedPropertyNames = unwrappedPropertyNames;
         _hasUnwrappedAnySetter = hasUnwrappedAnySetter;
+        _outerClassLevelIgnore = outerClassLevelIgnore;
+        _outerClassLevelInclude = outerClassLevelInclude;
     }
 
     /**
@@ -71,7 +100,28 @@ public class UnwrappedPropertyHandler
     public UnwrappedPropertyHandler initializeUnwrappedPropertyNames() {
         Set<String> unwrappedNames = new HashSet<>();
         boolean hasAnySetter = _collectUnwrappedPropertyNames(_properties, _creatorProperties, unwrappedNames);
-        return new UnwrappedPropertyHandler(_creatorProperties, _properties, unwrappedNames, hasAnySetter);
+        return new UnwrappedPropertyHandler(_creatorProperties, _properties, unwrappedNames, hasAnySetter,
+                _outerClassLevelIgnore, _outerClassLevelInclude);
+    }
+
+    /**
+     * Returns a copy of this handler with the outer bean's class-level
+     * {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties} name sets
+     * applied. These are consulted by {@link #hasUnwrappedProperty(String)} so
+     * a name forbidden at the outer class level is never routed into an inner
+     * unwrapped deserializer (see [databind#5965]).
+     *
+     * @since 3.2
+     */
+    public UnwrappedPropertyHandler withOuterClassLevelFilters(Set<String> outerClassLevelIgnore,
+            Set<String> outerClassLevelInclude) {
+        if (Objects.equals(outerClassLevelIgnore, _outerClassLevelIgnore)
+                && Objects.equals(outerClassLevelInclude, _outerClassLevelInclude)) {
+            return this;
+        }
+        return new UnwrappedPropertyHandler(_creatorProperties, _properties,
+                _unwrappedPropertyNames, _hasUnwrappedAnySetter,
+                outerClassLevelIgnore, outerClassLevelInclude);
     }
 
     /**
@@ -95,7 +145,8 @@ public class UnwrappedPropertyHandler
         Set<String> names = new HashSet<>();
         boolean hasAnySetter = _collectUnwrappedPropertyNames(renamedProps, renamedCreatorProps, names);
 
-        return new UnwrappedPropertyHandler(renamedCreatorProps, renamedProps, names, hasAnySetter);
+        return new UnwrappedPropertyHandler(renamedCreatorProps, renamedProps, names, hasAnySetter,
+                _outerClassLevelIgnore, _outerClassLevelInclude);
     }
 
     private List<SettableBeanProperty> renameProperties(DeserializationContext ctxt,
@@ -186,6 +237,15 @@ public class UnwrappedPropertyHandler
      * @since 3.1
      */
     public boolean hasUnwrappedProperty(String propName) {
+        // [databind#5965] Outer class-level @JsonIgnoreProperties /
+        // @JsonIncludeProperties must block names from reaching inner unwrapped
+        // deserializers — including the inner @JsonAnySetter fallback.
+        if (_outerClassLevelIgnore != null && _outerClassLevelIgnore.contains(propName)) {
+            return false;
+        }
+        if (_outerClassLevelInclude != null && !_outerClassLevelInclude.contains(propName)) {
+            return false;
+        }
         if (_hasUnwrappedAnySetter) {
             return true;
         }

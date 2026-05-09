@@ -694,7 +694,26 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
         if (unwrapped != null) { // we consider this non-standard, to offline handling
             _nonStandardCreation = true;
             // [databind#650]: Initialize unwrapped property names for hasUnwrappedProperty()
-            _unwrappedPropertyHandler = unwrapped.initializeUnwrappedPropertyNames();
+            // [databind#5965]: Capture the outer bean's class-level
+            // @JsonIgnoreProperties / @JsonIncludeProperties so the unwrapped
+            // handler can refuse names forbidden at the outer class level
+            // (otherwise an outer ignore is silently bypassed when the inner
+            // unwrapped type — or its @JsonAnySetter — accepts the same name).
+            // Per-property @JsonIgnore is intentionally *not* applied here:
+            // that path remains routable to inner unwrapped deserializers per
+            // [databind#1075].
+            AnnotatedClass ac = ctxt.introspectClassAnnotations(_beanType);
+            JsonIgnoreProperties.Value ignVal = ctxt.getConfig()
+                    .getDefaultPropertyIgnorals(_beanType.getRawClass(), ac);
+            JsonIncludeProperties.Value incVal = ctxt.getConfig()
+                    .getDefaultPropertyInclusions(_beanType.getRawClass(), ac);
+            Set<String> outerIgnore = (ignVal == null) ? null : ignVal.findIgnoredForDeserialization();
+            if (outerIgnore != null && outerIgnore.isEmpty()) {
+                outerIgnore = null;
+            }
+            Set<String> outerInclude = (incVal == null) ? null : incVal.getIncluded();
+            _unwrappedPropertyHandler = unwrapped.initializeUnwrappedPropertyNames()
+                    .withOuterClassLevelFilters(outerIgnore, outerInclude);
         } else {
             _unwrappedPropertyHandler = null;
         }

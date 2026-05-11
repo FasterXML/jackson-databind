@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * JDB-011: Generic type IDs bypass polymorphic subtype validation.
+ * [databind#5988]: Generic type IDs bypass polymorphic subtype validation.
  *
  * DatabindContext._resolveAndValidateGeneric() validates the raw class name (before '<')
  * against the PTV. If the raw class name is ALLOWED, the code skips validateSubType
@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Patch: in _resolveAndValidateGeneric(), recursively validate all non-trivial type
  * parameters via _typeParamsAllowed() before returning the constructed type.
  */
-public class SecurityPocJdb011Test extends DatabindTestUtil
+public class SecurityPoc5988Test extends DatabindTestUtil
 {
     // Safe type: explicitly in the allowlist
     public static class SafePayload {
@@ -79,7 +79,7 @@ public class SecurityPocJdb011Test extends DatabindTestUtil
      * are explicitly allowed by the PTV. Deserialization must succeed.
      */
     @Test
-    public void testJdb011_negativeControl_allowedGenericType() throws Exception {
+    public void test5988_sanityCheck_allowedGenericType() throws Exception {
         ObjectMapper mapper = buildMapper();
 
         // Craft JSON with ArrayList<SafePayload> as the type ID
@@ -104,7 +104,7 @@ public class SecurityPocJdb011Test extends DatabindTestUtil
      */
     @JacksonTestFailureExpected
     @Test
-    public void testJdb011_genericTypeIdBypassesAllowlist() throws Exception {
+    public void test5988_genericTypeIdBypassesAllowlist() throws Exception {
         ObjectMapper mapper = buildMapper();
 
         // Craft the exploit type ID: ArrayList wrapping the forbidden EvilGadget class
@@ -118,7 +118,7 @@ public class SecurityPocJdb011Test extends DatabindTestUtil
                 java.util.List<?> list = (java.util.List<?>) result.value;
                 if (!list.isEmpty()) {
                     assertFalse(list.get(0) instanceof EvilGadget,
-                            "JDB-011 VULNERABLE: generic type-id 'java.util.ArrayList<EvilGadget>' " +
+                            "[databind#5988] VULNERABLE: generic type-id 'java.util.ArrayList<EvilGadget>' " +
                             "bypassed PTV allow-list. EvilGadget was instantiated as list element: " +
                             list.get(0));
                 }

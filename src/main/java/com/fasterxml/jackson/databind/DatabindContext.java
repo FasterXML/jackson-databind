@@ -288,62 +288,47 @@ public abstract class DatabindContext
         // be validated -- otherwise a name-based allow-list for a safe container
         // (e.g. "java.util.ArrayList") can be bypassed by smuggling a gadget
         // class as a type argument (e.g. "java.util.ArrayList<EvilGadget>").
-        _validateTypeParameters(baseType, subType, ptv, config);
+        // The container itself was already validated above; walk its parameter
+        // tree (and array component, if any) and validate each node.
+        for (int i = 0, n = subType.containedTypeCount(); i < n; ++i) {
+            _validateTypeParameter(baseType, subType.containedType(i), ptv, config);
+        }
+        if (subType.isArrayType()) {
+            _validateTypeParameter(baseType, subType.getContentType(), ptv, config);
+        }
         return subType;
     }
 
     /**
-     * Helper for [databind#5988]: recursively validate each non-trivial type
-     * parameter (and array element types nested as parameters) against the given
-     * {@link PolymorphicTypeValidator}. The container type itself is validated
-     * by the caller; this method only walks its parameter tree.
+     * Helper for [databind#5988]: validate a single type parameter against the
+     * given {@link PolymorphicTypeValidator}, then recurse into its own contained
+     * types and array component (for nested generics like
+     * {@code Map<String, List<Evil>>} or {@code List<String[]>}).
      *<p>
-     * {@code Object} and primitive parameters are exempt: {@code Object} is the
-     * canonical resolution of wildcards / unbound parameters, and primitives
-     * cannot carry gadget chains. Callers who want stricter policy can deny
-     * {@code Object} as a base type via {@code validateBaseType}.
+     * {@code Object} (the canonical resolution of wildcards / unbound parameters)
+     * and primitives are exempt: neither can carry gadget chains.
      *
      * @since 2.18.8
      */
-    private void _validateTypeParameters(JavaType baseType, JavaType type,
+    private void _validateTypeParameter(JavaType baseType, JavaType param,
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        // Covers Map K/V (via TypeBindings) and all generic parameters.
-        for (int i = 0, n = type.containedTypeCount(); i < n; ++i) {
-            _validateOneTypeParameter(baseType, type.containedType(i), ptv, config);
-        }
-        // Array component as a generic parameter (e.g. List<String[]>): visit
-        // the component too. Note: ArrayType does not expose its component via
-        // containedType(int), only via getContentType().
-        if (type.isArrayType()) {
-            _validateOneTypeParameter(baseType, type.getContentType(), ptv, config);
-        }
-    }
-
-    /**
-     * @since 2.18.8
-     */
-    private void _validateOneTypeParameter(JavaType baseType, JavaType param,
-            PolymorphicTypeValidator ptv, MapperConfig<?> config)
-        throws JsonMappingException
-    {
-        if (param == null) {
-            return;
-        }
         final Class<?> raw = param.getRawClass();
-        // Trivially-safe placeholders: stop here without invoking PTV.
-        if (raw == Object.class || raw.isPrimitive()) {
-            return;
+        if (raw != Object.class && !raw.isPrimitive()) {
+            if (ptv.validateSubType(config, baseType, param) != Validity.ALLOWED) {
+                throw invalidTypeIdException(baseType, raw.getName(),
+                        "Configured `PolymorphicTypeValidator` (of type "
+                                + ClassUtil.classNameOf(ptv)
+                                + ") denied resolution of type parameter");
+            }
         }
-        if (ptv.validateSubType(config, baseType, param) != Validity.ALLOWED) {
-            throw invalidTypeIdException(baseType, raw.getName(),
-                    "Configured `PolymorphicTypeValidator` (of type "
-                            + ClassUtil.classNameOf(ptv)
-                            + ") denied resolution of type parameter");
+        for (int i = 0, n = param.containedTypeCount(); i < n; ++i) {
+            _validateTypeParameter(baseType, param.containedType(i), ptv, config);
         }
-        // Recurse to catch nested generics like Map<String, List<Evil>>.
-        _validateTypeParameters(baseType, param, ptv, config);
+        if (param.isArrayType()) {
+            _validateTypeParameter(baseType, param.getContentType(), ptv, config);
+        }
     }
 
     protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws JsonMappingException {

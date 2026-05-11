@@ -305,8 +305,8 @@ public abstract class DatabindContext
      * types and array component (for nested generics like
      * {@code Map<String, List<Evil>>} or {@code List<String[]>}).
      *<p>
-     * {@code Object} (the canonical resolution of wildcards / unbound parameters)
-     * and primitives are exempt: neither can carry gadget chains.
+     * {@code Object} is exempt: it is the canonical resolution of wildcards and
+     * unbound parameters, which cannot themselves carry attacker-controlled types.
      *
      * @since 2.18.8
      */
@@ -315,7 +315,7 @@ public abstract class DatabindContext
         throws JsonMappingException
     {
         final Class<?> raw = param.getRawClass();
-        if (raw != Object.class && !raw.isPrimitive()) {
+        if (raw != Object.class) {
             if (ptv.validateSubType(config, baseType, param) != Validity.ALLOWED) {
                 throw invalidTypeIdException(baseType, raw.getName(),
                         "Configured `PolymorphicTypeValidator` (of type "

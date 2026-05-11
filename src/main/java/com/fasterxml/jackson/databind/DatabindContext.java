@@ -283,7 +283,67 @@ public abstract class DatabindContext
                 return _throwSubtypeClassNotAllowed(baseType, subClass, ptv);
             }
         }
+        // [databind#5988]: even when the container class is approved (by name or
+        // by sub-type matcher), the attacker-supplied type parameters must still
+        // be validated -- otherwise a name-based allow-list for a safe container
+        // (e.g. "java.util.ArrayList") can be bypassed by smuggling a gadget
+        // class as a type argument (e.g. "java.util.ArrayList<EvilGadget>").
+        _validateTypeParameters(baseType, subType, ptv, config);
         return subType;
+    }
+
+    /**
+     * Helper for [databind#5988]: recursively validate each non-trivial type
+     * parameter (and array element types nested as parameters) against the given
+     * {@link PolymorphicTypeValidator}. The container type itself is validated
+     * by the caller; this method only walks its parameter tree.
+     *<p>
+     * {@code Object} and primitive parameters are exempt: {@code Object} is the
+     * canonical resolution of wildcards / unbound parameters, and primitives
+     * cannot carry gadget chains. Callers who want stricter policy can deny
+     * {@code Object} as a base type via {@code validateBaseType}.
+     *
+     * @since 2.18.8
+     */
+    private void _validateTypeParameters(JavaType baseType, JavaType type,
+            PolymorphicTypeValidator ptv, MapperConfig<?> config)
+        throws JsonMappingException
+    {
+        // Covers Map K/V (via TypeBindings) and all generic parameters.
+        for (int i = 0, n = type.containedTypeCount(); i < n; ++i) {
+            _validateOneTypeParameter(baseType, type.containedType(i), ptv, config);
+        }
+        // Array component as a generic parameter (e.g. List<String[]>): visit
+        // the component too. Note: ArrayType does not expose its component via
+        // containedType(int), only via getContentType().
+        if (type.isArrayType()) {
+            _validateOneTypeParameter(baseType, type.getContentType(), ptv, config);
+        }
+    }
+
+    /**
+     * @since 2.18.8
+     */
+    private void _validateOneTypeParameter(JavaType baseType, JavaType param,
+            PolymorphicTypeValidator ptv, MapperConfig<?> config)
+        throws JsonMappingException
+    {
+        if (param == null) {
+            return;
+        }
+        final Class<?> raw = param.getRawClass();
+        // Trivially-safe placeholders: stop here without invoking PTV.
+        if (raw == Object.class || raw.isPrimitive()) {
+            return;
+        }
+        if (ptv.validateSubType(config, baseType, param) != Validity.ALLOWED) {
+            throw invalidTypeIdException(baseType, raw.getName(),
+                    "Configured `PolymorphicTypeValidator` (of type "
+                            + ClassUtil.classNameOf(ptv)
+                            + ") denied resolution of type parameter");
+        }
+        // Recurse to catch nested generics like Map<String, List<Evil>>.
+        _validateTypeParameters(baseType, param, ptv, config);
     }
 
     protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws JsonMappingException {

@@ -1,6 +1,7 @@
 package tools.jackson.databind.jsontype.vld;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 
@@ -60,6 +61,11 @@ public class BasicPTVGenericParameterBypassTest extends DatabindTestUtil
         // deserializer when SafePayload appears as a Map key type
         // (used by mapWithAllowedKeyAndValueAccepted).
         public SafePayload(String d) { this.data = d; }
+    }
+
+    /** Plain enum used to verify the enum-exemption from type-parameter validation. */
+    public enum NonAllowListedEnum {
+        VALUE_A, VALUE_B
     }
 
     static class Container {
@@ -258,5 +264,30 @@ public class BasicPTVGenericParameterBypassTest extends DatabindTestUtil
         Container result = mapper.readValue(json, Container.class);
         assertNotNull(result.value);
         assertEquals(ArrayList.class, result.value.getClass());
+    }
+
+    // (10) Enum exemption: EnumSet<NonAllowListedEnum> -- container "java.util.EnumSet" is
+    // approved by the "java" name prefix, but the enum element class is not on the
+    // allow-list. Enum classes are JVM-managed singletons resolved by name lookup
+    // (no attacker-controlled instantiation), so the type-parameter validation
+    // exempts them -- matching the exemption that already applies to Object. Without
+    // this exemption, a reasonable name-prefix PTV would break legitimate
+    // EnumSet/EnumMap deserialization (see [databind#4849]-style regression).
+    @Test
+    public void enumTypeParameterAccepted() throws Exception
+    {
+        BasicPolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType("java.")
+                .build();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(ptv)
+                .build();
+
+        String json = "{\"value\":[\"java.util.EnumSet<" + NonAllowListedEnum.class.getName() + ">\","
+                + "[\"VALUE_A\"]]}";
+
+        Container result = mapper.readValue(json, Container.class);
+        assertNotNull(result.value);
+        assertEquals(EnumSet.of(NonAllowListedEnum.VALUE_A), result.value);
     }
 }

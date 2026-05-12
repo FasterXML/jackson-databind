@@ -291,16 +291,20 @@ public abstract class DatabindContext
      *<p>
      * {@code Object} is exempt: it is the canonical resolution of wildcards and
      * unbound parameters, which cannot themselves carry attacker-controlled types.
+     * Enum types are also exempt: they are JVM-managed singletons resolved by
+     * name lookup (no attacker-controlled constructor or setter runs), so they
+     * cannot serve as gadget classes -- and a name-prefix PTV configuration that
+     * allow-lists a container like {@code EnumSet} should not have to also
+     * allow-list every enum class that may legitimately appear as its element.
      */
     private void _validateTypeParameter(JavaType baseType, JavaType param,
             PolymorphicTypeValidator ptv)
     {
-        final Class<?> raw = param.getRawClass();
-        if (raw != Object.class) {
+        if (!param.isJavaLangObject() && !param.isEnumType()) {
             // First consult the name-based allow rules (mirrors the container
             // check in _resolveAndValidateGeneric), then fall back to the class-
             // based check so all configured matchers can approve the parameter.
-            final String rawName = raw.getName();
+            final String rawName = param.getRawClass().getName();
             Validity vld = ptv.validateSubClassName(this, baseType, rawName);
             if (vld == Validity.DENIED) {
                 throw invalidTypeIdException(baseType, rawName,

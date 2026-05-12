@@ -305,6 +305,10 @@ public abstract class DatabindContext
      * types and array component (for nested generics like
      * {@code Map<String, List<Evil>>} or {@code List<String[]>}).
      *<p>
+     * Name-based and class-based allow rules are both consulted (matching the
+     * top-level container check), so a name-prefix configuration like
+     * {@code allowIfSubType("com.example.")} applies to type parameters as well.
+     *<p>
      * {@code Object} is exempt: it is the canonical resolution of wildcards and
      * unbound parameters, which cannot themselves carry attacker-controlled types.
      *
@@ -316,11 +320,24 @@ public abstract class DatabindContext
     {
         final Class<?> raw = param.getRawClass();
         if (raw != Object.class) {
-            if (ptv.validateSubType(config, baseType, param) != Validity.ALLOWED) {
-                throw invalidTypeIdException(baseType, raw.getName(),
+            // First consult the name-based allow rules (mirrors the container
+            // check in _resolveAndValidateGeneric), then fall back to the class-
+            // based check so all configured matchers can approve the parameter.
+            final String rawName = raw.getName();
+            Validity vld = ptv.validateSubClassName(config, baseType, rawName);
+            if (vld == Validity.DENIED) {
+                throw invalidTypeIdException(baseType, rawName,
                         "Configured `PolymorphicTypeValidator` (of type "
                                 + ClassUtil.classNameOf(ptv)
                                 + ") denied resolution of type parameter");
+            }
+            if (vld != Validity.ALLOWED) {
+                if (ptv.validateSubType(config, baseType, param) != Validity.ALLOWED) {
+                    throw invalidTypeIdException(baseType, rawName,
+                            "Configured `PolymorphicTypeValidator` (of type "
+                                    + ClassUtil.classNameOf(ptv)
+                                    + ") denied resolution of type parameter");
+                }
             }
         }
         for (int i = 0, n = param.containedTypeCount(); i < n; ++i) {

@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * [databind#5988]: generic type IDs must not bypass {@link com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator}.
@@ -49,6 +50,9 @@ public class BasicPTVGenericParameterBypassTest extends DatabindTestUtil
     public static class SafePayload {
         public String data;
         public SafePayload() {}
+        // String-arg constructor: doubles as Jackson's automatic Map-key
+        // deserializer when SafePayload appears as a Map key type
+        // (used by mapWithAllowedKeyAndValueAccepted).
         public SafePayload(String d) { this.data = d; }
     }
 
@@ -124,10 +128,16 @@ public class BasicPTVGenericParameterBypassTest extends DatabindTestUtil
         InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
                 () -> mapper.readValue(json, Container.class),
                 "HashMap<String,EvilGadget> must be denied (neither String nor EvilGadget are allow-listed)");
-        // The PTV walks containedType(i) in order: key (String) is checked first and fails
-        // because String is not on the allow-list; this is still a correct denial of the
-        // overall type id.
-        verifyException(e, "denied");
+        // The PTV walks containedType(i) in order: key (String) is checked first and
+        // denied because String is not on the allow-list; this is still a correct
+        // denial of the overall type id. Either class name in the exception message is
+        // acceptable -- the iteration order is the only thing that picks one over the
+        // other.
+        final String msg = e.getMessage();
+        assertTrue(msg != null
+                        && (msg.contains("java.lang.String") || msg.contains(evilClass)),
+                "Denial message should reference the rejected parameter type;"
+                        + " was: " + msg);
         assertEquals(0, INSTANTIATIONS.size());
     }
 
@@ -197,4 +207,51 @@ public class BasicPTVGenericParameterBypassTest extends DatabindTestUtil
         assertEquals(ArrayList.class, result.value.getClass());
     }
 
+    // (8) Array as a generic parameter: ArrayList<EvilGadget[]> must be denied because
+    // the array's element type (EvilGadget) is not allow-listed. Exercises the
+    // isArrayType() recursion branch in _validateTypeParameter.
+    @Test
+    public void gadgetArrayAsGenericParameterDenied() throws Exception
+    {
+        ObjectMapper mapper = mapperWithArrayListAndSafePayload();
+
+        final String evilClass = EvilGadget.class.getName();
+        final String arrayId = "[L" + evilClass + ";";
+        // ArrayList<EvilGadget[]> type id, with an array containing one inner element.
+        String json = "{\"value\":[\"java.util.ArrayList<" + arrayId + ">\","
+                + "[[{\"secret\":\"hacked\"}]]]}";
+
+        INSTANTIATIONS.clear();
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json, Container.class),
+                "ArrayList<EvilGadget[]> must be denied: array element EvilGadget is not allow-listed");
+        verifyException(e, evilClass);
+        assertEquals(0, INSTANTIATIONS.size());
+    }
+
+    // (9) Name-prefix PTV: allowIfSubType(String) registers a name matcher, not a class
+    // matcher. Type parameters should be approved by the same name-prefix rule used
+    // for the container -- otherwise a configuration intended to allow everything
+    // under "com.example." would reject "com.example.Foo" as a type parameter.
+    @Test
+    public void namePrefixAllowsBothContainerAndParameter() throws Exception
+    {
+        BasicPolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType("java.util.ArrayList")
+                // Allow SafePayload by its enclosing-class name prefix (name matcher
+                // only -- no class matcher is registered for SafePayload).
+                .allowIfSubType("com.fasterxml.jackson.databind.jsontype.vld."
+                        + BasicPTVGenericParameterBypassTest.class.getSimpleName())
+                .build();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(ptv)
+                .build();
+
+        String json = "{\"value\":[\"java.util.ArrayList<" + SafePayload.class.getName() + ">\","
+                + "[{\"data\":\"hello\"}]]}";
+
+        Container result = mapper.readValue(json, Container.class);
+        assertNotNull(result.value);
+        assertEquals(ArrayList.class, result.value.getClass());
+    }
 }

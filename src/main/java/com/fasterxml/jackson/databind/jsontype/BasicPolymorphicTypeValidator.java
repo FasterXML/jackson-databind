@@ -102,7 +102,8 @@ public class BasicPolymorphicTypeValidator
         /**
          * [databind#5981]: when true, validateSubType() unwraps arrays (recursively
          * for nested arrays) and validates the innermost element type against
-         * {@code _subTypeClassMatchers}.
+         * {@code _subTypeClassMatchers} as well as {@code _subTypeNameMatchers}
+         * (the latter added by [databind#5988]).
          *
          * @since 2.18.8
          */
@@ -421,7 +422,8 @@ public class BasicPolymorphicTypeValidator
     /**
      * [databind#5981]: when true, validateSubType() unwraps arrays (recursively
      * for nested arrays) and validates the innermost element type against the
-     * sub-class matchers.
+     * sub-class matchers and sub-type name matchers (name-matcher consultation
+     * added by [databind#5988]).
      *
      * @since 2.18.8
      */
@@ -510,17 +512,14 @@ public class BasicPolymorphicTypeValidator
                     || Modifier.isAbstract(subClass.getModifiers())) {
                 return Validity.ALLOWED;
             }
-            // After array unwrap, also consult name-based matchers against the
-            // element class name -- the upstream caller only saw the array's type
-            // id (e.g. "[Lcom.example.Foo;") which does not match name prefixes
-            // configured for the element type itself.
-            if (_subTypeNameMatchers != null) {
-                final String elemName = subClass.getName();
-                for (NameMatcher m : _subTypeNameMatchers) {
-                    if (m.match(ctxt, elemName)) {
-                        return Validity.ALLOWED;
-                    }
-                }
+            // [databind#5988]: after array unwrap, also consult name-based matchers
+            // against the element class name -- the upstream caller only saw the
+            // array's type id (e.g. "[Lcom.example.Foo;") which does not match name
+            // prefixes configured for the element type itself. Self-call to
+            // validateSubClassName keeps the matcher logic in one place and honors
+            // overrides in subclasses that extend name handling.
+            if (validateSubClassName(ctxt, baseType, subClass.getName()) == Validity.ALLOWED) {
+                return Validity.ALLOWED;
             }
         }
         if (_subClassMatchers != null)  {

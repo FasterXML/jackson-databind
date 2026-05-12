@@ -21,6 +21,12 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class BasicPTVArrayComponentBypassTest extends DatabindTestUtil
 {
+    // Fully-qualified name of this test class -- works as a name-prefix matcher
+    // for every nested helper (SafePayload, FakeGadget, ObjectWrapper) via their
+    // "outer.Name$Nested" form. Used in namePrefixAllowsBothElementAndArray.
+    private static final String OWN_CLASS_NAME_PREFIX =
+            BasicPTVArrayComponentBypassTest.class.getName();
+
     /**
      * Records every constructor invocation; lets the tests prove that an
      *  un-allow-listed type is not actually instantiated.
@@ -163,8 +169,7 @@ public class BasicPTVArrayComponentBypassTest extends DatabindTestUtil
     {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 // Name prefix matcher only -- no class matcher is registered.
-                .allowIfSubType("com.fasterxml.jackson.databind.jsontype.vld."
-                        + BasicPTVArrayComponentBypassTest.class.getSimpleName())
+                .allowIfSubType(OWN_CLASS_NAME_PREFIX)
                 .allowIfSubTypeIsArray()
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()

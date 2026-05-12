@@ -32,6 +32,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class BasicPTVGenericParameterBypassTest extends DatabindTestUtil
 {
+    // Fully-qualified name of this test class -- works as a name-prefix matcher
+    // for every nested helper (SafePayload, EvilGadget, Container) via their
+    // "outer.Name$Nested" form. Used in namePrefixAllowsBothContainerAndParameter.
+    private static final String OWN_CLASS_NAME_PREFIX =
+            BasicPTVGenericParameterBypassTest.class.getName();
+
     /**
      * Records every constructor invocation; lets the tests prove that a non-allow-listed
      * type is not actually instantiated when the validator rejects it.
@@ -240,8 +246,7 @@ public class BasicPTVGenericParameterBypassTest extends DatabindTestUtil
                 .allowIfSubType("java.util.ArrayList")
                 // Allow SafePayload by its enclosing-class name prefix (name matcher
                 // only -- no class matcher is registered for SafePayload).
-                .allowIfSubType("com.fasterxml.jackson.databind.jsontype.vld."
-                        + BasicPTVGenericParameterBypassTest.class.getSimpleName())
+                .allowIfSubType(OWN_CLASS_NAME_PREFIX)
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .polymorphicTypeValidator(ptv)

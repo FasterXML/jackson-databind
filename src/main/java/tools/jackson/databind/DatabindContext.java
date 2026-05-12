@@ -264,7 +264,70 @@ public abstract class DatabindContext
                 return _throwSubtypeClassNotAllowed(baseType, subClass, ptv);
             }
         }
+        // [databind#5988]: even when the container class is approved (by name or
+        // by sub-type matcher), the attacker-supplied type parameters must still
+        // be validated -- otherwise a name-based allow-list for a safe container
+        // (e.g. "java.util.ArrayList") can be bypassed by smuggling a gadget
+        // class as a type argument (e.g. "java.util.ArrayList<EvilGadget>").
+        // The container itself was already validated above; walk its parameter
+        // tree (and array component, if any) and validate each node.
+        for (int i = 0, n = subType.containedTypeCount(); i < n; ++i) {
+            _validateTypeParameter(baseType, subType.containedType(i), ptv);
+        }
+        if (subType.isArrayType()) {
+            _validateTypeParameter(baseType, subType.getContentType(), ptv);
+        }
         return subType;
+    }
+
+    /**
+     * Helper for [databind#5988]: validate a single type parameter against the
+     * given {@link PolymorphicTypeValidator}, then recurse into its own contained
+     * types and array component (for nested generics like
+     * {@code Map<String, List<Evil>>} or {@code List<String[]>}).
+     *<p>
+     * Name-based and class-based allow rules are both consulted (matching the
+     * top-level container check), so a name-prefix configuration like
+     * {@code allowIfSubType("com.example.")} applies to type parameters as well.
+     *<p>
+     * {@code Object} is exempt: it is the canonical resolution of wildcards and
+     * unbound parameters, which cannot themselves carry attacker-controlled types.
+     * Enum types are also exempt: they are JVM-managed singletons resolved by
+     * name lookup (no attacker-controlled constructor or setter runs), so they
+     * cannot serve as gadget classes -- and a name-prefix PTV configuration that
+     * allow-lists a container like {@code EnumSet} should not have to also
+     * allow-list every enum class that may legitimately appear as its element.
+     */
+    private void _validateTypeParameter(JavaType baseType, JavaType param,
+            PolymorphicTypeValidator ptv)
+    {
+        if (!param.isJavaLangObject() && !param.isEnumType()) {
+            // First consult the name-based allow rules (mirrors the container
+            // check in _resolveAndValidateGeneric), then fall back to the class-
+            // based check so all configured matchers can approve the parameter.
+            final String rawName = param.getRawClass().getName();
+            Validity vld = ptv.validateSubClassName(this, baseType, rawName);
+            if (vld == Validity.DENIED) {
+                throw invalidTypeIdException(baseType, rawName,
+                        "Configured `PolymorphicTypeValidator` (of type "
+                                + ClassUtil.classNameOf(ptv)
+                                + ") denied resolution of type parameter");
+            }
+            if (vld != Validity.ALLOWED) {
+                if (ptv.validateSubType(this, baseType, param) != Validity.ALLOWED) {
+                    throw invalidTypeIdException(baseType, rawName,
+                            "Configured `PolymorphicTypeValidator` (of type "
+                                    + ClassUtil.classNameOf(ptv)
+                                    + ") denied resolution of type parameter");
+                }
+            }
+        }
+        for (int i = 0, n = param.containedTypeCount(); i < n; ++i) {
+            _validateTypeParameter(baseType, param.containedType(i), ptv);
+        }
+        if (param.isArrayType()) {
+            _validateTypeParameter(baseType, param.getContentType(), ptv);
+        }
     }
 
     protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws DatabindException {

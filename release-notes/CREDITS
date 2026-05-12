@@ -382,6 +382,8 @@ Omkhar Arasaratnam (@omkhar)
  * Reported #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
    should validate element type
   [3.1.4]
+ * Reported #5988: `PolymorphicTypeValidator` needs to validate generic type parameters too
+  [3.1.4]
 
 Michael Orzechowski (@MikeBlink)
  * Reported #5941: `MapperBuilder.addModule()` does not recursively register transitive

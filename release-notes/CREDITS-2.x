@@ -1934,6 +1934,8 @@ Omkhar Arasaratnam (@omkhar)
  * Reported #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
    should validate element type
   (2.18.8)
+ * Reported #5988: `PolymorphicTypeValidator` needs to validate generic type parameters too
+  (2.18.8)
 
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`

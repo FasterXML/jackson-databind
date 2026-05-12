@@ -510,6 +510,18 @@ public class BasicPolymorphicTypeValidator
                     || Modifier.isAbstract(subClass.getModifiers())) {
                 return Validity.ALLOWED;
             }
+            // After array unwrap, also consult name-based matchers against the
+            // element class name -- the upstream caller only saw the array's type
+            // id (e.g. "[Lcom.example.Foo;") which does not match name prefixes
+            // configured for the element type itself.
+            if (_subTypeNameMatchers != null) {
+                final String elemName = subClass.getName();
+                for (NameMatcher m : _subTypeNameMatchers) {
+                    if (m.match(ctxt, elemName)) {
+                        return Validity.ALLOWED;
+                    }
+                }
+            }
         }
         if (_subClassMatchers != null)  {
             for (TypeMatcher m : _subClassMatchers) {

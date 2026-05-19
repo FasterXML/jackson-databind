@@ -906,7 +906,8 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                         prop, mutator, valueType,
                         ctxt.findRootValueDeserializer(valueType));
             } else {
-                return ctxt.reportBadDefinition(beanDescRef.getType(), "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ".formatted(
+                return ctxt.reportBadDefinition(beanDescRef.getType(), String.format(
+                        "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
                         ClassUtil.getTypeDescription(fieldType)));
             }
         } else if (isParameter) {
@@ -932,7 +933,8 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                 return SettableAnyProperty.constructForJsonNodeParameter(ctxt, prop, mutator, valueType,
                         ctxt.findRootValueDeserializer(valueType), parameterIndex);
             } else {
-                return ctxt.reportBadDefinition(beanDescRef.getType(), "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ".formatted(
+                return ctxt.reportBadDefinition(beanDescRef.getType(), String.format(
+                        "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
                         ClassUtil.getTypeDescription(paramType)));
             }
         } else {

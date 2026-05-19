@@ -520,7 +520,8 @@ public class TokenBuffer
                     } else if (n instanceof String str) {
                         gen.writeNumber(str);
                     } else {
-                        throw new StreamWriteException(gen, "Unrecognized value type for VALUE_NUMBER_FLOAT: %s, cannot serialize".formatted(
+                        throw new StreamWriteException(gen, String.format(
+                                "Unrecognized value type for VALUE_NUMBER_FLOAT: %s, cannot serialize",
                                 n.getClass().getName()));
                     }
                 }

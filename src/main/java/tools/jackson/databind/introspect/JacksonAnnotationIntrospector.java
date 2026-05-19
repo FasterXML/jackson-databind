@@ -1020,9 +1020,9 @@ public class JacksonAnnotationIntrospector
                                            contentType, contentClass.getName()));
                        }
                    } catch (IllegalArgumentException iae) { // shouldn't really happen
-                       throw _databindException(iae,
-                               "Internal error: failed to refine value type of %s with concrete-type annotation (value %s), from '%s': %s".formatted(
-                                       type, contentClass.getName(), a.getName(), iae.getMessage()));
+                       throw _databindException(iae, String.format(
+                               "Internal error: failed to refine value type of %s with concrete-type annotation (value %s), from '%s': %s",
+                               type, contentClass.getName(), a.getName(), iae.getMessage()));
                    }
                }
                type = type.withContentType(contentType);

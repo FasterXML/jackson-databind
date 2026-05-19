@@ -123,7 +123,8 @@ public class AbstractDeserializer
                         PropertyName propName = objectIdInfo.getPropertyName();
                         idProp = (_properties == null) ? null : _properties.get(propName.getSimpleName());
                         if (idProp == null) {
-                            ctxt.reportBadDefinition(_baseType, "Invalid Object Id definition for %s: cannot find property with name %s".formatted(
+                            ctxt.reportBadDefinition(_baseType, String.format(
+                                    "Invalid Object Id definition for %s: cannot find property with name %s",
                                     ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
                         }
                         idType = idProp.getType(); // lgtm [java/dereferenced-value-may-be-null]

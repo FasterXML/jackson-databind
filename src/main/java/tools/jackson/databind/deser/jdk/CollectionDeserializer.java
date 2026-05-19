@@ -190,7 +190,8 @@ public class CollectionDeserializer
             if (_valueInstantiator.canCreateUsingDelegate()) {
                 JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
-                    ctxt.reportBadDefinition(_containerType, "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'".formatted(
+                    ctxt.reportBadDefinition(_containerType, String.format(
+                            "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
                             _containerType,
                             _valueInstantiator.getClass().getName()));
                 }
@@ -198,7 +199,8 @@ public class CollectionDeserializer
             } else if (_valueInstantiator.canCreateUsingArrayDelegate()) {
                 JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
-                    ctxt.reportBadDefinition(_containerType, "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'".formatted(
+                    ctxt.reportBadDefinition(_containerType, String.format(
+                            "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
                             _containerType,
                             _valueInstantiator.getClass().getName()));
                 }

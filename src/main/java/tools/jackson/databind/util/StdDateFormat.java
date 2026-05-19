@@ -725,7 +725,8 @@ public class StdDateFormat
                     default: // [databind#1745] Allow longer fractions... for now, cap at nanoseconds tho
 
                         if (fractLen > 9) { // only allow up to nanos
-                            throw new ParseException("Cannot parse date \"%s\": invalid fractional seconds '%s'; can use at most 9 digits".formatted(
+                            throw new ParseException(String.format(
+                                    "Cannot parse date \"%s\": invalid fractional seconds '%s'; can use at most 9 digits",
                                     dateStr, m.group(1).substring(1)
                             ), start);
                         }

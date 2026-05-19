@@ -657,7 +657,8 @@ public abstract class BeanDeserializerBase
         if (_valueInstantiator.canCreateUsingDelegate()) {
             JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
             if (delegateType == null) {
-                ctxt.reportBadDefinition(_beanType, "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'".formatted(
+                ctxt.reportBadDefinition(_beanType, String.format(
+                        "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
                         ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiator)));
             }
             _delegateDeserializer = _findDelegateDeserializer(ctxt, delegateType,
@@ -668,7 +669,8 @@ public abstract class BeanDeserializerBase
         if (_valueInstantiator.canCreateUsingArrayDelegate()) {
             JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
             if (delegateType == null) {
-                ctxt.reportBadDefinition(_beanType, "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'".formatted(
+                ctxt.reportBadDefinition(_beanType, String.format(
+                        "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
                         ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiator)));
             }
             _arrayDelegateDeserializer = _findDelegateDeserializer(ctxt, delegateType,
@@ -914,7 +916,8 @@ public abstract class BeanDeserializerBase
                     PropertyName propName = objectIdInfo.getPropertyName();
                     idProp = findProperty(propName);
                     if (idProp == null) {
-                        return ctxt.reportBadDefinition(_beanType, "Invalid Object Id definition for %s: cannot find property with name %s".formatted(
+                        return ctxt.reportBadDefinition(_beanType, String.format(
+                                "Invalid Object Id definition for %s: cannot find property with name %s",
                                 ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
                     }
                     idType = idProp.getType();
@@ -1096,7 +1099,8 @@ ClassUtil.getTypeDescription(ct));
         JavaType backRefType = backProp.getType();
         boolean isContainer = prop.getType().isContainerType();
         if (!backRefType.getRawClass().isAssignableFrom(referredType.getRawClass())) {
-            ctxt.reportBadDefinition(_beanType, "Cannot handle managed/back reference %s: back reference type (%s) not compatible with managed type (%s)".formatted(
+            ctxt.reportBadDefinition(_beanType, String.format(
+                    "Cannot handle managed/back reference %s: back reference type (%s) not compatible with managed type (%s)",
                     ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
                     referredType.getRawClass().getName()));
         }

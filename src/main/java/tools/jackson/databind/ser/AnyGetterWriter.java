@@ -135,7 +135,8 @@ public class AnyGetterWriter extends BeanPropertyWriter
         if (value instanceof ObjectNode objectNode) {
             return objectNode;
         }
-        return ctxt.reportBadDefinition(_property.getType(), "Value returned by 'any-getter' %s not `ObjectNode` but `%s`; only `ObjectNode`s can be used as `@JsonAnyGetter` values".formatted(
+        return ctxt.reportBadDefinition(_property.getType(), String.format(
+                "Value returned by 'any-getter' %s not `ObjectNode` but `%s`; only `ObjectNode`s can be used as `@JsonAnyGetter` values",
                 _accessor.getName(), value.getClass().getName()));
     }
 

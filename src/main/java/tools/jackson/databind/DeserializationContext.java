@@ -1410,7 +1410,8 @@ public abstract class DeserializationContext
                 if ((key == null) || keyClass.isInstance(key)) {
                     return key;
                 }
-                throw weirdStringException(keyValue, keyClass, "DeserializationProblemHandler.handleWeirdKey() for type %s returned value of type %s".formatted(
+                throw weirdStringException(keyValue, keyClass, String.format(
+                        "DeserializationProblemHandler.handleWeirdKey() for type %s returned value of type %s",
                         ClassUtil.getClassDescription(keyClass),
                         ClassUtil.getClassDescription(key)
                 ));
@@ -1453,7 +1454,8 @@ public abstract class DeserializationContext
                 if (_isCompatible(targetClass, instance)) {
                     return instance;
                 }
-                throw weirdStringException(value, targetClass, "`DeserializationProblemHandler.handleWeirdStringValue()` for type %s returned value of type %s".formatted(
+                throw weirdStringException(value, targetClass, String.format(
+                        "`DeserializationProblemHandler.handleWeirdStringValue()` for type %s returned value of type %s",
                         ClassUtil.getClassDescription(targetClass),
                         ClassUtil.getClassDescription(instance)
                 ));
@@ -1609,10 +1611,11 @@ public abstract class DeserializationContext
                 if (_isCompatible(instClass, instance)) {
                     return instance;
                 }
-                reportBadDefinition(constructType(instClass), "`DeserializationProblemHandler.handleMissingInstantiator()` for type %s returned value of type %s".formatted(
+                reportBadDefinition(constructType(instClass), String.format(
+                        "`DeserializationProblemHandler.handleMissingInstantiator()` for type %s returned value of type %s",
                         ClassUtil.getClassDescription(instClass),
-                        ClassUtil.getClassDescription((instance)
-                        )));
+                        ClassUtil.getClassDescription(instance)
+                ));
             }
             h = h.next();
         }
@@ -1665,7 +1668,8 @@ public abstract class DeserializationContext
                 if (_isCompatible(instClass, instance)) {
                     return instance;
                 }
-                reportBadDefinition(constructType(instClass), "DeserializationProblemHandler.handleInstantiationProblem() for type %s returned value of type %s".formatted(
+                reportBadDefinition(constructType(instClass), String.format(
+                        "DeserializationProblemHandler.handleInstantiationProblem() for type %s returned value of type %s",
                         ClassUtil.getClassDescription(instClass),
                         ClassUtil.classNameOf(instance)
                 ));
@@ -1741,7 +1745,8 @@ public abstract class DeserializationContext
                 if (_isCompatible(targetType.getRawClass(), instance)) {
                     return instance;
                 }
-                reportBadDefinition(targetType, "DeserializationProblemHandler.handleUnexpectedToken() for type %s returned value of type %s".formatted(
+                reportBadDefinition(targetType, String.format(
+                        "DeserializationProblemHandler.handleUnexpectedToken() for type %s returned value of type %s",
                         ClassUtil.getTypeDescription(targetType),
                         ClassUtil.classNameOf(instance)
                 ));
@@ -2194,7 +2199,8 @@ public abstract class DeserializationContext
      */
     public DatabindException weirdNativeValueException(Object value, Class<?> instClass)
     {
-        return InvalidFormatException.from(_parser, "Cannot deserialize value of type %s from native value (`JsonToken.VALUE_EMBEDDED_OBJECT`) of type %s: incompatible types".formatted(
+        return InvalidFormatException.from(_parser, String.format(
+                "Cannot deserialize value of type %s from native value (`JsonToken.VALUE_EMBEDDED_OBJECT`) of type %s: incompatible types",
                 ClassUtil.nameOf(instClass), ClassUtil.classNameOf(value)),
                 value, instClass);
     }

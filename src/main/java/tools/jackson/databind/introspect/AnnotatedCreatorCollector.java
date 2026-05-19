@@ -324,7 +324,8 @@ final class AnnotatedCreatorCollector
                 }
             }
             if (resolvedAnnotations == null) {
-                throw new IllegalStateException("Internal error: constructor for %s has mismatch: %d parameters; %d sets of annotations".formatted(
+                throw new IllegalStateException(String.format(
+                        "Internal error: constructor for %s has mismatch: %d parameters; %d sets of annotations",
                         ctor.getDeclaringClass().getName(), paramCount, paramAnns.length));
             }
         } else {

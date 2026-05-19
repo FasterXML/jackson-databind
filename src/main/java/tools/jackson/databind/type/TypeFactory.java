@@ -522,8 +522,9 @@ public class TypeFactory
         // Then find super-type
         JavaType baseWithPlaceholders = tmpSub.findSuperType(baseType.getRawClass());
         if (baseWithPlaceholders == null) { // should be found but...
-            throw new IllegalArgumentException("Internal error: unable to locate supertype (%s) from resolved subtype %s".formatted(baseType.getRawClass().getName(),
-                    subclass.getName()));
+            throw new IllegalArgumentException(String.format(
+                    "Internal error: unable to locate supertype (%s) from resolved subtype %s",
+                    baseType.getRawClass().getName(), subclass.getName()));
         }
         // and traverse type hierarchies to both verify and to resolve placeholders
         String error = _resolveTypePlaceholders(baseType, baseWithPlaceholders);
@@ -833,7 +834,8 @@ public class TypeFactory
             JavaType t = result.findSuperType(Collection.class);
             JavaType realET = t.getContentType();
             if (!realET.equals(elementType)) {
-                throw new IllegalArgumentException("Non-generic Collection class %s did not resolve to something with element type %s but %s ".formatted(
+                throw new IllegalArgumentException(String.format(
+                        "Non-generic Collection class %s did not resolve to something with element type %s but %s ",
                         ClassUtil.nameOf(collectionClass), elementType, realET));
             }
         }
@@ -900,12 +902,14 @@ public class TypeFactory
             JavaType t = result.findSuperType(Map.class);
             JavaType realKT = t.getKeyType();
             if (!realKT.equals(keyType)) {
-                throw new IllegalArgumentException("Non-generic Map class %s did not resolve to something with key type %s but %s ".formatted(
+                throw new IllegalArgumentException(String.format(
+                        "Non-generic Map class %s did not resolve to something with key type %s but %s ",
                         ClassUtil.nameOf(mapClass), keyType, realKT));
             }
             JavaType realVT = t.getContentType();
             if (!realVT.equals(valueType)) {
-                throw new IllegalArgumentException("Non-generic Map class %s did not resolve to something with value type %s but %s ".formatted(
+                throw new IllegalArgumentException(String.format(
+                        "Non-generic Map class %s did not resolve to something with value type %s but %s ",
                         ClassUtil.nameOf(mapClass), valueType, realVT));
             }
         }

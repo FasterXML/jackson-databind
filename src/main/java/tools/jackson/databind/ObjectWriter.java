@@ -1,6 +1,7 @@
 package tools.jackson.databind;
 
 import java.io.*;
+import java.io.Serial;
 import java.nio.file.Path;
 import java.text.*;
 import java.util.Locale;
@@ -1316,6 +1317,7 @@ public class ObjectWriter
     public final static class Prefetch
         implements java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         public final static Prefetch empty = new Prefetch(null, null, null);

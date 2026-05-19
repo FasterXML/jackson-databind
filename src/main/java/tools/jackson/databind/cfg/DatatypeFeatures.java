@@ -1,5 +1,6 @@
 package tools.jackson.databind.cfg;
 
+import java.io.Serial;
 import tools.jackson.core.util.JacksonFeature;
 import tools.jackson.core.util.VersionUtil;
 
@@ -10,6 +11,7 @@ import tools.jackson.core.util.VersionUtil;
 public class DatatypeFeatures
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected final static int FEATURE_INDEX_ENUM = 0;

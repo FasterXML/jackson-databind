@@ -1,5 +1,6 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
 import tools.jackson.core.Version;
 import tools.jackson.databind.*;
 
@@ -12,6 +13,7 @@ public abstract class NopAnnotationIntrospector
     extends AnnotationIntrospector
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -20,6 +22,7 @@ public abstract class NopAnnotationIntrospector
      * information.
      */
     public final static NopAnnotationIntrospector instance = new NopAnnotationIntrospector() {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         @Override

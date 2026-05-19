@@ -1,5 +1,6 @@
 package tools.jackson.databind;
 
+import java.io.Serial;
 import java.util.*;
 
 import tools.jackson.core.JacksonException;
@@ -52,6 +53,7 @@ public abstract class InjectableValues
         extends InjectableValues
         implements java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         protected String _validateKey(DeserializationContext ctxt, Object valueId,
@@ -106,6 +108,7 @@ public abstract class InjectableValues
         extends Base
         implements java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         final static Empty INSTANCE = new Empty();
@@ -135,6 +138,7 @@ public abstract class InjectableValues
         extends Base
         implements java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         protected final Map<String,Object> _values;

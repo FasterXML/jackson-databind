@@ -1,5 +1,6 @@
 package tools.jackson.databind.util;
 
+import java.io.Serial;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -24,6 +25,7 @@ import tools.jackson.databind.util.internal.PrivateMaxEntriesMap;
 public class SimpleLookupCache<K,V>
     implements LookupCache<K,V>, java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     protected final int _initialEntries;
@@ -96,6 +98,7 @@ public class SimpleLookupCache<K,V>
     /**********************************************************************
      */
 
+    @Serial
     protected Object readResolve() {
         return new SimpleLookupCache<K,V>(_initialEntries, _maxEntries);
     }

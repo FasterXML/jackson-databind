@@ -1,5 +1,6 @@
 package tools.jackson.databind;
 
+import java.io.Serial;
 import tools.jackson.core.*;
 import tools.jackson.databind.cfg.*;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
@@ -25,6 +26,7 @@ public final class DeserializationConfig
     extends MapperConfigBase<DeserializationFeature, DeserializationConfig>
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /*

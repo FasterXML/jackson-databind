@@ -17,6 +17,7 @@ package tools.jackson.databind.util.internal;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
@@ -1093,6 +1094,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
             return super.setValue(value);
         }
 
+        @Serial
         Object writeReplace() {
             return new SimpleEntry<K, V>(this);
         }
@@ -1102,10 +1104,12 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
 
     static final long serialVersionUID = 1;
 
+    @Serial
     Object writeReplace() {
         return new SerializationProxy<K, V>(this);
     }
 
+    @Serial
     private void readObject(ObjectInputStream stream) throws InvalidObjectException {
         throw new InvalidObjectException("Proxy required");
     }
@@ -1128,6 +1132,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
             capacity = map.capacity.get();
         }
 
+        @Serial
         Object readResolve() {
             PrivateMaxEntriesMap<K, V> map = new Builder<K, V>()
                     .maximumCapacity(capacity)

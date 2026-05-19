@@ -1,5 +1,6 @@
 package tools.jackson.databind.util;
 
+import java.io.Serial;
 import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.type.ClassKey;
@@ -9,6 +10,7 @@ import tools.jackson.databind.type.ClassKey;
  */
 public class RootNameLookup implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -54,6 +56,7 @@ public class RootNameLookup implements java.io.Serializable
      * Need to override to reproduce cache object via constructor, instead
      * of serialize/deserialize (since we do NOT want to retain cached data)
      */
+    @Serial
     protected Object readResolve() {
         return new RootNameLookup();
     }

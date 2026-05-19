@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
@@ -18,6 +19,7 @@ import tools.jackson.databind.util.ClassUtil;
 public class POJONode
     extends ValueNode
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     protected final Object _value;

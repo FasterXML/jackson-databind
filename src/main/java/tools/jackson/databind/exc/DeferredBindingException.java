@@ -1,5 +1,6 @@
 package tools.jackson.databind.exc;
 
+import java.io.Serial;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,6 +46,7 @@ import tools.jackson.databind.DatabindException;
  * @since 3.1
  */
 public class DeferredBindingException extends DatabindException {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final List<CollectedProblem> problems;

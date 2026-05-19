@@ -1,11 +1,14 @@
 package tools.jackson.databind.deser.impl;
 
+import java.io.Serial;
+
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 public class PropertyBasedObjectIdGenerator
 	extends ObjectIdGenerators.PropertyGenerator
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public PropertyBasedObjectIdGenerator(Class<?> scope) {

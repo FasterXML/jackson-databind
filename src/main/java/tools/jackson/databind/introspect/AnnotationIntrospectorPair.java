@@ -1,5 +1,6 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +34,7 @@ public class AnnotationIntrospectorPair
     extends AnnotationIntrospector
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected final AnnotationIntrospector _primary, _secondary;

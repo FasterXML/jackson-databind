@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser;
 
+import java.io.Serial;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -35,6 +36,7 @@ public class BeanDeserializerFactory
     extends BasicDeserializerFactory
     implements java.io.Serializable // since 2.1
 {
+    @Serial
     private static final long serialVersionUID = 1;
 
     /**

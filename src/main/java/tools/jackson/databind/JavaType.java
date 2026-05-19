@@ -1,5 +1,6 @@
 package tools.jackson.databind;
 
+import java.io.Serial;
 import java.lang.reflect.Modifier;
 import java.util.List;
 
@@ -20,6 +21,7 @@ public abstract class JavaType
     implements java.io.Serializable,
         java.lang.reflect.Type
 {
+    @Serial
     private static final long serialVersionUID = 1;
 
     /**

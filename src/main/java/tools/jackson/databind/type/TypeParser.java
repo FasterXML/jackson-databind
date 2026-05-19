@@ -1,5 +1,6 @@
 package tools.jackson.databind.type;
 
+import java.io.Serial;
 import java.util.*;
 
 import tools.jackson.databind.JavaType;
@@ -12,6 +13,7 @@ import tools.jackson.databind.util.ClassUtil;
 public class TypeParser
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**

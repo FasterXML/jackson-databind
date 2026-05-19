@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import java.io.Serial;
 
 /**
  * Extension of {@link ConfigOverride} that allows changing of
@@ -17,6 +18,7 @@ public class MutableConfigOverride
     extends ConfigOverride
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public MutableConfigOverride() { super(); }

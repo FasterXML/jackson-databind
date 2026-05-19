@@ -98,6 +98,7 @@ public class SimpleLookupCache<K,V>
     /**********************************************************************
      */
 
+    @Serial
     protected Object readResolve() {
         return new SimpleLookupCache<K,V>(_initialEntries, _maxEntries);
     }

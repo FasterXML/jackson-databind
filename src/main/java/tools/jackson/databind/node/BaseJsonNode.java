@@ -38,6 +38,7 @@ public abstract class BaseJsonNode
     protected final static Optional<Boolean> OPT_TRUE = Optional.of(true);
 
     // Simplest way is by using a helper
+    @Serial
     Object writeReplace() {
         return NodeSerialization.from(this);
     }

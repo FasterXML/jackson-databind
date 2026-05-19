@@ -33,6 +33,7 @@ public class BooleanNode
     protected BooleanNode(boolean v) { _value = v; }
 
     // To support JDK serialization, recovery of Singleton instance
+    @Serial
     protected Object readResolve() {
         return _value ? TRUE : FALSE;
     }

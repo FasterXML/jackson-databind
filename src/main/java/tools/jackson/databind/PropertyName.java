@@ -72,6 +72,7 @@ public class PropertyName
     }
 
     // To support JDK serialization, recovery of Singleton instance
+    @Serial
     protected Object readResolve() {
         if (_namespace == null) {
             if (_simpleName == null || _USE_DEFAULT.equals(_simpleName)) {

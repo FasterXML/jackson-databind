@@ -1,5 +1,6 @@
 package tools.jackson.databind.cfg;
 
+import java.io.Serial;
 import java.util.*;
 
 import tools.jackson.core.util.Snapshottable;
@@ -96,6 +97,7 @@ public abstract class ContextAttributes
     public static class Impl extends ContextAttributes
         implements java.io.Serializable // just so ObjectReader/ObjectWriter can retain configs
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         protected final static Impl EMPTY = new Impl(Collections.emptyMap());

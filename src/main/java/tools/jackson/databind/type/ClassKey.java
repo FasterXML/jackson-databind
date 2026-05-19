@@ -1,4 +1,6 @@
 package tools.jackson.databind.type;
+import java.io.Serial;
+
 
 import java.io.Serial;
 

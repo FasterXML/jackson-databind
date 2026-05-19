@@ -89,6 +89,7 @@ public final class DeserializerCache
      */
 
     //  Need to re-create just to initialize `transient` fields
+    @Serial
     protected Object readResolve() {
         return new DeserializerCache(_cachedDeserializers);
     }

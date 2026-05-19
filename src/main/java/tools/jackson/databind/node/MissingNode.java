@@ -34,6 +34,7 @@ public final class MissingNode
     protected MissingNode() { }
 
     // To support JDK serialization, recovery of Singleton instance
+    @Serial
     protected Object readResolve() {
         return instance;
     }

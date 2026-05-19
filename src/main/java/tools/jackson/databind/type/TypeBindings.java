@@ -66,6 +66,7 @@ public class TypeBindings
     }
 
     // Let's just canonicalize serialized EMPTY back to static instance, if need be
+    @Serial
     protected Object readResolve() {
         if ((_names == null) || (_names.length == 0)) {
             return EMPTY;

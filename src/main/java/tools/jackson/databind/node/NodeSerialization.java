@@ -32,6 +32,7 @@ class NodeSerialization implements java.io.Serializable,
 
     public NodeSerialization(byte[] b) { json = b; }
 
+    @Serial
     protected Object readResolve() {
         try {
             return bytesToNode(json);

@@ -145,6 +145,7 @@ public class PropertyMetadata
      * Minor optimization: let's canonicalize back to placeholders in cases
      * where there is no real data to consider
      */
+    @Serial
     protected Object readResolve()
     {
         if ((_description == null) && (_index == null) && (_defaultValue == null)

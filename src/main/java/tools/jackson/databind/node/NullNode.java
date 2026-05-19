@@ -28,6 +28,7 @@ public class NullNode
     public static NullNode getInstance() { return instance; }
 
     // To support JDK serialization, recovery of Singleton instance
+    @Serial
     protected Object readResolve() {
         return instance;
     }

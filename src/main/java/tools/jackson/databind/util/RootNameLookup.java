@@ -57,6 +57,7 @@ public class RootNameLookup implements java.io.Serializable
      * Need to override to reproduce cache object via constructor, instead
      * of serialize/deserialize (since we do NOT want to retain cached data)
      */
+    @Serial
     protected Object readResolve() {
         return new RootNameLookup();
     }

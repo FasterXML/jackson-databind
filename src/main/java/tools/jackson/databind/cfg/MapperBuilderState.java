@@ -237,5 +237,6 @@ public abstract class MapperBuilderState
      * Method required to support JDK deserialization; made `abstract` here to ensure
      * sub-classes must implement it.
      */
+    @Serial
     protected abstract Object readResolve();
 }

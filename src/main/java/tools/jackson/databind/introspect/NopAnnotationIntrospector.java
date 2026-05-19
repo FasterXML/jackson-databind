@@ -23,9 +23,10 @@ public abstract class NopAnnotationIntrospector
      * information.
      */
     public final static NopAnnotationIntrospector instance = new NopAnnotationIntrospector() {
-        @Serial private static final long serialVersionUID = 1L;
+        @Serial
+        private static final long serialVersionUID = 1L;
 
-        @Override
+	    @Override
         public Version version() {
             return tools.jackson.databind.cfg.PackageVersion.VERSION;
         }

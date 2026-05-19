@@ -118,6 +118,7 @@ public final class SerializerCache
 
     // Since 3.0, needed to initialize cache properly: shared map would be ok but need to
     // reconstruct AtomicReference
+    @Serial
     protected Object readResolve() {
         return new SerializerCache(_sharedMap);
     }

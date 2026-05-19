@@ -112,6 +112,7 @@ public class JacksonAnnotationIntrospector
         return tools.jackson.databind.cfg.PackageVersion.VERSION;
     }
 
+    @Serial
     protected Object readResolve() {
         if (_annotationsInside == null) {
             _annotationsInside = new SimpleLookupCache<>(48, 96);

@@ -1,6 +1,7 @@
 package tools.jackson.databind.util;
 
 import java.io.Serial;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.type.ClassKey;

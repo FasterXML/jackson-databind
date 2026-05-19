@@ -1,6 +1,7 @@
 package tools.jackson.databind.cfg;
 
 import java.io.Serial;
+
 import tools.jackson.core.*;
 import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.io.SerializedString;

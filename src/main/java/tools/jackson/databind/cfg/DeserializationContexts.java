@@ -1,6 +1,7 @@
 package tools.jackson.databind.cfg;
 
 import java.io.Serial;
+
 import tools.jackson.core.FormatSchema;
 import tools.jackson.core.TokenStreamFactory;
 import tools.jackson.databind.*;

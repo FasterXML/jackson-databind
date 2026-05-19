@@ -1,6 +1,7 @@
 package tools.jackson.databind.introspect;
 
 import java.io.Serial;
+
 import tools.jackson.databind.BeanDescription;
 import tools.jackson.databind.cfg.MapperConfig;
 

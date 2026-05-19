@@ -1,9 +1,10 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import java.io.Serial;
 
 /**
  * Interface for object used for determine which property elements

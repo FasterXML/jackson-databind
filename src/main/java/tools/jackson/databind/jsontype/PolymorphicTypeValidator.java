@@ -1,6 +1,7 @@
 package tools.jackson.databind.jsontype;
 
 import java.io.Serial;
+
 import tools.jackson.databind.*;
 
 /**

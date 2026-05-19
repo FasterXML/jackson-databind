@@ -1,9 +1,10 @@
 package tools.jackson.databind.deser.impl;
 
+import java.io.Serial;
+
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 
-import java.io.Serial;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;

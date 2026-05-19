@@ -1,6 +1,7 @@
 package tools.jackson.databind.json;
 
 import java.io.Serial;
+
 import tools.jackson.core.Version;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;

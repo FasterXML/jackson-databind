@@ -1,6 +1,7 @@
 package tools.jackson.databind.jsontype.impl;
 
 import java.io.Serial;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.JavaType;

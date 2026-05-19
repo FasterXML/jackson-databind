@@ -1,6 +1,7 @@
 package tools.jackson.databind.cfg;
 
 import java.io.Serial;
+
 import tools.jackson.core.util.JacksonFeature;
 import tools.jackson.core.util.VersionUtil;
 

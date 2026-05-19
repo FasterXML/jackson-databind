@@ -1082,6 +1082,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
 
     /** An entry that allows updates to write through to the map. */
     final class WriteThroughEntry extends SimpleEntry<K, V> {
+        @Serial
         static final long serialVersionUID = 1;
 
         WriteThroughEntry(Node<K, V> node) {
@@ -1102,6 +1103,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
 
     /* ---------------- Serialization Support -------------- */
 
+    @Serial
     static final long serialVersionUID = 1;
 
     @Serial
@@ -1141,6 +1143,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
             return map;
         }
 
+        @Serial
         static final long serialVersionUID = 1;
     }
 

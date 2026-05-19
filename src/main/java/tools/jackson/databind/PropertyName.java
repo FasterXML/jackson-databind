@@ -18,6 +18,7 @@ public class PropertyName
     implements FullyNamed,
         java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L; // 2.5
 
     private final static String _USE_DEFAULT = "";

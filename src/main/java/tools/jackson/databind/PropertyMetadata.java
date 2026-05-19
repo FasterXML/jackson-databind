@@ -1,8 +1,9 @@
 package tools.jackson.databind;
 
+import java.io.Serial;
+
 import com.fasterxml.jackson.annotation.Nulls;
 
-import java.io.Serial;
 import tools.jackson.databind.introspect.AnnotatedMember;
 
 /**

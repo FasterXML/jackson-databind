@@ -1,6 +1,7 @@
 package tools.jackson.databind.cfg;
 
 import java.io.Serial;
+
 import tools.jackson.databind.util.ClassUtil;
 
 /**

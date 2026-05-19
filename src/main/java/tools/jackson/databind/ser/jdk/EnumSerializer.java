@@ -224,8 +224,7 @@ public class EnumSerializer
             return Boolean.TRUE;
         }
         // 07-Mar-2017, tatu: Also means `OBJECT` not available as property annotation...
-        throw new IllegalArgumentException(String.format(
-                "Unsupported serialization shape (%s) for Enum %s, not supported as %s annotation",
-                    shape, enumClass.getName(), (fromClass? "class" : "property")));
+        throw new IllegalArgumentException("Unsupported serialization shape (%s) for Enum %s, not supported as %s annotation".formatted(
+                shape, enumClass.getName(), (fromClass ? "class" : "property")));
     }
 }

@@ -1,11 +1,14 @@
 package tools.jackson.databind.util;
 
+import java.io.Serial;
+
 /**
  * Node of a forward-only linked list.
  */
 public final class LinkedNode<T>
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     private final T value;

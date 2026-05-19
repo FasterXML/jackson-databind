@@ -1,5 +1,7 @@
 package tools.jackson.databind.util;
 
+import java.io.Serial;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.type.ClassKey;
@@ -9,6 +11,7 @@ import tools.jackson.databind.type.ClassKey;
  */
 public class RootNameLookup implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

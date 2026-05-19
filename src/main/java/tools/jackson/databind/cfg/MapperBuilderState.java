@@ -1,5 +1,6 @@
 package tools.jackson.databind.cfg;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +32,7 @@ import tools.jackson.databind.util.LinkedNode;
 public abstract class MapperBuilderState
     implements java.io.Serializable // important!
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /*

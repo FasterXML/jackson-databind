@@ -228,24 +228,24 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
             // First: see if we can merge things:
             JsonNode old = node.get(key);
             if (old != null) {
-                if (old instanceof ObjectNode) {
+                if (old instanceof ObjectNode objectNode) {
                     // [databind#3056]: merging only if had Object and
                     // getting an Object
                     if ((t == JsonToken.START_OBJECT) && _mergeObjects) {
-                        JsonNode newValue = updateObject(p, ctxt, (ObjectNode) old, stack);
+                        JsonNode newValue = updateObject(p, ctxt, objectNode, stack);
                         if (newValue != old) {
                             node.set(key, newValue);
                         }
                         continue;
                     }
-                } else if (old instanceof ArrayNode) {
+                } else if (old instanceof ArrayNode arrayNode) {
                     // [databind#3056]: related to Object handling, ensure
                     // Array values also match for mergeability
                     if ((t == JsonToken.START_ARRAY) && _mergeArrays) {
                         // 28-Mar-2021, tatu: We'll only append entries so not very different
                         //    from "regular" deserializeArray...
                         _deserializeContainerNoRecursion(p, ctxt, nodeFactory,
-                                stack, (ArrayNode) old);
+                                stack, arrayNode);
                         continue;
                     }
                 }
@@ -309,8 +309,7 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
 
         outer_loop:
         do {
-            if (curr instanceof ObjectNode) {
-                ObjectNode currObject = (ObjectNode) curr;
+            if (curr instanceof ObjectNode currObject) {
                 String propName = p.nextName();
 
                 objectLoop:
@@ -593,12 +592,12 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
             return nodeF.binaryNode((byte[]) ob);
         }
         // [databind#743]: Don't forget RawValue
-        if (ob instanceof RawValue) {
-            return nodeF.rawValueNode((RawValue) ob);
+        if (ob instanceof RawValue value) {
+            return nodeF.rawValueNode(value);
         }
-        if (ob instanceof JsonNode) {
+        if (ob instanceof JsonNode node) {
             // [databind#433]: but could also be a JsonNode hiding in there!
-            return (JsonNode) ob;
+            return node;
         }
         // any other special handling needed?
         return nodeF.pojoNode(ob);

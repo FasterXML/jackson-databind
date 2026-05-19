@@ -414,8 +414,7 @@ public class BeanPropertyWriter
     public void assignSerializer(ValueSerializer<Object> ser) {
         // may need to disable check in future?
         if ((_serializer != null) && (_serializer != ser)) {
-            throw new IllegalStateException(String.format(
-                    "Cannot override _serializer: had a %s, trying to set to %s",
+            throw new IllegalStateException("Cannot override _serializer: had a %s, trying to set to %s".formatted(
                     ClassUtil.classNameOf(_serializer), ClassUtil.classNameOf(ser)));
         }
         _serializer = ser;
@@ -427,8 +426,7 @@ public class BeanPropertyWriter
     public void assignNullSerializer(ValueSerializer<Object> nullSer) {
         // may need to disable check in future?
         if ((_nullSerializer != null) && (_nullSerializer != nullSer)) {
-            throw new IllegalStateException(String.format(
-                    "Cannot override _nullSerializer: had a %s, trying to set to %s",
+            throw new IllegalStateException("Cannot override _nullSerializer: had a %s, trying to set to %s".formatted(
                     ClassUtil.classNameOf(_nullSerializer), ClassUtil.classNameOf(nullSer)));
         }
         _nullSerializer = nullSer;

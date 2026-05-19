@@ -1,5 +1,7 @@
 package tools.jackson.databind.json;
 
+import java.io.Serial;
+
 import tools.jackson.core.Version;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
@@ -15,6 +17,7 @@ import tools.jackson.databind.cfg.PackageVersion;
  */
 public class JsonMapper extends ObjectMapper
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

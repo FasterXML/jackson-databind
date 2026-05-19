@@ -1719,7 +1719,7 @@ inputDesc, _coercedTypeDesc(targetType));
         } else {
             return;
         }
-        String strDesc = str.isEmpty() ? "empty String (\"\")" : String.format("String \"%s\"", str);
+        String strDesc = str.isEmpty() ? "empty String (\"\")" : "String \"%s\"".formatted(str);
         _reportFailedNullCoerce(ctxt, enable, feat, strDesc);
     }
 
@@ -2020,8 +2020,7 @@ inputDesc, _coercedTypeDesc(targetType));
             // Let's first do some sanity checking...
             // NOTE: although we could use `ValueInstantiator.Gettable` in general,
             // let's not since that would prevent being able to use custom impls:
-            if (valueDeser instanceof BeanDeserializerBase) {
-                BeanDeserializerBase bd = (BeanDeserializerBase) valueDeser;
+            if (valueDeser instanceof BeanDeserializerBase bd) {
                 ValueInstantiator vi = bd.getValueInstantiator();
                 if (!vi.canCreateUsingDefault()) {
                     // [databind#2572]: also allow property-based creators (will be
@@ -2029,7 +2028,7 @@ inputDesc, _coercedTypeDesc(targetType));
                     if (!vi.canCreateFromObjectWith()) {
                         final JavaType type = (prop == null) ? bd.getValueType() : prop.getType();
                         return ctxt.reportBadDefinition(type,
-                                String.format("Cannot create empty instance of %s, no default or Properties-based Creator", type));
+                                "Cannot create empty instance of %s, no default or Properties-based Creator".formatted(type));
                     }
                 }
             }
@@ -2123,10 +2122,9 @@ handledType().getName());
      */
     protected Object handleNestedArrayForSingle(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
-        String msg = String.format(
-"Cannot deserialize value of type %s out of %s token: nested Arrays not allowed with %s",
-            ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
-            "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
+        String msg = "Cannot deserialize value of type %s out of %s token: nested Arrays not allowed with %s".formatted(
+                ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
+                "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
 
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p, msg);
     }

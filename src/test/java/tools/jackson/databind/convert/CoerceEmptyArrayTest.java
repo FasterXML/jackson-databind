@@ -57,8 +57,8 @@ public class CoerceEmptyArrayTest
 
         @Override
         public boolean equals(Object o) {
-            return (o instanceof Bean)
-                    && a.equals(((Bean) o).a);
+            return (o instanceof Bean b)
+                    && a.equals(b.a);
         }
     }
 

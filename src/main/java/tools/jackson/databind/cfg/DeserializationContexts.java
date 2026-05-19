@@ -1,5 +1,7 @@
 package tools.jackson.databind.cfg;
 
+import java.io.Serial;
+
 import tools.jackson.core.FormatSchema;
 import tools.jackson.core.TokenStreamFactory;
 import tools.jackson.databind.*;
@@ -22,6 +24,7 @@ import tools.jackson.databind.deser.DeserializerFactory;
 public abstract class DeserializationContexts
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /*
@@ -111,6 +114,7 @@ public abstract class DeserializationContexts
 
     public static class DefaultImpl extends DeserializationContexts
     {
+        @Serial
         private static final long serialVersionUID = 3L;
 
         public DefaultImpl() { super(); }

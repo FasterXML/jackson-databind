@@ -34,14 +34,14 @@ public class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
         @JsonCreator
         LegacyInter(Object obj)
         {
-            if (obj instanceof List) {
+            if (obj instanceof List<?> list) {
                 blah = new ArrayList<String>();
-                for (Object o : (List<?>) obj) {
+                for (Object o : list) {
                     blah.add(o.toString());
                 }
             }
-            else if (obj instanceof String) {
-                blah = Arrays.asList(((String) obj).split(","));
+            else if (obj instanceof String string) {
+                blah = Arrays.asList(string.split(","));
             }
             else {
                 throw new IllegalArgumentException("Unknown type: " + obj.getClass());

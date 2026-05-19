@@ -426,9 +426,8 @@ public class ObjectArrayDeserializer
             // in future
             if (value != null && !_elementClass.isInstance(value)) {
                 throw DatabindException.from(p,
-                        String.format(
-"Internal error: deserialized value of type %s not assignable to expected array element type %s",
-ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
+                        "Internal error: deserialized value of type %s not assignable to expected array element type %s".formatted(
+                                ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
             }
             result = (Object[]) Array.newInstance(_elementClass, 1);
         }

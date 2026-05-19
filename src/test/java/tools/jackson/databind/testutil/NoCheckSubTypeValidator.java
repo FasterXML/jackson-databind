@@ -1,5 +1,7 @@
 package tools.jackson.databind.testutil;
 
+import java.io.Serial;
+
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
@@ -11,6 +13,7 @@ import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 public final class NoCheckSubTypeValidator
     extends PolymorphicTypeValidator.Base
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public final static NoCheckSubTypeValidator instance = new NoCheckSubTypeValidator();

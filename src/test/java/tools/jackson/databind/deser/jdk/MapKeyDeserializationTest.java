@@ -93,14 +93,14 @@ public class MapKeyDeserializationTest
 
         @Override
         public boolean equals(Object o) {
-            return o instanceof DummyDto2158 && ((DummyDto2158) o).value.equals(value);
+            return o instanceof DummyDto2158 dd && dd.value.equals(value);
         }
 
         @Override
         public int hashCode() { return Objects.hash(value); }
 
         @Override
-        public String toString() { return String.format("DummyDto{value=%s}", value); }
+        public String toString() { return "DummyDto{value=%s}".formatted(value); }
     }
 
     private static final TypeReference<Map<DummyDto2158, Integer>> MAP_TYPE_2158 =

@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Optional;
@@ -30,6 +31,7 @@ public abstract class BaseJsonNode
     extends JsonNode
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     protected final static Optional<Boolean> OPT_FALSE = Optional.of(false);
@@ -791,7 +793,7 @@ public abstract class BaseJsonNode
      * this node being of wrong type
      */
     protected <T> T _reportWrongNodeType(String msgTemplate, Object...args) {
-        throw JsonNodeException.from(this, String.format(msgTemplate, args));
+        throw JsonNodeException.from(this, msgTemplate.formatted(args));
     }
 
     /*

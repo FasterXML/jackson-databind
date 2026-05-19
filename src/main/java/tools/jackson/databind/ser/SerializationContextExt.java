@@ -128,9 +128,8 @@ public class SerializationContextExt
         try {
             return filter.equals(null);
         } catch (Exception e) {
-            String msg = String.format(
-"Problem determining whether filter of type '%s' should filter out `null` values: (%s) %s",
-filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(e));
+            String msg = "Problem determining whether filter of type '%s' should filter out `null` values: (%s) %s".formatted(
+                    filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(e));
             reportBadDefinition(filter.getClass(), msg, e);
             return false; // never gets here
         }

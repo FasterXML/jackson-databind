@@ -1,5 +1,6 @@
 package tools.jackson.databind.type;
 
+import java.io.Serial;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -12,6 +13,7 @@ import tools.jackson.databind.util.ClassUtil;
 public class TypeBindings
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final static String[] NO_STRINGS = new String[0];

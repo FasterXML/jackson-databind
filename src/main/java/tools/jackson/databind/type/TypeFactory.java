@@ -1,5 +1,6 @@
 package tools.jackson.databind.type;
 
+import java.io.Serial;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -65,6 +66,7 @@ public class TypeFactory
     implements Snapshottable<TypeFactory>,
         java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**
@@ -449,7 +451,7 @@ public class TypeFactory
                 break;
             }
             if (!rawBase.isAssignableFrom(subclass)) {
-                throw new IllegalArgumentException(String.format("Class %s not subtype of %s",
+                throw new IllegalArgumentException("Class %s not subtype of %s".formatted(
                         ClassUtil.nameOf(subclass), ClassUtil.getTypeDescription(baseType)
                 ));
             }
@@ -520,8 +522,7 @@ public class TypeFactory
         // Then find super-type
         JavaType baseWithPlaceholders = tmpSub.findSuperType(baseType.getRawClass());
         if (baseWithPlaceholders == null) { // should be found but...
-            throw new IllegalArgumentException(String.format(
-                    "Internal error: unable to locate supertype (%s) from resolved subtype %s", baseType.getRawClass().getName(),
+            throw new IllegalArgumentException("Internal error: unable to locate supertype (%s) from resolved subtype %s".formatted(baseType.getRawClass().getName(),
                     subclass.getName()));
         }
         // and traverse type hierarchies to both verify and to resolve placeholders
@@ -587,8 +588,8 @@ public class TypeFactory
                         continue;
                     }
                 }
-                return String.format("Type parameter #%d/%d differs; cannot specialize %s with %s",
-                        (i+1), expCount, exp.toCanonical(), act.toCanonical());
+                return "Type parameter #%d/%d differs; cannot specialize %s with %s".formatted(
+                        (i + 1), expCount, exp.toCanonical(), act.toCanonical());
             }
         }
         return null;
@@ -636,12 +637,10 @@ public class TypeFactory
         if (superType == null) {
             // Most likely, caller did not verify sub/super-type relationship
             if (!superClass.isAssignableFrom(rawBase)) {
-                throw new IllegalArgumentException(String.format(
-                        "Class %s not a super-type of %s", superClass.getName(), baseType));
+                throw new IllegalArgumentException("Class %s not a super-type of %s".formatted(superClass.getName(), baseType));
             }
             // 01-Nov-2015, tatu: Should never happen, but ch
-            throw new IllegalArgumentException(String.format(
-                    "Internal error: class %s not included as super-type for %s",
+            throw new IllegalArgumentException("Internal error: class %s not included as super-type for %s".formatted(
                     superClass.getName(), baseType));
         }
         return superType;
@@ -834,8 +833,7 @@ public class TypeFactory
             JavaType t = result.findSuperType(Collection.class);
             JavaType realET = t.getContentType();
             if (!realET.equals(elementType)) {
-                throw new IllegalArgumentException(String.format(
-                        "Non-generic Collection class %s did not resolve to something with element type %s but %s ",
+                throw new IllegalArgumentException("Non-generic Collection class %s did not resolve to something with element type %s but %s ".formatted(
                         ClassUtil.nameOf(collectionClass), elementType, realET));
             }
         }
@@ -902,14 +900,12 @@ public class TypeFactory
             JavaType t = result.findSuperType(Map.class);
             JavaType realKT = t.getKeyType();
             if (!realKT.equals(keyType)) {
-                throw new IllegalArgumentException(String.format(
-                        "Non-generic Map class %s did not resolve to something with key type %s but %s ",
+                throw new IllegalArgumentException("Non-generic Map class %s did not resolve to something with key type %s but %s ".formatted(
                         ClassUtil.nameOf(mapClass), keyType, realKT));
             }
             JavaType realVT = t.getContentType();
             if (!realVT.equals(valueType)) {
-                throw new IllegalArgumentException(String.format(
-                        "Non-generic Map class %s did not resolve to something with value type %s but %s ",
+                throw new IllegalArgumentException("Non-generic Map class %s did not resolve to something with value type %s but %s ".formatted(
                         ClassUtil.nameOf(mapClass), valueType, realVT));
             }
         }
@@ -1137,9 +1133,8 @@ public class TypeFactory
                 vt = typeParams.get(1);
                 break;
             default:
-                throw new IllegalArgumentException(String.format(
-"Strange Map type %s with %d type parameter%s (%s), cannot resolve",
-ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
+                throw new IllegalArgumentException("Strange Map type %s with %d type parameter%s (%s), cannot resolve".formatted(
+                        ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             }
         }
         return MapType.construct(rawClass, bindings, superClass, superInterfaces, kt, vt);
@@ -1311,8 +1306,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         for (TypeModifier mod : _modifiers) {
             JavaType t = mod.modifyType(resultType, srcType, b, this);
             if (t == null) {
-                throw new IllegalStateException(String.format(
-                        "TypeModifier %s (of type %s) return null for type %s",
+                throw new IllegalStateException("TypeModifier %s (of type %s) return null for type %s".formatted(
                         mod, mod.getClass().getName(), resultType));
             }
             resultType = t;

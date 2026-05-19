@@ -265,8 +265,7 @@ public abstract class ValueSerializer<T>
         if (clz == null) {
             clz = value.getClass();
         }
-        ctxt.reportBadDefinition(clz, String.format(
-"Type id handling (method `serializeWithType()`) not implemented for type %s (by serializer of type %s)",
+        ctxt.reportBadDefinition(clz, "Type id handling (method `serializeWithType()`) not implemented for type %s (by serializer of type %s)".formatted(
                 ClassUtil.nameOf(clz), ClassUtil.nameOf(getClass())));
     }
 

@@ -41,7 +41,7 @@ public class ViewsWithCreatorTest extends DatabindTestUtil
 
         @Override
         public String toString() {
-            return String.format("%s-%s-%s", a, b, c);
+            return "%s-%s-%s".formatted(a, b, c);
         }
     }
 
@@ -69,7 +69,7 @@ public class ViewsWithCreatorTest extends DatabindTestUtil
 
         @Override
         public String toString() {
-            return String.format("%s-%s-%s", a, b, c);
+            return "%s-%s-%s".formatted(a, b, c);
         }
     }
 

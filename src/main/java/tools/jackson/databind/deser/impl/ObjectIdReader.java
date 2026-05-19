@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.impl;
 
+import java.io.Serial;
+
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 
@@ -14,6 +16,7 @@ import tools.jackson.databind.deser.SettableBeanProperty;
 public class ObjectIdReader
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected final JavaType _idType;

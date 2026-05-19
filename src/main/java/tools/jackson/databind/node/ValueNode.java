@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
@@ -18,6 +19,7 @@ import tools.jackson.databind.jsontype.TypeSerializer;
 public abstract class ValueNode
     extends BaseJsonNode
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     // For numeric range checks

@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.util;
 
+import java.util.Locale;
+
 /**
  * Container for standard naming strategy implementations, specifically
  * used by property naming strategies (see {@link com.fasterxml.jackson.databind.PropertyNamingStrategies})
@@ -80,7 +82,7 @@ public enum NamingStrategyImpls {
       if (output == null) {
         return null;
       }
-      return output.toUpperCase();
+      return output.toUpperCase(Locale.ROOT);
     }
   },
 
@@ -93,7 +95,7 @@ public enum NamingStrategyImpls {
       if (beanName == null || beanName.isEmpty()) {
         return beanName;
       }
-      return beanName.toLowerCase();
+      return beanName.toLowerCase(Locale.ROOT);
     }
   },
 

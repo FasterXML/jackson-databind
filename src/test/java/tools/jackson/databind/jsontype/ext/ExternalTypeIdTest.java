@@ -846,35 +846,29 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     public void testMultipleValuesSingleExtId291() throws Exception
     {
         // first with ext-id before values
-        _testMultipleValuesSingleExtId291(
-"""
-{'type' : '1',
-'field1' : { 'a' : 'AAA' },
-'field2' : { 'c' : 'CCC' }
-}\
-"""
-);
+        _testMultipleValuesSingleExtId291("""
+                {'type' : '1',
+                'field1' : { 'a' : 'AAA' },
+                'field2' : { 'c' : 'CCC' }
+                }\
+                """);
 
         // then after
-        _testMultipleValuesSingleExtId291(
-"""
-{
-'field1' : { 'a' : 'AAA' },
-'field2' : { 'c' : 'CCC' },
-'type' : '1'
-}\
-"""
-);
+        _testMultipleValuesSingleExtId291("""
+                {
+                'field1' : { 'a' : 'AAA' },
+                'field2' : { 'c' : 'CCC' },
+                'type' : '1'
+                }\
+                """);
         // and then in-between
-        _testMultipleValuesSingleExtId291(
-"""
-{
-'field1' : { 'a' : 'AAA' },
-'type' : '1',
-'field2' : { 'c' : 'CCC' }
-}\
-"""
-);
+        _testMultipleValuesSingleExtId291("""
+                {
+                'field1' : { 'a' : 'AAA' },
+                'type' : '1',
+                'field2' : { 'c' : 'CCC' }
+                }\
+                """);
     }
 
     private void _testMultipleValuesSingleExtId291(String json) throws Exception

@@ -201,32 +201,32 @@ public class ObjectId825Test extends DatabindTestUtil
                         DefaultTyping.OBJECT_AND_NON_CONCRETE)
                 .build();
 
-        String INPUT = a2q("""
+        String INPUT = """
                 {
-                    '@class': '_PKG_CTC',
-                     'var': [{
-                      'ch': {
-                        '@class': '_PKG_Ch',
-                         'act': [{
-                            '@class': '_PKG_CTD',
-                            'oidString': 'oid1',
-                            'dec': [{
-                              '@class': '_PKG_Dec',
-                                'oidString': 'oid2',
-                                'outTr': [{
-                                  '@class': '_PKG_Tr',
-                                  'target': {
-                                    '@class': '_PKG_Ti',
-                                    'oidString': 'oid3',
-                                    'timer': 'problemoid',
-                                    'outTr': [{
-                                      '@class': '_PKG_Tr',
-                                      'target': {
-                                        '@class': '_PKG_Ti',
-                                        'oidString': 'oid4',
-                                        'timer': {
-                                          '@class': '_PKG_V',
-                                          'oidString': 'problemoid'
+                    "@class": "_PKG_CTC",
+                     "var": [{
+                      "ch": {
+                        "@class": "_PKG_Ch",
+                         "act": [{
+                            "@class": "_PKG_CTD",
+                            "oidString": "oid1",
+                            "dec": [{
+                              "@class": "_PKG_Dec",
+                                "oidString": "oid2",
+                                "outTr": [{
+                                  "@class": "_PKG_Tr",
+                                  "target": {
+                                    "@class": "_PKG_Ti",
+                                    "oidString": "oid3",
+                                    "timer": "problemoid",
+                                    "outTr": [{
+                                      "@class": "_PKG_Tr",
+                                      "target": {
+                                        "@class": "_PKG_Ti",
+                                        "oidString": "oid4",
+                                        "timer": {
+                                          "@class": "_PKG_V",
+                                          "oidString": "problemoid"
                                         }
                                       }
                                     }]
@@ -234,15 +234,15 @@ public class ObjectId825Test extends DatabindTestUtil
                                 }]
                               }]
                          }],
-                         'oidString': 'oid5'
+                         "oidString": "oid5"
                       },
-                       '@class': '_PKG_CTV',
-                       'oidString': 'oid6',
-                       'locV': ['problemoid']
+                       "@class": "_PKG_CTV",
+                       "oidString": "oid6",
+                       "locV": ["problemoid"]
                     }],
-                     'oidString': 'oid7'
+                     "oidString": "oid7"
                 }
-                """);
+                """;
 
         // Replace package placeholder with actual inner-class package
         final String newPkg = getClass().getName() + "\\$";

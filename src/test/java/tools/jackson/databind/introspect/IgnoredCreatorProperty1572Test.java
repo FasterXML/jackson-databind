@@ -81,12 +81,12 @@ public class IgnoredCreatorProperty1572Test extends DatabindTestUtil
         final ObjectMapper mapper = jsonMapperBuilder()
                 .annotationIntrospector(new ImplicitNames())
                 .build();
-        String JSON = a2q("""
-                {'innerTest': {
-                'str':'str',
-                'otherStr': 'otherStr'
+        String JSON = """
+                {"innerTest": {
+                "str":"str",
+                "otherStr": "otherStr"
                 }}
-                """);
+                """;
         OuterTest result = mapper.readValue(JSON, OuterTest.class);
         assertNotNull(result);
         assertNotNull(result.innerTest);

@@ -26,7 +26,7 @@ public abstract class NopAnnotationIntrospector
         @Serial
         private static final long serialVersionUID = 1L;
 
-	    @Override
+        @Override
         public Version version() {
             return tools.jackson.databind.cfg.PackageVersion.VERSION;
         }

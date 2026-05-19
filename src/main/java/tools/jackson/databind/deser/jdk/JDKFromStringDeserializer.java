@@ -5,7 +5,6 @@ import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -356,13 +355,13 @@ public class JDKFromStringDeserializer
 
             int colonIx = value.indexOf(':');
             if (colonIx < 0) {
-                return Paths.get(value);
+                return Path.of(value);
             }
 
             // Does it look Windows driver prefix (like "C:")?
             if ((colonIx == 1) && Character.isLetter(value.charAt(0))) {
                 if (NioPathWindowsChecker.isWindows()) {
-                    return Paths.get(value);
+                    return Path.of(value);
                 }
             }
 
@@ -373,7 +372,7 @@ public class JDKFromStringDeserializer
                 return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
             }
             try {
-                return Paths.get(uri);
+                return Path.of(uri);
             } catch (FileSystemNotFoundException cause) {
                 try {
                     final String scheme = uri.getScheme();

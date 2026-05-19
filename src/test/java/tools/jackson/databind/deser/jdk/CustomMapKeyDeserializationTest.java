@@ -135,7 +135,7 @@ public class CustomMapKeyDeserializationTest
                          },
                          "street*": "Elvirastr"
                      }
-                 }\
+                 }
                 """;
 
         SimpleModule keySanitizationModule = new SimpleModule("key-sanitization");

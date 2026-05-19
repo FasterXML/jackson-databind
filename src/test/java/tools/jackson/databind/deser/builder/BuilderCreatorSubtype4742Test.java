@@ -117,7 +117,7 @@ public class BuilderCreatorSubtype4742Test
                     {"kind": "bird", "properties": {"color": "yellow"}},
                     {"kind": "mammal", "properties": {"num_teeth": 2}}
                   ]
-                }\
+                }
                 """, Animals.class);
 
         assertEquals(2, animals.animals.size());

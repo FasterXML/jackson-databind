@@ -911,7 +911,7 @@ public class ParentChildReferencesTest
                 { 'id': 'abc',
                   'name': 'Bob',
                   'child': { 'id': 'def', 'name':'Bert' }
-                }\
+                }
                 """);
         ParentWithCreator result = MAPPER.readValue(json, ParentWithCreator.class);
         assertNotNull(result);
@@ -927,7 +927,7 @@ public class ParentChildReferencesTest
                 { 'id': 'abc',
                   'name': 'Bob',
                   'child': { 'id': 'def', 'name':'Bert' }
-                }\
+                }
                 """);
         ParentWithoutCreator result = MAPPER.readValue(json, ParentWithoutCreator.class);
         assertNotNull(result);

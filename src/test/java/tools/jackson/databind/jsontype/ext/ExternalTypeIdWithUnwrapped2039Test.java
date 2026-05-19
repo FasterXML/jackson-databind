@@ -54,7 +54,7 @@ class ExternalTypeIdWithUnwrapped2039Test extends DatabindTestUtil
                 'sub': {
                   'bool': true
                 }
-                }\
+                }
                 """);
 
         // Should fail with informative message, not silently produce wrong result

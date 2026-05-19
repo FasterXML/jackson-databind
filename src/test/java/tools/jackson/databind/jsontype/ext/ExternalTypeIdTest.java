@@ -438,7 +438,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
         final String JSON = """
                 { "petType": "dog",
                 "pet": { "name": "Pluto" }
-                }\
+                }
                 """;
         House831 result = MAPPER.readValue(JSON, House831.class);
         assertNotNull(result);
@@ -850,7 +850,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
                 {'type' : '1',
                 'field1' : { 'a' : 'AAA' },
                 'field2' : { 'c' : 'CCC' }
-                }\
+                }
                 """);
 
         // then after
@@ -859,7 +859,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
                 'field1' : { 'a' : 'AAA' },
                 'field2' : { 'c' : 'CCC' },
                 'type' : '1'
-                }\
+                }
                 """);
         // and then in-between
         _testMultipleValuesSingleExtId291("""
@@ -867,7 +867,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
                 'field1' : { 'a' : 'AAA' },
                 'type' : '1',
                 'field2' : { 'c' : 'CCC' }
-                }\
+                }
                 """);
     }
 

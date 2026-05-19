@@ -281,7 +281,7 @@ public class TestCreators2
                 [{"bar": 0,
                 "id": "id123",
                 "foo": 1
-                }]}\
+                }]}
                 """,
                 Test431Container.class);
         assertNotNull(foo);

@@ -75,7 +75,7 @@ public class RecursiveIgnorePropertiesTest
         String st = a2q("""
                 { 'name': 'admin',
                     'person_z': { 'name': 'wyatt' }\
-                }\
+                }
                 """);
         Person result = MAPPER.readValue(st, Person.class);
         assertEquals("admin", result.name);
@@ -89,7 +89,7 @@ public class RecursiveIgnorePropertiesTest
         String st = a2q("""
                 { 'name': 'admin',
                     'person_z': [ { 'name': 'Foor' }, { 'name' : 'Bar' } ]\
-                }\
+                }
                 """);
         Persons result = MAPPER.readValue(st, Persons.class);
         assertEquals("admin", result.name);
@@ -139,7 +139,7 @@ public class RecursiveIgnorePropertiesTest
                      ]
                    }
                   ]
-                }\
+                }
                 """);
         JackExt value = MAPPER.readValue(JSON, JackExt.class);
         assertNotNull(value);

@@ -223,7 +223,7 @@ public class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
                                   ]
                                 }
                               ]
-                            }\
+                            }
                 """;
 
         Tree tree = MAPPER.readValue(json, Tree.class);

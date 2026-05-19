@@ -54,7 +54,7 @@ public class MapMerge1844Test
   '1': 1, '2': 2, '3': 3
 }, 'key2': {
   '1': 1, '2': 2, '3': 3
-} }\
+} }
 """
 );
         final String f2 = a2q(
@@ -63,7 +63,7 @@ public class MapMerge1844Test
   '1': 2, '2': 3, '4': 5
 }, 'key2': {
   '1': 2, '2': 3, '4': 5
-} }\
+} }
 """
 );
         TestMap1844 testMap = mapper.readerFor(TestMap1844.class).readValue(f1);

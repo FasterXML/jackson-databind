@@ -31,7 +31,7 @@ public class ReadTreesTest extends DatabindTestUtil
                 """
                 {"id":1, "value":137 }
                 {"id":2, "value":256 }
-                {"id":3, "value":-89 }\
+                {"id":3, "value":-89 }
                 """);
         try (MappingIterator<JsonNode> it = MAPPER.readerFor(JsonNode.class)
                 .readValues(INPUT)) {
@@ -74,7 +74,7 @@ public class ReadTreesTest extends DatabindTestUtil
                 """
                 {"id":1, "value":137 }
                 {"id":2, "value":"foobar" }
-                {"id":3, "value":-89 }\
+                {"id":3, "value":-89 }
                 """);
 
         try (MappingIterator<IdValue> it = MAPPER.readerFor(IdValue.class)

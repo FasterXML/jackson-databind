@@ -428,7 +428,7 @@ public class ExternalTypeCustomResolver1288Test extends DatabindTestUtil
 {'form_of_payment':'INDIVIDUAL_CREDIT_CARD', 'payment_details':{'card_holder_first_name':'John',
 'card_holder_last_name':'Doe',  'number':'XXXXXXXXXXXXXXXX', 'expiry_date':'MM/YY',
 'csc':666,'address':'10 boulevard de Sebastopol','zip_code':'75001','city':'Paris',
-'province':'Ile-de-France','country_code':'FR','description':'John Doe personal credit card'}}\
+'province':'Ile-de-France','country_code':'FR','description':'John Doe personal credit card'}}
 """
         );
         ClassesWithoutBuilder.PaymentMean ob1 = MAPPER.readValue(asJson1, ClassesWithoutBuilder.PaymentMean.class);
@@ -444,7 +444,7 @@ public class ExternalTypeCustomResolver1288Test extends DatabindTestUtil
 {'form_of_payment':'INSTRUMENTED_CREDIT_CARD',
 'payment_details':{
 'payment_instrument_id':'00000000-0000-0000-0000-000000000000',
- 'name':'Mr John Doe encrypted credit card'}}\
+ 'name':'Mr John Doe encrypted credit card'}}
 """
         );
         ClassesWithBuilder.PaymentMean ob2 = MAPPER.readValue(asJson2, ClassesWithBuilder.PaymentMean.class);

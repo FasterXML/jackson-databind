@@ -89,14 +89,13 @@ public class NodeContext2049Test extends DatabindTestUtil
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
              Object retValue = super.deserialize(p, ctxt);
-             if (retValue instanceof HasParent) {
-                  HasParent obj = (HasParent) retValue;
+             if (retValue instanceof HasParent obj) {
                   Parent parent = null;
                   TokenStreamContext parsingContext = p.streamReadContext();
                   while (parent == null && parsingContext != null) {
                        Object currentValue = parsingContext.currentValue();
-                       if (currentValue != null && currentValue instanceof Parent) {
-                            parent = (Parent) currentValue;
+                       if (currentValue != null && currentValue instanceof Parent parent1) {
+                            parent = parent1;
                        }
                        parsingContext = parsingContext.getParent();
                   }

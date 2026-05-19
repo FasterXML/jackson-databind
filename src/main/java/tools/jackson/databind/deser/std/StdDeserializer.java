@@ -2020,8 +2020,7 @@ inputDesc, _coercedTypeDesc(targetType));
             // Let's first do some sanity checking...
             // NOTE: although we could use `ValueInstantiator.Gettable` in general,
             // let's not since that would prevent being able to use custom impls:
-            if (valueDeser instanceof BeanDeserializerBase) {
-                BeanDeserializerBase bd = (BeanDeserializerBase) valueDeser;
+            if (valueDeser instanceof BeanDeserializerBase bd) {
                 ValueInstantiator vi = bd.getValueInstantiator();
                 if (!vi.canCreateUsingDefault()) {
                     // [databind#2572]: also allow property-based creators (will be

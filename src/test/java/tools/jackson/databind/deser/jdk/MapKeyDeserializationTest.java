@@ -93,7 +93,7 @@ public class MapKeyDeserializationTest
 
         @Override
         public boolean equals(Object o) {
-            return o instanceof DummyDto2158 && ((DummyDto2158) o).value.equals(value);
+            return o instanceof DummyDto2158 dd && dd.value.equals(value);
         }
 
         @Override

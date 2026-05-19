@@ -978,9 +978,8 @@ public class ObjectWriter
     {
         _assertNotNull("g", g);
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
-                && (value instanceof AutoCloseable))
+                && (value instanceof AutoCloseable toClose))
         {
-            AutoCloseable toClose = (AutoCloseable) value;
             try {
                 _prefetch.serialize(g, value, _serializationContext());
                 if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {

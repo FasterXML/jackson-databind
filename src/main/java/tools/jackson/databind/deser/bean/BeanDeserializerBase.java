@@ -1358,8 +1358,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             return true;
         }
         for (SettableBeanProperty prop : _beanProperties) {
-            if (prop instanceof CreatorProperty) {
-                if (((CreatorProperty) prop).hasFallbackSetter()) {
+            if (prop instanceof CreatorProperty property) {
+                if (property.hasFallbackSetter()) {
                     return true;
                 }
             } else {
@@ -2174,11 +2174,11 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         ClassUtil.throwIfError(t);
         // but note: JacksonExceptions are to be wrapped (except not DatabindException
         // but method called takes care of dealing with those)
-        if ((t instanceof RuntimeException)
+        if ((t instanceof RuntimeException exception)
                 && !(t instanceof JacksonException)) {
             boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
             if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
-                throw (RuntimeException) t;
+                throw exception;
             }
         }
         return t;

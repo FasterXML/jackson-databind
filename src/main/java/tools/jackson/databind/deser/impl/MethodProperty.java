@@ -4,6 +4,8 @@ import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.ArrayList;
+import java.util.List;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
@@ -128,10 +130,24 @@ public final class MethodProperty
         } else {
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
-        try {
-            _setter.get().invokeExact(instance, value);
-        } catch (Throwable e) {
-            _throwAsJacksonE(p, e, value);
+        // XXX JREF handling
+        if (value instanceof JRefResolver) {
+        	JRefResolver r = (JRefResolver) value;
+        	// pass in setter
+        	r.setSetter(this, instance);
+			@SuppressWarnings("unchecked")
+			List<JRefResolver> jrefs = (List<JRefResolver>) ctxt.getAttribute("jrefs");
+			if (jrefs == null) {
+				jrefs = new ArrayList<JRefResolver>();
+				ctxt.setAttribute("jrefs", jrefs);
+			} 
+			jrefs.add(r);
+        } else {
+	        try {
+	            _setter.get().invokeExact(instance, value);
+	        } catch (Throwable e) {
+	            _throwAsJacksonE(p, e, value);
+	        }
         }
     }
 

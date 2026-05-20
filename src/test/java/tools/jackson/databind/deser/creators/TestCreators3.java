@@ -196,8 +196,7 @@ public class TestCreators3
                         }
                     },
                     "anumber": 25385874
-                }\
-                """;
+                }""";
 
         Value541 obj = mapper.readValue(JSON, Value541.class);
         assertNotNull(obj);

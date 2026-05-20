@@ -34,8 +34,7 @@ public class UntypedObjectWithDupsTest extends DatabindTestUtil
             'single' : 'one',
             'lists' : false,
             'lists' : null
-            }\
-            """);
+            }""");
 
     // Testing the baseline non-merging behavior
     @Test

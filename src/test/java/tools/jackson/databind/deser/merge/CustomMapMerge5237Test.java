@@ -54,8 +54,7 @@ public class CustomMapMerge5237Test
                     "3" : "ADS"
                   },
                   "s" : "abc"
-                }\
-                """;
+                }""";
         MergeMap merge2 = MAPPER.readValue(json, MergeMap.class);
         assertNotNull(merge2);
         assertEquals(Collections.singletonMap(3, "ADS"), merge2.map);

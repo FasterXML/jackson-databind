@@ -511,8 +511,7 @@ public class ObjectReaderTest extends DatabindTestUtil
                   'set1': ['one', 'two', 'three'],
                   'set2': ['four', 'five', 'six']
                 }
-                }\
-                """);
+                }""");
 
         final Pojo1637 testObject = MAPPER.readerFor(Pojo1637.class)
                 .at("/wrapper1")

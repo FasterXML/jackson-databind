@@ -183,8 +183,7 @@ public class NodeContext2049Test extends DatabindTestUtil
                  "singleChild": {
                       "property": "value3"
                  }
-            }\
-            """;
+            }""";
 
     @Test
     public void testReadNoBuffering() throws Exception {

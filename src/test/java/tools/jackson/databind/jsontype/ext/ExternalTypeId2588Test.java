@@ -101,8 +101,7 @@ public class ExternalTypeId2588Test extends DatabindTestUtil
   'ignoredObject": {
     'someField': 'someValue'
   }\
-}\
-"""
+}"""
                 ), Pet.class);
         assertNotNull(pet);
 
@@ -115,8 +114,7 @@ public class ExternalTypeId2588Test extends DatabindTestUtil
     'someField': 'someValue'
   },
   'type': 'cat'
-}\
-"""
+}"""
                 ), Pet.class);
         assertNotNull(pet);
     }

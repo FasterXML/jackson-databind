@@ -212,8 +212,7 @@ public class ThrowableDeserializerTest extends DatabindTestUtil
                 """
                 {'message':'Test',
                 'stackTrace': \
-                [ { 'lineNumber':'50' } ] }\
-                """
+                [ { 'lineNumber':'50' } ] }"""
         ), IOException.class);
         assertNotNull(exc);
     }

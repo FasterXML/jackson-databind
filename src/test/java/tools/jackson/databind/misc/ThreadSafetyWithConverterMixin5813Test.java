@@ -121,8 +121,7 @@ public class ThreadSafetyWithConverterMixin5813Test
                     'locale' : 'de',
                     'text' : 'text 2'
                   } ]
-                }\
-                """);
+                }""");
 
         JsonMapper mapper = createMapper();
         MyObject myObject = mapper.readValue(expectedJson, MyObject.class);

@@ -34,8 +34,8 @@ abstract class ObjectReaderTestBase
         /*T2 back2 =*/ mapper2.readValue(byteInput2, inputClass2);
         System.out.println("Input successfully round-tripped for both styles...");
 
-        _desc1 = String.format("%s (%d bytes)", desc1, byteInput1.length);
-        _desc2 = String.format("%s (%d bytes)", desc2, byteInput2.length);
+        _desc1 = "%s (%d bytes)".formatted(desc1, byteInput1.length);
+        _desc2 = "%s (%d bytes)".formatted(desc2, byteInput2.length);
 
         doTest(mapper1, byteInput1, inputClass1, mapper2, byteInput2, inputClass2);
     }
@@ -50,8 +50,8 @@ abstract class ObjectReaderTestBase
         final String input2 = mapper2.writeValueAsString(inputValue2);
         // Let's try to guestimate suitable size... to get to N megs to process
         REPS = (int) ((double) (targetSizeMegs() * 1000 * 1000) / (double) input1.length());
-        _desc1 = String.format("%s (%d chars)", desc1, input1.length());
-        _desc2 = String.format("%s (%d chars)", desc2, input2.length());
+        _desc1 = "%s (%d chars)".formatted(desc1, input1.length());
+        _desc2 = "%s (%d chars)".formatted(desc2, input2.length());
 
         // sanity check:
         /*T1 back1 =*/ mapper1.readValue(input1, inputClass1);

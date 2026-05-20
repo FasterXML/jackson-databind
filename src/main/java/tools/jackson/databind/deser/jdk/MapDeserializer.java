@@ -297,10 +297,9 @@ public class MapDeserializer
         if (_valueInstantiator.canCreateUsingDelegate()) {
             JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
             if (delegateType == null) {
-                ctxt.reportBadDefinition(_containerType, String.format(
-"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
-                _containerType,
-                _valueInstantiator.getClass().getName()));
+                ctxt.reportBadDefinition(_containerType, "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'".formatted(
+                        _containerType,
+                        _valueInstantiator.getClass().getName()));
             }
             // Theoretically should be able to get CreatorProperty for delegate
             // parameter to pass; but things get tricky because DelegateCreator
@@ -309,10 +308,9 @@ public class MapDeserializer
         } else if (_valueInstantiator.canCreateUsingArrayDelegate()) {
             JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
             if (delegateType == null) {
-                ctxt.reportBadDefinition(_containerType, String.format(
-"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
-                    _containerType,
-                    _valueInstantiator.getClass().getName()));
+                ctxt.reportBadDefinition(_containerType, "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'".formatted(
+                        _containerType,
+                        _valueInstantiator.getClass().getName()));
             }
             _delegateDeserializer = findDeserializer(ctxt, delegateType, null);
         }

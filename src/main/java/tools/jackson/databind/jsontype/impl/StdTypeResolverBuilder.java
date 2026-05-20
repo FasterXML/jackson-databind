@@ -409,9 +409,8 @@ public class StdTypeResolverBuilder
     protected PolymorphicTypeValidator reportInvalidBaseType(DatabindContext ctxt,
             JavaType baseType, PolymorphicTypeValidator ptv)
     {
-        return ctxt.reportBadDefinition(baseType, String.format(
-"Configured `PolymorphicTypeValidator` (of type %s) denied resolution of all subtypes of base type %s",
-                        ClassUtil.classNameOf(ptv), ClassUtil.classNameOf(baseType.getRawClass()))
+        return ctxt.reportBadDefinition(baseType, "Configured `PolymorphicTypeValidator` (of type %s) denied resolution of all subtypes of base type %s".formatted(
+                ClassUtil.classNameOf(ptv), ClassUtil.classNameOf(baseType.getRawClass()))
                 );
     }
 

@@ -100,7 +100,7 @@ public class MapKeyDeserializationTest
         public int hashCode() { return Objects.hash(value); }
 
         @Override
-        public String toString() { return String.format("DummyDto{value=%s}", value); }
+        public String toString() { return "DummyDto{value=%s}".formatted(value); }
     }
 
     private static final TypeReference<Map<DummyDto2158, Integer>> MAP_TYPE_2158 =

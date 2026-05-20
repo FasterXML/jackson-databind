@@ -32,8 +32,8 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     protected final boolean _strictTypeIdHandling;
 
     protected final String _msgForMissingId = (_property == null)
-            ? String.format("missing type id property '%s'", _typePropertyName)
-            : String.format("missing type id property '%s' (for POJO property '%s')", _typePropertyName, _property.getName());
+            ? "missing type id property '%s'".formatted(_typePropertyName)
+            : "missing type id property '%s' (for POJO property '%s')".formatted(_typePropertyName, _property.getName());
 
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,

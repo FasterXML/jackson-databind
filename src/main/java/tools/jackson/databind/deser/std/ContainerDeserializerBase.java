@@ -84,8 +84,7 @@ public abstract class ContainerDeserializerBase<T>
     public SettableBeanProperty findBackReference(String refName) {
         ValueDeserializer<Object> valueDeser = getContentDeserializer();
         if (valueDeser == null) {
-            throw new IllegalArgumentException(String.format(
-                    "Cannot handle managed/back reference '%s': type: container deserializer of type %s returned null for 'getContentDeserializer()'",
+            throw new IllegalArgumentException("Cannot handle managed/back reference '%s': type: container deserializer of type %s returned null for 'getContentDeserializer()'".formatted(
                     refName, getClass().getName()));
         }
         return valueDeser.findBackReference(refName);
@@ -126,7 +125,7 @@ public abstract class ContainerDeserializerBase<T>
         if (vi == null || !vi.canCreateUsingDefault()) {
             JavaType type = getValueType();
             ctxt.reportBadDefinition(type,
-                    String.format("Cannot create empty instance of %s, no default Creator", type));
+                    "Cannot create empty instance of %s, no default Creator".formatted(type));
         }
         return vi.createUsingDefault(ctxt);
     }

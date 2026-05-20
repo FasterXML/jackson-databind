@@ -105,8 +105,7 @@ public class BeanSerializerBuilder
     public void setFilteredProperties(BeanPropertyWriter[] properties) {
         if (properties != null) {
             if (properties.length != _properties.size()) { // as per [databind#1612]
-                throw new IllegalArgumentException(String.format(
-                        "Trying to set %d filtered properties; must match length of non-filtered `properties` (%d)",
+                throw new IllegalArgumentException("Trying to set %d filtered properties; must match length of non-filtered `properties` (%d)".formatted(
                         properties.length, _properties.size()));
             }
         }
@@ -206,9 +205,8 @@ public class BeanSerializerBuilder
         // 27-Apr-2017, tatu: Verify that filtered-properties settings are compatible
         if (_filteredProperties != null) {
             if (_filteredProperties.length != _properties.size()) { // lgtm [java/dereferenced-value-may-be-null]
-                throw new IllegalStateException(String.format(
-"Mismatch between `properties` size (%d), `filteredProperties` (%s): should have as many (or `null` for latter)",
-_properties.size(), _filteredProperties.length));
+                throw new IllegalStateException("Mismatch between `properties` size (%d), `filteredProperties` (%s): should have as many (or `null` for latter)".formatted(
+                        _properties.size(), _filteredProperties.length));
             }
         }
         ValueSerializer<?> ser = UnrolledBeanSerializer.tryConstruct(

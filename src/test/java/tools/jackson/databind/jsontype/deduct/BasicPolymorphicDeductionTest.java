@@ -331,7 +331,7 @@ public class BasicPolymorphicDeductionTest extends DatabindTestUtil {
     @ParameterizedTest
     @ValueSource(strings = {"y", "Y", "yy", "ff", "X"})
     public void testAliasWithPolymorphicDeduction4327(String field) throws Exception {
-        String json = a2q(String.format("{'%s': 2 }", field));
+        String json = a2q("{'%s': 2 }".formatted(field));
         Deduction4327 value = MAPPER.readValue(json, Deduction4327.class);
         assertNotNull(value);
         assertEquals(2, ((DeductionBean4327_2) value).y);

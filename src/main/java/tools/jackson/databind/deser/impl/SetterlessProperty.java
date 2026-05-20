@@ -113,8 +113,7 @@ public final class SetterlessProperty
         }
         // For [databind#501] fix we need to implement this but:
         if (_valueTypeDeserializer != null) {
-            ctxt.reportBadDefinition(getType(), String.format(
-                    "Problem deserializing 'setterless' property (\"%s\"): no way to handle typed deser with setterless yet",
+            ctxt.reportBadDefinition(getType(), "Problem deserializing 'setterless' property (\"%s\"): no way to handle typed deser with setterless yet".formatted(
                     getName()));
 //            return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
@@ -130,8 +129,7 @@ public final class SetterlessProperty
         // that's not good in common case. However, theoretically the case where
         // we get JSON null might be compatible. If so, implementation could be changed.
         if (toModify == null) {
-            ctxt.reportBadDefinition(getType(), String.format(
-                    "Problem deserializing 'setterless' property '%s': get method returned null",
+            ctxt.reportBadDefinition(getType(), "Problem deserializing 'setterless' property '%s': get method returned null".formatted(
                     getName()));
         }
         _valueDeserializer.deserialize(p, ctxt, toModify);

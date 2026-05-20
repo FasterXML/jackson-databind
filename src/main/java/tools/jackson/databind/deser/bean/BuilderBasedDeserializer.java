@@ -991,8 +991,7 @@ public class BuilderBasedDeserializer
     {
         // !!! 04-Mar-2012, TODO: Need to fix -- will not work as is...
         JavaType t = _targetType;
-        return ctxt.reportBadDefinition(t, String.format(
-                "Deserialization (of %s) with Builder, External type id, @JsonCreator not yet implemented",
+        return ctxt.reportBadDefinition(t, "Deserialization (of %s) with Builder, External type id, @JsonCreator not yet implemented".formatted(
                 t));
     }
 

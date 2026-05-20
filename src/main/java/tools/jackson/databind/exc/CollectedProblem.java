@@ -103,7 +103,7 @@ public final class CollectedProblem {
 
     @Override
     public String toString() {
-        return String.format("CollectedProblem[path=%s, message=%s, targetType=%s]",
-            path, message, targetType);
+        return "CollectedProblem[path=%s, message=%s, targetType=%s]".formatted(
+                path, message, targetType);
     }
 }

@@ -159,7 +159,7 @@ public class ThreadSafetyWithConverterMixin5813Test
         }
 
         assertTrue(errors.isEmpty(),
-                () -> String.format("test failed with %d error(s):\n%s",
+                () -> "test failed with %d error(s):\n%s".formatted(
                         errors.size(),
                         errors.stream()
                                 .map(Throwable::toString)

@@ -321,8 +321,7 @@ public class BeanAsArrayBuilderDeserializer
                          *   supported (since ordering of elements may not be guaranteed);
                          *   but make explicitly non-supported for now.
                          */
-                        return ctxt.reportBadDefinition(_beanType, String.format(
-"Cannot support implicit polymorphic deserialization for POJOs-as-Arrays style: nominal type %s, actual type %s",
+                        return ctxt.reportBadDefinition(_beanType, "Cannot support implicit polymorphic deserialization for POJOs-as-Arrays style: nominal type %s, actual type %s".formatted(
                                 ClassUtil.getTypeDescription(_beanType),
                                 builder.getClass().getName()));
                     }

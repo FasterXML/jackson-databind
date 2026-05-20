@@ -53,6 +53,6 @@ public class DateTimeTestBase
     }
 
     protected static String mapAsString(String key, String value) {
-        return String.format("{\"%s\":\"%s\"}", key, value);
+        return "{\"%s\":\"%s\"}".formatted(key, value);
     }
 }

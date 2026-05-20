@@ -54,8 +54,7 @@ public class PotentialCreators
             String mode, boolean explicit)
     {
         if (propertiesBased != null) {
-            throw new IllegalArgumentException(String.format(
-                    "Conflicting property-based creators: already had %s creator %s, encountered another: %s",
+            throw new IllegalArgumentException("Conflicting property-based creators: already had %s creator %s, encountered another: %s".formatted(
                     mode, propertiesBased.creator(), ctor.creator()));
         }
         propertiesBased = ctor.introspectParamNames(config);

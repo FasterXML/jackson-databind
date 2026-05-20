@@ -1,5 +1,6 @@
 package tools.jackson.databind.ser.std;
 
+import java.io.Serial;
 import java.util.*;
 
 import tools.jackson.core.JsonGenerator;
@@ -161,6 +162,7 @@ public class SimpleBeanPropertyFilter
         extends SimpleBeanPropertyFilter
         implements java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         static final FilterExceptFilter EXCLUDE_ALL = new FilterExceptFilter(Collections.emptySet());
@@ -193,6 +195,7 @@ public class SimpleBeanPropertyFilter
         extends SimpleBeanPropertyFilter
         implements java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         final static SerializeExceptFilter INCLUDE_ALL = new SerializeExceptFilter(Collections.emptySet());

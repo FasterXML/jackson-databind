@@ -212,7 +212,8 @@ public class ThrowableDeserializerTest extends DatabindTestUtil
                 """
                 {'message':'Test',
                 'stackTrace': \
-                [ { 'lineNumber':'50' } ] }"""
+                [ { 'lineNumber':'50' } ] }
+                """
         ), IOException.class);
         assertNotNull(exc);
     }
@@ -710,7 +711,7 @@ public class ThrowableDeserializerTest extends DatabindTestUtil
                 return;
             }
         }
-        fail(String.format("StackTraceElement #%d, property '%s' differs: expected %s, actual %s",
+        fail("StackTraceElement #%d, property '%s' differs: expected %s, actual %s".formatted(
                 ix, prop, exp, act));
     }
 }

@@ -92,8 +92,7 @@ public final class CollectedProblem {
     public JsonToken getToken() { return token; }
 
     private static Object truncateIfNeeded(Object value) {
-        if (value instanceof String) {
-            String s = (String) value;
+        if (value instanceof String s) {
             if (s.length() > MAX_RAW_VALUE_LENGTH) {
                 return s.substring(0, MAX_RAW_VALUE_LENGTH - 3) + "...";
             }
@@ -103,7 +102,7 @@ public final class CollectedProblem {
 
     @Override
     public String toString() {
-        return String.format("CollectedProblem[path=%s, message=%s, targetType=%s]",
-            path, message, targetType);
+        return "CollectedProblem[path=%s, message=%s, targetType=%s]".formatted(
+                path, message, targetType);
     }
 }

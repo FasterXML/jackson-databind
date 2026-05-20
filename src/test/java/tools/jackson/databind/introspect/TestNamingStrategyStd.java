@@ -397,7 +397,8 @@ public class TestNamingStrategyStd extends DatabindTestUtil
         "name": "XXX",
         "utc_zone": "ZZZ"
       }
-    }""";
+    }
+""";
         Value3368 res = sharedMapper().readerFor(Value3368.class).readValue(test);
         assertEquals("XXX", res.getTimeZone());
         assertEquals("ZZZ", res.getUtcZone());

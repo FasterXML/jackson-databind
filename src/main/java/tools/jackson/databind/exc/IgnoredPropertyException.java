@@ -1,5 +1,6 @@
 package tools.jackson.databind.exc;
 
+import java.io.Serial;
 import java.util.*;
 
 import tools.jackson.core.TokenStreamLocation;
@@ -14,6 +15,7 @@ import tools.jackson.databind.DatabindException;
 public class IgnoredPropertyException
     extends PropertyBindingException
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public IgnoredPropertyException(JsonParser p, String msg, TokenStreamLocation loc,
@@ -43,7 +45,7 @@ public class IgnoredPropertyException
         } else { // also acts as null check:
             ref = fromObjectOrClass.getClass();
         }
-        String msg = String.format("Ignored field \"%s\" (class %s) encountered; mapper configured not to allow this",
+        String msg = "Ignored field \"%s\" (class %s) encountered; mapper configured not to allow this".formatted(
                 propertyName, ref.getName());
         IgnoredPropertyException e = new IgnoredPropertyException(p, msg,
                 p.currentLocation(), ref, propertyName, propertyIds);

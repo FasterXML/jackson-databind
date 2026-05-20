@@ -310,7 +310,8 @@ public class TreeTraversingParserTest
              { "name" : "Tatu",\s
              "magicNumber" : 42,\
              "kids" : [ "Leo", "Lila", "Leia" ]\s
-             }""");
+             }
+             """);
         Person tatu = MAPPER.treeToValue(tree, Person.class);
         assertNotNull(tatu);
         assertEquals(42, tatu.magicNumber);

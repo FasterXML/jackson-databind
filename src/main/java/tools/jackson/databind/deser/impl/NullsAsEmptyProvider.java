@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.impl;
 
+import java.io.Serial;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.util.AccessPattern;
@@ -11,6 +13,7 @@ import tools.jackson.databind.util.AccessPattern;
 public class NullsAsEmptyProvider
     implements NullValueProvider, java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected final ValueDeserializer<?> _deserializer;

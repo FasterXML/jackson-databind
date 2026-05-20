@@ -78,8 +78,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
             return;
         }
         if (!(value instanceof Map<?,?>)) {
-            ctxt.reportBadDefinition(_property.getType(), String.format(
-                    "Value returned by 'any-getter' %s() not java.util.Map but %s",
+            ctxt.reportBadDefinition(_property.getType(), "Value returned by 'any-getter' %s() not java.util.Map but %s".formatted(
                     _accessor.getName(), value.getClass().getName()));
         }
         // 23-Feb-2015, tatu: Nasty, but has to do (for now)
@@ -111,8 +110,8 @@ public class AnyGetterWriter extends BeanPropertyWriter
         }
         if (!(value instanceof Map<?,?>)) {
             ctxt.reportBadDefinition(_property.getType(),
-                    String.format("Value returned by 'any-getter' (%s()) not java.util.Map but %s",
-                    _accessor.getName(), value.getClass().getName()));
+                    "Value returned by 'any-getter' (%s()) not java.util.Map but %s".formatted(
+                            _accessor.getName(), value.getClass().getName()));
         }
         // 19-Oct-2014, tatu: Should we try to support @JsonInclude options here?
         if (_mapSerializer != null) {

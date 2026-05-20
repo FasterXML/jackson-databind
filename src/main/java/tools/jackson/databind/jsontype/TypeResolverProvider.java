@@ -1,5 +1,6 @@
 package tools.jackson.databind.jsontype;
 
+import java.io.Serial;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -26,6 +27,7 @@ import tools.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 public class TypeResolverProvider
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     protected final static StdTypeResolverBuilder NO_RESOLVER = StdTypeResolverBuilder.noTypeInfoBuilder();

@@ -241,7 +241,8 @@ public class UnknownPropertyDeserTest extends DatabindTestUtil
                  { "a":[ 1],
                  "b":2,
                  "c": "x",
-                 "d":false }""", IgnoreMap.class);
+                 "d":false }
+                 """, IgnoreMap.class);
         assertEquals(2, result.size());
         Object ob = result.get("b");
         assertEquals(Integer.class, ob.getClass());

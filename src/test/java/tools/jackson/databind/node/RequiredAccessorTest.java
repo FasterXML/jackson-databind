@@ -21,7 +21,8 @@ public class RequiredAccessorTest
  """
 { 'data' : { 'primary' : 15, 'vector' : [ 'yes', false ], 'nullable' : null  },
   'array' : [ true,   {"messsage":'hello', 'value' : 42, 'misc' : [1, 2] }, null, 0.25 ]
-}"""
+}
+"""
         ));
         TEST_ARRAY = MAPPER.readTree(a2q(
  "[ true, { 'data' : { 'primary' : 15, 'vector' : [ 'yes', false ]  } }, 0.25, 'last' ]"

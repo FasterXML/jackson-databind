@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -13,6 +14,7 @@ import tools.jackson.databind.SerializationContext;
 public class BinaryNode
     extends ValueNode
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     final static BinaryNode EMPTY_BINARY_NODE = new BinaryNode(new byte[0]);

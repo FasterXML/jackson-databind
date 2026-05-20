@@ -125,9 +125,8 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
         //   however, control flow is gnarly here, so for now just throw
         char ch = Character.isISOControl(c) ? '?' : c;
         throw ctxt.weirdStringException(uuidStr, handledType(),
-                String.format(
-                "Non-hex character '%c' (value 0x%s), not valid for UUID String",
-                ch, Integer.toHexString(c)));
+                "Non-hex character '%c' (value 0x%s), not valid for UUID String".formatted(
+                        ch, Integer.toHexString(c)));
     }
 
     private UUID _fromBytes(byte[] bytes, DeserializationContext ctxt) {

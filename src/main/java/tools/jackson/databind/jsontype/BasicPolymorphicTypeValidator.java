@@ -1,5 +1,6 @@
 package tools.jackson.databind.jsontype;
 
+import java.io.Serial;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -36,6 +37,7 @@ public class BasicPolymorphicTypeValidator
     extends PolymorphicTypeValidator.Base
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /*

@@ -410,9 +410,8 @@ public class StdTypeResolverBuilder
             JavaType baseType, PolymorphicTypeValidator ptv)
     {
         return ctxt.reportBadDefinition(baseType, String.format(
-"Configured `PolymorphicTypeValidator` (of type %s) denied resolution of all subtypes of base type %s",
-                        ClassUtil.classNameOf(ptv), ClassUtil.classNameOf(baseType.getRawClass()))
-                );
+                "Configured `PolymorphicTypeValidator` (of type %s) denied resolution of all subtypes of base type %s",
+                ClassUtil.classNameOf(ptv), ClassUtil.classNameOf(baseType.getRawClass())));
     }
 
     /*

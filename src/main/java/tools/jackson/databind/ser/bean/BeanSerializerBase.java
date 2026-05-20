@@ -314,10 +314,10 @@ public abstract class BeanSerializerBase
                     TypeSerializer typeSer = (TypeSerializer) type.getContentType().getTypeHandler();
                     if (typeSer != null) {
                         // for now, can do this only for standard containers...
-                        if (ser instanceof StdContainerSerializer<?>) {
+                        if (ser instanceof StdContainerSerializer<?> serializer) {
                             // ugly casts... but necessary
                             @SuppressWarnings("unchecked")
-                            ValueSerializer<Object> ser2 = (ValueSerializer<Object>)((StdContainerSerializer<?>) ser).withValueTypeSerializer(typeSer);
+                            ValueSerializer<Object> ser2 = (ValueSerializer<Object>)serializer.withValueTypeSerializer(typeSer);
                             ser = ser2;
                         }
                     }

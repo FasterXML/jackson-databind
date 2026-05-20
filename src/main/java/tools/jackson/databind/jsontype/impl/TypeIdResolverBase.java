@@ -1,5 +1,7 @@
 package tools.jackson.databind.jsontype.impl;
 
+import java.io.Serial;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.JavaType;
@@ -23,6 +25,7 @@ public abstract class TypeIdResolverBase
     implements TypeIdResolver,
         java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**

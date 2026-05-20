@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
@@ -23,6 +24,7 @@ public class ObjectNode
     implements ObjectTreeNode, // since 3.0
         java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     // Note: LinkedHashMap for backwards compatibility

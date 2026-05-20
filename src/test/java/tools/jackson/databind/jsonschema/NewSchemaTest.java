@@ -315,8 +315,7 @@ public class NewSchemaTest extends DatabindTestUtil
                     public void optionalProperty(BeanProperty prop) {
                         sb.append("[optProp ").append(prop.getName()).append("(");
                         ValueSerializer<Object> ser = null;
-                        if (prop instanceof BeanPropertyWriter) {
-                            BeanPropertyWriter bpw = (BeanPropertyWriter) prop;
+                        if (prop instanceof BeanPropertyWriter bpw) {
                             ser = bpw.getSerializer();
                         }
                         final SerializationContext prov = getContext();

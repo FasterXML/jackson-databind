@@ -590,8 +590,7 @@ public class POJOPropertyBuilder
         // Otherwise
         String desc = conflicts.stream().map(AnnotatedMethod::getFullName)
                 .collect(Collectors.joining(" vs "));
-        throw new IllegalArgumentException(String.format(
-                "Conflicting setter definitions for property \"%s\": %s",
+        throw new IllegalArgumentException("Conflicting setter definitions for property \"%s\": %s".formatted(
                 getName(), desc));
     }
 
@@ -1677,7 +1676,7 @@ public class POJOPropertyBuilder
 
         @Override
         public String toString() {
-            String msg = String.format("%s[visible=%b,ignore=%b,explicitName=%b]",
+            String msg = "%s[visible=%b,ignore=%b,explicitName=%b]".formatted(
                     value.toString(), isVisible, isMarkedIgnored, isNameExplicit);
             if (next != null) {
                 msg = msg + ", "+next.toString();

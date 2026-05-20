@@ -94,13 +94,13 @@ public class MonthDeserializerTest extends DateTimeTestBase
     static void assertError(Executable codeToRun, Class<? extends Throwable> expectedException, String expectedMessage) {
         try {
             codeToRun.execute();
-            fail(String.format("Expecting %s, but nothing was thrown!", expectedException.getName()));
+            fail("Expecting %s, but nothing was thrown!".formatted(expectedException.getName()));
         } catch (Throwable actualException) {
             if (!expectedException.isInstance(actualException)) {
-                fail(String.format("Expecting exception of type %s, but %s was thrown instead", expectedException.getName(), actualException.getClass().getName()));
+                fail("Expecting exception of type %s, but %s was thrown instead".formatted(expectedException.getName(), actualException.getClass().getName()));
             }
             if (actualException.getMessage() == null || !actualException.getMessage().contains(expectedMessage)) {
-                fail(String.format("Expecting exception with message containing: '%s', but the actual error message was:'%s'", expectedMessage, actualException.getMessage()));
+                fail("Expecting exception with message containing: '%s', but the actual error message was:'%s'".formatted(expectedMessage, actualException.getMessage()));
             }
         }
     }

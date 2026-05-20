@@ -1,5 +1,7 @@
 package tools.jackson.databind.jsontype;
 
+import java.io.Serial;
+
 import tools.jackson.databind.*;
 
 /**
@@ -47,6 +49,7 @@ import tools.jackson.databind.*;
 public abstract class PolymorphicTypeValidator
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**
@@ -147,6 +150,7 @@ public abstract class PolymorphicTypeValidator
         extends PolymorphicTypeValidator
         implements java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         @Override

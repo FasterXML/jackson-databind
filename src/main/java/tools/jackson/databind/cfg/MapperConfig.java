@@ -1,5 +1,6 @@
 package tools.jackson.databind.cfg;
 
+import java.io.Serial;
 import java.text.DateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -37,6 +38,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     implements MixInResolver,
         java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L; // since 3.0
 
     protected final static JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();

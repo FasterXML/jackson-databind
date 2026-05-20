@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -25,6 +26,7 @@ public class JsonNodeFactory
     implements java.io.Serializable,
         JsonNodeCreator
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

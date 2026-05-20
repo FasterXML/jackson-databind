@@ -1,6 +1,7 @@
 package tools.jackson.databind;
 
 import java.io.Closeable;
+import java.io.Serial;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.JacksonIOException;
@@ -19,6 +20,7 @@ import tools.jackson.core.exc.JacksonIOException;
 public class DatabindException
     extends JacksonException
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /*

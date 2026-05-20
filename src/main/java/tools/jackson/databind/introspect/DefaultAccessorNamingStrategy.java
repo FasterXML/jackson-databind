@@ -1,5 +1,6 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -254,6 +255,7 @@ public class DefaultAccessorNamingStrategy
         extends AccessorNamingStrategy.Provider
         implements java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         private static final BaseNameValidator DEFAULT_BASE_NAME_VALIDATOR
@@ -465,6 +467,7 @@ public class DefaultAccessorNamingStrategy
     public static class FirstCharBasedValidator
         implements BaseNameValidator, java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 3L;
 
         private final boolean _allowLowerCaseFirstChar;

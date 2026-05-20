@@ -54,11 +54,12 @@ public class JsonPropertyRename5398Test extends DatabindTestUtil
         // Should serialize with renamed property
         assertEquals("{\"renamedProp\":\"someValue\"}", json);
 
-        // Should be able to deserialize back (setter is ignored, so field remains default)
+        // @JsonIgnore on the setter prevents write access to the backing field
+        // ([databind#5967] fix: inferred non-visible field mutator stripped when setter is @JsonIgnore).
+        // Deserialization of "renamedProp" is blocked; field stays at its default (null).
         TestRename5398 result = MAPPER.readValue(json, TestRename5398.class);
         assertNotNull(result);
-        // The setter is ignored but the property is still considered read-write
-		assertEquals("someValue", result.getProp());
+        assertNull(result.getProp());
     }
 
     @Test
@@ -69,13 +70,13 @@ public class JsonPropertyRename5398Test extends DatabindTestUtil
 
         String json = MAPPER.writeValueAsString(original);
 
-        // Should serialize with renamed property
+        // Should serialize under the implicit property name
         assertEquals("{\"prop\":\"someValue\"}", json);
 
-        // Should be able to deserialize back (setter is ignored, so field remains default)
+        // @JsonIgnore on the setter prevents write access to the backing field.
+        // Field stays at its default (null) after deserialization.
         TestStd5398 result = MAPPER.readValue(json, TestStd5398.class);
         assertNotNull(result);
-		// The setter is ignored but the property is still considered read-write
-		assertEquals("someValue", result.getProp());
+        assertNull(result.getProp());
     }
 }

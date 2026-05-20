@@ -1,5 +1,6 @@
 package tools.jackson.databind.jsontype.impl;
 
+import java.io.Serial;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,6 +21,7 @@ import tools.jackson.databind.jsontype.NamedType;
 public class TypeNameIdResolver extends TypeIdResolverBase
     implements java.io.Serializable // @since 2.16.2
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**

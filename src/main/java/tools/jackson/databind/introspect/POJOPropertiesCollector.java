@@ -1606,6 +1606,27 @@ ctor.creator()));
     }
 
     /**
+     * Returns {@code true} if the (already-collected) properties-based creator
+     * has a parameter currently bound to the given name. Used by
+     * {@link POJOPropertyBuilder#removeNonVisible} to skip {@code READ_ONLY}
+     * explicit-name ignorals that would shadow a sibling creator parameter
+     * ({@code [databind#5975]}).
+     *
+     * @since 3.2
+     */
+    public boolean hasCreatorBoundProperty(String name) {
+        if (_creatorProperties == null) {
+            return false;
+        }
+        for (POJOPropertyBuilder p : _creatorProperties) {
+            if (p != null && name.equals(p.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Helper method called to collect class-level property ignorals: stores the
      * full {@link com.fasterxml.jackson.annotation.JsonIgnoreProperties.Value}
      * (annotation + config overrides) in {@link #_propertyIgnorals} for reuse by
@@ -1668,6 +1689,11 @@ ctor.creator()));
                 if (isRecordType() || !prop.anyExplicitsWithoutIgnoral()) {
                     continue;
                 }
+                // [databind#5967]: Strip inferred non-visible field mutators to preserve @JsonIgnore
+                // semantics. The ignored name was collected because couldDeserialize()==false,
+                // meaning any retained fields are non-visible (kept only by INFER_PROPERTY_MUTATORS).
+                // Removing them ensures the renamed property remains read-only (serialization only).
+                prop.removeFields();
             }
 
             Collection<PropertyName> l = prop.findExplicitNames();
@@ -1783,6 +1809,11 @@ ctor.creator()));
             }
             final String simpleName;
             if ((rename != null) && !fullName.hasSimpleName(rename)) {
+                // [databind#5974]: preserve @JsonIgnore semantics through naming-strategy
+                // rename so the renamed key is also recognized as ignored.
+                if (_isIgnored(fullName.getSimpleName())) {
+                    _collectIgnorals(rename);
+                }
                 prop = prop.withSimpleName(rename);
                 simpleName = rename;
             } else {
@@ -2084,7 +2115,7 @@ ctor.creator()));
 
     protected void reportProblem(String msg, Object... args) {
         if (args.length > 0) {
-            msg = String.format(msg, args);
+            msg = msg.formatted(args);
         }
         throw new IllegalArgumentException("Problem with definition of "+_classDef+": "+msg);
     }
@@ -2120,8 +2151,8 @@ ctor.creator()));
         if (namingDef == null) {
             return _config.getPropertyNamingStrategy();
         }
-        if (namingDef instanceof PropertyNamingStrategy) {
-            return (PropertyNamingStrategy) namingDef;
+        if (namingDef instanceof PropertyNamingStrategy strategy) {
+            return strategy;
         }
         // Alas, there's no way to force return type of "either class
         // X or Y" -- need to throw an exception after the fact

@@ -1,5 +1,6 @@
 package tools.jackson.databind.ser;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -37,6 +38,7 @@ public final class SerializerCache
     implements Snapshottable<SerializerCache>,
         java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**
@@ -116,6 +118,7 @@ public final class SerializerCache
 
     // Since 3.0, needed to initialize cache properly: shared map would be ok but need to
     // reconstruct AtomicReference
+    @Serial
     protected Object readResolve() {
         return new SerializerCache(_sharedMap);
     }

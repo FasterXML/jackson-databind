@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
@@ -18,6 +19,7 @@ import tools.jackson.databind.util.ClassUtil;
 public class POJONode
     extends ValueNode
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     protected final Object _value;
@@ -596,8 +598,8 @@ public class POJONode
     {
         if (_value == null) {
             ctxt.defaultSerializeNullValue(gen);
-        } else if (_value instanceof JacksonSerializable) {
-            ((JacksonSerializable) _value).serialize(gen, ctxt);
+        } else if (_value instanceof JacksonSerializable serializable) {
+            serializable.serialize(gen, ctxt);
         } else {
             // 25-May-2018, tatu: [databind#1991] do not call via generator but through context;
             //    this to preserve contextual information

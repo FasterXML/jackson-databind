@@ -330,10 +330,15 @@ public class BeanDeserializer
             ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter, false)
             : creator.startBuilding(p, ctxt, _objectIdReader, false);
 
-        // Step 1: Pre-populate buffer from existing Record values
+        // Step 1: Pre-populate buffer from existing Record values, including
+        // components marked ignorable so their original values are retained
+        // (JSON cannot overwrite them; see Step 2).
         final Class<?> recordClass = _beanType.getRawClass();
         final RecordComponent[] components = recordClass.getRecordComponents();
-        for (SettableBeanProperty creatorProp : creator.properties()) {
+        for (SettableBeanProperty creatorProp : creator.allPropertiesInOrder()) {
+            if (creatorProp == null) {
+                continue;
+            }
             final int creatorIndex = creatorProp.getCreatorIndex();
             if (creatorIndex >= 0 && creatorIndex < components.length) {
                 try {
@@ -361,10 +366,23 @@ public class BeanDeserializer
             return _buildRecordFromBuffer(ctxt, creator, buffer);
         }
 
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
+
         do {
             p.nextToken(); // to point to value
             final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
+                // [databind#5966] Honor @JsonView visibility, injection-only on creator parameters
+                if (((activeView != null) && !creatorProp.visibleInView(activeView))
+                        || creatorProp.isInjectionOnly()) {
+                    p.skipChildren();
+                    continue;
+                }
+                // [databind#5966] Honor @JsonIgnoreProperties on creator parameters
+                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                    handleIgnoredProperty(p, ctxt, handledType(), propName);
+                    continue;
+                }
                 // Override the pre-populated value
                 buffer.assignParameter(creatorProp,
                         _deserializeWithErrorWrapping(p, ctxt, creatorProp));
@@ -775,6 +793,13 @@ public class BeanDeserializer
             int ix = _propNameMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
+                // [databind#5969]: must honor active view here too -- otherwise
+                // setterless/merging collection properties hidden by view can be
+                // populated via the buffering path below.
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // [databind#3724]: Special handling because Records' ignored creator props
                 // weren't removed (to help in creating constructor-backed PropertyCreator)
                 // so they ended up in _beanProperties, unlike POJO (whose ignored
@@ -1516,6 +1541,8 @@ public class BeanDeserializer
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, false);
+        // [databind#5958]: capture active view so type-ID properties respect @JsonView restrictions
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
         for (JsonToken t = p.currentToken(); t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
@@ -1550,6 +1577,12 @@ public class BeanDeserializer
             int ix = _propNameMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
+                // [databind#5958]: check view before storing external type ID so that a
+                // view-restricted type discriminator is not processed in other views.
+                if (activeView != null && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // [databind#3045]: may have property AND be used as external type id:
                 // [databind#1329]: if so, and visible=false, skip buffering
                 if (t.isScalarValue()

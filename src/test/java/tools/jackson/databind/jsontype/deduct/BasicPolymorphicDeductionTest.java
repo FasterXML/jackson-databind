@@ -23,7 +23,7 @@ import static com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.DEDUCTION;
 
 // for [databind#43], deduction-based polymorphism
-public class TestPolymorphicDeduction extends DatabindTestUtil {
+public class BasicPolymorphicDeductionTest extends DatabindTestUtil {
 
   @JsonTypeInfo(use = DEDUCTION)
   @JsonSubTypes( {@Type(LiveCat.class), @Type(DeadCat.class), @Type(Fleabag.class)})
@@ -331,7 +331,7 @@ public class TestPolymorphicDeduction extends DatabindTestUtil {
     @ParameterizedTest
     @ValueSource(strings = {"y", "Y", "yy", "ff", "X"})
     public void testAliasWithPolymorphicDeduction4327(String field) throws Exception {
-        String json = a2q(String.format("{'%s': 2 }", field));
+        String json = a2q("{'%s': 2 }".formatted(field));
         Deduction4327 value = MAPPER.readValue(json, Deduction4327.class);
         assertNotNull(value);
         assertEquals(2, ((DeductionBean4327_2) value).y);

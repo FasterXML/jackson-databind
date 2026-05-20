@@ -1,5 +1,6 @@
 package tools.jackson.databind.module;
 
+import java.io.Serial;
 import java.util.HashMap;
 
 import tools.jackson.databind.BeanDescription;
@@ -12,6 +13,7 @@ public class SimpleValueInstantiators
     extends ValueInstantiators.Base
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**

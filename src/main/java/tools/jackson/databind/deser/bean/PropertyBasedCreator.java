@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser.bean;
 
+import java.io.Serial;
 import java.util.*;
 
 import tools.jackson.core.JacksonException;
@@ -50,8 +51,6 @@ public final class PropertyBasedCreator
     /**
      * Indexes of properties with associated Injectable values, if any:
      * {@code null} if none.
-     *
-     * @since 2.21
      */
     protected final BitSet _injectablePropIndexes;
 
@@ -248,6 +247,18 @@ public final class PropertyBasedCreator
         return _propertyLookup.values();
     }
 
+    /**
+     * Returns all creator properties in creator-index order, including ones
+     * marked ignorable (which {@link #properties()} excludes).
+     *<p>
+     * Returned array is shared internal state; callers must not mutate it.
+     *
+     * @since 3.2
+     */
+    public SettableBeanProperty[] allPropertiesInOrder() {
+        return _propertiesInOrder;
+    }
+
     public SettableBeanProperty findCreatorProperty(String name) {
         return _propertyLookup.get(name);
     }
@@ -359,6 +370,7 @@ public final class PropertyBasedCreator
     static class CaseInsensitiveMap extends HashMap<String, SettableBeanProperty>
     {
         // doesn't really need to be Serializable with 3.x but... whatever
+        @Serial
         private static final long serialVersionUID = 3L;
 
         /**

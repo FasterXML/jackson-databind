@@ -1,5 +1,7 @@
 package tools.jackson.databind.cfg;
 
+import java.io.Serial;
+
 import tools.jackson.core.TokenStreamFactory;
 
 import tools.jackson.databind.ObjectMapper;
@@ -24,6 +26,7 @@ import tools.jackson.databind.ser.SerializerFactory;
 public abstract class SerializationContexts
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /*
@@ -130,6 +133,7 @@ public abstract class SerializationContexts
 
     public static class DefaultImpl extends SerializationContexts
     {
+        @Serial
         private static final long serialVersionUID = 3L;
 
         public DefaultImpl() { super(null, null, null); }

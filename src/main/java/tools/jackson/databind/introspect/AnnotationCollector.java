@@ -1,5 +1,6 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -178,6 +179,7 @@ public abstract class AnnotationCollector
     public static class NoAnnotations
         implements Annotations, java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         NoAnnotations() { }
@@ -211,6 +213,7 @@ public abstract class AnnotationCollector
     public static class OneAnnotation
         implements Annotations, java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         private final Class<?> _type;
@@ -259,6 +262,7 @@ public abstract class AnnotationCollector
     public static class TwoAnnotations
         implements Annotations, java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         private final Class<?> _type1, _type2;

@@ -1,5 +1,6 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.MalformedParametersException;
 import java.lang.reflect.Parameter;
@@ -32,6 +33,7 @@ public class JacksonAnnotationIntrospector
     extends AnnotationIntrospector
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("unchecked")
@@ -113,6 +115,7 @@ public class JacksonAnnotationIntrospector
         return tools.jackson.databind.cfg.PackageVersion.VERSION;
     }
 
+    @Serial
     protected Object readResolve() {
         if (_annotationsInside == null) {
             _annotationsInside = new SimpleLookupCache<>(48, 96);
@@ -950,12 +953,12 @@ public class JacksonAnnotationIntrospector
                         type = type.withStaticTyping();
                     } else {
                         throw _databindException(
-                                String.format("Cannot refine serialization type %s into %s; types not related",
+                                "Cannot refine serialization type %s into %s; types not related".formatted(
                                         type, serClass.getName()));
                     }
                 } catch (IllegalArgumentException iae) {
                     throw _databindException(iae,
-                            String.format("Failed to widen type %s with annotation (value %s), from '%s': %s",
+                            "Failed to widen type %s with annotation (value %s), from '%s': %s".formatted(
                                     type, serClass.getName(), a.getName(), iae.getMessage()));
                 }
             }
@@ -988,12 +991,12 @@ public class JacksonAnnotationIntrospector
                             keyType = keyType.withStaticTyping();
                         } else {
                             throw _databindException(
-                                    String.format("Cannot refine serialization key type %s into %s; types not related",
+                                    "Cannot refine serialization key type %s into %s; types not related".formatted(
                                             keyType, keyClass.getName()));
                         }
                     } catch (IllegalArgumentException iae) {
                         throw _databindException(iae,
-                                String.format("Failed to widen key type of %s with concrete-type annotation (value %s), from '%s': %s",
+                                "Failed to widen key type of %s with concrete-type annotation (value %s), from '%s': %s".formatted(
                                         type, keyClass.getName(), a.getName(), iae.getMessage()));
                     }
                 }
@@ -1027,13 +1030,13 @@ public class JacksonAnnotationIntrospector
                            contentType = contentType.withStaticTyping();
                        } else {
                            throw _databindException(
-                                   String.format("Cannot refine serialization content type %s into %s; types not related",
+                                   "Cannot refine serialization content type %s into %s; types not related".formatted(
                                            contentType, contentClass.getName()));
                        }
                    } catch (IllegalArgumentException iae) { // shouldn't really happen
-                       throw _databindException(iae,
-                               String.format("Internal error: failed to refine value type of %s with concrete-type annotation (value %s), from '%s': %s",
-                                       type, contentClass.getName(), a.getName(), iae.getMessage()));
+                       throw _databindException(iae, String.format(
+                               "Internal error: failed to refine value type of %s with concrete-type annotation (value %s), from '%s': %s",
+                               type, contentClass.getName(), a.getName(), iae.getMessage()));
                    }
                }
                type = type.withContentType(contentType);
@@ -1317,7 +1320,7 @@ public class JacksonAnnotationIntrospector
                 type = tf.constructSpecializedType(type, valueClass);
             } catch (IllegalArgumentException iae) {
                 throw _databindException(iae,
-                        String.format("Failed to narrow type %s with annotation (value %s), from '%s': %s",
+                        "Failed to narrow type %s with annotation (value %s), from '%s': %s".formatted(
                                 type, valueClass.getName(), a.getName(), iae.getMessage()));
             }
         }
@@ -1338,7 +1341,7 @@ public class JacksonAnnotationIntrospector
                     type = ((MapLikeType) type).withKeyType(keyType);
                 } catch (IllegalArgumentException iae) {
                     throw _databindException(iae,
-                            String.format("Failed to narrow key type of %s with concrete-type annotation (value %s), from '%s': %s",
+                            "Failed to narrow key type of %s with concrete-type annotation (value %s), from '%s': %s".formatted(
                                     type, keyClass.getName(), a.getName(), iae.getMessage()));
                 }
             }
@@ -1358,7 +1361,7 @@ public class JacksonAnnotationIntrospector
                     type = type.withContentType(contentType);
                 } catch (IllegalArgumentException iae) {
                     throw _databindException(iae,
-                            String.format("Failed to narrow value type of %s with concrete-type annotation (value %s), from '%s': %s",
+                            "Failed to narrow value type of %s with concrete-type annotation (value %s), from '%s': %s".formatted(
                                     type, contentClass.getName(), a.getName(), iae.getMessage()));
                 }
             }

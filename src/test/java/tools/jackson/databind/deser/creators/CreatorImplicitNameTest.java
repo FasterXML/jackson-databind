@@ -29,7 +29,7 @@ public class CreatorImplicitNameTest
         @Override
         public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember member) {
             if (member instanceof AnnotatedParameter ap) {
-                return String.format("ctor%d", ap.getIndex());
+                return "ctor%d".formatted(ap.getIndex());
             }
             return super.findImplicitPropertyName(config, member);
         }
@@ -73,7 +73,7 @@ public class CreatorImplicitNameTest
         public String getPassword() { return password; }
 
         public String asString() {
-            return String.format("[password='%s',value=%d]", password, value);
+            return "[password='%s',value=%d]".formatted(password, value);
         }
     }
 

@@ -201,48 +201,48 @@ public class ObjectId825Test extends DatabindTestUtil
                         DefaultTyping.OBJECT_AND_NON_CONCRETE)
                 .build();
 
-        String INPUT = a2q(
-"{\n"+
-"    '@class': '_PKG_CTC',\n"+
-"     'var': [{\n"+
-"      'ch': {\n"+
-"        '@class': '_PKG_Ch',\n"+
-"         'act': [{\n"+
-"            '@class': '_PKG_CTD',\n"+
-"            'oidString': 'oid1',\n"+
-"            'dec': [{\n"+
-"              '@class': '_PKG_Dec',\n"+
-"                'oidString': 'oid2',\n"+
-"                'outTr': [{\n"+
-"                  '@class': '_PKG_Tr',\n"+
-"                  'target': {\n"+
-"                    '@class': '_PKG_Ti',\n"+
-"                    'oidString': 'oid3',\n"+
-"                    'timer': 'problemoid',\n"+
-"                    'outTr': [{\n"+
-"                      '@class': '_PKG_Tr',\n"+
-"                      'target': {\n"+
-"                        '@class': '_PKG_Ti',\n"+
-"                        'oidString': 'oid4',\n"+
-"                        'timer': {\n"+
-"                          '@class': '_PKG_V',\n"+
-"                          'oidString': 'problemoid'\n"+
-"                        }\n"+
-"                      }\n"+
-"                    }]\n"+
-"                  }\n"+
-"                }]\n"+
-"              }]\n"+
-"         }],\n"+
-"         'oidString': 'oid5'\n"+
-"      },\n"+
-"       '@class': '_PKG_CTV',\n"+
-"       'oidString': 'oid6',\n"+
-"       'locV': ['problemoid']\n"+
-"    }],\n"+
-"     'oidString': 'oid7'\n"+
-"}\n"
-                );
+        String INPUT = """
+                {
+                    "@class": "_PKG_CTC",
+                     "var": [{
+                      "ch": {
+                        "@class": "_PKG_Ch",
+                         "act": [{
+                            "@class": "_PKG_CTD",
+                            "oidString": "oid1",
+                            "dec": [{
+                              "@class": "_PKG_Dec",
+                                "oidString": "oid2",
+                                "outTr": [{
+                                  "@class": "_PKG_Tr",
+                                  "target": {
+                                    "@class": "_PKG_Ti",
+                                    "oidString": "oid3",
+                                    "timer": "problemoid",
+                                    "outTr": [{
+                                      "@class": "_PKG_Tr",
+                                      "target": {
+                                        "@class": "_PKG_Ti",
+                                        "oidString": "oid4",
+                                        "timer": {
+                                          "@class": "_PKG_V",
+                                          "oidString": "problemoid"
+                                        }
+                                      }
+                                    }]
+                                  }
+                                }]
+                              }]
+                         }],
+                         "oidString": "oid5"
+                      },
+                       "@class": "_PKG_CTV",
+                       "oidString": "oid6",
+                       "locV": ["problemoid"]
+                    }],
+                     "oidString": "oid7"
+                }
+                """;
 
         // Replace package placeholder with actual inner-class package
         final String newPkg = getClass().getName() + "\\$";

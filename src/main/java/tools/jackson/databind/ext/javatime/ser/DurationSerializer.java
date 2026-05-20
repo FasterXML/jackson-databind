@@ -102,8 +102,7 @@ public class DurationSerializer extends JSR310FormattedSerializerBase<Duration>
             DurationUnitConverter conv = DurationUnitConverter.from(pattern);
             if (conv == null) {
                 ctxt.reportBadDefinition(handledType(),
-                        String.format(
-                                "Bad 'pattern' definition (\"%s\") for `Duration`: expected one of [%s]",
+                        "Bad 'pattern' definition (\"%s\") for `Duration`: expected one of [%s]".formatted(
                                 pattern, DurationUnitConverter.descForAllowed()));
             }
             ser = ser.withConverter(conv);

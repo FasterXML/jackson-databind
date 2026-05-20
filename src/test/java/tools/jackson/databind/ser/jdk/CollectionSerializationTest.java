@@ -396,7 +396,7 @@ public class CollectionSerializationTest
                         DefaultTyping.NON_FINAL)
                 .build();
         json = mapper.writeValueAsString(w);
-        assertEquals(a2q(String.format("['%s',{'list':['%s',['a','b','c']]}]",
+        assertEquals(a2q("['%s',{'list':['%s',['a','b','c']]}]".formatted(
                 w.getClass().getName(), w.list.getClass().getName())), json);
     }
 

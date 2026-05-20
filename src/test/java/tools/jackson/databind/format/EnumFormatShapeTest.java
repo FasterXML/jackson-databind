@@ -151,7 +151,7 @@ public class EnumFormatShapeTest
 
     @Test
     public void testEnumPropertyAsNumber() throws Exception {
-        assertEquals(String.format(a2q("{'color':%s}"), Color.GREEN.ordinal()),
+        assertEquals(a2q("{'color':%s}").formatted(Color.GREEN.ordinal()),
                 MAPPER.writeValueAsString(new ColorWrapper(Color.GREEN)));
     }
 

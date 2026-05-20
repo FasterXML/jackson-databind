@@ -669,8 +669,8 @@ public abstract class BeanDeserializerBase
             JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
             if (delegateType == null) {
                 ctxt.reportBadDefinition(_beanType, String.format(
-"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
-ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiator)));
+                        "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
+                        ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiator)));
             }
             _delegateDeserializer = _findDelegateDeserializer(ctxt, delegateType,
                     _valueInstantiator.getDelegateCreator());
@@ -681,8 +681,8 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
             JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
             if (delegateType == null) {
                 ctxt.reportBadDefinition(_beanType, String.format(
-"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
-ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiator)));
+                        "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
+                        ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiator)));
             }
             _arrayDelegateDeserializer = _findDelegateDeserializer(ctxt, delegateType,
                     _valueInstantiator.getArrayDelegateCreator());
@@ -997,8 +997,8 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
                     idProp = findProperty(propName);
                     if (idProp == null) {
                         return ctxt.reportBadDefinition(_beanType, String.format(
-"Invalid Object Id definition for %s: cannot find property with name %s",
-ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
+                                "Invalid Object Id definition for %s: cannot find property with name %s",
+                                ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
                     }
                     idType = idProp.getType();
                     idGen = new PropertyBasedObjectIdGenerator(objectIdInfo.getScope());
@@ -1034,7 +1034,10 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
             // 16-May-2016, tatu: How about per-property case-insensitivity?
             Boolean B = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
             if (B != null) {
-                BeanPropertyMap propsOrig = _beanProperties;
+                // [databind#5962]: must rebuild from the (possibly filtered) contextual
+                // BeanPropertyMap so that per-property @JsonIgnoreProperties exclusions
+                // applied by _handleByNameInclusion() above are preserved.
+                BeanPropertyMap propsOrig = contextual._beanProperties;
                 BeanPropertyMap props = propsOrig.withCaseInsensitivity(B.booleanValue());
                 if (props != propsOrig) {
                     contextual = contextual.withBeanProperties(props);
@@ -1166,9 +1169,8 @@ Working alternatives:
 ClassUtil.name(refName), ClassUtil.getTypeDescription(propType),
 ClassUtil.getTypeDescription(ct));
             } else {
-                msg = String.format(
-"Cannot handle managed/back reference %s: no back reference property found from type %s",
-ClassUtil.name(refName), ClassUtil.getTypeDescription(propType));
+                msg = "Cannot handle managed/back reference %s: no back reference property found from type %s".formatted(
+                        ClassUtil.name(refName), ClassUtil.getTypeDescription(propType));
             }
             return ctxt.reportBadDefinition(_beanType, msg);
         }
@@ -1178,8 +1180,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(propType));
         boolean isContainer = prop.getType().isContainerType();
         if (!backRefType.getRawClass().isAssignableFrom(referredType.getRawClass())) {
             ctxt.reportBadDefinition(_beanType, String.format(
-"Cannot handle managed/back reference %s: back reference type (%s) not compatible with managed type (%s)",
-ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
+                    "Cannot handle managed/back reference %s: back reference type (%s) not compatible with managed type (%s)",
+                    ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
                     referredType.getRawClass().getName()));
         }
         return new ManagedReferenceProperty(prop, refName, backProp, isContainer);
@@ -1435,8 +1437,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             return true;
         }
         for (SettableBeanProperty prop : _beanProperties) {
-            if (prop instanceof CreatorProperty) {
-                if (((CreatorProperty) prop).hasFallbackSetter()) {
+            if (prop instanceof CreatorProperty property) {
+                if (property.hasFallbackSetter()) {
                     return true;
                 }
             } else {
@@ -2251,11 +2253,11 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         ClassUtil.throwIfError(t);
         // but note: JacksonExceptions are to be wrapped (except not DatabindException
         // but method called takes care of dealing with those)
-        if ((t instanceof RuntimeException)
+        if ((t instanceof RuntimeException exception)
                 && !(t instanceof JacksonException)) {
             boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
             if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
-                throw (RuntimeException) t;
+                throw exception;
             }
         }
         return t;

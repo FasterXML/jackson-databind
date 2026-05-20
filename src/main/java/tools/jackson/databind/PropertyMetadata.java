@@ -1,5 +1,7 @@
 package tools.jackson.databind;
 
+import java.io.Serial;
+
 import com.fasterxml.jackson.annotation.Nulls;
 
 import tools.jackson.databind.introspect.AnnotatedMember;
@@ -13,6 +15,7 @@ import tools.jackson.databind.introspect.AnnotatedMember;
 public class PropertyMetadata
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = -1;
 
     public final static PropertyMetadata STD_REQUIRED = new PropertyMetadata(Boolean.TRUE,
@@ -142,6 +145,7 @@ public class PropertyMetadata
      * Minor optimization: let's canonicalize back to placeholders in cases
      * where there is no real data to consider
      */
+    @Serial
     protected Object readResolve()
     {
         if ((_description == null) && (_index == null) && (_defaultValue == null)

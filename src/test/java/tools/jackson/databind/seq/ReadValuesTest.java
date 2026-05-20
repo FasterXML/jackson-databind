@@ -286,8 +286,9 @@ public class ReadValuesTest extends DatabindTestUtil
     @Test
     public void testNonRootMapsWithObjectReader() throws Exception
     {
-        String JSON = "[{ \"hi\": \"ho\", \"neighbor\": \"Joe\" },\n"
-            +"{\"boy\": \"howdy\", \"huh\": \"what\"}]";
+        String JSON = """
+            [{ "hi": "ho", "neighbor": "Joe" },
+            {"boy": "howdy", "huh": "what"}]""";
         final MappingIterator<Map<String, Object>> iterator = MAPPER
                 .reader()
                 .forType(new TypeReference<Map<String, Object>>(){})

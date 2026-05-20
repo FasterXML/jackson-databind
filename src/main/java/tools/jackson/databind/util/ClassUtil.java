@@ -260,9 +260,8 @@ public final class ClassUtil
             String method)
     {
         if (instance.getClass() != expType) {
-            throw new IllegalStateException(String.format(
-                    "Sub-class %s (of class %s) must override method '%s'",
-                instance.getClass().getName(), expType.getName(), method));
+            throw new IllegalStateException("Sub-class %s (of class %s) must override method '%s'".formatted(
+                    instance.getClass().getName(), expType.getName(), method));
         }
     }
 
@@ -873,8 +872,7 @@ public final class ClassUtil
             if ("InaccessibleObjectException".equals(e.getClass().getSimpleName())) {
                 return;
             }
-            throw new IllegalArgumentException(String.format(
-                    "Failed to call `setAccess()` on %s '%s' (of class %s) due to `%s`, problem: %s",
+            throw new IllegalArgumentException("Failed to call `setAccess()` on %s '%s' (of class %s) due to `%s`, problem: %s".formatted(
                     member.getClass().getSimpleName(), member.getName(),
                     nameOf(member.getDeclaringClass()),
                     e.getClass().getName(), e.getMessage()), e);
@@ -1118,9 +1116,8 @@ public final class ClassUtil
     private static Method[] _failGetClassMethods(Class<?> cls, Throwable rootCause)
             throws IllegalArgumentException
     {
-        throw new IllegalArgumentException(String.format(
-"Failed on call to `getDeclaredMethods()` on class `%s`, problem: (%s) %s",
-cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
+        throw new IllegalArgumentException("Failed on call to `getDeclaredMethods()` on class `%s`, problem: (%s) %s".formatted(
+                cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
                 rootCause);
     }
 
@@ -1242,8 +1239,7 @@ cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
                 return f;
             }
             // If not found, indicate with exception
-            throw new IllegalStateException(String.format(
-"No field named '%s' in class '%s'", expectedName, fromClass.getName()));
+            throw new IllegalStateException("No field named '%s' in class '%s'".formatted(expectedName, fromClass.getName()));
         }
     }
 

@@ -125,9 +125,9 @@ public class YearMonthDeserializer extends JSR310DateTimeDeserializerBase<YearMo
                 return YearMonth.of(year, month);
             } catch (DateTimeException e) {
                 throw DateTimeParseException.from(p,
-                        String.format("Failed to deserialize %s from array value [%d,%d]: %s",
+                        "Failed to deserialize %s from array value [%d,%d]: %s".formatted(
                                 handledType().getName(), year, month, e.getMessage()),
-                        String.format("[%d,%d]", year, month),
+                        "[%d,%d]".formatted(year, month),
                         handledType(), e);
             }
         } else if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {

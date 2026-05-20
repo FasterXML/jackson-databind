@@ -1,5 +1,6 @@
 package tools.jackson.databind.exc;
 
+import java.io.Serial;
 import java.util.*;
 
 import tools.jackson.core.TokenStreamLocation;
@@ -14,6 +15,7 @@ import tools.jackson.databind.DatabindException;
 public class IgnoredPropertyException
     extends PropertyBindingException
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public IgnoredPropertyException(JsonParser p, String msg, TokenStreamLocation loc,

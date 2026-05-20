@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Optional;
@@ -30,12 +31,14 @@ public abstract class BaseJsonNode
     extends JsonNode
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     protected final static Optional<Boolean> OPT_FALSE = Optional.of(false);
     protected final static Optional<Boolean> OPT_TRUE = Optional.of(true);
 
     // Simplest way is by using a helper
+    @Serial
     Object writeReplace() {
         return NodeSerialization.from(this);
     }

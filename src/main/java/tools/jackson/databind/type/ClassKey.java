@@ -1,4 +1,6 @@
 package tools.jackson.databind.type;
+import java.io.Serial;
+
 
 /**
  * Key class, used as an efficient and accurate key
@@ -20,6 +22,7 @@ public final class ClassKey
     implements Comparable<ClassKey>,
         java.io.Serializable // since 2.1
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private String _className;

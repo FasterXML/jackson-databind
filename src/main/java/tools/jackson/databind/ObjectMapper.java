@@ -1,6 +1,7 @@
 package tools.jackson.databind;
 
 import java.io.*;
+import java.io.Serial;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.text.DateFormat;
@@ -94,6 +95,7 @@ public class ObjectMapper
     implements TreeCodec<JsonNode>, Versioned,
         java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /*
@@ -129,6 +131,7 @@ public class ObjectMapper
      // We also need actual instance of state as base class cannot implement logic
      // for reinstating mapper (via mapper builder) from state.
         static class StateImpl extends MapperBuilderState {
+            @Serial
             private static final long serialVersionUID = 3L;
 
             public StateImpl(PrivateBuilder b) {
@@ -136,6 +139,7 @@ public class ObjectMapper
             }
 
             @Override
+            @Serial
             protected Object readResolve() {
                 return new PrivateBuilder(this).build();
             }
@@ -379,11 +383,13 @@ public class ObjectMapper
     // easier, and we go with that.
     // But note that return direction has to be supported, then, by that state object
     // and NOT anything in here.
+    @Serial
     protected Object writeReplace() {
         return _savedBuilderState;
     }
 
     // Just as a sanity check verify there is no attempt at directly instantiating mapper here
+    @Serial
     protected Object readResolve() {
         throw new IllegalStateException("Should never deserialize `"+getClass().getName()+"` directly");
     }

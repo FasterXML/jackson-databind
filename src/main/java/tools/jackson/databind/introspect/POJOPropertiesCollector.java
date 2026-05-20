@@ -2151,8 +2151,8 @@ ctor.creator()));
         if (namingDef == null) {
             return _config.getPropertyNamingStrategy();
         }
-        if (namingDef instanceof PropertyNamingStrategy) {
-            return (PropertyNamingStrategy) namingDef;
+        if (namingDef instanceof PropertyNamingStrategy strategy) {
+            return strategy;
         }
         // Alas, there's no way to force return type of "either class
         // X or Y" -- need to throw an exception after the fact

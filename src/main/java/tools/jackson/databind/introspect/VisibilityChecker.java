@@ -1,5 +1,7 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -12,6 +14,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 public class VisibilityChecker
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1;
 
     /**

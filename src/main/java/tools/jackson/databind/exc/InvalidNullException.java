@@ -1,5 +1,7 @@
 package tools.jackson.databind.exc;
 
+import java.io.Serial;
+
 import tools.jackson.core.JsonParser;
 
 import tools.jackson.databind.DeserializationContext;
@@ -14,6 +16,7 @@ import tools.jackson.databind.util.ClassUtil;
 public class InvalidNullException
     extends MismatchedInputException
 {
+    @Serial
     private static final long serialVersionUID = 1L; // silly Eclipse, warnings
 
     /**

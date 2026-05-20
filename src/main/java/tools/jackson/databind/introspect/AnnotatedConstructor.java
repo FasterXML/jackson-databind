@@ -1,5 +1,6 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -184,6 +185,7 @@ public final class AnnotatedConstructor
     }
 
     class InvokerHolder extends UnreflectHandleSupplier {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         InvokerHolder(MethodType asType) {

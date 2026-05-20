@@ -1,5 +1,6 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.MalformedParametersException;
 import java.lang.reflect.Parameter;
@@ -31,6 +32,7 @@ public class JacksonAnnotationIntrospector
     extends AnnotationIntrospector
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("unchecked")
@@ -110,6 +112,7 @@ public class JacksonAnnotationIntrospector
         return tools.jackson.databind.cfg.PackageVersion.VERSION;
     }
 
+    @Serial
     protected Object readResolve() {
         if (_annotationsInside == null) {
             _annotationsInside = new SimpleLookupCache<>(48, 96);

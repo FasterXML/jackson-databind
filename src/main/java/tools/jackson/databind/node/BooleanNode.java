@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.util.Optional;
 
 import tools.jackson.core.*;
@@ -13,6 +14,7 @@ import tools.jackson.databind.SerializationContext;
 public class BooleanNode
     extends ValueNode
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     // // Just need two instances...
@@ -31,6 +33,7 @@ public class BooleanNode
     protected BooleanNode(boolean v) { _value = v; }
 
     // To support JDK serialization, recovery of Singleton instance
+    @Serial
     protected Object readResolve() {
         return _value ? TRUE : FALSE;
     }

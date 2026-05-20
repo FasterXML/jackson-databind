@@ -1,5 +1,7 @@
 package tools.jackson.databind.type;
 
+import java.io.Serial;
+
 import tools.jackson.databind.JavaType;
 
 /**
@@ -9,6 +11,7 @@ import tools.jackson.databind.JavaType;
  */
 public class ResolvedRecursiveType extends IdentityEqualityType
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected JavaType _referencedType;

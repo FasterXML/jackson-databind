@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
@@ -16,6 +17,7 @@ import tools.jackson.databind.*;
 public class DecimalNode
     extends NumericFPNode
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     public static final DecimalNode ZERO = new DecimalNode(BigDecimal.ZERO);

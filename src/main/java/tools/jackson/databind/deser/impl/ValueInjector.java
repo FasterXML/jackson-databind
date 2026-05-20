@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.impl;
 
+import java.io.Serial;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.AnnotatedMember;
@@ -13,6 +15,7 @@ import tools.jackson.databind.introspect.AnnotatedMember;
 public class ValueInjector
     extends BeanProperty.Std
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

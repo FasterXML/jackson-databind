@@ -1,5 +1,7 @@
 package tools.jackson.databind.exc;
 
+import java.io.Serial;
+
 import tools.jackson.core.JsonParser;
 
 import tools.jackson.databind.BeanProperty;
@@ -12,6 +14,7 @@ import tools.jackson.databind.DatabindException;
 public class MissingInjectableValueExcepion
     extends DatabindException
 {
+    @Serial
     private static final long serialVersionUID = 2L;
 
     protected final Object _valueId;

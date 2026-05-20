@@ -36,7 +36,7 @@ public class EmptyStringAsSingleValueTest
 
         @Override
         public boolean equals(Object obj) {
-            return obj instanceof StringWrapper && ((StringWrapper) obj).s.equals(s);
+            return obj instanceof StringWrapper sw && sw.s.equals(s);
         }
 
         @Override

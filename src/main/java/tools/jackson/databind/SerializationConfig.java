@@ -1,5 +1,6 @@
 package tools.jackson.databind;
 
+import java.io.Serial;
 import java.text.DateFormat;
 
 import tools.jackson.core.*;
@@ -30,6 +31,7 @@ public final class SerializationConfig
     extends MapperConfigBase<SerializationFeature, SerializationConfig>
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /*

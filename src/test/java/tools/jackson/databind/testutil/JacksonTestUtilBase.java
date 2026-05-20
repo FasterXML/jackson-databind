@@ -200,14 +200,11 @@ public class JacksonTestUtilBase
     @SuppressWarnings("unchecked")
     public static <T> T jdkDeserialize(byte[] raw) throws IOException
     {
-        ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(raw));
-        try {
+        try (ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(raw))) {
             return (T) objIn.readObject();
         } catch (ClassNotFoundException e) {
             fail("Missing class: "+e.getMessage());
             return null;
-        } finally {
-            objIn.close();
         }
     }
 }

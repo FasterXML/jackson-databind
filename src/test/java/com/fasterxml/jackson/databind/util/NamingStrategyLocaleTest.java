@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.api.parallel.Resources;
 
+import com.fasterxml.jackson.databind.EnumNamingStrategies;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -64,5 +65,29 @@ public class NamingStrategyLocaleTest extends DatabindTestUtil
         // ...so "ClientID" would wrongly become "client\u0131d" without Locale.ROOT:
         assertEquals("clientid",
                 NamingStrategyImpls.LOWER_CASE.translate("ClientID"));
+    }
+
+    // Enum naming strategies share the same hazard: EnumNamingStrategies.normalizeWord()
+    // lower-cases the tail of each word, which must also use Locale.ROOT. Note the "I" must
+    // be a non-leading letter ("ADMIN"), since a word's first letter is folded with the
+    // locale-independent Character.toUpperCase(char).
+
+    @Test
+    public void testEnumLowerCamelCaseUsesRootLocale() {
+        // Precondition: under the active (Turkish) locale, "I" folds to dotless "\u0131"
+        assertEquals("\u0131", "I".toLowerCase(),
+                "Test requires a default locale where \"I\".toLowerCase() yields U+0131");
+        // ...so "IS_ADMIN" would wrongly become "isAdm\u0131n" without Locale.ROOT:
+        assertEquals("isAdmin",
+                EnumNamingStrategies.LOWER_CAMEL_CASE.convertEnumToExternalName("IS_ADMIN"));
+    }
+
+    @Test
+    public void testEnumUpperCamelCaseUsesRootLocale() {
+        assertEquals("\u0131", "I".toLowerCase(),
+                "Test requires a default locale where \"I\".toLowerCase() yields U+0131");
+        // ...so "IS_ADMIN" would wrongly become "IsAdm\u0131n" without Locale.ROOT:
+        assertEquals("IsAdmin",
+                EnumNamingStrategies.UPPER_CAMEL_CASE.convertEnumToExternalName("IS_ADMIN"));
     }
 }

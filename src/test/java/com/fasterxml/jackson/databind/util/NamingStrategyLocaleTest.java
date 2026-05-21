@@ -1,12 +1,14 @@
-package com.fasterxml.jackson.databind.introspect;
+package com.fasterxml.jackson.databind.util;
 
 import java.util.Locale;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 
-import com.fasterxml.jackson.databind.util.NamingStrategyImpls;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -22,7 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @see <a href="https://github.com/FasterXML/jackson-databind/issues/953">#953</a>
  * @see <a href="https://github.com/FasterXML/jackson-databind/issues/3238">#3238</a>
  */
-public class NamingStrategyLocaleTest
+// Mutates the global default Locale, so must not run concurrently with any
+// other test: acquire JUnit's built-in lock on the shared LOCALE resource.
+@ResourceLock(Resources.LOCALE)
+public class NamingStrategyLocaleTest extends DatabindTestUtil
 {
     private static final Locale TURKISH = Locale.forLanguageTag("tr-TR");
 

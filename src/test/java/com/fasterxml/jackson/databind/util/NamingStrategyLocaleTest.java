@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * {@link NamingStrategyImpls#LOWER_CASE} fold case using {@code Locale.ROOT}
  * rather than the JVM default locale, matching the existing pattern in
  * {@code EnumNamingStrategies}. Under Turkish / Azerbaijani locales the
- * Latin letter {@code i} maps to {@code İ} (U+0130) rather than {@code I}
+ * Latin letter {@code i} maps to {@code \u0130} (U+0130) rather than {@code I}
  * (U+0049), which silently breaks property-name matching for identifiers
  * containing {@code i} or {@code I}.
  *
@@ -46,12 +46,22 @@ public class NamingStrategyLocaleTest extends DatabindTestUtil
 
     @Test
     public void testUpperSnakeCaseUsesRootLocale() {
+        // Precondition: under the active (Turkish) locale, default-locale folding
+        // turns "i" into dotted capital I (U+0130); otherwise this test is vacuous
+        assertEquals("\u0130", "i".toUpperCase(),
+                "Test requires a default locale where \"i\".toUpperCase() yields U+0130");
+        // ...so "isAdmin" would wrongly become "\u0130S_ADM\u0130N" without Locale.ROOT:
         assertEquals("IS_ADMIN",
                 NamingStrategyImpls.UPPER_SNAKE_CASE.translate("isAdmin"));
     }
 
     @Test
     public void testLowerCaseUsesRootLocale() {
+        // Precondition: under the active (Turkish) locale, default-locale folding
+        // turns "I" into dotless lowercase i (U+0131); otherwise this test is vacuous
+        assertEquals("\u0131", "I".toLowerCase(),
+                "Test requires a default locale where \"I\".toLowerCase() yields U+0131");
+        // ...so "ClientID" would wrongly become "client\u0131d" without Locale.ROOT:
         assertEquals("clientid",
                 NamingStrategyImpls.LOWER_CASE.translate("ClientID"));
     }

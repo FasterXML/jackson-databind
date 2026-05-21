@@ -12,13 +12,13 @@ import java.util.function.Function;
 public class JRefResolver {
 
 	private final JRefPath jrefPath;
-	private final JRefSetter settable;
+	private final SetterFunction setter;
 	
-	public JRefResolver(JRefPath jrefPath, JRefSetter settable) {
+	public JRefResolver(JRefPath jrefPath, SetterFunction setter) {
 		Objects.requireNonNull(jrefPath, "jrefPath must not be null");
 		this.jrefPath = jrefPath;
-		Objects.requireNonNull(settable, "settable must must not be null");
-		this.settable = settable;
+		Objects.requireNonNull(setter, "setter function must must not be null");
+		this.setter = setter;
 	}
 	
 	public Object resolve(Object root) throws JRefResolveException {
@@ -28,7 +28,7 @@ public class JRefResolver {
 		// Now that we have the root, we can lookup the object at path
 		Object value = resolvePathToValue(root);
 		try {
-			return this.settable.setInstanceToValue(value);
+			return this.setter.set(value);
 		} catch (Throwable e) {
 			throw new JRefResolveException(this, root, "Exception setting value=" + value, e);
 		}

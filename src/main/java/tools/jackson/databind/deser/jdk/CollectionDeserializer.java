@@ -398,8 +398,11 @@ _containerType,
                         continue;
                     }
                 }
-
-                result.add(value);
+                // XXX JREF handling
+                setWithJRef(ctxt, value, (v) -> {
+                	result.add(v);
+                	return result;
+                });
 
                 /* 17-Dec-2017, tatu: should not occur at this level...
             } catch (UnresolvedForwardReference reference) {

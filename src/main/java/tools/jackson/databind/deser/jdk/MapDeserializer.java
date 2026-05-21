@@ -1,15 +1,36 @@
 package tools.jackson.databind.deser.jdk;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 
-import tools.jackson.core.*;
-import tools.jackson.databind.*;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.JsonTokenId;
+import tools.jackson.core.StreamReadCapability;
+import tools.jackson.databind.AnnotationIntrospector;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DeserializationConfig;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.KeyDeserializer;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.annotation.JacksonStdImpl;
-import tools.jackson.databind.deser.*;
+import tools.jackson.databind.deser.ContextualKeyDeserializer;
+import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.deser.ReadableObjectId.Referring;
+import tools.jackson.databind.deser.SettableBeanProperty;
+import tools.jackson.databind.deser.UnresolvedForwardReference;
+import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.deser.bean.PropertyBasedCreator;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
@@ -668,10 +689,15 @@ public class MapDeserializer
                 if (useObjectId) {
                     referringAccumulator.put(key, value);
                 } else {
-                    Object oldValue = result.put(key, value);
-                    if (oldValue != null) {
-                        _squashDups(ctxt, result, key, oldValue, value);
-                    }
+                	// XXX JREF
+                	final String k = key;
+                	this.setWithJRef(ctxt, value, (v) -> {
+                        Object oldValue = result.put(k, v);
+                        if (oldValue != null) {
+                            _squashDups(ctxt, result, k, oldValue, v);
+                        }   
+                        return result;
+                	});
                 }
             } catch (UnresolvedForwardReference reference) {
                 handleUnresolvedReference(ctxt, referringAccumulator, key, reference);
@@ -684,7 +710,7 @@ public class MapDeserializer
         return result;
     }
 
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
     public Map<Object,Object> _deserializeUsingCreator(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {

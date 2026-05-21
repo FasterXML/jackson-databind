@@ -5,6 +5,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -48,10 +49,23 @@ public class JRefBeanDeserializerTest {
 		}
 	}
 
+	protected ObjectMapper buildObjectMapperWithJRefSupport() {
+		return jsonMapperBuilder().addModule(new JRefModule())
+				.build();
+	}
+	
+	@Test
+	public void testCollectionItemPath() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		// Input has first item in Message.items list fully defined, and second item jrefs to first item
+		String message = "{\"items\": [{ \"name\": \"sam\", \"parent\": null, \"props\": { \"p\": 1 } }, { \"$ref\": \"#/items/0\" }]}";
+		
+      	Message msg = mapper.readValue(message, Message.class);
+      	Assert.assertEquals(msg.items.get(0), msg.items.get(1));
+	}
 	@Test
 	public void testJRef() throws Exception {
-		ObjectMapper mapper = jsonMapperBuilder().addModule(new JRefModule())
-				.build();
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
 
 		String message = "{\r\n"
 				+ "  \"items\" : [ {\r\n"
@@ -64,7 +78,8 @@ public class JRefBeanDeserializerTest {
 				+ "      }\r\n"
 				+ "    },\r\n"
 				+ "    \"props\" : {\r\n"
-				+ "      \"q\" : \"r\"\r\n"
+				+ "      \"q\" : \"r\",\r\n"
+				+ "      \"p\" : { \"$ref\" : \"#/items/0/parent\" }"
 				+ "    }\r\n"
 				+ "  }, {\r\n"
 				+ "    \"name\" : \"rick\",\r\n"

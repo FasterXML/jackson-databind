@@ -1,6 +1,8 @@
 package tools.jackson.databind;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import tools.jackson.core.JacksonException;
@@ -497,6 +499,28 @@ public abstract class ValueDeserializer<T>
     public boolean hasAnySetter() {
         return false;
     }
+
+    // XXX JREF New method for supporting JREF for deserialization
+    public void setWithJRef(DeserializationContext ctxt, Object value, SetterFunction cb) throws RuntimeException {
+    	if (value instanceof JRefPath) {
+        	JRefResolver resolver = new JRefResolver((JRefPath) value, cb);
+			@SuppressWarnings("unchecked")
+			List<JRefResolver> jrefs = (List<JRefResolver>) ctxt.getAttribute("jrefs");
+			if (jrefs == null) {
+				jrefs = new ArrayList<JRefResolver>();
+				ctxt.setAttribute("jrefs", jrefs);
+			} 
+			jrefs.add(resolver);
+    	} else {
+    		try {
+				cb.set(value);
+			} catch (Throwable e) {
+				if (e instanceof RuntimeException) throw (RuntimeException) e;
+				else throw new RuntimeException(e);
+			}
+    	}
+	}
+
 
     /*
     /**********************************************************************

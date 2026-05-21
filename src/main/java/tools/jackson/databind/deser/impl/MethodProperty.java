@@ -13,6 +13,7 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.deser.SettableBeanProperty;
+import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.Annotations;
@@ -130,30 +131,22 @@ public final class MethodProperty
         } else {
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
-        // XXX JREF handling
-        if (value instanceof JRefPath) {
-        	JRefResolver resolver = new JRefResolver((JRefPath) value, new JRefSetterFunction((v) -> {
-    	        try {
-    	            _setter.get().invokeExact(instance, v);
-    	        } catch (Throwable e) {
-    	            _throwAsJacksonE(p, e, v);
-    	        }
-	            return instance;
-        	}));
-			@SuppressWarnings("unchecked")
-			List<JRefResolver> jrefs = (List<JRefResolver>) ctxt.getAttribute("jrefs");
-			if (jrefs == null) {
-				jrefs = new ArrayList<JRefResolver>();
-				ctxt.setAttribute("jrefs", jrefs);
-			} 
-			jrefs.add(resolver);
-        } else {
-	        try {
-	            _setter.get().invokeExact(instance, value);
+        
+        // XXX JREF handling.  ValueDeserializer.setWithJRef
+        // checks the return value, and if type JRefPath
+        // it defers calling the provided SetterFunction until
+        // the value is resolved (after root deserialization complete).
+        // if value is not of type JRefPath, then the given setter function
+        // is called immediately with the given value
+        _valueDeserializer.setWithJRef(ctxt, value, (v) -> {
+   	        try {
+	            _setter.get().invokeExact(instance, v);
 	        } catch (Throwable e) {
-	            _throwAsJacksonE(p, e, value);
+	            _throwAsJacksonE(p, e, v);
 	        }
-        }
+   	        return instance;
+        });
+
     }
 
     @Override

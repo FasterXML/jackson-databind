@@ -9,41 +9,28 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.deser.impl.MethodProperty;
-
 public class JRefResolver {
 
-	private final DeserializationContext ctxt;
-	private final String path;
-	private MethodProperty methodProperty;
-	private Object targetInstance;
+	private final JRefPath jrefPath;
+	private final JRefSetter settable;
 	
-	public JRefResolver(DeserializationContext ctxt, String path) {
-		Objects.requireNonNull(ctxt, "deserialization context must not be null");
-		this.ctxt = ctxt;
-		Objects.requireNonNull(path, "path must must not be null");
-		this.path = path;
+	public JRefResolver(JRefPath jrefPath, JRefSetter settable) {
+		Objects.requireNonNull(jrefPath, "jrefPath must not be null");
+		this.jrefPath = jrefPath;
+		Objects.requireNonNull(settable, "settable must must not be null");
+		this.settable = settable;
 	}
 	
-	public void setSetter(MethodProperty methodProperty, Object targetInstance) {
-		this.methodProperty = methodProperty;
-		this.targetInstance = targetInstance;
-	}
-
-	public void resolve(Object root) throws JRefResolveException {
+	public Object resolve(Object root) throws JRefResolveException {
 		if (root == null) {
 			throw new JRefResolveException(this, "Root object cannot be null");
-		}
-		if (this.methodProperty == null) {
-			throw new JRefResolveException(this, root, "methodProperty is null. methodProperty must be set prior to calling resolve");
 		}
 		// Now that we have the root, we can lookup the object at path
 		Object value = resolvePathToValue(root);
 		try {
-			this.methodProperty.set(ctxt, targetInstance, value);
-		} catch (JacksonException e) {
-			throw new JRefResolveException(this, root, "Exception setting value", e);
+			return this.settable.setInstanceToValue(value);
+		} catch (Throwable e) {
+			throw new JRefResolveException(this, root, "Exception setting value=" + value, e);
 		}
 	}
 
@@ -167,16 +154,16 @@ public class JRefResolver {
 	}
 
 	protected Object resolvePathToValue(Object root) {
-		String refStr = this.path;
+		String refStr = this.jrefPath.getPath();
 		String[] parts = refStr.split("#", 2);
 		if (parts.length > 1) {
 			Object refValue = get(decode_uri(parts[1]), root);
 			if (refValue == null) {
-				throw new JRefResolveException(this, root, "Invalid local reference: path=" + this.path + " not found on root=" + root);
+				throw new JRefResolveException(this, root, "Invalid local reference: path=" + this.jrefPath.getPath() + " not found on root=" + root);
 			}
 			return refValue;
 		}
-		throw new JRefResolveException(this, root, "Invalid local reference: path=" + this.path + " does not have preceding '#'");
+		throw new JRefResolveException(this, root, "Invalid local reference: path=" + this.jrefPath.getPath() + " does not have preceding '#'");
 	}
 
 }

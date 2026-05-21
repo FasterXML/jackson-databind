@@ -131,17 +131,22 @@ public final class MethodProperty
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         // XXX JREF handling
-        if (value instanceof JRefResolver) {
-        	JRefResolver r = (JRefResolver) value;
-        	// pass in setter
-        	r.setSetter(this, instance);
+        if (value instanceof JRefPath) {
+        	JRefResolver resolver = new JRefResolver((JRefPath) value, new JRefSetterFunction((v) -> {
+    	        try {
+    	            _setter.get().invokeExact(instance, v);
+    	        } catch (Throwable e) {
+    	            _throwAsJacksonE(p, e, v);
+    	        }
+	            return instance;
+        	}));
 			@SuppressWarnings("unchecked")
 			List<JRefResolver> jrefs = (List<JRefResolver>) ctxt.getAttribute("jrefs");
 			if (jrefs == null) {
 				jrefs = new ArrayList<JRefResolver>();
 				ctxt.setAttribute("jrefs", jrefs);
 			} 
-			jrefs.add(r);
+			jrefs.add(resolver);
         } else {
 	        try {
 	            _setter.get().invokeExact(instance, value);

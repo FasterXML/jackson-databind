@@ -6,7 +6,7 @@ public class JRefResolveException extends RuntimeException {
 	private final JRefResolver resolver;
 	private final Object root;
 	
-	public JRefResolveException(JRefResolver resolver, Object root, String message, Exception cause) {
+	public JRefResolveException(JRefResolver resolver, Object root, String message, Throwable cause) {
 		super(message, cause);
 		this.resolver = resolver;
 		this.root = root;

@@ -38,7 +38,7 @@ public class JRefValueDeserializer extends DelegatingDeserializer {
 				if (valNode != null) {
 					String valStr = valNode.asString();
 					if (valStr != null) {
-						return new JRefResolver(ctxt, valStr);
+						return new JRefPath(valStr, ctxt, this);
 					}
 				}
 			}

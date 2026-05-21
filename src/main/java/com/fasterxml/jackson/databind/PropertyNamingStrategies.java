@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
@@ -285,7 +287,7 @@ public abstract class PropertyNamingStrategies
             if (output == null) {
                 return null;
             }
-            return output.toUpperCase();
+            return output.toUpperCase(Locale.ROOT);
         }
     }
 
@@ -379,7 +381,7 @@ public abstract class PropertyNamingStrategies
             if (input == null || input.isEmpty()) {
                 return input;
             }
-            return input.toLowerCase();
+            return input.toLowerCase(Locale.ROOT);
         }
     }
 

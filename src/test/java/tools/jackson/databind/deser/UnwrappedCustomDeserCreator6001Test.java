@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.deser;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -12,28 +12,21 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 import tools.jackson.databind.util.NameTransformer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-// [databind#6001]: Regression 3.0 -> 3.1 with `@JsonUnwrapped` on a record
-// (property-based-creator) component whose custom `ValueDeserializer` implements
-// `unwrappingDeserializer(...)` but does NOT declare property names via
-// `collectAllPropertyNamesTo(...)`.
-//
-// Root cause: #650 made `BeanDeserializer` buffer only properties recognized by
-// `UnwrappedPropertyHandler.hasUnwrappedProperty(...)` (i.e. names contributed via
-// `collectAllPropertyNamesTo`). A custom unwrapper that captures arbitrary fields
-// contributes no names, so the prefixed field ("titleEn") is treated as unknown and
-// skipped -- the custom deserializer is invoked with an empty `{}` instead of the
-// flattened fields it received in 3.0.x.
+// [databind#6001]: `@JsonUnwrapped` on a record (property-based-creator) component whose
+// custom `ValueDeserializer` implements `unwrappingDeserializer(...)` but declares no
+// property names. Before the fix, #650 buffered only properties recognized via
+// `collectAllPropertyNamesTo(...)`, so such a custom unwrapper received an empty `{}`.
 class UnwrappedCustomDeserCreator6001Test extends DatabindTestUtil
 {
     record ConsentVersion(
@@ -93,7 +86,6 @@ class UnwrappedCustomDeserCreator6001Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
     @Test
     void unwrappedRecordCreatorPropertiesShouldReceiveFlattenedFields()
     {
@@ -111,6 +103,30 @@ class UnwrappedCustomDeserCreator6001Test extends DatabindTestUtil
         assertTrue(result.title().rawFields().containsKey("En"),
                 () -> "Expected title.rawFields() to contain key 'En', but got "
                         + result.title().rawFields());
+        assertEquals("title en", result.title().rawFields().get("En"));
+        assertEquals("version-id", result.versionId());
+        assertEquals("scope-class-id", result.scopeClassId());
+    }
+
+    // Guard for [databind#650]: an opaque unwrapper routes all leftover unknowns to itself,
+    // so FAIL_ON_UNKNOWN_PROPERTIES does NOT fire here (the unwrapper "owns" them) -- this is
+    // the pre-#650 (3.0.x) behavior we are deliberately restoring for opaque unwrappers.
+    @Test
+    void opaqueUnwrapperAbsorbsUnknownsEvenWithFailOnUnknown()
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
+        String json = """
+                {
+                  "versionId": "version-id",
+                  "version": "1",
+                  "titleEn": "title en",
+                  "totallyUnknown": "x"
+                }
+                """;
+
+        ConsentVersion result = mapper.readValue(json, ConsentVersion.class);
         assertEquals("title en", result.title().rawFields().get("En"));
     }
 }

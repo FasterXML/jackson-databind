@@ -320,6 +320,7 @@ public class BeanDeserializer
         PropertyValueBuffer buffer = (_anySetter != null)
             ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter)
             : creator.startBuilding(p, ctxt, _objectIdReader);
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
         // Step 1: Pre-populate buffer from existing Record values
         final Class<?> recordClass = _beanType.getRawClass();
@@ -356,6 +357,12 @@ public class BeanDeserializer
             p.nextToken(); // to point to value
             final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
+                // [databind#5971]: must honor active view here too -- leave the
+                // pre-populated existing value untouched if hidden by active view
+                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // Override the pre-populated value
                 buffer.assignParameter(creatorProp,
                         _deserializeWithErrorWrapping(p, ctxt, creatorProp));
@@ -1174,6 +1181,7 @@ public class BeanDeserializer
         tokens.writeStartObject();
 
         final boolean isRecord = _beanType.isRecordType();
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         boolean hasUnwrappedContent = false;
         JsonToken t = p.currentToken();
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
@@ -1187,6 +1195,11 @@ public class BeanDeserializer
             }
 
             if (creatorProp != null) {
+                // [databind#5971]: must honor active view here too
+                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // [databind#1381]: if useInput=FALSE, skip deserialization from input
                 if (creatorProp.isInjectionOnly()) {
                     // Skip the input value, will be injected later in PropertyValueBuffer
@@ -1212,6 +1225,11 @@ public class BeanDeserializer
             int ix = _propNameMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
+                // [databind#5969]: must honor active view here too
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
                 continue;
             }
@@ -1376,6 +1394,7 @@ public class BeanDeserializer
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
         for (JsonToken t = p.currentToken(); t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
@@ -1387,6 +1406,11 @@ public class BeanDeserializer
                 continue;
             }
             if (creatorProp != null) {
+                // [databind#5971]: must honor active view here too
+                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // [databind#1381]: if useInput=FALSE, skip deserialization from input
                 if (creatorProp.isInjectionOnly()) {
                     // Skip the input value, will be injected later in PropertyValueBuffer
@@ -1410,6 +1434,11 @@ public class BeanDeserializer
             int ix = _propNameMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
+                // [databind#5969]: must honor active view here too
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // [databind#3045]: may have property AND be used as external type id:
                 if (t.isScalarValue()) {
                     ext.handleTypePropertyValue(p, ctxt, propName, null);

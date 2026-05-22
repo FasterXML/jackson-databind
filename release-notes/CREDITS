@@ -542,8 +542,3 @@ Daniel Purnomo (@kyooosukedn)
  * Fixed #5909: Forward Object Id references inside Collection properties
    leak Builder instance (follow-up to #1496)
   [3.2.0]
-
-Severin Kistler (@kistlers)
- * Reported #6001: Regression with `@JsonUnwrapped` from 3.0 to 3.1: custom
-   unwrapping deserializer receives empty Object
-  [3.2.0]

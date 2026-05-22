@@ -39,6 +39,10 @@ No changes since 3.1
 #5993: `UPPER_SNAKE_CASE` / `LOWER_CASE` `NamingStrategyImpls` fold case
   using JVM default locale (Turkish-I bug)
  (fix by @CharmingKyu)
+#6001: Regression with `@JsonUnwrapped` from 3.0 to 3.1: custom unwrapping
+  deserializer receives empty Object
+ (reported by Severin K)
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.1.3 (01-May-2026)
 

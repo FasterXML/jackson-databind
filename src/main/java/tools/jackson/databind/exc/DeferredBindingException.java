@@ -88,11 +88,10 @@ public class DeferredBindingException extends DatabindException {
         }
 
         String limitNote = limitReached ? " (limit reached; more errors may exist)" : "";
-        return String.format(
-            "%d deserialization problems%s (showing first 5):%n%s",
-            count,
-            limitNote,
-            formatProblems(problems)
+        return "%d deserialization problems%s (showing first 5):%n%s".formatted(
+                count,
+                limitNote,
+                formatProblems(problems)
         );
     }
 
@@ -101,11 +100,11 @@ public class DeferredBindingException extends DatabindException {
         int limit = Math.min(5, problems.size());
         for (int i = 0; i < limit; i++) {
             CollectedProblem p = problems.get(i);
-            sb.append(String.format("  [%d] at %s: %s%n",
-                i + 1, p.getPath(), p.getMessage()));
+            sb.append("  [%d] at %s: %s%n".formatted(
+                    i + 1, p.getPath(), p.getMessage()));
         }
         if (problems.size() > 5) {
-            sb.append(String.format("  ... and %d more", problems.size() - 5));
+            sb.append("  ... and %d more".formatted(problems.size() - 5));
         }
         return sb.toString();
     }

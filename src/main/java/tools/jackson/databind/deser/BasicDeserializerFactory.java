@@ -1072,8 +1072,8 @@ public abstract class BasicDeserializerFactory
                     // usually should be class, but may be just plain Enum<?> (for Enum.valueOf()?)
                     if (!returnType.isAssignableFrom(enumClass)) {
                         ctxt.reportBadDefinition(type, String.format(
-"Invalid `@JsonCreator` annotated Enum factory method [%s]: needs to return compatible type",
-factory.toString()));
+                                "Invalid `@JsonCreator` annotated Enum factory method [%s]: needs to return compatible type",
+                                factory.toString()));
                     }
                     deser = EnumDeserializer.deserializerForCreator(
                         config, enumClass, factory, valueInstantiator, creatorProps,

@@ -276,11 +276,13 @@ public class TestCreators2
     public void testJackson431() throws Exception
     {
         final Test431Container foo = MAPPER.readValue(
-                "{\"items\":\n"
-                +"[{\"bar\": 0,\n"
-                +"\"id\": \"id123\",\n"
-                +"\"foo\": 1\n"
-                +"}]}",
+                """
+                {"items":
+                [{"bar": 0,
+                "id": "id123",
+                "foo": 1
+                }]}
+                """,
                 Test431Container.class);
         assertNotNull(foo);
     }

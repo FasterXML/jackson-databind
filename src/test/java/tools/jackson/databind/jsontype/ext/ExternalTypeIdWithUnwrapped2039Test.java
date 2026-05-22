@@ -46,14 +46,16 @@ class ExternalTypeIdWithUnwrapped2039Test extends DatabindTestUtil
     void externalWithUnwrapped2039() throws Exception {
         final ObjectMapper mapper = newJsonMapper();
 
-        final String json = a2q("{\n"
-                + "'text': 'this is A',\n"
-                + "'wrapped': 'yes',\n"
-                + "'subtype': 'SubA',\n"
-                + "'sub': {\n"
-                + "  'bool': true\n"
-                + "}\n"
-                + "}");
+        final String json = """
+                {
+                "text": "this is A",
+                "wrapped": "yes",
+                "subtype": "SubA",
+                "sub": {
+                  "bool": true
+                }
+                }
+                """;
 
         // Should fail with informative message, not silently produce wrong result
         DatabindException ex = assertThrows(DatabindException.class,

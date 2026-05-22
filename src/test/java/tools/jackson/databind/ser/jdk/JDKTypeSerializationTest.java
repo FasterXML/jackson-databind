@@ -262,7 +262,7 @@ public class JDKTypeSerializationTest
         String json = mapper.writeValueAsString(input);
         assertEquals(q(input.getHostAddress()), json);
 
-        assertEquals(String.format("{\"value\":\"%s\"}", input.getHostAddress()),
+        assertEquals("{\"value\":\"%s\"}".formatted(input.getHostAddress()),
                 mapper.writeValueAsString(new InetAddressBean(input)));
     }
 

@@ -379,8 +379,7 @@ public abstract class SettableAnyProperty
             throws JacksonException
         {
             if (_valueInstantiator == null) {
-                throw DatabindException.from(ctxt, String.format(
-                        "Cannot create an instance of %s for use as \"any-setter\" '%s'",
+                throw DatabindException.from(ctxt, "Cannot create an instance of %s for use as \"any-setter\" '%s'".formatted(
                         ClassUtil.nameOf(_type.getRawClass()), _property.getName()));
             }
             Map<Object,Object> map = (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
@@ -433,8 +432,7 @@ public abstract class SettableAnyProperty
                 objectNode = _nodeFactory.objectNode();
                 field.setValue(instance, objectNode);
             } else if (!(val0 instanceof ObjectNode)) {
-                throw DatabindException.from((DeserializationContext) null, String.format(
-                        "Value \"any-setter\" '%s' not `ObjectNode` but %s",
+                throw DatabindException.from((DeserializationContext) null, "Value \"any-setter\" '%s' not `ObjectNode` but %s".formatted(
                         getPropertyName(),
                         ClassUtil.nameOf(val0.getClass())));
             } else {

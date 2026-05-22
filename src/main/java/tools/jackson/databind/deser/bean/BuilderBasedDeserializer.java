@@ -513,6 +513,13 @@ public class BuilderBasedDeserializer
             int ix = _propertyNameMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _propertiesByIndex[ix];
+                // [databind#5969]: must honor active view here too -- otherwise
+                // a view-restricted property seen before the creator completes can be
+                // populated via the buffering path below.
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // !!! 21-Nov-2017, tatu: Regular deserializer handles references here...
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
@@ -832,6 +839,7 @@ public class BuilderBasedDeserializer
         final PropertyBasedCreator creator = _propertyBasedCreator;
         // [databind#5909]: builder will be rebuilt via finishBuild
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, true);
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
         TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
@@ -848,6 +856,11 @@ public class BuilderBasedDeserializer
                 continue;
             }
             if (creatorProp != null) {
+                // [databind#5971]: must honor active view here too
+                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // [databind#1381]: if useInput=FALSE, skip deserialization from input
                 if (creatorProp.isInjectionOnly()) {
                     // Skip the input value, will be injected later in PropertyValueBuffer
@@ -875,6 +888,11 @@ public class BuilderBasedDeserializer
             int ix = _propertyNameMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _propertiesByIndex[ix];
+                // [databind#5969]: must honor active view here too
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
             }

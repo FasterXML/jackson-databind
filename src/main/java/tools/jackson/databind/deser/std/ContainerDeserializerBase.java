@@ -126,7 +126,7 @@ public abstract class ContainerDeserializerBase<T>
         if (vi == null || !vi.canCreateUsingDefault()) {
             JavaType type = getValueType();
             ctxt.reportBadDefinition(type,
-                    String.format("Cannot create empty instance of %s, no default Creator", type));
+                    "Cannot create empty instance of %s, no default Creator".formatted(type));
         }
         return vi.createUsingDefault(ctxt);
     }

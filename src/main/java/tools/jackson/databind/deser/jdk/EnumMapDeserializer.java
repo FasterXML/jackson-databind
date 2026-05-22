@@ -114,7 +114,7 @@ public class EnumMapDeserializer
                 JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
                     ctxt.reportBadDefinition(_containerType, String.format(
-"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
+                            "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
                             _containerType,
                             _valueInstantiator.getClass().getName()));
                 }
@@ -127,7 +127,7 @@ public class EnumMapDeserializer
                 JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
                     ctxt.reportBadDefinition(_containerType, String.format(
-"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
+                            "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
                             _containerType,
                             _valueInstantiator.getClass().getName()));
                 }

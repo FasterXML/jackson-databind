@@ -157,7 +157,7 @@ public class RecordTypeInfo3342Test extends DatabindTestUtil
     @ParameterizedTest
     @ValueSource(strings = {"Y", "yy", "ff", "X"})
     public void testAliasWithPolymorphicDeduction(String field) throws Exception {
-        String json = a2q(String.format("{'%s': 2 }", field));
+        String json = a2q("{'%s': 2 }".formatted(field));
         Deduction4327 value = MAPPER.readValue(json, Deduction4327.class);
         assertNotNull(value);
         assertEquals(2, ((DeductionBean2_4327) value).y());

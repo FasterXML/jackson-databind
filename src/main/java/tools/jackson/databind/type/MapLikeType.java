@@ -254,7 +254,7 @@ public class MapLikeType extends TypeBase {
 
     @Override
     public String toString() {
-        return String.format("[map-like type; class %s, %s -> %s]",
+        return "[map-like type; class %s, %s -> %s]".formatted(
                 _class.getName(), _keyType, _valueType);
     }
 

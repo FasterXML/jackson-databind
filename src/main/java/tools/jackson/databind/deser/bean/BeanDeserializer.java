@@ -373,6 +373,7 @@ public class BeanDeserializer
             final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
                 // [databind#5966] Honor @JsonView visibility, injection-only on creator parameters
+                // (also covers [databind#5971] view check on the record-update path)
                 if (((activeView != null) && !creatorProp.visibleInView(activeView))
                         || creatorProp.isInjectionOnly()) {
                     p.skipChildren();
@@ -1231,6 +1232,7 @@ public class BeanDeserializer
         TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
 
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         boolean hasUnwrappedContent = false;
         JsonToken t = p.currentToken();
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
@@ -1244,6 +1246,11 @@ public class BeanDeserializer
             }
 
             if (creatorProp != null) {
+                // [databind#5971]: must honor active view here too
+                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // [databind#1381]: if useInput=FALSE, skip deserialization from input
                 if (creatorProp.isInjectionOnly()) {
                     // Skip the input value, will be injected later in PropertyValueBuffer
@@ -1269,6 +1276,11 @@ public class BeanDeserializer
             int ix = _propNameMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
+                // [databind#5969]: must honor active view here too
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
                 continue;
             }
@@ -1448,6 +1460,11 @@ public class BeanDeserializer
                 continue;
             }
             if (creatorProp != null) {
+                // [databind#5971]: must honor active view here too
+                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // [databind#1381]: if useInput=FALSE, skip deserialization from input
                 if (creatorProp.isInjectionOnly()) {
                     // Skip the input value, will be injected later in PropertyValueBuffer

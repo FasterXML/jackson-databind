@@ -140,7 +140,7 @@ public class ViewSerializationTest extends DatabindTestUtil
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testSimple() throws IOException
+    public void simple() throws Exception
     {
         StringWriter sw = new StringWriter();
         // Ok, first, using no view whatsoever; all 3
@@ -191,7 +191,7 @@ public class ViewSerializationTest extends DatabindTestUtil
      */
     @SuppressWarnings("unchecked")
     @Test
-    public void testDefaultExclusion() throws IOException
+    public void defaultExclusion() throws Exception
     {
         MixedBean bean = new MixedBean();
 
@@ -227,14 +227,14 @@ public class ViewSerializationTest extends DatabindTestUtil
      * method/field does indicate a property.
      */
     @Test
-    public void testImplicitAutoDetection() throws Exception
+    public void implicitAutoDetection() throws Exception
     {
         assertEquals("{\"a\":1}",
                 MAPPER.writeValueAsString(new ImplicitBean()));
     }
 
     @Test
-    public void testVisibility() throws Exception
+    public void visibility() throws Exception
     {
         VisibilityBean bean = new VisibilityBean();
         // Without view setting, should only see "id"
@@ -245,7 +245,7 @@ public class ViewSerializationTest extends DatabindTestUtil
 
     // [JACKSON-868]
     @Test
-    public void test868() throws IOException
+    public void issue868() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
@@ -256,7 +256,7 @@ public class ViewSerializationTest extends DatabindTestUtil
 
     // [databind#5937]
     @Test
-    public void testWithActiveView() throws Exception
+    public void withActiveView() throws Exception
     {
         final Class<?>[] insideView = new Class<?>[1];
         final Class<?>[] afterView = new Class<?>[1];
@@ -290,7 +290,7 @@ public class ViewSerializationTest extends DatabindTestUtil
 
     // [databind#5937]: active view must be reverted even if callback throws
     @Test
-    public void testWithActiveViewRevertsOnThrow() throws Exception
+    public void withActiveViewRevertsOnThrow() throws Exception
     {
         final Class<?>[] afterView = new Class<?>[1];
         final RuntimeException boom = new RuntimeException("boom");
@@ -320,7 +320,7 @@ public class ViewSerializationTest extends DatabindTestUtil
     // [databind#5937]: nested withActiveView calls must each revert to the
     //   view in effect at their entry
     @Test
-    public void testWithActiveViewNested() throws Exception
+    public void withActiveViewNested() throws Exception
     {
         final Class<?>[] innerView = new Class<?>[1];
         final Class<?>[] betweenView = new Class<?>[1];
@@ -353,7 +353,7 @@ public class ViewSerializationTest extends DatabindTestUtil
 
     // Nested/array data binding with a view: only view-annotated properties serialized
     @Test
-    public void testDataBindingUsage( ) throws Exception
+    public void dataBindingUsage() throws Exception
     {
         ObjectMapper mapper = createNonNullMapper();
         String result = mapper.writerWithView(Views.View.class).writeValueAsString(new ComplexTestData());
@@ -361,7 +361,7 @@ public class ViewSerializationTest extends DatabindTestUtil
     }
 
     @Test
-    public void testDataBindingUsageWithoutView( ) throws Exception
+    public void dataBindingUsageWithoutView() throws Exception
     {
         ObjectMapper mapper = createNonNullMapper();
         String json = mapper.writerWithView(null).writeValueAsString(new ComplexTestData());

@@ -482,9 +482,7 @@ public class BeanDeserializer
             if ((prop != null) &&
                 // [databind#3938]: except if it's MethodProperty
                 (!_beanType.isRecordType() || (prop instanceof MethodProperty))) {
-                // [databind#5969]: must honor active view here too -- otherwise
-                // properties hidden by the active view can be populated via the
-                // property-based-creator buffering path below.
+                // [databind#5969]: must honor active view here too
                 if ((activeView != null) && !prop.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;
@@ -879,8 +877,7 @@ public class BeanDeserializer
                 continue;
             }
             if (creatorProp != null) {
-                // [databind#5971]: honor active view for creator properties on the
-                // unwrapped property-based-creator path too.
+                // [databind#5971]: honor active view for creator properties here too
                 if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;

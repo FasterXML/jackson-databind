@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -11,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 // [databind#5969] / [databind#5971]: `@JsonView` must be honored for properties
 // buffered during property-based-creator collection, for builder-based POJOs
 // (and the regular bean path, sibling of #5969).
-public class BuilderViewBypass5969And5971Test
+public class BuilderViewBypass5969And5971Test extends DatabindTestUtil
 {
     static class PublicV { }
     static class AdminV extends PublicV { }
@@ -55,12 +56,12 @@ public class BuilderViewBypass5969And5971Test
         public void setPassword(String p) { password = p; }
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void builderViewHonoredBetweenCreatorProps() throws Exception {
         // password placed BETWEEN the two creator props -> hits the buffering branch
-        String json = "{\"name\":\"alice\",\"password\":\"BYPASS\",\"city\":\"NY\"}";
+        String json = a2q("{'name':'alice','password':'BYPASS','city':'NY'}");
         User u = MAPPER.readerFor(User.class).withView(PublicV.class).readValue(json);
         assertEquals("alice", u.name);
         assertEquals("NY", u.city);
@@ -69,21 +70,21 @@ public class BuilderViewBypass5969And5971Test
 
     @Test
     public void builderViewHonoredAfterCreatorProps() throws Exception {
-        String json = "{\"name\":\"alice\",\"city\":\"NY\",\"password\":\"BYPASS\"}";
+        String json = a2q("{'name':'alice','city':'NY','password':'BYPASS'}");
         User u = MAPPER.readerFor(User.class).withView(PublicV.class).readValue(json);
         assertNull(u.password, "password should be hidden by active view");
     }
 
     @Test
     public void builderAdminViewStillWrites() throws Exception {
-        String json = "{\"name\":\"alice\",\"password\":\"OK\",\"city\":\"NY\"}";
+        String json = a2q("{'name':'alice','password':'OK','city':'NY'}");
         User u = MAPPER.readerFor(User.class).withView(AdminV.class).readValue(json);
         assertEquals("OK", u.password, "password should be writable under AdminV");
     }
 
     @Test
     public void beanViewHonoredBetweenCreatorProps() throws Exception {
-        String json = "{\"name\":\"alice\",\"password\":\"BYPASS\",\"city\":\"NY\"}";
+        String json = a2q("{'name':'alice','password':'BYPASS','city':'NY'}");
         Bean b = MAPPER.readerFor(Bean.class).withView(PublicV.class).readValue(json);
         assertEquals("alice", b.name);
         assertNull(b.password, "password should be hidden by active view");
@@ -91,7 +92,7 @@ public class BuilderViewBypass5969And5971Test
 
     @Test
     public void beanAdminViewStillWrites() throws Exception {
-        String json = "{\"name\":\"alice\",\"password\":\"OK\",\"city\":\"NY\"}";
+        String json = a2q("{'name':'alice','password':'OK','city':'NY'}");
         Bean b = MAPPER.readerFor(Bean.class).withView(AdminV.class).readValue(json);
         assertEquals("OK", b.password, "password should be writable under AdminV");
     }

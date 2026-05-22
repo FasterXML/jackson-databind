@@ -884,6 +884,7 @@ public class BeanDeserializer
 
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
         TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
@@ -899,6 +900,11 @@ public class BeanDeserializer
                 continue;
             }
             if (creatorProp != null) {
+                // [databind#5971]: honor active view for creator properties here too
+                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // [databind#1381]: if useInput=FALSE, skip deserialization from input
                 if (creatorProp.isInjectionOnly()) {
                     // Skip the input value, will be injected later in PropertyValueBuffer
@@ -955,6 +961,11 @@ public class BeanDeserializer
             // regular property? needs buffering
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) {
+                // [databind#5969]: must honor active view here too
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
                 continue;
             }

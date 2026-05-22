@@ -39,29 +39,35 @@ public class UnwrappedPropertyHandler
     protected final Set<String> _unwrappedPropertyNames;
 
     /**
-     * Flag that indicates if any of the unwrapped value deserializers
-     * has an "any setter" (see {@link com.fasterxml.jackson.annotation.JsonAnySetter})
+     * Flag that indicates that we cannot tell from property names alone whether an
+     * incoming property is "unwrapped": either some unwrapped deserializer has an
+     * "any setter" (see {@link com.fasterxml.jackson.annotation.JsonAnySetter}), or
+     * is "opaque" -- declares no property names (via
+     * {@link ValueDeserializer#collectAllPropertyNamesTo}), as is the case for custom
+     * unwrapping deserializers that capture arbitrary fields. When set, all
+     * otherwise-unrecognized properties are routed to the unwrapped deserializers --
+     * as was the case before [databind#650].
      *
      * @since 3.1
      */
-    protected final boolean _hasUnwrappedAnySetter;
+    protected final boolean _acceptsAllUnwrapped;
 
     public UnwrappedPropertyHandler() {
         _creatorProperties = new ArrayList<>();
         _properties = new ArrayList<>();
         // placeholder: won't be modified in-place
         _unwrappedPropertyNames = Collections.emptySet();
-        _hasUnwrappedAnySetter = false;
+        _acceptsAllUnwrapped = false;
     }
 
     protected UnwrappedPropertyHandler(List<SettableBeanProperty> creatorProps,
             List<SettableBeanProperty> props,
             Set<String> unwrappedPropertyNames,
-            boolean hasUnwrappedAnySetter) {
+            boolean acceptsAllUnwrapped) {
         _creatorProperties = creatorProps;
         _properties = props;
         _unwrappedPropertyNames = unwrappedPropertyNames;
-        _hasUnwrappedAnySetter = hasUnwrappedAnySetter;
+        _acceptsAllUnwrapped = acceptsAllUnwrapped;
     }
 
     /**
@@ -71,8 +77,8 @@ public class UnwrappedPropertyHandler
      */
     public UnwrappedPropertyHandler initializeUnwrappedPropertyNames() {
         Set<String> unwrappedNames = new HashSet<>();
-        boolean hasAnySetter = _collectUnwrappedPropertyNames(_properties, _creatorProperties, unwrappedNames);
-        return new UnwrappedPropertyHandler(_creatorProperties, _properties, unwrappedNames, hasAnySetter);
+        boolean acceptsAll = _collectUnwrappedPropertyNames(_properties, _creatorProperties, unwrappedNames);
+        return new UnwrappedPropertyHandler(_creatorProperties, _properties, unwrappedNames, acceptsAll);
     }
 
     /**
@@ -92,11 +98,11 @@ public class UnwrappedPropertyHandler
         List<SettableBeanProperty> renamedCreatorProps = renameProperties(ctxt, _creatorProperties, transformer);
         List<SettableBeanProperty> renamedProps = renameProperties(ctxt, _properties, transformer);
 
-        // Collect unwrapped property names and check for AnySetter
+        // Collect unwrapped property names and check whether we must accept all unknowns
         Set<String> names = new HashSet<>();
-        boolean hasAnySetter = _collectUnwrappedPropertyNames(renamedProps, renamedCreatorProps, names);
+        boolean acceptsAll = _collectUnwrappedPropertyNames(renamedProps, renamedCreatorProps, names);
 
-        return new UnwrappedPropertyHandler(renamedCreatorProps, renamedProps, names, hasAnySetter);
+        return new UnwrappedPropertyHandler(renamedCreatorProps, renamedProps, names, acceptsAll);
     }
 
     private List<SettableBeanProperty> renameProperties(DeserializationContext ctxt,
@@ -193,7 +199,9 @@ public class UnwrappedPropertyHandler
      * @since 3.1
      */
     public boolean hasUnwrappedProperty(String propName) {
-        if (_hasUnwrappedAnySetter) {
+        // [databind#6001]: an "any setter" or opaque (non-introspectable) unwrapper
+        //   means we cannot tell which properties are unwrapped, so accept all.
+        if (_acceptsAllUnwrapped) {
             return true;
         }
         return _unwrappedPropertyNames.contains(propName);
@@ -211,47 +219,61 @@ public class UnwrappedPropertyHandler
     /**
      * Helper method to collect unwrapped property names.
      *
-     * @return {@code true} if any property deserializer has AnySetter.
+     * @return {@code true} if all otherwise-unrecognized properties must be accepted
+     *    as unwrapped (some deserializer has an "any setter" or is "opaque").
      *
      * @since 3.1
      */
     private boolean _collectUnwrappedPropertyNames(List<SettableBeanProperty> properties,
             List<SettableBeanProperty> creatorProperties,
             Set<String> names) {
-        boolean hasAnySetter = false;
+        boolean acceptsAll = false;
         for (SettableBeanProperty prop : properties) {
-            if (_collectDeserializerPropertyNames(prop, names)) {
-                hasAnySetter = true;
-            }
+            acceptsAll |= _collectDeserializerPropertyNames(prop, names);
         }
         for (SettableBeanProperty prop : creatorProperties) {
-            if (_collectDeserializerPropertyNames(prop, names)) {
-                hasAnySetter = true;
-            }
+            acceptsAll |= _collectDeserializerPropertyNames(prop, names);
         }
-        return hasAnySetter;
+        return acceptsAll;
     }
 
     /**
      * Helper method to collect property names from a property's deserializer.
      *
-     * @return {@code true} if the property deserializer has AnySetter.
+     * @return {@code true} if the deserializer has an "any setter" or is "opaque"
+     *    (declares no property names), in which case all otherwise-unrecognized
+     *    properties must be routed to it (pre-#650 behavior).
      *
      * @since 3.1
      */
     private boolean _collectDeserializerPropertyNames(SettableBeanProperty prop,
             Set<String> names)
     {
-        if (prop != null) {
-            ValueDeserializer<?> deser = prop.getValueDeserializer();
-            BeanDeserializerBase bd = _findBeanDeser(deser);
-            if (bd != null) {
-                // Recursively collect property names
-                bd.collectAllPropertyNamesTo(names);
-                return bd.hasAnySetter();
-            }
+        if (prop == null) {
+            return false;
         }
-        return false;
+        ValueDeserializer<?> deser = prop.getValueDeserializer();
+        if (deser == null) {
+            return false;
+        }
+        BeanDeserializerBase bd = _findBeanDeser(deser);
+        if (bd == null) {
+            // [databind#6001]: not a (delegating) bean deserializer -- typically a
+            //   custom unwrapping deserializer capturing arbitrary fields. It is
+            //   "opaque" (declares no property names), so we cannot tell which
+            //   properties are unwrapped and must accept all (pre-#650 behavior).
+            return true;
+        }
+        if (bd.hasAnySetter()) {
+            return true;
+        }
+        // [databind#6001]: collect into a temp set so we can tell whether this
+        //   deserializer contributed any names of its own; if not, it is "opaque"
+        //   (typically a custom unwrapping deserializer capturing arbitrary fields).
+        Set<String> propNames = new HashSet<>();
+        bd.collectAllPropertyNamesTo(propNames);
+        names.addAll(propNames);
+        return propNames.isEmpty();
     }
 
     // @since 3.1

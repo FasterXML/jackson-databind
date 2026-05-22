@@ -10,6 +10,10 @@ Project: jackson-databind
  (reported by Omkhar A)
 #5951: Improve `InetSocketAddress` deserialization
  (reported by Omkhar A)
+#5969: `@JsonView` by-passed for some "setterless" creator properties
+ (fixed by Omkhar A)
+#5971: `@JsonView` by-passed for unwrapped creator parameters
+ (fixed by Omkhar A)
 #5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
  (reported by Omkhar A)
 #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`

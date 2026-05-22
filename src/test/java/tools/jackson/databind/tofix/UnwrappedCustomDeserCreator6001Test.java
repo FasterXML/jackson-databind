@@ -37,8 +37,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class UnwrappedCustomDeserCreator6001Test extends DatabindTestUtil
 {
     record ConsentVersion(
-            @JsonProperty(required = true) String versionId,
-            @JsonProperty(required = true) String version,
+            @JsonProperty String versionId,
+            @JsonProperty String version,
             @JsonUnwrapped(prefix = "title")
             @JsonDeserialize(using = CapturingUnwrappedValueDeserializer.class)
             CapturingUnwrappedValue title,
@@ -60,8 +60,8 @@ class UnwrappedCustomDeserCreator6001Test extends DatabindTestUtil
         }
 
         @Override
-        public CapturingUnwrappedValue deserialize(JsonParser parser, DeserializationContext context) {
-            var node = parser.objectReadContext().readTree(parser);
+        public CapturingUnwrappedValue deserialize(JsonParser p, DeserializationContext ctxt) {
+            var node = ctxt.readTree(p);
             if (!(node instanceof ObjectNode objectNode)) {
                 return new CapturingUnwrappedValue(Map.of());
             }
@@ -71,7 +71,7 @@ class UnwrappedCustomDeserCreator6001Test extends DatabindTestUtil
                 if (key == null || key.isBlank()) {
                     continue;
                 }
-                var value = context.readTreeAsValue(entry.getValue(), Object.class);
+                var value = ctxt.readTreeAsValue(entry.getValue(), Object.class);
                 if (value instanceof Serializable serializableValue) {
                     values.put(key, serializableValue);
                 }
@@ -95,7 +95,8 @@ class UnwrappedCustomDeserCreator6001Test extends DatabindTestUtil
 
     @JacksonTestFailureExpected
     @Test
-    void unwrappedRecordCreatorPropertiesShouldReceiveFlattenedFields() throws Exception {
+    void unwrappedRecordCreatorPropertiesShouldReceiveFlattenedFields()
+    {
         String json = """
                 {
                   "versionId": "version-id",

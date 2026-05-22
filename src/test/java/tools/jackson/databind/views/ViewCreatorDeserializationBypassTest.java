@@ -6,15 +6,9 @@ import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.*;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -74,7 +68,9 @@ public class ViewCreatorDeserializationBypassTest extends DatabindTestUtil
         public void adminViewPopulatesBoth() throws Exception {
             CreatorBean result = MAPPER.readerWithView(AdminView.class)
                     .forType(CreatorBean.class)
-                    .readValue("{\"name\":\"alice\",\"roles\":[\"admin\"]}");
+                    .readValue("""
+                            {"name":"alice","roles":["admin"]}
+                            """);
             assertEquals("alice", result.getName());
             assertEquals(List.of("admin"), result.getRoles());
         }
@@ -84,7 +80,9 @@ public class ViewCreatorDeserializationBypassTest extends DatabindTestUtil
         public void rolesBeforeCreatorHonorsView() throws Exception {
             CreatorBean result = MAPPER.readerWithView(PublicView.class)
                     .forType(CreatorBean.class)
-                    .readValue("{\"roles\":[\"admin\"],\"name\":\"alice\"}");
+                    .readValue("""
+                            {"roles":["admin"],"name":"alice"}
+                            """);
             assertEquals("alice", result.getName());
             assertTrue(result.getRoles().isEmpty(),
                     "[databind#5969] setterless @JsonView(AdminView) populated in PublicView: " + result.getRoles());
@@ -94,7 +92,9 @@ public class ViewCreatorDeserializationBypassTest extends DatabindTestUtil
         public void rolesAfterCreatorHonorsView() throws Exception {
             CreatorBean result = MAPPER.readerWithView(PublicView.class)
                     .forType(CreatorBean.class)
-                    .readValue("{\"name\":\"alice\",\"roles\":[\"admin\"]}");
+                    .readValue("""
+                            {"name":"alice","roles":["admin"]}
+                            """);
             assertEquals("alice", result.getName());
             assertTrue(result.getRoles().isEmpty(),
                     "[databind#5969] setterless @JsonView(AdminView) populated in PublicView: " + result.getRoles());
@@ -136,7 +136,9 @@ public class ViewCreatorDeserializationBypassTest extends DatabindTestUtil
         public void adminViewPopulatesBoth() throws Exception {
             UserBean result = MAPPER.readerWithView(AdminView.class)
                     .forType(UserBean.class)
-                    .readValue("{\"name\":\"alice\",\"street\":\"1 Main St\",\"city\":\"Springfield\"}");
+                    .readValue("""
+                            {"name":"alice","street":"1 Main St","city":"Springfield"}
+                            """);
             assertEquals("alice", result.name);
             assertNotNull(result.address);
             assertEquals("1 Main St", result.address.street);
@@ -147,7 +149,9 @@ public class ViewCreatorDeserializationBypassTest extends DatabindTestUtil
         public void unwrappedCreatorParamHonorsView() throws Exception {
             UserBean result = MAPPER.readerWithView(PublicView.class)
                     .forType(UserBean.class)
-                    .readValue("{\"name\":\"alice\",\"street\":\"1 Main St\",\"city\":\"Springfield\"}");
+                    .readValue("""
+                            {"name":"alice","street":"1 Main St","city":"Springfield"}
+                            """);
             assertEquals("alice", result.name);
             assertNull(result.address,
                     "[databind#5971] @JsonView(AdminView) @JsonUnwrapped creator param populated in PublicView: "
@@ -193,7 +197,9 @@ public class ViewCreatorDeserializationBypassTest extends DatabindTestUtil
         @Test
         public void adminViewPopulatesAll() throws Exception {
             User u = MAPPER.readerWithView(AdminView.class).forType(User.class)
-                    .readValue("{\"name\":\"alice\",\"password\":\"secret\",\"city\":\"NY\"}");
+                    .readValue("""
+                            {"name":"alice","password":"secret","city":"NY"}
+                            """);
             assertEquals("alice", u.name);
             assertEquals("NY", u.city);
             assertEquals("secret", u.password);
@@ -203,7 +209,9 @@ public class ViewCreatorDeserializationBypassTest extends DatabindTestUtil
         @Test
         public void regularPropertyInCreatorWindowHonorsView() throws Exception {
             User u = MAPPER.readerWithView(PublicView.class).forType(User.class)
-                    .readValue("{\"name\":\"alice\",\"password\":\"BYPASS\",\"city\":\"NY\"}");
+                    .readValue("""
+                            {"name":"alice","password":"BYPASS","city":"NY"}
+                            """);
             assertEquals("alice", u.name);
             assertEquals("NY", u.city);
             assertNull(u.password,
@@ -214,7 +222,9 @@ public class ViewCreatorDeserializationBypassTest extends DatabindTestUtil
         @Test
         public void regularPropertyAfterCreatorHonorsView() throws Exception {
             User u = MAPPER.readerWithView(PublicView.class).forType(User.class)
-                    .readValue("{\"name\":\"alice\",\"city\":\"NY\",\"password\":\"BYPASS\"}");
+                    .readValue("""
+                            {"name":"alice","city":"NY","password":"BYPASS"}
+                            """);
             assertEquals("alice", u.name);
             assertEquals("NY", u.city);
             assertNull(u.password,
@@ -260,7 +270,9 @@ public class ViewCreatorDeserializationBypassTest extends DatabindTestUtil
         @Test
         public void adminViewPopulatesAll() throws Exception {
             UserBean result = MAPPER.readerWithView(AdminView.class).forType(UserBean.class)
-                    .readValue("{\"name\":\"alice\",\"secret\":\"sssh\",\"password\":\"secret\",\"city\":\"NY\"}");
+                    .readValue("""
+                            {"name":"alice","secret":"sssh","password":"secret","city":"NY"}
+                            """);
             assertEquals("alice", result.name);
             assertEquals("sssh", result.secret);
             assertEquals("secret", result.password);
@@ -271,7 +283,9 @@ public class ViewCreatorDeserializationBypassTest extends DatabindTestUtil
         @Test
         public void regularPropertyHonorsView() throws Exception {
             UserBean result = MAPPER.readerWithView(PublicView.class).forType(UserBean.class)
-                    .readValue("{\"name\":\"alice\",\"password\":\"BYPASS\",\"city\":\"NY\"}");
+                    .readValue("""
+                            {"name":"alice","password":"BYPASS","city":"NY"}
+                            """);
             assertEquals("alice", result.name);
             assertNotNull(result.address);
             assertEquals("NY", result.address.city);
@@ -283,7 +297,9 @@ public class ViewCreatorDeserializationBypassTest extends DatabindTestUtil
         @Test
         public void creatorPropertyHonorsView() throws Exception {
             UserBean result = MAPPER.readerWithView(PublicView.class).forType(UserBean.class)
-                    .readValue("{\"name\":\"alice\",\"secret\":\"BYPASS\",\"city\":\"NY\"}");
+                    .readValue("""
+                            {"name":"alice","secret":"BYPASS","city":"NY"}
+                            """);
             assertEquals("alice", result.name);
             assertNotNull(result.address);
             assertEquals("NY", result.address.city);
@@ -303,9 +319,9 @@ public class ViewCreatorDeserializationBypassTest extends DatabindTestUtil
     @Nested
     class ExternalTypeId
     {
-        static final String FULL_JSON =
-                "{\"name\":\"alice\",\"secret\":\"sssh\",\"password\":\"pw\","
-                + "\"valueType\":\"string\",\"value\":{\"v\":\"x\"}}";
+        static final String FULL_JSON = """
+                {"name":"alice","secret":"sssh","password":"pw","valueType":"string","value":{"v":"x"}}
+                """;
 
         public interface Value { }
 
@@ -391,7 +407,9 @@ public class ViewCreatorDeserializationBypassTest extends DatabindTestUtil
             UserRecord result = MAPPER.readerWithView(AdminView.class)
                     .forType(UserRecord.class)
                     .withValueToUpdate(existing)
-                    .readValue("{\"name\":\"alice2\",\"role\":\"admin\"}");
+                    .readValue("""
+                            {"name":"alice2","role":"admin"}
+                            """);
             assertEquals("alice2", result.name());
             assertEquals("admin", result.role());
         }
@@ -402,7 +420,9 @@ public class ViewCreatorDeserializationBypassTest extends DatabindTestUtil
             UserRecord result = MAPPER.readerWithView(PublicView.class)
                     .forType(UserRecord.class)
                     .withValueToUpdate(existing)
-                    .readValue("{\"name\":\"alice2\",\"role\":\"HACKED\"}");
+                    .readValue("""
+                            {"name":"alice2","role":"HACKED"}
+                            """);
             assertEquals("alice2", result.name());
             assertEquals("user", result.role(),
                     "[databind#5971] @JsonView(AdminView) record component overwritten in PublicView (record-update): "

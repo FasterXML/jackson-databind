@@ -9,7 +9,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ViewsWithCreatorTest extends DatabindTestUtil
+public class ViewsWithCreatorDeserTest extends DatabindTestUtil
 {
     static class View { }
     static class View1 extends View { }

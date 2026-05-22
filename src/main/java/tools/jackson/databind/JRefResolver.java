@@ -13,14 +13,14 @@ public class JRefResolver {
 
 	private final JRefPath jrefPath;
 	private final SetterFunction setter;
-	
+
 	public JRefResolver(JRefPath jrefPath, SetterFunction setter) {
 		Objects.requireNonNull(jrefPath, "jrefPath must not be null");
 		this.jrefPath = jrefPath;
 		Objects.requireNonNull(setter, "setter function must must not be null");
 		this.setter = setter;
 	}
-	
+
 	public Object resolve(Object root) throws JRefResolveException {
 		if (root == null) {
 			throw new JRefResolveException(this, "Root object cannot be null");
@@ -41,7 +41,7 @@ public class JRefResolver {
 			return uri;
 		}
 	}
-	
+
 	protected String unescape(String segment) {
 		return segment.replace("~1", "/").replace("~0", "~");
 	}
@@ -139,7 +139,6 @@ public class JRefResolver {
 		}
 	}
 
-
 	protected Object _get(Iterable<String> segments, Object subject) {
 		String cursor = "";
 		for (String segment : segments) {
@@ -159,11 +158,13 @@ public class JRefResolver {
 		if (parts.length > 1) {
 			Object refValue = get(decode_uri(parts[1]), root);
 			if (refValue == null) {
-				throw new JRefResolveException(this, root, "Invalid local reference: path=" + this.jrefPath.getPath() + " not found on root=" + root);
+				throw new JRefResolveException(this, root,
+						"Invalid local reference: path=" + this.jrefPath.getPath() + " not found on root=" + root);
 			}
 			return refValue;
 		}
-		throw new JRefResolveException(this, root, "Invalid local reference: path=" + this.jrefPath.getPath() + " does not have preceding '#'");
+		throw new JRefResolveException(this, root,
+				"Invalid local reference: path=" + this.jrefPath.getPath() + " does not have preceding '#'");
 	}
 
 }

@@ -24,7 +24,11 @@ public class JRefBeanDeserializerTest {
 		Map<String, Object> props;
 		@JsonProperty
 		Human o;
-
+		@JsonProperty
+		String otherName;
+		@JsonProperty
+		Map<Object,Object> moreProps;
+		
 		public Human() {
 		}
 
@@ -55,7 +59,17 @@ public class JRefBeanDeserializerTest {
 	}
 	
 	@Test
-	public void testCollectionItemPath() throws Exception {
+	public void testStringItemPath() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		// Input has first item in Message.items list fully defined, and second item jrefs to first item
+		String message = "{\"items\": [{ \"name\": \"sam\", \"parent\": null, \"props\": { \"p\": 1 }, \"otherName\": { \"$ref\": \"#/items/0/name\" } }]}";
+		
+      	Message msg = mapper.readValue(message, Message.class);
+      	Assert.assertEquals(msg.items.get(0).name, msg.items.get(0).otherName);
+	}
+
+	@Test
+	public void testCollectionStringKeyItemPath() throws Exception {
 		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
 		// Input has first item in Message.items list fully defined, and second item jrefs to first item
 		String message = "{\"items\": [{ \"name\": \"sam\", \"parent\": null, \"props\": { \"p\": 1 } }, { \"$ref\": \"#/items/0\" }]}";
@@ -63,6 +77,17 @@ public class JRefBeanDeserializerTest {
       	Message msg = mapper.readValue(message, Message.class);
       	Assert.assertEquals(msg.items.get(0), msg.items.get(1));
 	}
+	
+	@Test
+	public void testCollectionObjectKeyItemPath() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		// Input has first item in Message.items list fully defined, and second item jrefs to first item
+		String message = "{\"items\": [{ \"name\": \"sam\", \"parent\": null, \"props\": { \"p\": 1 } }, { \"name\": \"wendy\", \"parent\": null, \"moreProps\": { \"$ref\": \"#/items/0/props\" }}]}";
+		
+      	Message msg = mapper.readValue(message, Message.class);
+      	Assert.assertEquals(msg.items.get(0).props, msg.items.get(1).moreProps);
+	}
+
 	@Test
 	public void testJRef() throws Exception {
 		ObjectMapper mapper = buildObjectMapperWithJRefSupport();

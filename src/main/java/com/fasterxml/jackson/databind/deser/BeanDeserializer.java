@@ -483,9 +483,7 @@ public class BeanDeserializer
                 // [databind#3938]: except if it's MethodProperty
                 (!_beanType.isRecordType() || (prop instanceof MethodProperty))) {
 
-                // [databind#5969]: must honor active view here too -- otherwise
-                // setterless/merging collection properties hidden by view can be
-                // populated via the buffering path below.
+                // [databind#5969]: must honor active view here too
                 if ((activeView != null) && !prop.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;

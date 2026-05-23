@@ -3,6 +3,8 @@ package tools.jackson.databind.ser.enums;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -89,6 +91,10 @@ public class EnumSerializationTest
         private LowerCaseEnum() { }
         @Override
         public String toString() { return name().toLowerCase(); }
+    }
+
+    protected static enum LocaleSensitiveEnum {
+        IS_ADMIN
     }
 
     static class MapBean {
@@ -391,6 +397,26 @@ public class EnumSerializationTest
             .build();
         assertEquals(q("b"), m.writeValueAsString(TestEnum.B));
         // NOTE: cannot be dynamically changed
+    }
+
+    // [databind#5993]: Follow-up to #5994; enum lower-case serialization
+    // should not use the default Locale
+    @ResourceLock(Resources.LOCALE)
+    @Test
+    public void testEnumFeature_WRITE_ENUMS_TO_LOWERCASEUsesRootLocale() throws Exception {
+        Locale old = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+            assertEquals("\u0131", "I".toLowerCase(),
+                    "Test requires a default locale where \"I\".toLowerCase() yields U+0131");
+
+            ObjectMapper m = jsonMapperBuilder()
+                    .configure(EnumFeature.WRITE_ENUMS_TO_LOWERCASE, true)
+                    .build();
+            assertEquals(q("is_admin"), m.writeValueAsString(LocaleSensitiveEnum.IS_ADMIN));
+        } finally {
+            Locale.setDefault(old);
+        }
     }
 }
 

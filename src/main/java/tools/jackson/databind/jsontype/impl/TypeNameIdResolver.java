@@ -87,7 +87,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                 if (forDeser) {
                     // [databind#1983]: for case-insensitive lookups must canonicalize:
                     if (caseInsensitive) {
-                        id = id.toLowerCase();
+                        id = id.toLowerCase(Locale.ROOT);
                     }
                     // One more problem; sometimes we have same name for multiple types;
                     // if so, use most specific
@@ -170,7 +170,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     protected JavaType _typeFromId(String id) {
         // [databind#1983]: for case-insensitive lookups must canonicalize:
         if (_caseInsensitive) {
-            id = id.toLowerCase();
+            id = id.toLowerCase(Locale.ROOT);
         }
         // Now: if no type is found, should we try to locate it by
         // some other means? (specifically, if in same package as base type,

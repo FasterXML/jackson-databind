@@ -241,6 +241,8 @@ Lee Jiwon (@dlwldnjs1009)
   [3.2.0]
  * Fixed #5977: Apply per-property DYNAMIC typing override to `ObjectArraySerializer`
   [3.2.0]
+ ( Fixed #6010: `WRITE_ENUMS_TO_LOWERCASE` must use `Locale.ROOT` for case folding
+  [3.2.0]
 
 Garret Wilson (@garretwilson)
  * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore

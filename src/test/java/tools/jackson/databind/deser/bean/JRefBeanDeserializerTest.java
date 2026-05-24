@@ -16,18 +16,73 @@ import tools.jackson.databind.ObjectMapper;
 
 public class JRefBeanDeserializerTest {
 
-	static class M {
+	static class StringItems {
 		@JsonProperty
 		List<String> items;
-	}
-	@Test
-	public void testMyStringsJRefPath() throws Exception {
-		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
-		String input = "{\"items\":[\"hello\", { \"$ref\": \"#/items/0\" }]}";
-		M result = mapper.readValue(input, M.class);
-		assertEquals(result.items.get(0), result.items.get(1));
+		@JsonProperty
+		String second;
 	}
 	
+	@Test
+	public void testStringItems() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		String input = "{\"items\":[\"hello\", { \"$ref\": \"#/items/0\" }], \"second\": { \"$ref\": \"#/items/0\" }}";
+		StringItems result = mapper.readValue(input, StringItems.class);
+		assertEquals(result.items.get(0), result.items.get(1));
+		assertEquals(result.items.get(0), result.second);
+	}
+	static class IntegerItems {
+		@JsonProperty
+		List<Integer> items;
+	}
+	
+	@Test
+	public void testIntegerItems() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		String input = "{\"items\":[5, { \"$ref\": \"#/items/0\" }]}";
+		IntegerItems result = mapper.readValue(input, IntegerItems.class);
+		assertEquals(result.items.get(0), result.items.get(1));
+	}
+
+	static class DoubleItems {
+		@JsonProperty
+		List<Double> items;
+	}
+	
+	@Test
+	public void testDoubleItems() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		String input = "{\"items\":[5.0, { \"$ref\": \"#/items/0\" }]}";
+		DoubleItems result = mapper.readValue(input, DoubleItems.class);
+		assertEquals(result.items.get(0), result.items.get(1));
+	}
+
+	static class FloatItems {
+		@JsonProperty
+		List<Float> items;
+	}
+	
+	@Test
+	public void testFloatItems() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		String input = "{\"items\":[5.0, { \"$ref\": \"#/items/0\" }]}";
+		FloatItems result = mapper.readValue(input, FloatItems.class);
+		assertEquals(result.items.get(0), result.items.get(1));
+	}
+
+	static class BooleanItems {
+		@JsonProperty
+		List<Boolean> items;
+	}
+	
+	@Test
+	public void testBooleanItems() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		String input = "{\"items\":[true, { \"$ref\": \"#/items/0\" }]}";
+		BooleanItems result = mapper.readValue(input, BooleanItems.class);
+		assertEquals(result.items.get(0), result.items.get(1));
+	}
+
 	static class Human {
 		@JsonProperty
 		String name;

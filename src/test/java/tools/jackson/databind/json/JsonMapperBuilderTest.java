@@ -35,6 +35,8 @@ public class JsonMapperBuilderTest extends DatabindTestUtil
         assertTrue(mapper.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
         assertTrue(mapper.isEnabled(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS));
         assertFalse(mapper.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+        // [databind#6011]
+        assertFalse(mapper.isEnabled(MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX));
     }
 
     // Test 1: Builder with stream read features

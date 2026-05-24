@@ -286,7 +286,8 @@ public final class StringCollectionDeserializer
                  *   notably XML. Note, however, that while we can get String, we can't
                  *   assume that's what we use due to custom deserializer
                  */
-                String value;
+            	// XXX JRef
+                Object value;
                 if (p.nextStringValue() == null) {
                     JsonToken t = p.currentToken();
                     if (t == JsonToken.END_ARRAY) {
@@ -312,8 +313,11 @@ public final class StringCollectionDeserializer
                         continue;
                     }
                 }
-
-                result.add(value);
+                // XXX JREF
+                setWithJRef(ctxt, value, (v) -> {
+                	result.add((String) v);
+                	return result;
+                });
             }
         } catch (Exception e) {
             throw DatabindException.wrapWithPath(ctxt, e,

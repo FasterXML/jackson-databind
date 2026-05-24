@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser.bean;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 import java.util.List;
@@ -15,6 +16,18 @@ import tools.jackson.databind.ObjectMapper;
 
 public class JRefBeanDeserializerTest {
 
+	static class M {
+		@JsonProperty
+		List<String> items;
+	}
+	@Test
+	public void testMyStringsJRefPath() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		String input = "{\"items\":[\"hello\", { \"$ref\": \"#/items/0\" }]}";
+		M result = mapper.readValue(input, M.class);
+		assertEquals(result.items.get(0), result.items.get(1));
+	}
+	
 	static class Human {
 		@JsonProperty
 		String name;

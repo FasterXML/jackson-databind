@@ -11,6 +11,8 @@ import java.util.function.Function;
 
 public class JRefResolver {
 
+	public static final String JREF_RESOLVER_LIST_CONTEXT_ATTR = JRefResolver.class.getName() + ".jrefs";
+
 	private final JRefPath jrefPath;
 	private final SetterFunction setter;
 

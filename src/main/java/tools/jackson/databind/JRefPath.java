@@ -6,6 +6,7 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 
 public class JRefPath {
 
+	public static final String JREF_REF = "$ref";
 	private final DeserializationContext ctxt;
 	private final String path;
 	private final ValueDeserializer<?> deserializer;

@@ -481,11 +481,7 @@ public abstract class ValueDeserializer<T>
     }
     
     /**
-     * Method to collect all property names including nested unwrapped properties.
-     *<p>
-     * NOTE: if no names are returned, properties are considered to be
-     * unknown and caller will NOT assume names are statically known: this
-     * can affect processing of things like unwrapped properties.
+     * Method to collect all property names including nested unwrapped properties
      *
      * @param names (not null) Set to add property names to; for both regular
      *   and "any" properties.
@@ -505,19 +501,35 @@ public abstract class ValueDeserializer<T>
     }
 
     // XXX JREF New method for supporting JREF for deserialization
-    public void setWithJRef(DeserializationContext ctxt, Object value, SetterFunction cb) throws RuntimeException {
+    /**
+     * Set the value with the 
+     * @param ctxt the deserialization context.  Must not be null.
+     * @param value the value to use to set.  If an instanceof JRefPath,
+     * then a JRefResolver is created, and calling the SetterFunction is deferred until after the root
+     * has been returned. If not JRefPath, then the SetterFunction set is called
+     * immediately with the value Object.
+     * @param f the SetterFunction to use to set to the given value.
+     * @throws RuntimeException if JRefResolver cannot be created, or the 
+     * SetterFunction.set throws a RuntimeException
+     */
+    public void setWithJRef(DeserializationContext ctxt, Object value, SetterFunction f) throws RuntimeException {
+    	// If the value (result of deserialization) is a JRefPath
     	if (value instanceof JRefPath) {
-        	JRefResolver resolver = new JRefResolver((JRefPath) value, cb);
 			@SuppressWarnings("unchecked")
-			List<JRefResolver> jrefs = (List<JRefResolver>) ctxt.getAttribute("jrefs");
+			List<JRefResolver> jrefs = (List<JRefResolver>) ctxt.getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR);
 			if (jrefs == null) {
+				// Lazy creation of JRefResolver list
 				jrefs = new ArrayList<JRefResolver>();
-				ctxt.setAttribute("jrefs", jrefs);
+				ctxt.setAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR, jrefs);
 			} 
-			jrefs.add(resolver);
+			// Add this new resolver to the jrefs attribute (List).
+			// The JRefResolver resolve method is later called to actually
+			// resolve, given the root object in the object graph
+			jrefs.add(new JRefResolver((JRefPath) value, f));
     	} else {
+    		// We simply call the given SetterFunction to set with the value param
     		try {
-				cb.set(value);
+				f.set(value);
 			} catch (Throwable e) {
 				if (e instanceof RuntimeException) throw (RuntimeException) e;
 				else throw new RuntimeException(e);

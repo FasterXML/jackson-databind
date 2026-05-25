@@ -29,4 +29,11 @@ public class JRefResolveException extends RuntimeException {
 	public Object getRoot() {
 		return this.root;
 	}
+
+	@Override
+	public String toString() {
+		return "JRefResolveException [resolver=" + resolver + ", root=" + root + ", message=" + super.getMessage()
+				+ "]";
+	}
+
 }

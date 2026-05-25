@@ -16,6 +16,27 @@ import tools.jackson.databind.ObjectMapper;
 
 public class JRefBeanDeserializerTest {
 
+	static class IntType {
+		@JsonProperty
+		int i;
+	}
+	
+	static class IntItems {
+		@JsonProperty
+		int j;
+		@JsonProperty
+		List<IntType> items;
+	}
+	
+	@Test
+	public void testIntItems() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		String input = "{\"j\": 20, \"items\":[ { \"i\": 10}, { \"i\": { \"$ref\": \"#/items/0/i\" }}, { \"i\": { \"$ref\": \"#/j\" }}]}";
+		IntItems result = mapper.readValue(input, IntItems.class);
+		assertEquals(result.items.get(0).i, result.items.get(1).i);
+		assertEquals(result.j, result.items.get(2).i);
+	}
+
 	static class StringItems {
 		@JsonProperty
 		List<String> items;

@@ -1,7 +1,5 @@
 package tools.jackson.databind.cfg;
 
-import tools.jackson.databind.DatabindException;
-
 /**
  * New Datatype-specific configuration options related to handling of
  * {@link java.lang.Enum} types.
@@ -105,7 +103,8 @@ public enum EnumFeature implements DatatypeFeature
 
     /**
      * Feature that determines standard serialization mechanism used for
-     * Enum values: if enabled, return value of <code>Enum.name().toLowerCase()</code>
+     * Enum values: if enabled, return value of
+     * <code>Enum.name().toLowerCase(Locale.ROOT)</code>
      * is used; if disabled, return value of <code>Enum.name()</code> is used.
      *<p>
      * NOTE: this feature CANNOT be changed on per-call basis: it will have to

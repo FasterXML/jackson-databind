@@ -219,6 +219,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #5977: Apply per-property DYNAMIC typing override to `ObjectArraySerializer`
  (fix by Lee Jiwon)
+#6010: `WRITE_ENUMS_TO_LOWERCASE` must use `Locale.ROOT` for case folding
+ (fix by Lee Jiwon)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 
@@ -256,6 +258,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   deserializer receives empty Object
  (reported by Severin K)
  (fix by @cowtowncoder, w/ Claude code)
+#6011: Add `MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX` in
+  `MapperBuilder.configureForJackson2()`
+ (suggested by Dmitry S)
 
 3.1.3 (01-May-2026)
 

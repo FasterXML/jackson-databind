@@ -154,7 +154,7 @@ public final class EnumValues
         // [databind#4788] Since 2.18.2 : EnumFeature.WRITE_ENUMS_TO_LOWERCASE should not
         //                 override @JsonProperty values
         if (toLowerCase) {
-            return otherName.toLowerCase();
+            return otherName.toLowerCase(Locale.ROOT);
         }
         return otherName;
     }

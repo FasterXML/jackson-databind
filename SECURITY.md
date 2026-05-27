@@ -8,8 +8,7 @@ Current status of open branches, with new releases, can be found from [Jackson R
 
 ## Reporting a Vulnerability
 
-The recommended mechanism for reporting possible security vulnerabilities follows
-so-called "Coordinated Vulnerability Disclosure" (see [definition of CVD](https://certcc.github.io/CERT-Guide-to-CVD/tutorials/response_process/) for general idea).
+The recommended mechanism for reporting possible security vulnerabilities follows so-called "Coordinated Vulnerability Disclosure" (see [definition of CVD](https://certcc.github.io/CERT-Guide-to-CVD/tutorials/response_process/) for general idea).
 The first step is to file a [Tidelift security contact](https://tidelift.com/security): Tidelift will route all reports via their system to maintainers of relevant package(s), and start the process that will evaluate concern and issue possible fixes, send update notices and so on.
 Note that you do not need to be a Tidelift subscriber to file a security contact.
 

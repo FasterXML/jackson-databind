@@ -387,7 +387,7 @@ public class ReadButDontWriteProps {
 
 in this case, no "name" property would be written out (since 'getter' is ignored); but if "name" property was found from JSON, it would be assigned to POJO property!
 
-For a more complete explanation of all possible ways of ignoring properties when writing out JSON, see "Filtering properties" in Jackson documentation.
+For a more complete explanation of all possible ways of ignoring properties when writing out JSON, check ["Filtering properties"](https://www.cowtowncoder.com/blog/archives/2011/02/entry_443.html) article.
 
 ### Annotations: using custom constructor
 
@@ -410,7 +410,8 @@ public class CtorBean
 }
 ```
 
-Constructors are especially useful in supporting immutable objects.
+Constructors are especially useful in supporting use of
+[Immutable objects](https://www.cowtowncoder.com/blog/archives/2010/08/entry_409.html).
 
 Alternatively, you can also define "factory methods":
 

@@ -2667,7 +2667,7 @@ public class ObjectMapper
                         _findRootDeserializer(ctxt, valueType), null);
                 ctxt.checkUnresolvedObjectId();
                 // XXX JREF resolve jrefs
-                resolveJRefs(ctxt, result);
+                ctxt.getJRefResolvers().forEach(r -> r.resolve(result));
             }
             if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
                 _verifyNoTrailingTokens(p, ctxt, valueType);
@@ -2676,21 +2676,6 @@ public class ObjectMapper
         }
     }
 
-    /**
-     * Resolve JRefs found during parsing given the root object
-     * @param ctxt the deserialization context.  Must not be null.
-     * @param root the root object to resolve with.  Should not be null.
-     */
-    protected void resolveJRefs(DeserializationContext ctxt, Object root) {
-        @SuppressWarnings("unchecked")
-		List<JRefResolver> jrefs = (List<JRefResolver>) ctxt.getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR);
-        if (jrefs != null) {
-        	jrefs.forEach(r -> {
-        		r.resolve(root);
-        	});
-        }
-    }
-    
     /**
      * Similar to {@link #_readMapAndClose} but specialized for <code>JsonNode</code> reading.
      */

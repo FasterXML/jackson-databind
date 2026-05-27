@@ -1,8 +1,6 @@
 package tools.jackson.databind;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 import tools.jackson.core.JacksonException;
@@ -515,24 +513,17 @@ public abstract class ValueDeserializer<T>
     public void setWithJRef(DeserializationContext ctxt, Object value, SetterFunction f) throws RuntimeException {
     	// If the value (result of deserialization) is a JRefPath
     	if (value instanceof JRefPath) {
-			@SuppressWarnings("unchecked")
-			List<JRefResolver> jrefs = (List<JRefResolver>) ctxt.getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR);
-			if (jrefs == null) {
-				// Lazy creation of JRefResolver list
-				jrefs = new ArrayList<JRefResolver>();
-				ctxt.setAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR, jrefs);
-			} 
 			// Add this new resolver to the jrefs attribute (List).
 			// The JRefResolver resolve method is later called to actually
 			// resolve, given the root object in the object graph
-			jrefs.add(new JRefResolver((JRefPath) value, f));
-    	} else {
+    		ctxt.addJRefResolver(new JRefResolver((JRefPath) value,f));
+   	} else {
     		// We simply call the given SetterFunction to set with the value param
     		try {
 				f.set(value);
 			} catch (Throwable e) {
 				if (e instanceof RuntimeException) throw (RuntimeException) e;
-				else throw new RuntimeException(e);
+				else throw new RuntimeException("Throwable in SetterFunction.f",e);
 			}
     	}
 	}

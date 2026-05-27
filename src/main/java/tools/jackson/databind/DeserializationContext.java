@@ -2268,6 +2268,23 @@ public abstract class DeserializationContext
                 valueId, forProperty, beanInstance);
     }
 
+    // XXX JREF
+    public List<JRefResolver> getJRefResolvers() {
+		@SuppressWarnings("unchecked")
+		List<JRefResolver> jrefs = (List<JRefResolver>) getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR);
+		return jrefs == null?List.of():jrefs;
+    }
+    
+    public void addJRefResolver(JRefResolver resolver) {
+		@SuppressWarnings("unchecked")
+		List<JRefResolver> jrefs = (List<JRefResolver>) getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR);
+		if (jrefs == null) {
+			// Lazy creation of JRefResolver list
+			jrefs = new ArrayList<JRefResolver>();
+			setAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR, jrefs);
+		} 
+		jrefs.add(resolver);
+    }
     /*
     /**********************************************************************
     /* Other internal methods

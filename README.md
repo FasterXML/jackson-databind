@@ -17,7 +17,7 @@ Naming of classes uses word 'JSON' in many places even though there is no actual
 | Build (CI) | [![Build (github)](https://github.com/FasterXML/jackson-databind/actions/workflows/main.yml/badge.svg)](https://github.com/FasterXML/jackson-databind/actions/workflows/main.yml) |
 | Artifact | [![Maven Central](https://img.shields.io/maven-central/v/tools.jackson.core/jackson-databind.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/tools.jackson.core/jackson-databind) |
 | OSS Sponsorship | [![Tidelift](https://tidelift.com/badges/package/maven/tools.jackson.core:jackson-databind)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-databind?utm_source=maven-tools-jackson-core-jackson-databind&utm_medium=referral&utm_campaign=readme) |
-| Javadocs | [![Javadoc](https://javadoc.io/badge/tools.jackson.core/jackson-databind.svg)](http://www.javadoc.io/doc/tools.jackson.core/jackson-databind) |
+| Javadocs | [![Javadoc](https://javadoc.io/badge/tools.jackson.core/jackson-databind.svg)](https://javadoc.io/doc/tools.jackson.core/jackson-databind) |
 | Code coverage (3.x) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-databind/coverage.svg?branch=3.x)](https://codecov.io/github/FasterXML/jackson-databind?branch=3.x) |
 | OpenSSF Score | [![OpenSSF  Scorecard](https://api.securityscorecards.dev/projects/github.com/FasterXML/jackson-databind/badge)](https://securityscorecards.dev/viewer/?uri=github.com/FasterXML/jackson-databind) |
 
@@ -387,7 +387,7 @@ public class ReadButDontWriteProps {
 
 in this case, no "name" property would be written out (since 'getter' is ignored); but if "name" property was found from JSON, it would be assigned to POJO property!
 
-For a more complete explanation of all possible ways of ignoring properties when writing out JSON, check ["Filtering properties"](http://www.cowtowncoder.com/blog/archives/2011/02/entry_443.html) article.
+For a more complete explanation of all possible ways of ignoring properties when writing out JSON, check ["Filtering properties"](https://www.cowtowncoder.com/blog/archives/2011/02/entry_443.html) article.
 
 ### Annotations: using custom constructor
 
@@ -411,7 +411,7 @@ public class CtorBean
 ```
 
 Constructors are especially useful in supporting use of
-[Immutable objects](http://www.cowtowncoder.com/blog/archives/2010/08/entry_409.html).
+[Immutable objects](https://www.cowtowncoder.com/blog/archives/2010/08/entry_409.html).
 
 Alternatively, you can also define "factory methods":
 

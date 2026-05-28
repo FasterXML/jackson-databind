@@ -444,7 +444,7 @@ public abstract class BeanSerializerBase
      */
     protected static BeanSerializerBase _asBeanSerializer(ValueSerializer<?> ser)
     {
-        // Bounded loop guards against a pathological self-referential delegatee chain
+        // Fixed depth bound to avoid spinning on a pathological delegatee chain
         for (int i = 0; (ser != null) && (i < 100); ++i) {
             if (ser instanceof BeanSerializerBase bs) {
                 return bs;

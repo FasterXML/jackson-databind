@@ -60,17 +60,17 @@ public class CurrentValueDeser5980Test extends DatabindTestUtil
         public String name;
     }
 
+    // Captures `currentValue()` seen while deserializing the `assets` property,
+    // so each test can positively assert the expected enclosing type.
+    static Object CURRENT_VALUE;
+
     // Consume the whole array first (pops stream context back to enclosing object),
-    // then look at currentValue -- as the reporter's deserializer does.
+    // then capture currentValue -- as the reporter's deserializer does.
     static class AssetDeserializer extends ValueDeserializer<List<Asset>> {
         @Override
         public List<Asset> deserialize(JsonParser p, DeserializationContext ctxt) {
             p.readValueAsTree();
-            Object cv = p.currentValue();
-            assertNotNull(cv, "currentValue() should be the enclosing value, was null");
-            // enclosing value is either Project or ProjectWithUnwrapped, never a Source
-            assertFalse(cv instanceof Source || cv instanceof UnwrappedSource,
-                    "currentValue() should be the enclosing value, was: " + cv.getClass().getName());
+            CURRENT_VALUE = p.currentValue();
             return List.of();
         }
     }
@@ -86,21 +86,23 @@ public class CurrentValueDeser5980Test extends DatabindTestUtil
     // Property-based creator sibling must not clobber enclosing currentValue
     @Test
     public void currentValueNotClobberedByCreator() throws Exception {
+        CURRENT_VALUE = null;
         String json = """
                 { "source": { "id": "s1" }, "assets": [ { "name": "a1" } ] }
                 """;
-        Project p = MAPPER.readValue(json, Project.class);
-        assertInstanceOf(Project.class, p);
+        MAPPER.readValue(json, Project.class);
+        assertInstanceOf(Project.class, CURRENT_VALUE);
     }
 
     // Same, but for the property-based-creator + `@JsonUnwrapped` path
     @Test
     public void currentValueNotClobberedByUnwrappedCreator() throws Exception {
+        CURRENT_VALUE = null;
         String json = """
                 { "source": { "id": "s1", "first": "Bob", "last": "Smith" },
                   "assets": [ { "name": "a1" } ] }
                 """;
-        ProjectWithUnwrapped p = MAPPER.readValue(json, ProjectWithUnwrapped.class);
-        assertInstanceOf(ProjectWithUnwrapped.class, p);
+        MAPPER.readValue(json, ProjectWithUnwrapped.class);
+        assertInstanceOf(ProjectWithUnwrapped.class, CURRENT_VALUE);
     }
 }

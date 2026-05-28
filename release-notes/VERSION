@@ -219,6 +219,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #5977: Apply per-property DYNAMIC typing override to `ObjectArraySerializer`
  (fix by Lee Jiwon)
+#5980: Property-based Creator clobbers enclosing value's `JsonParser.currentValue()`
+ (reported by Desmond K)
+ (fix by @cowtowncoder, w/ Claude code)
 #6010: `WRITE_ENUMS_TO_LOWERCASE` must use `Locale.ROOT` for case folding
  (fix by Lee Jiwon)
 #6017: Make `@JsonUnwrapped` compatible with `@JsonSerialize(converter = )`

@@ -498,36 +498,14 @@ public abstract class ValueDeserializer<T>
         return false;
     }
 
-    // XXX JREF New method for supporting JREF for deserialization
-    /**
-     * Set the value with the 
-     * @param ctxt the deserialization context.  Must not be null.
-     * @param value the value to use to set.  If an instanceof JRefPath,
-     * then a JRefResolver is created, and calling the SetterFunction is deferred until after the root
-     * has been returned. If not JRefPath, then the SetterFunction set is called
-     * immediately with the value Object.
-     * @param f the SetterFunction to use to set to the given value.
-     * @throws RuntimeException if JRefResolver cannot be created, or the 
-     * SetterFunction.set throws a RuntimeException
-     */
-    public void setWithJRef(DeserializationContext ctxt, Object value, SetterFunction f) throws RuntimeException {
-    	// If the value (result of deserialization) is a JRefPath
-    	if (value instanceof JRefPath) {
-			// Add this new resolver to the jrefs attribute (List).
-			// The JRefResolver resolve method is later called to actually
-			// resolve, given the root object in the object graph
-    		ctxt.addJRefResolver(new JRefResolver((JRefPath) value,f));
-   	} else {
-    		// We simply call the given SetterFunction to set with the value param
-    		try {
-				f.set(value);
-			} catch (Throwable e) {
-				if (e instanceof RuntimeException) throw (RuntimeException) e;
-				else throw new RuntimeException("Throwable in SetterFunction.f",e);
-			}
-    	}
+    // XXX JREF support method for subclasses
+	public JRefPath findJRefPathFromValue(DeserializationContext ctxt, Object value) {
+		if (ctxt.getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR) != null && value instanceof JRefPath) {
+			return (JRefPath) value;
+		} else {
+			return null;
+		}
 	}
-
 
     /*
     /**********************************************************************

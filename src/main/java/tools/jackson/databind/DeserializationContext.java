@@ -2268,23 +2268,39 @@ public abstract class DeserializationContext
                 valueId, forProperty, beanInstance);
     }
 
-    // XXX JREF
+    // XXX JREF handling start
+    public void enableJRefProcessing() {
+    	setAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR, new ArrayList<JRefResolver>());
+    }
+    
+    public boolean isJRefProcessingEnabled() {
+    	return getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR) != null;
+    }
+    
     public List<JRefResolver> getJRefResolvers() {
 		@SuppressWarnings("unchecked")
 		List<JRefResolver> jrefs = (List<JRefResolver>) getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR);
 		return jrefs == null?List.of():jrefs;
     }
     
-    public void addJRefResolver(JRefResolver resolver) {
+    public boolean addJRefResolver(JRefResolver resolver) {
 		@SuppressWarnings("unchecked")
 		List<JRefResolver> jrefs = (List<JRefResolver>) getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR);
-		if (jrefs == null) {
-			// Lazy creation of JRefResolver list
-			jrefs = new ArrayList<JRefResolver>();
-			setAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR, jrefs);
-		} 
-		jrefs.add(resolver);
+		if (jrefs != null) {
+			// If jrefs list is not set then ignore
+			return jrefs.add(resolver);
+		}
+		return false;
     }
+    
+    public JRefPath findJRefPathForValue(Object value) {
+    	if (getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR) != null && value instanceof JRefPath) {
+    		return (JRefPath) value;
+    	} else {
+    		return null;
+    	}
+    }
+    // XXX JREF handling end
     /*
     /**********************************************************************
     /* Other internal methods

@@ -4,8 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.ArrayList;
-import java.util.List;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
@@ -13,7 +11,6 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.deser.SettableBeanProperty;
-import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.Annotations;
@@ -132,21 +129,23 @@ public final class MethodProperty
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         
-        // XXX JREF handling.  ValueDeserializer.setWithJRef
-        // checks the return value, and if type JRefPath
-        // it defers calling the provided SetterFunction until
-        // the value is resolved (after root deserialization complete).
-        // if value is not of type JRefPath, then the given setter function
-        // is called immediately with the given value
-        _valueDeserializer.setWithJRef(ctxt, value, (v) -> {
+        // XXX JREF handling
+        // Given ctxt/config and value, return JRefPath if value
+        // is instanceof JRefPath returned, otherwise returns null
+        JRefPath jrefPath = _valueDeserializer.findJRefPathFromValue(ctxt, value);
+        // Check for null/non-null
+        if (jrefPath != null) {
+        	// This is only called if JRefPath is returned from find method above
+    		ctxt.addJRefResolver(new JRefResolver(jrefPath, (v) -> {
+        		return setAndReturn(ctxt, instance, v);
+        	}));
+        } else {
    	        try {
-	            _setter.get().invokeExact(instance, v);
+	            _setter.get().invokeExact(instance, value);
 	        } catch (Throwable e) {
-	            _throwAsJacksonE(p, e, v);
+	            _throwAsJacksonE(p, e, value);
 	        }
-   	        return instance;
-        });
-
+        }
     }
 
     @Override

@@ -313,11 +313,19 @@ public final class StringCollectionDeserializer
                         continue;
                     }
                 }
-                // XXX JREF
-                setWithJRef(ctxt, value, (v) -> {
-                	result.add((String) v);
-                	return result;
-                });
+                // XXX JREF handling
+                // Given ctxt/config and value, return JRefPath if value
+                // is instanceof JRefPath returned, otherwise return null
+                JRefPath jrefPath = findJRefPathFromValue(ctxt, value);
+                // Check for null/non-null
+                if (jrefPath != null) {
+            		ctxt.addJRefResolver(new JRefResolver(jrefPath, (v) -> {
+                        result.add((String) v);
+                        return result;
+                	}));
+                } else {
+                	result.add((String) value);
+                }
             }
         } catch (Exception e) {
             throw DatabindException.wrapWithPath(ctxt, e,

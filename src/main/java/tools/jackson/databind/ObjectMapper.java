@@ -2727,8 +2727,14 @@ public class ObjectMapper
 
     // NOTE: only public to allow for testing
     public DeserializationContextExt _deserializationContext() {
-        return _deserializationContexts.createContext(deserializationConfig(),
+    	DeserializationContextExt result = _deserializationContexts.createContext(deserializationConfig(),
                 /* FormatSchema */ null, _injectableValues);
+    	for(JacksonModule m: registeredModules()) {
+    		if (m instanceof JRefModule) {
+    			result.enableJRefProcessing();
+    		}
+    	}
+    	return result;
     }
 
     // 15-Feb-2026, tatu: Unused by databind itself

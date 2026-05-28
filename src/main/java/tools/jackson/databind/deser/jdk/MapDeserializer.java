@@ -20,6 +20,8 @@ import tools.jackson.databind.AnnotationIntrospector;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationConfig;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JRefPath;
+import tools.jackson.databind.JRefResolver;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.KeyDeserializer;
 import tools.jackson.databind.MapperFeature;
@@ -689,15 +691,26 @@ public class MapDeserializer
                 if (useObjectId) {
                     referringAccumulator.put(key, value);
                 } else {
-                	// XXX JREF
-                	final String k = key;
-                	this.setWithJRef(ctxt, value, (v) -> {
-                        Object oldValue = result.put(k, v);
+                    // XXX JREF handling
+                    // Given ctxt/config and value, return JRefPath if value
+                    // is instanceof JRefPath returned, otherwise return null
+                    JRefPath jrefPath = findJRefPathFromValue(ctxt, value);
+                    // Check for null/non-null
+                    if (jrefPath != null) {
+                    	final String k = key;
+                		ctxt.addJRefResolver(new JRefResolver(jrefPath, (v) -> {
+                            Object oldValue = result.put(k, v);
+                            if (oldValue != null) {
+                                _squashDups(ctxt, result, k, oldValue, v);
+                            }   
+                            return result;
+                    	}));
+                    } else {
+                        Object oldValue = result.put(key, value);
                         if (oldValue != null) {
-                            _squashDups(ctxt, result, k, oldValue, v);
+                            _squashDups(ctxt, result, key, oldValue, value);
                         }   
-                        return result;
-                	});
+                    }
                 }
             } catch (UnresolvedForwardReference reference) {
                 handleUnresolvedReference(ctxt, referringAccumulator, key, reference);

@@ -450,6 +450,10 @@ public abstract class BeanSerializerBase
                 return bs;
             }
             ser = ser.getDelegatee();
+            if (delegatee == ser) { // just in case: avoid infinite loop
+                break;
+            }
+            ser = delegatee;
         }
         return null;
     }

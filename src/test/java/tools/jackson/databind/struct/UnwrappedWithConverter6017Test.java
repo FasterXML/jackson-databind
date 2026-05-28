@@ -4,12 +4,15 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // [databind#6017]: `@JsonUnwrapped` should be compatible with `@JsonSerialize(converter = )`
 public class UnwrappedWithConverter6017Test extends DatabindTestUtil
@@ -43,6 +46,17 @@ public class UnwrappedWithConverter6017Test extends DatabindTestUtil
         public String coords = "2,3";
     }
 
+    // [databind#6017]: converter-produced unwrapped property ("x") collides with
+    // a regular outer property; conflict detection (#2883) should see through the
+    // converting serializer and report it.
+    static class OuterConflict {
+        public int x = 1;
+
+        @JsonUnwrapped
+        @JsonSerialize(converter = PointConverter.class)
+        public String coords = "2,3";
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
@@ -57,5 +71,13 @@ public class UnwrappedWithConverter6017Test extends DatabindTestUtil
         assertEquals("""
                 {"p_x":2,"p_y":3,"name":"test"}""",
                 MAPPER.writeValueAsString(new OuterPrefixed()));
+    }
+
+    @Test
+    public void testUnwrappedConverterPropertyConflictDetected() {
+        DatabindException e = assertThrows(DatabindException.class,
+                () -> MAPPER.writeValueAsString(new OuterConflict()));
+        assertTrue(e.getMessage().contains("Conflict between unwrapped property 'x'"),
+                "Unexpected message: " + e.getMessage());
     }
 }

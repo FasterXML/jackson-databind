@@ -1895,7 +1895,7 @@ Fawzi Essam (@iifawzi)
   (2.18.4)
 
 Omkhar Arasaratnam (@omkhar)
- * Reported #5950: Improve `UUIDeserializer` error handling
+ * Reported #5950: Improve `UUIDDeserializer` error handling
   (2.18.8)
  * Reported #5951: Improve `InetSocketAddress` deserialization
   (2.18.8)

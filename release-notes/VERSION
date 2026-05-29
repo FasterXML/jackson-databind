@@ -11,7 +11,7 @@ No changes since 3.1
 
 3.1.4 (not yet released)
 
-#5950: Improve `UUIDeserializer` error handling
+#5950: Improve `UUIDDeserializer` error handling
  (reported, fix suggested by Omkhar A)
 #5951: Improve `InetSocketAddress` deserialization
  (reported by Omkhar A)

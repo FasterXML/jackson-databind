@@ -342,7 +342,7 @@ Michael Orzechowski (@MikeBlink)
   [3.1.3]
 
 Omkhar Arasaratnam (@omkhar)
- * Reported, suggested fix for #5950: Improve `UUIDeserializer` error handling
+ * Reported, suggested fix for #5950: Improve `UUIDDeserializer` error handling
   [3.1.4]
  * Reported, suggested fix for #5951: Improve `InetSocketAddress` deserialization
   [3.1.4]

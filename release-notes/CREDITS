@@ -555,6 +555,11 @@ Daniel Purnomo (@kyooosukedn)
    leak Builder instance (follow-up to #1496)
   [3.2.0]
 
+Desmond Koh (@deskoh)
+ * Reported #5980: Property-based Creator clobbers enclosing value's
+   `JsonParser.currentValue()`
+  [3.2.0]
+
 Manuel Hegner (@manuel-hegner)
  * Reported #6017: Make `@JsonUnwrapped` compatible with `@JsonSerialize(converter = )`
   [3.2.0]

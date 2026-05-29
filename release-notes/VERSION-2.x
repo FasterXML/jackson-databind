@@ -6,7 +6,7 @@ Project: jackson-databind
 
 2.18.8 (28-May-2026)
 
-#5950: Improve `UUIDeserializer` error handling
+#5950: Improve `UUIDDeserializer` error handling
  (reported by Omkhar A)
 #5951: Improve `InetSocketAddress` deserialization
  (reported by Omkhar A)

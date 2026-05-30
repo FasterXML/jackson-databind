@@ -117,25 +117,16 @@ public class JRefResolver {
 					}
 				}
 			}
-			return getAccessibleFieldValue(value, String.valueOf(computedSegment));
+			return getFieldValue(value, String.valueOf(computedSegment));
 		}
 	}
 
-	protected Field getAccessibleField(Class<?> clazz, String fieldName) {
+	protected Object getFieldValue(Object value, String fieldName) {
 		try {
-			Field f = clazz.getDeclaredField(fieldName);
+			Field f = value.getClass().getDeclaredField(fieldName);
 			f.setAccessible(true);
-			return f;
-		} catch (NoSuchFieldException | SecurityException e) {
-			throw new RuntimeException(String.format("Could not find field on class=%s with name=%s", clazz, fieldName),
-					e);
-		}
-	}
-
-	protected Object getAccessibleFieldValue(Object value, String fieldName) {
-		try {
-			return getAccessibleField(value.getClass(), fieldName).get(value);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
+			return f.get(value);
+		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
 			throw new RuntimeException(
 					String.format("Could not get value for field=%s on object=%s with field", fieldName, value));
 		}

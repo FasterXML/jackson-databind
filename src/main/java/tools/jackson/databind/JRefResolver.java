@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
+import tools.jackson.core.JsonPointer;
+
 public class JRefResolver {
 
 	public static final String JREF_RESOLVER_LIST_CONTEXT_ATTR = JRefResolver.class.getName() + ".jrefs";
@@ -44,16 +46,19 @@ public class JRefResolver {
 		}
 	}
 
+	private static final String SEPARATOR = String.valueOf(JsonPointer.SEPARATOR);
+	private static final String TILDE = String.valueOf('~');
+	
 	protected String unescape(String segment) {
-		return segment.replace("~1", "/").replace("~0", "~");
+		return segment.replace(JsonPointer.ESC_SLASH, SEPARATOR).replace(JsonPointer.ESC_TILDE, TILDE);
 	}
 
 	protected String escape(String segment) {
-		return segment.replace("~", "~0").replace("/", "~1");
+		return segment.replace(TILDE, JsonPointer.ESC_TILDE).replace(SEPARATOR, JsonPointer.ESC_SLASH);
 	}
 
 	protected Iterable<String> pointerSegments(String pointer) {
-		if (pointer.length() > 0 && !pointer.startsWith("/")) {
+		if (pointer.length() > 0 && !pointer.startsWith(SEPARATOR)) {
 			throw new IllegalArgumentException("Invalid JSON Pointer");
 		}
 
@@ -62,7 +67,7 @@ public class JRefResolver {
 		int segmentEnd;
 
 		while (segmentStart <= pointer.length()) {
-			int position = pointer.indexOf("/", segmentStart);
+			int position = pointer.indexOf(JsonPointer.SEPARATOR, segmentStart);
 			segmentEnd = (position == -1) ? pointer.length() : position;
 			String segment = pointer.substring(segmentStart, segmentEnd);
 			segmentStart = segmentEnd + 1;
@@ -142,7 +147,7 @@ public class JRefResolver {
 	}
 
 	protected String append(Object segment, String pointer) {
-		return pointer + "/" + escape(String.valueOf(segment));
+		return pointer + SEPARATOR + escape(String.valueOf(segment));
 	}
 
 	protected Object resolvePathToValue(Object root) {

@@ -2667,7 +2667,7 @@ public class ObjectMapper
                         _findRootDeserializer(ctxt, valueType), null);
                 ctxt.checkUnresolvedObjectId();
                 // XXX JREF resolve jrefs
-                ctxt.getJRefResolvers().forEach(r -> r.resolve(result));
+                ctxt.getJRefResolvers().forEach(r -> r.resolve(ctxt, result));
             }
             if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
                 _verifyNoTrailingTokens(p, ctxt, valueType);

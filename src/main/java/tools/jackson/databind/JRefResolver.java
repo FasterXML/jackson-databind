@@ -25,16 +25,16 @@ public class JRefResolver {
 		this.setter = setter;
 	}
 
-	public Object resolve(Object root) throws JRefResolveException {
+	public Object resolve(DeserializationContext ctxt, Object root) throws JRefResolveException {
 		if (root == null) {
-			throw new JRefResolveException(this, "Root object cannot be null");
+			throw new JRefResolveException(ctxt, this, null, "Root object cannot be null");
 		}
 		// Now that we have the root, we can lookup the object at path
-		Object value = resolvePathToValue(root);
+		Object value = resolvePathToValue(ctxt, root);
 		try {
 			return this.setter.set(value);
 		} catch (Throwable e) {
-			throw new JRefResolveException(this, root, "Exception setting value=" + value, e);
+			throw new JRefResolveException(ctxt, this, root, "Exception setting value=" + value, e);
 		}
 	}
 
@@ -150,18 +150,18 @@ public class JRefResolver {
 		return pointer + SEPARATOR + escape(String.valueOf(segment));
 	}
 
-	protected Object resolvePathToValue(Object root) {
+	protected Object resolvePathToValue(DeserializationContext ctxt, Object root) {
 		String refStr = this.jrefPath.getPath();
 		String[] parts = refStr.split("#", 2);
 		if (parts.length > 1) {
 			Object refValue = get(decode_uri(parts[1]), root);
 			if (refValue == null) {
-				throw new JRefResolveException(this, root,
+				throw new JRefResolveException(ctxt, this, root,
 						"Invalid local reference: path=" + this.jrefPath.getPath() + " not found on root=" + root);
 			}
 			return refValue;
 		}
-		throw new JRefResolveException(this, root,
+		throw new JRefResolveException(ctxt, this, root,
 				"Invalid local reference: path=" + this.jrefPath.getPath() + " does not have preceding '#'");
 	}
 

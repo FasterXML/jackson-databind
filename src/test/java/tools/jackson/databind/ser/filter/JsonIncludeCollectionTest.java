@@ -7,9 +7,11 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import tools.jackson.databind.DefaultTyping;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -308,11 +310,34 @@ public class JsonIncludeCollectionTest extends DatabindTestUtil
         }
     }
 
+    // [databind#5370]: content filtering must also apply on the typed (polymorphic)
+    // serialization path of `StringCollectionSerializer`, like the regular path and
+    // sibling `IndexedStringListSerializer` already do.
+    static class TypedStringCollectionNonEmpty {
+        @JsonInclude(content = JsonInclude.Include.NON_EMPTY)
+        public Collection<String> values;
+
+        TypedStringCollectionNonEmpty(Collection<String> v) { values = v; }
+    }
+
+    static class TypedStringCollectionNonNull {
+        @JsonInclude(content = JsonInclude.Include.NON_NULL)
+        public Collection<String> values;
+
+        TypedStringCollectionNonNull(Collection<String> v) { values = v; }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#5369]
     private final ObjectMapper MAPPER_CONTAINERS = jsonMapperBuilder()
             .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
+            .build();
+
+    // [databind#5370]: default typing forces `serializeWithType` on the String collection
+    private final ObjectMapper MAPPER_CONTAINERS_TYPED = jsonMapperBuilder()
+            .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
+            .activateDefaultTyping(NoCheckSubTypeValidator.instance, DefaultTyping.NON_FINAL)
             .build();
 
     /*
@@ -490,5 +515,26 @@ public class JsonIncludeCollectionTest extends DatabindTestUtil
 
         assertEquals(a2q("{'values':[{'k':'v'},['x']]}"),
                 MAPPER_CONTAINERS.writeValueAsString(pojo));
+    }
+
+    // [databind#5370]: NON_EMPTY content filtering applied on typed (polymorphic) path,
+    // not just the regular `serialize()` path
+    @Test
+    public void testTypedStringCollectionNonEmpty() throws Exception
+    {
+        Collection<String> set = new LinkedHashSet<>(Arrays.asList("1", "", "2"));
+        assertEquals(a2q("['tools.jackson.databind.ser.filter.JsonIncludeCollectionTest$TypedStringCollectionNonEmpty',"
+                        + "{'values':['java.util.LinkedHashSet',['1','2']]}]"),
+                MAPPER_CONTAINERS_TYPED.writeValueAsString(new TypedStringCollectionNonEmpty(set)));
+    }
+
+    // [databind#5370]: NON_NULL content filtering applied on typed (polymorphic) path
+    @Test
+    public void testTypedStringCollectionNonNull() throws Exception
+    {
+        Collection<String> set = new LinkedHashSet<>(Arrays.asList("1", null, "2"));
+        assertEquals(a2q("['tools.jackson.databind.ser.filter.JsonIncludeCollectionTest$TypedStringCollectionNonNull',"
+                        + "{'values':['java.util.LinkedHashSet',['1','2']]}]"),
+                MAPPER_CONTAINERS_TYPED.writeValueAsString(new TypedStringCollectionNonNull(set)));
     }
 }

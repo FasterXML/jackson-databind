@@ -114,7 +114,13 @@ public class StringCollectionSerializer
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
         g.assignCurrentValue(value);
-        serializeContents(value, g, ctxt);
+        if (ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
+            && ((_suppressableValue != null) || _suppressNulls)
+        ) {
+            serializeFilteredContents(value, g, ctxt);
+        } else {
+            serializeContents(value, g, ctxt);
+        }
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 

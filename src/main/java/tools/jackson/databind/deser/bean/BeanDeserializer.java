@@ -885,7 +885,14 @@ public class BeanDeserializer
             }
         }
 
-        p.assignCurrentValue(bean);
+        // [databind#5980]: Do NOT assign current value here. With property-based
+        //   creators the bean only exists after the closing END_OBJECT has been
+        //   consumed -- by which point the stream-read context has already been
+        //   popped back to the *enclosing* value. Assigning here would therefore
+        //   clobber the enclosing value's `currentValue()` (it can never reach the
+        //   bean's own, already-closed scope), breaking custom deserializers of
+        //   later sibling properties that rely on `JsonParser.currentValue()`.
+
         // [databind#4938] Since 2.19, allow returning `null` from creator,
         //  but if so, need to skip all possibly relevant content
         if (bean == null) {
@@ -1332,7 +1339,9 @@ public class BeanDeserializer
         } catch (Exception e) {
             return wrapInstantiationProblem(ctxt, e);
         }
-        p.assignCurrentValue(bean);
+        // [databind#5980]: Do NOT assign current value here -- see explanation in
+        //   `_deserializeUsingPropertyBased()`: bean only exists after END_OBJECT has
+        //   been consumed, so assigning here would clobber the *enclosing* value.
 
         // [databind#4938] Since 2.19, allow returning `null` from creator,
         //  but if so, need to skip all possibly relevant content

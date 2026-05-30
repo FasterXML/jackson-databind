@@ -2273,16 +2273,6 @@ public abstract class DeserializationContext
     	setAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR, new ArrayList<JRefResolver>());
     }
     
-    public boolean isJRefProcessingEnabled() {
-    	return getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR) != null;
-    }
-    
-    public List<JRefResolver> getJRefResolvers() {
-		@SuppressWarnings("unchecked")
-		List<JRefResolver> jrefs = (List<JRefResolver>) getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR);
-		return jrefs == null?List.of():jrefs;
-    }
-    
     public boolean addJRefResolver(JRefResolver resolver) {
 		@SuppressWarnings("unchecked")
 		List<JRefResolver> jrefs = (List<JRefResolver>) getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR);
@@ -2300,6 +2290,15 @@ public abstract class DeserializationContext
     		return null;
     	}
     }
+    
+	public void resolveJRefs(Object root) throws JacksonException {
+		@SuppressWarnings("unchecked")
+		List<JRefResolver> resolvers = (List<JRefResolver>) getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR);
+		if (resolvers != null) {
+			resolvers.forEach(r -> r.resolve(this, root));
+		}
+	}
+
     // XXX JREF handling end
     /*
     /**********************************************************************

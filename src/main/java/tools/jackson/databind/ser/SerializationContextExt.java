@@ -505,4 +505,13 @@ public class SerializationContextExt
             super(streamFactory, config, genSettings, f, cache);
         }
     }
+
+    // XXX JREF emab;e
+	public void enableJRefProcessing() {
+		setAttribute(JRefSerializer.JREF_SERIALIZER_CONTEXT_ATTR, new JRefSerializer());
+	}
+	
+	public JRefSerializer getJRefSerializer() {
+		return (JRefSerializer) getAttribute(JRefSerializer.JREF_SERIALIZER_CONTEXT_ATTR);
+	}
 }

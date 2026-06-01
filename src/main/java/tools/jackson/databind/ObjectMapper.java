@@ -1854,6 +1854,8 @@ public class ObjectMapper
         // alas, we have to pull the recycler directly here...
         try (SegmentedStringWriter sw = new SegmentedStringWriter(br)) {
             SerializationContextExt ctxt = _serializationContext();
+            // XXX JREF
+            value = processForJRef(ctxt, value);
             _configAndWriteValue(ctxt, _streamFactory.createGenerator(ctxt, sw), value);
             return sw.getAndClear();
         } finally {
@@ -1861,7 +1863,15 @@ public class ObjectMapper
         }
     }
 
-    /**
+    private Object processForJRef(SerializationContextExt ctxt, Object value) {
+		JRefSerializer jrefSerializer = ctxt.getJRefSerializer();
+		if (jrefSerializer != null) {
+			return jrefSerializer.buildJRefs(value);
+		}
+		return value;
+	}
+
+	/**
      * Method that can be used to serialize any Java value as
      * a byte array. Functionally equivalent to calling
      * {@link #writeValue(Writer,Object)} with {@link java.io.ByteArrayOutputStream}
@@ -2588,8 +2598,15 @@ public class ObjectMapper
     // NOTE: only public to allow for testing
     public SerializationContextExt _serializationContext() {
         // 03-Oct-2017, tatu: Should be ok to pass "empty" generator settings...
-        return _serializationContexts.createContext(serializationConfig(),
+        SerializationContextExt result = _serializationContexts.createContext(serializationConfig(),
                 GeneratorSettings.empty());
+    	// XXX JREF enable JRef processing if JRefModule has been registered
+    	for(JacksonModule m: registeredModules()) {
+    		if (m instanceof JRefModule) {
+    			result.enableJRefProcessing();
+    		}
+    	}
+    	return result;
     }
 
     /**
@@ -2729,6 +2746,7 @@ public class ObjectMapper
     public DeserializationContextExt _deserializationContext() {
     	DeserializationContextExt result = _deserializationContexts.createContext(deserializationConfig(),
                 /* FormatSchema */ null, _injectableValues);
+    	// XXX JREF enable JRef processing if JRefModule has been registered
     	for(JacksonModule m: registeredModules()) {
     		if (m instanceof JRefModule) {
     			result.enableJRefProcessing();

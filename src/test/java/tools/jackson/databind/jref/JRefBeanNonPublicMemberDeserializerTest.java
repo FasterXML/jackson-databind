@@ -9,6 +9,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.JRefModule;
@@ -105,6 +106,7 @@ public class JRefBeanNonPublicMemberDeserializerTest {
 		assertEquals(result.items.get(0), result.items.get(1));
 	}
 
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	static class Human {
 		@JsonProperty
 		String name;
@@ -147,6 +149,9 @@ public class JRefBeanNonPublicMemberDeserializerTest {
 		return jsonMapperBuilder().addModule(new JRefModule()).build();
 	}
 
+	protected ObjectMapper buildObjectMapperWithoutJRefSupport() {
+		return jsonMapperBuilder().build();
+	}
 	@Test
 	public void testStringItemPath() throws Exception {
 		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
@@ -183,7 +188,27 @@ public class JRefBeanNonPublicMemberDeserializerTest {
 	@Test
 	public void testJRef() throws Exception {
 		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
-
+		
+		Map<String,Object> m1 = Map.of("s1", 1);
+		Human sam = new Human();
+		sam.name = "sam";
+		sam.props = m1;
+		Map<String,Object> m2 = Map.of("q","r","p",sam);
+		Human wendy = new Human();
+		wendy.name = "wendy";
+		wendy.parent = sam;
+		wendy.props = m2;
+		Human rick = new Human();
+		rick.name = "rick";
+		rick.parent = sam;
+		rick.o = sam;
+		
+		// wendy and rick are the 2 items in message
+		Message mess = new Message(List.of(wendy, rick));
+		
+		String gen = mapper.writeValueAsString(mess);
+		System.out.println("gen="+gen);
+		/*
 		String message = "{\r\n" + "  \"items\" : [ {\r\n" + "    \"name\" : \"wendy\",\r\n" + "    \"parent\" : {\r\n"
 				+ "      \"name\" : \"sam\",\r\n" + "      \"parent\" : null,\r\n" + "      \"props\" : {\r\n"
 				+ "        \"s1\" : 1\r\n" + "      }\r\n" + "    },\r\n" + "    \"props\" : {\r\n"
@@ -191,8 +216,11 @@ public class JRefBeanNonPublicMemberDeserializerTest {
 				+ "  }, {\r\n" + "    \"name\" : \"rick\",\r\n" + "    \"parent\" : {\r\n"
 				+ "      \"$ref\" : \"#/items/0/parent\"\r\n" + "    },\r\n"
 				+ "    \"o\" : { \"$ref\" : \"#/items/0/parent\" }\r\n" + "  } ]\r\n" + "}";
-
-		Message msg = mapper.readValue(message, Message.class);
+		*/
+		// Now read
+		Message msg = mapper.readValue(gen, Message.class);
+		// Compare with structure expected
+		assertEquals(msg.items.size(), 2);
 		assertEquals(msg.items.get(0).parent, msg.items.get(0).props.get("p"));
 		assertEquals(msg.items.get(0).parent, msg.items.get(1).parent);
 	}

@@ -1,8 +1,5 @@
 package tools.jackson.databind;
 
-import java.lang.reflect.Field;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,27 +35,8 @@ public class JRefResolver {
 		}
 	}
 
-	private static String decode_uri(String uri) {
-		try {
-			return URLDecoder.decode(uri, StandardCharsets.UTF_8.toString());
-		} catch (Exception e) {
-			return uri;
-		}
-	}
-
-	private static final String SEPARATOR = String.valueOf(JsonPointer.SEPARATOR);
-	private static final String TILDE = String.valueOf('~');
-	
-	protected String unescape(String segment) {
-		return segment.replace(JsonPointer.ESC_SLASH, SEPARATOR).replace(JsonPointer.ESC_TILDE, TILDE);
-	}
-
-	protected String escape(String segment) {
-		return segment.replace(TILDE, JsonPointer.ESC_TILDE).replace(SEPARATOR, JsonPointer.ESC_SLASH);
-	}
-
 	protected Iterable<String> pointerSegments(String pointer) {
-		if (pointer.length() > 0 && !pointer.startsWith(SEPARATOR)) {
+		if (pointer.length() > 0 && !pointer.startsWith(JRefUtil.SEPARATOR)) {
 			throw new IllegalArgumentException("Invalid JSON Pointer");
 		}
 
@@ -72,7 +50,7 @@ public class JRefResolver {
 			String segment = pointer.substring(segmentStart, segmentEnd);
 			segmentStart = segmentEnd + 1;
 
-			segments.add(unescape(segment));
+			segments.add(JRefUtil.unescape(segment));
 
 			// If the pointer ended with a '/', we need to add an empty segment for the
 			// trailing slash
@@ -122,18 +100,7 @@ public class JRefResolver {
 					}
 				}
 			}
-			return getFieldValue(value, String.valueOf(computedSegment));
-		}
-	}
-
-	protected Object getFieldValue(Object value, String fieldName) {
-		try {
-			Field f = value.getClass().getDeclaredField(fieldName);
-			f.setAccessible(true);
-			return f.get(value);
-		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-			throw new RuntimeException(
-					String.format("Could not get value for field=%s on object=%s with field", fieldName, value));
+			return JRefUtil.getFieldValue(value, String.valueOf(computedSegment));
 		}
 	}
 
@@ -141,20 +108,16 @@ public class JRefResolver {
 		String cursor = "";
 		for (String segment : segments) {
 			subject = applySegment(subject, segment, cursor);
-			cursor = append(segment, cursor);
+			cursor = JRefUtil.append(segment, cursor);
 		}
 		return subject;
-	}
-
-	protected String append(Object segment, String pointer) {
-		return pointer + SEPARATOR + escape(String.valueOf(segment));
 	}
 
 	protected Object resolvePathToValue(DeserializationContext ctxt, Object root) {
 		String refStr = this.jrefPath.getPath();
 		String[] parts = refStr.split("#", 2);
 		if (parts.length > 1) {
-			Object refValue = get(decode_uri(parts[1]), root);
+			Object refValue = get(JRefUtil.decode_uri(parts[1]), root);
 			if (refValue == null) {
 				throw new JRefResolveException(ctxt, this, root,
 						"Invalid local reference: path=" + this.jrefPath.getPath() + " not found on root=" + root);

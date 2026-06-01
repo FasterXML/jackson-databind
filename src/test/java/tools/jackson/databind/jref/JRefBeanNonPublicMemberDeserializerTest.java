@@ -1,4 +1,4 @@
-package tools.jackson.databind.deser.bean;
+package tools.jackson.databind.jref;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import tools.jackson.databind.JRefModule;
 import tools.jackson.databind.ObjectMapper;
 
-public class JRefBeanDeserializerTest {
+public class JRefBeanNonPublicMemberDeserializerTest {
 
 	static class IntType {
 		@JsonProperty

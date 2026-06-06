@@ -506,12 +506,4 @@ public class SerializationContextExt
         }
     }
 
-    // XXX JREF emab;e
-	public void enableJRefProcessing() {
-		setAttribute(JRefSerializer.JREF_SERIALIZER_CONTEXT_ATTR, new JRefSerializer());
-	}
-	
-	public JRefSerializer getJRefSerializer() {
-		return (JRefSerializer) getAttribute(JRefSerializer.JREF_SERIALIZER_CONTEXT_ATTR);
-	}
 }

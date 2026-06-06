@@ -1854,22 +1854,12 @@ public class ObjectMapper
         // alas, we have to pull the recycler directly here...
         try (SegmentedStringWriter sw = new SegmentedStringWriter(br)) {
             SerializationContextExt ctxt = _serializationContext();
-            // XXX JREF
-            value = processForJRef(ctxt, value);
             _configAndWriteValue(ctxt, _streamFactory.createGenerator(ctxt, sw), value);
             return sw.getAndClear();
         } finally {
             br.releaseToPool();
         }
     }
-
-    private Object processForJRef(SerializationContextExt ctxt, Object value) {
-		JRefSerializer jrefSerializer = ctxt.getJRefSerializer();
-		if (jrefSerializer != null) {
-			return jrefSerializer.buildJRefs(value);
-		}
-		return value;
-	}
 
 	/**
      * Method that can be used to serialize any Java value as

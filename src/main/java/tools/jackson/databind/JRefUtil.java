@@ -4,8 +4,6 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 import tools.jackson.core.JsonPointer;
 
@@ -52,12 +50,6 @@ public class JRefUtil {
 			throw new RuntimeException(
 					String.format("Could not get value for field=%s on object=%s with field", fieldName, value));
 		}
-	}
-
-	public static Map<String, Object> build_ptr_from_url(String uri) {
-		Map<String, Object> map = new HashMap<>();
-		map.put(JRefPath.JREF_REF, HASH + encode_uri(uri));
-		return map;
 	}
 
 }

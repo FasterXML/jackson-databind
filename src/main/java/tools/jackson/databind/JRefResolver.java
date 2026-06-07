@@ -10,34 +10,33 @@ import tools.jackson.core.JsonPointer;
 
 public class JRefResolver {
 
-	public static final String JREF_RESOLVER_LIST_CONTEXT_ATTR = JRefResolver.class.getName() + ".jrefs";
-
 	@FunctionalInterface
 	public interface SetterFunction {
 
 		public Object set(Object v) throws Throwable;
 	}
 
-	private final JRefPath jrefPath;
-	private final SetterFunction setter;
+	public static final Object RESOLVER_LIST = JRefResolver.class.getName() + ".resolverList";
 
-	public JRefResolver(JRefPath jrefPath, SetterFunction setter) {
-		Objects.requireNonNull(jrefPath, "jrefPath must not be null");
-		this.jrefPath = jrefPath;
+	private final JsonPointer jsonPointer;
+	private final SetterFunction setter;
+	
+	public JRefResolver(JsonPointer jsonPointer, SetterFunction setter) {
+		Objects.requireNonNull(jsonPointer, "jsonPointer must not be null");
+		this.jsonPointer = jsonPointer;
 		Objects.requireNonNull(setter, "setter function must must not be null");
 		this.setter = setter;
 	}
 
 	public Object resolve(DeserializationContext ctxt, Object root) throws JRefResolveException {
-		if (root == null) {
-			throw new JRefResolveException(ctxt, this, null, "Root object cannot be null");
-		}
-		// Now that we have the root, we can lookup the object at path
-		Object value = resolvePathToValue(ctxt, root);
+		Objects.requireNonNull(ctxt,"Deserialization context must not be null");
+		Objects.requireNonNull(root, "root must not be null");
+		// with the root, we can lookup the object at path
+		Object value = get(this.jsonPointer.toString(), root);
 		try {
 			return this.setter.set(value);
 		} catch (Throwable e) {
-			throw new JRefResolveException(ctxt, this, root, "Exception setting value=" + value, e);
+			throw new JRefResolveException(ctxt.getParser(), root, "Exception setting value=" + value, e);
 		}
 	}
 
@@ -117,21 +116,6 @@ public class JRefResolver {
 			cursor = JRefUtil.append(segment, cursor);
 		}
 		return subject;
-	}
-
-	protected Object resolvePathToValue(DeserializationContext ctxt, Object root) {
-		String refStr = this.jrefPath.getPath();
-		String[] parts = refStr.split("#", 2);
-		if (parts.length > 1) {
-			Object refValue = get(JRefUtil.decode_uri(parts[1]), root);
-			if (refValue == null) {
-				throw new JRefResolveException(ctxt, this, root,
-						"Invalid local reference: path=" + this.jrefPath.getPath() + " not found on root=" + root);
-			}
-			return refValue;
-		}
-		throw new JRefResolveException(ctxt, this, root,
-				"Invalid local reference: path=" + this.jrefPath.getPath() + " does not have preceding '#'");
 	}
 
 }

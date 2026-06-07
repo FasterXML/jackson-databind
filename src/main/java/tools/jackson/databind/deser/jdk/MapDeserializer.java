@@ -669,13 +669,10 @@ public class MapDeserializer
                     referringAccumulator.put(key, value);
                 } else {
                     // XXX JREF handling
-                    // Given ctxt/config and value, return JRefPath if value
-                    // is instanceof JRefPath returned, otherwise return null
-                    JRefPath jrefPath = ctxt.findJRefPathFromValue(value);
-                    // Check for null/non-null
-                    if (jrefPath != null) {
+                    JsonPointer ptr = ctxt.findJsonPointerFromValue(value);
+                    if (ptr != null) {
                     	final String k = key;
-                		ctxt.addJRefResolver(new JRefResolver(jrefPath, (v) -> {
+                		ctxt.addJsonPointerResolver(new JRefResolver(ptr, (v) -> {
                             Object oldValue = result.put(k, v);
                             if (oldValue != null) {
                                 _squashDups(ctxt, result, k, oldValue, v);
@@ -683,6 +680,7 @@ public class MapDeserializer
                             return result;
                     	}));
                     } else {
+                    	// no ptr
                         Object oldValue = result.put(key, value);
                         if (oldValue != null) {
                             _squashDups(ctxt, result, key, oldValue, value);

@@ -7,6 +7,7 @@ import java.lang.invoke.MethodType;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonPointer;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.NullValueProvider;
@@ -130,15 +131,13 @@ public final class MethodProperty
         }
         
         // XXX JREF handling
-        // Given ctxt/config and value, return JRefPath if value
-        // is instanceof JRefPath returned, otherwise returns null
-        JRefPath jrefPath = ctxt.findJRefPathFromValue(value);
-        if (jrefPath != null) {
-        	// This is only called if JRefPath is returned from find method above
-    		ctxt.addJRefResolver(new JRefResolver(jrefPath, (v) -> {
+        JsonPointer ptr = ctxt.findJsonPointerFromValue(value);
+        if (ptr != null) {
+     		ctxt.addJsonPointerResolver(new JRefResolver(ptr, (v) -> {
         		return setAndReturn(ctxt, instance, v);
         	}));
         } else {
+        	// no json pointer
    	        try {
 	            _setter.get().invokeExact(instance, value);
 	        } catch (Throwable e) {

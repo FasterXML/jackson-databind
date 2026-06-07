@@ -314,16 +314,14 @@ public final class StringCollectionDeserializer
                     }
                 }
                 // XXX JREF handling
-                // Given ctxt/config and value, return JRefPath if value
-                // is instanceof JRefPath returned, otherwise return null
-                JRefPath jrefPath = ctxt.findJRefPathFromValue(value);
-                // Check for null/non-null
-                if (jrefPath != null) {
-            		ctxt.addJRefResolver(new JRefResolver(jrefPath, (v) -> {
+                JsonPointer ptr = ctxt.findJsonPointerFromValue(value);
+                if (ptr != null) {
+            		ctxt.addJsonPointerResolver(new JRefResolver(ptr, (v) -> {
                         result.add((String) v);
                         return result;
                 	}));
                 } else {
+                	// no ptr
                 	result.add((String) value);
                 }
             }

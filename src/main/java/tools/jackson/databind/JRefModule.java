@@ -1,6 +1,5 @@
 package tools.jackson.databind;
 
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -92,7 +91,7 @@ public class JRefModule extends SimpleModule {
 				if (foundPtr != null) {
 					// If found, write out and we're done!
 					gen.writeStartObject();
-					gen.writeStringProperty(JRefPath.JREF_REF, JRefUtil.HASH + foundPtr.toString());
+					gen.writeStringProperty(JRefUtil.JREF_NAME, JRefUtil.HASH + foundPtr.toString());
 					gen.writeEndObject();					
 				} else {
 					// Call the given serializer to do it's work (with typeref or not)
@@ -186,39 +185,70 @@ public class JRefModule extends SimpleModule {
 			}
 
 			protected class JRefFindResult {
-				JRefPath jrefPath;
+				JsonPointer ptr;
 				JsonParser parser;
 			}
 
-			protected TreeTraversingParser createTreeTraversingParser(JsonNode node) {
-				TreeTraversingParser result = new TreeTraversingParser(node);
-				result.nextToken();
-				return result;
+			protected JsonPointer findJsonPointer(JsonParser parser, JsonNode node) {
+				if (node instanceof ObjectNode) {
+					JsonNode jrefValue = ((ObjectNode) node).get(JRefUtil.JREF_NAME);
+					if (jrefValue != null) {
+						// We've found a '$ref' as first object name
+						String jrefValueStr = jrefValue.asString();
+						if (jrefValueStr != null && jrefValueStr.startsWith(JRefUtil.HASH)) {
+							// remove hash
+							jrefValueStr = jrefValueStr.substring(1);
+							try {
+								JsonPointer ptr = JsonPointer.valueOf(jrefValueStr);
+								// Cannot be empty
+								if (ptr.equals(JsonPointer.empty())) {
+									throw DatabindException.from(parser, "JsonPoint cannot be empty");
+								}
+							} catch (IllegalArgumentException e) {
+								throw DatabindException.from(parser, "Illegal jsonPointerValue="+ jrefValueStr, e);
+							}
+						}
+						throw DatabindException.from(parser, "JRefValue is null or doesn't start with #");
+					}
+				}
+				return null;
 			}
-
+			
 			protected JRefFindResult findJRef(JsonParser p, DeserializationContext ctxt,
 					TypeDeserializer typeDeserializer) {
 				JRefFindResult result = new JRefFindResult();
+				result.parser = p;
 				JsonToken tok = p.currentToken();
 				if (tok == JsonToken.START_OBJECT) {
 					JsonNode n = ctxt.readTree(p);
 					if (n instanceof ObjectNode) {
-						ObjectNode on = (ObjectNode) n;
-						JsonNode valNode = on.get(JRefPath.JREF_REF);
-						if (valNode != null) {
-							String valStr = valNode.asString();
-							if (valStr != null) {
-								result.jrefPath = new JRefPath(valStr, ctxt, getDelegatee(), typeDeserializer);
-								result.parser = p;
-								return result;
+						JsonNode jrefValue = ((ObjectNode) n).get(JRefUtil.JREF_NAME);
+						if (jrefValue != null) {
+							// We've found a '$ref' as first object name
+							String jrefValueStr = jrefValue.asString();
+							if (jrefValueStr != null) {
+								// Must start with # (local-only json pointers)
+								if (!jrefValueStr.startsWith(JRefUtil.HASH)) {
+									throw DatabindException.from(p,  "JsonPointer value must start with '#' character (local only)");
+								}
+								// Remove hash
+								jrefValueStr = jrefValueStr.substring(1);
+								try {
+									// compile JsonPointer
+									result.ptr = JsonPointer.valueOf(jrefValueStr);
+									// If empty, we throw
+									if (result.ptr.equals(JsonPointer.empty())) {
+										throw DatabindException.from(p, "JsonPoint cannot be empty");
+									}
+								} catch (IllegalArgumentException e) {
+									throw DatabindException.from(p, "Illegal jsonPointerValue="+ jrefValueStr, e);
+								}
 							}
-							// JREF_REF found, but no/null path. This is a syntax error
-							throw DatabindException.from(p, "JRefPath detected on stream but path is null", null);
 						}
 					}
-					result.parser = createTreeTraversingParser(n);
-				} else {
-					result.parser = p;
+					// If we get here, it means we update the parser to create a tree-traversing parser
+					result.parser = new TreeTraversingParser(n);
+					result.parser.nextToken();
 				}
 				return result;
 			}
@@ -226,8 +256,8 @@ public class JRefModule extends SimpleModule {
 			protected Object deserializerWithJRef(JsonParser p, DeserializationContext ctxt,
 					TypeDeserializer typeDeserializer, Deserializer deserializer) {
 				JRefFindResult findResult = findJRef(p, ctxt, typeDeserializer);
-				if (findResult.jrefPath != null) {
-					return findResult.jrefPath;
+				if (findResult.ptr != null) {
+					return findResult.ptr;
 				} else {
 					return deserializer.deserialize(findResult.parser);
 				}

@@ -9,6 +9,7 @@ import tools.jackson.core.JsonPointer;
 
 public class JRefUtil {
 
+	public static final String JREF_NAME = "$ref";
 	public static final String SEPARATOR = String.valueOf(JsonPointer.SEPARATOR);
 	public static final String TILDE = String.valueOf('~');
 	public static final String HASH = "#";

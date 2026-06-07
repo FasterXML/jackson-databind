@@ -2271,22 +2271,23 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
     }
 
     // XXX JREF support methods
-	public JRefPath findJRefPathFromValue(Object value) {
-		if (!(value instanceof JRefPath)) {
+	public JsonPointer findJsonPointerFromValue(Object value) {
+		if (!(value instanceof JsonPointer)) {
 			return null;
 		} else {
-			Object resolverList = getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR);
+			Object resolverList = getAttribute(JRefResolver.RESOLVER_LIST);
+			// lazy list creation
 			if (resolverList == null) {
 				resolverList = new ArrayList<>();
-				setAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR, resolverList);
+				setAttribute(JRefResolver.RESOLVER_LIST, resolverList);
 			}
-			return (JRefPath) value;
+			return (JsonPointer) value;
 		}
 	}
 
     @SuppressWarnings("unchecked")
-	public boolean addJRefResolver(JRefResolver resolver) {
-		return ((List<JRefResolver>) getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR)).add(resolver);
+	public boolean addJsonPointerResolver(JRefResolver resolver) {
+		return ((List<JRefResolver>) getAttribute(JRefResolver.RESOLVER_LIST)).add(resolver);
     }
     
 	/*

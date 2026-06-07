@@ -1,26 +1,19 @@
 package tools.jackson.databind;
 
-import java.util.Objects;
+import tools.jackson.core.JsonParser;
 
 public class JRefResolveException extends DatabindException {
 
 	private static final long serialVersionUID = 1L;
-	private final JRefResolver resolver;
 	private final Object root;
 
-	public JRefResolveException(DeserializationContext ctxt, JRefResolver resolver, Object root, String message, Throwable cause) {
-		super(ctxt.getParser(), message, cause);
-		Objects.requireNonNull(resolver, "Resolver must not be null");
-		this.resolver = resolver;
+	public JRefResolveException(JsonParser parser, Object root, String message, Throwable cause) {
+		super(parser, message, cause);
 		this.root = root;
 	}
 
-	public JRefResolveException(DeserializationContext ctxt, JRefResolver resolver, Object root, String message) {
-		this(ctxt, resolver, root, message, null);
-	}
-
-	public JRefResolver getResolver() {
-		return this.resolver;
+	public JRefResolveException(JsonParser parser, Object root, String message) {
+		this(parser, root, message, null);
 	}
 
 	public Object getRoot() {
@@ -29,7 +22,7 @@ public class JRefResolveException extends DatabindException {
 
 	@Override
 	public String toString() {
-		return "JRefResolveException [resolver=" + resolver + ", root=" + root + ", message=" + super.getMessage()
+		return "JRefResolveException [root=" + root + ", message=" + super.getMessage()
 				+ "]";
 	}
 

@@ -191,10 +191,9 @@ public class CollectingProblemHandler extends DeserializationProblemHandler
             Object beanOrClass, String propertyName)
         throws JacksonException
     {
-        String message = String.format(
-            "Unknown property '%s' for type %s",
-            propertyName,
-            ClassUtil.getClassDescription(beanOrClass)
+        String message = "Unknown property '%s' for type %s".formatted(
+                propertyName,
+                ClassUtil.getClassDescription(beanOrClass)
         );
 
         // Store null as rawValue for unknown properties
@@ -212,11 +211,10 @@ public class CollectingProblemHandler extends DeserializationProblemHandler
             Class<?> rawKeyType, String keyValue, String failureMsg)
         throws JacksonException
     {
-        String message = String.format(
-            "Cannot deserialize Map key '%s' to %s: %s",
-            keyValue,
-            ClassUtil.getClassDescription(rawKeyType),
-            failureMsg
+        String message = "Cannot deserialize Map key '%s' to %s: %s".formatted(
+                keyValue,
+                ClassUtil.getClassDescription(rawKeyType),
+                failureMsg
         );
 
         if (recordProblem(ctxt, message,
@@ -236,11 +234,10 @@ public class CollectingProblemHandler extends DeserializationProblemHandler
             Class<?> targetType, String valueToConvert, String failureMsg)
         throws JacksonException
     {
-        String message = String.format(
-            "Cannot deserialize value '%s' to %s: %s",
-            valueToConvert,
-            ClassUtil.getClassDescription(targetType),
-            failureMsg
+        String message = "Cannot deserialize value '%s' to %s: %s".formatted(
+                valueToConvert,
+                ClassUtil.getClassDescription(targetType),
+                failureMsg
         );
 
         if (recordProblem(ctxt, message,
@@ -257,11 +254,10 @@ public class CollectingProblemHandler extends DeserializationProblemHandler
             Class<?> targetType, Number valueToConvert, String failureMsg)
         throws JacksonException
     {
-        String message = String.format(
-            "Cannot deserialize number %s to %s: %s",
-            valueToConvert,
-            ClassUtil.getClassDescription(targetType),
-            failureMsg
+        String message = "Cannot deserialize number %s to %s: %s".formatted(
+                valueToConvert,
+                ClassUtil.getClassDescription(targetType),
+                failureMsg
         );
 
         if (recordProblem(ctxt, message,
@@ -277,10 +273,9 @@ public class CollectingProblemHandler extends DeserializationProblemHandler
             Class<?> instClass, Object argument, Throwable t)
         throws JacksonException
     {
-        String message = String.format(
-            "Cannot instantiate %s: %s",
-            ClassUtil.getClassDescription(instClass),
-            t.getMessage()
+        String message = "Cannot instantiate %s: %s".formatted(
+                ClassUtil.getClassDescription(instClass),
+                t.getMessage()
         );
 
         if (recordProblem(ctxt, message,

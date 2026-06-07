@@ -421,10 +421,9 @@ public class BeanDeserializerFactory
                 if (beanDescRef.getType().isAbstract()) {
                     return;
                 }
-                throw new IllegalArgumentException(String.format(
-"Invalid Object Id definition for %s: cannot find property with name %s",
-ClassUtil.getTypeDescription(beanDescRef.getType()),
-ClassUtil.name(propName)));
+                throw new IllegalArgumentException("Invalid Object Id definition for %s: cannot find property with name %s".formatted(
+                        ClassUtil.getTypeDescription(beanDescRef.getType()),
+                        ClassUtil.name(propName)));
             }
             idType = idProp.getType();
             gen = new PropertyBasedObjectIdGenerator(objectIdInfo.getScope());
@@ -935,12 +934,11 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                         ctxt.findRootValueDeserializer(valueType), parameterIndex);
             } else {
                 return ctxt.reportBadDefinition(beanDescRef.getType(), String.format(
-                    "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
-                    ClassUtil.getTypeDescription(paramType)));
+                        "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
+                        ClassUtil.getTypeDescription(paramType)));
             }
         } else {
-            return ctxt.reportBadDefinition(beanDescRef.getType(), String.format(
-                    "Unrecognized mutator type for any-setter: %s",
+            return ctxt.reportBadDefinition(beanDescRef.getType(), "Unrecognized mutator type for any-setter: %s".formatted(
                     ClassUtil.nameOf(mutator.getClass())));
         }
 

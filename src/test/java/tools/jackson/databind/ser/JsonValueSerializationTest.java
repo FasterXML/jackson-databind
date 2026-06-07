@@ -409,7 +409,7 @@ public class JsonValueSerializationTest
     {
         String value = "abc";
         String result = MAPPER.writeValueAsString(new ClassGetter<String>(value));
-        String expected = String.format("{\"nonRaw\":\"%s\",\"raw\":%s,\"value\":%s}", value, value, value);
+        String expected = "{\"nonRaw\":\"%s\",\"raw\":%s,\"value\":%s}".formatted(value, value, value);
         assertEquals(expected, result);
     }
 
@@ -418,7 +418,7 @@ public class JsonValueSerializationTest
     {
         int value = 123;
         String result = MAPPER.writeValueAsString(new ClassGetter<Integer>(value));
-        String expected = String.format("{\"nonRaw\":%d,\"raw\":%d,\"value\":%d}", value, value, value);
+        String expected = "{\"nonRaw\":%d,\"raw\":%d,\"value\":%d}".formatted(value, value, value);
         assertEquals(expected, result);
     }
 

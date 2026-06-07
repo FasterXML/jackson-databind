@@ -364,8 +364,8 @@ public class StdDateFormat
         }
         sb.append('"');
         throw new ParseException
-            (String.format("Cannot parse date \"%s\": not compatible with any of standard forms (%s)",
-                           dateStr, sb.toString()), pos.getErrorIndex());
+            ("Cannot parse date \"%s\": not compatible with any of standard forms (%s)".formatted(
+                dateStr, sb.toString()), pos.getErrorIndex());
     }
 
     // 24-Jun-2017, tatu: I don't think this ever gets called. So could... just not implement?
@@ -553,7 +553,7 @@ public class StdDateFormat
 
     @Override
     public String toString() {
-        return String.format("DateFormat %s: (timezone: %s, locale: %s, lenient: %s)",
+        return "DateFormat %s: (timezone: %s, locale: %s, lenient: %s)".formatted(
                 getClass().getName(), _timezone, _locale, _lenient);
     }
 
@@ -631,8 +631,7 @@ public class StdDateFormat
         try {
             ts = NumberInput.parseLong(longStr);
         } catch (NumberFormatException e) {
-            throw new ParseException(String.format(
-                    "Timestamp value %s out of 64-bit value range", longStr),
+            throw new ParseException("Timestamp value %s out of 64-bit value range".formatted(longStr),
                     pos.getErrorIndex());
         }
         return new Date(ts);
@@ -644,7 +643,7 @@ public class StdDateFormat
         try {
             return _parseAsISO8601(dateStr, pos);
         } catch (IllegalArgumentException e) {
-            throw new ParseException(String.format("Cannot parse date \"%s\", problem: %s",
+            throw new ParseException("Cannot parse date \"%s\", problem: %s".formatted(
                     dateStr, e.getMessage()),
                     pos.getErrorIndex());
         }
@@ -727,9 +726,9 @@ public class StdDateFormat
 
                         if (fractLen > 9) { // only allow up to nanos
                             throw new ParseException(String.format(
-"Cannot parse date \"%s\": invalid fractional seconds '%s'; can use at most 9 digits",
-                                       dateStr, m.group(1).substring(1)
-                                       ), start);
+                                    "Cannot parse date \"%s\": invalid fractional seconds '%s'; can use at most 9 digits",
+                                    dateStr, m.group(1).substring(1)
+                            ), start);
                         }
                         // fall through
                     case 3:
@@ -750,8 +749,8 @@ public class StdDateFormat
         }
 
         throw new ParseException
-        (String.format("Cannot parse date \"%s\": while it seems to fit format '%s', parsing fails (leniency? %s)",
-                       dateStr, formatStr, _lenient),
+        ("Cannot parse date \"%s\": while it seems to fit format '%s', parsing fails (leniency? %s)".formatted(
+                dateStr, formatStr, _lenient),
                 // [databind#1742]: Might be able to give actual location, some day, but for now
                 //  we can't give anything more indicative
                 0);

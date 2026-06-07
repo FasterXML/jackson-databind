@@ -125,16 +125,18 @@ public class CustomMapKeyDeserializationTest
     public void testCustomKeyDeserializerNested4680() throws Exception
     {
         String json =
-                "{\n" +
-                        "     \"name*\": \"Erik\",\n" +
-                        "     \"address*\": {\n" +
-                        "         \"city*\": {\n" +
-                        "             \"id*\": 1,\n" +
-                        "             \"name*\": \"Berlin\"\n" +
-                        "         },\n" +
-                        "         \"street*\": \"Elvirastr\"\n" +
-                        "     }\n" +
-                        " }";
+                """
+                {
+                     "name*": "Erik",
+                     "address*": {
+                         "city*": {
+                             "id*": 1,
+                             "name*": "Berlin"
+                         },
+                         "street*": "Elvirastr"
+                     }
+                 }
+                """;
 
         SimpleModule keySanitizationModule = new SimpleModule("key-sanitization");
         keySanitizationModule.addKeyDeserializer(String.class, new KeyDeserializer() {

@@ -71,7 +71,7 @@ public class EnumSetDeserializationWithDefaultTyping4849Test
         throws Exception
     {
         // Given : Hard-coded output from Jackson 2.15.4
-        String input = String.format("[\"java.util.EnumSet<%s>\",[\"%s\"]]",
+        String input = "[\"java.util.EnumSet<%s>\",[\"%s\"]]".formatted(
                 TestEnum4849.class.getName(),
                 TestEnum4849.TEST_ENUM_VALUE.name());
         // When

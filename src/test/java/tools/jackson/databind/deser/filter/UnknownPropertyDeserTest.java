@@ -237,10 +237,12 @@ public class UnknownPropertyDeserTest extends DatabindTestUtil
     {
         // Let's actually use incompatible types for "a" and "d"; should not matter when ignored
         IgnoreMap result = MAPPER.readValue(
-        		 "{ \"a\":[ 1],\n"
-                +"\"b\":2,\n"
-                +"\"c\": \"x\",\n"
-                +"\"d\":false }", IgnoreMap.class);
+        		 """
+                 { "a":[ 1],
+                 "b":2,
+                 "c": "x",
+                 "d":false }
+                 """, IgnoreMap.class);
         assertEquals(2, result.size());
         Object ob = result.get("b");
         assertEquals(Integer.class, ob.getClass());

@@ -157,9 +157,9 @@ public class LocalDateTimeDeserializer
                     }
                 } catch (DateTimeException | ArithmeticException e) {
                     throw DateTimeParseException.from(p,
-                            String.format("Failed to deserialize %s from array value [%d,%d,%d,%d,%d,...]: %s",
+                            "Failed to deserialize %s from array value [%d,%d,%d,%d,%d,...]: %s".formatted(
                                     handledType().getName(), year, month, day, hour, minute, e.getMessage()),
-                            String.format("[%d,%d,%d,%d,%d,...]", year, month, day, hour, minute),
+                            "[%d,%d,%d,%d,%d,...]".formatted(year, month, day, hour, minute),
                             handledType(), e);
                 }
             } else {

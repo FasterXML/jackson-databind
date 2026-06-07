@@ -371,7 +371,7 @@ public class VisibilityChecker
 
     @Override
     public String toString() {
-        return String.format("[Visibility: field=%s,getter=%s,isGetter=%s,setter=%s,creator=%s,scalarConstructor=%s]",
+        return "[Visibility: field=%s,getter=%s,isGetter=%s,setter=%s,creator=%s,scalarConstructor=%s]".formatted(
                 _fieldMinLevel, _getterMinLevel, _isGetterMinLevel, _setterMinLevel,
                 _creatorMinLevel, _scalarConstructorMinLevel);
     }

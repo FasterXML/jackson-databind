@@ -9,7 +9,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ViewsWithCreatorTest extends DatabindTestUtil
+public class ViewsWithCreatorDeserTest extends DatabindTestUtil
 {
     static class View { }
     static class View1 extends View { }
@@ -41,7 +41,7 @@ public class ViewsWithCreatorTest extends DatabindTestUtil
 
         @Override
         public String toString() {
-            return String.format("%s-%s-%s", a, b, c);
+            return "%s-%s-%s".formatted(a, b, c);
         }
     }
 
@@ -69,7 +69,7 @@ public class ViewsWithCreatorTest extends DatabindTestUtil
 
         @Override
         public String toString() {
-            return String.format("%s-%s-%s", a, b, c);
+            return "%s-%s-%s".formatted(a, b, c);
         }
     }
 

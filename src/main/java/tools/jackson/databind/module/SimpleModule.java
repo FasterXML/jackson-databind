@@ -571,8 +571,7 @@ public class SimpleModule
     protected void _checkNotNull(Object thingy, String type)
     {
         if (thingy == null) {
-            throw new IllegalArgumentException(String.format(
-                    "Cannot pass `null` as %s", type));
+            throw new IllegalArgumentException("Cannot pass `null` as %s".formatted(type));
         }
     }
 }

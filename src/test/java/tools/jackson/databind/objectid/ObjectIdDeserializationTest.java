@@ -700,9 +700,11 @@ public class ObjectIdDeserializationTest extends DatabindTestUtil
 
     @Test
     public void testWithFieldsInBaseClass1083() throws Exception {
-        final String json = a2q("{'schemas': [{\n"
-            + "  'name': 'FoodMart'\n"
-            + "}]}\n");
+        final String json = """
+            {"schemas": [{
+              "name": "FoodMart"
+            }]}
+            """;
         MAPPER.readValue(json, JsonRoot1083.class);
     }
 

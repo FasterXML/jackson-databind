@@ -2115,7 +2115,7 @@ ctor.creator()));
 
     protected void reportProblem(String msg, Object... args) {
         if (args.length > 0) {
-            msg = String.format(msg, args);
+            msg = msg.formatted(args);
         }
         throw new IllegalArgumentException("Problem with definition of "+_classDef+": "+msg);
     }

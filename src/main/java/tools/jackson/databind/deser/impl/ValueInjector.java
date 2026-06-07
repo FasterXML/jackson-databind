@@ -57,7 +57,7 @@ public class ValueInjector
         if (value == null) {
             if (Boolean.FALSE.equals(_optional)) {
                 throw context.missingInjectableValueException(
-                        String.format("No injectable value with id '%s' found (for property '%s')",
+                        "No injectable value with id '%s' found (for property '%s')".formatted(
                                 _valueId, getName()),
                         _valueId, null, beanInstance);
             }

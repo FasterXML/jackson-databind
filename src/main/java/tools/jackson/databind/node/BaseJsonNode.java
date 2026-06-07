@@ -794,7 +794,7 @@ public abstract class BaseJsonNode
      * this node being of wrong type
      */
     protected <T> T _reportWrongNodeType(String msgTemplate, Object...args) {
-        throw JsonNodeException.from(this, String.format(msgTemplate, args));
+        throw JsonNodeException.from(this, msgTemplate.formatted(args));
     }
 
     /*

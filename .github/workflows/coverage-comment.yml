@@ -19,8 +19,11 @@ jobs:
         path: pr-comment/
         run_id: ${{ github.event.workflow_run.id }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        # 2.x branch builds do not produce this artifact; skip instead of failing
+        if_no_artifact_found: warn
 
     - name: Post coverage comment
+      if: ${{ hashFiles('pr-comment/pr-number.txt') != '' }}
       run: |
         PR_NUMBER=$(cat pr-comment/pr-number.txt)
         COMMENT_BODY=$(cat pr-comment/comment-body.txt)

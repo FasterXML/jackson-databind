@@ -501,14 +501,18 @@ public class ObjectReaderTest extends DatabindTestUtil
     @Test
     public void testPointerWithArrays() throws Exception
     {
-        final String json = a2q("{\n'wrapper1': {\n" +
-                "  'set1': ['one', 'two', 'three'],\n" +
-                "  'set2': ['four', 'five', 'six']\n" +
-                "},\n" +
-                "'wrapper2': {\n" +
-                "  'set1': ['one', 'two', 'three'],\n" +
-                "  'set2': ['four', 'five', 'six']\n" +
-                "}\n}");
+        final String json = """
+                {
+                "wrapper1": {
+                  "set1": ["one", "two", "three"],
+                  "set2": ["four", "five", "six"]
+                },
+                "wrapper2": {
+                  "set1": ["one", "two", "three"],
+                  "set2": ["four", "five", "six"]
+                }
+                }
+                """;
 
         final Pojo1637 testObject = MAPPER.readerFor(Pojo1637.class)
                 .at("/wrapper1")

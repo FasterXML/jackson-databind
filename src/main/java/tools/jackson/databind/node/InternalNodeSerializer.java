@@ -111,7 +111,7 @@ class InternalNodeSerializer
                         try {
                             value.serialize(g, _context);
                         } catch (JacksonException e) {
-                            g.writeString(String.format("[ERROR: (%s) %s]",
+                            g.writeString("[ERROR: (%s) %s]".formatted(
                                     e.getClass().getName(), e.getMessage()));
                         }
                     } else {

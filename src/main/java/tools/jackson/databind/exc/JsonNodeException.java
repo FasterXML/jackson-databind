@@ -25,7 +25,7 @@ public class JsonNodeException
     public static JsonNodeException from(JsonNode node,
             String message, Object... args) {
         return new JsonNodeException(node,
-                String.format(message, args));
+                message.formatted(args));
     }
 
     public JsonNode getNode() {

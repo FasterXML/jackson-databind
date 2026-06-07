@@ -1361,7 +1361,7 @@ public abstract class SerializationContext
         if (bean != null) {
             beanDesc = ClassUtil.nameOf(bean.getBeanClass());
         }
-        msg = String.format("Invalid type definition for type %s: %s",
+        msg = "Invalid type definition for type %s: %s".formatted(
                 beanDesc, _format(msg, msgArgs));
         throw InvalidDefinitionException.from(getGenerator(), msg, bean, null);
     }
@@ -1384,7 +1384,7 @@ public abstract class SerializationContext
         if (bean != null) {
             beanDesc = ClassUtil.nameOf(bean.getBeanClass());
         }
-        message = String.format("Invalid definition for property %s (of type %s): %s",
+        message = "Invalid definition for property %s (of type %s): %s".formatted(
                 propName, beanDesc, message);
         throw InvalidDefinitionException.from(getGenerator(), message, bean, prop);
     }
@@ -1439,7 +1439,7 @@ public abstract class SerializationContext
     public DatabindException invalidTypeIdException(JavaType baseType, String typeId,
             String extraDesc)
     {
-        String msg = String.format("Could not resolve type id '%s' as a subtype of %s",
+        String msg = "Could not resolve type id '%s' as a subtype of %s".formatted(
                 typeId, ClassUtil.getTypeDescription(baseType));
         return InvalidTypeIdException.from(null, _colonConcat(msg, extraDesc), baseType, typeId);
     }
@@ -1455,8 +1455,7 @@ public abstract class SerializationContext
                 return;
             }
         }
-        reportBadDefinition(rootType, String.format(
-                "Incompatible types: declared root type (%s) vs %s",
+        reportBadDefinition(rootType, "Incompatible types: declared root type (%s) vs %s".formatted(
                 rootType, ClassUtil.classNameOf(value)));
     }
 

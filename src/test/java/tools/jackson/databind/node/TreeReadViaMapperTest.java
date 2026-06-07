@@ -118,9 +118,11 @@ public class TreeReadViaMapperTest extends DatabindTestUtil
     public void testEOF() throws Exception
     {
         String JSON =
-            "{ \"key\": [ { \"a\" : { \"name\": \"foo\",  \"type\": 1\n"
-            +"},  \"type\": 3, \"url\": \"http://www.google.com\" } ],\n"
-            +"\"name\": \"xyz\", \"type\": 1, \"url\" : null }\n  "
+            """
+            { "key": [ { "a" : { "name": "foo",  "type": 1
+            },  "type": 3, "url": "http://www.google.com" } ],
+            "name": "xyz", "type": 1, "url" : null }
+              """
             ;
         JsonParser p = MAPPER.createParser(new StringReader(JSON));
         JsonNode result = MAPPER.readTree(p);

@@ -286,7 +286,7 @@ public class ConfigOverrides
             TreeMap<String, MutableConfigOverride> sorted = new TreeMap<>();
             _overrides.forEach((k, v) -> sorted.put(k.getName(), v));
             sorted.forEach((k, v) -> {
-                sb.append(String.format("'%s'->%s", k, v));
+                sb.append("'%s'->%s".formatted(k, v));
             });
             sb.append("}");
         }

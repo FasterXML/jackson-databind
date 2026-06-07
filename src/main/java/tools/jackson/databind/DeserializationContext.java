@@ -1182,8 +1182,7 @@ public abstract class DeserializationContext
             DateFormat df = _getDateFormat();
             return df.parse(dateStr);
         } catch (ParseException e) {
-            throw new IllegalArgumentException(String.format(
-                    "Failed to parse Date value '%s': %s", dateStr,
+            throw new IllegalArgumentException("Failed to parse Date value '%s': %s".formatted(dateStr,
                     ClassUtil.exceptionMessage(e)));
         }
     }
@@ -1272,8 +1271,7 @@ public abstract class DeserializationContext
     {
         ValueDeserializer<Object> deser = findContextualValueDeserializer(type, prop);
         if (deser == null) {
-            return reportBadDefinition(type, String.format(
-                    "Could not find `ValueDeserializer` for type %s (via property %s)",
+            return reportBadDefinition(type, "Could not find `ValueDeserializer` for type %s (via property %s)".formatted(
                     ClassUtil.getTypeDescription(type), ClassUtil.nameOf(prop)));
         }
         return (T) _readValue(p, deser);
@@ -1457,7 +1455,7 @@ public abstract class DeserializationContext
                     return instance;
                 }
                 throw weirdStringException(value, targetClass, String.format(
-"`DeserializationProblemHandler.handleWeirdStringValue()` for type %s returned value of type %s",
+                        "`DeserializationProblemHandler.handleWeirdStringValue()` for type %s returned value of type %s",
                         ClassUtil.getClassDescription(targetClass),
                         ClassUtil.getClassDescription(instance)
                 ));
@@ -1570,8 +1568,8 @@ public abstract class DeserializationContext
                 }
                 // In case our problem handler providing incompatible value,
                 throw new InvalidFormatException(_parser,
-String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for type %s returned value of type %s",
-                    ClassUtil.nameOf(targetClass), ClassUtil.getClassDescription(instance)),
+                        "`DeserializationProblemHandler.handleNullForPrimitives()` for type %s returned value of type %s".formatted(
+                                ClassUtil.nameOf(targetClass), ClassUtil.getClassDescription(instance)),
                     instance, targetClass
                         );
             }
@@ -1614,10 +1612,10 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
                     return instance;
                 }
                 reportBadDefinition(constructType(instClass), String.format(
-"`DeserializationProblemHandler.handleMissingInstantiator()` for type %s returned value of type %s",
-                    ClassUtil.getClassDescription(instClass),
-                    ClassUtil.getClassDescription((instance)
-                )));
+                        "`DeserializationProblemHandler.handleMissingInstantiator()` for type %s returned value of type %s",
+                        ClassUtil.getClassDescription(instClass),
+                        ClassUtil.getClassDescription(instance)
+                ));
             }
             h = h.next();
         }
@@ -1628,16 +1626,16 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
         // 24-Oct-2019, tatu: Further, as per [databind#2522], passing `null` ValueInstantiator
         //   should simply trigger definition problem
         if (valueInst == null ) {
-            msg = String.format("Cannot construct instance of %s: %s",
+            msg = "Cannot construct instance of %s: %s".formatted(
                     ClassUtil.nameOf(instClass), msg);
             return reportBadDefinition(instClass, msg);
         }
         if (!valueInst.canInstantiate()) {
-            msg = String.format("Cannot construct instance of %s (no Creators, like default constructor, exist): %s",
+            msg = "Cannot construct instance of %s (no Creators, like default constructor, exist): %s".formatted(
                     ClassUtil.nameOf(instClass), msg);
             return reportBadDefinition(instClass, msg);
         }
-        msg = String.format("Cannot construct instance of %s (although at least one Creator exists): %s",
+        msg = "Cannot construct instance of %s (although at least one Creator exists): %s".formatted(
                 ClassUtil.nameOf(instClass), msg);
         return reportInputMismatch(instClass, msg);
     }
@@ -1671,9 +1669,9 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
                     return instance;
                 }
                 reportBadDefinition(constructType(instClass), String.format(
-"DeserializationProblemHandler.handleInstantiationProblem() for type %s returned value of type %s",
-                    ClassUtil.getClassDescription(instClass),
-                    ClassUtil.classNameOf(instance)
+                        "DeserializationProblemHandler.handleInstantiationProblem() for type %s returned value of type %s",
+                        ClassUtil.getClassDescription(instClass),
+                        ClassUtil.classNameOf(instance)
                 ));
             }
             h = h.next();
@@ -1758,10 +1756,10 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
         if (msg == null) {
             final String targetDesc = ClassUtil.getTypeDescription(targetType);
             if (t == null) {
-                msg = String.format("Unexpected end-of-input when trying read value of type %s",
+                msg = "Unexpected end-of-input when trying read value of type %s".formatted(
                         targetDesc);
             } else {
-                msg = String.format("Cannot deserialize value of type %s from %s (token `JsonToken.%s`)",
+                msg = "Cannot deserialize value of type %s from %s (token `JsonToken.%s`)".formatted(
                         targetDesc, _shapeForToken(t), t);
             }
         }
@@ -1861,7 +1859,7 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
     {
         if (!isEnabled(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)) {
             JavaType type = constructType(deser.handledType());
-            String msg = String.format("Invalid configuration: values of type %s cannot be merged",
+            String msg = "Invalid configuration: values of type %s cannot be merged".formatted(
                     ClassUtil.getTypeDescription(type));
             throw InvalidDefinitionException.from(getParser(), msg, type);
         }
@@ -1935,7 +1933,7 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
     public <T> T reportUnresolvedObjectId(ObjectIdReader oidReader, Object bean)
         throws DatabindException
     {
-        String msg = String.format("No Object Id found for an instance of %s, to assign to property '%s'",
+        String msg = "No Object Id found for an instance of %s, to assign to property '%s'".formatted(
                 ClassUtil.classNameOf(bean), oidReader.propertyName);
         return reportInputMismatch(oidReader.idProperty, msg);
     }
@@ -2073,7 +2071,7 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
             String msg, Object... msgArgs) throws DatabindException
     {
         String beanDesc = ClassUtil.nameOf(bean.getBeanClass());
-        msg = String.format("Invalid type definition for type %s: %s", beanDesc, _format(msg, msgArgs));
+        msg = "Invalid type definition for type %s: %s".formatted(beanDesc, _format(msg, msgArgs));
         throw InvalidDefinitionException.from(_parser, msg, bean, null);
     }
 
@@ -2096,7 +2094,7 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
         msg = _format(msg, msgArgs);
         String propName = ClassUtil.nameOf(prop);
         String beanDesc = ClassUtil.nameOf(bean.getBeanClass());
-        msg = String.format("Invalid definition for property %s (of type %s): %s",
+        msg = "Invalid definition for property %s (of type %s): %s".formatted(
                 propName, beanDesc, msg);
         throw InvalidDefinitionException.from(_parser, msg, bean, prop);
     }
@@ -2126,7 +2124,7 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
     public DatabindException wrongTokenException(JsonParser p, JavaType targetType,
             JsonToken expToken, String extra)
     {
-        String msg = String.format("Unexpected token (`JsonToken.%s`), expected `JsonToken.%s`",
+        String msg = "Unexpected token (`JsonToken.%s`), expected `JsonToken.%s`".formatted(
                 p.currentToken(), expToken);
         msg = _colonConcat(msg, extra);
         return MismatchedInputException.from(p, targetType, msg);
@@ -2136,7 +2134,7 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
             JsonToken expToken, String extra)
     {
         JsonToken t = (p == null) ? null : p.currentToken();
-        String msg = String.format("Unexpected token (`JsonToken.%s`), expected `JsonToken.%s`", t, expToken);
+        String msg = "Unexpected token (`JsonToken.%s`), expected `JsonToken.%s`".formatted(t, expToken);
         msg = _colonConcat(msg, extra);
         return MismatchedInputException.from(p, targetType, msg);
     }
@@ -2152,7 +2150,7 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
     public DatabindException weirdKeyException(Class<?> keyClass, String keyValue,
             String msg) {
         return InvalidFormatException.from(_parser,
-                String.format("Cannot deserialize Map key of type %s from String %s: %s",
+                "Cannot deserialize Map key of type %s from String %s: %s".formatted(
                         ClassUtil.nameOf(keyClass), _quotedString(keyValue), msg),
                 keyValue, keyClass);
     }
@@ -2171,7 +2169,7 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
     public DatabindException weirdStringException(String value, Class<?> instClass,
             String msgBase)
     {
-        final String msg = String.format("Cannot deserialize value of type %s from String %s: %s",
+        final String msg = "Cannot deserialize value of type %s from String %s: %s".formatted(
                 ClassUtil.nameOf(instClass), _quotedString(value), msgBase);
         return InvalidFormatException.from(_parser, msg, value, instClass);
     }
@@ -2186,7 +2184,7 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
     public DatabindException weirdNumberException(Number value, Class<?> instClass,
             String msg) {
         return InvalidFormatException.from(_parser,
-                String.format("Cannot deserialize value of type %s from number %s: %s",
+                "Cannot deserialize value of type %s from number %s: %s".formatted(
                         ClassUtil.nameOf(instClass), String.valueOf(value), msg),
                 value, instClass);
     }
@@ -2202,8 +2200,8 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
     public DatabindException weirdNativeValueException(Object value, Class<?> instClass)
     {
         return InvalidFormatException.from(_parser, String.format(
-"Cannot deserialize value of type %s from native value (`JsonToken.VALUE_EMBEDDED_OBJECT`) of type %s: incompatible types",
-            ClassUtil.nameOf(instClass), ClassUtil.classNameOf(value)),
+                "Cannot deserialize value of type %s from native value (`JsonToken.VALUE_EMBEDDED_OBJECT`) of type %s: incompatible types",
+                ClassUtil.nameOf(instClass), ClassUtil.classNameOf(value)),
                 value, instClass);
     }
 
@@ -2223,7 +2221,7 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
         } else if ((excMsg = ClassUtil.exceptionMessage(cause)) == null) {
             excMsg = ClassUtil.nameOf(cause.getClass());
         }
-        String msg = String.format("Cannot construct instance of %s, problem: %s",
+        String msg = "Cannot construct instance of %s, problem: %s".formatted(
                 ClassUtil.nameOf(instClass), excMsg);
         // [databind#2162]: use specific exception type as we don't know if it's
         // due to type definition, input, or neither
@@ -2243,7 +2241,7 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
         // [databind#2162]: use specific exception type as we don't know if it's
         // due to type definition, input, or neither
         return ValueInstantiationException.from(_parser,
-                String.format("Cannot construct instance of %s: %s",
+                "Cannot construct instance of %s: %s".formatted(
                         ClassUtil.nameOf(instClass), msg0),
                 constructType(instClass));
     }
@@ -2251,14 +2249,14 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
     @Override
     public DatabindException invalidTypeIdException(JavaType baseType, String typeId,
             String extraDesc) {
-        String msg = String.format("Could not resolve type id '%s' as a subtype of %s",
+        String msg = "Could not resolve type id '%s' as a subtype of %s".formatted(
                 typeId, ClassUtil.getTypeDescription(baseType));
         return InvalidTypeIdException.from(_parser, _colonConcat(msg, extraDesc), baseType, typeId);
     }
 
     public DatabindException missingTypeIdException(JavaType baseType,
             String extraDesc) {
-        String msg = String.format("Could not resolve subtype of %s",
+        String msg = "Could not resolve subtype of %s".formatted(
                 baseType);
         return InvalidTypeIdException.from(_parser, _colonConcat(msg, extraDesc), baseType, null);
     }

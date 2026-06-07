@@ -44,61 +44,66 @@ public class JRefModule extends SimpleModule {
 	interface Serializer {
 		void serialize() throws RuntimeException;
 	}
-	
+
 	public class JRefValueSerializerModifier extends ValueSerializerModifier {
 
 		private static final long serialVersionUID = 1L;
 
 		static final String PTR_MAP_ATTR = JRefValueSerializerModifier.class.getName() + ".ptrMap";
-		
+
 		public class JRefValueSerializer extends DelegatingSerializer {
 
 			protected JRefValueSerializer(ValueSerializer<?> delegatee) {
 				super(delegatee);
 			}
-			
+
 			@Override
 			public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property) {
-				// If the serialization context doesn't already have it, a new Integer->JsonPointer
+				// If the serialization context doesn't already have it, a new
+				// Integer->JsonPointer
 				// map is set to PTR_MAP_ATTRIBUTE for lookup and addition of serialized values
 				if (ctxt.getAttribute(PTR_MAP_ATTR) == null) {
 					ctxt.setAttribute(PTR_MAP_ATTR, new ConcurrentHashMap<>());
 				}
 				return super.createContextual(ctxt, property);
 			}
-			
+
 			@SuppressWarnings("unchecked")
 			protected JsonPointer findJsonPointer(Object value, SerializationContext ctxt) {
 				if (value != null) {
-					return ((Map<Integer,JsonPointer>) ctxt.getAttribute(PTR_MAP_ATTR)).get(System.identityHashCode(value));
+					return ((Map<Integer, JsonPointer>) ctxt.getAttribute(PTR_MAP_ATTR))
+							.get(System.identityHashCode(value));
 				}
 				return null;
 			}
-			
+
 			@SuppressWarnings("unchecked")
 			protected void addJsonPointerIfComplete(Object value, JsonGenerator gen, SerializationContext ctxt) {
 				if (value != null) {
 					TokenStreamContext writeContext = gen.streamWriteContext();
 					if (writeContext.hasPathSegment()) {
-						((Map<Integer,JsonPointer>) ctxt.getAttribute(PTR_MAP_ATTR)).put(System.identityHashCode(value), JsonPointer.forPath(writeContext, false));
+						((Map<Integer, JsonPointer>) ctxt.getAttribute(PTR_MAP_ATTR))
+								.put(System.identityHashCode(value), JsonPointer.forPath(writeContext, false));
 					}
 				}
 			}
-			
-			protected void serializeWithJRef(Object value, JsonGenerator gen, SerializationContext ctxt, Serializer serializer) {
+
+			protected void serializeWithJRef(Object value, JsonGenerator gen, SerializationContext ctxt,
+					Serializer serializer) {
 				// First look for json pointer for instance
 				JsonPointer foundPtr = findJsonPointer(value, ctxt);
 				if (foundPtr != null) {
 					// If found, write out and we're done!
 					gen.writeStartObject();
 					gen.writeStringProperty(JRefUtil.JREF_NAME, JRefUtil.HASH + foundPtr.toString());
-					gen.writeEndObject();					
+					gen.writeEndObject();
 				} else {
 					// Call the given serializer to do it's work (with typeref or not)
 					serializer.serialize();
-					// Add JsonPointer to map if the streamWriteContext has a path segment to contribute
+					// Add JsonPointer to map if the streamWriteContext has a path segment to
+					// contribute
 					addJsonPointerIfComplete(value, gen, ctxt);
-				}			
+				}
 			}
 
 			@Override
@@ -106,7 +111,7 @@ public class JRefModule extends SimpleModule {
 					TypeSerializer typeSer) {
 				serializeWithJRef(value, gen, ctxt, () -> super.serializeWithType(value, gen, ctxt, typeSer));
 			}
-			
+
 			@Override
 			public void serialize(Object value, JsonGenerator gen, SerializationContext ctxt) {
 				serializeWithJRef(value, gen, ctxt, () -> super.serialize(value, gen, ctxt));
@@ -116,9 +121,9 @@ public class JRefModule extends SimpleModule {
 			public ValueSerializer<Object> newDelegatingInstance(ValueSerializer<?> delegatee) {
 				return new JRefValueSerializer(delegatee);
 			}
-			
+
 		}
-		
+
 		@Override
 		public ValueSerializer<?> modifySerializer(SerializationConfig config, Supplier beanDesc,
 				ValueSerializer<?> serializer) {
@@ -166,18 +171,18 @@ public class JRefModule extends SimpleModule {
 				ValueSerializer<?> serializer) {
 			return new JRefValueSerializer(serializer);
 		}
-		
+
 	}
-	
+
 	public class JRefValueDeserializerModifier extends ValueDeserializerModifier {
 
 		private static final long serialVersionUID = 1L;
 
 		@FunctionalInterface
-		interface Deserializer{
+		interface Deserializer {
 			Object deserialize(JsonParser p);
 		}
-		
+
 		public class JRefValueDeserializer extends DelegatingDeserializer {
 
 			protected JRefValueDeserializer(ValueDeserializer<?> src) {
@@ -204,7 +209,10 @@ public class JRefModule extends SimpleModule {
 							if (jrefValueStr != null) {
 								// Must start with # (local-only json pointers)
 								if (!jrefValueStr.startsWith(JRefUtil.HASH)) {
-									throw DatabindException.from(p,  "JsonPointer value must start with '#' character (local only)");
+									throw DatabindException.from(p,
+											String.format(
+													"JsonPointer value=%s must start with '#' character (local only)",
+													jrefValueStr));
 								}
 								// Remove hash
 								jrefValueStr = jrefValueStr.substring(1);
@@ -213,15 +221,17 @@ public class JRefModule extends SimpleModule {
 									result.ptr = JsonPointer.valueOf(jrefValueStr);
 									// If empty, we throw
 									if (result.ptr.equals(JsonPointer.empty())) {
-										throw DatabindException.from(p, "JsonPoint cannot be empty");
+										throw DatabindException.from(p, "JsonPointer value cannot be empty");
 									}
 								} catch (IllegalArgumentException e) {
-									throw DatabindException.from(p, "Illegal jsonPointerValue="+ jrefValueStr, e);
+									throw DatabindException.from(p,
+											String.format("Illegal JsonPointer value=%s", jrefValueStr), e);
 								}
 							}
 						}
 					}
-					// If we get here, it means we update the parser to create a tree-traversing parser
+					// If we get here, it means we update the parser to create a tree-traversing
+					// parser
 					result.parser = new TreeTraversingParser(n);
 					result.parser.nextToken();
 				}
@@ -238,10 +248,9 @@ public class JRefModule extends SimpleModule {
 				}
 			}
 
-			
 			@Override
-			public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
-					throws JacksonException {
+			public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
+					TypeDeserializer typeDeserializer) throws JacksonException {
 				return deserializerWithJRef(p, ctxt, typeDeserializer,
 						ps -> super.deserializeWithType(ps, ctxt, typeDeserializer));
 			}
@@ -301,6 +310,5 @@ public class JRefModule extends SimpleModule {
 		}
 
 	}
-	
-	
+
 }

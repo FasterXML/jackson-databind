@@ -22,9 +22,9 @@ public class JRefResolver {
 	private final SetterFunction setter;
 	
 	public JRefResolver(JsonPointer jsonPointer, SetterFunction setter) {
-		Objects.requireNonNull(jsonPointer, "jsonPointer must not be null");
+		Objects.requireNonNull(jsonPointer, "JRefResolver jsonPointer cannot be null");
 		this.jsonPointer = jsonPointer;
-		Objects.requireNonNull(setter, "setter function must must not be null");
+		Objects.requireNonNull(setter, "JRefResolver setter function cannot be null");
 		this.setter = setter;
 	}
 
@@ -36,7 +36,7 @@ public class JRefResolver {
 		try {
 			return this.setter.set(value);
 		} catch (Throwable e) {
-			throw new JRefResolveException(ctxt.getParser(), root, "Exception setting value=" + value, e);
+			throw new JRefResolveException(ctxt.getParser(), root, String.format("Could not set value=%s", value), e);
 		}
 	}
 

@@ -189,31 +189,6 @@ public class JRefModule extends SimpleModule {
 				JsonParser parser;
 			}
 
-			protected JsonPointer findJsonPointer(JsonParser parser, JsonNode node) {
-				if (node instanceof ObjectNode) {
-					JsonNode jrefValue = ((ObjectNode) node).get(JRefUtil.JREF_NAME);
-					if (jrefValue != null) {
-						// We've found a '$ref' as first object name
-						String jrefValueStr = jrefValue.asString();
-						if (jrefValueStr != null && jrefValueStr.startsWith(JRefUtil.HASH)) {
-							// remove hash
-							jrefValueStr = jrefValueStr.substring(1);
-							try {
-								JsonPointer ptr = JsonPointer.valueOf(jrefValueStr);
-								// Cannot be empty
-								if (ptr.equals(JsonPointer.empty())) {
-									throw DatabindException.from(parser, "JsonPoint cannot be empty");
-								}
-							} catch (IllegalArgumentException e) {
-								throw DatabindException.from(parser, "Illegal jsonPointerValue="+ jrefValueStr, e);
-							}
-						}
-						throw DatabindException.from(parser, "JRefValue is null or doesn't start with #");
-					}
-				}
-				return null;
-			}
-			
 			protected JRefFindResult findJRef(JsonParser p, DeserializationContext ctxt,
 					TypeDeserializer typeDeserializer) {
 				JRefFindResult result = new JRefFindResult();

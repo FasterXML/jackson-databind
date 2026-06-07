@@ -62,9 +62,8 @@ public abstract class InjectableValues
         {
             if (!(valueId instanceof String)) {
                 throw ctxt.missingInjectableValueException(
-                        String.format(
-                        "Unsupported injectable value id type (%s), expecting String",
-                        ClassUtil.classNameOf(valueId)),
+                        "Unsupported injectable value id type (%s), expecting String".formatted(
+                                ClassUtil.classNameOf(valueId)),
                         valueId, forProperty, beanInstance);
             }
             return (String) valueId;
@@ -98,8 +97,8 @@ public abstract class InjectableValues
                 return null;
             }
             throw ctxt.missingInjectableValueException(
-                    String.format("No injectable value with id '%s' found (for property '%s')",
-                    key, forProperty.getName()),
+                    "No injectable value with id '%s' found (for property '%s')".formatted(
+                            key, forProperty.getName()),
                     key, forProperty, beanInstance);
         }
     }

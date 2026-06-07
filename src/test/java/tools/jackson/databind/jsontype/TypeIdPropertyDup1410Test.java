@@ -73,7 +73,7 @@ public class TypeIdPropertyDup1410Test extends DatabindTestUtil
 
         @Override
         public String toString() {
-            return String.format("(%s): %s", status, getMessage());
+            return "(%s): %s".formatted(status, getMessage());
         }
     }
 

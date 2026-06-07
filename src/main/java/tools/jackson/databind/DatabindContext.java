@@ -192,8 +192,7 @@ public abstract class DatabindContext
             } catch (ClassNotFoundException e) { // let caller handle this problem
                 return null;
             } catch (Exception e) {
-                throw invalidTypeIdException(baseType, subClassName, String.format(
-                        "problem: (%s) %s",
+                throw invalidTypeIdException(baseType, subClassName, "problem: (%s) %s".formatted(
                         e.getClass().getName(),
                         ClassUtil.exceptionMessage(e)));
             }
@@ -226,8 +225,7 @@ public abstract class DatabindContext
         } catch (ClassNotFoundException e) { // let caller handle this problem
             return null;
         } catch (Exception e) {
-            throw invalidTypeIdException(baseType, subClass, String.format(
-                    "problem: (%s) %s",
+            throw invalidTypeIdException(baseType, subClass, "problem: (%s) %s".formatted(
                     e.getClass().getName(),
                     ClassUtil.exceptionMessage(e)));
         }
@@ -549,7 +547,7 @@ public abstract class DatabindContext
 
     protected final String _format(String msg, Object... msgArgs) {
         if (msgArgs.length > 0) {
-            return String.format(msg, msgArgs);
+            return msg.formatted(msgArgs);
         }
         return msg;
     }

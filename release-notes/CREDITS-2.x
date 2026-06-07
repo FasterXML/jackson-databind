@@ -2052,6 +2052,11 @@ Joshua Arnold (@josharnold52)
    `@JsonCreator` and `@JsonValue`
   [2.21.3]
 
+CharmingKyu (@loadkrnis)
+ * Fixed #5993: `UPPER_SNAKE_CASE` / `LOWER_CASE` `NamingStrategyImpls` fold case
+   using JVM default locale (Turkish-I bug)
+  [2.21.4]
+
 Christian Danner cdadac
  * Reported #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
    are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`

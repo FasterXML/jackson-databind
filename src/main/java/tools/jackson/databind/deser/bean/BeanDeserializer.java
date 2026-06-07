@@ -373,6 +373,7 @@ public class BeanDeserializer
             final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
                 // [databind#5966] Honor @JsonView visibility, injection-only on creator parameters
+                // (also covers [databind#5971] view check on the record-update path)
                 if (((activeView != null) && !creatorProp.visibleInView(activeView))
                         || creatorProp.isInjectionOnly()) {
                     p.skipChildren();
@@ -884,7 +885,14 @@ public class BeanDeserializer
             }
         }
 
-        p.assignCurrentValue(bean);
+        // [databind#5980]: Do NOT assign current value here. With property-based
+        //   creators the bean only exists after the closing END_OBJECT has been
+        //   consumed -- by which point the stream-read context has already been
+        //   popped back to the *enclosing* value. Assigning here would therefore
+        //   clobber the enclosing value's `currentValue()` (it can never reach the
+        //   bean's own, already-closed scope), breaking custom deserializers of
+        //   later sibling properties that rely on `JsonParser.currentValue()`.
+
         // [databind#4938] Since 2.19, allow returning `null` from creator,
         //  but if so, need to skip all possibly relevant content
         if (bean == null) {
@@ -1231,6 +1239,7 @@ public class BeanDeserializer
         TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
 
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         boolean hasUnwrappedContent = false;
         JsonToken t = p.currentToken();
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
@@ -1244,6 +1253,11 @@ public class BeanDeserializer
             }
 
             if (creatorProp != null) {
+                // [databind#5971]: must honor active view here too
+                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // [databind#1381]: if useInput=FALSE, skip deserialization from input
                 if (creatorProp.isInjectionOnly()) {
                     // Skip the input value, will be injected later in PropertyValueBuffer
@@ -1269,6 +1283,11 @@ public class BeanDeserializer
             int ix = _propNameMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
+                // [databind#5969]: must honor active view here too
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
                 continue;
             }
@@ -1320,7 +1339,9 @@ public class BeanDeserializer
         } catch (Exception e) {
             return wrapInstantiationProblem(ctxt, e);
         }
-        p.assignCurrentValue(bean);
+        // [databind#5980]: Do NOT assign current value here -- see explanation in
+        //   `_deserializeUsingPropertyBased()`: bean only exists after END_OBJECT has
+        //   been consumed, so assigning here would clobber the *enclosing* value.
 
         // [databind#4938] Since 2.19, allow returning `null` from creator,
         //  but if so, need to skip all possibly relevant content
@@ -1448,6 +1469,11 @@ public class BeanDeserializer
                 continue;
             }
             if (creatorProp != null) {
+                // [databind#5971]: must honor active view here too
+                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // [databind#1381]: if useInput=FALSE, skip deserialization from input
                 if (creatorProp.isInjectionOnly()) {
                     // Skip the input value, will be injected later in PropertyValueBuffer

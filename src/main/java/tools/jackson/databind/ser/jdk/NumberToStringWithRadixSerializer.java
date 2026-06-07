@@ -37,7 +37,9 @@ public class NumberToStringWithRadixSerializer extends ToStringSerializerBase {
             throws JacksonException
     {
         if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
-            String errorMsg = String.format("To use a custom radix for string serialization, use radix within [%d, %d]", Character.MIN_RADIX, Character.MAX_RADIX);
+            String errorMsg = String.format(
+                    "To use a custom radix for string serialization, use radix within [%d, %d]",
+                    Character.MIN_RADIX, Character.MAX_RADIX);
             provider.reportBadDefinition(handledType(), errorMsg);
         }
 

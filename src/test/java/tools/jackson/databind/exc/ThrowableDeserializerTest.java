@@ -209,8 +209,11 @@ public class ThrowableDeserializerTest extends DatabindTestUtil
     public void testLineNumberAsString() throws Exception
     {
         Exception exc = MAPPER.readValue(a2q(
-                "{'message':'Test',\n'stackTrace': "
-                +"[ { 'lineNumber':'50' } ] }"
+                """
+                {'message':'Test',
+                'stackTrace': \
+                [ { 'lineNumber':'50' } ] }
+                """
         ), IOException.class);
         assertNotNull(exc);
     }
@@ -708,7 +711,7 @@ public class ThrowableDeserializerTest extends DatabindTestUtil
                 return;
             }
         }
-        fail(String.format("StackTraceElement #%d, property '%s' differs: expected %s, actual %s",
+        fail("StackTraceElement #%d, property '%s' differs: expected %s, actual %s".formatted(
                 ix, prop, exp, act));
     }
 }

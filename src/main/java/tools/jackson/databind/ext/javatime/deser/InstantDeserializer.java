@@ -415,7 +415,7 @@ public class InstantDeserializer<T extends Temporal>
                     timestamp, this.getZone(context)));
         } catch (DateTimeException e) {
             throw DateTimeParseException.from(context.getParser(),
-                    String.format("Failed to deserialize %s from timestamp value %d: %s",
+                    "Failed to deserialize %s from timestamp value %d: %s".formatted(
                             handledType().getName(), timestamp, e.getMessage()),
                     String.valueOf(timestamp), handledType(), e);
         }
@@ -432,7 +432,7 @@ public class InstantDeserializer<T extends Temporal>
             return fromNanoseconds.apply(args);
         } catch (DateTimeException | ArithmeticException e) {
             throw DateTimeParseException.from(context.getParser(),
-                    String.format("Failed to deserialize %s from decimal value %s: %s",
+                    "Failed to deserialize %s from decimal value %s: %s".formatted(
                             handledType().getName(), value, e.getMessage()),
                     value.toString(), handledType(), e);
         }

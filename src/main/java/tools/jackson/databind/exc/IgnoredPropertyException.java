@@ -45,7 +45,7 @@ public class IgnoredPropertyException
         } else { // also acts as null check:
             ref = fromObjectOrClass.getClass();
         }
-        String msg = String.format("Ignored field \"%s\" (class %s) encountered; mapper configured not to allow this",
+        String msg = "Ignored field \"%s\" (class %s) encountered; mapper configured not to allow this".formatted(
                 propertyName, ref.getName());
         IgnoredPropertyException e = new IgnoredPropertyException(p, msg,
                 p.currentLocation(), ref, propertyName, propertyIds);

@@ -428,9 +428,9 @@ public class BeanDeserializerBuilder
             // as per [databind#777], allow empty name
             if (!expBuildMethodName.isEmpty()) {
                 _context.reportBadDefinition(_beanDescRef.getType(),
-                        String.format("Builder class %s does not have build method (name: '%s')",
-                        ClassUtil.getTypeDescription(_beanDescRef.getType()),
-                        expBuildMethodName));
+                        "Builder class %s does not have build method (name: '%s')".formatted(
+                                ClassUtil.getTypeDescription(_beanDescRef.getType()),
+                                expBuildMethodName));
             }
         } else {
             // also: type of the method must be compatible
@@ -440,10 +440,10 @@ public class BeanDeserializerBuilder
                     && !rawBuildType.isAssignableFrom(rawValueType)
                     && !rawValueType.isAssignableFrom(rawBuildType)) {
                 _context.reportBadDefinition(_beanDescRef.getType(),
-                        String.format("Build method `%s` has wrong return type (%s), not compatible with POJO type (%s)",
-                        _buildMethod.getFullName(),
-                        ClassUtil.getClassDescription(rawBuildType),
-                        ClassUtil.getTypeDescription(valueType)));
+                        "Build method `%s` has wrong return type (%s), not compatible with POJO type (%s)".formatted(
+                                _buildMethod.getFullName(),
+                                ClassUtil.getClassDescription(rawBuildType),
+                                ClassUtil.getTypeDescription(valueType)));
             }
         }
         _fixAccess(_properties.values());

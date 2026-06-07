@@ -22,18 +22,20 @@ public class UntypedObjectWithDupsTest extends DatabindTestUtil
     static class StringStringMap extends LinkedHashMap<String,String> { };
 
     private final String DOC_WITH_DUPS = a2q(
-            "{'hello': 'world',\n"
-            + "'lists' : 1,\n"
-            + "'lists' : 2.5,\n"
-            + "'lists' : {\n"
-            + "  'inner' : 'internal',\n"
-            + "  'time' : 123\n"
-            + "},\n"
-            + "'lists' : true,\n"
-            + "'single' : 'one',\n"
-            + "'lists' : false,\n"
-            + "'lists' : null\n"
-            + "}");
+            """
+            {'hello': 'world',
+            'lists' : 1,
+            'lists' : 2.5,
+            'lists' : {
+              'inner' : 'internal',
+              'time' : 123
+            },
+            'lists' : true,
+            'single' : 'one',
+            'lists' : false,
+            'lists' : null
+            }
+            """);
 
     // Testing the baseline non-merging behavior
     @Test

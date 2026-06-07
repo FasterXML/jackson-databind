@@ -445,11 +445,11 @@ public class BeanPropertyMap
             if (count++ > 0) {
                 sb.append(", ");
             }
-            sb.append(String.format("%s(%s)", prop.getName(), prop.getType()));
+            sb.append("%s(%s)".formatted(prop.getName(), prop.getType()));
         }
         sb.append(']');
         if (_aliasDefs != null) {
-            sb.append(String.format("(aliases: %s)", _aliasDefs.length));
+            sb.append("(aliases: %s)".formatted(_aliasDefs.length));
         }
         return sb.toString();
     }

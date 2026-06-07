@@ -2,6 +2,8 @@ package tools.jackson.databind.type;
 import java.io.Serial;
 
 
+import java.io.Serial;
+
 /**
  * Key class, used as an efficient and accurate key
  * for locating per-class values, such as

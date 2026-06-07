@@ -47,7 +47,7 @@ public class InvalidNullException
     public static InvalidNullException from(DeserializationContext ctxt,
             PropertyName name, JavaType type)
     {
-        String msg = String.format("Invalid `null` value encountered for property %s",
+        String msg = "Invalid `null` value encountered for property %s".formatted(
                 ClassUtil.quotedOr(name, "<UNKNOWN>"));
         InvalidNullException exc = new InvalidNullException(ctxt, msg, name);
         if (type != null) {

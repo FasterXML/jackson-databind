@@ -2,6 +2,8 @@ package tools.jackson.databind.util;
 import java.io.Serial;
 
 
+import java.io.Serial;
+
 /**
  * Node of a forward-only linked list.
  */

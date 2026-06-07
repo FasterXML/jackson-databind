@@ -858,6 +858,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
                 .enable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
                 .enable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
                 .disable(MapperFeature.DETECT_PARAMETER_NAMES) // [databind#5314]
+                .disable(MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX) // [databind#6011]
                 .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
                 .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)

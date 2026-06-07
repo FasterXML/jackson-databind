@@ -72,9 +72,11 @@ public class RecursiveIgnorePropertiesTest
     @Test
     public void testRecursiveForDeser() throws Exception
     {
-        String st = a2q("{ 'name': 'admin',\n"
-                + "    'person_z': { 'name': 'wyatt' }"
-                + "}");
+        String st = """
+                { "name": "admin",
+                    "person_z": { "name": "wyatt" }\
+                }
+                """;
         Person result = MAPPER.readValue(st, Person.class);
         assertEquals("admin", result.name);
         assertNotNull(result.personZ);
@@ -84,9 +86,11 @@ public class RecursiveIgnorePropertiesTest
     @Test
     public void testRecursiveWithCollectionDeser() throws Exception
     {
-        String st = a2q("{ 'name': 'admin',\n"
-                + "    'person_z': [ { 'name': 'Foor' }, { 'name' : 'Bar' } ]"
-                + "}");
+        String st = """
+                { "name": "admin",
+                    "person_z": [ { "name": "Foor" }, { "name" : "Bar" } ]\
+                }
+                """;
         Persons result = MAPPER.readValue(st, Persons.class);
         assertEquals("admin", result.name);
         assertNotNull(result.personZ);
@@ -111,30 +115,32 @@ public class RecursiveIgnorePropertiesTest
     @Test
     public void testRecursiveIgnore1755() throws Exception
     {
-        final String JSON = a2q("{\n"
-                +"'id': '1',\n"
-                +"'quantity': 5,\n"
-                +"'ignoreMe': 'yzx',\n"
-                +"'metadata': [\n"
-                +"           {\n"
-                +"              'key': 'position',\n"
-                +"              'value': '2'\n"
-                +"          }\n"
-                +"       ],\n"
-                +"'linked': [\n"
-                +"     {\n"
-                +"         'id': '1',\n"
-                +"         'quantity': 5,\n"
-                +"         'ignoreMe': 'yzx',\n"
-                +"         'metadata': [\n"
-                +"          {\n"
-                +"              'key': 'position',\n"
-                +"             'value': '2'\n"
-                +"         }\n"
-                +"     ]\n"
-                +"   }\n"
-                +"  ]\n"
-                +"}");
+        final String JSON = """
+                {
+                "id": "1",
+                "quantity": 5,
+                "ignoreMe": "yzx",
+                "metadata": [
+                           {
+                              "key": "position",
+                              "value": "2"
+                          }
+                       ],
+                "linked": [
+                     {
+                         "id": "1",
+                         "quantity": 5,
+                         "ignoreMe": "yzx",
+                         "metadata": [
+                          {
+                              "key": "position",
+                             "value": "2"
+                         }
+                     ]
+                   }
+                  ]
+                }
+                """;
         JackExt value = MAPPER.readValue(JSON, JackExt.class);
         assertNotNull(value);
     }

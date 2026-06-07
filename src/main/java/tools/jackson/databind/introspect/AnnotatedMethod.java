@@ -209,7 +209,7 @@ public final class AnnotatedMethod
             return methodName+"("+getRawParameterType(0).getName()+")";
         default:
         }
-        return String.format("%s(%d params)", super.getFullName(), getParameterCount());
+        return "%s(%d params)".formatted(super.getFullName(), getParameterCount());
     }
 
     public Class<?>[] getRawParameterTypes()

@@ -2,6 +2,8 @@ package tools.jackson.databind.util;
 import java.io.Serial;
 
 
+import java.io.Serial;
+
 /**
  * Helper class used for checking whether a property is visible
  * in the active view

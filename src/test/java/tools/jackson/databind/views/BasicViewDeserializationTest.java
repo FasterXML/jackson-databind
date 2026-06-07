@@ -12,7 +12,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class ViewDeserializationTest extends DatabindTestUtil
+public class BasicViewDeserializationTest extends DatabindTestUtil
 {
     // Classes that represent views
     static class ViewA { }

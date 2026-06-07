@@ -39,8 +39,7 @@ public class TypeParser
     public JavaType parse(TypeFactory tf, String canonical) throws IllegalArgumentException
     {
         if (canonical.length() > MAX_TYPE_LENGTH) {
-            throw new IllegalArgumentException(String.format(
-                    "Failed to parse type %s: too long (%d characters), maximum length allowed: %d",
+            throw new IllegalArgumentException("Failed to parse type %s: too long (%d characters), maximum length allowed: %d".formatted(
                     _quoteTruncated(canonical),
                     canonical.length(),
                     MAX_TYPE_LENGTH));
@@ -109,7 +108,7 @@ public class TypeParser
 
     protected IllegalArgumentException _problem(MyTokenizer tokens, String msg)
     {
-        return new IllegalArgumentException(String.format("Failed to parse type %s (remaining: %s): %s",
+        return new IllegalArgumentException("Failed to parse type %s (remaining: %s): %s".formatted(
                 _quoteTruncated(tokens.getAllInput()),
                 _quoteTruncated(tokens.getRemainingInput()),
                 msg));
@@ -119,7 +118,7 @@ public class TypeParser
         if (str.length() <= 1000) {
             return "'"+str+"'";
         }
-        return String.format("'%s...'[truncated %d charaters]",
+        return "'%s...'[truncated %d charaters]".formatted(
                 str.substring(0, 1000), str.length() - 1000);
     }
 

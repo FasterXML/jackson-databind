@@ -179,23 +179,25 @@ public class TestCreators3
                 .disable(MapperFeature.USE_GETTERS_AS_SETTERS)
                 .build();
 
-        final String JSON = "{\n"
-                + "    \"foo\": {\n"
-                + "        \"0\": {\n"
-                + "            \"p\": 0,\n"
-                + "            \"stuff\": [\n"
-                + "              \"a\", \"b\" \n"
-                + "            ]   \n"
-                + "        },\n"
-                + "        \"1\": {\n"
-                + "            \"p\": 1000,\n"
-                + "            \"stuff\": [\n"
-                + "              \"c\", \"d\" \n"
-                + "            ]   \n"
-                + "        }\n"
-                + "    },\n"
-                + "    \"anumber\": 25385874\n"
-                + "}";
+        final String JSON = """
+                {
+                    "foo": {
+                        "0": {
+                            "p": 0,
+                            "stuff": [
+                              "a", "b"\s
+                            ]  \s
+                        },
+                        "1": {
+                            "p": 1000,
+                            "stuff": [
+                              "c", "d"\s
+                            ]  \s
+                        }
+                    },
+                    "anumber": 25385874
+                }
+                """;
 
         Value541 obj = mapper.readValue(JSON, Value541.class);
         assertNotNull(obj);

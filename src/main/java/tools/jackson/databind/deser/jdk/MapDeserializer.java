@@ -668,9 +668,25 @@ public class MapDeserializer
                 if (useObjectId) {
                     referringAccumulator.put(key, value);
                 } else {
-                    Object oldValue = result.put(key, value);
-                    if (oldValue != null) {
-                        _squashDups(ctxt, result, key, oldValue, value);
+                    // XXX JREF handling
+                    // Given ctxt/config and value, return JRefPath if value
+                    // is instanceof JRefPath returned, otherwise return null
+                    JRefPath jrefPath = ctxt.findJRefPathFromValue(value);
+                    // Check for null/non-null
+                    if (jrefPath != null) {
+                    	final String k = key;
+                		ctxt.addJRefResolver(new JRefResolver(jrefPath, (v) -> {
+                            Object oldValue = result.put(k, v);
+                            if (oldValue != null) {
+                                _squashDups(ctxt, result, k, oldValue, v);
+                            }   
+                            return result;
+                    	}));
+                    } else {
+                        Object oldValue = result.put(key, value);
+                        if (oldValue != null) {
+                            _squashDups(ctxt, result, key, oldValue, value);
+                        }   
                     }
                 }
             } catch (UnresolvedForwardReference reference) {

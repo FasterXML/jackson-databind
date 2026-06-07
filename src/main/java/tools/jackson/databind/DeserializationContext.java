@@ -2270,7 +2270,26 @@ String.format("`DeserializationProblemHandler.handleNullForPrimitives()` for typ
                 valueId, forProperty, beanInstance);
     }
 
-    /*
+    // XXX JREF support methods
+	public JRefPath findJRefPathFromValue(Object value) {
+		if (!(value instanceof JRefPath)) {
+			return null;
+		} else {
+			Object resolverList = getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR);
+			if (resolverList == null) {
+				resolverList = new ArrayList<>();
+				setAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR, resolverList);
+			}
+			return (JRefPath) value;
+		}
+	}
+
+    @SuppressWarnings("unchecked")
+	public boolean addJRefResolver(JRefResolver resolver) {
+		return ((List<JRefResolver>) getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR)).add(resolver);
+    }
+    
+	/*
     /**********************************************************************
     /* Other internal methods
     /**********************************************************************

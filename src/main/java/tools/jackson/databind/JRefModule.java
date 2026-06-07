@@ -196,14 +196,6 @@ public class JRefModule extends SimpleModule {
 				return result;
 			}
 
-			@Override
-			public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
-			    Object resolversList = ctxt.getAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR);
-			    if (resolversList == null) {
-			    	ctxt.setAttribute(JRefResolver.JREF_RESOLVER_LIST_CONTEXT_ATTR, new ArrayList<>());
-			    }
-				return super.createContextual(ctxt, property);
-			}
 			protected JRefFindResult findJRef(JsonParser p, DeserializationContext ctxt,
 					TypeDeserializer typeDeserializer) {
 				JRefFindResult result = new JRefFindResult();

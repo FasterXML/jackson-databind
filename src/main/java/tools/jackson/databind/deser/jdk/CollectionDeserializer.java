@@ -398,9 +398,20 @@ _containerType,
                         continue;
                     }
                 }
-
-                result.add(value);
-
+                // XXX JREF handling
+                // Given ctxt/config and value, return JRefPath if value
+                // is instanceof JRefPath returned, otherwise return null
+                JRefPath jrefPath = ctxt.findJRefPathFromValue(value);
+                // Check for null/non-null
+                if (jrefPath != null) {
+            		ctxt.addJRefResolver(new JRefResolver(jrefPath, (v) -> {
+            			result.add(v);
+                		return result;
+                	}));
+                } else {
+                	// do whatever was done before JRefPath
+                	result.add(value);
+                }
                 /* 17-Dec-2017, tatu: should not occur at this level...
             } catch (UnresolvedForwardReference reference) {
                 throw DatabindException

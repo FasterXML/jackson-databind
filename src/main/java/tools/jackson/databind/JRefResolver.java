@@ -12,6 +12,12 @@ public class JRefResolver {
 
 	public static final String JREF_RESOLVER_LIST_CONTEXT_ATTR = JRefResolver.class.getName() + ".jrefs";
 
+	@FunctionalInterface
+	public interface SetterFunction {
+
+		public Object set(Object v) throws Throwable;
+	}
+
 	private final JRefPath jrefPath;
 	private final SetterFunction setter;
 

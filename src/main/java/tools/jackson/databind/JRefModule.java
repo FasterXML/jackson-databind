@@ -58,9 +58,9 @@ public class JRefModule extends SimpleModule {
 				super(delegatee);
 			}
 
-			protected Map<Object, JsonPointer> getMap(SerializationContext ctxt) {
+			protected Map<Integer, JsonPointer> getMap(SerializationContext ctxt) {
 				@SuppressWarnings("unchecked")
-				Map<Object, JsonPointer> map = (Map<Object, JsonPointer>) ctxt.getAttribute(PTR_MAP_ATTR);
+				Map<Integer, JsonPointer> map = (Map<Integer, JsonPointer>) ctxt.getAttribute(PTR_MAP_ATTR);
 				// if it doesn't exist, then create and add as context attribute
 				if (map == null) {
 					map = new ConcurrentHashMap<>();
@@ -73,7 +73,7 @@ public class JRefModule extends SimpleModule {
 				if (ClassUtil.primitiveType(value.getClass()) != null) {
 					return null;
 				}
-				return getMap(ctxt).get(value);
+				return getMap(ctxt).get(System.identityHashCode(value));
 			}
 			
 			protected void checkAndSetJsonPointer(Object value, JsonGenerator gen, SerializationContext ctxt) {
@@ -83,7 +83,7 @@ public class JRefModule extends SimpleModule {
 				// Get TokenStreamContext
 				TokenStreamContext swc = gen.streamWriteContext();
 				if (swc.hasPathSegment()) {
-					getMap(ctxt).put(value, JsonPointer.forPath(swc, false));
+					getMap(ctxt).put(System.identityHashCode(value), JsonPointer.forPath(swc, false));
 				}
 			}
 			
@@ -163,13 +163,6 @@ public class JRefModule extends SimpleModule {
 				Supplier beanDesc, ValueSerializer<?> serializer) {
 			return new JRefValueSerializer(serializer);
 		}
-
-		@Override
-		public ValueSerializer<?> modifyKeySerializer(SerializationConfig config, JavaType valueType, Supplier beanDesc,
-				ValueSerializer<?> serializer) {
-			return new JRefValueSerializer(serializer);
-		}
-
 	}
 
 	public class JRefValueDeserializerModifier extends ValueDeserializerModifier {

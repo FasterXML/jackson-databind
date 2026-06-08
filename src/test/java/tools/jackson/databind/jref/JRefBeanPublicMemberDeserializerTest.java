@@ -12,6 +12,7 @@ import tools.jackson.databind.ObjectMapper;
 
 public class JRefBeanPublicMemberDeserializerTest extends JRefAbstractTest {
 
+	
 	static class IntType {
 		public int i;
 	}

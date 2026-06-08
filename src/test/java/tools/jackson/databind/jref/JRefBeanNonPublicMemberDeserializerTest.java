@@ -16,6 +16,65 @@ import tools.jackson.databind.ObjectMapper;
 public class JRefBeanNonPublicMemberDeserializerTest extends JRefAbstractTest {
 
 	@Test
+	public void testMapRefNoValueType() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		String k1 = new String("first");
+		Object v1 = new String("val1");
+		String k2 = new String("second");
+		// second value refs first
+		Object v2 = v1;
+		Map<String,Object> mi = Map.of(k1,v1,k2,v2);
+		String out = mapper.writeValueAsString(mi);
+		trace("testMapRefNoValueType jrefserialized=",out);
+		Map<?,?> mo = mapper.readValue(out, Map.class);
+		assertEquals(mi, mo);
+	}
+
+
+	@Test
+	public void testMapNoRefNoValueType() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		String k1 = new String("first");
+		Object v1 = new String("val1");
+		String k2 = new String("second");
+		// second value refs first
+		Object v2 = new String("val1");
+		Map<String,Object> mi = Map.of(k1,v1,k2,v2);
+		String out = mapper.writeValueAsString(mi);
+		trace("testMapNoRefNoValueType jrefserialized=",out);
+		Map<?,?> mo = mapper.readValue(out, Map.class);
+		assertEquals(mi, mo);
+	}
+
+	@Test
+	public void testStringListTwoValue() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		// These are two separate instances, with same string underneath
+		String s1 = new String("one");
+		String s2 = new String("one");
+		List<String> sl = List.of(s1, s2);
+		String out = mapper.writeValueAsString(sl);
+		trace("testStringListTwoValue jrefserialized=",out);
+		List<?> result = mapper.readValue(out, List.class);
+		assertEquals(result.get(0), s1);
+		assertEquals(result.get(1), s2);
+	}
+
+	@Test
+	public void testStringListOneValue() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		String s1 = new String("one");
+		// s2 is reference to s1
+		String s2 = s1;
+		List<String> sl = List.of(s1, s2);
+		String out = mapper.writeValueAsString(sl);
+		trace("testStringListOneValue jrefserialized=",out);
+		List<?> result = mapper.readValue(out, List.class);
+		assertEquals(result.get(0), s1);
+		assertEquals(result.get(1), s2);
+	}
+
+	@Test
 	public void testIntList() throws Exception {
 		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
 		List<Integer> l = List.of(10,10);

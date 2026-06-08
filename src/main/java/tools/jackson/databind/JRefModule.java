@@ -57,52 +57,37 @@ public class JRefModule extends SimpleModule {
 				super(delegatee);
 			}
 
-			@Override
-			public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property) {
-				// If the serialization context doesn't already have it, a new
-				// Integer->JsonPointer
-				// map is set to PTR_MAP_ATTRIBUTE for lookup and addition of serialized values
-				if (ctxt.getAttribute(PTR_MAP_ATTR) == null) {
-					ctxt.setAttribute(PTR_MAP_ATTR, new ConcurrentHashMap<>());
+			protected Map<Integer, JsonPointer> getMap(SerializationContext ctxt) {
+				@SuppressWarnings("unchecked")
+				Map<Integer, JsonPointer> map = (Map<Integer, JsonPointer>) ctxt.getAttribute(PTR_MAP_ATTR);
+				// if it doesn't exist, then lazily create and add as context attribute
+				if (map == null) {
+					map = new ConcurrentHashMap<>();
+					ctxt.setAttribute(PTR_MAP_ATTR, map);
 				}
-				return super.createContextual(ctxt, property);
-			}
-
-			@SuppressWarnings("unchecked")
-			protected JsonPointer findJsonPointer(Object value, SerializationContext ctxt) {
-				if (value != null) {
-					return ((Map<Integer, JsonPointer>) ctxt.getAttribute(PTR_MAP_ATTR))
-							.get(System.identityHashCode(value));
-				}
-				return null;
-			}
-
-			@SuppressWarnings("unchecked")
-			protected void addJsonPointerIfComplete(Object value, JsonGenerator gen, SerializationContext ctxt) {
-				if (value != null) {
-					TokenStreamContext writeContext = gen.streamWriteContext();
-					if (writeContext.hasPathSegment()) {
-						((Map<Integer, JsonPointer>) ctxt.getAttribute(PTR_MAP_ATTR))
-								.put(System.identityHashCode(value), JsonPointer.forPath(writeContext, false));
-					}
-				}
+				return map;
 			}
 
 			protected void serializeWithJRef(Object value, JsonGenerator gen, SerializationContext ctxt,
 					Serializer serializer) {
-				// First look for json pointer for instance
-				JsonPointer foundPtr = findJsonPointer(value, ctxt);
-				if (foundPtr != null) {
-					// If found, write out and we're done!
+				// do lookup
+				JsonPointer ptr = getMap(ctxt).get(System.identityHashCode(value));
+				if (ptr != null) {
+					// If JsonPointer found for value id, write it out and we're done!
 					gen.writeStartObject();
-					gen.writeStringProperty(JRefUtil.JREF_NAME, JRefUtil.HASH + foundPtr.toString());
+					gen.writeStringProperty(JRefUtil.JREF_NAME, JRefUtil.HASH + ptr.toString());
 					gen.writeEndObject();
 				} else {
-					// Call the given serializer to do it's work (with typeref or not)
+					// Needs to serialize value, so call the given serializer function
 					serializer.serialize();
-					// Add JsonPointer to map if the streamWriteContext has a path segment to
-					// contribute
-					addJsonPointerIfComplete(value, gen, ctxt);
+					// Now the value has been serialized, get the TokenStreamContext
+					TokenStreamContext writeContext = gen.streamWriteContext();
+					// If it has a path segment/name
+					if (writeContext.hasPathSegment()) {
+						// Put the JsonPointer in map
+						getMap(ctxt).put(System.identityHashCode(value),
+								JsonPointer.forPath(writeContext, false));
+					}
 				}
 			}
 

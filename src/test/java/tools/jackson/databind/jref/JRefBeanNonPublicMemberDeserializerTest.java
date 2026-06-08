@@ -1,7 +1,6 @@
 package tools.jackson.databind.jref;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -12,10 +11,20 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import tools.jackson.databind.JRefModule;
 import tools.jackson.databind.ObjectMapper;
 
-public class JRefBeanNonPublicMemberDeserializerTest {
+public class JRefBeanNonPublicMemberDeserializerTest extends JRefAbstractTest {
+
+	@Test
+	public void testIntList() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		List<Integer> l = List.of(10,10);
+		String input = mapper.writeValueAsString(l);
+		trace("testIntegerList",input);
+		List<?> result = mapper.readValue(input, List.class);
+		assertEquals(l, result);
+		
+	}
 
 	static class IntType {
 		@JsonProperty
@@ -145,13 +154,6 @@ public class JRefBeanNonPublicMemberDeserializerTest {
 		}
 	}
 
-	protected ObjectMapper buildObjectMapperWithJRefSupport() {
-		return jsonMapperBuilder().addModule(new JRefModule()).build();
-	}
-
-	protected ObjectMapper buildObjectMapperWithoutJRefSupport() {
-		return jsonMapperBuilder().build();
-	}
 	@Test
 	public void testStringItemPath() throws Exception {
 		ObjectMapper mapper = buildObjectMapperWithJRefSupport();

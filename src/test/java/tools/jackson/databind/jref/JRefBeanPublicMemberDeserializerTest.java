@@ -1,7 +1,6 @@
 package tools.jackson.databind.jref;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -9,10 +8,9 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.databind.JRefModule;
 import tools.jackson.databind.ObjectMapper;
 
-public class JRefBeanPublicMemberDeserializerTest {
+public class JRefBeanPublicMemberDeserializerTest extends JRefAbstractTest {
 
 	static class IntType {
 		public int i;
@@ -123,10 +121,6 @@ public class JRefBeanPublicMemberDeserializerTest {
 		public String toString() {
 			return "Message[items=" + items + "]";
 		}
-	}
-
-	protected ObjectMapper buildObjectMapperWithJRefSupport() {
-		return jsonMapperBuilder().addModule(new JRefModule()).build();
 	}
 
 	@Test

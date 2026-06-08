@@ -24,6 +24,7 @@ import tools.jackson.databind.type.CollectionLikeType;
 import tools.jackson.databind.type.CollectionType;
 import tools.jackson.databind.type.MapLikeType;
 import tools.jackson.databind.type.MapType;
+import tools.jackson.databind.util.ClassUtil;
 
 public class JRefModule extends SimpleModule {
 
@@ -57,49 +58,61 @@ public class JRefModule extends SimpleModule {
 				super(delegatee);
 			}
 
-			protected Map<Integer, JsonPointer> getMap(SerializationContext ctxt) {
+			protected Map<Object, JsonPointer> getMap(SerializationContext ctxt) {
 				@SuppressWarnings("unchecked")
-				Map<Integer, JsonPointer> map = (Map<Integer, JsonPointer>) ctxt.getAttribute(PTR_MAP_ATTR);
-				// if it doesn't exist, then lazily create and add as context attribute
+				Map<Object, JsonPointer> map = (Map<Object, JsonPointer>) ctxt.getAttribute(PTR_MAP_ATTR);
+				// if it doesn't exist, then create and add as context attribute
 				if (map == null) {
 					map = new ConcurrentHashMap<>();
 					ctxt.setAttribute(PTR_MAP_ATTR, map);
 				}
 				return map;
 			}
-
-			protected void serializeWithJRef(Object value, JsonGenerator gen, SerializationContext ctxt,
+			
+			protected JsonPointer findJsonPointer(Object value, SerializationContext ctxt) {
+				if (ClassUtil.primitiveType(value.getClass()) != null) {
+					return null;
+				}
+				return getMap(ctxt).get(value);
+			}
+			
+			protected void checkAndSetJsonPointer(Object value, JsonGenerator gen, SerializationContext ctxt) {
+				if (ClassUtil.primitiveType(value.getClass()) != null) {
+					return;
+				}
+				// Get TokenStreamContext
+				TokenStreamContext swc = gen.streamWriteContext();
+				if (swc.hasPathSegment()) {
+					getMap(ctxt).put(value, JsonPointer.forPath(swc, false));
+				}
+			}
+			
+			protected void jrefSerialize(Object value, JsonGenerator gen, SerializationContext ctxt,
 					Serializer serializer) {
-				// do lookup
-				JsonPointer ptr = getMap(ctxt).get(System.identityHashCode(value));
+				// do lookup first
+				JsonPointer ptr = findJsonPointer(value,ctxt);
 				if (ptr != null) {
 					// If JsonPointer found for value id, write it out and we're done!
 					gen.writeStartObject();
 					gen.writeStringProperty(JRefUtil.JREF_NAME, JRefUtil.HASH + ptr.toString());
 					gen.writeEndObject();
 				} else {
-					// Needs to serialize value, so call the given serializer function
+					// Needs to serialize value, so call the serializer 
 					serializer.serialize();
-					// Now the value has been serialized, get the TokenStreamContext
-					TokenStreamContext writeContext = gen.streamWriteContext();
-					// If it has a path segment/name
-					if (writeContext.hasPathSegment()) {
-						// Put the JsonPointer in map
-						getMap(ctxt).put(System.identityHashCode(value),
-								JsonPointer.forPath(writeContext, false));
-					}
+					// Then check and set JsonPointer before returning
+					checkAndSetJsonPointer(value, gen, ctxt);
 				}
 			}
 
 			@Override
 			public void serializeWithType(Object value, JsonGenerator gen, SerializationContext ctxt,
 					TypeSerializer typeSer) {
-				serializeWithJRef(value, gen, ctxt, () -> super.serializeWithType(value, gen, ctxt, typeSer));
+				jrefSerialize(value, gen, ctxt, () -> super.serializeWithType(value, gen, ctxt, typeSer));
 			}
 
 			@Override
 			public void serialize(Object value, JsonGenerator gen, SerializationContext ctxt) {
-				serializeWithJRef(value, gen, ctxt, () -> super.serialize(value, gen, ctxt));
+				jrefSerialize(value, gen, ctxt, () -> super.serialize(value, gen, ctxt));
 			}
 
 			@Override

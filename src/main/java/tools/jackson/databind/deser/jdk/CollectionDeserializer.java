@@ -402,10 +402,10 @@ public class CollectionDeserializer
                 JsonPointer ptr = ctxt.findJsonPointerFromValue(value);
                 // Check for null/non-null
                 if (ptr != null) {
-            		ctxt.addJsonPointerResolver(new JRefResolver(ptr, (v) -> {
+                	ctxt.addJsonPointerForResolution(ptr, (v) -> {
             			result.add(v);
-                		return result;
-                	}));
+            			return result;
+                	});
                 } else {
                 	// no ptr
                 	result.add(value);

@@ -14,6 +14,7 @@ import tools.jackson.core.tree.ObjectTreeNode;
 import tools.jackson.core.type.ResolvedType;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.util.JacksonFeatureSet;
+import tools.jackson.databind.JRefResolver.SetterFunction;
 import tools.jackson.databind.cfg.*;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
@@ -2268,7 +2269,7 @@ public abstract class DeserializationContext
                 valueId, forProperty, beanInstance);
     }
 
-    // XXX JREF support methods
+    // XXX JREF support methods for deserialization context
 	public JsonPointer findJsonPointerFromValue(Object value) {
 		if (!(value instanceof JsonPointer)) {
 			return null;
@@ -2283,11 +2284,10 @@ public abstract class DeserializationContext
 		}
 	}
 
-    @SuppressWarnings("unchecked")
-	public boolean addJsonPointerResolver(JRefResolver resolver) {
-		return ((List<JRefResolver>) getAttribute(JRefResolver.RESOLVER_LIST)).add(resolver);
-    }
-    
+	@SuppressWarnings("unchecked")
+	public void addJsonPointerForResolution(JsonPointer ptr, SetterFunction f) {
+		((List<JRefResolver>) getAttribute(JRefResolver.RESOLVER_LIST)).add(new JRefResolver(ptr, f));
+	}
 	/*
     /**********************************************************************
     /* Other internal methods

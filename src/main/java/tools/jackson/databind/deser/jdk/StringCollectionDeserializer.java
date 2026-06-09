@@ -316,10 +316,10 @@ public final class StringCollectionDeserializer
                 // XXX JREF handling
                 JsonPointer ptr = ctxt.findJsonPointerFromValue(value);
                 if (ptr != null) {
-            		ctxt.addJsonPointerResolver(new JRefResolver(ptr, (v) -> {
+                	ctxt.addJsonPointerForResolution(ptr, (v) -> {
                         result.add((String) v);
                         return result;
-                	}));
+                	});
                 } else {
                 	// no ptr
                 	result.add((String) value);

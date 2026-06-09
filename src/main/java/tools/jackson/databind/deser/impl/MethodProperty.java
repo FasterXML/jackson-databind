@@ -133,9 +133,9 @@ public final class MethodProperty
         // XXX JREF handling
         JsonPointer ptr = ctxt.findJsonPointerFromValue(value);
         if (ptr != null) {
-     		ctxt.addJsonPointerResolver(new JRefResolver(ptr, (v) -> {
+        	ctxt.addJsonPointerForResolution(ptr, (v) -> {
         		return setAndReturn(ctxt, instance, v);
-        	}));
+        	});
         } else {
         	// no json pointer
    	        try {

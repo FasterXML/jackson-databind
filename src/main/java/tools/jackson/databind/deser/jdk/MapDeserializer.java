@@ -672,13 +672,13 @@ public class MapDeserializer
                     JsonPointer ptr = ctxt.findJsonPointerFromValue(value);
                     if (ptr != null) {
                     	final String k = key;
-                		ctxt.addJsonPointerResolver(new JRefResolver(ptr, (v) -> {
+                    	ctxt.addJsonPointerForResolution(ptr, (v) -> {
                             Object oldValue = result.put(k, v);
                             if (oldValue != null) {
                                 _squashDups(ctxt, result, k, oldValue, v);
                             }   
                             return result;
-                    	}));
+                    	});
                     } else {
                     	// no ptr
                         Object oldValue = result.put(key, value);

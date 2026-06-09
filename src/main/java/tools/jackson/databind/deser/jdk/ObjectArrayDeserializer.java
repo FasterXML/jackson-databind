@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonPointer;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DatabindException;
@@ -284,6 +286,20 @@ public class ObjectArrayDeserializer
             result = buffer.completeAndClearBuffer(chunk, ix, _elementClass);
         }
         ctxt.returnObjectBuffer(buffer);
+        // XXX JREF handling
+        for(int i=0; i < result.length; i++) {
+        	JsonPointer ptr = ctxt.findJsonPointerFromValue(result[i]);
+        	if (ptr != null) {
+        		// set the value to null
+        		result[i] = null;
+        		// set final index (for setterfunction) to i
+        		final int index = i;
+        		ctxt.addJsonPointerForResolution(ptr, (v) -> {
+        			result[index] = v;
+        			return result;
+        		});
+            }
+        }
         return result;
     }
     

@@ -85,6 +85,16 @@ public class JRefResolver {
 		}
 	}
 
+	protected Integer findIndex(Object segment) {
+		if (segment instanceof Integer) {
+			return (Integer) segment;
+		}
+		if (segment instanceof String) {
+			return Integer.valueOf((String) segment);
+		}
+		return null;
+	}
+	
 	protected Object applySegment(Object value, Object segment, String cursor) {
 		if (value == null) {
 			throw new RuntimeException(String.format("Value at '%s' is %s and does not have property '%s'", cursor,
@@ -97,11 +107,19 @@ public class JRefResolver {
 					return map.get(computedSegment);
 				}
 			} else if (value instanceof List) {
-				List<?> list = (List<?>) value;
-				if (computedSegment instanceof Integer) {
-					int index = (Integer) computedSegment;
+				Integer index = findIndex(computedSegment);
+				if (index != null) {
+					List<?> list = (List<?>) value;					
 					if (index >= 0 && index < list.size()) {
 						return list.get(index);
+					}
+				}
+			} else if (value instanceof Object[]) {
+				Integer index = findIndex(computedSegment);
+				if (index != null) {
+					Object[] arr = (Object[]) value;
+					if (index >= 0 && index < arr.length) {
+						return arr[index];
 					}
 				}
 			}

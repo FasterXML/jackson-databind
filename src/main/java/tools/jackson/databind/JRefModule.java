@@ -202,7 +202,7 @@ public class JRefModule extends SimpleModule {
 						String jrefValueStr = jrefValue.asString();
 						// Must start with # (local-only json pointers)
 						if (!jrefValueStr.startsWith(JRefUtil.HASH)) {
-							// throw if it doesn't
+							// throw if it doesn't have hash
 							throw DatabindException.from(p, String.format(
 									"JsonPointer value=%s must start with '#' character (local only)", jrefValueStr));
 						}

@@ -11,7 +11,7 @@ No changes since 3.2
 
 3.2.1 (not yet released)
 
-#6028: Verification of unwrapped fields should mention type of unwrapped POJO
+#6028: Verification of unwrapped fields should mention type containing unwrapped POJO
  (reported by Oliver D)
  (fix by @cowtowncoder, w/ Claude code)
 

@@ -168,17 +168,39 @@ public class JRefModule extends SimpleModule {
 
 		private static final long serialVersionUID = 1L;
 
-		@FunctionalInterface
-		interface Deserializer {
-			Object deserialize(JsonParser p);
-		}
+		class JRefJsonPointer {
 
-		class ObjectNodeTraversingParser extends TreeTraversingParser {
-
-			public ObjectNodeTraversingParser(JsonNode n) {
-				super(n);
-				if (currentToken() != JsonToken.END_OBJECT) {
-					nextToken();
+			JsonParser parser;
+			JsonPointer pointer;
+			
+			JRefJsonPointer(JsonParser p, DeserializationContext ctxt) {
+				this.parser = p;
+				if (p.currentToken() == JsonToken.START_OBJECT) {
+					// Read the whole node
+					JsonNode node = ctxt.readTree(p);
+					// Look for "$ref"
+					JsonNode jrefValue = node.asObject().get(JRefUtil.JREF_NAME);
+					if (jrefValue != null) {
+						// Check for hash and strip
+						String path = JRefUtil.checkHashAndStrip(p, jrefValue.asString());
+						try {
+							// compile JsonPointer
+							pointer = JsonPointer.valueOf(path);
+							// If empty, we throw
+							if (pointer.equals(JsonPointer.empty())) {
+								throw DatabindException.from(p, "JsonPointer value cannot be empty");
+							}
+						} catch (IllegalArgumentException e) {
+							throw DatabindException.from(p, String.format("Illegal JsonPointer path=%s", path),
+									e);
+						}
+					}
+					if (this.pointer == null) {
+						this.parser = new TreeTraversingParser(node);
+						if (this.parser.currentToken() != JsonToken.END_OBJECT) {
+							this.parser.nextToken();
+						}
+					}
 				}
 			}
 		}
@@ -189,56 +211,25 @@ public class JRefModule extends SimpleModule {
 				super(src);
 			}
 
-			protected Object deserializerWithJRef(JsonParser p, DeserializationContext ctxt,
-					Deserializer deserializer) {
-				Object result = null;
-				// Only objects have potential to be JsonPointers
-				if (p.currentToken() == JsonToken.START_OBJECT) {
-					JsonNode node = ctxt.readTree(p);
-					// Look for "$ref"
-					JsonNode jrefValue = node.asObject().get(JRefUtil.JREF_NAME);
-					if (jrefValue != null) {
-						// If found, convert to string
-						String jrefValueStr = jrefValue.asString();
-						// Must start with # (local-only json pointers)
-						if (!jrefValueStr.startsWith(JRefUtil.HASH)) {
-							// throw if it doesn't have hash
-							throw DatabindException.from(p, String.format(
-									"JsonPointer value=%s must start with '#' character (local only)", jrefValueStr));
-						}
-						// Remove hash
-						jrefValueStr = jrefValueStr.substring(1);
-						try {
-							// compile JsonPointer
-							result = JsonPointer.valueOf(jrefValueStr);
-							// If empty, we throw
-							if (result.equals(JsonPointer.empty())) {
-								throw DatabindException.from(p, "JsonPointer value cannot be empty");
-							}
-						} catch (IllegalArgumentException e) {
-							throw DatabindException.from(p, String.format("Illegal JsonPointer value=%s", jrefValueStr),
-									e);
-						}
-					}
-					// If JsonPointer result not found/set above, aka result == null
-					if (result == null) {
-						// pass along to ObjectNodeTraversingParser
-						p = new ObjectNodeTraversingParser(node);
-					}
-				}
-				// If JsonPointer as result, return else deserialize with updated parser
-				return (result != null) ? result : deserializer.deserialize(p);
-			}
-
 			@Override
 			public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
 					TypeDeserializer typeDeserializer) throws JacksonException {
-				return deserializerWithJRef(p, ctxt, ps -> super.deserializeWithType(ps, ctxt, typeDeserializer));
+				JRefJsonPointer jref = new JRefJsonPointer(p, ctxt);
+				if (jref.pointer != null) {
+					return jref.pointer;
+				} else {
+					return super.deserializeWithType(jref.parser, ctxt, typeDeserializer);
+				}
 			}
 
 			@Override
 			public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
-				return deserializerWithJRef(p, ctxt, ps -> super.deserialize(ps, ctxt));
+				JRefJsonPointer jref = new JRefJsonPointer(p, ctxt);
+				if (jref.pointer != null) {
+					return jref.pointer;
+				} else {
+					return super.deserialize(jref.parser, ctxt);
+				}
 			}
 
 			@Override

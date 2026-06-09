@@ -1,6 +1,8 @@
 package tools.jackson.databind.deser.jdk;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -199,6 +201,9 @@ public final class StringArrayDeserializer
 
         final ValueDeserializer<String> deser = _elementDeserializer;
 
+        // Don't create until actually needed
+        Map<Integer,JsonPointer> indexToPointerMap = null;
+        
         try {
             while (true) {
                 /* 30-Dec-2014, tatu: This may look odd, but let's actually call method
@@ -206,7 +211,7 @@ public final class StringArrayDeserializer
                  *   notably XML. Note, however, that while we can get String, we can't
                  *   assume that's what we use due to custom deserializer
                  */
-                String value;
+                Object value;
                 if (p.nextStringValue() == null) {
                     JsonToken t = p.currentToken();
                     if (t == JsonToken.END_ARRAY) {
@@ -219,7 +224,7 @@ public final class StringArrayDeserializer
                         }
                         value = null;
                     } else {
-                        value = deser.deserialize(p, ctxt);
+                    	value = deser.deserialize(p, ctxt);
                     }
                 } else {
                     value = deser.deserialize(p, ctxt);
@@ -232,12 +237,22 @@ public final class StringArrayDeserializer
                         continue;
                     }
                 }
-
+                // XXX JREF
+                String strValue = "";
+                JsonPointer ptr = ctxt.findJsonPointerFromValue(value);
+                if (ptr != null) {
+                	if (indexToPointerMap == null) {
+                		indexToPointerMap = new HashMap<>();
+                	}
+                	indexToPointerMap.put(ix, ptr);
+                } else {
+                	strValue = (String) value;
+                }
                 if (ix >= chunk.length) {
                     chunk = buffer.appendCompletedChunk(chunk);
                     ix = 0;
                 }
-                chunk[ix++] = value;
+                chunk[ix++] = strValue;
             }
         } catch (Exception e) {
             // note: pass String.class, not String[].class, as we need element type for error info
@@ -246,6 +261,14 @@ public final class StringArrayDeserializer
         }
         String[] result = buffer.completeAndClearBuffer(chunk, ix, String.class);
         ctxt.returnObjectBuffer(buffer);
+        if (indexToPointerMap != null) {
+        	indexToPointerMap.forEach((key,ptr) -> {
+            	ctxt.addJsonPointerForResolution(ptr, (v) -> {
+            		result[key] = (String) v;
+            		return result;
+            	});
+        	});
+        }
         return result;
     }
 

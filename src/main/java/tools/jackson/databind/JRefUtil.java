@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
+import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonPointer;
 
 public class JRefUtil {
@@ -53,4 +54,14 @@ public class JRefUtil {
 		}
 	}
 
+	public static String checkHashAndStrip(JsonParser p, String pathWithHashExpected) {
+		// Must start with # (local-only json pointers)
+		if (!pathWithHashExpected.startsWith(JRefUtil.HASH)) {
+			// throw if it doesn't have hash
+			throw DatabindException.from(p, String.format(
+					"JsonPointer value=%s must start with '#' character (local only)", pathWithHashExpected));
+		}
+		// Remove hash
+		return pathWithHashExpected.substring(1);
+	}
 }

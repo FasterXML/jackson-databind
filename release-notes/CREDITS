@@ -173,6 +173,8 @@ Oliver Drotbohm (@odrotbohm)
  * Requested #3591: Ignored fields not consistently exposed via
   `BeanDescription.getIgnoredPropertyNames()`
   [3.2.0]
+ * Reported #6028: Verification of unwrapped fields should mention type of unwrapped POJO
+  [3.2.1]
 
 @sri-adarsh-kumar
  * Contributed #1196: Add opt-in error collection for deserialization

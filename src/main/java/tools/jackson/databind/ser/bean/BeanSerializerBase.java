@@ -423,9 +423,10 @@ public abstract class BeanSerializerBase
                 String name = innerProp.getName();
                 if (!seenNames.add(name)) {
                     ctxt.reportBadDefinition(_beanType, String.format(
-"Conflict between unwrapped property '%s' (of type %s)"
-+" and another property with same name;"
+"Conflict for type %s: unwrapped property '%s' (of type %s)"
++" and another property have the same name;"
 +" consider using `@JsonUnwrapped(prefix=...)` to avoid name collision",
+                            ClassUtil.getTypeDescription(_beanType),
                             name, ClassUtil.getTypeDescription(unwrapped.getType())));
                 }
             }

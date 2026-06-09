@@ -77,7 +77,7 @@ public class UnwrappedWithConverter6017Test extends DatabindTestUtil
     public void testUnwrappedConverterPropertyConflictDetected() {
         DatabindException e = assertThrows(DatabindException.class,
                 () -> MAPPER.writeValueAsString(new OuterConflict()));
-        assertTrue(e.getMessage().contains("Conflict between unwrapped property 'x'"),
+        assertTrue(e.getMessage().contains("unwrapped property 'x'"),
                 "Unexpected message: " + e.getMessage());
     }
 }

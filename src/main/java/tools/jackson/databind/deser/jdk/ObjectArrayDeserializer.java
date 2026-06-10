@@ -3,7 +3,9 @@ package tools.jackson.databind.deser.jdk;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -250,6 +252,8 @@ public class ObjectArrayDeserializer
             final ObjectBuffer buffer, int ix, Object[] chunk)
     {
         JsonToken t;
+        // Don't create until actually needed
+        Map<Integer,JsonPointer> indexToPointerMap = null;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             Object value;
             try {
@@ -271,12 +275,30 @@ public class ObjectArrayDeserializer
                 throw DatabindException.wrapWithPath(ctxt, e,
                         new JacksonException.Reference(chunk, buffer.bufferedSize() + ix));
             }
-
-            if (ix >= chunk.length) {
-                chunk = buffer.appendCompletedChunk(chunk);
-                ix = 0;
+            // XXX JREF
+            JsonPointer ptr = ctxt.findJsonPointerFromValue(value);
+            if (ptr != null) {
+            	// Lazy creation of index -> jsonpointer map
+            	if (indexToPointerMap == null) {
+            		indexToPointerMap = new HashMap<>();
+            	}
+            	// We clear the chunking if need be (reset the ix)
+                if (ix >= chunk.length) {
+                    chunk = buffer.appendCompletedChunk(chunk);
+                    ix = 0;
+                }
+                // put the ix -> ptr in map (see below)
+            	indexToPointerMap.put(ix, ptr);
+            	// Set the chunk and increment ix
+            	chunk[ix++] = null;
+            } else {
+            	// no ptr...so do the same ol
+                if (ix >= chunk.length) {
+                    chunk = buffer.appendCompletedChunk(chunk);
+                    ix = 0;
+                }
+                chunk[ix++] = value;
             }
-            chunk[ix++] = value;
         }
 
         final Object[] result;
@@ -286,19 +308,14 @@ public class ObjectArrayDeserializer
             result = buffer.completeAndClearBuffer(chunk, ix, _elementClass);
         }
         ctxt.returnObjectBuffer(buffer);
-        // XXX JREF handling
-        for(int i=0; i < result.length; i++) {
-        	JsonPointer ptr = ctxt.findJsonPointerFromValue(result[i]);
-        	if (ptr != null) {
-        		// set the value to null
-        		result[i] = null;
-        		// set final index (for setterfunction) to i
-        		final int index = i;
-        		ctxt.addJsonPointerForResolution(ptr, (v) -> {
-        			result[index] = v;
-        			return result;
-        		});
-            }
+        // XXX JREF handle adding key and ptr for subsequent resolution
+        if (indexToPointerMap != null) {
+        	indexToPointerMap.forEach((key,ptr) -> {
+            	ctxt.addJsonPointerForResolution(ptr, (v) -> {
+            		result[key] = v;
+            		return result;
+            	});
+        	});
         }
         return result;
     }

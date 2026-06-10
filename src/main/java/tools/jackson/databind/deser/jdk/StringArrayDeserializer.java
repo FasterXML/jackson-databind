@@ -238,21 +238,29 @@ public final class StringArrayDeserializer
                     }
                 }
                 // XXX JREF
-                String strValue = "";
                 JsonPointer ptr = ctxt.findJsonPointerFromValue(value);
                 if (ptr != null) {
+                	// Lazy creation of index -> jsonpointer map
                 	if (indexToPointerMap == null) {
                 		indexToPointerMap = new HashMap<>();
                 	}
+                	// We clear the chunking if need be (reset the ix)
+                    if (ix >= chunk.length) {
+                        chunk = buffer.appendCompletedChunk(chunk);
+                        ix = 0;
+                    }
+                    // put the ix -> ptr in map (see below)
                 	indexToPointerMap.put(ix, ptr);
+                	// Set the chunk and increment ix
+                	chunk[ix++] = null;
                 } else {
-                	strValue = (String) value;
+                	// no ptr so do what we did before
+                    if (ix >= chunk.length) {
+                        chunk = buffer.appendCompletedChunk(chunk);
+                        ix = 0;
+                    }
+                    chunk[ix++] = (String) value;
                 }
-                if (ix >= chunk.length) {
-                    chunk = buffer.appendCompletedChunk(chunk);
-                    ix = 0;
-                }
-                chunk[ix++] = strValue;
             }
         } catch (Exception e) {
             // note: pass String.class, not String[].class, as we need element type for error info

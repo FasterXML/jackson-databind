@@ -22,49 +22,11 @@ public class JRefArrayTest extends JRefAbstractTest {
 		assertJRefCount(out, 1);
 		trace("testObjectArrayRef jrefserialized=",out);
 		Object[] oa = mapper.readValue(out, Object[].class);
-		// The first and second instance should be both be Maps
-		// as Jackson creates Maps from non-types Objects
 		assertTrue(oa[0] instanceof Map);
 		assertTrue(oa[1] instanceof Map);
 		assertEquals(oa[0],oa[1]);
 	}
 	
-	@Test
-	void testIntegerArrayRef() throws Exception {
-		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
-		Integer o1 = Integer.valueOf(100);
-		Integer o2 = o1;
-		Integer[] arr = new Integer[] { o1, o2 };
-		String out = mapper.writeValueAsString(arr);
-		assertJRefCount(out, 0);
-		trace("testIntegerArrayRef jrefserialized=",out);
-		Integer[] oa = mapper.readValue(out, Integer[].class);
-		// The first and second instance should be both be Maps
-		// as Jackson creates Maps from non-types Objects
-		assertTrue(oa[0] instanceof Integer);
-		assertTrue(oa[1] instanceof Integer);
-		assertEquals(oa[0],oa[1]);
-	}
-	
-	@Test
-	void test2DIntegerArrayRef() throws Exception {
-		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
-		Integer o1 = Integer.valueOf(5);
-		Integer o2 = o1;
-		Integer[] arr1 = new Integer[] { o1, o2 };
-		Integer[] arr2 = arr1;
-		String out = mapper.writeValueAsString(new Integer[][] { arr1, arr2 });
-		assertJRefCount(out, 1);
-		trace("test2DStringArrayRef jrefserialized=",out);
-		Integer[][] oa = mapper.readValue(out, Integer[][].class);
-		// The first and second instance should be both be Maps
-		// as Jackson creates Maps from non-types Objects
-		assertTrue(oa[0][0] instanceof Integer);
-		assertTrue(oa[0][1] instanceof Integer);
-		assertEquals(oa[0], oa[1]);
-		assertArrayEquals(oa[0], oa[1]);
-	}
-
 	@Test
 	void testStringArrayRef() throws Exception {
 		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
@@ -75,7 +37,6 @@ public class JRefArrayTest extends JRefAbstractTest {
 		assertJRefCount(out, 1);
 		trace("testStringArrayRef jrefserialized=",out);
 		String[] oa = mapper.readValue(out, String[].class);
-		// The first and second instance should be both be Maps
 		assertTrue(oa[0] instanceof String);
 		assertTrue(oa[1] instanceof String);
 		assertEquals(oa[0],oa[1]);
@@ -92,8 +53,6 @@ public class JRefArrayTest extends JRefAbstractTest {
 		assertJRefCount(out, 2);
 		trace("test2DObjectArrayRef jrefserialized=",out);
 		Object[][] oa = mapper.readValue(out, Object[][].class);
-		// The first and second instance should be both be Maps
-		// as Jackson creates Maps from non-types Objects
 		assertTrue(oa[0][0] instanceof Map);
 		assertTrue(oa[0][1] instanceof Map);
 		assertEquals(oa[0], oa[1]);
@@ -111,12 +70,43 @@ public class JRefArrayTest extends JRefAbstractTest {
 		assertJRefCount(out, 2);
 		trace("test2DStringArrayRef jrefserialized=",out);
 		String[][] oa = mapper.readValue(out, String[][].class);
-		// The first and second instance should be both be Maps
-		// as Jackson creates Maps from non-types Objects
 		assertTrue(oa[0][0] instanceof String);
 		assertTrue(oa[0][1] instanceof String);
 		assertEquals(oa[0], oa[1]);
 		assertArrayEquals(oa[0], oa[1]);
 	}
+
+	@Test
+	void testIntegerArrayRef() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		Integer o1 = Integer.valueOf(100);
+		Integer o2 = o1;
+		Integer[] arr = new Integer[] { o1, o2 };
+		String out = mapper.writeValueAsString(arr);
+		assertJRefCount(out, 0);
+		trace("testIntegerArrayRef jrefserialized=",out);
+		Integer[] oa = mapper.readValue(out, Integer[].class);
+		assertTrue(oa[0] instanceof Integer);
+		assertTrue(oa[1] instanceof Integer);
+		assertEquals(oa[0],oa[1]);
+	}
+	
+	@Test
+	void test2DIntegerArrayRef() throws Exception {
+		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		Integer o1 = Integer.valueOf(5);
+		Integer o2 = o1;
+		Integer[] arr1 = new Integer[] { o1, o2 };
+		Integer[] arr2 = arr1;
+		String out = mapper.writeValueAsString(new Integer[][] { arr1, arr2 });
+		assertJRefCount(out, 1);
+		trace("test2DStringArrayRef jrefserialized=",out);
+		Integer[][] oa = mapper.readValue(out, Integer[][].class);
+		assertTrue(oa[0][0] instanceof Integer);
+		assertTrue(oa[0][1] instanceof Integer);
+		assertEquals(oa[0], oa[1]);
+		assertArrayEquals(oa[0], oa[1]);
+	}
+
 
 }

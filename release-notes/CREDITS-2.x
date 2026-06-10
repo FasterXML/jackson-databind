@@ -1918,16 +1918,16 @@ Fawzi Essam (@iifawzi)
   (2.18.4)
 
 Omkhar Arasaratnam (@omkhar)
- * Reported #5950: Improve `UUIDeserializer` error handling
+ * Reported #5950: Improve `UUIDDeserializer` error handling
   (2.18.8)
  * Reported #5951: Improve `InetSocketAddress` deserialization
   (2.18.8)
  * Contributed fix for #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
   (2.21.4)
  * Contributed fix for #5969: `@JsonView` by-passed for some "setterless" creator properties
-  (2.21.4)
+  (2.18.8)
  * Contributed fix for #5971: `@JsonView` by-passed for unwrapped creator parameters
-  (2.21.4)
+  (2.18.8)
  * Contributed fix for #5974: `@JsonIgnore` on Record property ignored with
    `PropertyNamingStrategy`
   (2.18.8)

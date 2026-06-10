@@ -4,7 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.22.0 (not yet released)
+2.23.0 (not yet released)
+
+No change since 2.22
+
+2.22.0 (31-May-2026)
 
 #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices are
   defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
@@ -20,7 +24,7 @@ Project: jackson-databind
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.4 (not yet released)
+2.21.4 (28-May-2026)
 
 #5931: Fix `AtomicLongDeserializer` value truncation on coerced values
  (fixed by Lee Jiwon)
@@ -308,12 +312,16 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
-2.18.8 (not yet released)
+2.18.8 (28-May-2026)
 
-#5950: Improve `UUIDeserializer` error handling
+#5950: Improve `UUIDDeserializer` error handling
  (reported by Omkhar A)
 #5951: Improve `InetSocketAddress` deserialization
  (reported by Omkhar A)
+#5969: `@JsonView` by-passed for some "setterless" creator properties
+ (fixed by Omkhar A)
+#5971: `@JsonView` by-passed for unwrapped creator parameters
+ (fixed by Omkhar A)
 #5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
  (reported by Omkhar A)
 #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
@@ -938,7 +946,7 @@ No changes since 2.18.4
   JSON `null` values on reading
 #3443: Do not strip generic type from `Class<C>` when resolving `JavaType`
  (contributed by Jan J)
-#3447: Deeply nested JsonNode throws StackOverflowError for toString()
+#3447: Deeply nested JsonNode throws StackOverflowError for toString() [CVE-2026-50193]
  (reported by Deniz H)
 #3475: Support use of fast double parse
  (contributed by @pjfanning)

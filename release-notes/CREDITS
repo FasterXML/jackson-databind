@@ -173,6 +173,8 @@ Oliver Drotbohm (@odrotbohm)
  * Requested #3591: Ignored fields not consistently exposed via
   `BeanDescription.getIgnoredPropertyNames()`
   [3.2.0]
+ * Reported #6028: Verification of unwrapped fields should mention type containing unwrapped POJO
+  [3.2.1]
 
 @sri-adarsh-kumar
  * Contributed #1196: Add opt-in error collection for deserialization
@@ -241,8 +243,11 @@ Lee Jiwon (@dlwldnjs1009)
   [3.2.0]
  * Fixed #5977: Apply per-property DYNAMIC typing override to `ObjectArraySerializer`
   [3.2.0]
- ( Fixed #6010: `WRITE_ENUMS_TO_LOWERCASE` must use `Locale.ROOT` for case folding
+ * Fixed #6010: `WRITE_ENUMS_TO_LOWERCASE` must use `Locale.ROOT` for case folding
   [3.2.0]
+ * Contributed #6022: Follow-up to #5369: apply content @JsonInclude in
+  `StringCollectionSerializer.serializeWithType`
+  [3.2.1]
 
 Garret Wilson (@garretwilson)
  * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore

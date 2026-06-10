@@ -226,6 +226,18 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
             SerializationContext ctxt, TypeSerializer typeSer) throws JacksonException;
 
     /**
+     * Helper method for checking whether content filtering (from {@code @JsonInclude})
+     * needs to be applied at all: only when a suppression mechanism is configured
+     * <i>and</i> {@link SerializationFeature#APPLY_JSON_INCLUDE_FOR_CONTAINERS} is enabled.
+     *
+     * @since 3.2.1
+     */
+    protected final boolean _needToCheckFiltering(SerializationContext ctxt) {
+        return ((_suppressableValue != null) || _suppressNulls)
+                && ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS);
+    }
+
+    /**
      * Common utility method for checking if an element should be filtered/suppressed
      * based on @JsonInclude settings. Returns {@code true} if element should be serialized,
      * {@code false} if it should be skipped.

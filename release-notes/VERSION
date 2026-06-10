@@ -5,7 +5,20 @@ Versions: 3.x (for earlier see VERSION-2.x)
 === Releases ===
 ------------------------------------------------------------------------
 
-3.2.0 (not yet released)
+3.3.0 (not yet released)
+
+No changes since 3.2
+
+3.2.1 (not yet released)
+
+#6022: Follow-up to #5369: apply content @JsonInclude in
+  `StringCollectionSerializer.serializeWithType`
+ (contributed by Lee Jiwon)
+#6028: Verification of unwrapped fields should mention type containing unwrapped POJO
+ (reported by Oliver D)
+ (fix by @cowtowncoder, w/ Claude code)
+
+3.2.0 (08-Jun-2026)
 
 #639: `@JacksonInject` with `@JsonIdentityInfo` causes deserialization
   failure (unresolved forward reference)

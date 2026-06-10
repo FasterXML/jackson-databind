@@ -161,9 +161,4 @@ public final class IndexedStringListSerializer
            wrapAndThrow(ctxt, e, value, i);
        }
    }
-
-    protected boolean _needToCheckFiltering(SerializationContext ctxt) {
-        return ((_suppressableValue != null) || _suppressNulls)
-                && ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS);
-    }
 }

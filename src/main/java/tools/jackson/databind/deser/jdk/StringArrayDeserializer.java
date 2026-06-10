@@ -203,7 +203,6 @@ public final class StringArrayDeserializer
 
         // Don't create until actually needed
         Map<Integer,JsonPointer> indexToPointerMap = null;
-        
         try {
             while (true) {
                 /* 30-Dec-2014, tatu: This may look odd, but let's actually call method
@@ -244,23 +243,17 @@ public final class StringArrayDeserializer
                 	if (indexToPointerMap == null) {
                 		indexToPointerMap = new HashMap<>();
                 	}
-                	// We clear the chunking if need be (reset the ix)
-                    if (ix >= chunk.length) {
-                        chunk = buffer.appendCompletedChunk(chunk);
-                        ix = 0;
-                    }
-                    // put the ix -> ptr in map (see below)
-                	indexToPointerMap.put(ix, ptr);
-                	// Set the chunk and increment ix
-                	chunk[ix++] = null;
-                } else {
-                	// no ptr so do what we did before
-                    if (ix >= chunk.length) {
-                        chunk = buffer.appendCompletedChunk(chunk);
-                        ix = 0;
-                    }
-                    chunk[ix++] = (String) value;
+                    // put the index -> ptr in map (see below)
+                	indexToPointerMap.put(buffer.bufferedSize() + ix, ptr);
+                    // Set the value to null rather than JsonPointer
+                    value = null;
                 }
+
+                if (ix >= chunk.length) {
+                    chunk = buffer.appendCompletedChunk(chunk);
+                    ix = 0;
+                }
+                chunk[ix++] = (String) value;
             }
         } catch (Exception e) {
             // note: pass String.class, not String[].class, as we need element type for error info
@@ -269,6 +262,7 @@ public final class StringArrayDeserializer
         }
         String[] result = buffer.completeAndClearBuffer(chunk, ix, String.class);
         ctxt.returnObjectBuffer(buffer);
+        // XXX JREF add setter for resolution
         if (indexToPointerMap != null) {
         	indexToPointerMap.forEach((key,ptr) -> {
             	ctxt.addJsonPointerForResolution(ptr, (v) -> {

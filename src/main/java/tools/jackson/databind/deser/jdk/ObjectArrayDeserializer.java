@@ -252,7 +252,7 @@ public class ObjectArrayDeserializer
             final ObjectBuffer buffer, int ix, Object[] chunk)
     {
         JsonToken t;
-        // Don't create until actually needed
+        // Don't create index -> JsonPointer map unless actually needed
         Map<Integer,JsonPointer> indexToPointerMap = null;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             Object value;
@@ -282,23 +282,17 @@ public class ObjectArrayDeserializer
             	if (indexToPointerMap == null) {
             		indexToPointerMap = new HashMap<>();
             	}
-            	// We clear the chunking if need be (reset the ix)
-                if (ix >= chunk.length) {
-                    chunk = buffer.appendCompletedChunk(chunk);
-                    ix = 0;
-                }
-                // put the ix -> ptr in map (see below)
-            	indexToPointerMap.put(ix, ptr);
-            	// Set the chunk and increment ix
-            	chunk[ix++] = null;
-            } else {
-            	// no ptr...so do the same ol
-                if (ix >= chunk.length) {
-                    chunk = buffer.appendCompletedChunk(chunk);
-                    ix = 0;
-                }
-                chunk[ix++] = value;
+                // put the index -> ptr in map (see below)
+            	indexToPointerMap.put(buffer.bufferedSize() + ix, ptr);
+                // Set the value to null rather than JsonPointer
+                value = null;
+            } 
+
+            if (ix >= chunk.length) {
+                chunk = buffer.appendCompletedChunk(chunk);
+                ix = 0;
             }
+            chunk[ix++] = value;
         }
 
         final Object[] result;
@@ -308,7 +302,7 @@ public class ObjectArrayDeserializer
             result = buffer.completeAndClearBuffer(chunk, ix, _elementClass);
         }
         ctxt.returnObjectBuffer(buffer);
-        // XXX JREF handle adding key and ptr for subsequent resolution
+        // XXX JREF add setter for resolution
         if (indexToPointerMap != null) {
         	indexToPointerMap.forEach((key,ptr) -> {
             	ctxt.addJsonPointerForResolution(ptr, (v) -> {
@@ -459,8 +453,9 @@ public class ObjectArrayDeserializer
             // in future
             if (value != null && !_elementClass.isInstance(value)) {
                 throw DatabindException.from(p,
-                        "Internal error: deserialized value of type %s not assignable to expected array element type %s".formatted(
-                                ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
+                        String.format(
+"Internal error: deserialized value of type %s not assignable to expected array element type %s",
+ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
             }
             result = (Object[]) Array.newInstance(_elementClass, 1);
         }

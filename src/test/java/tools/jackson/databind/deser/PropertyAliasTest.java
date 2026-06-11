@@ -78,6 +78,23 @@ public class PropertyAliasTest
         }
     }
 
+    // [databind#6031]: a @JsonIgnore getter whose implicit name collides with a
+    // creator parameter's @JsonAlias must not suppress that alias
+    static class Bean6031 {
+        @JsonProperty("newName")
+        private final String value;
+
+        @JsonCreator
+        public Bean6031(@JsonProperty("newName") @JsonAlias("oldName") String value) {
+            this.value = value;
+        }
+
+        public String getValue() { return value; }
+
+        @JsonIgnore
+        public String getOldName() { return value; }
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -226,5 +243,16 @@ public class PropertyAliasTest
 
         assertEquals("Jackson", obj.name);
         assertEquals("Faster Jackson", obj.fullName);
+    }
+
+    // [databind#6031]
+    @Test
+    public void testAliasOnCreatorWithIgnoredGetter() throws Exception {
+        Bean6031 result = MAPPER.readValue(a2q("{'oldName':'hello'}"), Bean6031.class);
+        assertEquals("hello", result.getValue());
+
+        // and the primary name must still work
+        result = MAPPER.readValue(a2q("{'newName':'hello'}"), Bean6031.class);
+        assertEquals("hello", result.getValue());
     }
 }

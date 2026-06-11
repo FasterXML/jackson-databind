@@ -568,3 +568,8 @@ Desmond Koh (@deskoh)
 Manuel Hegner (@manuel-hegner)
  * Reported #6017: Make `@JsonUnwrapped` compatible with `@JsonSerialize(converter = )`
   [3.2.0]
+
+Yusuke Nojima (@ynojima)
+ * Reported #6031: Getter annotated with `@JsonIgnore` prevents `@JsonAlias`
+   from working on `@JsonCreator` parameter (regression in 3.2.0)
+  [3.2.1]

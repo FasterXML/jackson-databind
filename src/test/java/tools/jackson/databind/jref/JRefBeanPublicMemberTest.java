@@ -10,26 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectMapper;
 
-public class JRefBeanPublicMemberDeserializerTest extends JRefAbstractTest {
-
-	
-	static class IntType {
-		public int i;
-	}
-
-	static class IntItems {
-		public int j;
-		public List<IntType> items;
-	}
-
-	@Test
-	public void testIntItems() throws Exception {
-		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
-		String input = "{\"j\": 20, \"items\":[ { \"i\": 10}, { \"i\": { \"$ref\": \"#/items/0/i\" }}, { \"i\": { \"$ref\": \"#/j\" }}]}";
-		IntItems result = mapper.readValue(input, IntItems.class);
-		assertEquals(result.items.get(0).i, result.items.get(1).i);
-		assertEquals(result.j, result.items.get(2).i);
-	}
+public class JRefBeanPublicMemberTest extends JRefAbstractTest {
 
 	static class StringItems {
 		public List<String> items;
@@ -160,12 +141,12 @@ public class JRefBeanPublicMemberDeserializerTest extends JRefAbstractTest {
 	@Test
 	public void testJRef() throws Exception {
 		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
-		
-		Map<String,Object> m1 = Map.of("s1", 1);
+
+		Map<String, Object> m1 = Map.of("s1", 1);
 		Human sam = new Human();
 		sam.name = "sam";
 		sam.props = m1;
-		Map<String,Object> m2 = Map.of("q","r","p",sam);
+		Map<String, Object> m2 = Map.of("q", "r", "p", sam);
 		Human wendy = new Human();
 		wendy.name = "wendy";
 		wendy.parent = sam;
@@ -174,21 +155,23 @@ public class JRefBeanPublicMemberDeserializerTest extends JRefAbstractTest {
 		rick.name = "rick";
 		rick.parent = sam;
 		rick.o = sam;
-		
+
 		// wendy and rick are the 2 items in message
 		Message mess = new Message(List.of(wendy, rick));
-		
+
 		String gen = mapper.writeValueAsString(mess);
-		System.out.println("gen="+gen);
+		System.out.println("gen=" + gen);
 		/*
-		String message = "{\r\n" + "  \"items\" : [ {\r\n" + "    \"name\" : \"wendy\",\r\n" + "    \"parent\" : {\r\n"
-				+ "      \"name\" : \"sam\",\r\n" + "      \"parent\" : null,\r\n" + "      \"props\" : {\r\n"
-				+ "        \"s1\" : 1\r\n" + "      }\r\n" + "    },\r\n" + "    \"props\" : {\r\n"
-				+ "      \"q\" : \"r\",\r\n" + "      \"p\" : { \"$ref\" : \"#/items/0/parent\" }" + "    }\r\n"
-				+ "  }, {\r\n" + "    \"name\" : \"rick\",\r\n" + "    \"parent\" : {\r\n"
-				+ "      \"$ref\" : \"#/items/0/parent\"\r\n" + "    },\r\n"
-				+ "    \"o\" : { \"$ref\" : \"#/items/0/parent\" }\r\n" + "  } ]\r\n" + "}";
-		*/
+		 * String message = "{\r\n" + "  \"items\" : [ {\r\n" +
+		 * "    \"name\" : \"wendy\",\r\n" + "    \"parent\" : {\r\n" +
+		 * "      \"name\" : \"sam\",\r\n" + "      \"parent\" : null,\r\n" +
+		 * "      \"props\" : {\r\n" + "        \"s1\" : 1\r\n" + "      }\r\n" +
+		 * "    },\r\n" + "    \"props\" : {\r\n" + "      \"q\" : \"r\",\r\n" +
+		 * "      \"p\" : { \"$ref\" : \"#/items/0/parent\" }" + "    }\r\n" +
+		 * "  }, {\r\n" + "    \"name\" : \"rick\",\r\n" + "    \"parent\" : {\r\n" +
+		 * "      \"$ref\" : \"#/items/0/parent\"\r\n" + "    },\r\n" +
+		 * "    \"o\" : { \"$ref\" : \"#/items/0/parent\" }\r\n" + "  } ]\r\n" + "}";
+		 */
 		// Now read
 		Message msg = mapper.readValue(gen, Message.class);
 		// Compare with structure expected

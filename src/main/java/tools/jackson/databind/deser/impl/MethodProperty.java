@@ -7,7 +7,6 @@ import java.lang.invoke.MethodType;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonPointer;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.NullValueProvider;
@@ -129,20 +128,10 @@ public final class MethodProperty
         } else {
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
-        
-        // XXX JREF handling
-        JsonPointer ptr = ctxt.findJsonPointerFromValue(value);
-        if (ptr != null) {
-        	ctxt.addJsonPointerForResolution(ptr, (v) -> {
-        		return setAndReturn(ctxt, instance, v);
-        	});
-        } else {
-        	// no json pointer
-   	        try {
-	            _setter.get().invokeExact(instance, value);
-	        } catch (Throwable e) {
-	            _throwAsJacksonE(p, e, value);
-	        }
+        try {
+            _setter.get().invokeExact(instance, value);
+        } catch (Throwable e) {
+            _throwAsJacksonE(p, e, value);
         }
     }
 

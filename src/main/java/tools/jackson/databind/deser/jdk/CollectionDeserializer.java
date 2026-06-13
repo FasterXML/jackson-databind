@@ -191,8 +191,8 @@ public class CollectionDeserializer
                 JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
                     ctxt.reportBadDefinition(_containerType, String.format(
-                            "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
-                            _containerType,
+"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
+_containerType,
                             _valueInstantiator.getClass().getName()));
                 }
                 delegateDeser = findDeserializer(ctxt, delegateType, property);
@@ -200,7 +200,7 @@ public class CollectionDeserializer
                 JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
                     ctxt.reportBadDefinition(_containerType, String.format(
-                            "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
+"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
                             _containerType,
                             _valueInstantiator.getClass().getName()));
                 }
@@ -398,18 +398,9 @@ public class CollectionDeserializer
                         continue;
                     }
                 }
-                // XXX JREF handling
-                JsonPointer ptr = ctxt.findJsonPointerFromValue(value);
-                // Check for null/non-null
-                if (ptr != null) {
-                	ctxt.addJsonPointerForResolution(ptr, (v) -> {
-            			result.add(v);
-            			return result;
-                	});
-                } else {
-                	// no ptr
-                	result.add(value);
-                }
+
+                result.add(value);
+
                 /* 17-Dec-2017, tatu: should not occur at this level...
             } catch (UnresolvedForwardReference reference) {
                 throw DatabindException

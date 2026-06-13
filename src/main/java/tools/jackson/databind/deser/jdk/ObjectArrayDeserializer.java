@@ -3,16 +3,12 @@ package tools.jackson.databind.deser.jdk;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonPointer;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DatabindException;
@@ -252,8 +248,6 @@ public class ObjectArrayDeserializer
             final ObjectBuffer buffer, int ix, Object[] chunk)
     {
         JsonToken t;
-        // Don't create index -> JsonPointer map unless actually needed
-        Map<Integer,JsonPointer> indexToPointerMap = null;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             Object value;
             try {
@@ -275,18 +269,6 @@ public class ObjectArrayDeserializer
                 throw DatabindException.wrapWithPath(ctxt, e,
                         new JacksonException.Reference(chunk, buffer.bufferedSize() + ix));
             }
-            // XXX JREF
-            JsonPointer ptr = ctxt.findJsonPointerFromValue(value);
-            if (ptr != null) {
-            	// Lazy creation of index -> jsonpointer map
-            	if (indexToPointerMap == null) {
-            		indexToPointerMap = new HashMap<>();
-            	}
-                // put the index -> ptr in map (see below)
-            	indexToPointerMap.put(buffer.bufferedSize() + ix, ptr);
-                // Set the value to null rather than JsonPointer
-                value = null;
-            } 
 
             if (ix >= chunk.length) {
                 chunk = buffer.appendCompletedChunk(chunk);
@@ -302,15 +284,6 @@ public class ObjectArrayDeserializer
             result = buffer.completeAndClearBuffer(chunk, ix, _elementClass);
         }
         ctxt.returnObjectBuffer(buffer);
-        // XXX JREF add setter for resolution
-        if (indexToPointerMap != null) {
-        	indexToPointerMap.forEach((key,ptr) -> {
-            	ctxt.addJsonPointerForResolution(ptr, (v) -> {
-            		result[key] = v;
-            		return result;
-            	});
-        	});
-        }
         return result;
     }
     

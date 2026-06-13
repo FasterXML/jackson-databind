@@ -2666,12 +2666,6 @@ public class ObjectMapper
                 result = ctxt.readRootValue(p, valueType,
                         _findRootDeserializer(ctxt, valueType), null);
                 ctxt.checkUnresolvedObjectId();
-                // XXX JREF resolve jrefs
-                @SuppressWarnings("unchecked")
-				List<JRefResolver> resolvers = (List<JRefResolver>) ctxt.getAttribute(JRefResolver.RESOLVER_LIST);
-                if (resolvers != null) {
-                	resolvers.forEach(r -> r.resolve(ctxt, result));
-                }
             }
             if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
                 _verifyNoTrailingTokens(p, ctxt, valueType);

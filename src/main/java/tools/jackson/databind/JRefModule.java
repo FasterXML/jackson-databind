@@ -31,6 +31,8 @@ import tools.jackson.databind.util.ClassUtil;
 public class JRefModule extends SimpleModule {
 
 	private static final long serialVersionUID = 1L;
+	public static final String JREF_NAME = "$ref";
+	public static final String HASH = "#";
 
 	public JRefModule() {
 		super("JRefModule");
@@ -96,7 +98,7 @@ public class JRefModule extends SimpleModule {
 				if (ptr != null) {
 					// If JsonPointer found for value id, write it out and we're done!
 					gen.writeStartObject();
-					gen.writeStringProperty(JRefUtil.JREF_NAME, JRefUtil.HASH + ptr.toString());
+					gen.writeStringProperty(JREF_NAME, "#" + ptr.toString());
 					gen.writeEndObject();
 				} else {
 					// Needs to serialize value, so call the serializer
@@ -171,6 +173,17 @@ public class JRefModule extends SimpleModule {
 
 		private static final long serialVersionUID = 1L;
 
+		static String checkHashAndStrip(JsonParser p, String pathWithHashExpected) {
+			// Must start with # (local-only json pointers)
+			if (!pathWithHashExpected.startsWith(HASH)) {
+				// throw if it doesn't have hash
+				throw DatabindException.from(p, String.format(
+						"JsonPointer value=%s must start with '#' character (local only)", pathWithHashExpected));
+			}
+			// Remove hash
+			return pathWithHashExpected.substring(1);
+		}
+		
 		class JRefReader {
 
 			JsonParser parser;
@@ -184,10 +197,10 @@ public class JRefModule extends SimpleModule {
 					// Read the whole node
 					JsonNode node = ctxt.readTree(p);
 					// Look for "$ref"
-					JsonNode jrefValue = node.asObject().get(JRefUtil.JREF_NAME);
+					JsonNode jrefValue = node.asObject().get(JREF_NAME);
 					if (jrefValue != null) {
 						// Check for hash and strip
-						String path = JRefUtil.checkHashAndStrip(p, jrefValue.asString());
+						String path = checkHashAndStrip(p, jrefValue.asString());
 						try {
 							// compile JsonPointer
 							JsonPointer ptr = JsonPointer.valueOf(path);

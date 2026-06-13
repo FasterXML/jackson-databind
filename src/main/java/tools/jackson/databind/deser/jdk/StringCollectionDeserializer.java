@@ -286,8 +286,7 @@ public final class StringCollectionDeserializer
                  *   notably XML. Note, however, that while we can get String, we can't
                  *   assume that's what we use due to custom deserializer
                  */
-            	// XXX JRef
-                Object value;
+                String value;
                 if (p.nextStringValue() == null) {
                     JsonToken t = p.currentToken();
                     if (t == JsonToken.END_ARRAY) {
@@ -313,17 +312,8 @@ public final class StringCollectionDeserializer
                         continue;
                     }
                 }
-                // XXX JREF handling
-                JsonPointer ptr = ctxt.findJsonPointerFromValue(value);
-                if (ptr != null) {
-                	ctxt.addJsonPointerForResolution(ptr, (v) -> {
-                        result.add((String) v);
-                        return result;
-                	});
-                } else {
-                	// no ptr
-                	result.add((String) value);
-                }
+
+                result.add(value);
             }
         } catch (Exception e) {
             throw DatabindException.wrapWithPath(ctxt, e,

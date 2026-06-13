@@ -298,9 +298,9 @@ public class MapDeserializer
             JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
             if (delegateType == null) {
                 ctxt.reportBadDefinition(_containerType, String.format(
-                        "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
-                        _containerType,
-                        _valueInstantiator.getClass().getName()));
+"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
+                _containerType,
+                _valueInstantiator.getClass().getName()));
             }
             // Theoretically should be able to get CreatorProperty for delegate
             // parameter to pass; but things get tricky because DelegateCreator
@@ -310,9 +310,9 @@ public class MapDeserializer
             JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
             if (delegateType == null) {
                 ctxt.reportBadDefinition(_containerType, String.format(
-                        "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
-                        _containerType,
-                        _valueInstantiator.getClass().getName()));
+"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
+                    _containerType,
+                    _valueInstantiator.getClass().getName()));
             }
             _delegateDeserializer = findDeserializer(ctxt, delegateType, null);
         }
@@ -668,23 +668,9 @@ public class MapDeserializer
                 if (useObjectId) {
                     referringAccumulator.put(key, value);
                 } else {
-                    // XXX JREF handling
-                    JsonPointer ptr = ctxt.findJsonPointerFromValue(value);
-                    if (ptr != null) {
-                    	final String k = key;
-                    	ctxt.addJsonPointerForResolution(ptr, (v) -> {
-                            Object oldValue = result.put(k, v);
-                            if (oldValue != null) {
-                                _squashDups(ctxt, result, k, oldValue, v);
-                            }   
-                            return result;
-                    	});
-                    } else {
-                    	// no ptr
-                        Object oldValue = result.put(key, value);
-                        if (oldValue != null) {
-                            _squashDups(ctxt, result, key, oldValue, value);
-                        }   
+                    Object oldValue = result.put(key, value);
+                    if (oldValue != null) {
+                        _squashDups(ctxt, result, key, oldValue, value);
                     }
                 }
             } catch (UnresolvedForwardReference reference) {

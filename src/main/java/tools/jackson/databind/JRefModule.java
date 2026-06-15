@@ -295,9 +295,10 @@ public class JRefModule extends SimpleModule {
 				} else {
 					// If jref result not found, delegate serialization by calling super class
 					result = deserializer.deserialize(jref.parser);
+					// Once we have a result, put it in resultsMap
+					// but only when just deserialized
+					getResultsMap(ctxt).put(ptr, result);
 				}
-				// Once we have a result, put it in resultsMap
-				getResultsMap(ctxt).put(ptr, result);
 				// Pop from callStack before returning
 				callStack.pollFirst();
 				return result;				

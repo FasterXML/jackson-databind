@@ -380,7 +380,9 @@ public class BeanDeserializer
                     continue;
                 }
                 // [databind#5966] Honor @JsonIgnoreProperties on creator parameters
-                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                // [databind#6031]: check the creator property's own name, not the incoming
+                // JSON name (see matching note in `_deserializeUsingPropertyBased`).
+                if (IgnorePropertiesUtil.shouldIgnore(creatorProp.getName(), _ignorableProps, _includableProps)) {
                     handleIgnoredProperty(p, ctxt, handledType(), propName);
                     continue;
                 }

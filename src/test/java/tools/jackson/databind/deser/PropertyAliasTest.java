@@ -95,6 +95,14 @@ public class PropertyAliasTest
         public String getOldName() { return value; }
     }
 
+    // [databind#6031]: same as above, but exercising the record-update path
+    // (`_deserializeRecordForUpdate`) where the creator-property ignore check lives
+    // separately from the regular property-based path
+    public record Record6031(@JsonProperty("newName") @JsonAlias("oldName") String value) {
+        @JsonIgnore
+        public String getOldName() { return value; }
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -254,5 +262,19 @@ public class PropertyAliasTest
         // and the primary name must still work
         result = MAPPER.readValue(a2q("{'newName':'hello'}"), Bean6031.class);
         assertEquals("hello", result.getValue());
+    }
+
+    // [databind#6031]: same defect on the record-update path (`_deserializeRecordForUpdate`)
+    @Test
+    public void testAliasOnRecordUpdateWithIgnoredGetter() throws Exception {
+        Record6031 orig = new Record6031("orig");
+        Record6031 result = MAPPER.readerForUpdating(orig)
+                .readValue(a2q("{'oldName':'hello'}"));
+        assertEquals("hello", result.value());
+
+        // and the primary name must still work
+        result = MAPPER.readerForUpdating(orig)
+                .readValue(a2q("{'newName':'hello'}"));
+        assertEquals("hello", result.value());
     }
 }

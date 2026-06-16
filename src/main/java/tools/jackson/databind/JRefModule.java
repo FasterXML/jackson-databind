@@ -187,75 +187,19 @@ public class JRefModule extends SimpleModule {
 				super(src);
 			}
 
-			static String checkHashAndStrip(JsonParser p, String pathWithHashExpected) {
-				// Must start with # (local-only json pointers)
-				if (!pathWithHashExpected.startsWith(HASH)) {
-					// throw if it doesn't have hash
-					throw DatabindException.from(p, String.format(
-							"JsonPointer value=%s must start with '#' character (local only)", pathWithHashExpected));
-				}
-				// Remove hash
-				return pathWithHashExpected.substring(1);
-			}
-
-			class JRefReader {
-
-				JsonParser parser;
-				Object result;
-
-				JRefReader(JsonParser p, DeserializationContext ctxt) {
-					this.parser = p;
-					@SuppressWarnings("unchecked")
-					Map<JsonPointer, Object> results = (Map<JsonPointer, Object>) ctxt.getAttribute(OBJECT_PTR_MAP_ATTR);
-					if (p.currentToken() == JsonToken.START_OBJECT) {
-						// Read the whole node
-						JsonNode node = ctxt.readTree(p);
-						// Look for "$ref"
-						JsonNode jrefValue = node.asObject().get(JREF_NAME);
-						if (jrefValue != null) {
-							// Check for hash and strip
-							String path = checkHashAndStrip(p, jrefValue.asString());
-							try {
-								// compile JsonPointer
-								JsonPointer ptr = JsonPointer.valueOf(path);
-								// If empty, we throw
-								if (ptr.equals(JsonPointer.empty())) {
-									throw DatabindException.from(p, "JsonPointer value cannot be empty");
-								}
-								// Now lookup in results
-								Object result = results.get(ptr);
-								// We should find it, if not, throw
-								if (result == null) {
-									throw DatabindException.from(p, "Could not find result value for JsonPointer=" + ptr);
-								}
-								this.result = result;
-							} catch (IllegalArgumentException e) {
-								throw DatabindException.from(p, String.format("Illegal JsonPointer path=%s", path), e);
-							}
-						}
-						if (this.result == null) {
-							this.parser = new TreeTraversingParser(node);
-							if (this.parser.currentToken() != JsonToken.END_OBJECT) {
-								this.parser.nextToken();
-							}
-						}
-					}
-				}
-			}
-
-			JsonPointer buildJsonPointer(JsonPointer parent, TokenStreamContext context) {
+			JsonPointer buildJsonPointer(JsonPointer parentPtr, TokenStreamContext context) {
 				JsonPointer currPtr = JsonPointer.forPath(context, false);
-				// This is the code that uses the parent JsonPointer
-				if (parent != null && !parent.equals(JsonPointer.empty())) {
-					JsonPointer parentMatch = currPtr.matchProperty(parent.getMatchingProperty());
+				// Uses the currPtr and the parentPtr to build new JsonPointer
+				if (parentPtr != null && !parentPtr.equals(JsonPointer.empty())) {
+					JsonPointer parentMatch = currPtr.matchProperty(parentPtr.getMatchingProperty());
 					if (parentMatch != null && !JsonPointer.empty().equals(parentMatch)) {
-						currPtr = parent.append(parentMatch);
+						currPtr = parentPtr.append(parentMatch);
 					} else {
 						parentMatch = currPtr.matchElement(currPtr.getMatchingIndex());
 						if (parentMatch != null) {
-							currPtr = parent.append(parentMatch);
+							currPtr = parentPtr.append(parentMatch);
 						} else {
-							currPtr = parent.append(currPtr);
+							currPtr = parentPtr.append(currPtr);
 						}
 					}
 				}
@@ -285,19 +229,59 @@ public class JRefModule extends SimpleModule {
 
 			Object jrefDeserialize(JsonParser p, DeserializationContext ctxt, Deserializer deserializer) {
 				var callStack = getCallStack(ctxt);
-				JsonPointer ptr = buildJsonPointer(callStack.peek(), p.streamReadContext());
-				callStack.push(ptr);
+				// Build JsonPointer, given parentand the StreamReadContext
+				JsonPointer currPtr = buildJsonPointer(callStack.peek(), p.streamReadContext());
+				callStack.push(currPtr);
+				// Now for jrefs first
 				Object result = null;
-				// Look for JRef and associated result
-				JRefReader jref = new JRefReader(p, ctxt);
-				if (jref.result != null) {
-					result = jref.result;
-				} else {
+				if (p.currentToken() == JsonToken.START_OBJECT) {
+					JsonNode node = ctxt.readTree(p);
+					// Look for "$ref" property
+					JsonNode jrefValue = node.asObject().get(JREF_NAME);
+					if (jrefValue != null) {
+						String pathWithHashExpected = jrefValue.asString();
+						// Must start with # (local-only json pointers)
+						if (!pathWithHashExpected.startsWith(HASH)) {
+							// throw if it doesn't have hash
+							throw DatabindException.from(p, String.format(
+									"JsonPointer value=%s must start with '#' character (local only)", pathWithHashExpected));
+						}
+						// Remove hash
+						String path = pathWithHashExpected.substring(1);
+						try {
+							// create JsonPointer from path
+							JsonPointer ptr = JsonPointer.valueOf(path);
+							// throw if empty/not well-formed
+							if (ptr.equals(JsonPointer.empty())) {
+								throw DatabindException.from(p, "JsonPointer value cannot be empty");
+							}
+							// Now lookup in results
+							Object previousResult = getResultsMap(ctxt).get(ptr);
+							// If not found, throw
+							if (previousResult == null) {
+								throw DatabindException.from(p, "Could not find result value for JsonPointer=" + ptr);
+							}
+							// else we are done
+							result = previousResult;
+						} catch (IllegalArgumentException e) {
+							throw DatabindException.from(p, String.format("Illegal JsonPointer path=%s", path), e);
+						}
+					}
+					// If we have not found result via jref, then reset parser to TreeTraversingParser
+					if (result == null) {
+						p = new TreeTraversingParser(node);
+						if (p.currentToken() != JsonToken.END_OBJECT) {
+							p.nextToken();
+						}
+					}
+				} 
+				// Only call deserializr if no result from jref
+				if (result == null) {
 					// If jref result not found, delegate serialization by calling super class
-					result = deserializer.deserialize(jref.parser);
+					result = deserializer.deserialize(p);
 					// Once we have a result, put it in resultsMap
 					// but only when just deserialized
-					getResultsMap(ctxt).put(ptr, result);
+					getResultsMap(ctxt).put(currPtr, result);
 				}
 				// Pop from callStack before returning
 				callStack.pollFirst();

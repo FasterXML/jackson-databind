@@ -277,4 +277,14 @@ public class PropertyAliasTest
                 .readValue(a2q("{'newName':'hello'}"));
         assertEquals("hello", result.value());
     }
+
+    // [databind#6031]: the @JsonIgnore getter whose implicit name is the alias
+    // ("oldName") must not leak into serialization output
+    @Test
+    public void testNoAliasNameInSerialization() throws Exception {
+        assertEquals(a2q("{'newName':'hello'}"),
+                MAPPER.writeValueAsString(new Bean6031("hello")));
+        assertEquals(a2q("{'newName':'hello'}"),
+                MAPPER.writeValueAsString(new Record6031("hello")));
+    }
 }

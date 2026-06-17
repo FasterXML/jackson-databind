@@ -30,21 +30,24 @@ No change since 2.22
  (fixed by Lee Jiwon)
 #5950: Improve `UUIDeserializer` error handling#
  (reported by Omkhar A)
-#5951: Improve `InetSocketAddress` deserialization
+#5951: Improve `InetSocketAddress` deserialization [CVE-2026-54514]
  (reported by Omkhar A)
 #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+ [CVE-2026-54516]
  (fixed by Omkhar A)
 #5969: `@JsonView` by-passed for some "setterless" creator properties
+ [CVE-2026-54517]
  (fixed by Omkhar A)
 #5971: `@JsonView` by-passed for unwrapped creator parameters
  (fixed by Omkhar A)
 #5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
  (reported by Omkhar A)
 #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
-  should validate element type
+  should validate element type [CVE-2026-54513]
  (reported by Omkhar A)
  (fix by @cowtowncoder, w/ Claude code)
 #5988: `PolymorphicTypeValidator` needs to validate generic type parameters too
+ [CVE-2026-54512]
  (reported by Omkhar A)
  (fix by @cowtowncoder, w/ Claude code)
 #5993: `UPPER_SNAKE_CASE` / `LOWER_CASE` `NamingStrategyImpls` fold case
@@ -316,19 +319,21 @@ No changes since 2.19.2
 
 #5950: Improve `UUIDDeserializer` error handling
  (reported by Omkhar A)
-#5951: Improve `InetSocketAddress` deserialization
+#5951: Improve `InetSocketAddress` deserialization [CVE-2026-54514]
  (reported by Omkhar A)
 #5969: `@JsonView` by-passed for some "setterless" creator properties
+ [CVE-2026-54517]
  (fixed by Omkhar A)
 #5971: `@JsonView` by-passed for unwrapped creator parameters
  (fixed by Omkhar A)
 #5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
  (reported by Omkhar A)
 #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
-  should validate element type
+  should validate element type [CVE-2026-54513]
  (reported by Omkhar A)
  (fix by @cowtowncoder, w/ Claude code)
 #5988: `PolymorphicTypeValidator` needs to validate generic type parameters too
+  [CVE-2026-54512]
  (reported by Omkhar A)
  (fix by @cowtowncoder, w/ Claude code)
 #5993: `UPPER_SNAKE_CASE` / `LOWER_CASE` `NamingStrategyImpls` fold case

@@ -595,6 +595,41 @@ public class POJOPropertiesCollectorTest
                 "snapshot should contain beta: " + unrescued);
     }
 
+    // [databind#6031]: a creator parameter's @JsonAlias name that collides with an
+    // unrelated @JsonIgnore accessor must be rescued from the per-property ignore set
+    // (so it remains a usable deser input), while still being reported by the
+    // un-rescued view — exactly as for the creator-rename rescue above.
+    static class AliasIgnoredCreator6031 {
+        @JsonProperty("newName")
+        private final String value;
+
+        @JsonCreator
+        public AliasIgnoredCreator6031(@JsonProperty("newName") @JsonAlias("oldName") String value) {
+            this.value = value;
+        }
+
+        public String getValue() { return value; }
+
+        @JsonIgnore
+        public String getOldName() { return value; }
+    }
+
+    @Test
+    public void testNonRescuedAliasIgnoredPropertyNames6031()
+    {
+        BeanDescription desc = beanDesc(MAPPER, AliasIgnoredCreator6031.class, false);
+
+        // Rescued view: "oldName" is a live creator alias and must not appear.
+        Set<String> rescued = desc.getIgnoredPropertyNames();
+        assertFalse(rescued.contains("oldName"),
+                "creator @JsonAlias should be rescued from per-property ignorals: " + rescued);
+
+        // Un-rescued view: the original @JsonIgnore-getter ignoral is still visible.
+        Set<String> unrescued = desc.getNonRescuedIgnoredPropertyNames();
+        assertTrue(unrescued.contains("oldName"),
+                "getNonRescuedIgnoredPropertyNames() should report the pre-rescue alias ignoral: " + unrescued);
+    }
+
     @SuppressWarnings("deprecation")
     @Test
     public void testFormatOverridesDeprecated()

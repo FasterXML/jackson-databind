@@ -84,16 +84,13 @@ public class JRefModule extends SimpleModule {
 				if (ClassUtil.primitiveType(value.getClass()) != null) {
 					return;
 				}
-				// Get TokenStreamContext
 				TokenStreamContext swc = gen.streamWriteContext();
-				// Check for path segment
 				if (swc.hasPathSegment()) {
 					getObjectToPtrMap(ctxt).put(System.identityHashCode(value), JsonPointer.forPath(swc, false));
 				}
 			}
 
 			void jrefSerialize(Object value, JsonGenerator gen, SerializationContext ctxt, Serializer serializer) {
-				// do lookup first
 				JsonPointer ptr = findJsonPointer(value, ctxt);
 				if (ptr != null) {
 					// If JsonPointer found for value id, write it out and we're done!
@@ -101,9 +98,8 @@ public class JRefModule extends SimpleModule {
 					gen.writeStringProperty(JREF_NAME, "#" + ptr.toString());
 					gen.writeEndObject();
 				} else {
-					// Needs to serialize value, so call the serializer
+					// No JsonPointer, so serialize value
 					serializer.serialize();
-					// Then check and set JsonPointer before returning
 					checkAndSetJsonPointer(value, gen, ctxt);
 				}
 			}
@@ -229,10 +225,9 @@ public class JRefModule extends SimpleModule {
 
 			Object jrefDeserialize(JsonParser p, DeserializationContext ctxt, Deserializer deserializer) {
 				var callStack = getCallStack(ctxt);
-				// Build JsonPointer, given parentand the StreamReadContext
+				// Build JsonPointer
 				JsonPointer currPtr = buildJsonPointer(callStack.peek(), p.streamReadContext());
 				callStack.push(currPtr);
-				// Now for jrefs first
 				Object result = null;
 				if (p.currentToken() == JsonToken.START_OBJECT) {
 					JsonNode node = ctxt.readTree(p);
@@ -275,15 +270,14 @@ public class JRefModule extends SimpleModule {
 						}
 					}
 				} 
-				// Only call deserializr if no result from jref
+				// Only call deserializr if no result to this point
 				if (result == null) {
 					// If jref result not found, delegate serialization by calling super class
 					result = deserializer.deserialize(p);
 					// Once we have a result, put it in resultsMap
-					// but only when just deserialized
 					getResultsMap(ctxt).put(currPtr, result);
 				}
-				// Pop from callStack before returning
+				// Pop from callStack before returning result
 				callStack.pollFirst();
 				return result;				
 			}

@@ -1766,6 +1766,48 @@ ctor.creator()));
                 }
             }
         }
+
+        // [databind#6031]: a creator property's @JsonAlias names are legitimate
+        // deserialization input names, so — like the creator-rename rescue above —
+        // they must not be suppressed by an unrelated per-property ignoral whose
+        // implicit name happens to coincide with one (e.g. a @JsonIgnore getter
+        // named "oldName" colliding with @JsonAlias("oldName") on a creator param).
+        // Deser-only: aliases never apply to serialization. Class-level ignorals
+        // (in _classLevelIgnoredNames) stay absolute and are deliberately untouched.
+        if (!_forSerialization) {
+            _rescueCreatorAliasIgnorals();
+        }
+    }
+
+    /**
+     * Removes from {@link #_perPropertyIgnoredNames} any name that is a
+     * {@code @JsonAlias} of a (live) properties-based creator parameter, snapshotting
+     * the pre-rescue view into {@link #_nonRescuedIgnoredPropertyNames} on the first
+     * removal so {@link #getNonRescuedIgnoredPropertyNames()} still reports it.
+     * Companion to the {@code [databind#2001]} creator-rename rescue in
+     * {@link #_renameProperties}; see {@code [databind#6031]}.
+     *
+     * @since 3.2
+     */
+    protected void _rescueCreatorAliasIgnorals()
+    {
+        if (_perPropertyIgnoredNames == null || _creatorProperties == null) {
+            return;
+        }
+        for (POJOPropertyBuilder creatorProp : _creatorProperties) {
+            if (creatorProp == null) {
+                continue;
+            }
+            for (PropertyName alias : creatorProp.findAliases()) {
+                final String aliasName = alias.getSimpleName();
+                if (_perPropertyIgnoredNames.contains(aliasName)) {
+                    if (_nonRescuedIgnoredPropertyNames == null) {
+                        _nonRescuedIgnoredPropertyNames = new HashSet<>(_perPropertyIgnoredNames);
+                    }
+                    _perPropertyIgnoredNames.remove(aliasName);
+                }
+            }
+        }
     }
 
     protected void _renameUsing(Map<String, POJOPropertyBuilder> propMap,

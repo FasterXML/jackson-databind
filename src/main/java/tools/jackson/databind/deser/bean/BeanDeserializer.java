@@ -380,9 +380,7 @@ public class BeanDeserializer
                     continue;
                 }
                 // [databind#5966] Honor @JsonIgnoreProperties on creator parameters
-                // [databind#6031]: check the creator property's own name, not the incoming
-                // JSON name (see matching note in `_deserializeUsingPropertyBased`).
-                if (IgnorePropertiesUtil.shouldIgnore(creatorProp.getName(), _ignorableProps, _includableProps)) {
+                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                     handleIgnoredProperty(p, ctxt, handledType(), propName);
                     continue;
                 }
@@ -762,13 +760,7 @@ public class BeanDeserializer
                 // [databind#4629] Need to check for ignored properties for Creator properties since
                 // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
                 // so if we don't check for ignore first, the ignore configuration will be bypassed.
-                // [databind#6031]: but key the check on the creator property's canonical name,
-                // not the incoming JSON name: when matched via @JsonAlias the incoming name may
-                // coincide with an unrelated ignored accessor's implicit name (e.g. a @JsonIgnore
-                // getter), which must not suppress the aliased creator property. This still
-                // honors [databind#4629]: there the property is matched by its primary name (no
-                // alias), so `creatorProp.getName()` equals `propName` and behavior is unchanged.
-                if (IgnorePropertiesUtil.shouldIgnore(creatorProp.getName(), _ignorableProps, _includableProps)) {
+                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                     handleIgnoredProperty(p, ctxt, handledType(), propName);
                     continue;
                 }
@@ -1275,9 +1267,7 @@ public class BeanDeserializer
                 // [databind#4629] Need to check for ignored properties for Creator properties since
                 // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
                 // so if we don't check for ignore first, the ignore configuration will be bypassed.
-                // [databind#6031]: check the creator property's own name, not the incoming
-                // JSON name (see matching note in `_deserializeUsingPropertyBased`).
-                if (IgnorePropertiesUtil.shouldIgnore(creatorProp.getName(), _ignorableProps, _includableProps)) {
+                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                     handleIgnoredProperty(p, ctxt, handledType(), propName);
                     continue;
                 }

@@ -1757,14 +1757,64 @@ ctor.creator()));
                     //   factory layer to maintain a parallel un-stripped class-level
                     //   loop. Snapshot the un-rescued per-property view here so
                     //   getNonRescuedIgnoredPropertyNames() can still report it.
-                    if (_perPropertyIgnoredNames != null && _perPropertyIgnoredNames.contains(name)) {
-                        if (_nonRescuedIgnoredPropertyNames == null) {
-                            _nonRescuedIgnoredPropertyNames = new HashSet<>(_perPropertyIgnoredNames);
-                        }
-                        _perPropertyIgnoredNames.remove(name);
-                    }
+                    _rescuePerPropertyIgnoral(name);
                 }
             }
+        }
+
+        // [databind#6031]: a creator property's @JsonAlias names are legitimate
+        // deserialization input names, so — like the creator-rename rescue above —
+        // they must not be suppressed by an unrelated per-property ignoral whose
+        // implicit name happens to coincide with one (e.g. a @JsonIgnore getter
+        // named "oldName" colliding with @JsonAlias("oldName") on a creator param).
+        // Deser-only: aliases never apply to serialization. Class-level ignorals
+        // (in _classLevelIgnoredNames) stay absolute and are deliberately untouched.
+        if (!_forSerialization) {
+            _rescueCreatorAliasIgnorals();
+        }
+    }
+
+    /**
+     * Removes from {@link #_perPropertyIgnoredNames} any name that is a
+     * {@code @JsonAlias} of a (live) properties-based creator parameter.
+     * Companion to the {@code [databind#2001]} creator-rename rescue in
+     * {@link #_renameProperties}; see {@code [databind#6031]}.
+     *
+     * @since 3.2.1
+     */
+    protected void _rescueCreatorAliasIgnorals()
+    {
+        if (_perPropertyIgnoredNames == null || _creatorProperties == null) {
+            return;
+        }
+        for (POJOPropertyBuilder creatorProp : _creatorProperties) {
+            if (creatorProp == null) {
+                continue;
+            }
+            for (PropertyName alias : creatorProp.findAliases()) {
+                _rescuePerPropertyIgnoral(alias.getSimpleName());
+            }
+        }
+    }
+
+    /**
+     * Removes a single name from {@link #_perPropertyIgnoredNames} (if present),
+     * snapshotting the pre-rescue view into {@link #_nonRescuedIgnoredPropertyNames}
+     * on the first removal so {@link #getNonRescuedIgnoredPropertyNames()} can still
+     * report names that <em>would</em> have been ignored but for the rescue. Shared
+     * by the {@code [databind#2001]} creator-rename rescue and the
+     * {@code [databind#6031]} creator-alias rescue. Class-level ignorals
+     * (in {@link #_classLevelIgnoredNames}) are intentionally never touched here.
+     *
+     * @since 3.2.1
+     */
+    private void _rescuePerPropertyIgnoral(String name)
+    {
+        if (_perPropertyIgnoredNames != null && _perPropertyIgnoredNames.contains(name)) {
+            if (_nonRescuedIgnoredPropertyNames == null) {
+                _nonRescuedIgnoredPropertyNames = new HashSet<>(_perPropertyIgnoredNames);
+            }
+            _perPropertyIgnoredNames.remove(name);
         }
     }
 

@@ -10,6 +10,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
@@ -76,6 +77,74 @@ public class PropertyAliasTest
         public void setName(String name) {
             this.name = name;
         }
+    }
+
+    // [databind#6031]: a @JsonIgnore getter whose implicit name collides with a
+    // creator parameter's @JsonAlias must not suppress that alias
+    static class Bean6031 {
+        @JsonProperty("newName")
+        private final String value;
+
+        @JsonCreator
+        public Bean6031(@JsonProperty("newName") @JsonAlias("oldName") String value) {
+            this.value = value;
+        }
+
+        public String getValue() { return value; }
+
+        @JsonIgnore
+        public String getOldName() { return value; }
+    }
+
+    // [databind#6031]: same as above, but exercising the record-update path
+    // (`_deserializeRecordForUpdate`) where the creator-property ignore check lives
+    // separately from the regular property-based path
+    public record Record6031(@JsonProperty("newName") @JsonAlias("oldName") String value) {
+        @JsonIgnore
+        public String getOldName() { return value; }
+    }
+
+    // [databind#6031]: class-level @JsonIgnoreProperties is absolute and must keep
+    // suppressing the name even when it coincides with a creator parameter's
+    // @JsonAlias (unlike per-property @JsonIgnore, which yields to the alias)
+    @JsonIgnoreProperties("oldName")
+    static class ClassIgnoreBean6031 {
+        @JsonProperty("newName")
+        private final String value;
+
+        @JsonCreator
+        public ClassIgnoreBean6031(@JsonProperty("newName") @JsonAlias("oldName") String value) {
+            this.value = value;
+        }
+
+        public String getValue() { return value; }
+    }
+
+    // [databind#6031]: multiple aliases on one creator param, and multiple creator
+    // params each with an alias colliding with its own @JsonIgnore getter
+    static class MultiAliasBean6031 {
+        @JsonProperty("aName")
+        private final String a;
+        @JsonProperty("bName")
+        private final String b;
+
+        @JsonCreator
+        public MultiAliasBean6031(
+                @JsonProperty("aName") @JsonAlias({ "a1", "a2" }) String a,
+                @JsonProperty("bName") @JsonAlias("b1") String b) {
+            this.a = a;
+            this.b = b;
+        }
+
+        public String getA() { return a; }
+        public String getB() { return b; }
+
+        @JsonIgnore
+        public String getA1() { return a; }
+        @JsonIgnore
+        public String getA2() { return a; }
+        @JsonIgnore
+        public String getB1() { return b; }
     }
 
     /*
@@ -226,5 +295,75 @@ public class PropertyAliasTest
 
         assertEquals("Jackson", obj.name);
         assertEquals("Faster Jackson", obj.fullName);
+    }
+
+    // [databind#6031]
+    @Test
+    public void testAliasOnCreatorWithIgnoredGetter() throws Exception {
+        Bean6031 result = MAPPER.readValue(a2q("{'oldName':'hello'}"), Bean6031.class);
+        assertEquals("hello", result.getValue());
+
+        // and the primary name must still work
+        result = MAPPER.readValue(a2q("{'newName':'hello'}"), Bean6031.class);
+        assertEquals("hello", result.getValue());
+    }
+
+    // [databind#6031]: same defect on the record-update path (`_deserializeRecordForUpdate`)
+    @Test
+    public void testAliasOnRecordUpdateWithIgnoredGetter() throws Exception {
+        Record6031 orig = new Record6031("orig");
+        Record6031 result = MAPPER.readerForUpdating(orig)
+                .readValue(a2q("{'oldName':'hello'}"));
+        assertEquals("hello", result.value());
+
+        // and the primary name must still work
+        result = MAPPER.readerForUpdating(orig)
+                .readValue(a2q("{'newName':'hello'}"));
+        assertEquals("hello", result.value());
+    }
+
+    // [databind#6031]: the @JsonIgnore getter whose implicit name is the alias
+    // ("oldName") must not leak into serialization output
+    @Test
+    public void testNoAliasNameInSerialization() throws Exception {
+        assertEquals(a2q("{'newName':'hello'}"),
+                MAPPER.writeValueAsString(new Bean6031("hello")));
+        assertEquals(a2q("{'newName':'hello'}"),
+                MAPPER.writeValueAsString(new Record6031("hello")));
+    }
+
+    // [databind#6031]: class-level @JsonIgnoreProperties stays absolute; unlike a
+    // per-property @JsonIgnore it must keep suppressing the name even when it is a
+    // creator parameter's alias. So "oldName" is dropped (value stays null) while
+    // the primary name still binds.
+    @Test
+    public void testClassLevelIgnoreNotRescuedByAlias() throws Exception {
+        ClassIgnoreBean6031 result = MAPPER.readValue(a2q("{'oldName':'hello'}"),
+                ClassIgnoreBean6031.class);
+        assertNull(result.getValue());
+
+        result = MAPPER.readValue(a2q("{'newName':'hello'}"), ClassIgnoreBean6031.class);
+        assertEquals("hello", result.getValue());
+    }
+
+    // [databind#6031]: every alias must be rescued — across multiple aliases on a
+    // single creator param and across multiple creator params
+    @Test
+    public void testMultipleAliasesWithIgnoredGetters() throws Exception {
+        // first alias of the multi-alias param
+        MultiAliasBean6031 result = MAPPER.readValue(a2q("{'a1':'AA','b1':'BB'}"),
+                MultiAliasBean6031.class);
+        assertEquals("AA", result.getA());
+        assertEquals("BB", result.getB());
+
+        // second alias of the same param
+        result = MAPPER.readValue(a2q("{'a2':'AA','b1':'BB'}"), MultiAliasBean6031.class);
+        assertEquals("AA", result.getA());
+        assertEquals("BB", result.getB());
+
+        // and primary names still work
+        result = MAPPER.readValue(a2q("{'aName':'AA','bName':'BB'}"), MultiAliasBean6031.class);
+        assertEquals("AA", result.getA());
+        assertEquals("BB", result.getB());
     }
 }

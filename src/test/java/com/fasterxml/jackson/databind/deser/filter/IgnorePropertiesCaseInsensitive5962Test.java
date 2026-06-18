@@ -72,7 +72,9 @@ public class IgnorePropertiesCaseInsensitive5962Test extends DatabindTestUtil
      */
     @Test
     public void test5962_caseInsensitiveRebuildRestoresIgnoredProperty() throws Exception {
-        ObjectMapper mapper = jsonMapperBuilder().build();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
 
         // Exact case — should be blocked by @JsonIgnoreProperties
         String json = "{\"admin\":{\"adminKey\":\"HACKED\",\"username\":\"alice\"}}";

@@ -894,7 +894,10 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
             // 16-May-2016, tatu: How about per-property case-insensitivity?
             Boolean B = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
             if (B != null) {
-                BeanPropertyMap propsOrig = _beanProperties;
+                // [databind#5962]: must rebuild from the (possibly filtered) contextual
+                // BeanPropertyMap so that per-property @JsonIgnoreProperties exclusions
+                // applied by _handleByNameInclusion() above are preserved.
+                BeanPropertyMap propsOrig = contextual._beanProperties;
                 BeanPropertyMap props = propsOrig.withCaseInsensitivity(B.booleanValue());
                 if (props != propsOrig) {
                     contextual = contextual.withBeanProperties(props);

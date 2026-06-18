@@ -376,3 +376,7 @@ Dmitry Sulman (@dmitrysulman)
  * Suggested #6011: 6011: Add `MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX` in
   `MapperBuilder.configureForJackson2()`
   [3.1.4]
+
+João Guerra (@joca-bt)
+ * Reported #6040: Inconsistency in current token on invalid type coercion for `List<String>`
+  [3.1.5]

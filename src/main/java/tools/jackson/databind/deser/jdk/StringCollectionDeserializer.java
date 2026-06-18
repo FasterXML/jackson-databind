@@ -248,8 +248,12 @@ public final class StringCollectionDeserializer
                             // custom) one, can hard-code empty String
                             value = "";
                         } else {
-                            // Fail case: delegate to _parseString which will throw proper error
-                            value = _parseString(p, ctxt, _nullProvider);
+                            // [databind#6040]: Fail case: report error against the
+                            // START_ARRAY token (not the END_ARRAY we just advanced to),
+                            // for consistency with other Array-to-String coercion failures
+                            value = (String) ctxt.handleUnexpectedToken(
+                                    ctxt.constructType(String.class),
+                                    JsonToken.START_ARRAY, p, null);
                         }
                     } else {
                         // Non-empty array: delegate to _parseString which will throw proper error

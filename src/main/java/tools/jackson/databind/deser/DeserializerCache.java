@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
@@ -25,6 +26,7 @@ import tools.jackson.databind.util.SimpleLookupCache;
 public final class DeserializerCache
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**
@@ -87,6 +89,7 @@ public final class DeserializerCache
      */
 
     //  Need to re-create just to initialize `transient` fields
+    @Serial
     protected Object readResolve() {
         return new DeserializerCache(_cachedDeserializers);
     }

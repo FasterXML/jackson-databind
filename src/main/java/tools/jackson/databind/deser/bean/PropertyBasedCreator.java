@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser.bean;
 
+import java.io.Serial;
 import java.util.*;
 
 import tools.jackson.core.JacksonException;
@@ -75,7 +76,7 @@ public final class PropertyBasedCreator
     {
         _valueInstantiator = valueInstantiator;
         if (caseInsensitive) {
-            _propertyLookup = CaseInsensitiveMap.construct(ctxt.getConfig().getLocale());
+            _propertyLookup = CaseInsensitiveMap.construct(Locale.ROOT);
         } else {
             _propertyLookup = new HashMap<>();
         }
@@ -369,6 +370,7 @@ public final class PropertyBasedCreator
     static class CaseInsensitiveMap extends HashMap<String, SettableBeanProperty>
     {
         // doesn't really need to be Serializable with 3.x but... whatever
+        @Serial
         private static final long serialVersionUID = 3L;
 
         /**

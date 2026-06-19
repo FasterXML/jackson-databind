@@ -135,10 +135,12 @@ public class UnwrappedPropertyConflict2883Test extends DatabindTestUtil
         InvalidDefinitionException ex = assertThrows(
                 InvalidDefinitionException.class,
                 () -> MAPPER.writeValueAsString(new OuterConflict()));
-        verifyException(ex, "Conflict between unwrapped property");
+        verifyException(ex, "Conflict for type");
         verifyException(ex, "'b'");
         // Error should also identify the offending unwrapped type
         verifyException(ex, "InnerC");
+        // [databind#6028]: ...as well as the type that declares the unwrapped mapping
+        verifyException(ex, "OuterConflict");
     }
 
     @Test
@@ -153,7 +155,7 @@ public class UnwrappedPropertyConflict2883Test extends DatabindTestUtil
         InvalidDefinitionException ex = assertThrows(
                 InvalidDefinitionException.class,
                 () -> MAPPER.writeValueAsString(new TwoUnwrappedConflict()));
-        verifyException(ex, "Conflict between unwrapped property");
+        verifyException(ex, "unwrapped property");
         verifyException(ex, "'id'");
     }
 
@@ -172,7 +174,7 @@ public class UnwrappedPropertyConflict2883Test extends DatabindTestUtil
         InvalidDefinitionException ex = assertThrows(
                 InvalidDefinitionException.class,
                 () -> MAPPER.writeValueAsString(new OuterRenameConflict()));
-        verifyException(ex, "Conflict between unwrapped property");
+        verifyException(ex, "unwrapped property");
         verifyException(ex, "'id'");
     }
 
@@ -186,7 +188,7 @@ public class UnwrappedPropertyConflict2883Test extends DatabindTestUtil
         InvalidDefinitionException ex = assertThrows(
                 InvalidDefinitionException.class,
                 () -> mapper.writeValueAsString(new OuterNamingStrategyConflict()));
-        verifyException(ex, "Conflict between unwrapped property");
+        verifyException(ex, "unwrapped property");
         verifyException(ex, "'foo_bar'");
     }
 

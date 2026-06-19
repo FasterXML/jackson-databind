@@ -1,5 +1,6 @@
 package tools.jackson.databind.module;
 
+import java.io.Serial;
 import java.util.*;
 
 import tools.jackson.databind.*;
@@ -21,6 +22,7 @@ public class SimpleDeserializers
    extends Deserializers.Base
    implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected HashMap<ClassKey,ValueDeserializer<?>> _classMappings = null;

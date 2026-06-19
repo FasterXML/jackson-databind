@@ -499,7 +499,7 @@ public class DateDeserializationTest
 
         // note: representation may differ (wrt timezone etc), but underlying value must remain the same:
         if (l != result.getTimeInMillis()) {
-            fail(String.format("Expected timestamp %d, got %d, for '%s'",
+            fail("Expected timestamp %d, got %d, for '%s'".formatted(
                     l, result.getTimeInMillis(), dateStr));
         }
     }

@@ -1,5 +1,7 @@
 package tools.jackson.databind.cfg;
 
+import java.io.Serial;
+
 import tools.jackson.databind.util.ClassUtil;
 
 /**
@@ -13,6 +15,7 @@ import tools.jackson.databind.util.ClassUtil;
 public final class ConstructorDetector
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**

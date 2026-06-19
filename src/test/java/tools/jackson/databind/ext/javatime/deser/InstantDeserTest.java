@@ -567,7 +567,7 @@ public class InstantDeserTest extends DateTimeTestBase
         assertEquals(result, inst);
 
         // but then quoted as JSON String
-        result = READER.readValue(String.format("\"%s\"", json));
+        result = READER.readValue("\"%s\"".formatted(json));
         assertNotNull(result);
         assertEquals(result, inst);
     }

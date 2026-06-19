@@ -2275,10 +2275,10 @@ public abstract class JsonNode
      * methods).
      */
     protected <T> T _reportRequiredViolation(String msgTemplate, Object...args) {
-        throw JsonNodeException.from(this, String.format(msgTemplate, args));
+        throw JsonNodeException.from(this, msgTemplate.formatted(args));
     }
 
     protected <T> T _reportUnsupportedOperation(String msgTemplate, Object...args) {
-        throw JsonNodeException.from(this, String.format(msgTemplate, args));
+        throw JsonNodeException.from(this, msgTemplate.formatted(args));
     }
 }

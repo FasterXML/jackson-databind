@@ -1,5 +1,6 @@
 package tools.jackson.databind.util;
 
+import java.io.Serial;
 import java.util.*;
 
 /**
@@ -15,6 +16,7 @@ import java.util.*;
 public final class CompactStringObjectMap
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

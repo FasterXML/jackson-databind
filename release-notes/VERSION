@@ -5,7 +5,24 @@ Versions: 3.x (for earlier see VERSION-2.x)
 === Releases ===
 ------------------------------------------------------------------------
 
-3.2.0 (not yet released)
+3.3.0 (not yet released)
+
+No changes since 3.2
+
+3.2.1 (not yet released)
+
+#6022: Follow-up to #5369: apply content @JsonInclude in
+  `StringCollectionSerializer.serializeWithType`
+ (contributed by Lee Jiwon)
+#6028: Verification of unwrapped fields should mention type containing unwrapped POJO
+ (reported by Oliver D)
+ (fix by @cowtowncoder, w/ Claude code)
+#6031: Getter annotated with `@JsonIgnore` prevents `@JsonAlias` from working
+  on `@JsonCreator` parameter (regression in 3.2.0)
+ (reported by @ynojima)
+ (fix by @cowtowncoder, w/ Claude code)
+
+3.2.0 (08-Jun-2026)
 
 #639: `@JacksonInject` with `@JsonIdentityInfo` causes deserialization
   failure (unresolved forward reference)
@@ -219,36 +236,64 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #5977: Apply per-property DYNAMIC typing override to `ObjectArraySerializer`
  (fix by Lee Jiwon)
+#5980: Property-based Creator clobbers enclosing value's `JsonParser.currentValue()`
+ (reported by Desmond K)
+ (fix by @cowtowncoder, w/ Claude code)
+#6010: `WRITE_ENUMS_TO_LOWERCASE` must use `Locale.ROOT` for case folding
+ (fix by Lee Jiwon)
+#6017: Make `@JsonUnwrapped` compatible with `@JsonSerialize(converter = )`
+ (reported by Manuel H)
+ (fix by @cowtowncoder, w/ Claude code)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 
-3.1.4 (not yet released)
+3.1.5 (not yet released)
+
+#6040: Inconsistency in current token on invalid type coercion for `List<String>`
+ (reported by João G)
+ (fix by @cowtowncoder, w/ Claude code)
+
+3.1.4 (29-May-2026)
 
 #5950: Improve `UUIDeserializer` error handling
  (reported by Omkhar A)
-#5951: Improve `InetSocketAddress` deserialization
+#5951: Improve `InetSocketAddress` deserialization [CVE-2026-54514]
  (reported by Omkhar A)
 #5956: Fix problem with float-to-byte range check
  (reported, fix suggested by Omkhar A)
 #5957: Improve `java.time.Month` deserialization validation
  (fix by Omkhar A)
 #5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
+ [CVE-2026-54515]
  (fixed by Omkhar A)
 #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+ [CVE-2026-54516]
  (fixed by Omkhar A)
 #5969: `@JsonView` by-passed for some "setterless" creator properties
+ [CVE-2026-54517]
  (fixed by Omkhar A)
-#5971: `@JsonView` by-passed for unwrapped creator parameters
+#5971: `@JsonView` by-passed for unwrapped creator parameters [CVE-2026-54518]
  (fixed by Omkhar A)
 #5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
  (fixed by Omkhar A)
 #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
-  should validate element type
+  should validate element type [CVE-2026-54513]
  (reported by Omkhar A)
  (fix by @cowtowncoder, w/ Claude code)
 #5988: `PolymorphicTypeValidator` needs to validate generic type parameters too
+ [CVE-2026-54512]
  (reported by Omkhar A)
  (fix by @cowtowncoder, w/ Claude code)
+#5993: `UPPER_SNAKE_CASE` / `LOWER_CASE` `NamingStrategyImpls` fold case
+  using JVM default locale (Turkish-I bug)
+ (fix by @CharmingKyu)
+#6001: Regression with `@JsonUnwrapped` from 3.0 to 3.1: custom unwrapping
+  deserializer receives empty Object
+ (reported by Severin K)
+ (fix by @cowtowncoder, w/ Claude code)
+#6011: Add `MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX` in
+  `MapperBuilder.configureForJackson2()`
+ (suggested by Dmitry S)
 
 3.1.3 (01-May-2026)
 

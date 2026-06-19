@@ -4,7 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.22.0 (not yet released)
+2.23.0 (not yet released)
+
+No change since 2.22
+
+2.22.0 (31-May-2026)
 
 #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices are
   defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
@@ -20,29 +24,41 @@ Project: jackson-databind
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.4 (not yet released)
+2.21.5 (not yet released)
+
+#5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
+ [CVE-2026-54515]
+ (fixed by Omkhar A)
+
+2.21.4 (28-May-2026)
 
 #5931: Fix `AtomicLongDeserializer` value truncation on coerced values
  (fixed by Lee Jiwon)
 #5950: Improve `UUIDeserializer` error handling#
  (reported by Omkhar A)
-#5951: Improve `InetSocketAddress` deserialization
+#5951: Improve `InetSocketAddress` deserialization [CVE-2026-54514]
  (reported by Omkhar A)
 #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+ [CVE-2026-54516]
  (fixed by Omkhar A)
 #5969: `@JsonView` by-passed for some "setterless" creator properties
+ [CVE-2026-54517]
  (fixed by Omkhar A)
-#5971: `@JsonView` by-passed for unwrapped creator parameters
+#5971: `@JsonView` by-passed for unwrapped creator parameters [CVE-2026-54518]
  (fixed by Omkhar A)
 #5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
  (reported by Omkhar A)
 #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
-  should validate element type
+  should validate element type [CVE-2026-54513]
  (reported by Omkhar A)
  (fix by @cowtowncoder, w/ Claude code)
 #5988: `PolymorphicTypeValidator` needs to validate generic type parameters too
+ [CVE-2026-54512]
  (reported by Omkhar A)
  (fix by @cowtowncoder, w/ Claude code)
+#5993: `UPPER_SNAKE_CASE` / `LOWER_CASE` `NamingStrategyImpls` fold case
+  using JVM default locale (Turkish-I bug)
+ (fix by @CharmingKyu)
 
 2.21.3 (28-Apr-2026)
 
@@ -305,21 +321,36 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
-2.18.8 (not yet released)
+2.18.9 (not yet released)
 
-#5950: Improve `UUIDeserializer` error handling
+#5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
+ [CVE-2026-54515]
+ (fixed by Omkhar A)
+
+2.18.8 (28-May-2026)
+
+#5950: Improve `UUIDDeserializer` error handling
  (reported by Omkhar A)
-#5951: Improve `InetSocketAddress` deserialization
+#5951: Improve `InetSocketAddress` deserialization [CVE-2026-54514]
  (reported by Omkhar A)
+#5969: `@JsonView` by-passed for some "setterless" creator properties
+ [CVE-2026-54517]
+ (fixed by Omkhar A)
+#5971: `@JsonView` by-passed for unwrapped creator parameters [CVE-2026-54518]
+ (fixed by Omkhar A)
 #5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
  (reported by Omkhar A)
 #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
-  should validate element type
+  should validate element type [CVE-2026-54513]
  (reported by Omkhar A)
  (fix by @cowtowncoder, w/ Claude code)
 #5988: `PolymorphicTypeValidator` needs to validate generic type parameters too
+  [CVE-2026-54512]
  (reported by Omkhar A)
  (fix by @cowtowncoder, w/ Claude code)
+#5993: `UPPER_SNAKE_CASE` / `LOWER_CASE` `NamingStrategyImpls` fold case
+  using JVM default locale (Turkish-I bug)
+ (fix by @CharmingKyu)
 
 2.18.7 (24-Apr-2026)
 2.18.6 (22-Feb-2026)
@@ -932,7 +963,7 @@ No changes since 2.18.4
   JSON `null` values on reading
 #3443: Do not strip generic type from `Class<C>` when resolving `JavaType`
  (contributed by Jan J)
-#3447: Deeply nested JsonNode throws StackOverflowError for toString()
+#3447: Deeply nested JsonNode throws StackOverflowError for toString() [CVE-2026-50193]
  (reported by Deniz H)
 #3475: Support use of fast double parse
  (contributed by @pjfanning)

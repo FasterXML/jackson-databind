@@ -1,5 +1,6 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
 import java.lang.reflect.*;
 
 import tools.jackson.databind.JavaType;
@@ -14,6 +15,7 @@ import tools.jackson.databind.util.ClassUtil;
 public class VirtualAnnotatedMember extends AnnotatedMember
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected final Class<?> _declaringClass;

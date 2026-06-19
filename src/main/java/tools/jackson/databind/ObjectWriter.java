@@ -1,6 +1,7 @@
 package tools.jackson.databind;
 
 import java.io.*;
+import java.io.Serial;
 import java.nio.file.Path;
 import java.text.*;
 import java.util.Locale;
@@ -977,9 +978,8 @@ public class ObjectWriter
     {
         _assertNotNull("g", g);
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
-                && (value instanceof AutoCloseable))
+                && (value instanceof AutoCloseable toClose))
         {
-            AutoCloseable toClose = (AutoCloseable) value;
             try {
                 _prefetch.serialize(g, value, _serializationContext());
                 if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
@@ -1316,6 +1316,7 @@ public class ObjectWriter
     public final static class Prefetch
         implements java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         public final static Prefetch empty = new Prefetch(null, null, null);

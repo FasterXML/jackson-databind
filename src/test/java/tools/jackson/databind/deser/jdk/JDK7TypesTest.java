@@ -1,7 +1,6 @@
 package tools.jackson.databind.deser.jdk;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +19,7 @@ public class JDK7TypesTest extends DatabindTestUtil
     @Test
     public void testPathRoundTrip() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        Path input = Paths.get(isWindows() ? "c:/tmp" : "/tmp", "foo.txt");
+        Path input = Path.of(isWindows() ? "c:/tmp" : "/tmp", "foo.txt");
         String json = mapper.writeValueAsString(input);
         assertNotNull(json);
 
@@ -39,7 +38,7 @@ public class JDK7TypesTest extends DatabindTestUtil
             .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                     DefaultTyping.NON_FINAL)
             .build();
-        Path input = Paths.get(isWindows() ? "c:/tmp" : "/tmp", "foo.txt");
+        Path input = Path.of(isWindows() ? "c:/tmp" : "/tmp", "foo.txt");
 
         String json = mapper.writeValueAsString(new Object[]{input});
 

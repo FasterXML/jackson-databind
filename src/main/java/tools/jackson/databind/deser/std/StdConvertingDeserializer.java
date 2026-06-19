@@ -218,8 +218,8 @@ public class StdConvertingDeserializer<T>
     protected Object _handleIncompatibleUpdateValue(JsonParser p, DeserializationContext ctxt, Object intoValue)
         throws JacksonException
     {
-        throw new UnsupportedOperationException(String.format
-                ("Cannot update object of type %s (using deserializer for type %s)",
+        throw new UnsupportedOperationException("Cannot update object of type %s (using deserializer for type %s)".formatted
+                (
                         intoValue.getClass().getName(), _delegateType));
     }
 

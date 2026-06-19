@@ -247,14 +247,14 @@ public class TestCustomValueInstDefaults
                 BeanDescription.Supplier beanDescRef,
                 ValueInstantiator defaultInstantiator)
         {
-            if (defaultInstantiator instanceof StdValueInstantiator) {
+            if (defaultInstantiator instanceof StdValueInstantiator instantiator) {
                 if (beanDescRef.getBeanClass() == Bucket.class) {
                     return new BucketInstantiator(
-                            (StdValueInstantiator) defaultInstantiator);
+                            instantiator);
                 }
                 if (beanDescRef.getBeanClass() == BigBucket.class) {
                     return new BigBucketInstantiator(
-                            (StdValueInstantiator) defaultInstantiator);
+                            instantiator);
                 }
             }
             return defaultInstantiator;

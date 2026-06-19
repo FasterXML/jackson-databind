@@ -1,5 +1,6 @@
 package tools.jackson.databind.jsontype;
 
+import java.io.Serial;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,6 +28,7 @@ public class DefaultBaseTypeLimitingValidator
     extends PolymorphicTypeValidator
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Override

@@ -1,5 +1,6 @@
 package tools.jackson.databind.ser.std;
 
+import java.io.Serial;
 import java.util.*;
 
 import tools.jackson.core.util.Snapshottable;
@@ -15,6 +16,7 @@ public class SimpleFilterProvider
     extends FilterProvider
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**

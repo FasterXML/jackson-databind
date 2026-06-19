@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import tools.jackson.core.JsonToken;
  */
 public abstract class NumericFPNode extends NumericNode
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /*

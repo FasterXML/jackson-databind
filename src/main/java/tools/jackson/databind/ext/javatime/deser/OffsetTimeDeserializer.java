@@ -175,9 +175,9 @@ public class OffsetTimeDeserializer extends JSR310DateTimeDeserializerBase<Offse
                     result = OffsetTime.of(hour, minute, second, partialSecond, ZoneOffset.of(p.getString()));
                 } catch (DateTimeException e) {
                     throw DateTimeParseException.from(p,
-                            String.format("Failed to deserialize %s from array value [%d,%d,...]: %s",
+                            "Failed to deserialize %s from array value [%d,%d,...]: %s".formatted(
                                     handledType().getName(), hour, minute, e.getMessage()),
-                            String.format("[%d,%d,...]", hour, minute),
+                            "[%d,%d,...]".formatted(hour, minute),
                             handledType(), e);
                 }
                 if (p.nextToken() != JsonToken.END_ARRAY) {

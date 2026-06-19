@@ -1,5 +1,7 @@
 package tools.jackson.databind.json;
 
+import java.io.Serial;
+
 import tools.jackson.core.Version;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
@@ -15,6 +17,7 @@ import tools.jackson.databind.cfg.PackageVersion;
  */
 public class JsonMapper extends ObjectMapper
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -104,6 +107,7 @@ public class JsonMapper extends ObjectMapper
         protected static class StateImpl extends MapperBuilderState
             implements java.io.Serializable // important!
         {
+            @Serial
             private static final long serialVersionUID = 3L;
 
             public StateImpl(Builder src) {
@@ -113,6 +117,7 @@ public class JsonMapper extends ObjectMapper
             // We also need actual instance of state as base class cannot implement logic
              // for reinstating mapper (via mapper builder) from state.
             @Override
+            @Serial
             protected Object readResolve() {
                 return new Builder(this).build();
             }

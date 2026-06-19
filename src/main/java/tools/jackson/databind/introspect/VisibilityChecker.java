@@ -1,5 +1,7 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -12,6 +14,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 public class VisibilityChecker
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1;
 
     /**
@@ -368,7 +371,7 @@ public class VisibilityChecker
 
     @Override
     public String toString() {
-        return String.format("[Visibility: field=%s,getter=%s,isGetter=%s,setter=%s,creator=%s,scalarConstructor=%s]",
+        return "[Visibility: field=%s,getter=%s,isGetter=%s,setter=%s,creator=%s,scalarConstructor=%s]".formatted(
                 _fieldMinLevel, _getterMinLevel, _isGetterMinLevel, _setterMinLevel,
                 _creatorMinLevel, _scalarConstructorMinLevel);
     }

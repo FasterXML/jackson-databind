@@ -1,5 +1,6 @@
 package tools.jackson.databind.ser.jdk;
 
+import java.io.Serial;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -199,6 +200,7 @@ public abstract class JDKKeySerializers
             _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         }
 
+        @Serial
         Object readResolve() {
             // Since it's transient, and since JDK serialization by-passes ctor, need this:
             _dynamicSerializers = PropertySerializerMap.emptyForProperties();

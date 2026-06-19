@@ -38,7 +38,7 @@ No change since 2.22
 #5969: `@JsonView` by-passed for some "setterless" creator properties
  [CVE-2026-54517]
  (fixed by Omkhar A)
-#5971: `@JsonView` by-passed for unwrapped creator parameters
+#5971: `@JsonView` by-passed for unwrapped creator parameters [CVE-2026-54518]
  (fixed by Omkhar A)
 #5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
  (reported by Omkhar A)
@@ -324,7 +324,7 @@ No changes since 2.19.2
 #5969: `@JsonView` by-passed for some "setterless" creator properties
  [CVE-2026-54517]
  (fixed by Omkhar A)
-#5971: `@JsonView` by-passed for unwrapped creator parameters
+#5971: `@JsonView` by-passed for unwrapped creator parameters [CVE-2026-54518]
  (fixed by Omkhar A)
 #5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
  (reported by Omkhar A)

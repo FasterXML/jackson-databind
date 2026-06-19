@@ -4,7 +4,6 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
@@ -26,7 +25,6 @@ import tools.jackson.databind.type.CollectionLikeType;
 import tools.jackson.databind.type.CollectionType;
 import tools.jackson.databind.type.MapLikeType;
 import tools.jackson.databind.type.MapType;
-import tools.jackson.databind.util.ClassUtil;
 
 public class JRefModule extends SimpleModule {
 
@@ -36,6 +34,28 @@ public class JRefModule extends SimpleModule {
 
 	public JRefModule() {
 		super("JRefModule");
+	}
+
+	// Used in both valueserializers and valuedeserializers
+	static JsonPointer buildJsonPointer(JsonPointer parentPtr, TokenStreamContext context) {
+		JsonPointer ctxtPtr = JsonPointer.forPath(context, false);
+		if (parentPtr == null) {
+			return ctxtPtr;
+		}
+		// If ctxtPtr > parentPtr then we just return ctxtPtr
+		if (ctxtPtr.length() > parentPtr.length()) {
+			return ctxtPtr;
+		}
+		// First match element (if ctxtPtr <= parentPtr
+		JsonPointer match = ctxtPtr.matchElement(parentPtr.getMatchingIndex());
+		if (match == null) {
+			// If no match element try to match property
+			match = ctxtPtr.matchProperty(parentPtr.getMatchingProperty());
+		}
+		// Create result...if there is match, append it to parent,
+		// else append ctxt to parent
+		JsonPointer result = match != null ? parentPtr.append(match) : parentPtr.append(ctxtPtr);
+		return result;
 	}
 
 	@Override
@@ -62,45 +82,26 @@ public class JRefModule extends SimpleModule {
 				super(delegatee);
 			}
 
-			Map<Integer, JsonPointer> getObjectToPtrMap(SerializationContext ctxt) {
-				@SuppressWarnings("unchecked")
-				Map<Integer, JsonPointer> map = (Map<Integer, JsonPointer>) ctxt.getAttribute(PTR_MAP_ATTR);
-				// if it doesn't exist, then create and add as context attribute
-				if (map == null) {
-					map = new ConcurrentHashMap<>();
-					ctxt.setAttribute(PTR_MAP_ATTR, map);
-				}
-				return map;
-			}
-
-			JsonPointer findJsonPointer(Object value, SerializationContext ctxt) {
-				if (ClassUtil.primitiveType(value.getClass()) != null) {
-					return null;
-				}
-				return getObjectToPtrMap(ctxt).get(System.identityHashCode(value));
-			}
-
-			void checkAndSetJsonPointer(Object value, JsonGenerator gen, SerializationContext ctxt) {
-				if (ClassUtil.primitiveType(value.getClass()) != null) {
-					return;
-				}
-				TokenStreamContext swc = gen.streamWriteContext();
-				if (swc.hasPathSegment()) {
-					getObjectToPtrMap(ctxt).put(System.identityHashCode(value), JsonPointer.forPath(swc, false));
-				}
-			}
-
 			void jrefSerialize(Object value, JsonGenerator gen, SerializationContext ctxt, Serializer serializer) {
-				JsonPointer ptr = findJsonPointer(value, ctxt);
+				@SuppressWarnings("unchecked")
+				Map<Object, JsonPointer> valueToPtrMap = (Map<Object, JsonPointer>) ctxt.getAttribute(PTR_MAP_ATTR);
+				// if it doesn't exist, then create and add as context attribute
+				if (valueToPtrMap == null) {
+					valueToPtrMap = new HashMap<>();
+					ctxt.setAttribute(PTR_MAP_ATTR, valueToPtrMap);
+				}
+				JsonPointer ptr = valueToPtrMap.get(value);
 				if (ptr != null) {
 					// If JsonPointer found for value id, write it out and we're done!
 					gen.writeStartObject();
 					gen.writeStringProperty(JREF_NAME, "#" + ptr.toString());
 					gen.writeEndObject();
 				} else {
-					// No JsonPointer, so serialize value
+					// serialized the value
 					serializer.serialize();
-					checkAndSetJsonPointer(value, gen, ctxt);
+					// After the value serialized put the object -> ptr into for possible
+					// multiple reference usage
+					valueToPtrMap.put(value, buildJsonPointer(null, gen.streamWriteContext()));
 				}
 			}
 
@@ -168,9 +169,9 @@ public class JRefModule extends SimpleModule {
 	public class JRefValueDeserializerModifier extends ValueDeserializerModifier {
 
 		private static final long serialVersionUID = 1L;
-		
+
 		static final String STACK_ATTR = JRefValueDeserializerModifier.class.getName() + ".callStack";
-		static final String OBJECT_PTR_MAP_ATTR = JRefValueSerializerModifier.class.getName() + ".objectPtrMap";
+		static final String OBJECT_PTR_MAP_ATTR = JRefValueDeserializerModifier.class.getName() + ".objectPtrMap";
 
 		@FunctionalInterface
 		interface Deserializer {
@@ -183,51 +184,16 @@ public class JRefModule extends SimpleModule {
 				super(src);
 			}
 
-			JsonPointer buildJsonPointer(JsonPointer parentPtr, TokenStreamContext context) {
-				JsonPointer currPtr = JsonPointer.forPath(context, false);
-				// Uses the currPtr and the parentPtr to build new JsonPointer
-				if (parentPtr != null && !parentPtr.equals(JsonPointer.empty())) {
-					JsonPointer parentMatch = currPtr.matchProperty(parentPtr.getMatchingProperty());
-					if (parentMatch != null && !JsonPointer.empty().equals(parentMatch)) {
-						currPtr = parentPtr.append(parentMatch);
-					} else {
-						parentMatch = currPtr.matchElement(currPtr.getMatchingIndex());
-						if (parentMatch != null) {
-							currPtr = parentPtr.append(parentMatch);
-						} else {
-							currPtr = parentPtr.append(currPtr);
-						}
-					}
-				}
-				return currPtr;
-			}
-
-			Deque<JsonPointer> getCallStack(DeserializationContext ctxt) {
-				@SuppressWarnings("unchecked")
-				Deque<JsonPointer> stack = (Deque<JsonPointer>) ctxt.getAttribute(STACK_ATTR);
-				// Create stack on first usage
-				if (stack == null) {
-					stack = new ArrayDeque<>();
-					ctxt.setAttribute(STACK_ATTR, stack);
-				}
-				return stack;
-			}
-
-			Map<JsonPointer, Object> getResultsMap(DeserializationContext ctxt) {
-				@SuppressWarnings("unchecked")
-				Map<JsonPointer, Object> results = (Map<JsonPointer, Object>) ctxt.getAttribute(OBJECT_PTR_MAP_ATTR);
-				if (results == null) {
-					results = new HashMap<>();
-					ctxt.setAttribute(OBJECT_PTR_MAP_ATTR, results);
-				}
-				return results;
-			}
-
 			Object jrefDeserialize(JsonParser p, DeserializationContext ctxt, Deserializer deserializer) {
-				var callStack = getCallStack(ctxt);
-				// Build JsonPointer
-				JsonPointer currPtr = buildJsonPointer(callStack.peek(), p.streamReadContext());
-				callStack.push(currPtr);
+				@SuppressWarnings("unchecked")
+				Deque<JsonPointer> ptrStack = (Deque<JsonPointer>) ctxt.getAttribute(STACK_ATTR);
+				// Create stack on first usage
+				if (ptrStack == null) {
+					ptrStack = new ArrayDeque<>();
+					ctxt.setAttribute(STACK_ATTR, ptrStack);
+				}
+				JsonPointer currPtr = buildJsonPointer(ptrStack.peek(), p.streamReadContext());
+				ptrStack.push(currPtr);
 				Object result = null;
 				if (p.currentToken() == JsonToken.START_OBJECT) {
 					JsonNode node = ctxt.readTree(p);
@@ -237,51 +203,64 @@ public class JRefModule extends SimpleModule {
 						String pathWithHashExpected = jrefValue.asString();
 						// Must start with # (local-only json pointers)
 						if (!pathWithHashExpected.startsWith(HASH)) {
-							// throw if it doesn't have hash
-							throw DatabindException.from(p, String.format(
-									"JsonPointer value=%s must start with '#' character (local only)", pathWithHashExpected));
+							throw DatabindException.from(p,
+									String.format("JsonPointer value=%s must start with '#' character (local only)",
+											pathWithHashExpected));
 						}
-						// Remove hash
+						// Remove hash prefix (local only)
 						String path = pathWithHashExpected.substring(1);
 						try {
-							// create JsonPointer from path
+							// create JsonPointer from jref path
 							JsonPointer ptr = JsonPointer.valueOf(path);
-							// throw if empty/not well-formed
 							if (ptr.equals(JsonPointer.empty())) {
 								throw DatabindException.from(p, "JsonPointer value cannot be empty");
 							}
-							// Now lookup in results
-							Object previousResult = getResultsMap(ctxt).get(ptr);
-							// If not found, throw
-							if (previousResult == null) {
-								throw DatabindException.from(p, "Could not find result value for JsonPointer=" + ptr);
+							@SuppressWarnings("unchecked")
+							Map<JsonPointer, Object> resultsMap = (Map<JsonPointer, Object>) ctxt
+									.getAttribute(OBJECT_PTR_MAP_ATTR);
+							if (resultsMap != null) {
+								// lookup previous result with ptr
+								Object previousResult = resultsMap.get(ptr);
+								if (previousResult == null) {
+									throw DatabindException.from(p,
+											"Could not find result value for JsonPointer=" + ptr);
+								}
+								result = previousResult;
 							}
-							// else we are done
-							result = previousResult;
 						} catch (IllegalArgumentException e) {
 							throw DatabindException.from(p, String.format("Illegal JsonPointer path=%s", path), e);
 						}
 					}
-					// If we have not found result via jref, then reset parser to TreeTraversingParser
+					// If we have not found result via jref, then reset parser to
+					// TreeTraversingParser
 					if (result == null) {
 						p = new TreeTraversingParser(node);
 						if (p.currentToken() != JsonToken.END_OBJECT) {
 							p.nextToken();
 						}
 					}
-				} 
-				// Only call deserializr if no result to this point
+				}
+				// call delegate deserializer if no result yet
 				if (result == null) {
 					// If jref result not found, delegate serialization by calling super class
 					result = deserializer.deserialize(p);
-					// Once we have a result, put it in resultsMap
-					getResultsMap(ctxt).put(currPtr, result);
+					if (result != null) {
+						@SuppressWarnings("unchecked")
+						Map<JsonPointer, Object> resultsMap = (Map<JsonPointer, Object>) ctxt
+								.getAttribute(OBJECT_PTR_MAP_ATTR);
+						// lazy create
+						if (resultsMap == null) {
+							resultsMap = new HashMap<>();
+							ctxt.setAttribute(OBJECT_PTR_MAP_ATTR, resultsMap);
+						}
+						resultsMap.put(currPtr, result);
+					}
 				}
 				// Pop from callStack before returning result
-				callStack.pollFirst();
-				return result;				
+				ptrStack.pollFirst();
+				return result;
 			}
-			
+
 			@Override
 			public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
 					TypeDeserializer typeDeserializer) throws JacksonException {

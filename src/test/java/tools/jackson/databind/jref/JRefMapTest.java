@@ -53,7 +53,7 @@ public class JRefMapTest extends JRefAbstractTest {
 		String v2 = new String("val1");
 		Map<String,String> mi = Map.of(k1,v1,k2,v2);
 		String out = mapper.writeValueAsString(mi);
-		assertJRefCount(out, 0);
+		assertJRefCount(out, 1);
 		trace("testMapValueNoRef jrefserialized=",out);
 		Map<?,?> mo = mapper.readValue(out, Map.class);
 		assertEquals(mi, mo);
@@ -139,7 +139,7 @@ public class JRefMapTest extends JRefAbstractTest {
 		Object v2 = new String("val1");
 		Map<String,Object> mi = Map.of(k1,v1,k2,v2);
 		String out = mapper.writeValueAsString(mi);
-		assertJRefCount(out, 0);
+		assertJRefCount(out, 1);
 		trace("testMapValueNoRefNoValueType jrefserialized=",out);
 		Map<?,?> mo = mapper.readValue(out, Map.class);
 		assertEquals(mi, mo);

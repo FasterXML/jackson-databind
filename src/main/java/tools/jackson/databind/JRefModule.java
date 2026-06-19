@@ -10,7 +10,6 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonPointer;
 import tools.jackson.core.JsonToken;
-import tools.jackson.core.TokenStreamContext;
 import tools.jackson.databind.BeanDescription.Supplier;
 import tools.jackson.databind.deser.ValueDeserializerModifier;
 import tools.jackson.databind.deser.std.DelegatingDeserializer;
@@ -34,28 +33,6 @@ public class JRefModule extends SimpleModule {
 
 	public JRefModule() {
 		super("JRefModule");
-	}
-
-	// Used in both valueserializers and valuedeserializers
-	static JsonPointer buildJsonPointer(JsonPointer parentPtr, TokenStreamContext context) {
-		JsonPointer ctxtPtr = JsonPointer.forPath(context, false);
-		if (parentPtr == null) {
-			return ctxtPtr;
-		}
-		// If ctxtPtr > parentPtr then we just return ctxtPtr
-		if (ctxtPtr.length() > parentPtr.length()) {
-			return ctxtPtr;
-		}
-		// First match element (if ctxtPtr <= parentPtr
-		JsonPointer match = ctxtPtr.matchElement(parentPtr.getMatchingIndex());
-		if (match == null) {
-			// If no match element try to match property
-			match = ctxtPtr.matchProperty(parentPtr.getMatchingProperty());
-		}
-		// Create result...if there is match, append it to parent,
-		// else append ctxt to parent
-		JsonPointer result = match != null ? parentPtr.append(match) : parentPtr.append(ctxtPtr);
-		return result;
 	}
 
 	@Override
@@ -97,11 +74,10 @@ public class JRefModule extends SimpleModule {
 					gen.writeStringProperty(JREF_NAME, "#" + ptr.toString());
 					gen.writeEndObject();
 				} else {
-					// serialized the value
+					// serialize the value with delegate
 					serializer.serialize();
-					// After the value serialized put the object -> ptr into for possible
-					// multiple reference usage
-					valueToPtrMap.put(value, buildJsonPointer(null, gen.streamWriteContext()));
+					// put the object -> ptr into for possible reference usage
+					valueToPtrMap.put(value, JsonPointer.forPath(gen.streamWriteContext(), false));
 				}
 			}
 
@@ -187,12 +163,20 @@ public class JRefModule extends SimpleModule {
 			Object jrefDeserialize(JsonParser p, DeserializationContext ctxt, Deserializer deserializer) {
 				@SuppressWarnings("unchecked")
 				Deque<JsonPointer> ptrStack = (Deque<JsonPointer>) ctxt.getAttribute(STACK_ATTR);
-				// Create stack on first usage
 				if (ptrStack == null) {
+					// Create on first access
 					ptrStack = new ArrayDeque<>();
 					ctxt.setAttribute(STACK_ATTR, ptrStack);
 				}
-				JsonPointer currPtr = buildJsonPointer(ptrStack.peek(), p.streamReadContext());
+				JsonPointer parentPtr = ptrStack.peek();
+				if (parentPtr == null) {
+					// use empty
+					parentPtr = JsonPointer.empty();
+				}
+				JsonPointer ctxtPtr = JsonPointer.forPath(p.streamReadContext(), false);
+				// build ctxtPtr point from context and parent
+				JsonPointer currPtr = ctxtPtr.toString().startsWith(parentPtr.toString()) ? ctxtPtr
+						: parentPtr.append(ctxtPtr);
 				ptrStack.push(currPtr);
 				Object result = null;
 				if (p.currentToken() == JsonToken.START_OBJECT) {
@@ -211,8 +195,8 @@ public class JRefModule extends SimpleModule {
 						String path = pathWithHashExpected.substring(1);
 						try {
 							// create JsonPointer from jref path
-							JsonPointer ptr = JsonPointer.valueOf(path);
-							if (ptr.equals(JsonPointer.empty())) {
+							JsonPointer pathPtr = JsonPointer.valueOf(path);
+							if (pathPtr.equals(JsonPointer.empty())) {
 								throw DatabindException.from(p, "JsonPointer value cannot be empty");
 							}
 							@SuppressWarnings("unchecked")
@@ -220,11 +204,12 @@ public class JRefModule extends SimpleModule {
 									.getAttribute(OBJECT_PTR_MAP_ATTR);
 							if (resultsMap != null) {
 								// lookup previous result with ptr
-								Object previousResult = resultsMap.get(ptr);
+								Object previousResult = resultsMap.get(pathPtr);
 								if (previousResult == null) {
 									throw DatabindException.from(p,
-											"Could not find result value for JsonPointer=" + ptr);
+											"Could not find result value for JsonPointer=" + pathPtr);
 								}
+								// Our result found
 								result = previousResult;
 							}
 						} catch (IllegalArgumentException e) {
@@ -248,7 +233,6 @@ public class JRefModule extends SimpleModule {
 						@SuppressWarnings("unchecked")
 						Map<JsonPointer, Object> resultsMap = (Map<JsonPointer, Object>) ctxt
 								.getAttribute(OBJECT_PTR_MAP_ATTR);
-						// lazy create
 						if (resultsMap == null) {
 							resultsMap = new HashMap<>();
 							ctxt.setAttribute(OBJECT_PTR_MAP_ATTR, resultsMap);
@@ -256,7 +240,6 @@ public class JRefModule extends SimpleModule {
 						resultsMap.put(currPtr, result);
 					}
 				}
-				// Pop from callStack before returning result
 				ptrStack.pollFirst();
 				return result;
 			}

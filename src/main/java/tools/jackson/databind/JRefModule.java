@@ -197,7 +197,7 @@ public class JRefModule extends SimpleModule {
 							// create JsonPointer from jref path
 							JsonPointer pathPtr = JsonPointer.valueOf(path);
 							if (pathPtr.equals(JsonPointer.empty())) {
-								throw DatabindException.from(p, "JsonPointer value cannot be empty");
+								throw DatabindException.from(p, "JsonPointer cannot be empty");
 							}
 							@SuppressWarnings("unchecked")
 							Map<JsonPointer, Object> resultsMap = (Map<JsonPointer, Object>) ctxt
@@ -207,13 +207,16 @@ public class JRefModule extends SimpleModule {
 								Object previousResult = resultsMap.get(pathPtr);
 								if (previousResult == null) {
 									throw DatabindException.from(p,
-											"Could not find result value for JsonPointer=" + pathPtr);
+											String.format("Could not find previous value for JsonPointer=%s", pathPtr));
 								}
-								// Our result found
+								// result found
 								result = previousResult;
+							} else {
+								throw DatabindException.from(p,
+										String.format("No previous values present for JsonPointer=%", pathPtr));
 							}
 						} catch (IllegalArgumentException e) {
-							throw DatabindException.from(p, String.format("Illegal JsonPointer path=%s", path), e);
+							throw DatabindException.from(p, String.format("Illegal JsonPointer=%s", path), e);
 						}
 					}
 					// If we have not found result via jref, then reset parser to

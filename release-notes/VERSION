@@ -7,7 +7,11 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.3.0 (not yet released)
 
-No changes since 3.2
+#1127: `@JsonTypeInfo` with `EXTERNAL_PROPERTY` does not handle arrays of
+  polymorphic types: now fails eagerly with clear `InvalidDefinitionException`
+  instead of confusing read-time error
+ (reported by Alex C)
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.2.1 (not yet released)
 

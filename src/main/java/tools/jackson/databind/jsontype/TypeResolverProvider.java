@@ -13,6 +13,7 @@ import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsontype.impl.NoOpTypeDeserializer;
 import tools.jackson.databind.jsontype.impl.NoOpTypeSerializer;
 import tools.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * Abstraction used for allowing construction and registration of custom
@@ -233,7 +234,23 @@ public class TypeResolverProvider
                 b = b.withDefaultImpl(defaultType.getRawClass());
             }
         }
-        return b.buildTypeDeserializer(ctxt, contentType, subtypes);
+        TypeDeserializer contentTypeDeser = b.buildTypeDeserializer(ctxt, contentType, subtypes);
+        // [databind#1127]: `EXTERNAL_PROPERTY` cannot work as a *content* type-id mechanism
+        //   (for Collection/array/Map/reference content): there is no place to attach the
+        //   external type-id sibling property when the value is a JSON Array (or wrapped
+        //   reference). Detect eagerly and fail with a clear message instead of a confusing
+        //   "expected START_ARRAY ... As.WRAPPER_ARRAY" error at deserialization time.
+        if ((contentTypeDeser != null)
+                && contentTypeDeser.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
+            return (TypeDeserializer) ctxt.reportBadDefinition(containerType, String.format(
+                    """
+Cannot use `@JsonTypeInfo(include=JsonTypeInfo.As.EXTERNAL_PROPERTY)` on container-typed property (%s): \
+`EXTERNAL_PROPERTY` only works for scalar (non-container) bean properties. \
+Use one of other inclusion mechanisms (such `As.PROPERTY` or `As.WRAPPER_ARRAY`) instead\
+""",
+                    ClassUtil.getTypeDescription(containerType)));
+        }
+        return contentTypeDeser;
     }
 
     /*

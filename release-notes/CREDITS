@@ -577,3 +577,8 @@ Yusuke Nojima (@ynojima)
  * Reported #6031: Getter annotated with `@JsonIgnore` prevents `@JsonAlias`
    from working on `@JsonCreator` parameter (regression in 3.2.0)
   [3.2.1]
+
+Alex Crowell (@alex-crowell)
+ * Reported #1127: `@JsonTypeInfo` with `EXTERNAL_PROPERTY` does not handle
+   arrays of polymorphic types
+  [3.3.0]

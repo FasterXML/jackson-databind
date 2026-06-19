@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -221,7 +220,7 @@ public class JRefBeanNonPublicMemberDeserializerTest extends JRefAbstractTest {
 		String message = "{\"items\": [{ \"name\": \"sam\", \"parent\": null, \"props\": { \"p\": 1 }, \"otherName\": { \"$ref\": \"#/items/0/name\" } }]}";
 
 		Message msg = mapper.readValue(message, Message.class);
-		Assert.assertEquals(msg.items.get(0).name, msg.items.get(0).otherName);
+		assertEquals(msg.items.get(0).name, msg.items.get(0).otherName);
 	}
 
 	@Test
@@ -232,7 +231,7 @@ public class JRefBeanNonPublicMemberDeserializerTest extends JRefAbstractTest {
 		String message = "{\"items\": [{ \"name\": \"sam\", \"parent\": null, \"props\": { \"p\": 1 } }, { \"$ref\": \"#/items/0\" }]}";
 
 		Message msg = mapper.readValue(message, Message.class);
-		Assert.assertEquals(msg.items.get(0), msg.items.get(1));
+		assertEquals(msg.items.get(0), msg.items.get(1));
 	}
 
 	@Test
@@ -243,7 +242,7 @@ public class JRefBeanNonPublicMemberDeserializerTest extends JRefAbstractTest {
 		String message = "{\"items\": [{ \"name\": \"sam\", \"parent\": null, \"props\": { \"p\": 1 } }, { \"name\": \"wendy\", \"parent\": null, \"moreProps\": { \"$ref\": \"#/items/0/props\" }}]}";
 
 		Message msg = mapper.readValue(message, Message.class);
-		Assert.assertEquals(msg.items.get(0).props, msg.items.get(1).moreProps);
+		assertEquals(msg.items.get(0).props, msg.items.get(1).moreProps);
 	}
 
 	@Test

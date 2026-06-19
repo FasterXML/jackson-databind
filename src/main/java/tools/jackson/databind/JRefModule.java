@@ -25,6 +25,32 @@ import tools.jackson.databind.type.CollectionType;
 import tools.jackson.databind.type.MapLikeType;
 import tools.jackson.databind.type.MapType;
 
+/**
+ * This Jackson 3 module extends Jackson's {@link ObjectMapper} serialization
+ * and de-serialization with a reference type (JRef). JRefs allow for circular
+ * references to be serialized as JSON or for multiple references to a target
+ * json object to be dealt with more efficiently than producing copies of that
+ * target object. This is especially useful for complex data structures such as
+ * trees and other object graphs where potentially many references to a single
+ * object may need to be serialized and de-serialized.
+ * <p>
+ * </p>
+ * References take the serialized form of { "$ref": "#/path/to/target" } where
+ * the URL fragment (starts with the '#' uri fragment identifier) is a JSON
+ * Pointer <a href="https://datatracker.ietf.org/doc/html/rfc6901">rfc-6901</a>
+ * locating a path local to the current document.
+ * <p>
+ * </p>
+ * The <a href=
+ * "https://github.com/hyperjump-io/json-reference/blob/main/spec.md">JRef
+ * specification</a> can be used to reference locations in external documents as
+ * well (the JSON pointer specifies a full URI rather than just the fragment),
+ * but this implementation only supports references to objects in the current
+ * document. See the JRef specification and
+ * <a href="https://github.com/hyperjump-io/browser">@hyperjump/browser</a> for
+ * an implementation supporting such external references.
+ * 
+ **/
 public class JRefModule extends SimpleModule {
 
 	private static final long serialVersionUID = 1L;

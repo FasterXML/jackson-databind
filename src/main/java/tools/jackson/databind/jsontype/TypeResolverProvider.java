@@ -214,7 +214,7 @@ public class TypeResolverProvider
                     """
 Cannot use `@JsonTypeInfo(include=JsonTypeInfo.As.EXTERNAL_PROPERTY)` on container-typed property (%s): \
 `EXTERNAL_PROPERTY` only works for scalar (non-container) bean properties. \
-Use one of other inclusion mechanisms (such `As.PROPERTY` or `As.WRAPPER_ARRAY`) instead\
+Use one of the other inclusion mechanisms (such as `As.PROPERTY` or `As.WRAPPER_ARRAY`) instead\
 """,
                     ClassUtil.getTypeDescription(containerType)));
         }
@@ -261,7 +261,7 @@ Use one of other inclusion mechanisms (such `As.PROPERTY` or `As.WRAPPER_ARRAY`)
                     """
 Cannot use `@JsonTypeInfo(include=JsonTypeInfo.As.EXTERNAL_PROPERTY)` on container-typed property (%s): \
 `EXTERNAL_PROPERTY` only works for scalar (non-container) bean properties. \
-Use one of other inclusion mechanisms (such `As.PROPERTY` or `As.WRAPPER_ARRAY`) instead\
+Use one of the other inclusion mechanisms (such as `As.PROPERTY` or `As.WRAPPER_ARRAY`) instead\
 """,
                     ClassUtil.getTypeDescription(containerType)));
         }

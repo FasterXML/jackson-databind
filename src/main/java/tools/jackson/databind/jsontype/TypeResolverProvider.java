@@ -203,7 +203,22 @@ public class TypeResolverProvider
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
                 config, accessor, contentType);
-        return b.buildTypeSerializer(ctxt, contentType, subtypes);
+        TypeSerializer contentTypeSer = b.buildTypeSerializer(ctxt, contentType, subtypes);
+        // [databind#1127]: `EXTERNAL_PROPERTY` cannot work as a *content* type-id mechanism
+        //   (for Collection/array/Map/reference content): there is no place to attach the
+        //   external type-id sibling property. Detect eagerly and fail with a clear message
+        //   instead of a confusing low-level write error at serialization time.
+        if ((contentTypeSer != null)
+                && contentTypeSer.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
+            return (TypeSerializer) ctxt.reportBadDefinition(containerType, String.format(
+                    """
+Cannot use `@JsonTypeInfo(include=JsonTypeInfo.As.EXTERNAL_PROPERTY)` on container-typed property (%s): \
+`EXTERNAL_PROPERTY` only works for scalar (non-container) bean properties. \
+Use one of other inclusion mechanisms (such `As.PROPERTY` or `As.WRAPPER_ARRAY`) instead\
+""",
+                    ClassUtil.getTypeDescription(containerType)));
+        }
+        return contentTypeSer;
     }
 
     public TypeDeserializer findPropertyContentTypeDeserializer(DeserializationContext ctxt,

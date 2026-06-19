@@ -174,7 +174,7 @@ public class JRefModule extends SimpleModule {
 					parentPtr = JsonPointer.empty();
 				}
 				JsonPointer ctxtPtr = JsonPointer.forPath(p.streamReadContext(), false);
-				// build ctxtPtr point from context and parent
+				// build currPtr from context and parent
 				JsonPointer currPtr = ctxtPtr.toString().startsWith(parentPtr.toString()) ? ctxtPtr
 						: parentPtr.append(ctxtPtr);
 				ptrStack.push(currPtr);

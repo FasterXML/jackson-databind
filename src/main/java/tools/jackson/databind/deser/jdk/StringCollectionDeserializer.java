@@ -149,13 +149,11 @@ public final class StringCollectionDeserializer
         }
         ValueDeserializer<?> valueDeser = _valueDeserializer;
         final JavaType valueType = _containerType.getContentType();
+        // [databind#125]: May have a content converter
+        valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
         if (valueDeser == null) {
-            // [databind#125]: May have a content converter
-            valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
-            if (valueDeser == null) {
             // And we may also need to get deserializer for String
-                valueDeser = ctxt.findContextualValueDeserializer(valueType, property);
-            }
+            valueDeser = ctxt.findContextualValueDeserializer(valueType, property);
         } else { // if directly assigned, probably not yet contextual, so:
             valueDeser = ctxt.handleSecondaryContextualization(valueDeser, property, valueType);
         }

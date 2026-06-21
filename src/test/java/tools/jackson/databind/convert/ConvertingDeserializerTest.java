@@ -6,8 +6,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -135,6 +138,24 @@ public class ConvertingDeserializerTest
         public String[] texts;
     }
 
+    static class UpperCasingStringDeserializer extends StdScalarDeserializer<String>
+    {
+        public UpperCasingStringDeserializer() {
+            super(String.class);
+        }
+
+        @Override
+        public String deserialize(JsonParser p, DeserializationContext ctxt) {
+            return p.getValueAsString().toUpperCase() + "!";
+        }
+    }
+
+    static class LowerCaseTextListWithDeserializer {
+        @JsonDeserialize(contentUsing=UpperCasingStringDeserializer.class,
+                contentConverter=LowerCaser.class)
+        public List<String> texts;
+    }
+
     // for [databind#795]
 
     static class ToNumberConverter extends StdConverter<String,Number>
@@ -206,6 +227,16 @@ public class ConvertingDeserializerTest
         assertNotNull(texts.texts);
         assertEquals(1, texts.texts.length);
         assertEquals("abc", texts.texts[0]);
+    }
+
+    @Test
+    public void testPropertyAnnotationStringListWithDeserializerLC() throws Exception
+    {
+        LowerCaseTextListWithDeserializer texts = MAPPER.readerFor(LowerCaseTextListWithDeserializer.class)
+                .readValue("{\"texts\":[\"abc\"]}");
+        assertNotNull(texts);
+        assertNotNull(texts.texts);
+        assertEquals(Collections.singletonList("abc!"), texts.texts);
     }
 
     @Test

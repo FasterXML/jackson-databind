@@ -16,13 +16,13 @@ public class JRefRecordBeanTest extends JRefAbstractTest {
 
 	static record IntBean(Integer j) {
 	}
-	
+
 	@Test
 	public void testIntBeanArray() throws Exception {
-		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		ObjectMapper mapper = buildObjectMapperJRef();
 		IntBean i1 = new IntBean(10);
 		IntBean i2 = new IntBean(20);
-		IntBean[] beans = new IntBean[] { i1, i2, i1, i2};
+		IntBean[] beans = new IntBean[] { i1, i2, i1, i2 };
 		String out = mapper.writeValueAsString(beans);
 		trace("testIntBeanArray", out);
 		IntBean[] result = mapper.readValue(out, IntBean[].class);
@@ -32,7 +32,7 @@ public class JRefRecordBeanTest extends JRefAbstractTest {
 
 	@Test
 	public void testIntBeanList() throws Exception {
-		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		ObjectMapper mapper = buildObjectMapperJRef();
 		IntBean i1 = new IntBean(10);
 		IntBean i2 = new IntBean(20);
 		List<IntBean> beans = List.of(i1, i2, i1, i2);
@@ -44,15 +44,15 @@ public class JRefRecordBeanTest extends JRefAbstractTest {
 		assertEquals(result.get(1), result.get(3));
 	}
 
-	record StringKeyBeanMap(Map<String,IntBean> items) {
+	record StringKeyBeanMap(Map<String, IntBean> items) {
 	}
-	
+
 	@Test
 	public void testStringKeyMap() throws Exception {
-		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
+		ObjectMapper mapper = buildObjectMapperJRef();
 		IntBean i1 = new IntBean(10);
 		IntBean i2 = new IntBean(20);
-		StringKeyBeanMap beanMap = new StringKeyBeanMap(Map.of("one",i1,"two",i2,"three",i1,"four",i2));
+		StringKeyBeanMap beanMap = new StringKeyBeanMap(Map.of("one", i1, "two", i2, "three", i1, "four", i2));
 		String out = mapper.writeValueAsString(beanMap);
 		trace("testIntBeanStringKeyMap", out);
 		StringKeyBeanMap result = mapper.readValue(out, StringKeyBeanMap.class);
@@ -62,18 +62,19 @@ public class JRefRecordBeanTest extends JRefAbstractTest {
 
 	record Node(@JsonProperty Node parent, @JsonProperty String name) {
 	}
-	
+
 	record NodeList(@JsonProperty List<Node> nodes) {
-		
+
 	}
+
 	@Test
 	public void testNodeTree() throws Exception {
-		ObjectMapper mapper = buildObjectMapperWithJRefSupport();
-		Node root = new Node(null,"root");
-		String[] nodeNames = new String[] {"child1","child2","child3"};
+		ObjectMapper mapper = buildObjectMapperJRef();
+		Node root = new Node(null, "root");
+		String[] nodeNames = new String[] { "child1", "child2", "child3" };
 		List<Node> nodeList = new ArrayList<>();
-		for(int i =0; i< nodeNames.length; i++) {
-			nodeList.add(new Node(root,nodeNames[i]));
+		for (int i = 0; i < nodeNames.length; i++) {
+			nodeList.add(new Node(root, nodeNames[i]));
 		}
 		// Add references to previously added nodes in reverse order
 		nodeList.add(nodeList.get(2));
@@ -84,17 +85,16 @@ public class JRefRecordBeanTest extends JRefAbstractTest {
 		NodeList result = mapper.readValue(out, NodeList.class);
 		List<Node> nodes = result.nodes();
 		// assert nodes list same as input
-		assertEquals(nodeList.size(),nodes.size());
-		for(int firstIndex = 0; firstIndex < nodeList.size() /2; firstIndex++) {
+		assertEquals(nodeList.size(), nodes.size());
+		for (int firstIndex = 0; firstIndex < nodeList.size() / 2; firstIndex++) {
 			int secondIndex = (nodeList.size() - 1) - firstIndex;
 			Node n1 = result.nodes().get(firstIndex);
-			assertEquals(root.name(),n1.parent().name());
+			assertEquals(root.name(), n1.parent().name());
 			Node n2 = result.nodes().get(secondIndex);
-			assertEquals(root.name(),n2.parent().name());
-			assertEquals(n1,n2);
+			assertEquals(root.name(), n2.parent().name());
+			assertEquals(n1, n2);
 
 		}
 	}
-
 
 }

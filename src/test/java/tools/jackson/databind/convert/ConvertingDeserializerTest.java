@@ -138,6 +138,8 @@ public class ConvertingDeserializerTest
         public String[] texts;
     }
 
+    // [databind#6048]
+
     static class UpperCasingStringDeserializer extends StdScalarDeserializer<String>
     {
         public UpperCasingStringDeserializer() {
@@ -148,6 +150,11 @@ public class ConvertingDeserializerTest
         public String deserialize(JsonParser p, DeserializationContext ctxt) {
             return p.getValueAsString().toUpperCase() + "!";
         }
+    }
+
+    static class LowerCaseTextList {
+        @JsonDeserialize(contentConverter=LowerCaser.class)
+        public List<String> texts;
     }
 
     static class LowerCaseTextListWithDeserializer {
@@ -229,6 +236,18 @@ public class ConvertingDeserializerTest
         assertEquals("abc", texts.texts[0]);
     }
 
+    // [databind#6048]
+    @Test
+    public void testPropertyAnnotationStringListLC() throws Exception
+    {
+        LowerCaseTextList texts = MAPPER.readerFor(LowerCaseTextList.class)
+                .readValue("{\"texts\":[\"ABC\"]}");
+        assertNotNull(texts);
+        assertNotNull(texts.texts);
+        assertEquals(Collections.singletonList("abc"), texts.texts);
+    }
+
+    // [databind#6048]
     @Test
     public void testPropertyAnnotationStringListWithDeserializerLC() throws Exception
     {

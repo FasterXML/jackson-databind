@@ -75,7 +75,7 @@ public class TreeTraversingParser
      *    {@code null} if none (in which case traversal starts at a fresh root,
      *    same as other constructors)
      *
-     * @since 3.2
+     * @since 3.3
      */
     public TreeTraversingParser(JsonNode n, ObjectReadContext readContext,
             TokenStreamContext parentContext)
@@ -101,7 +101,7 @@ public class TreeTraversingParser
      *
      * @return This parser, to allow call chaining
      *
-     * @since 3.2
+     * @since 3.3
      */
     public TreeTraversingParser overrideParentContext(TokenStreamContext parentContext) {
         _nodeCursor = new NodeCursor.RootCursor(_source, parentContext);

@@ -127,7 +127,7 @@ abstract class NodeCursor
          * separate from the (cursor) {@code _parent} chain used for navigation,
          * which is always {@code null} for the root.
          *
-         * @since 3.2
+         * @since 3.3
          */
         protected final TokenStreamContext _parentContext;
 

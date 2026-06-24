@@ -579,3 +579,13 @@ Yusuke Nojima (@ynojima)
  * Reported #6031: Getter annotated with `@JsonIgnore` prevents `@JsonAlias`
    from working on `@JsonCreator` parameter (regression in 3.2.0)
   [3.2.1]
+
+Théo Szanto (@indyteo)
+ * Reported #6043: `FAIL_ON_UNKNOWN_PROPERTIES` has no effect with `JsonFormat.Shape.ARRAY`
+   when using creator-based instantiation (such as `record`)
+  [3.2.1]
+
+@seonwooj0810
+ * Fixed #6043: `FAIL_ON_UNKNOWN_PROPERTIES` has no effect with `JsonFormat.Shape.ARRAY`
+   when using creator-based instantiation (such as `record`)
+  [3.2.1]

@@ -79,6 +79,34 @@ public class TreeTraversingParserParentContext1803Test
         }
     }
 
+    // Attaching a parent context also exposes the parent's "current value" via
+    // the parent-context chain, which is the other half of what #1803 asks for.
+    @Test
+    void parentCurrentValueVisibleThroughChain() throws Exception
+    {
+        JsonNode root = MAPPER.readTree("{\"wrapped\":{\"x\":1}}");
+        JsonNode sub = root.get("wrapped");
+        Object marker = new Object();
+
+        try (TreeTraversingParser outer = new TreeTraversingParser(root)) {
+            assertToken(JsonToken.START_OBJECT, outer.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, outer.nextToken()); // "wrapped"
+            outer.assignCurrentValue(marker);
+            TokenStreamContext parent = outer.streamReadContext();
+
+            try (TreeTraversingParser inner = new TreeTraversingParser(sub)
+                    .overrideParentContext(parent)) {
+                assertToken(JsonToken.START_OBJECT, inner.nextToken());
+                assertToken(JsonToken.PROPERTY_NAME, inner.nextToken()); // "x"
+                // Inner root has no value of its own...
+                assertNull(inner.streamReadContext().getParent().currentValue());
+                // ...but walking up to the attached parent reaches the marker.
+                assertSame(marker,
+                        inner.streamReadContext().getParent().getParent().currentValue());
+            }
+        }
+    }
+
     // Attaching a parent context must not disturb normal traversal of nested
     // structure within the subtree itself.
     @Test

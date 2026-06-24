@@ -12,6 +12,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
   (on both serialization and deserialization) instead of confusing low-level error
  (reported by Alex C)
  (fix by @cowtowncoder, w/ Claude code)
+#1803: `TreeTraversingParser` should allow passing of parent context
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.2.1 (not yet released)
 

@@ -56,15 +56,28 @@ public class ViewUnwrappedBypassTest extends DatabindTestUtil
             + "'role':'ADMIN','approved':true,'creditBalance':1000000}");
 
     private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER_WITH_DEFAULT_VIEW_INCLUSION =
+            jsonMapperBuilder()
+                    .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                    .build();
 
     // -----------------------------------------------------------------------
     // Control: AdminView populates everything
 
     @Test
-    public void controlAdminViewPopulatesFlags() throws Exception {
+    public void controlAdminViewPopulatesFlags() {
+        runControlAdminViewPopulatesFlags(MAPPER);
+    }
+
+    @Test
+    public void controlAdminViewPopulatesFlagsWithDefaultViewInclusion() {
+        runControlAdminViewPopulatesFlags(MAPPER_WITH_DEFAULT_VIEW_INCLUSION);
+    }
+
+    private static void runControlAdminViewPopulatesFlags(ObjectMapper mapper) {
         String json = a2q("{'email':'a@b.com',"
-                        + "'flags':{'role':'ADMIN','approved':true,'creditBalance':1000000}}");
-        Control result = MAPPER.readerWithView(AdminView.class)
+                + "'flags':{'role':'ADMIN','approved':true,'creditBalance':1000000}}");
+        Control result = mapper.readerWithView(AdminView.class)
                 .forType(Control.class)
                 .readValue(json);
         assertEquals("a@b.com", result.email);
@@ -73,10 +86,19 @@ public class ViewUnwrappedBypassTest extends DatabindTestUtil
     }
 
     @Test
-    public void controlPublicViewLeaveFlagsNull() throws Exception {
+    public void controlPublicViewLeaveFlagsNull() {
+        runControlPublicViewLeaveFlagsNull(MAPPER);
+    }
+
+    @Test
+    public void controlPublicViewLeaveFlagsNullWithDefaultViewInclusion() {
+        runControlPublicViewLeaveFlagsNull(MAPPER_WITH_DEFAULT_VIEW_INCLUSION);
+    }
+
+    private static void runControlPublicViewLeaveFlagsNull(ObjectMapper mapper) {
         String json = a2q("{'email':'mallory@evil.test','password':'pw',"
                 + "'flags':{'role':'ADMIN','approved':true,'creditBalance':1000000}}");
-        Control result = MAPPER.readerWithView(PublicView.class)
+        Control result = mapper.readerWithView(PublicView.class)
                 .forType(Control.class)
                 .readValue(json);
         assertEquals("mallory@evil.test", result.email);
@@ -88,8 +110,17 @@ public class ViewUnwrappedBypassTest extends DatabindTestUtil
     // Registration (unwrapped): AdminView populates everything
 
     @Test
-    public void registrationAdminViewPopulatesFlags() throws Exception {
-        Registration result = MAPPER.readerWithView(AdminView.class)
+    public void registrationAdminViewPopulatesFlags() {
+        runRegistrationAdminViewPopulatesFlags(MAPPER);
+    }
+
+    @Test
+    public void registrationAdminViewPopulatesFlagsWithDefaultViewInclusion() {
+        runRegistrationAdminViewPopulatesFlags(MAPPER_WITH_DEFAULT_VIEW_INCLUSION);
+    }
+
+    private static void runRegistrationAdminViewPopulatesFlags(ObjectMapper mapper) {
+        Registration result = mapper.readerWithView(AdminView.class)
                 .forType(Registration.class)
                 .readValue(JSON);
         assertEquals("mallory@evil.test", result.email);
@@ -103,14 +134,23 @@ public class ViewUnwrappedBypassTest extends DatabindTestUtil
     // Registration (unwrapped): PublicView must NOT populate view-restricted flags
 
     @Test
-    public void registrationPublicViewLeaveFlagsNull() throws Exception {
-        Registration result = MAPPER.readerWithView(PublicView.class)
+    public void registrationPublicViewLeaveFlagsNull() {
+        runRegistrationPublicViewLeaveFlagsNull(MAPPER);
+    }
+
+    @Test
+    public void registrationPublicViewLeaveFlagsNullWithDefaultViewInclusion() {
+        runRegistrationPublicViewLeaveFlagsNull(MAPPER_WITH_DEFAULT_VIEW_INCLUSION);
+    }
+
+    private static void runRegistrationPublicViewLeaveFlagsNull(ObjectMapper mapper) {
+        Registration result = mapper.readerWithView(PublicView.class)
                 .forType(Registration.class)
                 .readValue(JSON);
         assertEquals("mallory@evil.test", result.email);
         assertEquals("pw", result.password);
         assertNull(result.flags,
                 "@JsonView(AdminView) @JsonUnwrapped property must be null in PublicView: "
-                + result.flags);
+                        + result.flags);
     }
 }

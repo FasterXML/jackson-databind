@@ -25,7 +25,7 @@ public class ViewUnwrappedBypassTest extends DatabindTestUtil
     
     static class AccountFlags {
         @JsonView(AdminView.class) public String role;
-        @JsonView(AdminView.class) public boolean approved;
+        @JsonView(PublicView.class) public boolean approved;
         @JsonView(AdminView.class) public long creditBalance;
     }
 

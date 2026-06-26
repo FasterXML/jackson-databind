@@ -1,12 +1,15 @@
 package com.fasterxml.jackson.databind.deser.filter;
 
-import java.util.*;
-
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
+
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
 // For [databind#1402]; configurable null handling, for contents of
 // Collections, Maps, arrays
@@ -296,6 +299,15 @@ public class NullConversionsForContentTest extends BaseMapTest
             assertEquals(1, result.values.size());
             assertEquals(ABC.A, result.values.entrySet().iterator().next().getKey());
             assertEquals("", result.values.entrySet().iterator().next().getValue());
+        }
+
+        // Then: Map<String,Object>
+        {
+            NullContentAsEmpty<Map<String,Object>> result
+                    = MAPPER.readValue(MAP_JSON, new TypeReference<NullContentAsEmpty<Map<String,Object>>>() { });
+            assertEquals(1, result.values.size());
+            assertEquals("A", result.values.entrySet().iterator().next().getKey());
+            assertNotNull(result.values.entrySet().iterator().next().getValue());
         }
     }
 

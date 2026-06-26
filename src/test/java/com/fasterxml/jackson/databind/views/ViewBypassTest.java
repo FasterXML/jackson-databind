@@ -27,6 +27,21 @@ public class ViewBypassTest extends DatabindTestUtil {
         @JsonView(AdminView.class)  public AccountFlags flags;
     }
 
+    public static class RegistrationWithSetters {   // same as Registration, but via setters
+        String email;
+        String password;
+        AccountFlags flags;
+
+        @JsonView(PublicView.class)
+        public void setEmail(String email) { this.email = email; }
+
+        @JsonView(PublicView.class)
+        public void setPassword(String password) { this.password = password; }
+
+        @JsonView(AdminView.class) @JsonUnwrapped
+        public void setFlags(AccountFlags flags) { this.flags = flags; }
+    }
+
     @Test
     void testUnwrappedBypass() throws Exception {
         ObjectMapper mapper = sharedMapper();
@@ -46,6 +61,21 @@ public class ViewBypassTest extends DatabindTestUtil {
         assertEquals("mallory@evil.test", r.email);
         assertEquals("pw", r.password);
         // JsonUnwrapped flag in Registration class may affect this
+        assertNull(r.flags, "expected registration flag to be null in PublicView read");
+    }
+
+    @Test
+    void testUnwrappedBypassWithSetters() throws Exception {
+        ObjectMapper mapper = sharedMapper();
+
+        String jsonR = a2q("{'email':'mallory@evil.test','password':'pw',"
+                + "'role':'ADMIN','approved':true,'creditBalance':1000000}");
+        RegistrationWithSetters r = mapper.readerWithView(PublicView.class)
+                .forType(RegistrationWithSetters.class)
+                .readValue(jsonR);
+        assertEquals("mallory@evil.test", r.email);
+        assertEquals("pw", r.password);
+        // JsonUnwrapped flag in RegistrationWithSetters class may affect this
         assertNull(r.flags, "expected registration flag to be null in PublicView read");
     }
 

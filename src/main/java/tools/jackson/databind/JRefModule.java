@@ -103,7 +103,9 @@ public class JRefModule extends SimpleModule {
 					// serialize the value with delegate
 					serializer.serialize();
 					// put the object -> ptr into for possible reference usage
-					valueToPtrMap.put(value, JsonPointer.forPath(gen.streamWriteContext(), false));
+					if (value != null && !valueToPtrMap.containsKey(value)) {
+						valueToPtrMap.put(value, JsonPointer.forPath(gen.streamWriteContext(), false));
+					}
 				}
 			}
 

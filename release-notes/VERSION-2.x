@@ -9,6 +9,7 @@ Project: jackson-databind
 #5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
  [CVE-2026-54515]
  (fixed by Omkhar A)
+#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties
 
 2.18.8 (28-May-2026)
 

@@ -498,7 +498,9 @@ public class TreeBuildingGenerator
         // 12-Jan-2021, tatu: Should we try to preserve the variant? Depends a
         //   lot on whether this during read (no need to retain probably) or
         //   write (probably important)
-        return writePOJO(Arrays.copyOfRange(data, offset, offset + len));
+        // 26-Jun-2026, tatu: [databind#6059] Must create `BinaryNode`, not `POJONode`
+        _tokenWriteContext.writeBinary(Arrays.copyOfRange(data, offset, offset + len));
+        return this;
     }
 
     /**

@@ -447,4 +447,13 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
         assertNull(r.treeToValue(MAPPER.nullNode(), Object.class));
         assertNull(r.treeToValue(MAPPER.missingNode(), Object.class));
     }
+
+    // [databind#6059]: handling of `byte[]`
+    @Test
+    public void byteArrayToTree6059() {
+        final byte[] bytes = { 1, 2, 3 };
+        JsonNode node = MAPPER.valueToTree(bytes);
+        assertInstanceOf(BinaryNode.class, node);
+        assertTrue(node.isBinary());
+    }
 }

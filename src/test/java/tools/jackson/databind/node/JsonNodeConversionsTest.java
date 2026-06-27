@@ -488,4 +488,17 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
         assertInstanceOf(BinaryNode.class, arrBinary);
         assertArrayEquals(bytes, arrBinary.binaryValue());
     }
+
+    // [databind#6059]: also when `byte[]` reaches the tree via `TokenBuffer`
+    // replay (`writeEmbeddedObject()` path), not just the direct `writeBinary()`
+    @Test
+    public void byteArrayViaTokenBufferToTree6059() {
+        final byte[] bytes = { 7, 8, 9 };
+        TokenBuffer buf = TokenBuffer.forGeneration();
+        buf.writeBinary(bytes);
+
+        JsonNode node = MAPPER.valueToTree(buf);
+        assertInstanceOf(BinaryNode.class, node);
+        assertArrayEquals(bytes, node.binaryValue());
+    }
 }

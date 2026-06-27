@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class ViewBypassTest extends DatabindTestUtil {
+// [databind#6060]: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties
+public class UnwrappedViewBypass6060Test extends DatabindTestUtil {
     public static class PublicView {}
     public static class AdminView extends PublicView {}
 
@@ -64,6 +66,23 @@ public class ViewBypassTest extends DatabindTestUtil {
         assertNull(r.flags, "expected registration flag to be null in PublicView read");
     }
 
+    // Negative control: AdminView read MUST populate the unwrapped admin-only block,
+    // so the PublicView assertion above is not passing vacuously.
+    @Test
+    void testUnwrappedVisibleInAdminView() throws Exception {
+        ObjectMapper mapper = sharedMapper();
+
+        String jsonR = a2q("{'email':'admin@corp.test','password':'pw',"
+                + "'role':'ADMIN','approved':true,'creditBalance':1000000}");
+        Registration r = mapper.readerWithView(AdminView.class)
+                .forType(Registration.class)
+                .readValue(jsonR);
+        assertEquals("admin@corp.test", r.email);
+        assertNotNull(r.flags, "expected registration flag to be populated in AdminView read");
+        assertEquals("ADMIN", r.flags.role);
+        assertEquals(1000000, r.flags.creditBalance);
+    }
+
     @Test
     void testUnwrappedBypassWithSetters() throws Exception {
         ObjectMapper mapper = sharedMapper();
@@ -77,6 +96,22 @@ public class ViewBypassTest extends DatabindTestUtil {
         assertEquals("pw", r.password);
         // JsonUnwrapped flag in RegistrationWithSetters class may affect this
         assertNull(r.flags, "expected registration flag to be null in PublicView read");
+    }
+
+    // Negative control for the setter variant: AdminView read MUST populate flags.
+    @Test
+    void testUnwrappedVisibleInAdminViewWithSetters() throws Exception {
+        ObjectMapper mapper = sharedMapper();
+
+        String jsonR = a2q("{'email':'admin@corp.test','password':'pw',"
+                + "'role':'ADMIN','approved':true,'creditBalance':1000000}");
+        RegistrationWithSetters r = mapper.readerWithView(AdminView.class)
+                .forType(RegistrationWithSetters.class)
+                .readValue(jsonR);
+        assertEquals("admin@corp.test", r.email);
+        assertNotNull(r.flags, "expected registration flag to be populated in AdminView read");
+        assertEquals("ADMIN", r.flags.role);
+        assertEquals(1000000, r.flags.creditBalance);
     }
 
 }

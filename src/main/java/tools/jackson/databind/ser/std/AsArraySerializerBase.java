@@ -1,5 +1,6 @@
 package tools.jackson.databind.ser.std;
 
+import java.util.Iterator;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -423,5 +424,50 @@ public abstract class AsArraySerializerBase<T>
             return true;
         }
         return !_suppressableValue.equals(elem);
+    }
+
+    /**
+     * Helper method for content-aware emptiness checks (used by {@code isEmpty}):
+     * when content {@code @JsonInclude} is applied to containers, a container is
+     * considered empty if every one of its elements would be suppressed during
+     * serialization (so the container would render as an empty array). Callers
+     * should only invoke this when {@link #_needToCheckFiltering} returns true.
+     *
+     * @since 3.3.0
+     */
+    protected boolean _allElementsSuppressed(SerializationContext ctxt, Iterator<?> it)
+    {
+        var serializers = _dynamicValueSerializers;
+        while (it.hasNext()) {
+            Object elem = it.next();
+            if (elem == null) {
+                if (_suppressNulls) {
+                    continue;
+                }
+                return false;
+            }
+            if (_suppressableValue == MARKER_FOR_EMPTY) {
+                ValueSerializer<Object> serializer = _elementSerializer;
+                if (serializer == null) {
+                    Class<?> cc = elem.getClass();
+                    serializer = serializers.serializerFor(cc);
+                    if (serializer == null) {
+                        if (_elementType.hasGenericTypes()) {
+                            serializer = _findAndAddDynamic(ctxt,
+                                    ctxt.constructSpecializedType(_elementType, cc));
+                        } else {
+                            serializer = _findAndAddDynamic(ctxt, cc);
+                        }
+                        serializers = _dynamicValueSerializers;
+                    }
+                }
+                if (!serializer.isEmpty(ctxt, elem)) {
+                    return false;
+                }
+            } else if ((_suppressableValue == null) || !_suppressableValue.equals(elem)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

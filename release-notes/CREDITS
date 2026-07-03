@@ -582,3 +582,9 @@ Alex Crowell (@alex-crowell)
  * Reported #1127: `@JsonTypeInfo` with `EXTERNAL_PROPERTY` does not handle
    arrays of polymorphic types
   [3.3.0]
+
+Ivan (@pctF)
+ * Reported #6069: tools.jackson.databind.ObjectMapper#convertValue does not throw
+   `IllegalArgumentException` but throws `MismatchedInputException` when input and
+   expected type are not compatible
+  [3.3.0]

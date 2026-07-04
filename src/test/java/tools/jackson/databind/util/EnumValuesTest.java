@@ -1,8 +1,11 @@
 package tools.jackson.databind.util;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationConfig;
@@ -28,6 +31,10 @@ public class EnumValuesTest extends DatabindTestUtil
 
         @Override
         public String toString() { return desc; }
+    }
+
+    enum LocaleSensitiveABC {
+        IS_ADMIN
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -89,6 +96,28 @@ public class EnumValuesTest extends DatabindTestUtil
         assertEquals("c", values.serializedValueFor(ABC.C).toString());
         assertEquals(3, values.values().size());
         assertEquals(3, values.internalMap().size());
+    }
+
+    // [databind#5993]: Follow-up to #5994; deprecated EnumValues lower-case path
+    // should not use the default Locale
+    @ResourceLock(Resources.LOCALE)
+    @Test
+    public void testConstructFromNameLowerCasedWithRootLocale() {
+        Locale old = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+            assertEquals("\u0131", "I".toLowerCase(),
+                    "Test requires a default locale where \"I\".toLowerCase() yields U+0131");
+
+            SerializationConfig cfg = MAPPER.serializationConfig()
+                    .with(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
+            AnnotatedClass enumClass = resolve(MAPPER, LocaleSensitiveABC.class);
+
+            EnumValues values = EnumValues.constructFromName(cfg, enumClass);
+            assertEquals("is_admin", values.serializedValueFor(LocaleSensitiveABC.IS_ADMIN).toString());
+        } finally {
+            Locale.setDefault(old);
+        }
     }
 
     private AnnotatedClass resolve(ObjectMapper mapper, Class<?> enumClass) {

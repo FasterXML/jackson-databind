@@ -13,6 +13,7 @@ import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsontype.impl.NoOpTypeDeserializer;
 import tools.jackson.databind.jsontype.impl.NoOpTypeSerializer;
 import tools.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * Abstraction used for allowing construction and registration of custom
@@ -202,7 +203,13 @@ public class TypeResolverProvider
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
                 config, accessor, contentType);
-        return b.buildTypeSerializer(ctxt, contentType, subtypes);
+        TypeSerializer contentTypeSer = b.buildTypeSerializer(ctxt, contentType, subtypes);
+        // [databind#1127]: `EXTERNAL_PROPERTY` cannot work as content type-id mechanism
+        if ((contentTypeSer != null)
+                && contentTypeSer.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
+            return _reportExternalPropertyOnContainer(ctxt, containerType);
+        }
+        return contentTypeSer;
     }
 
     public TypeDeserializer findPropertyContentTypeDeserializer(DeserializationContext ctxt,
@@ -233,7 +240,13 @@ public class TypeResolverProvider
                 b = b.withDefaultImpl(defaultType.getRawClass());
             }
         }
-        return b.buildTypeDeserializer(ctxt, contentType, subtypes);
+        TypeDeserializer contentTypeDeser = b.buildTypeDeserializer(ctxt, contentType, subtypes);
+        // [databind#1127]: `EXTERNAL_PROPERTY` cannot work as content type-id mechanism
+        if ((contentTypeDeser != null)
+                && contentTypeDeser.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
+            return _reportExternalPropertyOnContainer(ctxt, containerType);
+        }
+        return contentTypeDeser;
     }
 
     /*
@@ -241,6 +254,23 @@ public class TypeResolverProvider
     /* Helper methods
     /**********************************************************************
      */
+
+    /**
+     * Helper for [databind#1127]: `EXTERNAL_PROPERTY` cannot work as a <i>content</i>
+     * type-id mechanism (for Collection/array/Map/reference content) since there is no
+     * place to attach the external type-id sibling property when the value is a JSON
+     * Array (or wrapped reference). Reports eagerly with a clear message instead of a
+     * confusing low-level error during serialization/deserialization.
+     */
+    protected <T> T _reportExternalPropertyOnContainer(DatabindContext ctxt, JavaType containerType) {
+        return ctxt.reportBadDefinition(containerType, String.format(
+                """
+Cannot use `@JsonTypeInfo(include=JsonTypeInfo.As.EXTERNAL_PROPERTY)` on container-typed property (%s): \
+`EXTERNAL_PROPERTY` only works for scalar (non-container) bean properties. \
+Use one of the other inclusion mechanisms (such as `As.PROPERTY` or `As.WRAPPER_ARRAY`) instead\
+""",
+                ClassUtil.getTypeDescription(containerType)));
+    }
 
     protected TypeResolverBuilder<?> _findTypeResolver(MapperConfig<?> config,
             Annotated ann, JavaType baseType)

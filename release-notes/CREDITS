@@ -173,6 +173,8 @@ Oliver Drotbohm (@odrotbohm)
  * Requested #3591: Ignored fields not consistently exposed via
   `BeanDescription.getIgnoredPropertyNames()`
   [3.2.0]
+ * Reported #6028: Verification of unwrapped fields should mention type containing unwrapped POJO
+  [3.2.1]
 
 @sri-adarsh-kumar
  * Contributed #1196: Add opt-in error collection for deserialization
@@ -241,6 +243,11 @@ Lee Jiwon (@dlwldnjs1009)
   [3.2.0]
  * Fixed #5977: Apply per-property DYNAMIC typing override to `ObjectArraySerializer`
   [3.2.0]
+ * Fixed #6010: `WRITE_ENUMS_TO_LOWERCASE` must use `Locale.ROOT` for case folding
+  [3.2.0]
+ * Contributed #6022: Follow-up to #5369: apply content @JsonInclude in
+  `StringCollectionSerializer.serializeWithType`
+  [3.2.1]
 
 Garret Wilson (@garretwilson)
  * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
@@ -354,6 +361,11 @@ Joshua Arnold (@josharnold52)
    `@JsonCreator` and `@JsonValue`
   [3.1.3]
 
+Michael Orzechowski (@MikeBlink)
+ * Reported #5941: `MapperBuilder.addModule()` does not recursively register transitive
+   module dependencies (3.x regression from 2.x)
+  [3.1.3]
+
 Omkhar Arasaratnam (@omkhar)
  * Reported, suggested fix for #5950: Improve `UUIDeserializer` error handling
   [3.1.4]
@@ -385,10 +397,19 @@ Omkhar Arasaratnam (@omkhar)
  * Reported #5988: `PolymorphicTypeValidator` needs to validate generic type parameters too
   [3.1.4]
 
-Michael Orzechowski (@MikeBlink)
- * Reported #5941: `MapperBuilder.addModule()` does not recursively register transitive
-   module dependencies (3.x regression from 2.x)
-  [3.1.3]
+Severin Kistler (@kistlers)
+ * Reported #6001: Regression with `@JsonUnwrapped` from 3.0 to 3.1: custom
+   unwrapping deserializer receives empty Object
+  [3.1.4]
+
+Dmitry Sulman (@dmitrysulman)
+ * Suggested #6011: Add `MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX` in
+  `MapperBuilder.configureForJackson2()`
+  [3.1.4]
+
+João Guerra (@joca-bt)
+ * Reported #6040: Inconsistency in current token on invalid type coercion for `List<String>`
+  [3.1.5]
 
 Gili Tzabari (@cowwoc)
  * Reported #639: `@JacksonInject` with `@JsonIdentityInfo` causes deserialization
@@ -542,3 +563,28 @@ Daniel Purnomo (@kyooosukedn)
  * Fixed #5909: Forward Object Id references inside Collection properties
    leak Builder instance (follow-up to #1496)
   [3.2.0]
+
+Desmond Koh (@deskoh)
+ * Reported #5980: Property-based Creator clobbers enclosing value's
+   `JsonParser.currentValue()`
+  [3.2.0]
+
+Manuel Hegner (@manuel-hegner)
+ * Reported #6017: Make `@JsonUnwrapped` compatible with `@JsonSerialize(converter = )`
+  [3.2.0]
+
+Yusuke Nojima (@ynojima)
+ * Reported #6031: Getter annotated with `@JsonIgnore` prevents `@JsonAlias`
+   from working on `@JsonCreator` parameter (regression in 3.2.0)
+  [3.2.1]
+
+Alex Crowell (@alex-crowell)
+ * Reported #1127: `@JsonTypeInfo` with `EXTERNAL_PROPERTY` does not handle
+   arrays of polymorphic types
+  [3.3.0]
+
+Ivan (@pctF)
+ * Reported #6069: tools.jackson.databind.ObjectMapper#convertValue does not throw
+   `IllegalArgumentException` but throws `MismatchedInputException` when input and
+   expected type are not compatible
+  [3.3.0]

@@ -463,8 +463,13 @@ public class TreeBuildingGenerator
         //    but for now let's follow what `TokenBuffer` does and by default
         //    fully serialize given Java value... unless it's one of a small
         //    number of "well-known" types to preserve.
-        final Class<?> raw = value.getClass();
-        if (raw == byte[].class || (value instanceof RawValue)) {
+        // 26-Jun-2026, tatu: [databind#6059] `byte[]` must become `BinaryNode`,
+        //    not `POJONode`, to match the `writeBinary()` path
+        if (value instanceof byte[] bytes) {
+            _tokenWriteContext.writeBinary(bytes);
+            return this;
+        }
+        if (value instanceof RawValue) {
             _tokenWriteContext.writePOJO(value);
             return this;
         }
@@ -498,7 +503,9 @@ public class TreeBuildingGenerator
         // 12-Jan-2021, tatu: Should we try to preserve the variant? Depends a
         //   lot on whether this during read (no need to retain probably) or
         //   write (probably important)
-        return writePOJO(Arrays.copyOfRange(data, offset, offset + len));
+        // 26-Jun-2026, tatu: [databind#6059] Must create `BinaryNode`, not `POJONode`
+        _tokenWriteContext.writeBinary(Arrays.copyOfRange(data, offset, offset + len));
+        return this;
     }
 
     /**
@@ -542,6 +549,11 @@ public class TreeBuildingGenerator
     public JsonGenerator writeEmbeddedObject(Object object) {
         // 02-Mar-2021, tatu: Bit tricky, this one; should we try to
         //   auto-detect types or something?
+        // 26-Jun-2026, tatu: [databind#6059] Preserve `byte[]` as `BinaryNode`
+        if (object instanceof byte[] bytes) {
+            _tokenWriteContext.writeBinary(bytes);
+            return this;
+        }
         _tokenWriteContext.writePOJO(object);
         return this;
     }

@@ -76,7 +76,7 @@ public final class PropertyBasedCreator
     {
         _valueInstantiator = valueInstantiator;
         if (caseInsensitive) {
-            _propertyLookup = CaseInsensitiveMap.construct(ctxt.getConfig().getLocale());
+            _propertyLookup = CaseInsensitiveMap.construct(Locale.ROOT);
         } else {
             _propertyLookup = new HashMap<>();
         }

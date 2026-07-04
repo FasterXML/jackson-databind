@@ -403,7 +403,11 @@ public abstract class BeanSerializerBase
             }
             // Inner serializer may be a custom (non-BeanSerializerBase) impl;
             // without access to its effective property names we cannot check it.
-            if (!(unwrapped.findUnwrappingSerializer(ctxt) instanceof BeanSerializerBase innerSer)) {
+            // Follow any delegatee chain first, so that delegating serializers --
+            // notably `StdConvertingSerializer` produced by `@JsonSerialize(converter=)`,
+            // see [databind#6017] -- are seen through to the underlying bean serializer.
+            BeanSerializerBase innerSer = _asBeanSerializer(unwrapped.findUnwrappingSerializer(ctxt));
+            if (innerSer == null) {
                 continue;
             }
             for (Iterator<PropertyWriter> it = innerSer.properties(); it.hasNext(); ) {
@@ -419,13 +423,36 @@ public abstract class BeanSerializerBase
                 String name = innerProp.getName();
                 if (!seenNames.add(name)) {
                     ctxt.reportBadDefinition(_beanType, String.format(
-"Conflict between unwrapped property '%s' (of type %s)"
-+" and another property with same name;"
+"Conflict for type %s: unwrapped property '%s' (of type %s)"
++" and another property have the same name;"
 +" consider using `@JsonUnwrapped(prefix=...)` to avoid name collision",
+                            ClassUtil.getTypeDescription(_beanType),
                             name, ClassUtil.getTypeDescription(unwrapped.getType())));
                 }
             }
         }
+    }
+
+    /**
+     * Helper for {@link #_verifyNoUnwrappedPropertyConflict}: follows the
+     * {@link ValueSerializer#getDelegatee()} chain -- used by delegating serializers
+     * such as {@code StdConvertingSerializer} for {@code @JsonSerialize(converter=)},
+     * see [databind#6017] -- down to the underlying {@link BeanSerializerBase}, if any.
+     *
+     * @return Underlying bean serializer, or {@code null} if none found
+     *
+     * @since 3.2
+     */
+    protected static BeanSerializerBase _asBeanSerializer(ValueSerializer<?> ser)
+    {
+        // Fixed depth bound to avoid spinning on a pathological delegatee chain
+        for (int i = 0; (ser != null) && (i < 100); ++i) {
+            if (ser instanceof BeanSerializerBase bs) {
+                return bs;
+            }
+            ser = ser.getDelegatee();
+        }
+        return null;
     }
 
     /**

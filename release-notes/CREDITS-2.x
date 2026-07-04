@@ -1918,16 +1918,16 @@ Fawzi Essam (@iifawzi)
   (2.18.4)
 
 Omkhar Arasaratnam (@omkhar)
- * Reported #5950: Improve `UUIDeserializer` error handling
+ * Reported #5950: Improve `UUIDDeserializer` error handling
   (2.18.8)
  * Reported #5951: Improve `InetSocketAddress` deserialization
   (2.18.8)
  * Contributed fix for #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
   (2.21.4)
  * Contributed fix for #5969: `@JsonView` by-passed for some "setterless" creator properties
-  (2.21.4)
+  (2.18.8)
  * Contributed fix for #5971: `@JsonView` by-passed for unwrapped creator parameters
-  (2.21.4)
+  (2.18.8)
  * Contributed fix for #5974: `@JsonIgnore` on Record property ignored with
    `PropertyNamingStrategy`
   (2.18.8)
@@ -1936,6 +1936,9 @@ Omkhar Arasaratnam (@omkhar)
   (2.18.8)
  * Reported #5988: `PolymorphicTypeValidator` needs to validate generic type parameters too
   (2.18.8)
+ * Contributed fix for #5962: Case-insensitive deserialization may use
+   wrong `@JsonIgnoreProperties`
+  (2.18.9)
 
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
@@ -2051,6 +2054,11 @@ Joshua Arnold (@josharnold52)
  * Reported, fixed #5923: Deserialization behavior change with Records,
    `@JsonCreator` and `@JsonValue`
   [2.21.3]
+
+CharmingKyu (@loadkrnis)
+ * Fixed #5993: `UPPER_SNAKE_CASE` / `LOWER_CASE` `NamingStrategyImpls` fold case
+   using JVM default locale (Turkish-I bug)
+  [2.21.4]
 
 Christian Danner cdadac
  * Reported #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices

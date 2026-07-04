@@ -82,107 +82,107 @@ public class DatabindTestUtil
             +"}"
         ;
 
-    public static void verifyJsonSpecSampleDoc(JsonParser jp, boolean verifyContents)
+    public static void verifyJsonSpecSampleDoc(JsonParser p, boolean verifyContents)
     {
-        verifyJsonSpecSampleDoc(jp, verifyContents, true);
+        verifyJsonSpecSampleDoc(p, verifyContents, true);
     }
 
-    public static void verifyJsonSpecSampleDoc(JsonParser jp, boolean verifyContents,
-                                           boolean requireNumbers)
+    public static void verifyJsonSpecSampleDoc(JsonParser p, boolean verifyContents,
+            boolean requireNumbers)
     {
-        if (!jp.hasCurrentToken()) {
-            jp.nextToken();
+        if (!p.hasCurrentToken()) {
+            p.nextToken();
         }
-        assertToken(JsonToken.START_OBJECT, jp.currentToken()); // main object
+        assertToken(JsonToken.START_OBJECT, p.currentToken()); // main object
 
-        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken()); // 'Image'
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Image'
         if (verifyContents) {
-            verifyFieldName(jp, "Image");
-        }
-
-        assertToken(JsonToken.START_OBJECT, jp.nextToken()); // 'image' object
-
-        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken()); // 'Width'
-        if (verifyContents) {
-            verifyFieldName(jp, "Width");
+            verifyFieldName(p, "Image");
         }
 
-        verifyIntToken(jp.nextToken(), requireNumbers);
+        assertToken(JsonToken.START_OBJECT, p.nextToken()); // 'image' object
+
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Width'
         if (verifyContents) {
-            verifyIntValue(jp, SAMPLE_SPEC_VALUE_WIDTH);
+            verifyFieldName(p, "Width");
         }
 
-        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken()); // 'Height'
+        verifyIntToken(p.nextToken(), requireNumbers);
         if (verifyContents) {
-            verifyFieldName(jp, "Height");
+            verifyIntValue(p, SAMPLE_SPEC_VALUE_WIDTH);
         }
 
-        verifyIntToken(jp.nextToken(), requireNumbers);
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Height'
         if (verifyContents) {
-            verifyIntValue(jp, SAMPLE_SPEC_VALUE_HEIGHT);
-        }
-        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken()); // 'Title'
-        if (verifyContents) {
-            verifyFieldName(jp, "Title");
-        }
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals(SAMPLE_SPEC_VALUE_TITLE, getAndVerifyText(jp));
-        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken()); // 'Thumbnail'
-        if (verifyContents) {
-            verifyFieldName(jp, "Thumbnail");
+            verifyFieldName(p, "Height");
         }
 
-        assertToken(JsonToken.START_OBJECT, jp.nextToken()); // 'thumbnail' object
-        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken()); // 'Url'
+        verifyIntToken(p.nextToken(), requireNumbers);
         if (verifyContents) {
-            verifyFieldName(jp, "Url");
+            verifyIntValue(p, SAMPLE_SPEC_VALUE_HEIGHT);
         }
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Title'
         if (verifyContents) {
-            assertEquals(SAMPLE_SPEC_VALUE_TN_URL, getAndVerifyText(jp));
+            verifyFieldName(p, "Title");
         }
-        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken()); // 'Height'
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals(SAMPLE_SPEC_VALUE_TITLE, getAndVerifyText(p));
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Thumbnail'
         if (verifyContents) {
-            verifyFieldName(jp, "Height");
+            verifyFieldName(p, "Thumbnail");
         }
-        verifyIntToken(jp.nextToken(), requireNumbers);
+
+        assertToken(JsonToken.START_OBJECT, p.nextToken()); // 'thumbnail' object
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Url'
         if (verifyContents) {
-            verifyIntValue(jp, SAMPLE_SPEC_VALUE_TN_HEIGHT);
+            verifyFieldName(p, "Url");
         }
-        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken()); // 'Width'
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
         if (verifyContents) {
-            verifyFieldName(jp, "Width");
+            assertEquals(SAMPLE_SPEC_VALUE_TN_URL, getAndVerifyText(p));
+        }
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Height'
+        if (verifyContents) {
+            verifyFieldName(p, "Height");
+        }
+        verifyIntToken(p.nextToken(), requireNumbers);
+        if (verifyContents) {
+            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_HEIGHT);
+        }
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Width'
+        if (verifyContents) {
+            verifyFieldName(p, "Width");
         }
         // Width value is actually a String in the example
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
         if (verifyContents) {
-            assertEquals(SAMPLE_SPEC_VALUE_TN_WIDTH, getAndVerifyText(jp));
+            assertEquals(SAMPLE_SPEC_VALUE_TN_WIDTH, getAndVerifyText(p));
         }
 
-        assertToken(JsonToken.END_OBJECT, jp.nextToken()); // 'thumbnail' object
-        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken()); // 'IDs'
-        assertToken(JsonToken.START_ARRAY, jp.nextToken()); // 'ids' array
-        verifyIntToken(jp.nextToken(), requireNumbers); // ids[0]
+        assertToken(JsonToken.END_OBJECT, p.nextToken()); // 'thumbnail' object
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'IDs'
+        assertToken(JsonToken.START_ARRAY, p.nextToken()); // 'ids' array
+        verifyIntToken(p.nextToken(), requireNumbers); // ids[0]
         if (verifyContents) {
-            verifyIntValue(jp, SAMPLE_SPEC_VALUE_TN_ID1);
+            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_ID1);
         }
-        verifyIntToken(jp.nextToken(), requireNumbers); // ids[1]
+        verifyIntToken(p.nextToken(), requireNumbers); // ids[1]
         if (verifyContents) {
-            verifyIntValue(jp, SAMPLE_SPEC_VALUE_TN_ID2);
+            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_ID2);
         }
-        verifyIntToken(jp.nextToken(), requireNumbers); // ids[2]
+        verifyIntToken(p.nextToken(), requireNumbers); // ids[2]
         if (verifyContents) {
-            verifyIntValue(jp, SAMPLE_SPEC_VALUE_TN_ID3);
+            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_ID3);
         }
-        verifyIntToken(jp.nextToken(), requireNumbers); // ids[3]
+        verifyIntToken(p.nextToken(), requireNumbers); // ids[3]
         if (verifyContents) {
-            verifyIntValue(jp, SAMPLE_SPEC_VALUE_TN_ID4);
+            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_ID4);
         }
-        assertToken(JsonToken.END_ARRAY, jp.nextToken()); // 'ids' array
+        assertToken(JsonToken.END_ARRAY, p.nextToken()); // 'ids' array
 
-        assertToken(JsonToken.END_OBJECT, jp.nextToken()); // 'image' object
+        assertToken(JsonToken.END_OBJECT, p.nextToken()); // 'image' object
 
-        assertToken(JsonToken.END_OBJECT, jp.nextToken()); // main object
+        assertToken(JsonToken.END_OBJECT, p.nextToken()); // main object
     }
 
     private static void verifyIntToken(JsonToken t, boolean requireNumbers)

@@ -111,7 +111,10 @@ public class ExternalTypeHandler
             return false;
         }
         // note: CANNOT skip child values (should always be String anyway)
-        boolean canDeserialize = (bean != null) && (_tokens[index] != null);
+        // [databind#6055]: do not eagerly bind if value property is filtered by active
+        // view; let complete() skip it instead
+        boolean canDeserialize = (bean != null) && (_tokens[index] != null)
+                && !_isFilteredByView(ctxt, index);
         // Minor optimization: deserialize properties as soon as we have all we need:
         if (canDeserialize) {
             _deserializeAndSet(p, ctxt, bean, index, typeId);
@@ -174,12 +177,14 @@ public class ExternalTypeHandler
             //    since that'll coerce null value into String "null"...
             _typeIds[index] = p.getValueAsString();
             p.skipChildren();
-            canDeserialize = (bean != null) && (_tokens[index] != null);
+            canDeserialize = (bean != null) && (_tokens[index] != null)
+                    && !_isFilteredByView(ctxt, index);
         } else {
             @SuppressWarnings("resource")
             TokenBuffer tokens = ctxt.bufferAsCopyOfValue(p);
             _tokens[index] = tokens;
-            canDeserialize = (bean != null) && (_typeIds[index] != null);
+            canDeserialize = (bean != null) && (_typeIds[index] != null)
+                    && !_isFilteredByView(ctxt, index);
         }
         // Minor optimization: let's deserialize properties as soon as
         // we have all pertinent information:
@@ -194,6 +199,18 @@ public class ExternalTypeHandler
     }
 
     /**
+     * [databind#6055]: Whether the value property at given index is filtered out by
+     * the currently active {@link com.fasterxml.jackson.annotation.JsonView}; if so its
+     * value and external type id are both to be skipped, same as any other view-filtered
+     * property.
+     */
+    private boolean _isFilteredByView(DeserializationContext ctxt, int index) {
+        final Class<?> activeView = ctxt.getActiveView();
+        return (activeView != null)
+                && !_properties[index].getProperty().visibleInView(activeView);
+    }
+
+    /**
      * Method called after JSON Object closes, and has to ensure that all external
      * type ids have been handled.
      */
@@ -201,9 +218,16 @@ public class ExternalTypeHandler
     public Object complete(JsonParser p, DeserializationContext ctxt, Object bean)
         throws JacksonException
     {
+        final Class<?> activeView = ctxt.getActiveView();
         for (int i = 0, len = _properties.length; i < len; ++i) {
             String typeId = _typeIds[i];
             final ExtTypedProperty extProp = _properties[i];
+            // [databind#6055]: if the value property is filtered out by the active
+            // JsonView, skip it entirely -- both any buffered value and the external
+            // type id -- instead of trying to bind it (or reporting it as missing).
+            if ((activeView != null) && !extProp.getProperty().visibleInView(activeView)) {
+                continue;
+            }
             if (typeId == null) {
                 TokenBuffer tokens = _tokens[i];
                 // let's allow missing both type and property (may already have been set, too)
@@ -264,9 +288,16 @@ public class ExternalTypeHandler
         // first things first: deserialize all data buffered:
         final int len = _properties.length;
         Object[] values = new Object[len];
+        final Class<?> activeView = ctxt.getActiveView();
         for (int i = 0; i < len; ++i) {
             String typeId = _typeIds[i];
             final ExtTypedProperty extProp = _properties[i];
+            // [databind#6055]: if the value property is filtered out by the active
+            // JsonView, skip it entirely -- leave value null instead of binding the
+            // buffered value or reporting the external type id as missing.
+            if ((activeView != null) && !extProp.getProperty().visibleInView(activeView)) {
+                continue;
+            }
             if (typeId == null) {
                 // let's allow missing both type and property (may already have been set, too)
                 TokenBuffer tb = _tokens[i];

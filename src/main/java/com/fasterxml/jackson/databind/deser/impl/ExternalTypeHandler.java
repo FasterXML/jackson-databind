@@ -201,9 +201,17 @@ public class ExternalTypeHandler
     public Object complete(JsonParser p, DeserializationContext ctxt, Object bean)
         throws IOException
     {
+        final Class<?> activeView = ctxt.getActiveView();
         for (int i = 0, len = _properties.length; i < len; ++i) {
-            String typeId = _typeIds[i];
             final ExtTypedProperty extProp = _properties[i];
+            // 26-Jun-2026, tatu: Must honor `@JsonView` for external-type-id
+            //   properties too (see JsonViewExternalTypeIdBypassTest); otherwise
+            //   value for property not visible in active view would still get bound,
+            //   bypassing view-based filtering.
+            if ((activeView != null) && !extProp.getProperty().visibleInView(activeView)) {
+                continue;
+            }
+            String typeId = _typeIds[i];
             if (typeId == null) {
                 TokenBuffer tokens = _tokens[i];
                 // let's allow missing both type and property (may already have been set, too)
@@ -264,53 +272,71 @@ public class ExternalTypeHandler
         // first things first: deserialize all data buffered:
         final int len = _properties.length;
         Object[] values = new Object[len];
+        final Class<?> activeView = ctxt.getActiveView();
         for (int i = 0; i < len; ++i) {
-            String typeId = _typeIds[i];
             final ExtTypedProperty extProp = _properties[i];
-            if (typeId == null) {
-                // let's allow missing both type and property (may already have been set, too)
-                TokenBuffer tb = _tokens[i];
-                if ((tb == null)
-                        // 19-Feb-2021, tatu: Both missing value and explicit `null`
-                        //    should be accepted...
-                        || (tb.firstToken() == JsonToken.VALUE_NULL)
-                    ) {
-                    continue;
-                }
-                // but not just one
-                // 26-Oct-2012, tatu: As per [databind#94], must allow use of 'defaultImpl'
-                if (!extProp.hasDefaultType()) {
-                    ctxt.reportPropertyInputMismatch(_beanType, extProp.getProperty().getName(),
-                            "Missing external type id property '%s'",
-                            extProp.getTypePropertyName());
-                } else {
-                    typeId = extProp.getDefaultTypeId();
-                }
-            }
-
-            if (_tokens[i] != null) {
-                values[i] = _deserialize(p, ctxt, i, typeId);
-            } else {
-                if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)) {
-                    SettableBeanProperty prop = extProp.getProperty();
-                    ctxt.reportPropertyInputMismatch(_beanType, prop.getName(),
-                            "Missing property '%s' for external type id '%s'",
-                            prop.getName(), _properties[i].getTypePropertyName());
-                }
-                // 03-Aug-2022, tatu: [databind#3533] to handle absent value matching
-                //    present type id
-                values[i] = _deserializeMissingToken(p, ctxt, i, typeId);
-            }
-
             final SettableBeanProperty prop = extProp.getProperty();
+            String typeId = _typeIds[i];
+
+            // 26-Jun-2026, tatu: Must honor `@JsonView` for external-type-id
+            //   properties too (see JsonViewExternalTypeIdBypassTest): leave the
+            //   value of a property not visible in the active view unbound (null),
+            //   so it does not bypass view-based filtering. NOTE: the external type
+            //   id itself may be a separate, still-visible creator property, so that
+            //   is still assigned below ([databind#999]).
+            final boolean viewHidden = (activeView != null) && !prop.visibleInView(activeView);
+
+            if (!viewHidden) {
+                if (typeId == null) {
+                    // let's allow missing both type and property (may already have been set, too)
+                    TokenBuffer tb = _tokens[i];
+                    if ((tb == null)
+                            // 19-Feb-2021, tatu: Both missing value and explicit `null`
+                            //    should be accepted...
+                            || (tb.firstToken() == JsonToken.VALUE_NULL)
+                        ) {
+                        continue;
+                    }
+                    // but not just one
+                    // 26-Oct-2012, tatu: As per [databind#94], must allow use of 'defaultImpl'
+                    if (!extProp.hasDefaultType()) {
+                        ctxt.reportPropertyInputMismatch(_beanType, prop.getName(),
+                                "Missing external type id property '%s'",
+                                extProp.getTypePropertyName());
+                    } else {
+                        typeId = extProp.getDefaultTypeId();
+                    }
+                }
+
+                if (_tokens[i] != null) {
+                    values[i] = _deserialize(p, ctxt, i, typeId);
+                } else {
+                    if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)) {
+                        ctxt.reportPropertyInputMismatch(_beanType, prop.getName(),
+                                "Missing property '%s' for external type id '%s'",
+                                prop.getName(), extProp.getTypePropertyName());
+                    }
+                    // 03-Aug-2022, tatu: [databind#3533] to handle absent value matching
+                    //    present type id
+                    values[i] = _deserializeMissingToken(p, ctxt, i, typeId);
+                }
+            }
+
             // also: if it's creator prop, fill in
             if (prop.getCreatorIndex() >= 0) {
-                buffer.assignParameter(prop, values[i]);
+                // ...but skip binding the value itself if hidden by the active view
+                if (!viewHidden) {
+                    buffer.assignParameter(prop, values[i]);
+                }
 
                 // [databind#999] And maybe there's creator property for type id too?
+                //   Assign it even when the value is view-hidden, provided we have a
+                //   type id and the type-id property is itself visible in the view.
                 SettableBeanProperty typeProp = extProp.getTypeProperty();
                 // for now, should only be needed for creator properties, too
-                if ((typeProp != null) && (typeProp.getCreatorIndex() >= 0)) {
+                if ((typeProp != null) && (typeProp.getCreatorIndex() >= 0)
+                        && (typeId != null)
+                        && ((activeView == null) || typeProp.visibleInView(activeView))) {
                     // 31-May-2018, tatu: [databind#1328] if id is NOT plain `String`, need to
                     //    apply deserializer... fun fun.
                     final Object v;
@@ -329,7 +355,12 @@ public class ExternalTypeHandler
         Object bean = creator.build(ctxt, buffer);
         // third: assign non-creator properties
         for (int i = 0; i < len; ++i) {
-            SettableBeanProperty prop = _properties[i].getProperty();
+            final ExtTypedProperty extProp = _properties[i];
+            // 26-Jun-2026, tatu: also honor `@JsonView` here (see above)
+            if ((activeView != null) && !extProp.getProperty().visibleInView(activeView)) {
+                continue;
+            }
+            SettableBeanProperty prop = extProp.getProperty();
             if (prop.getCreatorIndex() < 0) {
                 prop.set(bean, values[i]);
             }
@@ -379,6 +410,18 @@ public class ExternalTypeHandler
     protected final void _deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object bean, int index, String typeId) throws IOException
     {
+        // 26-Jun-2026, tatu: Must honor `@JsonView` here too (see
+        //   JsonViewExternalTypeIdBypassTest): for default-constructor beans the value
+        //   may be bound eagerly via this method (when the type id precedes the value),
+        //   so a property not visible in the active view must be skipped here as well.
+        //   The value is read from the buffered token (`_tokens[index]`), and the main
+        //   parser has already advanced past it, so we simply discard it (do not set).
+        final Class<?> activeView = ctxt.getActiveView();
+        final SettableBeanProperty valueProp = _properties[index].getProperty();
+        if ((activeView != null) && !valueProp.visibleInView(activeView)) {
+            return;
+        }
+
         // 11-Nov-2020, tatu: Should never get `null` passed this far,
         if (typeId == null) {
             ctxt.reportInputMismatch(_beanType, "Internal error in external Type Id handling: `null` type id passed");

@@ -231,7 +231,7 @@ public class BeanAsArrayDeserializer
             // Ok; extra fields? Let's fail, unless ignoring extra props is fine
             if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
                 ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
-                        "Unexpected JSON values; expected at most %d properties (in JSON Array)",
+                        "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                         propCount);
                 // never gets here
             }
@@ -285,7 +285,7 @@ public class BeanAsArrayDeserializer
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
             ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
-                    "Unexpected JSON values; expected at most %d properties (in JSON Array)",
+                    "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                     propCount);
             // never gets here
         }
@@ -355,7 +355,7 @@ public class BeanAsArrayDeserializer
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
             ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
-                    "Unexpected JSON values; expected at most %d properties (in JSON Array)",
+                    "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                     propCount);
             // will never reach here as exception has been thrown
         }
@@ -398,7 +398,7 @@ public class BeanAsArrayDeserializer
                 if (i >= propCount
                         && !_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
                     ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
-                            "Unexpected JSON values; expected at most %d properties (in JSON Array)",
+                            "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                             propCount);
                     // never gets here
                 }

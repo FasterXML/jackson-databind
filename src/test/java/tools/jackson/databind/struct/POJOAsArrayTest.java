@@ -935,7 +935,7 @@ public class POJOAsArrayTest extends DatabindTestUtil
                     .readValue(json);
             fail("should not pass with extra element");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Unexpected JSON values");
+            verifyException(e, "Unexpected JSON value(s)");
         }
 
         // but actually fine if skip-unknown set
@@ -959,8 +959,7 @@ public class POJOAsArrayTest extends DatabindTestUtil
                     .readValue(json);
             fail("should not pass with extra element");
         } catch (MismatchedInputException e) {
-            // Looks like we get either "Unexpected JSON values" or "Unexpected JSON value(s)"
-            verifyException(e, "Unexpected JSON value");
+            verifyException(e, "Unexpected JSON value(s)");
         }
 
         // but actually fine if skip-unknown set
@@ -985,7 +984,7 @@ public class POJOAsArrayTest extends DatabindTestUtil
                     .readValue(json);
             fail("should not pass with extra element");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Unexpected JSON values");
+            verifyException(e, "Unexpected JSON value(s)");
         }
 
         // but actually fine if skip-unknown set
@@ -996,5 +995,30 @@ public class POJOAsArrayTest extends DatabindTestUtil
         assertEquals(1, v.x());
         assertEquals(2, v.y());
         assertEquals(3, v.z());
+    }
+
+    // [databind#6043]: builder-based POJOs-as-Array using a property-based creator
+    // must honor FAIL_ON_UNKNOWN_PROPERTIES too, matching the non-builder sibling
+    @Test
+    public void testBuilderCreatorUnknownExtraProp() throws Exception
+    {
+        String json = "[1, 2, 3, 4]";
+        try {
+            MAPPER.readerFor(CreatorValue.class)
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue(json);
+            fail("should not pass with extra element");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Unexpected JSON value(s)");
+        }
+
+        // but actually fine if skip-unknown set
+        CreatorValue v = MAPPER.readerFor(CreatorValue.class)
+                .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .readValue(json);
+        assertNotNull(v);
+        assertEquals(1, v.a);
+        assertEquals(2, v.b);
+        assertEquals(3, v.c);
     }
 }

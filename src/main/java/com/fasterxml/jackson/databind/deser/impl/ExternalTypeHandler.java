@@ -417,8 +417,7 @@ public class ExternalTypeHandler
         //   The value is read from the buffered token (`_tokens[index]`), and the main
         //   parser has already advanced past it, so we simply discard it (do not set).
         final Class<?> activeView = ctxt.getActiveView();
-        final SettableBeanProperty valueProp = _properties[index].getProperty();
-        if ((activeView != null) && !valueProp.visibleInView(activeView)) {
+        if ((activeView != null) && !_properties[index].getProperty().visibleInView(activeView)) {
             return;
         }
 

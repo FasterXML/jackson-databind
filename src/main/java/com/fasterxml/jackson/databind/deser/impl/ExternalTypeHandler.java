@@ -357,10 +357,10 @@ public class ExternalTypeHandler
         for (int i = 0; i < len; ++i) {
             final ExtTypedProperty extProp = _properties[i];
             // 26-Jun-2026, tatu: also honor `@JsonView` here (see above)
-            if ((activeView != null) && !extProp.getProperty().visibleInView(activeView)) {
+            final SettableBeanProperty prop = extProp.getProperty();
+            if ((activeView != null) && !prop.visibleInView(activeView)) {
                 continue;
             }
-            SettableBeanProperty prop = extProp.getProperty();
             if (prop.getCreatorIndex() < 0) {
                 prop.set(bean, values[i]);
             }

@@ -935,7 +935,7 @@ public class POJOAsArrayTest extends DatabindTestUtil
                     .readValue(json);
             fail("should not pass with extra element");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Unexpected JSON values");
+            verifyException(e, "Unexpected JSON value(s)");
         }
 
         // but actually fine if skip-unknown set
@@ -959,8 +959,7 @@ public class POJOAsArrayTest extends DatabindTestUtil
                     .readValue(json);
             fail("should not pass with extra element");
         } catch (MismatchedInputException e) {
-            // Looks like we get either "Unexpected JSON values" or "Unexpected JSON value(s)"
-            verifyException(e, "Unexpected JSON value");
+            verifyException(e, "Unexpected JSON value(s)");
         }
 
         // but actually fine if skip-unknown set
@@ -985,7 +984,7 @@ public class POJOAsArrayTest extends DatabindTestUtil
                     .readValue(json);
             fail("should not pass with extra element");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Unexpected JSON values");
+            verifyException(e, "Unexpected JSON value(s)");
         }
 
         // but actually fine if skip-unknown set
@@ -1010,7 +1009,7 @@ public class POJOAsArrayTest extends DatabindTestUtil
                     .readValue(json);
             fail("should not pass with extra element");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Unexpected JSON values");
+            verifyException(e, "Unexpected JSON value(s)");
         }
 
         // but actually fine if skip-unknown set

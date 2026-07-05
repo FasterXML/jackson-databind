@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.views;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import org.junit.jupiter.api.Test;
@@ -12,12 +14,18 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 // Tests to verify that {@code @JsonView} is honored for polymorphic properties
-// that use an EXTERNAL_PROPERTY type id AND are bound via a property-based
-// (@JsonCreator) constructor. A {@code @JsonView} never changes the type id, so
-// these tests check the two distinct things a view CAN do:
+// that use an EXTERNAL_PROPERTY type id. A {@code @JsonView} never changes the
+// type id, so these tests check the two distinct things a view CAN do -- (a) hide
+// the whole polymorphic property (left null), or (b) hide a field of the resolved
+// subtype (subtype built, field left null) -- across the different ways such a
+// property gets bound:
 //
-//  (1) hide the whole polymorphic property -> property left null
-//  (2) hide a field of the resolved subtype -> subtype built, field left null
+//  (1) property-based (@JsonCreator) constructor, property hidden      -> null
+//  (2) field of the resolved subtype hidden (property-based creator)   -> field null
+//  (3) type id is ITSELF a creator param, only the value hidden        -> value null, type id kept
+//  (4) default-constructor bean (eager binding), property hidden       -> null
+//  (5) @JsonPOJOBuilder-based bean, property hidden                    -> null
+//  (6) reverse of (3): type id creator param hidden, value visible     -> value kept, type id null
 public class JsonViewExternalTypeIdBypassTest extends DatabindTestUtil
 {
     static class PublicView { }
@@ -131,6 +139,76 @@ public class JsonViewExternalTypeIdBypassTest extends DatabindTestUtil
         public String label;
     }
 
+    // Case (5): admin-only external-type property on a @JsonPOJOBuilder-based bean --
+    // exercises the BuilderBasedDeserializer external-type path.
+    @JsonDeserialize(builder = BuilderContainer.Builder.class)
+    static class BuilderContainer {
+        public final String label;
+        public final Asset asset;
+
+        BuilderContainer(String label, Asset asset) {
+            this.label = label;
+            this.asset = asset;
+        }
+
+        @JsonPOJOBuilder(withPrefix = "with")
+        static class Builder {
+            String label;
+            Asset asset;
+
+            public Builder withLabel(String label) {
+                this.label = label;
+                return this;
+            }
+
+            @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+                    include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+                    property = "kind")
+            @JsonSubTypes({
+                    @JsonSubTypes.Type(value = PublicAsset.class, name = "pub"),
+                    @JsonSubTypes.Type(value = AdminAsset.class, name = "admin")
+            })
+            @JsonView(AdminView.class)
+            public Builder withAsset(Asset asset) {
+                this.asset = asset;
+                return this;
+            }
+
+            public BuilderContainer build() {
+                return new BuilderContainer(label, asset);
+            }
+        }
+    }
+
+    // Case (6): reverse of (3) -- the type id "kind" is a creator parameter carrying
+    // the view, while the value "asset" is visible. Under PublicView the value must
+    // still be bound and resolve correctly (the type id string still drives type
+    // resolution), but the hidden "kind" creator parameter must be left null.
+    static class TypeIdGatedContainer {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+                property = "kind",
+                visible = true)
+        @JsonSubTypes({
+                @JsonSubTypes.Type(value = PublicAsset.class, name = "pub"),
+                @JsonSubTypes.Type(value = AdminAsset.class, name = "admin")
+        })
+        public Asset asset;
+
+        public String label;
+        public String kind;
+
+        @JsonCreator
+        public TypeIdGatedContainer(
+                @JsonProperty("label") String label,
+                @JsonProperty("kind") @JsonView(AdminView.class) String kind,
+                @JsonProperty("asset") Asset asset) {
+            this.label = label;
+            this.kind = kind;
+            this.asset = asset;
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // Case (1): admin-only polymorphic property must NOT be bound when reading
@@ -222,5 +300,42 @@ public class JsonViewExternalTypeIdBypassTest extends DatabindTestUtil
 
         assertEquals("hello", result.label);
         assertNull(result.asset, "Admin-only 'asset' must not be bound under PublicView");
+    }
+
+    // Case (5): admin-only external-type property on a @JsonPOJOBuilder bean must be
+    // skipped under PublicView (covers the BuilderBasedDeserializer external-type path).
+    @Test
+    void testViewGatedExternalTypePropertyBuilder() throws Exception
+    {
+        String json = a2q("{'label':'hello','kind':'admin',"
+                + "'asset':{'name':'foo','secret':'LEAKED'}}");
+
+        BuilderContainer result = MAPPER.readerWithView(PublicView.class)
+                .forType(BuilderContainer.class)
+                .readValue(json);
+
+        assertEquals("hello", result.label);
+        assertNull(result.asset, "Admin-only 'asset' must not be bound under PublicView");
+    }
+
+    // Case (6): reverse of case (3) -- @JsonView on the type-id creator param but not
+    // the value. Under PublicView the value is still bound (and resolves to the admin
+    // subtype via the type id), but the hidden type-id property must be left null.
+    @Test
+    void testViewGatedTypeIdCreatorPropKeepsVisibleValue() throws Exception
+    {
+        String json = a2q("{'label':'hello','kind':'admin',"
+                + "'asset':{'name':'foo','secret':'shh'}}");
+
+        TypeIdGatedContainer result = MAPPER.readerWithView(PublicView.class)
+                .forType(TypeIdGatedContainer.class)
+                .readValue(json);
+
+        assertEquals("hello", result.label);
+        // Value carries no view -> still bound, and the type id still selects the subtype
+        AdminAsset asset = assertInstanceOf(AdminAsset.class, result.asset);
+        assertEquals("foo", asset.name);
+        // ...but the admin-only type id creator property must not be bound
+        assertNull(result.kind, "Admin-only type id 'kind' must not be bound under PublicView");
     }
 }

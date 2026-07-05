@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -80,32 +81,49 @@ public class JsonViewExternalTypeId6055Test extends DatabindTestUtil {
 
     private final ObjectMapper MAPPER = sharedMapper();
 
+    // Type id ("kind") appears BEFORE the value ("asset"): exercises the eager-bind
+    // branch (both type id and value available when value token arrives).
+    private static final String JSON_TYPEID_FIRST = a2q(
+            "{'data':{'label':'hello','kind':'admin',"
+            + "'asset':{'name':'foo','secret':'LEAKED'}}}");
+
+    // Type id ("kind") appears AFTER the value ("asset"): value is buffered first,
+    // then the type id arrives -- exercises the other ordering of the same paths.
+    private static final String JSON_VALUE_FIRST = a2q(
+            "{'data':{'label':'hello',"
+            + "'asset':{'name':'foo','secret':'LEAKED'},'kind':'admin'}}");
+
     // Admin-only "asset" is annotated @JsonView(AdminView.class); AdminView extends
     // PublicView, so the property is NOT visible under PublicView and must be
     // skipped (left null) -- including its external type id -- rather than read.
     @Test
     void externalTypeIdFilteredByPublicView() throws Exception {
-        String json = a2q("{'data':{'label':'hello','kind':'admin',"
-                + "'asset':{'name':'foo','secret':'LEAKED'}}}");
-
         Wrapper r = MAPPER.readerWithView(PublicView.class)
                 .forType(Wrapper.class)
-                .readValue(json);
+                .readValue(JSON_TYPEID_FIRST);
 
         assertEquals("hello", r.data.label);
         // Admin-only "asset" must not be populated when reading with PublicView
         assertNull(r.data.asset);
     }
 
+    // As above, but with the type id appearing after the value in the input.
+    @Test
+    void externalTypeIdFilteredByPublicView_valueBeforeTypeId() throws Exception {
+        Wrapper r = MAPPER.readerWithView(PublicView.class)
+                .forType(Wrapper.class)
+                .readValue(JSON_VALUE_FIRST);
+
+        assertEquals("hello", r.data.label);
+        assertNull(r.data.asset);
+    }
+
     // Sanity check: with AdminView the property IS visible and read normally.
     @Test
     void externalTypeIdVisibleForAdminView() throws Exception {
-        String json = a2q("{'data':{'label':'hello','kind':'admin',"
-                + "'asset':{'name':'foo','secret':'LEAKED'}}}");
-
         Wrapper r = MAPPER.readerWithView(AdminView.class)
                 .forType(Wrapper.class)
-                .readValue(json);
+                .readValue(JSON_TYPEID_FIRST);
 
         assertEquals("hello", r.data.label);
         AdminAsset asset = (AdminAsset) r.data.asset;
@@ -116,12 +134,20 @@ public class JsonViewExternalTypeId6055Test extends DatabindTestUtil {
     // Same as above but for the bean-based (default-constructor) path.
     @Test
     void externalTypeIdFilteredByPublicView_beanBased() throws Exception {
-        String json = a2q("{'data':{'label':'hello','kind':'admin',"
-                + "'asset':{'name':'foo','secret':'LEAKED'}}}");
-
         BeanWrapper r = MAPPER.readerWithView(PublicView.class)
                 .forType(BeanWrapper.class)
-                .readValue(json);
+                .readValue(JSON_TYPEID_FIRST);
+
+        assertEquals("hello", r.data.label);
+        assertNull(r.data.asset);
+    }
+
+    // Bean-based path with the type id appearing after the value.
+    @Test
+    void externalTypeIdFilteredByPublicView_beanBased_valueBeforeTypeId() throws Exception {
+        BeanWrapper r = MAPPER.readerWithView(PublicView.class)
+                .forType(BeanWrapper.class)
+                .readValue(JSON_VALUE_FIRST);
 
         assertEquals("hello", r.data.label);
         assertNull(r.data.asset);
@@ -129,16 +155,53 @@ public class JsonViewExternalTypeId6055Test extends DatabindTestUtil {
 
     @Test
     void externalTypeIdVisibleForAdminView_beanBased() throws Exception {
-        String json = a2q("{'data':{'label':'hello','kind':'admin',"
-                + "'asset':{'name':'foo','secret':'LEAKED'}}}");
-
         BeanWrapper r = MAPPER.readerWithView(AdminView.class)
                 .forType(BeanWrapper.class)
-                .readValue(json);
+                .readValue(JSON_TYPEID_FIRST);
 
         assertEquals("hello", r.data.label);
         AdminAsset asset = (AdminAsset) r.data.asset;
         assertEquals("foo", asset.name);
         assertEquals("LEAKED", asset.secret);
+    }
+
+    // Bean-based, AdminView, value-before-type-id: confirms the eager-bind path
+    // still binds the value correctly when the property IS visible.
+    @Test
+    void externalTypeIdVisibleForAdminView_beanBased_valueBeforeTypeId() throws Exception {
+        BeanWrapper r = MAPPER.readerWithView(AdminView.class)
+                .forType(BeanWrapper.class)
+                .readValue(JSON_VALUE_FIRST);
+
+        assertEquals("hello", r.data.label);
+        AdminAsset asset = (AdminAsset) r.data.asset;
+        assertEquals("foo", asset.name);
+        assertEquals("LEAKED", asset.secret);
+    }
+
+    // When a view-filtered external property is skipped, its value and its type id
+    // must be fully consumed -- not left dangling as "unknown properties". Verify by
+    // reading with FAIL_ON_UNKNOWN_PROPERTIES enabled: a leak would throw here.
+    @Test
+    void filteredExternalTypeIdIsFullyConsumed() throws Exception {
+        ObjectMapper strict = jsonMapperBuilder()
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
+
+        for (String json : new String[] { JSON_TYPEID_FIRST, JSON_VALUE_FIRST }) {
+            // creator-based
+            Wrapper w = strict.readerWithView(PublicView.class)
+                    .forType(Wrapper.class)
+                    .readValue(json);
+            assertEquals("hello", w.data.label);
+            assertNull(w.data.asset);
+
+            // bean-based
+            BeanWrapper bw = strict.readerWithView(PublicView.class)
+                    .forType(BeanWrapper.class)
+                    .readValue(json);
+            assertEquals("hello", bw.data.label);
+            assertNull(bw.data.asset);
+        }
     }
 }

@@ -13,6 +13,9 @@ No change since 2.22
 #5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
  [CVE-2026-54515]
  (fixed by Omkhar A)
+#6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
+  properties [GHSA-mhm7-754m-9p8w]
+ (reported by @Sharlong-Wen)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties
 
 2.22.0 (31-May-2026)

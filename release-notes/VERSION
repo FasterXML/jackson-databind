@@ -16,6 +16,9 @@ No changes since 3.1
  (fix by @cowtowncoder, w/ Claude code)
 #6048: Apply content converters for String collection values (`StringCollectionDeserializer`)
  (fixed by Lee Jiwon)
+#6055: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
+  properties [GHSA-mhm7-754m-9p8w]
+ (reported by @Sharlong-Wen)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties
 
 3.1.4 (29-May-2026)

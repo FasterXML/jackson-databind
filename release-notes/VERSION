@@ -28,6 +28,9 @@ No changes since 3.2
 #6055: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
+#6058: Do not allow DNS resolution when deserializing `InetAddress`
+ (reported by @thientd)
+ (fix by @pjfanning)
 #6059: `ObjectMapper.valueToTree()` with `byte[]` does not produce `BinaryNode`
  (reported by @sebastien-leveque)
  (fix by @cowtowncoder, w/ Claude code)
@@ -268,6 +271,9 @@ No changes since 3.2
 #6055: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
+#6058: Do not allow DNS resolution when deserializing `InetAddress`
+ (reported by @thientd)
+ (fix by @pjfanning)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties
 
 3.1.4 (29-May-2026)

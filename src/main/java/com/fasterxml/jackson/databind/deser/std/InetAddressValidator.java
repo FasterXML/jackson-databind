@@ -9,6 +9,8 @@ import java.nio.ByteBuffer;
  * Logic is adapted from Google Guava's {@code InetAddresses.isInetAddress()} under the
  * Apache License 2.0:
  * https://github.com/google/guava/blob/master/guava/src/com/google/common/net/InetAddresses.java
+ *
+ * @since 2.18.9
  */
 class InetAddressValidator
 {

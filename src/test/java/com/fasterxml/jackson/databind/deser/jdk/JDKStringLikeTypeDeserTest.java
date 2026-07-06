@@ -171,13 +171,39 @@ public class JDKStringLikeTypeDeserTest
     @Test
     public void testInetAddress() throws IOException
     {
+        // Valid IPv4 address
         InetAddress address = MAPPER.readValue(q("127.0.0.1"), InetAddress.class);
         assertEquals("127.0.0.1", address.getHostAddress());
 
+        // Valid IPv6 address
+        InetAddress ip6 = MAPPER.readValue(
+                q("2001:db8:85a3:8d3:1319:8a2e:370:7348"), InetAddress.class);
+        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6.getHostAddress());
+
+        // IPv6 loopback
+        InetAddress loopback6 = MAPPER.readValue(q("::1"), InetAddress.class);
+        assertEquals("0:0:0:0:0:0:0:1", loopback6.getHostAddress());
+    }
+
+    @Test
+    public void testInetAddressNoDNSLookup() throws Exception
+    {
         // [databind#6058]: should NOT perform DNS lookup — only IP address literals accepted
-        // final String HOST = "google.com";
-        // address = MAPPER.readValue(q(HOST), InetAddress.class);
-        // assertEquals(HOST, address.getHostName());
+        expectInvalidInetAddress("localhost");
+        expectInvalidInetAddress("google.com");
+        // starts off looking like an IP address (edge case)
+        expectInvalidInetAddress("1.2.3.4.example.com");
+        // punycode
+        expectInvalidInetAddress("xn--bcher-kva.example.com");
+    }
+
+    private void expectInvalidInetAddress(String address) throws Exception {
+        try {
+            MAPPER.readValue(q(address), InetAddress.class);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Not a valid IP address string literal");
+        }
     }
 
     @Test

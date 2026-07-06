@@ -217,6 +217,9 @@ public class BuilderBasedDeserializer
     protected Object finishBuild(DeserializationContext ctxt, Object builder)
             throws JacksonException
     {
+        if (_anySetter != null) {
+            _anySetter.finish(ctxt, builder);
+        }
         // As per [databind#777], allow returning builder itself
         if (null == _buildMethod) {
             return builder;

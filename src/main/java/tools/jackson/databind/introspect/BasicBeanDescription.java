@@ -280,6 +280,15 @@ public class BasicBeanDescription extends BeanDescription
         if (_propCollector != null) {
             AnnotatedMethod anyMethod = _propCollector.getAnySetterMethod();
             if (anyMethod != null) {
+                if (anyMethod.getParameterCount() == 1) {
+                    Class<?> type = anyMethod.getRawParameterType(0);
+                    if (!Map.class.isAssignableFrom(type)) {
+                        throw new IllegalArgumentException(String.format(
+                                "Invalid 'any-setter' annotation on method '%s()': single argument not of type `java.util.Map`, but %s",
+                                anyMethod.getName(), ClassUtil.nameOf(type)));
+                    }
+                    return anyMethod;
+                }
                 // Also, let's be somewhat strict on how field name is to be
                 // passed; String, Object make sense, others not so much.
 

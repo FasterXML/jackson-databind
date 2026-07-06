@@ -1202,6 +1202,13 @@ ctor.creator()));
             if (argCount == 0) { // getters (including 'any getter')
                 _addGetterMethod(props, m);
             } else if (argCount == 1) { // setters
+                if (Boolean.TRUE.equals(_annotationIntrospector.hasAnySetter(_config, m))) {
+                    if (_anySetters == null) {
+                        _anySetters = new LinkedList<>();
+                    }
+                    _anySetters.add(m);
+                    continue;
+                }
                 _addSetterMethod(props, m);
             } else if (argCount == 2) { // any setter?
                 if (Boolean.TRUE.equals(_annotationIntrospector.hasAnySetter(_config, m))) {

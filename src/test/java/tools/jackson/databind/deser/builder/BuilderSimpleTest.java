@@ -253,6 +253,42 @@ public class BuilderSimpleTest
         }
     }
 
+    @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "with")
+    static class ValueBuilderAnySetterMapMethod
+    {
+        public int x;
+        private Map<String,Object> stuff;
+        private int anySetterCalls;
+
+        public ValueBuilderAnySetterMapMethod withX(int x0) {
+            x = x0;
+            return this;
+        }
+
+        @JsonAnySetter
+        public void setStuff(Map<String,Object> stuff) {
+            ++anySetterCalls;
+            this.stuff = stuff;
+        }
+
+        public ValueClassAnySetterMapMethod build() {
+            return new ValueClassAnySetterMapMethod(x, stuff, anySetterCalls);
+        }
+    }
+
+    @JsonDeserialize(builder = ValueBuilderAnySetterMapMethod.class)
+    static class ValueClassAnySetterMapMethod {
+        public int x;
+        public Map<String,Object> stuff;
+        public int anySetterCalls;
+
+        public ValueClassAnySetterMapMethod(int x, Map<String,Object> stuff, int anySetterCalls) {
+            this.x = x;
+            this.stuff = stuff;
+            this.anySetterCalls = anySetterCalls;
+        }
+    }
+
     protected static class NopModule1557 extends tools.jackson.databind.JacksonModule
     {
         @Override
@@ -435,6 +471,24 @@ public class BuilderSimpleTest
         final String json = "{\"extra\":3,\"foobar\":[ ],\"x\":1,\"name\":\"bob\"}";
         ValueClass822 value = MAPPER.readValue(json, ValueClass822.class);
         assertEquals(1, value.x);
+        assertNotNull(value.stuff);
+        assertEquals(3, value.stuff.size());
+        assertEquals(Integer.valueOf(3), value.stuff.get("extra"));
+        assertEquals("bob", value.stuff.get("name"));
+        Object ob = value.stuff.get("foobar");
+        assertNotNull(ob);
+        assertInstanceOf(List.class, ob);
+        assertTrue(((List<?>) ob).isEmpty());
+    }
+
+    @Test
+    public void testWithAnySetterMapMethod() throws Exception
+    {
+        final String json = "{\"extra\":3,\"foobar\":[ ],\"x\":1,\"name\":\"bob\"}";
+        ValueClassAnySetterMapMethod value = MAPPER.readValue(json,
+                ValueClassAnySetterMapMethod.class);
+        assertEquals(1, value.x);
+        assertEquals(1, value.anySetterCalls);
         assertNotNull(value.stuff);
         assertEquals(3, value.stuff.size());
         assertEquals(Integer.valueOf(3), value.stuff.get("extra"));

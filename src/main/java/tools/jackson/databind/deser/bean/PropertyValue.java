@@ -37,6 +37,8 @@ public abstract class PropertyValue
      */
     public abstract void assign(DeserializationContext ctxt, Object bean) throws JacksonException;
 
+    public void finish(DeserializationContext ctxt, Object bean) throws JacksonException { }
+
     /**
      * Method called to assign stored value of this property to specified
      * parameter object.
@@ -101,6 +103,12 @@ public abstract class PropertyValue
         public void assign(DeserializationContext ctxt, Object bean) throws JacksonException
         {
             _property.set(ctxt, bean, _propertyName, value);
+        }
+
+        @Override
+        public void finish(DeserializationContext ctxt, Object bean) throws JacksonException
+        {
+            _property.finish(ctxt, bean);
         }
     }
 

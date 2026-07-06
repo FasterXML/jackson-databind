@@ -91,6 +91,22 @@ public abstract class SettableAnyProperty
                 vi);
     }
 
+    public static SettableAnyProperty constructForMapMethod(DeserializationContext ctxt,
+            BeanProperty property,
+            AnnotatedMember setter, JavaType valueType,
+            KeyDeserializer keyDeser,
+            ValueDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
+    {
+        Class<?> mapType = property.getType().getRawClass();
+        if (mapType == Map.class) {
+            mapType = LinkedHashMap.class;
+        }
+        ValueInstantiator vi = JDKValueInstantiators.findStdValueInstantiator(ctxt.getConfig(), mapType);
+        return new MapMethodAnyProperty(property, setter, valueType,
+                keyDeser, valueDeser, typeDeser,
+                vi);
+    }
+
     public static SettableAnyProperty constructForJsonNodeField(DeserializationContext ctxt,
             BeanProperty property,
             AnnotatedMember field, JavaType valueType, ValueDeserializer<Object> valueDeser) {
@@ -176,6 +192,8 @@ public abstract class SettableAnyProperty
     public Object createParameterObject() {
         throw new UnsupportedOperationException("Cannot call createParameterObject() on " + getClass().getName());
     }
+
+    public void finish(DeserializationContext ctxt, Object instance) throws JacksonException { }
 
     /*
     /**********************************************************************
@@ -385,6 +403,97 @@ public abstract class SettableAnyProperty
             Map<Object,Object> map = (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
             field.setValue(instance, map);
             return map;
+        }
+    }
+
+    protected static class MapMethodAnyProperty extends SettableAnyProperty
+    {
+        protected final ValueInstantiator _valueInstantiator;
+
+        public MapMethodAnyProperty(BeanProperty property,
+                AnnotatedMember setter, JavaType valueType,
+                KeyDeserializer keyDeser,
+                ValueDeserializer<Object> valueDeser, TypeDeserializer typeDeser,
+                ValueInstantiator inst) {
+            super(property, setter, valueType,
+                    keyDeser, valueDeser, typeDeser);
+            _valueInstantiator = inst;
+        }
+
+        @Override
+        public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
+            return new MapMethodAnyProperty(_property, _setter, _type,
+                    _keyDeserializer, deser, _valueTypeDeserializer,
+                    _valueInstantiator);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        protected void _set(DeserializationContext ctxt, Object instance, Object propName, Object value)
+            throws Exception
+        {
+            MapMethodKey key = new MapMethodKey(this, instance);
+            Map<Object,Object> map = (Map<Object,Object>) ctxt.getAttribute(key);
+            if (map == null) {
+                map = _createMap(ctxt);
+                ctxt.setAttribute(key, map);
+            }
+            map.put(propName, value);
+        }
+
+        @Override
+        public void finish(DeserializationContext ctxt, Object instance) throws JacksonException
+        {
+            MapMethodKey key = new MapMethodKey(this, instance);
+            Object map = ctxt.getAttribute(key);
+            if (map == null) {
+                return;
+            }
+            ctxt.setAttribute(key, null);
+            try {
+                ((AnnotatedMethod) _setter).callOnWith(instance, map);
+            } catch (JacksonException e) {
+                throw e;
+            } catch (Exception e) {
+                _throwAsIOE(ctxt, e, _property.getName(), map);
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        protected Map<Object,Object> _createMap(DeserializationContext ctxt) throws JacksonException
+        {
+            if (_valueInstantiator == null) {
+                throw DatabindException.from(ctxt, "Cannot create an instance of %s for use as \"any-setter\" '%s'".formatted(
+                        ClassUtil.nameOf(_type.getRawClass()), _property.getName()));
+            }
+            return (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
+        }
+    }
+
+    protected static class MapMethodKey
+    {
+        protected final SettableAnyProperty _property;
+        protected final Object _instance;
+        protected final int _hashCode;
+
+        public MapMethodKey(SettableAnyProperty property, Object instance) {
+            _property = property;
+            _instance = instance;
+            _hashCode = System.identityHashCode(property) ^ System.identityHashCode(instance);
+        }
+
+        @Override
+        public int hashCode() { return _hashCode; }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (!(o instanceof MapMethodKey other)) {
+                return false;
+            }
+            return (other._property == _property) && (other._instance == _instance);
         }
     }
 

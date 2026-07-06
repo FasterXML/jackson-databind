@@ -37,6 +37,31 @@ public class JsonIncludeContainerEmpty6065Test extends DatabindTestUtil
         public Set<String> values;
     }
 
+    // String array (routed through StringArraySerializer)
+    @JsonInclude(value = JsonInclude.Include.NON_EMPTY, content = JsonInclude.Include.NON_EMPTY)
+    static class StringArrayBean {
+        public String[] values;
+    }
+
+    // Object array (routed through ObjectArraySerializer)
+    @JsonInclude(value = JsonInclude.Include.NON_EMPTY, content = JsonInclude.Include.NON_EMPTY)
+    static class IntArrayBean {
+        public Integer[] values;
+    }
+
+    // Iterable (routed through IterableSerializer): must be a genuine non-Collection
+    // Iterable, otherwise runtime-type resolution routes it through CollectionSerializer
+    static class StringIterable implements Iterable<String> {
+        private final List<String> _values;
+        StringIterable(String... values) { _values = Arrays.asList(values); }
+        @Override public Iterator<String> iterator() { return _values.iterator(); }
+    }
+
+    @JsonInclude(value = JsonInclude.Include.NON_EMPTY, content = JsonInclude.Include.NON_EMPTY)
+    static class IterableBean {
+        public Iterable<String> values;
+    }
+
     private final ObjectMapper MAPPER = JsonMapper.builder()
             .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
             .build();
@@ -101,6 +126,51 @@ public class JsonIncludeContainerEmpty6065Test extends DatabindTestUtil
         StringSetBean bean = new StringSetBean();
         bean.values = new LinkedHashSet<>(Arrays.asList((String) null));
         assertEquals("{}", MAPPER.writeValueAsString(bean));
+    }
+
+    // [databind#6065]: same handling for String arrays
+    @Test
+    public void testStringArrayEmptyAfterContentFilter() throws Exception {
+        StringArrayBean bean = new StringArrayBean();
+        bean.values = new String[] { null, "" };
+        assertEquals("{}", MAPPER.writeValueAsString(bean));
+    }
+
+    @Test
+    public void testStringArrayKeepsNonEmpty() throws Exception {
+        StringArrayBean bean = new StringArrayBean();
+        bean.values = new String[] { null, "keep", "" };
+        assertEquals("{\"values\":[\"keep\"]}", MAPPER.writeValueAsString(bean));
+    }
+
+    // [databind#6065]: same handling for Object arrays
+    @Test
+    public void testObjectArrayNullsOnly() throws Exception {
+        IntArrayBean bean = new IntArrayBean();
+        bean.values = new Integer[] { null, null };
+        assertEquals("{}", MAPPER.writeValueAsString(bean));
+    }
+
+    @Test
+    public void testObjectArrayKeepsValues() throws Exception {
+        IntArrayBean bean = new IntArrayBean();
+        bean.values = new Integer[] { null, 42 };
+        assertEquals("{\"values\":[42]}", MAPPER.writeValueAsString(bean));
+    }
+
+    // [databind#6065]: same handling for Iterable
+    @Test
+    public void testIterableEmptyAfterContentFilter() throws Exception {
+        IterableBean bean = new IterableBean();
+        bean.values = new StringIterable(null, "");
+        assertEquals("{}", MAPPER.writeValueAsString(bean));
+    }
+
+    @Test
+    public void testIterableKeepsNonEmpty() throws Exception {
+        IterableBean bean = new IterableBean();
+        bean.values = new StringIterable(null, "keep", "");
+        assertEquals("{\"values\":[\"keep\"]}", MAPPER.writeValueAsString(bean));
     }
 
     // Without the feature, containers are left intact (only null containers dropped)

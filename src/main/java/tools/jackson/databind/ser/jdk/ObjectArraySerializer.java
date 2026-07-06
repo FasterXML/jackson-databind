@@ -241,7 +241,15 @@ public class ObjectArraySerializer
 
     @Override
     public boolean isEmpty(SerializationContext prov, Object[] value) {
-        return value.length == 0;
+        if (value.length == 0) {
+            return true;
+        }
+        // [databind#6065]: with content @JsonInclude applied to containers,
+        // an array whose every element is suppressed is considered empty
+        if (_needToCheckFiltering(prov)) {
+            return _allElementsSuppressed(prov, value);
+        }
+        return false;
     }
 
     @Override
@@ -478,6 +486,44 @@ public class ObjectArraySerializer
             return true;
         }
         return !_suppressableValue.equals(elem);
+    }
+
+    /**
+     * Helper method for content-aware emptiness checks (used by {@link #isEmpty}):
+     * when content {@code @JsonInclude} is applied to containers, an array is
+     * considered empty if every one of its elements would be suppressed during
+     * serialization (so the array would render as an empty array). Callers should
+     * only invoke this when {@link #_needToCheckFiltering} returns true.
+     *
+     * @since 3.3.0
+     */
+    protected boolean _allElementsSuppressed(SerializationContext ctxt, Object[] value)
+    {
+        for (Object elem : value) {
+            if (elem == null) {
+                if (_suppressNulls) {
+                    continue;
+                }
+                return false;
+            }
+            ValueSerializer<Object> serializer = _elementSerializer;
+            if (serializer == null) {
+                Class<?> cc = elem.getClass();
+                serializer = _dynamicValueSerializers.serializerFor(cc);
+                if (serializer == null) {
+                    if (_elementType.hasGenericTypes()) {
+                        serializer = _findAndAddDynamic(ctxt,
+                                ctxt.constructSpecializedType(_elementType, cc));
+                    } else {
+                        serializer = _findAndAddDynamic(ctxt, cc);
+                    }
+                }
+            }
+            if (_shouldSerializeElement(ctxt, elem, serializer)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

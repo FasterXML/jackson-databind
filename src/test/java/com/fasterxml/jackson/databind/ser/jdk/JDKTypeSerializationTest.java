@@ -9,11 +9,12 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -118,6 +119,30 @@ public class JDKTypeSerializationTest
         // IPv6 loopback
         InetAddress loopback6 = MAPPER.readValue(q("::1"), InetAddress.class);
         assertEquals("0:0:0:0:0:0:0:1", loopback6.getHostAddress());
+    }
+
+    @Test
+    public void testInetAddressSerialization() throws Exception
+    {
+        // Default shape: textual form (host part of InetAddress.toString())
+        InetAddress input = InetAddress.getByName("127.0.0.1");
+        assertEquals(q("127.0.0.1"), MAPPER.writeValueAsString(input));
+
+        // Address carrying a host name (constructed WITHOUT a DNS lookup, via
+        // getByAddress()) still serializes the name in the default shape
+        InetAddress named = InetAddress.getByAddress("myhost.example.com",
+                new byte[] { 1, 2, 3, 4 });
+        assertEquals(q("myhost.example.com"), MAPPER.writeValueAsString(named));
+
+        // NUMBER shape: numeric host address regardless of host name
+        ObjectMapper mapper = newJsonMapper();
+        mapper.configOverride(InetAddress.class)
+            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER));
+        assertEquals(q(named.getHostAddress()), mapper.writeValueAsString(named));
+
+        // ... also as a bean property
+        assertEquals(String.format("{\"value\":\"%s\"}", named.getHostAddress()),
+                mapper.writeValueAsString(new InetAddressBean(named)));
     }
 
     @Test

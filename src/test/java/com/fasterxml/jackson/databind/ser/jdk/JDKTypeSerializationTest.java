@@ -104,20 +104,27 @@ public class JDKTypeSerializationTest
     }
 
     @Test
-    public void testInetAddress() throws IOException
+    public void testInetAddress() throws Exception
     {
-        assertEquals(q("127.0.0.1"), MAPPER.writeValueAsString(InetAddress.getByName("127.0.0.1")));
-        InetAddress input = InetAddress.getByName("google.com");
-        assertEquals(q("google.com"), MAPPER.writeValueAsString(input));
+        // Default shape: textual form (host part of InetAddress.toString())
+        InetAddress input = InetAddress.getByName("127.0.0.1");
+        assertEquals(q("127.0.0.1"), MAPPER.writeValueAsString(input));
 
+        // Address carrying a host name (constructed WITHOUT a DNS lookup, via
+        // getByAddress()) still serializes the name in the default shape
+        InetAddress named = InetAddress.getByAddress("myhost.example.com",
+                new byte[] { 1, 2, 3, 4 });
+        assertEquals(q("myhost.example.com"), MAPPER.writeValueAsString(named));
+
+        // NUMBER shape: numeric host address regardless of host name
         ObjectMapper mapper = newJsonMapper();
         mapper.configOverride(InetAddress.class)
             .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER));
-        String json = mapper.writeValueAsString(input);
-        assertEquals(q(input.getHostAddress()), json);
+        assertEquals(q(named.getHostAddress()), mapper.writeValueAsString(named));
 
-        assertEquals(String.format("{\"value\":\"%s\"}", input.getHostAddress()),
-                mapper.writeValueAsString(new InetAddressBean(input)));
+        // ... also as a bean property
+        assertEquals(String.format("{\"value\":\"%s\"}", named.getHostAddress()),
+                mapper.writeValueAsString(new InetAddressBean(named)));
     }
 
     @Test

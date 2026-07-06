@@ -351,6 +351,11 @@ _coercedTypeDesc());
             case STD_TIME_ZONE:
                 return TimeZone.getTimeZone(value);
             case STD_INET_ADDRESS:
+                // 05-Jul-2026, tatu: [databind#6058] Prevent DNS lookup: only accept valid IP address literals
+                if (!InetAddressValidator.isInetAddress(value)) {
+                    return ctxt.handleWeirdStringValue(_valueClass, value,
+                            "Not a valid IP address string literal");
+                }
                 return InetAddress.getByName(value);
             case STD_INET_SOCKET_ADDRESS:
                 if (value.startsWith("[")) {

@@ -46,7 +46,15 @@ public class EnumSetSerializer
 
     @Override
     public boolean isEmpty(SerializationContext prov, EnumSet<? extends Enum<?>> value) {
-        return value.isEmpty();
+        if (value.isEmpty()) {
+            return true;
+        }
+        // [databind#6065]: with content @JsonInclude applied to containers,
+        // an EnumSet whose every element is suppressed is considered empty
+        if (_needToCheckFiltering(prov)) {
+            return _allElementsSuppressed(prov, value.iterator());
+        }
+        return false;
     }
 
     @Override

@@ -48,7 +48,7 @@ No change since 2.22
 #6058: Do not allow DNS resolution when deserializing `InetAddress`
  (reported by @thientd)
  (fix by @pjfanning)
-#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties
+#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
 
 2.21.4 (28-May-2026)
 
@@ -352,7 +352,7 @@ No changes since 2.19.2
 #6058: Do not allow DNS resolution when deserializing `InetAddress`
  (reported by @thientd)
  (fix by @pjfanning)
-#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties
+#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
 
 2.18.8 (28-May-2026)
 

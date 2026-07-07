@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.21.5 (not yet released)
+2.21.5 (06-Jul-2026)
 
 #5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
  [CVE-2026-54515]

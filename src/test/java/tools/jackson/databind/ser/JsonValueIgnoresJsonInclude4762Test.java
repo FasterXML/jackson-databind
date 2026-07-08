@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.ser;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -10,11 +10,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// [databind#4762]: `@JsonValue` ignores `@JsonInclude` declared on the annotated field
+// [databind#4762]: `@JsonValue` should honor `@JsonInclude` declared on the annotated accessor
 class JsonValueIgnoresJsonInclude4762Test extends DatabindTestUtil
 {
     static class JsonValueWithInclude {
@@ -30,7 +29,6 @@ class JsonValueIgnoresJsonInclude4762Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
     @Test
     void jsonValueShouldHonorJsonIncludeOnField() throws Exception {
         Map<String, Object> map = new LinkedHashMap<>();

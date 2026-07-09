@@ -2,6 +2,8 @@ package tools.jackson.databind.views;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import tools.jackson.databind.*;
@@ -10,6 +12,7 @@ import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class MultipleViewsDeser437Test extends DatabindTestUtil
@@ -26,6 +29,25 @@ public class MultipleViewsDeser437Test extends DatabindTestUtil
         public String view1Field;
         @JsonView(View2.class)
         public String view2Field;
+    }
+
+    // [databind#6077]: same as Bean437 but populated via a property-based Creator
+    // (constructor) instead of setters/fields
+    static class CreatorBean6077 {
+        public final String nonViewField;
+        @JsonView(View1.class)
+        public final String view1Field;
+        @JsonView(View2.class)
+        public final String view2Field;
+
+        @JsonCreator
+        public CreatorBean6077(@JsonProperty("nonViewField") String nonViewField,
+                @JsonProperty("view1Field") String view1Field,
+                @JsonProperty("view2Field") String view2Field) {
+            this.nonViewField = nonViewField;
+            this.view1Field = view1Field;
+            this.view2Field = view2Field;
+        }
     }
 
     @JsonDeserialize(builder = SimpleBuilderXY.class)
@@ -115,6 +137,37 @@ public class MultipleViewsDeser437Test extends DatabindTestUtil
         assertEquals(1, withY._x);
         assertEquals(11, withY._y);
         assertEquals(1, withY._z);
+    }
+
+    // [databind#6077]: property-based Creator path must honor FAIL_ON_UNEXPECTED_VIEW_PROPERTIES
+    // just like the setter-based path already did
+    @Test
+    public void testDeserMultipleViewsWithCreator() throws Exception
+    {
+        // Mirror [databind#6077]: with DEFAULT_VIEW_INCLUSION on, only 'view2Field' is
+        // out-of-view under View1 (nonViewField has no @JsonView so it stays visible)
+        final ObjectMapper enabled = jsonMapperBuilder()
+            .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+            .enable(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)
+            .build();
+        final ObjectMapper disabled = jsonMapperBuilder()
+            .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+            .disable(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)
+            .build();
+        final String json = a2q("{'nonViewField':'a','view1Field':'b','view2Field':'c'}");
+
+        // When enabled, a value built via a Creator must also fail on the out-of-view property
+        _testMismatchException(
+            enabled.readerWithView(View1.class).forType(CreatorBean6077.class),
+            json);
+
+        // When disabled, out-of-view properties are silently ignored (behavior unchanged)
+        CreatorBean6077 result = disabled.readerWithView(View1.class)
+            .forType(CreatorBean6077.class)
+            .readValue(json);
+        assertEquals("a", result.nonViewField);
+        assertEquals("b", result.view1Field);
+        assertNull(result.view2Field);
     }
 
     private void _testMismatchException(ObjectReader reader, String json) throws Exception {

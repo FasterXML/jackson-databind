@@ -118,12 +118,12 @@ public class TestMultipleTypeNames extends DatabindTestUtil
         w = MAPPER.readValue(json, WrapperForNamesTest.class);
         assertNotNull(w);
         assertEquals(3, w.base.size());
-        assertInstanceOf(A.class, w.base.get(0).data);
-        assertEquals(5l, ((A) w.base.get(0).data).x);
-        assertInstanceOf(B.class, w.base.get(1).data);
-        assertEquals(3.1f, ((B) w.base.get(1).data).y, 0);
-        assertInstanceOf(B.class, w.base.get(2).data);
-        assertEquals(33.8f, ((B) w.base.get(2).data).y, 0);
+        A aResult = assertInstanceOf(A.class, w.base.get(0).data);
+        assertEquals(5l, aResult.x);
+        B bResult1 = assertInstanceOf(B.class, w.base.get(1).data);
+        assertEquals(3.1f, bResult1.y, 0);
+        B bResult2 = assertInstanceOf(B.class, w.base.get(2).data);
+        assertEquals(33.8f, bResult2.y, 0);
 
 
         // TC 2 : incorrect serialisation
@@ -144,12 +144,12 @@ public class TestMultipleTypeNames extends DatabindTestUtil
         w = MAPPER.readValue(json, WrapperForNameAndNamesTest.class);
         assertNotNull(w);
         assertEquals(3, w.base.size());
-        assertInstanceOf(A.class, w.base.get(0).data);
-        assertEquals(5l, ((A) w.base.get(0).data).x);
-        assertInstanceOf(B.class, w.base.get(1).data);
-        assertEquals(3.1f, ((B) w.base.get(1).data).y, 0);
-        assertInstanceOf(B.class, w.base.get(2).data);
-        assertEquals(33.8f, ((B) w.base.get(2).data).y, 0);
+        A aResult = assertInstanceOf(A.class, w.base.get(0).data);
+        assertEquals(5l, aResult.x);
+        B bResult1 = assertInstanceOf(B.class, w.base.get(1).data);
+        assertEquals(3.1f, bResult1.y, 0);
+        B bResult2 = assertInstanceOf(B.class, w.base.get(2).data);
+        assertEquals(33.8f, bResult2.y, 0);
 
 
         // TC 2 : incorrect serialisation

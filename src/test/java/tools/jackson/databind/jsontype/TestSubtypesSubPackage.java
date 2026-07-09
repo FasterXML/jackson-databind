@@ -56,8 +56,8 @@ public class TestSubtypesSubPackage extends DatabindTestUtil
         SubCSubPackage original = new SubCSubPackage();
         String json = MAPPER.writeValueAsString(original);
         SuperType result = MAPPER.readValue(json, SuperType.class);
-        assertInstanceOf(SubCSubPackage.class, result);
-        assertEquals(original.c, ((SubCSubPackage) result).c);
+        SubCSubPackage subCSubPackage = assertInstanceOf(SubCSubPackage.class, result);
+        assertEquals(original.c, subCSubPackage.c);
     }
 
     // [databind#5247]: verify round-trip works for inner types too
@@ -67,7 +67,7 @@ public class TestSubtypesSubPackage extends DatabindTestUtil
         InnerType original = new InnerType();
         String json = MAPPER.writeValueAsString(original);
         SuperType result = MAPPER.readValue(json, SuperType.class);
-        assertInstanceOf(InnerType.class, result);
-        assertEquals(original.b, ((InnerType) result).b);
+        InnerType innerType = assertInstanceOf(InnerType.class, result);
+        assertEquals(original.b, innerType.b);
     }
 }

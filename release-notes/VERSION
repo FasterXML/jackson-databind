@@ -18,6 +18,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   is actually thrown
  (reported by @pctF)
  (fix by @pjfanning)
+#6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructors
+ (reported by @joca-bt)
+ (fix by @joca-bt, w/ Claude code)
 
 3.2.1 (not yet released)
 

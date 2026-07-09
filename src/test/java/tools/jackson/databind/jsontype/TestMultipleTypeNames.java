@@ -101,11 +101,32 @@ public class TestMultipleTypeNames extends DatabindTestUtil
         public MultiTypeName getData() { return data; }
     }
 
+    static class NamesTest {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+        @JsonSubTypes(value = {
+                @JsonSubTypes.Type(value = A.class, name = "a"),
+                @JsonSubTypes.Type(value = B.class, names = {"b","c"}),
+        })
+        MultiTypeName data;
+        public MultiTypeName getData() { return data; }
+    }
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
+
+    @Test
+    public void testSerialization() {
+        B b = new B();
+        b.y = (float) Math.PI;
+        NamesTest namesTest = new NamesTest();
+        namesTest.data = b;
+        // expectation is that @type=b - that the first value in names array is used (array is {b,c})
+        assertEquals(a2q("{'data':{'@type':'b','y':3.1415927}}"),
+                MAPPER.writeValueAsString(namesTest));
+    }
 
     @Test
     public void testOnlyNames() throws Exception

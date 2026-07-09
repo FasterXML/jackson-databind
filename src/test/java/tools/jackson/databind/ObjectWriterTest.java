@@ -1,7 +1,6 @@
 package tools.jackson.databind;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 
@@ -409,7 +408,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         jsonGenerator.writeString("value");
         jsonGenerator.close();
 
-        assertEquals(a2q("'value'"), new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
+        assertEquals(a2q("'value'"), utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -421,7 +420,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         jsonGenerator.writeString("value");
         jsonGenerator.close();
 
-        assertEquals(a2q("'value'"), new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
+        assertEquals(a2q("'value'"), utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -485,7 +484,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         Path path = Files.createTempFile("", "");
         MAPPER.writer().writeValue(path.toFile(), "value");
 
-        assertEquals(a2q("'value'"), new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
+        assertEquals(a2q("'value'"), utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -494,7 +493,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         Path path = Files.createTempFile("", "");
         MAPPER.writer().writeValue(path, "value");
 
-        assertEquals(a2q("'value'"), new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
+        assertEquals(a2q("'value'"), utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -567,7 +566,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         SequenceWriter sequenceWriter = MAPPER.writer().writeValues(path.toFile());
         sequenceWriter.write("value");
 
-        assertEquals(a2q("'value'"), new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
+        assertEquals(a2q("'value'"), utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -577,7 +576,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         SequenceWriter sequenceWriter = MAPPER.writer().writeValues(path);
         sequenceWriter.write("value");
 
-        assertEquals(a2q("'value'"), new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
+        assertEquals(a2q("'value'"), utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -657,7 +656,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         sequenceWriter.flush();
         sequenceWriter.close();
 
-        assertEquals(a2q("['value']"), new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
+        assertEquals(a2q("['value']"), utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -669,7 +668,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         sequenceWriter.flush();
         sequenceWriter.close();
 
-        assertEquals(a2q("['value']"), new String(Files.readAllBytes(path), StandardCharsets.UTF_8));
+        assertEquals(a2q("['value']"), utf8String(Files.readAllBytes(path)));
     }
 
     @Test

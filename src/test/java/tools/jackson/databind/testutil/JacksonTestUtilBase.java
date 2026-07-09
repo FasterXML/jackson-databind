@@ -153,6 +153,10 @@ public class JacksonTestUtilBase
         return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
     }
 
+    public String utf8String(byte[] bytes) {
+        return new String(bytes, StandardCharsets.UTF_8);
+    }
+
     /*
     /**********************************************************************
     /* Resource reading helpers

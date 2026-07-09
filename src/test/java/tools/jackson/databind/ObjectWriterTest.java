@@ -394,7 +394,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         jsonGenerator.writeString("value");
         jsonGenerator.close();
 
-        assertEquals(a2q("'value'"), new String(outputStream.toByteArray(), StandardCharsets.UTF_8));
+        assertEquals(a2q("'value'"), utf8String(outputStream));
 
         // the stream has not been closed by close
         outputStream.write(1);
@@ -449,7 +449,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         jsonGenerator.writeString("value");
         jsonGenerator.close();
 
-        assertEquals(a2q("'value'"), new String(outputStream.toByteArray(), StandardCharsets.UTF_8));
+        assertEquals(a2q("'value'"), utf8String(outputStream));
 
         // the data output has not been closed by close
         dataOutput.write(1);
@@ -473,7 +473,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         MAPPER.writer().writeValue(outputStream, "value");
 
-        assertEquals(a2q("'value'"), new String(outputStream.toByteArray(), StandardCharsets.UTF_8));
+        assertEquals(a2q("'value'"), utf8String(outputStream));
 
         // the stream has not been closed by close
         outputStream.write(1);
@@ -503,7 +503,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         Writer writer = new StringWriter();
         MAPPER.writer().writeValue(writer, "value");
 
-        assertEquals(writer.toString(), a2q("'value'"));
+        assertEquals(a2q("'value'"), writer.toString());
 
         // the writer has not been closed by close
         writer.append('1');
@@ -516,7 +516,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         DataOutput dataOutput = new DataOutputStream(outputStream);
         MAPPER.writer().writeValue(dataOutput, "value");
 
-        assertEquals(a2q("'value'"), new String(outputStream.toByteArray(), StandardCharsets.UTF_8));
+        assertEquals(a2q("'value'"), utf8String(outputStream));
 
         // the data output has not been closed by close
         dataOutput.write(1);
@@ -529,7 +529,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         JsonGenerator jsonGenerator = MAPPER.createGenerator(outputStream);
         MAPPER.writer().writeValue(jsonGenerator, "value");
 
-        assertEquals(a2q("'value'"), new String(outputStream.toByteArray(), StandardCharsets.UTF_8));
+        assertEquals(a2q("'value'"), utf8String(outputStream));
 
         // the output stream has not been closed by close
         outputStream.write(1);
@@ -554,7 +554,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         SequenceWriter sequenceWriter = MAPPER.writer().writeValues(outputStream);
         sequenceWriter.write("value");
 
-        assertEquals(a2q("'value'"), new String(outputStream.toByteArray(), StandardCharsets.UTF_8));
+        assertEquals(a2q("'value'"), utf8String(outputStream));
 
         // the stream has not been closed by close
         outputStream.write(1);
@@ -587,7 +587,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         SequenceWriter sequenceWriter = MAPPER.writer().writeValues(writer);
         sequenceWriter.write("value");
 
-        assertEquals(writer.toString(), a2q("'value'"));
+        assertEquals(a2q("'value'"), writer.toString());
 
         // the writer has not been closed by close
         writer.append('1');
@@ -601,7 +601,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         SequenceWriter sequenceWriter = MAPPER.writer().writeValues(dataOutput);
         sequenceWriter.write("value");
 
-        assertEquals(a2q("'value'"), new String(outputStream.toByteArray(), StandardCharsets.UTF_8));
+        assertEquals(a2q("'value'"), utf8String(outputStream));
 
         // the data output has not been closed by close
         dataOutput.write(1);
@@ -615,7 +615,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         SequenceWriter sequenceWriter = MAPPER.writer().writeValues(jsonGenerator);
         sequenceWriter.write("value");
 
-        assertEquals(a2q("'value'"), new String(outputStream.toByteArray(), StandardCharsets.UTF_8));
+        assertEquals(a2q("'value'"), utf8String(outputStream));
 
         // the data output has not been closed by close
         outputStream.write(1);
@@ -642,7 +642,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         sequenceWriter.flush();
         sequenceWriter.close();
 
-        assertEquals(a2q("['value']"), new String(outputStream.toByteArray(), StandardCharsets.UTF_8));
+        assertEquals(a2q("['value']"), utf8String(outputStream));
 
         // the stream has not been closed by close
         outputStream.write(1);
@@ -697,7 +697,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         sequenceWriter.flush();
         sequenceWriter.close();
 
-        assertEquals(a2q("['value']"), new String(outputStream.toByteArray(), StandardCharsets.UTF_8));
+        assertEquals(a2q("['value']"), utf8String(outputStream));
 
         // the data output has not been closed by close
         dataOutput.write(1);
@@ -715,7 +715,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         jsonGenerator.flush();
         jsonGenerator.close();
 
-        assertEquals(a2q("['value']"), new String(outputStream.toByteArray(), StandardCharsets.UTF_8));
+        assertEquals(a2q("['value']"), utf8String(outputStream));
 
         // the data output has not been closed by close
         outputStream.write(1);

@@ -120,10 +120,10 @@ public class TestMultipleTypeNames extends DatabindTestUtil
         assertEquals(3, w.base.size());
         A aResult = assertInstanceOf(A.class, w.base.get(0).data);
         assertEquals(5l, aResult.x);
-        B bResult = assertInstanceOf(B.class, w.base.get(1).data);
-        assertEquals(3.1f, bResult.y, 0);
-        bResult = assertInstanceOf(B.class, w.base.get(2).data);
-        assertEquals(33.8f, bResult.y, 0);
+        B bResult1 = assertInstanceOf(B.class, w.base.get(1).data);
+        assertEquals(3.1f, bResult1.y, 0);
+        B bResult2 = assertInstanceOf(B.class, w.base.get(2).data);
+        assertEquals(33.8f, bResult2.y, 0);
 
 
         // TC 2 : incorrect serialisation
@@ -146,10 +146,10 @@ public class TestMultipleTypeNames extends DatabindTestUtil
         assertEquals(3, w.base.size());
         A aResult = assertInstanceOf(A.class, w.base.get(0).data);
         assertEquals(5l, aResult.x);
-        B bResult = assertInstanceOf(B.class, w.base.get(1).data);
-        assertEquals(3.1f, bResult.y, 0);
-        bResult = assertInstanceOf(B.class, w.base.get(2).data);
-        assertEquals(33.8f, bResult.y, 0);
+        B bResult1 = assertInstanceOf(B.class, w.base.get(1).data);
+        assertEquals(3.1f, bResult1.y, 0);
+        B bResult2 = assertInstanceOf(B.class, w.base.get(2).data);
+        assertEquals(33.8f, bResult2.y, 0);
 
 
         // TC 2 : incorrect serialisation

@@ -383,18 +383,18 @@ public class SealedTypesWithExistingPropertyTest extends DatabindTestUtil
     public void testSimpleClassAsExistingPropertyDeserializationAnimals() throws Exception
     {
         Animal beelzebubDeserialized = MAPPER.readValue(beelzebubJson, Animal.class);
-        Cat catB = assertInstanceOf(Cat.class, beelzebubDeserialized);
+        Cat beelzebubCat = assertInstanceOf(Cat.class, beelzebubDeserialized);
         assertSame(beelzebubDeserialized.getClass(), Cat.class);
         assertEquals(beelzebub.name, beelzebubDeserialized.name);
-        assertEquals(beelzebub.furColor, catB.furColor);
+        assertEquals(beelzebub.furColor, beelzebubCat.furColor);
         assertEquals(beelzebub.getType(), beelzebubDeserialized.getType());
 
         AnimalWrapper beelzebubWrapperDeserialized = MAPPER.readValue(beelzebubWrapperJson, AnimalWrapper.class);
         Animal beelzebubExtracted = beelzebubWrapperDeserialized.animal;
-        catB = assertInstanceOf(Cat.class, beelzebubExtracted);
+        Cat beelzebubExtractedCat = assertInstanceOf(Cat.class, beelzebubExtracted);
         assertSame(beelzebubExtracted.getClass(), Cat.class);
         assertEquals(beelzebub.name, beelzebubExtracted.name);
-        assertEquals(beelzebub.furColor, catB.furColor);
+        assertEquals(beelzebub.furColor, beelzebubExtractedCat.furColor);
         assertEquals(beelzebub.getType(), beelzebubExtracted.getType());
 
         @SuppressWarnings("unchecked")
@@ -447,19 +447,19 @@ public class SealedTypesWithExistingPropertyTest extends DatabindTestUtil
     public void testSimpleClassAsExistingPropertyDeserializationCars() throws Exception
     {
         Car camryDeserialized = MAPPER.readValue(camryJson, Camry.class);
-        Camry camry1 = assertInstanceOf(Camry.class, camryDeserialized);
+        Camry camryTyped = assertInstanceOf(Camry.class, camryDeserialized);
         assertSame(camryDeserialized.getClass(), Camry.class);
         assertEquals(camry.name, camryDeserialized.name);
-        assertEquals(camry.exteriorColor, camry1.exteriorColor);
-        assertEquals(camry.getType(), camry1.getType());
+        assertEquals(camry.exteriorColor, camryTyped.exteriorColor);
+        assertEquals(camry.getType(), camryTyped.getType());
 
         CarWrapper camryWrapperDeserialized = MAPPER.readValue(camryWrapperJson, CarWrapper.class);
         Car camryExtracted = camryWrapperDeserialized.car;
-        Camry camry2 = assertInstanceOf(Camry.class, camryExtracted);
+        Camry camryExtractedTyped = assertInstanceOf(Camry.class, camryExtracted);
         assertSame(camryExtracted.getClass(), Camry.class);
         assertEquals(camry.name, camryExtracted.name);
-        assertEquals(camry.exteriorColor, camry2.exteriorColor);
-        assertEquals(camry.getType(), camry2.getType());
+        assertEquals(camry.exteriorColor, camryExtractedTyped.exteriorColor);
+        assertEquals(camry.getType(), camryExtractedTyped.getType());
 
         @SuppressWarnings("unchecked")
         List<Car> carListDeserialized = MAPPER.readValue(carListJson, List.class);

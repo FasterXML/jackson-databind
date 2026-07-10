@@ -578,6 +578,14 @@ Yusuke Nojima (@ynojima)
    from working on `@JsonCreator` parameter (regression in 3.2.0)
   [3.2.1]
 
+@seonwooj0810
+ * Fixed #6043: `FAIL_ON_UNKNOWN_PROPERTIES` has no effect with `JsonFormat.Shape.ARRAY`
+   when using creator-based instantiation (such as `record`)
+  [3.2.1]
+ * Fixed #6065: `SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS` does not fully
+  remove empty collection during serialization
+  [3.3.0]
+
 Alex Crowell (@alex-crowell)
  * Reported #1127: `@JsonTypeInfo` with `EXTERNAL_PROPERTY` does not handle
    arrays of polymorphic types

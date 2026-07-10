@@ -594,6 +594,6 @@ public class SerializationFeaturesTest
     }
 
     private final static String getLF() {
-        return System.getProperty("line.separator");
+        return System.lineSeparator();
     }
 }

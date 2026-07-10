@@ -99,8 +99,8 @@ public class RecordUnknownProps5897Test extends DatabindTestUtil
         // it must be buffered and replayed through Dog's deserializer.
         String json = "{\"breed\":\"poodle\",\"name\":\"Rex\",\"kind\":\"dog\"}";
         Animal a = mapper.readValue(json, Animal.class);
-        assertInstanceOf(Dog.class, a);
+        Dog dog = assertInstanceOf(Dog.class, a);
         assertEquals("Rex", a.name);
-        assertEquals("poodle", ((Dog) a).breed);
+        assertEquals("poodle", dog.breed);
     }
 }

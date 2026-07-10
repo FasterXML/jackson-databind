@@ -242,8 +242,8 @@ public class TestVisibleTypeId extends DatabindTestUtil
 
         // then bring back:
         I263Base result = MAPPER.readValue("{\"age\":19,\"name\":\"bob\"}", I263Base.class);
-        assertInstanceOf(I263Impl.class, result);
-        assertEquals(19, ((I263Impl) result).age);
+        I263Impl impl = assertInstanceOf(I263Impl.class, result);
+        assertEquals(19, impl.age);
     }
 
     // [databind#408]

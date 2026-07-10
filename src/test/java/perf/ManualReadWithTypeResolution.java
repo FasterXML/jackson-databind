@@ -74,18 +74,17 @@ public class ManualReadWithTypeResolution
             String msg;
             double msesc;
 
-            switch (type) {
-            case 0:
-                msesc = testDeser(REPS, _input, _mapper, _inputType);
-                msg = _desc1;
-                break;
-            case 1:
-                msesc = testDeser(REPS, _input, _mapper, _inputTypeRef);
-                msg = _desc2;
-                break;
-            default:
-                throw new Error();
-            }
+            msg = switch (type) {
+                case 0 -> {
+                    msesc = testDeser(REPS, _input, _mapper, _inputType);
+                    yield _desc1;
+                }
+                case 1 -> {
+                    msesc = testDeser(REPS, _input, _mapper, _inputTypeRef);
+                    yield _desc2;
+                }
+                default -> throw new Error();
+            };
             updateStats(type, (i % 17) == 0, msg, msesc);
         }
     }

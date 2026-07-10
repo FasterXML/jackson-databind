@@ -55,8 +55,20 @@ public class IterableSerializer
 
     @Override
     public boolean isEmpty(SerializationContext ctxt, Iterable<?> value) {
-        // Not really good way to implement this, but has to do for now:
-        return !value.iterator().hasNext();
+        Iterator<?> it = value.iterator();
+        if (!it.hasNext()) {
+            return true;
+        }
+        // [databind#6065]: with content @JsonInclude applied to containers,
+        // an Iterable whose every element is suppressed is considered empty.
+        // NOTE: this walks elements until one survives filtering, so `serialize()`
+        // (which calls `value.iterator()` again) must re-traverse from the start --
+        // fine for re-iterable sources, but doubles traversal cost and cannot be
+        // supported for single-use Iterables (those were already unsupported here).
+        if (_needToCheckFiltering(ctxt)) {
+            return _allElementsSuppressed(ctxt, it);
+        }
+        return false;
     }
 
     @Override

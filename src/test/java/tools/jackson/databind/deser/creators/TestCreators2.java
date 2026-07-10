@@ -2,7 +2,6 @@
 package tools.jackson.databind.deser.creators;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +42,7 @@ public class TestCreators2
         public byte[] deserialize(JsonParser p, DeserializationContext ctxt)
         {
             String str = p.getString();
-            return str.getBytes(StandardCharsets.UTF_8);
+            return utf8Bytes(str);
         }
     }
 

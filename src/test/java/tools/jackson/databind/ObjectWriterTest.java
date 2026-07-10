@@ -1,7 +1,6 @@
 package tools.jackson.databind;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 
@@ -166,7 +165,7 @@ public class ObjectWriterTest extends DatabindTestUtil
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         w.writeValue(out, 3);
         out.close();
-        assertEquals("3", out.toString(StandardCharsets.UTF_8));
+        assertEquals("3", utf8String(out));
     }
 
     @Test

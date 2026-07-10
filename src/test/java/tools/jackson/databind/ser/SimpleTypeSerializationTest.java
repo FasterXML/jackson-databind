@@ -1,7 +1,6 @@
 package tools.jackson.databind.ser;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
@@ -339,8 +338,8 @@ public class SimpleTypeSerializationTest
     @Test
     public void testBase64Variants() throws Exception
     {
-        final byte[] INPUT = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890X"
-                .getBytes(StandardCharsets.UTF_8);
+        final byte[] INPUT = utf8Bytes(
+                "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890X");
 
         // default encoding is "MIME, no linefeeds", so:
         assertEquals(q("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwWA=="), MAPPER.writeValueAsString(INPUT));

@@ -1,7 +1,6 @@
 package tools.jackson.databind.seq;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
@@ -60,14 +59,14 @@ public class ReadValuesTest extends DatabindTestUtil
     {
         switch (srcType) {
         case BYTE_ARRAY:
-            return r.readValues(json.getBytes(StandardCharsets.UTF_8));
+            return r.readValues(utf8Bytes(json));
         case BYTE_ARRAY_OFFSET:
             {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 out.write(0);
                 out.write(0);
                 out.write(0);
-                out.write(json.getBytes(StandardCharsets.UTF_8));
+                out.write(utf8Bytes(json));
                 out.write(0);
                 out.write(0);
                 out.write(0);
@@ -75,7 +74,7 @@ public class ReadValuesTest extends DatabindTestUtil
                 return r.readValues(b, 3, b.length-6);
             }
         case INPUT_STREAM:
-            return r.readValues(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
+            return r.readValues(new ByteArrayInputStream(utf8Bytes(json)));
         case READER:
             return r.readValues(new StringReader(json));
         case STRING:

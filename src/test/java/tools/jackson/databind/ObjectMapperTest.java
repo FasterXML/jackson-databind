@@ -399,7 +399,7 @@ public class ObjectMapperTest extends DatabindTestUtil
     @Test
     public void test_createParser_InputStream() throws Exception
     {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
+        InputStream inputStream = new ByteArrayInputStream(utf8Bytes("\"value\""));
         JsonParser jsonParser =  MAPPER.createParser(inputStream);
 
         assertEquals("value", jsonParser.nextStringValue());
@@ -437,7 +437,7 @@ public class ObjectMapperTest extends DatabindTestUtil
     @Test
     public void test_createParser_ByteArray() throws Exception
     {
-        byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = utf8Bytes("\"value\"");
         JsonParser jsonParser = MAPPER.createParser(bytes);
 
         assertEquals("value", jsonParser.nextStringValue());
@@ -571,7 +571,7 @@ public class ObjectMapperTest extends DatabindTestUtil
     @Test
     public void test_readTree_InputStream() throws Exception
     {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
+        InputStream inputStream = new ByteArrayInputStream(utf8Bytes("\"value\""));
         JsonNode jsonNode =  MAPPER.readTree(inputStream);
 
         assertEquals("value", jsonNode.stringValue());
@@ -610,7 +610,7 @@ public class ObjectMapperTest extends DatabindTestUtil
     public void test_readTree_ByteArray() throws Exception
     {
         // with offset and length
-        byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = utf8Bytes("\"value\"");
         JsonNode jsonNode1 = MAPPER.readTree(bytes);
 
         assertEquals("value", jsonNode1.stringValue());
@@ -646,7 +646,7 @@ public class ObjectMapperTest extends DatabindTestUtil
     @Test
     public void test_readValue_InputStream() throws Exception
     {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
+        InputStream inputStream = new ByteArrayInputStream(utf8Bytes("\"value\""));
         String result1 = MAPPER.readValue(inputStream, String.class);
         assertEquals("value", result1);
 
@@ -704,7 +704,7 @@ public class ObjectMapperTest extends DatabindTestUtil
     @Test
     public void test_readValue_ByteArray() throws Exception
     {
-        byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = utf8Bytes("\"value\"");
         String result1 = MAPPER.readValue(bytes, String.class);
         assertEquals("value", result1);
         String result2 = MAPPER.readValue(bytes, MAPPER.constructType(String.class));

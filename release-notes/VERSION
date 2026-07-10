@@ -35,6 +35,10 @@ No changes since 3.2
  (reported by @sebastien-leveque)
  (fix by @cowtowncoder, w/ Claude code)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
+#6065: `SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS` does not fully
+  remove empty collection during serialization
+ (reported by @doeiqts)
+ (fix by @seonwooj0810)
 #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
   (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
  (reported by João G)

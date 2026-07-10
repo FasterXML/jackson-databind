@@ -593,3 +593,11 @@ Théo Szanto (@indyteo)
  * Fixed #6043: `FAIL_ON_UNKNOWN_PROPERTIES` has no effect with `JsonFormat.Shape.ARRAY`
    when using creator-based instantiation (such as `record`)
   [3.2.1]
+ * Fixed #6065: `SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS` does not fully
+   remove empty collection during serialization
+  [3.2.1]
+
+@doeiqts
+ * Reported #6065: `SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS` does not fully
+   remove empty collection during serialization
+  [3.2.1]

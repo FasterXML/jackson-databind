@@ -10,9 +10,8 @@ Jackson Databind is the general-purpose data-binding library for the Jackson dat
 - **Build Tool**: Maven (via `./mvnw`)
 - **Main Package**: `com.fasterxml.jackson.databind`
 
-This file describes the **Jackson 2.x line**. It lives on every active 2.x branch and
-is merged forward along with the code, so it must not hardcode a version number:
-read the current one from `pom.xml`. For the 3.x line, see the copy on `3.x`.
+This file describes the **Jackson 2.x line**, and must not hardcode a version number:
+read the current one from `pom.xml`.
 
 ## Branches and Merge-Forward
 
@@ -22,12 +21,19 @@ Branches form an ordered chain, oldest first. Each is a real maintenance branch,
 and the version on each is whatever its `pom.xml` says:
 
 ```
-2.18 → 2.19 → 2.20 → 2.21 → 2.22 → 2.x → 3.x
+2.18 → 2.19 → 2.20 → 2.21 → 2.22 → 2.x → 3.1 → 3.2 → 3.x
 ```
 
-- Numbered branches (`2.18` … `2.22`) are **patch** branches for already-released minors.
+- Numbered `2.y` branches (`2.18` … `2.22`) are **patch** branches for already-released minors.
 - `2.x` is the **next 2.x minor** under development.
-- `3.x` is the next major. `master` is stale and is not a development branch — do not target it.
+- `3.1`/`3.2` are 3.x patch branches; `3.x` is the next major.
+- `master` is stale (last touched Apr 2025) and is not a development branch — do not target it,
+  even though it is `origin/HEAD`.
+
+Verify the chain rather than trusting this diagram, since branches open and close:
+`git log --merges --oneline origin/<branch>` shows what merges into what. Branches
+older than `2.18` (`2.17`, `2.16`) still received merges as recently as Jun 2026, so
+"oldest active" is not a settled question — ask before assuming `2.18` is the floor.
 
 **Rules:**
 
@@ -51,10 +57,17 @@ and the version on each is whatever its `pom.xml` says:
 
 # Build without tests (faster)
 ./mvnw clean install -DskipTests
-
-# Build for specific Java version (profiles: java11, java17, java21)
-./mvnw clean verify -Pjava17
 ```
+
+The `java11`, `java17` and `java21` profiles **auto-activate** from the JDK you are
+running (`<jdk>11</jdk>`, `<jdk>17</jdk>`, `<jdk>[21,)</jdk>`). They do not select a
+Java version — they add the matching `src/test-jdkNN` sources and `--add-opens` flags
+for the JDK already in use. Do not pass `-Pjava17` to "build for Java 17"; forcing a
+profile that does not match the running JDK will fail to compile. To test another
+Java version, switch JDKs (e.g. via `sdkman`) and rebuild.
+
+Note that `<jdk>11</jdk>` and `<jdk>17</jdk>` prefix-match only 11.x and 17.x, so on
+JDK 21 the `test-jdk11` and `test-jdk17` sources are not compiled.
 
 ### Running Tests
 
@@ -62,18 +75,23 @@ and the version on each is whatever its `pom.xml` says:
 # Run all tests. Surefire is pinned to PrimarySuite, which selects the whole
 # com.fasterxml.jackson.databind package tree except typepollution tests.
 ./mvnw test
-
-# Run a specific test class (-Dtest overrides the pinned suite)
-./mvnw test -Dtest=ObjectMapperTest
-
-# Run a specific test method
-./mvnw test -Dtest=ObjectMapperTest#testSomeMethod
 ```
 
-Tests run 4 threads per class in parallel, so tests must not share mutable static state.
+**`-Dtest=...` does not work in this project.** `pom.xml` configures surefire with a
+literal `<test>com.fasterxml.jackson.databind.PrimarySuite</test>`, and explicit POM
+plugin configuration takes precedence over the `test` user property.
+`./mvnw test -Dtest=ObjectMapperTest` silently runs the full ~3800-test suite and
+reports success. This is a trap: `-Dtest=SomeTest#someMethod` will report BUILD SUCCESS
+without ever running `someMethod`. To run a single class or method, use your IDE, or
+temporarily remove the `<test>` element from `pom.xml`.
 
-`MapperFootprintTest` and the `typepollution` package are excluded from the default
-run; type-pollution tests run only under the `java17` profile.
+Surefire runs with `<parallel>classes</parallel>` and `<threadCount>4</threadCount>`:
+up to 4 test *classes* execute concurrently, single-threaded within each class. Tests
+must therefore not share mutable static state across classes.
+
+`MapperFootprintTest` and the `typepollution` package are excluded from `PrimarySuite`.
+Note that type-pollution tests still run during a plain `./mvnw test` on JDK 17, via a
+separate surefire execution in the auto-activated `java17` profile.
 
 ### Other Useful Commands
 
@@ -191,16 +209,18 @@ tree is picked up automatically — there is nothing to register.
 
 **Conventions**:
 - JUnit 5 (Jupiter) only: `org.junit.jupiter.api.Test`, `static org.junit.jupiter.api.Assertions.*`.
-  Some older tests still use JUnit 4 idioms; do not copy them.
+  JUnit 4 is not on the classpath at all (no `junit:junit` dependency, no vintage engine),
+  so `import org.junit.Test` will not compile.
 - Static-import shared helpers from `testutil.DatabindTestUtil` rather than reimplementing them.
 - Annotate a test that reproduces a known-broken behavior with `@JacksonTestFailureExpected`.
   The interceptor inverts the outcome, so the test passes while the bug exists and starts
   failing once it is fixed — that is the signal to remove the annotation.
 
-**JDK-Specific Tests** (compiled only under the matching profile):
-- `src/test-jdk11/`: Java 11+ specific tests (`-Pjava11`)
-- `src/test-jdk17/`: Java 17+ specific tests (`-Pjava17`)
-- `src/test-jdk21/`: Java 21+ specific tests (`-Pjava21`)
+**JDK-Specific Tests** (added as test sources by the auto-activated profile for the
+running JDK — see [Building the Project](#building-the-project)):
+- `src/test-jdk11/`: Java 11 specific tests (`java11` profile, JDK 11.x)
+- `src/test-jdk17/`: Java 17 specific tests (`java17` profile, JDK 17.x)
+- `src/test-jdk21/`: Java 21+ specific tests (`java21` profile, JDK 21 and up)
 
 ## Common Development Patterns
 
@@ -249,7 +269,9 @@ Extensions must be built as separate modules.
 - `ObjectMapper` is thread-safe after initial configuration
 - `ObjectReader` and `ObjectWriter` are fully immutable and thread-safe
 - Serializers and deserializers must be thread-safe (they are cached and reused)
-- Context classes (SerializationContext, DeserializationContext) are NOT thread-safe
+- Context classes (`SerializerProvider`, `DeserializationContext`) are NOT thread-safe.
+  Note: in 2.x the serialization-side context is `SerializerProvider`; it is renamed to
+  `SerializationContext` only in 3.x.
 
 ### Android Compatibility
 

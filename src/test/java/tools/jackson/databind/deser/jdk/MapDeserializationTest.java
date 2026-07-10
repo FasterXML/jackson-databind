@@ -1,6 +1,7 @@
 package tools.jackson.databind.deser.jdk;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -482,7 +483,7 @@ public class MapDeserializationTest
     @Test
     public void testUUIDKeyMap() throws Exception
     {
-         UUID key = UUID.nameUUIDFromBytes("foobar".getBytes("UTF-8"));
+         UUID key = UUID.nameUUIDFromBytes("foobar".getBytes(StandardCharsets.UTF_8));
          String JSON = "{ \""+key+"\":4}";
          Map<UUID,Object> result = MAPPER.readValue(JSON, new TypeReference<Map<UUID,Object>>() { });
          assertNotNull(result);

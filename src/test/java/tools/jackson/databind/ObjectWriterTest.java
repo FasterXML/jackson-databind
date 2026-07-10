@@ -1,6 +1,7 @@
 package tools.jackson.databind;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 
@@ -163,9 +164,9 @@ public class ObjectWriterTest extends DatabindTestUtil
         ObjectWriter w = MAPPER.writer()
                 .without(SerializationFeature.EAGER_SERIALIZER_FETCH);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        w.writeValue(out, Integer.valueOf(3));
+        w.writeValue(out, 3);
         out.close();
-        assertEquals("3", out.toString("UTF-8"));
+        assertEquals("3", out.toString(StandardCharsets.UTF_8));
     }
 
     @Test

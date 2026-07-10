@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.concurrent.atomic.*;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Charsets;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -300,6 +301,7 @@ public class JDKTypeSerializationTest
     @Test
     public void testCharset() throws IOException
     {
+        assertEquals(q("UTF-8"), MAPPER.writeValueAsString(StandardCharsets.UTF_8));
         assertEquals(q("UTF-8"), MAPPER.writeValueAsString(Charset.forName("UTF-8")));
     }
 

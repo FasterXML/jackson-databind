@@ -61,7 +61,7 @@ public class ObjectReaderTest extends DatabindTestUtil
     public void testSimpleAltSources() throws Exception
     {
         final String JSON = "[1]";
-        final byte[] BYTES = JSON.getBytes("UTF-8");
+        final byte[] BYTES = JSON.getBytes(StandardCharsets.UTF_8);
         final Object EXP = Arrays.asList(1);
         assertEquals(EXP, MAPPER
                 .readerFor(Object.class)

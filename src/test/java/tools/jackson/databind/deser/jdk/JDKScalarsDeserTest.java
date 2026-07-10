@@ -4,6 +4,7 @@ import java.io.*;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
@@ -551,7 +552,8 @@ public class JDKScalarsDeserTest
     @Test
     public void testBase64Variants() throws Exception
     {
-        final byte[] INPUT = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890X".getBytes("UTF-8");
+        final byte[] INPUT = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890X"
+                .getBytes(StandardCharsets.UTF_8);
 
         // default encoding is "MIME, no linefeeds", so:
         assertArrayEquals(INPUT, MAPPER.readValue(

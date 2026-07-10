@@ -320,8 +320,8 @@ public class JsonIncludeContainerEmpty6065Test extends DatabindTestUtil
         bean.numbers = new ArrayList<>(Arrays.asList(null, 0));
         bean.stringArray = new String[] { null, "" };
         bean.numberArray = new Integer[] { null, 0 };
-        assertEquals("{\"strings\":[\"\"],\"numbers\":[0],"
-                +"\"stringArray\":[\"\"],\"numberArray\":[0]}",
+        assertEquals("{\"numberArray\":[0],\"numbers\":[0],"
+                +"\"stringArray\":[\"\"],\"strings\":[\"\"]}",
                 MAPPER.writeValueAsString(bean));
     }
 

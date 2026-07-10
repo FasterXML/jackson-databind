@@ -6,8 +6,10 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.InjectableValues;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.exc.MismatchedInputException;
@@ -44,7 +46,11 @@ import static org.junit.jupiter.api.Assertions.fail;
  *  <li>{@link ExternalTypeIdSetter} -- {@code BeanDeserializer._deserializeWithExternalTypeId};</li>
  *  <li>{@link ExternalTypeIdCreator} -- both arms of
  *      {@code BeanDeserializer.deserializeUsingPropertyBasedWithExternalTypeId};</li>
- *  <li>{@link BuilderExternalTypeId} -- {@code BuilderBasedDeserializer.deserializeWithExternalTypeId}.</li>
+ *  <li>{@link BuilderExternalTypeId} -- {@code BuilderBasedDeserializer.deserializeWithExternalTypeId};</li>
+ *  <li>{@link BeanAsArraySetter} / {@link BeanAsArrayCreator} -- the positional loops of
+ *      {@code BeanAsArrayDeserializer} ({@code @JsonFormat(shape = ARRAY)});</li>
+ *  <li>{@link BeanAsArrayBuilderSetter} / {@link BeanAsArrayBuilderCreator} -- ditto for
+ *      {@code BeanAsArrayBuilderDeserializer}.</li>
  *</ul>
  *
  * Each fixture asserts the three-way contract, which is also what proves the property really
@@ -56,6 +62,9 @@ import static org.junit.jupiter.api.Assertions.fail;
  *  <li>feature OFF -> the property is silently skipped (unchanged legacy behavior).</li>
  *</ol>
  *
+ * See also {@link InjectionOnlyCreatorParam}, which pins the precedence between the view check
+ * and the {@code @JacksonInject(useInput = FALSE)} skip that used to share one fused condition.
+ *<p>
  * Deliberately <b>out of scope</b> (see {@link NotCovered}): properties resolved through the
  * {@code ExternalTypeHandler} / {@code UnwrappedPropertyHandler} helper classes, i.e. the
  * {@code @JsonTypeInfo(include = EXTERNAL_PROPERTY)} <i>value</i> itself and {@code @JsonUnwrapped}
@@ -91,8 +100,12 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
             .build();
 
     private void expectRejected(Class<?> view, Class<?> type, String json) throws Exception {
+        expectRejected(FAIL_ON.readerWithView(view).forType(type), json);
+    }
+
+    private void expectRejected(ObjectReader reader, String json) throws Exception {
         try {
-            FAIL_ON.readerWithView(view).forType(type).readValue(json);
+            reader.readValue(json);
             fail("Expected MismatchedInputException for view-hidden property, but parse succeeded");
         } catch (MismatchedInputException e) {
             verifyException(e, "Input mismatch while deserializing");
@@ -122,7 +135,9 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
                 @JsonView(Admin.class) String role) {
         }
 
-        static final String JSON = "{\"name\":\"alice\",\"role\":\"admin\"}";
+        static final String JSON = """
+                {"name":"alice","role":"admin"}
+                """;
 
         @Test
         void adminViewBindsRole() throws Exception {
@@ -161,7 +176,9 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
             }
         }
 
-        static final String JSON = "{\"name\":\"alice\",\"role\":\"admin\"}";
+        static final String JSON = """
+                {"name":"alice","role":"admin"}
+                """;
 
         @Test
         void adminViewBindsRole() throws Exception {
@@ -171,7 +188,9 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
 
         @Test
         void hiddenRoleBeforeCreatorRejectedWhenEnabled() throws Exception {
-            expectRejected(Public.class, User.class, "{\"role\":\"admin\",\"name\":\"alice\"}");
+            expectRejected(Public.class, User.class, """
+                    {"role":"admin","name":"alice"}
+                    """);
         }
 
         @Test
@@ -188,7 +207,8 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
     }
 
     /** {@code BeanDeserializer._deserializeRecordForUpdate} -- the condition that was split so a
-     *  view-hidden creator property fails while an injection-only one still skips silently. */
+     *  view-hidden creator property fails while a (view-visible) injection-only one still skips
+     *  silently. See {@link InjectionOnlyCreatorParam} for the precedence between the two. */
     @Nested
     class RecordUpdate
     {
@@ -202,22 +222,20 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
             User updated = FAIL_ON.readerWithView(Admin.class)
                     .forType(User.class)
                     .withValueToUpdate(new User("alice", "user"))
-                    .readValue("{\"role\":\"admin\"}");
+                    .readValue("""
+                            {"role":"admin"}
+                            """);
             assertEquals("admin", updated.role());
         }
 
         @Test
         void hiddenRoleUpdateRejectedWhenEnabled() throws Exception {
-            try {
-                FAIL_ON.readerWithView(Public.class)
-                        .forType(User.class)
-                        .withValueToUpdate(new User("alice", "user"))
-                        .readValue("{\"role\":\"HACKED\"}");
-                fail("Expected MismatchedInputException for view-hidden property, but parse succeeded");
-            } catch (MismatchedInputException e) {
-                verifyException(e, "Input mismatch while deserializing");
-                verifyException(e, "is not part of current active view");
-            }
+            expectRejected(FAIL_ON.readerWithView(Public.class)
+                            .forType(User.class)
+                            .withValueToUpdate(new User("alice", "user")),
+                    """
+                    {"role":"HACKED"}
+                    """);
         }
 
         @Test
@@ -225,7 +243,9 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
             User updated = FAIL_OFF.readerWithView(Public.class)
                     .forType(User.class)
                     .withValueToUpdate(new User("alice", "user"))
-                    .readValue("{\"role\":\"HACKED\"}");
+                    .readValue("""
+                            {"role":"HACKED"}
+                            """);
             assertEquals("user", updated.role());
         }
     }
@@ -267,7 +287,9 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
             }
         }
 
-        static final String JSON = "{\"name\":\"alice\",\"role\":\"admin\"}";
+        static final String JSON = """
+                {"name":"alice","role":"admin"}
+                """;
 
         @Test
         void adminViewBindsRole() throws Exception {
@@ -317,7 +339,9 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
             @JsonUnwrapped          public void setFlags(Flags f)  { this.flags = f; }
         }
 
-        static final String JSON = "{\"email\":\"e\",\"role\":\"admin\",\"tier\":\"gold\"}";
+        static final String JSON = """
+                {"email":"e","role":"admin","tier":"gold"}
+                """;
 
         @Test
         void adminViewBindsRole() throws Exception {
@@ -373,7 +397,9 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
             }
         }
 
-        static final String JSON = "{\"email\":\"e\",\"role\":\"admin\",\"tier\":\"gold\"}";
+        static final String JSON = """
+                {"email":"e","role":"admin","tier":"gold"}
+                """;
 
         @Test
         void adminViewBindsRole() throws Exception {
@@ -417,7 +443,9 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
             }
         }
 
-        static final String JSON = "{\"name\":\"alice\",\"role\":\"admin\",\"tier\":\"gold\"}";
+        static final String JSON = """
+                {"name":"alice","role":"admin","tier":"gold"}
+                """;
 
         @Test
         void adminViewBindsRole() throws Exception {
@@ -463,7 +491,9 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
             }
         }
 
-        static final String JSON = "{\"name\":\"alice\",\"secret\":\"s\",\"tier\":\"gold\"}";
+        static final String JSON = """
+                {"name":"alice","secret":"s","tier":"gold"}
+                """;
 
         @Test
         void adminViewBindsSecret() throws Exception {
@@ -514,8 +544,9 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
             public Payload payload;
         }
 
-        static final String JSON =
-                "{\"label\":\"hi\",\"secret\":\"s\",\"kind\":\"text\",\"payload\":{\"body\":\"b\"}}";
+        static final String JSON = """
+                {"label":"hi","secret":"s","kind":"text","payload":{"body":"b"}}
+                """;
 
         @Test
         void adminViewBindsSecret() throws Exception {
@@ -562,12 +593,13 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
             }
         }
 
-        static final String PAYLOAD = "\"kind\":\"text\",\"payload\":{\"body\":\"b\"}";
+        static final String ALL_PROPS_JSON = """
+                {"label":"hi","secret":"s","note":"n","kind":"text","payload":{"body":"b"}}
+                """;
 
         @Test
         void adminViewBindsHiddenProps() throws Exception {
-            Envelope e = readWithView(FAIL_ON, Admin.class, Envelope.class,
-                    "{\"label\":\"hi\",\"secret\":\"s\",\"note\":\"n\"," + PAYLOAD + "}");
+            Envelope e = readWithView(FAIL_ON, Admin.class, Envelope.class, ALL_PROPS_JSON);
             assertEquals("s", e.secret);
             assertEquals("n", e.note);
             assertNotNull(e.payload);
@@ -576,21 +608,22 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
         // Hidden creator parameter -> creator arm.
         @Test
         void hiddenCreatorParamRejectedWhenEnabled() throws Exception {
-            expectRejected(Public.class, Envelope.class,
-                    "{\"label\":\"hi\",\"secret\":\"s\"," + PAYLOAD + "}");
+            expectRejected(Public.class, Envelope.class, """
+                    {"label":"hi","secret":"s","kind":"text","payload":{"body":"b"}}
+                    """);
         }
 
         // Hidden regular property -> buffering arm.
         @Test
         void hiddenRegularPropRejectedWhenEnabled() throws Exception {
-            expectRejected(Public.class, Envelope.class,
-                    "{\"label\":\"hi\",\"note\":\"n\"," + PAYLOAD + "}");
+            expectRejected(Public.class, Envelope.class, """
+                    {"label":"hi","note":"n","kind":"text","payload":{"body":"b"}}
+                    """);
         }
 
         @Test
         void hiddenPropsSkippedWhenDisabled() throws Exception {
-            Envelope e = readWithView(FAIL_OFF, Public.class, Envelope.class,
-                    "{\"label\":\"hi\",\"secret\":\"s\",\"note\":\"n\"," + PAYLOAD + "}");
+            Envelope e = readWithView(FAIL_OFF, Public.class, Envelope.class, ALL_PROPS_JSON);
             assertEquals("hi", e.label);
             assertNull(e.secret);
             assertNull(e.note);
@@ -632,8 +665,9 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
             }
         }
 
-        static final String JSON =
-                "{\"label\":\"hi\",\"secret\":\"s\",\"kind\":\"text\",\"payload\":{\"body\":\"b\"}}";
+        static final String JSON = """
+                {"label":"hi","secret":"s","kind":"text","payload":{"body":"b"}}
+                """;
 
         @Test
         void adminViewBindsSecret() throws Exception {
@@ -653,6 +687,269 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
             assertEquals("hi", e.label);
             assertNull(e.secret);
             assertNotNull(e.payload);
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Array-shaped beans (@JsonFormat(shape = ARRAY))
+    /*
+    /* Positional binding, so a view-hidden property is an *element* rather than a named
+    /* field; it must still be rejected when the feature is on rather than silently dropped.
+    /**********************************************************************
+     */
+
+    /** {@code BeanAsArrayDeserializer.deserializeFromArray} -- non-creator positional loop. */
+    @Nested
+    class BeanAsArraySetter
+    {
+        @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+        @JsonPropertyOrder({ "name", "role" })
+        static class User {
+            @JsonView(Public.class)
+            public String name;
+            @JsonView(Admin.class)
+            public String role;
+        }
+
+        static final String JSON = """
+                ["alice","admin"]
+                """;
+
+        @Test
+        void adminViewBindsRole() throws Exception {
+            User u = readWithView(FAIL_ON, Admin.class, User.class, JSON);
+            assertEquals("alice", u.name);
+            assertEquals("admin", u.role);
+        }
+
+        @Test
+        void hiddenRoleRejectedWhenEnabled() throws Exception {
+            expectRejected(Public.class, User.class, JSON);
+        }
+
+        @Test
+        void hiddenRoleSkippedWhenDisabled() throws Exception {
+            User u = readWithView(FAIL_OFF, Public.class, User.class, JSON);
+            assertEquals("alice", u.name);
+            assertNull(u.role);
+        }
+    }
+
+    /** {@code BeanAsArrayDeserializer._deserializeUsingPropertyBased} -- creator positional loop. */
+    @Nested
+    class BeanAsArrayCreator
+    {
+        @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+        @JsonPropertyOrder({ "name", "role" })
+        static class User {
+            final String name;
+            final String role;
+
+            @JsonCreator
+            User(@JsonProperty("name") @JsonView(Public.class) String name,
+                    @JsonProperty("role") @JsonView(Admin.class) String role) {
+                this.name = name;
+                this.role = role;
+            }
+        }
+
+        static final String JSON = """
+                ["alice","admin"]
+                """;
+
+        @Test
+        void adminViewBindsRole() throws Exception {
+            User u = readWithView(FAIL_ON, Admin.class, User.class, JSON);
+            assertEquals("alice", u.name);
+            assertEquals("admin", u.role);
+        }
+
+        @Test
+        void hiddenRoleRejectedWhenEnabled() throws Exception {
+            expectRejected(Public.class, User.class, JSON);
+        }
+
+        @Test
+        void hiddenRoleSkippedWhenDisabled() throws Exception {
+            User u = readWithView(FAIL_OFF, Public.class, User.class, JSON);
+            assertEquals("alice", u.name);
+            assertNull(u.role);
+        }
+    }
+
+    /** {@code BeanAsArrayBuilderDeserializer.deserializeFromArray} -- non-creator builder loop. */
+    @Nested
+    class BeanAsArrayBuilderSetter
+    {
+        @JsonDeserialize(builder = User.Builder.class)
+        static class User {
+            final String name;
+            final String role;
+
+            User(String name, String role) {
+                this.name = name;
+                this.role = role;
+            }
+
+            // ARRAY shape must be declared on the *builder*: that is the type the
+            // BuilderBasedDeserializer contextualizes, so that is where the shape is read from.
+            @JsonPOJOBuilder(withPrefix = "")
+            @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+            @JsonPropertyOrder({ "name", "role" })
+            static class Builder {
+                String name;
+                String role;
+
+                @JsonView(Public.class) Builder name(String n) { this.name = n; return this; }
+                @JsonView(Admin.class)  Builder role(String r) { this.role = r; return this; }
+
+                User build() { return new User(name, role); }
+            }
+        }
+
+        static final String JSON = """
+                ["alice","admin"]
+                """;
+
+        @Test
+        void adminViewBindsRole() throws Exception {
+            User u = readWithView(FAIL_ON, Admin.class, User.class, JSON);
+            assertEquals("alice", u.name);
+            assertEquals("admin", u.role);
+        }
+
+        @Test
+        void hiddenRoleRejectedWhenEnabled() throws Exception {
+            expectRejected(Public.class, User.class, JSON);
+        }
+
+        @Test
+        void hiddenRoleSkippedWhenDisabled() throws Exception {
+            User u = readWithView(FAIL_OFF, Public.class, User.class, JSON);
+            assertEquals("alice", u.name);
+            assertNull(u.role);
+        }
+    }
+
+    /** {@code BeanAsArrayBuilderDeserializer._deserializeUsingPropertyBased} -- creator builder loop. */
+    @Nested
+    class BeanAsArrayBuilderCreator
+    {
+        @JsonDeserialize(builder = User.Builder.class)
+        static class User {
+            final String name;
+            final String role;
+
+            User(String name, String role) {
+                this.name = name;
+                this.role = role;
+            }
+
+            // ARRAY shape must be declared on the *builder*: that is the type the
+            // BuilderBasedDeserializer contextualizes, so that is where the shape is read from.
+            @JsonPOJOBuilder(withPrefix = "")
+            @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+            @JsonPropertyOrder({ "name", "role" })
+            static class Builder {
+                String name;
+                String role;
+
+                @JsonCreator
+                Builder(@JsonProperty("name") @JsonView(Public.class) String name) {
+                    this.name = name;
+                }
+
+                @JsonView(Admin.class) Builder role(String r) { this.role = r; return this; }
+
+                User build() { return new User(name, role); }
+            }
+        }
+
+        static final String JSON = """
+                ["alice","admin"]
+                """;
+
+        @Test
+        void adminViewBindsRole() throws Exception {
+            User u = readWithView(FAIL_ON, Admin.class, User.class, JSON);
+            assertEquals("alice", u.name);
+            assertEquals("admin", u.role);
+        }
+
+        @Test
+        void hiddenRoleRejectedWhenEnabled() throws Exception {
+            expectRejected(Public.class, User.class, JSON);
+        }
+
+        @Test
+        void hiddenRoleSkippedWhenDisabled() throws Exception {
+            User u = readWithView(FAIL_OFF, Public.class, User.class, JSON);
+            assertEquals("alice", u.name);
+            assertNull(u.role);
+        }
+    }
+
+    /**
+     * Pins the precedence between the two conditions that #6077 split apart in
+     * {@code BeanDeserializer._deserializeRecordForUpdate}: it used to be a single fused
+     * {@code (view-hidden || injection-only)} test that always skipped silently. The view check
+     * now runs first, so a view-<i>visible</i> injection-only component still skips its input
+     * silently, while one that is <i>also</i> view-hidden is reported when the feature is on.
+     */
+    @Nested
+    class InjectionOnlyCreatorParam
+    {
+        public record VisibleInject(
+                @JsonView(Public.class) String name,
+                @JacksonInject(value = "role", useInput = OptBoolean.FALSE)
+                @JsonView(Public.class) String role) {
+        }
+
+        public record HiddenInject(
+                @JsonView(Public.class) String name,
+                @JacksonInject(value = "role", useInput = OptBoolean.FALSE)
+                @JsonView(Admin.class) String role) {
+        }
+
+        final InjectableValues INJECTED = new InjectableValues.Std().addValue("role", "injected");
+
+        static final String JSON = """
+                {"role":"HACKED"}
+                """;
+
+        // Injection-only but visible in the active view: input is discarded (never an error),
+        // even with the feature on.
+        @Test
+        void visibleInjectionOnlySkipsSilentlyWhenEnabled() throws Exception {
+            VisibleInject updated = FAIL_ON.readerWithView(Public.class)
+                    .forType(VisibleInject.class)
+                    .with(INJECTED)
+                    .withValueToUpdate(new VisibleInject("alice", "user"))
+                    .readValue(JSON);
+            assertEquals("alice", updated.name());
+            assertEquals("injected", updated.role());
+        }
+
+        // Injection-only AND hidden by the active view: the view check wins and reports.
+        @Test
+        void hiddenInjectionOnlyRejectedWhenEnabled() throws Exception {
+            expectRejected(FAIL_ON.readerWithView(Public.class)
+                            .forType(HiddenInject.class)
+                            .with(INJECTED)
+                            .withValueToUpdate(new HiddenInject("alice", "user")),
+                    JSON);
+        }
+
+        @Test
+        void hiddenInjectionOnlySkippedWhenDisabled() throws Exception {
+            HiddenInject updated = FAIL_OFF.readerWithView(Public.class)
+                    .forType(HiddenInject.class)
+                    .with(INJECTED)
+                    .withValueToUpdate(new HiddenInject("alice", "user"))
+                    .readValue(JSON);
+            assertEquals("alice", updated.name());
+            assertEquals("injected", updated.role());
         }
     }
 
@@ -681,8 +978,9 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
             public Payload payload;
         }
 
-        static final String ENVELOPE_JSON =
-                "{\"label\":\"hi\",\"kind\":\"text\",\"payload\":{\"body\":\"x\"}}";
+        static final String ENVELOPE_JSON = """
+                {"label":"hi","kind":"text","payload":{"body":"x"}}
+                """;
 
         @Test
         void externalTypeIdValueStillSilentlySkippedWhenEnabled() throws Exception {
@@ -711,7 +1009,9 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
             }
         }
 
-        static final String PERSON_JSON = "{\"name\":\"alice\",\"street\":\"1 Main\"}";
+        static final String PERSON_JSON = """
+                {"name":"alice","street":"1 Main"}
+                """;
 
         @Test
         void unwrappedCreatorParamStillSilentlySkippedWhenEnabled() throws Exception {

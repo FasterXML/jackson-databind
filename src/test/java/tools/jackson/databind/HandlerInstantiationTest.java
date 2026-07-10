@@ -17,12 +17,13 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.TypeIdResolver;
 import tools.jackson.databind.jsontype.TypeResolverBuilder;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.q;
 
-public class HandlerInstantiationTest
+public class HandlerInstantiationTest extends DatabindTestUtil
 {
     /*
     /**********************************************************************
@@ -233,7 +234,7 @@ public class HandlerInstantiationTest
     @Test
     public void testDeserializer() throws Exception
     {
-        JsonMapper mapper = JsonMapper.builder()
+        JsonMapper mapper = jsonMapperBuilder()
                 .handlerInstantiator(new MyInstantiator("abc:"))
                 .build();
         MyBean result = mapper.readValue(q("123"), MyBean.class);
@@ -243,18 +244,18 @@ public class HandlerInstantiationTest
     @Test
     public void testKeyDeserializer() throws Exception
     {
-        JsonMapper mapper = JsonMapper.builder()
+        JsonMapper mapper = jsonMapperBuilder()
                 .handlerInstantiator(new MyInstantiator("abc:"))
                 .build();
-        MyMap map = mapper.readValue("{\"a\":\"b\"}", MyMap.class);
+        MyMap map = mapper.readValue(a2q("{'a':'b'}"), MyMap.class);
         // easiest to test by just serializing...
-        assertEquals("{\"KEY\":\"b\"}", mapper.writeValueAsString(map));
+        assertEquals(a2q("{'KEY':'b'}"), mapper.writeValueAsString(map));
     }
 
     @Test
     public void testSerializer() throws Exception
     {
-        JsonMapper mapper = JsonMapper.builder()
+        JsonMapper mapper = jsonMapperBuilder()
                 .handlerInstantiator(new MyInstantiator("xyz:"))
                 .build();
         assertEquals(q("xyz:456"), mapper.writeValueAsString(new MyBean("456")));
@@ -268,7 +269,7 @@ public class HandlerInstantiationTest
                 .build();
         String json = mapper.writeValueAsString(new TypeIdBeanWrapper(new TypeIdBean(123)));
         // should now use our custom id scheme:
-        assertEquals("{\"bean\":[\"!!!\",{\"x\":123}]}", json);
+        assertEquals(a2q("{'bean':['!!!',{'x':123}]}"), json);
         // and bring it back too:
         TypeIdBeanWrapper result = mapper.readValue(json, TypeIdBeanWrapper.class);
         TypeIdBean bean = result.bean;

@@ -8,7 +8,7 @@ Project: jackson-databind
 
 No change since 2.22
 
-2.22.1 (not yet released)
+2.22.1 (07-Jul-2026)
 
 #5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
  [CVE-2026-54515]
@@ -16,7 +16,10 @@ No change since 2.22
 #6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
-#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties
+#6058: Do not allow DNS resolution when deserializing `InetAddress`
+ (reported by @thientd)
+ (fix by @pjfanning)
+#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
 
 2.22.0 (31-May-2026)
 
@@ -34,7 +37,7 @@ No change since 2.22
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.5 (not yet released)
+2.21.5 (06-Jul-2026)
 
 #5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
  [CVE-2026-54515]
@@ -42,7 +45,10 @@ No change since 2.22
 #6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
-#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties
+#6058: Do not allow DNS resolution when deserializing `InetAddress`
+ (reported by @thientd)
+ (fix by @pjfanning)
+#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
 
 2.21.4 (28-May-2026)
 
@@ -343,7 +349,10 @@ No changes since 2.19.2
 #6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
-#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties
+#6058: Do not allow DNS resolution when deserializing `InetAddress`
+ (reported by @thientd)
+ (fix by @pjfanning)
+#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
 
 2.18.8 (28-May-2026)
 

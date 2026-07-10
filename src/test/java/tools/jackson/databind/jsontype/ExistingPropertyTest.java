@@ -341,11 +341,11 @@ public class ExistingPropertyTest extends DatabindTestUtil
     public void testSimpleClassAsExistingPropertyDeserializationFruits() throws Exception
     {
         Fruit pinguoDeserialized = MAPPER.readValue(pinguoJson, Fruit.class);
-        assertInstanceOf(Apple.class, pinguoDeserialized);
+        Apple apple = assertInstanceOf(Apple.class, pinguoDeserialized);
         assertSame(pinguoDeserialized.getClass(), Apple.class);
         assertEquals(pinguo.name, pinguoDeserialized.name);
-        assertEquals(pinguo.seedCount, ((Apple) pinguoDeserialized).seedCount);
-        assertEquals(pinguo.type, ((Apple) pinguoDeserialized).type);
+        assertEquals(pinguo.seedCount, apple.seedCount);
+        assertEquals(pinguo.type, apple.type);
 
         FruitWrapper pinguoWrapperDeserialized = MAPPER.readValue(pinguoWrapperJson, FruitWrapper.class);
         Fruit pinguoExtracted = pinguoWrapperDeserialized.fruit;

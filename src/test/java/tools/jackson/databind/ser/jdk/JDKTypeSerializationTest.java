@@ -11,7 +11,6 @@ import java.util.*;
 import java.util.concurrent.atomic.*;
 import java.util.regex.Pattern;
 
-import com.google.common.base.Charsets;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 

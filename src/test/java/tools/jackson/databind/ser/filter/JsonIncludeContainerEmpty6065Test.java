@@ -121,12 +121,12 @@ public class JsonIncludeContainerEmpty6065Test extends DatabindTestUtil
             .build();
 
     @Test
-    public void testAllNull() throws Exception {
+    public void allNull() throws Exception {
         assertEquals("{}", MAPPER.writeValueAsString(new Bean()));
     }
 
     @Test
-    public void testEmptyContainers() throws Exception {
+    public void emptyContainers() throws Exception {
         Bean bean = new Bean();
         bean.myList = new ArrayList<>();
         bean.myMap = new HashMap<>();
@@ -134,7 +134,7 @@ public class JsonIncludeContainerEmpty6065Test extends DatabindTestUtil
     }
 
     @Test
-    public void testContainersEmptyAfterContentFilter() throws Exception {
+    public void containersEmptyAfterContentFilter() throws Exception {
         Bean bean = new Bean();
         bean.myList = new ArrayList<>(Collections.singletonList(null));
         bean.myMap = new HashMap<>();
@@ -144,35 +144,39 @@ public class JsonIncludeContainerEmpty6065Test extends DatabindTestUtil
     }
 
     @Test
-    public void testStringListWithEmptyStringOnly() throws Exception {
+    public void stringListWithEmptyStringOnly() throws Exception {
         Bean bean = new Bean();
         bean.myList = new ArrayList<>(Arrays.asList("", ""));
         assertEquals("{}", MAPPER.writeValueAsString(bean));
     }
 
     @Test
-    public void testStringListKeepsNonEmpty() throws Exception {
+    public void stringListKeepsNonEmpty() throws Exception {
         Bean bean = new Bean();
         bean.myList = new ArrayList<>(Arrays.asList(null, "keep", ""));
-        assertEquals("{\"myList\":[\"keep\"]}", MAPPER.writeValueAsString(bean));
+        assertEquals("""
+                {"myList":["keep"]}""",
+                MAPPER.writeValueAsString(bean));
     }
 
     @Test
-    public void testIntListWithNullsOnly() throws Exception {
+    public void intListWithNullsOnly() throws Exception {
         IntListBean bean = new IntListBean();
         bean.values = new ArrayList<>(Arrays.asList(null, null));
         assertEquals("{}", MAPPER.writeValueAsString(bean));
     }
 
     @Test
-    public void testIntListKeepsValues() throws Exception {
+    public void intListKeepsValues() throws Exception {
         IntListBean bean = new IntListBean();
         bean.values = new ArrayList<>(Arrays.asList(null, 42));
-        assertEquals("{\"values\":[42]}", MAPPER.writeValueAsString(bean));
+        assertEquals("""
+                {"values":[42]}""",
+                MAPPER.writeValueAsString(bean));
     }
 
     @Test
-    public void testStringSetWithNullsOnly() throws Exception {
+    public void stringSetWithNullsOnly() throws Exception {
         StringSetBean bean = new StringSetBean();
         bean.values = new LinkedHashSet<>(Arrays.asList((String) null));
         assertEquals("{}", MAPPER.writeValueAsString(bean));
@@ -180,52 +184,58 @@ public class JsonIncludeContainerEmpty6065Test extends DatabindTestUtil
 
     // [databind#6065]: same handling for String arrays
     @Test
-    public void testStringArrayEmptyAfterContentFilter() throws Exception {
+    public void stringArrayEmptyAfterContentFilter() throws Exception {
         StringArrayBean bean = new StringArrayBean();
         bean.values = new String[] { null, "" };
         assertEquals("{}", MAPPER.writeValueAsString(bean));
     }
 
     @Test
-    public void testStringArrayKeepsNonEmpty() throws Exception {
+    public void stringArrayKeepsNonEmpty() throws Exception {
         StringArrayBean bean = new StringArrayBean();
         bean.values = new String[] { null, "keep", "" };
-        assertEquals("{\"values\":[\"keep\"]}", MAPPER.writeValueAsString(bean));
+        assertEquals("""
+                {"values":["keep"]}""",
+                MAPPER.writeValueAsString(bean));
     }
 
     // [databind#6065]: same handling for Object arrays
     @Test
-    public void testObjectArrayNullsOnly() throws Exception {
+    public void objectArrayNullsOnly() throws Exception {
         IntArrayBean bean = new IntArrayBean();
         bean.values = new Integer[] { null, null };
         assertEquals("{}", MAPPER.writeValueAsString(bean));
     }
 
     @Test
-    public void testObjectArrayKeepsValues() throws Exception {
+    public void objectArrayKeepsValues() throws Exception {
         IntArrayBean bean = new IntArrayBean();
         bean.values = new Integer[] { null, 42 };
-        assertEquals("{\"values\":[42]}", MAPPER.writeValueAsString(bean));
+        assertEquals("""
+                {"values":[42]}""",
+                MAPPER.writeValueAsString(bean));
     }
 
     // [databind#6065]: same handling for Iterable
     @Test
-    public void testIterableEmptyAfterContentFilter() throws Exception {
+    public void iterableEmptyAfterContentFilter() throws Exception {
         IterableBean bean = new IterableBean();
         bean.values = new StringIterable(null, "");
         assertEquals("{}", MAPPER.writeValueAsString(bean));
     }
 
     @Test
-    public void testIterableKeepsNonEmpty() throws Exception {
+    public void iterableKeepsNonEmpty() throws Exception {
         IterableBean bean = new IterableBean();
         bean.values = new StringIterable(null, "keep", "");
-        assertEquals("{\"values\":[\"keep\"]}", MAPPER.writeValueAsString(bean));
+        assertEquals("""
+                {"values":["keep"]}""",
+                MAPPER.writeValueAsString(bean));
     }
 
     // [databind#6065]: primitive arrays, all-default content suppressed -> property dropped
     @Test
-    public void testPrimitiveArraysAllDefault() throws Exception {
+    public void primitiveArraysAllDefault() throws Exception {
         PrimArraysBean bean = new PrimArraysBean();
         bean.ints = new int[] { 0, 0 };
         bean.longs = new long[] { 0L };
@@ -237,35 +247,38 @@ public class JsonIncludeContainerEmpty6065Test extends DatabindTestUtil
     }
 
     @Test
-    public void testPrimitiveArraysKeepNonDefault() throws Exception {
+    public void primitiveArraysKeepNonDefault() throws Exception {
         PrimArraysBean bean = new PrimArraysBean();
         bean.ints = new int[] { 0, 42 };
         bean.longs = new long[] { 0L, 7L };
         bean.doubles = new double[] { 0.0, 1.5 };
         bean.bools = new boolean[] { false, true };
-        assertEquals("{\"bools\":[true],\"doubles\":[1.5],\"ints\":[42],\"longs\":[7]}",
+        assertEquals("""
+                {"bools":[true],"doubles":[1.5],"ints":[42],"longs":[7]}""",
                 MAPPER.writeValueAsString(bean));
     }
 
     // [databind#6065]: EnumSet, all elements suppressed by CUSTOM filter -> property dropped
     @Test
-    public void testEnumSetAllSuppressed() throws Exception {
+    public void enumSetAllSuppressed() throws Exception {
         EnumSetBean bean = new EnumSetBean();
         bean.values = EnumSet.of(Size.SMALL);
         assertEquals("{}", MAPPER.writeValueAsString(bean));
     }
 
     @Test
-    public void testEnumSetKeepsNonSuppressed() throws Exception {
+    public void enumSetKeepsNonSuppressed() throws Exception {
         EnumSetBean bean = new EnumSetBean();
         bean.values = EnumSet.of(Size.SMALL, Size.LARGE);
-        assertEquals("{\"values\":[\"LARGE\"]}", MAPPER.writeValueAsString(bean));
+        assertEquals("""
+                {"values":["LARGE"]}""",
+                MAPPER.writeValueAsString(bean));
     }
 
     // [databind#6065]: nested containers -- inner List that is empty after content
     // filtering is itself suppressed as an element of the outer List
     @Test
-    public void testNestedListsAllEmptyAfterContentFilter() throws Exception {
+    public void nestedListsAllEmptyAfterContentFilter() throws Exception {
         NestedListBean bean = new NestedListBean();
         bean.values = new ArrayList<>(Arrays.asList(
                 new ArrayList<>(Arrays.asList("", "")),
@@ -275,16 +288,18 @@ public class JsonIncludeContainerEmpty6065Test extends DatabindTestUtil
     }
 
     @Test
-    public void testNestedListsKeepNonEmpty() throws Exception {
+    public void nestedListsKeepNonEmpty() throws Exception {
         NestedListBean bean = new NestedListBean();
         bean.values = new ArrayList<>(Arrays.asList(
                 new ArrayList<>(Arrays.asList("", "")),
                 new ArrayList<>(Arrays.asList(null, "keep"))));
-        assertEquals("{\"values\":[[\"keep\"]]}", MAPPER.writeValueAsString(bean));
+        assertEquals("""
+                {"values":[["keep"]]}""",
+                MAPPER.writeValueAsString(bean));
     }
 
     @Test
-    public void testMapOfListsAllEmptyAfterContentFilter() throws Exception {
+    public void mapOfListsAllEmptyAfterContentFilter() throws Exception {
         MapOfListsBean bean = new MapOfListsBean();
         bean.values = new LinkedHashMap<>();
         bean.values.put("a", new ArrayList<>(Arrays.asList("", "")));
@@ -293,18 +308,20 @@ public class JsonIncludeContainerEmpty6065Test extends DatabindTestUtil
     }
 
     @Test
-    public void testMapOfListsKeepsNonEmpty() throws Exception {
+    public void mapOfListsKeepsNonEmpty() throws Exception {
         MapOfListsBean bean = new MapOfListsBean();
         bean.values = new LinkedHashMap<>();
         bean.values.put("a", new ArrayList<>(Collections.singletonList("")));
         bean.values.put("b", new ArrayList<>(Arrays.asList(null, "keep")));
-        assertEquals("{\"values\":{\"b\":[\"keep\"]}}", MAPPER.writeValueAsString(bean));
+        assertEquals("""
+                {"values":{"b":["keep"]}}""",
+                MAPPER.writeValueAsString(bean));
     }
 
     // [databind#6065]: content = NON_NULL suppresses nulls only; container with
     // nothing but nulls becomes empty, but empty Strings/zeroes are retained
     @Test
-    public void testNonNullContentAllNulls() throws Exception {
+    public void nonNullContentAllNulls() throws Exception {
         NonNullContentBean bean = new NonNullContentBean();
         bean.strings = new ArrayList<>(Arrays.asList(null, null));
         bean.numbers = new ArrayList<>(Collections.singletonList((Integer) null));
@@ -314,22 +331,24 @@ public class JsonIncludeContainerEmpty6065Test extends DatabindTestUtil
     }
 
     @Test
-    public void testNonNullContentRetainsEmptyValues() throws Exception {
+    public void nonNullContentRetainsEmptyValues() throws Exception {
         NonNullContentBean bean = new NonNullContentBean();
         bean.strings = new ArrayList<>(Arrays.asList(null, ""));
         bean.numbers = new ArrayList<>(Arrays.asList(null, 0));
         bean.stringArray = new String[] { null, "" };
         bean.numberArray = new Integer[] { null, 0 };
-        assertEquals("{\"numberArray\":[0],\"numbers\":[0],"
-                +"\"stringArray\":[\"\"],\"strings\":[\"\"]}",
+        assertEquals("""
+                {"numberArray":[0],"numbers":[0],"stringArray":[""],"strings":[""]}""",
                 MAPPER.writeValueAsString(bean));
     }
 
     // Without the feature, containers are left intact (only null containers dropped)
     @Test
-    public void testFeatureDisabledLeavesContainers() throws Exception {
+    public void featureDisabledLeavesContainers() throws Exception {
         Bean bean = new Bean();
         bean.myList = new ArrayList<>(Collections.singletonList(null));
-        assertEquals("{\"myList\":[null]}", NO_FEATURE.writeValueAsString(bean));
+        assertEquals("""
+                {"myList":[null]}""",
+                NO_FEATURE.writeValueAsString(bean));
     }
 }

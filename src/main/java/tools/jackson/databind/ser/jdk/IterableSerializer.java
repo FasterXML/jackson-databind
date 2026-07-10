@@ -61,10 +61,12 @@ public class IterableSerializer
         }
         // [databind#6065]: with content @JsonInclude applied to containers,
         // an Iterable whose every element is suppressed is considered empty.
-        // NOTE: this walks elements until one survives filtering, so `serialize()`
-        // (which calls `value.iterator()` again) must re-traverse from the start --
-        // fine for re-iterable sources, but doubles traversal cost and cannot be
-        // supported for single-use Iterables (those were already unsupported here).
+        // NOTE: unlike the old peek-only check, this consumes elements from the
+        // iterator; serialize()/serializeContents() obtain a fresh one via
+        // value.iterator(), so this relies on the Iterable being re-iterable --
+        // an assumption this serializer already makes (see hasSingleElement(),
+        // called from serialize() before serializeContents()). The cost is one
+        // extra traversal, only when content filtering is active.
         if (_needToCheckFiltering(ctxt)) {
             return _allElementsSuppressed(ctxt, it);
         }

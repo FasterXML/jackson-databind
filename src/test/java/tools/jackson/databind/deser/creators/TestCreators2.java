@@ -257,7 +257,7 @@ public class TestCreators2
     {
         HashTest test = MAPPER.readValue("{\"type\":\"custom\",\"bytes\":\"abc\" }", HashTest.class);
         assertEquals("custom", test.type);
-        assertEquals("abc", new String(test.bytes, "UTF-8"));
+        assertEquals("abc", utf8String(test.bytes));
     }
 
     @Test

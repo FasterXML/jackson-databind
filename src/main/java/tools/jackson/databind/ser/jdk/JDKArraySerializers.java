@@ -150,7 +150,20 @@ public class JDKArraySerializers
 
         @Override
         public boolean isEmpty(SerializationContext prov, boolean[] value) {
-            return value.length == 0;
+            if (value.length == 0) {
+                return true;
+            }
+            // [databind#6065]: with content @JsonInclude applied to containers,
+            // an array whose every element is suppressed is considered empty
+            if (_needToCheckFiltering(prov)) {
+                for (boolean v : value) {
+                    if (_shouldSerializeElement(prov, Boolean.valueOf(v))) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -226,7 +239,20 @@ public class JDKArraySerializers
 
         @Override
         public boolean isEmpty(SerializationContext prov, short[] value) {
-            return value.length == 0;
+            if (value.length == 0) {
+                return true;
+            }
+            // [databind#6065]: with content @JsonInclude applied to containers,
+            // an array whose every element is suppressed is considered empty
+            if (_needToCheckFiltering(prov)) {
+                for (short v : value) {
+                    if (_shouldSerializeElement(prov, Short.valueOf(v))) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -378,7 +404,20 @@ public class JDKArraySerializers
 
         @Override
         public boolean isEmpty(SerializationContext prov, int[] value) {
-            return value.length == 0;
+            if (value.length == 0) {
+                return true;
+            }
+            // [databind#6065]: with content @JsonInclude applied to containers,
+            // an array whose every element is suppressed is considered empty
+            if (_needToCheckFiltering(prov)) {
+                for (int v : value) {
+                    if (_shouldSerializeElement(prov, Integer.valueOf(v))) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -460,7 +499,20 @@ public class JDKArraySerializers
 
         @Override
         public boolean isEmpty(SerializationContext prov, long[] value) {
-            return value.length == 0;
+            if (value.length == 0) {
+                return true;
+            }
+            // [databind#6065]: with content @JsonInclude applied to containers,
+            // an array whose every element is suppressed is considered empty
+            if (_needToCheckFiltering(prov)) {
+                for (long v : value) {
+                    if (_shouldSerializeElement(prov, Long.valueOf(v))) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -547,7 +599,20 @@ public class JDKArraySerializers
 
         @Override
         public boolean isEmpty(SerializationContext prov, float[] value) {
-            return value.length == 0;
+            if (value.length == 0) {
+                return true;
+            }
+            // [databind#6065]: with content @JsonInclude applied to containers,
+            // an array whose every element is suppressed is considered empty
+            if (_needToCheckFiltering(prov)) {
+                for (float v : value) {
+                    if (_shouldSerializeElement(prov, Float.valueOf(v))) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -649,7 +714,20 @@ public class JDKArraySerializers
 
         @Override
         public boolean isEmpty(SerializationContext prov, double[] value) {
-            return value.length == 0;
+            if (value.length == 0) {
+                return true;
+            }
+            // [databind#6065]: with content @JsonInclude applied to containers,
+            // an array whose every element is suppressed is considered empty
+            if (_needToCheckFiltering(prov)) {
+                for (double v : value) {
+                    if (_shouldSerializeElement(prov, Double.valueOf(v))) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         @Override

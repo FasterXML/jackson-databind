@@ -367,10 +367,9 @@ public class AnySetterTest extends DatabindTestUtil
         assertEquals(Integer.valueOf(3), result.get("a"));
         assertEquals(Boolean.TRUE, result.get("b"));
         Object ob = result.get("c");
-        assertInstanceOf(List.class, ob);
-        List<?> l = (List<?>)ob;
+        List<?> l = assertInstanceOf(List.class, ob);
         assertEquals(3, l.size());
-        assertEquals(Integer.valueOf(3), l.get(2));
+        assertEquals(3, l.get(2));
     }
 
     @Test
@@ -476,8 +475,8 @@ public class AnySetterTest extends DatabindTestUtil
         assertEquals(1, result.props.size());
         Base ob = result.props.get("a");
         assertNotNull(ob);
-        assertInstanceOf(Impl.class, ob);
-        assertEquals("xyz", ((Impl) ob).value);
+        Impl impl = assertInstanceOf(Impl.class, ob);
+        assertEquals("xyz", impl.value);
     }
 
     @Test

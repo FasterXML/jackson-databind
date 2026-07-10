@@ -86,7 +86,15 @@ public class CollectionSerializer
 
     @Override
     public boolean isEmpty(SerializationContext prov, Collection<?> value) {
-        return value.isEmpty();
+        if (value.isEmpty()) {
+            return true;
+        }
+        // [databind#6065]: with content @JsonInclude applied to containers,
+        // a collection whose every element is suppressed is considered empty
+        if (_needToCheckFiltering(prov)) {
+            return _allElementsSuppressed(prov, value.iterator());
+        }
+        return false;
     }
 
     @Override

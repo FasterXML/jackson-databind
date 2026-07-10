@@ -77,12 +77,11 @@ public class CreatorWithNamingStrategyTest
         @Override
         public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember param) {
             if (param instanceof AnnotatedParameter ap) {
-                switch (ap.getIndex()) {
-                case 0: return "myAge";
-                case 1: return "myName";
-                default:
-                    return "param"+ap.getIndex();
-                }
+                return switch (ap.getIndex()) {
+                    case 0 -> "myAge";
+                    case 1 -> "myName";
+                    default -> "param" + ap.getIndex();
+                };
             }
             return super.findImplicitPropertyName(config, param);
         }

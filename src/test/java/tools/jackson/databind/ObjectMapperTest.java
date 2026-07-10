@@ -510,7 +510,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         jsonGenerator.writeString("value");
         jsonGenerator.close();
 
-        assertEquals("\"value\"", Files.readString(path));
+        assertEquals("\"value\"", utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -522,7 +522,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         jsonGenerator.writeString("value");
         jsonGenerator.close();
 
-        assertEquals("\"value\"", Files.readString(path));
+        assertEquals("\"value\"", utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -822,7 +822,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         Path path = Files.createTempFile("", "");
         MAPPER.writeValue(path.toFile(), "value");
 
-        assertEquals("\"value\"", Files.readString(path));
+        assertEquals("\"value\"", utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -831,7 +831,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         Path path = Files.createTempFile("", "");
         MAPPER.writeValue(path, "value");
 
-        assertEquals("\"value\"", Files.readString(path));
+        assertEquals("\"value\"", utf8String(Files.readAllBytes(path)));
     }
 
     @Test

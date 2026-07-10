@@ -413,7 +413,8 @@ João Guerra (@joca-bt)
  * Reported #6040: Inconsistency in current token on invalid type coercion for `List<String>`
   [3.1.5]
  * Reported, fixed #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected
-   with constructor-backed properties
+   with constructor-backed properties (nor with Builders, `@JsonUnwrapped`,
+   external type ids or `Shape.ARRAY`)
   [3.2.1]
 
 Gili Tzabari (@cowwoc)

@@ -437,7 +437,6 @@ public abstract class AsArraySerializerBase<T>
      */
     protected boolean _allElementsSuppressed(SerializationContext ctxt, Iterator<?> it)
     {
-        var serializers = _dynamicValueSerializers;
         while (it.hasNext()) {
             Object elem = it.next();
             if (elem == null) {
@@ -446,11 +445,14 @@ public abstract class AsArraySerializerBase<T>
                 }
                 return false;
             }
+            // Only the "empty" check needs an element serializer; other suppression
+            // mechanisms compare the element directly, so avoid resolving one
+            ValueSerializer<Object> serializer = null;
             if (_suppressableValue == MARKER_FOR_EMPTY) {
-                ValueSerializer<Object> serializer = _elementSerializer;
+                serializer = _elementSerializer;
                 if (serializer == null) {
                     Class<?> cc = elem.getClass();
-                    serializer = serializers.serializerFor(cc);
+                    serializer = _dynamicValueSerializers.serializerFor(cc);
                     if (serializer == null) {
                         if (_elementType.hasGenericTypes()) {
                             serializer = _findAndAddDynamic(ctxt,
@@ -458,13 +460,10 @@ public abstract class AsArraySerializerBase<T>
                         } else {
                             serializer = _findAndAddDynamic(ctxt, cc);
                         }
-                        serializers = _dynamicValueSerializers;
                     }
                 }
-                if (!serializer.isEmpty(ctxt, elem)) {
-                    return false;
-                }
-            } else if ((_suppressableValue == null) || !_suppressableValue.equals(elem)) {
+            }
+            if (_shouldSerializeElement(ctxt, elem, serializer)) {
                 return false;
             }
         }

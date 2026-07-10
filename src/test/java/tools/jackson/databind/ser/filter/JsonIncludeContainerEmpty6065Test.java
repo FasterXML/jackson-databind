@@ -91,6 +91,27 @@ public class JsonIncludeContainerEmpty6065Test extends DatabindTestUtil
         public Iterable<String> values;
     }
 
+    // Nested containers: content filtering recurses, so an inner container that becomes
+    // empty is itself suppressed as an element of the outer container
+    @JsonInclude(value = JsonInclude.Include.NON_EMPTY, content = JsonInclude.Include.NON_EMPTY)
+    static class NestedListBean {
+        public List<List<String>> values;
+    }
+
+    @JsonInclude(value = JsonInclude.Include.NON_EMPTY, content = JsonInclude.Include.NON_EMPTY)
+    static class MapOfListsBean {
+        public Map<String, List<String>> values;
+    }
+
+    // content = NON_NULL: only nulls are suppressed, empty Strings are retained
+    @JsonInclude(value = JsonInclude.Include.NON_EMPTY, content = JsonInclude.Include.NON_NULL)
+    static class NonNullContentBean {
+        public List<String> strings;
+        public List<Integer> numbers;
+        public String[] stringArray;
+        public Integer[] numberArray;
+    }
+
     private final ObjectMapper MAPPER = JsonMapper.builder()
             .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
             .build();
@@ -239,6 +260,69 @@ public class JsonIncludeContainerEmpty6065Test extends DatabindTestUtil
         EnumSetBean bean = new EnumSetBean();
         bean.values = EnumSet.of(Size.SMALL, Size.LARGE);
         assertEquals("{\"values\":[\"LARGE\"]}", MAPPER.writeValueAsString(bean));
+    }
+
+    // [databind#6065]: nested containers -- inner List that is empty after content
+    // filtering is itself suppressed as an element of the outer List
+    @Test
+    public void testNestedListsAllEmptyAfterContentFilter() throws Exception {
+        NestedListBean bean = new NestedListBean();
+        bean.values = new ArrayList<>(Arrays.asList(
+                new ArrayList<>(Arrays.asList("", "")),
+                new ArrayList<>(Collections.singletonList((String) null)),
+                new ArrayList<>()));
+        assertEquals("{}", MAPPER.writeValueAsString(bean));
+    }
+
+    @Test
+    public void testNestedListsKeepNonEmpty() throws Exception {
+        NestedListBean bean = new NestedListBean();
+        bean.values = new ArrayList<>(Arrays.asList(
+                new ArrayList<>(Arrays.asList("", "")),
+                new ArrayList<>(Arrays.asList(null, "keep"))));
+        assertEquals("{\"values\":[[\"keep\"]]}", MAPPER.writeValueAsString(bean));
+    }
+
+    @Test
+    public void testMapOfListsAllEmptyAfterContentFilter() throws Exception {
+        MapOfListsBean bean = new MapOfListsBean();
+        bean.values = new LinkedHashMap<>();
+        bean.values.put("a", new ArrayList<>(Arrays.asList("", "")));
+        bean.values.put("b", new ArrayList<>());
+        assertEquals("{}", MAPPER.writeValueAsString(bean));
+    }
+
+    @Test
+    public void testMapOfListsKeepsNonEmpty() throws Exception {
+        MapOfListsBean bean = new MapOfListsBean();
+        bean.values = new LinkedHashMap<>();
+        bean.values.put("a", new ArrayList<>(Collections.singletonList("")));
+        bean.values.put("b", new ArrayList<>(Arrays.asList(null, "keep")));
+        assertEquals("{\"values\":{\"b\":[\"keep\"]}}", MAPPER.writeValueAsString(bean));
+    }
+
+    // [databind#6065]: content = NON_NULL suppresses nulls only; container with
+    // nothing but nulls becomes empty, but empty Strings/zeroes are retained
+    @Test
+    public void testNonNullContentAllNulls() throws Exception {
+        NonNullContentBean bean = new NonNullContentBean();
+        bean.strings = new ArrayList<>(Arrays.asList(null, null));
+        bean.numbers = new ArrayList<>(Collections.singletonList((Integer) null));
+        bean.stringArray = new String[] { null };
+        bean.numberArray = new Integer[] { null, null };
+        assertEquals("{}", MAPPER.writeValueAsString(bean));
+    }
+
+    @Test
+    public void testNonNullContentRetainsEmptyValues() throws Exception {
+        NonNullContentBean bean = new NonNullContentBean();
+        bean.strings = new ArrayList<>(Arrays.asList(null, ""));
+        bean.numbers = new ArrayList<>(Arrays.asList(null, 0));
+        bean.stringArray = new String[] { null, "" };
+        bean.numberArray = new Integer[] { null, 0 };
+        assertEquals("{\"strings\":[\"\"],\"numbers\":[0],"
+                +"\"stringArray\":[\"\"],\"numberArray\":[0]}",
+                MAPPER.writeValueAsString(bean));
     }
 
     // Without the feature, containers are left intact (only null containers dropped)

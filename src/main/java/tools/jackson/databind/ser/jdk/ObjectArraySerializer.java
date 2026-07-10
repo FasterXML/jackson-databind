@@ -506,16 +506,21 @@ public class ObjectArraySerializer
                 }
                 return false;
             }
-            ValueSerializer<Object> serializer = _elementSerializer;
-            if (serializer == null) {
-                Class<?> cc = elem.getClass();
-                serializer = _dynamicValueSerializers.serializerFor(cc);
+            // Only the "empty" check needs an element serializer; other suppression
+            // mechanisms compare the element directly, so avoid resolving one
+            ValueSerializer<Object> serializer = null;
+            if (_suppressableValue == MARKER_FOR_EMPTY) {
+                serializer = _elementSerializer;
                 if (serializer == null) {
-                    if (_elementType.hasGenericTypes()) {
-                        serializer = _findAndAddDynamic(ctxt,
-                                ctxt.constructSpecializedType(_elementType, cc));
-                    } else {
-                        serializer = _findAndAddDynamic(ctxt, cc);
+                    Class<?> cc = elem.getClass();
+                    serializer = _dynamicValueSerializers.serializerFor(cc);
+                    if (serializer == null) {
+                        if (_elementType.hasGenericTypes()) {
+                            serializer = _findAndAddDynamic(ctxt,
+                                    ctxt.constructSpecializedType(_elementType, cc));
+                        } else {
+                            serializer = _findAndAddDynamic(ctxt, cc);
+                        }
                     }
                 }
             }

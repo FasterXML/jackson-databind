@@ -207,17 +207,12 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         if (_needToCheckFiltering(provider)) {
             for (Object elem : value) {
                 if (elem == null) {
-                    if (_suppressNulls) {
-                        continue;
-                    }
-                    return false;
-                }
-                if (_suppressableValue == MARKER_FOR_EMPTY) {
-                    // elements are "natural" types (Strings); check emptiness directly
-                    if (!(elem instanceof String str) || !str.isEmpty()) {
+                    if (!_suppressNulls) {
                         return false;
                     }
-                } else if ((_suppressableValue == null) || !_suppressableValue.equals(elem)) {
+                // Elements are "natural" types (Strings), never have content serializer
+                // (see `createContextual()`), so pass `null`, same as `serializeContents()`
+                } else if (_shouldSerializeElement(elem, null, provider)) {
                     return false;
                 }
             }

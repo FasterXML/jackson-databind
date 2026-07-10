@@ -348,8 +348,11 @@ public class BeanAsArrayDeserializer
                     }
                     continue;
                 }
+                // [databind#6077]: view-hidden property: fail, or skip, as per feature
+                handleUnexpectedView(p, ctxt, prop, activeView);
+                continue;
             }
-            // otherwise, skip it (view-filtered, no prop etc)
+            // otherwise, skip it (no property for this position)
             p.skipChildren();
         }
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
@@ -405,8 +408,9 @@ public class BeanAsArrayDeserializer
                 p.skipChildren();
                 continue;
             }
+            // [databind#6077]: view-hidden property: fail, or skip, as per feature
             if ((activeView != null) && !prop.visibleInView(activeView)) {
-                p.skipChildren();
+                handleUnexpectedView(p, ctxt, prop, activeView);
                 continue;
             }
 

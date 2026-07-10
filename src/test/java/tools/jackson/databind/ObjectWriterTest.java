@@ -163,9 +163,9 @@ public class ObjectWriterTest extends DatabindTestUtil
         ObjectWriter w = MAPPER.writer()
                 .without(SerializationFeature.EAGER_SERIALIZER_FETCH);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        w.writeValue(out, Integer.valueOf(3));
+        w.writeValue(out, 3);
         out.close();
-        assertEquals("3", out.toString("UTF-8"));
+        assertEquals("3", utf8String(out));
     }
 
     @Test

@@ -61,7 +61,7 @@ public class ObjectReaderTest extends DatabindTestUtil
     public void testSimpleAltSources() throws Exception
     {
         final String JSON = "[1]";
-        final byte[] BYTES = JSON.getBytes("UTF-8");
+        final byte[] BYTES = utf8Bytes(JSON);
         final Object EXP = Arrays.asList(1);
         assertEquals(EXP, MAPPER
                 .readerFor(Object.class)
@@ -337,7 +337,7 @@ public class ObjectReaderTest extends DatabindTestUtil
         f.delete();
 
         try (JsonParser p = R.createParser(
-                new ByteArrayInputStream("{}".getBytes(StandardCharsets.UTF_8)))) {
+                new ByteArrayInputStream(utf8Bytes("{}")))) {
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
         }
@@ -409,7 +409,7 @@ public class ObjectReaderTest extends DatabindTestUtil
     {
         final ObjectReader R = MAPPER.reader();
         final String JSON = "[]";
-        final byte[] JSON_B = JSON.getBytes(StandardCharsets.UTF_8);
+        final byte[] JSON_B = utf8Bytes(JSON);
         final JsonNode EXP = R.createArrayNode();
 
         assertEquals(EXP, R.readTree(JSON));

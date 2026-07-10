@@ -1,6 +1,7 @@
 package perf;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import tools.jackson.core.type.TypeReference;
@@ -38,7 +39,7 @@ public class ManualReadWithTypeResolution
         _desc2 = "Generic type";
         _mapper = new JsonMapper();
 
-        _input = "[\"value\",\"123\"]".getBytes("UTF-8");
+        _input = "[\"value\",\"123\"]".getBytes(StandardCharsets.UTF_8);
         _inputType = List.class;
         _inputTypeRef = new TypeReference<List<String>>() { };
 

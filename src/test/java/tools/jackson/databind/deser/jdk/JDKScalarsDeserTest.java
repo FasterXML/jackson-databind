@@ -551,7 +551,8 @@ public class JDKScalarsDeserTest
     @Test
     public void testBase64Variants() throws Exception
     {
-        final byte[] INPUT = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890X".getBytes("UTF-8");
+        final byte[] INPUT = utf8Bytes(
+                "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890X");
 
         // default encoding is "MIME, no linefeeds", so:
         assertArrayEquals(INPUT, MAPPER.readValue(

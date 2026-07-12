@@ -181,8 +181,7 @@ public class SealedTypesWithTypedDeserializationTest
             +asJSONObjectValueString(m, "name", "Scooby", "boneCount", "6")+" }";
         Animal a = m.readValue(JSON, Animal.class);
         assertInstanceOf(Animal.class, a);
-        assertEquals(Dog.class, a.getClass());
-        Dog d = (Dog) a;
+        Dog d = assertInstanceOf(Dog.class, a);
         assertEquals("Scooby", d.name);
         assertEquals(6, d.boneCount);
     }

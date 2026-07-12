@@ -211,19 +211,12 @@ public class CollectionSerializationTest
                 }
                 value = ints;
             } else {
-                Collection<Integer> c;
+                Collection<Integer> c = switch (type) {
+                    case 1 -> new LinkedList<Integer>();
+                    case 2 -> new TreeSet<Integer>(); // has to be ordered
+                    default -> new ArrayList<Integer>();
+                };
 
-                switch (type) {
-                case 1:
-                    c = new LinkedList<Integer>();
-                    break;
-                case 2:
-                    c = new TreeSet<Integer>(); // has to be ordered
-                    break;
-                default:
-                    c = new ArrayList<Integer>();
-                    break;
-                }
                 for (int i = 0; i < entryLen; ++i) {
                     c.add(Integer.valueOf(i));
                 }

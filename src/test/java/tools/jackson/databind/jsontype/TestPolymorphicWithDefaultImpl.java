@@ -228,9 +228,9 @@ public class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
     public void testDeserializationWithObject() throws Exception
     {
         Inter inter = MAPPER.readerFor(Inter.class).readValue("{\"type\": \"mine\", \"blah\": [\"a\", \"b\", \"c\"]}");
-        assertInstanceOf(MyInter.class, inter);
         assertFalse(inter instanceof LegacyInter);
-        assertEquals(Arrays.asList("a", "b", "c"), ((MyInter) inter).blah);
+        MyInter myInter = assertInstanceOf(MyInter.class, inter);
+        assertEquals(Arrays.asList("a", "b", "c"), myInter.blah);
     }
 
     @Test
@@ -238,23 +238,24 @@ public class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
     {
         Inter inter = MAPPER.readerFor(Inter.class).readValue("\"a,b,c,d\"");
         assertInstanceOf(LegacyInter.class, inter);
-        assertEquals(Arrays.asList("a", "b", "c", "d"), ((MyInter) inter).blah);
+        MyInter myInter = assertInstanceOf(MyInter.class, inter);
+        assertEquals(Arrays.asList("a", "b", "c", "d"), myInter.blah);
     }
 
     @Test
     public void testDeserializationWithArray() throws Exception
     {
         Inter inter = MAPPER.readerFor(Inter.class).readValue("[\"a\", \"b\", \"c\", \"d\"]");
-        assertInstanceOf(LegacyInter.class, inter);
-        assertEquals(Arrays.asList("a", "b", "c", "d"), ((MyInter) inter).blah);
+        LegacyInter legacyInter = assertInstanceOf(LegacyInter.class, inter);
+        assertEquals(Arrays.asList("a", "b", "c", "d"), legacyInter.blah);
     }
 
     @Test
     public void testDeserializationWithArrayOfSize2() throws Exception
     {
         Inter inter = MAPPER.readerFor(Inter.class).readValue("[\"a\", \"b\"]");
-        assertInstanceOf(LegacyInter.class, inter);
-        assertEquals(Arrays.asList("a", "b"), ((MyInter) inter).blah);
+        LegacyInter legacyInter = assertInstanceOf(LegacyInter.class, inter);
+        assertEquals(Arrays.asList("a", "b"), legacyInter.blah);
     }
 
     // [databind#148]
@@ -303,7 +304,8 @@ public class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
         BaseFor656 value = MAPPER.readValue(a2q("{'foobar':{'a':3}}"), BaseFor656.class);
         assertNotNull(value);
         assertEquals(ImplFor656.class, value.getClass());
-        assertEquals(3, ((ImplFor656) value).a);
+        ImplFor656 impl = assertInstanceOf(ImplFor656.class, value);
+        assertEquals(3, impl.a);
     }
 
     @Test

@@ -159,7 +159,13 @@ public class UnwrappedPropertyHandler
                 || _unwrappedPropertyNames.isEmpty()
                 // [databind#1709]: Skip deserialization if no unwrapped content.
                 || !ctxt.isEnabled(DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED)) {
+            // [databind#6060]: honor active @JsonView -- skip Field/Setter properties not
+            // visible in the active view rather than populating them from buffered input.
+            final Class<?> activeView = ctxt.getActiveView();
             for (SettableBeanProperty prop : _properties) {
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    continue;
+                }
                 try (JsonParser p = buffered.asParserOnFirstToken(ctxt)) {
                     prop.deserializeAndSet(p, ctxt, bean);
                 }

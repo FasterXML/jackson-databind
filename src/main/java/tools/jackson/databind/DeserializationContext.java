@@ -1332,7 +1332,12 @@ public abstract class DeserializationContext
 
     private TreeTraversingParser _treeAsTokens(JsonNode n)
     {
-        TreeTraversingParser p = new TreeTraversingParser(n, this);
+        // [databind#1803]: link parent context (from the active parser, if any) so that
+        // path (`pathAsPointer()`) and parent `currentValue()` survive tree conversion
+        // instead of starting fresh at the converted subtree.
+        final JsonParser src = _parser;
+        final TokenStreamContext parent = (src == null) ? null : src.streamReadContext();
+        TreeTraversingParser p = new TreeTraversingParser(n, this, parent);
         // important: must initialize...
         p.nextToken();
         return p;

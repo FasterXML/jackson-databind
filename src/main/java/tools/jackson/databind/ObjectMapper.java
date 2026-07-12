@@ -2359,13 +2359,13 @@ public class ObjectMapper
      * cases, such as conversion of polymorphic values, or cases where Object Identity
      * is used.
      *
-     * @throws IllegalArgumentException If conversion fails due to incompatible type;
+     * @throws JacksonException If conversion fails due to incompatible type;
      *    if so, root cause will contain underlying checked exception data binding
      *    functionality threw
      */
     @SuppressWarnings("unchecked")
     public <T> T convertValue(Object fromValue, Class<T> toValueType)
-        throws IllegalArgumentException
+        throws JacksonException
     {
         _assertNotNull("toValueType", toValueType);
         return (T) _convert(fromValue, _typeFactory.constructType(toValueType));
@@ -2376,7 +2376,7 @@ public class ObjectMapper
      */
     @SuppressWarnings("unchecked")
     public <T> T convertValue(Object fromValue, TypeReference<T> toValueTypeRef)
-        throws IllegalArgumentException
+        throws JacksonException
     {
         _assertNotNull("toValueTypeRef", toValueTypeRef);
         return (T) _convert(fromValue, _typeFactory.constructType(toValueTypeRef));
@@ -2387,7 +2387,7 @@ public class ObjectMapper
      */
     @SuppressWarnings("unchecked")
     public <T> T convertValue(Object fromValue, JavaType toValueType)
-        throws IllegalArgumentException
+        throws JacksonException
     {
         _assertNotNull("toValueType", toValueType);
         return (T) _convert(fromValue, toValueType);

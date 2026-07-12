@@ -12,6 +12,12 @@ Versions: 3.x (for earlier see VERSION-2.x)
   (on both serialization and deserialization) instead of confusing low-level error
  (reported by Alex C)
  (fix by @cowtowncoder, w/ Claude code)
+#1803: `TreeTraversingParser` should allow passing of parent context
+ (fix by @cowtowncoder, w/ Claude code)
+#6069: Change throws declaration on convertValue to JacksonException to match what
+  is actually thrown
+ (reported by @pctF)
+ (fix by @pjfanning)
 
 3.2.1 (not yet released)
 
@@ -25,6 +31,17 @@ Versions: 3.x (for earlier see VERSION-2.x)
   on `@JsonCreator` parameter (regression in 3.2.0)
  (reported by @ynojima)
  (fix by @cowtowncoder, w/ Claude code)
+#6043: `FAIL_ON_UNKNOWN_PROPERTIES` has no effect with `JsonFormat.Shape.ARRAY` when
+  using creator-based instantiation (such as `record`)
+ (reported by Théo S)
+ (fix by @seonwooj0810)
+#6055: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
+  properties [GHSA-mhm7-754m-9p8w]
+ (reported by @Sharlong-Wen)
+#6059: `ObjectMapper.valueToTree()` with `byte[]` does not produce `BinaryNode`
+ (reported by @sebastien-leveque)
+ (fix by @cowtowncoder, w/ Claude code)
+#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
 
 3.2.0 (08-Jun-2026)
 
@@ -256,6 +273,12 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6040: Inconsistency in current token on invalid type coercion for `List<String>`
  (reported by João G)
  (fix by @cowtowncoder, w/ Claude code)
+#6048: Apply content converters for String collection values (`StringCollectionDeserializer`)
+ (fixed by Lee Jiwon)
+#6055: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
+  properties [GHSA-mhm7-754m-9p8w]
+ (reported by @Sharlong-Wen)
+#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
 
 3.1.4 (29-May-2026)
 

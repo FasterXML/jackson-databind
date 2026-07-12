@@ -38,7 +38,9 @@ public class ExternalTypeIdView5958Test extends DatabindTestUtil
     @JsonTypeName("cat")
     static class Cat extends Animal { }
 
-    // Default impl used when the type id is filtered out by view processing.
+    // Configured default impl. Note: since [databind#6055] a view-filtered external
+    // property is skipped entirely (left null) rather than falling back to this, so
+    // it is not exercised by the restricted-view case; kept to mirror real configs.
     @JsonTypeName("unknown")
     static class UnknownAnimal extends Animal { }
 
@@ -98,7 +100,13 @@ public class ExternalTypeIdView5958Test extends DatabindTestUtil
     // external type handler. Without the patch, `petType:"dog"` would be picked
     // up via `_propsByIndex`/`handleTypePropertyValue` even though the field is
     // restricted to a different view, and `pet` would be deserialized as `Dog`.
-    // With the patch, the type-id property is skipped and `defaultImpl` kicks in.
+    //
+    // Here the value property `pet` is itself `@JsonView(Internal)`-restricted, so
+    // under the Public view it is a view-filtered property. Per [databind#6055]
+    // (GHSA-mhm7-754m-9p8w) a view-filtered EXTERNAL_PROPERTY value is skipped
+    // entirely -- both the value and its external type id -- and left null, the
+    // same way any ordinary view-filtered property is; `defaultImpl` does not apply
+    // to a property that is invisible in the active view.
     @Test
     public void typeIdSkippedInRestrictedView() throws Exception
     {
@@ -108,8 +116,8 @@ public class ExternalTypeIdView5958Test extends DatabindTestUtil
 
         assertEquals("box", c.label);
         assertNull(c.petType, "petType is @JsonView-restricted; must be skipped under Public view");
-        assertNotNull(c.pet);
-        assertInstanceOf(UnknownAnimal.class, c.pet,
-                "type id must not leak across views; defaultImpl should be used instead of Dog");
+        assertNull(c.pet,
+                "pet is @JsonView-restricted; view-filtered external property must be left null, "
+                + "type id must not leak across views");
     }
 }

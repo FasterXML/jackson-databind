@@ -180,12 +180,26 @@ public class JsonValueSerializer
                  *   cases where "native" (aka "natural") type is being serialized,
                  *   using standard serializer
                  */
-                boolean forceTypeInformation = isNaturalTypeWithStdHandling(_valueType.getRawClass(), ser);
+                boolean forceTypeInformation;
+                if (_accessor == null) {
+                	// Why do we forceTypeInformation if the type is natural? Shouldn't it be the contrary?
+                	forceTypeInformation = isNaturalTypeWithStdHandling(_valueType.getRawClass(), ser);
+                } else {
+                	// We came here due to a `@JsonValue`: the type of the accessed value is irrelevant as it is not the type of the original value
+                	forceTypeInformation = false;
+                }
                 return withResolved(property, vts, ser, forceTypeInformation);
             }
             // [databind#2822]: better hold on to "property", regardless
             if (property != _property) {
-                return withResolved(property, vts, ser, _forceTypeInformation);
+                boolean forceTypeInformation;
+                if (_accessor == null) {
+                	forceTypeInformation = this._forceTypeInformation;
+                } else {
+                	// We came here due to a `@JsonValue`: the type of the accessed value is irrelevant as it is not the type of the original value
+                	forceTypeInformation = false;
+                }
+                return withResolved(property, vts, ser, forceTypeInformation);
             }
         } else {
             // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...

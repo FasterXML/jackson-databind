@@ -312,6 +312,7 @@ Use one of the other inclusion mechanisms (such as `As.PROPERTY` or `As.WRAPPER_
                     typeInfo = typeInfo.withInclusionType(JsonTypeInfo.As.PROPERTY);
                 }
 
+                // [databind:4983] baseType comes from the annotated class/interface, not the serialized type
                 detectedBaseType = ai.findPolymorphicBaseType(config, annotatedClass, typeInfo, baseType);
             } else {
             	// when method/field annotated, declared type MUST be intended base type

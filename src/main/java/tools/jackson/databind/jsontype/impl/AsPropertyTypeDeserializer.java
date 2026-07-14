@@ -146,6 +146,9 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             p.nextToken(); // to skip past String value
         }
         // deserializer should take care of closing END_OBJECT as well
+        if (tb != null) { // content is replayed from a buffer: keep it the active parser
+            return _deserializeReplayed(p, ctxt, deser);
+        }
         return deser.deserialize(p, ctxt);
     }
 
@@ -194,8 +197,29 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             p = tb.asParser(ctxt, p);
             // must move to point to the first token:
             p.nextToken();
+            // content is replayed from a buffer: keep it the active parser
+            return _deserializeReplayed(p, ctxt, deser);
         }
         return deser.deserialize(p, ctxt);
+    }
+
+    /**
+     * Runs deserialization while the (buffered "replay") parser is registered as the
+     * currently active parser, restoring the previous one afterwards. Needed so that a
+     * mismatch reported during replay identifies the token actually being processed instead
+     * of the outer parser, which has already advanced past the buffered content
+     * (see [databind#6091]).
+     */
+    private Object _deserializeReplayed(JsonParser replayParser, DeserializationContext ctxt,
+            ValueDeserializer<Object> deser)
+        throws JacksonException
+    {
+        JsonParser prev = ctxt.swapParser(replayParser);
+        try {
+            return deser.deserialize(replayParser, ctxt);
+        } finally {
+            ctxt.swapParser(prev);
+        }
     }
 
     /* Also need to re-route "unknown" version. Need to think

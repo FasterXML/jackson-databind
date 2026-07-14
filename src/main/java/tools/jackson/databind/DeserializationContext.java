@@ -486,6 +486,26 @@ public abstract class DeserializationContext
      */
     public final JsonParser getParser() { return _parser; }
 
+    /**
+     * Method for making given parser the currently active parser (see {@link #getParser()}),
+     * returning the parser that was active before so the caller can restore it.
+     *<p>
+     * Used during buffered ("replay") deserialization -- such as polymorphic handling with
+     * {@code defaultImpl}, where content is buffered into a
+     * {@link tools.jackson.databind.util.TokenBuffer} and re-read -- so that problems reported
+     * during replay (for example by {@link #reportInputMismatch}) reference the token actually
+     * being processed, rather than the outer parser that has already advanced past the buffered
+     * content (see [databind#6091]).
+     *
+     * @since 3.3
+     */
+    public JsonParser swapParser(JsonParser p) {
+        JsonParser prev = _parser;
+        _parser = p;
+        _readCapabilities = p.streamReadCapabilities();
+        return prev;
+    }
+
     public final Object findInjectableValue(Object valueId,
             BeanProperty forProperty, Object beanInstance, Boolean optional, Boolean useInput)
     {

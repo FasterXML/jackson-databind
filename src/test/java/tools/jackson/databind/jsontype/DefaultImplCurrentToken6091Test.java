@@ -29,21 +29,21 @@ class DefaultImplCurrentToken6091Test extends DatabindTestUtil {
     @Test
     void typeIdFirst() throws Exception {
         assertEquals(JsonToken.VALUE_STRING,
-                tokenAtMismatch("{\"type\":\"Payload\",\"count\":\"x\"}"));
+                tokenAtMismatch(a2q("{'type':'Payload','count':'x'}")));
     }
 
     // type id missing: whole object is buffered, then replayed against the defaultImpl
     @Test
     void typeIdMissing() throws Exception {
         assertEquals(JsonToken.VALUE_STRING,
-                tokenAtMismatch("{\"count\":\"x\"}"));
+                tokenAtMismatch(a2q("{'count':'x'}")));
     }
 
     // type id present after the offending value: value is buffered, replayed once id is known
     @Test
     void typeIdLast() throws Exception {
         assertEquals(JsonToken.VALUE_STRING,
-                tokenAtMismatch("{\"count\":\"x\",\"type\":\"Payload\"}"));
+                tokenAtMismatch(a2q("{'count':'x','type':'Payload'}")));
     }
 
     private JsonToken tokenAtMismatch(String json) throws Exception {

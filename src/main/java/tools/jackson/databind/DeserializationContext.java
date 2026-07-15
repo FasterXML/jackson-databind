@@ -490,6 +490,12 @@ public abstract class DeserializationContext
      * Method for making given parser the currently active parser (see {@link #getParser()}),
      * returning the parser that was active before so the caller can restore it.
      *<p>
+     * NOTE: method is meant for internal use by databind itself, and is NOT part of the
+     * public API: it is only {@code public} because the sole caller
+     * ({@link tools.jackson.databind.jsontype.impl.AsPropertyTypeDeserializer}) resides in
+     * a different package. Application code should not call this method; doing so leaves
+     * the context referring to a parser the rest of the pipeline does not expect.
+     *<p>
      * Used during buffered ("replay") deserialization -- such as polymorphic handling with
      * {@code defaultImpl}, where content is buffered into a
      * {@link tools.jackson.databind.util.TokenBuffer} and re-read -- so that problems reported

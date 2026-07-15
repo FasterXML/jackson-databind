@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -15,54 +16,112 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
  * uses the dangerous `@JsonTypeInfo(use = Id.CLASS)` to the safer alternative
  * of `@JsonTypeInfo(use = Id.NAME)` without breaking message content compatibility.
  */
-public class PolymorphicStyleRefactorTest
+public class PolymorphicStyleRefactorTest extends DatabindTestUtil
 {
+    static class ClassWrap {
+        static class Root {
+            public Child child;
 
-    static class ClassRoot {
-        public ClassChild child;
+            public Root(Child child) {
+                this.child = child;
+            }
+        }
+
+        // property defaults to `@class` for use = Id.CLASS but making it explicit for this example
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
+        static abstract class Child {
+        }
+
+        static class ChildA extends Child {
+            public String name;
+
+            ChildA(String name) {
+                this.name = name;
+            }
+        }
+
+        static class ChildB extends Child {
+
+            public String code;
+
+            ChildB(String code) {
+                this.code = code;
+            }
+        }
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-    static abstract class ClassChild {
-    }
+    static class NameWrap {
+        static class Root {
+            public Child child;
 
-    static class ClassChildA extends ClassChild {
-        public String name;
-    }
+            public Root(Child child) {
+                this.child = child;
+            }
 
-    static class ClassChildB extends ClassChild {
-        public String code;
-    }
+        }
 
-    static class NameRoot {
-        public NameChild child;
-    }
+        // property defaults to `@name` for use = Id.NAME but making using `@class` to match RootChild above
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@class")
+        @JsonSubTypes({
+                @JsonSubTypes.Type(value = ChildA.class, names = {"tools.jackson.databind.deser.PolymorphicStyleRefactorTest$ClassWrap$ChildA", "ChildA"}),
+                @JsonSubTypes.Type(value = ChildB.class, names = {"tools.jackson.databind.deser.PolymorphicStyleRefactorTest$ClassWrap$ChildB", "ChildB"})
+        })
+        static abstract class Child {
+        }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
-    @JsonSubTypes({
-        @JsonSubTypes.Type(value = NameChildA.class, name = "ChildA"),
-        @JsonSubTypes.Type(value = NameChildB.class, name = "ChildB")
-    })
-    static abstract class NameChild {
-    }
+        static class ChildA extends Child {
+            public String name;
 
-    static class NameChildA extends NameChild {
-        public String name;
-    }
+            ChildA(String name) {
+                this.name = name;
+            }
+        }
 
-    static class NameChildB extends NameChild {
-        public String code;
+        static class ChildB extends Child {
+            public String code;
+
+            ChildB(String code) {
+                this.code = code;
+            }
+        }
     }
 
     private final ObjectMapper MAPPER = JsonMapper.builder()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
 
+    String expectedJson = a2q("{'child':{'@class':'tools.jackson.databind.deser.PolymorphicStyleRefactorTest$ClassWrap$ChildA','name':'Child A'}}");
+
     @Test
-    public void testPolymorphicNewObject() throws Exception {
-        NameRoot root = MAPPER.readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm child A\" }}", NameRoot.class);
-        NameChildA childA = assertInstanceOf(NameChildA.class, root.child);
-        assertEquals("I'm child A", childA.name);
+    public void testSerializationForIdClass() {
+        String name = "Child A";
+        ClassWrap.Root classRoot = new ClassWrap.Root(new ClassWrap.ChildA(name));
+        String serialized = MAPPER.writeValueAsString(classRoot);
+        assertEquals(expectedJson, serialized);
+        ClassWrap.Root deserialized = MAPPER.readValue(serialized, ClassWrap.Root.class);
+        ClassWrap.ChildA childA = assertInstanceOf(ClassWrap.ChildA.class, deserialized.child);
+        assertEquals(name, childA.name);
+    }
+
+    @Test
+    public void testSerializationForIdName() {
+        String name = "Child A";
+        NameWrap.Root nameRoot = new NameWrap.Root(new NameWrap.ChildA(name));
+        String serialized = MAPPER.writeValueAsString(nameRoot);
+        assertEquals(expectedJson, serialized);
+        NameWrap.Root deserialized = MAPPER.readValue(serialized, NameWrap.Root.class);
+        NameWrap.ChildA childA = assertInstanceOf(NameWrap.ChildA.class, deserialized.child);
+        assertEquals(name, childA.name);
+    }
+
+    @Test
+    public void testIdClassDeserializationWithIdRoot() {
+        String name = "Child A";
+        ClassWrap.Root classRoot = new ClassWrap.Root(new ClassWrap.ChildA(name));
+        String serialized = MAPPER.writeValueAsString(classRoot);
+        NameWrap.Root deserialized = MAPPER.readValue(serialized, NameWrap.Root.class);
+        NameWrap.ChildA childA = assertInstanceOf(NameWrap.ChildA.class, deserialized.child);
+        assertEquals(name, childA.name);
     }
 
 }

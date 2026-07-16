@@ -1,4 +1,4 @@
-package tools.jackson.databind.deser;
+package tools.jackson.databind.jsontype;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -63,8 +63,8 @@ public class PolymorphicStyleRefactorTest extends DatabindTestUtil
         // property defaults to `@name` for use = Id.NAME but making using `@class` to match RootChild above
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@class")
         @JsonSubTypes({
-                @JsonSubTypes.Type(value = ChildA.class, names = {"tools.jackson.databind.deser.PolymorphicStyleRefactorTest$ClassWrap$ChildA", "ChildA"}),
-                @JsonSubTypes.Type(value = ChildB.class, names = {"tools.jackson.databind.deser.PolymorphicStyleRefactorTest$ClassWrap$ChildB", "ChildB"})
+                @JsonSubTypes.Type(value = ChildA.class, names = {"tools.jackson.databind.jsontype.PolymorphicStyleRefactorTest$ClassWrap$ChildA", "ChildA"}),
+                @JsonSubTypes.Type(value = ChildB.class, names = {"tools.jackson.databind.jsontype.PolymorphicStyleRefactorTest$ClassWrap$ChildB", "ChildB"})
         })
         static abstract class Child {
         }
@@ -90,7 +90,7 @@ public class PolymorphicStyleRefactorTest extends DatabindTestUtil
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
 
-    String expectedJson = a2q("{'child':{'@class':'tools.jackson.databind.deser.PolymorphicStyleRefactorTest$ClassWrap$ChildA','name':'Child A'}}");
+    String expectedJson = a2q("{'child':{'@class':'tools.jackson.databind.jsontype.PolymorphicStyleRefactorTest$ClassWrap$ChildA','name':'Child A'}}");
 
     @Test
     public void testSerializationForIdClass() {

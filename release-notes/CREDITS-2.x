@@ -2059,3 +2059,13 @@ CharmingKyu (@loadkrnis)
  * Fixed #5993: `UPPER_SNAKE_CASE` / `LOWER_CASE` `NamingStrategyImpls` fold case
    using JVM default locale (Turkish-I bug)
   [2.21.4]
+
+Lee Jiwon (@dlwldnjs1009)
+ * Reported #6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+   after all entries are filtered
+  [2.21.6]
+
+seonwoo_jung (@seonwooj0810)
+ * Fixed #6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+   after all entries are filtered
+  [2.21.6]

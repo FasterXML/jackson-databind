@@ -3,6 +3,7 @@ package tools.jackson.databind.deser.jdk;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Currency;
 import java.util.regex.Pattern;
 
@@ -42,10 +43,9 @@ public class JDKStringLikeTypeDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testCharset() throws Exception
+    public void testCharset()
     {
-        Charset UTF8 = Charset.forName("UTF-8");
-        assertSame(UTF8, MAPPER.readValue(q("UTF-8"), Charset.class));
+        assertSame(StandardCharsets.UTF_8, MAPPER.readValue(q("UTF-8"), Charset.class));
     }
 
     @Test

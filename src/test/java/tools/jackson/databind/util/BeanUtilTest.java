@@ -82,20 +82,20 @@ public class BeanUtilTest extends DatabindTestUtil
         // java.util.Date
         Object result = BeanUtil.propertyDefaultValue(tf.constructType(Date.class), true);
         assertNotNull(result);
-        assertInstanceOf(Date.class, result);
-        assertEquals(0L, ((Date) result).getTime());
+        Date date = assertInstanceOf(Date.class, result);
+        assertEquals(0L, date.getTime());
 
         // java.util.Calendar
         result = BeanUtil.propertyDefaultValue(tf.constructType(Calendar.class), true);
         assertNotNull(result);
-        assertInstanceOf(Calendar.class, result);
-        assertEquals(0L, ((Calendar) result).getTimeInMillis());
+        Calendar calendar = assertInstanceOf(Calendar.class, result);
+        assertEquals(0L, calendar.getTimeInMillis());
 
         // java.util.GregorianCalendar
         result = BeanUtil.propertyDefaultValue(tf.constructType(GregorianCalendar.class), true);
         assertNotNull(result);
-        assertInstanceOf(Calendar.class, result);
-        assertEquals(0L, ((Calendar) result).getTimeInMillis());
+        Calendar calendar1 = assertInstanceOf(Calendar.class, result);
+        assertEquals(0L, calendar1.getTimeInMillis());
 
         // java.util.UUID
         result = BeanUtil.propertyDefaultValue(tf.constructType(UUID.class), true);

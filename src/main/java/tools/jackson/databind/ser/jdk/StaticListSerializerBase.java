@@ -199,7 +199,26 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
 
     @Override
     public boolean isEmpty(SerializationContext provider, T value) {
-        return (value == null) || (value.isEmpty());
+        if ((value == null) || value.isEmpty()) {
+            return true;
+        }
+        // [databind#6065]: with content @JsonInclude applied to containers,
+        // a collection whose every element is suppressed is considered empty
+        if (_needToCheckFiltering(provider)) {
+            for (Object elem : value) {
+                if (elem == null) {
+                    if (!_suppressNulls) {
+                        return false;
+                    }
+                // Elements are "natural" types (Strings), never have content serializer
+                // (see `createContextual()`), so pass `null`, same as `serializeContents()`
+                } else if (_shouldSerializeElement(elem, null, provider)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override

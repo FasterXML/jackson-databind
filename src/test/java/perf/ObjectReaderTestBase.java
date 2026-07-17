@@ -84,20 +84,18 @@ abstract class ObjectReaderTestBase
             final int type = (i++ % TYPES);
 
             String msg;
-            double msesc;
+            double msesc = switch (type) {
+                case 0 -> {
+                    msg = _desc1;
+                    yield testDeser1(REPS, byteInput1, jsonReader);
+                }
+                case 1 -> {
+                    msg = _desc2;
+                    yield testDeser2(REPS, byteInput2, arrayReader);
+                }
+                default -> throw new Error();
+            };
 
-            switch (type) {
-            case 0:
-                msg = _desc1;
-                msesc = testDeser1(REPS, byteInput1, jsonReader);
-                break;
-            case 1:
-                msg = _desc2;
-                msesc = testDeser2(REPS, byteInput2, arrayReader);
-                break;
-            default:
-                throw new Error();
-            }
             updateStats(type, (i % 17) == 0, msg, msesc);
         }
     }
@@ -126,20 +124,18 @@ abstract class ObjectReaderTestBase
             Thread.sleep(100L);
             int type = (i++ % TYPES);
             String msg;
-            double msecs;
+            double msecs = switch (type) {
+                case 0 -> {
+                    msg = _desc1;
+                    yield testDeser1(REPS, input1, jsonReader);
+                }
+                case 1 -> {
+                    msg = _desc2;
+                    yield testDeser2(REPS, input2, arrayReader);
+                }
+                default -> throw new Error();
+            };
 
-            switch (type) {
-            case 0:
-                msg = _desc1;
-                msecs = testDeser1(REPS, input1, jsonReader);
-                break;
-            case 1:
-                msg = _desc2;
-                msecs = testDeser2(REPS, input2, arrayReader);
-                break;
-            default:
-                throw new Error();
-            }
             updateStats(type, (i % 17) == 0, msg, msecs);
         }
     }

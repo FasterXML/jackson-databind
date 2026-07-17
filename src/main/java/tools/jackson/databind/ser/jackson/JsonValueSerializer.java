@@ -233,7 +233,7 @@ public class JsonValueSerializer
      */
     protected static class JsonValueProperty extends BeanProperty.Std
     {
-        protected final transient BeanProperty _enclosing;
+        protected final BeanProperty _enclosing;
 
         public JsonValueProperty(BeanProperty enclosing, PropertyName name,
                 JavaType type, PropertyName wrapperName,

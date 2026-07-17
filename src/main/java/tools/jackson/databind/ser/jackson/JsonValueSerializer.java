@@ -216,7 +216,10 @@ public class JsonValueSerializer
      */
     protected BeanProperty _accessorProperty(BeanProperty property)
     {
-        if (_accessor == null) { // defensive: always non-null in practice
+        // Defensive: `_accessor` is always non-null in practice (set by constructors).
+        // If it somehow were null we cannot build an accessor-backed property, so fall
+        // back to the enclosing `property` unchanged (i.e. pre-[databind#4762] behavior).
+        if (_accessor == null) {
             return property;
         }
         PropertyName name = (property == null)
@@ -271,6 +274,9 @@ public class JsonValueSerializer
 
         @Override
         public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
+            // Only the enclosing property can carry context annotations; the accessor-backed
+            // `super` always returns null here (`BeanProperty.Std.getContextAnnotation`), so
+            // delegating to `_enclosing` alone loses nothing when it is null.
             return (_enclosing == null) ? null : _enclosing.getContextAnnotation(acls);
         }
     }

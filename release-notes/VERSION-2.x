@@ -37,6 +37,13 @@ No change since 2.22
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
+2.21.6 (not yet released)
+
+#6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+  after all entries are filtered
+ (reported by @dlwldnjs1009)
+ (fix by @seonwooj0810)
+
 2.21.5 (06-Jul-2026)
 
 #5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
@@ -66,7 +73,7 @@ No change since 2.22
  (fixed by Omkhar A)
 #5971: `@JsonView` by-passed for unwrapped creator parameters [CVE-2026-54518]
  (fixed by Omkhar A)
-#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
+#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy` [CVE-2026-59888]
  (reported by Omkhar A)
 #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
   should validate element type [CVE-2026-54513]
@@ -341,7 +348,7 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
-2.18.9 (not yet released)
+2.18.9 (07-Jul-2026)
 
 #5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
  [CVE-2026-54515]
@@ -365,7 +372,7 @@ No changes since 2.19.2
  (fixed by Omkhar A)
 #5971: `@JsonView` by-passed for unwrapped creator parameters [CVE-2026-54518]
  (fixed by Omkhar A)
-#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
+#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy` [CVE-2026-59888]
  (reported by Omkhar A)
 #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
   should validate element type [CVE-2026-54513]

@@ -9,6 +9,13 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 No changes since 3.2
 
+3.2.2 (not yet released)
+
+#6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+  after all entries are filtered
+ (reported by @dlwldnjs1009)
+ (fix by @seonwooj0810)
+
 3.2.1 (10-Jul-2026)
 
 #6022: Follow-up to #5369: apply content @JsonInclude in

@@ -4,6 +4,13 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.21.6 (not yet released)
+
+#6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+  after all entries are filtered
+ (reported by @dlwldnjs1009)
+ (fix by @seonwooj0810)
+
 2.21.5 (06-Jul-2026)
 
 #5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`

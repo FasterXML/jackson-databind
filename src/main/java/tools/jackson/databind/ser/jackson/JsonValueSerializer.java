@@ -166,6 +166,12 @@ public class JsonValueSerializer
         }
         ValueSerializer<?> ser = _valueSerializer;
         if (ser == null) {
+            // [databind#4762]: bind the value serializer to the `@JsonValue` accessor, so
+            //   that annotations on the accessor (notably `@JsonInclude`/`@JsonFormat`) are
+            //   honored. Configuration on the enclosing property still takes precedence
+            //   (see `JsonValueProperty`), preserving [databind#2822].
+            BeanProperty valueProp = _accessorProperty(property);
+
             // Can only assign serializer statically if the declared type is final:
             // if not, we don't really know the actual type until we get the instance.
 
@@ -178,21 +184,18 @@ public class JsonValueSerializer
                  *   to serializer factory at this point...
                  */
                 // I _think_ this can be considered a primary property...
-                ser = ctxt.findPrimaryPropertySerializer(_valueType, property);
+                ser = ctxt.findPrimaryPropertySerializer(_valueType, valueProp);
                 ser = _withIgnoreProperties(ser, _ignoredProperties);
                 /* 09-Dec-2010, tatu: Turns out we must add special handling for
                  *   cases where "native" (aka "natural") type is being serialized,
                  *   using standard serializer
                  */
                 boolean forceTypeInformation = isNaturalTypeWithStdHandling(_valueType.getRawClass(), ser);
-                return withResolved(property, vts, ser, forceTypeInformation);
+                return withResolved(valueProp, vts, ser, forceTypeInformation);
             }
-            // [databind#2822]: better hold on to "property", regardless
-            // [databind#4762]: but bind it to the `@JsonValue` accessor, so that
-            //   annotations on the accessor (notably `@JsonInclude(content=...)`) are
-            //   honored when the (non-final) value serializer is resolved dynamically
-            //   at write time (via `_property` in `StdDynamicSerializer#_findAndAddDynamic`).
-            BeanProperty valueProp = _accessorProperty(property);
+            // [databind#2822]: better hold on to "property", regardless. For the non-final
+            //   value type the serializer is resolved dynamically at write time via
+            //   `_property` in `StdDynamicSerializer#_findAndAddDynamic`.
             if (valueProp != _property) {
                 return withResolved(valueProp, vts, ser, _forceTypeInformation);
             }

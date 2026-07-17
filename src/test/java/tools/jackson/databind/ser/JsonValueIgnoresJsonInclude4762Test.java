@@ -1,10 +1,12 @@
 package tools.jackson.databind.ser;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -50,6 +52,30 @@ class JsonValueIgnoresJsonInclude4762Test extends DatabindTestUtil
         }
     }
 
+    // [databind#4762]: accessor annotations must also be honored when the `@JsonValue`
+    // value type is `final` (here `BigDecimal`), which takes the static-typing branch of
+    // `createContextual` rather than the dynamic one.
+    static class FinalValueWithFormat {
+        @JsonValue
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        public final BigDecimal value;
+
+        FinalValueWithFormat(BigDecimal value) {
+            this.value = value;
+        }
+    }
+
+    // Enclosing property overriding the format back to NUMBER: [databind#2822] precedence
+    // must hold in the static-typing branch too, so the enclosing override wins.
+    static class WrapperFormatNumber {
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER)
+        public FinalValueWithFormat wrapped;
+
+        WrapperFormatNumber(FinalValueWithFormat wrapped) {
+            this.wrapped = wrapped;
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     private Map<String, Object> mapWithNull() {
@@ -85,5 +111,23 @@ class JsonValueIgnoresJsonInclude4762Test extends DatabindTestUtil
         String json = MAPPER.writeValueAsString(new WrapperContentAlways(new JsonValueWithInclude(mapWithNull())));
 
         assertEquals("{\"wrapped\":{\"present\":\"x\",\"missing\":null}}", json);
+    }
+
+    // [databind#4762]: accessor-level `@JsonFormat` must be honored for a `final` value
+    // type (static-typing branch), so the `BigDecimal` is written as a String.
+    @Test
+    void jsonValueShouldHonorJsonFormatOnFinalAccessor() throws Exception {
+        String json = MAPPER.writeValueAsString(new FinalValueWithFormat(BigDecimal.ONE));
+
+        assertEquals("\"1\"", json);
+    }
+
+    // [databind#2822]: enclosing-property configuration still wins in the static-typing
+    // branch, so the enclosing `@JsonFormat(NUMBER)` overrides the accessor's STRING.
+    @Test
+    void enclosingPropertyFormatShouldOverrideAccessor() throws Exception {
+        String json = MAPPER.writeValueAsString(new WrapperFormatNumber(new FinalValueWithFormat(BigDecimal.ONE)));
+
+        assertEquals("{\"wrapped\":1}", json);
     }
 }

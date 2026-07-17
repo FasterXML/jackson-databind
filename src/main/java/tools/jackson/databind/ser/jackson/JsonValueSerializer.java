@@ -1,17 +1,21 @@
 package tools.jackson.databind.ser.jackson;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
@@ -162,6 +166,12 @@ public class JsonValueSerializer
         }
         ValueSerializer<?> ser = _valueSerializer;
         if (ser == null) {
+            // [databind#4762]: bind the value serializer to the `@JsonValue` accessor, so
+            //   that annotations on the accessor (notably `@JsonInclude`/`@JsonFormat`) are
+            //   honored. Configuration on the enclosing property still takes precedence
+            //   (see `JsonValueProperty`), preserving [databind#2822].
+            BeanProperty valueProp = _accessorProperty(property);
+
             // Can only assign serializer statically if the declared type is final:
             // if not, we don't really know the actual type until we get the instance.
 
@@ -174,18 +184,20 @@ public class JsonValueSerializer
                  *   to serializer factory at this point...
                  */
                 // I _think_ this can be considered a primary property...
-                ser = ctxt.findPrimaryPropertySerializer(_valueType, property);
+                ser = ctxt.findPrimaryPropertySerializer(_valueType, valueProp);
                 ser = _withIgnoreProperties(ser, _ignoredProperties);
                 /* 09-Dec-2010, tatu: Turns out we must add special handling for
                  *   cases where "native" (aka "natural") type is being serialized,
                  *   using standard serializer
                  */
                 boolean forceTypeInformation = isNaturalTypeWithStdHandling(_valueType.getRawClass(), ser);
-                return withResolved(property, vts, ser, forceTypeInformation);
+                return withResolved(valueProp, vts, ser, forceTypeInformation);
             }
-            // [databind#2822]: better hold on to "property", regardless
-            if (property != _property) {
-                return withResolved(property, vts, ser, _forceTypeInformation);
+            // [databind#2822]: better hold on to "property", regardless. For the non-final
+            //   value type the serializer is resolved dynamically at write time via
+            //   `_property` in `StdDynamicSerializer#_findAndAddDynamic`.
+            if (valueProp != _property) {
+                return withResolved(valueProp, vts, ser, _forceTypeInformation);
             }
         } else {
             // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
@@ -193,6 +205,80 @@ public class JsonValueSerializer
             return withResolved(property, vts, ser, _forceTypeInformation);
         }
         return this;
+    }
+
+    /**
+     * Constructs a {@link BeanProperty} used to contextualize the value serializer.
+     * Configuration declared on the enclosing property (e.g. {@code @JsonFormat},
+     * see [databind#2822]) continues to take precedence, while configuration declared
+     * on the {@code @JsonValue} accessor itself (e.g. {@code @JsonInclude}) is layered
+     * underneath so that it is no longer silently ignored. [databind#4762]
+     */
+    protected BeanProperty _accessorProperty(BeanProperty property)
+    {
+        // Defensive: `_accessor` is always non-null in practice (set by constructors).
+        // If it somehow were null we cannot build an accessor-backed property, so fall
+        // back to the enclosing `property` unchanged (i.e. pre-[databind#4762] behavior).
+        if (_accessor == null) {
+            return property;
+        }
+        PropertyName name = (property == null)
+                ? PropertyName.construct(_accessor.getName()) : property.getFullName();
+        PropertyName wrapperName = (property == null) ? null : property.getWrapperName();
+        PropertyMetadata metadata = (property == null)
+                ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL : property.getMetadata();
+        return new JsonValueProperty(property, name, _valueType, wrapperName, _accessor, metadata);
+    }
+
+    /**
+     * {@link BeanProperty} used when contextualizing the value serializer for a
+     * {@code @JsonValue} accessor. It is backed by the accessor (so annotations such as
+     * {@code @JsonInclude} declared on it are seen, [databind#4762]) but lets any
+     * configuration on the enclosing property override it, preserving the established
+     * precedence where property-level {@code @JsonFormat} wins ([databind#2822]).
+     */
+    protected static class JsonValueProperty extends BeanProperty.Std
+    {
+        protected final BeanProperty _enclosing;
+
+        public JsonValueProperty(BeanProperty enclosing, PropertyName name,
+                JavaType type, PropertyName wrapperName,
+                AnnotatedMember accessor, PropertyMetadata metadata) {
+            super(name, type, wrapperName, accessor, metadata);
+            _enclosing = enclosing;
+        }
+
+        @Override
+        public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType) {
+            JsonFormat.Value v = super.findPropertyFormat(config, baseType);
+            if (_enclosing != null) {
+                v = v.withOverrides(_enclosing.findPropertyFormat(config, baseType));
+            }
+            return v;
+        }
+
+        @Override
+        public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType) {
+            JsonInclude.Value v = super.findPropertyInclusion(config, baseType);
+            if (_enclosing != null) {
+                v = v.withOverrides(_enclosing.findPropertyInclusion(config, baseType));
+            }
+            return v;
+        }
+
+        @Override
+        public <A extends Annotation> A getAnnotation(Class<A> acls) {
+            A a = (_enclosing == null) ? null : _enclosing.getAnnotation(acls);
+            return (a != null) ? a : super.getAnnotation(acls);
+        }
+
+        @Override
+        public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
+            // Only the enclosing property can carry context annotations; the accessor-backed
+            // `super` always returns null here (`BeanProperty.Std.getContextAnnotation`), so
+            // delegating to `_enclosing` alone loses nothing when it is null.
+            return (_enclosing == null) ? null : _enclosing.getContextAnnotation(acls);
+        }
     }
 
     /*

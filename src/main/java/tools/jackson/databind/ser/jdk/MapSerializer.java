@@ -495,7 +495,7 @@ public class MapSerializer
                     if (!valueSer.isEmpty(prov, elemValue)) {
                         return false;
                     }
-                } else if ((supp == null) || !supp.equals(value)) {
+                } else if ((supp == null) || !supp.equals(elemValue)) {
                     return false;
                 }
             }
@@ -514,7 +514,7 @@ public class MapSerializer
                 if (!valueSer.isEmpty(prov, elemValue)) {
                     return false;
                 }
-            } else if ((supp == null) || !supp.equals(value)) {
+            } else if ((supp == null) || !supp.equals(elemValue)) {
                 return false;
             }
         }

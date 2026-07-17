@@ -250,6 +250,9 @@ Lee Jiwon (@dlwldnjs1009)
  * Contributed #6022: Follow-up to #5369: apply content @JsonInclude in
   `StringCollectionSerializer.serializeWithType`
   [3.2.1]
+ * Reported #6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+   after all entries are filtered
+  [3.2.2]
 
 Garret Wilson (@garretwilson)
  * Suggested #4157: Add `MapperFeature.INFER_RECORD_GETTERS_FROM_COMPONENTS_ONLY` to ignore
@@ -596,6 +599,9 @@ Théo Szanto (@indyteo)
  * Fixed #6065: `SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS` does not fully
    remove empty collection during serialization
   [3.2.1]
+ * Fixed #6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+   after all entries are filtered
+  [3.2.2]
 
 @doeiqts
  * Reported #6065: `SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS` does not fully

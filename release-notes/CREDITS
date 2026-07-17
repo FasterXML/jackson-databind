@@ -583,6 +583,16 @@ Alex Crowell (@alex-crowell)
    arrays of polymorphic types
   [3.3.0]
 
+Alexander Sikorskiy (@sikorskii)
+ * Reported #4762: `@JsonValue` ignores annotations on annotated accessor
+   (particularly `@JsonInclude`)
+  [3.3.0]
+
+seonwoo_jung (@seonwooj0810)
+ * Fixed #4762: `@JsonValue` ignores annotations on annotated accessor
+   (particularly `@JsonInclude`)
+  [3.3.0]
+
 Ivan (@pctF)
  * Reported #6069: tools.jackson.databind.ObjectMapper#convertValue does not throw
    `IllegalArgumentException` but throws `MismatchedInputException` when input and

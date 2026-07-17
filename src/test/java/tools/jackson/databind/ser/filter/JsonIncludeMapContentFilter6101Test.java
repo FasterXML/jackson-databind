@@ -54,7 +54,7 @@ public class JsonIncludeMapContentFilter6101Test extends DatabindTestUtil
         }
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // Before the fix this produced {"stuff":{}} because MapSerializer.isEmpty()
     // compared the content filter to the whole Map instead of to each entry value.

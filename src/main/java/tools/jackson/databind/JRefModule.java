@@ -241,7 +241,7 @@ public class JRefModule extends SimpleModule {
 								result = previousResult;
 							} else {
 								throw DatabindException.from(p,
-										String.format("No previous values present for JsonPointer=%", pathPtr));
+										String.format("No previous values present for JsonPointer=%s", pathPtr));
 							}
 						} catch (IllegalArgumentException e) {
 							throw DatabindException.from(p, String.format("Illegal JsonPointer=%s", path), e);

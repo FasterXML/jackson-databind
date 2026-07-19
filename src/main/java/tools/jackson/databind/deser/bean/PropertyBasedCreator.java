@@ -309,7 +309,7 @@ public final class PropertyBasedCreator
     public PropertyValueBuffer startBuilding(JsonParser p, DeserializationContext ctxt,
             ObjectIdReader oir, boolean mayRebind) {
         return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, null,
-                _injectablePropIndexes, mayRebind);
+                _injectablePropIndexes, mayRebind, _valueInstantiator);
     }
 
     /**
@@ -336,7 +336,7 @@ public final class PropertyBasedCreator
             ObjectIdReader oir, SettableAnyProperty anySetter, boolean mayRebind
     ) {
         return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, anySetter,
-                _injectablePropIndexes, mayRebind);
+                _injectablePropIndexes, mayRebind, _valueInstantiator);
     }
 
     public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer)

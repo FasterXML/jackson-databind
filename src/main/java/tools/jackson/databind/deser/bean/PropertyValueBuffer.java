@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.bean;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.BitSet;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
@@ -8,10 +10,13 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.deser.CreatorProperty;
 import tools.jackson.databind.deser.ReadableObjectId;
 import tools.jackson.databind.deser.SettableAnyProperty;
 import tools.jackson.databind.deser.SettableBeanProperty;
+import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
+import tools.jackson.databind.introspect.AnnotatedField;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.util.TokenBuffer;
 
@@ -121,6 +126,30 @@ public class PropertyValueBuffer
      */
     protected final boolean _mayRebind;
 
+    /**
+     * Instantiator for the value type; used to materialize a default-constructor
+     * instance when filling missing creator arguments ([databind#6100]).
+     *
+     * @since 3.3
+     */
+    protected final ValueInstantiator _valueInstantiator;
+
+    /**
+     * Lazily created instance from the no-arg constructor, used as a source of
+     * field / constructor defaults for missing creator parameters. {@code null}
+     * means either not yet resolved, or no usable default instance.
+     *
+     * @since 3.3
+     */
+    protected Object _defaultBean;
+
+    /**
+     * Whether {@link #_defaultBean} has been resolved (successfully or not).
+     *
+     * @since 3.3
+     */
+    protected boolean _defaultBeanResolved;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -136,15 +165,28 @@ public class PropertyValueBuffer
             ObjectIdReader oir, SettableAnyProperty anyParamSetter,
             BitSet injectablePropIndexes)
     {
-        this(p, ctxt, paramCount, oir, anyParamSetter, injectablePropIndexes, false);
+        this(p, ctxt, paramCount, oir, anyParamSetter, injectablePropIndexes, false, null);
     }
 
     /**
      * @since 3.2
+     * @deprecated Since 3.3
      */
+    @Deprecated
     public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
             ObjectIdReader oir, SettableAnyProperty anyParamSetter,
             BitSet injectablePropIndexes, boolean mayRebind)
+    {
+        this(p, ctxt, paramCount, oir, anyParamSetter, injectablePropIndexes, mayRebind, null);
+    }
+
+    /**
+     * @since 3.3
+     */
+    public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
+            ObjectIdReader oir, SettableAnyProperty anyParamSetter,
+            BitSet injectablePropIndexes, boolean mayRebind,
+            ValueInstantiator valueInstantiator)
     {
         _parser = p;
         _context = ctxt;
@@ -165,6 +207,7 @@ public class PropertyValueBuffer
         _injectablePropIndexes = (injectablePropIndexes == null)
                 ? null : (BitSet) injectablePropIndexes.clone();
         _mayRebind = mayRebind;
+        _valueInstantiator = valueInstantiator;
     }
 
     /**
@@ -324,14 +367,22 @@ public class PropertyValueBuffer
                     prop.getName(), prop.getCreatorIndex());
         }
         try {
-            // Third: NullValueProvider? (22-Sep-2019, [databind#2458])
+            // Third: [databind#6100] if a no-arg constructor exists, use property
+            // values from a default instance (field initializers / no-arg body)
+            // instead of bare JVM defaults (false/0/null).
+            Object fromDefaultBean = _findFromDefaultBean(prop);
+            if (fromDefaultBean != _DEFAULT_BEAN_NOT_AVAILABLE) {
+                return fromDefaultBean;
+            }
+
+            // Fourth: NullValueProvider? (22-Sep-2019, [databind#2458])
             // 08-Aug-2021, tatu: consider [databind#3214]; not null but "absent" value...
             Object absentValue = prop.getNullValueProvider().getAbsentValue(_context);
             if (absentValue != null) {
                 return absentValue;
             }
 
-            // Fourth: default value
+            // Fifth: deserializer-defined absent value
             ValueDeserializer<Object> deser = prop.getValueDeserializer();
             return deser.getAbsentValue(_context);
         } catch (JacksonException e) {
@@ -342,6 +393,112 @@ public class PropertyValueBuffer
             }
             throw e;
         }
+    }
+
+    /**
+     * Sentinel meaning "could not obtain a value from the default bean"
+     * (as opposed to a legitimate {@code null} property value).
+     */
+    private final static Object _DEFAULT_BEAN_NOT_AVAILABLE = new Object();
+
+    /**
+     * Try to obtain the missing creator argument from a no-arg-constructed
+     * default instance of the same type ([databind#6100]).
+     *
+     * @return property value from the default instance (may be {@code null}),
+     *   or {@link #_DEFAULT_BEAN_NOT_AVAILABLE} if sampling is not possible
+     *
+     * @since 3.3
+     */
+    protected Object _findFromDefaultBean(SettableBeanProperty prop) throws JacksonException
+    {
+        Object defaultBean = _defaultBeanInstance();
+        if (defaultBean == null) {
+            return _DEFAULT_BEAN_NOT_AVAILABLE;
+        }
+        Object value = _readPropertyFromInstance(defaultBean, prop);
+        return (value == _DEFAULT_BEAN_NOT_AVAILABLE) ? _DEFAULT_BEAN_NOT_AVAILABLE : value;
+    }
+
+    /**
+     * Lazily create (or fail) the default-constructor instance used as a
+     * source of absent creator-argument defaults.
+     *
+     * @since 3.3
+     */
+    protected Object _defaultBeanInstance() throws JacksonException
+    {
+        if (_defaultBeanResolved) {
+            return _defaultBean;
+        }
+        _defaultBeanResolved = true;
+        if ((_valueInstantiator == null) || !_valueInstantiator.canCreateUsingDefault()) {
+            return null;
+        }
+        try {
+            _defaultBean = _valueInstantiator.createUsingDefault(_context);
+        } catch (Exception e) {
+            // Not fatal: fall back to ordinary absent-value handling
+            _defaultBean = null;
+        }
+        return _defaultBean;
+    }
+
+    /**
+     * Read a property value from {@code instance} for the given creator
+     * property, using fallback field/setter metadata or JavaBeans accessors.
+     *
+     * @return value (possibly {@code null}), or {@link #_DEFAULT_BEAN_NOT_AVAILABLE}
+     *
+     * @since 3.3
+     */
+    protected Object _readPropertyFromInstance(Object instance, SettableBeanProperty prop)
+    {
+        // Prefer field accessor when the creator property has a field fallback
+        if (prop instanceof CreatorProperty) {
+            CreatorProperty cp = (CreatorProperty) prop;
+            if (cp.hasFallbackSetter()) {
+                AnnotatedMember m = cp.getFallbackSetter().getMember();
+                if (m instanceof AnnotatedField) {
+                    try {
+                        return m.getValue(instance);
+                    } catch (IllegalArgumentException e) {
+                        // fall through to other strategies
+                    }
+                }
+            }
+        }
+
+        final String name = prop.getName();
+        if (name == null || name.isEmpty()) {
+            return _DEFAULT_BEAN_NOT_AVAILABLE;
+        }
+        final Class<?> raw = instance.getClass();
+
+        // Direct field (incl. private, after setAccessible) by logical name
+        for (Class<?> c = raw; c != null && c != Object.class; c = c.getSuperclass()) {
+            try {
+                Field f = c.getDeclaredField(name);
+                f.setAccessible(true);
+                return f.get(instance);
+            } catch (NoSuchFieldException e) {
+                // try superclass
+            } catch (Exception e) {
+                break;
+            }
+        }
+
+        // JavaBeans getter: getX / isX
+        final String cap = Character.toUpperCase(name.charAt(0)) + name.substring(1);
+        for (String methodName : new String[] { "get" + cap, "is" + cap }) {
+            try {
+                Method m = raw.getMethod(methodName);
+                return m.invoke(instance);
+            } catch (Exception e) {
+                // try next
+            }
+        }
+        return _DEFAULT_BEAN_NOT_AVAILABLE;
     }
 
     /**

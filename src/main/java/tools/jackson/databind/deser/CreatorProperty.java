@@ -206,6 +206,16 @@ public class CreatorProperty
         return _fallbackSetter != null;
     }
 
+    /**
+     * Accessor for the non-creator mutator used when updating an already
+     * constructed instance (field or setter), if any.
+     *
+     * @since 3.3
+     */
+    public SettableBeanProperty getFallbackSetter() {
+        return _fallbackSetter;
+    }
+
     @Override
     public void markAsIgnorable() {
         _ignorable = true;

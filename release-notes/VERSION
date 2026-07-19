@@ -22,6 +22,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   is actually thrown
  (reported by @pctF)
  (fix by @pjfanning)
+#6100: Preserve field / no-arg constructor defaults for missing creator
+  properties when a default constructor is available (sample from default instance)
+ (reported by @gtaverniti-finomnia)
 
 3.2.1 (10-Jul-2026)
 

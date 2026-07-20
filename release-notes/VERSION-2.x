@@ -8,6 +8,11 @@ Project: jackson-databind
 
 No change since 2.22
 
+2.22.2 (not yet released)
+
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
+
 2.22.1 (07-Jul-2026)
 
 #5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
@@ -39,6 +44,8 @@ No change since 2.22
 
 2.21.6 (not yet released)
 
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
 #6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
   after all entries are filtered
  (reported by @dlwldnjs1009)
@@ -347,6 +354,11 @@ No changes since 2.19.2
  (reported by @seadbrane)
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
+
+2.18.10 (not yet released)
+
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
 
 2.18.9 (07-Jul-2026)
 

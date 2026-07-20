@@ -1927,6 +1927,10 @@ Omkhar Arasaratnam (@omkhar)
    wrong `@JsonIgnoreProperties`
   (2.18.9)
 
+Aysha Afrah Ziya (@aysha-afrah26)
+ * Fixed #6099: Resolve classes without initialization in `TypeFactory.findClass()`
+  (2.18.10)
+
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
   (2.19.0)

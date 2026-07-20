@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.21.6 (not yet released)
 
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
 #6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
   after all entries are filtered
  (reported by @dlwldnjs1009)

@@ -8,6 +8,11 @@ Project: jackson-databind
 
 No change since 2.22
 
+2.22.2 (not yet released)
+
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
+
 2.22.1 (07-Jul-2026)
 
 #5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`

@@ -15,6 +15,9 @@ No changes since 3.1
   after all entries are filtered
  (reported by @dlwldnjs1009)
  (fix by @seonwooj0810)
+#6109: Mark built-in JDK 8 handlers (`Optional`, `Stream`) with `@JacksonStdImpl` so
+  optimization modules (Blackbird) can retain optimized handlers
+ (fix by Lee Jiwon)
 
 3.1.5 (07-Jul-2026)
 

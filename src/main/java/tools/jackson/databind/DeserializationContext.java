@@ -487,14 +487,9 @@ public abstract class DeserializationContext
     public final JsonParser getParser() { return _parser; }
 
     /**
-     * Method for making given parser the currently active parser (see {@link #getParser()}),
-     * returning the parser that was active before so the caller can restore it.
-     *<p>
-     * NOTE: method is meant for internal use by databind itself, and is NOT part of the
-     * public API: it is only {@code public} because the sole caller
-     * ({@link tools.jackson.databind.jsontype.impl.AsPropertyTypeDeserializer}) resides in
-     * a different package. Application code should not call this method; doing so leaves
-     * the context referring to a parser the rest of the pipeline does not expect.
+     * Method for overriding the currently active parser (see {@link #getParser()}) during
+     * processing of given {@code callback}, reverting to the previously active parser once
+     * that is complete.
      *<p>
      * Used during buffered ("replay") deserialization -- such as polymorphic handling with
      * {@code defaultImpl}, where content is buffered into a
@@ -503,13 +498,24 @@ public abstract class DeserializationContext
      * being processed, rather than the outer parser that has already advanced past the buffered
      * content (see [databind#6091]).
      *
+     * @param parserToApply Parser to make active during {@code callback} execution
+     * @param callback Callback to invoke while {@code parserToApply} is the active parser
+     *
      * @since 3.3
      */
-    public JsonParser swapParser(JsonParser p) {
-        JsonParser prev = _parser;
-        _parser = p;
-        _readCapabilities = p.streamReadCapabilities();
-        return prev;
+    public void withParserOverride(JsonParser parserToApply, Runnable callback)
+        throws JacksonException
+    {
+        final JsonParser currentParser = _parser;
+        final JacksonFeatureSet<StreamReadCapability> currentCapabilities = _readCapabilities;
+        _parser = parserToApply;
+        _readCapabilities = parserToApply.streamReadCapabilities();
+        try {
+            callback.run();
+        } finally {
+            _parser = currentParser;
+            _readCapabilities = currentCapabilities;
+        }
     }
 
     public final Object findInjectableValue(Object valueId,

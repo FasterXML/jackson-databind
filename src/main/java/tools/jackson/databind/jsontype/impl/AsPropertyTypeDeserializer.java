@@ -214,12 +214,11 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             ValueDeserializer<Object> deser)
         throws JacksonException
     {
-        JsonParser prev = ctxt.swapParser(replayParser);
-        try {
-            return deser.deserialize(replayParser, ctxt);
-        } finally {
-            ctxt.swapParser(prev);
-        }
+        // withParserOverride() takes a (void) Runnable, so relay the value through a holder
+        final Object[] result = new Object[1];
+        ctxt.withParserOverride(replayParser,
+                () -> result[0] = deser.deserialize(replayParser, ctxt));
+        return result[0];
     }
 
     /* Also need to re-route "unknown" version. Need to think

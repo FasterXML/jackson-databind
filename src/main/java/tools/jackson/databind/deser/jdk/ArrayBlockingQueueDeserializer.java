@@ -6,6 +6,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.introspect.AnnotatedClass;
@@ -16,6 +17,7 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
  * default constructor AND because it has size limit used for constructing
  * underlying storage automatically.
  */
+@JacksonStdImpl
 public class ArrayBlockingQueueDeserializer
     extends CollectionDeserializer
 {

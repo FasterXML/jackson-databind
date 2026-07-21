@@ -6,9 +6,11 @@ import java.util.UUID;
 import tools.jackson.core.Base64Variants;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.std.FromStringDeserializer;
 import tools.jackson.databind.exc.InvalidFormatException;
 
+@JacksonStdImpl
 public class UUIDDeserializer extends FromStringDeserializer<UUID>
 {
     private static final int HEX_ARRAY_LEN = 128;

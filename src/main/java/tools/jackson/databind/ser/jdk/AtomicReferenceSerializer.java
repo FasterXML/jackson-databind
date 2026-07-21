@@ -3,11 +3,13 @@ package tools.jackson.databind.ser.jdk;
 import java.util.concurrent.atomic.AtomicReference;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.ReferenceTypeSerializer;
 import tools.jackson.databind.type.ReferenceType;
 import tools.jackson.databind.util.NameTransformer;
 
+@JacksonStdImpl
 public class AtomicReferenceSerializer
     extends ReferenceTypeSerializer<AtomicReference<?>>
 {

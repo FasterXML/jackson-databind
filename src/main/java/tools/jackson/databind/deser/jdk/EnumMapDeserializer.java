@@ -4,6 +4,7 @@ import java.util.*;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.deser.bean.PropertyBasedCreator;
@@ -19,6 +20,7 @@ import tools.jackson.databind.type.LogicalType;
  * to properly deal with recursive definition of {@code EnumMap<K extends Enum<K>, V>}
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@JacksonStdImpl
 public class EnumMapDeserializer
     extends ContainerDeserializerBase<EnumMap<?,?>>
 {

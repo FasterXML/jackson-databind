@@ -5,6 +5,7 @@ import java.util.Date;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -119,6 +120,7 @@ public abstract class JDKKeySerializers
      * {@link java.util.Date} and {@link java.util.Calendar} key serializers,
      * as well as alternative configuration of Enum key serializers.
      */
+    @JacksonStdImpl
     public static class Default extends StdSerializer<Object> {
         final static int TYPE_DATE = 1;
         final static int TYPE_CALENDAR = 2;
@@ -189,6 +191,7 @@ public abstract class JDKKeySerializers
      * Key serializer used when key type is not known statically, and actual key
      * serializer needs to be dynamically located.
      */
+    @JacksonStdImpl
     public static class Dynamic extends StdSerializer<Object>
     {
         // Important: MUST be transient, to allow serialization of key serializer itself
@@ -247,6 +250,7 @@ public abstract class JDKKeySerializers
     /**
      * Simple and fast key serializer when keys are Strings.
      */
+    @JacksonStdImpl
     public static class StringKeySerializer extends StdSerializer<Object>
     {
         public StringKeySerializer() { super(String.class); }
@@ -262,6 +266,7 @@ public abstract class JDKKeySerializers
     /**
      * Specialized instance to use for Enum keys, as per [databind#1322]
      */
+    @JacksonStdImpl
     public static class EnumKeySerializer extends StdSerializer<Object>
     {
         protected final EnumValuesToWrite _valuesToWrite;

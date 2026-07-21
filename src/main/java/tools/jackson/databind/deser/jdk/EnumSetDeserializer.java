@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.deser.impl.NullsConstantProvider;
 import tools.jackson.databind.deser.std.StdDeserializer;
@@ -23,6 +24,7 @@ import tools.jackson.databind.util.AccessPattern;
  * to properly deal with recursive definition of "EnumSet&lt;K extends Enum&lt;K&gt;, V&gt;
  */
 @SuppressWarnings("rawtypes")
+@JacksonStdImpl
 public class EnumSetDeserializer
     extends StdDeserializer<EnumSet<?>>
 {

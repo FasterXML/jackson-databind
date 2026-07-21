@@ -308,6 +308,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
      * that must recognize FIELD_NAMEs as text!) to reuse existing
      * handlers as key handlers.
      */
+    @JacksonStdImpl
     final static class DelegatingKD
         extends KeyDeserializer // note: NOT the std one
     {
@@ -443,6 +444,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
      * Key deserializer that calls a single-string-arg constructor
      * to instantiate desired key type.
      */
+    @JacksonStdImpl
     final static class StringCtorKeyDeserializer extends JDKKeyDeserializer
     {
         protected final Constructor<?> _ctor;
@@ -463,6 +465,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
      * Key deserializer that calls a static no-args factory method
      * to instantiate desired key type.
      */
+    @JacksonStdImpl
     final static class StringFactoryKeyDeserializer extends JDKKeyDeserializer
     {
         final Method _factoryMethod;

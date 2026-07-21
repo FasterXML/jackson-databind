@@ -3,11 +3,13 @@ package tools.jackson.databind.ext.jdk8;
 import java.util.Optional;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.ReferenceTypeSerializer;
 import tools.jackson.databind.type.ReferenceType;
 import tools.jackson.databind.util.NameTransformer;
 
+@JacksonStdImpl
 public class Jdk8OptionalSerializer
     extends ReferenceTypeSerializer<Optional<?>>
 {

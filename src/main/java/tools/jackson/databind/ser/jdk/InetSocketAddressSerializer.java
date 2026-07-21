@@ -7,12 +7,14 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 
 /**
  * Simple serializer for {@link InetSocketAddress}.
  */
+@JacksonStdImpl
 public class InetSocketAddressSerializer
     extends StdScalarSerializer<InetSocketAddress>
 {

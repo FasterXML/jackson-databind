@@ -3,10 +3,12 @@ package tools.jackson.databind.deser.jdk;
 import java.util.concurrent.atomic.AtomicReference;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.deser.std.ReferenceTypeDeserializer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 
+@JacksonStdImpl
 public class AtomicReferenceDeserializer
     extends ReferenceTypeDeserializer<AtomicReference<Object>>
 {

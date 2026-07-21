@@ -329,6 +329,7 @@ public class MapEntryDeserializer
     /**
      * @since 3.1
      */
+    @JacksonStdImpl
     protected static class POJOWrappedDeserializer
         extends StdDeserializer<Map.Entry<Object, Object>>
     {

@@ -5,6 +5,7 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.ValueInstantiator;
@@ -22,6 +23,7 @@ import tools.jackson.databind.util.ExceptionUtil;
  * Deserializer that uses a single-String static factory method
  * for locating Enum values by String id.
  */
+@JacksonStdImpl
 class FactoryBasedEnumDeserializer
     extends StdDeserializer<Object>
 {

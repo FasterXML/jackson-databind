@@ -5,9 +5,11 @@ import java.util.TimeZone;
 import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 
+@JacksonStdImpl
 public class TimeZoneSerializer extends StdScalarSerializer<TimeZone>
 {
     public TimeZoneSerializer() { super(TimeZone.class); }

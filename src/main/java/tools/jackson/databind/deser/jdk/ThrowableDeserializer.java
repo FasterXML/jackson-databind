@@ -5,6 +5,7 @@ import java.util.Arrays;
 import tools.jackson.core.*;
 import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.bean.BeanDeserializer;
 import tools.jackson.databind.deser.bean.BeanPropertyMap;
@@ -16,6 +17,7 @@ import tools.jackson.databind.util.NameTransformer;
  * Deserializer that builds on basic {@link BeanDeserializer} but
  * override some aspects like instance construction.
  */
+@JacksonStdImpl
 public class ThrowableDeserializer
     extends BeanDeserializer // not the greatest idea but...
 {

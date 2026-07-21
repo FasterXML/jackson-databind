@@ -259,6 +259,7 @@ public class BeanAsArrayDeserializer
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final SettableBeanProperty[] props = _orderedProperties;
         int i = 0;
         final int propCount = props.length;
@@ -270,16 +271,19 @@ public class BeanAsArrayDeserializer
                 break;
             }
             SettableBeanProperty prop = props[i];
-            if (prop != null) { // normal case
-                try {
-                    prop.deserializeAndSet(p, ctxt, bean);
-                } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
-                }
-            } else { // just skip?
-                p.skipChildren();
-            }
             ++i;
+            if (prop != null) { // normal case
+                if (activeView == null || prop.visibleInView(activeView)) {
+                    try {
+                        prop.deserializeAndSet(p, ctxt, bean);
+                    } catch (Exception e) {
+                        throw wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    }
+                    continue;
+                }
+            }
+            // otherwise, skip it (view-filtered, no prop etc)
+            p.skipChildren();
         }
 
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine

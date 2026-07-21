@@ -354,7 +354,11 @@ public class TypeFactory
         }
         if (loader != null) {
             try {
-                return classForName(className, true, loader);
+                // Resolve only; do NOT initialize the class here. Class names come
+                // from input (Class-valued properties, polymorphic type ids), and a
+                // named class should not have its static initializer run just to
+                // resolve it -- initialization happens if/when it is actually used.
+                return classForName(className, false, loader);
             } catch (Exception e) {
                 prob = ClassUtil.getRootCause(e);
             }
@@ -372,11 +376,13 @@ public class TypeFactory
 
     protected Class<?> classForName(String name, boolean initialize,
             ClassLoader loader) throws ClassNotFoundException {
-        return Class.forName(name, true, loader);
+        return Class.forName(name, initialize, loader);
     }
 
     protected Class<?> classForName(String name) throws ClassNotFoundException {
-        return Class.forName(name);
+        // Match the loader used by `Class.forName(name)` (this class's loader) but
+        // without initializing the resolved class; see `findClass(...)`.
+        return Class.forName(name, false, TypeFactory.class.getClassLoader());
     }
 
     protected Class<?> _findPrimitive(String className)

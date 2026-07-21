@@ -5,6 +5,7 @@ import java.util.stream.IntStream;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
@@ -13,6 +14,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
  * Unfortunately there to common ancestor between number base stream, so we need to define each in a specific class
  * </p>
  */
+@JacksonStdImpl
 public class IntStreamSerializer extends StdSerializer<IntStream>
 {
     /**

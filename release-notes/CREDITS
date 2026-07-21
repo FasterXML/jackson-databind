@@ -384,5 +384,7 @@ João Guerra (@joca-bt)
   [3.1.5]
 
 Aysha Afrah Ziya (@aysha-afrah26)
+ * Fixed #6096: Honor `@JsonView` in `BeanAsArrayDeserializer` update path
+  [3.1.6]
  * Fixed #6099: Resolve classes without initialization in `TypeFactory.findClass()`
   [3.1.6]

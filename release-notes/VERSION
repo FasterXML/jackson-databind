@@ -11,6 +11,10 @@ No changes since 3.2
 
 3.2.2 (not yet released)
 
+#6096: Honor `@JsonView` in `BeanAsArrayDeserializer` update path
+ (fixed by Aysha A-Z)
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
 #6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
   after all entries are filtered
  (reported by @dlwldnjs1009)

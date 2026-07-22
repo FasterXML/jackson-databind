@@ -13,6 +13,7 @@ import java.util.regex.PatternSyntaxException;
 import tools.jackson.core.*;
 import tools.jackson.core.util.VersionUtil;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.std.FromStringDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.ClassUtil;
@@ -49,6 +50,7 @@ import tools.jackson.databind.util.ClassUtil;
  *  </li>
  * </ul>
  */
+@JacksonStdImpl
 public class JDKFromStringDeserializer
     extends FromStringDeserializer<Object>
 {
@@ -197,6 +199,11 @@ public class JDKFromStringDeserializer
         case STD_TIME_ZONE:
             return TimeZone.getTimeZone(value);
         case STD_INET_ADDRESS:
+            // 05-Jul-2026, tatu: [databind#6058] Prevent DNS lookup: only accept valid IP address literals
+            if (!InetAddressValidator.isInetAddress(value)) {
+                return ctxt.handleWeirdStringValue(_valueClass, value,
+                        "Not a valid IP address string literal");
+            }
             return InetAddress.getByName(value);
         case STD_INET_SOCKET_ADDRESS:
             if (value.startsWith("[")) {
@@ -295,6 +302,7 @@ public class JDKFromStringDeserializer
         return InetSocketAddress.createUnresolved(host, port);
     }
 
+    @JacksonStdImpl
     static class StringBuilderDeserializer extends JDKFromStringDeserializer
     {
         public StringBuilderDeserializer() { super(StringBuilder.class, -1); }
@@ -321,6 +329,7 @@ public class JDKFromStringDeserializer
         }
     }
 
+    @JacksonStdImpl
     static class StringBufferDeserializer extends JDKFromStringDeserializer
     {
         public StringBufferDeserializer() { super(StringBuffer.class, -1); }

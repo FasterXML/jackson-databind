@@ -8,12 +8,23 @@ Project: jackson-databind
 
 No change since 2.22
 
-2.22.1 (not yet released)
+2.22.2 (not yet released)
+
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
+
+2.22.1 (07-Jul-2026)
 
 #5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
  [CVE-2026-54515]
  (fixed by Omkhar A)
-#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties
+#6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
+  properties [GHSA-mhm7-754m-9p8w]
+ (reported by @Sharlong-Wen)
+#6058: Do not allow DNS resolution when deserializing `InetAddress`
+ (reported by @thientd)
+ (fix by @pjfanning)
+#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
 
 2.22.0 (31-May-2026)
 
@@ -31,12 +42,27 @@ No change since 2.22
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.5 (not yet released)
+2.21.6 (not yet released)
+
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
+#6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+  after all entries are filtered
+ (reported by @dlwldnjs1009)
+ (fix by @seonwooj0810)
+
+2.21.5 (06-Jul-2026)
 
 #5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
  [CVE-2026-54515]
  (fixed by Omkhar A)
-#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties
+#6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
+  properties [GHSA-mhm7-754m-9p8w]
+ (reported by @Sharlong-Wen)
+#6058: Do not allow DNS resolution when deserializing `InetAddress`
+ (reported by @thientd)
+ (fix by @pjfanning)
+#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
 
 2.21.4 (28-May-2026)
 
@@ -54,7 +80,7 @@ No change since 2.22
  (fixed by Omkhar A)
 #5971: `@JsonView` by-passed for unwrapped creator parameters [CVE-2026-54518]
  (fixed by Omkhar A)
-#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
+#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy` [CVE-2026-59888]
  (reported by Omkhar A)
 #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
   should validate element type [CVE-2026-54513]
@@ -329,12 +355,23 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
-2.18.9 (not yet released)
+2.18.10 (not yet released)
+
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
+
+2.18.9 (07-Jul-2026)
 
 #5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
  [CVE-2026-54515]
  (fixed by Omkhar A)
-#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties
+#6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
+  properties [GHSA-mhm7-754m-9p8w]
+ (reported by @Sharlong-Wen)
+#6058: Do not allow DNS resolution when deserializing `InetAddress`
+ (reported by @thientd)
+ (fix by @pjfanning)
+#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
 
 2.18.8 (28-May-2026)
 
@@ -347,7 +384,7 @@ No changes since 2.19.2
  (fixed by Omkhar A)
 #5971: `@JsonView` by-passed for unwrapped creator parameters [CVE-2026-54518]
  (fixed by Omkhar A)
-#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
+#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy` [CVE-2026-59888]
  (reported by Omkhar A)
 #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
   should validate element type [CVE-2026-54513]

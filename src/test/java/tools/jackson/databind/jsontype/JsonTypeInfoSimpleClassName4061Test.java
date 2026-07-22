@@ -209,9 +209,9 @@ public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
         String jsonStr = "{\"child\": { \"@type\": \"MergeChildA\", \"name\": \"I'm child A\" }}";
         
         Root root = MAPPER.readValue(jsonStr, Root.class);
-        
-        assertInstanceOf(MergeChildA.class, root.child);
-        assertEquals("I'm child A", ((MergeChildA) root.child).name);
+
+        MergeChildA mergeChildA = assertInstanceOf(MergeChildA.class, root.child);
+        assertEquals("I'm child A", mergeChildA.name);
     }
 
     // case insenstive type name
@@ -224,9 +224,9 @@ public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
                 .build();
 
         Root root = mapper.readValue(jsonStr, Root.class);
-        
-        assertInstanceOf(MergeChildA.class, root.child);
-        assertEquals("I'm child A", ((MergeChildA) root.child).name);
+
+        MergeChildA mergeChildA = assertInstanceOf(MergeChildA.class, root.child);
+        assertEquals("I'm child A", mergeChildA.name);
     }
 
     @Test

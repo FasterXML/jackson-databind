@@ -478,8 +478,8 @@ public class BuilderBasedDeserializer
                 continue;
             }
             if (creatorProp != null) {
-                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
-                    p.skipChildren();
+                if (activeView != null && !creatorProp.visibleInView(activeView)) {
+                    handleUnexpectedView(p, ctxt, creatorProp, activeView);
                     continue;
                 }
                 // [databind#1381]: if useInput=FALSE, skip deserialization from input
@@ -516,8 +516,8 @@ public class BuilderBasedDeserializer
                 // [databind#5969]: must honor active view here too -- otherwise
                 // a view-restricted property seen before the creator completes can be
                 // populated via the buffering path below.
-                if ((activeView != null) && !prop.visibleInView(activeView)) {
-                    p.skipChildren();
+                if (activeView != null && !prop.visibleInView(activeView)) {
+                    handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
                 // !!! 21-Nov-2017, tatu: Regular deserializer handles references here...
@@ -667,14 +667,7 @@ public class BuilderBasedDeserializer
                 p.nextToken();
                 SettableBeanProperty prop = _propertiesByIndex[ix];
                 if (!prop.visibleInView(activeView)) {
-                    // [databind#437]: fields in other views to be considered as unknown properties
-                    if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)){
-                        ctxt.reportInputMismatch(handledType(),
-                            String.format("Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'" +
-                                    " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
-                                ClassUtil.nameOf(handledType()), prop.getName(), activeView.getName()));
-                    }
-                    p.skipChildren();
+                    handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
                 try {
@@ -731,8 +724,8 @@ public class BuilderBasedDeserializer
             if (ix >= 0) { // common case
                 p.nextToken();
                 SettableBeanProperty prop = _propertiesByIndex[ix];
-                if ((activeView != null) && !prop.visibleInView(activeView)) {
-                    p.skipChildren();
+                if (activeView != null && !prop.visibleInView(activeView)) {
+                    handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
                 try {
@@ -790,8 +783,8 @@ public class BuilderBasedDeserializer
             if (ix >= 0) { // common case
                 p.nextToken();
                 SettableBeanProperty prop = _propertiesByIndex[ix];
-                if ((activeView != null) && !prop.visibleInView(activeView)) {
-                    p.skipChildren();
+                if (activeView != null && !prop.visibleInView(activeView)) {
+                    handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
                 try {
@@ -857,8 +850,8 @@ public class BuilderBasedDeserializer
             }
             if (creatorProp != null) {
                 // [databind#5971]: must honor active view here too
-                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
-                    p.skipChildren();
+                if (activeView != null && !creatorProp.visibleInView(activeView)) {
+                    handleUnexpectedView(p, ctxt, creatorProp, activeView);
                     continue;
                 }
                 // [databind#1381]: if useInput=FALSE, skip deserialization from input
@@ -889,8 +882,8 @@ public class BuilderBasedDeserializer
             if (ix >= 0) {
                 SettableBeanProperty prop = _propertiesByIndex[ix];
                 // [databind#5969]: must honor active view here too
-                if ((activeView != null) && !prop.visibleInView(activeView)) {
-                    p.skipChildren();
+                if (activeView != null && !prop.visibleInView(activeView)) {
+                    handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
@@ -958,7 +951,7 @@ public class BuilderBasedDeserializer
                     ext.handleTypePropertyValue(p, ctxt, p.currentName(), bean);
                 }
                 if (activeView != null && !prop.visibleInView(activeView)) {
-                    p.skipChildren();
+                    handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
                 try {

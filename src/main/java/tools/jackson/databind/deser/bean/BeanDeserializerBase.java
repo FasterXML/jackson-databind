@@ -2204,6 +2204,30 @@ ClassUtil.getTypeDescription(ct));
         return subDeser;
     }
 
+    /**
+     * Helper method for handling unexpected views.
+     * <p>
+     * When a property is not in the active view it should be skipped silently unless
+     * {@link DeserializationFeature#FAIL_ON_UNEXPECTED_VIEW_PROPERTIES} is enabled.
+     * <p>
+     * [databind#437, databind#6077]: Fields in other views should be considered unknown properties.
+     *
+     * @since 3.2.1
+     */
+    protected void handleUnexpectedView(JsonParser p, DeserializationContext ctxt,
+            SettableBeanProperty property, Class<?> activeView)
+        throws JacksonException
+    {
+        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)) {
+            ctxt.reportInputMismatch(handledType(),
+                    "Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'" +
+                            " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
+                    ClassUtil.nameOf(handledType()), property.getName(), activeView.getName());
+        }
+
+        p.skipChildren();
+    }
+
     /*
     /**********************************************************************
     /* Helper methods for error reporting

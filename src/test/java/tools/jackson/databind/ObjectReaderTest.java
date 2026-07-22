@@ -61,7 +61,7 @@ public class ObjectReaderTest extends DatabindTestUtil
     public void testSimpleAltSources() throws Exception
     {
         final String JSON = "[1]";
-        final byte[] BYTES = JSON.getBytes("UTF-8");
+        final byte[] BYTES = utf8Bytes(JSON);
         final Object EXP = Arrays.asList(1);
         assertEquals(EXP, MAPPER
                 .readerFor(Object.class)
@@ -92,7 +92,7 @@ public class ObjectReaderTest extends DatabindTestUtil
     public void testReaderForArrayOf() throws Exception
     {
         Object value = MAPPER.readerForArrayOf(ABC.class)
-                .readValue("[ \"A\", \"C\" ]");
+                .readValue(a2q("[ 'A', 'C' ]"));
         assertEquals(ABC[].class, value.getClass());
         ABC[] abcs = (ABC[]) value;
         assertEquals(2, abcs.length);
@@ -105,7 +105,7 @@ public class ObjectReaderTest extends DatabindTestUtil
     public void testReaderForListOf() throws Exception
     {
         Object value = MAPPER.readerForListOf(ABC.class)
-                .readValue("[ \"B\", \"C\" ]");
+                .readValue(a2q("[ 'B', 'C' ]"));
         assertEquals(ArrayList.class, value.getClass());
         assertEquals(Arrays.asList(ABC.B, ABC.C), value);
     }
@@ -115,7 +115,7 @@ public class ObjectReaderTest extends DatabindTestUtil
     public void testReaderForMapOf() throws Exception
     {
         Object value = MAPPER.readerForMapOf(ABC.class)
-                .readValue("{\"key\" : \"B\" }");
+                .readValue(a2q("{'key' : 'B' }"));
         assertEquals(LinkedHashMap.class, value.getClass());
         assertEquals(Collections.singletonMap("key", ABC.B), value);
     }
@@ -337,7 +337,7 @@ public class ObjectReaderTest extends DatabindTestUtil
         f.delete();
 
         try (JsonParser p = R.createParser(
-                new ByteArrayInputStream("{}".getBytes(StandardCharsets.UTF_8)))) {
+                new ByteArrayInputStream(utf8Bytes("{}")))) {
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
         }
@@ -409,7 +409,7 @@ public class ObjectReaderTest extends DatabindTestUtil
     {
         final ObjectReader R = MAPPER.reader();
         final String JSON = "[]";
-        final byte[] JSON_B = JSON.getBytes(StandardCharsets.UTF_8);
+        final byte[] JSON_B = utf8Bytes(JSON);
         final JsonNode EXP = R.createArrayNode();
 
         assertEquals(EXP, R.readTree(JSON));
@@ -427,7 +427,7 @@ public class ObjectReaderTest extends DatabindTestUtil
 
     @Test
     public void testNoPointerLoading() throws Exception {
-        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
+        final String source = a2q("{'foo':{'bar':{'caller':{'name':{'value':1234}}}}}");
 
         JsonNode tree = MAPPER.readTree(source);
         JsonNode node = tree.at("/foo/bar/caller");
@@ -438,7 +438,7 @@ public class ObjectReaderTest extends DatabindTestUtil
 
     @Test
     public void testPointerLoading() throws Exception {
-        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
+        final String source = a2q("{'foo':{'bar':{'caller':{'name':{'value':1234}}}}}");
 
         ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
 
@@ -449,18 +449,18 @@ public class ObjectReaderTest extends DatabindTestUtil
 
     @Test
     public void testPointerLoadingAsJsonNode() throws Exception {
-        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
+        final String source = a2q("{'foo':{'bar':{'caller':{'name':{'value':1234}}}}}");
 
         ObjectReader reader = MAPPER.readerFor(POJO.class).at(JsonPointer.compile("/foo/bar/caller"));
 
         JsonNode node = reader.readTree(source);
         assertTrue(node.has("name"));
-        assertEquals("{\"value\":1234}", node.get("name").toString());
+        assertEquals(a2q("{'value':1234}"), node.get("name").toString());
     }
 
     @Test
     public void testPointerLoadingMappingIteratorOne() throws Exception {
-        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
+        final String source = a2q("{'foo':{'bar':{'caller':{'name':{'value':1234}}}}}");
 
         ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
 
@@ -476,7 +476,7 @@ public class ObjectReaderTest extends DatabindTestUtil
 
     @Test
     public void testPointerLoadingMappingIteratorMany() throws Exception {
-        final String source = "{\"foo\":{\"bar\":{\"caller\":[{\"name\":{\"value\":1234}}, {\"name\":{\"value\":5678}}]}}}";
+        final String source = a2q("{'foo':{'bar':{'caller':[{'name':{'value':1234}}, {'name':{'value':5678}}]}}}");
 
         ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
 
@@ -633,7 +633,7 @@ public class ObjectReaderTest extends DatabindTestUtil
                 return true;
             }
         }).build();
-        A2297 aObject = mapper.readValue("{\"unknownField\" : 1, \"knownField\": \"test\"}",
+        A2297 aObject = mapper.readValue(a2q("{'unknownField' : 1, 'knownField': 'test'}"),
                 A2297.class);
 
         assertEquals("test", aObject.knownField);
@@ -653,7 +653,7 @@ public class ObjectReaderTest extends DatabindTestUtil
     @Test
     public void testCustomObjectNode() throws Exception
     {
-        ObjectNode defaultNode = (ObjectNode) MAPPER.readTree("{\"x\": 1, \"y\": 2}");
+        ObjectNode defaultNode = (ObjectNode) MAPPER.readTree(a2q("{'x': 1, 'y': 2}"));
         CustomObjectNode customObjectNode = new CustomObjectNode(defaultNode);
         Point point = MAPPER.readerFor(Point.class).readValue(customObjectNode);
         assertEquals(1, point.x);
@@ -665,7 +665,7 @@ public class ObjectReaderTest extends DatabindTestUtil
     public void testCustomArrayNode() throws Exception
     {
         ArrayNode defaultNode = (ArrayNode) MAPPER.readTree(
-                new StringReader("[{\"x\": 1, \"y\": 2}]"));
+                new StringReader(a2q("[{'x': 1, 'y': 2}]")));
         DelegatingArrayNode customArrayNode = new DelegatingArrayNode(defaultNode);
         Point[] points = MAPPER.readerFor(Point[].class).readValue(customArrayNode);
         Point point = points[0];

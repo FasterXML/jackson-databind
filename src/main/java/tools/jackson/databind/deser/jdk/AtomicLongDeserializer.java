@@ -5,9 +5,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.type.LogicalType;
 
+@JacksonStdImpl
 public class AtomicLongDeserializer extends StdScalarDeserializer<AtomicLong>
 {
     public AtomicLongDeserializer() { super(AtomicLong.class); }

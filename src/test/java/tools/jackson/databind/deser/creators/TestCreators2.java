@@ -42,11 +42,7 @@ public class TestCreators2
         public byte[] deserialize(JsonParser p, DeserializationContext ctxt)
         {
             String str = p.getString();
-            try {
-                return str.getBytes("UTF-8");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            return utf8Bytes(str);
         }
     }
 
@@ -257,7 +253,7 @@ public class TestCreators2
     {
         HashTest test = MAPPER.readValue("{\"type\":\"custom\",\"bytes\":\"abc\" }", HashTest.class);
         assertEquals("custom", test.type);
-        assertEquals("abc", new String(test.bytes, "UTF-8"));
+        assertEquals("abc", utf8String(test.bytes));
     }
 
     @Test

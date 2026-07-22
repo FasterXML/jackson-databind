@@ -7,8 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 
+import tools.jackson.databind.DefaultTyping;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,6 +24,11 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
             "<root xmlns='http://foo'/>";
 
     private final ObjectMapper MAPPER = new ObjectMapper();
+    // Same default-typing setup as MiscJavaXMLTypesReadWriteTest for XMLGregorianCalendar
+    private final ObjectMapper POLY_MAPPER = jsonMapperBuilder()
+            .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                    DefaultTyping.NON_FINAL)
+            .build();
 
     @Test
     public void testSerializeSimpleNonNS() throws Exception
@@ -104,6 +111,35 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
         // DOM is weird, includes ns decls as attributes...
         assertEquals(2, root.getAttributes().getLength());
         assertEquals("abc", root.getAttributeNS("http://foo", "attr"));
+    }
+
+    /*
+    /**********************************************************
+    /* Polymorphic (default typing) tests
+    /**********************************************************
+     */
+
+    /**
+     * DOM Node is serialized as a JSON String (XML text). With default typing
+     * enabled this must go through {@code serializeWithType}, same as
+     * {@code XMLGregorianCalendarSerializer} (see databind#3217). Without that
+     * override the base {@code ValueSerializer.serializeWithType} throws
+     * {@code InvalidDefinitionException}.
+     */
+    @Test
+    public void testPolymorphicDOMDocument() throws Exception
+    {
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse
+            (new InputSource(new StringReader(SIMPLE_XML)));
+        // Before fix: InvalidDefinitionException "Type id handling not implemented"
+        // After fix: typed JSON string that round-trips to Document
+        String json = POLY_MAPPER.writeValueAsString(doc);
+        Object result = POLY_MAPPER.readValue(json, Object.class);
+        assertTrue(result instanceof Document || result instanceof Node,
+                "Expected a DOM Node/Document, got: " + result.getClass());
+        String output = MAPPER.writeValueAsString(result);
+        String normalized = normalizeOutput(MAPPER.readValue(output, String.class));
+        assertEquals(SIMPLE_XML, normalized);
     }
 
     /*

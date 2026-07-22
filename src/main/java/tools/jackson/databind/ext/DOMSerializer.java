@@ -9,9 +9,11 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Node;
 
 import tools.jackson.core.*;
+import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 public class DOMSerializer extends StdSerializer<Node>
@@ -47,6 +49,28 @@ public class DOMSerializer extends StdSerializer<Node>
         } catch (TransformerException e) {
             provider.reportMappingProblem(e, "DOM `Node` value serialization failed: %s", e.getMessage());
         }
+    }
+
+    /**
+     * DOM {@link Node} is written as a JSON String (XML text). With default typing /
+     * {@code @JsonTypeInfo} this must go through {@code serializeWithType} — same
+     * shape as {@link XMLGregorianCalendarSerializer} ([databind#3217]) and
+     * {@code StdScalarSerializer}. Without the override the base
+     * {@code ValueSerializer.serializeWithType} throws
+     * {@code InvalidDefinitionException}.
+     */
+    @Override
+    public void serializeWithType(Node value, JsonGenerator g, SerializationContext ctxt,
+            TypeSerializer typeSer)
+        throws JacksonException
+    {
+        // Need not really be string; just indicates "scalar of some kind"
+        // (XML text content is written as VALUE_STRING by serialize())
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
+                // important! Pass value AND nominal type so type id is for Node, not a subclass
+                typeSer.typeId(value, Node.class, JsonToken.VALUE_STRING));
+        serialize(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     @Override

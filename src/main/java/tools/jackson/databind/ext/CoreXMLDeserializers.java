@@ -119,8 +119,19 @@ public class CoreXMLDeserializers
 
             JsonNode namespaceURI = tree.get("namespaceURI");
             if (namespaceURI != null) {
+                // Symmetric to localPart: reject non-STRING (asString() would coerce numbers/bools)
+                if (!namespaceURI.isString()) {
+                    ctxt.reportInputMismatch(this,
+                            "Object value property 'namespaceURI' for `QName` must be of type STRING, not %s",
+                            namespaceURI.getNodeType());
+                }
                 if (tree.has("prefix")) {
                     JsonNode prefix = tree.get("prefix");
+                    if (!prefix.isString()) {
+                        ctxt.reportInputMismatch(this,
+                                "Object value property 'prefix' for `QName` must be of type STRING, not %s",
+                                prefix.getNodeType());
+                    }
                     return new QName(namespaceURI.asString(), localPart.asString(), prefix.asString());
                 }
                 return new QName(namespaceURI.asString(), localPart.asString());

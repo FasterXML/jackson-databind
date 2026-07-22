@@ -159,6 +159,22 @@ public class MiscJavaXMLTypesReadWriteTest
             verifyException(e, "Object value property 'localPart'");
             verifyException(e, "must be of type STRING, not NUMBER");
         }
+
+        // Symmetric to localPart: namespaceURI / prefix must also reject non-STRING
+        try {
+            MAPPER.readValue(a2q("{'localPart':'tag','namespaceURI':123}"), QName.class);
+            fail("Should not pass for non-STRING namespaceURI");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "namespaceURI");
+            verifyException(e, "must be of type STRING");
+        }
+        try {
+            MAPPER.readValue(a2q("{'localPart':'tag','namespaceURI':'http://abc','prefix':true}"), QName.class);
+            fail("Should not pass for non-STRING prefix");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "prefix");
+            verifyException(e, "must be of type STRING");
+        }
     }
 
     @Test

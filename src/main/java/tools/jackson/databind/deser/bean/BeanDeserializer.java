@@ -384,6 +384,11 @@ public class BeanDeserializer
                 continue;
             }
             */
+            // Things marked as ignorable should not be passed to any setter
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
+                continue;
+            }
             // "Any property"?
             if (_anySetter != null) {
                 try {
@@ -1253,6 +1258,9 @@ public class BeanDeserializer
                 } else {
                     p.skipChildren();
                 }
+            } else if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                // Things marked as ignorable should not be passed to any setter
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
             } else {
                 // Need to copy to a separate buffer first
                 TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);

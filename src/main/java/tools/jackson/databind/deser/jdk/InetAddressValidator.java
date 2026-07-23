@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
  * Apache License 2.0:
  * https://github.com/google/guava/blob/master/guava/src/com/google/common/net/InetAddresses.java
  *
- * @since 3.1.5
+ * @since 2.18.9
  */
 class InetAddressValidator
 {

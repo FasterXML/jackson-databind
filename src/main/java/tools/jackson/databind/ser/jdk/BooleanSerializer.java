@@ -76,6 +76,7 @@ public final class BooleanSerializer
      * Alternate implementation that is used when values are to be serialized
      * as numbers <code>0</code> (false) or <code>1</code> (true).
      */
+    @JacksonStdImpl
     final static class AsNumber
         extends StdScalarSerializer<Object>
     {

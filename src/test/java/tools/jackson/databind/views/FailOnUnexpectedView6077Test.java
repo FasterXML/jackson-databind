@@ -47,8 +47,9 @@ import static org.junit.jupiter.api.Assertions.fail;
  *  <li>{@link ExternalTypeIdCreator} -- both arms of
  *      {@code BeanDeserializer.deserializeUsingPropertyBasedWithExternalTypeId};</li>
  *  <li>{@link BuilderExternalTypeId} -- {@code BuilderBasedDeserializer.deserializeWithExternalTypeId};</li>
- *  <li>{@link BeanAsArraySetter} / {@link BeanAsArrayCreator} -- the positional loops of
- *      {@code BeanAsArrayDeserializer} ({@code @JsonFormat(shape = ARRAY)});</li>
+ *  <li>{@link BeanAsArraySetter} / {@link BeanAsArrayCreator} / {@link BeanAsArrayUpdate} -- the
+ *      positional loops of {@code BeanAsArrayDeserializer} ({@code @JsonFormat(shape = ARRAY)}),
+ *      on the create, property-based-creator, and update-existing-value paths respectively;</li>
  *  <li>{@link BeanAsArrayBuilderSetter} / {@link BeanAsArrayBuilderCreator} -- ditto for
  *      {@code BeanAsArrayBuilderDeserializer}.</li>
  *</ul>
@@ -775,6 +776,63 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
             User u = readWithView(FAIL_OFF, Public.class, User.class, JSON);
             assertEquals("alice", u.name);
             assertNull(u.role);
+        }
+    }
+
+    /** {@code BeanAsArrayDeserializer.deserialize(JsonParser, DeserializationContext, Object)} --
+     *  the "update existing value" positional loop ({@code readerForUpdating} /
+     *  {@code withValueToUpdate}). This path bound every element unconditionally, so a view-hidden
+     *  position overwrote its original value even under a restricting view. */
+    @Nested
+    class BeanAsArrayUpdate
+    {
+        @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+        @JsonPropertyOrder({ "name", "role" })
+        static class User {
+            @JsonView(Public.class)
+            public String name;
+            @JsonView(Admin.class)
+            public String role;
+
+            public User() { }
+            public User(String name, String role) {
+                this.name = name;
+                this.role = role;
+            }
+        }
+
+        static final String JSON = """
+                ["mallory","admin"]
+                """;
+
+        @Test
+        void adminViewOverwritesRole() throws Exception {
+            User updated = FAIL_ON.readerWithView(Admin.class)
+                    .forType(User.class)
+                    .withValueToUpdate(new User("alice", "user"))
+                    .readValue(JSON);
+            assertEquals("mallory", updated.name);
+            assertEquals("admin", updated.role);
+        }
+
+        @Test
+        void hiddenRoleUpdateRejectedWhenEnabled() throws Exception {
+            expectRejected(FAIL_ON.readerWithView(Public.class)
+                            .forType(User.class)
+                            .withValueToUpdate(new User("alice", "user")),
+                    JSON);
+        }
+
+        @Test
+        void hiddenRoleUpdateSkippedWhenDisabled() throws Exception {
+            User updated = FAIL_OFF.readerWithView(Public.class)
+                    .forType(User.class)
+                    .withValueToUpdate(new User("alice", "user"))
+                    .readValue(JSON);
+            // name is visible under Public view -> updated
+            assertEquals("mallory", updated.name);
+            // role is Admin-only -> left untouched under the Public view
+            assertEquals("user", updated.role);
         }
     }
 

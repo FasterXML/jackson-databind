@@ -53,7 +53,8 @@ public class UnwrappedDoubleWithAnySetter3277Test extends DatabindTestUtil
     @Test
     public void testIsInstanceOfDouble() throws Exception
     {
-        Holder holder = MAPPER.readValue("{\"value1\": -60.0, \"value2\": -60.0}", Holder.class);
+        Holder holder = MAPPER.readValue(
+                a2q("{'value1': -60.0, 'value2': -60.0}"), Holder.class);
 
         // Validate type
         assertEquals(Double.class, holder.value1.getClass());

@@ -197,6 +197,18 @@ public class JDKStringLikeTypeDeserTest
         expectInvalidInetAddress("xn--bcher-kva.example.com");
     }
 
+    @Test
+    public void testInetAddressNonAsciiDigits() throws Exception
+    {
+        // [databind#6058] follow-up: Character.digit() accepts non-ASCII digits, but
+        // InetAddress.getByName() only treats ASCII literals as addresses and resolves
+        // the rest via DNS, so these must be rejected too.
+        expectInvalidInetAddress("１２７.0.0.1"); // full-width "127".0.0.1
+        expectInvalidInetAddress("١٢٧.0.0.1"); // Arabic-Indic "127".0.0.1
+        expectInvalidInetAddress("２001:db8::1"); // full-width digit in IPv6 hextet
+        expectInvalidInetAddress("fe80::１"); // full-width digit in IPv6 hextet
+    }
+
     private void expectInvalidInetAddress(String address) throws Exception {
         try {
             MAPPER.readValue(q(address), InetAddress.class);

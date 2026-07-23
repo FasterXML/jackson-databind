@@ -45,7 +45,7 @@ class InetAddressValidator
             } else if (c == '%') {
                 percentIndex = i;
                 break; // Scope ID; stop scanning
-            } else if (Character.digit(c, 16) == -1) {
+            } else if (_digit(c, 16) == -1) {
                 return null; // Everything else must be a decimal or hex digit.
             }
         }
@@ -191,7 +191,7 @@ class InetAddressValidator
         int octet = 0;
         for (int i = start; i < end; i++) {
             octet *= 10;
-            int digit = Character.digit(ipString.charAt(i), 10);
+            int digit = _digit(ipString.charAt(i), 10);
             if (digit < 0) {
                 throw new NumberFormatException();
             }
@@ -211,8 +211,19 @@ class InetAddressValidator
         int hextet = 0;
         for (int i = start; i < end; i++) {
             hextet = hextet << 4;
-            hextet |= Character.digit(ipString.charAt(i), 16);
+            hextet |= _digit(ipString.charAt(i), 16);
         }
         return (short) hextet;
+    }
+
+    // Like Character.digit(), but only recognizes ASCII digits: Character.digit()
+    // also accepts non-ASCII forms (full-width, Arabic-Indic, ...) that
+    // InetAddress.getByName() does not treat as an address literal and would
+    // instead resolve via DNS.
+    private static int _digit(char c, int radix) {
+        if (c > 0x7f) {
+            return -1;
+        }
+        return Character.digit(c, radix);
     }
 }

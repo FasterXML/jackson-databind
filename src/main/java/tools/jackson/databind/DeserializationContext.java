@@ -3,6 +3,7 @@ package tools.jackson.databind;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
+import java.util.function.Supplier;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
@@ -501,9 +502,11 @@ public abstract class DeserializationContext
      * @param parserToApply Parser to make active during {@code callback} execution
      * @param callback Callback to invoke while {@code parserToApply} is the active parser
      *
+     * @return Value produced by {@code callback}
+     *
      * @since 3.3
      */
-    public void withParserOverride(JsonParser parserToApply, Runnable callback)
+    public Object withParserOverride(JsonParser parserToApply, Supplier<Object> callback)
         throws JacksonException
     {
         final JsonParser currentParser = _parser;
@@ -511,7 +514,7 @@ public abstract class DeserializationContext
         _parser = parserToApply;
         _readCapabilities = parserToApply.streamReadCapabilities();
         try {
-            callback.run();
+            return callback.get();
         } finally {
             _parser = currentParser;
             _readCapabilities = currentCapabilities;

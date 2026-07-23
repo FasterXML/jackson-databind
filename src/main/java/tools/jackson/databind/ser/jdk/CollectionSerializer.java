@@ -8,6 +8,7 @@ import tools.jackson.databind.JavaType;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.ser.impl.PropertySerializerMap;
@@ -21,6 +22,7 @@ import tools.jackson.databind.ser.std.StdContainerSerializer;
  * If so, we will just construct an {@link java.util.Iterator}
  * to iterate over elements.
  */
+@JacksonStdImpl
 public class CollectionSerializer
     extends AsArraySerializerBase<Collection<?>>
 {

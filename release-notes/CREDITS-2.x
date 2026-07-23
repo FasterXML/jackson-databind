@@ -1940,6 +1940,10 @@ Omkhar Arasaratnam (@omkhar)
    wrong `@JsonIgnoreProperties`
   (2.18.9)
 
+Aysha Afrah Ziya (@aysha-afrah26)
+ * Fixed #6099: Resolve classes without initialization in `TypeFactory.findClass()`
+  (2.18.10)
+
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
   (2.19.0)
@@ -2060,14 +2064,22 @@ CharmingKyu (@loadkrnis)
    using JVM default locale (Turkish-I bug)
   [2.21.4]
 
-Christian Danner cdadac
- * Reported #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
-   are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
-  [2.22.0]
-
 Lee Jiwon (@dlwldnjs1009)
+ * Reported #6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+   after all entries are filtered
+  [2.21.6]
  * Contributed #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
    are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
   [2.22.0]
  * Contributed #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
+  [2.22.0]
+
+seonwoo_jung (@seonwooj0810)
+ * Fixed #6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+   after all entries are filtered
+  [2.21.6]
+
+Christian Danner cdadac
+ * Reported #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
+   are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
   [2.22.0]

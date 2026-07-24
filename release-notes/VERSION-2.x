@@ -12,6 +12,8 @@ No change since 2.22
 
 #6099: Resolve classes without initialization in `TypeFactory.findClass()`
  (fixed by Aysha A-Z)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
 
 2.22.1 (07-Jul-2026)
 

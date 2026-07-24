@@ -6,6 +6,7 @@ import javax.xml.XMLConstants;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import tools.jackson.core.*;
@@ -51,31 +52,31 @@ public class DOMSerializer extends StdSerializer<Node>
         }
     }
 
-    /**
-     * DOM {@link Node} is written as a JSON String (XML text). With default typing /
-     * {@code @JsonTypeInfo} this must go through {@code serializeWithType} — same
-     * shape as {@link XMLGregorianCalendarSerializer} ([databind#3217]) and
-     * {@code StdScalarSerializer}. Without the override the base
-     * {@code ValueSerializer.serializeWithType} throws
-     * {@code InvalidDefinitionException}.
-     */
     @Override
     public void serializeWithType(Node value, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
-        // Need not really be string; just indicates "scalar of some kind"
-        // (XML text content is written as VALUE_STRING by serialize())
+        // 23-Jul-2026, tatu: [databind#6113] `Node` written as XML text in JSON String,
+        //    so needs same handling as `StdScalarSerializer` (compare to
+        //    `XMLGregorianCalendarSerializer` / [databind#3217])
+
+        // Also: must not use runtime type, as that is JDK-internal implementation
+        // class (like `com.sun.org.apache.xerces.internal.dom.DocumentImpl`); but
+        // cannot always use `Node` either, since that is not a subtype of `Document`
+        // and would fail on deserialization of `Document`-declared values
+        Class<?> typeForId = (value instanceof Document) ? Document.class : Node.class;
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
-                // important! Pass value AND nominal type so type id is for Node, not a subclass
-                typeSer.typeId(value, Node.class, JsonToken.VALUE_STRING));
+                typeSer.typeId(value, typeForId, JsonToken.VALUE_STRING));
         serialize(value, g, ctxt);
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
-        if (visitor != null) visitor.expectAnyFormat(typeHint);
+        // 23-Jul-2026, tatu: [databind#6113] `Node` is written as XML text in JSON
+        //    String, so report as such (and not as "any format")
+        visitStringFormat(visitor, typeHint);
     }
 
     private static void setTransformerFactoryAttribute(final TransformerFactory transformerFactory,

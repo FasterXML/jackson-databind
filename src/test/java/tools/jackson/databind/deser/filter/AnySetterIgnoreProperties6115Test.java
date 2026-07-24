@@ -175,39 +175,42 @@ public class AnySetterIgnoreProperties6115Test extends DatabindTestUtil
         assertEquals("a", bean.name.first);
     }
 
-    // Same, but the unwrapped target accepts all names ([databind#6001]): the ignored
-    // name must not slip through to the unwrapped deserializer either
+    // Unwrapped target that accepts all names ([databind#6001]): per [databind#1075]
+    // unwrapped routing is checked BEFORE ignoral, so the name reaches the unwrapped
+    // target rather than the outer any-setter. It must still never reach the OUTER
+    // any-setter, which is what #6115 is about.
     @Test
-    public void unwrappedAcceptAllCreatorDoesNotLeakIgnored() throws Exception {
+    public void unwrappedAcceptAllCreatorDoesNotLeakIgnoredToOuterAnySetter() throws Exception {
         UnwrapAllCreatorBean bean = MAPPER.readValue("""
                 {"id":1,"first":"a","secret":"nope","other":"ok"}
                 """, UnwrapAllCreatorBean.class);
         assertNotNull(bean.name);
         assertFalse(bean.extras.containsKey("secret"),
-                "ignored 'secret' leaked into any-setter: " + bean.extras);
-        assertFalse(bean.name.rest.containsKey("secret"),
-                "ignored 'secret' leaked into unwrapped any-setter: " + bean.name.rest);
+                "ignored 'secret' leaked into OUTER any-setter: " + bean.extras);
         assertEquals("a", bean.name.first);
-        // unrecognized-but-not-ignored names still reach the unwrapped target
-        assertEquals(Map.of("other", "ok"), bean.name.rest);
+        // [databind#1075]: an "accept all" unwrapped target claims names before the
+        // ignore check, so 'secret' lands there -- consistent with the field-based path
+        assertEquals(Map.of("other", "ok", "secret", "nope"), bean.name.rest);
     }
 
-    // An ignored name that IS an unwrapped sub-property must be ignored on the
-    // creator path exactly as it is on the field-based path
+    // [databind#1075]: a name that IS an unwrapped sub-property binds even when the
+    // outer class marks it ignorable -- and the creator path must agree with the
+    // field-based path (which UnwrappedWithIgnore1075Test covers)
     @Test
-    public void unwrappedSubPropertyIgnoredConsistently() throws Exception {
+    public void unwrappedSubPropertyBindsConsistently() throws Exception {
         final String json = """
                 {"id":1,"first":"a","last":"b"}
                 """;
         UnwrapFieldIgnoringSubProp field = MAPPER.readValue(json, UnwrapFieldIgnoringSubProp.class);
         assertNotNull(field.name);
         assertEquals("a", field.name.first);
-        assertNull(field.name.last);
+        assertEquals("b", field.name.last);
 
         UnwrapCreatorIgnoringSubProp creator = MAPPER.readValue(json, UnwrapCreatorIgnoringSubProp.class);
         assertNotNull(creator.name);
         assertEquals("a", creator.name.first);
-        assertNull(creator.name.last, "creator path bound ignored unwrapped sub-property 'last'");
+        assertEquals("b", creator.name.last,
+                "creator path did not bind unwrapped sub-property 'last' (see [databind#1075])");
     }
 
     // Names excluded by @JsonIncludeProperties must not reach the any-setter either

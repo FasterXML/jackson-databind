@@ -889,15 +889,20 @@ public class BuilderBasedDeserializer
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
             }
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                handleIgnoredProperty(p, ctxt, handledType(), propName);
-                continue;
-            }
             // 29-Dec-2025: [databind#650] We can avoid buffering and passing to any props
+            // 09-Mar-2026: [databind#1075] Check unwrapped properties BEFORE ignorable,
+            //    so that an ignored name in the outer type doesn't block an unwrapped
+            //    inner property. Must match `deserializeWithUnwrapped()`, which this
+            //    method delegates to once the Creator is complete -- otherwise the
+            //    result would depend on JSON property order.
             if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
                 hasUnwrappedContent = true;
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
+                continue;
+            }
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
             // how about any setter?

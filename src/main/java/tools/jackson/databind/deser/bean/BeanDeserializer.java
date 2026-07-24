@@ -408,6 +408,11 @@ public class BeanDeserializer
                 continue;
             }
             */
+            // [databind#6115] Things marked as ignorable should not be passed to any setter
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
+                continue;
+            }
             // "Any property"?
             if (_anySetter != null) {
                 try {
@@ -1292,16 +1297,19 @@ public class BeanDeserializer
             //    we can do.
             // 19-Dec-2025: [databind#650] We can now distinguish the cases
             // but... others should be passed to unwrapped property deserializers
+            // 09-Mar-2026: [databind#1075] Check unwrapped properties BEFORE ignorable,
+            //    so that @JsonIgnore on outer getter doesn't block unwrapped inner property
             if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
                 hasUnwrappedContent = true;
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
+            } else if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                // [databind#6115] Things marked as ignorable should not be passed to any setter
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
             } else if (_anySetter == null) {
                 // [databind#650]: priority: @JsonIgnoreProperties > FAIL_ON_UNKNOWN_PROPERTIES
                 if (_ignoreAllUnknown) {
                     p.skipChildren();
-                } else if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
                 } else if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
                     throw UnrecognizedPropertyException.from(p, handledType(), propName, getKnownPropertyNames());
                 } else {

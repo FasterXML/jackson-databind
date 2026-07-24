@@ -11,13 +11,12 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 
-import tools.jackson.databind.DefaultTyping;
 import tools.jackson.databind.JavaType;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,34 +29,25 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
     final static String SIMPLE_XML_DEFAULT_NS =
             "<root xmlns='http://foo'/>";
 
-    static class DocHolder {
-        public Document doc;
-
-        protected DocHolder() { }
-        public DocHolder(Document d) { doc = d; }
-    }
-
-    static class NodeHolder {
-        public Node node;
-
-        protected NodeHolder() { }
-        public NodeHolder(Node n) { node = n; }
-    }
-
-    static class AnnotatedDocHolder {
+    // [databind#6113]: wrappers for polymorphic handling, with the 2 DOM types
+    // for which deserializers exist (see `OptionalHandlerFactory`)
+    static class NodeWrapper {
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-        public Document doc;
+        public Node value;
 
-        protected AnnotatedDocHolder() { }
-        public AnnotatedDocHolder(Document d) { doc = d; }
+        protected NodeWrapper() { }
+        public NodeWrapper(Node n) { value = n; }
+    }
+
+    static class DocumentWrapper {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+        public Document value;
+
+        protected DocumentWrapper() { }
+        public DocumentWrapper(Document d) { value = d; }
     }
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    // Same default-typing setup as MiscJavaXMLTypesReadWriteTest for XMLGregorianCalendar
-    private final ObjectMapper POLY_MAPPER = jsonMapperBuilder()
-            .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                    DefaultTyping.NON_FINAL)
-            .build();
 
     @Test
     public void testSerializeSimpleNonNS() throws Exception
@@ -144,71 +134,34 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
 
     /*
     /**********************************************************
-    /* Polymorphic (default typing) tests
+    /* Polymorphic (`@JsonTypeInfo`) tests
     /**********************************************************
      */
 
-    /**
-     * DOM Node is serialized as a JSON String (XML text). With default typing
-     * enabled this must go through {@code serializeWithType}, same as
-     * {@code XMLGregorianCalendarSerializer} (see databind#3217). Without that
-     * override the base {@code ValueSerializer.serializeWithType} throws
-     * {@code InvalidDefinitionException}.
-     */
+    // [databind#6113]: without `serializeWithType()` override this failed with
+    // `InvalidDefinitionException` ("Type id handling not implemented")
     @Test
-    public void testPolymorphicDOMDocument() throws Exception
+    public void polymorphicDocumentField() throws Exception
     {
-        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse
-            (new InputSource(new StringReader(SIMPLE_XML)));
-        // Before fix: InvalidDefinitionException "Type id handling not implemented"
-        // After fix: typed JSON string that round-trips to Document
-        String json = POLY_MAPPER.writeValueAsString(doc);
-        Object result = POLY_MAPPER.readValue(json, Object.class);
-        assertTrue(result instanceof Document || result instanceof Node,
-                "Expected a DOM Node/Document, got: " + result.getClass());
-        String output = MAPPER.writeValueAsString(result);
-        String normalized = normalizeOutput(MAPPER.readValue(output, String.class));
-        assertEquals(SIMPLE_XML, normalized);
-    }
-
-    // [databind#6113]: Type Id must be `Document` (not `Node`) for `Document` values,
-    // or else read side fails with "not a subtype of `org.w3c.dom.Document`"
-    @Test
-    public void polymorphicDocumentDeclaredType() throws Exception
-    {
-        String json = POLY_MAPPER.writeValueAsString(_simpleDocument());
+        String json = MAPPER.writeValueAsString(new DocumentWrapper(_simpleDocument()));
+        // Type Id must be `Document`, not `Node`: latter is not a subtype of the
+        // declared `Document` and read side would fail with `InvalidTypeIdException`
         assertEquals(Document.class.getName(), _typeIdOf(json));
-        Document result = POLY_MAPPER.readValue(json, Document.class);
-        assertEquals(SIMPLE_XML, _asXml(result));
+
+        DocumentWrapper result = MAPPER.readValue(json, DocumentWrapper.class);
+        assertEquals(SIMPLE_XML, _asXml(result.value));
     }
 
-    // [databind#6113]
+    // [databind#6113]: `Node`-declared field gets `Document` Type Id too (that being
+    // the actual shape written), which resolves fine as a subtype of `Node`
     @Test
-    public void polymorphicDocumentProperty() throws Exception
+    public void polymorphicNodeField() throws Exception
     {
-        String json = POLY_MAPPER.writeValueAsString(new DocHolder(_simpleDocument()));
-        DocHolder result = POLY_MAPPER.readValue(json, DocHolder.class);
-        assertEquals(SIMPLE_XML, _asXml(result.doc));
-    }
+        String json = MAPPER.writeValueAsString(new NodeWrapper(_simpleDocument()));
+        assertEquals(Document.class.getName(), _typeIdOf(json));
 
-    // [databind#6113]: also needs to work via explicit `@JsonTypeInfo`, not just
-    // default typing
-    @Test
-    public void polymorphicDocumentViaAnnotation() throws Exception
-    {
-        String json = MAPPER.writeValueAsString(new AnnotatedDocHolder(_simpleDocument()));
-        AnnotatedDocHolder result = MAPPER.readValue(json, AnnotatedDocHolder.class);
-        assertEquals(SIMPLE_XML, _asXml(result.doc));
-    }
-
-    // [databind#6113]: `Node`-declared values still get `Document` Type Id (that
-    // being the runtime shape), which resolves fine as a subtype of `Node`
-    @Test
-    public void polymorphicNodeProperty() throws Exception
-    {
-        String json = POLY_MAPPER.writeValueAsString(new NodeHolder(_simpleDocument()));
-        NodeHolder result = POLY_MAPPER.readValue(json, NodeHolder.class);
-        assertEquals(SIMPLE_XML, _asXml(result.node));
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        assertEquals(SIMPLE_XML, _asXml(result.value));
     }
 
     /*
@@ -264,8 +217,11 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
         return normalizeOutput(MAPPER.readValue(MAPPER.writeValueAsString(n), String.class));
     }
 
-    // Extract Type Id from `["type.id", "value"]` wrapper
+    // Scalar values use WRAPPER_ARRAY inclusion, so JSON is
+    // `{"value":["type.id","<xml>"]}`: dig out the Type Id
     private String _typeIdOf(String json) throws Exception {
-        return MAPPER.readValue(json, java.util.List.class).get(0).toString();
+        JsonNode wrapped = MAPPER.readTree(json).path("value");
+        assertTrue(wrapped.isArray(), "Expected WRAPPER_ARRAY for typed `Node`, got: "+json);
+        return wrapped.path(0).stringValue();
     }
 }

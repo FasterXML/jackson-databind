@@ -13,6 +13,7 @@ import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.std.FromStringDeserializer;
+import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.databind.util.ClassUtil;
 
 /**
@@ -170,8 +171,8 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
      */
 
     @JacksonStdImpl
-    static class NodeDeserializer extends DOMDeserializer<Node> {
-        NodeDeserializer() { super(Node.class); }
+    public static class NodeDeserializer extends DOMDeserializer<Node> {
+        public NodeDeserializer() { super(Node.class); }
         @Override
         public Node _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
             return parse(value);
@@ -179,8 +180,8 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
     }
 
     @JacksonStdImpl
-    static class DocumentDeserializer extends DOMDeserializer<Document> {
-        DocumentDeserializer() { super(Document.class); }
+    public static class DocumentDeserializer extends DOMDeserializer<Document> {
+        public DocumentDeserializer() { super(Document.class); }
         @Override
         public Document _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
             return parse(value);
@@ -218,10 +219,20 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
 
         // ... and for the same reason empty content is a legal `Text` node, not `null`.
         // NOTE: must go via `getEmptyValue()`, which is what `CoercionAction.AsEmpty`
-        // and `@JsonSetter(nulls=AS_EMPTY)` consult (compare to `JDKFromStringDeserializer`)
+        // and `@JsonSetter(contentNulls=AS_EMPTY)` consult (compare to
+        // `JDKFromStringDeserializer`)
         @Override
         public Object getEmptyValue(DeserializationContext ctxt) {
             return _deserialize("", ctxt);
+        }
+
+        // ... and unlike the immutable scalars `StdScalarDeserializer` assumes, a DOM
+        // node is mutable and carries a parent pointer (`appendChild()` reparents), so
+        // the empty value must NOT be shared: `CONSTANT` would have
+        // `NullsConstantProvider` hand every null the very same node
+        @Override
+        public AccessPattern getEmptyAccessPattern() {
+            return AccessPattern.DYNAMIC;
         }
 
         @Override

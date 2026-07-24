@@ -1,11 +1,14 @@
 package tools.jackson.databind.ext.xml;
 
 import java.io.StringReader;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.Nulls;
 
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
@@ -52,6 +55,12 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
 
         protected DocumentWrapper() { }
         public DocumentWrapper(Document d) { value = d; }
+    }
+
+    // [databind#6120]: for verifying empty `Text` values are not shared
+    static class TextListWrapper {
+        @JsonSetter(contentNulls = Nulls.AS_EMPTY)
+        public List<Text> values;
     }
 
     private final ObjectMapper MAPPER = new ObjectMapper();
@@ -458,6 +467,22 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
         Text text = mapper.readValue(q(""), Text.class);
         _assertNodeType(Node.TEXT_NODE, Text.class, text);
         assertEquals("", text.getData());
+    }
+
+    // ... but the empty `Text` node is a fresh mutable DOM node, so it must NOT be
+    // shared: `AccessPattern.CONSTANT` (inherited from `StdScalarDeserializer`, whose
+    // scalars are immutable) would have `NullsConstantProvider` hand every null the
+    // same instance -- and `appendChild()` reparents, so adding it to one document
+    // would silently remove it from another
+    @Test
+    public void emptyTextNodesAreNotShared() throws Exception
+    {
+        TextListWrapper result = MAPPER.readValue("{\"values\":[null,null]}",
+                TextListWrapper.class);
+        assertEquals(2, result.values.size());
+        _assertNodeType(Node.TEXT_NODE, Text.class, result.values.get(0));
+        assertNotSame(result.values.get(0), result.values.get(1),
+                "Empty `Text` nodes must not be shared between values");
     }
 
     // `CDATASection`, by contrast, is delimited by its "<![CDATA[" / "]]>" markers,

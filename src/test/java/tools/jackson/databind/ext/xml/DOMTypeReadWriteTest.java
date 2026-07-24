@@ -139,7 +139,7 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
     /**********************************************************
      */
 
-    // [databind#6120]: `DocumentDeserializer` used to be unreachable, since lookup
+    // [databind#6113]: `DocumentDeserializer` used to be unreachable, since lookup
     // checked `Node` first and `Document` is a subtype of it. Only externally visible
     // difference is the target type reported on failure, so verify via that.
     @Test

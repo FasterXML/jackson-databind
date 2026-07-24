@@ -6,20 +6,26 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.deser.std.FromStringDeserializer;
 
 /**
- * Base for deserializers that allows parsing DOM Documents from JSON Strings.
- * Nominal type can be either {@link org.w3c.dom.Node} or
- * {@link org.w3c.dom.Document}.
+ * Base for deserializers that allows parsing DOM values from JSON Strings.
+ * Nominal type can be {@link org.w3c.dom.Node} or one of the node types
+ * that {@link DOMSerializer} writes a distinct Type Id for (see
+ * {@code OptionalHandlerFactory} for the full set).
  */
 public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
 {
+    /**
+     * Name of throw-away root element used for parsing node types that are not
+     * well-formed XML documents on their own; never part of the result.
+     */
+    private final static String WRAPPER_ELEMENT = "jacksonDomWrapper";
+
     private final static DocumentBuilderFactory DEFAULT_PARSER_FACTORY;
     static {
         DocumentBuilderFactory parserFactory = DocumentBuilderFactory.newInstance();
@@ -58,6 +64,19 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
     }
 
     /**
+     * Helper method for reconstructing node types that are not, by themselves,
+     * well-formed XML documents (text, comments, processing instructions and so on):
+     * wraps given XML text in a throw-away root element, parses that, and returns
+     * the wrapper element whose children are the reconstructed node(s).
+     *
+     * @since 3.3
+     */
+    protected final Element parseWrapped(String value) throws IllegalArgumentException {
+        return parse("<"+WRAPPER_ELEMENT+">"+value+"</"+WRAPPER_ELEMENT+">")
+                .getDocumentElement();
+    }
+
+    /**
      * Overridable factory method used to create {@link DocumentBuilder} for parsing
      * XML as DOM.
      *
@@ -65,6 +84,23 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
      */
     protected DocumentBuilder documentBuilder() throws ParserConfigurationException {
         return DEFAULT_PARSER_FACTORY.newDocumentBuilder();
+    }
+
+    /**
+     * Helper method for extracting the single child of expected type from wrapper
+     * element created by {@link #parseWrapped}.
+     */
+    protected final <N extends Node> N _wrappedChild(String value, short expNodeType, Class<N> expType)
+        throws IllegalArgumentException
+    {
+        Node child = parseWrapped(value).getFirstChild();
+        if ((child == null) || (child.getNodeType() != expNodeType)) {
+            throw new IllegalArgumentException(String.format(
+                    "Failed to parse JSON String as XML %s node: got %s",
+                    expType.getSimpleName(),
+                    (child == null) ? "no content" : "node type "+child.getNodeType()));
+        }
+        return expType.cast(child);
     }
 
     /*
@@ -86,6 +122,87 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
         @Override
         public Document _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
             return parse(value);
+        }
+    }
+
+    /**
+     * @since 3.3
+     */
+    public static class ElementDeserializer extends DOMDeserializer<Element> {
+        public ElementDeserializer() { super(Element.class); }
+        @Override
+        public Element _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
+            // Serialized Element is a well-formed document on its own (Transformer
+            // hoists any ancestor namespace declarations into the subtree)
+            return parse(value).getDocumentElement();
+        }
+    }
+
+    /**
+     * @since 3.3
+     */
+    public static class TextDeserializer extends DOMDeserializer<Text> {
+        public TextDeserializer() { super(Text.class); }
+        @Override
+        public Text _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
+            // Cannot just take the first child: parser is allowed to split character
+            // data into multiple `Text` nodes (and empty text yields none at all)
+            Element wrapper = parseWrapped(value);
+            return wrapper.getOwnerDocument().createTextNode(wrapper.getTextContent());
+        }
+    }
+
+    /**
+     * @since 3.3
+     */
+    public static class CDATASectionDeserializer extends DOMDeserializer<CDATASection> {
+        public CDATASectionDeserializer() { super(CDATASection.class); }
+        @Override
+        public CDATASection _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
+            // Same as with `Text`: content containing "]]>" is written out as multiple
+            // CDATA sections, so recombine into one
+            Element wrapper = parseWrapped(value);
+            return wrapper.getOwnerDocument().createCDATASection(wrapper.getTextContent());
+        }
+    }
+
+    /**
+     * @since 3.3
+     */
+    public static class CommentDeserializer extends DOMDeserializer<Comment> {
+        public CommentDeserializer() { super(Comment.class); }
+        @Override
+        public Comment _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
+            return _wrappedChild(value, Node.COMMENT_NODE, Comment.class);
+        }
+    }
+
+    /**
+     * @since 3.3
+     */
+    public static class ProcessingInstructionDeserializer extends DOMDeserializer<ProcessingInstruction> {
+        public ProcessingInstructionDeserializer() { super(ProcessingInstruction.class); }
+        @Override
+        public ProcessingInstruction _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
+            return _wrappedChild(value, Node.PROCESSING_INSTRUCTION_NODE, ProcessingInstruction.class);
+        }
+    }
+
+    /**
+     * @since 3.3
+     */
+    public static class DocumentFragmentDeserializer extends DOMDeserializer<DocumentFragment> {
+        public DocumentFragmentDeserializer() { super(DocumentFragment.class); }
+        @Override
+        public DocumentFragment _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
+            Element wrapper = parseWrapped(value);
+            Document doc = wrapper.getOwnerDocument();
+            DocumentFragment frag = doc.createDocumentFragment();
+            // NOTE: `appendChild()` detaches from wrapper, so this consumes the list
+            for (Node child; (child = wrapper.getFirstChild()) != null; ) {
+                frag.appendChild(child);
+            }
+            return frag;
         }
     }
 }

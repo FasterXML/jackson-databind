@@ -23,7 +23,6 @@ public class OptionalHandlerFactory
     // // and because Android (and presumably GAE) have these classes
 
     private final static Class<?> CLASS_DOM_NODE = org.w3c.dom.Node.class;
-    private final static Class<?> CLASS_DOM_DOCUMENT = org.w3c.dom.Document.class;
 
     public final static OptionalHandlerFactory instance = new OptionalHandlerFactory();
 
@@ -62,14 +61,8 @@ public class OptionalHandlerFactory
     public ValueDeserializer<?> findDeserializer(DeserializationConfig config, JavaType type)
     {
         final Class<?> rawType = type.getRawClass();
-        // 23-Jul-2026, tatu: [databind#6113] Must check most-specific type first:
-        //    `Document` is a subtype of `Node`, so checking `Node` first would
-        //    leave `DocumentDeserializer` unreachable
-        if (_IsXOfY(rawType, CLASS_DOM_DOCUMENT)) {
-            return new DOMDeserializer.DocumentDeserializer();
-        }
         if (_IsXOfY(rawType, CLASS_DOM_NODE)) {
-            return new DOMDeserializer.NodeDeserializer();
+            return _findDOMDeserializer(rawType);
         }
         String className = rawType.getName();
         if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML)
@@ -97,6 +90,43 @@ public class OptionalHandlerFactory
 
     private boolean _IsXOfY(Class<?> valueType, Class<?> expType) {
         return (expType != null) && expType.isAssignableFrom(valueType);
+    }
+
+    /**
+     * Lookup of deserializer for a DOM {@link org.w3c.dom.Node} subtype: order matters,
+     * most specific type must be checked first, since a check that matches a supertype
+     * would otherwise leave the more specific handler unreachable
+     * (23-Jul-2026, [databind#6113]: `Document` vs `Node`;
+     *  24-Jul-2026, [databind#6120]: the rest).
+     *<p>
+     * Node types with no entry here (notably {@link org.w3c.dom.Attr}) fall back to
+     * {@code NodeDeserializer}, which can only produce a {@link org.w3c.dom.Document}.
+     */
+    private ValueDeserializer<?> _findDOMDeserializer(Class<?> rawType)
+    {
+        if (_IsXOfY(rawType, org.w3c.dom.Document.class)) {
+            return new DOMDeserializer.DocumentDeserializer();
+        }
+        if (_IsXOfY(rawType, org.w3c.dom.Element.class)) {
+            return new DOMDeserializer.ElementDeserializer();
+        }
+        // `CDATASection` is a subtype of `Text`, so must precede it
+        if (_IsXOfY(rawType, org.w3c.dom.CDATASection.class)) {
+            return new DOMDeserializer.CDATASectionDeserializer();
+        }
+        if (_IsXOfY(rawType, org.w3c.dom.Text.class)) {
+            return new DOMDeserializer.TextDeserializer();
+        }
+        if (_IsXOfY(rawType, org.w3c.dom.Comment.class)) {
+            return new DOMDeserializer.CommentDeserializer();
+        }
+        if (_IsXOfY(rawType, org.w3c.dom.ProcessingInstruction.class)) {
+            return new DOMDeserializer.ProcessingInstructionDeserializer();
+        }
+        if (_IsXOfY(rawType, org.w3c.dom.DocumentFragment.class)) {
+            return new DOMDeserializer.DocumentFragmentDeserializer();
+        }
+        return new DOMDeserializer.NodeDeserializer();
     }
 
     /*

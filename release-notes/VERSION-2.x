@@ -50,6 +50,8 @@ No change since 2.22
   after all entries are filtered
  (reported by @dlwldnjs1009)
  (fix by @seonwooj0810)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
 
 2.21.5 (06-Jul-2026)
 
@@ -358,6 +360,8 @@ No changes since 2.19.2
 2.18.10 (not yet released)
 
 #6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
  (fixed by Aysha A-Z)
 
 2.18.9 (07-Jul-2026)

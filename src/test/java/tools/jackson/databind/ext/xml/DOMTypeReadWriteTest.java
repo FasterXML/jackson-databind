@@ -14,6 +14,8 @@ import org.xml.sax.InputSource;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.CoercionAction;
+import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
@@ -35,7 +37,7 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
         "<root><![CDATA[cd & data]]><!--comment--></root>";
 
     // [databind#6113]: wrappers for polymorphic handling; [databind#6120] extended
-    // the set of DOM types for which deserializers exist (see `OptionalHandlerFactory`)
+    // the set of DOM types for which deserializers exist (see `DOMDeserializer.findDeserializer`)
     static class NodeWrapper {
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
         public Node value;
@@ -196,7 +198,7 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
     {
         InvalidFormatException e = assertThrows(InvalidFormatException.class,
                 () -> MAPPER.readValue(q("<elem/>"), Comment.class));
-        verifyException(e, "Failed to parse JSON String as XML Comment node");
+        verifyException(e, "Failed to parse JSON String as XML `org.w3c.dom.Comment` node");
     }
 
     /*
@@ -419,29 +421,15 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
     // delimiters, so `FromStringDeserializer`s default trimming would silently eat
     // leading/trailing whitespace
     @Test
-    public void textKeepsSurroundingWhitespace() throws Exception
-    {
-        Text text = (Text) _parse("<a>hello <b/>world</a>").getDocumentElement().getFirstChild();
-        assertEquals("hello ", text.getData());
-
-        String json = MAPPER.writeValueAsString(new NodeWrapper(text));
-        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
-        _assertNodeType(Node.TEXT_NODE, Text.class, result.value);
-        assertEquals("hello ", ((Text) result.value).getData());
+    public void textKeepsSurroundingWhitespace() throws Exception {
+        _assertDataRoundTrip("<a>hello <b/>world</a>", Node.TEXT_NODE, Text.class, "hello ");
     }
 
     // ... and a whitespace-only `Text` node (indentation in any pretty-printed
     // document) must not trim down to an empty String, and thereby `null`
     @Test
-    public void whitespaceOnlyTextRoundTrips() throws Exception
-    {
-        Text text = (Text) _parse("<a>\n  <b/>\n</a>").getDocumentElement().getFirstChild();
-        assertEquals("\n  ", text.getData());
-
-        String json = MAPPER.writeValueAsString(new NodeWrapper(text));
-        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
-        _assertNodeType(Node.TEXT_NODE, Text.class, result.value);
-        assertEquals("\n  ", ((Text) result.value).getData());
+    public void whitespaceOnlyTextRoundTrips() throws Exception {
+        _assertDataRoundTrip("<a>\n  <b/>\n</a>", Node.TEXT_NODE, Text.class, "\n  ");
     }
 
     // ... nor may empty content, which is a legal `Text` node
@@ -458,18 +446,26 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
         assertEquals("", ((Text) result.value).getData());
     }
 
+    // ... and the empty `Text` node must be reachable as the "empty value" proper, not
+    // just on the default path: `CoercionAction.AsEmpty` consults `getEmptyValue()`
+    @Test
+    public void emptyTextViaAsEmptyCoercion() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withCoercionConfigDefaults(cfg ->
+                    cfg.setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsEmpty))
+                .build();
+        Text text = mapper.readValue(q(""), Text.class);
+        _assertNodeType(Node.TEXT_NODE, Text.class, text);
+        assertEquals("", text.getData());
+    }
+
     // `CDATASection`, by contrast, is delimited by its "<![CDATA[" / "]]>" markers,
     // so trimming cannot reach its content -- verify that stays true
     @Test
-    public void cdataKeepsSurroundingWhitespace() throws Exception
-    {
-        CDATASection cdata = (CDATASection) _parse("<a><![CDATA[  padded  ]]></a>")
-                .getDocumentElement().getFirstChild();
-
-        String json = MAPPER.writeValueAsString(new NodeWrapper(cdata));
-        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
-        _assertNodeType(Node.CDATA_SECTION_NODE, CDATASection.class, result.value);
-        assertEquals("  padded  ", ((CDATASection) result.value).getData());
+    public void cdataKeepsSurroundingWhitespace() throws Exception {
+        _assertDataRoundTrip("<a><![CDATA[  padded  ]]></a>", Node.CDATA_SECTION_NODE,
+                CDATASection.class, "  padded  ");
     }
 
     /*
@@ -517,6 +513,21 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
 
     private Document _simpleDocument() throws Exception {
         return _parse(SIMPLE_XML);
+    }
+
+    // Round-trip the first child of given XML document, verifying both that it keeps
+    // its node type and that its character data survives verbatim
+    private void _assertDataRoundTrip(String xml, short expNodeType,
+            Class<? extends CharacterData> expType, String expData) throws Exception
+    {
+        CharacterData node = (CharacterData) _parse(xml).getDocumentElement().getFirstChild();
+        _assertNodeType(expNodeType, expType, node);
+        assertEquals(expData, node.getData(), "Bad test setup: wrong input data");
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(node));
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        _assertNodeType(expNodeType, expType, result.value);
+        assertEquals(expData, ((CharacterData) result.value).getData());
     }
 
     private Document _parse(String xml) throws Exception {

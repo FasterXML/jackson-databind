@@ -85,9 +85,8 @@ public class DOMSerializer extends StdSerializer<Node>
      * value: switches on {@link Node#getNodeType()} since runtime classes are
      * JDK-internal implementation types, and node types are mutually exclusive.
      *<p>
-     * Returns the specific interface for the node types {@link DOMDeserializer} can
-     * reconstruct; plain {@code Node} for the rest (notably {@link org.w3c.dom.Attr},
-     * for which the {@code Transformer} emits nothing usable -- see [databind#6120]).
+     * Must stay in sync with {@link DOMDeserializer#findDeserializer}, which documents
+     * the supported set and the fallback.
      *
      * @since 3.3
      */
@@ -98,8 +97,8 @@ public class DOMSerializer extends StdSerializer<Node>
             return Document.class;
         case Node.ELEMENT_NODE:
             return Element.class;
-        // NOTE: `CDATASection` is a subtype of `Text` but needs its own Type Id, or
-        // it would be read back as a plain `Text` node
+        // NOTE: needs its own Type Id even though `CDATASection` is a subtype of
+        // `Text`, or it would be read back as a plain `Text` node
         case Node.CDATA_SECTION_NODE:
             return CDATASection.class;
         case Node.TEXT_NODE:

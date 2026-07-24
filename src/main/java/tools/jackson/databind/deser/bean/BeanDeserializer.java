@@ -384,6 +384,11 @@ public class BeanDeserializer
                 continue;
             }
             */
+            // [databind#6115] Things marked as ignorable should not be passed to any setter
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
+                continue;
+            }
             // "Any property"?
             if (_anySetter != null) {
                 try {
@@ -1238,7 +1243,14 @@ public class BeanDeserializer
             //    we can do.
             // 19-Dec-2025: [databind#650] We can now distinguish the cases
             // but... others should be passed to unwrapped property deserializers
-            if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
+            // [databind#6115] Things marked as ignorable must be checked first: they
+            //   should neither be passed to any-setter nor routed to unwrapped
+            //   property deserializers (which may accept all names, see #6001).
+            //   Note: explicit ignoral wins over `ignoreUnknown=true` here, same as
+            //   on the other paths -- so do NOT guard this on `_ignoreAllUnknown`.
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
+            } else if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
                 hasUnwrappedContent = true;
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
@@ -1246,8 +1258,6 @@ public class BeanDeserializer
                 // [databind#650]: priority: @JsonIgnoreProperties > FAIL_ON_UNKNOWN_PROPERTIES
                 if (_ignoreAllUnknown) {
                     p.skipChildren();
-                } else if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
                 } else if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
                     throw UnrecognizedPropertyException.from(p, handledType(), propName, getKnownPropertyNames());
                 } else {

@@ -22,6 +22,8 @@ No changes since 3.1
 #6109: Mark built-in JDK 8 handlers (`Optional`, `Stream`) with `@JacksonStdImpl` so
   optimization modules (Blackbird) can retain optimized handlers
  (fix by Lee Jiwon)
+#6115: Honor `@JsonIgnoreProperties` before any-setter on more deser paths
+ (fix by Aysha A-Z)
 
 3.1.5 (07-Jul-2026)
 

@@ -80,10 +80,10 @@ public class OptionalHandlerFactory
     }
 
     public boolean hasDeserializerFor(Class<?> valueType) {
+        // 23-Jul-2026, tatu: [databind#6113] No separate `Document` check needed
+        //    (unlike in `findDeserializer()`, which returns differing handlers):
+        //    `Document` is a subtype of `Node` so this covers both
         if (_IsXOfY(valueType, CLASS_DOM_NODE)) {
-            return true;
-        }
-        if (_IsXOfY(valueType, CLASS_DOM_DOCUMENT)) {
             return true;
         }
         String className = valueType.getName();

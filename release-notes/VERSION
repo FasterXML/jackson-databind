@@ -22,7 +22,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
   is actually thrown
  (reported by @pctF)
  (fix by @pjfanning)
-#6113 Fix `DOMSerializer` to support polymorphic serialization
+#6113: Fix `DOMSerializer` to support polymorphic serialization
  (fix by @dong0713)
 
 3.2.1 (10-Jul-2026)

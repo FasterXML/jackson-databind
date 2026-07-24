@@ -227,8 +227,9 @@ public class AnySetterIgnoreProperties6115Test extends DatabindTestUtil
         final String json = """
                 {"id":1,"first":"a","secret":"nope","other":"ok"}
                 """;
-        PlainCreatorIgnoreUnknownBean plain = MAPPER.readValue(
-                "{\"id\":1,\"secret\":\"nope\",\"other\":\"ok\"}", PlainCreatorIgnoreUnknownBean.class);
+        PlainCreatorIgnoreUnknownBean plain = MAPPER.readValue("""
+                {"id":1,"secret":"nope","other":"ok"}
+                """, PlainCreatorIgnoreUnknownBean.class);
         assertEquals(Map.of("other", "ok"), plain.extras);
 
         UnwrapCreatorIgnoreUnknownBean bean = MAPPER.readValue(json, UnwrapCreatorIgnoreUnknownBean.class);

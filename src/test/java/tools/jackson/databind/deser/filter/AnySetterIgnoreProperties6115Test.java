@@ -101,6 +101,38 @@ public class AnySetterIgnoreProperties6115Test extends DatabindTestUtil
     @JsonIncludeProperties({"name", "other"})
     public record IncludeOnlyRecord(String name, @JsonAnySetter Map<String, Object> extras) {}
 
+    // Explicit ignore list COMBINED with ignoreUnknown=true: the explicit ignoral
+    // must still win, and unknown-but-not-ignored names still reach the any-setter
+    @JsonIgnoreProperties(value = {"secret"}, ignoreUnknown = true)
+    static class UnwrapCreatorIgnoreUnknownBean {
+        final int id;
+        @JsonUnwrapped
+        public Name name;
+        final Map<String, Object> extras = new HashMap<>();
+
+        @JsonCreator
+        public UnwrapCreatorIgnoreUnknownBean(@JsonProperty("id") int id) {
+            this.id = id;
+        }
+
+        @JsonAnySetter
+        public void any(String key, Object value) { extras.put(key, value); }
+    }
+
+    @JsonIgnoreProperties(value = {"secret"}, ignoreUnknown = true)
+    static class PlainCreatorIgnoreUnknownBean { // reference: plain create path
+        final int id;
+        final Map<String, Object> extras = new HashMap<>();
+
+        @JsonCreator
+        public PlainCreatorIgnoreUnknownBean(@JsonProperty("id") int id) {
+            this.id = id;
+        }
+
+        @JsonAnySetter
+        public void any(String key, Object value) { extras.put(key, value); }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // Create path already filters the ignored name (control)
@@ -186,6 +218,25 @@ public class AnySetterIgnoreProperties6115Test extends DatabindTestUtil
                         {"name":"alice","secret":"nope","other":"ok"}
                         """);
         assertEquals(Map.of("other", "ok"), updated.extras());
+    }
+
+    // Explicit ignoral must beat ignoreUnknown=true on the creator+unwrapped path,
+    // exactly as it does on the plain create path
+    @Test
+    public void explicitIgnoralBeatsIgnoreUnknown() throws Exception {
+        final String json = """
+                {"id":1,"first":"a","secret":"nope","other":"ok"}
+                """;
+        PlainCreatorIgnoreUnknownBean plain = MAPPER.readValue(
+                "{\"id\":1,\"secret\":\"nope\",\"other\":\"ok\"}", PlainCreatorIgnoreUnknownBean.class);
+        assertEquals(Map.of("other", "ok"), plain.extras);
+
+        UnwrapCreatorIgnoreUnknownBean bean = MAPPER.readValue(json, UnwrapCreatorIgnoreUnknownBean.class);
+        assertFalse(bean.extras.containsKey("secret"),
+                "explicitly ignored 'secret' leaked into any-setter when ignoreUnknown=true: " + bean.extras);
+        assertEquals(Map.of("other", "ok"), bean.extras);
+        assertNotNull(bean.name);
+        assertEquals("a", bean.name.first);
     }
 
     // Since these names are now "ignored" rather than passed to the any-setter,

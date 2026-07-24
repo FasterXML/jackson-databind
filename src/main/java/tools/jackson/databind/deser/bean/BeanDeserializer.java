@@ -1245,9 +1245,10 @@ public class BeanDeserializer
             // but... others should be passed to unwrapped property deserializers
             // [databind#6115] Things marked as ignorable must be checked first: they
             //   should neither be passed to any-setter nor routed to unwrapped
-            //   property deserializers (which may accept all names, see #6001)
-            if (!_ignoreAllUnknown
-                    && IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+            //   property deserializers (which may accept all names, see #6001).
+            //   Note: explicit ignoral wins over `ignoreUnknown=true` here, same as
+            //   on the other paths -- so do NOT guard this on `_ignoreAllUnknown`.
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
             } else if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
                 hasUnwrappedContent = true;

@@ -24,6 +24,8 @@ No changes since 3.1
  (fix by Lee Jiwon)
 #6115: Honor `@JsonIgnoreProperties` before any-setter on more deser paths
  (fix by Aysha A-Z)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
 
 3.1.5 (07-Jul-2026)
 

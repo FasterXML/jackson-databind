@@ -598,3 +598,7 @@ Ivan (@pctF)
    `IllegalArgumentException` but throws `MismatchedInputException` when input and
    expected type are not compatible
   [3.3.0]
+
+Bowang (@dong0713)
+ * Fixed #6113: `DOMSerializer` to support polymorphic serialization
+  [3.3.0]

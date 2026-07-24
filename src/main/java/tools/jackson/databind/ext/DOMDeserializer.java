@@ -10,6 +10,7 @@ import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.std.FromStringDeserializer;
 
 /**
@@ -68,12 +69,32 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
      * well-formed XML documents (text, comments, processing instructions and so on):
      * wraps given XML text in a throw-away root element, parses that, and returns
      * the wrapper element whose children are the reconstructed node(s).
+     *<p>
+     * NOTE: input is concatenated into XML, but cannot widen what a caller could
+     * already reach via {@link #parse}: content that closes the wrapper leaves the
+     * document with 2 root elements, and a {@code DOCTYPE} may not follow a start tag
+     * -- both are fatal parse errors, on top of the parser factory already disallowing
+     * DOCTYPE declarations and entity expansion.
      *
      * @since 3.3
      */
     protected final Element parseWrapped(String value) throws IllegalArgumentException {
         return parse("<"+WRAPPER_ELEMENT+">"+value+"</"+WRAPPER_ELEMENT+">")
                 .getDocumentElement();
+    }
+
+    /**
+     * Helper method for creating an empty {@link Document} to act as the owner of
+     * nodes constructed without parsing.
+     *
+     * @since 3.3
+     */
+    protected final Document _newDocument() throws IllegalArgumentException {
+        try {
+            return documentBuilder().newDocument();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to construct XML `Document`: "+e.getMessage(), e);
+        }
     }
 
     /**
@@ -109,16 +130,18 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
     /**********************************************************
      */
 
-    public static class NodeDeserializer extends DOMDeserializer<Node> {
-        public NodeDeserializer() { super(Node.class); }
+    @JacksonStdImpl
+    static class NodeDeserializer extends DOMDeserializer<Node> {
+        NodeDeserializer() { super(Node.class); }
         @Override
         public Node _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
             return parse(value);
         }
     }
 
-    public static class DocumentDeserializer extends DOMDeserializer<Document> {
-        public DocumentDeserializer() { super(Document.class); }
+    @JacksonStdImpl
+    static class DocumentDeserializer extends DOMDeserializer<Document> {
+        DocumentDeserializer() { super(Document.class); }
         @Override
         public Document _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
             return parse(value);
@@ -128,8 +151,9 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
     /**
      * @since 3.3
      */
-    public static class ElementDeserializer extends DOMDeserializer<Element> {
-        public ElementDeserializer() { super(Element.class); }
+    @JacksonStdImpl
+    static class ElementDeserializer extends DOMDeserializer<Element> {
+        ElementDeserializer() { super(Element.class); }
         @Override
         public Element _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
             // Serialized Element is a well-formed document on its own (Transformer
@@ -141,12 +165,28 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
     /**
      * @since 3.3
      */
-    public static class TextDeserializer extends DOMDeserializer<Text> {
-        public TextDeserializer() { super(Text.class); }
+    @JacksonStdImpl
+    static class TextDeserializer extends DOMDeserializer<Text> {
+        TextDeserializer() { super(Text.class); }
+
+        // 24-Jul-2026, tatu: [databind#6120] Unlike every other DOM type, the written
+        //    form of a `Text` node IS its (escaped) content, with no delimiters. Default
+        //    trimming would silently drop leading/trailing whitespace -- and turn a
+        //    whitespace-only node (indentation in any pretty-printed document) into
+        //    an empty String, and thereby `null`.
+        @Override
+        protected boolean _shouldTrim() { return false; }
+
+        // ... and for the same reason empty content is a legal `Text` node, not `null`
+        @Override
+        protected Object _deserializeFromEmptyStringDefault(DeserializationContext ctxt) {
+            return _newDocument().createTextNode("");
+        }
+
         @Override
         public Text _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
             // Cannot just take the first child: parser is allowed to split character
-            // data into multiple `Text` nodes (and empty text yields none at all)
+            // data into multiple `Text` nodes
             Element wrapper = parseWrapped(value);
             return wrapper.getOwnerDocument().createTextNode(wrapper.getTextContent());
         }
@@ -155,8 +195,9 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
     /**
      * @since 3.3
      */
-    public static class CDATASectionDeserializer extends DOMDeserializer<CDATASection> {
-        public CDATASectionDeserializer() { super(CDATASection.class); }
+    @JacksonStdImpl
+    static class CDATASectionDeserializer extends DOMDeserializer<CDATASection> {
+        CDATASectionDeserializer() { super(CDATASection.class); }
         @Override
         public CDATASection _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
             // Same as with `Text`: content containing "]]>" is written out as multiple
@@ -169,8 +210,9 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
     /**
      * @since 3.3
      */
-    public static class CommentDeserializer extends DOMDeserializer<Comment> {
-        public CommentDeserializer() { super(Comment.class); }
+    @JacksonStdImpl
+    static class CommentDeserializer extends DOMDeserializer<Comment> {
+        CommentDeserializer() { super(Comment.class); }
         @Override
         public Comment _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
             return _wrappedChild(value, Node.COMMENT_NODE, Comment.class);
@@ -180,8 +222,9 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
     /**
      * @since 3.3
      */
-    public static class ProcessingInstructionDeserializer extends DOMDeserializer<ProcessingInstruction> {
-        public ProcessingInstructionDeserializer() { super(ProcessingInstruction.class); }
+    @JacksonStdImpl
+    static class ProcessingInstructionDeserializer extends DOMDeserializer<ProcessingInstruction> {
+        ProcessingInstructionDeserializer() { super(ProcessingInstruction.class); }
         @Override
         public ProcessingInstruction _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
             return _wrappedChild(value, Node.PROCESSING_INSTRUCTION_NODE, ProcessingInstruction.class);
@@ -191,8 +234,9 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
     /**
      * @since 3.3
      */
-    public static class DocumentFragmentDeserializer extends DOMDeserializer<DocumentFragment> {
-        public DocumentFragmentDeserializer() { super(DocumentFragment.class); }
+    @JacksonStdImpl
+    static class DocumentFragmentDeserializer extends DOMDeserializer<DocumentFragment> {
+        DocumentFragmentDeserializer() { super(DocumentFragment.class); }
         @Override
         public DocumentFragment _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
             Element wrapper = parseWrapped(value);

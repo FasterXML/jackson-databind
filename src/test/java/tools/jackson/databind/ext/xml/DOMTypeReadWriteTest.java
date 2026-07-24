@@ -364,6 +364,33 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
         assertEquals("b", ((Element) children.item(1)).getTagName());
     }
 
+    // ... and namespaces must survive the wrap-and-parse path too, not just the
+    // single-Element one
+    @Test
+    public void polymorphicNodeFieldWithNamespacedDocumentFragment() throws Exception
+    {
+        Document doc = _parse("<root xmlns:ns='http://foo'><ns:a/><ns:b>x</ns:b></root>");
+        DocumentFragment frag = doc.createDocumentFragment();
+        NodeList roots = doc.getDocumentElement().getChildNodes();
+        while (roots.getLength() > 0) {
+            frag.appendChild(roots.item(0));
+        }
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(frag));
+        assertEquals(DocumentFragment.class.getName(), _typeIdOf(json));
+
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        _assertNodeType(Node.DOCUMENT_FRAGMENT_NODE, DocumentFragment.class, result.value);
+        NodeList children = result.value.getChildNodes();
+        assertEquals(2, children.getLength());
+        for (int i = 0; i < 2; ++i) {
+            Element el = (Element) children.item(i);
+            assertEquals("http://foo", el.getNamespaceURI(), "Wrong ns for child #"+i);
+        }
+        assertEquals("a", ((Element) children.item(0)).getLocalName());
+        assertEquals("b", ((Element) children.item(1)).getLocalName());
+    }
+
     // [databind#6120]: `Attr` remains unsupported -- the `Transformer` emits an empty
     // String for it, so name and value are gone before the read side is reached.
     // Verified here so that a change in behavior is caught.
@@ -380,6 +407,69 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
 
         NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
         assertNull(result.value);
+    }
+
+    /*
+    /**********************************************************
+    /* Whitespace handling in `Text` values
+    /**********************************************************
+     */
+
+    // [databind#6120]: a `Text` node is written as its bare (escaped) content, with no
+    // delimiters, so `FromStringDeserializer`s default trimming would silently eat
+    // leading/trailing whitespace
+    @Test
+    public void textKeepsSurroundingWhitespace() throws Exception
+    {
+        Text text = (Text) _parse("<a>hello <b/>world</a>").getDocumentElement().getFirstChild();
+        assertEquals("hello ", text.getData());
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(text));
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        _assertNodeType(Node.TEXT_NODE, Text.class, result.value);
+        assertEquals("hello ", ((Text) result.value).getData());
+    }
+
+    // ... and a whitespace-only `Text` node (indentation in any pretty-printed
+    // document) must not trim down to an empty String, and thereby `null`
+    @Test
+    public void whitespaceOnlyTextRoundTrips() throws Exception
+    {
+        Text text = (Text) _parse("<a>\n  <b/>\n</a>").getDocumentElement().getFirstChild();
+        assertEquals("\n  ", text.getData());
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(text));
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        _assertNodeType(Node.TEXT_NODE, Text.class, result.value);
+        assertEquals("\n  ", ((Text) result.value).getData());
+    }
+
+    // ... nor may empty content, which is a legal `Text` node
+    @Test
+    public void emptyTextRoundTrips() throws Exception
+    {
+        Text text = _parse("<a/>").createTextNode("");
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(text));
+        assertEquals("", _valueOf(json));
+
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        _assertNodeType(Node.TEXT_NODE, Text.class, result.value);
+        assertEquals("", ((Text) result.value).getData());
+    }
+
+    // `CDATASection`, by contrast, is delimited by its "<![CDATA[" / "]]>" markers,
+    // so trimming cannot reach its content -- verify that stays true
+    @Test
+    public void cdataKeepsSurroundingWhitespace() throws Exception
+    {
+        CDATASection cdata = (CDATASection) _parse("<a><![CDATA[  padded  ]]></a>")
+                .getDocumentElement().getFirstChild();
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(cdata));
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        _assertNodeType(Node.CDATA_SECTION_NODE, CDATASection.class, result.value);
+        assertEquals("  padded  ", ((CDATASection) result.value).getData());
     }
 
     /*

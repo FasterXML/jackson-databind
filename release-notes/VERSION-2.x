@@ -12,6 +12,8 @@ Project: jackson-databind
   after all entries are filtered
  (reported by @dlwldnjs1009)
  (fix by @seonwooj0810)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
 
 2.21.5 (06-Jul-2026)
 

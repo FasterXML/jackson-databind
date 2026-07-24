@@ -24,6 +24,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @pjfanning)
 #6113: Fix `DOMSerializer` to support polymorphic serialization
  (fix by @dong0713)
+#6120: Use per-node-type Type Ids for DOM values, reconstruct via DOM factory
+  instead of always parsing a `Document`
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.2.1 (10-Jul-2026)
 

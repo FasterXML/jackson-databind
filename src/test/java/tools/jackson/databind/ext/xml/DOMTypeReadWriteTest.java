@@ -14,6 +14,7 @@ import org.xml.sax.InputSource;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -134,6 +135,32 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
 
     /*
     /**********************************************************
+    /* Deserializer resolution tests
+    /**********************************************************
+     */
+
+    // [databind#6120]: `DocumentDeserializer` used to be unreachable, since lookup
+    // checked `Node` first and `Document` is a subtype of it. Only externally visible
+    // difference is the target type reported on failure, so verify via that.
+    @Test
+    public void documentUsesDocumentDeserializer() throws Exception
+    {
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readValue(q("not xml at all"), Document.class));
+        verifyException(e, "Cannot deserialize value of type `org.w3c.dom.Document`");
+    }
+
+    // ... whereas `Node`-declared values keep using `NodeDeserializer`
+    @Test
+    public void nodeUsesNodeDeserializer() throws Exception
+    {
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readValue(q("not xml at all"), Node.class));
+        verifyException(e, "Cannot deserialize value of type `org.w3c.dom.Node`");
+    }
+
+    /*
+    /**********************************************************
     /* Polymorphic (`@JsonTypeInfo`) tests
     /**********************************************************
      */
@@ -149,19 +176,67 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
         assertEquals(Document.class.getName(), _typeIdOf(json));
 
         DocumentWrapper result = MAPPER.readValue(json, DocumentWrapper.class);
+        _assertNodeType(Node.DOCUMENT_NODE, Document.class, result.value);
         assertEquals(SIMPLE_XML, _asXml(result.value));
     }
 
     // [databind#6113]: `Node`-declared field gets `Document` Type Id too (that being
     // the actual shape written), which resolves fine as a subtype of `Node`
     @Test
-    public void polymorphicNodeField() throws Exception
+    public void polymorphicNodeFieldWithDocument() throws Exception
     {
         String json = MAPPER.writeValueAsString(new NodeWrapper(_simpleDocument()));
         assertEquals(Document.class.getName(), _typeIdOf(json));
 
         NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        _assertNodeType(Node.DOCUMENT_NODE, Document.class, result.value);
         assertEquals(SIMPLE_XML, _asXml(result.value));
+    }
+
+    // [databind#6113]: `Element` value gets `Node` Type Id (not `Element`), since
+    // `NodeDeserializer` is the only handler that can accept it.
+    // NOTE: read side is asymmetric -- `DOMDeserializer` always parses a full
+    // `Document` -- so an `Element` written comes back as `Document`. That is
+    // pre-existing `DOMDeserializer` behavior, not something #6113 changed;
+    // see [databind#6120] for possible per-node-type handling.
+    @Test
+    public void polymorphicNodeFieldWithElement() throws Exception
+    {
+        Element leaf = (Element) _simpleDocument().getDocumentElement()
+                .getElementsByTagName("leaf").item(0);
+        _assertNodeType(Node.ELEMENT_NODE, Element.class, leaf);
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(leaf));
+        assertEquals(Node.class.getName(), _typeIdOf(json));
+        assertEquals("<leaf>Rock &amp; Roll!</leaf>", _valueOf(json));
+
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        // Exactly a Document -- NOT the Element that was written
+        _assertNodeType(Node.DOCUMENT_NODE, Document.class, result.value);
+        Element rootOfResult = ((Document) result.value).getDocumentElement();
+        _assertNodeType(Node.ELEMENT_NODE, Element.class, rootOfResult);
+        assertEquals("leaf", rootOfResult.getTagName());
+        assertEquals("Rock & Roll!", rootOfResult.getTextContent());
+    }
+
+    // [databind#6113]: `Text` ("String") node also gets `Node` Type Id, and write
+    // side works. Read side, however, cannot work: bare text is not a legal XML
+    // document. Again pre-existing `DOMDeserializer` limitation, verified here so
+    // that a change in behavior is caught; see [databind#6120].
+    @Test
+    public void polymorphicNodeFieldWithText() throws Exception
+    {
+        Text text = (Text) _simpleDocument().getDocumentElement()
+                .getElementsByTagName("leaf").item(0).getFirstChild();
+        _assertNodeType(Node.TEXT_NODE, Text.class, text);
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(text));
+        assertEquals(Node.class.getName(), _typeIdOf(json));
+        assertEquals("Rock &amp; Roll!", _valueOf(json));
+
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readValue(json, NodeWrapper.class));
+        verifyException(e, "Failed to parse JSON String as XML");
     }
 
     /*
@@ -220,8 +295,28 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
     // Scalar values use WRAPPER_ARRAY inclusion, so JSON is
     // `{"value":["type.id","<xml>"]}`: dig out the Type Id
     private String _typeIdOf(String json) throws Exception {
+        return _wrapperArrayOf(json).path(0).stringValue();
+    }
+
+    // ... and matching XML text payload
+    private String _valueOf(String json) throws Exception {
+        return _wrapperArrayOf(json).path(1).stringValue();
+    }
+
+    private JsonNode _wrapperArrayOf(String json) throws Exception {
         JsonNode wrapped = MAPPER.readTree(json).path("value");
         assertTrue(wrapped.isArray(), "Expected WRAPPER_ARRAY for typed `Node`, got: "+json);
-        return wrapped.path(0).stringValue();
+        assertEquals(2, wrapped.size(), "Expected [typeId, value], got: "+json);
+        return wrapped;
+    }
+
+    // Verify exact DOM type: `getNodeType()` is the canonical discriminator (node
+    // types are mutually exclusive), since runtime classes are JDK-internal impls
+    // like `com.sun.org.apache.xerces.internal.dom.DeferredDocumentImpl`
+    private void _assertNodeType(short expNodeType, Class<? extends Node> expType, Node actual) {
+        assertNotNull(actual, "Expected "+expType.getName()+", got `null`");
+        assertEquals(expNodeType, actual.getNodeType(),
+                "Wrong `getNodeType()` for value of class "+actual.getClass().getName());
+        assertInstanceOf(expType, actual);
     }
 }

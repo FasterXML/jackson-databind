@@ -62,11 +62,14 @@ public class OptionalHandlerFactory
     public ValueDeserializer<?> findDeserializer(DeserializationConfig config, JavaType type)
     {
         final Class<?> rawType = type.getRawClass();
-        if (_IsXOfY(rawType, CLASS_DOM_NODE)) {
-            return new DOMDeserializer.NodeDeserializer();
-        }
+        // 23-Jul-2026, tatu: [databind#6120] Must check most-specific type first:
+        //    `Document` is a subtype of `Node`, so checking `Node` first would
+        //    leave `DocumentDeserializer` unreachable
         if (_IsXOfY(rawType, CLASS_DOM_DOCUMENT)) {
             return new DOMDeserializer.DocumentDeserializer();
+        }
+        if (_IsXOfY(rawType, CLASS_DOM_NODE)) {
+            return new DOMDeserializer.NodeDeserializer();
         }
         String className = rawType.getName();
         if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML)

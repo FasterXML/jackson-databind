@@ -216,10 +216,10 @@ class InetAddressValidator
         return (short) hextet;
     }
 
-    // Like Character.digit(), but only recognizes ASCII digits: Character.digit()
-    // also accepts non-ASCII forms (full-width, Arabic-Indic, ...) that
-    // InetAddress.getByName() does not treat as an address literal and would
-    // instead resolve via DNS.
+    // 24-Jul-2026, aysha: [databind#6116] Like Character.digit(), but only recognizes
+    // ASCII digits: Character.digit() also accepts non-ASCII forms (full-width,
+    // Arabic-Indic, ...) that InetAddress.getByName() does not treat as an address
+    // literal and would instead resolve via DNS.
     private static int _digit(char c, int radix) {
         if (c > 0x7f) {
             return -1;

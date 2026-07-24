@@ -200,13 +200,17 @@ public class JDKStringLikeTypeDeserTest
     @Test
     public void testInetAddressNonAsciiDigits() throws Exception
     {
-        // [databind#6058] follow-up: Character.digit() accepts non-ASCII digits, but
-        // InetAddress.getByName() only treats ASCII literals as addresses and resolves
-        // the rest via DNS, so these must be rejected too.
-        expectInvalidInetAddress("１２７.0.0.1"); // full-width "127".0.0.1
-        expectInvalidInetAddress("١٢٧.0.0.1"); // Arabic-Indic "127".0.0.1
-        expectInvalidInetAddress("２001:db8::1"); // full-width digit in IPv6 hextet
-        expectInvalidInetAddress("fe80::１"); // full-width digit in IPv6 hextet
+        // [databind#6116], follow-up to [databind#6058]: Character.digit() accepts
+        // non-ASCII digits, but InetAddress.getByName() only treats ASCII literals as
+        // addresses and resolves the rest via DNS, so these must be rejected too.
+        // NOTE: unicode escapes used on purpose -- non-ASCII digit forms are visually
+        // hard to tell apart from the ASCII ones they mimic.
+        expectInvalidInetAddress("\uFF11\uFF12\uFF17.0.0.1"); // full-width "127".0.0.1
+        expectInvalidInetAddress("\u0661\u0662\u0667.0.0.1"); // Arabic-Indic "127".0.0.1
+        expectInvalidInetAddress("\uFF12001:db8::1"); // full-width digit in IPv6 hextet
+        expectInvalidInetAddress("fe80::\uFF11"); // full-width digit in IPv6 hextet
+        // and same goes for non-ASCII hex letters (radix 16), not just digits
+        expectInvalidInetAddress("\uFF41bcd::1"); // full-width "a"bcd::1
     }
 
     private void expectInvalidInetAddress(String address) throws Exception {

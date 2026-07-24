@@ -6,12 +6,15 @@ import javax.xml.XMLConstants;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import tools.jackson.core.*;
+import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 public class DOMSerializer extends StdSerializer<Node>
@@ -50,8 +53,30 @@ public class DOMSerializer extends StdSerializer<Node>
     }
 
     @Override
+    public void serializeWithType(Node value, JsonGenerator g, SerializationContext ctxt,
+            TypeSerializer typeSer)
+        throws JacksonException
+    {
+        // 23-Jul-2026, tatu: [databind#6113] `Node` written as XML text in JSON String,
+        //    so needs same handling as `StdScalarSerializer` (compare to
+        //    `XMLGregorianCalendarSerializer` / [databind#3217])
+
+        // Also: must not use runtime type, as that is JDK-internal implementation
+        // class (like `com.sun.org.apache.xerces.internal.dom.DocumentImpl`); but
+        // cannot always use `Node` either, since that is not a subtype of `Document`
+        // and would fail on deserialization of `Document`-declared values
+        Class<?> typeForId = (value instanceof Document) ? Document.class : Node.class;
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
+                typeSer.typeId(value, typeForId, JsonToken.VALUE_STRING));
+        serialize(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
+    }
+
+    @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
-        if (visitor != null) visitor.expectAnyFormat(typeHint);
+        // 23-Jul-2026, tatu: [databind#6113] `Node` is written as XML text in JSON
+        //    String, so report as such (and not as "any format")
+        visitStringFormat(visitor, typeHint);
     }
 
     private static void setTransformerFactoryAttribute(final TransformerFactory transformerFactory,

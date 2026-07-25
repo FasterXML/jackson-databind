@@ -232,10 +232,10 @@ public class AnyGetterWriter extends BeanPropertyWriter
     {
         for (Map.Entry<?,?> entry : map.entrySet()) {
             Object rawKey = entry.getKey();
-            if (rawKey == null) {
-                continue;
-            }
-            gen.writeName(transformer.transform(rawKey.toString()));
+            // Null keys: serialize as the string "null" (mirrors the most common
+            // null-key serializer behavior) then apply the name transformer
+            String keyStr = (rawKey == null) ? "null" : rawKey.toString();
+            gen.writeName(transformer.transform(keyStr));
             Object entryValue = entry.getValue();
             if (entryValue == null) {
                 ctxt.defaultSerializeNullValue(gen);

@@ -66,7 +66,7 @@ public class UnwrappedWithAnySetterTest extends DatabindTestUtil
 
         OuterWithPrefixedInnerAnyGetter() {
             inner = new InnerWithAnyGetter();
-            inner.setExtra("age", "64");
+            inner.setExtra("age", 64);
         }
     }
 
@@ -76,7 +76,7 @@ public class UnwrappedWithAnySetterTest extends DatabindTestUtil
     @Test
     public void testUnwrappedWithAnySetter() throws Exception
     {
-        String json = "{\"id\":1,\"name\":\"aaa\",\"age\":12}";
+        String json = a2q("{'id':1,'name':'aaa','age':12}");
         Outer outer = MAPPER.readValue(json, Outer.class);
 
         // "id" goes to Outer.id
@@ -104,6 +104,6 @@ public class UnwrappedWithAnySetterTest extends DatabindTestUtil
         String json = MAPPER.writeValueAsString(outer);
         // "name" from Outer is serialized directly (no prefix);
         // "age" from Inner's @JsonAnyGetter must be serialized with the "a-" prefix applied
-        assertEquals("{\"name\":\"aaa\",\"a-age\":\"64\"}", json);
+        assertEquals(a2q("{'name':'aaa','a-age':64}"), json);
     }
 }

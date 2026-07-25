@@ -58,6 +58,7 @@ public class UnwrappedWithAnySetterTest extends DatabindTestUtil
         }
     }
 
+    @JsonPropertyOrder({"name"})
     static class OuterWithPrefixedInnerAnyGetter {
         public String name = "aaa";
 

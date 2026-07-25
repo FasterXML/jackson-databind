@@ -203,7 +203,7 @@ public class JRefModule extends SimpleModule {
                 }
                 JsonPointer ctxtPtr = JsonPointer.forPath(p.streamReadContext(), false);
                 // build currPtr from context and parent
-                JsonPointer currPtr = ctxtPtr.toString().startsWith(parentPtr.toString()) ? ctxtPtr
+                JsonPointer currPtr = ctxtPtr.startsWith(parentPtr) ? ctxtPtr
                         : parentPtr.append(ctxtPtr);
                 ptrStack.push(currPtr);
                 Object result = null;

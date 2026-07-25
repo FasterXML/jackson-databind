@@ -8,6 +8,7 @@ import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.ser.jdk.MapSerializer;
+import tools.jackson.databind.util.NameTransformer;
 
 /**
  * Class similar to {@link BeanPropertyWriter}, but that will be used
@@ -28,6 +29,12 @@ public class AnyGetterWriter extends BeanPropertyWriter
     protected MapSerializer _mapSerializer;
 
     /**
+     * Optional name transformer to apply to map keys, used when this any-getter
+     * is part of a bean serialized via {@code @JsonUnwrapped} with a prefix/suffix.
+     */
+    protected final NameTransformer _nameTransformer;
+
+    /**
      * @since 2.19
      */
     @SuppressWarnings("unchecked")
@@ -41,6 +48,31 @@ public class AnyGetterWriter extends BeanPropertyWriter
         if (serializer instanceof MapSerializer mapSer) {
             _mapSerializer = mapSer;
         }
+        _nameTransformer = null;
+    }
+
+    /**
+     * Copy constructor used when applying a {@link NameTransformer} via {@link #rename}.
+     */
+    protected AnyGetterWriter(AnyGetterWriter src, NameTransformer transformer)
+    {
+        super(src);
+        _accessor = src._accessor;
+        _property = src._property;
+        _serializer = src._serializer;
+        _mapSerializer = src._mapSerializer;
+        _nameTransformer = (src._nameTransformer == null) ? transformer
+                : NameTransformer.chainedTransformer(transformer, src._nameTransformer);
+    }
+
+    /**
+     * Override to return an {@link AnyGetterWriter} with the given transformer
+     * stored so that map keys are prefixed/suffixed during serialization, rather
+     * than renaming the property itself (which has no meaning for any-getter).
+     */
+    @Override
+    public BeanPropertyWriter rename(NameTransformer transformer) {
+        return new AnyGetterWriter(this, transformer);
     }
 
     @Override
@@ -74,12 +106,21 @@ public class AnyGetterWriter extends BeanPropertyWriter
         }
         // [databind#3604]: Support ObjectNode/JsonNode for @JsonAnyGetter
         if (value instanceof JsonNode) {
-            _serializeObjectNodeEntries(_verifyObjectNode(value, ctxt), gen, ctxt);
+            ObjectNode objectNode = _verifyObjectNode(value, ctxt);
+            if (_nameTransformer != null) {
+                _serializeObjectNodeEntriesWithTransformer(objectNode, gen, ctxt, _nameTransformer);
+            } else {
+                _serializeObjectNodeEntries(objectNode, gen, ctxt);
+            }
             return;
         }
         if (!(value instanceof Map<?,?>)) {
             ctxt.reportBadDefinition(_property.getType(), "Value returned by 'any-getter' %s() not java.util.Map but %s".formatted(
                     _accessor.getName(), value.getClass().getName()));
+        }
+        if (_nameTransformer != null) {
+            _serializeMapEntriesWithTransformer((Map<?,?>) value, gen, ctxt, _nameTransformer);
+            return;
         }
         // 23-Feb-2015, tatu: Nasty, but has to do (for now)
         if (_mapSerializer != null) {
@@ -105,13 +146,22 @@ public class AnyGetterWriter extends BeanPropertyWriter
         // [databind#3604]: Support ObjectNode/JsonNode for @JsonAnyGetter
         if (value instanceof JsonNode) {
             // No special filtering support for ObjectNode (yet); just serialize entries
-            _serializeObjectNodeEntries(_verifyObjectNode(value, ctxt), gen, ctxt);
+            ObjectNode objectNode = _verifyObjectNode(value, ctxt);
+            if (_nameTransformer != null) {
+                _serializeObjectNodeEntriesWithTransformer(objectNode, gen, ctxt, _nameTransformer);
+            } else {
+                _serializeObjectNodeEntries(objectNode, gen, ctxt);
+            }
             return;
         }
         if (!(value instanceof Map<?,?>)) {
             ctxt.reportBadDefinition(_property.getType(),
                     "Value returned by 'any-getter' (%s()) not java.util.Map but %s".formatted(
                             _accessor.getName(), value.getClass().getName()));
+        }
+        if (_nameTransformer != null) {
+            _serializeMapEntriesWithTransformer((Map<?,?>) value, gen, ctxt, _nameTransformer);
+            return;
         }
         // 19-Oct-2014, tatu: Should we try to support @JsonInclude options here?
         if (_mapSerializer != null) {
@@ -153,6 +203,45 @@ public class AnyGetterWriter extends BeanPropertyWriter
         for (Map.Entry<String, JsonNode> entry : objectNode.properties()) {
             gen.writeName(entry.getKey());
             entry.getValue().serialize(gen, ctxt);
+        }
+    }
+
+    /**
+     * Helper method for serializing entries of an {@link ObjectNode}
+     * with keys transformed by the given {@link NameTransformer}
+     * (e.g. when this any-getter is part of a {@code @JsonUnwrapped} bean with prefix/suffix).
+     */
+    protected void _serializeObjectNodeEntriesWithTransformer(ObjectNode objectNode,
+            JsonGenerator gen, SerializationContext ctxt, NameTransformer transformer)
+        throws Exception
+    {
+        for (Map.Entry<String, JsonNode> entry : objectNode.properties()) {
+            gen.writeName(transformer.transform(entry.getKey()));
+            entry.getValue().serialize(gen, ctxt);
+        }
+    }
+
+    /**
+     * Helper method for serializing entries of a {@link Map} with keys transformed
+     * by the given {@link NameTransformer} (e.g. when this any-getter is part of a
+     * {@code @JsonUnwrapped} bean with a prefix/suffix).
+     */
+    protected void _serializeMapEntriesWithTransformer(Map<?,?> map,
+            JsonGenerator gen, SerializationContext ctxt, NameTransformer transformer)
+        throws Exception
+    {
+        for (Map.Entry<?,?> entry : map.entrySet()) {
+            Object rawKey = entry.getKey();
+            if (rawKey == null) {
+                continue;
+            }
+            gen.writeName(transformer.transform(rawKey.toString()));
+            Object entryValue = entry.getValue();
+            if (entryValue == null) {
+                ctxt.defaultSerializeNullValue(gen);
+            } else {
+                ctxt.writeValue(gen, entryValue);
+            }
         }
     }
 

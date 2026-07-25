@@ -42,6 +42,34 @@ public class UnwrappedWithAnySetterTest extends DatabindTestUtil
         public String name;
     }
 
+    // Support classes for testUnwrappedWithPrefixWithAnyGetter
+
+    static class InnerWithAnyGetter {
+        private Map<String, Object> extra = new HashMap<>();
+
+        @JsonAnyGetter
+        public Map<String, Object> getExtra() {
+            return extra;
+        }
+
+        @JsonAnySetter
+        public void setExtra(String key, Object value) {
+            extra.put(key, value);
+        }
+    }
+
+    static class OuterWithPrefixedInnerAnyGetter {
+        public String name = "aaa";
+
+        @JsonUnwrapped(prefix = "a-")
+        public InnerWithAnyGetter inner;
+
+        OuterWithPrefixedInnerAnyGetter() {
+            inner = new InnerWithAnyGetter();
+            inner.setExtra("age", "64");
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1811]
@@ -66,5 +94,16 @@ public class UnwrappedWithAnySetterTest extends DatabindTestUtil
         assertFalse(outer.extra.containsKey("name"),
                 "Property 'name' handled by @JsonUnwrapped should not also appear in @JsonAnySetter map, but extra=" + outer.extra);
         assertEquals(1, outer.extra.size(), "Only 'age' should be in extra map, but got: " + outer.extra);
+    }
+
+    // Test for @JsonUnwrapped with prefix combined with @JsonAnyGetter on the inner bean
+    @Test
+    public void testUnwrappedWithPrefixWithAnyGetter() throws Exception
+    {
+        OuterWithPrefixedInnerAnyGetter outer = new OuterWithPrefixedInnerAnyGetter();
+        String json = MAPPER.writeValueAsString(outer);
+        // "name" from Outer is serialized directly (no prefix);
+        // "age" from Inner's @JsonAnyGetter must be serialized with the "a-" prefix applied
+        assertEquals("{\"name\":\"aaa\",\"a-age\":\"64\"}", json);
     }
 }

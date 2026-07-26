@@ -80,6 +80,17 @@ public class BeanDeserializer
         _propsByIndex = _beanProperties.getNameMatcherProperties();
     }
 
+    /**
+     * @since 3.3
+     */
+    protected BeanDeserializer(BeanDeserializer src,
+            UnwrappedPropertyHandler unwrapHandler, PropertyBasedCreator propertyBasedCreator,
+            BeanPropertyMap renamedProperties, boolean ignoreAllUnknown,
+            NameTransformer unwrappingNameTransformer) {
+        this(src, unwrapHandler, propertyBasedCreator, renamedProperties, ignoreAllUnknown);
+        _unwrappingNameTransformer = unwrappingNameTransformer;
+    }
+
     protected BeanDeserializer(BeanDeserializer src, ObjectIdReader oir) {
         super(src, oir);
         _propNameMatcher = src._propNameMatcher;
@@ -129,13 +140,11 @@ public class BeanDeserializer
             if (pbCreator != null) {
                 pbCreator = pbCreator.renameAll(ctxt, transformer);
             }
-            // and handle direct unwrapping as well:
-            BeanDeserializer unwrapped = new BeanDeserializer(this, uwHandler, pbCreator,
-                    _beanProperties.renameAll(ctxt, transformer), true);
+            // and handle direct unwrapping as well
             // [databind#6118] Store transformer so any-setter keys can be
             // reverse-transformed (e.g., prefix stripped).
-            unwrapped._unwrappingNameTransformer = transformer;
-            return unwrapped;
+            return new BeanDeserializer(this, uwHandler, pbCreator,
+                    _beanProperties.renameAll(ctxt, transformer), true, transformer);
         } finally { _currentlyTransforming = null; }
     }
 

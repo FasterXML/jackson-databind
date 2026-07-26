@@ -195,6 +195,16 @@ public abstract class BeanDeserializerBase
     protected UnwrappedPropertyHandler _unwrappedPropertyHandler;
 
     /**
+     * When this deserializer was created via {@code unwrappingDeserializer()},
+     * this holds the {@link NameTransformer} so that unknown property names
+     * can be reverse-transformed before being passed to
+     * {@code @JsonAnySetter}.
+     *
+     * @since 3.3
+     */
+    protected NameTransformer _unwrappingNameTransformer;
+
+    /**
      * Handler that we need if any of properties uses external
      * type id.
      */
@@ -322,6 +332,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _unwrappingNameTransformer = src._unwrappingNameTransformer;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -357,6 +368,7 @@ public abstract class BeanDeserializerBase
         _nonStandardCreation = src._nonStandardCreation;
 
         _unwrappedPropertyHandler = unwrapHandler;
+        _unwrappingNameTransformer = src._unwrappingNameTransformer;
         _propertyBasedCreator = propertyBasedCreator;
         _beanProperties = renamedProperties;
 
@@ -388,6 +400,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _unwrappingNameTransformer = src._unwrappingNameTransformer;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -435,6 +448,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _unwrappingNameTransformer = src._unwrappingNameTransformer;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -469,6 +483,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _unwrappingNameTransformer = src._unwrappingNameTransformer;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -2000,7 +2015,17 @@ ClassUtil.getTypeDescription(ct));
         } else if (_anySetter != null) {
             try {
                // should we consider return type of any setter?
-                _anySetter.deserializeAndSet(p, ctxt, beanOrBuilder, propName);
+                // [databind#6118] If this deserializer was created for
+                // @JsonUnwrapped, reverse-transform the property name
+                // so the any-setter key doesn't include the prefix/suffix.
+                String anySetterKey = propName;
+                if (_unwrappingNameTransformer != null) {
+                    String reversed = _unwrappingNameTransformer.reverse(propName);
+                    if (reversed != null) {
+                        anySetterKey = reversed;
+                    }
+                }
+                _anySetter.deserializeAndSet(p, ctxt, beanOrBuilder, anySetterKey);
             } catch (Exception e) {
                 throw wrapAndThrow(e, beanOrBuilder, propName, ctxt);
             }

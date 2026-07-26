@@ -31,6 +31,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
     /**
      * Optional name transformer to apply to map keys, used when this any-getter
      * is part of a bean serialized via {@code @JsonUnwrapped} with a prefix/suffix.
+     * @since 3.3
      */
     protected final NameTransformer _nameTransformer;
 

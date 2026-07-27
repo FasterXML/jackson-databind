@@ -8,6 +8,7 @@ import java.util.Objects;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import tools.jackson.core.Base64Variants;
@@ -154,6 +155,19 @@ public class MapKeyDeserializationTest
         @JsonCreator
         private Key3143Ctor(String v) {
             value = v;
+        }
+    }
+
+    // [databind#3947]
+    record Key3947(String value) {
+        @JsonCreator
+        public static Key3947 fromValue(String value) {
+            return new Key3947("delegating:" + value);
+        }
+
+        @JsonCreator
+        public static Key3947 fromWrapped(@JsonProperty("value") String value) {
+            return new Key3947("properties:" + value);
         }
     }
 
@@ -334,5 +348,15 @@ public class MapKeyDeserializationTest
             verifyException(e, "Multiple");
             verifyException(e, "Creator factory methods");
         }
+    }
+
+    // [databind#3947]
+    @Test
+    public void keyWithDelegatingAndPropertiesFactories3947() throws Exception
+    {
+        Map<Key3947,Integer> map = MAPPER.readValue("{\"foo\":3}",
+                new TypeReference<Map<Key3947,Integer>>() { });
+
+        assertEquals("delegating:foo", map.keySet().iterator().next().value());
     }
 }

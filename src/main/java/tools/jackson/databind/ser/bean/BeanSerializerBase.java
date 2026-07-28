@@ -695,6 +695,7 @@ public abstract class BeanSerializerBase
      *<ul>
      * <li>have Object Id (may be allowed in future)</li>
      * <li>have "any getter"</li>
+     * <li>have per-property filter (from {@code @JsonFilter})</li>
      * </ul>
      *
      * @since 3.0
@@ -703,6 +704,10 @@ public abstract class BeanSerializerBase
         return (_objectIdWriter == null)
                 // 08-Feb-2025, tatu: [databind#4775] any-getter is fine now
                 //&& (_anyGetterWriter == null)
+                // As-array output has no place to express per-property filtering:
+                // positions are implicit, so a filter that drops a property would
+                // silently shift every following value
+                && (_propertyFilterId == null)
                 ;
     }
 

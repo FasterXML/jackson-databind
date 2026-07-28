@@ -5,7 +5,11 @@ import javax.xml.namespace.QName;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.StreamReadConstraints;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -162,5 +166,86 @@ public class MiscJavaXMLTypesReadWriteTest
             fail("Expected a `XMLGregorianCalendar`, got: "+result.getClass());
         }
         assertEquals(cal, result);
+    }
+
+    /*
+    /**********************************************************************
+    /* StreamReadConstraints validation tests
+    /**********************************************************************
+     */
+
+    @Test
+    public void testDurationNumberLengthConstraint() throws Exception
+    {
+        // Create a mapper with a small maxNumberLength to test the constraint
+        JsonFactory jsonFactory = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(100).build())
+                .build();
+        ObjectMapper constrainedMapper = JsonMapper.builder(jsonFactory).build();
+
+        // A Duration with a year component that has 120 digits should exceed the limit
+        String bigDuration = "\"P" + "9".repeat(120) + "Y\"";
+        try {
+            constrainedMapper.readValue(bigDuration, Duration.class);
+            fail("Should not pass: expected StreamConstraintsException for oversized Duration numeric component");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "exceeds the maximum allowed");
+        } catch (Exception e) {
+            fail("Expected StreamConstraintsException, got: " + e.getClass().getName() + ": " + e.getMessage());
+        }
+
+        // A normal-length Duration should still work
+        Duration dur = constrainedMapper.readValue("\"P1Y2M3D\"", Duration.class);
+        assertNotNull(dur);
+        assertEquals(1, dur.getYears());
+        assertEquals(2, dur.getMonths());
+        assertEquals(3, dur.getDays());
+    }
+
+    @Test
+    public void testXMLGregorianCalendarNumberLengthConstraint() throws Exception
+    {
+        // Create a mapper with a small maxNumberLength to test the constraint
+        JsonFactory jsonFactory = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(100).build())
+                .build();
+        ObjectMapper constrainedMapper = JsonMapper.builder(jsonFactory).build();
+
+        // Use a time-only format that triggers the fallback to newXMLGregorianCalendar()
+        // Time-only strings are not parseable by Jackson's _parseDate and will fall through
+        // to DatatypeFactory.newXMLGregorianCalendar() which parses fractional seconds
+        // into BigDecimal via the O(n^2) BigDecimal(String) constructor.
+        String bigCalendar = "\"T00:00:00." + "9".repeat(120) + "\"";
+        try {
+            constrainedMapper.readValue(bigCalendar, XMLGregorianCalendar.class);
+            fail("Should not pass: expected StreamConstraintsException for oversized XMLGregorianCalendar fractional seconds");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "exceeds the maximum allowed");
+        } catch (Exception e) {
+            fail("Expected StreamConstraintsException, got: " + e.getClass().getName() + ": " + e.getMessage());
+        }
+
+        // A normal-length XMLGregorianCalendar should still work
+        XMLGregorianCalendar cal = constrainedMapper.readValue("\"2023-01-01T00:00:00\"", XMLGregorianCalendar.class);
+        assertNotNull(cal);
+        assertEquals(2023, cal.getYear());
+        assertEquals(1, cal.getMonth());
+        assertEquals(1, cal.getDay());
+        assertEquals(0, cal.getHour());
+        assertEquals(0, cal.getMinute());
+        assertEquals(0, cal.getSecond());
+
+        // Use a standard ISO-8601 date-time format (the kind _parseDate handles) but
+        // with an excessively long year component. The validation fires before _parseDate
+        // is reached, so this should be rejected by the constraint check.
+        String bigDateTime = "\"" + "9".repeat(120) + "-01-01T00:00:00\"";
+        try {
+            constrainedMapper.readValue(bigDateTime, XMLGregorianCalendar.class);
+            fail("Should not pass: expected StreamConstraintsException for oversized date-time value");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "exceeds the maximum allowed");
+        } catch (Exception e) {
+            fail("Expected StreamConstraintsException, got: " + e.getClass().getName() + ": " + e.getMessage());
+        }
     }
 }

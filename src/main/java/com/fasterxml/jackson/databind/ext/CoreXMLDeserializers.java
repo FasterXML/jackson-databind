@@ -109,10 +109,18 @@ public class CoreXMLDeserializers extends Deserializers.Base
         {
             switch (_kind) {
             case TYPE_DURATION:
+                // [databind#6127] Validate numeric component length before handing to
+                // DatatypeFactory.newDuration(), which parses each component into a
+                // BigInteger using the O(n^2) BigInteger(String) constructor.
+                ctxt.getParser().streamReadConstraints().validateFPLength(value.length());
                 return _dataTypeFactory.newDuration(value);
             case TYPE_QNAME:
                 return QName.valueOf(value);
             case TYPE_G_CALENDAR:
+                // [databind#6127] Validate numeric component length before handing to
+                // DatatypeFactory.newXMLGregorianCalendar(), which can parse fractional
+                // seconds into a BigDecimal via the O(n^2) BigDecimal(String) constructor.
+                ctxt.getParser().streamReadConstraints().validateFPLength(value.length());
                 Date d;
                 try {
                     d = _parseDate(value, ctxt);

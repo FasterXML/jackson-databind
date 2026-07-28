@@ -142,6 +142,30 @@ public class JDKTypeSerializationTest
                 MAPPER.writeValueAsString(new InetSocketAddress("2001:db8:85a3:8d3:1319:8a2e:370:7348", 443)));
     }
 
+    // Unresolved addresses expose no `InetAddress`, so the IPv6 literal has to be
+    // bracketed based on the host name alone; otherwise the port is not separable.
+    @Test
+    public void testInetSocketAddressUnresolvedIPv6() throws IOException
+    {
+        final String ip6 = "2001:db8:85a3:8d3:1319:8a2e:370:7348";
+
+        assertEquals(q("[" + ip6 + "]:443"),
+                MAPPER.writeValueAsString(InetSocketAddress.createUnresolved(ip6, 443)));
+        // Already bracketed host name must not be bracketed twice
+        assertEquals(q("[" + ip6 + "]:443"),
+                MAPPER.writeValueAsString(InetSocketAddress.createUnresolved("[" + ip6 + "]", 443)));
+
+        // Deserialization yields unresolved addresses, so a value read back has to
+        // serialize into something that reads back the same way
+        InetSocketAddress addr = MAPPER.readValue(q(ip6), InetSocketAddress.class);
+        String json = MAPPER.writeValueAsString(addr);
+        assertEquals(q("[" + ip6 + "]:0"), json);
+
+        InetSocketAddress rt = MAPPER.readValue(json, InetSocketAddress.class);
+        assertEquals(0, rt.getPort());
+        assertEquals(json, MAPPER.writeValueAsString(rt));
+    }
+
     // [JACKSON-597]
     @Test
     public void testClass() throws IOException

@@ -34,6 +34,10 @@ public class InetSocketAddressSerializer
             } else { // otherwise use name
                 str = str.substring(0, ix);
             }
+        } else if (addr == null && str.indexOf(':') >= 0 && !str.startsWith("[")) {
+            // Unresolved address exposes no `InetAddress`, so an IPv6 literal has to be
+            // recognized from the host name; without brackets the port is not separable
+            str = "[" + str + "]";
         }
 
         g.writeString(str + ":" + value.getPort());

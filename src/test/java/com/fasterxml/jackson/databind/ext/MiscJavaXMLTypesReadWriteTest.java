@@ -184,7 +184,7 @@ public class MiscJavaXMLTypesReadWriteTest
         ObjectMapper constrainedMapper = JsonMapper.builder(jsonFactory).build();
 
         // A Duration with a year component that has 120 digits should exceed the limit
-        String bigDuration = "\"P" + "9".repeat(120) + "Y\"";
+        String bigDuration = "\"P" + repeatString("9", 120) + "Y\"";
         try {
             constrainedMapper.readValue(bigDuration, Duration.class);
             fail("Should not pass: expected StreamConstraintsException for oversized Duration numeric component");
@@ -215,7 +215,7 @@ public class MiscJavaXMLTypesReadWriteTest
         // Time-only strings are not parseable by Jackson's _parseDate and will fall through
         // to DatatypeFactory.newXMLGregorianCalendar() which parses fractional seconds
         // into BigDecimal via the O(n^2) BigDecimal(String) constructor.
-        String bigCalendar = "\"T00:00:00." + "9".repeat(120) + "\"";
+        String bigCalendar = "\"T00:00:00." + repeatString("9", 120) + "\"";
         try {
             constrainedMapper.readValue(bigCalendar, XMLGregorianCalendar.class);
             fail("Should not pass: expected StreamConstraintsException for oversized XMLGregorianCalendar fractional seconds");

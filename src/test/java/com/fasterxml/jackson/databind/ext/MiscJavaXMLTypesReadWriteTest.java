@@ -238,7 +238,7 @@ public class MiscJavaXMLTypesReadWriteTest
         // Use a standard ISO-8601 date-time format (the kind _parseDate handles) but
         // with an excessively long year component. The validation fires before _parseDate
         // is reached, so this should be rejected by the constraint check.
-        String bigDateTime = "\"" + "9".repeat(120) + "-01-01T00:00:00\"";
+        String bigDateTime = "\"" + repeatString("9", 120) + "-01-01T00:00:00\"";
         try {
             constrainedMapper.readValue(bigDateTime, XMLGregorianCalendar.class);
             fail("Should not pass: expected StreamConstraintsException for oversized date-time value");

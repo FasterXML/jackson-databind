@@ -142,6 +142,39 @@ public class MiscJavaXMLTypesReadWriteTest
         assertEquals("prefix", qn.getPrefix());
     }
 
+    // Explicit JSON `null` for optional 'namespaceURI' / 'prefix' means "not defined",
+    // not a failure (unlike other non-STRING values)
+    @Test
+    public void qnameDeserFromObjectWithNulls() throws Exception
+    {
+        QName qn = MAPPER.readValue(a2q("{'localPart':'tag','namespaceURI':null}"), QName.class);
+        assertEquals("", qn.getNamespaceURI());
+        assertEquals("tag", qn.getLocalPart());
+        assertEquals("", qn.getPrefix());
+
+        qn = MAPPER.readValue(a2q("{'localPart':'tag','namespaceURI':'http://abc','prefix':null}"),
+                QName.class);
+        assertEquals("http://abc", qn.getNamespaceURI());
+        assertEquals("tag", qn.getLocalPart());
+        assertEquals("", qn.getPrefix());
+
+        // and empty Strings similarly remain valid
+        qn = MAPPER.readValue(a2q("{'localPart':'tag','namespaceURI':'','prefix':''}"), QName.class);
+        assertEquals("", qn.getNamespaceURI());
+        assertEquals("tag", qn.getLocalPart());
+        assertEquals("", qn.getPrefix());
+    }
+
+    // 'prefix' is retained even if 'namespaceURI' not defined
+    @Test
+    public void qnameDeserFromObjectWithPrefixOnly() throws Exception
+    {
+        QName qn = MAPPER.readValue(a2q("{'localPart':'tag','prefix':'p'}"), QName.class);
+        assertEquals("", qn.getNamespaceURI());
+        assertEquals("tag", qn.getLocalPart());
+        assertEquals("p", qn.getPrefix());
+    }
+
     @Test
     public void testQNameDeserFail() throws Exception
     {
@@ -158,6 +191,30 @@ public class MiscJavaXMLTypesReadWriteTest
         } catch (MismatchedInputException e) {
             verifyException(e, "Object value property 'localPart'");
             verifyException(e, "must be of type STRING, not NUMBER");
+        }
+
+        // Symmetric to localPart: namespaceURI / prefix must also reject non-STRING
+        try {
+            MAPPER.readValue(a2q("{'localPart':'tag','namespaceURI':123}"), QName.class);
+            fail("Should not pass for non-STRING namespaceURI");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "namespaceURI");
+            verifyException(e, "must be of type STRING");
+        }
+        try {
+            MAPPER.readValue(a2q("{'localPart':'tag','namespaceURI':'http://abc','prefix':true}"), QName.class);
+            fail("Should not pass for non-STRING prefix");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "prefix");
+            verifyException(e, "must be of type STRING");
+        }
+        // ... and 'prefix' is validated even when unusable due to missing 'namespaceURI'
+        try {
+            MAPPER.readValue(a2q("{'localPart':'tag','prefix':123}"), QName.class);
+            fail("Should not pass for non-STRING prefix");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "prefix");
+            verifyException(e, "must be of type STRING");
         }
     }
 

@@ -117,16 +117,19 @@ public class CoreXMLDeserializers
                         localPart.getNodeType());
             }
 
+            // Optional properties 'namespaceURI' and 'prefix': explicit JSON `null`
+            // is taken to mean "not defined", but other non-STRING values are
+            // rejected same as for 'localPart' (since `asString()` would coerce
+            // numbers and booleans into their textual form)
             JsonNode namespaceURI = tree.get("namespaceURI");
-            if (namespaceURI != null) {
-                // Symmetric to localPart: reject non-STRING (asString() would coerce numbers/bools)
+            if ((namespaceURI != null) && !namespaceURI.isNull()) {
                 if (!namespaceURI.isString()) {
                     ctxt.reportInputMismatch(this,
                             "Object value property 'namespaceURI' for `QName` must be of type STRING, not %s",
                             namespaceURI.getNodeType());
                 }
-                if (tree.has("prefix")) {
-                    JsonNode prefix = tree.get("prefix");
+                JsonNode prefix = tree.get("prefix");
+                if ((prefix != null) && !prefix.isNull()) {
                     if (!prefix.isString()) {
                         ctxt.reportInputMismatch(this,
                                 "Object value property 'prefix' for `QName` must be of type STRING, not %s",

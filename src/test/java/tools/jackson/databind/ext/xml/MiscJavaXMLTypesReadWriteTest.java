@@ -142,6 +142,29 @@ public class MiscJavaXMLTypesReadWriteTest
         assertEquals("prefix", qn.getPrefix());
     }
 
+    // Explicit JSON `null` for optional 'namespaceURI' / 'prefix' means "not defined",
+    // not a failure (unlike other non-STRING values)
+    @Test
+    public void qnameDeserFromObjectWithNulls() throws Exception
+    {
+        QName qn = MAPPER.readValue(a2q("{'localPart':'tag','namespaceURI':null}"), QName.class);
+        assertEquals("", qn.getNamespaceURI());
+        assertEquals("tag", qn.getLocalPart());
+        assertEquals("", qn.getPrefix());
+
+        qn = MAPPER.readValue(a2q("{'localPart':'tag','namespaceURI':'http://abc','prefix':null}"),
+                QName.class);
+        assertEquals("http://abc", qn.getNamespaceURI());
+        assertEquals("tag", qn.getLocalPart());
+        assertEquals("", qn.getPrefix());
+
+        // and empty Strings similarly remain valid
+        qn = MAPPER.readValue(a2q("{'localPart':'tag','namespaceURI':'','prefix':''}"), QName.class);
+        assertEquals("", qn.getNamespaceURI());
+        assertEquals("tag", qn.getLocalPart());
+        assertEquals("", qn.getPrefix());
+    }
+
     @Test
     public void testQNameDeserFail() throws Exception
     {

@@ -190,8 +190,6 @@ public class MiscJavaXMLTypesReadWriteTest
             fail("Should not pass: expected StreamConstraintsException for oversized Duration numeric component");
         } catch (StreamConstraintsException e) {
             verifyException(e, "exceeds the maximum allowed");
-        } catch (Exception e) {
-            fail("Expected StreamConstraintsException, got: " + e.getClass().getName() + ": " + e.getMessage());
         }
 
         // A normal-length Duration should still work
@@ -211,18 +209,16 @@ public class MiscJavaXMLTypesReadWriteTest
                 .build();
         ObjectMapper constrainedMapper = JsonMapper.builder(jsonFactory).build();
 
-        // Use a time-only format that triggers the fallback to newXMLGregorianCalendar()
-        // Time-only strings are not parseable by Jackson's _parseDate and will fall through
-        // to DatatypeFactory.newXMLGregorianCalendar() which parses fractional seconds
-        // into BigDecimal via the O(n^2) BigDecimal(String) constructor.
-        String bigCalendar = "\"T00:00:00." + repeatString("9", 120) + "\"";
+        // Time-only value (valid xs:time lexical form, not handled by _parseDate):
+        // without the constraint check this falls through to
+        // DatatypeFactory.newXMLGregorianCalendar(), which parses the fractional
+        // seconds via the O(n^2) BigDecimal(String) constructor.
+        String bigCalendar = "\"00:00:00." + repeatString("9", 120) + "\"";
         try {
             constrainedMapper.readValue(bigCalendar, XMLGregorianCalendar.class);
             fail("Should not pass: expected StreamConstraintsException for oversized XMLGregorianCalendar fractional seconds");
         } catch (StreamConstraintsException e) {
             verifyException(e, "exceeds the maximum allowed");
-        } catch (Exception e) {
-            fail("Expected StreamConstraintsException, got: " + e.getClass().getName() + ": " + e.getMessage());
         }
 
         // A normal-length XMLGregorianCalendar should still work
@@ -244,8 +240,39 @@ public class MiscJavaXMLTypesReadWriteTest
             fail("Should not pass: expected StreamConstraintsException for oversized date-time value");
         } catch (StreamConstraintsException e) {
             verifyException(e, "exceeds the maximum allowed");
-        } catch (Exception e) {
-            fail("Expected StreamConstraintsException, got: " + e.getClass().getName() + ": " + e.getMessage());
         }
+    }
+
+    // Same checks but relying on default StreamReadConstraints (1000), without
+    // any explicit configuration
+    @Test
+    public void testDefaultNumberLengthConstraints() throws Exception
+    {
+        final int len = StreamReadConstraints.DEFAULT_MAX_NUM_LEN + 100;
+
+        try {
+            MAPPER.readValue(q("P" + repeatString("9", len) + "Y"), Duration.class);
+            fail("Should not pass: expected StreamConstraintsException for oversized Duration");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "exceeds the maximum allowed");
+        }
+
+        try {
+            MAPPER.readValue(q("00:00:00." + repeatString("9", len)),
+                    XMLGregorianCalendar.class);
+            fail("Should not pass: expected StreamConstraintsException for oversized XMLGregorianCalendar");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "exceeds the maximum allowed");
+        }
+    }
+
+    // QName has no numeric components, so the number-length check must not
+    // apply to it: long local parts remain bound by max String length only
+    @Test
+    public void testQNameNotConstrainedByNumberLength() throws Exception
+    {
+        String localPart = repeatString("a", StreamReadConstraints.DEFAULT_MAX_NUM_LEN + 100);
+        QName qn = MAPPER.readValue(q(localPart), QName.class);
+        assertEquals(localPart, qn.getLocalPart());
     }
 }

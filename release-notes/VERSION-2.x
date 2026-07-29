@@ -14,6 +14,10 @@ Project: jackson-databind
  (fix by @seonwooj0810)
 #6116: Reject non-ASCII digits in `InetAddress` literal validation
  (fixed by Aysha A-Z)
+#6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
+  and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
+ (reported by @waydeshi)
+ (fix by @pjfanning)
 
 2.21.5 (06-Jul-2026)
 

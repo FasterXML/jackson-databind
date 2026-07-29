@@ -69,6 +69,13 @@ public class JDKFromStringDeserializer
     public final static int STD_INET_ADDRESS = 12;
     public final static int STD_INET_SOCKET_ADDRESS = 13;
 
+    /**
+     * Maximum length of a regex pattern string to compile.
+     * Regex compilation and matching can be exponential in pattern length,
+     * so this limit must be much lower than the general string value limit.
+     */
+    private final static int MAX_PATTERN_LENGTH = 1000;
+
     public static Class<?>[] types() {
         return new Class<?>[] {
             File.class,
@@ -191,6 +198,15 @@ public class JDKFromStringDeserializer
             }
         case STD_PATTERN:
             try {
+                // [databind#]: Reject excessively long regex patterns to prevent
+                // catastrophic backtracking and excessive resource usage.
+                // Regex compilation and matching can be exponential in pattern length,
+                // so this limit must be much lower than the general string length limit.
+                if (value.length() > MAX_PATTERN_LENGTH) {
+                    return ctxt.handleWeirdStringValue(_valueClass, value,
+                            "regex pattern length (%d) exceeds maximum (%d)",
+                            value.length(), MAX_PATTERN_LENGTH);
+                }
                 return Pattern.compile(value);
             } catch (PatternSyntaxException e) {
                 return ctxt.handleWeirdStringValue(_valueClass, value,

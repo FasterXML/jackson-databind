@@ -240,6 +240,31 @@ public class JDKStringLikeTypeDeserTest
         }
     }
 
+    // [databind#]: Reject excessively long regex patterns to prevent
+    // catastrophic backtracking and excessive resource usage
+    @Test
+    public void testPatternLengthLimit() throws Exception
+    {
+        // A normal-length pattern should still work
+        Pattern result = MAPPER.readValue(q("abc"), Pattern.class);
+        assertEquals("abc", result.pattern());
+
+        // A pattern at exactly the limit (1000 chars) should work
+        String limitPattern = "a".repeat(1000);
+        result = MAPPER.readValue(q(limitPattern), Pattern.class);
+        assertEquals(limitPattern, result.pattern());
+
+        // A pattern exceeding the limit (1001 chars) should be rejected
+        String overLimitPattern = "a".repeat(1001);
+        try {
+            MAPPER.readValue(q(overLimitPattern), Pattern.class);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "regex pattern length");
+            verifyException(e, "exceeds maximum");
+        }
+    }
+
     @Test
     public void testStringBuilder() throws Exception
     {

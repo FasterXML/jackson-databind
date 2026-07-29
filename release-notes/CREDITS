@@ -602,3 +602,8 @@ Ivan (@pctF)
 Bowang (@dong0713)
  * Fixed #6113: `DOMSerializer` to support polymorphic serialization
   [3.3.0]
+
+Aysha Afrah Ziya (@aysha-afrah26)
+ * Fixed #6126: `@JsonFilter` ignored for POJO serialized with
+   `@JsonFormat(shape=ARRAY)`
+  [3.3.0]

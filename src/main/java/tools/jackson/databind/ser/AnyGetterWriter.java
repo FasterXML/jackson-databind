@@ -119,14 +119,20 @@ public class AnyGetterWriter extends BeanPropertyWriter
             ctxt.reportBadDefinition(_property.getType(), "Value returned by 'any-getter' %s() not java.util.Map but %s".formatted(
                     _accessor.getName(), value.getClass().getName()));
         }
-        if (_nameTransformer != null) {
-            _serializeMapEntriesWithTransformer((Map<?,?>) value, gen, ctxt, _nameTransformer);
-            return;
-        }
         // 23-Feb-2015, tatu: Nasty, but has to do (for now)
         if (_mapSerializer != null) {
+            // If we have a name transformer, wrap the generator so that
+            // MapSerializer's full key/value handling (custom key serializers,
+            // content inclusion, polymorphic typing) is preserved while keys
+            // get the prefix/suffix applied.
+            if (_nameTransformer != null) {
+                gen = new NameTransformingGenerator(gen, _nameTransformer);
+            }
             _mapSerializer.serializeWithoutTypeInfo((Map<?,?>) value, gen, ctxt);
             return;
+        }
+        if (_nameTransformer != null) {
+            gen = new NameTransformingGenerator(gen, _nameTransformer);
         }
         _serializer.serialize(value, gen, ctxt);
     }
@@ -160,15 +166,17 @@ public class AnyGetterWriter extends BeanPropertyWriter
                     "Value returned by 'any-getter' (%s()) not java.util.Map but %s".formatted(
                             _accessor.getName(), value.getClass().getName()));
         }
-        if (_nameTransformer != null) {
-            _serializeMapEntriesWithTransformer((Map<?,?>) value, gen, ctxt, _nameTransformer);
-            return;
-        }
         // 19-Oct-2014, tatu: Should we try to support @JsonInclude options here?
         if (_mapSerializer != null) {
+            if (_nameTransformer != null) {
+                gen = new NameTransformingGenerator(gen, _nameTransformer);
+            }
             _mapSerializer.serializeFilteredAnyProperties(ctxt, gen, bean,(Map<?,?>) value,
                     filter, null);
             return;
+        }
+        if (_nameTransformer != null) {
+            gen = new NameTransformingGenerator(gen, _nameTransformer);
         }
         // ... not sure how custom handler would do it
         _serializer.serialize(value, gen, ctxt);
@@ -219,30 +227,6 @@ public class AnyGetterWriter extends BeanPropertyWriter
         for (Map.Entry<String, JsonNode> entry : objectNode.properties()) {
             gen.writeName(transformer.transform(entry.getKey()));
             entry.getValue().serialize(gen, ctxt);
-        }
-    }
-
-    /**
-     * Helper method for serializing entries of a {@link Map} with keys transformed
-     * by the given {@link NameTransformer} (e.g. when this any-getter is part of a
-     * {@code @JsonUnwrapped} bean with a prefix/suffix).
-     */
-    protected void _serializeMapEntriesWithTransformer(Map<?,?> map,
-            JsonGenerator gen, SerializationContext ctxt, NameTransformer transformer)
-        throws Exception
-    {
-        for (Map.Entry<?,?> entry : map.entrySet()) {
-            Object rawKey = entry.getKey();
-            // Null keys: serialize as the string "null" (mirrors the most common
-            // null-key serializer behavior) then apply the name transformer
-            String keyStr = (rawKey == null) ? "null" : rawKey.toString();
-            gen.writeName(transformer.transform(keyStr));
-            Object entryValue = entry.getValue();
-            if (entryValue == null) {
-                ctxt.defaultSerializeNullValue(gen);
-            } else {
-                ctxt.writeValue(gen, entryValue);
-            }
         }
     }
 

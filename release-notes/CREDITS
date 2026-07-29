@@ -609,3 +609,8 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Fixed #6126: `@JsonFilter` ignored for POJO serialized with
    `@JsonFormat(shape=ARRAY)`
   [3.3.0]
+
+@DragonFSKY
+ * Fixed #6128: Follow-up to #6126: explicitly fail when a POJO combines `@JsonFilter`
+   with `@JsonFormat(shape=ARRAY)`, instead of silently writing a JSON Object
+  [3.3.0]

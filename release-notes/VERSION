@@ -29,10 +29,30 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6120: Use per-node-type Type Ids for DOM values, reconstruct via DOM factory
   instead of always parsing a `Document`
  (fix by @cowtowncoder, w/ Claude code)
-#6126: `@JsonFilter` ignored for POJO serialized with `@JsonFormat(shape=ARRAY)`:
-  now declines the as-array shape (writing JSON Object instead), same as 2.x,
-  since positional output cannot express omission of a property
- (fix by @aysha-afrah26)
+#6128: Fail explicitly on POJO that has both `@JsonFormat(shape=ARRAY)` and `@JsonFilter`
+ (fix by @DragonFSKY)
+
+3.2.2 (not yet released)
+
+#6096: Honor `@JsonView` in `BeanAsArrayDeserializer` update path
+ (fixed by Aysha A-Z)
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
+#6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+  after all entries are filtered
+ (reported by @dlwldnjs1009)
+ (fix by @seonwooj0810)
+#6109: Mark built-in JDK 8 handlers (`Optional`, `Stream`) with `@JacksonStdImpl` so
+  optimization modules (Blackbird) can retain optimized handlers
+ (fix by Lee Jiwon)
+#6115: Honor `@JsonIgnoreProperties` before any-setter on more deser paths
+ (fix by Aysha A-Z)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
+#6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
+  and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
+ (reported by @waydeshi)
+ (fix by @pjfanning)
 
 3.2.1 (10-Jul-2026)
 

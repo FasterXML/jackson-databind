@@ -198,6 +198,14 @@ public class MiscJavaXMLTypesReadWriteTest
             verifyException(e, "prefix");
             verifyException(e, "must be of type STRING");
         }
+        // ... and 'prefix' is validated even when unusable due to missing 'namespaceURI'
+        try {
+            MAPPER.readValue(a2q("{'localPart':'tag','prefix':123}"), QName.class);
+            fail("Should not pass for non-STRING prefix");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "prefix");
+            verifyException(e, "must be of type STRING");
+        }
     }
 
     @Test

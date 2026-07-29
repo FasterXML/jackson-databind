@@ -165,6 +165,16 @@ public class MiscJavaXMLTypesReadWriteTest
         assertEquals("", qn.getPrefix());
     }
 
+    // 'prefix' is retained even if 'namespaceURI' not defined
+    @Test
+    public void qnameDeserFromObjectWithPrefixOnly() throws Exception
+    {
+        QName qn = MAPPER.readValue(a2q("{'localPart':'tag','prefix':'p'}"), QName.class);
+        assertEquals("", qn.getNamespaceURI());
+        assertEquals("tag", qn.getLocalPart());
+        assertEquals("p", qn.getPrefix());
+    }
+
     @Test
     public void testQNameDeserFail() throws Exception
     {

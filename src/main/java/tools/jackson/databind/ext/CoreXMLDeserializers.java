@@ -2,6 +2,7 @@ package tools.jackson.databind.ext;
 
 import java.util.*;
 
+import javax.xml.XMLConstants;
 import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
 
@@ -121,15 +122,13 @@ public class CoreXMLDeserializers
             JsonNode namespaceURI = _optionalStringProperty(ctxt, tree, "namespaceURI");
             JsonNode prefix = _optionalStringProperty(ctxt, tree, "prefix");
 
-            if (namespaceURI != null) {
-                if (prefix != null) {
-                    return new QName(namespaceURI.asString(), localPart.asString(), prefix.asString());
-                }
-                return new QName(namespaceURI.asString(), localPart.asString());
+            // Missing 'namespaceURI' same as empty one ("no namespace")
+            final String ns = (namespaceURI == null)
+                    ? XMLConstants.NULL_NS_URI : namespaceURI.asString();
+            if (prefix != null) {
+                return new QName(ns, localPart.asString(), prefix.asString());
             }
-            // NOTE: 'prefix' has no meaning without 'namespaceURI' so if only it was
-            // given, it is ignored (but was still validated above)
-            return new QName(localPart.asString());
+            return new QName(ns, localPart.asString());
         }
 
         /**

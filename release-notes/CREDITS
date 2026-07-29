@@ -395,3 +395,8 @@ Aysha Afrah Ziya (@aysha-afrah26)
   [3.1.6]
  * Fixed #6116: Reject non-ASCII digits in `InetAddress` literal validation
   [3.1.6]
+
+@waydeshi
+ * Reported #6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
+   and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
+  [3.1.6]

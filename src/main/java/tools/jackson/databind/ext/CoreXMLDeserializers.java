@@ -134,10 +134,22 @@ public class CoreXMLDeserializers
         {
             switch (_kind) {
             case TYPE_DURATION:
+                // [databind#6127] DatatypeFactory.newDuration() parses date/time components
+                // into BigIntegers (and fractional seconds into BigDecimal), using the
+                // O(n^2) BigInteger(String)/BigDecimal(String) constructors. Rather than
+                // isolating individual components we check length of the whole value as a
+                // conservative upper bound: it is never shorter than any single component,
+                // and no valid Duration comes anywhere near the (default 1000) limit.
+                ctxt.streamReadConstraints().validateIntegerLength(value.length());
                 return _dataTypeFactory.newDuration(value);
             case TYPE_QNAME:
                 return QName.valueOf(value);
             case TYPE_G_CALENDAR:
+                // [databind#6127] Similar to TYPE_DURATION above: length of the whole value
+                // is checked as a conservative upper bound for numeric components, before
+                // handing value to DatatypeFactory.newXMLGregorianCalendar(), which parses
+                // fractional seconds into a BigDecimal via O(n^2) BigDecimal(String).
+                ctxt.streamReadConstraints().validateFPLength(value.length());
                 Date d;
                 try {
                     d = _parseDate(value, ctxt);

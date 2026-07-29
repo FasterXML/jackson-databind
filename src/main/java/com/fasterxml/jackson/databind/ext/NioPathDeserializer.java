@@ -4,12 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.spi.FileSystemProvider;
-import java.util.ServiceConfigurationError;
-import java.util.ServiceLoader;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -66,22 +62,14 @@ public class NioPathDeserializer extends StdScalarDeserializer<Path>
         } catch (URISyntaxException e) {
             return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
         }
+        // Only accept "file" scheme or no scheme at all; reject jar:, http:, s3:, etc.
+        final String scheme = uri.getScheme();
+        if (scheme != null && !"file".equalsIgnoreCase(scheme)) {
+            return (Path) ctxt.handleWeirdStringValue(Path.class, value,
+                    "only 'file' scheme is supported for Path deserialization, got '%s'", scheme);
+        }
         try {
             return Paths.get(uri);
-        } catch (FileSystemNotFoundException cause) {
-            try {
-                final String scheme = uri.getScheme();
-                // We want to use the current thread's context class loader, not system class loader that is used in Paths.get():
-                for (FileSystemProvider provider : ServiceLoader.load(FileSystemProvider.class)) {
-                    if (provider.getScheme().equalsIgnoreCase(scheme)) {
-                        return provider.getPath(uri);
-                    }
-                }
-                return (Path) ctxt.handleInstantiationProblem(handledType(), value, cause);
-            } catch (ServiceConfigurationError e) {
-                e.addSuppressed(cause);
-                return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
-            }
         } catch (Exception e) {
             return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
         }

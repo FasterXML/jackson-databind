@@ -24,6 +24,12 @@ No changes since 3.2
  (fix by Lee Jiwon)
 #6115: Honor `@JsonIgnoreProperties` before any-setter on more deser paths
  (fix by Aysha A-Z)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
+#6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
+  and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
+ (reported by @waydeshi)
+ (fix by @pjfanning)
 
 3.2.1 (10-Jul-2026)
 
@@ -297,7 +303,13 @@ No changes since 3.2
  (fix by @seonwooj0810)
 #6115: Honor `@JsonIgnoreProperties` before any-setter on more deser paths
  (fix by Aysha A-Z)
- 
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
+#6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
+  and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+
 3.1.5 (07-Jul-2026)
 
 #6040: Inconsistency in current token on invalid type coercion for `List<String>`

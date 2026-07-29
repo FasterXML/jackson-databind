@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.ser.FilterProvider;
 import tools.jackson.databind.ser.PropertyWriter;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
@@ -77,6 +79,36 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
         }
     }
 
+    @JsonFilter("anyFilter")
+    static class AnyBeanWithSecret
+    {
+        public String name = "bob";
+
+        private Map<String, String> properties = new LinkedHashMap<String, String>();
+        {
+            properties.put("a", "1");
+            properties.put("secret", "s3cr3t");
+        }
+
+        @JsonAnyGetter
+        public Map<String, String> anyProperties() {
+            return properties;
+        }
+    }
+
+    @JsonFilter("anyFilter")
+    static class ObjectNodeAnyBeanWithSecret
+    {
+        public String name = "bob";
+
+        @JsonAnyGetter
+        public ObjectNode anyProperties() {
+            return JsonNodeFactory.instance.objectNode()
+                    .put("a", "1")
+                    .put("secret", "s3cr3t");
+        }
+    }
+
     // [databind#1655]
     @JsonFilter("CustomFilter")
     static class OuterObject {
@@ -117,6 +149,32 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
         FilterProvider prov = new SimpleFilterProvider().addFilter("anyFilter",
                 SimpleBeanPropertyFilter.filterOutAllExcept("b"));
         assertEquals("{\"b\":\"2\"}", MAPPER.writer(prov).writeValueAsString(new AnyBean()));
+    }
+
+    @Test
+    public void anyGetterSerializeAllExcept() throws Exception
+    {
+        FilterProvider prov = new SimpleFilterProvider().addFilter("anyFilter",
+                SimpleBeanPropertyFilter.serializeAllExcept("secret"));
+        assertEquals("""
+                {"name":"bob","a":"1"}""",
+                MAPPER.writer(prov).writeValueAsString(new AnyBeanWithSecret()));
+    }
+
+    @Test
+    public void objectNodeAnyGetterFiltering() throws Exception
+    {
+        FilterProvider excluding = new SimpleFilterProvider().addFilter("anyFilter",
+                SimpleBeanPropertyFilter.serializeAllExcept("secret"));
+        assertEquals("""
+                {"name":"bob","a":"1"}""",
+                MAPPER.writer(excluding).writeValueAsString(new ObjectNodeAnyBeanWithSecret()));
+
+        FilterProvider including = new SimpleFilterProvider().addFilter("anyFilter",
+                SimpleBeanPropertyFilter.filterOutAllExcept("name", "a"));
+        assertEquals("""
+                {"name":"bob","a":"1"}""",
+                MAPPER.writer(including).writeValueAsString(new ObjectNodeAnyBeanWithSecret()));
     }
 
     // for [databind#1142]

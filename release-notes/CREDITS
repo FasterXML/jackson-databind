@@ -605,7 +605,10 @@ Bowang (@dong0713)
  * Fixed #6114: Fix QName object deserialization to reject non-String namespaceURI/prefix
   [3.3.0]
 
-Aysha Afrah Ziya (@aysha-afrah26)
- * Fixed #6126: `@JsonFilter` ignored for POJO serialized with
-   `@JsonFormat(shape=ARRAY)`
+@DragonFSKY
+ * Fixed #6128: Fail explicitly on POJO that has both `@JsonFormat(shape=ARRAY)` and `@JsonFilter`
   [3.3.0]
+
+  Aysha Afrah Ziya (@aysha-afrah26)
+  
+  

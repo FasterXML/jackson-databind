@@ -153,6 +153,10 @@ public class JacksonTestUtilBase
         return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
     }
 
+    public static String repeatString(String str, int repeatCount) {
+        return str.repeat(repeatCount);
+    }
+
     /*
     /**********************************************************************
     /* Resource reading helpers

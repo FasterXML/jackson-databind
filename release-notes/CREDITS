@@ -611,6 +611,5 @@ Aysha Afrah Ziya (@aysha-afrah26)
   [3.3.0]
 
 @DragonFSKY
- * Fixed #6128: Follow-up to #6126: explicitly fail when a POJO combines `@JsonFilter`
-   with `@JsonFormat(shape=ARRAY)`, instead of silently writing a JSON Object
+ * Fixed #6128: Fail explicitly on POJO that has both `@JsonFormat(shape=ARRAY)` and `@JsonFilter`
   [3.3.0]

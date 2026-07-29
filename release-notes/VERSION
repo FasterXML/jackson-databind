@@ -33,8 +33,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
   now declines the as-array shape (writing JSON Object instead), same as 2.x,
   since positional output cannot express omission of a property
  (fix by @aysha-afrah26)
-#6128: Follow-up to #6126: explicitly fail when a POJO combines `@JsonFilter`
-  with `@JsonFormat(shape=ARRAY)`, instead of silently writing a JSON Object
+#6128: Fail explicitly on POJO that has both `@JsonFormat(shape=ARRAY)` and `@JsonFilter`
  (fix by @DragonFSKY)
 
 3.2.2 (not yet released)

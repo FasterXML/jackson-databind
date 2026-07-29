@@ -644,7 +644,7 @@ public abstract class BeanSerializerBase
         if (shape == JsonFormat.Shape.ARRAY) {
             if (contextual._propertyFilterId != null) {
                 return ctxt.reportBadDefinition(_beanType, String.format(
-                        "Cannot serialize %s with `@JsonFormat(shape = ARRAY)` because it also has `@JsonFilter`:"
+                        "Cannot serialize %s with `@JsonFormat(shape=ARRAY)` because it also has `@JsonFilter`:"
                                 + " property filtering is not compatible with array serialization",
                         ClassUtil.getTypeDescription(_beanType)));
             }

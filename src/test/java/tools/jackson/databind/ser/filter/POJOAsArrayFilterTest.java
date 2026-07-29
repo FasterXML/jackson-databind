@@ -69,7 +69,7 @@ public class POJOAsArrayFilterTest extends DatabindTestUtil
         InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
                 () -> writerExcluding("secret").writeValueAsString(new AsArrayBean()));
 
-        verifyException(e, "JsonFormat(shape = ARRAY)");
+        verifyException(e, "JsonFormat(shape=ARRAY)");
         verifyException(e, "JsonFilter");
         verifyException(e, "not compatible with array serialization");
     }
@@ -92,7 +92,7 @@ public class POJOAsArrayFilterTest extends DatabindTestUtil
         InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
                 () -> writerExcluding("secret").writeValueAsString(new PropertyWrapper()));
 
-        verifyException(e, "JsonFormat(shape = ARRAY)");
+        verifyException(e, "JsonFormat(shape=ARRAY)");
         verifyException(e, "JsonFilter");
 
         // A failed contextualization must not contaminate the cached base serializer.

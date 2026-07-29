@@ -690,12 +690,14 @@ public abstract class BeanSerializerBase
 
     /**
      * Helper method for sub-classes to check if it should be possible to
-     * construct an "as-array" serializer. Returns if all of following
-     * hold true:
+     * construct an "as-array" serializer. Returns {@code false} -- that is,
+     * as-array serializer cannot be used -- if any of following holds true:
      *<ul>
-     * <li>have Object Id (may be allowed in future)</li>
-     * <li>have "any getter"</li>
-     * <li>have per-property filter (from {@code @JsonFilter})</li>
+     * <li>has Object Id (may be allowed in future)</li>
+     * <li>has per-property filter (from {@code @JsonFilter}): positions in
+     *   array output are implicit, so dropping a property would shift all
+     *   values that follow it
+     *  </li>
      * </ul>
      *
      * @since 3.0
@@ -704,9 +706,7 @@ public abstract class BeanSerializerBase
         return (_objectIdWriter == null)
                 // 08-Feb-2025, tatu: [databind#4775] any-getter is fine now
                 //&& (_anyGetterWriter == null)
-                // As-array output has no place to express per-property filtering:
-                // positions are implicit, so a filter that drops a property would
-                // silently shift every following value
+                // 28-Jul-2026: as-array output cannot express per-property filtering
                 && (_propertyFilterId == null)
                 ;
     }

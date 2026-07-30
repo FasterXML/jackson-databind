@@ -119,7 +119,7 @@ public class SimpleBeanPropertyFilter
             SerializationContext provider, PropertyWriter writer)
         throws Exception
     {
-        // Name of the any-getter accessor is not a property name in output -- the
+        // [databind#6136]: Name of the any-getter accessor is not a property name in output -- the
         // entries it produces are -- so inclusion is decided for each entry
         // (via `getAndFilter()` calling back into this filter), never for the
         // any-getter writer itself.

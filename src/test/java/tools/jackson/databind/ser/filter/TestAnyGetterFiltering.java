@@ -79,6 +79,7 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
         }
     }
 
+    // [databind#6136]
     @JsonFilter("anyFilter")
     static class AnyBeanWithSecret
     {
@@ -96,6 +97,7 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
         }
     }
 
+    // [databind#6136]
     @JsonFilter("anyFilter")
     static class ObjectNodeAnyBeanWithSecret
     {
@@ -151,6 +153,7 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
         assertEquals("{\"b\":\"2\"}", MAPPER.writer(prov).writeValueAsString(new AnyBean()));
     }
 
+    // [databind#6136]
     @Test
     public void anyGetterSerializeAllExcept() throws Exception
     {
@@ -161,6 +164,7 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
                 MAPPER.writer(prov).writeValueAsString(new AnyBeanWithSecret()));
     }
 
+    // [databind#6136]
     @Test
     public void objectNodeAnyGetterFiltering() throws Exception
     {

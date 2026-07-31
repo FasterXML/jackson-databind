@@ -30,6 +30,9 @@ No changes since 3.2
   and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
  (reported by @waydeshi)
  (fix by @pjfanning)
+#6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
+  for unspecified values
+ (reported, fixed by DongNyoung L)
 
 3.2.1 (10-Jul-2026)
 
@@ -309,6 +312,9 @@ No changes since 3.2
   and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
  (reported by @waydeshi)
  (fix by @pjfanning)
+#6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
+  for unspecified values
+ (reported, fixed by DongNyoung L)
 
 3.1.5 (07-Jul-2026)
 

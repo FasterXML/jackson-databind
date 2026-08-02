@@ -6,17 +6,18 @@ import javax.xml.XMLConstants;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import org.w3c.dom.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 
+@JacksonStdImpl
 public class DOMSerializer extends StdSerializer<Node>
 {
     protected final TransformerFactory transformerFactory;
@@ -65,7 +66,7 @@ public class DOMSerializer extends StdSerializer<Node>
         // class (like `com.sun.org.apache.xerces.internal.dom.DocumentImpl`); but
         // cannot always use `Node` either, since that is not a subtype of `Document`
         // and would fail on deserialization of `Document`-declared values
-        Class<?> typeForId = (value instanceof Document) ? Document.class : Node.class;
+        Class<?> typeForId = _typeIdClassFor(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, typeForId, JsonToken.VALUE_STRING));
         serialize(value, g, ctxt);
@@ -77,6 +78,40 @@ public class DOMSerializer extends StdSerializer<Node>
         // 23-Jul-2026, tatu: [databind#6113] `Node` is written as XML text in JSON
         //    String, so report as such (and not as "any format")
         visitStringFormat(visitor, typeHint);
+    }
+
+    /**
+     * Helper method for finding the DOM interface to use as the Type Id for given
+     * value: switches on {@link Node#getNodeType()} since runtime classes are
+     * JDK-internal implementation types, and node types are mutually exclusive.
+     *<p>
+     * Must stay in sync with {@link DOMDeserializer#findDeserializer}, which documents
+     * the supported set and the fallback.
+     *
+     * @since 3.3
+     */
+    private static Class<? extends Node> _typeIdClassFor(Node value)
+    {
+        switch (value.getNodeType()) {
+        case Node.DOCUMENT_NODE:
+            return Document.class;
+        case Node.ELEMENT_NODE:
+            return Element.class;
+        // NOTE: needs its own Type Id even though `CDATASection` is a subtype of
+        // `Text`, or it would be read back as a plain `Text` node
+        case Node.CDATA_SECTION_NODE:
+            return CDATASection.class;
+        case Node.TEXT_NODE:
+            return Text.class;
+        case Node.COMMENT_NODE:
+            return Comment.class;
+        case Node.PROCESSING_INSTRUCTION_NODE:
+            return ProcessingInstruction.class;
+        case Node.DOCUMENT_FRAGMENT_NODE:
+            return DocumentFragment.class;
+        default:
+            return Node.class;
+        }
     }
 
     private static void setTransformerFactoryAttribute(final TransformerFactory transformerFactory,

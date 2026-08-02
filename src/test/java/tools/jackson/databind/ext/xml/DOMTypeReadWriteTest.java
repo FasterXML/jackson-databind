@@ -1,11 +1,14 @@
 package tools.jackson.databind.ext.xml;
 
 import java.io.StringReader;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.Nulls;
 
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
@@ -14,6 +17,8 @@ import org.xml.sax.InputSource;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.CoercionAction;
+import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
@@ -30,8 +35,12 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
     final static String SIMPLE_XML_DEFAULT_NS =
             "<root xmlns='http://foo'/>";
 
-    // [databind#6113]: wrappers for polymorphic handling, with the 2 DOM types
-    // for which deserializers exist (see `OptionalHandlerFactory`)
+    // [databind#6120]: node types not present in `SIMPLE_XML`
+    final static String MIXED_XML =
+        "<root><![CDATA[cd & data]]><!--comment--></root>";
+
+    // [databind#6113]: wrappers for polymorphic handling; [databind#6120] extended
+    // the set of DOM types for which deserializers exist (see `DOMDeserializer.findDeserializer`)
     static class NodeWrapper {
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
         public Node value;
@@ -46,6 +55,12 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
 
         protected DocumentWrapper() { }
         public DocumentWrapper(Document d) { value = d; }
+    }
+
+    // [databind#6120]: for verifying empty `Text` values are not shared
+    static class TextListWrapper {
+        @JsonSetter(contentNulls = Nulls.AS_EMPTY)
+        public List<Text> values;
     }
 
     private final ObjectMapper MAPPER = new ObjectMapper();
@@ -159,6 +174,42 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
         verifyException(e, "Cannot deserialize value of type `org.w3c.dom.Node`");
     }
 
+    // [databind#6120]: each reconstructible node type now resolves to its own
+    // deserializer, so it may also be used as the declared type directly
+    @Test
+    public void readAsElement() throws Exception
+    {
+        Element el = MAPPER.readValue(q("<leaf>Rock &amp; Roll!</leaf>"), Element.class);
+        _assertNodeType(Node.ELEMENT_NODE, Element.class, el);
+        assertEquals("leaf", el.getTagName());
+        assertEquals("Rock & Roll!", el.getTextContent());
+    }
+
+    @Test
+    public void readAsText() throws Exception
+    {
+        Text text = MAPPER.readValue(q("Rock &amp; Roll!"), Text.class);
+        _assertNodeType(Node.TEXT_NODE, Text.class, text);
+        assertEquals("Rock & Roll!", text.getData());
+    }
+
+    @Test
+    public void readAsComment() throws Exception
+    {
+        Comment c = MAPPER.readValue(q("<!--comment-->"), Comment.class);
+        _assertNodeType(Node.COMMENT_NODE, Comment.class, c);
+        assertEquals("comment", c.getData());
+    }
+
+    // ... and failure to reconstruct expected node type is reported as usual
+    @Test
+    public void readAsCommentFailsForNonComment() throws Exception
+    {
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readValue(q("<elem/>"), Comment.class));
+        verifyException(e, "Failed to parse JSON String as XML `org.w3c.dom.Comment` node");
+    }
+
     /*
     /**********************************************************
     /* Polymorphic (`@JsonTypeInfo`) tests
@@ -193,12 +244,8 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
         assertEquals(SIMPLE_XML, _asXml(result.value));
     }
 
-    // [databind#6113]: `Element` value gets `Node` Type Id (not `Element`), since
-    // `NodeDeserializer` is the only handler that can accept it.
-    // NOTE: read side is asymmetric -- `DOMDeserializer` always parses a full
-    // `Document` -- so an `Element` written comes back as `Document`. That is
-    // pre-existing `DOMDeserializer` behavior, not something #6113 changed;
-    // see [databind#6120] for possible per-node-type handling.
+    // [databind#6120]: `Element` value now gets an `Element` Type Id and is
+    // reconstructed as an `Element` (before, it came back as a `Document`)
     @Test
     public void polymorphicNodeFieldWithElement() throws Exception
     {
@@ -207,22 +254,39 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
         _assertNodeType(Node.ELEMENT_NODE, Element.class, leaf);
 
         String json = MAPPER.writeValueAsString(new NodeWrapper(leaf));
-        assertEquals(Node.class.getName(), _typeIdOf(json));
+        assertEquals(Element.class.getName(), _typeIdOf(json));
         assertEquals("<leaf>Rock &amp; Roll!</leaf>", _valueOf(json));
 
         NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
-        // Exactly a Document -- NOT the Element that was written
-        _assertNodeType(Node.DOCUMENT_NODE, Document.class, result.value);
-        Element rootOfResult = ((Document) result.value).getDocumentElement();
-        _assertNodeType(Node.ELEMENT_NODE, Element.class, rootOfResult);
-        assertEquals("leaf", rootOfResult.getTagName());
-        assertEquals("Rock & Roll!", rootOfResult.getTextContent());
+        _assertNodeType(Node.ELEMENT_NODE, Element.class, result.value);
+        Element resultLeaf = (Element) result.value;
+        assertEquals("leaf", resultLeaf.getTagName());
+        assertEquals("Rock & Roll!", resultLeaf.getTextContent());
     }
 
-    // [databind#6113]: `Text` ("String") node also gets `Node` Type Id, and write
-    // side works. Read side, however, cannot work: bare text is not a legal XML
-    // document. Again pre-existing `DOMDeserializer` limitation, verified here so
-    // that a change in behavior is caught; see [databind#6120].
+    // [databind#6120]: namespaces survive subtree serialization -- the Transformer
+    // hoists the ancestor declaration into the subtree it writes
+    @Test
+    public void polymorphicNodeFieldWithNamespacedElement() throws Exception
+    {
+        Document doc = _parse("<root xmlns:ns='http://foo'><ns:leaf ns:a='1'>text</ns:leaf></root>");
+        Element leaf = (Element) doc.getDocumentElement().getFirstChild();
+        _assertNodeType(Node.ELEMENT_NODE, Element.class, leaf);
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(leaf));
+        assertEquals(Element.class.getName(), _typeIdOf(json));
+
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        _assertNodeType(Node.ELEMENT_NODE, Element.class, result.value);
+        Element resultLeaf = (Element) result.value;
+        assertEquals("http://foo", resultLeaf.getNamespaceURI());
+        assertEquals("leaf", resultLeaf.getLocalName());
+        assertEquals("1", resultLeaf.getAttributeNS("http://foo", "a"));
+        assertEquals("text", resultLeaf.getTextContent());
+    }
+
+    // [databind#6120]: `Text` node gets a `Text` Type Id, and is rebuilt by wrapping
+    // the (escaped) text in a throw-away root element before parsing
     @Test
     public void polymorphicNodeFieldWithText() throws Exception
     {
@@ -231,12 +295,202 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
         _assertNodeType(Node.TEXT_NODE, Text.class, text);
 
         String json = MAPPER.writeValueAsString(new NodeWrapper(text));
-        assertEquals(Node.class.getName(), _typeIdOf(json));
+        assertEquals(Text.class.getName(), _typeIdOf(json));
         assertEquals("Rock &amp; Roll!", _valueOf(json));
 
-        InvalidFormatException e = assertThrows(InvalidFormatException.class,
-                () -> MAPPER.readValue(json, NodeWrapper.class));
-        verifyException(e, "Failed to parse JSON String as XML");
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        _assertNodeType(Node.TEXT_NODE, Text.class, result.value);
+        // Escaping round-trips exactly
+        assertEquals("Rock & Roll!", ((Text) result.value).getData());
+    }
+
+    // [databind#6120]: `CDATASection` is a subtype of `Text` but must keep its own
+    // Type Id, or it would come back as a plain `Text` node
+    @Test
+    public void polymorphicNodeFieldWithCDATA() throws Exception
+    {
+        CDATASection cdata = (CDATASection) _parse(MIXED_XML).getDocumentElement()
+                .getFirstChild();
+        _assertNodeType(Node.CDATA_SECTION_NODE, CDATASection.class, cdata);
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(cdata));
+        assertEquals(CDATASection.class.getName(), _typeIdOf(json));
+        assertEquals("<![CDATA[cd & data]]>", _valueOf(json));
+
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        _assertNodeType(Node.CDATA_SECTION_NODE, CDATASection.class, result.value);
+        assertEquals("cd & data", ((CDATASection) result.value).getData());
+    }
+
+    @Test
+    public void polymorphicNodeFieldWithComment() throws Exception
+    {
+        Comment comment = (Comment) _parse(MIXED_XML).getDocumentElement()
+                .getLastChild();
+        _assertNodeType(Node.COMMENT_NODE, Comment.class, comment);
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(comment));
+        assertEquals(Comment.class.getName(), _typeIdOf(json));
+        assertEquals("<!--comment-->", _valueOf(json));
+
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        _assertNodeType(Node.COMMENT_NODE, Comment.class, result.value);
+        assertEquals("comment", ((Comment) result.value).getData());
+    }
+
+    @Test
+    public void polymorphicNodeFieldWithProcessingInstruction() throws Exception
+    {
+        ProcessingInstruction pi = (ProcessingInstruction) _simpleDocument()
+                .getDocumentElement().getLastChild();
+        _assertNodeType(Node.PROCESSING_INSTRUCTION_NODE, ProcessingInstruction.class, pi);
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(pi));
+        assertEquals(ProcessingInstruction.class.getName(), _typeIdOf(json));
+        assertEquals("<?proc instr?>", _valueOf(json));
+
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        _assertNodeType(Node.PROCESSING_INSTRUCTION_NODE, ProcessingInstruction.class, result.value);
+        assertEquals("proc", ((ProcessingInstruction) result.value).getTarget());
+        assertEquals("instr", ((ProcessingInstruction) result.value).getData());
+    }
+
+    @Test
+    public void polymorphicNodeFieldWithDocumentFragment() throws Exception
+    {
+        Document doc = _parse(SIMPLE_XML);
+        DocumentFragment frag = doc.createDocumentFragment();
+        frag.appendChild(doc.createElement("a"));
+        frag.appendChild(doc.createElement("b"));
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(frag));
+        assertEquals(DocumentFragment.class.getName(), _typeIdOf(json));
+        assertEquals("<a/><b/>", _valueOf(json));
+
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        _assertNodeType(Node.DOCUMENT_FRAGMENT_NODE, DocumentFragment.class, result.value);
+        NodeList children = result.value.getChildNodes();
+        assertEquals(2, children.getLength());
+        assertEquals("a", ((Element) children.item(0)).getTagName());
+        assertEquals("b", ((Element) children.item(1)).getTagName());
+    }
+
+    // ... and namespaces must survive the wrap-and-parse path too, not just the
+    // single-Element one
+    @Test
+    public void polymorphicNodeFieldWithNamespacedDocumentFragment() throws Exception
+    {
+        Document doc = _parse("<root xmlns:ns='http://foo'><ns:a/><ns:b>x</ns:b></root>");
+        DocumentFragment frag = doc.createDocumentFragment();
+        NodeList roots = doc.getDocumentElement().getChildNodes();
+        while (roots.getLength() > 0) {
+            frag.appendChild(roots.item(0));
+        }
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(frag));
+        assertEquals(DocumentFragment.class.getName(), _typeIdOf(json));
+
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        _assertNodeType(Node.DOCUMENT_FRAGMENT_NODE, DocumentFragment.class, result.value);
+        NodeList children = result.value.getChildNodes();
+        assertEquals(2, children.getLength());
+        for (int i = 0; i < 2; ++i) {
+            Element el = (Element) children.item(i);
+            assertEquals("http://foo", el.getNamespaceURI(), "Wrong ns for child #"+i);
+        }
+        assertEquals("a", ((Element) children.item(0)).getLocalName());
+        assertEquals("b", ((Element) children.item(1)).getLocalName());
+    }
+
+    // [databind#6120]: `Attr` remains unsupported -- the `Transformer` emits an empty
+    // String for it, so name and value are gone before the read side is reached.
+    // Verified here so that a change in behavior is caught.
+    @Test
+    public void polymorphicNodeFieldWithAttr() throws Exception
+    {
+        Attr attr = _simpleDocument().getDocumentElement().getAttributeNode("attr");
+        _assertNodeType(Node.ATTRIBUTE_NODE, Attr.class, attr);
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(attr));
+        // No usable content written, so no point in a more specific Type Id
+        assertEquals(Node.class.getName(), _typeIdOf(json));
+        assertEquals("", _valueOf(json));
+
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        assertNull(result.value);
+    }
+
+    /*
+    /**********************************************************
+    /* Whitespace handling in `Text` values
+    /**********************************************************
+     */
+
+    // [databind#6120]: a `Text` node is written as its bare (escaped) content, with no
+    // delimiters, so `FromStringDeserializer`s default trimming would silently eat
+    // leading/trailing whitespace
+    @Test
+    public void textKeepsSurroundingWhitespace() throws Exception {
+        _assertDataRoundTrip("<a>hello <b/>world</a>", Node.TEXT_NODE, Text.class, "hello ");
+    }
+
+    // ... and a whitespace-only `Text` node (indentation in any pretty-printed
+    // document) must not trim down to an empty String, and thereby `null`
+    @Test
+    public void whitespaceOnlyTextRoundTrips() throws Exception {
+        _assertDataRoundTrip("<a>\n  <b/>\n</a>", Node.TEXT_NODE, Text.class, "\n  ");
+    }
+
+    // ... nor may empty content, which is a legal `Text` node
+    @Test
+    public void emptyTextRoundTrips() throws Exception
+    {
+        Text text = _parse("<a/>").createTextNode("");
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(text));
+        assertEquals("", _valueOf(json));
+
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        _assertNodeType(Node.TEXT_NODE, Text.class, result.value);
+        assertEquals("", ((Text) result.value).getData());
+    }
+
+    // ... and the empty `Text` node must be reachable as the "empty value" proper, not
+    // just on the default path: `CoercionAction.AsEmpty` consults `getEmptyValue()`
+    @Test
+    public void emptyTextViaAsEmptyCoercion() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withCoercionConfigDefaults(cfg ->
+                    cfg.setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsEmpty))
+                .build();
+        Text text = mapper.readValue(q(""), Text.class);
+        _assertNodeType(Node.TEXT_NODE, Text.class, text);
+        assertEquals("", text.getData());
+    }
+
+    // ... but the empty `Text` node is a fresh mutable DOM node, so it must NOT be
+    // shared: `AccessPattern.CONSTANT` (inherited from `StdScalarDeserializer`, whose
+    // scalars are immutable) would have `NullsConstantProvider` hand every null the
+    // same instance -- and `appendChild()` reparents, so adding it to one document
+    // would silently remove it from another
+    @Test
+    public void emptyTextNodesAreNotShared() throws Exception
+    {
+        TextListWrapper result = MAPPER.readValue("{\"values\":[null,null]}",
+                TextListWrapper.class);
+        assertEquals(2, result.values.size());
+        _assertNodeType(Node.TEXT_NODE, Text.class, result.values.get(0));
+        assertNotSame(result.values.get(0), result.values.get(1),
+                "Empty `Text` nodes must not be shared between values");
+    }
+
+    // `CDATASection`, by contrast, is delimited by its "<![CDATA[" / "]]>" markers,
+    // so trimming cannot reach its content -- verify that stays true
+    @Test
+    public void cdataKeepsSurroundingWhitespace() throws Exception {
+        _assertDataRoundTrip("<a><![CDATA[  padded  ]]></a>", Node.CDATA_SECTION_NODE,
+                CDATASection.class, "  padded  ");
     }
 
     /*
@@ -283,8 +537,28 @@ public class DOMTypeReadWriteTest extends DatabindTestUtil
     }
 
     private Document _simpleDocument() throws Exception {
-        return DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                .parse(new InputSource(new StringReader(SIMPLE_XML)));
+        return _parse(SIMPLE_XML);
+    }
+
+    // Round-trip the first child of given XML document, verifying both that it keeps
+    // its node type and that its character data survives verbatim
+    private void _assertDataRoundTrip(String xml, short expNodeType,
+            Class<? extends CharacterData> expType, String expData) throws Exception
+    {
+        CharacterData node = (CharacterData) _parse(xml).getDocumentElement().getFirstChild();
+        _assertNodeType(expNodeType, expType, node);
+        assertEquals(expData, node.getData(), "Bad test setup: wrong input data");
+
+        String json = MAPPER.writeValueAsString(new NodeWrapper(node));
+        NodeWrapper result = MAPPER.readValue(json, NodeWrapper.class);
+        _assertNodeType(expNodeType, expType, result.value);
+        assertEquals(expData, ((CharacterData) result.value).getData());
+    }
+
+    private Document _parse(String xml) throws Exception {
+        DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
+        f.setNamespaceAware(true);
+        return f.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
     }
 
     // Serialize given Node with non-polymorphic mapper, to get comparable XML text

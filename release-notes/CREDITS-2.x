@@ -1943,6 +1943,13 @@ Omkhar Arasaratnam (@omkhar)
 Aysha Afrah Ziya (@aysha-afrah26)
  * Fixed #6099: Resolve classes without initialization in `TypeFactory.findClass()`
   (2.18.10)
+ * Fixed #6116: Reject non-ASCII digits in `InetAddress` literal validation
+  (2.18.10)
+
+@waydeshi
+ * Reported #6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
+   and Duration [GHSA-q4xh-88c3-wmh7]
+  (2.18.10)
 
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`

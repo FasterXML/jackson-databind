@@ -12,6 +12,12 @@ No change since 2.22
 
 #6099: Resolve classes without initialization in `TypeFactory.findClass()`
  (fixed by Aysha A-Z)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
+#6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
+  and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
+ (reported by @waydeshi)
+ (fix by @pjfanning)
 
 2.22.1 (07-Jul-2026)
 
@@ -50,6 +56,12 @@ No change since 2.22
   after all entries are filtered
  (reported by @dlwldnjs1009)
  (fix by @seonwooj0810)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
+#6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
+  and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
+ (reported by @waydeshi)
+ (fix by @pjfanning)
 
 2.21.5 (06-Jul-2026)
 
@@ -359,6 +371,12 @@ No changes since 2.19.2
 
 #6099: Resolve classes without initialization in `TypeFactory.findClass()`
  (fixed by Aysha A-Z)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
+#6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
+  and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
+ (reported by @waydeshi)
+ (fix by @pjfanning)
 
 2.18.9 (07-Jul-2026)
 

@@ -598,3 +598,17 @@ Ivan (@pctF)
    `IllegalArgumentException` but throws `MismatchedInputException` when input and
    expected type are not compatible
   [3.3.0]
+
+Bowang (@dong0713)
+ * Fixed #6113: `DOMSerializer` to support polymorphic serialization
+  [3.3.0]
+ * Fixed #6114: Fix QName object deserialization to reject non-String namespaceURI/prefix
+  [3.3.0]
+
+@DragonFSKY
+ * Fixed #6128: Fail explicitly on POJO that has both `@JsonFormat(shape=ARRAY)` and `@JsonFilter`
+  [3.3.0]
+
+  Aysha Afrah Ziya (@aysha-afrah26)
+  
+  

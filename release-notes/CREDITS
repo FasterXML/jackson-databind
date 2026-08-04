@@ -610,5 +610,8 @@ Bowang (@dong0713)
   [3.3.0]
 
   Aysha Afrah Ziya (@aysha-afrah26)
-  
-  
+
+DongNyoung Lee (@Dongnyoung)
+ * Reported, fixed #6142: Invalidate read-only lookup snapshot in `SerializerCache`
+   when a typed serializer entry is replaced
+  [3.3.0]

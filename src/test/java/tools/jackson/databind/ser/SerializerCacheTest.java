@@ -7,11 +7,11 @@ import tools.jackson.databind.JavaType;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
-import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class SerializerCacheTest
+public class SerializerCacheTest extends DatabindTestUtil
 {
     static class TestSerializer extends ValueSerializer<Object>
     {
@@ -39,7 +39,7 @@ public class SerializerCacheTest
     public void replaceTypedJavaTypeSerializerInvalidatesReadOnlyLookup()
     {
         SerializerCache cache = new SerializerCache();
-        JavaType type = TypeFactory.createDefaultInstance().constructType(String.class);
+        JavaType type = defaultTypeFactory().constructType(String.class);
         TestSerializer serializer1 = new TestSerializer();
         TestSerializer serializer2 = new TestSerializer();
 

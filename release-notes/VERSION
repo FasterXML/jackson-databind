@@ -33,7 +33,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @DragonFSKY)
 #6136: `@JsonFilter` with `serializeAllExcept()` does not filter `@JsonAnyGetter`
   entries
- (reported, fix by Aysha A-Z)
+ (fix by Aysha A-Z)
+#6142: Invalidate read-only lookup snapshot in `SerializerCache` when a typed
+  serializer entry is replaced (and not just when added)
+ (fix by @Dongnyoung)
 
 3.2.2 (not yet released)
 

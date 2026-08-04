@@ -613,3 +613,8 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Reported, fixed #6136: `@JsonFilter` with `serializeAllExcept()` does not filter
    `@JsonAnyGetter` entries
   [3.3.0]
+
+DongNyoung Lee (@Dongnyoung)
+ * Reported, fixed #6142: Invalidate read-only lookup snapshot in `SerializerCache`
+   when a typed serializer entry is replaced
+  [3.3.0]

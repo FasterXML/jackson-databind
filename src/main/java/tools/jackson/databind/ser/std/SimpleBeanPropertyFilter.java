@@ -119,14 +119,9 @@ public class SimpleBeanPropertyFilter
             SerializationContext provider, PropertyWriter writer)
         throws Exception
     {
-        // [databind#6136]: Name of the any-getter accessor is not a property name in output -- the
-        // entries it produces are -- so inclusion is decided for each entry
-        // (via `getAndFilter()` calling back into this filter), never for the
-        // any-getter writer itself.
-        if (writer instanceof AnyGetterWriter anyGetterWriter) {
-            anyGetterWriter.getAndFilter(pojo, g, provider, this);
-            return;
-        }
+        // NOTE: [databind#6136]: any-getters never reach this method -- caller
+        // (`BeanSerializerBase`) unpacks them into individual entries first, each of
+        // which is then passed here as a `MapProperty`.
         if (include(writer)) {
             writer.serializeAsProperty(pojo, g, provider);
         } else if (!g.canOmitProperties()) {

@@ -11,7 +11,9 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.ser.FilterProvider;
+import tools.jackson.databind.ser.PropertyFilter;
 import tools.jackson.databind.ser.PropertyWriter;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
 import tools.jackson.databind.ser.std.SimpleFilterProvider;
@@ -126,6 +128,44 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
          }
     }
 
+    // [databind#6136]: filter that implements `PropertyFilter` directly instead of
+    // extending `SimpleBeanPropertyFilter` -- must also get per-entry decisions
+    static class DirectExcludingFilter implements PropertyFilter
+    {
+        private final Set<String> _excluded;
+
+        public DirectExcludingFilter(String... names) {
+            _excluded = new HashSet<>(Arrays.asList(names));
+        }
+
+        @Override
+        public PropertyFilter snapshot() { return this; }
+
+        @Override
+        public void serializeAsProperty(Object pojo, JsonGenerator g, SerializationContext ctxt,
+                PropertyWriter writer)
+            throws Exception
+        {
+            if (!_excluded.contains(writer.getName())) {
+                writer.serializeAsProperty(pojo, g, ctxt);
+            }
+        }
+
+        @Override
+        public void serializeAsElement(Object elementValue, JsonGenerator g, SerializationContext ctxt,
+                PropertyWriter writer)
+            throws Exception
+        {
+            writer.serializeAsElement(elementValue, g, ctxt);
+        }
+
+        @Override
+        public void depositSchemaProperty(PropertyWriter writer, JsonObjectFormatVisitor v,
+                SerializationContext ctxt) {
+            writer.depositSchemaProperty(v, ctxt);
+        }
+    }
+
     static class CustomFilter extends SimpleBeanPropertyFilter {
          @Override
          public void serializeAsProperty(Object pojo, JsonGenerator gen, SerializationContext provider,
@@ -179,6 +219,21 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
         assertEquals("""
                 {"name":"bob","a":"1"}""",
                 MAPPER.writer(including).writeValueAsString(new ObjectNodeAnyBeanWithSecret()));
+    }
+
+    // [databind#6136]: also has to work for filters that do not extend
+    // `SimpleBeanPropertyFilter`
+    @Test
+    public void anyGetterFilteringWithDirectFilterImpl() throws Exception
+    {
+        FilterProvider prov = new SimpleFilterProvider().addFilter("anyFilter",
+                new DirectExcludingFilter("secret"));
+        assertEquals("""
+                {"name":"bob","a":"1"}""",
+                MAPPER.writer(prov).writeValueAsString(new AnyBeanWithSecret()));
+        assertEquals("""
+                {"name":"bob","a":"1"}""",
+                MAPPER.writer(prov).writeValueAsString(new ObjectNodeAnyBeanWithSecret()));
     }
 
     // for [databind#1142]

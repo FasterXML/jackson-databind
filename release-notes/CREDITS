@@ -400,3 +400,8 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Reported #6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
    and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
   [3.1.6]
+
+DongNyoung Lee (@Dongnyoung)
+ * Fixed #6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
+   for unspecified values
+  [3.1.6]

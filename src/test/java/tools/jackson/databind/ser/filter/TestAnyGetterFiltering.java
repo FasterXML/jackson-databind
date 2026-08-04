@@ -113,6 +113,38 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
         }
     }
 
+    // [databind#6136]: content inclusion has to apply on filtered path too,
+    // same as it does without a filter (see `NonEmptyAnyBean`)
+    @JsonFilter("anyFilter")
+    static class FilteredNonEmptyAnyBean
+    {
+        public String name = "bob";
+
+        @JsonAnyGetter
+        @JsonInclude(content = JsonInclude.Include.NON_EMPTY)
+        public Map<String, String> anyProperties() {
+            Map<String, String> props = new LinkedHashMap<>();
+            props.put("a", "1");
+            props.put("blank", "");
+            return props;
+        }
+    }
+
+    // [databind#6136]: same as `FilteredNonEmptyAnyBean` but without `@JsonFilter`
+    static class NonEmptyAnyBean
+    {
+        public String name = "bob";
+
+        @JsonAnyGetter
+        @JsonInclude(content = JsonInclude.Include.NON_EMPTY)
+        public Map<String, String> anyProperties() {
+            Map<String, String> props = new LinkedHashMap<>();
+            props.put("a", "1");
+            props.put("blank", "");
+            return props;
+        }
+    }
+
     // [databind#1655]
     @JsonFilter("CustomFilter")
     static class OuterObject {
@@ -234,6 +266,30 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
         assertEquals("""
                 {"name":"bob","a":"1"}""",
                 MAPPER.writer(prov).writeValueAsString(new ObjectNodeAnyBeanWithSecret()));
+    }
+
+    // [databind#6136]: `@JsonInclude` content inclusion of the any-getter has to be
+    // honored on the filtered path as well -- filtering decides which entries a filter
+    // lets through, not whether inclusion criteria apply
+    @Test
+    public void anyGetterContentInclusionWithFilter() throws Exception
+    {
+        final String EXP = """
+                {"name":"bob","a":"1"}""";
+
+        // Baseline: no filter at all, empty-valued entry suppressed
+        assertEquals(EXP, MAPPER.writeValueAsString(new NonEmptyAnyBean()));
+
+        // and same has to hold for both filter styles
+        FilterProvider excluding = new SimpleFilterProvider().addFilter("anyFilter",
+                SimpleBeanPropertyFilter.serializeAllExcept("secret"));
+        assertEquals(EXP,
+                MAPPER.writer(excluding).writeValueAsString(new FilteredNonEmptyAnyBean()));
+
+        FilterProvider including = new SimpleFilterProvider().addFilter("anyFilter",
+                SimpleBeanPropertyFilter.filterOutAllExcept("name", "a", "blank"));
+        assertEquals(EXP,
+                MAPPER.writer(including).writeValueAsString(new FilteredNonEmptyAnyBean()));
     }
 
     // for [databind#1142]

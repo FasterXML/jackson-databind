@@ -598,17 +598,6 @@ public class BasicBeanDescription extends BeanDescription
             if (mode == JsonCreator.Mode.DISABLED) {
                 return null;
             }
-            // [databind#3947]: infer properties-based mode from explicit parameter name
-            if (mode == JsonCreator.Mode.DEFAULT) {
-                for (int i = 0, end = am.getParameterCount(); i < end; ++i) {
-                    PropertyName name = _intr.findNameForDeserialization(_config,
-                            am.getParameter(i));
-                    if (name != null && !name.isEmpty()) {
-                        mode = JsonCreator.Mode.PROPERTIES;
-                        break;
-                    }
-                }
-            }
             return AnnotatedAndMetadata.of(am, mode);
         }
         final String name = am.getName();

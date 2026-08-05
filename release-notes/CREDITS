@@ -578,6 +578,30 @@ Yusuke Nojima (@ynojima)
    from working on `@JsonCreator` parameter (regression in 3.2.0)
   [3.2.1]
 
+Théo Szanto (@indyteo)
+ * Reported #6043: `FAIL_ON_UNKNOWN_PROPERTIES` has no effect with `JsonFormat.Shape.ARRAY`
+   when using creator-based instantiation (such as `record`)
+  [3.2.1]
+
+seonwoo_jung (@seonwooj0810)
+ * Fixed #4762: `@JsonValue` ignores annotations on annotated accessor
+   (particularly `@JsonInclude`)
+  [3.3.0]
+ * Fixed #6043: `FAIL_ON_UNKNOWN_PROPERTIES` has no effect with `JsonFormat.Shape.ARRAY`
+   when using creator-based instantiation (such as `record`)
+  [3.2.1]
+ * Fixed #6065: `SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS` does not fully
+   remove empty collection during serialization
+  [3.2.1]
+ * Fixed #6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+   after all entries are filtered
+  [3.2.2]
+
+@doeiqts
+ * Reported #6065: `SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS` does not fully
+   remove empty collection during serialization
+  [3.2.1]
+
 Alex Crowell (@alex-crowell)
  * Reported #1127: `@JsonTypeInfo` with `EXTERNAL_PROPERTY` does not handle
    arrays of polymorphic types
@@ -585,11 +609,6 @@ Alex Crowell (@alex-crowell)
 
 Alexander Sikorskiy (@sikorskii)
  * Reported #4762: `@JsonValue` ignores annotations on annotated accessor
-   (particularly `@JsonInclude`)
-  [3.3.0]
-
-seonwoo_jung (@seonwooj0810)
- * Fixed #4762: `@JsonValue` ignores annotations on annotated accessor
    (particularly `@JsonInclude`)
   [3.3.0]
 
@@ -606,9 +625,15 @@ Bowang (@dong0713)
   [3.3.0]
 
 @DragonFSKY
+ * Fixed #3947: Multiple suitable annotated Creator factory methods to be used as the
+   Key deserializer when using record als key in Map
+  [3.3.0]
  * Fixed #6128: Fail explicitly on POJO that has both `@JsonFormat(shape=ARRAY)` and `@JsonFilter`
   [3.3.0]
 
-  Aysha Afrah Ziya (@aysha-afrah26)
-  
-  
+Aysha Afrah Ziya (@aysha-afrah26)
+
+DongNyoung Lee (@Dongnyoung)
+ * Reported, fixed #6142: Invalidate read-only lookup snapshot in `SerializerCache`
+   when a typed serializer entry is replaced
+  [3.3.0]

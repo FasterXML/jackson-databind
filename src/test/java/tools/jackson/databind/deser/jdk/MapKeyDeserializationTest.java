@@ -354,9 +354,11 @@ public class MapKeyDeserializationTest
     @Test
     public void keyWithDelegatingAndPropertiesFactories3947() throws Exception
     {
-        Map<Key3947,Integer> map = MAPPER.readValue("{\"foo\":3}",
+        Map<Key3947,Integer> map = MAPPER.readValue("""
+                {"foo":3}""",
                 new TypeReference<Map<Key3947,Integer>>() { });
 
+        assertEquals(1, map.size());
         assertEquals("delegating:foo", map.keySet().iterator().next().value());
     }
 }

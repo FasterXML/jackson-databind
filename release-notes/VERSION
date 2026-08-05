@@ -17,7 +17,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #3947: Multiple suitable annotated Creator factory methods to be used as the
   Key deserializer when using record als key in Map
  (reported by @toonborgers)
- (fix by DragonFSKY)
+ (fix by @DragonFSKY)
 #4762: `@JsonValue` serialization ignores annotations on the annotated accessor
   (particularly `@JsonInclude`, `@JsonFormat`)
  (reported by @sikorskii)

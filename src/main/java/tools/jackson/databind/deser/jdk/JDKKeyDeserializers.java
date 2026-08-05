@@ -154,17 +154,16 @@ public class JDKKeyDeserializers
         // Only annotated-but-modeless Creators need inference: explicit modes are
         // handled by caller, and non-annotated candidates (`valueOf()`/`fromString()`)
         // have `null` metadata and are delegating by definition
-        if (candidate.metadata != JsonCreator.Mode.DEFAULT) {
-            return false;
+        if (candidate.metadata == JsonCreator.Mode.DEFAULT) {
+            final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+            if (intr != null) {
+                // Caller has already verified there is exactly one parameter
+                PropertyName name = intr.findNameForDeserialization(ctxt.getConfig(),
+                        candidate.annotated.getParameter(0));
+                return (name != null) && !name.isEmpty();
+            }
         }
-        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr == null) {
-            return false;
-        }
-        // Caller has already verified there is exactly one parameter
-        PropertyName name = intr.findNameForDeserialization(ctxt.getConfig(),
-                candidate.annotated.getParameter(0));
-        return (name != null) && !name.isEmpty();
+        return false;
     }
 
     // 13-Jun-2021, tatu: For now just look for constructor that takes one `String`

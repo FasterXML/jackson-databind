@@ -60,6 +60,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
  (reported by @waydeshi)
  (fix by @pjfanning)
+#6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
+  for unspecified values
+ (reported, fixed by DongNyoung L)
 
 3.2.1 (10-Jul-2026)
 
@@ -80,10 +83,21 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6055: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
+#6058: Do not allow DNS resolution when deserializing `InetAddress`
+ (reported by @thientd)
+ (fix by @pjfanning)
 #6059: `ObjectMapper.valueToTree()` with `byte[]` does not produce `BinaryNode`
  (reported by @sebastien-leveque)
  (fix by @cowtowncoder, w/ Claude code)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
+#6065: `SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS` does not fully
+  remove empty collection during serialization
+ (reported by @doeiqts)
+ (fix by @seonwooj0810)
+#6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
+  (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
+ (reported by João G)
+ (fix by João G and @cowtowncoder, w/ Claude code)
 
 3.2.0 (08-Jun-2026)
 

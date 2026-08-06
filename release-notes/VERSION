@@ -30,6 +30,10 @@ No changes since 3.2
   and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
  (reported by @waydeshi)
  (fix by @pjfanning)
+#6129: Limit the supported URL schemes for `java.nio.file.Path`
+  deserialization [GHSA-wjgm-6hv5-3cvf]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
 #6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
   for unspecified values
  (reported, fixed by DongNyoung L)
@@ -310,6 +314,10 @@ No changes since 3.2
  (fixed by Aysha A-Z)
 #6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
   and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6129: Limit the supported URL schemes for `java.nio.file.Path`
+  deserialization [GHSA-wjgm-6hv5-3cvf]
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes

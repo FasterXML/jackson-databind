@@ -488,6 +488,13 @@ public class BuilderBasedDeserializer
                     p.skipChildren();
                     continue;
                 }
+                // [databind#4629] Need to check for ignored properties for Creator properties since
+                // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
+                // so if we don't check for ignore first, the ignore configuration will be bypassed.
+                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                    handleIgnoredProperty(p, ctxt, handledType(), propName);
+                    continue;
+                }
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
                     p.nextToken(); // to move to following PROPERTY_NAME/END_OBJECT
@@ -858,6 +865,13 @@ public class BuilderBasedDeserializer
                 if (creatorProp.isInjectionOnly()) {
                     // Skip the input value, will be injected later in PropertyValueBuffer
                     p.skipChildren();
+                    continue;
+                }
+                // [databind#4629] Need to check for ignored properties for Creator properties since
+                // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
+                // so if we don't check for ignore first, the ignore configuration will be bypassed.
+                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                    handleIgnoredProperty(p, ctxt, handledType(), propName);
                     continue;
                 }
 

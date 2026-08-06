@@ -1925,3 +1925,6 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Reported #6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
    and Duration [GHSA-q4xh-88c3-wmh7]
   (2.18.10)
+ * Reported #6129: Limit the supported URL schemes for `java.nio.file.Path`
+   deserialization [GHSA-wjgm-6hv5-3cvf]
+  (2.18.10)

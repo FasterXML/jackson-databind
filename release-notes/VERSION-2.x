@@ -15,7 +15,7 @@ No change since 2.22
 #6116: Reject non-ASCII digits in `InetAddress` literal validation
  (fixed by Aysha A-Z)
 #6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
-  and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
+  and Duration [CVE-2026-68497]
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6129: Limit the supported URL schemes for `java.nio.file.Path`
@@ -63,7 +63,7 @@ No change since 2.22
 #6116: Reject non-ASCII digits in `InetAddress` literal validation
  (fixed by Aysha A-Z)
 #6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
-  and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
+  and Duration [CVE-2026-68497]
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6129: Limit the supported URL schemes for `java.nio.file.Path`

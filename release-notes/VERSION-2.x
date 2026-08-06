@@ -193,6 +193,10 @@ No changes since 2.19.2
   and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
  (reported by @waydeshi)
  (fix by @pjfanning)
+#6129: Limit the supported URL schemes for `java.nio.file.Path`
+  deserialization [GHSA-wjgm-6hv5-3cvf]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
 
 2.18.9 (07-Jul-2026)
 

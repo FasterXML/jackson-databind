@@ -8,8 +8,11 @@ import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -25,6 +28,14 @@ public class NioPathDeserializer extends StdScalarDeserializer<Path>
 {
     private static final long serialVersionUID = 1;
 
+    /**
+     * URI schemes accepted unless overridden: only "file", scheme of the
+     * default {@link java.nio.file.FileSystem}.
+     *
+     * @since 2.18.10
+     */
+    public final static Collection<String> DEFAULT_ALLOWED_SCHEMES = Collections.singletonList("file");
+
     private static final boolean areWindowsFilePathsSupported;
     static {
         boolean isWindowsRootFound = false;
@@ -38,7 +49,37 @@ public class NioPathDeserializer extends StdScalarDeserializer<Path>
         areWindowsFilePathsSupported = isWindowsRootFound;
     }
 
-    public NioPathDeserializer() { super(Path.class); }
+    /**
+     * URI schemes accepted by this instance; values with no scheme at all are
+     * always accepted (and read as local file system paths).
+     *
+     * @since 2.18.10
+     */
+    protected final Collection<String> _allowedSchemes;
+
+    public NioPathDeserializer() { this(DEFAULT_ALLOWED_SCHEMES); }
+
+    /**
+     * Constructor for specifying URI schemes to accept: matching is done
+     * case-insensitively, same as by {@code java.nio.file.Paths.get(URI)}.
+     *<p>
+     * NOTE: for allowed schemes that have no provider installed for the system
+     * class loader, look up is also attempted using this thread's context class
+     * loader (see [databind#2120]); this is never done for schemes that are not
+     * allowed.
+     *
+     * @param allowedSchemes URI schemes to accept; must not be {@code null}
+     *   (but may be empty to only accept scheme-less values)
+     *
+     * @since 2.18.10
+     */
+    public NioPathDeserializer(Collection<String> allowedSchemes) {
+        super(Path.class);
+        if (allowedSchemes == null) {
+            throw new IllegalArgumentException("Argument `allowedSchemes` must not be null");
+        }
+        _allowedSchemes = allowedSchemes;
+    }
 
     @Override
     public Path deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
@@ -66,12 +107,22 @@ public class NioPathDeserializer extends StdScalarDeserializer<Path>
         } catch (URISyntaxException e) {
             return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
         }
+        // Only accept allowed schemes (by default just "file"), or no scheme at all;
+        // reject jar:, http:, s3: and other schemes unless explicitly allowed
+        final String scheme = uri.getScheme();
+        if (scheme != null && !_isSchemeAllowed(scheme)) {
+            return (Path) ctxt.handleWeirdStringValue(Path.class, value,
+                    "scheme '%s' not allowed for Path deserialization (allowed: %s)",
+                    scheme, _allowedSchemesDesc());
+        }
         try {
             return Paths.get(uri);
         } catch (FileSystemNotFoundException cause) {
+            // 05-Aug-2026, tatu: [databind#6129] Only reached for schemes caller has
+            //    explicitly allowed; retry look up using this thread's context class
+            //    loader, since `Paths.get()` only uses system class loader (see
+            //    [databind#2120])
             try {
-                final String scheme = uri.getScheme();
-                // We want to use the current thread's context class loader, not system class loader that is used in Paths.get():
                 for (FileSystemProvider provider : ServiceLoader.load(FileSystemProvider.class)) {
                     if (provider.getScheme().equalsIgnoreCase(scheme)) {
                         return provider.getPath(uri);
@@ -85,5 +136,38 @@ public class NioPathDeserializer extends StdScalarDeserializer<Path>
         } catch (Exception e) {
             return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
         }
+    }
+
+    /**
+     * Helper method for checking whether given non-{@code null} URI scheme is one
+     * of allowed ones; comparison is case-insensitive, as per URI specification
+     * (and as done by {@code java.nio.file.Paths.get(URI)}).
+     *
+     * @since 2.18.10
+     */
+    protected boolean _isSchemeAllowed(String scheme) {
+        // Common case of exact (usually lower-case) match first:
+        if (_allowedSchemes.contains(scheme)) {
+            return true;
+        }
+        // and if no match, scan case-insensitively
+        for (String allowed : _allowedSchemes) {
+            if (scheme.equalsIgnoreCase(allowed)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Helper method for constructing description of allowed schemes for
+     * inclusion in exception message, like {@code ["file", "jar", "https"]}.
+     *
+     * @since 2.18.10
+     */
+    protected String _allowedSchemesDesc() {
+        return _allowedSchemes.stream()
+                .map(scheme -> "\"" + scheme + "\"")
+                .collect(Collectors.joining(", ", "[", "]"));
     }
 }

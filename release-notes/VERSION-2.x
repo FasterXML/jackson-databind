@@ -62,6 +62,10 @@ No change since 2.22
   and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
  (reported by @waydeshi)
  (fix by @pjfanning)
+#6129: Limit the supported URL schemes for `java.nio.file.Path`
+  deserialization [GHSA-wjgm-6hv5-3cvf]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
 
 2.21.5 (06-Jul-2026)
 
@@ -375,6 +379,10 @@ No changes since 2.19.2
  (fixed by Aysha A-Z)
 #6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
   and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6129: Limit the supported URL schemes for `java.nio.file.Path`
+  deserialization [GHSA-wjgm-6hv5-3cvf]
  (reported by @waydeshi)
  (fix by @pjfanning)
 

@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -140,13 +141,8 @@ public class NioPathDeserializer extends StdScalarDeserializer<Path>
      * @since 2.18.10
      */
     protected String _allowedSchemesDesc() {
-        StringBuilder sb = new StringBuilder(20 + 8 * _allowedSchemes.size()).append('[');
-        for (String scheme : _allowedSchemes) {
-            if (sb.length() > 1) {
-                sb.append(", ");
-            }
-            sb.append('"').append(scheme).append('"');
-        }
-        return sb.append(']').toString();
+        return _allowedSchemes.stream()
+                .map(scheme -> "\"" + scheme + "\"")
+                .collect(Collectors.joining(", ", "[", "]"));
     }
 }

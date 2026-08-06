@@ -4,10 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.spi.FileSystemProvider;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -58,6 +62,11 @@ public class NioPathDeserializer extends StdScalarDeserializer<Path>
     /**
      * Constructor for specifying URI schemes to accept: matching is done
      * case-insensitively, same as by {@code java.nio.file.Paths.get(URI)}.
+     *<p>
+     * NOTE: for allowed schemes that have no provider installed for the system
+     * class loader, look up is also attempted using this thread's context class
+     * loader (see [databind#2120]); this is never done for schemes that are not
+     * allowed.
      *
      * @param allowedSchemes URI schemes to accept; must not be {@code null}
      *   (but may be empty to only accept scheme-less values)
@@ -108,6 +117,22 @@ public class NioPathDeserializer extends StdScalarDeserializer<Path>
         }
         try {
             return Paths.get(uri);
+        } catch (FileSystemNotFoundException cause) {
+            // 05-Aug-2026, tatu: [databind#6129] Only reached for schemes caller has
+            //    explicitly allowed; retry look up using this thread's context class
+            //    loader, since `Paths.get()` only uses system class loader (see
+            //    [databind#2120])
+            try {
+                for (FileSystemProvider provider : ServiceLoader.load(FileSystemProvider.class)) {
+                    if (provider.getScheme().equalsIgnoreCase(scheme)) {
+                        return provider.getPath(uri);
+                    }
+                }
+                return (Path) ctxt.handleInstantiationProblem(handledType(), value, cause);
+            } catch (ServiceConfigurationError e) {
+                e.addSuppressed(cause);
+                return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
+            }
         } catch (Exception e) {
             return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
         }

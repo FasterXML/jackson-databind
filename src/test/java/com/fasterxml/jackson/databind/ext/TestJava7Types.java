@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.ext;
 
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -106,6 +108,34 @@ public class TestJava7Types extends DatabindTestUtil
         // and empty allow-list is legal, if unhelpful
         _verifyRejectScheme(_mapperWithSchemes(Collections.<String>emptyList()),
                 "file:///tmp/foo.txt");
+    }
+
+    // [databind#6129]: providers only visible via Thread context class loader are
+    // still usable (see [databind#2120]) -- but only for schemes that are allowed
+    @Test
+    public void testAllowedSchemeViaContextClassLoader() throws Exception
+    {
+        final String input = CustomSchemeFsProvider.SCHEME + ":///foo.txt";
+        final ClassLoader origLoader = Thread.currentThread().getContextClassLoader();
+        // Registration is not at root of test classpath, so provider is NOT one of
+        // installed ones (that is, not found by `Paths.get(URI)`) unless added like so:
+        final URL serviceRoot = getClass().getResource("/tcclfs/");
+        assertNotNull(serviceRoot);
+        Thread.currentThread().setContextClassLoader(
+                new URLClassLoader(new URL[] { serviceRoot }, origLoader));
+
+        try {
+            // First: not allowed by default, and must be rejected without provider lookup
+            _verifyRejectScheme(new ObjectMapper(), input);
+
+            // But if allowed, gets resolved via context class loader
+            ObjectMapper mapper = _mapperWithSchemes(
+                    Arrays.asList(CustomSchemeFsProvider.SCHEME));
+            Path p = mapper.readValue(q(input), Path.class);
+            assertEquals(Paths.get("/tmp/jackson-test-fs/foo.txt"), p);
+        } finally {
+            Thread.currentThread().setContextClassLoader(origLoader);
+        }
     }
 
     @Test

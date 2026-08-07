@@ -1508,11 +1508,11 @@ public abstract class StdDeserializer<T>
         }
         return true;
     }
-
+    
     /*
-    /****************************************************
-    /* Helper methods for sub-classes, new (2.12+)
-    /****************************************************
+    /**********************************************************************
+    /* Helper methods for sub-classes, Value Coercion (2.12+)
+    /**********************************************************************
      */
 
     /**
@@ -1939,6 +1939,39 @@ inputDesc, _coercedTypeDesc(targetType));
         return value.isEmpty() || "null".equals(value);
     }
 
+    /*
+    /**********************************************************************
+    /* Helper methods for sub-classes, Length Constraints (2.18+)
+    /**********************************************************************
+     */
+
+    /**
+     * Method called to enforce maximum length limits for "Stringified" (logical
+     * Number as physical String token) Timestamp tokens for Date/Time types.
+     * Initial implementation uses {@link StreamReadConstraints#getMaxNumberLength()}
+     * as the limit to check.
+     * 
+     * @since 2.18.10
+     */
+    protected void _validateTimestampLength(JsonParser p, DeserializationContext ctxt,
+            String value)
+        throws IOException
+    {
+        final StreamReadConstraints rc = _streamReadConstraints(p, ctxt);
+        rc.validateIntegerLength(value.length());
+    }
+
+    /**
+     * @since 2.18.10
+     */
+    protected StreamReadConstraints _streamReadConstraints(JsonParser p, DeserializationContext ctxt)
+    {
+        if (p == null) {
+            p = ctxt.getParser();
+        }
+        StreamReadConstraints rc = p.streamReadConstraints();
+        return (rc == null) ? StreamReadConstraints.defaults() : rc;
+    }
     /*
     /****************************************************
     /* Helper methods for sub-classes, resolving dependencies

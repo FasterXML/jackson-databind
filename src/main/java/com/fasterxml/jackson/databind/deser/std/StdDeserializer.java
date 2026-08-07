@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.Nulls;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
@@ -1957,8 +1958,7 @@ inputDesc, _coercedTypeDesc(targetType));
             String value)
         throws IOException
     {
-        final StreamReadConstraints rc = _streamReadConstraints(ctxt);
-        rc.validateIntegerLength(value.length());
+        _validateAgainstMaxNumberLen(_streamReadConstraints(ctxt), value);
     }
 
     /**
@@ -1971,10 +1971,24 @@ inputDesc, _coercedTypeDesc(targetType));
         return (rc == null) ? StreamReadConstraints.defaults() : rc;
     }
 
+    // @since 2.18.10
+    private void _validateAgainstMaxNumberLen(StreamReadConstraints src, String value)
+        throws IOException
+    {
+        final int length = value.length();
+        final int maxNumLen = src.getMaxNumberLength();
+        if (length > maxNumLen) {
+            throw new StreamConstraintsException(String.format(
+"Date/time value length (%d) exceeds the maximum allowed (%d, from "
++"`StreamReadConstraints.getMaxNumberLength()`)",
+                length, maxNumLen));
+        }
+    }
+
     /*
-    /****************************************************
+    /**********************************************************************
     /* Helper methods for sub-classes, resolving dependencies
-    /****************************************************
+    /**********************************************************************
      */
 
     /**

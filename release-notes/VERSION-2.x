@@ -178,7 +178,7 @@ Project: jackson-databind
 #4136: Drop deprecated (in 2.12) `PropertyNamingStrategy` implementations
   from 2.20
 #4218: If `@JacksonInject` is specified for field and deserialized by the Creator,
-  the inject process will be executed twice 
+  the inject process will be executed twice
  (reported by @wrongwrong)
  (fix by Giulio L)
 #4656: `DeserializationProblemHandler.handleUnexpectedToken()` cast Object to String

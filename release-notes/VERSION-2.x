@@ -6,7 +6,7 @@ Project: jackson-databind
 
 2.20.2 (19-Jan-2026)
 
-#5393: `@JsonAnyGetter property gets included in generated schema since 2.19.0`
+#5393: `@JsonAnyGetter` property gets included in generated schema since 2.19.0
  (reported by @victor-noel-pfx)
  (fix by Joo-Hyuk K)
 #5537: Add missing `@JsonIdentityInfo` handling for implicit `Collection`s with
@@ -35,7 +35,7 @@ Project: jackson-databind
   from 2.20
 #4218: If `@JacksonInject` is specified for field and deserialized by the Creator,
   the inject process will be executed twice
- (reported by  @wrongwrong)
+ (reported by @wrongwrong)
  (fix by Giulio L)
 #4656: `DeserializationProblemHandler.handleUnexpectedToken()` cast Object to String
  (reported by @yacine-pc)

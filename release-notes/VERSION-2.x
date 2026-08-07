@@ -15,7 +15,7 @@ Project: jackson-databind
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6129: Limit the supported URL schemes for `java.nio.file.Path`
-  deserialization [GHSA-wjgm-6hv5-3cvf]
+  deserialization [CVE-2026-19032]
  (reported by @waydeshi)
  (fix by @pjfanning)
 

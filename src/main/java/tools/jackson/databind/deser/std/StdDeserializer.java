@@ -1785,6 +1785,35 @@ inputDesc, _coercedTypeDesc(targetType));
 
     /*
     /**********************************************************************
+    /* Helper methods for sub-classes, Length Constraints
+    /**********************************************************************
+     */
+
+    /**
+     * Method called to enforce maximum length limits for "Stringified" (logical
+     * Number as physical String token) Timestamp tokens for Date/Time types.
+     * Initial implementation uses {@link StreamReadConstraints#getMaxNumberLength()}
+     * as the limit to check.
+     *
+     * @since 3.1
+     */
+    protected void _validateTimestampLength(DeserializationContext ctxt,
+            String value)
+    {
+        final StreamReadConstraints rc = _streamReadConstraints(ctxt);
+        rc.validateIntegerLength(value.length());
+    }
+
+    /**
+     * @since 3.1
+     */
+    protected StreamReadConstraints _streamReadConstraints(DeserializationContext ctxt)
+    {
+        return ctxt.streamReadConstraints();
+    }
+
+    /*
+    /**********************************************************************
     /* Helper methods for sub-classes, resolving dependencies
     /**********************************************************************
      */

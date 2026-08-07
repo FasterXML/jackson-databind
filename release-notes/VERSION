@@ -57,7 +57,11 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6116: Reject non-ASCII digits in `InetAddress` literal validation
  (fixed by Aysha A-Z)
 #6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
-  and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
+  and Duration [CVE-2026-68497]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6129: Limit the supported URL schemes for `java.nio.file.Path`
+  deserialization [CVE-2026-19032]
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
@@ -324,7 +328,33 @@ Versions: 3.x (for earlier see VERSION-2.x)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 
-3.1.5 (not yet released)
+3.1.6 (not yet released)
+
+#6096: Honor `@JsonView` in `BeanAsArrayDeserializer` update path
+ (fixed by Aysha A-Z)
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
+#6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+  after all entries are filtered
+ (reported by @dlwldnjs1009)
+ (fix by @seonwooj0810)
+#6115: Honor `@JsonIgnoreProperties` before any-setter on more deser paths
+ (fix by Aysha A-Z)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
+#6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
+  and Duration [CVE-2026-68497]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6129: Limit the supported URL schemes for `java.nio.file.Path`
+  deserialization [CVE-2026-19032]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
+  for unspecified values
+ (reported, fixed by DongNyoung L)
+
+3.1.5 (07-Jul-2026)
 
 #6040: Inconsistency in current token on invalid type coercion for `List<String>`
  (reported by João G)
@@ -334,6 +364,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6055: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
+#6058: Do not allow DNS resolution when deserializing `InetAddress`
+ (reported by @thientd)
+ (fix by @pjfanning)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
 
 3.1.4 (29-May-2026)
@@ -357,7 +390,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fixed by Omkhar A)
 #5971: `@JsonView` by-passed for unwrapped creator parameters [CVE-2026-54518]
  (fixed by Omkhar A)
-#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
+#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy` [CVE-2026-59888]
  (fixed by Omkhar A)
 #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
   should validate element type [CVE-2026-54513]

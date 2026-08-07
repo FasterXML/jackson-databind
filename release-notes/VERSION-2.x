@@ -88,7 +88,7 @@ No change since 2.22
 
 #5931: Fix `AtomicLongDeserializer` value truncation on coerced values
  (fixed by Lee Jiwon)
-#5950: Improve `UUIDeserializer` error handling#
+#5950: Improve `UUIDDeserializer` error handling
  (reported by Omkhar A)
 #5951: Improve `InetSocketAddress` deserialization [CVE-2026-54514]
  (reported by Omkhar A)
@@ -226,7 +226,7 @@ No change since 2.22
 #4136: Drop deprecated (in 2.12) `PropertyNamingStrategy` implementations
   from 2.20
 #4218: If `@JacksonInject` is specified for field and deserialized by the Creator,
-  the inject process will be executed twice 
+  the inject process will be executed twice
  (reported by @wrongwrong)
  (fix by Giulio L)
 #4656: `DeserializationProblemHandler.handleUnexpectedToken()` cast Object to String

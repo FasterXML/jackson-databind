@@ -1808,9 +1808,7 @@ inputDesc, _coercedTypeDesc(targetType));
      */
     protected StreamReadConstraints _streamReadConstraints(DeserializationContext ctxt)
     {
-        JsonParser p = ctxt.getParser();
-        StreamReadConstraints rc = (p == null) ? null : p.streamReadConstraints();
-        return (rc == null) ? StreamReadConstraints.defaults() : rc;
+        return ctxt.streamReadConstraints();
     }
 
     /*

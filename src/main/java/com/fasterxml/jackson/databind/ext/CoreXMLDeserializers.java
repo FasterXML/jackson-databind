@@ -115,7 +115,7 @@ public class CoreXMLDeserializers extends Deserializers.Base
                 // isolating individual components we check length of the whole value as a
                 // conservative upper bound: it is never shorter than any single component,
                 // and no valid Duration comes anywhere near the (default 1000) limit.
-                ctxt.getParser().streamReadConstraints().validateIntegerLength(value.length());
+                _validateTimestampLength(null, ctxt, value);
                 return _dataTypeFactory.newDuration(value);
             case TYPE_QNAME:
                 return QName.valueOf(value);
@@ -124,7 +124,7 @@ public class CoreXMLDeserializers extends Deserializers.Base
                 // is checked as a conservative upper bound for numeric components, before
                 // handing value to DatatypeFactory.newXMLGregorianCalendar(), which parses
                 // fractional seconds into a BigDecimal via O(n^2) BigDecimal(String).
-                ctxt.getParser().streamReadConstraints().validateFPLength(value.length());
+                _validateTimestampLength(null, ctxt, value);
                 Date d;
                 try {
                     d = _parseDate(value, ctxt);

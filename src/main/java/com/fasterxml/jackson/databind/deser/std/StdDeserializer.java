@@ -1967,6 +1967,8 @@ inputDesc, _coercedTypeDesc(targetType));
     protected StreamReadConstraints _streamReadConstraints(DeserializationContext ctxt)
     {
         JsonParser p = ctxt.getParser();
+        // 29-Jun-2020, tatu: Should not be null, but let's be defensive
+        //   (also for older code that does not get JsonParser)
         StreamReadConstraints rc = (p == null) ? null : p.streamReadConstraints();
         return (rc == null) ? StreamReadConstraints.defaults() : rc;
     }
@@ -2373,12 +2375,5 @@ handledType().getName());
             n = Integer.valueOf(0);
         }
         return n;
-    }
-
-    // @since 2.19.3: NPE check for older code that doesn't get JsonParser
-    protected StreamReadConstraints _streamReadConstraints(DeserializationContext ctxt) {
-        JsonParser p = ctxt.getParser();
-        // 29-Jun-2020, tatu: Should not be null, but let's be defensive
-        return (p == null) ? StreamReadConstraints.defaults() : p.streamReadConstraints();
     }
 }

@@ -308,6 +308,9 @@ No changes since 3.2
   after all entries are filtered
  (reported by @dlwldnjs1009)
  (fix by @seonwooj0810)
+#6109: Mark built-in JDK 8 handlers (`Optional`, `Stream`) with `@JacksonStdImpl` so
+  optimization modules (Blackbird) can retain optimized handlers
+ (fix by Lee Jiwon)
 #6115: Honor `@JsonIgnoreProperties` before any-setter on more deser paths
  (fix by Aysha A-Z)
 #6116: Reject non-ASCII digits in `InetAddress` literal validation
@@ -341,8 +344,8 @@ No changes since 3.2
 
 3.1.4 (29-May-2026)
 
-#5950: Improve `UUIDeserializer` error handling
- (reported by Omkhar A)
+#5950: Improve `UUIDDeserializer` error handling
+ (reported, fix suggested by Omkhar A)
 #5951: Improve `InetSocketAddress` deserialization [CVE-2026-54514]
  (reported by Omkhar A)
 #5956: Fix problem with float-to-byte range check

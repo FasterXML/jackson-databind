@@ -2089,25 +2089,24 @@ inputDesc, _coercedTypeDesc(targetType));
      * 
      * @since 2.18.10
      */
-    protected void _validateTimestampLength(JsonParser p, DeserializationContext ctxt,
+    protected void _validateTimestampLength(DeserializationContext ctxt,
             String value)
         throws IOException
     {
-        final StreamReadConstraints rc = _streamReadConstraints(p, ctxt);
+        final StreamReadConstraints rc = _streamReadConstraints(ctxt);
         rc.validateIntegerLength(value.length());
     }
 
     /**
      * @since 2.18.10
      */
-    protected StreamReadConstraints _streamReadConstraints(JsonParser p, DeserializationContext ctxt)
+    protected StreamReadConstraints _streamReadConstraints(DeserializationContext ctxt)
     {
-        if (p == null) {
-            p = ctxt.getParser();
-        }
-        StreamReadConstraints rc = p.streamReadConstraints();
+        JsonParser p = ctxt.getParser();
+        StreamReadConstraints rc = (p == null) ? null : p.streamReadConstraints();
         return (rc == null) ? StreamReadConstraints.defaults() : rc;
     }
+
     /*
     /****************************************************
     /* Helper methods for sub-classes, resolving dependencies

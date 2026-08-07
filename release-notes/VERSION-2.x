@@ -40,7 +40,7 @@ Project: jackson-databind
 
 #5931: Fix `AtomicLongDeserializer` value truncation on coerced values
  (fixed by Lee Jiwon)
-#5950: Improve `UUIDeserializer` error handling#
+#5950: Improve `UUIDDeserializer` error handling
  (reported by Omkhar A)
 #5951: Improve `InetSocketAddress` deserialization [CVE-2026-54514]
  (reported by Omkhar A)

@@ -582,3 +582,8 @@ Alex Crowell (@alex-crowell)
  * Reported #1127: `@JsonTypeInfo` with `EXTERNAL_PROPERTY` does not handle
    arrays of polymorphic types
   [3.3.0]
+
+Seonwoo Jung (@seonwooj0810)
+ * Contributed #6144: Fix `withCreatorVisibility(ANY)` to also enable
+   implicit private single-arg scalar delegating constructors
+  [3.3.0]

@@ -888,9 +888,17 @@ public class POJOPropertiesCollector
         Iterator<PotentialCreator> it = ctors.iterator();
         while (it.hasNext()) {
             PotentialCreator ctor = it.next();
-            boolean visible = (ctor.paramCount() == 1)
-                    ? _visibilityChecker.isScalarConstructorVisible(ctor.creator())
-                    : _visibilityChecker.isCreatorVisible(ctor.creator());
+            boolean visible;
+            if (ctor.paramCount() == 1) {
+                // For single-arg constructors, accept if EITHER scalar-constructor
+                // visibility OR general creator visibility is satisfied.
+                // This allows `withCreatorVisibility(Visibility.ANY)` to restore
+                // Jackson 2 behaviour where private scalar constructors were accepted.
+                visible = _visibilityChecker.isScalarConstructorVisible(ctor.creator())
+                        || _visibilityChecker.isCreatorVisible(ctor.creator());
+            } else {
+                visible = _visibilityChecker.isCreatorVisible(ctor.creator());
+            }
             if (!visible) {
                 it.remove();
             }

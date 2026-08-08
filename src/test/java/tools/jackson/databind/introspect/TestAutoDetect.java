@@ -37,6 +37,15 @@ public class TestAutoDetect extends DatabindTestUtil
         private PrivateBeanNonAnnotated(String a) { this.a = a; }
     }
 
+    // [databind#6144]: private long/String delegating ctors with creatorVisibility(ANY)
+    static class PrivateLongDelegating {
+        public long longValue;
+        public String stringValue;
+        public PrivateLongDelegating() {}
+        private PrivateLongDelegating(long v) { this.longValue = v; }
+        private PrivateLongDelegating(String v) { this.stringValue = v; }
+    }
+
     // test for [databind#1347], config overrides for visibility
     @JsonPropertyOrder(alphabetic=true)
     static class Feature1347SerBean {
@@ -144,6 +153,28 @@ public class TestAutoDetect extends DatabindTestUtil
                 .build();
         bean = m.readValue(q("xyz"), PrivateBeanAnnotated.class);
         assertEquals("xyz", bean.a);
+    }
+
+    // [databind#6144]: withCreatorVisibility(ANY) should enable private scalar (long/String)
+    //   delegating constructors, matching Jackson 2 behaviour
+    @Test
+    public void testPrivateLongDelegatingCtorWithCreatorVisibilityAny() throws Exception
+    {
+        // default: both private scalar constructors are not visible
+        assertThrows(JacksonException.class,
+                () -> MAPPER.readValue("2", PrivateLongDelegating.class));
+        assertThrows(JacksonException.class,
+                () -> MAPPER.readValue(q("hi"), PrivateLongDelegating.class));
+
+        // but when creatorVisibility is ANY, private scalar ctors should be accepted
+        ObjectMapper m = jsonMapperBuilder()
+                .changeDefaultVisibility(vc -> vc.withCreatorVisibility(Visibility.ANY))
+                .build();
+        PrivateLongDelegating fromLong = m.readValue("42", PrivateLongDelegating.class);
+        assertEquals(42L, fromLong.longValue);
+
+        PrivateLongDelegating fromString = m.readValue(q("hello"), PrivateLongDelegating.class);
+        assertEquals("hello", fromString.stringValue);
     }
 
     // [databind#1347]

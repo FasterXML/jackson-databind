@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Timeout;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.ObjectMapper;
@@ -671,25 +672,25 @@ public class InstantDeserTest extends DateTimeTestBase
         assertEquals(matcher.group(), "+0100", "Matcher groups +0100 as an colonless offset");
     }
 
-    // [databind#]: StreamReadConstraints should limit numeric string lengths
+    // [databind#6133]: StreamReadConstraints should limit numeric string lengths
     // parsed via _fromString to prevent excessive BigDecimal construction
     @Test
     public void testNumericStringRespectsStreamReadConstraints() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        final int MAX_ALLOWED_LEN = StreamReadConstraints.DEFAULT_MAX_NUM_LEN;
 
         // Normal epoch seconds as integer should work
-        Instant result = mapper.readValue("1234567890", Instant.class);
+        Instant result = MAPPER.readValue("1234567890", Instant.class);
         assertNotNull(result);
 
         // Normal epoch seconds with decimal should work
-        result = mapper.readValue("1234567890.123456789", Instant.class);
+        result = MAPPER.readValue("1234567890.123456789", Instant.class);
         assertNotNull(result);
 
         // A very long integer string (exceeding default 1000-digit limit) should fail
-        String longInt = "1".repeat(1001);
+        String longInt = "1".repeat(MAX_ALLOWED_LEN + 1);
         try {
-            mapper.readValue(longInt, Instant.class);
+            MAPPER.readValue(longInt, Instant.class);
             fail("Should not pass with excessively long integer string");
         } catch (Exception e) {
             verifyException(e, "Number value length");
@@ -697,9 +698,9 @@ public class InstantDeserTest extends DateTimeTestBase
         }
 
         // A very long decimal string (exceeding default 1000-char limit) should fail
-        String longDecimal = "1234." + "9".repeat(1000);
+        String longDecimal = "1234." + "9".repeat(MAX_ALLOWED_LEN);
         try {
-            mapper.readValue(longDecimal, Instant.class);
+            MAPPER.readValue(longDecimal, Instant.class);
             fail("Should not pass with excessively long decimal string");
         } catch (Exception e) {
             verifyException(e, "Number value length");

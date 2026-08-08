@@ -323,6 +323,8 @@ No changes since 3.2
   deserialization [CVE-2026-19032]
  (reported by @waydeshi)
  (fix by @pjfanning)
+#6133: Limit number sizes allowed in `java.time.Instant` deserializer
+ (fix by @pjfanning)
 #6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
   for unspecified values
  (reported, fixed by DongNyoung L)

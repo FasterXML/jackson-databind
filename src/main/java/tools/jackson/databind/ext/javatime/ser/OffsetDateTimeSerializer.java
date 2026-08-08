@@ -61,4 +61,9 @@ public class OffsetDateTimeSerializer extends InstantSerializerBase<OffsetDateTi
         return new OffsetDateTimeSerializer(this, _formatter,
                 _useTimestamp, writeNanoseconds, _shape);
     }
+
+    @Override
+    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter() {
+        return SubSecondFormatters.OFFSET_DATE_TIME;
+    }
 }

@@ -78,7 +78,10 @@ public class ZonedDateTimeSerializer extends InstantSerializerBase<ZonedDateTime
                     value = value.truncatedTo(ChronoUnit.MILLIS);
                 }
                 // write with zone
-                g.writeString(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(value));
+                DateTimeFormatter formatter = ctxt.isEnabled(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS)
+                        ? SubSecondFormatters.ZONED_DATE_TIME
+                        : DateTimeFormatter.ISO_ZONED_DATE_TIME;
+                g.writeString(formatter.format(value));
                 return;
             }
         }
@@ -110,5 +113,10 @@ public class ZonedDateTimeSerializer extends InstantSerializerBase<ZonedDateTime
             return JsonToken.VALUE_STRING;
         }
         return super.serializationShape(ctxt);
+    }
+
+    @Override
+    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter() {
+        return SubSecondFormatters.OFFSET_DATE_TIME;
     }
 }

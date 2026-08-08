@@ -76,11 +76,7 @@ public class LocalDateTimeSerializer extends JSR310FormattedSerializerBase<Local
             _serializeAsArrayContents(value, g, ctxt);
             g.writeEndArray();
         } else {
-            DateTimeFormatter dtf = _formatter;
-            if (dtf == null) {
-                dtf = _defaultFormatter();
-            }
-            g.writeString(value.format(dtf));
+            g.writeString(value.format(_effectiveFormatter(ctxt)));
         }
     }
 
@@ -101,13 +97,27 @@ public class LocalDateTimeSerializer extends JSR310FormattedSerializerBase<Local
                 && typeIdDef.valueShape == JsonToken.START_ARRAY) {
             _serializeAsArrayContents(value, g, ctxt);
         } else {
-            DateTimeFormatter dtf = _formatter;
-            if (dtf == null) {
-                dtf = _defaultFormatter();
-            }
-            g.writeString(value.format(dtf));
+            g.writeString(value.format(_effectiveFormatter(ctxt)));
         }
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
+    }
+
+    /**
+     * Resolves the formatter to use when no numeric-timestamp shape applies: the
+     * explicit per-property {@code _formatter} if set, else the plain default, or --
+     * if {@link DateTimeFeature#ALWAYS_WRITE_SUBSECOND_DIGITS} is enabled -- a
+     * counterpart that always writes sub-second digits.
+     *
+     * @since 3.3
+     */
+    private DateTimeFormatter _effectiveFormatter(SerializationContext ctxt) {
+        if (_formatter != null) {
+            return _formatter;
+        }
+        if (ctxt.isEnabled(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS)) {
+            return SubSecondFormatters.LOCAL_DATE_TIME;
+        }
+        return _defaultFormatter();
     }
 
     private final void _serializeAsArrayContents(LocalDateTime value, JsonGenerator g,

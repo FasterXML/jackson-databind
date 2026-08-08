@@ -134,9 +134,27 @@ public abstract class InstantSerializerBase<T extends Temporal>
         return JsonToken.VALUE_STRING;
     }
 
+    /**
+     * Overridden by subclasses to supply a formatter equivalent to {@link #defaultFormat}
+     * that always writes at least millisecond-precision sub-second digits, for use with
+     * {@link DateTimeFeature#ALWAYS_WRITE_SUBSECOND_DIGITS}. Returning {@code null} (the
+     * default) means the subclass has no such counterpart, and the feature has no effect.
+     *
+     * @since 3.3
+     */
+    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter() {
+        return null;
+    }
+
     protected String formatValue(T value, SerializationContext ctxt)
     {
         DateTimeFormatter formatter = (_formatter == null) ? defaultFormat :_formatter;
+        if ((_formatter == null) && ctxt.isEnabled(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS)) {
+            DateTimeFormatter subSecondFormatter = _alwaysWriteSubSecondDigitsFormatter();
+            if (subSecondFormatter != null) {
+                formatter = subSecondFormatter;
+            }
+        }
         if (formatter != null) {
             if (formatter.getZone() == null) { // timezone set if annotated on property
                 // If the user specified to use the context TimeZone explicitly, and the formatter provided doesn't contain a TZ

@@ -62,4 +62,9 @@ public class InstantSerializer extends InstantSerializerBase<Instant>
         return new InstantSerializer(this, _formatter, _useTimestamp, writeNanoseconds,
                 this._shape);
     }
+
+    @Override
+    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter() {
+        return SubSecondFormatters.INSTANT;
+    }
 }

@@ -166,6 +166,7 @@ public class IgnorePropertiesCreator6145Test extends DatabindTestUtil
                 """,
                 UnwrappedBuilderWrapper.class);
         assertEquals("Bob", result.child.name.first);
+        assertEquals("Smith", result.child.name.last);
         assertNull(result.child.secret);
     }
 }

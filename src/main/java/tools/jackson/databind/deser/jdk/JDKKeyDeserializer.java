@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -49,6 +51,8 @@ public class JDKKeyDeserializer extends KeyDeserializer
     public final static int TYPE_CLASS = 15;
     public final static int TYPE_CURRENCY = 16;
     public final static int TYPE_BYTE_ARRAY = 17; // since 2.9
+    public final static int TYPE_BIG_INTEGER = 18;
+    public final static int TYPE_BIG_DECIMAL = 19;
 
     protected final int _kind;
     protected final Class<?> _keyClass;
@@ -102,6 +106,10 @@ public class JDKKeyDeserializer extends KeyDeserializer
             kind = TYPE_FLOAT;
         } else if (raw == Double.class) {
             kind = TYPE_DOUBLE;
+        } else if (raw == BigInteger.class) {
+            kind = TYPE_BIG_INTEGER;
+        } else if (raw == BigDecimal.class) {
+            kind = TYPE_BIG_DECIMAL;
         } else if (raw == URI.class) {
             kind = TYPE_URI;
         } else if (raw == URL.class) {
@@ -197,6 +205,16 @@ public class JDKKeyDeserializer extends KeyDeserializer
             return Float.valueOf((float) _parseDouble(key));
         case TYPE_DOUBLE:
             return _parseDouble(key);
+        case TYPE_BIG_INTEGER:
+            // Cap length before the O(n^2) `BigInteger(String)` parse: the value-side
+            // deserializer applies `validateIntegerLength(...)`, but the key path would
+            // otherwise be bounded only by the (much larger) max-name-length limit.
+            ctxt.streamReadConstraints().validateIntegerLength(key.length());
+            return new BigInteger(key);
+        case TYPE_BIG_DECIMAL:
+            // Same as `BigInteger` above, for the O(n^2) `BigDecimal(String)` parse.
+            ctxt.streamReadConstraints().validateFPLength(key.length());
+            return new BigDecimal(key);
         case TYPE_LOCALE:
         case TYPE_CURRENCY:
             try {

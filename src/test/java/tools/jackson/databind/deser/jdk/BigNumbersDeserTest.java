@@ -2,12 +2,14 @@ package tools.jackson.databind.deser.jdk;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -101,6 +103,46 @@ public class BigNumbersDeserTest
         assertNotNull(bdw);
     }
 
+    // Number length limits must apply to `BigInteger`/`BigDecimal` used as Map keys,
+    // not just as values: the key path fed strings straight to the O(n^2)
+    // `BigInteger(String)`/`BigDecimal(String)` constructors, bounded only by the far
+    // larger max-name-length limit.
+    @Test
+    public void testBigIntegerAsMapKey() throws Exception
+    {
+        final String json = "{\"" + generateDigits(1200) + "\":\"x\"}";
+        try {
+            MAPPER.readValue(json, new TypeReference<Map<BigInteger, String>>() { });
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "Number value length", "exceeds the maximum allowed");
+        }
+    }
+
+    @Test
+    public void testBigDecimalAsMapKey() throws Exception
+    {
+        final String json = "{\"" + generateDigits(1200) + "\":\"x\"}";
+        try {
+            MAPPER.readValue(json, new TypeReference<Map<BigDecimal, String>>() { });
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "Number value length", "exceeds the maximum allowed");
+        }
+    }
+
+    @Test
+    public void testBigNumberMapKeysWithinLimit() throws Exception
+    {
+        Map<BigInteger, String> mi = MAPPER.readValue("{\"12345678901234567890\":\"a\"}",
+                new TypeReference<Map<BigInteger, String>>() { });
+        assertEquals("a", mi.get(new BigInteger("12345678901234567890")));
+
+        Map<BigDecimal, String> md = MAPPER.readValue("{\"3.14159265358979\":\"b\"}",
+                new TypeReference<Map<BigDecimal, String>>() { });
+        assertEquals("b", md.get(new BigDecimal("3.14159265358979")));
+    }
+
     // [databind#4435]
     @Test
     public void testNumberStartingWithDot() throws Exception {
@@ -122,6 +164,14 @@ public class BigNumbersDeserTest
         BigDecimal exp = new BigDecimal(num);
         BigDecimalWrapper w = MAPPER.readValue("{\"number\":\"" + num + "\"}", BigDecimalWrapper.class);
         assertEquals(exp, w.number);
+    }
+
+    private String generateDigits(final int len) {
+        final StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; i++) {
+            sb.append('1');
+        }
+        return sb.toString();
     }
 
     private String generateJson(final String fieldName) {

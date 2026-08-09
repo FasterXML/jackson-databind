@@ -2,6 +2,7 @@ package tools.jackson.databind.ext;
 
 import java.util.*;
 
+import javax.xml.XMLConstants;
 import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
 
@@ -117,15 +118,42 @@ public class CoreXMLDeserializers
                         localPart.getNodeType());
             }
 
-            JsonNode namespaceURI = tree.get("namespaceURI");
-            if (namespaceURI != null) {
-                if (tree.has("prefix")) {
-                    JsonNode prefix = tree.get("prefix");
-                    return new QName(namespaceURI.asString(), localPart.asString(), prefix.asString());
-                }
-                return new QName(namespaceURI.asString(), localPart.asString());
+            // Both optional properties validated regardless of which ones are defined
+            JsonNode namespaceURI = _optionalStringProperty(ctxt, tree, "namespaceURI");
+            JsonNode prefix = _optionalStringProperty(ctxt, tree, "prefix");
+
+            // Missing 'namespaceURI' same as empty one ("no namespace")
+            final String ns = (namespaceURI == null)
+                    ? XMLConstants.NULL_NS_URI : namespaceURI.asString();
+            if (prefix != null) {
+                return new QName(ns, localPart.asString(), prefix.asString());
             }
-            return new QName(localPart.asString());
+            return new QName(ns, localPart.asString());
+        }
+
+        /**
+         * Helper method for accessing one of optional {@code QName} properties, verifying
+         * that its value (if any) is of type STRING: explicit JSON {@code null} is taken
+         * to mean "not defined", but other non-STRING values are rejected same as for
+         * required 'localPart' (since {@code asString()} would coerce numbers and
+         * booleans into their textual form).
+         *
+         * @return Node for the property if it has usable value; {@code null} if not defined
+         */
+        private JsonNode _optionalStringProperty(DeserializationContext ctxt,
+                JsonNode tree, String propName)
+            throws JacksonException
+        {
+            JsonNode n = tree.get(propName);
+            if ((n == null) || n.isNull()) {
+                return null;
+            }
+            if (!n.isString()) {
+                ctxt.reportInputMismatch(this,
+                        "Object value property '%s' for `QName` must be of type STRING, not %s",
+                        propName, n.getNodeType());
+            }
+            return n;
         }
 
         @Override
@@ -134,10 +162,22 @@ public class CoreXMLDeserializers
         {
             switch (_kind) {
             case TYPE_DURATION:
+                // [databind#6127] DatatypeFactory.newDuration() parses date/time components
+                // into BigIntegers (and fractional seconds into BigDecimal), using the
+                // O(n^2) BigInteger(String)/BigDecimal(String) constructors. Rather than
+                // isolating individual components we check length of the whole value as a
+                // conservative upper bound: it is never shorter than any single component,
+                // and no valid Duration comes anywhere near the (default 1000) limit.
+                _validateTimestampLength(ctxt, value);
                 return _dataTypeFactory.newDuration(value);
             case TYPE_QNAME:
                 return QName.valueOf(value);
             case TYPE_G_CALENDAR:
+                // [databind#6127] Similar to TYPE_DURATION above: length of the whole value
+                // is checked as a conservative upper bound for numeric components, before
+                // handing value to DatatypeFactory.newXMLGregorianCalendar(), which parses
+                // fractional seconds into a BigDecimal via O(n^2) BigDecimal(String).
+                _validateTimestampLength(ctxt, value);
                 Date d;
                 try {
                     d = _parseDate(value, ctxt);

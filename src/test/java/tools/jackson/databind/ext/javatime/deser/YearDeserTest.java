@@ -24,7 +24,11 @@ import java.util.Objects;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.StreamReadCapability;
 import tools.jackson.core.type.TypeReference;
+import tools.jackson.core.util.JacksonFeatureSet;
+import tools.jackson.core.util.JsonParserDelegate;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
@@ -237,6 +241,51 @@ public class YearDeserTest extends DateTimeTestBase
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "not allowed because 'strict' mode set for");
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for "Timestamp as String" (for XML, CSV, Properties)
+    /**********************************************************
+     */
+
+    // Formats with "untyped" scalars (XML, CSV, Properties) may pass timestamps
+    // as Strings; those are decoded as numbers and not via textual parsing
+    @Test
+    public void untypedScalarTimestampAsString() throws Exception
+    {
+        // NOTE: "12345" would NOT pass textual parsing (needs '+' prefix for
+        // more than 4 digits), so this verifies the numeric path is taken
+        assertEquals(Year.of(12345), _readUntypedScalar(q("12345")));
+    }
+
+    // But value that does not fit in `int` must be reported as regular Jackson
+    // exception, not as `NumberFormatException`
+    @Test
+    public void untypedScalarTimestampTooBig() throws Exception
+    {
+        try {
+            _readUntypedScalar(q("12345678901"));
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "java.time.Year");
+            verifyException(e, "12345678901");
+        }
+    }
+
+    private Year _readUntypedScalar(String doc) throws Exception {
+        try (JsonParser p = new UntypedScalarParser(MAPPER.createParser(doc))) {
+            return MAPPER.readValue(p, Year.class);
+        }
+    }
+
+    static class UntypedScalarParser extends JsonParserDelegate {
+        public UntypedScalarParser(JsonParser d) { super(d); }
+
+        @Override
+        public JacksonFeatureSet<StreamReadCapability> streamReadCapabilities() {
+            return super.streamReadCapabilities().with(StreamReadCapability.UNTYPED_SCALARS);
         }
     }
 

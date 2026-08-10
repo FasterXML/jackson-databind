@@ -1,6 +1,7 @@
 package tools.jackson.databind.deser;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -193,7 +194,15 @@ public abstract class SettableAnyProperty
         throw new UnsupportedOperationException("Cannot call createParameterObject() on " + getClass().getName());
     }
 
-    public void finish(DeserializationContext ctxt, Object instance) throws JacksonException { }
+    /**
+     * Method called after all entries have been assigned through this any-setter.
+     * Default implementation does nothing; map-method any-setters override it to
+     * invoke the annotated method with the collected entries.
+     *
+     * @since 3.3
+     */
+    public void finishAnySetter(DeserializationContext ctxt, Object instance)
+        throws JacksonException { }
 
     /*
     /**********************************************************************
@@ -432,24 +441,37 @@ public abstract class SettableAnyProperty
         protected void _set(DeserializationContext ctxt, Object instance, Object propName, Object value)
             throws Exception
         {
-            MapMethodKey key = new MapMethodKey(this, instance);
-            Map<Object,Object> map = (Map<Object,Object>) ctxt.getAttribute(key);
+            IdentityHashMap<Object, Map<Object,Object>> maps =
+                    (IdentityHashMap<Object, Map<Object,Object>>) ctxt.getAttribute(this);
+            if (maps == null) {
+                maps = new IdentityHashMap<>();
+                ctxt.setAttribute(this, maps);
+            }
+            Map<Object,Object> map = maps.get(instance);
             if (map == null) {
                 map = _createMap(ctxt);
-                ctxt.setAttribute(key, map);
+                maps.put(instance, map);
             }
             map.put(propName, value);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
-        public void finish(DeserializationContext ctxt, Object instance) throws JacksonException
+        public void finishAnySetter(DeserializationContext ctxt, Object instance)
+            throws JacksonException
         {
-            MapMethodKey key = new MapMethodKey(this, instance);
-            Object map = ctxt.getAttribute(key);
+            IdentityHashMap<Object, Map<Object,Object>> maps =
+                    (IdentityHashMap<Object, Map<Object,Object>>) ctxt.getAttribute(this);
+            if (maps == null) {
+                return;
+            }
+            Map<Object,Object> map = maps.remove(instance);
             if (map == null) {
                 return;
             }
-            ctxt.setAttribute(key, null);
+            if (maps.isEmpty()) {
+                ctxt.setAttribute(this, null);
+            }
             try {
                 ((AnnotatedMethod) _setter).callOnWith(instance, map);
             } catch (JacksonException e) {
@@ -467,33 +489,6 @@ public abstract class SettableAnyProperty
                         ClassUtil.nameOf(_type.getRawClass()), _property.getName()));
             }
             return (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
-        }
-    }
-
-    protected static class MapMethodKey
-    {
-        protected final SettableAnyProperty _property;
-        protected final Object _instance;
-        protected final int _hashCode;
-
-        public MapMethodKey(SettableAnyProperty property, Object instance) {
-            _property = property;
-            _instance = instance;
-            _hashCode = System.identityHashCode(property) ^ System.identityHashCode(instance);
-        }
-
-        @Override
-        public int hashCode() { return _hashCode; }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == this) {
-                return true;
-            }
-            if (!(o instanceof MapMethodKey other)) {
-                return false;
-            }
-            return (other._property == _property) && (other._instance == _instance);
         }
     }
 

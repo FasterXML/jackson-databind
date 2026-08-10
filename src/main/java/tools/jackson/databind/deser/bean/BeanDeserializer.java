@@ -609,7 +609,7 @@ public class BeanDeserializer
         throws JacksonException
     {
         if (_anySetter != null) {
-            _anySetter.finish(ctxt, bean);
+            _anySetter.finishAnySetter(ctxt, bean);
         }
         return bean;
     }

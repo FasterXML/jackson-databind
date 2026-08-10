@@ -482,7 +482,7 @@ public class BuilderSimpleTest
     }
 
     @Test
-    public void testWithAnySetterMapMethod() throws Exception
+    public void testWithAnySetterMapMethod4889() throws Exception
     {
         final String json = "{\"extra\":3,\"foobar\":[ ],\"x\":1,\"name\":\"bob\"}";
         ValueClassAnySetterMapMethod value = MAPPER.readValue(json,

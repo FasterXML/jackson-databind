@@ -37,7 +37,14 @@ public abstract class PropertyValue
      */
     public abstract void assign(DeserializationContext ctxt, Object bean) throws JacksonException;
 
-    public void finish(DeserializationContext ctxt, Object bean) throws JacksonException { }
+    /**
+     * Method called after buffered property values have been assigned, to complete
+     * any deferred any-setter processing.
+     *
+     * @since 3.3
+     */
+    public void finishAnySetter(DeserializationContext ctxt, Object bean)
+        throws JacksonException { }
 
     /**
      * Method called to assign stored value of this property to specified
@@ -106,9 +113,10 @@ public abstract class PropertyValue
         }
 
         @Override
-        public void finish(DeserializationContext ctxt, Object bean) throws JacksonException
+        public void finishAnySetter(DeserializationContext ctxt, Object bean)
+            throws JacksonException
         {
-            _property.finish(ctxt, bean);
+            _property.finishAnySetter(ctxt, bean);
         }
     }
 

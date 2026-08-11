@@ -408,3 +408,8 @@ DongNyoung Lee (@Dongnyoung)
  * Fixed #6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
    for unspecified values
   [3.1.6]
+
+@prvazsahnazarov
+ * Reported #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic
+   base types
+  [3.1.6]

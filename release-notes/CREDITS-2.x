@@ -1928,3 +1928,8 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Reported #6129: Limit the supported URL schemes for `java.nio.file.Path`
    deserialization
   (2.18.10)
+
+@prvazsahnazarov
+ * Reported #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic
+   base types
+  (2.18.10)

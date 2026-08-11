@@ -37,7 +37,7 @@ public class AnnotatedPolymorphicValidationTest
         protected WrappedPolymorphicUntypedSer() { }
     }
 
-    // [GHSA-gx83-3vf8-gh7j]
+    // [databind#6156]
     static class WrappedPolymorphicComparable {
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS)
         public Comparable<?> value;
@@ -66,7 +66,7 @@ public class AnnotatedPolymorphicValidationTest
         }
     }
 
-    // [GHSA-gx83-3vf8-gh7j]
+    // [databind#6156]
     static class ComparablesAreOkValidator extends DefaultBaseTypeLimitingValidator
     {
         private static final long serialVersionUID = 1L;
@@ -126,7 +126,7 @@ public class AnnotatedPolymorphicValidationTest
         }
     }
 
-    // [GHSA-gx83-3vf8-gh7j]: `Comparable` is too wide a base type to allow
+    // [databind#6156]: `Comparable` is too wide a base type to allow
     @Test
     public void testPolymorphicWithComparableBaseType() throws IOException
     {

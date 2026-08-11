@@ -605,14 +605,11 @@ seonwoo_jung (@seonwooj0810)
  * Fixed #6065: `SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS` does not fully
    remove empty collection during serialization
   [3.2.1]
- * Contributed [modules-java8#76]: Add `DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS`
-   to always write millisecond+ sub-second digits when serializing `Instant`,
-   `OffsetDateTime`, `ZonedDateTime` and `LocalDateTime` (ported from the 2.x
-   `JavaTimeFeature` of the same name, modules-java8#386)
-  [3.3.0]
  * Fixed #6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
    after all entries are filtered
   [3.2.2]
+ * Contributed #6151: Add `DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS`
+  [3.3.0]
 
 @doeiqts
  * Reported #6065: `SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS` does not fully

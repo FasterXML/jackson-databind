@@ -64,7 +64,9 @@ public class InstantSerializer extends InstantSerializerBase<Instant>
     }
 
     @Override
-    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter() {
-        return SubSecondFormatters.INSTANT;
+    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter(DateTimeFormatter defaultFormat) {
+        // Standard default for `Instant` is `null` (meaning `Instant.toString()`);
+        // anything else is caller-provided and must be left alone
+        return (defaultFormat == null) ? SubSecondFormatters.INSTANT : null;
     }
 }

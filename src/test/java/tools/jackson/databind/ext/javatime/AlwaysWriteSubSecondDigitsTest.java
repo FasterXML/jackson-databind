@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.ext.javatime.ser.ZonedDateTimeSerializer;
+import tools.jackson.databind.module.SimpleModule;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -129,6 +132,20 @@ public class AlwaysWriteSubSecondDigitsTest extends DateTimeTestBase
     {
         assertEquals(a2q("{'value':'2017-09-14T04:28:48'}"),
                 MAPPER.writeValueAsString(new Wrapper(OffsetDateTime.parse("2017-09-14T04:28:48Z"))));
+    }
+
+    // ... nor a default formatter passed to the serializer by the caller
+    @Test
+    public void testCallerProvidedDefaultFormatterWins() throws Exception
+    {
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy_MM_dd'X'HH:mm:ss");
+        ObjectMapper mapper = newMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addSerializer(new ZonedDateTimeSerializer(df)))
+                .enable(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS)
+                .build();
+        assertEquals(q("2017_09_14X04:28:48"), mapper.writeValueAsString(
+                ZonedDateTime.parse("2017-09-14T04:28:48+02:00[Europe/Budapest]")));
     }
 
     // Values written with the feature on must still be readable

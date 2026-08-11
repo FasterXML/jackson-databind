@@ -135,14 +135,22 @@ public abstract class InstantSerializerBase<T extends Temporal>
     }
 
     /**
-     * Overridden by subclasses to supply a formatter equivalent to {@link #defaultFormat}
-     * that always writes at least millisecond-precision sub-second digits, for use with
-     * {@link DateTimeFeature#ALWAYS_WRITE_SUBSECOND_DIGITS}. Returning {@code null} (the
-     * default) means the subclass has no such counterpart, and the feature has no effect.
+     * Overridden by subclasses to supply a formatter equivalent to the standard
+     * built-in default that always writes at least millisecond-precision sub-second
+     * digits, for use with {@link DateTimeFeature#ALWAYS_WRITE_SUBSECOND_DIGITS}.
+     *<p>
+     * Implementations MUST return {@code null} unless given {@code defaultFormat} is
+     * the standard built-in default of the subclass: some subclasses (notably
+     * {@link ZonedDateTimeSerializer}) allow caller-provided default formatters, and
+     * those must not be overridden by the feature. Returning {@code null} (which the
+     * base implementation always does) means the feature has no effect.
+     *
+     * @param defaultFormat Default formatter that would be used if the feature was
+     *   not enabled (possibly {@code null})
      *
      * @since 3.3
      */
-    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter() {
+    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter(DateTimeFormatter defaultFormat) {
         return null;
     }
 
@@ -150,7 +158,7 @@ public abstract class InstantSerializerBase<T extends Temporal>
     {
         DateTimeFormatter formatter = (_formatter == null) ? defaultFormat :_formatter;
         if ((_formatter == null) && ctxt.isEnabled(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS)) {
-            DateTimeFormatter subSecondFormatter = _alwaysWriteSubSecondDigitsFormatter();
+            DateTimeFormatter subSecondFormatter = _alwaysWriteSubSecondDigitsFormatter(defaultFormat);
             if (subSecondFormatter != null) {
                 formatter = subSecondFormatter;
             }

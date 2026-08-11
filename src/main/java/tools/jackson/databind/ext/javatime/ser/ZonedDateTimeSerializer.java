@@ -77,10 +77,13 @@ public class ZonedDateTimeSerializer extends InstantSerializerBase<ZonedDateTime
                 if (ctxt.isEnabled(DateTimeFeature.TRUNCATE_TO_MSECS_ON_WRITE)) {
                     value = value.truncatedTo(ChronoUnit.MILLIS);
                 }
-                // write with zone
-                DateTimeFormatter formatter = ctxt.isEnabled(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS)
-                        ? SubSecondFormatters.ZONED_DATE_TIME
-                        : DateTimeFormatter.ISO_ZONED_DATE_TIME;
+                // write with zone: sub-second variant only if caller has not provided
+                // its own default format, in which case feature must not change output
+                DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+                if (ctxt.isEnabled(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS)
+                        && (_defaultFormat() == DateTimeFormatter.ISO_OFFSET_DATE_TIME)) {
+                    formatter = SubSecondFormatters.ZONED_DATE_TIME;
+                }
                 g.writeString(formatter.format(value));
                 return;
             }

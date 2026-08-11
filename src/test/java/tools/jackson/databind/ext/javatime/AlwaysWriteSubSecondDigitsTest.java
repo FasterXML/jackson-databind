@@ -151,6 +151,30 @@ public class AlwaysWriteSubSecondDigitsTest extends DateTimeTestBase
                 ZonedDateTime.parse("2017-09-14T04:28:48+02:00[Europe/Budapest]")));
     }
 
+    // ... including on the separate "write with Zone Id" path, where feature must
+    // stay inert (even though that path does not use the caller's format either)
+    @Test
+    public void testCallerProvidedDefaultFormatterWithZoneId() throws Exception
+    {
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy_MM_dd'X'HH:mm:ss");
+        ZonedDateTime value = ZonedDateTime.parse("2017-09-14T04:28:48+02:00[Europe/Budapest]");
+        ObjectMapper mapper = newMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addSerializer(new ZonedDateTimeSerializer(df)))
+                .enable(DateTimeFeature.WRITE_DATES_WITH_ZONE_ID)
+                .enable(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS)
+                .build();
+        ObjectMapper defaultMapper = newMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addSerializer(new ZonedDateTimeSerializer(df)))
+                .enable(DateTimeFeature.WRITE_DATES_WITH_ZONE_ID)
+                .build();
+        assertEquals(defaultMapper.writeValueAsString(value),
+                mapper.writeValueAsString(value));
+        assertEquals(q("2017-09-14T04:28:48+02:00[Europe/Budapest]"),
+                mapper.writeValueAsString(value));
+    }
+
     // Map keys are written by separate key serializers, not affected by the feature
     @Test
     public void testMapKeysUnaffected() throws Exception

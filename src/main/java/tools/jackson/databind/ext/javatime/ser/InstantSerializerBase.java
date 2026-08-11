@@ -135,6 +135,20 @@ public abstract class InstantSerializerBase<T extends Temporal>
     }
 
     /**
+     * Accessor for the default formatter this serializer was constructed with: used
+     * when no explicit {@link #_formatter} is defined. May be {@code null} (meaning
+     * default {@code toString()} handling), and may be caller-provided (see
+     * {@link ZonedDateTimeSerializer#ZonedDateTimeSerializer(DateTimeFormatter)}),
+     * in which case it must not be overridden by settings like
+     * {@link DateTimeFeature#ALWAYS_WRITE_SUBSECOND_DIGITS}.
+     *
+     * @since 3.3
+     */
+    protected DateTimeFormatter _defaultFormat() {
+        return defaultFormat;
+    }
+
+    /**
      * Overridden by subclasses to supply a formatter equivalent to the standard
      * built-in default that always writes at least millisecond-precision sub-second
      * digits, for use with {@link DateTimeFeature#ALWAYS_WRITE_SUBSECOND_DIGITS}.

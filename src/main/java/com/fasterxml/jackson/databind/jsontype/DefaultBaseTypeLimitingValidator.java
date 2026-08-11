@@ -63,6 +63,7 @@ public class DefaultBaseTypeLimitingValidator
      *  <li>{@link java.lang.AutoCloseable}</li>
      *  <li>{@link java.lang.Cloneable}</li>
      *  <li>{@link java.lang.Comparable} (2.18.10+)</li>
+     *  <li>{@link java.lang.Runnable} (2.19.0+)</li>
      *  <li>{@link java.util.logging.Handler}</li>
      *  <li>{@link javax.naming.Referenceable}</li>
      *  <li>{@link javax.sql.DataSource}</li>

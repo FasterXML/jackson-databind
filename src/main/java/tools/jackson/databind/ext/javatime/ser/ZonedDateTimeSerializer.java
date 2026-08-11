@@ -116,7 +116,8 @@ public class ZonedDateTimeSerializer extends InstantSerializerBase<ZonedDateTime
     }
 
     @Override
-    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter(DateTimeFormatter defaultFormat) {
+    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter(ZonedDateTime value,
+            DateTimeFormatter defaultFormat) {
         // 10-Aug-2026, tatu: Caller may pass its own default formatter (see
         //    `ZonedDateTimeSerializer(DateTimeFormatter)`); if so, must not override it
         return (defaultFormat == DateTimeFormatter.ISO_OFFSET_DATE_TIME)

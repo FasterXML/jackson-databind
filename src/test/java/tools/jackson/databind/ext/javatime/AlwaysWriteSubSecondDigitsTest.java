@@ -1,8 +1,10 @@
 package tools.jackson.databind.ext.javatime;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -146,6 +148,29 @@ public class AlwaysWriteSubSecondDigitsTest extends DateTimeTestBase
                 .build();
         assertEquals(q("2017_09_14X04:28:48"), mapper.writeValueAsString(
                 ZonedDateTime.parse("2017-09-14T04:28:48+02:00[Europe/Budapest]")));
+    }
+
+    // Extremes of `Instant` range fall outside `LocalDate` range and cannot be
+    // written using Date/Time fields: must retain default handling, not fail
+    @Test
+    public void testInstantExtremes() throws Exception
+    {
+        assertEquals(q("-1000000000-01-01T00:00:00Z"),
+                MAPPER.writeValueAsString(Instant.MIN));
+        assertEquals(DEFAULT_MAPPER.writeValueAsString(Instant.MIN),
+                MAPPER.writeValueAsString(Instant.MIN));
+        assertEquals(q("+1000000000-12-31T23:59:59.999999999Z"),
+                MAPPER.writeValueAsString(Instant.MAX));
+        assertEquals(DEFAULT_MAPPER.writeValueAsString(Instant.MAX),
+                MAPPER.writeValueAsString(Instant.MAX));
+
+        // But values just inside `LocalDate` range are still padded as usual
+        Instant maxLocal = LocalDate.MAX.atStartOfDay().toInstant(ZoneOffset.UTC);
+        assertEquals(q("+999999999-12-31T00:00:00.000Z"),
+                MAPPER.writeValueAsString(maxLocal));
+        Instant minLocal = LocalDate.MIN.atStartOfDay().toInstant(ZoneOffset.UTC);
+        assertEquals(q("-999999999-01-01T00:00:00.000Z"),
+                MAPPER.writeValueAsString(minLocal));
     }
 
     // Values written with the feature on must still be readable

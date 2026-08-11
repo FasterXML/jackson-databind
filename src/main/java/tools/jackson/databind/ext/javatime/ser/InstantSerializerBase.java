@@ -142,15 +142,19 @@ public abstract class InstantSerializerBase<T extends Temporal>
      * Implementations MUST return {@code null} unless given {@code defaultFormat} is
      * the standard built-in default of the subclass: some subclasses (notably
      * {@link ZonedDateTimeSerializer}) allow caller-provided default formatters, and
-     * those must not be overridden by the feature. Returning {@code null} (which the
-     * base implementation always does) means the feature has no effect.
+     * those must not be overridden by the feature. Implementations should also return
+     * {@code null} for values the replacement cannot express, so that default handling
+     * is retained instead of failing. Returning {@code null} (which the base
+     * implementation always does) means the feature has no effect.
      *
+     * @param value Value being serialized
      * @param defaultFormat Default formatter that would be used if the feature was
      *   not enabled (possibly {@code null})
      *
      * @since 3.3
      */
-    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter(DateTimeFormatter defaultFormat) {
+    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter(T value,
+            DateTimeFormatter defaultFormat) {
         return null;
     }
 
@@ -158,7 +162,7 @@ public abstract class InstantSerializerBase<T extends Temporal>
     {
         DateTimeFormatter formatter = (_formatter == null) ? defaultFormat :_formatter;
         if ((_formatter == null) && ctxt.isEnabled(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS)) {
-            DateTimeFormatter subSecondFormatter = _alwaysWriteSubSecondDigitsFormatter(defaultFormat);
+            DateTimeFormatter subSecondFormatter = _alwaysWriteSubSecondDigitsFormatter(value, defaultFormat);
             if (subSecondFormatter != null) {
                 formatter = subSecondFormatter;
             }

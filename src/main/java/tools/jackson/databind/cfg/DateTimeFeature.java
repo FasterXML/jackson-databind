@@ -69,6 +69,11 @@ public enum DateTimeFeature implements DatatypeFeature
      * a {@link com.fasterxml.jackson.annotation.JsonFormat} pattern takes precedence,
      * as does writing values as numeric timestamps.
      *<p>
+     * Note, too, that the very extremes of the {@link java.time.Instant} range
+     * (notably {@link java.time.Instant#MIN} and {@link java.time.Instant#MAX}, which
+     * fall outside the range of {@link java.time.LocalDate}) cannot be written with
+     * Date/Time fields at all, and retain default handling regardless of this setting.
+     *<p>
      * Default setting is disabled, for backwards compatibility.
      *
      * @since 3.3

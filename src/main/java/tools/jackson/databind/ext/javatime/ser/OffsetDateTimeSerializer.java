@@ -63,7 +63,8 @@ public class OffsetDateTimeSerializer extends InstantSerializerBase<OffsetDateTi
     }
 
     @Override
-    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter(DateTimeFormatter defaultFormat) {
+    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter(OffsetDateTime value,
+            DateTimeFormatter defaultFormat) {
         return (defaultFormat == DateTimeFormatter.ISO_OFFSET_DATE_TIME)
                 ? SubSecondFormatters.OFFSET_DATE_TIME : null;
     }

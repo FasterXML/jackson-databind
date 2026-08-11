@@ -18,6 +18,7 @@ package tools.jackson.databind.ext.javatime.ser;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -30,6 +31,12 @@ import java.time.format.DateTimeFormatter;
 public class InstantSerializer extends InstantSerializerBase<Instant>
 {
     public static final InstantSerializer INSTANCE = new InstantSerializer();
+
+    private final static long SECONDS_PER_DAY = 86400L;
+
+    private final static long MIN_EPOCH_DAY = LocalDate.MIN.toEpochDay();
+
+    private final static long MAX_EPOCH_DAY = LocalDate.MAX.toEpochDay();
 
     protected InstantSerializer() {
         super(Instant.class, Instant::toEpochMilli, Instant::getEpochSecond, Instant::getNano,
@@ -64,9 +71,21 @@ public class InstantSerializer extends InstantSerializerBase<Instant>
     }
 
     @Override
-    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter(DateTimeFormatter defaultFormat) {
+    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter(Instant value,
+            DateTimeFormatter defaultFormat) {
         // Standard default for `Instant` is `null` (meaning `Instant.toString()`);
         // anything else is caller-provided and must be left alone
-        return (defaultFormat == null) ? SubSecondFormatters.INSTANT : null;
+        if (defaultFormat != null) {
+            return null;
+        }
+        // Replacement formatter is Date/Time-field-based, so value must be convertible
+        // into `LocalDate`; `Instant` range is wider than that (by less than a year on
+        // both ends, but that includes `Instant.MIN` and `Instant.MAX`). For such
+        // extreme values retain default `Instant.toString()` handling instead of failing
+        final long epochDay = Math.floorDiv(value.getEpochSecond(), SECONDS_PER_DAY);
+        if ((epochDay < MIN_EPOCH_DAY) || (epochDay > MAX_EPOCH_DAY)) {
+            return null;
+        }
+        return SubSecondFormatters.INSTANT;
     }
 }

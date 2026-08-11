@@ -11,6 +11,7 @@ import tools.jackson.databind.deser.bean.BeanDeserializer;
 import tools.jackson.databind.deser.bean.BeanPropertyMap;
 import tools.jackson.databind.deser.bean.PropertyBasedCreator;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
+import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
 
 /**
@@ -185,9 +186,10 @@ public class ThrowableDeserializer
                 continue;
             }
 
-            // Things marked as ignorable should not be passed to any setter
-            if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
-                p.skipChildren();
+            // Things marked as ignorable (or not in the "include" allow-list) should
+            // not be passed to any setter
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
             if (PROP_NAME_SUPPRESSED.equalsIgnoreCase(propName)) { // or "suppressed"?

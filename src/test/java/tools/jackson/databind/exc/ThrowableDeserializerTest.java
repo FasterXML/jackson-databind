@@ -60,6 +60,17 @@ public class ThrowableDeserializerTest extends DatabindTestUtil
         public AnySetterException(String msg) { super(msg); }
     }
 
+    // Exception combining @JsonIncludeProperties allow-list with @JsonAnySetter
+    @JsonIncludeProperties({"message"})
+    @SuppressWarnings("serial")
+    static class IncludePropsAnySetterException extends Exception {
+        @JsonAnySetter
+        public Map<String, Object> extra = new LinkedHashMap<>();
+
+        public IncludePropsAnySetterException() { super(); }
+        public IncludePropsAnySetterException(String msg) { super(msg); }
+    }
+
     // Exception with @JsonCreator, @JsonAnySetter and extra props
     @SuppressWarnings("serial")
     static class MyException extends Exception
@@ -411,6 +422,20 @@ public class ThrowableDeserializerTest extends DatabindTestUtil
         assertNotNull(result);
         assertNull(result.getMessage());
         assertTrue(result.extra.containsKey("unknownProp"));
+    }
+
+    @Test
+    public void includePropertiesHonoredWithAnySetter() throws Exception
+    {
+        // a property outside the @JsonIncludeProperties allow-list must not be
+        // routed to the any-setter
+        String json = """
+                {"message":"the msg","secret":"leaked","admin":true}""";
+        IncludePropsAnySetterException result = MAPPER.readValue(json, IncludePropsAnySetterException.class);
+        assertNotNull(result);
+        assertEquals("the msg", result.getMessage());
+        assertTrue(result.extra.isEmpty(),
+                "non-included properties leaked into any-setter: " + result.extra.keySet());
     }
 
     /*

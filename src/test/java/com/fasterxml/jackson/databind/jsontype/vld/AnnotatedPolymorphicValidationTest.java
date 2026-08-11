@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.DefaultBaseTypeLimitingValidator;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
@@ -80,6 +81,18 @@ public class AnnotatedPolymorphicValidationTest
             }
             return super.isUnsafeBaseType(config, baseType);
         }
+
+        @Override
+        protected boolean isSafeSubType(MapperConfig<?> config,
+                JavaType baseType, JavaType subType)
+        {
+            // ... but only allow a small set of known-safe subtypes: relaxing the
+            // base type check alone would leave all "gadget" types accessible
+            if (baseType.hasRawClass(Comparable.class)) {
+                return subType.hasRawClass(java.io.File.class);
+            }
+            return super.isSafeSubType(config, baseType, subType);
+        }
     }
 
     /*
@@ -149,5 +162,15 @@ public class AnnotatedPolymorphicValidationTest
         WrappedPolymorphicComparable w = customMapper.readValue(JSON,
                 WrappedPolymorphicComparable.class);
         assertEquals(new java.io.File("/tmp/stuff"), w.value);
+
+        // ... but that validator still only allows the subtypes it knows to be safe
+        try {
+            customMapper.readValue(a2q("{'value':['java.lang.String','stuff']}"),
+                    WrappedPolymorphicComparable.class);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "Could not resolve type id 'java.lang.String'");
+            verifyException(e, "denied resolution");
+        }
     }
 }

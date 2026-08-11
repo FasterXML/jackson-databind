@@ -37,6 +37,14 @@ public class AnnotatedPolymorphicValidationTest
         protected WrappedPolymorphicUntypedSer() { }
     }
 
+    // [GHSA-gx83-3vf8-gh7j]
+    static class WrappedPolymorphicComparable {
+        @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS)
+        public Comparable<?> value;
+
+        protected WrappedPolymorphicComparable() { }
+    }
+
     static class NumbersAreOkValidator extends DefaultBaseTypeLimitingValidator
     {
         private static final long serialVersionUID = 1L;
@@ -55,6 +63,22 @@ public class AnnotatedPolymorphicValidationTest
         protected boolean isSafeSubType(MapperConfig<?> config,
                 JavaType baseType, JavaType subType) {
             return baseType.isTypeOrSubTypeOf(Number.class);
+        }
+    }
+
+    // [GHSA-gx83-3vf8-gh7j]
+    static class ComparablesAreOkValidator extends DefaultBaseTypeLimitingValidator
+    {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected boolean isUnsafeBaseType(MapperConfig<?> config, JavaType baseType)
+        {
+            // only override handling for `Comparable`
+            if (baseType.hasRawClass(Comparable.class)) {
+                return false;
+            }
+            return super.isUnsafeBaseType(config, baseType);
         }
     }
 
@@ -100,5 +124,30 @@ public class AnnotatedPolymorphicValidationTest
             verifyException(e, "all subtypes of base type");
             verifyException(e, "java.io.Serializable");
         }
+    }
+
+    // [GHSA-gx83-3vf8-gh7j]: `Comparable` is too wide a base type to allow
+    @Test
+    public void testPolymorphicWithComparableBaseType() throws IOException
+    {
+        final String JSON = a2q("{'value':['java.io.File','/tmp/stuff']}");
+
+        try {
+            /*w =*/ MAPPER.readValue(JSON, WrappedPolymorphicComparable.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "Configured");
+            verifyException(e, "all subtypes of base type");
+            verifyException(e, "java.lang.Comparable");
+        }
+
+        // but may be allowed with custom validator that overrides base type check
+        ObjectMapper customMapper = JsonMapper.builder()
+                .enable(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
+                .polymorphicTypeValidator(new ComparablesAreOkValidator())
+                .build();
+        WrappedPolymorphicComparable w = customMapper.readValue(JSON,
+                WrappedPolymorphicComparable.class);
+        assertEquals(new java.io.File("/tmp/stuff"), w.value);
     }
 }

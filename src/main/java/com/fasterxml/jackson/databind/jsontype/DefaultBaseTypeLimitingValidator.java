@@ -62,6 +62,7 @@ public class DefaultBaseTypeLimitingValidator
      *  <li>{@link java.io.Serializable}</li>
      *  <li>{@link java.lang.AutoCloseable}</li>
      *  <li>{@link java.lang.Cloneable}</li>
+     *  <li>{@link java.lang.Comparable}</li>
      *  <li>{@link java.util.logging.Handler}</li>
      *  <li>{@link javax.naming.Referenceable}</li>
      *  <li>{@link javax.sql.DataSource}</li>
@@ -103,6 +104,10 @@ public class DefaultBaseTypeLimitingValidator
             UNSAFE.add(java.io.Serializable.class.getName());
             UNSAFE.add(AutoCloseable.class.getName());
             UNSAFE.add(Cloneable.class.getName());
+            // 10-Aug-2026, tatu: [GHSA-gx83-3vf8-gh7j] "Comparable" is implemented
+            //    by a very wide range of JDK and application types, similar to
+            //    "Serializable", so block it as base type as well
+            UNSAFE.add(Comparable.class.getName());
 
             // and then couple others typically included in JDK, but that we
             // prefer not adding direct reference to

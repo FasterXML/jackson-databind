@@ -37,6 +37,9 @@ No changes since 3.2
 #6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
   for unspecified values
  (reported, fixed by DongNyoung L)
+#6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
+  [GHSA-gx83-3vf8-gh7j]
+ (reported by @prvazsahnazarov)
 
 3.2.1 (10-Jul-2026)
 
@@ -328,6 +331,9 @@ No changes since 3.2
 #6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
   for unspecified values
  (reported, fixed by DongNyoung L)
+#6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
+  [GHSA-gx83-3vf8-gh7j]
+ (reported by @prvazsahnazarov)
 
 3.1.5 (07-Jul-2026)
 

@@ -68,22 +68,20 @@ public class ZonedDateTimeSerializer extends InstantSerializerBase<ZonedDateTime
         throws JacksonException
     {
         if (!useTimestamp(ctxt)) {
-            // [modules-java8#333]: `@JsonFormat` with pattern should override
-            //   `SerializationFeature.WRITE_DATES_WITH_ZONE_ID`
-            if ((_formatter != null) && (_shape == JsonFormat.Shape.STRING)) {
+            // [modules-java8#333], [databind#6151]: explicitly configured format should
+            //   override `DateTimeFeature.WRITE_DATES_WITH_ZONE_ID`
+            if (_hasExplicitFormat()) {
                 ; // use default handling
             } else if (shouldWriteWithZoneId(ctxt)) {
                 // Apply millisecond truncation if enabled
                 if (ctxt.isEnabled(DateTimeFeature.TRUNCATE_TO_MSECS_ON_WRITE)) {
                     value = value.truncatedTo(ChronoUnit.MILLIS);
                 }
-                // write with zone: sub-second variant only if caller has not provided
-                // its own default format, in which case feature must not change output
-                DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
-                if (ctxt.isEnabled(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS)
-                        && (_defaultFormat() == DateTimeFormatter.ISO_OFFSET_DATE_TIME)) {
-                    formatter = SubSecondFormatters.ZONED_DATE_TIME;
-                }
+                // write with zone (note: only standard default format gets here, so
+                // sub-second variant may be used as-is)
+                DateTimeFormatter formatter = ctxt.isEnabled(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS)
+                        ? SubSecondFormatters.ZONED_DATE_TIME
+                        : DateTimeFormatter.ISO_ZONED_DATE_TIME;
                 g.writeString(formatter.format(value));
                 return;
             }
@@ -94,16 +92,35 @@ public class ZonedDateTimeSerializer extends InstantSerializerBase<ZonedDateTime
     @Override
     protected String formatValue(ZonedDateTime value, SerializationContext ctxt) {
         String formatted = super.formatValue(value, ctxt);
-        // [modules-java8#333]: `@JsonFormat` with pattern should override
-        //   `SerializationFeature.WRITE_DATES_WITH_ZONE_ID`
-        if (_formatter != null && _shape == JsonFormat.Shape.STRING) {
+        // [modules-java8#333], [databind#6151]: when an explicitly configured format is
+        //   used, Zone Id is only added if specifically requested (via `@JsonFormat`),
+        //   and NOT due to `DateTimeFeature.WRITE_DATES_WITH_ZONE_ID`
+        if (_hasExplicitFormat()) {
             // Why not `if (shouldWriteWithZoneId(provider))` ?
             if (Boolean.TRUE.equals(_writeZoneId)) {
                 formatted += "[" + value.getZone().getId() + "]";
             }
         }
         return formatted;
-    }    
+    }
+
+    /**
+     * Accessor for checking whether this serializer has an explicitly configured
+     * format that should be used as-is, taking precedence over
+     * {@link DateTimeFeature#WRITE_DATES_WITH_ZONE_ID}: either a {@code @JsonFormat}
+     * pattern (with String shape), or a caller-provided default formatter (see
+     * {@link #ZonedDateTimeSerializer(DateTimeFormatter)}).
+     *
+     * @since 3.3
+     */
+    protected boolean _hasExplicitFormat() {
+        if ((_formatter != null) && (_shape == JsonFormat.Shape.STRING)) {
+            return true;
+        }
+        DateTimeFormatter df = _defaultFormat();
+        return (df != null) && (df != DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+    }
+
     public boolean shouldWriteWithZoneId(SerializationContext ctxt) {
         return (_writeZoneId != null)
                 ? _writeZoneId

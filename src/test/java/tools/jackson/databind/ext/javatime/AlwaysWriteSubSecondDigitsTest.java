@@ -151,8 +151,7 @@ public class AlwaysWriteSubSecondDigitsTest extends DateTimeTestBase
                 ZonedDateTime.parse("2017-09-14T04:28:48+02:00[Europe/Budapest]")));
     }
 
-    // ... including on the separate "write with Zone Id" path, where feature must
-    // stay inert (even though that path does not use the caller's format either)
+    // ... including on the separate "write with Zone Id" path
     @Test
     public void testCallerProvidedDefaultFormatterWithZoneId() throws Exception
     {
@@ -171,8 +170,7 @@ public class AlwaysWriteSubSecondDigitsTest extends DateTimeTestBase
                 .build();
         assertEquals(defaultMapper.writeValueAsString(value),
                 mapper.writeValueAsString(value));
-        assertEquals(q("2017-09-14T04:28:48+02:00[Europe/Budapest]"),
-                mapper.writeValueAsString(value));
+        assertEquals(q("2017_09_14X04:28:48"), mapper.writeValueAsString(value));
     }
 
     // Map keys are written by separate key serializers, not affected by the feature

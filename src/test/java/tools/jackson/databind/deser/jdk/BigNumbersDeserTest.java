@@ -131,6 +131,25 @@ public class BigNumbersDeserTest
         }
     }
 
+    // Same limit applies to `Float`/`Double` keys as well
+    @Test
+    public void testFloatingPointAsMapKey() throws Exception
+    {
+        final String json = "{\"" + generateDigits(1200) + "\":\"x\"}";
+        try {
+            MAPPER.readValue(json, new TypeReference<Map<Double, String>>() { });
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "Number value length", "exceeds the maximum allowed");
+        }
+        try {
+            MAPPER.readValue(json, new TypeReference<Map<Float, String>>() { });
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "Number value length", "exceeds the maximum allowed");
+        }
+    }
+
     @Test
     public void testBigNumberMapKeysWithinLimit() throws Exception
     {

@@ -202,19 +202,21 @@ public class JDKKeyDeserializer extends KeyDeserializer
 
         case TYPE_FLOAT:
             // Bounds/range checks would be tricky here, so let's not bother even trying...
+            ctxt.streamReadConstraints().validateFPLength(key.length());
             return Float.valueOf((float) _parseDouble(key));
         case TYPE_DOUBLE:
+            ctxt.streamReadConstraints().validateFPLength(key.length());
             return _parseDouble(key);
         case TYPE_BIG_INTEGER:
-            // Cap length before the O(n^2) `BigInteger(String)` parse: the value-side
+            // Cap length before the O(n^2) `BigInteger` parse: the value-side
             // deserializer applies `validateIntegerLength(...)`, but the key path would
             // otherwise be bounded only by the (much larger) max-name-length limit.
             ctxt.streamReadConstraints().validateIntegerLength(key.length());
-            return new BigInteger(key);
+            return NumberInput.parseBigInteger(key, true);
         case TYPE_BIG_DECIMAL:
-            // Same as `BigInteger` above, for the O(n^2) `BigDecimal(String)` parse.
+            // Same as `BigInteger` above, for the O(n^2) `BigDecimal` parse.
             ctxt.streamReadConstraints().validateFPLength(key.length());
-            return new BigDecimal(key);
+            return NumberInput.parseBigDecimal(key, true);
         case TYPE_LOCALE:
         case TYPE_CURRENCY:
             try {

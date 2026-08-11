@@ -62,12 +62,17 @@ public enum DateTimeFeature implements DatatypeFeature
      *<p>
      * When enabled, at least 3 (millisecond) sub-second digits are always written,
      * zero-padded if necessary -- {@code 2017-09-14T04:28:48.000Z}. Higher precision
-     * is preserved: a value with microsecond or nanosecond precision is written with
-     * 6 or 9 digits respectively, so no information is lost.
+     * is preserved: up to 9 digits are written, as many as needed to avoid losing
+     * information (but with no trailing zeroes beyond the 3 digit minimum, so
+     * {@code 123400000} nanoseconds is written as {@code .1234}).
      *<p>
      * Only affects the default format: an explicit {@code DateTimeFormatter} or
      * a {@link com.fasterxml.jackson.annotation.JsonFormat} pattern takes precedence,
      * as does writing values as numeric timestamps.
+     *<p>
+     * NOTE: only applies to Date/Time values, and NOT to Date/Time values used as
+     * {@link java.util.Map} keys: keys are written by separate key serializers that
+     * are not affected by this setting.
      *<p>
      * Note, too, that the very extremes of the {@link java.time.Instant} range
      * (notably {@link java.time.Instant#MIN} and {@link java.time.Instant#MAX}, which

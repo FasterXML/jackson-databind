@@ -104,9 +104,10 @@ public class LocalDateTimeSerializer extends JSR310FormattedSerializerBase<Local
 
     /**
      * Resolves the formatter to use when no numeric-timestamp shape applies: the
-     * explicit per-property {@code _formatter} if set, else the plain default, or --
-     * if {@link DateTimeFeature#ALWAYS_WRITE_SUBSECOND_DIGITS} is enabled -- a
-     * counterpart that always writes sub-second digits.
+     * explicit per-property {@code _formatter} if set, else the default from
+     * {@link #_defaultFormatter()}, or -- if
+     * {@link DateTimeFeature#ALWAYS_WRITE_SUBSECOND_DIGITS} is enabled -- a
+     * counterpart of the standard default that always writes sub-second digits.
      *
      * @since 3.3
      */
@@ -114,10 +115,14 @@ public class LocalDateTimeSerializer extends JSR310FormattedSerializerBase<Local
         if (_formatter != null) {
             return _formatter;
         }
-        if (ctxt.isEnabled(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS)) {
+        DateTimeFormatter dtf = _defaultFormatter();
+        // Sub-second replacement is a counterpart of the standard built-in default
+        // only: a subclass-provided default must not be overridden by the feature
+        if ((dtf == DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                && ctxt.isEnabled(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS)) {
             return SubSecondFormatters.LOCAL_DATE_TIME;
         }
-        return _defaultFormatter();
+        return dtf;
     }
 
     private final void _serializeAsArrayContents(LocalDateTime value, JsonGenerator g,

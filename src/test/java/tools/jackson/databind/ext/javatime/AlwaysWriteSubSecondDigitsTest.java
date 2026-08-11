@@ -7,6 +7,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 
@@ -148,6 +149,18 @@ public class AlwaysWriteSubSecondDigitsTest extends DateTimeTestBase
                 .build();
         assertEquals(q("2017_09_14X04:28:48"), mapper.writeValueAsString(
                 ZonedDateTime.parse("2017-09-14T04:28:48+02:00[Europe/Budapest]")));
+    }
+
+    // Map keys are written by separate key serializers, not affected by the feature
+    @Test
+    public void testMapKeysUnaffected() throws Exception
+    {
+        assertEquals(a2q("{'2017-09-14T04:28:48Z':1}"),
+                MAPPER.writeValueAsString(
+                        Collections.singletonMap(Instant.parse("2017-09-14T04:28:48Z"), 1)));
+        assertEquals(a2q("{'2017-09-14T04:28:48':1}"),
+                MAPPER.writeValueAsString(
+                        Collections.singletonMap(LocalDateTime.parse("2017-09-14T04:28:48"), 1)));
     }
 
     // Extremes of `Instant` range fall outside `LocalDate` range and cannot be

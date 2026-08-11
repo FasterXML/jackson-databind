@@ -341,6 +341,9 @@ No changes since 2.19.2
   deserialization [CVE-2026-19032]
  (reported by @waydeshi)
  (fix by @pjfanning)
+#6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
+  [GHSA-gx83-3vf8-gh7j]
+ (reported by @prvazsahnazarov)
 
 2.18.9 (07-Jul-2026)
 

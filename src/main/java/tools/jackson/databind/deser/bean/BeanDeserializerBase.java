@@ -745,6 +745,16 @@ public abstract class BeanDeserializerBase
             }
 
             if (!groups.isEmpty()) {
+                // Property-based creators cannot currently buffer wrapped properties.
+                if (_propertyBasedCreator != null) {
+                    ctxt.reportBadDefinition(handledType(),
+                        "@JsonWrapped is not supported with a property-based creator");
+                }
+                if (_objectIdReader != null) {
+                    ctxt.reportBadDefinition(handledType(),
+                        "@JsonWrapped is not supported with Object Id handling");
+                }
+
                 // Validate: name conflicts (wrapper name vs non-wrapped property name)
                 Set<String> wrapperNames = groups.keySet();
                 for (SettableBeanProperty prop : allProps) {

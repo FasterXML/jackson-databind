@@ -626,9 +626,6 @@ public class BeanDeserializer
         }
         if (_nonStandardCreation) {
             if (_unwrappedPropertyHandler != null) {
-                if (_wrappedPropertyHandler != null) {
-                    return deserializeWithUnwrappedAndWrapped(p, ctxt);  // both present
-                }
                 return deserializeWithUnwrapped(p, ctxt);
             }
             if (_wrappedPropertyHandler != null) {
@@ -1534,29 +1531,6 @@ public class BeanDeserializer
             handleUnknownProperty(p, ctxt, bean, propName);
         }
         return bean;
-    }
-
-    /**
-     * Deserialization method for beans that have <em>both</em> {@code @JsonUnwrapped} and
-     * {@code @JsonWrapped} properties.
-     *
-     * <p><strong>MVP limitation:</strong> This method currently delegates entirely to
-     * {@link #deserializeWithWrapped}, which means {@code @JsonUnwrapped} properties are
-     * <em>silently ignored</em> — they are removed from {@code _beanProperties} during
-     * {@code resolve()} and {@code _unwrappedPropertyHandler} is never invoked here.
-     * A full implementation must interleave the unwrapped-property token-buffering logic
-     * from {@link #deserializeWithUnwrapped} with the inline wrapper dispatch logic from
-     * {@link #deserializeWithWrapped}.
-     *
-     * <p>TODO: Implement proper combined handling (post-MVP).
-     *
-     * @see #deserializeWithWrapped
-     * @see #deserializeWithUnwrapped
-     */
-    protected Object deserializeWithUnwrappedAndWrapped(JsonParser p, DeserializationContext ctxt)
-        throws JacksonException
-    {
-        return deserializeWithWrapped(p, ctxt);
     }
 
     @SuppressWarnings("resource")

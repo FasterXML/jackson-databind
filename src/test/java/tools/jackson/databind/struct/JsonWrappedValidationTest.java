@@ -73,6 +73,24 @@ public class JsonWrappedValidationTest extends DatabindTestUtil
         }
     }
 
+    static class PropertyBasedCreatorWithWrappedProperty {
+        public String id;
+
+        @JsonWrapped("w")
+        public String value;
+
+        @JsonCreator
+        public PropertyBasedCreatorWithWrappedProperty(@JsonProperty("id") String id) {
+            this.id = id;
+        }
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
+    static class ObjectIdWithWrappedProperty {
+        @JsonWrapped("w")
+        public String value;
+    }
+
     static class Inner {
         public String street;
     }
@@ -83,6 +101,32 @@ public class JsonWrappedValidationTest extends DatabindTestUtil
 
         @JsonWrapped("w")
         public String value;
+    }
+
+    @Test
+    @DisplayName("should reject wrapped property on property-based creator bean")
+    void propertyBasedCreatorWithWrappedProperty() {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
+
+        assertThatThrownBy(() -> mapper.readValue(
+                "{\"id\":\"creator\",\"w\":{\"value\":\"wrapped\"}}",
+                PropertyBasedCreatorWithWrappedProperty.class))
+            .isInstanceOf(InvalidDefinitionException.class)
+            .hasMessageContaining("@JsonWrapped")
+            .hasMessageContaining("property-based creator");
+    }
+
+    @Test
+    @DisplayName("should reject wrapped property with Object Id handling")
+    void objectIdWithWrappedProperty() {
+        assertThatThrownBy(() -> MAPPER.readValue(
+                "{\"@id\":1,\"w\":{\"value\":\"wrapped\"}}",
+                ObjectIdWithWrappedProperty.class))
+            .isInstanceOf(InvalidDefinitionException.class)
+            .hasMessageContaining("@JsonWrapped")
+            .hasMessageContaining("Object Id");
     }
 
     // -- Tests --

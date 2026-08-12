@@ -670,8 +670,15 @@ DongNyoung Lee (@Dongnyoung)
  * Reported, fixed #6142: Invalidate read-only lookup snapshot in `SerializerCache`
    when a typed serializer entry is replaced
   [3.3.0]
+ * Contributed #3182: Add `StringCanonicalizingConverter` for opt-in canonicalization
+   ("de-duplication") of low-cardinality `String` values
+  [3.3.0]
 
 @prvazsahnazarov
  * Reported #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic
    base types
   [3.2.2]
+
+Fabian Lange (@CodingFabian)
+ * Requested #3182: Support value deduplication for enumeration like values
+  [3.3.0]

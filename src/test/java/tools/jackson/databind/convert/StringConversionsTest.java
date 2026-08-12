@@ -9,13 +9,14 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.StringCanonicalizingConverter;
 import tools.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class StringConversionsTest
+    extends DatabindTestUtil
 {
     static class LCConverter extends StdConverter<String,String>
     {

@@ -200,6 +200,15 @@ public class AnySetterTest extends DatabindTestUtil
         }
     }
 
+    static class RegularStringSetter4889 {
+        public String value;
+
+        @JsonAnySetter
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
     static abstract class ExternalValue4889 {
         public String name;
     }
@@ -247,6 +256,11 @@ public class AnySetterTest extends DatabindTestUtil
     static class JsonAnySetterOnCustomNullMap {
         @JsonAnySetter
         public CustomMap other;
+    }
+
+    static class JsonAnySetterOnCustomMapMethod4889 {
+        @JsonAnySetter
+        public void setOther(CustomMap other) { }
     }
 
     static class MyGeneric<T>
@@ -563,6 +577,24 @@ public class AnySetterTest extends DatabindTestUtil
         RegularMapSetter4889 result = MAPPER.readValue("{\"other\":{\"name\":\"Joe\"}}",
                 RegularMapSetter4889.class);
         assertEquals(Collections.singletonMap("name", "Joe"), result.other);
+    }
+
+    @Test
+    public void testNonMapAnySetterMethodRemainsRegularSetter4889() throws Exception {
+        RegularStringSetter4889 result = MAPPER.readValue("{\"value\":\"Joe\"}",
+                RegularStringSetter4889.class);
+        assertEquals("Joe", result.value);
+    }
+
+    @Test
+    public void testJsonAnySetterOnUnsupportedCustomMapMethod4889() throws Exception {
+        try {
+            MAPPER.readValue("{\"name\":\"Joe\"}", JsonAnySetterOnCustomMapMethod4889.class);
+            fail("Should not pass");
+        } catch (DatabindException e) {
+            verifyException(e, "Cannot create an instance of");
+            verifyException(e, "for use as \"any-setter\" 'setOther'");
+        }
     }
 
     @Test

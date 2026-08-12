@@ -1202,13 +1202,6 @@ ctor.creator()));
             if (argCount == 0) { // getters (including 'any getter')
                 _addGetterMethod(props, m);
             } else if (argCount == 1) { // setters
-                if (Boolean.TRUE.equals(_annotationIntrospector.hasAnySetter(_config, m))) {
-                    if (_anySetters == null) {
-                        _anySetters = new LinkedList<>();
-                    }
-                    _anySetters.add(m);
-                    continue;
-                }
                 _addSetterMethod(props, m);
             } else if (argCount == 2) { // any setter?
                 if (Boolean.TRUE.equals(_annotationIntrospector.hasAnySetter(_config, m))) {
@@ -1327,6 +1320,15 @@ ctor.creator()));
     protected void _addSetterMethod(Map<String, POJOPropertyBuilder> props,
             AnnotatedMethod m)
     {
+        if (Map.class.isAssignableFrom(m.getRawParameterType(0))
+                && Boolean.TRUE.equals(_annotationIntrospector.hasAnySetter(_config, m))) {
+            if (_anySetters == null) {
+                _anySetters = new LinkedList<>();
+            }
+            _anySetters.add(m);
+            return;
+        }
+
         String implName; // from naming convention
         boolean visible;
         PropertyName pn = _annotationIntrospector.findNameForDeserialization(_config, m);

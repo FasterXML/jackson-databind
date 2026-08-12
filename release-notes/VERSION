@@ -14,6 +14,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #1803: `TreeTraversingParser` should allow passing of parent context
  (fix by @cowtowncoder, w/ Claude code)
+#3182: Add `StringCanonicalizingConverter` for opt-in canonicalization
+  ("de-duplication") of low-cardinality `String` values
+ (requested by Fabian L)
+ (contributed by DongNyoung L)
 #3947: Multiple suitable annotated Creator factory methods to be used as the
   Key deserializer when using record als key in Map
  (reported by @toonborgers)
@@ -38,6 +42,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6142: Invalidate read-only lookup snapshot in `SerializerCache` when a typed
   serializer entry is replaced (and not just when added)
  (fix by @Dongnyoung)
+#6151: Add `DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS`
+ (contributed by @seonwooj0810)
 
 3.2.2 (not yet released)
 
@@ -67,6 +73,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
   for unspecified values
  (reported, fixed by DongNyoung L)
+#6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
+  [GHSA-gx83-3vf8-gh7j]
+ (reported by @prvazsahnazarov)
 
 3.2.1 (10-Jul-2026)
 
@@ -338,6 +347,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   after all entries are filtered
  (reported by @dlwldnjs1009)
  (fix by @seonwooj0810)
+#6109: Mark built-in JDK 8 handlers (`Optional`, `Stream`) with `@JacksonStdImpl` so
+  optimization modules (Blackbird) can retain optimized handlers
+ (fix by Lee Jiwon)
 #6115: Honor `@JsonIgnoreProperties` before any-setter on more deser paths
  (fix by Aysha A-Z)
 #6116: Reject non-ASCII digits in `InetAddress` literal validation
@@ -350,9 +362,14 @@ Versions: 3.x (for earlier see VERSION-2.x)
   deserialization [CVE-2026-19032]
  (reported by @waydeshi)
  (fix by @pjfanning)
+#6133: Limit number sizes allowed in `java.time.Instant` deserializer
+ (fix by @pjfanning)
 #6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
   for unspecified values
  (reported, fixed by DongNyoung L)
+#6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
+  [GHSA-gx83-3vf8-gh7j]
+ (reported by @prvazsahnazarov)
 
 3.1.5 (07-Jul-2026)
 
@@ -371,8 +388,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.1.4 (29-May-2026)
 
-#5950: Improve `UUIDeserializer` error handling
- (reported by Omkhar A)
+#5950: Improve `UUIDDeserializer` error handling
+ (reported, fix suggested by Omkhar A)
 #5951: Improve `InetSocketAddress` deserialization [CVE-2026-54514]
  (reported by Omkhar A)
 #5956: Fix problem with float-to-byte range check

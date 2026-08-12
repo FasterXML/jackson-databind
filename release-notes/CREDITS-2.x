@@ -1954,6 +1954,11 @@ Aysha Afrah Ziya (@aysha-afrah26)
    deserialization
   (2.18.10)
 
+@prvazsahnazarov
+ * Reported #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic
+   base types
+  (2.18.10)
+
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
   (2.19.0)

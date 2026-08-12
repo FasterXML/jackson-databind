@@ -118,6 +118,9 @@ ClassUtil.classNameOf(getClass()), ClassUtil.classNameOf(baseType.getRawClass())
             UNSAFE.add(Cloneable.class.getName());
             // [databind#5014]:
             UNSAFE.add(Runnable.class.getName());
+            // [databind#6156]: implemented across a very wide range of JDK and
+            // application types, so offers no meaningful restriction as a base type
+            UNSAFE.add(Comparable.class.getName());
 
             // and then couple others typically included in JDK, but that we
             // prefer not adding direct reference to

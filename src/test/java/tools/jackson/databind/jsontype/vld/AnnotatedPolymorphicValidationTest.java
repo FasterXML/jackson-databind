@@ -35,6 +35,13 @@ public class AnnotatedPolymorphicValidationTest
         protected WrappedPolymorphicUntypedSer() { }
     }
 
+    static class WrappedPolymorphicUntypedComparable {
+        @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS)
+        public Comparable<?> value;
+
+        protected WrappedPolymorphicUntypedComparable() { }
+    }
+
     static class NumbersAreOkValidator extends DefaultBaseTypeLimitingValidator
     {
         private static final long serialVersionUID = 1L;
@@ -90,5 +97,18 @@ public class AnnotatedPolymorphicValidationTest
         verifyException(e2, "all subtypes of base type");
         verifyException(e2, "java.io.Serializable");
 
+    }
+
+    // [databind#6156]: `Comparable` is implemented by a very wide range of types,
+    // so it offers no meaningful restriction and must be blocked like `Serializable`
+    @Test
+    public void testPolymorphicWithComparableBaseType() throws IOException
+    {
+        final String JSON = a2q("{'value':10}");
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> MAPPER.readValue(JSON, WrappedPolymorphicUntypedComparable.class));
+        verifyException(e, "Configured");
+        verifyException(e, "all subtypes of base type");
+        verifyException(e, "java.lang.Comparable");
     }
 }

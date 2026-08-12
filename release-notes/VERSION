@@ -7,6 +7,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.3.0 (not yet released)
 
+#357 (annotations): Support deserialization of properties selected by
+  `@JsonPointer`
 #1127: `@JsonTypeInfo` with `EXTERNAL_PROPERTY` does not handle arrays of
   polymorphic types: now fails eagerly with clear `InvalidDefinitionException`
   (on both serialization and deserialization) instead of confusing low-level error

@@ -14,6 +14,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #1803: `TreeTraversingParser` should allow passing of parent context
  (fix by @cowtowncoder, w/ Claude code)
+#3947: Multiple suitable annotated Creator factory methods to be used as the
+  Key deserializer when using record als key in Map
+ (reported by @toonborgers)
+ (fix by @DragonFSKY)
 #4762: `@JsonValue` serialization ignores annotations on the annotated accessor
   (particularly `@JsonInclude`, `@JsonFormat`)
  (reported by @sikorskii)
@@ -37,6 +41,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6142: Invalidate read-only lookup snapshot in `SerializerCache` when a typed
   serializer entry is replaced (and not just when added)
  (fix by @Dongnyoung)
+#6151: Add `DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS`
+ (contributed by @seonwooj0810)
 
 3.2.2 (not yet released)
 
@@ -56,9 +62,19 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6116: Reject non-ASCII digits in `InetAddress` literal validation
  (fixed by Aysha A-Z)
 #6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
-  and Duration [GHSA-q4xh-88c3-wmh7] GHSA-q4xh-88c3-wmh7
+  and Duration [CVE-2026-68497]
  (reported by @waydeshi)
  (fix by @pjfanning)
+#6129: Limit the supported URL schemes for `java.nio.file.Path`
+  deserialization [CVE-2026-19032]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
+  for unspecified values
+ (reported, fixed by DongNyoung L)
+#6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
+  [GHSA-gx83-3vf8-gh7j]
+ (reported by @prvazsahnazarov)
 
 3.2.1 (10-Jul-2026)
 
@@ -79,10 +95,21 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6055: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
+#6058: Do not allow DNS resolution when deserializing `InetAddress`
+ (reported by @thientd)
+ (fix by @pjfanning)
 #6059: `ObjectMapper.valueToTree()` with `byte[]` does not produce `BinaryNode`
  (reported by @sebastien-leveque)
  (fix by @cowtowncoder, w/ Claude code)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
+#6065: `SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS` does not fully
+  remove empty collection during serialization
+ (reported by @doeiqts)
+ (fix by @seonwooj0810)
+#6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
+  (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
+ (reported by João G)
+ (fix by João G and @cowtowncoder, w/ Claude code)
 
 3.2.0 (08-Jun-2026)
 
@@ -309,7 +336,41 @@ Versions: 3.x (for earlier see VERSION-2.x)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 
-3.1.5 (not yet released)
+3.1.6 (not yet released)
+
+#6096: Honor `@JsonView` in `BeanAsArrayDeserializer` update path
+ (fixed by Aysha A-Z)
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
+#6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+  after all entries are filtered
+ (reported by @dlwldnjs1009)
+ (fix by @seonwooj0810)
+#6109: Mark built-in JDK 8 handlers (`Optional`, `Stream`) with `@JacksonStdImpl` so
+  optimization modules (Blackbird) can retain optimized handlers
+ (fix by Lee Jiwon)
+#6115: Honor `@JsonIgnoreProperties` before any-setter on more deser paths
+ (fix by Aysha A-Z)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
+#6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
+  and Duration [CVE-2026-68497]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6129: Limit the supported URL schemes for `java.nio.file.Path`
+  deserialization [CVE-2026-19032]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6133: Limit number sizes allowed in `java.time.Instant` deserializer
+ (fix by @pjfanning)
+#6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
+  for unspecified values
+ (reported, fixed by DongNyoung L)
+#6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
+  [GHSA-gx83-3vf8-gh7j]
+ (reported by @prvazsahnazarov)
+
+3.1.5 (07-Jul-2026)
 
 #6040: Inconsistency in current token on invalid type coercion for `List<String>`
  (reported by João G)
@@ -319,12 +380,15 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6055: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
+#6058: Do not allow DNS resolution when deserializing `InetAddress`
+ (reported by @thientd)
+ (fix by @pjfanning)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
 
 3.1.4 (29-May-2026)
 
-#5950: Improve `UUIDeserializer` error handling
- (reported by Omkhar A)
+#5950: Improve `UUIDDeserializer` error handling
+ (reported, fix suggested by Omkhar A)
 #5951: Improve `InetSocketAddress` deserialization [CVE-2026-54514]
  (reported by Omkhar A)
 #5956: Fix problem with float-to-byte range check
@@ -342,7 +406,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fixed by Omkhar A)
 #5971: `@JsonView` by-passed for unwrapped creator parameters [CVE-2026-54518]
  (fixed by Omkhar A)
-#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
+#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy` [CVE-2026-59888]
  (fixed by Omkhar A)
 #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
   should validate element type [CVE-2026-54513]

@@ -981,8 +981,6 @@ public abstract class BeanSerializerBase
     /**********************************************************************
      */
 
-    // 28-Oct-2017, tatu: Not yet optimized. Could be, if it seems
-    //    commonly useful wrt JsonView filtering
     /**
      * Alternative serialization method that gets called when there is a
      * {@link PropertyFilter} that needs to be called to determine
@@ -1010,19 +1008,54 @@ public abstract class BeanSerializerBase
         }
 
         int i = 0;
+        int left = props.length;
+        BeanPropertyWriter prop = null;
+
         try {
-            for (final int len = props.length; i < len; ++i) {
-                BeanPropertyWriter prop = props[i];
-                if (prop != null) { // can have nulls in filtered list
+            if (left > 3) {
+                do {
+                    prop = props[i];
+                    if (prop != null) {
+                        filter.serializeAsProperty(bean, g, ctxt, prop);
+                    }
+                    prop = props[i+1];
+                    if (prop != null) {
+                        filter.serializeAsProperty(bean, g, ctxt, prop);
+                    }
+                    prop = props[i+2];
+                    if (prop != null) {
+                        filter.serializeAsProperty(bean, g, ctxt, prop);
+                    }
+                    prop = props[i+3];
+                    if (prop != null) {
+                        filter.serializeAsProperty(bean, g, ctxt, prop);
+                    }
+                    left -= 4;
+                    i += 4;
+                } while (left > 3);
+            }
+            switch (left) {
+            case 3:
+                prop = props[i++];
+                if (prop != null) {
+                    filter.serializeAsProperty(bean, g, ctxt, prop);
+                }
+            case 2:
+                prop = props[i++];
+                if (prop != null) {
+                    filter.serializeAsProperty(bean, g, ctxt, prop);
+                }
+            case 1:
+                prop = props[i++];
+                if (prop != null) {
                     filter.serializeAsProperty(bean, g, ctxt, prop);
                 }
             }
         } catch (Exception e) {
-            String name = (i == props.length) ? "[anySetter]" : props[i].getName();
+            String name = (prop == null) ? "[anySetter]" : prop.getName();
             wrapAndThrow(ctxt, e, bean, name);
         } catch (StackOverflowError e) {
-            // Minimize call depth since we are close to fail:
-            final String name = (i == props.length) ? "[anySetter]" : props[i].getName();
+            final String name = (prop == null) ? "[anySetter]" : prop.getName();
             throw DatabindException.from(g, "Infinite recursion (StackOverflowError)", e)
                 .prependPath(bean, name);
         }

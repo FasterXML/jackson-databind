@@ -654,6 +654,9 @@ Aysha Afrah Ziya (@aysha-afrah26)
   [3.2.2]
  * Fixed #6116: Reject non-ASCII digits in `InetAddress` literal validation
   [3.2.2]
+ * Reported, fixed #6136: `@JsonFilter` with `serializeAllExcept()` does not filter
+   `@JsonAnyGetter` entries
+  [3.3.0]
 
 @waydeshi
  * Reported #6127: Add `StreamReadConstraints` number len constraint to

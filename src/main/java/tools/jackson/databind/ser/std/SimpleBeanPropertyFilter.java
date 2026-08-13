@@ -119,12 +119,13 @@ public class SimpleBeanPropertyFilter
             SerializationContext provider, PropertyWriter writer)
         throws Exception
     {
+        // NOTE: [databind#6136]: any-getters never reach this method -- caller
+        // (`BeanSerializerBase`) unpacks them into individual entries first, each of
+        // which is then passed here as a `MapProperty`.
         if (include(writer)) {
             writer.serializeAsProperty(pojo, g, provider);
         } else if (!g.canOmitProperties()) {
             writer.serializeAsOmittedProperty(pojo, g, provider);
-        } else if (writer instanceof AnyGetterWriter anyGetterWriter) {
-            anyGetterWriter.getAndFilter(pojo, g, provider, this);
         }
     }
 

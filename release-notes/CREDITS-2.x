@@ -1934,8 +1934,8 @@ Aysha Afrah Ziya (@aysha-afrah26)
   (2.18.10)
 
 @waydeshi
- * Reported #6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
-   and Duration
+ * Reported #6127: Add `StreamReadConstraints` number len constraint to
+   `javax.xml.datatype.GregorianCalendar` and `javax.xml.datatype.Duration`
   (2.18.10)
  * Reported #6129: Limit the supported URL schemes for `java.nio.file.Path`
    deserialization

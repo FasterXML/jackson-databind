@@ -11,12 +11,8 @@ import tools.jackson.databind.util.TypeKey;
  * A {@link CacheProvider} instance will be configured through a builder such as
  * {@link tools.jackson.databind.json.JsonMapper.Builder#cacheProvider(CacheProvider)}.
  * <p>
- * Do not return the same {@link LookupCache} instance from
- * {@link #forDeserializerCache} for two mappers that use different
- * {@link tools.jackson.databind.jsontype.PolymorphicTypeValidator}
- * settings. {@link DeserializerCache} keys only on {@link JavaType}, and a
- * {@code TypeDeserializer} keeps the PTV it was built with. A shared cache
- * then keeps serving the first mapper's validator.
+ * Each factory method must construct and return a new {@link LookupCache}
+ * instance. Shared cache instances must not be returned.
  */
 public interface CacheProvider
     extends java.io.Serializable

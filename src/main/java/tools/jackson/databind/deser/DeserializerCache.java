@@ -23,10 +23,7 @@ import tools.jackson.databind.util.SimpleLookupCache;
  * and classes that construct deserializers
  * ({@link tools.jackson.databind.deser.DeserializerFactory}).
  * <p>
- * Entries are keyed only by {@link JavaType}. A {@code TypeDeserializer}
- * stores the {@code PolymorphicTypeValidator} it was constructed with, so
- * sharing one cache across mappers with different validators makes the
- * first-seen validator stick. Give each such mapper its own cache.
+ * Instances are not to be shared across mappers.
  */
 public final class DeserializerCache
     implements java.io.Serializable

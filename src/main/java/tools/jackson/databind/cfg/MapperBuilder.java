@@ -1458,17 +1458,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
-    /**
-     * Sets the {@link CacheProvider} used to construct deserializer, serializer
-     * and {@link TypeFactory} caches.
-     * <p>
-     * If the provider returns one shared {@link tools.jackson.databind.util.LookupCache}
-     * from {@link CacheProvider#forDeserializerCache}, do not reuse that cache
-     * across mappers with different
-     * {@link tools.jackson.databind.jsontype.PolymorphicTypeValidator}
-     * configuration. The cache key is only the {@link JavaType}, so the first
-     * mapper's validator wins for later lookups.
-     */
     public B cacheProvider(CacheProvider cacheProvider) {
         _baseSettings = _baseSettings.with(cacheProvider);
         // Unlike Deserializer-/SerializerCaches, need to eagerly update

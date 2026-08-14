@@ -11,6 +11,7 @@ import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -108,50 +109,27 @@ public class BigNumbersDeserTest
     // `BigInteger(String)`/`BigDecimal(String)` constructors, bounded only by the far
     // larger max-name-length limit.
     @Test
-    public void testBigIntegerAsMapKey() throws Exception
+    public void bigIntegerAsMapKey() throws Exception
     {
-        final String json = "{\"" + generateDigits(1200) + "\":\"x\"}";
-        try {
-            MAPPER.readValue(json, new TypeReference<Map<BigInteger, String>>() { });
-            fail("expected StreamConstraintsException");
-        } catch (StreamConstraintsException e) {
-            verifyException(e, "Number value length", "exceeds the maximum allowed");
-        }
+        _verifyKeyTooLong(MAPPER, "1".repeat(1200), new TypeReference<Map<BigInteger, String>>() { });
     }
 
     @Test
-    public void testBigDecimalAsMapKey() throws Exception
+    public void bigDecimalAsMapKey() throws Exception
     {
-        final String json = "{\"" + generateDigits(1200) + "\":\"x\"}";
-        try {
-            MAPPER.readValue(json, new TypeReference<Map<BigDecimal, String>>() { });
-            fail("expected StreamConstraintsException");
-        } catch (StreamConstraintsException e) {
-            verifyException(e, "Number value length", "exceeds the maximum allowed");
-        }
+        _verifyKeyTooLong(MAPPER, "1".repeat(1200), new TypeReference<Map<BigDecimal, String>>() { });
     }
 
     // Same limit applies to `Float`/`Double` keys as well
     @Test
-    public void testFloatingPointAsMapKey() throws Exception
+    public void floatingPointAsMapKey() throws Exception
     {
-        final String json = "{\"" + generateDigits(1200) + "\":\"x\"}";
-        try {
-            MAPPER.readValue(json, new TypeReference<Map<Double, String>>() { });
-            fail("expected StreamConstraintsException");
-        } catch (StreamConstraintsException e) {
-            verifyException(e, "Number value length", "exceeds the maximum allowed");
-        }
-        try {
-            MAPPER.readValue(json, new TypeReference<Map<Float, String>>() { });
-            fail("expected StreamConstraintsException");
-        } catch (StreamConstraintsException e) {
-            verifyException(e, "Number value length", "exceeds the maximum allowed");
-        }
+        _verifyKeyTooLong(MAPPER, "1".repeat(1200), new TypeReference<Map<Double, String>>() { });
+        _verifyKeyTooLong(MAPPER, "1".repeat(1200), new TypeReference<Map<Float, String>>() { });
     }
 
     @Test
-    public void testBigNumberMapKeysWithinLimit() throws Exception
+    public void bigNumberMapKeysWithinLimit() throws Exception
     {
         Map<BigInteger, String> mi = MAPPER.readValue("{\"12345678901234567890\":\"a\"}",
                 new TypeReference<Map<BigInteger, String>>() { });
@@ -160,6 +138,57 @@ public class BigNumbersDeserTest
         Map<BigDecimal, String> md = MAPPER.readValue("{\"3.14159265358979\":\"b\"}",
                 new TypeReference<Map<BigDecimal, String>>() { });
         assertEquals("b", md.get(new BigDecimal("3.14159265358979")));
+    }
+
+    // Limit is inclusive: key of exactly `maxNumberLength` digits still accepted,
+    // one digit more is not
+    @Test
+    public void mapKeyAtLengthLimit() throws Exception
+    {
+        final int maxLen = StreamReadConstraints.defaults().getMaxNumberLength();
+        final String key = "1".repeat(maxLen);
+
+        Map<BigInteger, String> m = MAPPER.readValue("{\"" + key + "\":\"a\"}",
+                new TypeReference<Map<BigInteger, String>>() { });
+        assertEquals("a", m.get(new BigInteger(key)));
+
+        _verifyKeyTooLong(MAPPER, "1".repeat(maxLen + 1),
+                new TypeReference<Map<BigInteger, String>>() { });
+    }
+
+    // Limit is configurable for keys just like it is for values
+    @Test
+    public void mapKeyWithLoweredLengthLimit() throws Exception
+    {
+        JsonFactory f = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(20).build())
+                .build();
+        // 25 digits: acceptable with defaults, too long here
+        _verifyKeyTooLong(JsonMapper.builder(f).build(), "1".repeat(25),
+                new TypeReference<Map<BigInteger, String>>() { });
+    }
+
+    // Malformed (but short enough) keys must still fail as regular "weird key" problems
+    @Test
+    public void malformedBigNumberMapKey() throws Exception
+    {
+        try {
+            MAPPER.readValue("{\"abc\":\"a\"}", new TypeReference<Map<BigInteger, String>>() { });
+            fail("expected InvalidFormatException");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Cannot deserialize Map key of type `java.math.BigInteger`");
+        }
+    }
+
+    private void _verifyKeyTooLong(ObjectMapper mapper, String key, TypeReference<?> targetType)
+        throws Exception
+    {
+        try {
+            mapper.readValue("{\"" + key + "\":\"x\"}", targetType);
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "Number value length ("+key.length()+") exceeds the maximum allowed");
+        }
     }
 
     // [databind#4435]
@@ -183,14 +212,6 @@ public class BigNumbersDeserTest
         BigDecimal exp = new BigDecimal(num);
         BigDecimalWrapper w = MAPPER.readValue("{\"number\":\"" + num + "\"}", BigDecimalWrapper.class);
         assertEquals(exp, w.number);
-    }
-
-    private String generateDigits(final int len) {
-        final StringBuilder sb = new StringBuilder(len);
-        for (int i = 0; i < len; i++) {
-            sb.append('1');
-        }
-        return sb.toString();
     }
 
     private String generateJson(final String fieldName) {

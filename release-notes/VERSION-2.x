@@ -21,6 +21,8 @@ Project: jackson-databind
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
   [GHSA-gx83-3vf8-gh7j]
  (reported by @prvazsahnazarov)
+#6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float` Map keys
+ (fix by Aysha A-Z)
 
 2.18.9 (07-Jul-2026)
 

@@ -337,7 +337,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 
-3.1.6 (not yet released)
+3.1.6 (14-Aug-2026)
 
 #6096: Honor `@JsonView` in `BeanAsArrayDeserializer` update path
  (fixed by Aysha A-Z)

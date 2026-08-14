@@ -4,12 +4,16 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.StreamReadConstraints;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -50,6 +54,8 @@ public class StdKeyDeserializer extends KeyDeserializer
     public final static int TYPE_CLASS = 15;
     public final static int TYPE_CURRENCY = 16;
     public final static int TYPE_BYTE_ARRAY = 17; // since 2.9
+    public final static int TYPE_BIG_INTEGER = 18; // since 2.18.10
+    public final static int TYPE_BIG_DECIMAL = 19; // since 2.18.10
 
     final protected int _kind;
     final protected Class<?> _keyClass;
@@ -103,6 +109,10 @@ public class StdKeyDeserializer extends KeyDeserializer
             kind = TYPE_FLOAT;
         } else if (raw == Double.class) {
             kind = TYPE_DOUBLE;
+        } else if (raw == BigInteger.class) {
+            kind = TYPE_BIG_INTEGER;
+        } else if (raw == BigDecimal.class) {
+            kind = TYPE_BIG_DECIMAL;
         } else if (raw == URI.class) {
             kind = TYPE_URI;
         } else if (raw == URL.class) {
@@ -135,6 +145,10 @@ public class StdKeyDeserializer extends KeyDeserializer
             if (result != null) {
                 return result;
             }
+        } catch (StreamConstraintsException e) {
+            // 3.x rethrows these via its `JacksonException` branch: a constraint
+            // violation is not a "weird key" problem and must not be swallowed
+            throw e;
         } catch (Exception re) {
             return ctxt.handleWeirdKey(_keyClass, key, "not a valid representation, problem: (%s) %s",
                     re.getClass().getName(),
@@ -191,9 +205,17 @@ public class StdKeyDeserializer extends KeyDeserializer
 
         case TYPE_FLOAT:
             // Bounds/range checks would be tricky here, so let's not bother even trying...
+            _streamReadConstraints(ctxt).validateFPLength(key.length());
             return Float.valueOf((float) _parseDouble(key));
         case TYPE_DOUBLE:
+            _streamReadConstraints(ctxt).validateFPLength(key.length());
             return _parseDouble(key);
+        case TYPE_BIG_INTEGER:
+            _streamReadConstraints(ctxt).validateIntegerLength(key.length());
+            return NumberInput.parseBigInteger(key, true);
+        case TYPE_BIG_DECIMAL:
+            _streamReadConstraints(ctxt).validateFPLength(key.length());
+            return NumberInput.parseBigDecimal(key, true);
         case TYPE_LOCALE:
         case TYPE_CURRENCY:
             try {
@@ -256,6 +278,14 @@ public class StdKeyDeserializer extends KeyDeserializer
 
     protected double _parseDouble(String key) throws IllegalArgumentException {
         return NumberInput.parseDouble(key, false);
+    }
+
+    // Note: 2.x has no `DeserializationContext.streamReadConstraints()`, so read them
+    // off the active parser (same instance the value-side number deserializers use)
+    // @since 2.18.10
+    protected StreamReadConstraints _streamReadConstraints(DeserializationContext ctxt) {
+        JsonParser p = ctxt.getParser();
+        return (p == null) ? StreamReadConstraints.defaults() : p.streamReadConstraints();
     }
 
     // @since 2.9

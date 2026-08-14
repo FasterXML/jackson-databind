@@ -39,12 +39,12 @@ No changes since 3.1
 #6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
   for unspecified values
  (reported, fixed by DongNyoung L)
-#6153: Apply `StreamReadConstraints` number length limits to `BigInteger`,
-  `BigDecimal`, `Float` and `Double` `Map` keys
- (fix by Aysha A-Z)
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
   [GHSA-gx83-3vf8-gh7j]
  (reported by @prvazsahnazarov)
+#6165: Apply `StreamReadConstraints` number length limits to `BigInteger`,
+  `BigDecimal`, `Float` and `Double` `Map` keys
+ (fix by Aysha A-Z)
 
 3.1.5 (07-Jul-2026)
 

@@ -104,6 +104,7 @@ public class BigNumbersDeserTest
         assertNotNull(bdw);
     }
 
+    // [databind#6165]
     // Number length limits must apply to `BigInteger`/`BigDecimal` used as Map keys,
     // not just as values: the key path fed strings straight to the O(n^2)
     // `BigInteger(String)`/`BigDecimal(String)` constructors, bounded only by the far

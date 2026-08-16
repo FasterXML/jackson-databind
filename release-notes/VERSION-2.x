@@ -8,7 +8,7 @@ Project: jackson-databind
 
 No changes since 2.22
 
-2.22.2 (not yet released)
+2.22.2 (16-Aug-2026)
 
 #6099: Resolve classes without initialization in `TypeFactory.findClass()`
  (fixed by Aysha A-Z)

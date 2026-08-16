@@ -330,7 +330,7 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
-2.18.10 (not yet released)
+2.18.10 (15-Aug-2026)
 
 #6099: Resolve classes without initialization in `TypeFactory.findClass()`
  (fixed by Aysha A-Z)

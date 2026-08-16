@@ -510,4 +510,46 @@ public class EnumCreatorTest extends DatabindTestUtil
         ChannelEnum channel = MAPPER.readValue(json, ChannelEnum.class);
         assertNull(channel);
     }
+
+    // [databind#6164]: @JsonCreator(int) must accept JSON number, not coerce to String
+    enum DataSetType6164 {
+        ZERO(0), FIVE(5);
+
+        private final int value;
+
+        DataSetType6164(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        @JsonCreator
+        public static DataSetType6164 getDataSetTypeByValue(int value) {
+            for (DataSetType6164 type : values()) {
+                if (type.value == value) {
+                    return type;
+                }
+            }
+            return null;
+        }
+    }
+
+    static class DataSet6164 {
+        public DataSetType6164 dataSetType;
+    }
+
+    // [databind#6164]
+    @Test
+    public void enumCreatorFromJsonNumber6164() throws Exception {
+        assertSame(DataSetType6164.FIVE, MAPPER.readValue("5", DataSetType6164.class));
+        assertSame(DataSetType6164.ZERO, MAPPER.readValue("0", DataSetType6164.class));
+
+        DataSet6164 wrapper = MAPPER.readValue("{\"dataSetType\":5}", DataSet6164.class);
+        assertSame(DataSetType6164.FIVE, wrapper.dataSetType);
+
+        // Matching getter still allows properties-based Object form
+        assertSame(DataSetType6164.FIVE, MAPPER.readValue("{\"value\":5}", DataSetType6164.class));
+    }
 }

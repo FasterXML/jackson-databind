@@ -44,6 +44,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @Dongnyoung)
 #6151: Add `DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS`
  (contributed by @seonwooj0810)
+#6164: `@JsonCreator` for enums no longer coerces non-String scalars (JSON
+  numbers) to `String` before invoking the factory method
+ (reported by @EmhyrVarEmreis)
+ (fix by @arimu1)
 
 3.2.2 (14-Aug-2026)
 

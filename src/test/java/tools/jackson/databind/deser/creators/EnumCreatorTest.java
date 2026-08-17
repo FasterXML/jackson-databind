@@ -536,8 +536,37 @@ public class EnumCreatorTest extends DatabindTestUtil
         }
     }
 
+    // [databind#6164]: same factory + getter, but mode=DELEGATING (not guessed PROPERTIES)
+    enum DataSetType6164Delegating {
+        ZERO(0), FIVE(5);
+
+        private final int value;
+
+        DataSetType6164Delegating(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        public static DataSetType6164Delegating getDataSetTypeByValue(int value) {
+            for (DataSetType6164Delegating type : values()) {
+                if (type.value == value) {
+                    return type;
+                }
+            }
+            return null;
+        }
+    }
+
     static class DataSet6164 {
         public DataSetType6164 dataSetType;
+    }
+
+    static class DataSet6164Delegating {
+        public DataSetType6164Delegating dataSetType;
     }
 
     // [databind#6164]
@@ -551,5 +580,14 @@ public class EnumCreatorTest extends DatabindTestUtil
 
         // Matching getter still allows properties-based Object form
         assertSame(DataSetType6164.FIVE, MAPPER.readValue("{\"value\":5}", DataSetType6164.class));
+    }
+
+    // [databind#6164]: explicit DELEGATING already accepts JSON numbers
+    @Test
+    public void enumCreatorDelegatingFromJsonNumber6164() throws Exception {
+        assertSame(DataSetType6164Delegating.FIVE, MAPPER.readValue("5", DataSetType6164Delegating.class));
+        assertSame(DataSetType6164Delegating.ZERO, MAPPER.readValue("0", DataSetType6164Delegating.class));
+        DataSet6164Delegating wrapper = MAPPER.readValue("{\"dataSetType\":5}", DataSet6164Delegating.class);
+        assertSame(DataSetType6164Delegating.FIVE, wrapper.dataSetType);
     }
 }

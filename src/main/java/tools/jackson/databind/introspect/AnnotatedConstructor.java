@@ -24,6 +24,10 @@ public final class AnnotatedConstructor
     private final InvokerHolder _invokerUnary = new InvokerHolder(methodType(Object.class, Object.class));
     private final InvokerHolder _invokerFixedArity = new InvokerHolder(null);
 
+    // // Simple lazy-caching:
+
+    protected Class<?>[] _paramClasses;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -81,8 +85,16 @@ public final class AnnotatedConstructor
     @Override
     public Class<?> getRawParameterType(int index)
     {
-        Class<?>[] types = _constructor.getParameterTypes();
+        Class<?>[] types = getRawParameterTypes();
         return (index >= types.length) ? null : types[index];
+    }
+
+    public Class<?>[] getRawParameterTypes()
+    {
+        if (_paramClasses == null) {
+            _paramClasses = _constructor.getParameterTypes();
+        }
+        return _paramClasses;
     }
 
     @Override

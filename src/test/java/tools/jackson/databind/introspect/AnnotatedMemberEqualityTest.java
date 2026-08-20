@@ -8,6 +8,8 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class AnnotatedMemberEqualityTest extends DatabindTestUtil
 {
@@ -45,6 +47,20 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
         assertEquals(constructor1.getAnnotated(), constructor2.getAnnotated());
         assertEquals(constructor1, constructor2);
         assertEquals(constructor1.getParameter(0), constructor2.getParameter(0));
+    }
+
+    @Test
+    public void testAnnotatedConstructorRawParameterTypesAreCached() {
+        DeserializationConfig context = MAPPER.deserializationConfig();
+        JavaType beanType = MAPPER.constructType(SomeBean.class);
+
+        AnnotatedClass instance = AnnotatedClassResolver.resolve(context, beanType, context);
+        AnnotatedConstructor constructor = instance.getConstructors().get(0);
+
+        Class<?>[] paramTypes = constructor.getRawParameterTypes();
+        assertSame(paramTypes, constructor.getRawParameterTypes());
+        assertEquals(String.class, constructor.getRawParameterType(0));
+        assertNull(constructor.getRawParameterType(1));
     }
 
     // [databind#3187]

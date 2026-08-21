@@ -550,8 +550,9 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // "any" property?
-            if (_anySetterAccepts(propName)) {
-                buffer.bufferAnyProperty(_anySetter, _anySetterKey(propName), _anySetter.deserialize(p, ctxt));
+            final String anyKey = _anySetterKey(propName);
+            if (anyKey != null) {
+                buffer.bufferAnyProperty(_anySetter, anyKey, _anySetter.deserialize(p, ctxt));
                 continue;
             }
             if (skipUnknown) {
@@ -778,12 +779,13 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // how about any setter?
-            if (!_anySetterAccepts(propName)) {
+            final String anyKey = _anySetterKey(propName);
+            if (anyKey == null) {
                 handleUnknownVanilla(p, ctxt, bean, propName);
                 continue;
             }
             try {
-                _anySetter.deserializeAndSet(p, ctxt, bean, _anySetterKey(propName));
+                _anySetter.deserializeAndSet(p, ctxt, bean, anyKey);
             } catch (Exception e) {
                 throw wrapAndThrow(e, bean, propName, ctxt);
             }
@@ -834,11 +836,12 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // how about any setter?
-            if (!_anySetterAccepts(propName)) {
+            final String anyKey = _anySetterKey(propName);
+            if (anyKey == null) {
                 handleUnknownVanilla(p, ctxt, builder, propName);
                 continue;
             }
-            _anySetter.deserializeAndSet(p, ctxt, builder, _anySetterKey(propName));
+            _anySetter.deserializeAndSet(p, ctxt, builder, anyKey);
         }
         tokens.writeEndObject();
         return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
@@ -926,11 +929,12 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // how about any setter?
-            if (!_anySetterAccepts(propName)) {
+            final String anyKey = _anySetterKey(propName);
+            if (anyKey == null) {
                 handleUnknownVanilla(p, ctxt, null, propName);
                 continue;
             }
-            buffer.bufferAnyProperty(_anySetter, _anySetterKey(propName), _anySetter.deserialize(p, ctxt));
+            buffer.bufferAnyProperty(_anySetter, anyKey, _anySetter.deserialize(p, ctxt));
         }
         tokens.writeEndObject();
 
@@ -1005,9 +1009,10 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // if not, the usual fallback handling:
-            if (_anySetterAccepts(propName)) {
+            final String anyKey = _anySetterKey(propName);
+            if (anyKey != null) {
                 try {
-                    _anySetter.deserializeAndSet(p, ctxt, bean, _anySetterKey(propName));
+                    _anySetter.deserializeAndSet(p, ctxt, bean, anyKey);
                 } catch (Exception e) {
                     throw wrapAndThrow(e, bean, propName, ctxt);
                 }

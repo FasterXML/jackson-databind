@@ -432,17 +432,18 @@ public class BeanDeserializer
                 continue;
             }
             // "Any property"?
-            if (_anySetterAccepts(propName)) {
+            final String anyKey = _anySetterKey(propName);
+            if (anyKey != null) {
                 try {
                     // 09-Feb-2026, tatu: as with Mutators, should never have non-Creator
                     //   "any"-properties, so commento out
                     /*
                     if (_anySetter.isFieldType() || _anySetter.isSetterType()) {
-                        buffer.bufferAnyProperty(_anySetter, _anySetterKey(propName),
+                        buffer.bufferAnyProperty(_anySetter, anyKey,
                                 _anySetter.deserialize(p, ctxt));
                     } else {
                         */
-                    buffer.bufferAnyParameterProperty(_anySetter, _anySetterKey(propName),
+                    buffer.bufferAnyParameterProperty(_anySetter, anyKey,
                             _anySetter.deserialize(p, ctxt));
                     //}
                 } catch (Exception e) {
@@ -859,15 +860,16 @@ public class BeanDeserializer
                 continue;
             }
             // "any property"?
-            if (_anySetterAccepts(propName)) {
+            final String anyKey = _anySetterKey(propName);
+            if (anyKey != null) {
                 try {
                     // [databind#4639] Since 2.18.1 AnySetter might not part of the creator, but just some field.
                     if (_anySetter.isFieldType() ||
                             // [databind#4639] 2.18.2: Also should account for setter type :-/
                             _anySetter.isSetterType()) {
-                        buffer.bufferAnyProperty(_anySetter, _anySetterKey(propName), _anySetter.deserialize(p, ctxt));
+                        buffer.bufferAnyProperty(_anySetter, anyKey, _anySetter.deserialize(p, ctxt));
                     } else {
-                        buffer.bufferAnyParameterProperty(_anySetter, _anySetterKey(propName), _anySetter.deserialize(p, ctxt));
+                        buffer.bufferAnyParameterProperty(_anySetter, anyKey, _anySetter.deserialize(p, ctxt));
                     }
                 } catch (Exception e) {
                     throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
@@ -1161,7 +1163,8 @@ public class BeanDeserializer
                 continue;
             }
             // how about any setter? We'll get copies but...
-            if (!_anySetterAccepts(propName)) {
+            final String anyKey = _anySetterKey(propName);
+            if (anyKey == null) {
                 handleUnknownVanilla(p, ctxt, bean, propName);
                 continue;
             }
@@ -1170,7 +1173,7 @@ public class BeanDeserializer
             tokens.writeName(propName);
             tokens.append(b2);
             try {
-                _anySetter.deserializeAndSet(b2.asParserOnFirstToken(ctxt), ctxt, bean, _anySetterKey(propName));
+                _anySetter.deserializeAndSet(b2.asParserOnFirstToken(ctxt), ctxt, bean, anyKey);
             } catch (Exception e) {
                 throw wrapAndThrow(e, bean, propName, ctxt);
             }
@@ -1225,17 +1228,20 @@ public class BeanDeserializer
                 tokens.copyCurrentStructure(p);
             } else if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
-            } else if (!_anySetterAccepts(propName)) {
-                handleUnknownVanilla(p, ctxt, bean, propName);
             } else {
-                // Need to copy to a separate buffer first
-                TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
-                tokens.writeName(propName);
-                tokens.append(b2);
-                try {
-                    _anySetter.deserializeAndSet(b2.asParserOnFirstToken(ctxt), ctxt, bean, _anySetterKey(propName));
-                } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, propName, ctxt);
+                final String anyKey = _anySetterKey(propName);
+                if (anyKey == null) {
+                    handleUnknownVanilla(p, ctxt, bean, propName);
+                } else {
+                    // Need to copy to a separate buffer first
+                    TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
+                    tokens.writeName(propName);
+                    tokens.append(b2);
+                    try {
+                        _anySetter.deserializeAndSet(b2.asParserOnFirstToken(ctxt), ctxt, bean, anyKey);
+                    } catch (Exception e) {
+                        throw wrapAndThrow(e, bean, propName, ctxt);
+                    }
                 }
             }
         }
@@ -1324,25 +1330,28 @@ public class BeanDeserializer
             } else if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 // [databind#6115] Things marked as ignorable should not be passed to any setter
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
-            } else if (!_anySetterAccepts(propName)) {
-                // [databind#650]: priority: @JsonIgnoreProperties > FAIL_ON_UNKNOWN_PROPERTIES
-                if (_ignoreAllUnknown) {
-                    p.skipChildren();
-                } else if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
-                    throw UnrecognizedPropertyException.from(p, handledType(), propName, getKnownPropertyNames());
-                } else {
-                    p.skipChildren();
-                }
             } else {
-                // Need to copy to a separate buffer first
-                TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
-                tokens.writeName(propName);
-                tokens.append(b2);
-                try {
-                    buffer.bufferAnyProperty(_anySetter, _anySetterKey(propName),
-                            _anySetter.deserialize(b2.asParserOnFirstToken(ctxt), ctxt));
-                } catch (Exception e) {
-                    throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
+                final String anyKey = _anySetterKey(propName);
+                if (anyKey == null) {
+                    // [databind#650]: priority: @JsonIgnoreProperties > FAIL_ON_UNKNOWN_PROPERTIES
+                    if (_ignoreAllUnknown) {
+                        p.skipChildren();
+                    } else if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+                        throw UnrecognizedPropertyException.from(p, handledType(), propName, getKnownPropertyNames());
+                    } else {
+                        p.skipChildren();
+                    }
+                } else {
+                    // Need to copy to a separate buffer first
+                    TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
+                    tokens.writeName(propName);
+                    tokens.append(b2);
+                    try {
+                        buffer.bufferAnyProperty(_anySetter, anyKey,
+                                _anySetter.deserialize(b2.asParserOnFirstToken(ctxt), ctxt));
+                    } catch (Exception e) {
+                        throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
+                    }
                 }
             }
         }
@@ -1456,9 +1465,10 @@ public class BeanDeserializer
                 continue;
             }
             // if not, the usual fallback handling:
-            if (_anySetterAccepts(propName)) {
+            final String anyKey = _anySetterKey(propName);
+            if (anyKey != null) {
                 try {
-                    _anySetter.deserializeAndSet(p, ctxt, bean, _anySetterKey(propName));
+                    _anySetter.deserializeAndSet(p, ctxt, bean, anyKey);
                 } catch (Exception e) {
                     throw wrapAndThrow(e, bean, propName, ctxt);
                 }
@@ -1544,8 +1554,9 @@ public class BeanDeserializer
                 continue;
             }
             // "any property"?
-            if (_anySetterAccepts(propName)) {
-                buffer.bufferAnyProperty(_anySetter, _anySetterKey(propName),
+            final String anyKey = _anySetterKey(propName);
+            if (anyKey != null) {
+                buffer.bufferAnyProperty(_anySetter, anyKey,
                         _anySetter.deserialize(p, ctxt));
                 continue;
             }

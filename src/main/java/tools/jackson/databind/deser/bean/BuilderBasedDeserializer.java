@@ -545,7 +545,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // "any" property?
-            if (_anySetter != null) {
+            if (_anySetterAccepts(propName)) {
                 buffer.bufferAnyProperty(_anySetter, _anySetterKey(propName), _anySetter.deserialize(p, ctxt));
                 continue;
             }
@@ -773,7 +773,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // how about any setter?
-            if (_anySetter == null) {
+            if (!_anySetterAccepts(propName)) {
                 handleUnknownVanilla(p, ctxt, bean, propName);
                 continue;
             }
@@ -829,7 +829,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // how about any setter?
-            if (_anySetter == null) {
+            if (!_anySetterAccepts(propName)) {
                 handleUnknownVanilla(p, ctxt, builder, propName);
                 continue;
             }
@@ -921,7 +921,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // how about any setter?
-            if (_anySetter == null) {
+            if (!_anySetterAccepts(propName)) {
                 handleUnknownVanilla(p, ctxt, null, propName);
                 continue;
             }
@@ -1000,7 +1000,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // if not, the usual fallback handling:
-            if (_anySetter != null) {
+            if (_anySetterAccepts(propName)) {
                 try {
                     _anySetter.deserializeAndSet(p, ctxt, bean, _anySetterKey(propName));
                 } catch (Exception e) {

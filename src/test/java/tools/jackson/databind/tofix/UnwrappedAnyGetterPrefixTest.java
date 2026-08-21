@@ -32,50 +32,6 @@ public class UnwrappedAnyGetterPrefixTest extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    static class AnyA {
-        public Map<String, Object> ea = new LinkedHashMap<>();
-
-        @JsonAnyGetter
-        public Map<String, Object> getEa() { return ea; }
-
-        @JsonAnySetter
-        public void setEa(String key, Object value) { ea.put(key, value); }
-    }
-
-    static class AnyB {
-        public Map<String, Object> eb = new LinkedHashMap<>();
-
-        @JsonAnyGetter
-        public Map<String, Object> getEb() { return eb; }
-
-        @JsonAnySetter
-        public void setEb(String key, Object value) { eb.put(key, value); }
-    }
-
-    @JsonPropertyOrder({ "name" })
-    static class TwoUnwrappedOuter {
-        public String name = "x";
-
-        @JsonUnwrapped(prefix = "a-")
-        public AnyA a = new AnyA();
-
-        @JsonUnwrapped(prefix = "b-")
-        public AnyB b = new AnyB();
-    }
-
-    // Names that do not match a bean's prefix are still handed to its any-setter
-    // (unchanged), so with 2 prefixed unwrapped beans each one collects the other's
-    // properties. Serialization of the same value is correct, so this does not round-trip.
-    @JacksonTestFailureExpected
-    @Test
-    public void nonMatchingNamesMustNotReachPrefixedAnySetter() throws Exception
-    {
-        TwoUnwrappedOuter result = MAPPER.readValue("""
-                {"name":"x","a-p":1,"b-q":2}""", TwoUnwrappedOuter.class);
-        assertEquals(Map.of("p", 1), result.a.ea);
-        assertEquals(Map.of("q", 2), result.b.eb);
-    }
-
     @JsonPropertyOrder({ "mid" })
     static class NestedMid {
         public String mid = "m";
@@ -102,5 +58,34 @@ public class UnwrappedAnyGetterPrefixTest extends DatabindTestUtil
                 {"name":"aaa","a-mid":"m","a-b-age":64}""", NestedOuter.class);
         assertEquals("m", result.mid.mid);
         assertEquals(Map.of("age", 64), result.mid.inner.extra);
+    }
+
+    static class OuterWithOwnAnySetter {
+        public String name;
+
+        @JsonUnwrapped(prefix = "a-")
+        public AnyBean inner;
+
+        public Map<String, Object> outerExtra = new LinkedHashMap<>();
+
+        @JsonAnyGetter
+        public Map<String, Object> getOuterExtra() { return outerExtra; }
+
+        @JsonAnySetter
+        public void setOuterExtra(String key, Object value) { outerExtra.put(key, value); }
+    }
+
+    // A property matching no unwrapped bean's prefix should fall back to the *outer*
+    // bean's any-setter; instead the unwrapped handling swallows it and it is lost.
+    // (Before prefixes were reversed at all it ended up -- wrongly -- in the inner
+    // bean's any-setter, so this has simply never worked.)
+    @JacksonTestFailureExpected
+    @Test
+    public void nonMatchingNameShouldFallBackToOuterAnySetter() throws Exception
+    {
+        OuterWithOwnAnySetter result = MAPPER.readValue("""
+                {"name":"n","a-age":64,"zz":3}""", OuterWithOwnAnySetter.class);
+        assertEquals(Map.of("age", 64), result.inner.extra);
+        assertEquals(Map.of("zz", 3), result.outerExtra);
     }
 }

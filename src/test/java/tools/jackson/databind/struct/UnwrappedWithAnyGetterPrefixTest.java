@@ -18,7 +18,7 @@ import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Coverage for combining {@code @JsonUnwrapped(prefix/suffix)} with
@@ -572,13 +572,25 @@ public class UnwrappedWithAnyGetterPrefixTest extends DatabindTestUtil
                 {"name":"x","a-p":1,"b-q":2}""", MAPPER.writeValueAsString(input));
     }
 
-    // ... but note the flip side: `assertNotNull` here only documents that reading
-    // back succeeds; correct routing of the keys is covered in the `tofix` counterpart
+    // ... and each any-setter must collect only the names carrying its own prefix:
+    // every unwrapped bean is offered all unknown properties, so without reversing
+    // the transformation each would also pick up its siblings' properties
     @Test
-    public void twoPrefixedUnwrappedBeansDeserializationDoesNotFail() throws Exception
+    public void twoPrefixedUnwrappedBeansRoundTrip() throws Exception
     {
-        assertNotNull(MAPPER.readValue("""
-                {"name":"x","a-p":1,"b-q":2}""", TwoUnwrappedOuter.class));
+        TwoUnwrappedOuter result = MAPPER.readValue("""
+                {"name":"x","a-p":1,"b-q":2}""", TwoUnwrappedOuter.class);
+        assertEquals(Map.of("p", 1), result.a.ea);
+        assertEquals(Map.of("q", 2), result.b.eb);
+    }
+
+    // A name matching no prefix belongs to none of the unwrapped beans
+    @Test
+    public void nonMatchingNameDoesNotReachPrefixedAnySetter() throws Exception
+    {
+        PrefixOuter result = MAPPER.readValue("""
+                {"name":"aaa","a-age":64,"zz":3}""", PrefixOuter.class);
+        assertEquals(Map.of("age", 64), result.inner.extra);
     }
 
     /*

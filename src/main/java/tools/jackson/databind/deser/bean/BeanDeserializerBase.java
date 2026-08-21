@@ -2018,6 +2018,26 @@ ClassUtil.getTypeDescription(ct));
     }
 
     /**
+     * [databind#6118] Companion to {@link #_anySetterKey}: tells whether the
+     * {@code @JsonAnySetter} of this bean (if any) should be given the property at all.
+     *<p>
+     * For a deserializer created for {@code @JsonUnwrapped} with a prefix/suffix, a name
+     * that the transformation cannot have produced does not belong to this bean -- all
+     * unwrapped beans are offered every unknown property, so without this check each one
+     * would also collect the properties meant for its siblings.
+     *
+     * @since 3.3
+     */
+    protected boolean _anySetterAccepts(String propName)
+    {
+        if (_anySetter == null) {
+            return false;
+        }
+        return (_unwrappingNameTransformer == null)
+                || (_unwrappingNameTransformer.reverse(propName) != null);
+    }
+
+    /**
      * Helper method called for an unknown property, when using "vanilla"
      * processing.
      *
@@ -2031,7 +2051,7 @@ ClassUtil.getTypeDescription(ct));
     {
         if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
             handleIgnoredProperty(p, ctxt, beanOrBuilder, propName);
-        } else if (_anySetter != null) {
+        } else if (_anySetterAccepts(propName)) {
             try {
                // should we consider return type of any setter?
                 _anySetter.deserializeAndSet(p, ctxt, beanOrBuilder, _anySetterKey(propName));

@@ -427,7 +427,7 @@ public class BeanDeserializer
                 continue;
             }
             // "Any property"?
-            if (_anySetter != null) {
+            if (_anySetterAccepts(propName)) {
                 try {
                     // 09-Feb-2026, tatu: as with Mutators, should never have non-Creator
                     //   "any"-properties, so commento out
@@ -854,7 +854,7 @@ public class BeanDeserializer
                 continue;
             }
             // "any property"?
-            if (_anySetter != null) {
+            if (_anySetterAccepts(propName)) {
                 try {
                     // [databind#4639] Since 2.18.1 AnySetter might not part of the creator, but just some field.
                     if (_anySetter.isFieldType() ||
@@ -1156,7 +1156,7 @@ public class BeanDeserializer
                 continue;
             }
             // how about any setter? We'll get copies but...
-            if (_anySetter == null) {
+            if (!_anySetterAccepts(propName)) {
                 handleUnknownVanilla(p, ctxt, bean, propName);
                 continue;
             }
@@ -1220,7 +1220,7 @@ public class BeanDeserializer
                 tokens.copyCurrentStructure(p);
             } else if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
-            } else if (_anySetter == null) {
+            } else if (!_anySetterAccepts(propName)) {
                 handleUnknownVanilla(p, ctxt, bean, propName);
             } else {
                 // Need to copy to a separate buffer first
@@ -1319,7 +1319,7 @@ public class BeanDeserializer
             } else if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 // [databind#6115] Things marked as ignorable should not be passed to any setter
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
-            } else if (_anySetter == null) {
+            } else if (!_anySetterAccepts(propName)) {
                 // [databind#650]: priority: @JsonIgnoreProperties > FAIL_ON_UNKNOWN_PROPERTIES
                 if (_ignoreAllUnknown) {
                     p.skipChildren();
@@ -1334,7 +1334,7 @@ public class BeanDeserializer
                 tokens.writeName(propName);
                 tokens.append(b2);
                 try {
-                    buffer.bufferAnyProperty(_anySetter, propName,
+                    buffer.bufferAnyProperty(_anySetter, _anySetterKey(propName),
                             _anySetter.deserialize(b2.asParserOnFirstToken(ctxt), ctxt));
                 } catch (Exception e) {
                     throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
@@ -1451,9 +1451,9 @@ public class BeanDeserializer
                 continue;
             }
             // if not, the usual fallback handling:
-            if (_anySetter != null) {
+            if (_anySetterAccepts(propName)) {
                 try {
-                    _anySetter.deserializeAndSet(p, ctxt, bean, propName);
+                    _anySetter.deserializeAndSet(p, ctxt, bean, _anySetterKey(propName));
                 } catch (Exception e) {
                     throw wrapAndThrow(e, bean, propName, ctxt);
                 }
@@ -1539,8 +1539,8 @@ public class BeanDeserializer
                 continue;
             }
             // "any property"?
-            if (_anySetter != null) {
-                buffer.bufferAnyProperty(_anySetter, propName,
+            if (_anySetterAccepts(propName)) {
+                buffer.bufferAnyProperty(_anySetter, _anySetterKey(propName),
                         _anySetter.deserialize(p, ctxt));
                 continue;
             }

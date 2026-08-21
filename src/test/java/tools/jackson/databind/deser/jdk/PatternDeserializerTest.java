@@ -89,11 +89,42 @@ public class PatternDeserializerTest
         }
     }
 
+    // Registered deserializer must take precedence over the default one, even
+    // when it is more permissive than the default
+    @Test
+    public void customLimitOverridesDefault() throws Exception
+    {
+        ObjectMapper mapper = _mapperWithMaxLength(2000);
+
+        String longPattern = "a".repeat(1500);
+        // Would be rejected by the default deserializer...
+        try {
+            MAPPER.readValue(q(longPattern), Pattern.class);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "regex pattern length");
+        }
+        // ... but accepted by the registered one
+        assertEquals(longPattern, mapper.readValue(q(longPattern), Pattern.class).pattern());
+    }
+
+    // Length checking can be disabled altogether with UNLIMITED_PATTERN_LENGTH
+    @Test
+    public void unlimitedPatternLength() throws Exception
+    {
+        ObjectMapper mapper = _mapperWithMaxLength(PatternDeserializer.UNLIMITED_PATTERN_LENGTH);
+
+        String hugePattern = "a".repeat(50_000);
+        assertEquals(hugePattern, mapper.readValue(q(hugePattern), Pattern.class).pattern());
+    }
+
     @Test
     public void invalidMaxLength() throws Exception
     {
         assertThrows(IllegalArgumentException.class, () -> new PatternDeserializer(0));
-        assertThrows(IllegalArgumentException.class, () -> new PatternDeserializer(-1));
+        assertThrows(IllegalArgumentException.class, () -> new PatternDeserializer(-2));
+        // but -1 means "unlimited", and is accepted
+        assertNotNull(new PatternDeserializer(PatternDeserializer.UNLIMITED_PATTERN_LENGTH));
     }
 
     private ObjectMapper _mapperWithMaxLength(int maxPatternLength) {

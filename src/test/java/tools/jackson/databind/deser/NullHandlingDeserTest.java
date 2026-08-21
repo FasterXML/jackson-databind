@@ -14,6 +14,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -74,6 +75,16 @@ public class NullHandlingDeserTest
             ++callCount;
             any.put(name, value);
         }
+    }
+
+    static class FieldStringAnySetter {
+        @JsonAnySetter
+        Map<String,String> any = new LinkedHashMap<>();
+    }
+
+    static class ObjectNodeAnySetter {
+        @JsonAnySetter
+        ObjectNode any;
     }
 
     static class CreatorWithCountingAnySetter {
@@ -238,6 +249,45 @@ public class NullHandlingDeserTest
         assertEquals(1, result.callCount);
         assertTrue(result.any.containsKey("a"));
         assertNull(result.any.get("a"));
+    }
+
+    // [databind#6169]
+    @Test
+    public void testAnySetterWithValueTypeNullOverride6169() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Map.class,
+                        o -> o.setNullHandling(JsonSetter.Value.forValueNulls(Nulls.FAIL)))
+                .withConfigOverride(String.class,
+                        o -> o.setNullHandling(JsonSetter.Value.forValueNulls(Nulls.SKIP)))
+                .build();
+
+        CountingStringAnySetter methodResult = mapper.readValue(a2q("{'a':null,'b':'value'}"),
+                CountingStringAnySetter.class);
+        assertEquals(1, methodResult.callCount);
+        assertFalse(methodResult.any.containsKey("a"));
+        assertEquals("value", methodResult.any.get("b"));
+
+        FieldStringAnySetter fieldResult = mapper.readValue(a2q("{'a':null,'b':'value'}"),
+                FieldStringAnySetter.class);
+        assertFalse(fieldResult.any.containsKey("a"));
+        assertEquals("value", fieldResult.any.get("b"));
+    }
+
+    // [databind#6169]
+    @Test
+    public void testJsonNodeAnySetterWithValueTypeNullOverride6169() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(ObjectNode.class,
+                        o -> o.setNullHandling(JsonSetter.Value.forValueNulls(Nulls.FAIL)))
+                .withConfigOverride(JsonNode.class,
+                        o -> o.setNullHandling(JsonSetter.Value.forValueNulls(Nulls.SKIP)))
+                .build();
+
+        ObjectNodeAnySetter result = mapper.readValue(a2q("{'a':null,'b':13}"),
+                ObjectNodeAnySetter.class);
+
+        assertFalse(result.any.has("a"));
+        assertEquals(13, result.any.get("b").intValue());
     }
 
     @Test

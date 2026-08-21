@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 import tools.jackson.databind.DeserializationFeature;
@@ -32,6 +33,20 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
         @JsonCreator
         public POJO562(@JsonProperty("a") String a,
             @JsonAnySetter Map<String, Object> leftovers
+        ) {
+            this.a = a;
+            stuff = leftovers;
+        }
+    }
+
+    static class POJO562WithStringValues
+    {
+        String a;
+        Map<String,String> stuff;
+
+        @JsonCreator
+        public POJO562WithStringValues(@JsonProperty("a") String a,
+            @JsonAnySetter Map<String, String> leftovers
         ) {
             this.a = a;
             stuff = leftovers;
@@ -155,6 +170,26 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
 
         assertEquals("value", pojo.a);
         assertEquals(Collections.singletonMap("c", Integer.valueOf(111)), pojo.stuff);
+    }
+
+    // [databind#6169]
+    @Test
+    public void mapAnySetterViaCreatorWithValueTypeNullOverride6169() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Map.class,
+                        o -> o.setNullHandling(JsonSetter.Value.forValueNulls(Nulls.FAIL)))
+                .withConfigOverride(String.class,
+                        o -> o.setNullHandling(JsonSetter.Value.forValueNulls(Nulls.SKIP)))
+                .build();
+
+        POJO562WithStringValues pojo = mapper.readValue(a2q(
+                "{'a':'value', 'b':null, 'c':'text'}"
+                ),
+                POJO562WithStringValues.class);
+
+        assertEquals("value", pojo.a);
+        assertEquals(Collections.singletonMap("c", "text"), pojo.stuff);
     }
 
     // [databind#4634]

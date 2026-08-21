@@ -888,13 +888,13 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                 fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
                 keyType = fieldType.getKeyType();
                 valueType = fieldType.getContentType();
-                prop = _constructAnySetterProperty(ctxt, mutator, fieldType);
+                prop = _constructAnySetterProperty(ctxt, mutator, valueType);
             } else if (fieldType.hasRawClass(JsonNode.class)
                     || fieldType.hasRawClass(ObjectNode.class)) {
                 fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
                 // Deserialize is individual values of ObjectNode, not full ObjectNode, so:
                 valueType = ctxt.constructType(JsonNode.class);
-                prop = _constructAnySetterProperty(ctxt, mutator, fieldType);
+                prop = _constructAnySetterProperty(ctxt, mutator, valueType);
 
                 // Unlike with more complicated types, here we do not allow any annotation
                 // overrides etc but instead short-cut handling:
@@ -915,12 +915,12 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                 paramType = resolveMemberAndTypeAnnotations(ctxt, mutator, paramType);
                 keyType = paramType.getKeyType();
                 valueType = paramType.getContentType();
-                prop = _constructAnySetterProperty(ctxt, mutator, paramType);
+                prop = _constructAnySetterProperty(ctxt, mutator, valueType);
             } else if (paramType.hasRawClass(JsonNode.class) || paramType.hasRawClass(ObjectNode.class)) {
                 paramType = resolveMemberAndTypeAnnotations(ctxt, mutator, paramType);
                 // Deserialize is individual values of ObjectNode, not full ObjectNode, so:
                 valueType = ctxt.constructType(JsonNode.class);
-                prop = _constructAnySetterProperty(ctxt, mutator, paramType);
+                prop = _constructAnySetterProperty(ctxt, mutator, valueType);
 
                 // Unlike with more complicated types, here we do not allow any annotation
                 // overrides etc but instead short-cut handling:

@@ -34,7 +34,7 @@ No changes since 2.22
 #6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
-#6058: Do not allow DNS resolution when deserializing `InetAddress`
+#6058: Do not allow DNS resolution when deserializing `InetAddress` [CVE-2026-77310]
  (reported by @thientd)
  (fix by @pjfanning)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
@@ -85,7 +85,7 @@ No changes since 2.22
 #6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
-#6058: Do not allow DNS resolution when deserializing `InetAddress`
+#6058: Do not allow DNS resolution when deserializing `InetAddress` [CVE-2026-77310]
  (reported by @thientd)
  (fix by @pjfanning)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
@@ -409,7 +409,7 @@ No changes since 2.19.2
 #6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
-#6058: Do not allow DNS resolution when deserializing `InetAddress`
+#6058: Do not allow DNS resolution when deserializing `InetAddress` [CVE-2026-77310]
  (reported by @thientd)
  (fix by @pjfanning)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]

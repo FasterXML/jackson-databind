@@ -1,7 +1,6 @@
 package tools.jackson.databind.tofix;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -33,94 +32,7 @@ public class UnwrappedAnyGetterPrefixTest extends DatabindTestUtil
         public void setExtra(String key, Object value) { extra.put(key, value); }
     }
 
-    @JsonPropertyOrder({ "name" })
-    static class PrefixOuter {
-        public String name = "aaa";
-
-        @JsonUnwrapped(prefix = "a-")
-        public AnyBean inner = new AnyBean();
-    }
-
     private final ObjectMapper MAPPER = newJsonMapper();
-
-    /*
-    /**********************************************************************
-    /* Serialization: prefix leaks into nested values
-    /**********************************************************************
-     */
-
-    // The prefix must only be applied to the any-getter's own keys; keys of nested
-    // Objects (here: a `Map`-valued entry, and one inside an Array) must be left alone
-    @JacksonTestFailureExpected
-    @Test
-    public void mapValuedEntryMustNotPrefixNestedKeys() throws Exception
-    {
-        Map<String, Object> nested = new LinkedHashMap<>();
-        nested.put("x", 1);
-        nested.put("y", 2);
-
-        PrefixOuter input = new PrefixOuter();
-        input.inner.setExtra("obj", nested);
-        input.inner.setExtra("arr", List.of(nested));
-
-        assertEquals("""
-                {"name":"aaa","a-obj":{"x":1,"y":2},"a-arr":[{"x":1,"y":2}]}""",
-                MAPPER.writeValueAsString(input));
-    }
-
-    static class Point {
-        public int x = 1;
-        public int y = 2;
-    }
-
-    // Same as above, but with a POJO-valued entry
-    @JacksonTestFailureExpected
-    @Test
-    public void pojoValuedEntryMustNotPrefixNestedProperties() throws Exception
-    {
-        PrefixOuter input = new PrefixOuter();
-        input.inner.setExtra("pt", new Point());
-
-        assertEquals("""
-                {"name":"aaa","a-pt":{"x":1,"y":2}}""",
-                MAPPER.writeValueAsString(input));
-    }
-
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")
-    @JsonSubTypes({ @JsonSubTypes.Type(value = Dog.class, name = "dog") })
-    static abstract class Animal {
-        public String name = "rex";
-    }
-
-    static class Dog extends Animal { }
-
-    @JsonPropertyOrder({ "name" })
-    static class PolyValueOuter {
-        public String name = "aaa";
-
-        @JsonUnwrapped(prefix = "a-")
-        public PolyValueBean inner = new PolyValueBean();
-    }
-
-    static class PolyValueBean {
-        public Map<String, Animal> extra = new LinkedHashMap<>();
-
-        @JsonAnyGetter
-        public Map<String, Animal> getExtra() { return extra; }
-    }
-
-    // Type ids written for values are property names too, and must not be prefixed
-    @JacksonTestFailureExpected
-    @Test
-    public void polymorphicValueTypeIdMustNotBePrefixed() throws Exception
-    {
-        PolyValueOuter input = new PolyValueOuter();
-        input.inner.extra.put("pet", new Dog());
-
-        assertEquals("""
-                {"name":"aaa","a-pet":{"@type":"dog","name":"rex"}}""",
-                MAPPER.writeValueAsString(input));
-    }
 
     /*
     /**********************************************************************

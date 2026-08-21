@@ -6,8 +6,8 @@ import tools.jackson.databind.util.NameTransformer;
 
 /**
  * A {@link JsonGenerator} wrapper that applies a {@link NameTransformer} to
- * field names written via {@link #writeName(String)} and
- * {@link #writeName(SerializableString)}.
+ * field names written via {@link #writeName(String)},
+ * {@link #writeName(SerializableString)} and {@link #writePropertyId(long)}.
  * This allows existing serialization code (e.g. {@link MapSerializer}) to produce
  * transformed key names without any special-case logic: the generator intercepts
  * every field-name write and applies the prefix/suffix transformation transparently.
@@ -45,6 +45,19 @@ class NameTransformingGenerator extends JsonGeneratorDelegate
             delegate.writeName(_transformer.transform(name.getValue()));
         } else {
             delegate.writeName(name);
+        }
+        return this;
+    }
+
+    // Numeric keys (`Integer`/`Long`-keyed Maps) are written as "property ids";
+    // for formats where those are just names they need transforming too, which
+    // requires downgrading them to a `String` name
+    @Override
+    public JsonGenerator writePropertyId(long id) throws JacksonException {
+        if (_depth == 0) {
+            delegate.writeName(_transformer.transform(String.valueOf(id)));
+        } else {
+            delegate.writePropertyId(id);
         }
         return this;
     }

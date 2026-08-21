@@ -99,6 +99,18 @@ public class BuilderBasedDeserializer
         _propertiesByIndex = _beanProperties.getNameMatcherProperties();
     }
 
+    /**
+     * @since 3.3
+     */
+    protected BuilderBasedDeserializer(BuilderBasedDeserializer src,
+            UnwrappedPropertyHandler unwrapHandler, PropertyBasedCreator pbCreator,
+            BeanPropertyMap renamedProperties, boolean ignoreAllUnknown,
+            NameTransformer unwrappingNameTransformer
+    ) {
+        this(src, unwrapHandler, pbCreator, renamedProperties, ignoreAllUnknown);
+        _unwrappingNameTransformer = unwrappingNameTransformer;
+    }
+
     public BuilderBasedDeserializer(BuilderBasedDeserializer src, ObjectIdReader oir) {
         super(src, oir);
         _buildMethod = src._buildMethod;
@@ -154,9 +166,12 @@ public class BuilderBasedDeserializer
             if (pbCreator != null) {
                 pbCreator = pbCreator.renameAll(ctxt, transformer);
             }
-            // and handle direct unwrapping as well:
+            // and handle direct unwrapping as well
+            // [databind#6118] Store transformer so any-setter keys can be
+            // reverse-transformed (e.g., prefix stripped).
             BeanPropertyMap props = _beanProperties.renameAll(ctxt, transformer);
-            return new BuilderBasedDeserializer(this, uwHandler, pbCreator, props, true);
+            return new BuilderBasedDeserializer(this, uwHandler, pbCreator, props, true,
+                    transformer);
         } finally { _currentlyTransforming = null; }
     }
 
@@ -531,7 +546,7 @@ public class BuilderBasedDeserializer
             }
             // "any" property?
             if (_anySetter != null) {
-                buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                buffer.bufferAnyProperty(_anySetter, _anySetterKey(propName), _anySetter.deserialize(p, ctxt));
                 continue;
             }
             if (skipUnknown) {
@@ -763,7 +778,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             try {
-                _anySetter.deserializeAndSet(p, ctxt, bean, propName);
+                _anySetter.deserializeAndSet(p, ctxt, bean, _anySetterKey(propName));
             } catch (Exception e) {
                 throw wrapAndThrow(e, bean, propName, ctxt);
             }
@@ -818,7 +833,7 @@ public class BuilderBasedDeserializer
                 handleUnknownVanilla(p, ctxt, builder, propName);
                 continue;
             }
-            _anySetter.deserializeAndSet(p, ctxt, builder, propName);
+            _anySetter.deserializeAndSet(p, ctxt, builder, _anySetterKey(propName));
         }
         tokens.writeEndObject();
         return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
@@ -910,7 +925,7 @@ public class BuilderBasedDeserializer
                 handleUnknownVanilla(p, ctxt, null, propName);
                 continue;
             }
-            buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+            buffer.bufferAnyProperty(_anySetter, _anySetterKey(propName), _anySetter.deserialize(p, ctxt));
         }
         tokens.writeEndObject();
 
@@ -987,7 +1002,7 @@ public class BuilderBasedDeserializer
             // if not, the usual fallback handling:
             if (_anySetter != null) {
                 try {
-                    _anySetter.deserializeAndSet(p, ctxt, bean, propName);
+                    _anySetter.deserializeAndSet(p, ctxt, bean, _anySetterKey(propName));
                 } catch (Exception e) {
                     throw wrapAndThrow(e, bean, propName, ctxt);
                 }

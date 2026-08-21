@@ -1999,6 +1999,25 @@ ClassUtil.getTypeDescription(ct));
     }
 
     /**
+     * [databind#6118] Helper for mapping the name of an unknown property into the key
+     * to pass to {@code @JsonAnySetter}: when this deserializer was created for
+     * {@code @JsonUnwrapped} with a prefix/suffix, the transformation has to be
+     * reversed so that the any-setter does not see the prefix/suffix.
+     *
+     * @since 3.3
+     */
+    protected String _anySetterKey(String propName)
+    {
+        if (_unwrappingNameTransformer != null) {
+            String reversed = _unwrappingNameTransformer.reverse(propName);
+            if (reversed != null) {
+                return reversed;
+            }
+        }
+        return propName;
+    }
+
+    /**
      * Helper method called for an unknown property, when using "vanilla"
      * processing.
      *
@@ -2015,17 +2034,7 @@ ClassUtil.getTypeDescription(ct));
         } else if (_anySetter != null) {
             try {
                // should we consider return type of any setter?
-                // [databind#6118] If this deserializer was created for
-                // @JsonUnwrapped, reverse-transform the property name
-                // so the any-setter key doesn't include the prefix/suffix.
-                String anySetterKey = propName;
-                if (_unwrappingNameTransformer != null) {
-                    String reversed = _unwrappingNameTransformer.reverse(propName);
-                    if (reversed != null) {
-                        anySetterKey = reversed;
-                    }
-                }
-                _anySetter.deserializeAndSet(p, ctxt, beanOrBuilder, anySetterKey);
+                _anySetter.deserializeAndSet(p, ctxt, beanOrBuilder, _anySetterKey(propName));
             } catch (Exception e) {
                 throw wrapAndThrow(e, beanOrBuilder, propName, ctxt);
             }

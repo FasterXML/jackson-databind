@@ -429,23 +429,15 @@ public class BeanDeserializer
             // "Any property"?
             if (_anySetter != null) {
                 try {
-                    // [databind#6118] Reverse-transform key for any-setter if unwrapped
-                    String anySetterKey = propName;
-                    if (_unwrappingNameTransformer != null) {
-                        String reversed = _unwrappingNameTransformer.reverse(propName);
-                        if (reversed != null) {
-                            anySetterKey = reversed;
-                        }
-                    }
                     // 09-Feb-2026, tatu: as with Mutators, should never have non-Creator
                     //   "any"-properties, so commento out
                     /*
                     if (_anySetter.isFieldType() || _anySetter.isSetterType()) {
-                        buffer.bufferAnyProperty(_anySetter, anySetterKey,
+                        buffer.bufferAnyProperty(_anySetter, _anySetterKey(propName),
                                 _anySetter.deserialize(p, ctxt));
                     } else {
                         */
-                    buffer.bufferAnyParameterProperty(_anySetter, anySetterKey,
+                    buffer.bufferAnyParameterProperty(_anySetter, _anySetterKey(propName),
                             _anySetter.deserialize(p, ctxt));
                     //}
                 } catch (Exception e) {
@@ -864,21 +856,13 @@ public class BeanDeserializer
             // "any property"?
             if (_anySetter != null) {
                 try {
-                    // [databind#6118] Reverse-transform key for any-setter if unwrapped
-                    String anySetterKey = propName;
-                    if (_unwrappingNameTransformer != null) {
-                        String reversed = _unwrappingNameTransformer.reverse(propName);
-                        if (reversed != null) {
-                            anySetterKey = reversed;
-                        }
-                    }
                     // [databind#4639] Since 2.18.1 AnySetter might not part of the creator, but just some field.
                     if (_anySetter.isFieldType() ||
                             // [databind#4639] 2.18.2: Also should account for setter type :-/
                             _anySetter.isSetterType()) {
-                        buffer.bufferAnyProperty(_anySetter, anySetterKey, _anySetter.deserialize(p, ctxt));
+                        buffer.bufferAnyProperty(_anySetter, _anySetterKey(propName), _anySetter.deserialize(p, ctxt));
                     } else {
-                        buffer.bufferAnyParameterProperty(_anySetter, anySetterKey, _anySetter.deserialize(p, ctxt));
+                        buffer.bufferAnyParameterProperty(_anySetter, _anySetterKey(propName), _anySetter.deserialize(p, ctxt));
                     }
                 } catch (Exception e) {
                     throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
@@ -1181,15 +1165,7 @@ public class BeanDeserializer
             tokens.writeName(propName);
             tokens.append(b2);
             try {
-                // [databind#6118] Reverse-transform key for any-setter if unwrapped
-                String anySetterKey = propName;
-                if (_unwrappingNameTransformer != null) {
-                    String reversed = _unwrappingNameTransformer.reverse(propName);
-                    if (reversed != null) {
-                        anySetterKey = reversed;
-                    }
-                }
-                _anySetter.deserializeAndSet(b2.asParserOnFirstToken(ctxt), ctxt, bean, anySetterKey);
+                _anySetter.deserializeAndSet(b2.asParserOnFirstToken(ctxt), ctxt, bean, _anySetterKey(propName));
             } catch (Exception e) {
                 throw wrapAndThrow(e, bean, propName, ctxt);
             }
@@ -1252,15 +1228,7 @@ public class BeanDeserializer
                 tokens.writeName(propName);
                 tokens.append(b2);
                 try {
-                    // [databind#6118] Reverse-transform key for any-setter if unwrapped
-                    String anySetterKey = propName;
-                    if (_unwrappingNameTransformer != null) {
-                        String reversed = _unwrappingNameTransformer.reverse(propName);
-                        if (reversed != null) {
-                            anySetterKey = reversed;
-                        }
-                    }
-                    _anySetter.deserializeAndSet(b2.asParserOnFirstToken(ctxt), ctxt, bean, anySetterKey);
+                    _anySetter.deserializeAndSet(b2.asParserOnFirstToken(ctxt), ctxt, bean, _anySetterKey(propName));
                 } catch (Exception e) {
                     throw wrapAndThrow(e, bean, propName, ctxt);
                 }

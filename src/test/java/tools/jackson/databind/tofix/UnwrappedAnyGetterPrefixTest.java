@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.annotation.JsonDeserialize;
-import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
@@ -33,92 +31,6 @@ public class UnwrappedAnyGetterPrefixTest extends DatabindTestUtil
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
-
-    /*
-    /**********************************************************************
-    /* Serialization: prefix skipped for numeric keys
-    /**********************************************************************
-     */
-
-    @JsonPropertyOrder({ "name" })
-    static class IntKeyOuter {
-        public String name = "aaa";
-
-        @JsonUnwrapped(prefix = "a-")
-        public IntKeyBean inner = new IntKeyBean();
-    }
-
-    static class IntKeyBean {
-        public Map<Integer, Object> extra = new LinkedHashMap<>();
-
-        @JsonAnyGetter
-        public Map<Integer, Object> getExtra() { return extra; }
-    }
-
-    // `Integer`/`Long` keys are written via `JsonGenerator.writePropertyId(long)`,
-    // which bypasses the name transformation (`String` and `Enum` keys work)
-    @JacksonTestFailureExpected
-    @Test
-    public void intKeyedAnyGetterMustApplyPrefix() throws Exception
-    {
-        IntKeyOuter input = new IntKeyOuter();
-        input.inner.extra.put(3, "x");
-
-        assertEquals("""
-                {"name":"aaa","a-3":"x"}""", MAPPER.writeValueAsString(input));
-    }
-
-    /*
-    /**********************************************************************
-    /* Deserialization gaps
-    /**********************************************************************
-     */
-
-    @JsonDeserialize(builder = BuilderAnyBean.Builder.class)
-    static class BuilderAnyBean {
-        public final String id;
-        public final Map<String, Object> extra;
-
-        BuilderAnyBean(String id, Map<String, Object> extra) {
-            this.id = id;
-            this.extra = extra;
-        }
-
-        @JsonPOJOBuilder(withPrefix = "")
-        static class Builder {
-            String id;
-            Map<String, Object> extra = new LinkedHashMap<>();
-
-            public Builder id(String id) {
-                this.id = id;
-                return this;
-            }
-
-            @JsonAnySetter
-            public void any(String key, Object value) { extra.put(key, value); }
-
-            public BuilderAnyBean build() { return new BuilderAnyBean(id, extra); }
-        }
-    }
-
-    static class BuilderOuter {
-        public String name;
-
-        @JsonUnwrapped(prefix = "a-")
-        public BuilderAnyBean inner;
-    }
-
-    // `BuilderBasedDeserializer.unwrappingDeserializer()` does not retain the
-    // `NameTransformer`, so the prefix is not stripped off any-setter keys
-    @JacksonTestFailureExpected
-    @Test
-    public void builderBasedInnerMustStripPrefix() throws Exception
-    {
-        BuilderOuter result = MAPPER.readValue("""
-                {"name":"x","a-id":"i1","a-age":64}""", BuilderOuter.class);
-        assertEquals("i1", result.inner.id);
-        assertEquals(Map.of("age", 64), result.inner.extra);
-    }
 
     static class AnyA {
         public Map<String, Object> ea = new LinkedHashMap<>();

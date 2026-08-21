@@ -108,7 +108,12 @@ public class BuilderBasedDeserializer
             NameTransformer unwrappingNameTransformer
     ) {
         this(src, unwrapHandler, pbCreator, renamedProperties, ignoreAllUnknown);
-        _unwrappingNameTransformer = unwrappingNameTransformer;
+        // Chain, in case `src` was itself already unwrapped (nested @JsonUnwrapped):
+        // the outer transformation is applied last, so it wraps the inner one
+        _unwrappingNameTransformer = (src._unwrappingNameTransformer == null)
+                ? unwrappingNameTransformer
+                : NameTransformer.chainedTransformer(unwrappingNameTransformer,
+                        src._unwrappingNameTransformer);
     }
 
     public BuilderBasedDeserializer(BuilderBasedDeserializer src, ObjectIdReader oir) {

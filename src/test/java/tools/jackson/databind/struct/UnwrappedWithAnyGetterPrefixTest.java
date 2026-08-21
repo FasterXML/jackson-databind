@@ -676,4 +676,31 @@ public class UnwrappedWithAnyGetterPrefixTest extends DatabindTestUtil
         assertEquals("i1", result.inner.id);
         assertEquals(Map.of("age", 64), result.inner.extra);
     }
+
+    static class OuterWithOwnAnySetter {
+        public String name;
+
+        @JsonUnwrapped(prefix = "a-")
+        public AnyBean inner;
+
+        public Map<String, Object> outerExtra = new LinkedHashMap<>();
+
+        @JsonAnyGetter
+        public Map<String, Object> getOuterExtra() { return outerExtra; }
+
+        @JsonAnySetter
+        public void setOuterExtra(String key, Object value) { outerExtra.put(key, value); }
+    }
+
+    // A property matching no unwrapped bean's prefix falls back to the *outer* bean's
+    // any-setter. An unwrapped bean with an any-setter otherwise claims every unknown
+    // property (`UnwrappedPropertyHandler`), which would starve the outer one.
+    @Test
+    public void nonMatchingNameFallsBackToOuterAnySetter() throws Exception
+    {
+        OuterWithOwnAnySetter result = MAPPER.readValue("""
+                {"name":"n","a-age":64,"zz":3}""", OuterWithOwnAnySetter.class);
+        assertEquals(Map.of("age", 64), result.inner.extra);
+        assertEquals(Map.of("zz", 3), result.outerExtra);
+    }
 }

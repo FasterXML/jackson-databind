@@ -88,7 +88,12 @@ public class BeanDeserializer
             BeanPropertyMap renamedProperties, boolean ignoreAllUnknown,
             NameTransformer unwrappingNameTransformer) {
         this(src, unwrapHandler, propertyBasedCreator, renamedProperties, ignoreAllUnknown);
-        _unwrappingNameTransformer = unwrappingNameTransformer;
+        // Chain, in case `src` was itself already unwrapped (nested @JsonUnwrapped):
+        // the outer transformation is applied last, so it wraps the inner one
+        _unwrappingNameTransformer = (src._unwrappingNameTransformer == null)
+                ? unwrappingNameTransformer
+                : NameTransformer.chainedTransformer(unwrappingNameTransformer,
+                        src._unwrappingNameTransformer);
     }
 
     protected BeanDeserializer(BeanDeserializer src, ObjectIdReader oir) {

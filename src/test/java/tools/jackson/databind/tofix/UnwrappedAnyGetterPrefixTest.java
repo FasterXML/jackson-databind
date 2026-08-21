@@ -59,33 +59,4 @@ public class UnwrappedAnyGetterPrefixTest extends DatabindTestUtil
         assertEquals("m", result.mid.mid);
         assertEquals(Map.of("age", 64), result.mid.inner.extra);
     }
-
-    static class OuterWithOwnAnySetter {
-        public String name;
-
-        @JsonUnwrapped(prefix = "a-")
-        public AnyBean inner;
-
-        public Map<String, Object> outerExtra = new LinkedHashMap<>();
-
-        @JsonAnyGetter
-        public Map<String, Object> getOuterExtra() { return outerExtra; }
-
-        @JsonAnySetter
-        public void setOuterExtra(String key, Object value) { outerExtra.put(key, value); }
-    }
-
-    // A property matching no unwrapped bean's prefix should fall back to the *outer*
-    // bean's any-setter; instead the unwrapped handling swallows it and it is lost.
-    // (Before prefixes were reversed at all it ended up -- wrongly -- in the inner
-    // bean's any-setter, so this has simply never worked.)
-    @JacksonTestFailureExpected
-    @Test
-    public void nonMatchingNameShouldFallBackToOuterAnySetter() throws Exception
-    {
-        OuterWithOwnAnySetter result = MAPPER.readValue("""
-                {"name":"n","a-age":64,"zz":3}""", OuterWithOwnAnySetter.class);
-        assertEquals(Map.of("age", 64), result.inner.extra);
-        assertEquals(Map.of("zz", 3), result.outerExtra);
-    }
 }

@@ -1998,6 +1998,11 @@ ClassUtil.getTypeDescription(ct));
                 && !ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
+    @Override
+    public NameTransformer getUnwrappingNameTransformer() {
+        return _unwrappingNameTransformer;
+    }
+
     /**
      * [databind#6118] Helper for mapping the name of an unknown property into the key
      * to pass to {@code @JsonAnySetter}: when this deserializer was created for

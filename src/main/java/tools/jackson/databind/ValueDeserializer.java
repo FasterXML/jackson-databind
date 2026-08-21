@@ -493,6 +493,19 @@ public abstract class ValueDeserializer<T>
     public void collectAllPropertyNamesTo(Set<String> names) { }
     
     /**
+     * Method for accessing the {@link NameTransformer} this deserializer was created
+     * with by {@link #unwrappingDeserializer}, if any: needed to tell whether a given
+     * property name can belong to this (unwrapped) value at all.
+     *<p>
+     * Default implementation returns {@code null}, meaning "not known".
+     *
+     * @since 3.3
+     */
+    public NameTransformer getUnwrappingNameTransformer() {
+        return null;
+    }
+
+    /**
      * Method to check whether deserializer has "any-setter" style matching
      * of any and all properties for an Object value.
      *

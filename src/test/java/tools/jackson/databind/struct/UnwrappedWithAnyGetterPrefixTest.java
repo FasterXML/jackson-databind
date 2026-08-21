@@ -703,4 +703,16 @@ public class UnwrappedWithAnyGetterPrefixTest extends DatabindTestUtil
         assertEquals(Map.of("age", 64), result.inner.extra);
         assertEquals(Map.of("zz", 3), result.outerExtra);
     }
+
+    // Nested `@JsonUnwrapped` prefixes chain on read as well as on write: the outer bean
+    // has to learn (through `Mid`) that something unwrapped inside it has an any-setter,
+    // and with which transformation, or "a-b-age" reaches no-one
+    @Test
+    public void nestedPrefixesChainOnDeserialization() throws Exception
+    {
+        NestedOuter result = MAPPER.readValue("""
+                {"name":"aaa","a-mid":"m","a-b-age":64}""", NestedOuter.class);
+        assertEquals("m", result.mid.mid);
+        assertEquals(Map.of("age", 64), result.mid.inner.extra);
+    }
 }

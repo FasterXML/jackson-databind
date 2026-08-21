@@ -1402,6 +1402,12 @@ ClassUtil.getTypeDescription(ct));
 
     @Override
     public void collectAllPropertyNamesTo(Set<String> names) {
+        collectAllPropertyNamesTo(names, new ArrayList<>());
+    }
+
+    @Override
+    public void collectAllPropertyNamesTo(Set<String> names,
+            List<NameTransformer> acceptAllTransformers) {
         for (SettableBeanProperty prop : _beanProperties) {
             names.add(prop.getName());
         }
@@ -1409,7 +1415,8 @@ ClassUtil.getTypeDescription(ct));
         // @JsonAlias-matched properties into this unwrapped deserializer.
         _beanProperties.collectAliasNames(names);
         if (_unwrappedPropertyHandler != null) {
-            _unwrappedPropertyHandler.collectUnwrappedPropertyNamesTo(names);
+            _unwrappedPropertyHandler.collectUnwrappedPropertyNamesTo(names,
+                    acceptAllTransformers);
         }
     }
 

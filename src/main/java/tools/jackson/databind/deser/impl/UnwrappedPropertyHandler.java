@@ -234,8 +234,20 @@ public class UnwrappedPropertyHandler
      * @since 3.1
      */
     public void collectUnwrappedPropertyNamesTo(Set<String> names) {
+        collectUnwrappedPropertyNamesTo(names, new ArrayList<>());
+    }
+
+    /**
+     * Variant that also collects the {@link NameTransformer}s of unwrapped deserializers
+     * that accept all otherwise-unrecognized properties, so that the information survives
+     * nesting of {@code @JsonUnwrapped} values. [databind#6118]
+     *
+     * @since 3.3
+     */
+    public void collectUnwrappedPropertyNamesTo(Set<String> names,
+            List<NameTransformer> acceptAllTransformers) {
         _collectUnwrappedPropertyNames(_properties, _creatorProperties, names,
-                new ArrayList<>());
+                acceptAllTransformers);
     }
 
     /**
@@ -276,13 +288,17 @@ public class UnwrappedPropertyHandler
             acceptAllTransformers.add(deser.getUnwrappingNameTransformer());
             return;
         }
-        // [databind#6001]: collect into a temp set so we can tell whether this
-        //   deserializer contributed any names of its own; if not, it is "opaque"
+        // [databind#6001]: collect into temporaries so we can tell whether this
+        //   deserializer told us anything at all; if not, it is "opaque"
         //   (typically a custom unwrapping deserializer capturing arbitrary fields).
         Set<String> propNames = new HashSet<>();
-        deser.collectAllPropertyNamesTo(propNames);
+        // [databind#6118]: nested unwrapped values may have "any setters" of their own,
+        //   whose (chained) transformers have to reach us for the property to be routed
+        List<NameTransformer> nestedAcceptAll = new ArrayList<>();
+        deser.collectAllPropertyNamesTo(propNames, nestedAcceptAll);
         names.addAll(propNames);
-        if (propNames.isEmpty()) {
+        acceptAllTransformers.addAll(nestedAcceptAll);
+        if (propNames.isEmpty() && nestedAcceptAll.isEmpty()) {
             acceptAllTransformers.add(deser.getUnwrappingNameTransformer());
         }
     }

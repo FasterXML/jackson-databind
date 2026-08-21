@@ -1,6 +1,7 @@
 package tools.jackson.databind;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import tools.jackson.core.JacksonException;
@@ -491,6 +492,24 @@ public abstract class ValueDeserializer<T>
      * @since 3.2
      */
     public void collectAllPropertyNamesTo(Set<String> names) { }
+
+    /**
+     * Variant of {@link #collectAllPropertyNamesTo(Set)} that additionally collects the
+     * {@link NameTransformer}s of any <i>nested</i> unwrapped deserializers that accept
+     * all otherwise-unrecognized properties (have an "any setter", or are opaque). Needed
+     * so that a bean can tell that a property belongs to something unwrapped inside one
+     * of its own unwrapped values; a {@code null} entry means "accepts everything".
+     *
+     * @param names (not null) Set to add property names to; for both regular
+     *   and "any" properties.
+     * @param acceptAllTransformers (not null) List to add transformers to.
+     *
+     * @since 3.3
+     */
+    public void collectAllPropertyNamesTo(Set<String> names,
+            List<NameTransformer> acceptAllTransformers) {
+        collectAllPropertyNamesTo(names);
+    }
     
     /**
      * Method for accessing the {@link NameTransformer} this deserializer was created

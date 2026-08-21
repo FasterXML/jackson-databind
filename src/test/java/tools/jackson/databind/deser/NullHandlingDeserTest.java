@@ -213,8 +213,7 @@ public class NullHandlingDeserTest
                 CountingAnySetter.class);
 
         assertEquals(1, result.callCount);
-        assertFalse(result.any.containsKey("a"));
-        assertEquals(Integer.valueOf(1), result.any.get("b"));
+        assertEquals(Collections.singletonMap("b", Integer.valueOf(1)), result.any);
     }
 
     // [databind#6169]
@@ -229,8 +228,7 @@ public class NullHandlingDeserTest
 
         assertEquals(7, result.id);
         assertEquals(1, result.callCount);
-        assertFalse(result.any.containsKey("a"));
-        assertEquals(Integer.valueOf(1), result.any.get("b"));
+        assertEquals(Collections.singletonMap("b", Integer.valueOf(1)), result.any);
     }
 
     // [databind#6169]
@@ -247,8 +245,7 @@ public class NullHandlingDeserTest
                 CountingStringAnySetter.class);
 
         assertEquals(1, result.callCount);
-        assertTrue(result.any.containsKey("a"));
-        assertNull(result.any.get("a"));
+        assertEquals(Collections.singletonMap("a", null), result.any);
     }
 
     // [databind#6169]
@@ -264,13 +261,11 @@ public class NullHandlingDeserTest
         CountingStringAnySetter methodResult = mapper.readValue(a2q("{'a':null,'b':'value'}"),
                 CountingStringAnySetter.class);
         assertEquals(1, methodResult.callCount);
-        assertFalse(methodResult.any.containsKey("a"));
-        assertEquals("value", methodResult.any.get("b"));
+        assertEquals(Collections.singletonMap("b", "value"), methodResult.any);
 
         FieldStringAnySetter fieldResult = mapper.readValue(a2q("{'a':null,'b':'value'}"),
                 FieldStringAnySetter.class);
-        assertFalse(fieldResult.any.containsKey("a"));
-        assertEquals("value", fieldResult.any.get("b"));
+        assertEquals(Collections.singletonMap("b", "value"), fieldResult.any);
     }
 
     // [databind#6169]
@@ -286,8 +281,7 @@ public class NullHandlingDeserTest
         ObjectNodeAnySetter result = mapper.readValue(a2q("{'a':null,'b':13}"),
                 ObjectNodeAnySetter.class);
 
-        assertFalse(result.any.has("a"));
-        assertEquals(13, result.any.get("b").intValue());
+        assertEquals(a2q("{'b':13}"), ""+result.any);
     }
 
     @Test

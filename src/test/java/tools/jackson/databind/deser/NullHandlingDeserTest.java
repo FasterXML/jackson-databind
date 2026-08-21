@@ -32,6 +32,14 @@ public class NullHandlingDeserTest
         public String getNullValue(DeserializationContext ctxt) { return "funny"; }
     }
 
+    static class NullReturningDeserializer extends ValueDeserializer<String>
+    {
+        @Override
+        public String deserialize(JsonParser jp, DeserializationContext ctxt) {
+            return null;
+        }
+    }
+
     static class AnySetter{
 
         private Map<String,String> any = new HashMap<String,String>();
@@ -43,6 +51,45 @@ public class NullHandlingDeserTest
 
         public Map<String,String> getAny(){
             return this.any;
+        }
+    }
+
+    static class CountingAnySetter {
+        int callCount;
+        Map<String,Object> any = new LinkedHashMap<>();
+
+        @JsonAnySetter
+        public void setAny(String name, Object value) {
+            ++callCount;
+            any.put(name, value);
+        }
+    }
+
+    static class CountingStringAnySetter {
+        int callCount;
+        Map<String,String> any = new LinkedHashMap<>();
+
+        @JsonAnySetter
+        public void setAny(String name, String value) {
+            ++callCount;
+            any.put(name, value);
+        }
+    }
+
+    static class CreatorWithCountingAnySetter {
+        final int id;
+        int callCount;
+        Map<String,Object> any = new LinkedHashMap<>();
+
+        @JsonCreator
+        CreatorWithCountingAnySetter(@JsonProperty("id") int id) {
+            this.id = id;
+        }
+
+        @JsonAnySetter
+        public void setAny(String name, Object value) {
+            ++callCount;
+            any.put(name, value);
         }
     }
 
@@ -142,6 +189,55 @@ public class NullHandlingDeserTest
         assertEquals(1, result.getAny().size());
         assertNotNull(result.getAny().get(fieldName));
         assertEquals("funny", result.getAny().get(fieldName));
+    }
+
+    // [databind#6169]
+    @Test
+    public void testAnySetterWithDefaultNullSkip6169() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultNullHandling(v -> v.withValueNulls(Nulls.SKIP))
+                .build();
+
+        CountingAnySetter result = mapper.readValue(a2q("{'a':null,'b':1}"),
+                CountingAnySetter.class);
+
+        assertEquals(1, result.callCount);
+        assertFalse(result.any.containsKey("a"));
+        assertEquals(Integer.valueOf(1), result.any.get("b"));
+    }
+
+    // [databind#6169]
+    @Test
+    public void testBufferedAnySetterWithDefaultNullSkip6169() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultNullHandling(v -> v.withValueNulls(Nulls.SKIP))
+                .build();
+
+        CreatorWithCountingAnySetter result = mapper.readValue(a2q("{'a':null,'id':7,'b':1}"),
+                CreatorWithCountingAnySetter.class);
+
+        assertEquals(7, result.id);
+        assertEquals(1, result.callCount);
+        assertFalse(result.any.containsKey("a"));
+        assertEquals(Integer.valueOf(1), result.any.get("b"));
+    }
+
+    // [databind#6169]
+    @Test
+    public void testAnySetterNonNullTokenReturningNull6169() throws Exception {
+        SimpleModule module = new SimpleModule("test", Version.unknownVersion());
+        module.addDeserializer(String.class, new NullReturningDeserializer());
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .changeDefaultNullHandling(v -> v.withValueNulls(Nulls.SKIP))
+                .build();
+
+        CountingStringAnySetter result = mapper.readValue(a2q("{'a':'value'}"),
+                CountingStringAnySetter.class);
+
+        assertEquals(1, result.callCount);
+        assertTrue(result.any.containsKey("a"));
+        assertNull(result.any.get("a"));
     }
 
     @Test

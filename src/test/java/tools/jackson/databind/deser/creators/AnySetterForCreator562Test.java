@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.Nulls;
 
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
@@ -137,6 +138,23 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
         pojo = MAPPER.readValue(a2q("{'a':'value2'}"), POJO562.class);
         assertEquals("value2", pojo.a);
         assertEquals(new HashMap<>(), pojo.stuff);
+    }
+
+    // [databind#6169]
+    @Test
+    public void mapAnySetterViaCreatorWithDefaultNullSkip6169() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultNullHandling(v -> v.withValueNulls(Nulls.SKIP))
+                .build();
+
+        POJO562 pojo = mapper.readValue(a2q(
+                "{'a':'value', 'b':null, 'c': 111}"
+                ),
+                POJO562.class);
+
+        assertEquals("value", pojo.a);
+        assertEquals(Collections.singletonMap("c", Integer.valueOf(111)), pojo.stuff);
     }
 
     // [databind#4634]

@@ -68,17 +68,21 @@ public class ZonedDateTimeSerializer extends InstantSerializerBase<ZonedDateTime
         throws JacksonException
     {
         if (!useTimestamp(ctxt)) {
-            // [modules-java8#333]: `@JsonFormat` with pattern should override
-            //   `SerializationFeature.WRITE_DATES_WITH_ZONE_ID`
-            if ((_formatter != null) && (_shape == JsonFormat.Shape.STRING)) {
+            // [modules-java8#333], [databind#6151]: explicitly configured format should
+            //   override `DateTimeFeature.WRITE_DATES_WITH_ZONE_ID`
+            if (_hasExplicitFormat()) {
                 ; // use default handling
             } else if (shouldWriteWithZoneId(ctxt)) {
                 // Apply millisecond truncation if enabled
                 if (ctxt.isEnabled(DateTimeFeature.TRUNCATE_TO_MSECS_ON_WRITE)) {
                     value = value.truncatedTo(ChronoUnit.MILLIS);
                 }
-                // write with zone
-                g.writeString(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(value));
+                // write with zone (note: only standard default format gets here, so
+                // sub-second variant may be used as-is)
+                DateTimeFormatter formatter = ctxt.isEnabled(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS)
+                        ? SubSecondFormatters.ZONED_DATE_TIME
+                        : DateTimeFormatter.ISO_ZONED_DATE_TIME;
+                g.writeString(formatter.format(value));
                 return;
             }
         }
@@ -88,16 +92,35 @@ public class ZonedDateTimeSerializer extends InstantSerializerBase<ZonedDateTime
     @Override
     protected String formatValue(ZonedDateTime value, SerializationContext ctxt) {
         String formatted = super.formatValue(value, ctxt);
-        // [modules-java8#333]: `@JsonFormat` with pattern should override
-        //   `SerializationFeature.WRITE_DATES_WITH_ZONE_ID`
-        if (_formatter != null && _shape == JsonFormat.Shape.STRING) {
+        // [modules-java8#333], [databind#6151]: when an explicitly configured format is
+        //   used, Zone Id is only added if specifically requested (via `@JsonFormat`),
+        //   and NOT due to `DateTimeFeature.WRITE_DATES_WITH_ZONE_ID`
+        if (_hasExplicitFormat()) {
             // Why not `if (shouldWriteWithZoneId(provider))` ?
             if (Boolean.TRUE.equals(_writeZoneId)) {
                 formatted += "[" + value.getZone().getId() + "]";
             }
         }
         return formatted;
-    }    
+    }
+
+    /**
+     * Accessor for checking whether this serializer has an explicitly configured
+     * format that should be used as-is, taking precedence over
+     * {@link DateTimeFeature#WRITE_DATES_WITH_ZONE_ID}: either a {@code @JsonFormat}
+     * pattern (with String shape), or a caller-provided default formatter (see
+     * {@link #ZonedDateTimeSerializer(DateTimeFormatter)}).
+     *
+     * @since 3.3
+     */
+    protected boolean _hasExplicitFormat() {
+        if ((_formatter != null) && (_shape == JsonFormat.Shape.STRING)) {
+            return true;
+        }
+        DateTimeFormatter df = _defaultFormat();
+        return (df != null) && (df != DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+    }
+
     public boolean shouldWriteWithZoneId(SerializationContext ctxt) {
         return (_writeZoneId != null)
                 ? _writeZoneId
@@ -110,5 +133,14 @@ public class ZonedDateTimeSerializer extends InstantSerializerBase<ZonedDateTime
             return JsonToken.VALUE_STRING;
         }
         return super.serializationShape(ctxt);
+    }
+
+    @Override
+    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter(ZonedDateTime value,
+            DateTimeFormatter defaultFormat) {
+        // 10-Aug-2026, tatu: Caller may pass its own default formatter (see
+        //    `ZonedDateTimeSerializer(DateTimeFormatter)`); if so, must not override it
+        return (defaultFormat == DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                ? SubSecondFormatters.OFFSET_DATE_TIME : null;
     }
 }

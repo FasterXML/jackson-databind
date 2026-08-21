@@ -9,7 +9,10 @@ import tools.jackson.databind.util.TypeKey;
  * Interface that defines API Jackson uses for constructing various internal
  * caches. This allows configuring custom caches and cache configurations.
  * A {@link CacheProvider} instance will be configured through a builder such as
- * {@link tools.jackson.databind.json.JsonMapper.Builder#cacheProvider(CacheProvider)}
+ * {@link tools.jackson.databind.json.JsonMapper.Builder#cacheProvider(CacheProvider)}.
+ * <p>
+ * Each factory method must construct and return a new {@link LookupCache}
+ * instance. Shared cache instances must not be returned.
  */
 public interface CacheProvider
     extends java.io.Serializable

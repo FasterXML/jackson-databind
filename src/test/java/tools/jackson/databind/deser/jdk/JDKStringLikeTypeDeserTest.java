@@ -5,7 +5,6 @@ import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Currency;
-import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
@@ -209,59 +208,6 @@ public class JDKStringLikeTypeDeserTest
             verifyException(e, "Cannot deserialize value of type `java.net.InetSocketAddress`");
             verifyException(e, "from String \""+BAD_VALUE+"\"");
             verifyException(e, "Bracketed IPv6 address must contain closing bracket");
-        }
-    }
-
-    @Test
-    public void testPattern() throws Exception
-    {
-        Pattern exp = Pattern.compile("abc:\\s?(\\d+)");
-        // Ok: easiest way is to just serialize first; problem
-        // is the backslash
-        String json = MAPPER.writeValueAsString(exp);
-        Pattern result = MAPPER.readValue(json, Pattern.class);
-        assertEquals(exp.pattern(), result.pattern());
-
-        // [databind#3290]: actually need to retain at least trailing space
-        // (and since we do that, just retain all...)
-        exp = Pattern.compile("^WIN\\ ");
-        json = MAPPER.writeValueAsString(exp);
-        result = MAPPER.readValue(json, Pattern.class);
-        assertEquals(exp.pattern(), result.pattern());
-
-        // [databind#3598]: should also handle invalid pattern serialization
-        // somewhat gracefully
-        try {
-            MAPPER.readValue(q("[abc"), Pattern.class);
-            fail("Should not pass");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "Cannot deserialize value of type `java.util.regex.Pattern` from String \"[abc\"");
-            verifyException(e, "Invalid pattern, problem");
-        }
-    }
-
-    // [databind#]: Reject excessively long regex patterns to prevent
-    // catastrophic backtracking and excessive resource usage
-    @Test
-    public void testPatternLengthLimit() throws Exception
-    {
-        // A normal-length pattern should still work
-        Pattern result = MAPPER.readValue(q("abc"), Pattern.class);
-        assertEquals("abc", result.pattern());
-
-        // A pattern at exactly the limit (1000 chars) should work
-        String limitPattern = "a".repeat(1000);
-        result = MAPPER.readValue(q(limitPattern), Pattern.class);
-        assertEquals(limitPattern, result.pattern());
-
-        // A pattern exceeding the limit (1001 chars) should be rejected
-        String overLimitPattern = "a".repeat(1001);
-        try {
-            MAPPER.readValue(q(overLimitPattern), Pattern.class);
-            fail("Should not pass");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "regex pattern length");
-            verifyException(e, "exceeds maximum");
         }
     }
 

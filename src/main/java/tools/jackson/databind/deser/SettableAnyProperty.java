@@ -174,6 +174,18 @@ public abstract class SettableAnyProperty
     }
 
     /**
+     * Helper for {@code withValueDeserializer()} implementations: if the current
+     * null provider is simply tracking the current value deserializer (the default,
+     * unconfigured case), keep tracking the new one; otherwise preserve the
+     * explicitly configured null provider as-is.
+     */
+    private static NullValueProvider _nullProviderFor(ValueDeserializer<Object> currentValueDeserializer,
+            NullValueProvider currentNullProvider, ValueDeserializer<Object> newValueDeserializer) {
+        return (currentValueDeserializer == currentNullProvider)
+                ? newValueDeserializer : currentNullProvider;
+    }
+
+    /**
      * Accessor for parameterIndex.
      * @return -1 if not a parameterized setter, otherwise index of parameter
      *
@@ -366,9 +378,9 @@ public abstract class SettableAnyProperty
 
         @Override
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
-            NullValueProvider nvp = (_valueDeserializer == _nullProvider) ? deser : _nullProvider;
             return new MethodAnyProperty(_property, _setter, _type,
-                    _keyDeserializer, deser, _valueTypeDeserializer, nvp);
+                    _keyDeserializer, deser, _valueTypeDeserializer,
+                    _nullProviderFor(_valueDeserializer, _nullProvider, deser));
         }
 
         @Override
@@ -405,10 +417,10 @@ public abstract class SettableAnyProperty
 
         @Override
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
-            NullValueProvider nvp = (_valueDeserializer == _nullProvider) ? deser : _nullProvider;
             return new MapFieldAnyProperty(_property, _setter, _type,
                     _keyDeserializer, deser, _valueTypeDeserializer,
-                    _valueInstantiator, nvp);
+                    _valueInstantiator,
+                    _nullProviderFor(_valueDeserializer, _nullProvider, deser));
         }
 
         @Override
@@ -480,16 +492,6 @@ public abstract class SettableAnyProperty
             setProperty(instance, propName, (JsonNode) deserialize(p, ctxt));
         }
 
-        // Let's override since this is much simpler with JsonNodes
-        @Override
-        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
-        {
-            if (p.hasToken(JsonToken.VALUE_NULL)) {
-                return _nullProvider.getNullValue(ctxt);
-            }
-            return _valueDeserializer.deserialize(p, ctxt);
-        }
-
         @Override
         protected void _set(DeserializationContext ctxt, Object instance, Object propName, Object value) throws Exception {
             setProperty(instance, (String) propName, (JsonNode) value);
@@ -522,9 +524,9 @@ public abstract class SettableAnyProperty
             if (_valueDeserializer == deser) {
                 return this;
             }
-            NullValueProvider nvp = (_valueDeserializer == _nullProvider) ? deser : _nullProvider;
             return new JsonNodeFieldAnyProperty(_property, _setter, _type,
-                    deser, _nodeFactory, nvp);
+                    deser, _nodeFactory,
+                    _nullProviderFor(_valueDeserializer, _nullProvider, deser));
         }
 
         @Override
@@ -562,9 +564,9 @@ public abstract class SettableAnyProperty
         @Override
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser)
         {
-            NullValueProvider nvp = (_valueDeserializer == _nullProvider) ? deser : _nullProvider;
             return new MapParameterAnyProperty(_property, _setter, _type, _keyDeserializer, deser,
-                    _valueTypeDeserializer, _valueInstantiator, _parameterIndex, nvp);
+                    _valueTypeDeserializer, _valueInstantiator, _parameterIndex,
+                    _nullProviderFor(_valueDeserializer, _nullProvider, deser));
         }
 
         @Override
@@ -610,17 +612,6 @@ public abstract class SettableAnyProperty
             super(property, field, valueType, null, valueDeser, null, nullProvider);
             _nodeFactory = nodeFactory;
             _parameterIndex = parameterIndex;
-        }
-
-        // Let's override since this is much simpler with JsonNodes
-        @Override
-        public Object deserialize(JsonParser p, DeserializationContext ctxt)
-            throws JacksonException
-        {
-            if (p.hasToken(JsonToken.VALUE_NULL)) {
-                return _nullProvider.getNullValue(ctxt);
-            }
-            return _valueDeserializer.deserialize(p, ctxt);
         }
 
         @Override

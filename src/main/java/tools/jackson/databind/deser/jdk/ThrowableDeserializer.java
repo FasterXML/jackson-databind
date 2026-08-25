@@ -11,6 +11,7 @@ import tools.jackson.databind.deser.bean.BeanDeserializer;
 import tools.jackson.databind.deser.bean.BeanPropertyMap;
 import tools.jackson.databind.deser.bean.PropertyBasedCreator;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
+import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.NameTransformer;
 
 /**
@@ -123,11 +124,24 @@ public class ThrowableDeserializer
         Throwable[] suppressed = null;
         int pendingIx = 0;
 
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         int ix = p.currentNameMatch(_propNameMatcher);
         for (; ; ix = p.nextNameMatch(_propNameMatcher)) {
             if (ix >= 0) {
                 p.nextToken();
                 SettableBeanProperty prop = _propsByIndex[ix];
+                // Property not part of the active view must not be set from input
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    // [databind#437]: fields in other views to be considered as unknown properties
+                    if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)) {
+                        ctxt.reportInputMismatch(handledType(),
+                                String.format("Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'" +
+                                        " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
+                                        ClassUtil.nameOf(handledType()), prop.getName(), activeView.getName()));
+                    }
+                    p.skipChildren();
+                    continue;
+                }
                 if (throwable != null) {
                     // 07-Dec-2023, tatu: [databind#4248] Interesting that "cause"
                     //    with `null` blows up. So, avoid.

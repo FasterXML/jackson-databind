@@ -17,6 +17,7 @@ import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PropertySerializerModifier4385Test
 {
@@ -110,10 +111,30 @@ public class PropertySerializerModifier4385Test
         }
     }
 
+    static class NullingPropertySerializerModifier extends ValueSerializerModifier {
+        @Override
+        public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
+                BeanDescription.Supplier beanDesc, List<BeanPropertyWriter> beanProperties) {
+            if (beanDesc.getBeanClass() == TargetBean.class) {
+                for (BeanPropertyWriter property : beanProperties) {
+                    if ("selected".equals(property.getName())) {
+                        property.assignSerializer(null);
+                    }
+                }
+            }
+            return beanProperties;
+        }
+    }
+
     private final JsonMapper MAPPER = JsonMapper.builder()
             .addModule(new SimpleModule()
                     .addSerializer(Value.class, new GlobalValueSerializer())
                     .setSerializerModifier(new PropertySerializerModifier()))
+            .build();
+
+    private final JsonMapper NULLING_MAPPER = JsonMapper.builder()
+            .addModule(new SimpleModule()
+                    .setSerializerModifier(new NullingPropertySerializerModifier()))
             .build();
 
     @Test
@@ -132,5 +153,11 @@ public class PropertySerializerModifier4385Test
                 + "\"annotatedOther\":\"annotation:annotated\","
                 + "\"plainOther\":\"global:plain\"}",
                 MAPPER.writeValueAsString(new TargetBean(null)));
+    }
+
+    @Test
+    public void testNullAssignmentIsRejected() {
+        assertThrows(IllegalStateException.class,
+                () -> NULLING_MAPPER.writeValueAsString(new TargetBean(new Value("selected"))));
     }
 }

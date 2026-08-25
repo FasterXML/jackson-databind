@@ -412,6 +412,10 @@ public class BeanPropertyWriter
      * Method called to assign value serializer for property
      */
     public void assignSerializer(ValueSerializer<Object> ser) {
+        if ((_serializer != null) && (ser == null)) {
+            throw new IllegalStateException("Cannot override _serializer: had a %s, trying to set to %s".formatted(
+                    ClassUtil.classNameOf(_serializer), ClassUtil.classNameOf(ser)));
+        }
         _serializer = ser;
     }
 

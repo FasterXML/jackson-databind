@@ -687,3 +687,11 @@ DongNyoung Lee (@Dongnyoung)
 Fabian Lange (@CodingFabian)
  * Requested #3182: Support value deduplication for enumeration like values
   [3.3.0]
+
+@jjh75607
+ * Reported #6175: Parse object-form `QName` after `As.PROPERTY` type id
+  [3.3.0]
+
+Burak KALAYCI (@kalayciburak)
+ * Fixed #6175: Parse object-form `QName` after `As.PROPERTY` type id
+  [3.3.0]

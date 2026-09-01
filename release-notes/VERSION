@@ -314,8 +314,6 @@ No changes since 3.2
 #6179: Apply `StreamReadConstraints` number length limit when coercing String
   to `double`
  (fix by Aysha A-Z)
- - NOTE: also makes String-to-`double` coercion reject input the JDK parser
-   accepted (like "1.0d", "0x1p3"), matching existing `float`/`Double` behavior
 
 3.1.6 (14-Aug-2026)
 

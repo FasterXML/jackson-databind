@@ -516,6 +516,18 @@ public class MonthDeserializerTest extends DateTimeTestBase
         public Month value;
     }
 
+    record Estimate(
+            @JsonFormat(with = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES)
+            Month month) { }
+
+    // [databind#6178]
+    @Test
+    public void testDeserializationWithCaseInsensitiveValues() throws Exception
+    {
+        Estimate result = MAPPER.readValue("{\"month\":\"January\"}", Estimate.class);
+        assertEquals(Month.JANUARY, result.month());
+    }
+
     @Test
     public void testDeserializationWithFullMonthFormat() throws Exception
     {

@@ -8,23 +8,22 @@ import tools.jackson.core.json.JsonFactory;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 // Number-length constraint (StreamReadConstraints.maxNumberLength) must be enforced
 // when coercing a String to `double` the same way it already is for `float`.
 public class DoubleFPLengthConstraintTest
 {
-    private final static int MAX_NUMBER_LEN = 1000;
+    // Deliberately NOT the default (1000), so that these tests actually depend on
+    // the configured constraint being applied
+    private final static int MAX_NUMBER_LEN = 100;
 
-    private final static String OVER_LONG_NUMBER;
-    static {
-        StringBuilder sb = new StringBuilder(MAX_NUMBER_LEN + 100);
-        for (int i = 0; i < MAX_NUMBER_LEN + 100; ++i) {
-            sb.append('9');
-        }
-        OVER_LONG_NUMBER = sb.toString();
-    }
+    private final static int OVER_LONG_LEN = MAX_NUMBER_LEN + 50;
+
+    private final static String OVER_LONG_NUMBER = "9".repeat(OVER_LONG_LEN);
 
     private ObjectMapper mapperWithNumberLen(int maxLen) {
         JsonFactory f = JsonFactory.builder()
@@ -33,17 +32,22 @@ public class DoubleFPLengthConstraintTest
         return JsonMapper.builder(f).build();
     }
 
+    private String jsonArrayWith(String value) {
+        return """
+                ["%s"]
+                """.formatted(value);
+    }
+
     @Test
     public void doubleArrayFromStringRespectsNumberLength() throws Exception
     {
         ObjectMapper mapper = mapperWithNumberLen(MAX_NUMBER_LEN);
-        String json = "[\"" + OVER_LONG_NUMBER + "\"]";
         try {
-            mapper.readValue(json, double[].class);
+            mapper.readValue(jsonArrayWith(OVER_LONG_NUMBER), double[].class);
             fail("Should not pass: number length exceeds configured maximum");
         } catch (StreamConstraintsException e) {
-            String msg = e.getMessage();
-            assertNotNull(msg);
+            verifyException(e, "Number value length ("+OVER_LONG_LEN+")");
+            verifyException(e, "exceeds the maximum allowed ("+MAX_NUMBER_LEN);
         }
     }
 
@@ -52,13 +56,22 @@ public class DoubleFPLengthConstraintTest
     public void floatArrayFromStringRespectsNumberLength() throws Exception
     {
         ObjectMapper mapper = mapperWithNumberLen(MAX_NUMBER_LEN);
-        String json = "[\"" + OVER_LONG_NUMBER + "\"]";
         try {
-            mapper.readValue(json, float[].class);
+            mapper.readValue(jsonArrayWith(OVER_LONG_NUMBER), float[].class);
             fail("Should not pass: number length exceeds configured maximum");
         } catch (StreamConstraintsException e) {
-            String msg = e.getMessage();
-            assertNotNull(msg);
+            verifyException(e, "Number value length ("+OVER_LONG_LEN+")");
+            verifyException(e, "exceeds the maximum allowed ("+MAX_NUMBER_LEN);
         }
+    }
+
+    // And verify the input itself is otherwise acceptable: it is only the lowered
+    // limit above that rejects it, not the value being unparseable
+    @Test
+    public void overLongNumberAcceptedWithDefaultConstraints() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder().build();
+        assertArrayEquals(new double[] { Double.parseDouble(OVER_LONG_NUMBER) },
+                mapper.readValue(jsonArrayWith(OVER_LONG_NUMBER), double[].class));
     }
 }

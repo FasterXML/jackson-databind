@@ -270,7 +270,7 @@ public class MiscJavaXMLTypesReadWriteTest
     // [databind#6175] Object-shaped QName must round-trip when polymorphic type
     // id is written as a property (type deserializer consumes START_OBJECT).
     @Test
-    public void testQNameObjectFormWithAsPropertyTyping() throws Exception
+    public void qnameObjectFormWithAsPropertyTyping() throws Exception
     {
         QName original = new QName("http://namespace", "test", "p");
         ObjectMapper mapper = mapperWithQNameObjectTyping(JsonTypeInfo.As.PROPERTY);
@@ -285,7 +285,7 @@ public class MiscJavaXMLTypesReadWriteTest
 
     // WRAPPER_ARRAY / WRAPPER_OBJECT leave START_OBJECT for the QName deserializer
     @Test
-    public void testQNameObjectFormWithWrapperTyping() throws Exception
+    public void qnameObjectFormWithWrapperTyping() throws Exception
     {
         QName original = new QName("http://namespace", "test", "p");
         for (JsonTypeInfo.As inclusion : new JsonTypeInfo.As[] {
@@ -296,6 +296,23 @@ public class MiscJavaXMLTypesReadWriteTest
             QName back = (QName) mapper.readValue(mapper.writeValueAsString(value), Map.class)
                     .get("qname");
             assertQNameEquals(original, back);
+        }
+    }
+
+    // [databind#6175] Type id as the only property leaves parser on END_OBJECT:
+    // should still report the missing 'localPart', not an unexpected-token failure
+    @Test
+    public void qnameObjectFormWithOnlyTypeIdProperty() throws Exception
+    {
+        ObjectMapper mapper = mapperWithQNameObjectTyping(JsonTypeInfo.As.PROPERTY);
+        String json = """
+                {"qname":{"@class":"javax.xml.namespace.QName"}}
+                """;
+        try {
+            mapper.readValue(json, Map.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "missing required property 'localPart'");
         }
     }
 

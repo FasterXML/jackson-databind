@@ -18,7 +18,7 @@ Project: jackson-databind
   deserialization [CVE-2026-19032]
  (reported by @waydeshi)
  (fix by @pjfanning)
-#6155: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
+#6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
   [CVE-2026-83557]
  (reported by @prvazsahnazarov)
 #6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float` Map keys

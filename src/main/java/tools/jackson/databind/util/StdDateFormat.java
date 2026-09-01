@@ -95,17 +95,26 @@ public class StdDateFormat
 
     protected final static Locale DEFAULT_LOCALE = Locale.US;
 
-    protected final static DateFormat DATE_FORMAT_RFC1123;
-
     /* Let's construct "blueprint" date format instances: cannot be used
      * as is, due to thread-safety issues, but can be used for constructing
      * actual instances more cheaply (avoids re-parsing).
      */
-    static {
-        // Another important thing: let's force use of default timezone for
-        // baseline DataFormat objects
-        DATE_FORMAT_RFC1123 = new SimpleDateFormat(DATE_FORMAT_STR_RFC1123, DEFAULT_LOCALE);
-        DATE_FORMAT_RFC1123.setTimeZone(DEFAULT_TIMEZONE);
+    // 01-Sep-2026, franz1981: [databind#6182] Built lazily, not in <clinit>: constructing a
+    //   SimpleDateFormat reaches DecimalFormatSymbols, which calls String.charAt on the
+    //   locale per-mille sign -- a UTF-16 String. String.charAt has one process-wide
+    //   MethodData and C2 prunes its isLatin1 branch only at a zero UTF-16 count, so that
+    //   one call leaves a cold StringUTF16.charAt in every ASCII charAt loop compiled
+    //   later, including UTF8JsonGenerator._writeStringSegment. MapperBuilder's <clinit>
+    //   references StdDateFormat.instance, so building an ObjectMapper was enough to
+    //   trigger it. Only parseAsRFC1123() reads this.
+    private static final class RFC1123Holder {
+        static final DateFormat DATE_FORMAT_RFC1123;
+        static {
+            // Another important thing: let's force use of default timezone for
+            // baseline DataFormat objects
+            DATE_FORMAT_RFC1123 = new SimpleDateFormat(DATE_FORMAT_STR_RFC1123, DEFAULT_LOCALE);
+            DATE_FORMAT_RFC1123.setTimeZone(DEFAULT_TIMEZONE);
+        }
     }
 
     /**
@@ -772,7 +781,7 @@ public class StdDateFormat
     protected Date parseAsRFC1123(String dateStr, ParsePosition pos)
     {
         if (_formatRFC1123 == null) {
-            _formatRFC1123 = _cloneFormat(DATE_FORMAT_RFC1123, DATE_FORMAT_STR_RFC1123,
+            _formatRFC1123 = _cloneFormat(RFC1123Holder.DATE_FORMAT_RFC1123, DATE_FORMAT_STR_RFC1123,
                     _timezone, _locale, _lenient);
         }
         return _formatRFC1123.parse(dateStr, pos);

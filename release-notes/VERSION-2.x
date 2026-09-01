@@ -23,7 +23,7 @@ Project: jackson-databind
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
-  [GHSA-gx83-3vf8-gh7j]
+  [CVE-2026-83557]
  (reported by @prvazsahnazarov)
 
 2.21.5 (06-Jul-2026)

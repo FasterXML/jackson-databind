@@ -45,6 +45,14 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6151: Add `DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS`
  (contributed by @seonwooj0810)
 
+3.2.3 (not yet released)
+
+#6179: Apply `StreamReadConstraints` number length limit when coercing String
+  to `double`
+ (fix by Aysha A-Z)
+ - NOTE: also makes String-to-`double` coercion reject input the JDK parser
+   accepted (like "1.0d", "0x1p3"), matching existing `float`/`Double` behavior
+
 3.2.2 (14-Aug-2026)
 
 #6096: Honor `@JsonView` in `BeanAsArrayDeserializer` update path
@@ -336,6 +344,14 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
+
+3.1.7 (not yet released)
+
+#6179: Apply `StreamReadConstraints` number length limit when coercing String
+  to `double`
+ (fix by Aysha A-Z)
+ - NOTE: also makes String-to-`double` coercion reject input the JDK parser
+   accepted (like "1.0d", "0x1p3"), matching existing `float`/`Double` behavior
 
 3.1.6 (14-Aug-2026)
 

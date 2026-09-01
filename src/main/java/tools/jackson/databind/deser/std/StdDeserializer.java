@@ -1204,9 +1204,14 @@ public abstract class StdDeserializer<T>
     protected final double _parseDoublePrimitive(JsonParser p, DeserializationContext ctxt, String text)
         throws JacksonException
     {
-        try {
-            return _parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-        } catch (IllegalArgumentException iae) { }
+        // Pre-validate before parsing, same as `_parseFloatPrimitive` above, so the
+        // configured `StreamReadConstraints` number-length limit is enforced here too:
+        if (NumberInput.looksLikeValidNumber(text)) {
+            p.streamReadConstraints().validateFPLength(text.length());
+            try {
+                return _parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            } catch (IllegalArgumentException iae) { }
+        }
         Number v = (Number) ctxt.handleWeirdStringValue(Double.TYPE, text,
                 "not a valid `double` value (as String to convert)");
         return _nonNullNumber(v).doubleValue();

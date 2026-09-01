@@ -306,7 +306,8 @@ public class MiscJavaXMLTypesReadWriteTest
     {
         ObjectMapper mapper = mapperWithQNameObjectTyping(JsonTypeInfo.As.PROPERTY);
         String json = """
-                {"qname":{"@class":"javax.xml.namespace.QName"}}
+                {"@class":"java.util.LinkedHashMap",
+                 "qname":{"@class":"javax.xml.namespace.QName"}}
                 """;
         try {
             mapper.readValue(json, Map.class);

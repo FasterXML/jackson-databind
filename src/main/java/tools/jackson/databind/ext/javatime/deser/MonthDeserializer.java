@@ -7,7 +7,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import tools.jackson.core.*;
+import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -24,6 +26,11 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
             .collect(Collectors.toUnmodifiableMap(Month::name, Function.identity()));
 
     /**
+     * Property-level override for {@link JsonFormat.Feature#ACCEPT_CASE_INSENSITIVE_VALUES}.
+     */
+    protected final Boolean _caseInsensitiveValues;
+
+    /**
      * NOTE: only {@code public} so that use via annotations (see [modules-java8#202])
      * is possible
      */
@@ -33,15 +40,25 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
 
     public MonthDeserializer(DateTimeFormatter formatter) {
         super(Month.class, formatter);
+        _caseInsensitiveValues = null;
     }
 
     protected MonthDeserializer(MonthDeserializer base, Boolean leniency) {
         super(base, leniency);
+        _caseInsensitiveValues = base._caseInsensitiveValues;
     }
 
     protected MonthDeserializer(MonthDeserializer base,
             Boolean leniency, DateTimeFormatter formatter, JsonFormat.Shape shape) {
         super(base, leniency, formatter, shape);
+        _caseInsensitiveValues = base._caseInsensitiveValues;
+    }
+
+    protected MonthDeserializer(MonthDeserializer base,
+            Boolean leniency, DateTimeFormatter formatter, JsonFormat.Shape shape,
+            Boolean caseInsensitiveValues) {
+        super(base, leniency, formatter, shape);
+        _caseInsensitiveValues = caseInsensitiveValues;
     }
 
     @Override
@@ -52,6 +69,23 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
     @Override
     protected MonthDeserializer withDateFormat(DateTimeFormatter dtf) {
         return new MonthDeserializer(this, _isLenient, dtf, _shape);
+    }
+
+    protected MonthDeserializer withCaseInsensitiveValues(Boolean state) {
+        if (Objects.equals(_caseInsensitiveValues, state)) {
+            return this;
+        }
+        return new MonthDeserializer(this, _isLenient, _formatter, _shape, state);
+    }
+
+    @Override
+    protected JSR310DateTimeDeserializerBase<?> _withFormatOverrides(DeserializationContext ctxt,
+            BeanProperty property, JsonFormat.Value formatOverrides)
+    {
+        MonthDeserializer deser = (MonthDeserializer) super._withFormatOverrides(ctxt,
+                property, formatOverrides);
+        return deser.withCaseInsensitiveValues(formatOverrides.getFeature(
+                JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES));
     }
 
     @Override
@@ -117,6 +151,12 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
                 if (m != null) {
                     return m;
                 }
+                if (_acceptCaseInsensitiveValues(ctxt)) {
+                    m = _findMonthIgnoreCase(string);
+                    if (m != null) {
+                        return m;
+                    }
+                }
                 return (Month) ctxt.handleWeirdStringValue(handledType(), string, 
                         "not one of known `Month` values: %s",
                                 Arrays.toString(Month.values()));
@@ -128,6 +168,22 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
             throw ctxt.weirdStringException(string, handledType(),
                     "not a valid Month value");
         }
+    }
+
+    private boolean _acceptCaseInsensitiveValues(DeserializationContext ctxt) {
+        if (_caseInsensitiveValues != null) {
+            return _caseInsensitiveValues;
+        }
+        return ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES);
+    }
+
+    private Month _findMonthIgnoreCase(String key) {
+        for (Month month : Month.values()) {
+            if (month.name().equalsIgnoreCase(key)) {
+                return month;
+            }
+        }
+        return null;
     }
 
     /**

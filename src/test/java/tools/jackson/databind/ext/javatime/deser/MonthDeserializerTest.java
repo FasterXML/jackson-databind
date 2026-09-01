@@ -520,12 +520,40 @@ public class MonthDeserializerTest extends DateTimeTestBase
             @JsonFormat(with = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES)
             Month month) { }
 
+    record StrictEstimate(
+            @JsonFormat(without = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES)
+            Month month) { }
+
+    // [databind#6178]
+    @ParameterizedTest
+    @ValueSource(strings = {"JANUARY", "January", "january"})
+    public void testDeserializationWithCaseInsensitiveValues(String input) throws Exception
+    {
+        Estimate result = MAPPER.readValue("{\"month\":\"" + input + "\"}", Estimate.class);
+        assertEquals(Month.JANUARY, result.month());
+    }
+
     // [databind#6178]
     @Test
-    public void testDeserializationWithCaseInsensitiveValues() throws Exception
+    public void testDeserializationWithGlobalCaseInsensitiveValues() throws Exception
     {
-        Estimate result = MAPPER.readValue("{\"month\":\"January\"}", Estimate.class);
-        assertEquals(Month.JANUARY, result.month());
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES)
+                .build();
+
+        assertEquals(Month.JANUARY, mapper.readValue("\"january\"", Month.class));
+    }
+
+    // [databind#6178]
+    @Test
+    public void testDeserializationWithCaseInsensitiveValuesDisabledForProperty() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES)
+                .build();
+
+        assertThrows(InvalidFormatException.class,
+                () -> mapper.readValue("{\"month\":\"January\"}", StrictEstimate.class));
     }
 
     @Test

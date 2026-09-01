@@ -23,7 +23,7 @@ No changes since 2.22
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
-  [GHSA-gx83-3vf8-gh7j]
+  [CVE-2026-83557]
  (reported by @prvazsahnazarov)
 
 2.22.1 (07-Jul-2026)
@@ -74,7 +74,7 @@ No changes since 2.22
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
-  [GHSA-gx83-3vf8-gh7j]
+  [CVE-2026-83557]
  (reported by @prvazsahnazarov)
 
 2.21.5 (06-Jul-2026)
@@ -396,7 +396,7 @@ No changes since 2.19.2
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
-  [GHSA-gx83-3vf8-gh7j]
+  [CVE-2026-83557]
  (reported by @prvazsahnazarov)
 #6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float` Map keys
  (fix by Aysha A-Z)

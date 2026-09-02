@@ -4,14 +4,14 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.18.10 (not yet released)
+2.18.10 (15-Aug-2026)
 
 #6099: Resolve classes without initialization in `TypeFactory.findClass()`
  (fixed by Aysha A-Z)
 #6116: Reject non-ASCII digits in `InetAddress` literal validation
  (fixed by Aysha A-Z)
-#6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
-  and Duration [CVE-2026-68497]
+#6127: Add `StreamReadConstraints` number len constraint to `javax.xml.datatype.XMLGregorianCalendar`
+  and `javax.xml.datatype.Duration` [CVE-2026-68497]
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6129: Limit the supported URL schemes for `java.nio.file.Path`
@@ -19,8 +19,10 @@ Project: jackson-databind
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
-  [GHSA-gx83-3vf8-gh7j]
+  [CVE-2026-83557]
  (reported by @prvazsahnazarov)
+#6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float` Map keys
+ (fix by Aysha A-Z)
 
 2.18.9 (07-Jul-2026)
 
@@ -30,7 +32,7 @@ Project: jackson-databind
 #6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
-#6058: Do not allow DNS resolution when deserializing `InetAddress`
+#6058: Do not allow DNS resolution when deserializing `InetAddress` [CVE-2026-77310]
  (reported by @thientd)
  (fix by @pjfanning)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]

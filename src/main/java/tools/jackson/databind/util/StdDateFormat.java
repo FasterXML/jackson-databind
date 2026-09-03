@@ -95,10 +95,6 @@ public class StdDateFormat
 
     protected final static Locale DEFAULT_LOCALE = Locale.US;
 
-    /* Let's construct "blueprint" date format instances: cannot be used
-     * as is, due to thread-safety issues, but can be used for constructing
-     * actual instances more cheaply (avoids re-parsing).
-     */
     // 01-Sep-2026, franz1981: [databind#6182] Built lazily, not in <clinit>: constructing a
     //   SimpleDateFormat reaches DecimalFormatSymbols, which calls String.charAt on the
     //   locale per-mille sign -- a UTF-16 String. String.charAt has one process-wide
@@ -108,6 +104,10 @@ public class StdDateFormat
     //   references StdDateFormat.instance, so building an ObjectMapper was enough to
     //   trigger it. Only parseAsRFC1123() reads this.
     private static final class RFC1123Holder {
+        /* Let's construct "blueprint" date format instance: cannot be used
+         * as is, due to thread-safety issues, but can be used for constructing
+         * actual instances more cheaply (avoids re-parsing).
+         */
         static final DateFormat DATE_FORMAT_RFC1123;
         static {
             // Another important thing: let's force use of default timezone for

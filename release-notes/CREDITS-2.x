@@ -14,7 +14,7 @@ Co-Authors (with only partial listings below):
 
 ----------------------------------------------------------------------------
 
-Pascal Glinas:
+Pascal Gélinas:
   * Contributed fixes to 'MappingIterator' handling (Pull#58 and Pull#59)
    (2.1.0)
   * Reported #220: ContainerNode missing 'createNumber(BigInteger)'
@@ -1948,6 +1948,10 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Reported #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic
    base types
   (2.18.10)
+
+@renechoi
+ * Reported #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+  (2.18.11)
 
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`

@@ -53,6 +53,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6179: Apply `StreamReadConstraints` number length limit when coercing String
   to `double`
  (fix by Aysha A-Z)
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
 
 3.2.2 (14-Aug-2026)
 
@@ -351,6 +353,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6179: Apply `StreamReadConstraints` number length limit when coercing String
   to `double`
  (fix by Aysha A-Z)
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
 
 3.1.6 (14-Aug-2026)
 

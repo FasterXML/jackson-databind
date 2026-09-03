@@ -684,6 +684,10 @@ DongNyoung Lee (@Dongnyoung)
    base types
   [3.2.2]
 
+@renechoi
+ * Reported #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+  [3.2.3]
+
 Fabian Lange (@CodingFabian)
  * Requested #3182: Support value deduplication for enumeration like values
   [3.3.0]

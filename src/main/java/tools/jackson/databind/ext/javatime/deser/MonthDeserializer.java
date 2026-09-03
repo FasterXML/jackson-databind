@@ -18,11 +18,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
  */
 public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
 {
-    public static final MonthDeserializer INSTANCE = new MonthDeserializer();
-
     // @since 3.1
-    private final Map<String, Month> _byNameLookup = Arrays.stream(Month.values())
+    private final static Map<String, Month> _byNameLookup = Arrays.stream(Month.values())
             .collect(Collectors.toUnmodifiableMap(Month::name, Function.identity()));
+
+    public static final MonthDeserializer INSTANCE = new MonthDeserializer();
 
     /**
      * Property-level override for {@link JsonFormat.Feature#ACCEPT_CASE_INSENSITIVE_VALUES}.
@@ -175,9 +175,12 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
     }
 
     private Month _findMonthIgnoreCase(String key) {
-        for (Month month : Month.values()) {
-            if (month.name().equalsIgnoreCase(key)) {
-                return month;
+        // Iterate over lookup Map (and not `Month.values()`, which allocates a new
+        // array on every call); matching same way as case-insensitive `Enum` lookup
+        // (see `CompactStringObjectMap.findCaseInsensitive()`)
+        for (Map.Entry<String, Month> entry : _byNameLookup.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(key)) {
+                return entry.getValue();
             }
         }
         return null;

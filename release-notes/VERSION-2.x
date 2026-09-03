@@ -6,7 +6,7 @@ Project: jackson-databind
 
 2.18.11 (Not yet released)
 
-#6186: Bracket unresolved IPv6 host name in InetSocketAddress serialization
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
  (fix by @pjfanning, w/ Claude code)
 
 2.18.10 (15-Aug-2026)

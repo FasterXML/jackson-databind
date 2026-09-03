@@ -1938,5 +1938,5 @@ Aysha Afrah Ziya (@aysha-afrah26)
   (2.18.10)
 
 @renechoi
- * Reported #6186: Bracket unresolved IPv6 host name in InetSocketAddress serialization
+ * Reported #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
   (2.18.11)

@@ -564,6 +564,37 @@ public class MonthDeserializerTest extends DateTimeTestBase
                 () -> mapper.readValue("{\"month\":\"January\"}", StrictEstimate.class));
     }
 
+    // [databind#6178]: `Month` is an `Enum` so Enum-specific setting applies too
+    @Test
+    public void testDeserializationWithGlobalCaseInsensitiveEnums() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .build();
+
+        assertEquals(Month.JANUARY, mapper.readValue("\"january\"", Month.class));
+    }
+
+    // [databind#6178]
+    @Test
+    public void testDeserializationWithCaseInsensitiveEnumsDisabledForProperty() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .build();
+
+        assertThrows(InvalidFormatException.class,
+                () -> mapper.readValue("{\"month\":\"January\"}", StrictEstimate.class));
+    }
+
+    // [databind#6178]: neither global setting enabled -> still strict
+    @Test
+    public void testDeserializationCaseSensitiveByDefault() throws Exception
+    {
+        assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readValue("\"January\"", Month.class));
+    }
+
     /*
     /**********************************************************************
     /* Tests for leniency settings

@@ -9,12 +9,21 @@ import java.util.stream.Collectors;
 import tools.jackson.core.*;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * Deserializer for Java 8 temporal {@link Month}s.
+ *<p>
+ * Note that unlike most other date/time types {@link Month} is also an {@link Enum}:
+ * because of this, case-insensitive matching of textual values (like {@code "January"})
+ * is enabled by either date/time-specific
+ * {@link MapperFeature#ACCEPT_CASE_INSENSITIVE_VALUES} or Enum-specific
+ * {@link MapperFeature#ACCEPT_CASE_INSENSITIVE_ENUMS}; and may also be overridden
+ * per-property with
+ * {@link JsonFormat.Feature#ACCEPT_CASE_INSENSITIVE_VALUES}.
  */
 public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
 {
@@ -155,7 +164,7 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
                 if (m != null) {
                     return m;
                 }
-                if (_acceptCaseInsensitiveValues(ctxt, _caseInsensitiveValues)) {
+                if (_acceptCaseInsensitiveNames(ctxt)) {
                     m = _findMonthIgnoreCase(string);
                     if (m != null) {
                         return m;
@@ -172,6 +181,21 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
             throw ctxt.weirdStringException(string, handledType(),
                     "not a valid Month value");
         }
+    }
+
+    /**
+     * Helper method for checking whether textual {@link Month} names (like {@code "JANUARY"})
+     * may be matched case-insensitively: explicit per-property override, if any, takes
+     * precedence over either of the two applicable global settings.
+     */
+    private boolean _acceptCaseInsensitiveNames(DeserializationContext ctxt) {
+        if (_caseInsensitiveValues != null) {
+            return _caseInsensitiveValues;
+        }
+        // [databind#6178]: `Month` is an `Enum`, so honor Enum-specific setting as well
+        // as the date/time-specific one
+        return _acceptCaseInsensitiveValues(ctxt, null)
+                || ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
     }
 
     private Month _findMonthIgnoreCase(String key) {

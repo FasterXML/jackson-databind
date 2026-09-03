@@ -10,6 +10,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.JsonParser.NumberType;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.exc.JacksonIOException;
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
@@ -1204,9 +1205,14 @@ public abstract class StdDeserializer<T>
     protected final double _parseDoublePrimitive(JsonParser p, DeserializationContext ctxt, String text)
         throws JacksonException
     {
-        try {
-            return _parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-        } catch (IllegalArgumentException iae) { }
+        // Pre-validate before parsing, same as `_parseFloatPrimitive` above, so the
+        // configured `StreamReadConstraints` number-length limit is enforced here too:
+        if (NumberInput.looksLikeValidNumber(text)) {
+            p.streamReadConstraints().validateFPLength(text.length());
+            try {
+                return _parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            } catch (IllegalArgumentException iae) { }
+        }
         Number v = (Number) ctxt.handleWeirdStringValue(Double.TYPE, text,
                 "not a valid `double` value (as String to convert)");
         return _nonNullNumber(v).doubleValue();
@@ -1782,6 +1788,47 @@ inputDesc, _coercedTypeDesc(targetType));
      */
 
     // Removed from 3.0
+
+    /*
+    /**********************************************************************
+    /* Helper methods for sub-classes, Length Constraints
+    /**********************************************************************
+     */
+
+    /**
+     * Method called to enforce maximum length limits for "Stringified" (logical
+     * Number as physical String token) Timestamp tokens for Date/Time types.
+     * Initial implementation uses {@link StreamReadConstraints#getMaxNumberLength()}
+     * as the limit to check.
+     *
+     * @since 3.1
+     */
+    protected void _validateTimestampLength(DeserializationContext ctxt,
+            String value)
+    {
+        _validateAgainstMaxNumberLen(_streamReadConstraints(ctxt), value);
+    }
+
+    /**
+     * @since 3.1
+     */
+    protected StreamReadConstraints _streamReadConstraints(DeserializationContext ctxt)
+    {
+        return ctxt.streamReadConstraints();
+    }
+
+    // @since 3.1
+    private void _validateAgainstMaxNumberLen(StreamReadConstraints src, String value)
+    {
+        final int length = value.length();
+        final int maxNumLen = src.getMaxNumberLength();
+        if (length > maxNumLen) {
+            throw new StreamConstraintsException(String.format(
+"Date/time value length (%d) exceeds the maximum allowed (%d, from "
++"`StreamReadConstraints.getMaxNumberLength()`)",
+                length, maxNumLen));
+        }
+    }
 
     /*
     /**********************************************************************

@@ -687,6 +687,11 @@ DongNyoung Lee (@Dongnyoung)
    base types
   [3.2.2]
 
+Francesco Nigro (@franz1981)
+ * Reported, contributed fix for #6182: `StdDateFormat.<clinit>` degrades JIT
+   compilation of `UTF8JsonGenerator._writeStringSegment`
+  [3.2.3]
+
 @renechoi
  * Reported #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
   [3.2.3]

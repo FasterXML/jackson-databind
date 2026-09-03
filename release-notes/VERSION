@@ -57,6 +57,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6179: Apply `StreamReadConstraints` number length limit when coercing String
   to `double`
  (fix by Aysha A-Z)
+#6182: `StdDateFormat.<clinit>` degrades JIT compilation of
+  `UTF8JsonGenerator._writeStringSegment`
+ (fix by Francesco N)
 #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
  (fix by @pjfanning, w/ Claude code)
 
@@ -357,6 +360,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6179: Apply `StreamReadConstraints` number length limit when coercing String
   to `double`
  (fix by Aysha A-Z)
+#6182: `StdDateFormat.<clinit>` degrades JIT compilation of
+  `UTF8JsonGenerator._writeStringSegment`
+ (fix by Francesco N)
 #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
  (fix by @pjfanning, w/ Claude code)
 

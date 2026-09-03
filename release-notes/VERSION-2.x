@@ -8,6 +8,11 @@ Project: jackson-databind
 
 No changes since 2.22
 
+2.22.3 (not yet released)
+
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+
 2.22.2 (16-Aug-2026)
 
 #6099: Resolve classes without initialization in `TypeFactory.findClass()`
@@ -54,6 +59,11 @@ No changes since 2.22
 #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
+
+2.21.7 (not yet released)
+
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
 
 2.21.6 (14-Aug-2026)
 
@@ -380,6 +390,11 @@ No changes since 2.19.2
  (reported by @seadbrane)
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
+
+2.18.11 (Not yet released)
+
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
 
 2.18.10 (15-Aug-2026)
 

@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.21.7 (not yet released)
+
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+
 2.21.6 (14-Aug-2026)
 
 #6099: Resolve classes without initialization in `TypeFactory.findClass()`

@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import tools.jackson.core.*;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -50,8 +49,7 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
 
     protected MonthDeserializer(MonthDeserializer base,
             Boolean leniency, DateTimeFormatter formatter, JsonFormat.Shape shape) {
-        super(base, leniency, formatter, shape);
-        _caseInsensitiveValues = base._caseInsensitiveValues;
+        this(base, leniency, formatter, shape, base._caseInsensitiveValues);
     }
 
     protected MonthDeserializer(MonthDeserializer base,
@@ -157,7 +155,7 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
                 if (m != null) {
                     return m;
                 }
-                if (_acceptCaseInsensitiveValues(ctxt)) {
+                if (_acceptCaseInsensitiveValues(ctxt, _caseInsensitiveValues)) {
                     m = _findMonthIgnoreCase(string);
                     if (m != null) {
                         return m;
@@ -174,13 +172,6 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
             throw ctxt.weirdStringException(string, handledType(),
                     "not a valid Month value");
         }
-    }
-
-    private boolean _acceptCaseInsensitiveValues(DeserializationContext ctxt) {
-        if (_caseInsensitiveValues != null) {
-            return _caseInsensitiveValues;
-        }
-        return ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES);
     }
 
     private Month _findMonthIgnoreCase(String key) {

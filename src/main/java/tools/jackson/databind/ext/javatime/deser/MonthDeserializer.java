@@ -84,8 +84,14 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
     {
         MonthDeserializer deser = (MonthDeserializer) super._withFormatOverrides(ctxt,
                 property, formatOverrides);
-        return deser.withCaseInsensitiveValues(formatOverrides.getFeature(
-                JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES));
+        Boolean caseInsensitive = formatOverrides.getFeature(
+                JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES);
+        // Only override if explicitly specified: `null` means "no setting", must not
+        // clear a value possibly set earlier
+        if (caseInsensitive != null) {
+            deser = deser.withCaseInsensitiveValues(caseInsensitive);
+        }
+        return deser;
     }
 
     @Override

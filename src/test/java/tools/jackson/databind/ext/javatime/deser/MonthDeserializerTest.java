@@ -43,6 +43,14 @@ public class MonthDeserializerTest extends DateTimeTestBase
         public Month value;
     }
 
+    record Estimate(
+            @JsonFormat(with = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES)
+            Month month) { }
+
+    record StrictEstimate(
+            @JsonFormat(without = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES)
+            Month month) { }
+
     @ParameterizedTest
     @EnumSource(Month.class)
     public void testDeserializationAsString01_oneBased(Month expectedMonth) throws Exception
@@ -516,13 +524,13 @@ public class MonthDeserializerTest extends DateTimeTestBase
         public Month value;
     }
 
-    record Estimate(
-            @JsonFormat(with = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES)
-            Month month) { }
-
-    record StrictEstimate(
-            @JsonFormat(without = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES)
-            Month month) { }
+    @Test
+    public void testDeserializationWithFullMonthFormat() throws Exception
+    {
+        WrapperWithFullMonthFormat result = MAPPER.readValue(
+                "{\"value\":\"January\"}", WrapperWithFullMonthFormat.class);
+        assertEquals(Month.JANUARY, result.value);
+    }
 
     // [databind#6178]
     @ParameterizedTest
@@ -554,14 +562,6 @@ public class MonthDeserializerTest extends DateTimeTestBase
 
         assertThrows(InvalidFormatException.class,
                 () -> mapper.readValue("{\"month\":\"January\"}", StrictEstimate.class));
-    }
-
-    @Test
-    public void testDeserializationWithFullMonthFormat() throws Exception
-    {
-        WrapperWithFullMonthFormat result = MAPPER.readValue(
-                "{\"value\":\"January\"}", WrapperWithFullMonthFormat.class);
-        assertEquals(Month.JANUARY, result.value);
     }
 
     /*

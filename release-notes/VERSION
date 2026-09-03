@@ -16,8 +16,9 @@ No changes since 3.1
  (fix by Aysha A-Z)
 #6182: `StdDateFormat.<clinit>` degrades JIT compilation of
   `UTF8JsonGenerator._writeStringSegment`
- (reported by Francesco N)
  (fix by Francesco N)
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
 
 3.1.6 (14-Aug-2026)
 

@@ -50,17 +50,18 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
     }
 
     @Test
-    public void testAnnotatedConstructorRawParameterTypesAreCached() {
+    public void testAnnotatedConstructorRawParameterTypeIsCached() {
         DeserializationConfig context = MAPPER.deserializationConfig();
         JavaType beanType = MAPPER.constructType(SomeBean.class);
 
         AnnotatedClass instance = AnnotatedClassResolver.resolve(context, beanType, context);
         AnnotatedConstructor constructor = instance.getConstructors().get(0);
 
-        Class<?>[] paramTypes = constructor.getRawParameterTypes();
-        assertSame(paramTypes, constructor.getRawParameterTypes());
+        assertNull(constructor._paramClasses);
         assertEquals(String.class, constructor.getRawParameterType(0));
+        Class<?>[] paramTypes = constructor._paramClasses;
         assertNull(constructor.getRawParameterType(1));
+        assertSame(paramTypes, constructor._paramClasses);
     }
 
     // [databind#3187]

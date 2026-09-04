@@ -11,6 +11,8 @@ No changes since 3.2
 
 3.2.3 (not yet released)
 
+#6174: Honor `@JsonView` in `ThrowableDeserializer.deserializeFromObject()`
+ (fix by Aysha A-Z)
 #6179: Apply `StreamReadConstraints` number length limit when coercing String
   to `double`
  (fix by Aysha A-Z)
@@ -314,6 +316,8 @@ No changes since 3.2
 
 3.1.7 (not yet released)
 
+#6174: Honor `@JsonView` in `ThrowableDeserializer.deserializeFromObject()`
+ (fix by Aysha A-Z)
 #6179: Apply `StreamReadConstraints` number length limit when coercing String
   to `double`
  (fix by Aysha A-Z)

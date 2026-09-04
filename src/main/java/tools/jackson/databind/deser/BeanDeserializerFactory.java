@@ -877,9 +877,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
             valueType = am.getParameterType(1);
             // Need to resolve for possible generic types (like Maps, Collections)
             valueType = resolveMemberAndTypeAnnotations(ctxt, mutator, valueType);
-            prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                    valueType, null, mutator,
-                    PropertyMetadata.STD_OPTIONAL);
+            prop = _constructAnySetterProperty(ctxt, mutator, valueType);
 
         } else if (isField) {
             AnnotatedField af = (AnnotatedField) mutator;
@@ -890,15 +888,13 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                 fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
                 keyType = fieldType.getKeyType();
                 valueType = fieldType.getContentType();
-                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                        fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+                prop = _constructAnySetterProperty(ctxt, mutator, valueType);
             } else if (fieldType.hasRawClass(JsonNode.class)
                     || fieldType.hasRawClass(ObjectNode.class)) {
                 fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
                 // Deserialize is individual values of ObjectNode, not full ObjectNode, so:
                 valueType = ctxt.constructType(JsonNode.class);
-                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                        fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+                prop = _constructAnySetterProperty(ctxt, mutator, valueType);
 
                 // Unlike with more complicated types, here we do not allow any annotation
                 // overrides etc but instead short-cut handling:
@@ -919,14 +915,12 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                 paramType = resolveMemberAndTypeAnnotations(ctxt, mutator, paramType);
                 keyType = paramType.getKeyType();
                 valueType = paramType.getContentType();
-                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                        paramType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+                prop = _constructAnySetterProperty(ctxt, mutator, valueType);
             } else if (paramType.hasRawClass(JsonNode.class) || paramType.hasRawClass(ObjectNode.class)) {
                 paramType = resolveMemberAndTypeAnnotations(ctxt, mutator, paramType);
                 // Deserialize is individual values of ObjectNode, not full ObjectNode, so:
                 valueType = ctxt.constructType(JsonNode.class);
-                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                        paramType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+                prop = _constructAnySetterProperty(ctxt, mutator, valueType);
 
                 // Unlike with more complicated types, here we do not allow any annotation
                 // overrides etc but instead short-cut handling:
@@ -978,6 +972,19 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         }
         return SettableAnyProperty.constructForMethod(ctxt,
                 prop, mutator, valueType, keyDeser, deser, typeDeser);
+    }
+
+    private BeanProperty.Std _constructAnySetterProperty(DeserializationContext ctxt,
+            AnnotatedMember mutator, JavaType propType)
+    {
+        PropertyName name = PropertyName.construct(mutator.getName());
+        BeanProperty.Std prop = new BeanProperty.Std(name, propType, null, mutator,
+                PropertyMetadata.STD_OPTIONAL);
+        PropertyMetadata metadata = _getSetterInfo(ctxt.getConfig(), prop, prop.getMetadata());
+        if (metadata != prop.getMetadata()) {
+            prop = new BeanProperty.Std(name, propType, null, mutator, metadata);
+        }
+        return prop;
     }
 
     /**

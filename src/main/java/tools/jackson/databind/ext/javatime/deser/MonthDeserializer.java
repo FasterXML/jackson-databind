@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
 {
     // @since 3.1
-    private final static Map<String, Month> _byNameLookup = Arrays.stream(Month.values())
+    private final static Map<String, Month> BY_NAME_LOOKUP = Arrays.stream(Month.values())
             .collect(Collectors.toUnmodifiableMap(Month::name, Function.identity()));
 
     public static final MonthDeserializer INSTANCE = new MonthDeserializer();
@@ -160,7 +160,7 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
                 }
                 // Second: try textual input
                 // Handle English month names such as "JANUARY" from the actual Month Enum names
-                Month m = _byNameLookup.get(string);
+                Month m = BY_NAME_LOOKUP.get(string);
                 if (m != null) {
                     return m;
                 }
@@ -202,7 +202,7 @@ public class MonthDeserializer extends JSR310DateTimeDeserializerBase<Month>
         // Iterate over lookup Map (and not `Month.values()`, which allocates a new
         // array on every call); matching same way as case-insensitive `Enum` lookup
         // (see `CompactStringObjectMap.findCaseInsensitive()`)
-        for (Map.Entry<String, Month> entry : _byNameLookup.entrySet()) {
+        for (Map.Entry<String, Month> entry : BY_NAME_LOOKUP.entrySet()) {
             if (entry.getKey().equalsIgnoreCase(key)) {
                 return entry.getValue();
             }

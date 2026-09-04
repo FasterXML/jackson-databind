@@ -397,6 +397,8 @@ Aysha Afrah Ziya (@aysha-afrah26)
   [3.1.6]
  * Fixed #6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float` Map keys
    [3.1.6]
+ * Fixed #6174: Honor `@JsonView` in `ThrowableDeserializer.deserializeFromObject()`
+  [3.1.7]
  * Fixed #6179: Apply `StreamReadConstraints` number length limit when coercing
    String to `double`
   [3.1.7]
@@ -418,3 +420,12 @@ DongNyoung Lee (@Dongnyoung)
  * Reported #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic
    base types
   [3.1.6]
+
+Francesco Nigro (@franz1981)
+ * Reported, contributed fix for #6182: `StdDateFormat.<clinit>` degrades JIT
+   compilation of `UTF8JsonGenerator._writeStringSegment`
+  [3.1.7]
+
+@renechoi
+ * Reported #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+  [3.1.7]

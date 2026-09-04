@@ -11,6 +11,7 @@ import tools.jackson.databind.deser.bean.BeanDeserializer;
 import tools.jackson.databind.deser.bean.BeanPropertyMap;
 import tools.jackson.databind.deser.bean.PropertyBasedCreator;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
+import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
 
@@ -124,11 +125,26 @@ public class ThrowableDeserializer
         Throwable[] suppressed = null;
         int pendingIx = 0;
 
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         int ix = p.currentNameMatch(_propNameMatcher);
         for (; ; ix = p.nextNameMatch(_propNameMatcher)) {
             if (ix >= 0) {
                 p.nextToken();
                 SettableBeanProperty prop = _propsByIndex[ix];
+                // Property not part of the active view must not be set from input
+                // (but standard `Throwable` properties always are, see below)
+                if ((activeView != null) && !prop.visibleInView(activeView)
+                        && !_isStandardThrowableProperty(prop.getName())) {
+                    // [databind#437]: fields in other views to be considered as unknown properties
+                    if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)) {
+                        ctxt.reportInputMismatch(handledType(),
+                                String.format("Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'" +
+                                        " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
+                                        ClassUtil.nameOf(handledType()), prop.getName(), activeView.getName()));
+                    }
+                    p.skipChildren();
+                    continue;
+                }
                 if (throwable != null) {
                     // 07-Dec-2023, tatu: [databind#4248] Interesting that "cause"
                     //    with `null` blows up. So, avoid.
@@ -299,5 +315,29 @@ public class ThrowableDeserializer
     private boolean _shouldSkipNullValue(String propertyName) {
         return PROP_NAME_CAUSE.equals(propertyName)
                 || PROP_NAME_STACK_TRACE.equals(propertyName);
+    }
+
+    /**
+     * Helper method to check whether given property is one of the standard
+     * {@link Throwable} properties, which are never subject to {@code @JsonView}
+     * filtering: they carry no View annotations of their own, and since
+     * {@code MapperFeature.DEFAULT_VIEW_INCLUSION} defaults to disabled, would
+     * otherwise be excluded from every view. Note that "message",
+     * "localizedMessage" and "suppressed" are normally handled separately (not as
+     * regular properties) but are included here for consistency.
+     *
+     * @since 3.1
+     */
+    private boolean _isStandardThrowableProperty(String propertyName) {
+        switch (propertyName) {
+        case PROP_NAME_CAUSE:
+        case PROP_NAME_STACK_TRACE:
+        case PROP_NAME_MESSAGE:
+        case PROP_NAME_LOCALIZED_MESSAGE:
+        case PROP_NAME_SUPPRESSED:
+            return true;
+        default:
+            return false;
+        }
     }
 }

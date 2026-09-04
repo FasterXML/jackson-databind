@@ -202,12 +202,6 @@ public class ThrowableDeserializer
                 continue;
             }
 
-            // Things marked as ignorable (or not in the "include" allow-list) should
-            // not be passed to any setter
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                handleIgnoredProperty(p, ctxt, handledType(), propName);
-                continue;
-            }
             if (PROP_NAME_SUPPRESSED.equalsIgnoreCase(propName)) { // or "suppressed"?
                 // 07-Dec-2023, tatu: Not sure how/why, but JSON Null is otherwise
                 //    not handled with such call so...
@@ -223,6 +217,14 @@ public class ThrowableDeserializer
             }
             if (PROP_NAME_LOCALIZED_MESSAGE.equalsIgnoreCase(propName)) {
                 p.skipChildren();
+                continue;
+            }
+            // Things marked as ignorable (or not in the "include" allow-list) should
+            // not be passed to any setter. NOTE: checked only after the standard
+            // `Throwable` properties above, which are never subject to filtering
+            // (same rationale as `_isStandardThrowableProperty()`)
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
             if (_anySetter != null) {

@@ -678,6 +678,9 @@ DongNyoung Lee (@Dongnyoung)
  * Contributed #3182: Add `StringCanonicalizingConverter` for opt-in canonicalization
    ("de-duplication") of low-cardinality `String` values
   [3.3.0]
+ * Fixed #6178: `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` does not work
+   for `java.time.Month`
+  [3.3.0]
 
 @prvazsahnazarov
  * Reported #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic
@@ -703,4 +706,9 @@ Fabian Lange (@CodingFabian)
 
 Burak KALAYCI (@kalayciburak)
  * Fixed #6175: Parse object-form `QName` after `As.PROPERTY` type id
+  [3.3.0]
+
+@laech
+ * Reported #6178: `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` does not work
+   for `java.time.Month`
   [3.3.0]

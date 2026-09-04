@@ -47,6 +47,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6175: Parse object-form `QName` after `As.PROPERTY` type id
  (reported by @jjh75607)
  (fix by @kalayciburak)
+#6178: `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` does not work for
+  `java.time.Month`
+ (reported by @laech)
+ (fix by @Dongnyoung)
 
 3.2.3 (not yet released)
 

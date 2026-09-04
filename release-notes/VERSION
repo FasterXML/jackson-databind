@@ -44,6 +44,24 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @Dongnyoung)
 #6151: Add `DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS`
  (contributed by @seonwooj0810)
+#6175: Parse object-form `QName` after `As.PROPERTY` type id
+ (reported by @jjh75607)
+ (fix by @kalayciburak)
+#6178: `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` does not work for
+  `java.time.Month`
+ (reported by @laech)
+ (fix by @Dongnyoung)
+
+3.2.3 (not yet released)
+
+#6179: Apply `StreamReadConstraints` number length limit when coercing String
+  to `double`
+ (fix by Aysha A-Z)
+#6182: `StdDateFormat.<clinit>` degrades JIT compilation of
+  `UTF8JsonGenerator._writeStringSegment`
+ (fix by Francesco N)
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
 
 3.2.2 (14-Aug-2026)
 
@@ -74,7 +92,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
   for unspecified values
  (reported, fixed by DongNyoung L)
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
-  [GHSA-gx83-3vf8-gh7j]
+  [CVE-2026-83557]
  (reported by @prvazsahnazarov)
 
 3.2.1 (10-Jul-2026)
@@ -337,6 +355,17 @@ Versions: 3.x (for earlier see VERSION-2.x)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 
+3.1.7 (not yet released)
+
+#6179: Apply `StreamReadConstraints` number length limit when coercing String
+  to `double`
+ (fix by Aysha A-Z)
+#6182: `StdDateFormat.<clinit>` degrades JIT compilation of
+  `UTF8JsonGenerator._writeStringSegment`
+ (fix by Francesco N)
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+
 3.1.6 (14-Aug-2026)
 
 #6096: Honor `@JsonView` in `BeanAsArrayDeserializer` update path
@@ -368,7 +397,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
   for unspecified values
  (reported, fixed by DongNyoung L)
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
-  [GHSA-gx83-3vf8-gh7j]
+  [CVE-2026-83557]
  (reported by @prvazsahnazarov)
 #6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float` Map keys
  (fix by Aysha A-Z)

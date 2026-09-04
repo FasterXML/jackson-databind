@@ -44,8 +44,28 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @Dongnyoung)
 #6151: Add `DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS`
  (contributed by @seonwooj0810)
+#6175: Parse object-form `QName` after `As.PROPERTY` type id
+ (reported by @jjh75607)
+ (fix by @kalayciburak)
+#6178: `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` does not work for
+  `java.time.Month`
+ (reported by @laech)
+ (fix by @Dongnyoung)
 
-3.2.2 (not yet released)
+3.2.3 (not yet released)
+
+#6174: Honor `@JsonView` in `ThrowableDeserializer.deserializeFromObject()`
+ (fix by Aysha A-Z)
+#6179: Apply `StreamReadConstraints` number length limit when coercing String
+  to `double`
+ (fix by Aysha A-Z)
+#6182: `StdDateFormat.<clinit>` degrades JIT compilation of
+  `UTF8JsonGenerator._writeStringSegment`
+ (fix by Francesco N)
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+
+3.2.2 (14-Aug-2026)
 
 #6096: Honor `@JsonView` in `BeanAsArrayDeserializer` update path
  (fixed by Aysha A-Z)
@@ -62,8 +82,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by Aysha A-Z)
 #6116: Reject non-ASCII digits in `InetAddress` literal validation
  (fixed by Aysha A-Z)
-#6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
-  and Duration [CVE-2026-68497]
+#6127: Add `StreamReadConstraints` number len constraint to `javax.xml.datatype.XMLGregorianCalendar`
+  and `javax.xml.datatype.Duration` [CVE-2026-68497]
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6129: Limit the supported URL schemes for `java.nio.file.Path`
@@ -74,7 +94,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
   for unspecified values
  (reported, fixed by DongNyoung L)
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
-  [GHSA-gx83-3vf8-gh7j]
+  [CVE-2026-83557]
  (reported by @prvazsahnazarov)
 
 3.2.1 (10-Jul-2026)
@@ -96,7 +116,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6055: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
-#6058: Do not allow DNS resolution when deserializing `InetAddress`
+#6058: Do not allow DNS resolution when deserializing `InetAddress` [CVE-2026-77310]
  (reported by @thientd)
  (fix by @pjfanning)
 #6059: `ObjectMapper.valueToTree()` with `byte[]` does not produce `BinaryNode`
@@ -337,7 +357,20 @@ Versions: 3.x (for earlier see VERSION-2.x)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 
-3.1.6 (not yet released)
+3.1.7 (not yet released)
+
+#6174: Honor `@JsonView` in `ThrowableDeserializer.deserializeFromObject()`
+ (fix by Aysha A-Z)
+#6179: Apply `StreamReadConstraints` number length limit when coercing String
+  to `double`
+ (fix by Aysha A-Z)
+#6182: `StdDateFormat.<clinit>` degrades JIT compilation of
+  `UTF8JsonGenerator._writeStringSegment`
+ (fix by Francesco N)
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+
+3.1.6 (14-Aug-2026)
 
 #6096: Honor `@JsonView` in `BeanAsArrayDeserializer` update path
  (fixed by Aysha A-Z)
@@ -354,8 +387,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by Aysha A-Z)
 #6116: Reject non-ASCII digits in `InetAddress` literal validation
  (fixed by Aysha A-Z)
-#6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
-  and Duration [CVE-2026-68497]
+#6127: Add `StreamReadConstraints` number len constraint to `javax.xml.datatype.XMLGregorianCalendar`
+  and `javax.xml.datatype.Duration` [CVE-2026-68497]
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6129: Limit the supported URL schemes for `java.nio.file.Path`
@@ -368,8 +401,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   for unspecified values
  (reported, fixed by DongNyoung L)
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
-  [GHSA-gx83-3vf8-gh7j]
+  [CVE-2026-83557]
  (reported by @prvazsahnazarov)
+#6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float` Map keys
+ (fix by Aysha A-Z)
 
 3.1.5 (07-Jul-2026)
 
@@ -381,7 +416,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6055: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
-#6058: Do not allow DNS resolution when deserializing `InetAddress`
+#6058: Do not allow DNS resolution when deserializing `InetAddress` [CVE-2026-77310]
  (reported by @thientd)
  (fix by @pjfanning)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]

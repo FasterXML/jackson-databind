@@ -131,7 +131,9 @@ public class ThrowableDeserializer
                 p.nextToken();
                 SettableBeanProperty prop = _propsByIndex[ix];
                 // Property not part of the active view must not be set from input
-                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                // (but standard `Throwable` properties always are, see below)
+                if ((activeView != null) && !prop.visibleInView(activeView)
+                        && !_isStandardThrowableProperty(prop.getName())) {
                     // [databind#437]: fields in other views to be considered as unknown properties
                     if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)) {
                         ctxt.reportInputMismatch(handledType(),
@@ -311,5 +313,29 @@ public class ThrowableDeserializer
     private boolean _shouldSkipNullValue(String propertyName) {
         return PROP_NAME_CAUSE.equals(propertyName)
                 || PROP_NAME_STACK_TRACE.equals(propertyName);
+    }
+
+    /**
+     * Helper method to check whether given property is one of the standard
+     * {@link Throwable} properties, which are never subject to {@code @JsonView}
+     * filtering: they carry no View annotations of their own, and since
+     * {@code MapperFeature.DEFAULT_VIEW_INCLUSION} defaults to disabled, would
+     * otherwise be excluded from every view. Note that "message",
+     * "localizedMessage" and "suppressed" are normally handled separately (not as
+     * regular properties) but are included here for consistency.
+     *
+     * @since 3.1
+     */
+    private boolean _isStandardThrowableProperty(String propertyName) {
+        switch (propertyName) {
+        case PROP_NAME_CAUSE:
+        case PROP_NAME_STACK_TRACE:
+        case PROP_NAME_MESSAGE:
+        case PROP_NAME_LOCALIZED_MESSAGE:
+        case PROP_NAME_SUPPRESSED:
+            return true;
+        default:
+            return false;
+        }
     }
 }

@@ -680,6 +680,8 @@ DongNyoung Lee (@Dongnyoung)
  * Contributed #3182: Add `StringCanonicalizingConverter` for opt-in canonicalization
    ("de-duplication") of low-cardinality `String` values
   [3.3.0]
+ * Fixed #6168: Cache raw parameter types in `AnnotatedConstructor`
+  [3.3.0]
  * Fixed #6178: `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` does not work
    for `java.time.Month`
   [3.3.0]

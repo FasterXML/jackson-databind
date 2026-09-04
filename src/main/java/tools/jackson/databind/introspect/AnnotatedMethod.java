@@ -28,7 +28,11 @@ public final class AnnotatedMethod
 
     // // Simple lazy-caching:
 
-    protected Class<?>[] _paramClasses;
+    /**
+     * Lazily resolved raw parameter types; {@code volatile} to ensure safe
+     * publication of the array contents (racy re-resolution is harmless).
+     */
+    protected volatile Class<?>[] _paramClasses;
 
     /*
     /**********************************************************************
@@ -214,10 +218,12 @@ public final class AnnotatedMethod
 
     public Class<?>[] getRawParameterTypes()
     {
-        if (_paramClasses == null) {
-            _paramClasses = _method.getParameterTypes();
+        Class<?>[] types = _paramClasses;
+        if (types == null) {
+            types = _method.getParameterTypes();
+            _paramClasses = types;
         }
-        return _paramClasses;
+        return types;
     }
 
     public Class<?> getRawReturnType() {

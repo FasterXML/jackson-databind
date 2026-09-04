@@ -26,7 +26,11 @@ public final class AnnotatedConstructor
 
     // // Simple lazy-caching:
 
-    protected Class<?>[] _paramClasses;
+    /**
+     * Lazily resolved raw parameter types; {@code volatile} to ensure safe
+     * publication of the array contents (racy re-resolution is harmless).
+     */
+    protected volatile Class<?>[] _paramClasses;
 
     /*
     /**********************************************************************

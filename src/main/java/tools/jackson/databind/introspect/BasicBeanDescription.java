@@ -280,6 +280,9 @@ public class BasicBeanDescription extends BeanDescription
         if (_propCollector != null) {
             AnnotatedMethod anyMethod = _propCollector.getAnySetterMethod();
             if (anyMethod != null) {
+                if (anyMethod.getParameterCount() == 1) {
+                    return anyMethod;
+                }
                 // Also, let's be somewhat strict on how field name is to be
                 // passed; String, Object make sense, others not so much.
 

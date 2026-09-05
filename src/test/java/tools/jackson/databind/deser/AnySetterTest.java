@@ -176,6 +176,68 @@ public class AnySetterTest extends DatabindTestUtil
         }
     }
 
+    // [databind#4889]
+    static class JsonAnySetterOnMapMethod4889 {
+        @JsonView(View4889.class)
+        public int id;
+        public Map<String, String> other;
+        public int anySetterCalls;
+
+        @JsonAnySetter
+        public void setOther(Map<String, String> other) {
+            ++anySetterCalls;
+            this.other = other;
+        }
+    }
+
+    static class View4889 { }
+
+    static class RegularMapSetter4889 {
+        public Map<String, String> other;
+
+        public void setOther(Map<String, String> other) {
+            this.other = other;
+        }
+    }
+
+    static class RegularStringSetter4889 {
+        public String value;
+
+        @JsonAnySetter
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
+    static abstract class ExternalValue4889 {
+        public String name;
+    }
+
+    static class ExternalValueImpl4889 extends ExternalValue4889 { }
+
+    static class ExternalTypeAnySetter4889 {
+        public final int id;
+
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
+        @JsonSubTypes(@JsonSubTypes.Type(value = ExternalValueImpl4889.class, name = "impl"))
+        public ExternalValue4889 value;
+
+        public Map<String, Object> other;
+        public int anySetterCalls;
+
+        @JsonCreator
+        ExternalTypeAnySetter4889(@JsonProperty("id") int id) {
+            this.id = id;
+        }
+
+        @JsonAnySetter
+        public void setOther(Map<String, Object> other) {
+            ++anySetterCalls;
+            this.other = other;
+        }
+    }
+
     static class JsonAnySetterOnNullMap {
         public int id;
 
@@ -194,6 +256,11 @@ public class AnySetterTest extends DatabindTestUtil
     static class JsonAnySetterOnCustomNullMap {
         @JsonAnySetter
         public CustomMap other;
+    }
+
+    static class JsonAnySetterOnCustomMapMethod4889 {
+        @JsonAnySetter
+        public void setOther(CustomMap other) { }
     }
 
     static class MyGeneric<T>
@@ -315,6 +382,24 @@ public class AnySetterTest extends DatabindTestUtil
         @JsonAnySetter
         public void setAny(String name, Object value) {
             any.put(name, value);
+        }
+    }
+
+    // [databind#4889]
+    public static class AnySetterMapMethodCreatorBean4889 {
+        final int id;
+        Map<String, Object> any;
+        int anySetterCalls;
+
+        @JsonCreator
+        public AnySetterMapMethodCreatorBean4889(@JsonProperty("id") int id) {
+            this.id = id;
+        }
+
+        @JsonAnySetter
+        public void setAny(Map<String, Object> any) {
+            ++anySetterCalls;
+            this.any = any;
         }
     }
 
@@ -455,6 +540,72 @@ public class AnySetterTest extends DatabindTestUtil
 		assertEquals(2, result.id);
 		assertEquals("Joe", result.other.get("name"));
 		assertEquals("New Jersey", result.other.get("city"));
+    }
+
+    @Test
+    public void testJsonAnySetterOnMapMethod4889() throws Exception {
+        JsonAnySetterOnMapMethod4889 result = MAPPER.readValue("{\"id\":2,\"name\":\"Joe\", \"city\":\"New Jersey\"}",
+                JsonAnySetterOnMapMethod4889.class);
+        assertEquals(2, result.id);
+        assertEquals(1, result.anySetterCalls);
+        assertNotNull(result.other);
+        assertEquals("Joe", result.other.get("name"));
+        assertEquals("New Jersey", result.other.get("city"));
+    }
+
+    @Test
+    public void testJsonAnySetterOnMapMethodWithView4889() throws Exception {
+        JsonAnySetterOnMapMethod4889 result = MAPPER.readerWithView(View4889.class)
+                .forType(JsonAnySetterOnMapMethod4889.class)
+                .readValue("{\"id\":2,\"name\":\"Joe\"}");
+        assertEquals(2, result.id);
+        assertEquals(1, result.anySetterCalls);
+        assertEquals(Collections.singletonMap("name", "Joe"), result.other);
+    }
+
+    @Test
+    public void testJsonAnySetterOnMapMethodWithoutUnknowns4889() throws Exception {
+        JsonAnySetterOnMapMethod4889 result = MAPPER.readValue("{\"id\":2}",
+                JsonAnySetterOnMapMethod4889.class);
+        assertEquals(2, result.id);
+        assertEquals(0, result.anySetterCalls);
+        assertNull(result.other);
+    }
+
+    @Test
+    public void testRegularMapSetterIsNotAnySetter4889() throws Exception {
+        RegularMapSetter4889 result = MAPPER.readValue("{\"other\":{\"name\":\"Joe\"}}",
+                RegularMapSetter4889.class);
+        assertEquals(Collections.singletonMap("name", "Joe"), result.other);
+    }
+
+    @Test
+    public void testNonMapAnySetterMethodRemainsRegularSetter4889() throws Exception {
+        RegularStringSetter4889 result = MAPPER.readValue("{\"value\":\"Joe\"}",
+                RegularStringSetter4889.class);
+        assertEquals("Joe", result.value);
+    }
+
+    @Test
+    public void testJsonAnySetterOnUnsupportedCustomMapMethod4889() throws Exception {
+        try {
+            MAPPER.readValue("{\"name\":\"Joe\"}", JsonAnySetterOnCustomMapMethod4889.class);
+            fail("Should not pass");
+        } catch (DatabindException e) {
+            verifyException(e, "Cannot create an instance of");
+            verifyException(e, "for use as \"any-setter\" 'setOther'");
+        }
+    }
+
+    @Test
+    public void testJsonAnySetterOnMapMethodWithExternalTypeId4889() throws Exception {
+        ExternalTypeAnySetter4889 result = MAPPER.readValue(
+                "{\"extra\":3,\"value\":{\"name\":\"Joe\"},\"type\":\"impl\",\"id\":2}",
+                ExternalTypeAnySetter4889.class);
+        assertEquals(2, result.id);
+        assertEquals("Joe", result.value.name);
+        assertEquals(1, result.anySetterCalls);
+        assertEquals(Collections.singletonMap("extra", 3), result.other);
     }
 
     @Test
@@ -604,6 +755,20 @@ public class AnySetterTest extends DatabindTestUtil
         expected.put("e", 5);
         expected.put("f", 6);
         assertEquals(expected, bean.any);
+    }
+
+    @Test
+    public void testAnySetterMapMethodWithCreator4889() throws Exception
+    {
+        String json = "{\"name\":\"Joe\",\"id\":2,\"city\":\"New Jersey\"}";
+
+        AnySetterMapMethodCreatorBean4889 bean = MAPPER.readValue(json,
+                AnySetterMapMethodCreatorBean4889.class);
+        assertEquals(2, bean.id);
+        assertEquals(1, bean.anySetterCalls);
+        assertNotNull(bean.any);
+        assertEquals("Joe", bean.any.get("name"));
+        assertEquals("New Jersey", bean.any.get("city"));
     }
 
     /*

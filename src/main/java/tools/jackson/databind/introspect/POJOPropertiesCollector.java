@@ -1320,6 +1320,15 @@ ctor.creator()));
     protected void _addSetterMethod(Map<String, POJOPropertyBuilder> props,
             AnnotatedMethod m)
     {
+        if (Map.class.isAssignableFrom(m.getRawParameterType(0))
+                && Boolean.TRUE.equals(_annotationIntrospector.hasAnySetter(_config, m))) {
+            if (_anySetters == null) {
+                _anySetters = new LinkedList<>();
+            }
+            _anySetters.add(m);
+            return;
+        }
+
         String implName; // from naming convention
         boolean visible;
         PropertyName pn = _annotationIntrospector.findNameForDeserialization(_config, m);

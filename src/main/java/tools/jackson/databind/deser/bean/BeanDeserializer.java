@@ -309,7 +309,7 @@ public class BeanDeserializer
             }
             return _handleUnexpectedWithin(p, ctxt, bean);
         }
-        return bean;
+        return _finishAnySetter(ctxt, bean);
     }
 
     /**
@@ -595,7 +595,7 @@ public class BeanDeserializer
                 continue;
             }
             if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
-                return bean;
+                return _finishAnySetter(ctxt, bean);
             }
             if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 return bean;
@@ -603,6 +603,15 @@ public class BeanDeserializer
             p.nextToken();
             handleUnknownVanilla(p, ctxt, bean, p.currentName());
         }
+    }
+
+    private Object _finishAnySetter(DeserializationContext ctxt, Object bean)
+        throws JacksonException
+    {
+        if (_anySetter != null) {
+            _anySetter.finishAnySetter(ctxt, bean);
+        }
+        return bean;
     }
 
     /**
@@ -692,7 +701,7 @@ public class BeanDeserializer
                 continue;
             }
             if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
-                return bean;
+                return _finishAnySetter(ctxt, bean);
             }
             if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 return _handleUnexpectedWithin(p, ctxt, bean);
@@ -1065,7 +1074,7 @@ public class BeanDeserializer
                 handleUnknownVanilla(p, ctxt, bean, p.currentName());
                 continue;
             }
-            return bean;
+            return _finishAnySetter(ctxt, bean);
         }
     }
 
@@ -1158,6 +1167,7 @@ public class BeanDeserializer
             }
         }
         tokens.writeEndObject();
+        _finishAnySetter(ctxt, bean);
         _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens, hasUnwrappedContent);
         return bean;
     }
@@ -1222,6 +1232,7 @@ public class BeanDeserializer
             }
         }
         tokens.writeEndObject();
+        bean = _finishAnySetter(ctxt, bean);
         _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens, hasUnwrappedContent);
         return bean;
     }
@@ -1450,6 +1461,7 @@ public class BeanDeserializer
             handleUnknownProperty(p, ctxt, bean, p.currentName());
         }
         // and when we get this far, let's try finalizing the deal:
+        bean = _finishAnySetter(ctxt, bean);
         return ext.complete(p, ctxt, bean);
     }
 

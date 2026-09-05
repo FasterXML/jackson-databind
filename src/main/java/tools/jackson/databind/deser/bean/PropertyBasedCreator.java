@@ -353,6 +353,9 @@ public final class PropertyBasedCreator
             for (PropertyValue pv = buffer.buffered(); pv != null; pv = pv.next) {
                 pv.assign(ctxt, bean);
             }
+            for (PropertyValue pv = buffer.buffered(); pv != null; pv = pv.next) {
+                pv.finishAnySetter(ctxt, bean);
+            }
         }
         return bean;
     }

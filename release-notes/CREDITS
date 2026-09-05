@@ -622,7 +622,7 @@ Aysha Afrah Ziya (@aysha-afrah26)
   [3.1.6]
  * Fixed #6157: `@JsonIncludeProperties` not honored for `Throwable` types with
    `@JsonAnySetter`
-  [3.1.7]
+  [3.2.3]
  * Fixed #6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float` Map keys
   [3.1.6]
  * Fixed #6174: Honor `@JsonView` in `ThrowableDeserializer.deserializeFromObject()`

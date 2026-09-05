@@ -826,25 +826,27 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
     protected void addInjectables(DeserializationContext ctxt,
             BeanDescription.Supplier beanDescRef, BeanDeserializerBuilder builder)
     {
-        Map<Object, AnnotatedMember> raw = beanDescRef.get().findInjectables();
+        Map<Object, List<AnnotatedMember>> raw = beanDescRef.get().findAllInjectables();
         if (raw != null) {
             final AnnotationIntrospector introspector = ctxt.getAnnotationIntrospector();
 
-            for (Map.Entry<Object, AnnotatedMember> entry : raw.entrySet()) {
-                AnnotatedMember m = entry.getValue();
-                final JacksonInject.Value injectableValue = introspector.findInjectableValue(ctxt.getConfig(), m);
-                final Boolean optional, useInput;
+            // 23-Jan-2026, tatu: [databind#5217] Allow multiple injections of same value
+            for (Map.Entry<Object, List<AnnotatedMember>> entry : raw.entrySet()) {
+                for (AnnotatedMember m : entry.getValue()) {
+                    final JacksonInject.Value injectableValue = introspector.findInjectableValue(ctxt.getConfig(), m);
+                    final Boolean optional, useInput;
 
-                if (injectableValue == null) {
-                    optional = useInput = null;
-                } else {
-                    optional = injectableValue.getOptional();
-                    useInput = injectableValue.getUseInput();
+                    if (injectableValue == null) {
+                        optional = useInput = null;
+                    } else {
+                        optional = injectableValue.getOptional();
+                        useInput = injectableValue.getUseInput();
+                    }
+
+                    builder.addInjectable(PropertyName.construct(m.getName()),
+                            m.getType(),
+                            beanDescRef.getClassAnnotations(), m, entry.getKey(), optional, useInput);
                 }
-
-                builder.addInjectable(PropertyName.construct(m.getName()),
-                        m.getType(),
-                        beanDescRef.getClassAnnotations(), m, entry.getKey(), optional, useInput);
             }
         }
     }

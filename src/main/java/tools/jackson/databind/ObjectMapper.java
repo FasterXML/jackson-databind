@@ -2613,37 +2613,55 @@ public class ObjectMapper
      */
 
     /**
+     * Helper method to clear location from exception if
+     * {@link DeserializationFeature#EXCLUDE_LOCATION_IN_EXCEPTIONS} is enabled.
+     *
+     * @since 3.2
+     */
+    private static <T extends JacksonException> T _clearLocationIfNeeded(
+            DeserializationConfig config, T e) {
+        if (config.isEnabled(DeserializationFeature.EXCLUDE_LOCATION_IN_EXCEPTIONS)) {
+            e.clearLocation();
+        }
+        return e;
+    }
+
+    /**
      * Actual implementation of value reading+binding operation.
      */
     protected Object _readValue(DeserializationContextExt ctxt, JsonParser p,
             JavaType valueType)
         throws JacksonException
     {
-        // First: may need to read the next token, to initialize
-        // state (either before first read from parser, or after
-        // previous token has been cleared)
-        final Object result;
-        JsonToken t = _initForReading(p, valueType);
+        try {
+            // First: may need to read the next token, to initialize
+            // state (either before first read from parser, or after
+            // previous token has been cleared)
+            final Object result;
+            JsonToken t = _initForReading(p, valueType);
 
-        if (t == JsonToken.VALUE_NULL) {
-            // Ask deserializer what 'null value' to use:
-            result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
-        } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
-            result = null;
-        } else if (t == JsonToken.NOT_AVAILABLE) {
-            // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
-            result = null;
-        } else { // pointing to event other than null
-            result = ctxt.readRootValue(p, valueType,
-                    _findRootDeserializer(ctxt, valueType), null);
-            ctxt.checkUnresolvedObjectId();
+            if (t == JsonToken.VALUE_NULL) {
+                // Ask deserializer what 'null value' to use:
+                result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
+            } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
+                result = null;
+            } else if (t == JsonToken.NOT_AVAILABLE) {
+                // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
+                result = null;
+            } else { // pointing to event other than null
+                result = ctxt.readRootValue(p, valueType,
+                        _findRootDeserializer(ctxt, valueType), null);
+                ctxt.checkUnresolvedObjectId();
+            }
+            // Need to consume the token too
+            p.clearCurrentToken();
+            if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+                _verifyNoTrailingTokens(p, ctxt, valueType);
+            }
+            return result;
+        } catch (JacksonException e) {
+            throw _clearLocationIfNeeded(ctxt.getConfig(), e);
         }
-        // Need to consume the token too
-        p.clearCurrentToken();
-        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
-            _verifyNoTrailingTokens(p, ctxt, valueType);
-        }
-        return result;
     }
 
     protected Object _readMapAndClose(DeserializationContextExt ctxt,
@@ -2671,6 +2689,8 @@ public class ObjectMapper
                 _verifyNoTrailingTokens(p, ctxt, valueType);
             }
             return result;
+        } catch (JacksonException e) {
+            throw _clearLocationIfNeeded(ctxt.getConfig(), e);
         }
     }
 
@@ -2709,6 +2729,8 @@ public class ObjectMapper
                 _verifyNoTrailingTokens(p, ctxt, valueType);
             }
             return resultNode;
+        } catch (JacksonException e) {
+            throw _clearLocationIfNeeded(ctxt.getConfig(), e);
         }
     }
 

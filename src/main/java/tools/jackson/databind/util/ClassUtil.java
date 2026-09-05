@@ -843,9 +843,9 @@ public final class ClassUtil
     /**
      * Method that is called if a {@link Member} may need forced access,
      * to force a field, method or constructor to be accessible: this
-     * is done by calling {@link AccessibleObject#setAccessible(boolean)}.
+     * is done by calling {@link AccessibleObject#trySetAccessible}.
      *
-     * @param member Accessor to call <code>setAccessible()</code> on.
+     * @param member Accessor to call <code>trySetAccessible()</code> on.
      * @param evenIfAlreadyPublic Whether to always try to make accessor
      *   accessible, even if {@code public} (true),
      *   or only if needed to force by-pass of non-{@code public} access (false)
@@ -862,7 +862,7 @@ public final class ClassUtil
             boolean isPublic = Modifier.isPublic(member.getModifiers())
                     && Modifier.isPublic(declaringClass.getModifiers());
             if (!isJDKClass(declaringClass) && (!isPublic || evenIfAlreadyPublic)) {
-                ao.setAccessible(true);
+                ao.trySetAccessible();
             }
         } catch (SecurityException ignore) {
         } catch (RuntimeException e) {
@@ -1235,7 +1235,7 @@ public final class ClassUtil
                 if (!expectedName.equals(f.getName()) || f.getType() != type) {
                     continue;
                 }
-                f.setAccessible(true);
+                f.trySetAccessible();
                 return f;
             }
             // If not found, indicate with exception

@@ -88,7 +88,7 @@ public abstract class AnnotatedMember
 
     /**
      * Method that can be called to modify access rights, by calling
-     * {@link java.lang.reflect.AccessibleObject#setAccessible} on
+     * {@link java.lang.reflect.AccessibleObject#trySetAccessible} on
      * the underlying annotated element.
      *<p>
      * Note that caller should verify that

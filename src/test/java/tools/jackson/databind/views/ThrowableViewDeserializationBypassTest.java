@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -154,5 +155,37 @@ public class ThrowableViewDeserializationBypassTest extends DatabindTestUtil
         assertEquals("the message", ex.getMessage());
         assertNotNull(ex.getCause());
         assertEquals(0, ex.getStackTrace().length);
+    }
+
+    // [databind#3497]: ...and the exemption must survive a `PropertyNamingStrategy`.
+    // With SNAKE_CASE the property is externally named "stack_trace", which no
+    // case-insensitive comparison against "stackTrace" can ever match
+    @Test
+    public void standardThrowablePropsIncludedUnderViewWithNamingStrategy() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+                .build();
+        final String json = """
+{
+  "message" : "the message",
+  "cause" : { "message" : "root cause" },
+  "stack_trace" : [ {
+    "class_name" : "some.Class", "method_name" : "someMethod",
+    "file_name" : "Class.java", "line_number" : 42
+  } ],
+  "pub" : "visible",
+  "sec" : "leaked"
+}
+""";
+        StdPropsException ex = mapper.readerWithView(Public.class)
+                .forType(StdPropsException.class)
+                .readValue(json);
+
+        assertEquals("visible", ex.pub);
+        assertNull(ex.sec);
+        assertEquals("the message", ex.getMessage());
+        assertNotNull(ex.getCause(), "'cause' should be set under active view");
+        assertEquals(1, ex.getStackTrace().length,
+                "'stack_trace' should be set from input under active view");
     }
 }

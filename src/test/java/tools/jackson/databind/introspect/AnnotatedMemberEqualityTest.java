@@ -8,6 +8,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -27,6 +28,10 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
         public void setValue(String value) {
             this.value = value;
         }
+    }
+
+    static class NoArgBean {
+        public NoArgBean() { }
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -62,6 +67,66 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
         Class<?>[] paramTypes = constructor._paramClasses;
         assertNull(constructor.getRawParameterType(1));
         assertSame(paramTypes, constructor._paramClasses);
+    }
+
+    // [databind#6187]
+    @Test
+    public void annotatedConstructorDoesNotEagerlyConstructInvokers() throws Exception {
+        DeserializationConfig context = MAPPER.deserializationConfig();
+        JavaType beanType = MAPPER.constructType(SomeBean.class);
+
+        AnnotatedClass instance = AnnotatedClassResolver.resolve(context, beanType, context);
+        AnnotatedConstructor constructor = instance.getConstructors().get(0);
+
+        assertNull(invokerField(constructor, "_invokerNullary"));
+        assertNull(invokerField(constructor, "_invokerUnary"));
+        assertNull(invokerField(constructor, "_invokerFixedArity"));
+    }
+
+    // [databind#6187]
+    @Test
+    public void annotatedConstructorBuildsOnlyTheInvokerItUses() throws Exception {
+        DeserializationConfig context = MAPPER.deserializationConfig();
+        JavaType beanType = MAPPER.constructType(SomeBean.class);
+
+        AnnotatedClass instance = AnnotatedClassResolver.resolve(context, beanType, context);
+        AnnotatedConstructor constructor = instance.getConstructors().get(0);
+
+        SomeBean created = (SomeBean) constructor.call(new Object[] { "x" });
+        assertEquals("x", created.getValue());
+        assertNull(invokerField(constructor, "_invokerNullary"));
+        assertNull(invokerField(constructor, "_invokerUnary"));
+        assertNotNull(invokerField(constructor, "_invokerFixedArity"));
+
+        SomeBean viaCall1 = (SomeBean) constructor.call1("y");
+        assertEquals("y", viaCall1.getValue());
+        assertNull(invokerField(constructor, "_invokerNullary"));
+        assertNotNull(invokerField(constructor, "_invokerUnary"));
+        assertNotNull(invokerField(constructor, "_invokerFixedArity"));
+    }
+
+    // [databind#6187]
+    @Test
+    public void annotatedConstructorNullaryCallBuildsOnlyNullaryInvoker() throws Exception {
+        DeserializationConfig context = MAPPER.deserializationConfig();
+        JavaType beanType = MAPPER.constructType(NoArgBean.class);
+
+        AnnotatedClass instance = AnnotatedClassResolver.resolve(context, beanType, context);
+        AnnotatedConstructor constructor = instance.getDefaultConstructor();
+        assertNotNull(constructor);
+
+        assertNull(invokerField(constructor, "_invokerNullary"));
+        Object created = constructor.call();
+        assertEquals(NoArgBean.class, created.getClass());
+        assertNotNull(invokerField(constructor, "_invokerNullary"));
+        assertNull(invokerField(constructor, "_invokerUnary"));
+        assertNull(invokerField(constructor, "_invokerFixedArity"));
+    }
+
+    private static Object invokerField(AnnotatedConstructor constructor, String name) throws Exception {
+        java.lang.reflect.Field field = AnnotatedConstructor.class.getDeclaredField(name);
+        field.setAccessible(true);
+        return field.get(constructor);
     }
 
     // [databind#3187]

@@ -20,9 +20,14 @@ public final class AnnotatedConstructor
     extends AnnotatedWithParams
 {
     protected final Constructor<?> _constructor;
-    private final InvokerHolder _invokerNullary = new InvokerHolder(methodType(Object.class));
-    private final InvokerHolder _invokerUnary = new InvokerHolder(methodType(Object.class, Object.class));
-    private final InvokerHolder _invokerFixedArity = new InvokerHolder(null);
+
+    /**
+     * Lazily constructed invokers; {@code volatile} so a racy first use is
+     * safely published (duplicate construction is harmless).
+     */
+    private volatile InvokerHolder _invokerNullary;
+    private volatile InvokerHolder _invokerUnary;
+    private volatile InvokerHolder _invokerFixedArity;
 
     // // Simple lazy-caching:
 
@@ -114,7 +119,7 @@ public final class AnnotatedConstructor
     @Override
     public final Object call() throws Exception {
         try {
-            return _invokerNullary.get().invokeExact();
+            return invokerNullary().get().invokeExact();
         } catch (Throwable e) {
             throw ClassUtil.sneakyThrow(e);
         }
@@ -123,7 +128,7 @@ public final class AnnotatedConstructor
     @Override
     public final Object call(Object[] args) throws Exception {
         try {
-            return _invokerFixedArity.get().invokeWithArguments(args);
+            return invokerFixedArity().get().invokeWithArguments(args);
         } catch (Throwable e) {
             throw ClassUtil.sneakyThrow(e);
         }
@@ -132,10 +137,37 @@ public final class AnnotatedConstructor
     @Override
     public final Object call1(Object arg) throws Exception {
         try {
-            return _invokerUnary.get().invokeExact(arg);
+            return invokerUnary().get().invokeExact(arg);
         } catch (Throwable e) {
             throw ClassUtil.sneakyThrow(e);
         }
+    }
+
+    private InvokerHolder invokerNullary() {
+        InvokerHolder h = _invokerNullary;
+        if (h == null) {
+            h = new InvokerHolder(methodType(Object.class));
+            _invokerNullary = h;
+        }
+        return h;
+    }
+
+    private InvokerHolder invokerUnary() {
+        InvokerHolder h = _invokerUnary;
+        if (h == null) {
+            h = new InvokerHolder(methodType(Object.class, Object.class));
+            _invokerUnary = h;
+        }
+        return h;
+    }
+
+    private InvokerHolder invokerFixedArity() {
+        InvokerHolder h = _invokerFixedArity;
+        if (h == null) {
+            h = new InvokerHolder(null);
+            _invokerFixedArity = h;
+        }
+        return h;
     }
 
     /*

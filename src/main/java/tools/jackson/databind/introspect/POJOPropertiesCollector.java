@@ -487,7 +487,7 @@ public class POJOPropertiesCollector
      */
     protected void collectAll()
     {
-//System.out.println(" PojoPropsCollector.collectAll() for  "+_classDef.getRawType().getName()); 
+System.out.println(" PojoPropsCollector.collectAll() for  "+_classDef.getRawType().getName()); 
         _potentialCreators = new PotentialCreators();
 
         // First: gather basic accessors

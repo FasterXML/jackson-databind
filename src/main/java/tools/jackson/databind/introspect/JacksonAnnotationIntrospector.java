@@ -518,6 +518,12 @@ public class JacksonAnnotationIntrospector
         return NameTransformer.simpleTransformer(prefix, suffix);
     }
 
+    @Override
+    public String findPropertyJsonPointer(MapperConfig<?> config, AnnotatedMember member) {
+        JsonPointer ann = _findAnnotation(member, JsonPointer.class);
+        return (ann == null) ? null : ann.value();
+    }
+
     @Override // since 2.9
     public JacksonInject.Value findInjectableValue(MapperConfig<?> config, AnnotatedMember m) {
         JacksonInject ann = _findAnnotation(m, JacksonInject.class);

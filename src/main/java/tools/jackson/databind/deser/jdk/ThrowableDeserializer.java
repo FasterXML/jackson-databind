@@ -12,6 +12,7 @@ import tools.jackson.databind.deser.bean.BeanPropertyMap;
 import tools.jackson.databind.deser.bean.PropertyBasedCreator;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
 import tools.jackson.databind.introspect.AnnotatedMethod;
+import tools.jackson.databind.introspect.BeanPropertyDefinition;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
@@ -32,9 +33,6 @@ public class ThrowableDeserializer
     // Properties that should not be set if value is null (would cause NPE or other issues)
     protected final static String PROP_NAME_CAUSE = "cause";
     protected final static String PROP_NAME_STACK_TRACE = "stackTrace";
-
-    private final static Class<?>[] INIT_CAUSE_PARAMS = new Class<?>[] { Throwable.class };
-    private final static Class<?>[] SET_STACK_TRACE_PARAMS = new Class<?>[] { StackTraceElement[].class };
 
     /**
      * External ("JSON") names of the standard {@link Throwable} properties: needed
@@ -107,53 +105,54 @@ public class ThrowableDeserializer
             BeanDeserializer baseDeserializer, BeanDescription.Supplier beanDescRef)
     {
         return new ThrowableDeserializer(baseDeserializer,
-                _resolveStdPropNames(ctxt, beanDescRef));
+                _resolveStdPropNames(beanDescRef));
     }
 
     /**
      * Helper method for resolving the external names of the standard
      * {@link Throwable} properties ([databind#6188]; completes what was left
-     * undone by [databind#3497]). Names are derived the same way the regular
-     * properties' ones are -- by passing the underlying accessor and the
-     * canonical name to the {@link PropertyNamingStrategy} -- so that custom
-     * strategies that consider the member (and not just the name) work too.
+     * undone by [databind#3497]).
+     *<p>
+     * Names are taken from the property definitions regular introspection already
+     * produced, rather than re-derived here: that way they match whatever the rest
+     * of databind bound the properties to, accounting for a mapper-level
+     * {@link PropertyNamingStrategy}, a class-level {@code @JsonNaming} (including
+     * its "use default" pseudo-value, which overrides the mapper-level one) and an
+     * explicit {@code @JsonProperty} rename alike.
      */
-    private static StdPropNames _resolveStdPropNames(DeserializationContext ctxt,
-            BeanDescription.Supplier beanDescRef)
+    private static StdPropNames _resolveStdPropNames(BeanDescription.Supplier beanDescRef)
     {
-        final DeserializationConfig config = ctxt.getConfig();
-        final PropertyNamingStrategy pts = config.getPropertyNamingStrategy();
-        // No strategy (or no introspection available): canonical names apply as-is
-        if ((pts == null) || (beanDescRef == null)) {
+        // No introspection available (deprecated `construct()`): canonical names apply
+        if (beanDescRef == null) {
             return StdPropNames.DEFAULT;
         }
         final BeanDescription beanDesc = beanDescRef.get();
         return new StdPropNames(
-                _externalName(config, pts, beanDesc, "getMessage", null,
-                        false, PROP_NAME_MESSAGE),
-                _externalName(config, pts, beanDesc, "getLocalizedMessage", null,
-                        false, PROP_NAME_LOCALIZED_MESSAGE),
-                _externalName(config, pts, beanDesc, "getSuppressed", null,
-                        false, PROP_NAME_SUPPRESSED),
-                // NOTE: "cause" is bound to `initCause()`, not `setCause()`; same
-                // lookup as `BeanDeserializerFactory.buildThrowableDeserializer()`
-                _externalName(config, pts, beanDesc, "initCause", INIT_CAUSE_PARAMS,
-                        true, PROP_NAME_CAUSE),
-                _externalName(config, pts, beanDesc, "setStackTrace", SET_STACK_TRACE_PARAMS,
-                        true, PROP_NAME_STACK_TRACE));
+                _externalName(beanDesc, "getMessage", PROP_NAME_MESSAGE),
+                _externalName(beanDesc, "getLocalizedMessage", PROP_NAME_LOCALIZED_MESSAGE),
+                _externalName(beanDesc, "getSuppressed", PROP_NAME_SUPPRESSED),
+                _externalName(beanDesc, "getCause", PROP_NAME_CAUSE),
+                _externalName(beanDesc, "getStackTrace", PROP_NAME_STACK_TRACE));
     }
 
-    private static String _externalName(DeserializationConfig config,
-            PropertyNamingStrategy pts, BeanDescription beanDesc,
-            String methodName, Class<?>[] paramTypes, boolean isSetter,
+    /**
+     * Finds the external name that the property using given standard {@link Throwable}
+     * accessor was bound to; the accessor is located by signature (not by matching
+     * property names), so a rename cannot hide it.
+     */
+    private static String _externalName(BeanDescription beanDesc, String getterName,
             String defaultName)
     {
-        AnnotatedMethod m = beanDesc.findMethod(methodName, paramTypes);
-        if (m == null) { // not found (should not happen for `Throwable`): use canonical
-            return defaultName;
+        AnnotatedMethod m = beanDesc.findMethod(getterName, null);
+        if (m != null) {
+            for (BeanPropertyDefinition propDef : beanDesc.findProperties()) {
+                if (m.equals(propDef.getGetter())) {
+                    return propDef.getName();
+                }
+            }
         }
-        return isSetter ? pts.nameForSetterMethod(config, m, defaultName)
-                : pts.nameForGetterMethod(config, m, defaultName);
+        // Not found (should not happen for `Throwable`): fall back to canonical
+        return defaultName;
     }
 
     /**

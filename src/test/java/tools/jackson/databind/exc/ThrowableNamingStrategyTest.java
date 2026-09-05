@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.PropertyNamingStrategy;
+import tools.jackson.databind.annotation.JsonNaming;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,6 +24,23 @@ public class ThrowableNamingStrategyTest extends DatabindTestUtil
     static class SnakeException extends RuntimeException {
         public SnakeException() { super(); }
         public SnakeException(String msg) { super(msg); }
+    }
+
+    // Class-level opt-OUT: `@JsonNaming` with the "use default" pseudo-value wins
+    // over a mapper-level strategy, so these keep their canonical names
+    @JsonNaming(PropertyNamingStrategy.class)
+    @SuppressWarnings("serial")
+    static class OptOutException extends RuntimeException {
+        public OptOutException() { super(); }
+        public OptOutException(String msg) { super(msg); }
+    }
+
+    // Class-level opt-IN, with no mapper-level strategy configured
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @SuppressWarnings("serial")
+    static class OptInException extends RuntimeException {
+        public OptInException() { super(); }
+        public OptInException(String msg) { super(msg); }
     }
 
     private final ObjectMapper SNAKE_MAPPER = jsonMapperBuilder()
@@ -76,5 +95,28 @@ public class ThrowableNamingStrategyTest extends DatabindTestUtil
         assertEquals("the msg", ex.getMessage());
         assertNotNull(ex.getCause());
         assertEquals("root", ex.getCause().getMessage());
+    }
+
+    // [databind#6188] Class-level `@JsonNaming` opting out must win over the
+    // mapper-level strategy: names stay canonical, so "stackTrace" (not
+    // "stack_trace") is the one that must be recognized
+    @Test
+    public void classLevelOptOutBeatsMapperStrategy() throws Exception {
+        String json = """
+                {"message":"the msg","stackTrace":null,"cause":null}""";
+        OptOutException ex = SNAKE_MAPPER.readValue(json, OptOutException.class);
+        assertEquals("the msg", ex.getMessage());
+        assertNull(ex.getCause());
+    }
+
+    // ...and class-level `@JsonNaming` applies even with no mapper-level strategy
+    @Test
+    public void classLevelStrategyAppliesWithoutMapperStrategy() throws Exception {
+        ObjectMapper plain = newJsonMapper();
+        String json = """
+                {"message":"the msg","stack_trace":null,"cause":null}""";
+        OptInException ex = plain.readValue(json, OptInException.class);
+        assertEquals("the msg", ex.getMessage());
+        assertNull(ex.getCause());
     }
 }

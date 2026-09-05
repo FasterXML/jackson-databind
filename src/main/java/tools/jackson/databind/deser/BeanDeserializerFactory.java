@@ -500,7 +500,7 @@ public class BeanDeserializerFactory
         // At this point it ought to be a BeanDeserializer; if not, must assume
         // it's some other thing that can handle deserialization ok...
         if (deserializer instanceof BeanDeserializer beanDeserializer) {
-            deserializer = ThrowableDeserializer.construct(ctxt, beanDeserializer);
+            deserializer = ThrowableDeserializer.construct(ctxt, beanDeserializer, beanDescRef);
         }
 
         // may have modifier(s) that wants to modify or replace serializer we just built:

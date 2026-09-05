@@ -8,6 +8,7 @@ import java.text.DateFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -2263,6 +2264,45 @@ public class ObjectMapper
         return _newReader(deserializationConfig(),
                 _typeFactory.constructMapType(Map.class, String.class, type), null,
                 null, _injectableValues);
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectReader} that will
+     * read or update instances of auto-detected type; inferred from compiled
+     * info. Note that the nominal parameter MUST be an empty array;  
+     * otherwise an exception will be thrown.
+     * Usage:
+     *<pre>
+     *  MyType result = objectMapper.readerForDetectedType().readValue(json);
+     *</pre>
+     *
+     * @since 3.0
+     */
+    public <T> ObjectReader readerForDetectedType(T... reified) {
+        // Should be auto-generated empty array; verify
+        Objects.requireNonNull(reified, "reified");
+        if (reified.length != 0) {
+            throw new IllegalArgumentException(String.format(
+"argument \reified\" should be empty; has %d elements", reified.length));
+        }
+        Type type = _getClassOf(reified);
+System.err.println("DEBUG: reified type: "+type);
+        _assertNotNull("type", type);
+        return _newReader(deserializationConfig(), _typeFactory.constructType(type), null,
+                null, _injectableValues);
+    }
+
+    /**
+     * Utility method to get the class type from a varargs array.
+     *
+     * @param <T> the generic type
+     * @param array the varargs array
+     * @return the class of the array component
+     *
+     * @since 3.0
+     */
+    private static <T> Class<T> _getClassOf(T[] array) {
+        return (Class<T>) array.getClass().getComponentType();
     }
 
     /**

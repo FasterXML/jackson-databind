@@ -148,6 +148,17 @@ public class PropertyBuilder
         }
         Class<?> rawPropertyType = accessor.getRawType();
 
+        // [databind#5380]: If property type uses @JsonValue, use the @JsonValue return type
+        //   for config override inclusion lookup (since that's the actual serialized type)
+        if (!rawPropertyType.isPrimitive() && !rawPropertyType.isArray()
+                && !ClassUtil.isJDKClass(rawPropertyType)) {
+            AnnotatedMember jsonValueAccessor = ctxt.introspectBeanDescription(actualType)
+                    .findJsonValueAccessor();
+            if (jsonValueAccessor != null) {
+                rawPropertyType = jsonValueAccessor.getRawType();
+            }
+        }
+
         // 17-Aug-2016, tatu: Default inclusion covers global default (for all types), as well
         //   as type-default for enclosing POJO. What we need, then, is per-type default (if any)
         //   for declared property type... and finally property annotation overrides

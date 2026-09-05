@@ -628,6 +628,9 @@ public class BeanDeserializer
             if (_unwrappedPropertyHandler != null) {
                 return deserializeWithUnwrapped(p, ctxt);
             }
+            if (_wrappedPropertyHandler != null) {
+                return deserializeWithWrapped(p, ctxt);                  // only wrapped
+            }
             if (_externalTypeIdHandler != null) {
                 return deserializeWithExternalTypeId(p, ctxt);
             }
@@ -1451,6 +1454,83 @@ public class BeanDeserializer
         }
         // and when we get this far, let's try finalizing the deal:
         return ext.complete(p, ctxt, bean);
+    }
+
+    /**
+     * Deserialization method for beans that have {@code @JsonWrapped} properties.
+     * Similar to standard property-by-property deserialization, but recognizes
+     * wrapper field names and dispatches to WrappedPropertyHandler.
+     */
+    protected Object deserializeWithWrapped(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        if (_delegateDeserializer != null) {
+            return _valueInstantiator.createUsingDelegate(ctxt,
+                _delegateDeserializer.deserialize(p, ctxt));
+        }
+        if (_propertyBasedCreator != null) {
+            // For MVP, wrapped properties on creator params are rejected during resolve()
+            // so this shouldn't be reached with wrapped creator properties.
+            // Fall through to non-default creation.
+            return deserializeFromObjectUsingNonDefault(p, ctxt);
+        }
+        final Object bean = _valueInstantiator.createUsingDefault(ctxt);
+        p.assignCurrentValue(bean);
+
+        if (_injectables != null) {
+            injectValues(ctxt, bean);
+        }
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
+
+        for (int ix = p.currentNameMatch(_propNameMatcher); ;
+                ix = p.nextNameMatch(_propNameMatcher)) {
+            if (ix >= 0) {
+                // Known regular property
+                p.nextToken();
+                SettableBeanProperty prop = _propsByIndex[ix];
+                if (activeView != null && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
+                try {
+                    prop.deserializeAndSet(p, ctxt, bean);
+                } catch (Exception e) {
+                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
+                }
+                continue;
+            }
+            if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
+                break;
+            }
+            if (ix == PropertyNameMatcher.MATCH_ODD_TOKEN) {
+                // error handling for odd tokens
+                return _handleUnexpectedWithin(p, ctxt, bean);
+            }
+            // MATCH_UNKNOWN_NAME — check if it's a wrapper name
+            String propName = p.currentName();
+            p.nextToken();
+
+            if (_wrappedPropertyHandler.hasWrapperName(propName)) {
+                _wrappedPropertyHandler.handleWrappedObject(p, ctxt, bean, propName);
+                continue;
+            }
+
+            // Standard unknown property handling
+            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+                handleIgnoredProperty(p, ctxt, bean, propName);
+                continue;
+            }
+            if (_anySetter != null) {
+                try {
+                    _anySetter.deserializeAndSet(p, ctxt, bean, propName);
+                } catch (Exception e) {
+                    throw wrapAndThrow(e, bean, propName, ctxt);
+                }
+                continue;
+            }
+            handleUnknownProperty(p, ctxt, bean, propName);
+        }
+        return bean;
     }
 
     @SuppressWarnings("resource")

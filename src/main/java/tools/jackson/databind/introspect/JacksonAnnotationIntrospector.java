@@ -7,6 +7,7 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonWrapped;
 
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.Version;
@@ -45,6 +46,7 @@ public class JacksonAnnotationIntrospector
         JsonTypeInfo.class,
         JsonRawValue.class,
         JsonUnwrapped.class,
+        JsonWrapped.class,
         JsonBackReference.class,
         JsonManagedReference.class
     };
@@ -58,6 +60,7 @@ public class JacksonAnnotationIntrospector
         JsonFormat.class,
         JsonTypeInfo.class,
         JsonUnwrapped.class,
+        JsonWrapped.class,
         JsonBackReference.class,
         JsonManagedReference.class,
         JsonMerge.class
@@ -516,6 +519,17 @@ public class JacksonAnnotationIntrospector
         String prefix = ann.prefix();
         String suffix = ann.suffix();
         return NameTransformer.simpleTransformer(prefix, suffix);
+    }
+
+    @Override
+    public String findWrappedGroupName(MapperConfig<?> config, AnnotatedMember member) {
+        JsonWrapped ann = _findAnnotation(member, JsonWrapped.class);
+        // if not enabled, just means annotation is not enabled; not necessarily
+        // that wrapping should not be done (relevant when using chained introspectors)
+        if (ann == null || !ann.enabled()) {
+            return null;
+        }
+        return ann.value(); // "" means disabled; non-empty means active
     }
 
     @Override // since 2.9

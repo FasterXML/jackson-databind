@@ -195,6 +195,13 @@ public abstract class BeanDeserializerBase
     protected UnwrappedPropertyHandler _unwrappedPropertyHandler;
 
     /**
+     * Handler for properties annotated with {@code @JsonWrapped}, if any.
+     *
+     * @since 3.1
+     */
+    protected WrappedPropertyHandler _wrappedPropertyHandler;
+
+    /**
      * Handler that we need if any of properties uses external
      * type id.
      */
@@ -322,6 +329,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _wrappedPropertyHandler = src._wrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -388,6 +396,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _wrappedPropertyHandler = src._wrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -435,6 +444,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _wrappedPropertyHandler = src._wrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -469,6 +479,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _wrappedPropertyHandler = src._wrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -698,6 +709,85 @@ public abstract class BeanDeserializerBase
         } else {
             _unwrappedPropertyHandler = null;
         }
+
+        // Detect @JsonWrapped properties
+        WrappedPropertyHandler wrapped = null;
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr != null) {
+            // Iterate a copy since we'll modify _beanProperties
+            List<SettableBeanProperty> allProps = new ArrayList<>();
+            for (SettableBeanProperty prop : _beanProperties) {
+                allProps.add(prop);
+            }
+
+            // First pass: collect wrapped properties and validate
+            Map<String, List<SettableBeanProperty>> groups = new LinkedHashMap<>();
+            Set<SettableBeanProperty> wrappedPropSet = new HashSet<>();
+            for (SettableBeanProperty prop : allProps) {
+                AnnotatedMember member = prop.getMember();
+                if (member == null) {
+                    continue;
+                }
+                String wrapperName = intr.findWrappedGroupName(ctxt.getConfig(), member);
+                if (wrapperName == null || wrapperName.isEmpty()) {
+                    continue;  // not wrapped, or explicitly disabled via @JsonWrapped("")
+                }
+                wrappedPropSet.add(prop);
+
+                // Validate: creator parameter
+                if ((prop instanceof CreatorProperty) && ((CreatorProperty) prop).getCreatorIndex() >= 0) {
+                    ctxt.reportBadDefinition(handledType(),
+                        String.format("@JsonWrapped on creator parameter '%s' is not supported",
+                            prop.getName()));
+                }
+
+                groups.computeIfAbsent(wrapperName, k -> new ArrayList<>()).add(prop);
+            }
+
+            if (!groups.isEmpty()) {
+                // Property-based creators cannot currently buffer wrapped properties.
+                if (_propertyBasedCreator != null) {
+                    ctxt.reportBadDefinition(handledType(),
+                        "@JsonWrapped is not supported with a property-based creator");
+                }
+                if (_objectIdReader != null) {
+                    ctxt.reportBadDefinition(handledType(),
+                        "@JsonWrapped is not supported with Object Id handling");
+                }
+
+                // Validate: name conflicts (wrapper name vs non-wrapped property name)
+                Set<String> wrapperNames = groups.keySet();
+                for (SettableBeanProperty prop : allProps) {
+                    if (wrappedPropSet.contains(prop)) continue;  // this is a wrapped property, skip
+                    if (wrapperNames.contains(prop.getName())) {
+                        ctxt.reportBadDefinition(handledType(),
+                            String.format("Wrapper name '%s' conflicts with existing property '%s'",
+                                prop.getName(), prop.getName()));
+                    }
+                }
+
+                // Build handler and remove wrapped properties from bean properties
+                wrapped = new WrappedPropertyHandler();
+                for (Map.Entry<String, List<SettableBeanProperty>> entry : groups.entrySet()) {
+                    for (SettableBeanProperty prop : entry.getValue()) {
+                        wrapped.addProperty(entry.getKey(), prop);
+                        _beanProperties.remove(prop);
+                    }
+                }
+            }
+        }
+
+        if (wrapped != null) {
+            if (_unwrappedPropertyHandler != null) {
+                ctxt.reportBadDefinition(handledType(),
+                    String.format("Cannot use both @JsonWrapped and @JsonUnwrapped on the same bean '%s': "
+                        + "combined deserialization is not supported (post-MVP limitation). "
+                        + "Use one or the other.", ClassUtil.classNameOf(handledType())));
+            }
+            _wrappedPropertyHandler = wrapped;
+            _nonStandardCreation = true;
+        }
+
         // [databind#2039]: combination of unwrapped and external type id not (yet) supported
         if (_unwrappedPropertyHandler != null && _externalTypeIdHandler != null) {
             ctxt.reportBadDefinition(_beanType, String.format(
@@ -2222,4 +2312,5 @@ ClassUtil.getTypeDescription(ct));
         }
         return ctxt.handleInstantiationProblem(_beanType.getRawClass(), null, t);
     }
+
 }

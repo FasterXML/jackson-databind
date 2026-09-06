@@ -719,3 +719,8 @@ Burak KALAYCI (@kalayciburak)
  * Reported #6178: `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` does not work
    for `java.time.Month`
   [3.3.0]
+
+Aditya Bagla (@adityabagla7)
+ * Fixed #6190: Explicit `@JsonView` on a standard `Throwable` property is ignored
+   by `ThrowableDeserializer`
+  [3.3.0]

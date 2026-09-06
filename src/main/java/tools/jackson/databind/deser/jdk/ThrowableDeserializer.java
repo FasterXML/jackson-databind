@@ -229,10 +229,10 @@ public class ThrowableDeserializer
             if (ix >= 0) {
                 p.nextToken();
                 SettableBeanProperty prop = _propsByIndex[ix];
-                // Property not part of the active view must not be set from input
-                // (but standard `Throwable` properties always are, see below)
-                if ((activeView != null) && !prop.visibleInView(activeView)
-                        && !_isStandardThrowableProperty(prop.getName())) {
+                // Property not part of the active view must not be set from input.
+                // Standard `Throwable` properties without explicit views have no view restrictions
+                // configured, while those with explicit `@JsonView` honor them (see [databind#6190]).
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
                     // [databind#437]: fields in other views to be considered as unknown properties
                     if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)) {
                         ctxt.reportInputMismatch(handledType(),
@@ -319,8 +319,7 @@ public class ThrowableDeserializer
             }
             // Things marked as ignorable (or not in the "include" allow-list) should
             // not be passed to any setter. NOTE: checked only after the standard
-            // `Throwable` properties above, which are never subject to filtering
-            // (same rationale as `_isStandardThrowableProperty()`)
+            // `Throwable` properties above, which are never subject to filtering.
             if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
@@ -417,22 +416,5 @@ public class ThrowableDeserializer
                 || _stdPropNames.stackTrace.equals(propertyName);
     }
 
-    /**
-     * Helper method to check whether given property is one of the standard
-     * {@link Throwable} properties, which are never subject to {@code @JsonView}
-     * filtering: they carry no View annotations of their own, and since
-     * {@code MapperFeature.DEFAULT_VIEW_INCLUSION} defaults to disabled, would
-     * otherwise be excluded from every view. Note that "message",
-     * "localizedMessage" and "suppressed" are normally handled separately (not as
-     * regular properties) but are included here for consistency.
-     *
-     * @since 3.1
-     */
-    private boolean _isStandardThrowableProperty(String propertyName) {
-        return _stdPropNames.cause.equals(propertyName)
-                || _stdPropNames.stackTrace.equals(propertyName)
-                || _stdPropNames.message.equals(propertyName)
-                || _stdPropNames.localizedMessage.equals(propertyName)
-                || _stdPropNames.suppressed.equals(propertyName);
-    }
 }
+

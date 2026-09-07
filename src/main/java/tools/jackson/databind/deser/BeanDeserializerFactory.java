@@ -44,6 +44,20 @@ public class BeanDeserializerFactory
      */
     private final static Class<?>[] INIT_CAUSE_PARAMS = new Class<?>[] { Throwable.class };
 
+    /**
+     * Internal names of the standard {@link Throwable} properties: unless one of these
+     * carries an explicit {@code @JsonView}, it must not be view-filtered but included
+     * under every active view (see [databind#6174], [databind#6190]).
+     *<p>
+     * NOTE: values match constants in
+     * {@code tools.jackson.databind.deser.jdk.ThrowableDeserializer} (not accessible
+     * from here).
+     *
+     * @since 3.3
+     */
+    private final static Set<String> STD_THROWABLE_PROP_NAMES = Set.of(
+            "message", "localizedMessage", "suppressed", "cause", "stackTrace");
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -456,13 +470,11 @@ public class BeanDeserializerFactory
         // included under any active view.
         final BeanDescription beanDesc = beanDescRef.get();
         for (BeanPropertyDefinition propDef : beanDesc.findProperties()) {
-            String internalName = propDef.getInternalName();
-            if ("stackTrace".equals(internalName) || "cause".equals(internalName)) {
-                if (propDef.findViews() == null) {
-                    SettableBeanProperty prop = deserBuilder.findProperty(PropertyName.construct(propDef.getName()));
-                    if (prop != null) {
-                        prop.setViews(null);
-                    }
+            if (STD_THROWABLE_PROP_NAMES.contains(propDef.getInternalName())
+                    && (propDef.findViews() == null)) {
+                SettableBeanProperty prop = deserBuilder.findProperty(PropertyName.construct(propDef.getName()));
+                if (prop != null) {
+                    prop.setViews(null);
                 }
             }
         }

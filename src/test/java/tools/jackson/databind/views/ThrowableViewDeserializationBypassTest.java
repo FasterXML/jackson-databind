@@ -42,6 +42,21 @@ public class ThrowableViewDeserializationBypassTest extends DatabindTestUtil
         public StdPropsException(String msg) { super(msg); }
     }
 
+    // [databind#6174]: the exemption must cover ALL standard `Throwable` properties,
+    // including "message" and "suppressed" -- which a sub-class may make settable, in
+    // which case they are bound as regular properties (and not handled separately)
+    @SuppressWarnings("serial")
+    static class SettableStdPropsException extends RuntimeException {
+        protected String _msg;
+        public Throwable[] supp;
+
+        public SettableStdPropsException() { super(); }
+
+        @Override public String getMessage() { return _msg; }
+        public void setMessage(String msg) { _msg = msg; }
+        public void setSuppressed(Throwable[] s) { supp = s; }
+    }
+
     // [databind#6190]: standard `Throwable` properties carrying explicit `@JsonView`
     // must honor that view during deserialization
     @SuppressWarnings("serial")
@@ -151,6 +166,31 @@ public class ThrowableViewDeserializationBypassTest extends DatabindTestUtil
         assertEquals(1, suppressed.length,
                 "'suppressed' should be set under active view");
         assertEquals("suppressed one", suppressed[0].getMessage());
+    }
+
+    // [databind#6174]: ...and that holds for "message"/"suppressed" bound as regular
+    // properties, too: without an explicit `@JsonView` they must not be view-filtered
+    @Test
+    public void settableStandardThrowablePropsIncludedUnderView() throws Exception {
+        final String json = """
+{
+  "message" : "the message",
+  "suppressed" : [ { "message" : "suppressed one" } ]
+}
+""";
+        SettableStdPropsException ex = MAPPER.readerWithView(Public.class)
+                .forType(SettableStdPropsException.class)
+                .readValue(json);
+        assertEquals("the message", ex.getMessage(),
+                "settable 'message' should be set from input under active view");
+        assertNotNull(ex.supp, "settable 'suppressed' should be set from input under active view");
+        assertEquals(1, ex.supp.length);
+
+        // ... and must not trigger `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` either
+        SettableStdPropsException ex2 = FAIL_ON_UNEXPECTED_MAPPER.readerWithView(Public.class)
+                .forType(SettableStdPropsException.class)
+                .readValue(json);
+        assertEquals("the message", ex2.getMessage());
     }
 
     // [databind#437]: with `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` enabled, a property

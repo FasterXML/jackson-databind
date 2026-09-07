@@ -1941,13 +1941,16 @@ public class ObjectMapper
     }
 
     /**
-     * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
-     * method is to be called right after serialization has been called
+     * Helper method used when value to serialize is {@link AutoCloseable} and its
+     * <code>close()</code> method is to be called right after serialization has been called
      */
     protected final void _writeCloseableValue(JsonGenerator g, Object value, SerializationConfig cfg)
         throws JacksonException
     {
-        Closeable toClose = (Closeable) value;
+        // 07-Sep-2026, pjfanning: caller checks for `AutoCloseable`, not `Closeable`,
+        //   so casting to the latter would fail for f.ex `Stream`s (see also
+        //   `ObjectWriter.writeValue(JsonGenerator, Object)` which got this right)
+        AutoCloseable toClose = (AutoCloseable) value;
         try {
             _serializationContext(cfg).serializeValue(g, value);
             if (cfg.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
@@ -1960,7 +1963,9 @@ public class ObjectMapper
         try {
             toClose.close();
         } catch (IOException e) {
-            throw JacksonIOException.construct(e);
+            throw JacksonIOException.construct(e, g);
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsJacksonE(g, e);
         }
     }
 

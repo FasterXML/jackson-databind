@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.std.NullifyingDeserializer;
@@ -27,6 +28,7 @@ public class JDKMiscDeserializers
         _classNames.add(ByteBuffer.class.getName());
         _classNames.add(Void.class.getName());
         _classNames.add(ThreadGroup.class.getName());
+        _classNames.add(Pattern.class.getName());
         for (Class<?> cls : JDKFromStringDeserializer.types()) {
             _classNames.add(cls.getName());
         }
@@ -39,6 +41,9 @@ public class JDKMiscDeserializers
             ValueDeserializer<?> d = JDKFromStringDeserializer.findDeserializer(rawType);
             if (d != null) {
                 return d;
+            }
+            if (rawType == Pattern.class) {
+                return new PatternDeserializer();
             }
             if (rawType == UUID.class) {
                 return new UUIDDeserializer();

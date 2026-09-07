@@ -516,8 +516,11 @@ public class BeanDeserializerFactory
                     if (views == null) {
                         for (BeanPropertyDefinition pd : beanDesc.findProperties()) {
                             if ("cause".equals(pd.getInternalName())) {
-                                views = pd.findViews();
-                                break;
+                                Class<?>[] v = pd.findViews();
+                                if (v != null) {
+                                    views = v;
+                                    break;
+                                }
                             }
                         }
                     }

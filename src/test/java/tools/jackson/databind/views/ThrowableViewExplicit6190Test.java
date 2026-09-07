@@ -25,6 +25,30 @@ public class ThrowableViewExplicit6190Test extends DatabindTestUtil
     static class Public {}
     static class Internal {}
 
+    // [databind#6190]: "message" and "suppressed" normally have no setter, so they are
+    // never bound as regular properties -- an explicit `@JsonView` on them must still
+    // be honored by the "unknown name" branches of the read loop
+    @SuppressWarnings("serial")
+    static class ExplicitMessageException extends RuntimeException {
+        public ExplicitMessageException() { super(); }
+        public ExplicitMessageException(String msg) { super(msg); }
+
+        @Override @JsonView(Internal.class)
+        public String getMessage() { return super.getMessage(); }
+    }
+
+    @SuppressWarnings("serial")
+    static class SuppressedException extends RuntimeException {
+        public SuppressedException() { super(); }
+        public SuppressedException(String msg) { super(msg); }
+    }
+
+    // `Throwable.getSuppressed()` is `final`, so a mix-in is the way to annotate it
+    static abstract class SuppressedViewMixIn {
+        @JsonView(Internal.class)
+        public abstract Throwable[] getSuppressed();
+    }
+
     // [databind#6190]: a class-level `@JsonView` is explicit intent too -- it covers
     // every property of the class, including the standard `Throwable` ones
     @JsonView(Internal.class)
@@ -253,5 +277,49 @@ public class ThrowableViewExplicit6190Test extends DatabindTestUtil
                 .forType(ClassViewCreatorException.class).readValue(json);
         assertNotNull(exInternal.getCause());
         assertEquals("root", exInternal.getCause().getMessage());
+    }
+
+    // [databind#6190]: explicit view on the non-settable "message"
+    @Test
+    public void explicitViewOnMessageRespected() throws Exception {
+        final String json = """
+                {"message":"the msg"}""";
+
+        ExplicitMessageException exPublic = MAPPER.readerWithView(Public.class)
+                .forType(ExplicitMessageException.class).readValue(json);
+        assertNull(exPublic.getMessage(),
+                "'message' restricted to Internal must not be set under Public view");
+
+        ExplicitMessageException exInternal = MAPPER.readerWithView(Internal.class)
+                .forType(ExplicitMessageException.class).readValue(json);
+        assertEquals("the msg", exInternal.getMessage());
+
+        // ...and with no active view at all it is set as before
+        ExplicitMessageException exNoView = MAPPER.readerFor(ExplicitMessageException.class)
+                .readValue(json);
+        assertEquals("the msg", exNoView.getMessage());
+    }
+
+    // ...same for the non-settable "suppressed"
+    @Test
+    public void explicitViewOnSuppressedRespected() throws Exception {
+        final String json = """
+                {"message":"the msg","suppressed":[{"message":"supp one"}]}""";
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(SuppressedException.class, SuppressedViewMixIn.class)
+                .build();
+
+        SuppressedException exPublic = mapper.readerWithView(Public.class)
+                .forType(SuppressedException.class).readValue(json);
+        assertEquals(0, exPublic.getSuppressed().length,
+                "'suppressed' restricted to Internal must not be set under Public view");
+        // "message" carries no view of its own, so it is still applied
+        assertEquals("the msg", exPublic.getMessage());
+
+        SuppressedException exInternal = mapper.readerWithView(Internal.class)
+                .forType(SuppressedException.class).readValue(json);
+        assertEquals(1, exInternal.getSuppressed().length);
+        assertEquals("supp one", exInternal.getSuppressed()[0].getMessage());
     }
 }

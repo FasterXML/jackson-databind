@@ -476,9 +476,19 @@ public class BeanDeserializerFactory
         // `DEFAULT_VIEW_INCLUSION` disabled", which is exactly the defaulted-out case.
         final Class<?>[] defViews = beanDesc.findDefaultViews();
         final Class<?>[] classViews = ((defViews != null) && (defViews.length > 0)) ? defViews : null;
+        // Explicit views on the "cause" property, if any: captured in this same pass, for
+        // use below where the property is replaced with the `initCause()`-backed one
+        Class<?>[] causeViews = null;
         for (BeanPropertyDefinition propDef : beanDesc.findProperties()) {
-            if (STD_THROWABLE_PROP_NAMES.contains(propDef.getInternalName())
-                    && (propDef.findViews() == null) && (classViews == null)) {
+            final String internalName = propDef.getInternalName();
+            if (!STD_THROWABLE_PROP_NAMES.contains(internalName)) {
+                continue;
+            }
+            final Class<?>[] propViews = propDef.findViews();
+            if ((causeViews == null) && (propViews != null) && "cause".equals(internalName)) {
+                causeViews = propViews;
+            }
+            if ((propViews == null) && (classViews == null)) {
                 SettableBeanProperty prop = deserBuilder.findProperty(PropertyName.construct(propDef.getName()));
                 if (prop != null) {
                     prop.setViews(null);
@@ -521,19 +531,9 @@ public class BeanDeserializerFactory
                     // [databind#6190]: If cause has explicit @JsonView on initCause or getCause, honor it
                     Class<?>[] views = propDef.findViews();
                     if (views == null) {
-                        for (BeanPropertyDefinition pd : beanDesc.findProperties()) {
-                            if ("cause".equals(pd.getInternalName())) {
-                                Class<?>[] v = pd.findViews();
-                                if (v != null) {
-                                    views = v;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (views == null) {
-                        // [databind#6190]: ...and a class-level `@JsonView` applies here too
-                        views = classViews;
+                        // ...else views found on the "cause" property above, else the
+                        // class-level `@JsonView` (if any)
+                        views = (causeViews != null) ? causeViews : classViews;
                     }
                     if (views != null) {
                         prop.setViews(views);

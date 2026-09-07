@@ -16,6 +16,7 @@ import tools.jackson.databind.introspect.BeanPropertyDefinition;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
+import tools.jackson.databind.util.ViewMatcher;
 
 /**
  * Deserializer that builds on basic {@link BeanDeserializer} but
@@ -48,13 +49,30 @@ public class ThrowableDeserializer
     {
         public final String message, localizedMessage, suppressed, cause, stackTrace;
 
+        /**
+         * Explicit view definitions for "message" and "suppressed", if any; {@code null}
+         * if unrestricted (included under every active view, per [databind#6174]).
+         *<p>
+         * Needed because -- unlike "cause" and "stackTrace" -- these two have no setter
+         * in the common case, so they are never bound as regular properties and are
+         * instead consumed by the "unknown name" branches of the read loop, where no
+         * {@link SettableBeanProperty} (and hence no view matcher) is available.
+         * "localizedMessage" needs none: it is discarded regardless of views.
+         *
+         * @since 3.3
+         */
+        public final ViewMatcher messageViews, suppressedViews;
+
         protected StdPropNames(String msg, String localizedMsg, String suppr,
-                String cse, String stackTr) {
+                String cse, String stackTr,
+                ViewMatcher msgViews, ViewMatcher supprViews) {
             message = msg;
             localizedMessage = localizedMsg;
             suppressed = suppr;
             cause = cse;
             stackTrace = stackTr;
+            messageViews = msgViews;
+            suppressedViews = supprViews;
         }
 
         /**
@@ -62,7 +80,7 @@ public class ThrowableDeserializer
          */
         protected final static StdPropNames DEFAULT = new StdPropNames(PROP_NAME_MESSAGE,
                 PROP_NAME_LOCALIZED_MESSAGE, PROP_NAME_SUPPRESSED,
-                PROP_NAME_CAUSE, PROP_NAME_STACK_TRACE);
+                PROP_NAME_CAUSE, PROP_NAME_STACK_TRACE, null, null);
     }
 
     /**
@@ -127,12 +145,41 @@ public class ThrowableDeserializer
             return StdPropNames.DEFAULT;
         }
         final BeanDescription beanDesc = beanDescRef.get();
+        // [databind#6190]: a class-level `@JsonView` covers every property, including these
+        final Class<?>[] defViews = beanDesc.findDefaultViews();
+        final Class<?>[] classViews = ((defViews != null) && (defViews.length > 0)) ? defViews : null;
         return new StdPropNames(
                 _externalName(beanDesc, "getMessage", PROP_NAME_MESSAGE),
                 _externalName(beanDesc, "getLocalizedMessage", PROP_NAME_LOCALIZED_MESSAGE),
                 _externalName(beanDesc, "getSuppressed", PROP_NAME_SUPPRESSED),
                 _externalName(beanDesc, "getCause", PROP_NAME_CAUSE),
-                _externalName(beanDesc, "getStackTrace", PROP_NAME_STACK_TRACE));
+                _externalName(beanDesc, "getStackTrace", PROP_NAME_STACK_TRACE),
+                _viewMatcher(beanDesc, "getMessage", classViews),
+                _viewMatcher(beanDesc, "getSuppressed", classViews));
+    }
+
+    /**
+     * Helper for finding explicit view definitions of one standard {@link Throwable}
+     * property: its own {@code @JsonView} if present, else the class-level one (if any),
+     * else {@code null} for "no restriction".
+     */
+    private static ViewMatcher _viewMatcher(BeanDescription beanDesc, String getterName,
+            Class<?>[] classViews)
+    {
+        Class<?>[] views = null;
+        AnnotatedMethod m = beanDesc.findMethod(getterName, null);
+        if (m != null) {
+            for (BeanPropertyDefinition propDef : beanDesc.findProperties()) {
+                if (m.equals(propDef.getGetter())) {
+                    views = propDef.findViews();
+                    break;
+                }
+            }
+        }
+        if (views == null) {
+            views = classViews;
+        }
+        return (views == null) ? null : ViewMatcher.construct(views);
     }
 
     /**
@@ -283,6 +330,12 @@ public class ThrowableDeserializer
             //    at construction, so a `PropertyNamingStrategy` is accounted for; the
             //    case-insensitive compare remains for case-insensitive input matching
             if (_stdPropNames.message.equalsIgnoreCase(propName)) {
+                // [databind#6190]: explicit `@JsonView` on "message" must be honored;
+                // left unset, it is instantiated with `null` message after the loop
+                if (!_visibleInView(_stdPropNames.messageViews, activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 throwable = _instantiate(ctxt, hasStringCreator, p.getValueAsString());
                 // any pending values?
                 if (pending != null) {
@@ -301,6 +354,11 @@ public class ThrowableDeserializer
             }
 
             if (_stdPropNames.suppressed.equalsIgnoreCase(propName)) {
+                // [databind#6190]: explicit `@JsonView` on "suppressed" must be honored
+                if (!_visibleInView(_stdPropNames.suppressedViews, activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // 07-Dec-2023, tatu: Not sure how/why, but JSON Null is otherwise
                 //    not handled with such call so...
                 if (p.hasToken(JsonToken.VALUE_NULL)) {
@@ -411,10 +469,20 @@ public class ThrowableDeserializer
      *
      * @since 3.1
      */
+    /**
+     * Helper for the "unknown name" branches, which have no {@link SettableBeanProperty}
+     * to ask: a {@code null} matcher means the property carries no explicit
+     * {@code @JsonView} and so is included under every active view ([databind#6174]).
+     *
+     * @since 3.3
+     */
+    private boolean _visibleInView(ViewMatcher views, Class<?> activeView) {
+        return (activeView == null) || (views == null) || views.isVisibleForView(activeView);
+    }
+
     private boolean _shouldSkipNullValue(String propertyName) {
         return _stdPropNames.cause.equals(propertyName)
                 || _stdPropNames.stackTrace.equals(propertyName);
     }
 
 }
-

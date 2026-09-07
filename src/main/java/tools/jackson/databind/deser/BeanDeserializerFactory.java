@@ -469,9 +469,16 @@ public class BeanDeserializerFactory
         // must not have default views (NO_VIEWS) forced on them, so they remain
         // included under any active view.
         final BeanDescription beanDesc = beanDescRef.get();
+        // ... but a class-level `@JsonView` is explicit intent covering every property of
+        // the class, so it must be honored too: the exemption exists for properties that
+        // were defaulted out of every view, not for ones placed in a view on purpose.
+        // NOTE: `findDefaultViews()` returns an empty array (not null) for "no annotation,
+        // `DEFAULT_VIEW_INCLUSION` disabled", which is exactly the defaulted-out case.
+        final Class<?>[] defViews = beanDesc.findDefaultViews();
+        final Class<?>[] classViews = ((defViews != null) && (defViews.length > 0)) ? defViews : null;
         for (BeanPropertyDefinition propDef : beanDesc.findProperties()) {
             if (STD_THROWABLE_PROP_NAMES.contains(propDef.getInternalName())
-                    && (propDef.findViews() == null)) {
+                    && (propDef.findViews() == null) && (classViews == null)) {
                 SettableBeanProperty prop = deserBuilder.findProperty(PropertyName.construct(propDef.getName()));
                 if (prop != null) {
                     prop.setViews(null);
@@ -523,6 +530,10 @@ public class BeanDeserializerFactory
                                 }
                             }
                         }
+                    }
+                    if (views == null) {
+                        // [databind#6190]: ...and a class-level `@JsonView` applies here too
+                        views = classViews;
                     }
                     if (views != null) {
                         prop.setViews(views);

@@ -2,6 +2,8 @@ package tools.jackson.databind.views;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import tools.jackson.databind.DeserializationFeature;
@@ -22,6 +24,26 @@ public class ThrowableViewExplicit6190Test extends DatabindTestUtil
 {
     static class Public {}
     static class Internal {}
+
+    // [databind#6190]: a class-level `@JsonView` is explicit intent too -- it covers
+    // every property of the class, including the standard `Throwable` ones
+    @JsonView(Internal.class)
+    @SuppressWarnings("serial")
+    static class ClassViewException extends RuntimeException {
+        public ClassViewException() { super(); }
+        public ClassViewException(String msg) { super(msg); }
+    }
+
+    // Same, but bound through a property-based Creator rather than setters
+    @JsonView(Internal.class)
+    @SuppressWarnings("serial")
+    static class ClassViewCreatorException extends RuntimeException {
+        @JsonCreator
+        public ClassViewCreatorException(@JsonProperty("message") String msg,
+                @JsonProperty("cause") Throwable cause) {
+            super(msg, cause);
+        }
+    }
 
     // [databind#6190]: standard `Throwable` properties carrying explicit `@JsonView`
     // must honor that view during deserialization
@@ -193,5 +215,43 @@ public class ThrowableViewExplicit6190Test extends DatabindTestUtil
                 .forType(SnakeExplicitStackTraceException.class)
                 .readValue(json);
         assertEquals(1, exInternal.getStackTrace().length);
+    }
+
+    // [databind#6190]: the standard-property exemption must not discard a class-level
+    // `@JsonView`; it exists for properties defaulted out of every view, not for ones
+    // the user explicitly placed in a view
+    @Test
+    public void classLevelViewRespectedOnStandardProps() throws Exception {
+        final String json = """
+                {"message":"the msg","cause":{"message":"root"}}""";
+
+        // Whole class is Internal-only, so under Public view "cause" is not set
+        ClassViewException exPublic = MAPPER.readerWithView(Public.class)
+                .forType(ClassViewException.class).readValue(json);
+        assertNull(exPublic.getCause(),
+                "class-level @JsonView(Internal) must exclude 'cause' under Public view");
+
+        // ...but under Internal view it is
+        ClassViewException exInternal = MAPPER.readerWithView(Internal.class)
+                .forType(ClassViewException.class).readValue(json);
+        assertNotNull(exInternal.getCause());
+        assertEquals("root", exInternal.getCause().getMessage());
+    }
+
+    // ...and the Creator-bound path must agree with the setter-bound one above
+    @Test
+    public void classLevelViewRespectedViaCreator() throws Exception {
+        final String json = """
+                {"message":"the msg","cause":{"message":"root"}}""";
+
+        ClassViewCreatorException exPublic = MAPPER.readerWithView(Public.class)
+                .forType(ClassViewCreatorException.class).readValue(json);
+        assertNull(exPublic.getCause(),
+                "class-level @JsonView(Internal) must exclude Creator-bound 'cause' under Public view");
+
+        ClassViewCreatorException exInternal = MAPPER.readerWithView(Internal.class)
+                .forType(ClassViewCreatorException.class).readValue(json);
+        assertNotNull(exInternal.getCause());
+        assertEquals("root", exInternal.getCause().getMessage());
     }
 }

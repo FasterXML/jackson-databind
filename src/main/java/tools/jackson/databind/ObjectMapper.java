@@ -1904,7 +1904,14 @@ public class ObjectMapper
             JsonGenerator g, Object value)
         throws JacksonException
     {
-        _initializeGenerator(g);
+        try {
+            _initializeGenerator(g);
+        } catch (Exception e) {
+            // 07-Sep-2026, pjfanning: `GeneratorInitializer` is caller-provided and
+            //   may fail; generator owns the output target so it must not leak
+            ClassUtil.closeOnFailAndThrowAsJacksonE(g, e);
+            return;
+        }
         if (ctxt.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
                 && (value instanceof AutoCloseable)) {
             _configAndWriteCloseable(ctxt, g, value);

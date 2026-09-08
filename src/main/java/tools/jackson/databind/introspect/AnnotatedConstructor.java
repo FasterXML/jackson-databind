@@ -25,9 +25,9 @@ public final class AnnotatedConstructor
      * Lazily constructed invokers; {@code volatile} so a racy first use is
      * safely published (duplicate construction is harmless).
      */
-    private volatile InvokerHolder _invokerNullary;
-    private volatile InvokerHolder _invokerUnary;
-    private volatile InvokerHolder _invokerFixedArity;
+    protected volatile InvokerHolder _invokerNullary;
+    protected volatile InvokerHolder _invokerUnary;
+    protected volatile InvokerHolder _invokerFixedArity;
 
     // // Simple lazy-caching:
 

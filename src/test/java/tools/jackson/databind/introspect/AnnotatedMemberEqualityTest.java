@@ -71,16 +71,16 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
 
     // [databind#6187]
     @Test
-    public void annotatedConstructorDoesNotEagerlyConstructInvokers() throws Exception {
+    public void annotatedConstructorDoesNotEagerlyConstructInvokers() {
         DeserializationConfig context = MAPPER.deserializationConfig();
         JavaType beanType = MAPPER.constructType(SomeBean.class);
 
         AnnotatedClass instance = AnnotatedClassResolver.resolve(context, beanType, context);
         AnnotatedConstructor constructor = instance.getConstructors().get(0);
 
-        assertNull(invokerField(constructor, "_invokerNullary"));
-        assertNull(invokerField(constructor, "_invokerUnary"));
-        assertNull(invokerField(constructor, "_invokerFixedArity"));
+        assertNull(constructor._invokerNullary);
+        assertNull(constructor._invokerUnary);
+        assertNull(constructor._invokerFixedArity);
     }
 
     // [databind#6187]
@@ -94,15 +94,15 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
 
         SomeBean created = (SomeBean) constructor.call(new Object[] { "x" });
         assertEquals("x", created.getValue());
-        assertNull(invokerField(constructor, "_invokerNullary"));
-        assertNull(invokerField(constructor, "_invokerUnary"));
-        assertNotNull(invokerField(constructor, "_invokerFixedArity"));
+        assertNull(constructor._invokerNullary);
+        assertNull(constructor._invokerUnary);
+        assertNotNull(constructor._invokerFixedArity);
 
         SomeBean viaCall1 = (SomeBean) constructor.call1("y");
         assertEquals("y", viaCall1.getValue());
-        assertNull(invokerField(constructor, "_invokerNullary"));
-        assertNotNull(invokerField(constructor, "_invokerUnary"));
-        assertNotNull(invokerField(constructor, "_invokerFixedArity"));
+        assertNull(constructor._invokerNullary);
+        assertNotNull(constructor._invokerUnary);
+        assertNotNull(constructor._invokerFixedArity);
     }
 
     // [databind#6187]
@@ -115,18 +115,12 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
         AnnotatedConstructor constructor = instance.getDefaultConstructor();
         assertNotNull(constructor);
 
-        assertNull(invokerField(constructor, "_invokerNullary"));
+        assertNull(constructor._invokerNullary);
         Object created = constructor.call();
         assertEquals(NoArgBean.class, created.getClass());
-        assertNotNull(invokerField(constructor, "_invokerNullary"));
-        assertNull(invokerField(constructor, "_invokerUnary"));
-        assertNull(invokerField(constructor, "_invokerFixedArity"));
-    }
-
-    private static Object invokerField(AnnotatedConstructor constructor, String name) throws Exception {
-        java.lang.reflect.Field field = AnnotatedConstructor.class.getDeclaredField(name);
-        field.setAccessible(true);
-        return field.get(constructor);
+        assertNotNull(constructor._invokerNullary);
+        assertNull(constructor._invokerUnary);
+        assertNull(constructor._invokerFixedArity);
     }
 
     // [databind#3187]

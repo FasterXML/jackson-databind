@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.PropertyNamingStrategies;
@@ -333,5 +334,43 @@ public class ThrowableViewExplicit6190Test extends DatabindTestUtil
             }
         }
         return false;
+    }
+
+    // [databind#6190]: a view-excluded "message" must behave like a view-excluded bound
+    // property -- i.e. also honor FAIL_ON_UNEXPECTED_VIEW_PROPERTIES, not just be skipped
+    @Test
+    public void explicitViewOnMessageFailsOnUnexpectedView() throws Exception {
+        ObjectReader r = FAIL_ON_UNEXPECTED_MAPPER.readerWithView(Public.class)
+                .forType(ExplicitMessageException.class);
+        try {
+            r.readValue("""
+                    {"message":"the msg"}""");
+            fail("should not pass, but fail with exception on unexpected view property");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Input mismatch while deserializing");
+            verifyException(e, "Property 'message' is not part of current active view");
+        }
+    }
+
+    // ...and the view check must not depend on some *other* property having views:
+    // `_needViewProcesing` is derived from settable properties only, and "message" is
+    // not one, so with DEFAULT_VIEW_INCLUSION enabled there may be none at all
+    @Test
+    public void explicitViewOnMessageRespectedWithDefaultViewInclusion() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .build();
+        ExplicitMessageException exPublic = mapper.readerWithView(Public.class)
+                .forType(ExplicitMessageException.class)
+                .readValue("""
+                        {"message":"the msg"}""");
+        assertNull(exPublic.getMessage(),
+                "'message' restricted to Internal must not be set under Public view");
+
+        ExplicitMessageException exInternal = mapper.readerWithView(Internal.class)
+                .forType(ExplicitMessageException.class)
+                .readValue("""
+                        {"message":"the msg"}""");
+        assertEquals("the msg", exInternal.getMessage());
     }
 }

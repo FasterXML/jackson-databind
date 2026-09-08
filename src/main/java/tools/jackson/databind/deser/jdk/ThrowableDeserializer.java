@@ -81,6 +81,17 @@ public class ThrowableDeserializer
          */
         public final ViewMatcher messageViews, suppressedViews;
 
+        /**
+         * Whether either of the two properties carries an explicit {@code @JsonView}:
+         * if so the read loop must resolve the active view even when no regular
+         * property has views of its own.
+         *
+         * @since 3.3
+         */
+        public boolean hasExplicitViews() {
+            return (messageViews != null) || (suppressedViews != null);
+        }
+
         protected StdPropNames(String msg, String localizedMsg, String suppr,
                 String cse, String stackTr,
                 ViewMatcher msgViews, ViewMatcher supprViews) {
@@ -307,7 +318,12 @@ public class ThrowableDeserializer
         Throwable[] suppressed = null;
         int pendingIx = 0;
 
-        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
+        // [databind#6190]: `_needViewProcesing` only accounts for settable properties, but
+        // "message"/"suppressed" may carry an explicit `@JsonView` without being bound as
+        // one -- so consult those too, else their views would be ignored whenever no
+        // regular property has any (as happens with `DEFAULT_VIEW_INCLUSION` enabled)
+        final Class<?> activeView = (_needViewProcesing || _stdPropNames.hasExplicitViews())
+                ? ctxt.getActiveView() : null;
         int ix = p.currentNameMatch(_propNameMatcher);
         for (; ; ix = p.nextNameMatch(_propNameMatcher)) {
             if (ix >= 0) {
@@ -317,14 +333,7 @@ public class ThrowableDeserializer
                 // Standard `Throwable` properties without explicit views have no view restrictions
                 // configured, while those with explicit `@JsonView` honor them (see [databind#6190]).
                 if ((activeView != null) && !prop.visibleInView(activeView)) {
-                    // [databind#437]: fields in other views to be considered as unknown properties
-                    if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)) {
-                        ctxt.reportInputMismatch(handledType(),
-                                String.format("Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'" +
-                                        " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
-                                        ClassUtil.nameOf(handledType()), prop.getName(), activeView.getName()));
-                    }
-                    p.skipChildren();
+                    _handleViewExcluded(p, ctxt, prop.getName(), activeView);
                     continue;
                 }
                 if (throwable != null) {
@@ -370,7 +379,7 @@ public class ThrowableDeserializer
                 // [databind#6190]: explicit `@JsonView` on "message" must be honored;
                 // left unset, it is instantiated with `null` message after the loop
                 if (!_visibleInView(_stdPropNames.messageViews, activeView)) {
-                    p.skipChildren();
+                    _handleViewExcluded(p, ctxt, propName, activeView);
                     continue;
                 }
                 throwable = _instantiate(ctxt, hasStringCreator, p.getValueAsString());
@@ -393,7 +402,7 @@ public class ThrowableDeserializer
             if (_stdPropNames.suppressed.equalsIgnoreCase(propName)) {
                 // [databind#6190]: explicit `@JsonView` on "suppressed" must be honored
                 if (!_visibleInView(_stdPropNames.suppressedViews, activeView)) {
-                    p.skipChildren();
+                    _handleViewExcluded(p, ctxt, propName, activeView);
                     continue;
                 }
                 // 07-Dec-2023, tatu: Not sure how/why, but JSON Null is otherwise
@@ -507,6 +516,27 @@ public class ThrowableDeserializer
      *
      * @since 3.3
      */
+    /**
+     * Helper for a property the active view excludes: reported as an unexpected property
+     * if {@code FAIL_ON_UNEXPECTED_VIEW_PROPERTIES} is enabled ([databind#437]), and
+     * simply skipped otherwise. Shared by all branches of the read loop so that a
+     * property behaves the same whether or not it happens to be bound as a settable one.
+     *
+     * @since 3.3
+     */
+    private void _handleViewExcluded(JsonParser p, DeserializationContext ctxt,
+            String propName, Class<?> activeView)
+        throws JacksonException
+    {
+        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)) {
+            ctxt.reportInputMismatch(handledType(),
+                    String.format("Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'" +
+                            " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
+                            ClassUtil.nameOf(handledType()), propName, activeView.getName()));
+        }
+        p.skipChildren();
+    }
+
     private boolean _visibleInView(ViewMatcher views, Class<?> activeView) {
         return (activeView == null) || (views == null) || views.isVisibleForView(activeView);
     }

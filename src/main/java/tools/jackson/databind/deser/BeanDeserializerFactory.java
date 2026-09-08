@@ -458,7 +458,7 @@ public class BeanDeserializerFactory
         // ... but a class-level `@JsonView` is explicit intent covering every property of
         // the class, so it must be honored too (see `explicitClassViews()` for why the
         // "no annotation at all" case cannot simply be read off `findDefaultViews()`)
-        final Class<?>[] classViews = ThrowableDeserializer.explicitClassViews(beanDesc);
+        final Class<?>[] classViews = ThrowableDeserializer.explicitClassViews(config, beanDesc);
         // Explicit views on the "cause" property, if any: captured in this same pass, for
         // use below where the property is replaced with the `initCause()`-backed one
         Class<?>[] causeViews = null;

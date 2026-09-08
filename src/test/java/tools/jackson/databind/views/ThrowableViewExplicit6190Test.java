@@ -50,6 +50,22 @@ public class ThrowableViewExplicit6190Test extends DatabindTestUtil
         public abstract Throwable[] getSuppressed();
     }
 
+    // Degenerate but legal: `@JsonView` listing no classes. Places its properties in no
+    // view at all -- and must do so for the standard `Throwable` ones as well, since the
+    // exemption is for a MISSING annotation, not an empty one
+    @JsonView({})
+    @SuppressWarnings("serial")
+    static class EmptyClassViewException extends RuntimeException {
+        public String custom;
+        public EmptyClassViewException() { super(); }
+    }
+
+    // No view annotation anywhere: the case the exemption exists for
+    @SuppressWarnings("serial")
+    static class NoViewException extends RuntimeException {
+        public NoViewException() { super(); }
+    }
+
     // [databind#6190]: a class-level `@JsonView` is explicit intent too -- it covers
     // every property of the class, including the standard `Throwable` ones
     @JsonView(Internal.class)
@@ -372,5 +388,35 @@ public class ThrowableViewExplicit6190Test extends DatabindTestUtil
                 .readValue("""
                         {"message":"the msg"}""");
         assertEquals("the msg", exInternal.getMessage());
+    }
+
+    // [databind#6190]: `@JsonView({})` on the class must treat the standard `Throwable`
+    // properties exactly as it treats regular ones -- excluded from every view. Note
+    // `BeanDescription.findDefaultViews()` cannot tell this apart from "no annotation"
+    // (both are an empty array), which is why the views are read off the introspector.
+    @Test
+    public void emptyClassLevelViewExcludesStandardProps() throws Exception {
+        final String json = """
+                {"custom":"c","cause":{"message":"root"}}""";
+        EmptyClassViewException ex = MAPPER.readerWithView(Public.class)
+                .forType(EmptyClassViewException.class).readValue(json);
+
+        // regular property: excluded from every view, as always
+        assertNull(ex.custom);
+        // ...and the standard property must agree, rather than being exempted
+        assertNull(ex.getCause(),
+                "@JsonView({}) on class must exclude 'cause' too, not exempt it");
+    }
+
+    // Control: with NO annotation the exemption stays intact -- that is the case
+    // [databind#6174] added it for
+    @Test
+    public void missingViewAnnotationKeepsExemption() throws Exception {
+        final String json = """
+                {"cause":{"message":"root"}}""";
+        NoViewException ex = MAPPER.readerWithView(Public.class)
+                .forType(NoViewException.class).readValue(json);
+        assertNotNull(ex.getCause(),
+                "standard props must stay included when no @JsonView is present at all");
     }
 }

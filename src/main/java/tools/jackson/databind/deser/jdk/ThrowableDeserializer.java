@@ -7,6 +7,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.bean.BeanDeserializer;
 import tools.jackson.databind.deser.bean.BeanPropertyMap;
@@ -152,7 +153,7 @@ public class ThrowableDeserializer
             BeanDeserializer baseDeserializer, BeanDescription.Supplier beanDescRef)
     {
         return new ThrowableDeserializer(baseDeserializer,
-                _resolveStdPropNames(beanDescRef));
+                _resolveStdPropNames(ctxt, beanDescRef));
     }
 
     /**
@@ -160,19 +161,21 @@ public class ThrowableDeserializer
      * of given type in, if any; {@code null} if there is no such annotation.
      *<p>
      * Exists because the distinction matters for the standard {@link Throwable}
-     * properties and is easy to get wrong: {@code findDefaultViews()} returns an
-     * <i>empty</i> array (not {@code null}) for "no annotation, and
-     * {@code MapperFeature.DEFAULT_VIEW_INCLUSION} disabled" -- which is exactly the
-     * defaulted-out-of-every-view case those properties are exempted from
-     * ([databind#6174]) -- but the annotated classes for a real one, which must be
-     * honored ([databind#6190]). Shared with {@code BeanDeserializerFactory}, which
-     * assigns the views this class then reads back.
+     * properties and is easy to get wrong. Only a missing annotation exempts them from
+     * view filtering ([databind#6174]); any {@code @JsonView} that IS present must be
+     * honored ([databind#6190]), including the degenerate {@code @JsonView({})}, which
+     * places its properties in no view at all -- just as it does for regular properties.
+     * Shared with {@code BeanDeserializerFactory}, which assigns the views this class
+     * then reads back.
      *
      * @since 3.3
      */
-    public static Class<?>[] explicitClassViews(BeanDescription beanDesc) {
-        Class<?>[] defViews = beanDesc.findDefaultViews();
-        return ((defViews != null) && (defViews.length > 0)) ? defViews : null;
+    public static Class<?>[] explicitClassViews(MapperConfig<?> config, BeanDescription beanDesc) {
+        // NOTE: deliberately NOT via `BeanDescription.findDefaultViews()`: that substitutes
+        // an empty array for "no annotation" when `DEFAULT_VIEW_INCLUSION` is disabled,
+        // which is indistinguishable from the empty array a degenerate `@JsonView({})`
+        // yields. Asking the introspector keeps the two apart: `null` for no annotation.
+        return config.getAnnotationIntrospector().findViews(config, beanDesc.getClassInfo());
     }
 
     /**
@@ -187,7 +190,8 @@ public class ThrowableDeserializer
      * its "use default" pseudo-value, which overrides the mapper-level one) and an
      * explicit {@code @JsonProperty} rename alike.
      */
-    private static StdPropNames _resolveStdPropNames(BeanDescription.Supplier beanDescRef)
+    private static StdPropNames _resolveStdPropNames(DeserializationContext ctxt,
+            BeanDescription.Supplier beanDescRef)
     {
         // No introspection available (deprecated `construct()`): canonical names apply
         if (beanDescRef == null) {
@@ -195,7 +199,7 @@ public class ThrowableDeserializer
         }
         final BeanDescription beanDesc = beanDescRef.get();
         // [databind#6190]: a class-level `@JsonView` covers every property, including these
-        final Class<?>[] classViews = explicitClassViews(beanDesc);
+        final Class<?>[] classViews = explicitClassViews(ctxt.getConfig(), beanDesc);
         return new StdPropNames(
                 _externalName(beanDesc, "getMessage", PROP_NAME_MESSAGE),
                 _externalName(beanDesc, "getLocalizedMessage", PROP_NAME_LOCALIZED_MESSAGE),

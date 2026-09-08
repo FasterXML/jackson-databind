@@ -145,18 +145,6 @@ public class ThrowableDeserializer
     }
 
     /**
-     * Helper method for resolving the external names of the standard
-     * {@link Throwable} properties ([databind#6188]; completes what was left
-     * undone by [databind#3497]).
-     *<p>
-     * Names are taken from the property definitions regular introspection already
-     * produced, rather than re-derived here: that way they match whatever the rest
-     * of databind bound the properties to, accounting for a mapper-level
-     * {@link PropertyNamingStrategy}, a class-level {@code @JsonNaming} (including
-     * its "use default" pseudo-value, which overrides the mapper-level one) and an
-     * explicit {@code @JsonProperty} rename alike.
-     */
-    /**
      * Helper for finding the views a class-level {@code @JsonView} places all properties
      * of given type in, if any; {@code null} if there is no such annotation.
      *<p>
@@ -176,6 +164,18 @@ public class ThrowableDeserializer
         return ((defViews != null) && (defViews.length > 0)) ? defViews : null;
     }
 
+    /**
+     * Helper method for resolving the external names of the standard
+     * {@link Throwable} properties ([databind#6188]; completes what was left
+     * undone by [databind#3497]).
+     *<p>
+     * Names are taken from the property definitions regular introspection already
+     * produced, rather than re-derived here: that way they match whatever the rest
+     * of databind bound the properties to, accounting for a mapper-level
+     * {@link PropertyNamingStrategy}, a class-level {@code @JsonNaming} (including
+     * its "use default" pseudo-value, which overrides the mapper-level one) and an
+     * explicit {@code @JsonProperty} rename alike.
+     */
     private static StdPropNames _resolveStdPropNames(BeanDescription.Supplier beanDescRef)
     {
         // No introspection available (deprecated `construct()`): canonical names apply
@@ -501,12 +501,6 @@ public class ThrowableDeserializer
     }
 
     /**
-     * Helper method to check if a property with null value should be skipped
-     * during deserialization. Some Throwable setters throw NPE when called with null.
-     *
-     * @since 3.1
-     */
-    /**
      * Helper for the "unknown name" branches, which have no {@link SettableBeanProperty}
      * to ask: a {@code null} matcher means the property carries no explicit
      * {@code @JsonView} and so is included under every active view ([databind#6174]).
@@ -517,6 +511,12 @@ public class ThrowableDeserializer
         return (activeView == null) || (views == null) || views.isVisibleForView(activeView);
     }
 
+    /**
+     * Helper method to check if a property with null value should be skipped
+     * during deserialization. Some Throwable setters throw NPE when called with null.
+     *
+     * @since 3.1
+     */
     private boolean _shouldSkipNullValue(String propertyName) {
         return _stdPropNames.cause.equals(propertyName)
                 || _stdPropNames.stackTrace.equals(propertyName);

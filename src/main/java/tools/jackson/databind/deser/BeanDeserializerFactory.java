@@ -451,6 +451,35 @@ public class BeanDeserializerFactory
         addBeanProps(ctxt, beanDescRef, deserBuilder);
         // (and assume there won't be any back references)
 
+        // [databind#6190]: Standard Throwable properties without explicit @JsonView
+        // must not have default views (NO_VIEWS) forced on them, so they remain
+        // included under any active view.
+        final BeanDescription beanDesc = beanDescRef.get();
+        // ... but a class-level `@JsonView` is explicit intent covering every property of
+        // the class, so it must be honored too (see `explicitClassViews()` for why the
+        // "no annotation at all" case cannot simply be read off `findDefaultViews()`)
+        final Class<?>[] classViews = ThrowableDeserializer.explicitClassViews(config, beanDesc);
+        // Explicit views on the "cause" property, if any: captured in this same pass, for
+        // use below where the property is replaced with the `initCause()`-backed one
+        Class<?>[] causeViews = null;
+        for (BeanPropertyDefinition propDef : beanDesc.findProperties()) {
+            final String internalName = propDef.getInternalName();
+            if (!ThrowableDeserializer.STD_PROP_NAMES.contains(internalName)) {
+                continue;
+            }
+            final Class<?>[] propViews = propDef.findViews();
+            if ((causeViews == null) && (propViews != null)
+                    && ThrowableDeserializer.PROP_NAME_CAUSE.equals(internalName)) {
+                causeViews = propViews;
+            }
+            if ((propViews == null) && (classViews == null)) {
+                SettableBeanProperty prop = deserBuilder.findProperty(PropertyName.construct(propDef.getName()));
+                if (prop != null) {
+                    prop.setViews(null);
+                }
+            }
+        }
+
         // But then let's decorate things a bit
         // Need to add "initCause" as setter for exceptions (sub-classes of Throwable).
         // 26-May-2022, tatu: [databind#3275] Looks like JDK 12 added "setCause()"
@@ -464,7 +493,7 @@ public class BeanDeserializerFactory
                 break;
             }
         }
-        AnnotatedMethod am = beanDescRef.get().findMethod("initCause", INIT_CAUSE_PARAMS);
+        AnnotatedMethod am = beanDesc.findMethod("initCause", INIT_CAUSE_PARAMS);
         if (am != null) { // should never be null
             SettableBeanProperty causeCreatorProp = deserBuilder.findProperty(PropertyName.construct("cause"));
             // [databind#4827] : Consider case where sub-classed `Exception` has `JsonCreator` with `cause` parameter
@@ -483,6 +512,16 @@ public class BeanDeserializerFactory
                 SettableBeanProperty prop = constructSettableProperty(ctxt, beanDescRef, propDef,
                         am.getParameterType(0));
                 if (prop != null) {
+                    // [databind#6190]: If cause has explicit @JsonView on initCause or getCause, honor it
+                    Class<?>[] views = propDef.findViews();
+                    if (views == null) {
+                        // ...else views found on the "cause" property above, else the
+                        // class-level `@JsonView` (if any)
+                        views = (causeViews != null) ? causeViews : classViews;
+                    }
+                    if (views != null) {
+                        prop.setViews(views);
+                    }
                     // 21-Aug-2011, tatus: We may actually have found 'cause' property
                     //   to set... but let's replace it just in case, otherwise can end up with odd errors.
                     deserBuilder.addOrReplaceProperty(prop, true);

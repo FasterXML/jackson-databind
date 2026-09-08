@@ -1,6 +1,7 @@
 package tools.jackson.databind.deser.jdk;
 
 import java.util.Arrays;
+import java.util.Set;
 
 import tools.jackson.core.*;
 import tools.jackson.core.sym.PropertyNameMatcher;
@@ -26,14 +27,31 @@ import tools.jackson.databind.util.ViewMatcher;
 public class ThrowableDeserializer
     extends BeanDeserializer // not the greatest idea but...
 {
-    protected final static String PROP_NAME_MESSAGE = "message";
-    protected final static String PROP_NAME_SUPPRESSED = "suppressed";
+    public final static String PROP_NAME_MESSAGE = "message";
+    public final static String PROP_NAME_SUPPRESSED = "suppressed";
 
-    protected final static String PROP_NAME_LOCALIZED_MESSAGE = "localizedMessage";
+    public final static String PROP_NAME_LOCALIZED_MESSAGE = "localizedMessage";
 
     // Properties that should not be set if value is null (would cause NPE or other issues)
-    protected final static String PROP_NAME_CAUSE = "cause";
-    protected final static String PROP_NAME_STACK_TRACE = "stackTrace";
+    public final static String PROP_NAME_CAUSE = "cause";
+    public final static String PROP_NAME_STACK_TRACE = "stackTrace";
+
+    /**
+     * Internal (Java) names of the standard {@link Throwable} properties, as declared by
+     * {@link Throwable} itself. Exposed because {@code BeanDeserializerFactory} needs the
+     * same set when deciding which properties are exempt from {@code @JsonView} filtering
+     * ([databind#6174], [databind#6190]); keeping one copy here, next to the constants it
+     * is built from, prevents the two from drifting apart.
+     *<p>
+     * NOTE: these are the canonical names -- a {@link PropertyNamingStrategy} may rename
+     * the properties, in which case the external names are resolved separately (see
+     * [databind#6188]).
+     *
+     * @since 3.3
+     */
+    public final static Set<String> STD_PROP_NAMES = Set.of(PROP_NAME_MESSAGE,
+            PROP_NAME_LOCALIZED_MESSAGE, PROP_NAME_SUPPRESSED,
+            PROP_NAME_CAUSE, PROP_NAME_STACK_TRACE);
 
     /**
      * External ("JSON") names of the standard {@link Throwable} properties: needed
@@ -138,6 +156,26 @@ public class ThrowableDeserializer
      * its "use default" pseudo-value, which overrides the mapper-level one) and an
      * explicit {@code @JsonProperty} rename alike.
      */
+    /**
+     * Helper for finding the views a class-level {@code @JsonView} places all properties
+     * of given type in, if any; {@code null} if there is no such annotation.
+     *<p>
+     * Exists because the distinction matters for the standard {@link Throwable}
+     * properties and is easy to get wrong: {@code findDefaultViews()} returns an
+     * <i>empty</i> array (not {@code null}) for "no annotation, and
+     * {@code MapperFeature.DEFAULT_VIEW_INCLUSION} disabled" -- which is exactly the
+     * defaulted-out-of-every-view case those properties are exempted from
+     * ([databind#6174]) -- but the annotated classes for a real one, which must be
+     * honored ([databind#6190]). Shared with {@code BeanDeserializerFactory}, which
+     * assigns the views this class then reads back.
+     *
+     * @since 3.3
+     */
+    public static Class<?>[] explicitClassViews(BeanDescription beanDesc) {
+        Class<?>[] defViews = beanDesc.findDefaultViews();
+        return ((defViews != null) && (defViews.length > 0)) ? defViews : null;
+    }
+
     private static StdPropNames _resolveStdPropNames(BeanDescription.Supplier beanDescRef)
     {
         // No introspection available (deprecated `construct()`): canonical names apply
@@ -146,8 +184,7 @@ public class ThrowableDeserializer
         }
         final BeanDescription beanDesc = beanDescRef.get();
         // [databind#6190]: a class-level `@JsonView` covers every property, including these
-        final Class<?>[] defViews = beanDesc.findDefaultViews();
-        final Class<?>[] classViews = ((defViews != null) && (defViews.length > 0)) ? defViews : null;
+        final Class<?>[] classViews = explicitClassViews(beanDesc);
         return new StdPropNames(
                 _externalName(beanDesc, "getMessage", PROP_NAME_MESSAGE),
                 _externalName(beanDesc, "getLocalizedMessage", PROP_NAME_LOCALIZED_MESSAGE),

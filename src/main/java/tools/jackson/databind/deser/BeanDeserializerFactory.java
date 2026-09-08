@@ -44,20 +44,6 @@ public class BeanDeserializerFactory
      */
     private final static Class<?>[] INIT_CAUSE_PARAMS = new Class<?>[] { Throwable.class };
 
-    /**
-     * Internal names of the standard {@link Throwable} properties: unless one of these
-     * carries an explicit {@code @JsonView}, it must not be view-filtered but included
-     * under every active view (see [databind#6174], [databind#6190]).
-     *<p>
-     * NOTE: values match constants in
-     * {@code tools.jackson.databind.deser.jdk.ThrowableDeserializer} (not accessible
-     * from here).
-     *
-     * @since 3.3
-     */
-    private final static Set<String> STD_THROWABLE_PROP_NAMES = Set.of(
-            "message", "localizedMessage", "suppressed", "cause", "stackTrace");
-
     /*
     /**********************************************************
     /* Life-cycle
@@ -470,22 +456,20 @@ public class BeanDeserializerFactory
         // included under any active view.
         final BeanDescription beanDesc = beanDescRef.get();
         // ... but a class-level `@JsonView` is explicit intent covering every property of
-        // the class, so it must be honored too: the exemption exists for properties that
-        // were defaulted out of every view, not for ones placed in a view on purpose.
-        // NOTE: `findDefaultViews()` returns an empty array (not null) for "no annotation,
-        // `DEFAULT_VIEW_INCLUSION` disabled", which is exactly the defaulted-out case.
-        final Class<?>[] defViews = beanDesc.findDefaultViews();
-        final Class<?>[] classViews = ((defViews != null) && (defViews.length > 0)) ? defViews : null;
+        // the class, so it must be honored too (see `explicitClassViews()` for why the
+        // "no annotation at all" case cannot simply be read off `findDefaultViews()`)
+        final Class<?>[] classViews = ThrowableDeserializer.explicitClassViews(beanDesc);
         // Explicit views on the "cause" property, if any: captured in this same pass, for
         // use below where the property is replaced with the `initCause()`-backed one
         Class<?>[] causeViews = null;
         for (BeanPropertyDefinition propDef : beanDesc.findProperties()) {
             final String internalName = propDef.getInternalName();
-            if (!STD_THROWABLE_PROP_NAMES.contains(internalName)) {
+            if (!ThrowableDeserializer.STD_PROP_NAMES.contains(internalName)) {
                 continue;
             }
             final Class<?>[] propViews = propDef.findViews();
-            if ((causeViews == null) && (propViews != null) && "cause".equals(internalName)) {
+            if ((causeViews == null) && (propViews != null)
+                    && ThrowableDeserializer.PROP_NAME_CAUSE.equals(internalName)) {
                 causeViews = propViews;
             }
             if ((propViews == null) && (classViews == null)) {

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonGenerator;
 
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -30,6 +31,16 @@ public class CloseAutoCloseableTest extends DatabindTestUtil
         @Override
         public void close() throws Exception {
             wasClosed = true;
+        }
+    }
+
+    static class FailingAutoCloseableBean implements AutoCloseable {
+        public int a = 3;
+
+        // Checked, non-`IOException` failure: only possible for `AutoCloseable`
+        @Override
+        public void close() throws Exception {
+            throw new Exception("Fail on close()");
         }
     }
 
@@ -62,6 +73,38 @@ public class CloseAutoCloseableTest extends DatabindTestUtil
         assertEquals("""
                 {"a":3,"wasClosed":false}""", sw.toString());
         assertTrue(bean.wasClosed);
+    }
+
+    // Failure to `close()` the value must not close (or otherwise mess with) the
+    // caller-owned Generator, and must be reported as `JacksonException`
+    @Test
+    public void mapperCloseFailureWithGenerator() throws Exception
+    {
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator g = MAPPER.createGenerator(sw)) {
+            DatabindException e = assertThrows(DatabindException.class,
+                    () -> MAPPER.writeValue(g, new FailingAutoCloseableBean()));
+            verifyException(e, "Failed to close value of type");
+            assertFalse(g.isClosed());
+            g.writeString("after");
+        }
+        assertEquals("""
+                {"a":3} "after\"""", sw.toString());
+    }
+
+    @Test
+    public void writerCloseFailureWithGenerator() throws Exception
+    {
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator g = MAPPER.createGenerator(sw)) {
+            DatabindException e = assertThrows(DatabindException.class,
+                    () -> MAPPER.writer().writeValue(g, new FailingAutoCloseableBean()));
+            verifyException(e, "Failed to close value of type");
+            assertFalse(g.isClosed());
+            g.writeString("after");
+        }
+        assertEquals("""
+                {"a":3} "after\"""", sw.toString());
     }
 
     @Test

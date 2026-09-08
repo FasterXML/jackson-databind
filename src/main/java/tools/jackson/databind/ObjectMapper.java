@@ -1965,7 +1965,13 @@ public class ObjectMapper
         } catch (IOException e) {
             throw JacksonIOException.construct(e, g);
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsJacksonE(g, e);
+            // 07-Sep-2026, tatu: Two things to note here: caller-owned Generator must NOT
+            //   be closed (see `writeValue(JsonGenerator, Object)`); and since
+            //   `AutoCloseable.close()` may throw any checked `Exception`, need to wrap
+            //   as `JacksonException` (and not leak as plain `RuntimeException`)
+            throw DatabindException.from(g, String.format(
+                    "Failed to close value of type %s: %s",
+                    ClassUtil.classNameOf(toClose), ClassUtil.exceptionMessage(e)), e);
         }
     }
 

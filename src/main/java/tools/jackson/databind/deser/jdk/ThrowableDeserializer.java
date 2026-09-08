@@ -423,7 +423,9 @@ public class ThrowableDeserializer
             }
             // Things marked as ignorable (or not in the "include" allow-list) should
             // not be passed to any setter. NOTE: checked only after the standard
-            // `Throwable` properties above, which are never subject to filtering.
+            // `Throwable` properties above, so those are never dropped by the
+            // ignore/include lists ([databind#6157]). They may still be excluded by an
+            // explicit `@JsonView`, but that is decided by the branches above, not here.
             if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;

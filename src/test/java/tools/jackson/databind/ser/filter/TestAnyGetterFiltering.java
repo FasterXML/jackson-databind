@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.ser.FilterProvider;
 import tools.jackson.databind.ser.PropertyWriter;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
@@ -146,5 +148,66 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
         if (stuff.size() != 2) {
             fail("Should have 2 properties, got: "+stuff);
         }
-   }
+    }
+
+    // [databind#6136]
+    @JsonFilter("anyFilter6136")
+    public static class AnyBeanWithSecret
+    {
+        public String name = "bob";
+
+        private Map<String, String> properties = new LinkedHashMap<>();
+        {
+            properties.put("a", "1");
+            properties.put("secret", "s3cr3t");
+        }
+
+        @JsonAnyGetter
+        public Map<String, String> anyProperties() {
+            return properties;
+        }
+    }
+
+    @JsonFilter("anyFilter6136")
+    public static class ObjectNodeAnyBeanWithSecret
+    {
+        public String name = "bob";
+
+        @JsonAnyGetter
+        public ObjectNode anyProperties() {
+            return JsonNodeFactory.instance.objectNode()
+                    .put("a", "1")
+                    .put("secret", "s3cr3t");
+        }
+    }
+
+    // [databind#6136]: Exclude-style filter on Map-valued @JsonAnyGetter
+    @Test
+    public void testAnyGetterSerializeAllExcept6136() throws Exception
+    {
+        FilterProvider prov = new SimpleFilterProvider().addFilter("anyFilter6136",
+                SimpleBeanPropertyFilter.serializeAllExcept("secret"));
+        assertEquals(a2q("{'name':'bob','a':'1'}"),
+                MAPPER.writer(prov).writeValueAsString(new AnyBeanWithSecret()));
+    }
+
+    // [databind#6136]: Exclude-style filter on ObjectNode-valued @JsonAnyGetter
+    @Test
+    public void testObjectNodeAnyGetterSerializeAllExcept6136() throws Exception
+    {
+        FilterProvider prov = new SimpleFilterProvider().addFilter("anyFilter6136",
+                SimpleBeanPropertyFilter.serializeAllExcept("secret"));
+        assertEquals(a2q("{'name':'bob','a':'1'}"),
+                MAPPER.writer(prov).writeValueAsString(new ObjectNodeAnyBeanWithSecret()));
+    }
+
+    // [databind#6136]: Include-style filter on ObjectNode-valued @JsonAnyGetter
+    @Test
+    public void testObjectNodeAnyGetterFilterOutAllExcept6136() throws Exception
+    {
+        FilterProvider prov = new SimpleFilterProvider().addFilter("anyFilter6136",
+                SimpleBeanPropertyFilter.filterOutAllExcept("name", "a"));
+        assertEquals(a2q("{'name':'bob','a':'1'}"),
+                MAPPER.writer(prov).writeValueAsString(new ObjectNodeAnyBeanWithSecret()));
+    }
 }

@@ -468,6 +468,10 @@ public class MapSerializer
         return _valueSerializer;
     }
 
+    public Object getSuppressableValue() {
+        return _suppressableValue;
+    }
+
     @Override
     public boolean isEmpty(SerializationContext prov, Map<?,?> value)
     {
@@ -886,6 +890,23 @@ public class MapSerializer
                 wrapAndThrow(ctxt, e, value, String.valueOf(keyElem));
             }
         }
+    }
+
+    /**
+     * Helper method used when we have a JSON Filter to use AND contents are
+     * "any properties" of a POJO.
+     *<p>
+     * NOTE: {@code public} only because it is called by {@code AnyGetterWriter}
+     *
+     * @param bean Enclosing POJO that has any-getter used to obtain "any properties"
+     *
+     * @since 3.3
+     */
+    public void serializeFilteredAnyProperties(SerializationContext ctxt, JsonGenerator gen,
+            Object bean, Map<?,?> value, PropertyFilter filter)
+        throws JacksonException
+    {
+        serializeFilteredAnyProperties(ctxt, gen, bean, value, filter, _suppressableValue);
     }
 
     /**

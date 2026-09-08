@@ -7,6 +7,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ser.jdk.MapProperty;
 import tools.jackson.databind.ser.jdk.MapSerializer;
 
 /**
@@ -104,8 +105,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
         }
         // [databind#3604]: Support ObjectNode/JsonNode for @JsonAnyGetter
         if (value instanceof JsonNode) {
-            // No special filtering support for ObjectNode (yet); just serialize entries
-            _serializeObjectNodeEntries(_verifyObjectNode(value, ctxt), gen, ctxt);
+            _filterObjectNodeEntries(bean, _verifyObjectNode(value, ctxt), gen, ctxt, filter);
             return;
         }
         if (!(value instanceof Map<?,?>)) {
@@ -115,12 +115,34 @@ public class AnyGetterWriter extends BeanPropertyWriter
         }
         // 19-Oct-2014, tatu: Should we try to support @JsonInclude options here?
         if (_mapSerializer != null) {
-            _mapSerializer.serializeFilteredAnyProperties(ctxt, gen, bean,(Map<?,?>) value,
-                    filter, null);
+            _mapSerializer.serializeFilteredAnyProperties(ctxt, gen, bean, (Map<?,?>) value, filter);
             return;
         }
         // ... not sure how custom handler would do it
         _serializer.serialize(value, gen, ctxt);
+    }
+
+    /**
+     * Helper method for filtering and serializing entries of an {@link ObjectNode}
+     * as individual properties using the provided {@link PropertyFilter}.
+     *
+     * @since 3.3
+     */
+    protected void _filterObjectNodeEntries(Object bean, ObjectNode objectNode,
+            JsonGenerator gen, SerializationContext ctxt, PropertyFilter filter)
+        throws Exception
+    {
+        MapProperty prop = new MapProperty(null, _property);
+        ValueSerializer<Object> keySer = ctxt.findKeySerializer(String.class, _property);
+        for (Map.Entry<String, JsonNode> entry : objectNode.properties()) {
+            String key = entry.getKey();
+            JsonNode val = entry.getValue();
+            ValueSerializer<Object> valSer = (val == null)
+                    ? ctxt.getDefaultNullValueSerializer()
+                    : ctxt.findValueSerializer(val.getClass());
+            prop.reset(key, val, keySer, valSer);
+            filter.serializeAsProperty(bean, gen, ctxt, prop);
+        }
     }
 
     /**

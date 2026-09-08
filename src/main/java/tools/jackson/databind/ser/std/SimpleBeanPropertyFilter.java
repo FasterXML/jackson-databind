@@ -119,12 +119,12 @@ public class SimpleBeanPropertyFilter
             SerializationContext provider, PropertyWriter writer)
         throws Exception
     {
-        if (include(writer)) {
+        if (writer instanceof AnyGetterWriter anyGetterWriter) {
+            anyGetterWriter.getAndFilter(pojo, g, provider, this);
+        } else if (include(writer)) {
             writer.serializeAsProperty(pojo, g, provider);
         } else if (!g.canOmitProperties()) {
             writer.serializeAsOmittedProperty(pojo, g, provider);
-        } else if (writer instanceof AnyGetterWriter anyGetterWriter) {
-            anyGetterWriter.getAndFilter(pojo, g, provider, this);
         }
     }
 

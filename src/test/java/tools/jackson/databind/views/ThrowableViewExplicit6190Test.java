@@ -102,17 +102,6 @@ public class ThrowableViewExplicit6190Test extends DatabindTestUtil
         public Throwable getCause() { return super.getCause(); }
     }
 
-    @SuppressWarnings("serial")
-    static class SnakeExplicitStackTraceException extends RuntimeException {
-        public SnakeExplicitStackTraceException() { super(); }
-
-        @Override @JsonView(Internal.class)
-        public void setStackTrace(StackTraceElement[] st) { super.setStackTrace(st); }
-
-        @Override @JsonView(Internal.class)
-        public StackTraceElement[] getStackTrace() { return super.getStackTrace(); }
-    }
-
     private final ObjectMapper MAPPER = newJsonMapper();
 
     private final ObjectMapper FAIL_ON_UNEXPECTED_MAPPER = jsonMapperBuilder()
@@ -133,7 +122,7 @@ public class ThrowableViewExplicit6190Test extends DatabindTestUtil
         ExplicitStackTraceException exPublic = MAPPER.readerWithView(Public.class)
                 .forType(ExplicitStackTraceException.class)
                 .readValue(json);
-        assertNotEquals(1, exPublic.getStackTrace().length,
+        assertTrue(_isFillInTrace(exPublic.getStackTrace()),
                 "stackTrace restricted to Internal must not be populated under Public view");
 
         // Under Internal view, stackTrace SHOULD be populated from input (1 frame from input)
@@ -142,6 +131,8 @@ public class ThrowableViewExplicit6190Test extends DatabindTestUtil
                 .readValue(json);
         assertEquals(1, exInternal.getStackTrace().length,
                 "stackTrace restricted to Internal should be set from input under Internal view");
+        assertFalse(_isFillInTrace(exInternal.getStackTrace()),
+                "trace read from input must not look like the JVM fill-in one");
 
         // Under no view (full access), stackTrace and its element details SHOULD be populated
         ExplicitStackTraceException exNoView = MAPPER.readerFor(ExplicitStackTraceException.class)
@@ -229,16 +220,18 @@ public class ThrowableViewExplicit6190Test extends DatabindTestUtil
   } ]
 }
 """;
-        SnakeExplicitStackTraceException exPublic = mapper.readerWithView(Public.class)
-                .forType(SnakeExplicitStackTraceException.class)
+        ExplicitStackTraceException exPublic = mapper.readerWithView(Public.class)
+                .forType(ExplicitStackTraceException.class)
                 .readValue(json);
-        assertNotEquals(1, exPublic.getStackTrace().length,
+        assertTrue(_isFillInTrace(exPublic.getStackTrace()),
                 "stack_trace restricted to Internal must not be populated under Public view");
 
-        SnakeExplicitStackTraceException exInternal = mapper.readerWithView(Internal.class)
-                .forType(SnakeExplicitStackTraceException.class)
+        ExplicitStackTraceException exInternal = mapper.readerWithView(Internal.class)
+                .forType(ExplicitStackTraceException.class)
                 .readValue(json);
         assertEquals(1, exInternal.getStackTrace().length);
+        assertFalse(_isFillInTrace(exInternal.getStackTrace()),
+                "trace read from input must not look like the JVM fill-in one");
     }
 
     // [databind#6190]: the standard-property exemption must not discard a class-level
@@ -321,5 +314,24 @@ public class ThrowableViewExplicit6190Test extends DatabindTestUtil
                 .forType(SuppressedException.class).readValue(json);
         assertEquals(1, exInternal.getSuppressed().length);
         assertEquals("supp one", exInternal.getSuppressed()[0].getMessage());
+    }
+
+    /**
+     * Tells whether given trace is the one the JVM filled in at construction, rather than
+     * one read from input. Checking for a frame belonging to this test class is
+     * deterministic, where checking the frame count is not (the JVM makes no promise about
+     * how deep a trace it fills in, so a trace of exactly one frame is possible).
+     *<p>
+     * NOTE: frame <i>content</i> cannot be used as the discriminator instead: under an
+     * active view the nested {@link StackTraceElement}'s own properties are themselves
+     * view-filtered, so a trace read from input comes back with blank class names.
+     */
+    private boolean _isFillInTrace(StackTraceElement[] trace) {
+        for (StackTraceElement frame : trace) {
+            if (getClass().getName().equals(frame.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

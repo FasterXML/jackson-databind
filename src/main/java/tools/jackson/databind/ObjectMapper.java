@@ -1920,7 +1920,7 @@ public class ObjectMapper
     }
 
     /**
-     * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
+     * Helper method used when value to serialize is {@link AutoCloseable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
     private final void _configAndWriteCloseable(SerializationContextExt ctxt,

@@ -160,16 +160,22 @@ public abstract class TypeDeserializerBase
             if (type == null) {
                 // use the default impl if no type id available:
                 deser = _findDefaultImplDeserializer(ctxt);
-                if (deser == null) {
-                    // 10-May-2016, tatu: We may get some help...
-                    JavaType actual = _handleUnknownTypeId(ctxt, typeId);
-                    if (actual == null) { // what should this be taken to mean?
-                        // 17-Jan-2019, tatu: As per [databind#2221], better NOT return `null` but...
-                        return NullifyingDeserializer.instance;
-                    }
-                    // ... would this actually work?
-                    deser = ctxt.findContextualValueDeserializer(actual, _property);
+                if (deser != null) {
+                    // 09-Sep-2026, pjfanning: [databind#6203] Should not cache by type id
+                    //   here: the fallback deserializer (`defaultImpl`, or "nullifying" one)
+                    //   does not depend on the type id, so adding an entry gains nothing --
+                    //   but does grow the lookup Map by one entry for every distinct
+                    //   unrecognized id.
+                    return deser;
                 }
+                // 10-May-2016, tatu: We may get some help...
+                JavaType actual = _handleUnknownTypeId(ctxt, typeId);
+                if (actual == null) { // what should this be taken to mean?
+                    // 17-Jan-2019, tatu: As per [databind#2221], better NOT return `null` but...
+                    return NullifyingDeserializer.instance;
+                }
+                // ... would this actually work?
+                deser = ctxt.findContextualValueDeserializer(actual, _property);
             } else {
                 /* 16-Dec-2010, tatu: Since nominal type we get here has no (generic) type parameters,
                  *   we actually now need to explicitly narrow from base type (which may have parameterization)

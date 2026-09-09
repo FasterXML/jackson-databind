@@ -1,14 +1,18 @@
 package tools.jackson.databind.ser;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.StringWriter;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.exc.JacksonIOException;
 
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SequenceWriter;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -125,5 +129,80 @@ public class CloseAutoCloseableTest extends DatabindTestUtil
         assertEquals("""
                 {"a":3,"wasClosed":false}""", MAPPER.writeValueAsString(bean));
         assertTrue(bean.wasClosed);
+    }
+
+    // [databind#6197]: `SequenceWriter` also needs to handle `AutoCloseable`,
+    // not just `Closeable` (before fix: value simply never closed)
+    @Test
+    public void sequenceWriterWriteValue() throws Exception
+    {
+        AutoCloseableBean bean = new AutoCloseableBean();
+        StringWriter sw = new StringWriter();
+        try (SequenceWriter seq = MAPPER.writer().writeValues(sw)) {
+            seq.write(bean);
+        }
+        assertEquals("""
+                {"a":3,"wasClosed":false}""", sw.toString());
+        assertTrue(bean.wasClosed);
+    }
+
+    @Test
+    public void sequenceWriterWriteValueWithType() throws Exception
+    {
+        AutoCloseableBean bean = new AutoCloseableBean();
+        StringWriter sw = new StringWriter();
+        try (SequenceWriter seq = MAPPER.writer().writeValues(sw)) {
+            seq.write(bean, MAPPER.constructType(AutoCloseableBean.class));
+        }
+        assertEquals("""
+                {"a":3,"wasClosed":false}""", sw.toString());
+        assertTrue(bean.wasClosed);
+    }
+
+    @Test
+    public void sequenceWriterCloseFailure() throws Exception
+    {
+        StringWriter sw = new StringWriter();
+        try (SequenceWriter seq = MAPPER.writer().writeValues(sw)) {
+            DatabindException e = assertThrows(DatabindException.class,
+                    () -> seq.write(new FailingAutoCloseableBean()));
+            verifyException(e, "Failed to close value of type");
+        }
+    }
+
+    // `JacksonException` from `close()` must be passed through as-is, not re-wrapped
+    static class JacksonFailOnCloseBean implements AutoCloseable {
+        public final static JacksonException FAILURE
+            = JacksonIOException.construct(new IOException("Fail on close()"));
+
+        public int a = 3;
+
+        @Override
+        public void close() {
+            throw FAILURE;
+        }
+    }
+
+    @Test
+    public void jacksonExceptionFromCloseNotRewrapped() throws Exception
+    {
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator g = MAPPER.createGenerator(sw)) {
+            assertSame(JacksonFailOnCloseBean.FAILURE,
+                    assertThrows(JacksonException.class,
+                            () -> MAPPER.writeValue(g, new JacksonFailOnCloseBean())));
+            assertSame(JacksonFailOnCloseBean.FAILURE,
+                    assertThrows(JacksonException.class,
+                            () -> MAPPER.writer().writeValue(g, new JacksonFailOnCloseBean())));
+        }
+        try (SequenceWriter seq = MAPPER.writer().writeValues(new StringWriter())) {
+            assertSame(JacksonFailOnCloseBean.FAILURE,
+                    assertThrows(JacksonException.class,
+                            () -> seq.write(new JacksonFailOnCloseBean())));
+            assertSame(JacksonFailOnCloseBean.FAILURE,
+                    assertThrows(JacksonException.class,
+                            () -> seq.write(new JacksonFailOnCloseBean(),
+                                    MAPPER.constructType(JacksonFailOnCloseBean.class))));
+        }
     }
 }

@@ -1,6 +1,5 @@
 package tools.jackson.databind;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collection;
 
@@ -10,6 +9,7 @@ import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.SerializationContextExt;
 import tools.jackson.databind.ser.impl.PropertySerializerMap;
 import tools.jackson.databind.ser.impl.TypeWrappedSerializer;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * Writer class similar to {@link ObjectWriter}, except that it can be used
@@ -137,7 +137,7 @@ public class SequenceWriter
             return this;
         }
 
-        if (_cfgCloseCloseable && (value instanceof Closeable)) {
+        if (_cfgCloseCloseable && (value instanceof AutoCloseable)) {
             return _writeCloseableValue(value);
         }
         ValueSerializer<Object> ser = _rootSerializer;
@@ -171,7 +171,7 @@ public class SequenceWriter
             return this;
         }
 
-        if (_cfgCloseCloseable && (value instanceof Closeable)) {
+        if (_cfgCloseCloseable && (value instanceof AutoCloseable)) {
             return _writeCloseableValue(value, type);
         }
         /* 15-Dec-2014, tatu: I wonder if this could become problematic. It shouldn't
@@ -245,7 +245,7 @@ public class SequenceWriter
 
     protected SequenceWriter _writeCloseableValue(Object value) throws JacksonException
     {
-        Closeable toClose = (Closeable) value;
+        AutoCloseable toClose = (AutoCloseable) value;
         try {
             ValueSerializer<Object> ser = _rootSerializer;
             if (ser == null) {
@@ -259,18 +259,24 @@ public class SequenceWriter
             if (_cfgFlush) {
                 _generator.flush();
             }
-            Closeable tmpToClose = toClose;
+            AutoCloseable tmpToClose = toClose;
             toClose = null;
             try {
                 tmpToClose.close();
             } catch (IOException e) {
                 throw JacksonIOException.construct(e, _generator);
+            } catch (JacksonException e) { // pass through as-is
+                throw e;
+            } catch (Exception e) {
+                throw DatabindException.from(_generator, String.format(
+                        "Failed to close value of type %s: %s",
+                        ClassUtil.classNameOf(tmpToClose), ClassUtil.exceptionMessage(e)), e);
             }
         } finally {
             if (toClose != null) { // only if there was other throwable
                 try {
                     toClose.close();
-                } catch (IOException ioe) { }
+                } catch (Exception e) { }
             }
         }
         return this;
@@ -279,7 +285,7 @@ public class SequenceWriter
     protected SequenceWriter _writeCloseableValue(Object value, JavaType type)
         throws JacksonException
     {
-        Closeable toClose = (Closeable) value;
+        AutoCloseable toClose = (AutoCloseable) value;
         try {
             // 15-Dec-2014, tatu: As per above, could be problem that we do not pass generic type
             ValueSerializer<Object> ser = _dynamicSerializers.serializerFor(type.getRawClass());
@@ -290,18 +296,24 @@ public class SequenceWriter
             if (_cfgFlush) {
                 _generator.flush();
             }
-            Closeable tmpToClose = toClose;
+            AutoCloseable tmpToClose = toClose;
             toClose = null;
             try {
                 tmpToClose.close();
             } catch (IOException e) {
                 throw JacksonIOException.construct(e);
+            } catch (JacksonException e) { // pass through as-is
+                throw e;
+            } catch (Exception e) {
+                throw DatabindException.from(_generator, String.format(
+                        "Failed to close value of type %s: %s",
+                        ClassUtil.classNameOf(tmpToClose), ClassUtil.exceptionMessage(e)), e);
             }
         } finally {
             if (toClose != null) { // only if there was another throwable
                 try {
                     toClose.close();
-                } catch (IOException ioe) { }
+                } catch (Exception e) { }
             }
         }
         return this;

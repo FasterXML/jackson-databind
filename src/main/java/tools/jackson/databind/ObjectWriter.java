@@ -993,6 +993,8 @@ public class ObjectWriter
                 toClose.close();
             } catch (IOException e) {
                 throw JacksonIOException.construct(e, g);
+            } catch (JacksonException e) { // pass through as-is
+                throw e;
             } catch (Exception e) {
                 // 07-Sep-2026, tatu: Two things to note here: caller-owned Generator must
                 //   NOT be closed; and since `AutoCloseable.close()` may throw any checked
@@ -1146,8 +1148,8 @@ public class ObjectWriter
     {
         _initializeGenerator(gen);
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
-                && (value instanceof AutoCloseable)) {
-            _writeCloseable(gen, value);
+                && (value instanceof AutoCloseable toClose)) {
+            _writeCloseable(gen, toClose);
             return;
         }
         try {
@@ -1163,15 +1165,15 @@ public class ObjectWriter
      * Helper method used when value to serialize is {@link AutoCloseable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _writeCloseable(JsonGenerator gen, Object value)
+    private final void _writeCloseable(JsonGenerator gen, AutoCloseable value)
         throws JacksonException
     {
-        AutoCloseable toClose = (AutoCloseable) value;
+        // Sentinel for `catch`: cleared once value no longer needs closing by it
+        AutoCloseable toClose = value;
         try {
             _prefetch.serialize(gen, value, _serializationContext());
-            AutoCloseable tmpToClose = toClose;
             toClose = null;
-            tmpToClose.close();
+            value.close();
         } catch (Exception e) {
             ClassUtil.closeOnFailAndThrowAsJacksonE(gen, toClose, e);
             return;

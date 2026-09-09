@@ -1906,8 +1906,8 @@ public class ObjectMapper
     {
         _initializeGenerator(g);
         if (ctxt.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
-                && (value instanceof AutoCloseable)) {
-            _configAndWriteCloseable(ctxt, g, value);
+                && (value instanceof AutoCloseable toClose)) {
+            _configAndWriteCloseable(ctxt, g, toClose);
             return;
         }
         try {
@@ -1924,15 +1924,15 @@ public class ObjectMapper
      * method is to be called right after serialization has been called
      */
     private final void _configAndWriteCloseable(SerializationContextExt ctxt,
-            JsonGenerator g, Object value)
+            JsonGenerator g, AutoCloseable value)
         throws JacksonException
     {
-        AutoCloseable toClose = (AutoCloseable) value;
+        // Sentinel for `catch`: cleared once value no longer needs closing by it
+        AutoCloseable toClose = value;
         try {
             ctxt.serializeValue(g, value);
-            AutoCloseable tmpToClose = toClose;
             toClose = null;
-            tmpToClose.close();
+            value.close();
         } catch (Exception e) {
             ClassUtil.closeOnFailAndThrowAsJacksonE(g, toClose, e);
             return;
@@ -1964,6 +1964,8 @@ public class ObjectMapper
             toClose.close();
         } catch (IOException e) {
             throw JacksonIOException.construct(e, g);
+        } catch (JacksonException e) { // pass through as-is
+            throw e;
         } catch (Exception e) {
             // 07-Sep-2026, tatu: Two things to note here: caller-owned Generator must NOT
             //   be closed (see `writeValue(JsonGenerator, Object)`); and since

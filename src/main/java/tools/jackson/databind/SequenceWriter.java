@@ -257,19 +257,16 @@ public class SequenceWriter
             if (_cfgFlush) {
                 _generator.flush();
             }
-            AutoCloseable tmpToClose = toClose;
-            toClose = null;
+        } catch (Throwable e) {
             try {
-                tmpToClose.close();
-            } catch (Exception e) {
-                throw ClassUtil.closeFailureAsJacksonE(_generator, tmpToClose, e);
-            }
-        } finally {
-            if (toClose != null) { // only if there was other throwable
-                try {
-                    toClose.close();
-                } catch (Exception e) { }
-            }
+                toClose.close();
+            } catch (Exception e2) { }
+            throw e;
+        }
+        try {
+            toClose.close();
+        } catch (Exception e) {
+            throw ClassUtil.closeFailureAsJacksonE(_generator, toClose, e);
         }
         return this;
     }
@@ -288,19 +285,16 @@ public class SequenceWriter
             if (_cfgFlush) {
                 _generator.flush();
             }
-            AutoCloseable tmpToClose = toClose;
-            toClose = null;
+        } catch (Throwable e) {
             try {
-                tmpToClose.close();
-            } catch (Exception e) {
-                throw ClassUtil.closeFailureAsJacksonE(_generator, tmpToClose, e);
-            }
-        } finally {
-            if (toClose != null) { // only if there was another throwable
-                try {
-                    toClose.close();
-                } catch (Exception e) { }
-            }
+                toClose.close();
+            } catch (Exception e2) { }
+            throw e;
+        }
+        try {
+            toClose.close();
+        } catch (Exception e) {
+            throw ClassUtil.closeFailureAsJacksonE(_generator, toClose, e);
         }
         return this;
     }

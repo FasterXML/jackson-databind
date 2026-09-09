@@ -184,6 +184,41 @@ public class CloseAutoCloseableTest extends DatabindTestUtil
         }
     }
 
+    // If both serialization and the recovery `close()` fail, the original failure
+    // must survive, with close failure merely added as "suppressed"
+    static class FailOnSerializeAndCloseBean implements AutoCloseable {
+        public int getA() {
+            throw new IllegalArgumentException("Fail on serialize");
+        }
+
+        @Override
+        public void close() {
+            throw new IllegalStateException("Fail on close");
+        }
+    }
+
+    @Test
+    public void sequenceWriterSerializationFailureKeepsCloseFailure() throws Exception
+    {
+        SequenceWriter seq = MAPPER.writer().writeValues(new StringWriter());
+        Exception e = assertThrows(Exception.class,
+                () -> seq.write(new FailOnSerializeAndCloseBean()));
+        verifyException(e, "Fail on serialize");
+        Throwable[] suppressed = e.getSuppressed();
+        assertEquals(1, suppressed.length);
+        verifyException(suppressed[0], "Fail on close");
+
+        // and same for the `JavaType`-taking variant
+        SequenceWriter seq2 = MAPPER.writer().writeValues(new StringWriter());
+        e = assertThrows(Exception.class,
+                () -> seq2.write(new FailOnSerializeAndCloseBean(),
+                        MAPPER.constructType(FailOnSerializeAndCloseBean.class)));
+        verifyException(e, "Fail on serialize");
+        suppressed = e.getSuppressed();
+        assertEquals(1, suppressed.length);
+        verifyException(suppressed[0], "Fail on close");
+    }
+
     // `JacksonException` from `close()` must be passed through as-is, not re-wrapped
     static class JacksonFailOnCloseBean implements AutoCloseable {
         public final static JacksonException FAILURE

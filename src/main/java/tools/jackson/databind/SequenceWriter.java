@@ -258,9 +258,13 @@ public class SequenceWriter
                 _generator.flush();
             }
         } catch (Throwable e) {
+            // Failed to serialize: value still needs closing, but original failure
+            // must not be lost if closing fails as well
             try {
                 toClose.close();
-            } catch (Exception e2) { }
+            } catch (Exception e2) {
+                e.addSuppressed(e2);
+            }
             throw e;
         }
         try {
@@ -286,9 +290,13 @@ public class SequenceWriter
                 _generator.flush();
             }
         } catch (Throwable e) {
+            // Failed to serialize: value still needs closing, but original failure
+            // must not be lost if closing fails as well
             try {
                 toClose.close();
-            } catch (Exception e2) { }
+            } catch (Exception e2) {
+                e.addSuppressed(e2);
+            }
             throw e;
         }
         try {

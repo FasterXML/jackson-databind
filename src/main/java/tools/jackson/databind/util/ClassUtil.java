@@ -12,6 +12,7 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.util.Named;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.annotation.JacksonStdImpl;
@@ -442,6 +443,27 @@ public final class ClassUtil
             throw JacksonIOException.construct(ioException, g);
         }
         throw new RuntimeException(fail);
+    }
+
+    /**
+     * Helper method for converting an exception thrown by {@link AutoCloseable#close()}
+     * into {@link JacksonException}: needed since {@code close()} may throw any checked
+     * {@code Exception} (and not just {@link IOException} as {@link Closeable} does), and
+     * such failure must not be leaked as plain {@link RuntimeException}.
+     *
+     * @since 3.3
+     */
+    public static JacksonException closeFailureAsJacksonE(JsonGenerator g,
+            AutoCloseable value, Exception fail)
+    {
+        if (fail instanceof JacksonException jacksonException) { // pass through as-is
+            return jacksonException;
+        }
+        if (fail instanceof IOException ioException) {
+            return JacksonIOException.construct(ioException, g);
+        }
+        return DatabindException.from(g, String.format("Failed to close value of type %s: %s",
+                classNameOf(value), exceptionMessage(fail)), fail);
     }
 
     /*

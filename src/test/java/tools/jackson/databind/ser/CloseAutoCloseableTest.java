@@ -131,6 +131,20 @@ public class CloseAutoCloseableTest extends DatabindTestUtil
         assertTrue(bean.wasClosed);
     }
 
+    // Mapper-owned Generator paths must not leak `close()` failure as plain
+    // `RuntimeException` either
+    @Test
+    public void mapperOwnedGeneratorCloseFailure() throws Exception
+    {
+        DatabindException e = assertThrows(DatabindException.class,
+                () -> MAPPER.writeValueAsString(new FailingAutoCloseableBean()));
+        verifyException(e, "Failed to close value of type");
+
+        e = assertThrows(DatabindException.class,
+                () -> MAPPER.writer().writeValueAsString(new FailingAutoCloseableBean()));
+        verifyException(e, "Failed to close value of type");
+    }
+
     // [databind#6197]: `SequenceWriter` also needs to handle `AutoCloseable`,
     // not just `Closeable` (before fix: value simply never closed)
     @Test
@@ -195,6 +209,12 @@ public class CloseAutoCloseableTest extends DatabindTestUtil
                     assertThrows(JacksonException.class,
                             () -> MAPPER.writer().writeValue(g, new JacksonFailOnCloseBean())));
         }
+        assertSame(JacksonFailOnCloseBean.FAILURE,
+                assertThrows(JacksonException.class,
+                        () -> MAPPER.writeValueAsString(new JacksonFailOnCloseBean())));
+        assertSame(JacksonFailOnCloseBean.FAILURE,
+                assertThrows(JacksonException.class,
+                        () -> MAPPER.writer().writeValueAsString(new JacksonFailOnCloseBean())));
         try (SequenceWriter seq = MAPPER.writer().writeValues(new StringWriter())) {
             assertSame(JacksonFailOnCloseBean.FAILURE,
                     assertThrows(JacksonException.class,

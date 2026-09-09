@@ -1927,14 +1927,18 @@ public class ObjectMapper
             JsonGenerator g, AutoCloseable value)
         throws JacksonException
     {
-        // Sentinel for `catch`: cleared once value no longer needs closing by it
-        AutoCloseable toClose = value;
         try {
             ctxt.serializeValue(g, value);
-            toClose = null;
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsJacksonE(g, value, e);
+            return;
+        }
+        try {
             value.close();
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsJacksonE(g, toClose, e);
+            // Generator is ours to close, but `close()` failure still needs wrapping
+            ClassUtil.closeOnFailAndThrowAsJacksonE(g,
+                    ClassUtil.closeFailureAsJacksonE(g, value, e));
             return;
         }
         g.close();
@@ -1962,18 +1966,10 @@ public class ObjectMapper
         }
         try {
             toClose.close();
-        } catch (IOException e) {
-            throw JacksonIOException.construct(e, g);
-        } catch (JacksonException e) { // pass through as-is
-            throw e;
         } catch (Exception e) {
-            // 07-Sep-2026, tatu: Two things to note here: caller-owned Generator must NOT
-            //   be closed (see `writeValue(JsonGenerator, Object)`); and since
-            //   `AutoCloseable.close()` may throw any checked `Exception`, need to wrap
-            //   as `JacksonException` (and not leak as plain `RuntimeException`)
-            throw DatabindException.from(g, String.format(
-                    "Failed to close value of type %s: %s",
-                    ClassUtil.classNameOf(toClose), ClassUtil.exceptionMessage(e)), e);
+            // 07-Sep-2026, tatu: Note that caller-owned Generator must NOT be closed
+            //   here (see `writeValue(JsonGenerator, Object)`)
+            throw ClassUtil.closeFailureAsJacksonE(g, toClose, e);
         }
     }
 

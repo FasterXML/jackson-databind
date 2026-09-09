@@ -1,10 +1,8 @@
 package tools.jackson.databind;
 
-import java.io.IOException;
 import java.util.Collection;
 
 import tools.jackson.core.*;
-import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.SerializationContextExt;
 import tools.jackson.databind.ser.impl.PropertySerializerMap;
@@ -263,14 +261,8 @@ public class SequenceWriter
             toClose = null;
             try {
                 tmpToClose.close();
-            } catch (IOException e) {
-                throw JacksonIOException.construct(e, _generator);
-            } catch (JacksonException e) { // pass through as-is
-                throw e;
             } catch (Exception e) {
-                throw DatabindException.from(_generator, String.format(
-                        "Failed to close value of type %s: %s",
-                        ClassUtil.classNameOf(tmpToClose), ClassUtil.exceptionMessage(e)), e);
+                throw ClassUtil.closeFailureAsJacksonE(_generator, tmpToClose, e);
             }
         } finally {
             if (toClose != null) { // only if there was other throwable
@@ -300,14 +292,8 @@ public class SequenceWriter
             toClose = null;
             try {
                 tmpToClose.close();
-            } catch (IOException e) {
-                throw JacksonIOException.construct(e);
-            } catch (JacksonException e) { // pass through as-is
-                throw e;
             } catch (Exception e) {
-                throw DatabindException.from(_generator, String.format(
-                        "Failed to close value of type %s: %s",
-                        ClassUtil.classNameOf(tmpToClose), ClassUtil.exceptionMessage(e)), e);
+                throw ClassUtil.closeFailureAsJacksonE(_generator, tmpToClose, e);
             }
         } finally {
             if (toClose != null) { // only if there was another throwable

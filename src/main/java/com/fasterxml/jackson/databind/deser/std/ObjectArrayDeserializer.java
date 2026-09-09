@@ -573,23 +573,25 @@ public class ObjectArrayDeserializer
     private static class ArrayReferring extends Referring {
         private final ObjectArrayReferringAccumulator _parent;
 
+        /**
+         * Position of this reference in the accumulator, and so in the array being
+         * built: fixed, since entries are only ever appended. Scanning for it instead
+         * would make resolving N references take O(N^2) time (see [databind#6205]).
+         */
+        private final int _index;
+
         ArrayReferring(UnresolvedForwardReference ref,
                 Class<?> type,
                 ObjectArrayReferringAccumulator acc) {
             super(ref, type);
             _parent = acc;
+            _index = acc._accumulator.size();
             _parent._accumulator.add(this);
         }
 
         @Override
         public void handleResolvedForwardReference(Object id, Object value) throws JacksonException {
-            for (int i = 0; i < _parent._accumulator.size(); i++) {
-                if (_parent._accumulator.get(i) == this) {
-                    _parent._array[i] = value;
-                    return;
-                }
-            }
-            throw new IllegalArgumentException("Trying to resolve unknown reference: " + id);
+            _parent._array[_index] = value;
         }
     }
 }

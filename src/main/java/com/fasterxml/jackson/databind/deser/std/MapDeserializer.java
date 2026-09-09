@@ -898,9 +898,19 @@ public class MapDeserializer
         private final Class<?> _valueType;
         private Map<Object,Object> _result;
         /**
-         * A list of {@link MapReferring} to maintain ordering.
+         * Last of the still unresolved {@link MapReferring}s, which are linked together
+         * in encounter order to maintain ordering. Entries read after an unresolved
+         * reference are buffered in it until it gets resolved.
          */
-        private List<MapReferring> _accumulator = new ArrayList<MapReferring>();
+        private MapReferring _lastUnresolved;
+
+        /**
+         * Lookup from unresolved id to the -- usually single -- {@link MapReferring}s with
+         * that id, in encounter order. Without this, resolution would need to scan all
+         * pending references to find the matching one, which makes resolving N references
+         * take O(N^2) time (see [databind#6204]).
+         */
+        private final Map<Object, Deque<MapReferring>> _unresolvedById = new HashMap<>();
 
         public MapReferringAccumulator(Class<?> valueType, Map<Object, Object> result) {
             _valueType = valueType;
@@ -909,41 +919,62 @@ public class MapDeserializer
 
         public void put(Object key, Object value)
         {
-            if (_accumulator.isEmpty()) {
+            if (_lastUnresolved == null) {
                 _result.put(key, value);
             } else {
-                MapReferring ref = _accumulator.get(_accumulator.size() - 1);
-                ref.next.put(key, value);
+                _lastUnresolved.next.put(key, value);
             }
         }
 
         public Referring handleUnresolvedReference(UnresolvedForwardReference reference, Object key)
         {
             MapReferring id = new MapReferring(this, reference, _valueType, key);
-            _accumulator.add(id);
+            if (_lastUnresolved != null) {
+                id.prevUnresolved = _lastUnresolved;
+                _lastUnresolved.nextUnresolved = id;
+            }
+            _lastUnresolved = id;
+            // Ids are usable as hash keys: `ObjectIdResolver`s already rely on that
+            Deque<MapReferring> refs = _unresolvedById.get(reference.getUnresolvedId());
+            if (refs == null) {
+                refs = new ArrayDeque<MapReferring>(2);
+                _unresolvedById.put(reference.getUnresolvedId(), refs);
+            }
+            refs.add(id);
             return id;
         }
 
         public void resolveForwardReference(Object id, Object value) throws IOException
         {
-            Iterator<MapReferring> iterator = _accumulator.iterator();
             // Resolve ordering after resolution of an id. This means either:
             // 1- adding to the result map in case of the first unresolved id.
             // 2- merge the content of the resolved id with its previous unresolved id.
-            Map<Object,Object> previous = _result;
-            while (iterator.hasNext()) {
-                MapReferring ref = iterator.next();
-                if (ref.hasId(id)) {
-                    iterator.remove();
-                    previous.put(ref.key, value);
-                    previous.putAll(ref.next);
-                    return;
-                }
-                previous = ref.next;
+            Deque<MapReferring> refs = _unresolvedById.get(id);
+            if (refs == null) {
+                throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
+                        + "] that wasn't previously seen as unresolved.");
             }
+            MapReferring ref = refs.removeFirst();
+            if (refs.isEmpty()) {
+                _unresolvedById.remove(id);
+            }
+            Map<Object,Object> previous = (ref.prevUnresolved == null) ? _result
+                    : ref.prevUnresolved.next;
+            _unlink(ref);
+            previous.put(ref.key, value);
+            previous.putAll(ref.next);
+        }
 
-            throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
-                    + "] that wasn't previously seen as unresolved.");
+        private void _unlink(MapReferring ref)
+        {
+            if (ref.prevUnresolved != null) {
+                ref.prevUnresolved.nextUnresolved = ref.nextUnresolved;
+            }
+            if (ref.nextUnresolved == null) {
+                _lastUnresolved = ref.prevUnresolved;
+            } else {
+                ref.nextUnresolved.prevUnresolved = ref.prevUnresolved;
+            }
         }
     }
 
@@ -957,6 +988,12 @@ public class MapDeserializer
 
         public final Map<Object, Object> next = new LinkedHashMap<Object, Object>();
         public final Object key;
+
+        /**
+         * Links to the previous and next reference that is still unresolved,
+         * in encounter order.
+         */
+        public MapReferring prevUnresolved, nextUnresolved;
 
         MapReferring(MapReferringAccumulator parent, UnresolvedForwardReference ref,
                 Class<?> valueType, Object key)

@@ -34,6 +34,12 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
         public NoArgBean() { }
     }
 
+    static class FactoryBean {
+        public static FactoryBean create() {
+            return new FactoryBean();
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
  // [databind#3187]
@@ -121,6 +127,77 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
         assertNotNull(constructor._invokerNullary);
         assertNull(constructor._invokerUnary);
         assertNull(constructor._invokerFixedArity);
+    }
+
+    // [databind#6198]
+    @Test
+    public void annotatedMethodDoesNotEagerlyConstructInvokers() {
+        DeserializationConfig context = MAPPER.deserializationConfig();
+        JavaType beanType = MAPPER.constructType(SomeBean.class);
+
+        AnnotatedClass instance = AnnotatedClassResolver.resolve(context, beanType, context);
+        AnnotatedMethod getter = instance.findMethod("getValue", new Class<?>[0]);
+        assertNotNull(getter);
+
+        assertNull(getter._invokerNullary);
+        assertNull(getter._invokerUnary);
+        assertNull(getter._invokerFixedArity);
+    }
+
+    // [databind#6198]
+    @Test
+    public void annotatedMethodCallOnBuildsOnlyUnaryInvoker() throws Exception {
+        DeserializationConfig context = MAPPER.deserializationConfig();
+        JavaType beanType = MAPPER.constructType(SomeBean.class);
+
+        AnnotatedClass instance = AnnotatedClassResolver.resolve(context, beanType, context);
+        AnnotatedMethod getter = instance.findMethod("getValue", new Class<?>[0]);
+        SomeBean bean = new SomeBean("x");
+
+        assertEquals("x", getter.callOn(bean));
+        assertNull(getter._invokerNullary);
+        assertNotNull(getter._invokerUnary);
+        assertNull(getter._invokerFixedArity);
+    }
+
+    // [databind#6198]
+    @Test
+    public void annotatedMethodCallOnWithBuildsOnlyFixedArityInvoker() throws Exception {
+        DeserializationConfig context = MAPPER.deserializationConfig();
+        JavaType beanType = MAPPER.constructType(SomeBean.class);
+
+        AnnotatedClass instance = AnnotatedClassResolver.resolve(context, beanType, context);
+        AnnotatedMethod setter = instance.findMethod("setValue", new Class<?>[] { String.class });
+        SomeBean bean = new SomeBean("old");
+
+        setter.callOnWith(bean, "new");
+        assertEquals("new", bean.getValue());
+        assertNull(setter._invokerNullary);
+        assertNull(setter._invokerUnary);
+        assertNotNull(setter._invokerFixedArity);
+    }
+
+    // [databind#6198]
+    @Test
+    public void annotatedMethodNullaryCallBuildsOnlyNullaryInvoker() throws Exception {
+        DeserializationConfig context = MAPPER.deserializationConfig();
+        JavaType beanType = MAPPER.constructType(FactoryBean.class);
+
+        AnnotatedClass instance = AnnotatedClassResolver.resolve(context, beanType, context);
+        AnnotatedMethod factory = null;
+        for (AnnotatedMethod m : instance.getFactoryMethods()) {
+            if ("create".equals(m.getName()) && m.getParameterCount() == 0) {
+                factory = m;
+                break;
+            }
+        }
+        assertNotNull(factory);
+
+        Object created = factory.call();
+        assertEquals(FactoryBean.class, created.getClass());
+        assertNotNull(factory._invokerNullary);
+        assertNull(factory._invokerUnary);
+        assertNull(factory._invokerFixedArity);
     }
 
     // [databind#3187]

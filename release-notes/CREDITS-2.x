@@ -1940,3 +1940,7 @@ Aysha Afrah Ziya (@aysha-afrah26)
 @renechoi
  * Reported #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
   (2.18.11)
+
+@bugada
+ * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+  (2.18.11)

@@ -1,9 +1,12 @@
 package tools.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 import tools.jackson.core.*;
@@ -16,6 +19,8 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
+import tools.jackson.databind.cfg.ConfigOverride;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.deser.bean.BeanDeserializerBase;
 import tools.jackson.databind.deser.impl.NullsAsEmptyProvider;
@@ -23,6 +28,7 @@ import tools.jackson.databind.deser.impl.NullsConstantProvider;
 import tools.jackson.databind.deser.impl.NullsFailProvider;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
@@ -2045,6 +2051,113 @@ inputDesc, _coercedTypeDesc(targetType));
         //     to be checked for content nulls
         //  NOTE: will this work wrt type-specific overrides? Probably not...
         return ctxt.getConfig().getDefaultNullHandling().getContentNulls();
+    }
+
+    /**
+     * For container deserializers: creates a property view for content deserialization
+     * that strips the outer property's annotation-level contentNulls, preventing it
+     * from propagating into nested container deserializers.
+     * Annotation-free paths are unchanged; annotation-present paths are re-evaluated
+     * for the next nested content type using ConfigOverride and global defaults.
+     *
+     * @since 3.2
+     */
+    protected BeanProperty _contentProperty(DeserializationContext ctxt,
+            BeanProperty prop, JavaType contentType)
+    {
+        if (prop == null) {
+            return null;
+        }
+        // Gate: only strip if the property has an EXPLICIT @JsonSetter(contentNulls=...)
+        AnnotatedMember member = prop.getMember();
+        if (member == null) {
+            return prop;
+        }
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr == null) {
+            return prop;
+        }
+        JsonSetter.Value setterInfo = intr.findSetterInfo(ctxt.getConfig(), member);
+        if (setterInfo == null || setterInfo.nonDefaultContentNulls() == null) {
+            return prop; // no explicit annotation -> reuse original property
+        }
+        // Recalculate contentNulls from inner content type's ConfigOverride + global default
+        // (excludes the outer property's annotation)
+        Nulls innerContentNulls = null;
+        DeserializationConfig config = ctxt.getConfig();
+        ConfigOverride co = config.getConfigOverride(contentType.getRawClass());
+        JsonSetter.Value coInfo = co.getNullHandling();
+        if (coInfo != null) {
+            innerContentNulls = coInfo.nonDefaultContentNulls();
+        }
+        if (innerContentNulls == null) {
+            innerContentNulls = config.getDefaultNullHandling().nonDefaultContentNulls();
+        }
+        PropertyMetadata md = prop.getMetadata();
+        if (innerContentNulls == md.getContentNulls()) {
+            return prop; // same value after recalculation -> no wrapper needed
+        }
+        return new _ContentBeanProperty(prop, md.withNulls(md.getValueNulls(), innerContentNulls));
+    }
+
+    /**
+     * Delegating {@link BeanProperty} wrapper that only overrides {@link #getMetadata()}.
+     * Used to prevent contentNulls propagation into nested container deserializers.
+     *
+     * @since 3.2
+     */
+    protected static class _ContentBeanProperty implements BeanProperty {
+        private final BeanProperty _delegate;
+        private final PropertyMetadata _metadata;
+
+        _ContentBeanProperty(BeanProperty delegate, PropertyMetadata metadata) {
+            _delegate = delegate;
+            _metadata = metadata;
+        }
+
+        @Override public PropertyMetadata getMetadata() { return _metadata; }
+        @Override public boolean isRequired() { return _metadata.isRequired(); }
+
+        // All other methods delegate to _delegate
+        @Override public String getName() { return _delegate.getName(); }
+        @Override public PropertyName getFullName() { return _delegate.getFullName(); }
+        @Override public JavaType getType() { return _delegate.getType(); }
+        @Override public PropertyName getWrapperName() { return _delegate.getWrapperName(); }
+        @Override public boolean isVirtual() { return _delegate.isVirtual(); }
+        @Override
+        public <A extends Annotation> A getAnnotation(Class<A> acls) {
+            return _delegate.getAnnotation(acls);
+        }
+        @Override
+        public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
+            return _delegate.getContextAnnotation(acls);
+        }
+        @Override public AnnotatedMember getMember() {
+            return _delegate.getMember();
+        }
+        @Override
+        public JsonFormat.Value findPropertyFormat(MapperConfig<?> config,
+                Class<?> baseType) {
+            return _delegate.findPropertyFormat(config, baseType);
+        }
+        @Override
+        public JsonFormat.Value findFormatOverrides(MapperConfig<?> config) {
+            return _delegate.findFormatOverrides(config);
+        }
+        @Override
+        public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config,
+                Class<?> baseType) {
+            return _delegate.findPropertyInclusion(config, baseType);
+        }
+        @Override
+        public List<PropertyName> findAliases(MapperConfig<?> config) {
+            return _delegate.findAliases(config);
+        }
+        @Override
+        public void depositSchemaProperty(JsonObjectFormatVisitor v,
+                SerializationContext c) {
+            _delegate.depositSchemaProperty(v, c);
+        }
     }
 
     protected final NullValueProvider _findNullProvider(DeserializationContext ctxt,

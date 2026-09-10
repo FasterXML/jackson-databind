@@ -118,7 +118,16 @@ public class YearDeserializer extends JSR310DateTimeDeserializerBase<Year>
         // 30-Sep-2020: Should allow use of "Timestamp as String" for XML/CSV
         if (ctxt.isEnabled(StreamReadCapability.UNTYPED_SCALARS)
                 && _isValidTimestampString(string)) {
-            return _fromNumber(ctxt, NumberInput.parseInt(string));
+            // 07-Aug-2026, tatu: `_isValidTimestampString()` only verifies value
+            //    fits in 64-bit `long` but `Year` needs 32-bit `int`: let values
+            //    out of `int` range fall through to regular textual parsing so
+            //    failure is reported as `DateTimeException` and not as
+            //    (unchecked, non-Jackson) `NumberFormatException`
+            try {
+                return _fromNumber(ctxt, NumberInput.parseInt(string));
+            } catch (NumberFormatException e) {
+                // fall through
+            }
         }
         try {
             if (_formatter == null) {

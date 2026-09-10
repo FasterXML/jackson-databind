@@ -9,6 +9,7 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 import tools.jackson.core.*;
 import tools.jackson.core.util.VersionUtil;
@@ -117,7 +118,7 @@ public class JDKFromStringDeserializer
         } else if (rawType == URI.class) {
             kind = STD_URI;
         } else if (rawType == Path.class) {
-            kind = STD_PATH;
+            return new NioPathDeserializer();
         } else if (rawType == Class.class) {
             kind = STD_CLASS;
         } else if (rawType == JavaType.class) {
@@ -167,7 +168,10 @@ public class JDKFromStringDeserializer
             return URI.create(value);
         case STD_PATH:
             // 06-Sep-2018, tatu: Off-lined due to additions in [databind#2120]
-            return NioPathHelper.deserialize(ctxt, value);
+            // 05-Aug-2026, tatu: Only for backwards-compatibility; `Path` values are
+            //    now handled by `NioPathDeserializer` (see [databind#6129])
+            return NioPathDeserializer.deserialize(ctxt, value,
+                    NioPathDeserializer.DEFAULT_ALLOWED_SCHEMES);
         case STD_CLASS:
             try {
                 return ctxt.findClass(value);
@@ -356,9 +360,57 @@ public class JDKFromStringDeserializer
         }
     }
 
-    private static class NioPathHelper {
+    /**
+     * Deserializer for {@link Path} values: separate implementation (and, unlike
+     * other implementations here, {@code public}) to allow construction with a
+     * custom set of allowed URI schemes (see [databind#6129]).
+     *
+     * @since 3.1.6
+     */
+    @JacksonStdImpl
+    public static class NioPathDeserializer extends JDKFromStringDeserializer
+    {
+        /**
+         * URI schemes accepted unless overridden: only "file", scheme of the
+         * default {@link java.nio.file.FileSystem}.
+         */
+        public final static Collection<String> DEFAULT_ALLOWED_SCHEMES = Collections.singletonList("file");
 
-        public static Path deserialize(DeserializationContext ctxt, String value) throws JacksonException {
+        /**
+         * URI schemes accepted by this instance; values with no scheme at all are
+         * always accepted (and read as local file system paths).
+         */
+        protected final Collection<String> _allowedSchemes;
+
+        public NioPathDeserializer() { this(DEFAULT_ALLOWED_SCHEMES); }
+
+        /**
+         * Constructor for specifying URI schemes to accept: matching is done
+         * case-insensitively, same as by {@code java.nio.file.Path.of(URI)}.
+         *<p>
+         * NOTE: for allowed schemes that have no provider installed for the system
+         * class loader, look up is also attempted using this thread's context class
+         * loader (see [databind#2120]); this is never done for schemes that are not
+         * allowed.
+         *
+         * @param allowedSchemes URI schemes to accept; must not be {@code null}
+         *   (but may be empty to only accept scheme-less values)
+         */
+        public NioPathDeserializer(Collection<String> allowedSchemes) {
+            super(Path.class, -1);
+            if (allowedSchemes == null) {
+                throw new IllegalArgumentException("Argument `allowedSchemes` must not be null");
+            }
+            _allowedSchemes = allowedSchemes;
+        }
+
+        @Override
+        public Object _deserialize(String value, DeserializationContext ctxt) throws JacksonException {
+            return deserialize(ctxt, value, _allowedSchemes);
+        }
+
+        public static Path deserialize(DeserializationContext ctxt, String value,
+                Collection<String> allowedSchemes) throws JacksonException {
             // If someone gives us an input with no : at all, treat as local path,
             // instead of failing with invalid URI.
 
@@ -380,25 +432,66 @@ public class JDKFromStringDeserializer
             } catch (URISyntaxException e) {
                 return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
             }
+            // 05-Aug-2026, tatu: [databind#6129] Only accept allowed schemes (by
+            //    default just "file"), or no scheme at all; reject jar:, http:, s3:
+            //    and others, to avoid use of arbitrary `FileSystemProvider`s
+            final String scheme = uri.getScheme();
+            if (scheme != null && !_isSchemeAllowed(allowedSchemes, scheme)) {
+                return (Path) ctxt.handleWeirdStringValue(Path.class, value,
+                        "scheme '%s' not allowed for Path deserialization (allowed: %s)",
+                        scheme, _allowedSchemesDesc(allowedSchemes));
+            }
             try {
                 return Path.of(uri);
             } catch (FileSystemNotFoundException cause) {
+                // Only reached for schemes that are allowed: retry look up using this
+                // thread's context class loader, not system class loader that is used
+                // by `Path.of()` (see [databind#2120])
                 try {
-                    final String scheme = uri.getScheme();
-                    // We want to use the current thread's context class loader, not system class loader that is used in Paths.get():
                     for (FileSystemProvider provider : ServiceLoader.load(FileSystemProvider.class)) {
                         if (provider.getScheme().equalsIgnoreCase(scheme)) {
                             return provider.getPath(uri);
                         }
                     }
                     return (Path) ctxt.handleInstantiationProblem(Path.class, value, cause);
-                } catch (Exception e) {
+                } catch (ServiceConfigurationError | Exception e) {
+                    // NOTE: `ServiceConfigurationError` is an `Error`, not `Exception`:
+                    // thrown f.ex if module does not declare `uses` for provider
                     e.addSuppressed(cause);
                     return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
                 }
             } catch (Exception e) {
                 return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
             }
+        }
+
+        /**
+         * Helper method for checking whether given non-{@code null} URI scheme is one
+         * of allowed ones; comparison is case-insensitive, as per URI specification
+         * (and as done by {@code java.nio.file.Path.of(URI)}).
+         */
+        private static boolean _isSchemeAllowed(Collection<String> allowedSchemes, String scheme) {
+            // Common case of exact (usually lower-case) match first:
+            if (allowedSchemes.contains(scheme)) {
+                return true;
+            }
+            // and if no match, scan case-insensitively
+            for (String allowed : allowedSchemes) {
+                if (scheme.equalsIgnoreCase(allowed)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * Helper method for constructing description of allowed schemes for
+         * inclusion in exception message, like {@code ["file", "jar", "https"]}.
+         */
+        private static String _allowedSchemesDesc(Collection<String> allowedSchemes) {
+            return allowedSchemes.stream()
+                    .map(scheme -> "\"" + scheme + "\"")
+                    .collect(Collectors.joining(", ", "[", "]"));
         }
 
         // @since 3.1

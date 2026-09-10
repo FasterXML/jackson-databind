@@ -117,6 +117,10 @@ public class SerializationContextExt
         return filter;
     }
 
+    // 08-Sep-2026, tatu: `filter.equals(null)` below is the documented `@JsonInclude`
+    //    value-filter protocol -- filter is asked whether it would filter out `null` --
+    //    and not an accidental `null` comparison
+    @SuppressWarnings("EqualsNull")
     @Override
     public boolean includeFilterSuppressNulls(Object filter)
     {

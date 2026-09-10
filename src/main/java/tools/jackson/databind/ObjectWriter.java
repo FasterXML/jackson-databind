@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import tools.jackson.core.*;
-import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.io.SegmentedStringWriter;
 import tools.jackson.core.type.TypeReference;
@@ -991,10 +990,9 @@ public class ObjectWriter
             }
             try {
                 toClose.close();
-            } catch (IOException e) {
-                throw JacksonIOException.construct(e, g);
             } catch (Exception e) {
-                ClassUtil.closeOnFailAndThrowAsJacksonE(g, e);
+                // 07-Sep-2026, tatu: Note that caller-owned Generator must NOT be closed here
+                throw ClassUtil.closeFailureAsJacksonE(g, toClose, e);
             }
         } else {
             _prefetch.serialize(g, value, _serializationContext());
@@ -1140,8 +1138,8 @@ public class ObjectWriter
     {
         _initializeGenerator(gen);
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
-                && (value instanceof AutoCloseable)) {
-            _writeCloseable(gen, value);
+                && (value instanceof AutoCloseable toClose)) {
+            _writeCloseable(gen, toClose);
             return;
         }
         try {
@@ -1154,20 +1152,24 @@ public class ObjectWriter
     }
 
     /**
-     * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
+     * Helper method used when value to serialize is {@link AutoCloseable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _writeCloseable(JsonGenerator gen, Object value)
+    private final void _writeCloseable(JsonGenerator gen, AutoCloseable value)
         throws JacksonException
     {
-        AutoCloseable toClose = (AutoCloseable) value;
         try {
             _prefetch.serialize(gen, value, _serializationContext());
-            AutoCloseable tmpToClose = toClose;
-            toClose = null;
-            tmpToClose.close();
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, toClose, e);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, value, e);
+            return;
+        }
+        try {
+            value.close();
+        } catch (Exception e) {
+            // Generator is ours to close, but `close()` failure still needs wrapping
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen,
+                    ClassUtil.closeFailureAsJacksonE(gen, value, e));
             return;
         }
         gen.close();

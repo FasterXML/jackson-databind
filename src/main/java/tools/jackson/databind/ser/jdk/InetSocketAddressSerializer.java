@@ -36,6 +36,11 @@ public class InetSocketAddressSerializer
             } else { // otherwise use name
                 str = str.substring(0, ix);
             }
+        } else if ((str.indexOf(':') >= 0) && !str.startsWith("[")) {
+            // [databind#6185]: unresolved addresses have no InetAddress, but an IPv6
+            //   literal host name still needs bracketing so port remains unambiguous
+            //   (host names stored already-bracketed must not be bracketed twice)
+            str = "[" + str + "]";
         }
 
         g.writeString(str + ":" + value.getPort());

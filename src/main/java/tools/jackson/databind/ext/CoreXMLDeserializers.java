@@ -92,9 +92,15 @@ public class CoreXMLDeserializers
                     return _gregorianFromDate(ctxt, _parseDate(p, ctxt));
                 }
             }
-            // QName also allows object value, which needs separate handling
+            // QName also allows object value, which needs separate handling.
+            // PROPERTY_NAME (or END_OBJECT, if there are no other properties):
+            // As.PROPERTY type deserializer has already consumed START_OBJECT
+            // (and the type id), so the parser sits within the same object form
+            // that START_OBJECT starts. [databind#6175]
             if (_kind == TYPE_QNAME) {
-                if (p.hasToken(JsonToken.START_OBJECT)) {
+                if (p.hasToken(JsonToken.START_OBJECT)
+                        || p.hasToken(JsonToken.PROPERTY_NAME)
+                        || p.hasToken(JsonToken.END_OBJECT)) {
                     return _parseQNameObject(p, ctxt);
                 }
             }
@@ -168,7 +174,7 @@ public class CoreXMLDeserializers
                 // isolating individual components we check length of the whole value as a
                 // conservative upper bound: it is never shorter than any single component,
                 // and no valid Duration comes anywhere near the (default 1000) limit.
-                ctxt.streamReadConstraints().validateIntegerLength(value.length());
+                _validateTimestampLength(ctxt, value);
                 return _dataTypeFactory.newDuration(value);
             case TYPE_QNAME:
                 return QName.valueOf(value);
@@ -177,7 +183,7 @@ public class CoreXMLDeserializers
                 // is checked as a conservative upper bound for numeric components, before
                 // handing value to DatatypeFactory.newXMLGregorianCalendar(), which parses
                 // fractional seconds into a BigDecimal via O(n^2) BigDecimal(String).
-                ctxt.streamReadConstraints().validateFPLength(value.length());
+                _validateTimestampLength(ctxt, value);
                 Date d;
                 try {
                     d = _parseDate(value, ctxt);

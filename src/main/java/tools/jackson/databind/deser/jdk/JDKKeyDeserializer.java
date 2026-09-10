@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -49,6 +51,8 @@ public class JDKKeyDeserializer extends KeyDeserializer
     public final static int TYPE_CLASS = 15;
     public final static int TYPE_CURRENCY = 16;
     public final static int TYPE_BYTE_ARRAY = 17; // since 2.9
+    public final static int TYPE_BIG_INTEGER = 18;
+    public final static int TYPE_BIG_DECIMAL = 19;
 
     protected final int _kind;
     protected final Class<?> _keyClass;
@@ -102,6 +106,10 @@ public class JDKKeyDeserializer extends KeyDeserializer
             kind = TYPE_FLOAT;
         } else if (raw == Double.class) {
             kind = TYPE_DOUBLE;
+        } else if (raw == BigInteger.class) {
+            kind = TYPE_BIG_INTEGER;
+        } else if (raw == BigDecimal.class) {
+            kind = TYPE_BIG_DECIMAL;
         } else if (raw == URI.class) {
             kind = TYPE_URI;
         } else if (raw == URL.class) {
@@ -194,9 +202,17 @@ public class JDKKeyDeserializer extends KeyDeserializer
 
         case TYPE_FLOAT:
             // Bounds/range checks would be tricky here, so let's not bother even trying...
+            ctxt.streamReadConstraints().validateFPLength(key.length());
             return Float.valueOf((float) _parseDouble(key));
         case TYPE_DOUBLE:
+            ctxt.streamReadConstraints().validateFPLength(key.length());
             return _parseDouble(key);
+        case TYPE_BIG_INTEGER:
+            ctxt.streamReadConstraints().validateIntegerLength(key.length());
+            return NumberInput.parseBigInteger(key, true);
+        case TYPE_BIG_DECIMAL:
+            ctxt.streamReadConstraints().validateFPLength(key.length());
+            return NumberInput.parseBigDecimal(key, true);
         case TYPE_LOCALE:
         case TYPE_CURRENCY:
             try {

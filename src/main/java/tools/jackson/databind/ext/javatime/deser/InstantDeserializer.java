@@ -366,9 +366,11 @@ public class InstantDeserializer<T extends Temporal>
             if (dots >= 0) { // negative if not simple number
                 try {
                     if (dots == 0) {
+                        _validateTimestampLength(ctxt, string);
                         return _fromLong(ctxt, NumberInput.parseLong(string));
                     }
                     if (dots == 1) {
+                        _validateTimestampLength(ctxt, string);
                         return _fromDecimal(ctxt, NumberInput.parseBigDecimal(string, false));
                     }
                 } catch (NumberFormatException e) {

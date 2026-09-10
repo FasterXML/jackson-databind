@@ -55,12 +55,7 @@ public class MonthSerializer
     {
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, serializationShape(ctxt)));
-        if ((typeIdDef != null)
-                && typeIdDef.valueShape == JsonToken.START_ARRAY) {
-            _serialize(g, value, ctxt);
-        } else {
-            _serialize(g, value, ctxt);
-        }
+        _serialize(g, value, ctxt);
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 

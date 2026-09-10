@@ -21,9 +21,9 @@ public class AnyGetterWriter extends BeanPropertyWriter
     /**
      * Method (or Field) that represents the "any getter"
      */
-    protected final AnnotatedMember _accessor;
+    protected final AnnotatedMember _anyGetter;
 
-    protected ValueSerializer<Object> _serializer;
+    protected ValueSerializer<Object> _anySerializer;
 
     protected MapSerializer _mapSerializer;
 
@@ -35,9 +35,9 @@ public class AnyGetterWriter extends BeanPropertyWriter
             AnnotatedMember accessor, ValueSerializer<?> serializer)
     {
         super(parent);
-        _accessor = accessor;
+        _anyGetter = accessor;
         _property = property;
-        _serializer = (ValueSerializer<Object>) serializer;
+        _anySerializer = (ValueSerializer<Object>) serializer;
         if (serializer instanceof MapSerializer mapSer) {
             _mapSerializer = mapSer;
         }
@@ -45,7 +45,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
 
     @Override
     public void fixAccess(SerializationConfig config) {
-        _accessor.fixAccess(
+        _anyGetter.fixAccess(
                 config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
     }
 
@@ -53,13 +53,13 @@ public class AnyGetterWriter extends BeanPropertyWriter
     @SuppressWarnings("unchecked")
     public void resolve(SerializationContext ctxt)
     {
-        // [databind#3604]: _serializer may be null for ObjectNode/JsonNode any-getters
-        if (_serializer == null) {
+        // [databind#3604]: _anySerializer may be null for ObjectNode/JsonNode any-getters
+        if (_anySerializer == null) {
             return;
         }
         // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
-        ValueSerializer<?> ser = ctxt.handlePrimaryContextualization(_serializer, _property);
-        _serializer = (ValueSerializer<Object>) ser;
+        ValueSerializer<?> ser = ctxt.handlePrimaryContextualization(_anySerializer, _property);
+        _anySerializer = (ValueSerializer<Object>) ser;
         if (ser instanceof MapSerializer mapSer) {
             _mapSerializer = mapSer;
         }
@@ -68,7 +68,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
     public void getAndSerialize(Object bean, JsonGenerator gen, SerializationContext ctxt)
         throws Exception
     {
-        Object value = _accessor.getValue(bean);
+        Object value = _anyGetter.getValue(bean);
         if (value == null) {
             return;
         }
@@ -79,14 +79,14 @@ public class AnyGetterWriter extends BeanPropertyWriter
         }
         if (!(value instanceof Map<?,?>)) {
             ctxt.reportBadDefinition(_property.getType(), "Value returned by 'any-getter' %s() not java.util.Map but %s".formatted(
-                    _accessor.getName(), value.getClass().getName()));
+                    _anyGetter.getName(), value.getClass().getName()));
         }
         // 23-Feb-2015, tatu: Nasty, but has to do (for now)
         if (_mapSerializer != null) {
             _mapSerializer.serializeWithoutTypeInfo((Map<?,?>) value, gen, ctxt);
             return;
         }
-        _serializer.serialize(value, gen, ctxt);
+        _anySerializer.serialize(value, gen, ctxt);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
             PropertyFilter filter)
         throws Exception
     {
-        Object value = _accessor.getValue(bean);
+        Object value = _anyGetter.getValue(bean);
         if (value == null) {
             return;
         }
@@ -111,7 +111,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
         if (!(value instanceof Map<?,?>)) {
             ctxt.reportBadDefinition(_property.getType(),
                     "Value returned by 'any-getter' (%s()) not java.util.Map but %s".formatted(
-                            _accessor.getName(), value.getClass().getName()));
+                            _anyGetter.getName(), value.getClass().getName()));
         }
         // 19-Oct-2014, tatu: Should we try to support @JsonInclude options here?
         if (_mapSerializer != null) {
@@ -120,7 +120,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
             return;
         }
         // ... not sure how custom handler would do it
-        _serializer.serialize(value, gen, ctxt);
+        _anySerializer.serialize(value, gen, ctxt);
     }
 
     /**
@@ -137,7 +137,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
         }
         return ctxt.reportBadDefinition(_property.getType(), String.format(
                 "Value returned by 'any-getter' %s not `ObjectNode` but `%s`; only `ObjectNode`s can be used as `@JsonAnyGetter` values",
-                _accessor.getName(), value.getClass().getName()));
+                _anyGetter.getName(), value.getClass().getName()));
     }
 
     /**

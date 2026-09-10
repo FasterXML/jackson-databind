@@ -122,7 +122,8 @@ public abstract class JSR310DateTimeDeserializerBase<T>
             final String pattern = formatOverrides.getPattern();
             final Locale locale = formatOverrides.hasLocale() ? formatOverrides.getLocale() : ctxt.getLocale();
             DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
-            if (acceptCaseInsensitiveValues(ctxt, formatOverrides)) {
+            if (_acceptCaseInsensitiveValues(ctxt,
+                    formatOverrides.getFeature(Feature.ACCEPT_CASE_INSENSITIVE_VALUES))) {
                 builder.parseCaseInsensitive();
             }
             builder.appendPattern(pattern);
@@ -156,13 +157,22 @@ public abstract class JSR310DateTimeDeserializerBase<T>
         return deser;
     }
     
-    private boolean acceptCaseInsensitiveValues(DeserializationContext ctxt, JsonFormat.Value format) 
+    /**
+     * Helper method for resolving effective setting of
+     * {@link Feature#ACCEPT_CASE_INSENSITIVE_VALUES}: explicit per-property override
+     * (if any) takes precedence over global
+     * {@link MapperFeature#ACCEPT_CASE_INSENSITIVE_VALUES} setting.
+     *
+     * @param override Per-property override, if any; {@code null} if none
+     *
+     * @since 3.3
+     */
+    protected boolean _acceptCaseInsensitiveValues(DeserializationContext ctxt, Boolean override)
     {
-        Boolean enabled = format.getFeature(Feature.ACCEPT_CASE_INSENSITIVE_VALUES);
-        if (enabled == null) {
-            enabled = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES);
+        if (override != null) {
+            return override;
         }
-        return enabled;
+        return ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES);
     }
     
     @SuppressWarnings("unchecked")

@@ -105,4 +105,7 @@ module tools.jackson.databind
 
     // Also needed for some reason
     uses tools.jackson.databind.JacksonModule;
+
+    // [databind#2120], [databind#6129]: `Path` deserialization provider look up
+    uses java.nio.file.spi.FileSystemProvider;
 }

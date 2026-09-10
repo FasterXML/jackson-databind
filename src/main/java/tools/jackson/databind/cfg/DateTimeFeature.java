@@ -50,6 +50,42 @@ public enum DateTimeFeature implements DatatypeFeature
     ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS(false),
 
     /**
+     * Feature that determines whether sub-second digits are always written when
+     * serializing {@link java.time.Instant}, {@link java.time.OffsetDateTime},
+     * {@link java.time.ZonedDateTime} and {@link java.time.LocalDateTime} as
+     * ISO-8601 Strings using the default format.
+     *<p>
+     * When disabled (the default), the JDK-provided ISO formatters are used and
+     * a zero sub-second value is omitted altogether -- {@code 2017-09-14T04:28:48Z}
+     * -- which means that output width varies with the value, breaking systems
+     * that expect fixed-precision timestamps (or that sort timestamps as text).
+     *<p>
+     * When enabled, at least 3 (millisecond) sub-second digits are always written,
+     * zero-padded if necessary -- {@code 2017-09-14T04:28:48.000Z}. Higher precision
+     * is preserved: up to 9 digits are written, as many as needed to avoid losing
+     * information (but with no trailing zeroes beyond the 3 digit minimum, so
+     * {@code 123400000} nanoseconds is written as {@code .1234}).
+     *<p>
+     * Only affects the default format: an explicit {@code DateTimeFormatter} or
+     * a {@link com.fasterxml.jackson.annotation.JsonFormat} pattern takes precedence,
+     * as does writing values as numeric timestamps.
+     *<p>
+     * NOTE: only applies to Date/Time values, and NOT to Date/Time values used as
+     * {@link java.util.Map} keys: keys are written by separate key serializers that
+     * are not affected by this setting.
+     *<p>
+     * Note, too, that the very extremes of the {@link java.time.Instant} range
+     * (notably {@link java.time.Instant#MIN} and {@link java.time.Instant#MAX}, which
+     * fall outside the range of {@link java.time.LocalDate}) cannot be written with
+     * Date/Time fields at all, and retain default handling regardless of this setting.
+     *<p>
+     * Default setting is disabled, for backwards compatibility.
+     *
+     * @since 3.3
+     */
+    ALWAYS_WRITE_SUBSECOND_DIGITS(false),
+
+    /**
      * Feature that determines whether {@link java.time.ZoneId} is normalized
      * (via call to {@code java.time.ZoneId#normalized()}) when deserializing
      * types like {@link java.time.ZonedDateTime}.

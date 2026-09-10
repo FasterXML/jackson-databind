@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
 
@@ -99,7 +100,7 @@ public class EnumAliasWithJsonValue6210Test
     @Test
     public void testAliasesWithJsonValueAsMapKey() throws Exception {
         java.util.Map<Versus6210, String> map = MAPPER.readValue(
-                "{\"V\":\"x\", \"B\":\"y\"}",
+                a2q("{'V':'x', 'B':'y'}"),
                 MAPPER.getTypeFactory().constructMapType(java.util.LinkedHashMap.class,
                         Versus6210.class, String.class));
         assertEquals(2, map.size());

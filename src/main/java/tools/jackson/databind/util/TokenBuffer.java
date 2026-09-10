@@ -15,6 +15,10 @@ import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.core.io.NumberOutput;
 import tools.jackson.core.sym.PropertyNameMatcher;
+import tools.jackson.core.tree.ArrayTreeNode;
+import tools.jackson.core.tree.ObjectTreeNode;
+import tools.jackson.core.type.ResolvedType;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.util.ByteArrayBuilder;
 import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.core.util.SimpleStreamWriteContext;
@@ -1504,8 +1508,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /******************************************************************
          */
 
-        protected StreamReadConstraints _streamReadConstraints;
-
         protected final TokenBuffer _source;
 
         protected final boolean _hasNativeTypeIds;
@@ -1559,16 +1561,90 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             // 25-Jun-2022, tatu: This should pass stream read features as
             //    per [databind#3528]) but for now at very least should get
             //    sane defaults
-            super(readCtxt);
+            super(_readContextFor(readCtxt, streamReadConstraints));
             _source = source;
             _segment = firstSeg;
             _segmentPtr = -1; // not yet read
-            _streamReadConstraints = streamReadConstraints;
             _parsingContext = TokenBufferReadContext.createRootContext(parentContext);
             _hasNativeTypeIds = hasNativeTypeIds;
             _hasNativeObjectIds = hasNativeObjectIds;
             _hasNativeIds = (hasNativeTypeIds || hasNativeObjectIds);
             _forceBigDecimal = _source._forceBigDecimal;
+        }
+
+        /**
+         * Helper method for ensuring that constraints to use are also seen by
+         * {@link ParserMinimalBase}: its {@code _streamReadConstraints} is
+         * {@code final} and initialized from the {@link ObjectReadContext}, but is
+         * what inherited token-count validation uses. Without this, buffered content
+         * would be replayed under the read context's constraints instead of the ones
+         * explicitly given (which come from the originating parser, see
+         * {@link TokenBuffer#asParser(ObjectReadContext, JsonParser)}).
+         */
+        private static ObjectReadContext _readContextFor(ObjectReadContext readCtxt,
+                StreamReadConstraints src)
+        {
+            return (readCtxt.streamReadConstraints() == src) ? readCtxt
+                    : new ReadContextWithConstraints(readCtxt, src);
+        }
+
+        /**
+         * {@link ObjectReadContext} wrapper that only overrides constraints to use.
+         */
+        private final static class ReadContextWithConstraints
+            implements ObjectReadContext
+        {
+            private final ObjectReadContext _delegate;
+            private final StreamReadConstraints _constraints;
+
+            ReadContextWithConstraints(ObjectReadContext delegate,
+                    StreamReadConstraints constraints) {
+                _delegate = delegate;
+                _constraints = constraints;
+            }
+
+            @Override
+            public StreamReadConstraints streamReadConstraints() { return _constraints; }
+
+            @Override
+            public FormatSchema getSchema() { return _delegate.getSchema(); }
+
+            @Override
+            public int getStreamReadFeatures(int defaults) {
+                return _delegate.getStreamReadFeatures(defaults);
+            }
+
+            @Override
+            public int getFormatReadFeatures(int defaults) {
+                return _delegate.getFormatReadFeatures(defaults);
+            }
+
+            @Override
+            public TokenStreamFactory tokenStreamFactory() { return _delegate.tokenStreamFactory(); }
+
+            @Override
+            public ArrayTreeNode createArrayNode() { return _delegate.createArrayNode(); }
+
+            @Override
+            public ObjectTreeNode createObjectNode() { return _delegate.createObjectNode(); }
+
+            @Override
+            public <T extends TreeNode> T readTree(JsonParser p) { return _delegate.readTree(p); }
+
+            @Override
+            public <T> T readValue(JsonParser p, Class<T> valueType) {
+                return _delegate.readValue(p, valueType);
+            }
+
+            @Override
+            public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) {
+                return _delegate.readValue(p, valueTypeRef);
+            }
+
+            @Override
+            public <T> T readValue(JsonParser p, ResolvedType type) {
+                return _delegate.readValue(p, type);
+            }
         }
 
         public void setLocation(TokenStreamLocation l) {
@@ -1598,11 +1674,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         @Override
         public TokenBuffer streamReadInputSource() {
             return _source;
-        }
-
-        @Override
-        public StreamReadConstraints streamReadConstraints() {
-            return _streamReadConstraints;
         }
 
         /*

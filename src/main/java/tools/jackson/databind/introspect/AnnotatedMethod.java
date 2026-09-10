@@ -22,9 +22,15 @@ public final class AnnotatedMethod
     extends AnnotatedWithParams
 {
     final protected transient Method _method;
-    final protected MethodHolder _invokerFixedArity = new MethodHolder(null);
-    final protected MethodHolder _invokerNullary = new MethodHolder(methodType(Object.class));
-    final protected MethodHolder _invokerUnary = new MethodHolder(methodType(Object.class, Object.class));
+
+    /**
+     * Lazily constructed invocation holders, one per arity we support;
+     * {@code volatile} so a racy first use is safely published (duplicate
+     * construction is harmless, holders are equivalent).
+     */
+    protected volatile MethodHolder _invokerFixedArity;
+    protected volatile MethodHolder _invokerNullary;
+    protected volatile MethodHolder _invokerUnary;
 
     // // Simple lazy-caching:
 
@@ -93,7 +99,7 @@ public final class AnnotatedMethod
     @Override
     public final Object call() throws Exception {
         try {
-            return _invokerNullary.get().invokeExact();
+            return invokerNullary().get().invokeExact();
         } catch (final Throwable e) {
             throw sneakyThrow(e);
         }
@@ -102,7 +108,7 @@ public final class AnnotatedMethod
     @Override
     public final Object call(Object[] args) throws Exception {
         try {
-            return _invokerFixedArity.get().invokeWithArguments(args);
+            return invokerFixedArity().get().invokeWithArguments(args);
         } catch (final Throwable e) {
             throw sneakyThrow(e);
         }
@@ -111,7 +117,7 @@ public final class AnnotatedMethod
     @Override
     public final Object call1(Object arg) throws Exception {
         try {
-            return _invokerUnary.get().invokeExact(arg);
+            return invokerUnary().get().invokeExact(arg);
         } catch (final Throwable e) {
             throw sneakyThrow(e);
         }
@@ -119,7 +125,7 @@ public final class AnnotatedMethod
 
     public final Object callOn(Object pojo) throws Exception {
         try {
-            return _invokerUnary.get().invokeExact(pojo);
+            return invokerUnary().get().invokeExact(pojo);
         } catch (Throwable e) {
             throw sneakyThrow(e);
         }
@@ -127,7 +133,7 @@ public final class AnnotatedMethod
 
     public final Object callOnWith(Object pojo, Object... args) throws Exception {
         try {
-            MethodHandle invoker = _invokerFixedArity.get();
+            MethodHandle invoker = invokerFixedArity().get();
             if (!Modifier.isStatic(_method.getModifiers())) {
                 invoker = invoker.bindTo(pojo);
             }
@@ -135,6 +141,33 @@ public final class AnnotatedMethod
         } catch (Throwable e) {
             throw sneakyThrow(e);
         }
+    }
+
+    private MethodHolder invokerNullary() {
+        MethodHolder h = _invokerNullary;
+        if (h == null) {
+            h = new MethodHolder(methodType(Object.class));
+            _invokerNullary = h;
+        }
+        return h;
+    }
+
+    private MethodHolder invokerUnary() {
+        MethodHolder h = _invokerUnary;
+        if (h == null) {
+            h = new MethodHolder(methodType(Object.class, Object.class));
+            _invokerUnary = h;
+        }
+        return h;
+    }
+
+    private MethodHolder invokerFixedArity() {
+        MethodHolder h = _invokerFixedArity;
+        if (h == null) {
+            h = new MethodHolder(null);
+            _invokerFixedArity = h;
+        }
+        return h;
     }
 
     /*

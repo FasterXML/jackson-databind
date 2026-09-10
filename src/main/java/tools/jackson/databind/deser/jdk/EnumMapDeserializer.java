@@ -252,13 +252,6 @@ public class EnumMapDeserializer
         // [databind#631]: Assign current value, to be accessible by custom deserializers
         p.assignCurrentValue(result);
 
-        // Need to resolve ObjectIds (forward refs)?
-        final MapDeserializer.MapReferringAccumulator referringAccumulator =
-            (_valueDeserializer.getObjectIdReader(ctxt) == null)
-                    ? null
-                    : new MapDeserializer.MapReferringAccumulator(
-                            _containerType.getContentType().getRawClass(), result);
-
         String keyStr;
         if (p.isExpectedStartObjectToken()) {
             keyStr = p.nextName();
@@ -272,6 +265,16 @@ public class EnumMapDeserializer
             }
             keyStr = p.currentName();
         }
+        if (keyStr == null) {
+            return result;
+        }
+
+        // Need to resolve ObjectIds (forward refs)?
+        final MapDeserializer.MapReferringAccumulator referringAccumulator =
+            (_valueDeserializer.getObjectIdReader(ctxt) == null)
+                    ? null
+                    : new MapDeserializer.MapReferringAccumulator(
+                            _containerType.getContentType().getRawClass(), result);
 
         for (; keyStr != null; keyStr = p.nextName()) {
             // but we need to let key deserializer handle it separately, nonetheless

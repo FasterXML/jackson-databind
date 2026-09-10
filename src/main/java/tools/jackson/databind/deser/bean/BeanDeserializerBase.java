@@ -174,7 +174,7 @@ public abstract class BeanDeserializerBase
      * that is, when the actual type is not statically known.
      * For other types this remains null.
      */
-    protected transient ConcurrentHashMap<ClassKey, ValueDeserializer<Object>> _subDeserializers;
+    protected transient volatile ConcurrentHashMap<ClassKey, ValueDeserializer<Object>> _subDeserializers;
 
     /**
      * [databind#1921]: Lazily computed cache for {@link #_hasUpdateableProperties()}.
@@ -578,9 +578,6 @@ public abstract class BeanDeserializerBase
 
             // Second loop: contextualize, find other pieces
             for (SettableBeanProperty origProp : _beanProperties) {
-                if (skipPropertyResolution) {
-                    continue;
-                }
                 SettableBeanProperty prop = origProp;
                 ValueDeserializer<?> deser = prop.getValueDeserializer();
                 deser = ctxt.handlePrimaryContextualization(deser, prop, prop.getType());

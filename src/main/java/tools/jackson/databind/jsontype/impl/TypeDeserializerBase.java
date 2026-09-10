@@ -51,7 +51,7 @@ public abstract class TypeDeserializerBase
      */
     protected final Map<String,ValueDeserializer<Object>> _deserializers;
 
-    protected ValueDeserializer<Object> _defaultImplDeserializer;
+    protected volatile ValueDeserializer<Object> _defaultImplDeserializer;
 
     /*
     /**********************************************************************

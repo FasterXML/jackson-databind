@@ -540,13 +540,6 @@ public class MapDeserializer
     protected final Map<Object,Object> _readAndBind(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws JacksonException
     {
-        MapReferringAccumulator referringAccumulator = null;
-        boolean useObjectId = _valueDeserializer.getObjectIdReader(ctxt) != null;
-        if (useObjectId) {
-            referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(),
-                    result);
-        }
-
         String keyStr;
         if (p.isExpectedStartObjectToken()) {
             keyStr = p.nextName();
@@ -557,6 +550,16 @@ public class MapDeserializer
                 return result;
             }
             keyStr = p.currentName();
+        }
+        if (keyStr == null) {
+            return result;
+        }
+
+        MapReferringAccumulator referringAccumulator = null;
+        boolean useObjectId = _valueDeserializer.getObjectIdReader(ctxt) != null;
+        if (useObjectId) {
+            referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(),
+                    result);
         }
 
         // [databind#3188] Cache capability once outside the loop
@@ -621,12 +624,6 @@ public class MapDeserializer
     protected final Map<Object,Object> _readAndBindStringKeyMap(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws JacksonException
     {
-        MapReferringAccumulator referringAccumulator = null;
-        boolean useObjectId = (_valueDeserializer.getObjectIdReader(ctxt) != null);
-        if (useObjectId) {
-            referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(), result);
-        }
-
         String key;
         if (p.isExpectedStartObjectToken()) {
             key = p.nextName();
@@ -637,6 +634,15 @@ public class MapDeserializer
                 return result;
             }
             key = p.currentName();
+        }
+        if (key == null) {
+            return result;
+        }
+
+        MapReferringAccumulator referringAccumulator = null;
+        boolean useObjectId = (_valueDeserializer.getObjectIdReader(ctxt) != null);
+        if (useObjectId) {
+            referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(), result);
         }
 
         for (; key != null; key = p.nextName()) {

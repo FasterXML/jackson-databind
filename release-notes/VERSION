@@ -53,6 +53,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   `java.time.Month`
  (reported by @laech)
  (fix by @Dongnyoung)
+#6187: Make `InvokerHolder` access in `AnnotatedConstructor` lazy
+ (requested by @cowtowncoder)
+ (fix by @kalayciburak)
 #6188: `ThrowableDeserializer` does not resolve standard `Throwable` property
   names against `PropertyNamingStrategy`
  (fix by @cowtowncoder, w/ Claude code)

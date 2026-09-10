@@ -714,6 +714,8 @@ Fabian Lange (@CodingFabian)
 Burak KALAYCI (@kalayciburak)
  * Fixed #6175: Parse object-form `QName` after `As.PROPERTY` type id
   [3.3.0]
+ * Fixed #6187: Make `InvokerHolder` access in `AnnotatedConstructor` lazy
+  [3.3.0]
 
 @laech
  * Reported #6178: `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` does not work

@@ -1706,15 +1706,12 @@ public class ObjectReader
     /**
      * Overloaded version of {@link #readValue(InputStream)}.
      */
-    @SuppressWarnings("resource")
     public <T> MappingIterator<T> readValues(Reader src) throws JacksonException
     {
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
-        JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true);
-        _initForMultiRead(ctxt, p);
-        p.nextToken();
-        return _newIterator(p, ctxt, _findRootDeserializer(ctxt), true);
+        return _bindAndReadValues(ctxt,
+                _considerFilter(_parserFactory.createParser(ctxt, src), true));
     }
 
     /**
@@ -1722,15 +1719,12 @@ public class ObjectReader
      *
      * @param content String that contains JSON content to parse
      */
-    @SuppressWarnings("resource")
     public <T> MappingIterator<T> readValues(String content) throws JacksonException
     {
         _assertNotNull("content", content);
         DeserializationContextExt ctxt = _deserializationContext();
-        JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, content), true);
-        _initForMultiRead(ctxt, p);
-        p.nextToken();
-        return _newIterator(p, ctxt, _findRootDeserializer(ctxt), true);
+        return _bindAndReadValues(ctxt,
+                _considerFilter(_parserFactory.createParser(ctxt, content), true));
     }
 
     /**
@@ -2049,9 +2043,29 @@ public class ObjectReader
     protected <T> MappingIterator<T> _bindAndReadValues(DeserializationContextExt ctxt,
             JsonParser p) throws JacksonException
     {
-        _initForMultiRead(ctxt, p);
-        p.nextToken();
-        return _newIterator(p, ctxt, _findRootDeserializer(ctxt), true);
+        try {
+            _initForMultiRead(ctxt, p);
+            p.nextToken();
+            return _newIterator(p, ctxt, _findRootDeserializer(ctxt), true);
+        } catch (Exception e) {
+            // 07-Sep-2026, pjfanning: Parser is "managed" (created by us, owns the
+            //   underlying input source), and no `MappingIterator` gets constructed
+            //   to close it later on: must close it here or resource leaks.
+            _closeQuietly(p, e);
+            throw e;
+        }
+    }
+
+    /**
+     * Helper method for closing a parser we are about to lose the only reference to,
+     * without masking the primary failure.
+     */
+    private void _closeQuietly(JsonParser p, Exception primaryFail) {
+        try {
+            p.close();
+        } catch (Exception e) {
+            primaryFail.addSuppressed(e);
+        }
     }
 
     /**

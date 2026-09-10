@@ -374,7 +374,7 @@ public class JsonValueSerializer
      * {@code @JsonValue} based serializer: custom serializers (and Object Id
      * handling) may well handle self-reference just fine.
      *
-     * @since 2.21
+     * @since 2.21.7
      */
     protected void _checkSelfReference(SerializerProvider ctxt, Object bean,
             JsonSerializer<?> ser)

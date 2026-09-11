@@ -601,7 +601,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(OutputStream target) {
         _assertNotNull("target", target);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _generatorFactory.createGenerator(_serializationContext(), target));
     }
 
@@ -615,7 +615,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(OutputStream target, JsonEncoding enc) {
         _assertNotNull("target", target);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _generatorFactory.createGenerator(_serializationContext(), target, enc));
     }
 
@@ -629,7 +629,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(Writer target) {
         _assertNotNull("target", target);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _generatorFactory.createGenerator(_serializationContext(), target));
     }
 
@@ -643,7 +643,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(File target, JsonEncoding enc) {
         _assertNotNull("target", target);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _generatorFactory.createGenerator(_serializationContext(), target, enc));
     }
 
@@ -657,7 +657,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(Path target, JsonEncoding enc) {
         _assertNotNull("target", target);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _generatorFactory.createGenerator(_serializationContext(), target, enc));
     }
 
@@ -671,7 +671,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(DataOutput target) {
         _assertNotNull("target", target);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _generatorFactory.createGenerator(_serializationContext(), target));
     }
 
@@ -1323,6 +1323,20 @@ public class ObjectWriter
             init.initialize(_config, gen);
         }
         return gen;
+    }
+
+    /**
+     * Variant of {@link #_initializeGenerator} for the case where {@code gen}
+     * owns the output target: {@link GeneratorInitializer} is caller-provided
+     * and may fail, and if it does the generator must not leak.
+     */
+    protected JsonGenerator _initializeManagedGenerator(JsonGenerator gen) {
+        try {
+            return _initializeGenerator(gen);
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, e);
+            return null; // never gets here
+        }
     }
 
     protected final void _assertNotNull(String paramName, Object src) {

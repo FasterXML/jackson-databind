@@ -112,4 +112,22 @@ public class SequenceWriterLeakTest extends DatabindTestUtil
             assertFalse(out.closed);
         }
     }
+
+    @Test
+    public void mapperCreateGeneratorClosesOnInitFailure() throws Exception
+    {
+        CloseTrackingOutputStream out = new CloseTrackingOutputStream();
+        assertThrows(IllegalStateException.class,
+                () -> FAILING_MAPPER.createGenerator(out));
+        assertTrue(out.closed, "OutputStream should have been closed by failed createGenerator()");
+    }
+
+    @Test
+    public void writerCreateGeneratorClosesOnInitFailure() throws Exception
+    {
+        CloseTrackingOutputStream out = new CloseTrackingOutputStream();
+        assertThrows(IllegalStateException.class,
+                () -> FAILING_MAPPER.writer().createGenerator(out));
+        assertTrue(out.closed, "OutputStream should have been closed by failed createGenerator()");
+    }
 }

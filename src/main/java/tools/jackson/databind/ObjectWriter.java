@@ -214,30 +214,25 @@ public class ObjectWriter
     /**
      * Overridable factory method called by {@link #writeValues(OutputStream)}
      * method (and its various overrides), and initializes it as necessary.
+     * <p>
+     * When {@code managedInput} is {@code true}, {@code gen} was created by us and
+     * owns the output target: {@code gen} still needs
+     * {@link #_initializeGenerator} applied, and if that -- or writing the leading
+     * {@code START_ARRAY} in {@link SequenceWriter#init} -- fails, {@code gen} must
+     * be closed since nothing else would ever do so.
      */
     @SuppressWarnings("resource")
     protected final SequenceWriter _newSequenceWriter(SerializationContextExt ctxt,
             boolean wrapInArray, JsonGenerator gen, boolean managedInput)
         throws JacksonException
     {
-        return new SequenceWriter(ctxt, gen, managedInput, _prefetch)
-            .init(wrapInArray);
-    }
-
-    /**
-     * Variant of {@link #_newSequenceWriter} for the case where we created the
-     * generator ourselves (and it owns the output target): initialization may
-     * fail -- either in the caller-provided
-     * {@link tools.jackson.databind.cfg.GeneratorInitializer}, or in
-     * {@link SequenceWriter#init} writing the leading {@code START_ARRAY} --
-     * and if it does, nothing else would ever close the generator.
-     */
-    private SequenceWriter _newManagedSequenceWriter(SerializationContextExt ctxt,
-            boolean wrapInArray, JsonGenerator gen)
-        throws JacksonException
-    {
+        if (!managedInput) {
+            return new SequenceWriter(ctxt, gen, false, _prefetch)
+                .init(wrapInArray);
+        }
         try {
-            return _newSequenceWriter(ctxt, wrapInArray, _initializeGenerator(gen), true);
+            return new SequenceWriter(ctxt, _initializeGenerator(gen), true, _prefetch)
+                .init(wrapInArray);
         } catch (Exception e) {
             ClassUtil.closeOnFailAndThrowAsJacksonE(gen, e);
             return null; // never gets here
@@ -711,8 +706,8 @@ public class ObjectWriter
     {
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
-        return _newManagedSequenceWriter(ctxt, false,
-                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8));
+        return _newSequenceWriter(ctxt, false,
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     /**
@@ -733,8 +728,8 @@ public class ObjectWriter
     {
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
-        return _newManagedSequenceWriter(ctxt, false,
-                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8));
+        return _newSequenceWriter(ctxt, false,
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     /**
@@ -771,8 +766,8 @@ public class ObjectWriter
     public SequenceWriter writeValues(Writer target) throws JacksonException {
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
-        return _newManagedSequenceWriter(ctxt, false,
-                _generatorFactory.createGenerator(ctxt, target));
+        return _newSequenceWriter(ctxt, false,
+                _generatorFactory.createGenerator(ctxt, target), true);
     }
 
     /**
@@ -789,15 +784,15 @@ public class ObjectWriter
     public SequenceWriter writeValues(OutputStream target) throws JacksonException {
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
-        return _newManagedSequenceWriter(ctxt, false,
-                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8));
+        return _newSequenceWriter(ctxt, false,
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     public SequenceWriter writeValues(DataOutput target) throws JacksonException {
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
-        return _newManagedSequenceWriter(ctxt, false,
-                _generatorFactory.createGenerator(ctxt, target));
+        return _newSequenceWriter(ctxt, false,
+                _generatorFactory.createGenerator(ctxt, target), true);
     }
 
     /**
@@ -818,8 +813,8 @@ public class ObjectWriter
     {
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
-        return _newManagedSequenceWriter(ctxt, true,
-                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8));
+        return _newSequenceWriter(ctxt, true,
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     /**
@@ -842,8 +837,8 @@ public class ObjectWriter
     {
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
-        return _newManagedSequenceWriter(ctxt, true,
-                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8));
+        return _newSequenceWriter(ctxt, true,
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     /**
@@ -883,8 +878,8 @@ public class ObjectWriter
     public SequenceWriter writeValuesAsArray(Writer target) throws JacksonException {
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
-        return _newManagedSequenceWriter(ctxt, true,
-                _generatorFactory.createGenerator(ctxt, target));
+        return _newSequenceWriter(ctxt, true,
+                _generatorFactory.createGenerator(ctxt, target), true);
     }
 
     /**
@@ -903,15 +898,15 @@ public class ObjectWriter
     public SequenceWriter writeValuesAsArray(OutputStream target) throws JacksonException {
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
-        return _newManagedSequenceWriter(ctxt, true,
-                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8));
+        return _newSequenceWriter(ctxt, true,
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     public SequenceWriter writeValuesAsArray(DataOutput target) throws JacksonException {
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
-        return _newManagedSequenceWriter(ctxt, true,
-                _generatorFactory.createGenerator(ctxt, target));
+        return _newSequenceWriter(ctxt, true,
+                _generatorFactory.createGenerator(ctxt, target), true);
     }
 
     /*

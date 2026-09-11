@@ -65,6 +65,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6197: `ClassCastException` for `AutoCloseable` (but not `Closeable`) values in
   `ObjectMapper.writeValue(JsonGenerator, Object)` with `SerializationFeature.CLOSE_CLOSEABLE`
  (fix by @pjfanning)
+#6213: Defer unnecessary work in deserialization paths (`EnumMapDeserializer`,
+  `MapDeserializer`, `InetAddressValidator`)
+ (fix by @Dongnyoung)
 
 3.2.3 (not yet released)
 

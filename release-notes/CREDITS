@@ -688,9 +688,6 @@ DongNyoung Lee (@Dongnyoung)
  * Fixed #6178: `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` does not work
    for `java.time.Month`
   [3.3.0]
- * Fixed #6213: Defer unnecessary work in deserialization paths
-   (`EnumMapDeserializer`, `MapDeserializer`, `InetAddressValidator`)
-  [3.3.0]
 
 @prvazsahnazarov
  * Reported #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic

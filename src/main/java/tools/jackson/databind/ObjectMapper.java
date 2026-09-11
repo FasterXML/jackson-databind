@@ -767,7 +767,7 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(OutputStream out) throws JacksonException {
         _assertNotNull("out", out);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _streamFactory.createGenerator(_serializationContext(), out));
     }
 
@@ -781,7 +781,7 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws JacksonException {
         _assertNotNull("out", out);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _streamFactory.createGenerator(_serializationContext(), out, enc));
     }
 
@@ -795,7 +795,7 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(Writer w) throws JacksonException {
         _assertNotNull("w", w);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _streamFactory.createGenerator(_serializationContext(), w));
     }
 
@@ -809,7 +809,7 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(File f, JsonEncoding enc) throws JacksonException {
         _assertNotNull("f", f);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _streamFactory.createGenerator(_serializationContext(), f, enc));
     }
 
@@ -823,7 +823,7 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(Path path, JsonEncoding enc) throws JacksonException {
         _assertNotNull("path", path);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _streamFactory.createGenerator(_serializationContext(), path, enc));
     }
 
@@ -837,7 +837,7 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(DataOutput out) throws JacksonException {
         _assertNotNull("out", out);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _streamFactory.createGenerator(_serializationContext(), out));
     }
 
@@ -1904,7 +1904,14 @@ public class ObjectMapper
             JsonGenerator g, Object value)
         throws JacksonException
     {
-        _initializeGenerator(g);
+        try {
+            _initializeGenerator(g);
+        } catch (Exception e) {
+            // 07-Sep-2026, pjfanning: `GeneratorInitializer` is caller-provided and
+            //   may fail; generator owns the output target so it must not leak
+            ClassUtil.closeOnFailAndThrowAsJacksonE(g, e);
+            return;
+        }
         if (ctxt.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
                 && (value instanceof AutoCloseable toClose)) {
             _configAndWriteCloseable(ctxt, g, toClose);
@@ -2613,6 +2620,20 @@ public class ObjectMapper
             init.initialize(_serializationConfig, gen);
         }
         return gen;
+    }
+
+    /**
+     * Variant of {@link #_initializeGenerator} for the case where {@code gen}
+     * owns the output target: {@link GeneratorInitializer} is caller-provided
+     * and may fail, and if it does the generator must not leak.
+     */
+    protected JsonGenerator _initializeManagedGenerator(JsonGenerator gen) {
+        try {
+            return _initializeGenerator(gen);
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, e);
+            return null; // never gets here
+        }
     }
 
     /*

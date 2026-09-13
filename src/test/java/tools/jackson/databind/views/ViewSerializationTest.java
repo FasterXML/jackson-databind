@@ -39,6 +39,30 @@ public class ViewSerializationTest extends DatabindTestUtil
         public String getB() { return "3"; }
     }
 
+    // `@JsonAnyGetter` carrying its own `@JsonView`: must be honored, and identically
+    // whether the any-getter is public or not. NOTE: `BeanSerializerFactory` has a
+    // fallback branch for a not-otherwise-collected any-getter which builds a
+    // `SimpleBeanPropertyDefinition` and resolves views differently; an explicitly
+    // annotated method is always collected, so that branch is not what these exercise --
+    // they pin the resulting behavior, which is what callers actually depend on.
+    static class PublicAnyGetterBean
+    {
+        public String regular = "r";
+
+        @JsonAnyGetter
+        @JsonView(ViewB.class)
+        public Map<String,Object> extras() { return Collections.singletonMap("k", "v"); }
+    }
+
+    static class PrivateAnyGetterBean
+    {
+        public String regular = "r";
+
+        @JsonAnyGetter
+        @JsonView(ViewB.class)
+        private Map<String,Object> extras() { return Collections.singletonMap("k", "v"); }
+    }
+
     /**
      * Bean with mix of explicitly annotated
      * properties, and implicit ones that may or may
@@ -366,6 +390,30 @@ public class ViewSerializationTest extends DatabindTestUtil
         ObjectMapper mapper = createNonNullMapper();
         String json = mapper.writerWithView(null).writeValueAsString(new ComplexTestData());
         assertTrue(json.indexOf( "nameHidden" ) > 0);
+    }
+
+    // Views declared on an `@JsonAnyGetter` must be honored, and identically regardless
+    // of the accessor's visibility
+    @Test
+    public void anyGetterViewHonoredRegardlessOfVisibility() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .build();
+
+        // Under the annotated view the any-getter contents are included...
+        assertEquals("{\"k\":\"v\"}",
+                mapper.writerWithView(ViewB.class).writeValueAsString(new PublicAnyGetterBean()));
+        assertEquals("{\"k\":\"v\"}",
+                mapper.writerWithView(ViewB.class).writeValueAsString(new PrivateAnyGetterBean()),
+                "non-public @JsonAnyGetter must honor its @JsonView like a public one");
+
+        // ...and under an unrelated view they are not
+        assertEquals("{}",
+                mapper.writerWithView(ViewA.class).writeValueAsString(new PublicAnyGetterBean()));
+        assertEquals("{}",
+                mapper.writerWithView(ViewA.class).writeValueAsString(new PrivateAnyGetterBean()),
+                "non-public @JsonAnyGetter must be excluded from views it is not part of");
     }
 
     /*

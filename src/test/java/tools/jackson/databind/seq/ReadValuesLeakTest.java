@@ -11,9 +11,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.exc.StreamReadException;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.*;
+import tools.jackson.databind.deser.ValueDeserializerModifier;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -58,6 +61,21 @@ public class ReadValuesLeakTest extends DatabindTestUtil
         }
     }
 
+    static class FailingCloseInputStream extends ByteArrayInputStream {
+        public FailingCloseInputStream(String src) {
+            super(utf8Bytes(src));
+        }
+
+        @Override
+        public void close() throws IOException {
+            throw new IOException("close failed");
+        }
+    }
+
+    static class Point {
+        public int x, y;
+    }
+
     // Type for which root deserializer cannot be constructed
     static class ConflictingCreators {
         @JsonCreator
@@ -93,6 +111,42 @@ public class ReadValuesLeakTest extends DatabindTestUtil
         CloseTrackingInputStream in = new CloseTrackingInputStream(VALID_JSON);
         assertThrows(InvalidDefinitionException.class,
                 () -> MAPPER.readerFor(ConflictingCreators.class).readValues(in));
+        assertTrue(in.closed, "InputStream should have been closed by failed readValues()");
+    }
+
+    // Failure to close must not mask the primary failure
+    @Test
+    public void closeFailureAddedAsSuppressed() throws Exception
+    {
+        FailingCloseInputStream in = new FailingCloseInputStream(INVALID_JSON);
+        StreamReadException e = assertThrows(StreamReadException.class,
+                () -> MAPPER.readerFor(Object.class).readValues(in));
+        Throwable[] suppressed = e.getSuppressed();
+        assertEquals(1, suppressed.length);
+        assertEquals("close failed", suppressed[0].getCause().getMessage());
+    }
+
+    // Parser must be closed, and `Error` rethrown as-is, for non-`Exception` failures too
+    @Test
+    public void inputStreamClosedOnError() throws Exception
+    {
+        SimpleModule module = new SimpleModule();
+        module.setDeserializerModifier(new ValueDeserializerModifier() {
+            @Override
+            public ValueDeserializer<?> modifyDeserializer(DeserializationConfig config,
+                    BeanDescription.Supplier beanDescRef, ValueDeserializer<?> deserializer) {
+                throw new AssertionError("deserializer construction failed");
+            }
+        });
+        ObjectMapper mapper = jsonMapperBuilder()
+                // otherwise failure would occur (and escape) on `readerFor()`
+                .disable(DeserializationFeature.EAGER_DESERIALIZER_FETCH)
+                .addModule(module)
+                .build();
+        CloseTrackingInputStream in = new CloseTrackingInputStream(VALID_JSON);
+        AssertionError e = assertThrows(AssertionError.class,
+                () -> mapper.readerFor(Point.class).readValues(in));
+        assertEquals("deserializer construction failed", e.getMessage());
         assertTrue(in.closed, "InputStream should have been closed by failed readValues()");
     }
 

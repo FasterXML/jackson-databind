@@ -6,9 +6,14 @@ import java.io.StringReader;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
 
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,6 +28,9 @@ public class ReadValuesLeakTest extends DatabindTestUtil
     // Content whose very first `nextToken()` fails, so that no `MappingIterator`
     // is ever constructed
     private final static String INVALID_JSON = "@@@";
+
+    // Valid content, for cases where failure comes from deserializer construction
+    private final static String VALID_JSON = "{}";
 
     static class CloseTrackingInputStream extends ByteArrayInputStream {
         public boolean closed = false;
@@ -50,6 +58,15 @@ public class ReadValuesLeakTest extends DatabindTestUtil
         }
     }
 
+    // Type for which root deserializer cannot be constructed
+    static class ConflictingCreators {
+        @JsonCreator
+        public ConflictingCreators(@JsonProperty("a") int a) { }
+
+        @JsonCreator
+        public ConflictingCreators(@JsonProperty("b") String b) { }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
@@ -70,6 +87,15 @@ public class ReadValuesLeakTest extends DatabindTestUtil
         assertTrue(r.closed, "Reader should have been closed by failed readValues()");
     }
 
+    @Test
+    public void inputStreamClosedOnDeserializerFailure() throws Exception
+    {
+        CloseTrackingInputStream in = new CloseTrackingInputStream(VALID_JSON);
+        assertThrows(InvalidDefinitionException.class,
+                () -> MAPPER.readerFor(ConflictingCreators.class).readValues(in));
+        assertTrue(in.closed, "InputStream should have been closed by failed readValues()");
+    }
+
     // And for comparison: single-value read has always closed correctly
     @Test
     public void singleValueReadClosesToo() throws Exception
@@ -80,15 +106,16 @@ public class ReadValuesLeakTest extends DatabindTestUtil
         assertTrue(in.closed, "InputStream should have been closed by failed readValue()");
     }
 
-    // Caller-provided parser, however, must NOT be closed by us
+    // Caller-provided parser, however, must NOT be closed by us, even on failure
     @Test
-    public void callerSuppliedParserNotClosed() throws Exception
+    public void callerSuppliedParserNotClosedOnFailure() throws Exception
     {
-        CloseTrackingInputStream in = new CloseTrackingInputStream(INVALID_JSON);
-        try (var p = MAPPER.createParser(in)) {
-            // does not fail here: no read attempted by `readValues(JsonParser)`
-            MAPPER.readerFor(Object.class).readValues(p);
-            assertFalse(in.closed);
+        CloseTrackingInputStream in = new CloseTrackingInputStream(VALID_JSON);
+        try (JsonParser p = MAPPER.createParser(in)) {
+            assertThrows(InvalidDefinitionException.class,
+                    () -> MAPPER.readerFor(ConflictingCreators.class).readValues(p));
+            assertFalse(p.isClosed(), "Caller-supplied parser should not have been closed");
+            assertFalse(in.closed, "InputStream should not have been closed");
         }
     }
 }

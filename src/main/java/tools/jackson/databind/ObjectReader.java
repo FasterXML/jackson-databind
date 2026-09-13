@@ -2051,20 +2051,8 @@ public class ObjectReader
             // 07-Sep-2026, pjfanning: Parser is "managed" (created by us, owns the
             //   underlying input source), and no `MappingIterator` gets constructed
             //   to close it later on: must close it here or resource leaks.
-            _closeQuietly(p, e);
-            throw e;
-        }
-    }
-
-    /**
-     * Helper method for closing a parser we are about to lose the only reference to,
-     * without masking the primary failure.
-     */
-    private void _closeQuietly(JsonParser p, Exception primaryFail) {
-        try {
-            p.close();
-        } catch (Exception e) {
-            primaryFail.addSuppressed(e);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(null, p, e);
+            return null; // never gets here
         }
     }
 

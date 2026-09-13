@@ -62,11 +62,15 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6190: Explicit `@JsonView` on a standard `Throwable` property is ignored by
   `ThrowableDeserializer`
  (fix by @adityabagla7)
+#6195: Close managed `JsonParser` if `ObjectReader.readValues()` initialization fails
+ (fix by @pjfanning)
 #6196: Close `JsonGenerator` if initialization fails before any content is written
  (fix by @pjfanning)
 #6197: `ClassCastException` for `AutoCloseable` (but not `Closeable`) values in
   `ObjectMapper.writeValue(JsonGenerator, Object)` with `SerializationFeature.CLOSE_CLOSEABLE`
  (fix by @pjfanning)
+#6216: Add `TreeTraversingParser` constructors that take explicit
+  `StreamReadConstraints` (for tree-backed format backends)
 
 3.2.3 (not yet released)
 

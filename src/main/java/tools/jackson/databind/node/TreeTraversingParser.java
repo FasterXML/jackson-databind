@@ -94,7 +94,7 @@ public class TreeTraversingParser
      * @param n Tree to traverse
      * @param readContext Read context to use
      * @param constraints Constraints to apply (both for {@link #streamReadConstraints()}
-     *    and for token count validation); passing
+     *    and for token count validation); must not be {@code null}. Passing
      *    {@code readContext.streamReadConstraints()} is equivalent to using
      *    {@link #TreeTraversingParser(JsonNode, ObjectReadContext)}
      *
@@ -109,6 +109,7 @@ public class TreeTraversingParser
     /**
      * Constructor that combines {@link #TreeTraversingParser(JsonNode, ObjectReadContext, TokenStreamContext)}
      * and {@link #TreeTraversingParser(JsonNode, ObjectReadContext, StreamReadConstraints)}.
+     * As with the latter, {@code constraints} must not be {@code null}.
      *
      * @since 3.3
      */

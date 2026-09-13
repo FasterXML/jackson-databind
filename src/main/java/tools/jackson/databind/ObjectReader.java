@@ -2047,12 +2047,16 @@ public class ObjectReader
             _initForMultiRead(ctxt, p);
             p.nextToken();
             return _newIterator(p, ctxt, _findRootDeserializer(ctxt), true);
-        } catch (Exception e) {
+        } catch (Throwable t) {
             // 07-Sep-2026, pjfanning: Parser is "managed" (created by us, owns the
             //   underlying input source), and no `MappingIterator` gets constructed
             //   to close it later on: must close it here or resource leaks.
-            ClassUtil.closeOnFailAndThrowAsJacksonE(null, p, e);
-            return null; // never gets here
+            try {
+                p.close();
+            } catch (Throwable t2) {
+                t.addSuppressed(t2);
+            }
+            throw t;
         }
     }
 

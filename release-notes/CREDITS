@@ -33,6 +33,9 @@ Sven Döring (@sdoeringNew)
 Steven Schlansker (@stevenschlansker)
  * Contributed #2083: Replace Reflection usage with `MethodHandle` (3.0)
   [3.0.0]
+ * Contributed #6193: Use `JsonParser.nextNameMatchAndToken()` in the vanilla
+   `BeanDeserializer` loops
+  [3.3.0]
 
 Michael Dillon (@michaelcdillon)
  * Requested #2593: StackTraceElement w/ >= Java 9 doesn't deserialize properly

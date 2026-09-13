@@ -82,6 +82,7 @@ module tools.jackson.databind
     opens tools.jackson.databind.ext.xml;
     opens tools.jackson.databind.format;
     opens tools.jackson.databind.interop;
+    opens tools.jackson.databind.jref;
     opens tools.jackson.databind.jsonschema;
     opens tools.jackson.databind.jsontype.deduct;
     opens tools.jackson.databind.jsontype.deftyping;

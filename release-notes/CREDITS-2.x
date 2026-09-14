@@ -1942,5 +1942,5 @@ Aysha Afrah Ziya (@aysha-afrah26)
   (2.18.11)
 
 @dabirt
- * Reported #6203: Do not cache fallback deserializer under unresolved type id
+ * Reported #6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
   (2.18.11)

@@ -6,11 +6,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
+import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.deser.std.NullifyingDeserializer;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // [databind#6203]
 /**
@@ -95,6 +99,35 @@ public class TypeIdCacheGrowthTest extends DatabindTestUtil
                     typeDeser._findDeserializer(ctxt, "unknown-"+i));
         }
         assertEquals(0, typeDeser._deserializers.size());
+
+        typeDeser._findDeserializer(ctxt, "impl");
+        assertEquals(1, typeDeser._deserializers.size());
+    }
+
+    // Unknown type ids resolved by a `DeserializationProblemHandler` must not be cached
+    @Test
+    public void unknownTypeIdsFromProblemHandlerNotCached() throws Exception
+    {
+        DeserializationContext ctxt = _context(MAPPER.getDeserializationConfig()
+                .withHandler(new DeserializationProblemHandler() {
+                    @Override
+                    public JavaType handleUnknownTypeId(DeserializationContext c,
+                            JavaType baseType, String subTypeId, TypeIdResolver idResolver,
+                            String failureMsg) {
+                        return c.constructType(Impl.class);
+                    }
+                }));
+        AsPropertyTypeDeserializer typeDeser = _typeDeserializer(null);
+
+        for (int i = 0; i < UNKNOWN_ID_COUNT; ++i) {
+            typeDeser._findDeserializer(ctxt, "unknown-"+i);
+        }
+        assertEquals(0, typeDeser._deserializers.size());
+
+        // ... nor leak to a reader that has no such handler
+        DeserializationContext plainCtxt = _context(MAPPER.getDeserializationConfig());
+        assertThrows(InvalidTypeIdException.class,
+                () -> typeDeser._findDeserializer(plainCtxt, "unknown-0"));
 
         typeDeser._findDeserializer(ctxt, "impl");
         assertEquals(1, typeDeser._deserializers.size());

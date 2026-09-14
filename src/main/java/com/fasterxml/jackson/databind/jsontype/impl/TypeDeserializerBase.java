@@ -175,7 +175,10 @@ public abstract class TypeDeserializerBase
                     return NullifyingDeserializer.instance;
                 }
                 // ... would this actually work?
-                deser = ctxt.findContextualValueDeserializer(actual, _property);
+                // 14-Sep-2026, tatu: [databind#6203] Should not cache by type id here either:
+                //   problem handler may map any number of unrecognized ids to a type, and
+                //   its answer is only valid for readers configured with that handler
+                return ctxt.findContextualValueDeserializer(actual, _property);
             } else {
                 /* 16-Dec-2010, tatu: Since nominal type we get here has no (generic) type parameters,
                  *   we actually now need to explicitly narrow from base type (which may have parameterization)

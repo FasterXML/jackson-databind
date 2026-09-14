@@ -282,10 +282,24 @@ public class JsonValueSerializer
             if (ser == null) {
                 ser = _findDynamicSerializer(ctxt, value.getClass());
             }
-            if (_valueTypeSerializer != null) {
-                ser.serializeWithType(value, gen, ctxt, _valueTypeSerializer);
-            } else {
-                ser.serialize(value, gen, ctxt);
+            // [databind#6206]: simple check for direct cycle through accessor
+            if (value == bean) {
+                _checkSelfReference(ctxt, bean, ser);
+            }
+            try {
+                if (_valueTypeSerializer != null) {
+                    ser.serializeWithType(value, gen, ctxt, _valueTypeSerializer);
+                } else {
+                    ser.serialize(value, gen, ctxt);
+                }
+            } catch (StackOverflowError e) {
+                // 09-Sep-2026, pjfanning: [databind#6206] Accessor value may lead back to
+                //   a value serialized the same way, and such a cycle writes no structural
+                //   tokens -- so `StreamWriteConstraints` nesting limit never trips.
+                // Minimize call depth since we are close to fail, as `BeanSerializerBase` does:
+                DatabindException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
+                mapE.prependPath(bean, _accessor.getName() + "()");
+                throw mapE;
             }
         }
     }
@@ -309,16 +323,29 @@ public class JsonValueSerializer
             return;
         }
         JsonSerializer<Object> ser = _valueSerializer;
-        if (ser == null) { // no serializer yet? Need to fetch
+        final boolean staticSer = (ser != null);
+        if (!staticSer) { // no serializer yet? Need to fetch
             ser = _findDynamicSerializer(ctxt, value.getClass());
-        } else {
+        }
+        // [databind#6206]: simple check for direct cycle through accessor
+        if (value == bean) {
+            _checkSelfReference(ctxt, bean, ser);
+        }
+        if (staticSer) {
             // 09-Dec-2010, tatu: To work around natural type's refusal to add type info, we do
             //    this (note: type is for the wrapper type, not enclosed value!)
             if (_forceTypeInformation) {
                 // Confusing? Type id is for POJO and NOT for value returned by JsonValue accessor...
                 WritableTypeId typeIdDef = typeSer0.writeTypePrefix(gen,
                         typeSer0.typeId(bean, JsonToken.VALUE_STRING));
-                ser.serialize(value, gen, ctxt);
+                try {
+                    ser.serialize(value, gen, ctxt);
+                } catch (StackOverflowError e) {
+                    // [databind#6206]: see `serialize()`
+                    DatabindException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
+                    mapE.prependPath(bean, _accessor.getName() + "()");
+                    throw mapE;
+                }
                 typeSer0.writeTypeSuffix(gen, typeIdDef);
 
                 return;
@@ -328,7 +355,38 @@ public class JsonValueSerializer
         //    to use different Object for type id (logical type) and actual serialization
         //    (delegate type).
         TypeSerializerRerouter rr = new TypeSerializerRerouter(typeSer0, bean);
-        ser.serializeWithType(value, gen, ctxt, rr);
+        try {
+            ser.serializeWithType(value, gen, ctxt, rr);
+        } catch (StackOverflowError e) {
+            // [databind#6206]: see `serialize()`
+            DatabindException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
+            mapE.prependPath(bean, _accessor.getName() + "()");
+            throw mapE;
+        }
+    }
+
+    /**
+     * Method called when {@code @JsonValue} accessor returned the POJO itself:
+     * that is a direct (immediate) cycle, and unlike deeper cycles it can be
+     * detected before recursing (and running out of stack).
+     *<p>
+     * Only reported as a problem if the value would be serialized by another
+     * {@code @JsonValue} based serializer: custom serializers (and Object Id
+     * handling) may well handle self-reference just fine.
+     *
+     * @since 2.21.7
+     */
+    protected void _checkSelfReference(SerializerProvider ctxt, Object bean,
+            JsonSerializer<?> ser)
+        throws JsonMappingException
+    {
+        if ((ser instanceof JsonValueSerializer)
+                && !ser.usesObjectId()
+                && ctxt.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES)) {
+            ctxt.reportBadDefinition(bean.getClass(), String.format(
+                    "Direct self-reference leading to cycle (through `@JsonValue` accessor `%s()`)",
+                    _accessor.getName()));
+        }
     }
 
     /*

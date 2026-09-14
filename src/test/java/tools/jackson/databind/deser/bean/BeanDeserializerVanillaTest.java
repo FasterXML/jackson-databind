@@ -4,12 +4,15 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.util.JsonParserDelegate;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.DeserializationContextExt;
+import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.MockDataInput;
@@ -194,9 +197,105 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
 
     /*
     /**********************************************************************
+    /* Error reporting: must be same as with non-vanilla processing
+    /**********************************************************************
+     */
+
+    // Replaces "b": type mismatch for a top-level property
+    private static final String BAD_SCALAR_PROP = """
+            "b": "notAnInt"
+            """.strip();
+
+    // Replaces "e": type mismatch for a property of nested POJO
+    private static final String BAD_NESTED_PROP = """
+            "e": { "x": 1, "y": "notAnInt" }
+            """.strip();
+
+    // Default settings: vanilla processing NOT used (see [databind#6219]; if that
+    // changes, need some other way to get non-vanilla processing for reference)
+    private final AccessibleMapper REFERENCE_MAPPER = new AccessibleMapper(jsonMapperBuilder());
+
+    // Errors within vanilla processing (at every position of unrolled loop, and
+    // within continuation after unknown property) must be reported same as with
+    // non-vanilla processing: same exception type, message, path and location
+    @Test
+    void errorsReportedSameAsNonVanilla() throws Exception
+    {
+        for (Class<?> type : List.of(Wide.class, Point.class)) {
+            ValueDeserializer<Object> deser = REFERENCE_MAPPER.deserializationContext()
+                    .findRootValueDeserializer(REFERENCE_MAPPER.constructType(type));
+            assertFalse(((BeanDeserializer) deser)._vanillaProcessing,
+                    "Reference mapper should NOT use vanilla processing for "+type.getSimpleName());
+        }
+
+        final int count = _knownProps().size();
+        for (String badProp : List.of(BAD_SCALAR_PROP, BAD_NESTED_PROP)) {
+            final String badName = badProp.substring(0, badProp.indexOf(':'));
+            final List<String> expPath = (badProp == BAD_SCALAR_PROP)
+                    ? List.of("b") : List.of("e", "y");
+            for (boolean unknownFirst : new boolean[] { false, true }) {
+                for (int pos = 0; pos < count; ++pos) {
+                    List<String> props = _knownProps();
+                    props.removeIf(prop -> prop.startsWith(badName));
+                    props.add(pos, badProp);
+                    if (unknownFirst) {
+                        props.add(0, UNKNOWN_PROP);
+                    }
+                    // One property per line: bad one is on line (index + 2)
+                    final String doc = "{\n" + String.join(",\n", props) + "\n}";
+                    final int expLine = props.indexOf(badProp) + 2;
+
+                    for (int mode = 0; mode < 3; ++mode) {
+                        final String desc = "input mode #"+mode+", doc:\n"+doc;
+                        InvalidFormatException vanilla = _readFail(MAPPER, doc, mode);
+                        InvalidFormatException reference = _readFail(REFERENCE_MAPPER, doc, mode);
+
+                        assertEquals("notAnInt", vanilla.getValue(), "value: "+desc);
+                        assertEquals(int.class, vanilla.getTargetType(), "target type: "+desc);
+
+                        assertEquals(expPath, vanilla.getPath().stream()
+                                .map(JacksonException.Reference::getPropertyName).toList(),
+                                "path: "+desc);
+                        // DataInput-backed parser does not track token location accurately,
+                        // so only compare it with reference (below)
+                        if (mode != 2) {
+                            assertEquals(expLine, vanilla.getLocation().getLineNr(), "line: "+desc);
+                        }
+
+                        assertEquals(reference.getClass(), vanilla.getClass(), desc);
+                        assertEquals(reference.getOriginalMessage(), vanilla.getOriginalMessage(), desc);
+                        assertEquals(reference.getPathReference(), vanilla.getPathReference(), desc);
+                        _assertSameLocation(reference.getLocation(), vanilla.getLocation(), desc);
+                    }
+                }
+            }
+        }
+    }
+
+    /*
+    /**********************************************************************
     /* Helper methods
     /**********************************************************************
      */
+
+    // Read using one of JSON parser implementations, expecting failure:
+    // 0 = byte-backed, 1 = char-backed, 2 = DataInput-backed
+    private InvalidFormatException _readFail(ObjectMapper mapper, String doc, int mode) {
+        return assertThrows(InvalidFormatException.class, () -> {
+            switch (mode) {
+            case 0 -> mapper.readValue(utf8Bytes(doc), Wide.class);
+            case 1 -> mapper.readValue(doc, Wide.class);
+            default -> mapper.readValue(new MockDataInput(doc), Wide.class);
+            }
+        });
+    }
+
+    private void _assertSameLocation(TokenStreamLocation exp, TokenStreamLocation act, String desc) {
+        assertEquals(exp.getLineNr(), act.getLineNr(), "line: "+desc);
+        assertEquals(exp.getColumnNr(), act.getColumnNr(), "column: "+desc);
+        assertEquals(exp.getByteOffset(), act.getByteOffset(), "byte offset: "+desc);
+        assertEquals(exp.getCharOffset(), act.getCharOffset(), "char offset: "+desc);
+    }
 
     private List<String> _knownProps() {
         return new ArrayList<>(KNOWN_PROPS.lines().toList());

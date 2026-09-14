@@ -18,9 +18,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // [databind#6203]
 /**
- * Tests to verify that unrecognized type ids are NOT retained in the per-{@link
+ * Tests to verify that the per-{@link
  * com.fasterxml.jackson.databind.jsontype.TypeDeserializer} type id to deserializer
- * lookup cache: only ids that actually resolve to a subtype are cached.
+ * lookup cache does not grow without bound: of unrecognized type ids, only ones
+ * handled via {@code defaultImpl} are cached, and cache size is capped.
  *<p>
  * Note: in package {@code ...jsontype.impl} to have access to protected
  * {@code _deserializers} / {@code _findDeserializer()} of {@link TypeDeserializerBase}.
@@ -61,9 +62,11 @@ public class TypeIdCacheGrowthTest extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    // Unknown type ids resolved via `defaultImpl` must not be cached
+    // Unknown type ids resolved via `defaultImpl` ARE cached (to avoid re-resolving
+    // them every time), since `defaultImpl` does not depend on reader configuration;
+    // growth is bounded by `MAX_CACHED_TYPE_IDS`
     @Test
-    public void unknownTypeIdsWithDefaultImplNotCached() throws Exception
+    public void unknownTypeIdsWithDefaultImplCached() throws Exception
     {
         DeserializationContext ctxt = _context(MAPPER.getDeserializationConfig());
         AsPropertyTypeDeserializer typeDeser = _typeDeserializer(MAPPER.constructType(DefaultImpl.class));
@@ -78,12 +81,12 @@ public class TypeIdCacheGrowthTest extends DatabindTestUtil
                 assertSame(defaultDeser, deser);
             }
         }
-        assertEquals(0, typeDeser._deserializers.size());
+        assertEquals(UNKNOWN_ID_COUNT, typeDeser._deserializers.size());
 
-        // But actually resolvable type ids are still cached
+        // As are actually resolvable type ids
         typeDeser._findDeserializer(ctxt, "impl");
         typeDeser._findDeserializer(ctxt, "impl");
-        assertEquals(1, typeDeser._deserializers.size());
+        assertEquals(UNKNOWN_ID_COUNT + 1, typeDeser._deserializers.size());
     }
 
     // Unknown type ids handled by `NullifyingDeserializer` must not be cached, either
@@ -159,6 +162,31 @@ public class TypeIdCacheGrowthTest extends DatabindTestUtil
 
         // One more: cache is full, so gets cleared before new entry is added
         typeDeser._findDeserializer(ctxt, "impl-"+max);
+        assertEquals(1, typeDeser._deserializers.size());
+    }
+
+    // Overlong type ids must not be cached, as cache is only bounded by entry count
+    // (and type ids may be as long as maximum String length allowed)
+    @Test
+    public void overlongTypeIdsNotCached() throws Exception
+    {
+        DeserializationContext ctxt = _context(MAPPER.getDeserializationConfig());
+        AsPropertyTypeDeserializer typeDeser = _typeDeserializer(MAPPER.constructType(DefaultImpl.class));
+
+        final int maxLen = TypeDeserializerBase.MAX_CACHED_TYPE_ID_LENGTH;
+        StringBuilder sb = new StringBuilder("unknown-");
+        while (sb.length() <= maxLen) {
+            sb.append('x');
+        }
+        final String overlongId = sb.toString();
+        assertEquals(maxLen + 1, overlongId.length());
+
+        JsonDeserializer<Object> deser = typeDeser._findDeserializer(ctxt, overlongId);
+        assertSame(deser, typeDeser._findDeserializer(ctxt, overlongId));
+        assertEquals(0, typeDeser._deserializers.size());
+
+        // But one of exactly maximum length is still cached
+        typeDeser._findDeserializer(ctxt, overlongId.substring(0, maxLen));
         assertEquals(1, typeDeser._deserializers.size());
     }
 

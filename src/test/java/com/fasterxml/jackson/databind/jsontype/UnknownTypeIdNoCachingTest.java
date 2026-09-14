@@ -17,10 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 // [databind#6203]
 /**
- * Verifies that unresolvable type ids do not accumulate in the type id lookup cache
- * of the (long-lived, shared) {@link TypeDeserializer}: they are handled via the
- * {@code defaultImpl} / nullifying fallback, neither of which depends on the id.
- * Resolvable type ids, on the other hand, must still be cached.
+ * Verifies caching of type ids in the type id lookup cache of the (long-lived,
+ * shared) {@link TypeDeserializer}: unresolvable ids handled via the "nullifying"
+ * fallback (whose use depends on reader configuration) are not retained, whereas
+ * ones handled via {@code defaultImpl} are, like resolvable type ids (cache being
+ * bounded in size).
  */
 public class UnknownTypeIdNoCachingTest extends DatabindTestUtil
 {
@@ -86,9 +87,10 @@ public class UnknownTypeIdNoCachingTest extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    // Unknown type ids must not be cached: `defaultImpl` variant
+    // Unknown type ids resolved via `defaultImpl` ARE cached (bounded by cache size
+    // limit), as `defaultImpl` does not depend on reader configuration
     @Test
-    public void noCachingOfUnknownIdsWithDefaultImpl() throws Exception
+    public void cachingOfUnknownIdsWithDefaultImpl() throws Exception
     {
         RESOLVE_COUNT.set(0);
         ObjectReader r = MAPPER.readerFor(Wrapper.class);
@@ -98,15 +100,16 @@ public class UnknownTypeIdNoCachingTest extends DatabindTestUtil
                     "{'animal':{'type':'bogus-"+i+"','name':'Rex'}}"));
             assertInstanceOf(DefaultAnimal.class, w.animal);
         }
-        // Every distinct unknown id has to be resolved anew: nothing retained
+        // Every distinct unknown id has to be resolved once
         assertEquals(10, RESOLVE_COUNT.get());
 
-        // ... but repeating a single unknown id must not retain it, either
+        // ... and repeating a single unknown id resolves it just once, too
         RESOLVE_COUNT.set(0);
         for (int i = 0; i < 10; ++i) {
-            r.readValue(a2q("{'animal':{'type':'bogus','name':'Rex'}}"));
+            Wrapper w = r.readValue(a2q("{'animal':{'type':'bogus','name':'Rex'}}"));
+            assertInstanceOf(DefaultAnimal.class, w.animal);
         }
-        assertEquals(10, RESOLVE_COUNT.get());
+        assertEquals(1, RESOLVE_COUNT.get());
 
         // Whereas known type ids ARE cached: resolved just once
         RESOLVE_COUNT.set(0);

@@ -31,6 +31,14 @@ public abstract class TypeDeserializerBase
      */
     final static int MAX_CACHED_TYPE_IDS = 1000;
 
+    /**
+     * Maximum length of type ids to cache (see {@link #_deserializers}): longer ones
+     * are resolved every time, as cache size is only limited by number of entries.
+     *
+     * @since 2.18.11
+     */
+    final static int MAX_CACHED_TYPE_ID_LENGTH = 256;
+
     protected final TypeIdResolver _idResolver;
 
     protected final JavaType _baseType;
@@ -168,25 +176,31 @@ public abstract class TypeDeserializerBase
             if (type == null) {
                 // use the default impl if no type id available:
                 deser = _findDefaultImplDeserializer(ctxt);
-                if (deser != null) {
-                    // 09-Sep-2026, pjfanning: [databind#6203] Should not cache by type id
-                    //   here: the fallback deserializer (`defaultImpl`, or "nullifying" one)
-                    //   does not depend on the type id, so adding an entry gains nothing --
-                    //   but does grow the lookup Map by one entry for every distinct
-                    //   unrecognized id.
+                if (deser == null) {
+                    // 10-May-2016, tatu: We may get some help...
+                    JavaType actual = _handleUnknownTypeId(ctxt, typeId);
+                    if (actual == null) { // what should this be taken to mean?
+                        // 17-Jan-2019, tatu: As per [databind#2221], better NOT return `null` but...
+                        return NullifyingDeserializer.instance;
+                    }
+                    // ... would this actually work?
+                    // 14-Sep-2026, tatu: [databind#6203] Should not cache by type id here:
+                    //   problem handler may map any number of unrecognized ids to a type, and
+                    //   its answer is only valid for readers configured with that handler.
+                    //   NOTE: does NOT cover class name-based ids (`Id.CLASS`, `Id.MINIMAL_CLASS`):
+                    //   their resolver calls problem handlers itself, so the answer comes back
+                    //   as a resolved type and is cached as such (bounded by MAX_CACHED_TYPE_IDS)
+                    return ctxt.findContextualValueDeserializer(actual, _property);
+                }
+                // 14-Sep-2026, tatu: [databind#6203] Should not cache "nullifying" fallback by
+                //   type id, as its use depends on reader configuration (FAIL_ON_INVALID_SUBTYPE).
+                //   But `defaultImpl` deserializer is cached: re-resolving unrecognized ids every
+                //   time (like failing class loading for `Id.CLASS`) is costly; cache is bounded
+                if (deser == NullifyingDeserializer.instance) {
+                    // (not same as return above: here from `_findDefaultImplDeserializer()`,
+                    // mostly due to FAIL_ON_INVALID_SUBTYPE being disabled)
                     return deser;
                 }
-                // 10-May-2016, tatu: We may get some help...
-                JavaType actual = _handleUnknownTypeId(ctxt, typeId);
-                if (actual == null) { // what should this be taken to mean?
-                    // 17-Jan-2019, tatu: As per [databind#2221], better NOT return `null` but...
-                    return NullifyingDeserializer.instance;
-                }
-                // ... would this actually work?
-                // 14-Sep-2026, tatu: [databind#6203] Should not cache by type id here either:
-                //   problem handler may map any number of unrecognized ids to a type, and
-                //   its answer is only valid for readers configured with that handler
-                return ctxt.findContextualValueDeserializer(actual, _property);
             } else {
                 /* 16-Dec-2010, tatu: Since nominal type we get here has no (generic) type parameters,
                  *   we actually now need to explicitly narrow from base type (which may have parameterization)
@@ -221,7 +235,12 @@ public abstract class TypeDeserializerBase
             }
             // 14-Sep-2026, tatu: [databind#6203] Must bound the cache: even type ids that
             //   do resolve (like differently spelled variants of the same id) may come in
-            //   unbounded numbers. If full, clear, so that commonly used ids get re-added
+            //   unbounded numbers. If full, clear, so that commonly used ids get re-added.
+            //   And as that only limits number of entries, not their size, do not cache
+            //   overlong ids either: real type ids are short
+            if (typeId.length() > MAX_CACHED_TYPE_ID_LENGTH) {
+                return deser;
+            }
             if (_deserializers.size() >= MAX_CACHED_TYPE_IDS) {
                 _deserializers.clear();
             }

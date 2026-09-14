@@ -1940,3 +1940,7 @@ Aysha Afrah Ziya (@aysha-afrah26)
 @renechoi
  * Reported #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
   (2.18.11)
+
+@dabirt
+ * Reported #6203: Do not cache fallback deserializer under unresolved type id
+  (2.18.11)

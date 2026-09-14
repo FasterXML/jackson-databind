@@ -8,6 +8,10 @@ Project: jackson-databind
 
 #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
  (fix by @pjfanning, w/ Claude code)
+#6203: Do not cache fallback deserializer under unresolved type id
+  [GHSA-wv8q-qhhj-9h54]
+ (reported by @dabirt)
+ (fix by @pjfanning)
 
 2.18.10 (15-Aug-2026)
 

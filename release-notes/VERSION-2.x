@@ -64,6 +64,10 @@ No changes since 2.22
 
 #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
  (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [GHSA-wv8q-qhhj-9h54]
+ (reported by @dabirt)
+ (fix by @pjfanning)
 
 2.21.6 (14-Aug-2026)
 
@@ -395,6 +399,10 @@ No changes since 2.19.2
 
 #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
  (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [GHSA-wv8q-qhhj-9h54]
+ (reported by @dabirt)
+ (fix by @pjfanning)
 
 2.18.10 (15-Aug-2026)
 

@@ -706,6 +706,10 @@ Francesco Nigro (@franz1981)
  * Reported #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
   [3.2.3]
 
+@dabirt
+ * Reported #6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [3.2.3]
+
 Fabian Lange (@CodingFabian)
  * Requested #3182: Support value deduplication for enumeration like values
   [3.3.0]

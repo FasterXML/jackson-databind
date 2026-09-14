@@ -214,14 +214,29 @@ public class ObjectWriter
     /**
      * Overridable factory method called by {@link #writeValues(OutputStream)}
      * method (and its various overrides), and initializes it as necessary.
+     * <p>
+     * When {@code managedInput} is {@code true}, {@code gen} was created by us and
+     * owns the output target: {@code gen} still needs
+     * {@link #_initializeGenerator} applied, and if that -- or writing the leading
+     * {@code START_ARRAY} in {@link SequenceWriter#init} -- fails, {@code gen} must
+     * be closed since nothing else would ever do so.
      */
     @SuppressWarnings("resource")
     protected final SequenceWriter _newSequenceWriter(SerializationContextExt ctxt,
             boolean wrapInArray, JsonGenerator gen, boolean managedInput)
         throws JacksonException
     {
-        return new SequenceWriter(ctxt, gen, managedInput, _prefetch)
-            .init(wrapInArray);
+        if (!managedInput) {
+            return new SequenceWriter(ctxt, gen, false, _prefetch)
+                .init(wrapInArray);
+        }
+        try {
+            return new SequenceWriter(ctxt, _initializeGenerator(gen), true, _prefetch)
+                .init(wrapInArray);
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, e);
+            return null; // never gets here
+        }
     }
 
     /*
@@ -581,7 +596,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(OutputStream target) {
         _assertNotNull("target", target);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _generatorFactory.createGenerator(_serializationContext(), target));
     }
 
@@ -595,7 +610,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(OutputStream target, JsonEncoding enc) {
         _assertNotNull("target", target);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _generatorFactory.createGenerator(_serializationContext(), target, enc));
     }
 
@@ -609,7 +624,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(Writer target) {
         _assertNotNull("target", target);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _generatorFactory.createGenerator(_serializationContext(), target));
     }
 
@@ -623,7 +638,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(File target, JsonEncoding enc) {
         _assertNotNull("target", target);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _generatorFactory.createGenerator(_serializationContext(), target, enc));
     }
 
@@ -637,7 +652,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(Path target, JsonEncoding enc) {
         _assertNotNull("target", target);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _generatorFactory.createGenerator(_serializationContext(), target, enc));
     }
 
@@ -651,7 +666,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(DataOutput target) {
         _assertNotNull("target", target);
-        return _initializeGenerator(
+        return _initializeManagedGenerator(
                 _generatorFactory.createGenerator(_serializationContext(), target));
     }
 
@@ -692,7 +707,7 @@ public class ObjectWriter
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, false,
-                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8)), true);
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     /**
@@ -714,7 +729,7 @@ public class ObjectWriter
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, false,
-                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8)), true);
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     /**
@@ -752,7 +767,7 @@ public class ObjectWriter
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, false,
-                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target)), true);
+                _generatorFactory.createGenerator(ctxt, target), true);
     }
 
     /**
@@ -770,14 +785,14 @@ public class ObjectWriter
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, false,
-                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8)), true);
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     public SequenceWriter writeValues(DataOutput target) throws JacksonException {
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, false,
-                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target)), true);
+                _generatorFactory.createGenerator(ctxt, target), true);
     }
 
     /**
@@ -799,7 +814,7 @@ public class ObjectWriter
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, true,
-                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8)), true);
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     /**
@@ -823,7 +838,7 @@ public class ObjectWriter
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, true,
-                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8)), true);
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     /**
@@ -864,7 +879,7 @@ public class ObjectWriter
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, true,
-                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target)), true);
+                _generatorFactory.createGenerator(ctxt, target), true);
     }
 
     /**
@@ -884,14 +899,14 @@ public class ObjectWriter
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, true,
-                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8)), true);
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     public SequenceWriter writeValuesAsArray(DataOutput target) throws JacksonException {
         _assertNotNull("target", target);
         SerializationContextExt ctxt = _serializationContext();
         return _newSequenceWriter(ctxt, true,
-                _initializeGenerator(_generatorFactory.createGenerator(ctxt, target)), true);
+                _generatorFactory.createGenerator(ctxt, target), true);
     }
 
     /*
@@ -1136,7 +1151,14 @@ public class ObjectWriter
     protected final void _configAndWriteValue(SerializationContextExt ctxt,
             JsonGenerator gen, Object value) throws JacksonException
     {
-        _initializeGenerator(gen);
+        try {
+            _initializeGenerator(gen);
+        } catch (Exception e) {
+            // 07-Sep-2026, pjfanning: `GeneratorInitializer` is caller-provided and
+            //   may fail; generator owns the output target so it must not leak
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, e);
+            return;
+        }
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
                 && (value instanceof AutoCloseable toClose)) {
             _writeCloseable(gen, toClose);
@@ -1296,6 +1318,20 @@ public class ObjectWriter
             init.initialize(_config, gen);
         }
         return gen;
+    }
+
+    /**
+     * Variant of {@link #_initializeGenerator} for the case where {@code gen}
+     * owns the output target: {@link GeneratorInitializer} is caller-provided
+     * and may fail, and if it does the generator must not leak.
+     */
+    protected JsonGenerator _initializeManagedGenerator(JsonGenerator gen) {
+        try {
+            return _initializeGenerator(gen);
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, e);
+            return null; // never gets here
+        }
     }
 
     protected final void _assertNotNull(String paramName, Object src) {

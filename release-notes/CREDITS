@@ -33,6 +33,9 @@ Sven Döring (@sdoeringNew)
 Steven Schlansker (@stevenschlansker)
  * Contributed #2083: Replace Reflection usage with `MethodHandle` (3.0)
   [3.0.0]
+ * Contributed #6193: Use `JsonParser.nextNameMatchAndToken()` in the vanilla
+   `BeanDeserializer` loops
+  [3.3.0]
 
 Michael Dillon (@michaelcdillon)
  * Requested #2593: StackTraceElement w/ >= Java 9 doesn't deserialize properly
@@ -703,6 +706,10 @@ Francesco Nigro (@franz1981)
  * Reported #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
   [3.2.3]
 
+@dabirt
+ * Reported #6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [3.2.3]
+
 Fabian Lange (@CodingFabian)
  * Requested #3182: Support value deduplication for enumeration like values
   [3.3.0]
@@ -713,6 +720,8 @@ Fabian Lange (@CodingFabian)
 
 Burak KALAYCI (@kalayciburak)
  * Fixed #6175: Parse object-form `QName` after `As.PROPERTY` type id
+  [3.3.0]
+ * Fixed #6187: Make `InvokerHolder` access in `AnnotatedConstructor` lazy
   [3.3.0]
 
 @laech

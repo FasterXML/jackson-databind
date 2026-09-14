@@ -433,6 +433,16 @@
                   <!-- This check is generally high signal, however it is noisy in
                   low level projects which implement caches and interning. -->
                   -Xep:ReferenceEquality:OFF
+                  <!-- Requires `@InlineMe` from `error_prone_annotations`, which would be a
+                  new runtime dependency: not acceptable for `jackson-databind`. Since the
+                  check can never be satisfied, and databind retains many deprecated
+                  delegating methods, it is pure noise here. -->
+                  -Xep:InlineMeSuggester:OFF
+                  <!-- Databind deliberately uses `Enum.ordinal()` for array indexing and
+                  cache-key packing on hot paths (`EnumValues`, `VisibilityChecker`, ...) -->
+                  -Xep:EnumOrdinal:OFF
+                  <!-- `java.util.Date` is part of the API databind must support -->
+                  -Xep:JavaUtilDate:OFF
                 </arg>
               </compilerArgs>
               <annotationProcessorPaths>

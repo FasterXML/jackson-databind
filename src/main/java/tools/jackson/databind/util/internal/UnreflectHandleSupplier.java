@@ -7,10 +7,23 @@ import java.util.function.Supplier;
 import tools.jackson.databind.util.ClassUtil;
 
 /**
- * Lazy memoized holder for MethodHandles.
- * Defers binding of the method handle until after access checks are suppressed
- * (which happens in a virtual method call after construction) and avoids serialization of
- * MethodHandle.
+ * Lazy, memoized holder for a {@link MethodHandle} unreflected from a
+ * {@link java.lang.reflect.Member}.
+ *<p>
+ * Resolution is deferred until first actual use, for two reasons:
+ *<ul>
+ * <li>Access to non-public members is only enabled by
+ *   {@code ClassUtil.checkAndFixAccess()}, which callers apply via
+ *   {@code AnnotatedMember.fixAccess()} <i>after</i> the owning member has been
+ *   constructed. Unreflecting during construction could hence fail.
+ *   </li>
+ * <li>Many members are introspected but never actually invoked, so the handle
+ *   lookup is often avoidable altogether.
+ *   </li>
+ * </ul>
+ * The resolved handle is adapted once -- to the {@link MethodType} given to the
+ * constructor, or {@link MethodHandle#asFixedArity()} if that is {@code null} --
+ * and then memoized; resolution happens at most once per holder.
  */
 public abstract class UnreflectHandleSupplier implements Supplier<MethodHandle> {
     private final MethodType asType;

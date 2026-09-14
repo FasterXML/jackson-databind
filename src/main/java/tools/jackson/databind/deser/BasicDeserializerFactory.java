@@ -1637,8 +1637,14 @@ public abstract class BasicDeserializerFactory
             return type;
         }
 
-        // First things first: see if we can find annotations on declared
-        // type
+        // First: type-override annotations on the member (`@JsonDeserialize(as/keyAs/contentAs)`),
+        // so that the handlers found below are built for the type actually being deserialized.
+        // A type deserializer built for the declared type before refinement would keep its base
+        // type: `Map<Object,String>` with `keyAs=Integer.class` under Default Typing would then
+        // resolve `HashMap<Object,String>` from the type id and read `String` keys.
+        type = intr.refineDeserializationType(ctxt.getConfig(), member, type);
+
+        // Then: see if we can find annotations on declared type
 
         if (type.isMapLikeType()) {
             JavaType keyType = type.getKeyType();
@@ -1668,13 +1674,6 @@ public abstract class BasicDeserializerFactory
         if (valueTypeDeser != null) {
             type = type.withTypeHandler(valueTypeDeser);
         }
-
-        // Second part: find actual type-override annotations on member, if any
-
-        // 18-Jun-2016, tatu: Should we re-do checks for annotations on refined
-        //   subtypes as well? Code pre-2.8 did not do this, but if we get bug
-        //   reports may need to consider
-        type = intr.refineDeserializationType(ctxt.getConfig(), member, type);
         return type;
     }
 

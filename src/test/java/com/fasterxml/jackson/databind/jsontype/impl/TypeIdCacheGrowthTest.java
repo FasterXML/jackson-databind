@@ -133,6 +133,35 @@ public class TypeIdCacheGrowthTest extends DatabindTestUtil
         assertEquals(1, typeDeser._deserializers.size());
     }
 
+    // Even type ids that do resolve (like different spellings of the same type id)
+    // must not grow the cache without bound
+    @SuppressWarnings("serial")
+    @Test
+    public void resolvedTypeIdCacheIsBounded() throws Exception
+    {
+        DeserializationContext ctxt = _context(MAPPER.getDeserializationConfig());
+        JavaType baseType = MAPPER.constructType(Base.class);
+        SingleIdResolver idRes = new SingleIdResolver() {
+            @Override
+            public JavaType typeFromId(DatabindContext c, String id) {
+                return id.startsWith("impl") ? c.constructType(Impl.class) : null;
+            }
+        };
+        idRes.init(baseType);
+        AsPropertyTypeDeserializer typeDeser = new AsPropertyTypeDeserializer(baseType, idRes,
+                "type", false, null, JsonTypeInfo.As.PROPERTY, true);
+
+        final int max = TypeDeserializerBase.MAX_CACHED_TYPE_IDS;
+        for (int i = 0; i < max; ++i) {
+            typeDeser._findDeserializer(ctxt, "impl-"+i);
+        }
+        assertEquals(max, typeDeser._deserializers.size());
+
+        // One more: cache is full, so gets cleared before new entry is added
+        typeDeser._findDeserializer(ctxt, "impl-"+max);
+        assertEquals(1, typeDeser._deserializers.size());
+    }
+
     private DeserializationContext _context(DeserializationConfig config) {
         return ((DefaultDeserializationContext) MAPPER.getDeserializationContext())
                 .createInstance(config, null, null);

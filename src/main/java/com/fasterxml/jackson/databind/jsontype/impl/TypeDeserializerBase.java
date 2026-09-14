@@ -23,6 +23,14 @@ public abstract class TypeDeserializerBase
 {
     private static final long serialVersionUID = 1;
 
+    /**
+     * Maximum number of type id to deserializer mappings to cache (see
+     * {@link #_deserializers}); if exceeded, cache is cleared.
+     *
+     * @since 2.18.11
+     */
+    final static int MAX_CACHED_TYPE_IDS = 1000;
+
     protected final TypeIdResolver _idResolver;
 
     protected final JavaType _baseType;
@@ -210,6 +218,12 @@ public abstract class TypeDeserializerBase
                     }
                 }
                 deser = ctxt.findContextualValueDeserializer(type, _property);
+            }
+            // 14-Sep-2026, tatu: [databind#6203] Must bound the cache: even type ids that
+            //   do resolve (like differently spelled variants of the same id) may come in
+            //   unbounded numbers. If full, clear, so that commonly used ids get re-added
+            if (_deserializers.size() >= MAX_CACHED_TYPE_IDS) {
+                _deserializers.clear();
             }
             _deserializers.put(typeId, deser);
         }

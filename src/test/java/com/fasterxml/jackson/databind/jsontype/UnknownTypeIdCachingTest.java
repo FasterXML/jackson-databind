@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
  * ones handled via {@code defaultImpl} are, like resolvable type ids (cache being
  * bounded in size).
  */
-public class UnknownTypeIdNoCachingTest extends DatabindTestUtil
+public class UnknownTypeIdCachingTest extends DatabindTestUtil
 {
     static final AtomicInteger RESOLVE_COUNT = new AtomicInteger();
 

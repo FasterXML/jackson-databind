@@ -16,6 +16,10 @@ No changes since 2.22
   [GHSA-wv8q-qhhj-9h54]
  (reported by @dabirt)
  (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [GHSA-cxp5-3px4-pw24]
+ (reported by @dabirt)
+ (fix by @pjfanning)
 
 2.22.2 (16-Aug-2026)
 
@@ -70,6 +74,10 @@ No changes since 2.22
  (fix by @pjfanning, w/ Claude code)
 #6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
   [GHSA-wv8q-qhhj-9h54]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [GHSA-cxp5-3px4-pw24]
  (reported by @dabirt)
  (fix by @pjfanning)
 
@@ -405,6 +413,10 @@ No changes since 2.19.2
  (fix by @pjfanning, w/ Claude code)
 #6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
   [GHSA-wv8q-qhhj-9h54]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [GHSA-cxp5-3px4-pw24]
  (reported by @dabirt)
  (fix by @pjfanning)
 

@@ -103,4 +103,56 @@ public class ObjectIdInObjectArray5413Test extends DatabindTestUtil
         assertEquals(1, draw.points.length);
         assertNull(draw.points[0]);
     }
+
+    static final class TwoArrays {
+        public Point[] first;
+        public Point[] second;
+    }
+
+    // Forward reference resolved by a later element of the same array: resolution
+    // happens while the array is still being read, before it has been built
+    @Test
+    public void testForwardReferenceResolvedWithinSameArray()
+    {
+        Point[] points = MAPPER.readValue(a2q("[1,{'id':1,'x':3,'y':4}]"), Point[].class);
+        assertEquals(2, points.length);
+        assertNotNull(points[0]);
+        assertEquals(3, points[0].x());
+        assertSame(points[1], points[0]);
+    }
+
+    // ... and mixed with a reference only resolved after the array has been built
+    @Test
+    public void testForwardReferencesResolvedWithinAndAfterArray()
+    {
+        TwoArrays result = MAPPER.readValue(a2q("{'first':[1,{'id':1,'x':1,'y':1},2],"
+                +"'second':[{'id':2,'x':2,'y':2}]}"), TwoArrays.class);
+        assertEquals(3, result.first.length);
+        assertSame(result.first[1], result.first[0]);
+        assertSame(result.second[0], result.first[2]);
+    }
+
+    static class ArrayCompany {
+        public Employee[] employees;
+    }
+
+    // Moved from "tofix/ObjectIdDeserializationFailTest"
+    @Test
+    public void testForwardReferenceInArray() {
+        String json = "{\"employees\":["
+                + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
+                + "2,"
+                + "{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
+                + "]}";
+        ArrayCompany company = MAPPER.readValue(json, ArrayCompany.class);
+        assertEquals(3, company.employees.length);
+        Employee firstEmployee = company.employees[0];
+        Employee secondEmployee = company.employees[1];
+        assertEquals(1, firstEmployee.id);
+        assertEquals(2, secondEmployee.id);
+        assertEquals(1, firstEmployee.reports.size());
+        assertSame(secondEmployee, firstEmployee.reports.get(0));
+        assertSame(firstEmployee, secondEmployee.manager);
+        assertSame(secondEmployee, company.employees[2]);
+    }
 }

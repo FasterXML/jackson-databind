@@ -528,6 +528,8 @@ public class POJONode
             if (N instanceof BigInteger big) {
                 return big;
             } else if (N instanceof BigDecimal dec) {
+                // [databind#6214]: guard against excessive scale magnitude
+                StreamReadConstraints.defaults().validateBigIntegerScale(dec.scale());
                 return dec.toBigInteger();
             } else {
                 return BigInteger.valueOf(N.longValue());

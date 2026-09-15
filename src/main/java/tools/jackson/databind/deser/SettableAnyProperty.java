@@ -1,6 +1,7 @@
 package tools.jackson.databind.deser;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -91,6 +92,22 @@ public abstract class SettableAnyProperty
                 vi);
     }
 
+    public static SettableAnyProperty constructForMapMethod(DeserializationContext ctxt,
+            BeanProperty property,
+            AnnotatedMember setter, JavaType valueType,
+            KeyDeserializer keyDeser,
+            ValueDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
+    {
+        Class<?> mapType = property.getType().getRawClass();
+        if (mapType == Map.class) {
+            mapType = LinkedHashMap.class;
+        }
+        ValueInstantiator vi = JDKValueInstantiators.findStdValueInstantiator(ctxt.getConfig(), mapType);
+        return new MapMethodAnyProperty(property, setter, valueType,
+                keyDeser, valueDeser, typeDeser,
+                vi);
+    }
+
     public static SettableAnyProperty constructForJsonNodeField(DeserializationContext ctxt,
             BeanProperty property,
             AnnotatedMember field, JavaType valueType, ValueDeserializer<Object> valueDeser) {
@@ -176,6 +193,16 @@ public abstract class SettableAnyProperty
     public Object createParameterObject() {
         throw new UnsupportedOperationException("Cannot call createParameterObject() on " + getClass().getName());
     }
+
+    /**
+     * Method called after all entries have been assigned through this any-setter.
+     * Default implementation does nothing; map-method any-setters override it to
+     * invoke the annotated method with the collected entries.
+     *
+     * @since 3.3
+     */
+    public void finishAnySetter(DeserializationContext ctxt, Object instance)
+        throws JacksonException { }
 
     /*
     /**********************************************************************
@@ -385,6 +412,83 @@ public abstract class SettableAnyProperty
             Map<Object,Object> map = (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
             field.setValue(instance, map);
             return map;
+        }
+    }
+
+    protected static class MapMethodAnyProperty extends SettableAnyProperty
+    {
+        protected final ValueInstantiator _valueInstantiator;
+
+        public MapMethodAnyProperty(BeanProperty property,
+                AnnotatedMember setter, JavaType valueType,
+                KeyDeserializer keyDeser,
+                ValueDeserializer<Object> valueDeser, TypeDeserializer typeDeser,
+                ValueInstantiator inst) {
+            super(property, setter, valueType,
+                    keyDeser, valueDeser, typeDeser);
+            _valueInstantiator = inst;
+        }
+
+        @Override
+        public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
+            return new MapMethodAnyProperty(_property, _setter, _type,
+                    _keyDeserializer, deser, _valueTypeDeserializer,
+                    _valueInstantiator);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        protected void _set(DeserializationContext ctxt, Object instance, Object propName, Object value)
+            throws Exception
+        {
+            IdentityHashMap<Object, Map<Object,Object>> maps =
+                    (IdentityHashMap<Object, Map<Object,Object>>) ctxt.getAttribute(this);
+            if (maps == null) {
+                maps = new IdentityHashMap<>();
+                ctxt.setAttribute(this, maps);
+            }
+            Map<Object,Object> map = maps.get(instance);
+            if (map == null) {
+                map = _createMap(ctxt);
+                maps.put(instance, map);
+            }
+            map.put(propName, value);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public void finishAnySetter(DeserializationContext ctxt, Object instance)
+            throws JacksonException
+        {
+            IdentityHashMap<Object, Map<Object,Object>> maps =
+                    (IdentityHashMap<Object, Map<Object,Object>>) ctxt.getAttribute(this);
+            if (maps == null) {
+                return;
+            }
+            Map<Object,Object> map = maps.remove(instance);
+            if (map == null) {
+                return;
+            }
+            if (maps.isEmpty()) {
+                ctxt.setAttribute(this, null);
+            }
+            try {
+                ((AnnotatedMethod) _setter).callOnWith(instance, map);
+            } catch (JacksonException e) {
+                throw e;
+            } catch (Exception e) {
+                _throwAsIOE(ctxt, e, _property.getName(), map);
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        protected Map<Object,Object> _createMap(DeserializationContext ctxt) throws JacksonException
+        {
+            if (_valueInstantiator == null) {
+                throw DatabindException.from(ctxt, "Cannot create an instance of %s for use as \"any-setter\" '%s'".formatted(
+                        ClassUtil.nameOf(_type.getRawClass()), _property.getName()));
+            }
+            return (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
         }
     }
 

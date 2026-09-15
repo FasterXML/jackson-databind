@@ -130,7 +130,7 @@ No changes since 2.19.2
 #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
  (fix by @pjfanning, w/ Claude code)
 #6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
-  [GHSA-wv8q-qhhj-9h54]
+  [CVE-2026-91776]
  (reported by @dabirt)
  (fix by @pjfanning)
 #6204: Avoid quadratic forward-reference resolution in Collection/Map

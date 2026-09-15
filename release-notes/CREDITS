@@ -436,3 +436,6 @@ Francesco Nigro (@franz1981)
 @dabirt
  * Reported #6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
   [3.1.7]
+ * Reported #6204: Avoid quadratic forward-reference resolution in Collection/Map
+   deserializers
+  [3.1.7]

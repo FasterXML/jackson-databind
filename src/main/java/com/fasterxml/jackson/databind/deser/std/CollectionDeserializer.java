@@ -514,11 +514,20 @@ _containerType,
         private final Collection<Object> _result;
 
         /**
-         * Last of the still unresolved {@link CollectionReferring}s, which are linked
-         * together in encounter order to maintain ordering. Values read after an
-         * unresolved reference are buffered in it until it gets resolved.
+         * Values read at or after the first still unresolved reference, in encounter
+         * order: plain values, and {@link CollectionReferring}s for references (resolved
+         * or not). Values are moved to the result collection from the front (starting at
+         * {@link #_pendingStart}) once no unresolved reference precedes them: this retains
+         * ordering while moving each value just once -- instead of merging buffers of
+         * resolved references into preceding ones, which takes O(N^2) time when
+         * references resolve in reverse order (see [databind#6204]).
          */
-        private CollectionReferring _lastUnresolved;
+        private final List<Object> _pending = new ArrayList<>();
+
+        /**
+         * Index of the first entry in {@link #_pending} not yet moved to the result.
+         */
+        private int _pendingStart;
 
         /**
          * Lookup from unresolved id to the -- usually single -- {@link CollectionReferring}s
@@ -535,21 +544,17 @@ _containerType,
 
         public void add(Object value)
         {
-            if (_lastUnresolved == null) {
+            if (_pendingStart == _pending.size()) {
                 _result.add(value);
             } else {
-                _lastUnresolved.next.add(value);
+                _pending.add(value);
             }
         }
 
         public Referring handleUnresolvedReference(UnresolvedForwardReference reference)
         {
             CollectionReferring id = new CollectionReferring(this, reference, _elementType);
-            if (_lastUnresolved != null) {
-                id.prevUnresolved = _lastUnresolved;
-                _lastUnresolved.nextUnresolved = id;
-            }
-            _lastUnresolved = id;
+            _pending.add(id);
             // Ids are usable as hash keys: `ObjectIdResolver`s already rely on that
             Deque<CollectionReferring> refs = _unresolvedById.get(reference.getUnresolvedId());
             if (refs == null) {
@@ -562,9 +567,6 @@ _containerType,
 
         public void resolveForwardReference(Object id, Object value) throws IOException
         {
-            // Resolve ordering after resolution of an id. This mean either:
-            // 1- adding to the result collection in case of the first unresolved id.
-            // 2- merge the content of the resolved id with its previous unresolved id.
             Deque<CollectionReferring> refs = _unresolvedById.get(id);
             if (refs == null) {
                 throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
@@ -574,40 +576,41 @@ _containerType,
             if (refs.isEmpty()) {
                 _unresolvedById.remove(id);
             }
-            Collection<Object> previous = (ref.prevUnresolved == null) ? _result
-                    : ref.prevUnresolved.next;
-            _unlink(ref);
-            previous.add(value);
-            previous.addAll(ref.next);
-        }
+            ref.resolve(value);
 
-        private void _unlink(CollectionReferring ref)
-        {
-            if (ref.prevUnresolved != null) {
-                ref.prevUnresolved.nextUnresolved = ref.nextUnresolved;
+            // Move values no longer preceded by an unresolved reference to the result
+            final int end = _pending.size();
+            int i = _pendingStart;
+            for (; i < end; ++i) {
+                Object pending = _pending.get(i);
+                if (pending instanceof CollectionReferring) {
+                    CollectionReferring pendingRef = (CollectionReferring) pending;
+                    if (!pendingRef.isResolved()) {
+                        break;
+                    }
+                    pending = pendingRef.resolvedValue();
+                }
+                _result.add(pending);
+                _pending.set(i, null);
             }
-            if (ref.nextUnresolved == null) {
-                _lastUnresolved = ref.prevUnresolved;
+            if (i == end) {
+                _pending.clear();
+                _pendingStart = 0;
             } else {
-                ref.nextUnresolved.prevUnresolved = ref.prevUnresolved;
+                _pendingStart = i;
             }
         }
     }
 
     /**
-     * Helper class to maintain processing order of value. The resolved
-     * object associated with {@code #id} parameter from {@link #handleResolvedForwardReference(Object, Object)} 
-     * comes before the values in {@link #next}.
+     * Placeholder for a value that is a forward reference, to maintain processing order
+     * of values: holds the resolved value, once the reference has been resolved.
      */
     private final static class CollectionReferring extends Referring {
         private final CollectionReferringAccumulator _parent;
-        public final List<Object> next = new ArrayList<Object>();
 
-        /**
-         * Links to the previous and next reference that is still unresolved,
-         * in encounter order.
-         */
-        public CollectionReferring prevUnresolved, nextUnresolved;
+        private boolean _resolved;
+        private Object _value;
 
         CollectionReferring(CollectionReferringAccumulator parent,
                 UnresolvedForwardReference reference, Class<?> contentType)
@@ -615,6 +618,15 @@ _containerType,
             super(reference, contentType);
             _parent = parent;
         }
+
+        void resolve(Object value) {
+            _value = value;
+            _resolved = true;
+        }
+
+        boolean isResolved() { return _resolved; }
+
+        Object resolvedValue() { return _value; }
 
         @Override
         public void handleResolvedForwardReference(Object id, Object value) throws IOException {

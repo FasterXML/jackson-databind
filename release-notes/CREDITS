@@ -709,6 +709,9 @@ Francesco Nigro (@franz1981)
 @dabirt
  * Reported #6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
   [3.2.3]
+ * Reported #6204: Avoid quadratic forward-reference resolution in Collection/Map
+   deserializers
+  [3.2.3]
 
 Fabian Lange (@CodingFabian)
  * Requested #3182: Support value deduplication for enumeration like values

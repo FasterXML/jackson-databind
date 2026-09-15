@@ -16,6 +16,8 @@ Project: jackson-databind
   deserializers [GHSA-cxp5-3px4-pw24]
  (reported by @dabirt)
  (fix by @pjfanning)
+#6205: Avoid quadratic forward-reference resolution in `ObjectArrayDeserializer`
+ (fix by @pjfanning, w/ Claude code)
 
 2.21.6 (14-Aug-2026)
 

@@ -17,7 +17,7 @@ No changes since 2.22
  (reported by @dabirt)
  (fix by @pjfanning)
 #6204: Avoid quadratic forward-reference resolution in Collection/Map
-  deserializers [GHSA-cxp5-3px4-pw24]
+  deserializers [CVE-2026-91777]
  (reported by @dabirt)
  (fix by @pjfanning)
 #6205: Avoid quadratic forward-reference resolution in `ObjectArrayDeserializer`

@@ -12,6 +12,10 @@ Project: jackson-databind
   [GHSA-wv8q-qhhj-9h54]
  (reported by @dabirt)
  (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [GHSA-cxp5-3px4-pw24]
+ (reported by @dabirt)
+ (fix by @pjfanning)
 
 2.18.10 (15-Aug-2026)
 

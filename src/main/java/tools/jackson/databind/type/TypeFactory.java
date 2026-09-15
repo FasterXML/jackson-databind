@@ -522,19 +522,21 @@ public class TypeFactory
 
     private JavaType _retainRefinedKeyAndContent(JavaType baseType, JavaType newType)
     {
-        if (baseType.isMapLikeType() && newType.isMapLikeType()) {
+        // Only between same kinds of types (Map-like, Collection-like, reference)
+        if ((baseType.isMapLikeType() != newType.isMapLikeType())
+                || (baseType.isCollectionLikeType() != newType.isCollectionLikeType())
+                || (baseType.isReferenceType() != newType.isReferenceType())) {
+            return newType;
+        }
+        if (newType.isMapLikeType()) {
             JavaType keyType = _refinedOrNull(baseType.getKeyType(), newType.getKeyType());
             if (keyType != null) {
                 newType = ((MapLikeType) newType).withKeyType(keyType);
             }
         }
-        if ((baseType.isMapLikeType() == newType.isMapLikeType())
-                && (baseType.isCollectionLikeType() == newType.isCollectionLikeType())
-                && (baseType.isReferenceType() == newType.isReferenceType())) {
-            JavaType contentType = _refinedOrNull(baseType.getContentType(), newType.getContentType());
-            if (contentType != null) {
-                newType = newType.withContentType(contentType);
-            }
+        JavaType contentType = _refinedOrNull(baseType.getContentType(), newType.getContentType());
+        if (contentType != null) {
+            newType = newType.withContentType(contentType);
         }
         return newType;
     }

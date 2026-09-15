@@ -987,10 +987,30 @@ public class MapDeserializer
     final static class MapReferringAccumulator {
         private final Class<?> _valueType;
         private final Map<Object,Object> _result;
+
         /**
-         * A list of {@link MapReferring} to maintain ordering.
+         * Entries read at or after the first still unresolved reference, in encounter
+         * order: {@link Map.Entry}s for plain entries, and {@link MapReferring}s for
+         * references (resolved or not). Entries are moved to the result map from the front
+         * (starting at {@link #_pendingStart}) once no unresolved reference precedes them:
+         * this retains ordering while moving each entry just once -- instead of merging
+         * buffers of resolved references into preceding ones, which takes O(N^2) time when
+         * references resolve in reverse order (see [databind#6204]).
          */
-        private final List<MapReferring> _accumulator = new ArrayList<MapReferring>();
+        private final List<Object> _pending = new ArrayList<>();
+
+        /**
+         * Index of the first entry in {@link #_pending} not yet moved to the result.
+         */
+        private int _pendingStart;
+
+        /**
+         * Lookup from unresolved id to the -- usually single -- {@link MapReferring}s with
+         * that id, in encounter order. Without this, resolution would need to scan all
+         * pending references to find the matching one, which makes resolving N references
+         * take O(N^2) time (see [databind#6204]).
+         */
+        private final Map<Object, Deque<MapReferring>> _unresolvedById = new HashMap<>();
 
         public MapReferringAccumulator(Class<?> valueType, Map<Object, Object> result) {
             _valueType = valueType;
@@ -999,42 +1019,64 @@ public class MapDeserializer
 
         public void put(Object key, Object value)
         {
-            if (_accumulator.isEmpty()) {
+            if (_pendingStart == _pending.size()) {
                 _result.put(key, value);
             } else {
-                MapReferring ref = _accumulator.get(_accumulator.size() - 1);
-                ref.next.put(key, value);
+                _pending.add(new AbstractMap.SimpleEntry<Object, Object>(key, value));
             }
         }
 
         public Referring handleUnresolvedReference(UnresolvedForwardReference reference, Object key)
         {
             MapReferring id = new MapReferring(this, reference, _valueType, key);
-            _accumulator.add(id);
+            _pending.add(id);
+            // Ids are usable as hash keys: `ObjectIdResolver`s already rely on that
+            Deque<MapReferring> refs = _unresolvedById.get(reference.getUnresolvedId());
+            if (refs == null) {
+                refs = new ArrayDeque<MapReferring>(2);
+                _unresolvedById.put(reference.getUnresolvedId(), refs);
+            }
+            refs.add(id);
             return id;
         }
 
         public void resolveForwardReference(DeserializationContext ctxt, Object id, Object value)
             throws JacksonException
         {
-            Iterator<MapReferring> iterator = _accumulator.iterator();
-            // Resolve ordering after resolution of an id. This means either:
-            // 1- adding to the result map in case of the first unresolved id.
-            // 2- merge the content of the resolved id with its previous unresolved id.
-            Map<Object,Object> previous = _result;
-            while (iterator.hasNext()) {
-                MapReferring ref = iterator.next();
-                if (ref.hasId(id)) {
-                    iterator.remove();
-                    previous.put(ref.key, value);
-                    previous.putAll(ref.next);
-                    return;
-                }
-                previous = ref.next;
+            Deque<MapReferring> refs = _unresolvedById.get(id);
+            if (refs == null) {
+                throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
+                        + "] that wasn't previously seen as unresolved.");
             }
+            MapReferring ref = refs.removeFirst();
+            if (refs.isEmpty()) {
+                _unresolvedById.remove(id);
+            }
+            ref.resolve(value);
 
-            throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
-                    + "] that wasn't previously seen as unresolved.");
+            // Move entries no longer preceded by an unresolved reference to the result
+            final int end = _pending.size();
+            int i = _pendingStart;
+            for (; i < end; ++i) {
+                Object pending = _pending.get(i);
+                if (pending instanceof MapReferring) {
+                    MapReferring pendingRef = (MapReferring) pending;
+                    if (!pendingRef.isResolved()) {
+                        break;
+                    }
+                    _result.put(pendingRef.key, pendingRef.resolvedValue());
+                } else {
+                    Map.Entry<?,?> entry = (Map.Entry<?,?>) pending;
+                    _result.put(entry.getKey(), entry.getValue());
+                }
+                _pending.set(i, null);
+            }
+            if (i == end) {
+                _pending.clear();
+                _pendingStart = 0;
+            } else {
+                _pendingStart = i;
+            }
         }
 
         /**
@@ -1048,10 +1090,23 @@ public class MapDeserializer
          */
         public void replaceResolvedItem(Object oldItem, Object newItem) {
             replaceInMap(_result, oldItem, newItem);
-            // Pending accumulator entries may also hold the old item if a later
-            // forward ref hasn't yet resolved.
-            for (MapReferring ref : _accumulator) {
-                replaceInMap(ref.next, oldItem, newItem);
+            // Same item may also still be pending, if an earlier forward reference has
+            // not yet been resolved: as the value of a resolved reference, or as the value
+            // of a plain entry (see [databind#6204] for the pending list)
+            for (int i = _pendingStart, end = _pending.size(); i < end; ++i) {
+                Object pending = _pending.get(i);
+                if (pending instanceof MapReferring) {
+                    MapReferring ref = (MapReferring) pending;
+                    if (ref.isResolved() && (ref.resolvedValue() == oldItem)) {
+                        ref.resolve(newItem);
+                    }
+                } else {
+                    @SuppressWarnings("unchecked")
+                    Map.Entry<Object,Object> entry = (Map.Entry<Object,Object>) pending;
+                    if (entry.getValue() == oldItem) {
+                        entry.setValue(newItem);
+                    }
+                }
             }
         }
 
@@ -1066,15 +1121,16 @@ public class MapDeserializer
     }
 
     /**
-     * Helper class to maintain processing order of value.
-     * The resolved object associated with {@link #key} comes before the values in
-     * {@link #next}.
+     * Placeholder for a Map value that is a forward reference, to maintain processing
+     * order of entries: holds the resolved value, once the reference has been resolved.
      */
     static class MapReferring extends Referring {
         private final MapReferringAccumulator _parent;
 
-        public final Map<Object, Object> next = new LinkedHashMap<>();
         public final Object key;
+
+        private boolean _resolved;
+        private Object _value;
 
         MapReferring(MapReferringAccumulator parent, UnresolvedForwardReference ref,
                 Class<?> valueType, Object key)
@@ -1083,6 +1139,15 @@ public class MapDeserializer
             _parent = parent;
             this.key = key;
         }
+
+        void resolve(Object value) {
+            _value = value;
+            _resolved = true;
+        }
+
+        boolean isResolved() { return _resolved; }
+
+        Object resolvedValue() { return _value; }
 
         @Override
         public void handleResolvedForwardReference(DeserializationContext ctxt, Object id, Object value)

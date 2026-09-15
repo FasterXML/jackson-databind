@@ -1117,6 +1117,8 @@ public class MapDeserializer
          * only replaces the entry of the reference itself (other references to the same
          * item get calls of their own): scanning the whole map instead would make
          * rebinding N references take O(N^2) time.
+         *
+         * @since 3.2.3
          */
         void replaceResolvedItem(MapReferring ref, Object oldItem, Object newItem) {
             if (ref.resolvedValue() == oldItem) {

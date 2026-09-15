@@ -169,6 +169,8 @@ public abstract class DeserializationContextExt
     /**
      * Method called by {@link ReadableObjectId#bindItem} to register an item that may
      * later be rebound by {@link #updateObjectId}.
+     *
+     * @since 3.2.3
      */
     void registerRebindableItem(Object item, ReadableObjectId roid) {
         if (_rebindableItems == null) {

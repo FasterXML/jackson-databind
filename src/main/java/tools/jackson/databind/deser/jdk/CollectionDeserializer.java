@@ -752,6 +752,8 @@ public class CollectionDeserializer
          * only replaces the slot of the reference itself (other references to the same
          * item get calls of their own) where possible: scanning the whole collection
          * instead would make rebinding N references take O(N^2) time.
+         *
+         * @since 3.2.3
          */
         void replaceResolvedItem(CollectionReferring ref, Object oldItem, Object newItem) {
             if (ref.resolvedValue() == oldItem) {

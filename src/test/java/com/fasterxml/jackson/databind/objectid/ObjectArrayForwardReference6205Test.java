@@ -17,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ObjectArrayForwardReference6205Test extends DatabindTestUtil
 {
     static final class Container {
+        public Node first;
+
         @JsonIdentityReference(alwaysAsId = true)
         public Node[] refs;
 
@@ -47,18 +49,19 @@ public class ObjectArrayForwardReference6205Test extends DatabindTestUtil
     // the pending ones must not be disturbed by them
     @Test
     public void referencesMixedWithInlineValues() throws Exception {
-        // "0" is defined inline first, so the later references to 1 and 2 are the
-        // only pending ones, sitting at slots 1 and 3
-        String json = a2q("{'defs':[{'id':0,'name':'zero'},{'id':1,'name':'one'},{'id':2,'name':'two'}],"
-                +"'refs':[0,1,0,2]}");
+        // "0" is defined before "refs" so references to it resolve inline, but
+        // 1 and 2 are only defined after it: those references, at slots 1 and 3,
+        // are the only pending ones
+        String json = a2q("{'first':{'id':0,'name':'zero'},"
+                +"'refs':[0,1,0,2],"
+                +"'defs':[{'id':1,'name':'one'},{'id':2,'name':'two'}]}");
         Container c = MAPPER.readValue(json, Container.class);
 
         assertEquals(4, c.refs.length);
-        int[] expected = new int[] { 0, 1, 0, 2 };
+        Node[] expected = new Node[] { c.first, c.defs[0], c.first, c.defs[1] };
         for (int i = 0; i < expected.length; ++i) {
             assertNotNull(c.refs[i], "Null entry at #"+i);
-            assertEquals(expected[i], c.refs[i].id, "Wrong entry at #"+i);
-            assertSame(c.defs[expected[i]], c.refs[i], "Not same instance at #"+i);
+            assertSame(expected[i], c.refs[i], "Not same instance at #"+i);
         }
     }
 

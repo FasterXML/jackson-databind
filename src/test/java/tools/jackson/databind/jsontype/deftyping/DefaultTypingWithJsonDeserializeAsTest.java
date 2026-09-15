@@ -1,6 +1,8 @@
 package tools.jackson.databind.jsontype.deftyping;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
@@ -54,6 +56,8 @@ public class DefaultTypingWithJsonDeserializeAsTest
         }
     }
 
+    static class CustomMap<K, V> extends HashMap<K, V> { }
+
     static abstract class Base {
         public int x;
     }
@@ -73,6 +77,16 @@ public class DefaultTypingWithJsonDeserializeAsTest
     static class ContentAsConcreteHolder {
         @JsonDeserialize(contentAs = Impl.class)
         public List<Base> list;
+    }
+
+    static class ContentAsConcreteAtomicRefHolder {
+        @JsonDeserialize(contentAs = Impl.class)
+        public AtomicReference<Base> ref;
+    }
+
+    static class ContentAsConcreteOptionalHolder {
+        @JsonDeserialize(contentAs = Impl.class)
+        public Optional<Base> opt;
     }
 
     private ObjectMapper mapperWith(DefaultTyping typing, JsonTypeInfo.As as) {
@@ -104,6 +118,33 @@ public class DefaultTypingWithJsonDeserializeAsTest
                 Object key = result.map.keySet().iterator().next();
                 assertEquals(Integer.class, key.getClass(), json);
                 assertEquals("a", result.map.get(1), json);
+            }
+        }
+    }
+
+    // Map types other than the few `TypeFactory` has short-cuts for (like `HashMap`) are
+    // specialized from type bindings, not from (refined) key type
+    @Test
+    public void keyAsWithDefaultTypingForOtherMapTypes()
+    {
+        for (DefaultTyping typing : TYPINGS) {
+            for (JsonTypeInfo.As as : INCLUSIONS) {
+                ObjectMapper mapper = mapperWith(typing, as);
+                IntKeyMapHolder holder = new IntKeyMapHolder();
+
+                holder.map = new ConcurrentHashMap<>(Map.of(1, "a"));
+                String json = mapper.writeValueAsString(holder);
+                IntKeyMapHolder result = mapper.readValue(json, IntKeyMapHolder.class);
+                assertEquals(ConcurrentHashMap.class, result.map.getClass(), json);
+                assertEquals(Integer.class, result.map.keySet().iterator().next().getClass(), json);
+
+                CustomMap<Object, String> custom = new CustomMap<>();
+                custom.put(1, "a");
+                holder.map = custom;
+                json = mapper.writeValueAsString(holder);
+                result = mapper.readValue(json, IntKeyMapHolder.class);
+                assertEquals(CustomMap.class, result.map.getClass(), json);
+                assertEquals(Integer.class, result.map.keySet().iterator().next().getClass(), json);
             }
         }
     }
@@ -205,6 +246,35 @@ public class DefaultTypingWithJsonDeserializeAsTest
                 ObjectAsConcreteHolder result = mapper.readValue(json, ObjectAsConcreteHolder.class);
                 assertEquals(Impl.class, result.value.getClass(), json);
                 assertEquals(3, ((Impl) result.value).x, json);
+            }
+        }
+    }
+
+    // Reference types go through the same content type deserializer handling as containers
+    @Test
+    public void contentAsConcreteForReferenceWithDefaultTyping()
+    {
+        for (DefaultTyping typing : TYPINGS) {
+            for (JsonTypeInfo.As as : INCLUSIONS) {
+                ObjectMapper mapper = mapperWith(typing, as);
+                Impl impl = new Impl();
+                impl.x = 3;
+
+                ContentAsConcreteAtomicRefHolder refHolder = new ContentAsConcreteAtomicRefHolder();
+                refHolder.ref = new AtomicReference<>(impl);
+                String json = mapper.writeValueAsString(refHolder);
+                ContentAsConcreteAtomicRefHolder refResult = mapper.readValue(json,
+                        ContentAsConcreteAtomicRefHolder.class);
+                assertEquals(Impl.class, refResult.ref.get().getClass(), json);
+                assertEquals(3, refResult.ref.get().x, json);
+
+                ContentAsConcreteOptionalHolder optHolder = new ContentAsConcreteOptionalHolder();
+                optHolder.opt = Optional.of(impl);
+                json = mapper.writeValueAsString(optHolder);
+                ContentAsConcreteOptionalHolder optResult = mapper.readValue(json,
+                        ContentAsConcreteOptionalHolder.class);
+                assertEquals(Impl.class, optResult.opt.get().getClass(), json);
+                assertEquals(3, optResult.opt.get().x, json);
             }
         }
     }

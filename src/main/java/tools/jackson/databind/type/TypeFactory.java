@@ -509,10 +509,47 @@ public class TypeFactory
 
         } while (false);
 
+        // [databind#6220]: key/content type of base type may have been refined (like with
+        //   `@JsonDeserialize(keyAs/contentAs)`) without changing its type bindings, which
+        //   resolution above (other than short-cuts) is based on: retain such refinements
+        newType = _retainRefinedKeyAndContent(baseType, newType);
+
         // 25-Sep-2016, tatu: As per [databind#1384] also need to ensure handlers get
         //   copied as well
         newType = newType.withHandlersFrom(baseType);
         return newType;
+    }
+
+    private JavaType _retainRefinedKeyAndContent(JavaType baseType, JavaType newType)
+    {
+        if (baseType.isMapLikeType() && newType.isMapLikeType()) {
+            JavaType keyType = _refinedOrNull(baseType.getKeyType(), newType.getKeyType());
+            if (keyType != null) {
+                newType = ((MapLikeType) newType).withKeyType(keyType);
+            }
+        }
+        if ((baseType.isMapLikeType() == newType.isMapLikeType())
+                && (baseType.isCollectionLikeType() == newType.isCollectionLikeType())
+                && (baseType.isReferenceType() == newType.isReferenceType())) {
+            JavaType contentType = _refinedOrNull(baseType.getContentType(), newType.getContentType());
+            if (contentType != null) {
+                newType = newType.withContentType(contentType);
+            }
+        }
+        return newType;
+    }
+
+    // Returns `baseType` if it is a strict subtype of `resolved`; `null` otherwise
+    private JavaType _refinedOrNull(JavaType baseType, JavaType resolved)
+    {
+        if ((baseType == null) || (resolved == null)) {
+            return null;
+        }
+        final Class<?> baseRaw = baseType.getRawClass();
+        if (resolved.hasRawClass(baseRaw) || !resolved.getRawClass().isAssignableFrom(baseRaw)) {
+            return null;
+        }
+        return baseType;
     }
 
     private TypeBindings _bindingsForSubtype(JavaType baseType, int typeParamCount,

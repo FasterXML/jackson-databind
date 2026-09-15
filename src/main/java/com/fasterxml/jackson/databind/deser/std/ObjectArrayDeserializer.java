@@ -591,7 +591,13 @@ public class ObjectArrayDeserializer
 
         @Override
         public void handleResolvedForwardReference(Object id, Object value) throws JacksonException {
-            _parent._array[_index] = value;
+            // May be resolved by a later element of the same array, while it is still
+            // being read: if so, replace the placeholder for `buildArray()` to copy
+            if (_parent._array == null) {
+                _parent._accumulator.set(_index, value);
+            } else {
+                _parent._array[_index] = value;
+            }
         }
     }
 }

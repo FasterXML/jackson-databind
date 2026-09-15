@@ -76,6 +76,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @pjfanning)
 #6216: Add `TreeTraversingParser` constructors that take explicit
   `StreamReadConstraints` (for tree-backed format backends)
+#6220: `@JsonDeserialize(as/keyAs/contentAs)` lost when property's type deserializer
+  (Default Typing, `@JsonTypeInfo`) resolves a type id: type deserializer was built
+  for the declared type, before the refinement
+ (fix by @pjfanning)
 
 3.2.3 (not yet released)
 

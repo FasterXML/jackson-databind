@@ -24,10 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
  * passing tests.
  */
 class ObjectIdDeserializationFailTest extends DatabindTestUtil {
-    static class ArrayCompany {
-        public Employee[] employees;
-    }
-
     static class ArrayBlockingQueueCompany {
         public ArrayBlockingQueue<Employee> employees;
     }
@@ -52,21 +48,6 @@ class ObjectIdDeserializationFailTest extends DatabindTestUtil {
     }
 
     private final ObjectMapper mapper = new ObjectMapper();
-
-    @JacksonTestFailureExpected
-    @Test
-    void forwardReferenceInArray() throws Exception {
-        String json = "{\"employees\":["
-                + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
-                + "2,"
-                + "{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
-                + "]}";
-        ArrayCompany company = mapper.readValue(json, ArrayCompany.class);
-        assertEquals(3, company.employees.length);
-        Employee firstEmployee = company.employees[0];
-        Employee secondEmployee = company.employees[1];
-        assertEmployees(firstEmployee, secondEmployee);
-    }
 
     // Do a specific test for ArrayBlockingQueue since it has its own deser.
     @Test

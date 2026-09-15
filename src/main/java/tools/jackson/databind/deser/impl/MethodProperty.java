@@ -149,7 +149,7 @@ public final class MethodProperty
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
-    		DeserializationContext ctxt, Object instance) throws JacksonException
+            DeserializationContext ctxt, Object instance) throws JacksonException
     {
         Object value;
         if (p.hasToken(JsonToken.VALUE_NULL)) {
@@ -212,6 +212,7 @@ public final class MethodProperty
         }
     }
 
+    // @since 3.3
     private MethodHandle _setterHandle() throws IllegalAccessException {
         MethodHandle h = _setter;
         if (h == null) {
@@ -221,6 +222,7 @@ public final class MethodProperty
         return h;
     }
 
+    // @since 3.3
     private MethodHandle _setterReturnHandle() throws IllegalAccessException {
         MethodHandle h = _setterReturn;
         if (h == null) {
@@ -230,9 +232,11 @@ public final class MethodProperty
         return h;
     }
 
-    /**
+    /*
      * Note: resolved lazily, on first use, since access to non-public members
      * is only enabled by {@link #fixAccess} which is called after construction.
+     *
+     * @since 3.3
      */
     private MethodHandle _unreflectSetter() throws IllegalAccessException {
         if (_annotated instanceof AnnotatedMethod am) {

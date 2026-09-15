@@ -132,7 +132,7 @@ public class BeanAsArrayBuilderDeserializer
         if (!p.isExpectedStartArrayToken()) {
             return finishBuild(ctxt, _deserializeFromNonArray(p, ctxt));
         }
-        if (!_vanillaProcessing) {
+        if (!_useVanillaProcessing(ctxt)) {
             return finishBuild(ctxt, _deserializeNonVanilla(p, ctxt));
         }
         Object builder = _valueInstantiator.createUsingDefault(ctxt);

@@ -103,7 +103,7 @@ public class BeanAsArrayDeserializer
         if (!p.isExpectedStartArrayToken()) {
             return _deserializeFromNonArray(p, ctxt);
         }
-        if (!_vanillaProcessing) {
+        if (!_useVanillaProcessing(ctxt)) {
             return _deserializeNonVanilla(p, ctxt);
         }
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);

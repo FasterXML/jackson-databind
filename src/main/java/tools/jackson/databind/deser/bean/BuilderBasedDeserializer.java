@@ -265,7 +265,7 @@ public class BuilderBasedDeserializer
     {
         // common case first:
         if (p.isExpectedStartObjectToken()) {
-            if (_vanillaProcessing) {
+            if (_useVanillaProcessing(ctxt)) {
                 return finishBuild(ctxt, _vanillaDeserialize(p, ctxt));
             }
             p.nextToken();

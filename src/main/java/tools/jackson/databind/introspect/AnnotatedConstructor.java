@@ -2,6 +2,7 @@ package tools.jackson.databind.introspect;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Parameter;
@@ -16,6 +17,10 @@ import static java.lang.invoke.MethodType.methodType;
 public final class AnnotatedConstructor
     extends AnnotatedWithParams
 {
+    // Invocation types for the arity-specific handles; constant so no per-use lookup
+    private static final MethodType INVOKER_NULLARY_TYPE = methodType(Object.class);
+    private static final MethodType INVOKER_UNARY_TYPE = methodType(Object.class, Object.class);
+
     protected final Constructor<?> _constructor;
 
     /**
@@ -144,7 +149,7 @@ public final class AnnotatedConstructor
     private MethodHandle invokerNullary() throws IllegalAccessException {
         MethodHandle h = _invokerNullary;
         if (h == null) {
-            h = unreflect().asType(methodType(Object.class));
+            h = unreflect().asType(INVOKER_NULLARY_TYPE);
             _invokerNullary = h;
         }
         return h;
@@ -153,7 +158,7 @@ public final class AnnotatedConstructor
     private MethodHandle invokerUnary() throws IllegalAccessException {
         MethodHandle h = _invokerUnary;
         if (h == null) {
-            h = unreflect().asType(methodType(Object.class, Object.class));
+            h = unreflect().asType(INVOKER_UNARY_TYPE);
             _invokerUnary = h;
         }
         return h;

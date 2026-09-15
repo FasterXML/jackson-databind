@@ -12,7 +12,6 @@ import java.util.Objects;
 
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.util.ClassUtil;
-import tools.jackson.databind.util.internal.UnreflectHandleSupplier;
 
 import static java.lang.invoke.MethodType.methodType;
 
@@ -21,10 +20,20 @@ import static tools.jackson.databind.util.ClassUtil.sneakyThrow;
 public final class AnnotatedMethod
     extends AnnotatedWithParams
 {
+    // Invocation types for the arity-specific handles; constant so no per-use lookup
+    private static final MethodType INVOKER_NULLARY_TYPE = methodType(Object.class);
+    private static final MethodType INVOKER_UNARY_TYPE = methodType(Object.class, Object.class);
+
     final protected transient Method _method;
-    final protected MethodHolder _invokerFixedArity = new MethodHolder(null);
-    final protected MethodHolder _invokerNullary = new MethodHolder(methodType(Object.class));
-    final protected MethodHolder _invokerUnary = new MethodHolder(methodType(Object.class, Object.class));
+
+    /**
+     * Lazily resolved invocation handles, one per arity we support;
+     * {@code volatile} so a racy first use is safely published (duplicate
+     * resolution is harmless, handles are equivalent).
+     */
+    protected volatile MethodHandle _invokerFixedArity;
+    protected volatile MethodHandle _invokerNullary;
+    protected volatile MethodHandle _invokerUnary;
 
     // // Simple lazy-caching:
 
@@ -93,7 +102,7 @@ public final class AnnotatedMethod
     @Override
     public final Object call() throws Exception {
         try {
-            return _invokerNullary.get().invokeExact();
+            return invokerNullary().invokeExact();
         } catch (final Throwable e) {
             throw sneakyThrow(e);
         }
@@ -102,7 +111,7 @@ public final class AnnotatedMethod
     @Override
     public final Object call(Object[] args) throws Exception {
         try {
-            return _invokerFixedArity.get().invokeWithArguments(args);
+            return invokerFixedArity().invokeWithArguments(args);
         } catch (final Throwable e) {
             throw sneakyThrow(e);
         }
@@ -111,7 +120,7 @@ public final class AnnotatedMethod
     @Override
     public final Object call1(Object arg) throws Exception {
         try {
-            return _invokerUnary.get().invokeExact(arg);
+            return invokerUnary().invokeExact(arg);
         } catch (final Throwable e) {
             throw sneakyThrow(e);
         }
@@ -119,7 +128,7 @@ public final class AnnotatedMethod
 
     public final Object callOn(Object pojo) throws Exception {
         try {
-            return _invokerUnary.get().invokeExact(pojo);
+            return invokerUnary().invokeExact(pojo);
         } catch (Throwable e) {
             throw sneakyThrow(e);
         }
@@ -127,7 +136,7 @@ public final class AnnotatedMethod
 
     public final Object callOnWith(Object pojo, Object... args) throws Exception {
         try {
-            MethodHandle invoker = _invokerFixedArity.get();
+            MethodHandle invoker = invokerFixedArity();
             if (!Modifier.isStatic(_method.getModifiers())) {
                 invoker = invoker.bindTo(pojo);
             }
@@ -135,6 +144,41 @@ public final class AnnotatedMethod
         } catch (Throwable e) {
             throw sneakyThrow(e);
         }
+    }
+
+    private MethodHandle invokerNullary() throws IllegalAccessException {
+        MethodHandle h = _invokerNullary;
+        if (h == null) {
+            h = unreflect().asType(INVOKER_NULLARY_TYPE);
+            _invokerNullary = h;
+        }
+        return h;
+    }
+
+    private MethodHandle invokerUnary() throws IllegalAccessException {
+        MethodHandle h = _invokerUnary;
+        if (h == null) {
+            h = unreflect().asType(INVOKER_UNARY_TYPE);
+            _invokerUnary = h;
+        }
+        return h;
+    }
+
+    private MethodHandle invokerFixedArity() throws IllegalAccessException {
+        MethodHandle h = _invokerFixedArity;
+        if (h == null) {
+            h = unreflect().asFixedArity();
+            _invokerFixedArity = h;
+        }
+        return h;
+    }
+
+    /**
+     * Note: caller is expected to have called {@code ClassUtil.checkAndFixAccess()}
+     * already; access checks are suppressed for an accessible {@link Method}.
+     */
+    private MethodHandle unreflect() throws IllegalAccessException {
+        return MethodHandles.lookup().unreflect(_method);
     }
 
     /*
@@ -254,16 +298,5 @@ public final class AnnotatedMethod
         }
         AnnotatedMethod other = (AnnotatedMethod) o;
         return Objects.equals(_method, other._method);
-    }
-
-    class MethodHolder extends UnreflectHandleSupplier {
-        MethodHolder(MethodType asType) {
-            super(asType);
-        }
-
-        @Override
-        protected MethodHandle unreflect() throws IllegalAccessException {
-            return MethodHandles.lookup().unreflect(_method);
-        }
     }
 }

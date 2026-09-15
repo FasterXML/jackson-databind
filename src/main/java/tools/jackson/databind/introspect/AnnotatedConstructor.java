@@ -122,7 +122,7 @@ public final class AnnotatedConstructor
     @Override
     public final Object call() throws Exception {
         try {
-            return invokerNullary().invokeExact();
+            return _invokerNullaryHandle().invokeExact();
         } catch (Throwable e) {
             throw ClassUtil.sneakyThrow(e);
         }
@@ -131,7 +131,7 @@ public final class AnnotatedConstructor
     @Override
     public final Object call(Object[] args) throws Exception {
         try {
-            return invokerFixedArity().invokeWithArguments(args);
+            return _invokerFixedArityHandle().invokeWithArguments(args);
         } catch (Throwable e) {
             throw ClassUtil.sneakyThrow(e);
         }
@@ -140,34 +140,34 @@ public final class AnnotatedConstructor
     @Override
     public final Object call1(Object arg) throws Exception {
         try {
-            return invokerUnary().invokeExact(arg);
+            return _invokerUnaryHandle().invokeExact(arg);
         } catch (Throwable e) {
             throw ClassUtil.sneakyThrow(e);
         }
     }
 
-    private MethodHandle invokerNullary() throws IllegalAccessException {
+    private MethodHandle _invokerNullaryHandle() throws IllegalAccessException {
         MethodHandle h = _invokerNullary;
         if (h == null) {
-            h = unreflect().asType(INVOKER_NULLARY_TYPE);
+            h = _unreflect().asType(INVOKER_NULLARY_TYPE);
             _invokerNullary = h;
         }
         return h;
     }
 
-    private MethodHandle invokerUnary() throws IllegalAccessException {
+    private MethodHandle _invokerUnaryHandle() throws IllegalAccessException {
         MethodHandle h = _invokerUnary;
         if (h == null) {
-            h = unreflect().asType(INVOKER_UNARY_TYPE);
+            h = _unreflect().asType(INVOKER_UNARY_TYPE);
             _invokerUnary = h;
         }
         return h;
     }
 
-    private MethodHandle invokerFixedArity() throws IllegalAccessException {
+    private MethodHandle _invokerFixedArityHandle() throws IllegalAccessException {
         MethodHandle h = _invokerFixedArity;
         if (h == null) {
-            h = unreflect().asFixedArity();
+            h = _unreflect().asFixedArity();
             _invokerFixedArity = h;
         }
         return h;
@@ -177,7 +177,7 @@ public final class AnnotatedConstructor
      * Note: caller is expected to have called {@code ClassUtil.checkAndFixAccess()}
      * already; access checks are suppressed for an accessible {@link Constructor}.
      */
-    private MethodHandle unreflect() throws IllegalAccessException {
+    private MethodHandle _unreflect() throws IllegalAccessException {
         return MethodHandles.lookup().unreflectConstructor(_constructor);
     }
 

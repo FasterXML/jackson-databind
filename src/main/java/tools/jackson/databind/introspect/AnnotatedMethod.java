@@ -102,7 +102,7 @@ public final class AnnotatedMethod
     @Override
     public final Object call() throws Exception {
         try {
-            return invokerNullary().invokeExact();
+            return _invokerNullaryHandle().invokeExact();
         } catch (final Throwable e) {
             throw sneakyThrow(e);
         }
@@ -111,7 +111,7 @@ public final class AnnotatedMethod
     @Override
     public final Object call(Object[] args) throws Exception {
         try {
-            return invokerFixedArity().invokeWithArguments(args);
+            return _invokerFixedArityHandle().invokeWithArguments(args);
         } catch (final Throwable e) {
             throw sneakyThrow(e);
         }
@@ -120,7 +120,7 @@ public final class AnnotatedMethod
     @Override
     public final Object call1(Object arg) throws Exception {
         try {
-            return invokerUnary().invokeExact(arg);
+            return _invokerUnaryHandle().invokeExact(arg);
         } catch (final Throwable e) {
             throw sneakyThrow(e);
         }
@@ -128,7 +128,7 @@ public final class AnnotatedMethod
 
     public final Object callOn(Object pojo) throws Exception {
         try {
-            return invokerUnary().invokeExact(pojo);
+            return _invokerUnaryHandle().invokeExact(pojo);
         } catch (Throwable e) {
             throw sneakyThrow(e);
         }
@@ -136,7 +136,7 @@ public final class AnnotatedMethod
 
     public final Object callOnWith(Object pojo, Object... args) throws Exception {
         try {
-            MethodHandle invoker = invokerFixedArity();
+            MethodHandle invoker = _invokerFixedArityHandle();
             if (!Modifier.isStatic(_method.getModifiers())) {
                 invoker = invoker.bindTo(pojo);
             }
@@ -146,28 +146,28 @@ public final class AnnotatedMethod
         }
     }
 
-    private MethodHandle invokerNullary() throws IllegalAccessException {
+    private MethodHandle _invokerNullaryHandle() throws IllegalAccessException {
         MethodHandle h = _invokerNullary;
         if (h == null) {
-            h = unreflect().asType(INVOKER_NULLARY_TYPE);
+            h = _unreflect().asType(INVOKER_NULLARY_TYPE);
             _invokerNullary = h;
         }
         return h;
     }
 
-    private MethodHandle invokerUnary() throws IllegalAccessException {
+    private MethodHandle _invokerUnaryHandle() throws IllegalAccessException {
         MethodHandle h = _invokerUnary;
         if (h == null) {
-            h = unreflect().asType(INVOKER_UNARY_TYPE);
+            h = _unreflect().asType(INVOKER_UNARY_TYPE);
             _invokerUnary = h;
         }
         return h;
     }
 
-    private MethodHandle invokerFixedArity() throws IllegalAccessException {
+    private MethodHandle _invokerFixedArityHandle() throws IllegalAccessException {
         MethodHandle h = _invokerFixedArity;
         if (h == null) {
-            h = unreflect().asFixedArity();
+            h = _unreflect().asFixedArity();
             _invokerFixedArity = h;
         }
         return h;
@@ -177,7 +177,7 @@ public final class AnnotatedMethod
      * Note: caller is expected to have called {@code ClassUtil.checkAndFixAccess()}
      * already; access checks are suppressed for an accessible {@link Method}.
      */
-    private MethodHandle unreflect() throws IllegalAccessException {
+    private MethodHandle _unreflect() throws IllegalAccessException {
         return MethodHandles.lookup().unreflect(_method);
     }
 

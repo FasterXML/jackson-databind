@@ -565,14 +565,15 @@ public class ObjectArrayDeserializer
             if (_array == null) {
                 return;
             }
-            // Only the slot of `forRef` itself: if the same id was forward-referenced
-            // more than once, each reference gets a call of its own. Scanning all
-            // slots instead would make rebinding N references take O(N^2) time.
-            final int index = forRef._index;
-            final Object slot = _accumulator.get(index);
-            if (slot == forRef || slot == oldItem) {
-                _array[index] = newItem;
-                _accumulator.set(index, newItem);
+            // No early return on `forRef` match: the same `oldItem` may also
+            // occupy other slots if the same id was forward-referenced more
+            // than once, and we want to swap them all in a single pass.
+            for (int i = 0, size = _accumulator.size(); i < size; ++i) {
+                Object slot = _accumulator.get(i);
+                if (slot == forRef || slot == oldItem) {
+                    _array[i] = newItem;
+                    _accumulator.set(i, newItem);
+                }
             }
         }
 

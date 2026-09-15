@@ -38,6 +38,14 @@ public abstract class DeserializationContextExt
     private Set<Object> _buildersWithForwardRefs;
 
     /**
+     * Lookup from items bound to Object Ids that may later be rebound (Builders,
+     * delegates) to their Object Id entries: lets {@link #updateObjectId} find the
+     * entry directly, as scanning all Object Ids would make reading N such values
+     * take O(N^2) time.
+     */
+    private transient IdentityHashMap<Object, ReadableObjectId> _rebindableItems;
+
+    /**
      * Constructor that will pass specified deserializer factory and
      * cache: cache may be null (in which case default implementation
      * will be used), factory cannot be null
@@ -131,6 +139,14 @@ public abstract class DeserializationContextExt
     @Override
     public void updateObjectId(Object delegate, Object newItem) throws JacksonException
     {
+        if (_rebindableItems != null) {
+            ReadableObjectId roid = _rebindableItems.remove(delegate);
+            if ((roid != null) && roid.tryReplaceBoundItem(delegate, newItem)) {
+                roid.notifyReferringsOfRebind(delegate, newItem);
+                return;
+            }
+        }
+        // Not registered as rebindable (should be rare): need to scan all Object Ids
         if (_objectIds != null) {
             for (ReadableObjectId roid : _objectIds.values()) {
                 if (roid.tryReplaceBoundItem(delegate, newItem)) {
@@ -148,6 +164,18 @@ public abstract class DeserializationContextExt
                 "Failed to update Object Id: no ObjectId entry found bound to delegate of type `%s`"
                 + " (target type `%s`)",
                 ClassUtil.classNameOf(delegate), ClassUtil.classNameOf(newItem)));
+    }
+
+    /**
+     * Method called by {@link ReadableObjectId#bindItem} to register an item that may
+     * later be rebound by {@link #updateObjectId}.
+     */
+    void registerRebindableItem(Object item, ReadableObjectId roid) {
+        if (_rebindableItems == null) {
+            _rebindableItems = new IdentityHashMap<>();
+        }
+        // Should there be multiple entries bound to the same item, keep the first one
+        _rebindableItems.putIfAbsent(item, roid);
     }
 
     // @since 3.2

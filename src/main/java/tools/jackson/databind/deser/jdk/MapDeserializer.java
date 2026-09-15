@@ -1064,6 +1064,7 @@ public class MapDeserializer
                     if (!pendingRef.isResolved()) {
                         break;
                     }
+                    pendingRef.markMoved();
                     _result.put(pendingRef.key, pendingRef.resolvedValue());
                 } else {
                     Map.Entry<?,?> entry = (Map.Entry<?,?>) pending;
@@ -1110,6 +1111,33 @@ public class MapDeserializer
             }
         }
 
+        /**
+         * Replace the item resolved for given reference, after the bound item is rebound
+         * (e.g., builder → built object). Unlike {@link #replaceResolvedItem(Object, Object)},
+         * only replaces the entry of the reference itself (other references to the same
+         * item get calls of their own): scanning the whole map instead would make
+         * rebinding N references take O(N^2) time.
+         */
+        void replaceResolvedItem(MapReferring ref, Object oldItem, Object newItem) {
+            if (ref.resolvedValue() == oldItem) {
+                ref.resolve(newItem);
+                // Still pending: will be moved to result as is
+                if (!ref.isMoved()) {
+                    return;
+                }
+                if (_result.get(ref.key) == oldItem) {
+                    _result.put(ref.key, newItem);
+                    return;
+                }
+                // Overridden by a later entry with the same key: nothing to replace
+                if (_result.containsKey(ref.key)) {
+                    return;
+                }
+            }
+            // Should not occur, unless result was modified by caller: need to scan
+            replaceResolvedItem(oldItem, newItem);
+        }
+
         private static void replaceInMap(Map<Object, Object> map, Object oldItem, Object newItem) {
             // Identity match: oldItem is the exact bound delegate (e.g. Builder).
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
@@ -1140,6 +1168,11 @@ public class MapDeserializer
             this.key = key;
         }
 
+        /**
+         * Whether resolved value has been moved to the result map.
+         */
+        private boolean _moved;
+
         void resolve(Object value) {
             _value = value;
             _resolved = true;
@@ -1148,6 +1181,10 @@ public class MapDeserializer
         boolean isResolved() { return _resolved; }
 
         Object resolvedValue() { return _value; }
+
+        void markMoved() { _moved = true; }
+
+        boolean isMoved() { return _moved; }
 
         @Override
         public void handleResolvedForwardReference(DeserializationContext ctxt, Object id, Object value)
@@ -1158,7 +1195,7 @@ public class MapDeserializer
 
         @Override
         public void handleItemRebind(Object oldItem, Object newItem) {
-            _parent.replaceResolvedItem(oldItem, newItem);
+            _parent.replaceResolvedItem(this, oldItem, newItem);
         }
     }
 }

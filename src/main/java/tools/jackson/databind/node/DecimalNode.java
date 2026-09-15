@@ -222,6 +222,12 @@ public class DecimalNode
 
     @Override
     protected BigInteger _asBigIntegerValueUnchecked() {
+        // [databind#6214]: guard against excessive scale magnitude, which would
+        // make `toBigInteger()` very expensive (huge multiplication/allocation);
+        // same check as `ParserBase.convertNumberToBigInteger()` (and
+        // 2.x `BaseJsonNode._bigIntFromBigDec()`). No access to actual
+        // `StreamReadConstraints` here, so use defaults.
+        StreamReadConstraints.defaults().validateBigIntegerScale(_value.scale());
         return _value.toBigInteger();
     }
 

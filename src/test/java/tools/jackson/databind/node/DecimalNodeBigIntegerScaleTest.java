@@ -34,14 +34,17 @@ public class DecimalNodeBigIntegerScaleTest extends DatabindTestUtil
     @Test
     public void testAccessorsGuarded() throws Exception
     {
-        // Huge negative scale (integral value): all accessors reach conversion
+        // Huge negative scale (integral value): strict accessors must fail...
         DecimalNode neg = DecimalNode.valueOf(new BigDecimal(HUGE_NEG_SCALE));
         _verifyGuarded(HUGE_NEG_SCALE, () -> neg.bigIntegerValue());
-        _verifyGuarded(HUGE_NEG_SCALE, () -> neg.bigIntegerValue(BigInteger.ZERO));
-        _verifyGuarded(HUGE_NEG_SCALE, () -> neg.bigIntegerValueOpt());
         _verifyGuarded(HUGE_NEG_SCALE, () -> neg.asBigInteger());
-        _verifyGuarded(HUGE_NEG_SCALE, () -> neg.asBigInteger(BigInteger.ZERO));
-        _verifyGuarded(HUGE_NEG_SCALE, () -> neg.asBigIntegerOpt());
+
+        // ... but default/Optional variants must return default/empty instead
+        // of throwing, same as for other conversion failures (NaN, fraction)
+        assertEquals(BigInteger.ONE, neg.bigIntegerValue(BigInteger.ONE));
+        assertFalse(neg.bigIntegerValueOpt().isPresent());
+        assertEquals(BigInteger.ONE, neg.asBigInteger(BigInteger.ONE));
+        assertFalse(neg.asBigIntegerOpt().isPresent());
 
         // Huge positive scale (has fractional part): strict `bigIntegerValue()`
         // variants reject it earlier (fraction check, cheap); coercing
@@ -49,8 +52,8 @@ public class DecimalNodeBigIntegerScaleTest extends DatabindTestUtil
         DecimalNode pos = DecimalNode.valueOf(new BigDecimal(HUGE_POS_SCALE));
         assertTrue(pos.hasFractionalPart());
         _verifyGuarded(HUGE_POS_SCALE, () -> pos.asBigInteger());
-        _verifyGuarded(HUGE_POS_SCALE, () -> pos.asBigInteger(BigInteger.ZERO));
-        _verifyGuarded(HUGE_POS_SCALE, () -> pos.asBigIntegerOpt());
+        assertEquals(BigInteger.ONE, pos.asBigInteger(BigInteger.ONE));
+        assertFalse(pos.asBigIntegerOpt().isPresent());
     }
 
     // POJONode wrapping a BigDecimal has its own conversion path
@@ -59,9 +62,12 @@ public class DecimalNodeBigIntegerScaleTest extends DatabindTestUtil
     {
         for (String num : new String[] { HUGE_NEG_SCALE, HUGE_POS_SCALE }) {
             POJONode n = new POJONode(new BigDecimal(num));
+            // Strict accessor must fail...
             _verifyGuarded(num, () -> n.asBigInteger());
-            _verifyGuarded(num, () -> n.asBigInteger(BigInteger.ZERO));
-            _verifyGuarded(num, () -> n.asBigIntegerOpt());
+            // ... but default/Optional variants return default/empty, as with
+            // `DecimalNode` (and other conversion failures)
+            assertEquals(BigInteger.ONE, n.asBigInteger(BigInteger.ONE));
+            assertFalse(n.asBigIntegerOpt().isPresent());
         }
         assertEquals(new BigInteger("1000"), new POJONode(new BigDecimal("1e3")).asBigInteger());
     }
@@ -96,6 +102,14 @@ public class DecimalNodeBigIntegerScaleTest extends DatabindTestUtil
         BigDecimal atLimit = new BigDecimal("1e-100000");
         assertEquals(BigInteger.ZERO, DecimalNode.valueOf(atLimit).asBigInteger());
         assertEquals(BigInteger.ZERO, DecimalNode.valueOf(atLimit).asBigInteger(BigInteger.TEN));
+
+        // ... and so is the other (expensive but legal) direction: negative scale
+        // at limit yields an actual 100k-digit integer, and must NOT be rejected
+        DecimalNode atNegLimit = DecimalNode.valueOf(new BigDecimal("1e100000"));
+        assertEquals(-100_000, atNegLimit.decimalValue().scale());
+        assertEquals(332193, atNegLimit.bigIntegerValue().bitLength());
+        assertEquals(332193, atNegLimit.asBigInteger(BigInteger.ONE).bitLength());
+        assertTrue(atNegLimit.bigIntegerValueOpt().isPresent());
     }
 
     private interface Conversion { Object convert() throws Exception; }

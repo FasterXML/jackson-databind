@@ -6,7 +6,6 @@ import java.math.BigInteger;
 import java.util.*;
 
 import tools.jackson.core.*;
-import tools.jackson.core.exc.StreamConstraintsException;
 
 import tools.jackson.databind.JacksonSerializable;
 import tools.jackson.databind.SerializationContext;
@@ -544,15 +543,12 @@ public class POJONode
 
     // [databind#6214]: whether conversion to `BigInteger` is within scale limit;
     // called by non-throwing accessors, which need to return default/empty value
-    // instead of failing. `StreamReadConstraints` exposes no getter for the limit,
-    // so we probe by validation instead of duplicating the constant here.
+    // instead of failing.
     private boolean _bigIntegerScaleInRange() {
         if (_value instanceof BigDecimal dec) {
-            try {
-                StreamReadConstraints.defaults().validateBigIntegerScale(dec.scale());
-            } catch (StreamConstraintsException e) {
-                return false;
-            }
+            final int max = StreamReadConstraints.defaults().getMaxBigIntegerScale();
+            final int scale = dec.scale();
+            return (scale >= -max) && (scale <= max);
         }
         return true;
     }

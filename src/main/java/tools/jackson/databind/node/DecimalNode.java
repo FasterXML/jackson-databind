@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 
 import tools.jackson.core.*;
-import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.databind.*;
 
 /**
@@ -237,15 +236,10 @@ public class DecimalNode
     @Override
     boolean _bigIntegerScaleInRange() {
         // [databind#6214]: same limit as guard in `_asBigIntegerValueUnchecked()`,
-        // but as a predicate, for non-throwing accessors. `StreamReadConstraints`
-        // exposes no getter for the limit, so we probe by validation instead of
-        // duplicating the constant here.
-        try {
-            StreamReadConstraints.defaults().validateBigIntegerScale(_value.scale());
-            return true;
-        } catch (StreamConstraintsException e) {
-            return false;
-        }
+        // but as a predicate, for non-throwing accessors
+        final int max = StreamReadConstraints.defaults().getMaxBigIntegerScale();
+        final int scale = _value.scale();
+        return (scale >= -max) && (scale <= max);
     }
 
     @Override

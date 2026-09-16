@@ -1024,6 +1024,9 @@ public abstract class JsonNode
      * @return {@code BigInteger} value this node represents, if possible to accurately represent
      *
      * @throws JsonNodeException if node value cannot be converted to Java {@code BigInteger}
+     * @throws tools.jackson.core.exc.StreamConstraintsException if conversion would exceed
+     *   the {@code StreamReadConstraints} limit on {@code BigDecimal} scale magnitude
+     *   (note: this is <b>not</b> a {@link JsonNodeException})
      */
     public abstract BigInteger bigIntegerValue();
 
@@ -1067,8 +1070,12 @@ public abstract class JsonNode
      *   </li>
      *  </ul>
      *
-     * @return {@link BigInteger} value this node represents, if possible to accurately convert;
-     *   {@code defaultValue} otherwise
+     * @return {@link BigInteger} value this node represents, if possible to accurately convert
+     *
+     * @throws JsonNodeException if node value cannot be coerced to Java {@code BigInteger}
+     * @throws tools.jackson.core.exc.StreamConstraintsException if conversion would exceed
+     *   the {@code StreamReadConstraints} limit on {@code BigDecimal} scale magnitude
+     *   (note: this is <b>not</b> a {@link JsonNodeException})
      */
     public abstract BigInteger asBigInteger();
 

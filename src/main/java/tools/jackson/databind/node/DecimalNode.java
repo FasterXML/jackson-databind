@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 
 import tools.jackson.core.*;
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.databind.*;
 
 /**
@@ -222,7 +223,27 @@ public class DecimalNode
 
     @Override
     protected BigInteger _asBigIntegerValueUnchecked() {
+        // [databind#6214]: guard against excessive scale magnitude, which would
+        // make `toBigInteger()` very expensive (huge multiplication/allocation);
+        // same check as `ParserBase.convertNumberToBigInteger()` (and
+        // 2.x `BaseJsonNode._bigIntFromBigDec()`). No access to actual
+        // `StreamReadConstraints` here, so use defaults.
+        StreamReadConstraints.defaults().validateBigIntegerScale(_value.scale());
         return _value.toBigInteger();
+    }
+
+    @Override
+    boolean _bigIntegerScaleInRange() {
+        // [databind#6214]: same limit as guard in `_asBigIntegerValueUnchecked()`,
+        // but as a predicate, for non-throwing accessors. `StreamReadConstraints`
+        // exposes no getter for the limit, so we probe by validation instead of
+        // duplicating the constant here.
+        try {
+            StreamReadConstraints.defaults().validateBigIntegerScale(_value.scale());
+            return true;
+        } catch (StreamConstraintsException e) {
+            return false;
+        }
     }
 
     @Override

@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.*;
 
 import tools.jackson.core.*;
+import tools.jackson.core.exc.StreamConstraintsException;
 
 import tools.jackson.databind.JacksonSerializable;
 import tools.jackson.databind.SerializationContext;
@@ -327,8 +328,8 @@ public class POJONode
 
     @Override
     public BigInteger asBigInteger(BigInteger defaultValue) {
-        // If not a Number (including `null`), return default
-        if (!(_value instanceof Number)) {
+        // If not a Number (including `null`), or scale out of range, return default
+        if (!(_value instanceof Number) || !_bigIntegerScaleInRange()) {
             return defaultValue;
         }
 
@@ -338,8 +339,8 @@ public class POJONode
 
     @Override
     public Optional<BigInteger> asBigIntegerOpt() {
-        // If not a Number (including `null`), return empty
-        if (!(_value instanceof Number)) {
+        // If not a Number (including `null`), or scale out of range, return empty
+        if (!(_value instanceof Number) || !_bigIntegerScaleInRange()) {
             return Optional.empty();
         }
 
@@ -522,18 +523,36 @@ public class POJONode
         return null;
     }
 
-    // extract BigInteger from Number, or return null if range check fails
+    // extract BigInteger from Number, or return null if not a Number; throws
+    // `StreamConstraintsException` if `BigDecimal` scale magnitude exceeds limit
     protected BigInteger _extractAsBigInteger() {
         if (_value instanceof Number N) {
             if (N instanceof BigInteger big) {
                 return big;
             } else if (N instanceof BigDecimal dec) {
+                // [databind#6214]: guard against excessive scale magnitude
+                StreamReadConstraints.defaults().validateBigIntegerScale(dec.scale());
                 return dec.toBigInteger();
             } else {
                 return BigInteger.valueOf(N.longValue());
             }
         }
         return null;
+    }
+
+    // [databind#6214]: whether conversion to `BigInteger` is within scale limit;
+    // called by non-throwing accessors, which need to return default/empty value
+    // instead of failing. `StreamReadConstraints` exposes no getter for the limit,
+    // so we probe by validation instead of duplicating the constant here.
+    private boolean _bigIntegerScaleInRange() {
+        if (_value instanceof BigDecimal dec) {
+            try {
+                StreamReadConstraints.defaults().validateBigIntegerScale(dec.scale());
+            } catch (StreamConstraintsException e) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // extract Float from Number, or return null if range check fails

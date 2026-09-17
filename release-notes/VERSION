@@ -80,6 +80,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   (Default Typing, `@JsonTypeInfo`) resolves a type id: type deserializer was built
   for the declared type, before the refinement
  (fix by @pjfanning)
+#6219: Vanilla `BeanDeserializer` fast path never used with 3.x defaults
+  (`MapperFeature.DEFAULT_VIEW_INCLUSION` disabled)
+ (reported by @cowtowncoder)
+ (fix by @kalayciburak)
 
 3.2.3 (not yet released)
 

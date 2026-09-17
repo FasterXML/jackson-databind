@@ -26,6 +26,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   (particularly `@JsonInclude`, `@JsonFormat`)
  (reported by @sikorskii)
  (fix by @seonwooj0810)
+#6063: Add `DeserializationFeature.ABSENT_BEHAVES_LIKE_NULL` to allow missing
+  Creator properties to bypass configured null handling when disabled
+ (requested by @joca-bt)
 #6069: Change throws declaration on convertValue to JacksonException to match what
   is actually thrown
  (reported by @pctF)

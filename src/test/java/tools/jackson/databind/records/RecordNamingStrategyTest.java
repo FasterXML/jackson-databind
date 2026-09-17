@@ -108,7 +108,7 @@ public class RecordNamingStrategyTest extends DatabindTestUtil
 
     // [databind#6217]: exact input from the issue report
     @Test
-    public void deserializeIsPrefixWithWhitespace6217() throws Exception
+    public void deserializeIssueInput6217() throws Exception
     {
         IsPrefixBoxedRecord6217 r = MAPPER.readValue("""
                 {"is_true" : false}""", IsPrefixBoxedRecord6217.class);

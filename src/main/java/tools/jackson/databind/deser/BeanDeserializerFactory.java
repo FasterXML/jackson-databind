@@ -779,6 +779,14 @@ public class BeanDeserializerFactory
                 continue;
             }
             if (!property.hasConstructorParameter()) { // never skip constructor params
+                // [databind#6201]: `@JacksonInject(useInput=OptBoolean.FALSE)` means value
+                // from input is to be ignored; drop the mutator so nothing can bind it
+                // (`ValueInjector` still assigns the injected value)
+                if (_isInjectOnlyMutator(ctxt, beanDescRef.get(), property)) {
+                    // important: make ignorable, to avoid errors if value is actually seen
+                    builder.addIgnorable(name);
+                    continue;
+                }
                 Class<?> rawPropertyType = property.getRawPrimaryType();
                 // Some types are declared as ignorable as well
                 if ((rawPropertyType != null)
@@ -791,6 +799,39 @@ public class BeanDeserializerFactory
             result.add(property);
         }
         return result;
+    }
+
+    /**
+     * Helper method for [databind#6201]: checks whether given property is backed by a
+     * Field or Setter annotated with {@code @JacksonInject(useInput = OptBoolean.FALSE)},
+     * that is, one for which the value from input must be ignored in favor of the
+     * injected value.
+     *<p>
+     * Creator properties enforce this themselves, via
+     * {@link tools.jackson.databind.deser.CreatorProperty#isInjectionOnly()}, and are
+     * excluded by the caller. Field- and Setter-backed properties have no equivalent
+     * check in the property loops, and since injection runs before properties are
+     * bound, a matching value from input would simply overwrite the injected one.
+     *
+     * @since 3.3
+     */
+    private boolean _isInjectOnlyMutator(DeserializationContext ctxt,
+            BeanDescription beanDesc, BeanPropertyDefinition property)
+    {
+        AnnotatedMember mutator = property.getNonConstructorMutator();
+        if (mutator == null) {
+            return false;
+        }
+        JacksonInject.Value injectable = ctxt.getAnnotationIntrospector()
+                .findInjectableValue(ctxt.getConfig(), mutator);
+        if ((injectable == null) || !Boolean.FALSE.equals(injectable.getUseInput())) {
+            return false;
+        }
+        // Only when the member really is the one injection uses: [databind#4218] drops
+        // injectables masked by a Creator parameter with the same id, and dropping the
+        // mutator for those would leave the property unset instead of injected.
+        Map<Object, AnnotatedMember> injectables = beanDesc.findInjectables();
+        return (injectables != null) && injectables.containsValue(mutator);
     }
 
     /**

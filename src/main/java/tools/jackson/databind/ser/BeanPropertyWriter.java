@@ -3,6 +3,7 @@ package tools.jackson.databind.ser;
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
@@ -26,7 +27,6 @@ import tools.jackson.databind.ser.impl.PropertySerializerMap;
 import tools.jackson.databind.util.Annotations;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.NameTransformer;
-import tools.jackson.databind.util.internal.UnreflectHandleSupplier;
 
 import static java.lang.invoke.MethodType.methodType;
 
@@ -45,6 +45,8 @@ import static tools.jackson.databind.util.ClassUtil.sneakyThrow;
 public class BeanPropertyWriter
     extends PropertyWriter // which extends `ConcreteBeanPropertyBase`
 {
+    private static final MethodType GETTER_TYPE = methodType(Object.class, Object.class);
+
     /**
      * Marker object used to indicate "do not serialize if empty"
      */
@@ -114,10 +116,12 @@ public class BeanPropertyWriter
     protected final AnnotatedMember _member;
 
     /**
-     * Accessor method used to get property value.
-     * Wrapped in a holder since MethodHandle is not serializable.
+     * Lazily resolved accessor handle used to get property value
+     * ({@code null} for virtual properties);
+     * {@code volatile} so a racy first use is safely published (duplicate
+     * resolution is harmless, handles are equivalent).
      */
-    protected final GetterHolder _accessor = new GetterHolder();
+    protected volatile MethodHandle _accessor;
 
     /*
     /**********************************************************************
@@ -338,6 +342,7 @@ public class BeanPropertyWriter
         _declaredType = base._declaredType;
 
         _member = base._member;
+        _accessor = base._accessor;
 
         _serializer = base._serializer;
         _nullSerializer = base._nullSerializer;
@@ -363,6 +368,7 @@ public class BeanPropertyWriter
         _wrapperName = base._wrapperName;
 
         _member = base._member;
+        _accessor = base._accessor;
         _contextAnnotations = base._contextAnnotations;
         _declaredType = base._declaredType;
         _serializer = base._serializer;
@@ -845,7 +851,7 @@ public class BeanPropertyWriter
      */
     public final Object get(Object bean) throws Exception {
         try {
-            return _accessor.get().invokeExact(bean);
+            return _accessorHandle().invokeExact(bean);
         } catch (Throwable e) {
             throw sneakyThrow(e);
         }
@@ -939,22 +945,30 @@ public class BeanPropertyWriter
         return sb.toString();
     }
 
-    class GetterHolder extends UnreflectHandleSupplier {
-        public GetterHolder() {
-            super(methodType(Object.class, Object.class));
+    private MethodHandle _accessorHandle() throws IllegalAccessException {
+        MethodHandle h = _accessor;
+        if (h == null) {
+            h = _unreflectAccessor();
+            _accessor = h;
         }
+        return h;
+    }
 
-        @Override
-        protected MethodHandle unreflect() throws IllegalAccessException {
-            if (_member instanceof AnnotatedField) {
-                return MethodHandles.lookup().unreflectGetter((Field) _member.getMember());
-            } else if (_member instanceof AnnotatedMethod method) {
-                return MethodHandles.lookup().unreflect(method.getMember());
-            } else {
-                // 01-Dec-2014, tatu: Used to be illegal, but now explicitly allowed
-                // for virtual props
-                return null;
-            }
+    /**
+     * Note: resolved lazily, on first use, since access to non-public members
+     * is only enabled by {@link #fixAccess} which is called after construction.
+     */
+    private MethodHandle _unreflectAccessor() throws IllegalAccessException {
+        MethodHandle h;
+        if (_member instanceof AnnotatedField) {
+            h = MethodHandles.lookup().unreflectGetter((Field) _member.getMember());
+        } else if (_member instanceof AnnotatedMethod method) {
+            h = MethodHandles.lookup().unreflect(method.getMember());
+        } else {
+            // 01-Dec-2014, tatu: Used to be illegal, but now explicitly allowed
+            // for virtual props
+            return null;
         }
+        return h.asType(GETTER_TYPE);
     }
 }

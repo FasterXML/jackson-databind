@@ -8,6 +8,21 @@ Project: jackson-databind
 
 No changes since 2.22
 
+2.22.3 (not yet released)
+
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [CVE-2026-91776]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [CVE-2026-91777]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6205: Avoid quadratic forward-reference resolution in `ObjectArrayDeserializer`
+ (fix by @pjfanning, w/ Claude code)
+
 2.22.2 (16-Aug-2026)
 
 #6099: Resolve classes without initialization in `TypeFactory.findClass()`
@@ -23,7 +38,7 @@ No changes since 2.22
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
-  [GHSA-gx83-3vf8-gh7j]
+  [CVE-2026-83557]
  (reported by @prvazsahnazarov)
 
 2.22.1 (07-Jul-2026)
@@ -55,6 +70,21 @@ No changes since 2.22
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
+2.21.7 (not yet released)
+
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [CVE-2026-91776]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [CVE-2026-91777]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6205: Avoid quadratic forward-reference resolution in `ObjectArrayDeserializer`
+ (fix by @pjfanning, w/ Claude code)
+
 2.21.6 (14-Aug-2026)
 
 #6099: Resolve classes without initialization in `TypeFactory.findClass()`
@@ -74,7 +104,7 @@ No changes since 2.22
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
-  [GHSA-gx83-3vf8-gh7j]
+  [CVE-2026-83557]
  (reported by @prvazsahnazarov)
 
 2.21.5 (06-Jul-2026)
@@ -381,6 +411,19 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
+2.18.11 (Not yet released)
+
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [CVE-2026-91776]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [CVE-2026-91777]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+
 2.18.10 (15-Aug-2026)
 
 #6099: Resolve classes without initialization in `TypeFactory.findClass()`
@@ -396,7 +439,7 @@ No changes since 2.19.2
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
-  [GHSA-gx83-3vf8-gh7j]
+  [CVE-2026-83557]
  (reported by @prvazsahnazarov)
 #6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float` Map keys
  (fix by Aysha A-Z)

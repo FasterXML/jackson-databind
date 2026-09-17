@@ -635,6 +635,13 @@ public class CollectionDeserializer
          */
         private final Map<Object, Deque<CollectionReferring>> _unresolvedById = new HashMap<>();
 
+        /**
+         * Identity set of items already replaced in a {@link HashSet} result (when
+         * rebound), to avoid scanning the result for each further reference to them.
+         * Lazily created.
+         */
+        private Set<Object> _replacedSetItems;
+
         public CollectionReferringAccumulator(Class<?> elementType, Collection<Object> result) {
             _elementType = elementType;
             _result = result;
@@ -686,6 +693,7 @@ public class CollectionDeserializer
                     if (!pendingRef.isResolved()) {
                         break;
                     }
+                    pendingRef.markMoved((_result instanceof List<?>) ? _result.size() : -1);
                     pending = pendingRef.resolvedValue();
                 }
                 _result.add(pending);
@@ -745,6 +753,53 @@ public class CollectionDeserializer
             }
         }
 
+        /**
+         * Replace the item resolved for given reference, after the bound item is rebound
+         * (e.g., builder → built object). Unlike {@link #replaceResolvedItem(Object, Object)},
+         * only replaces the slot of the reference itself (other references to the same
+         * item get calls of their own) where possible: scanning the whole collection
+         * instead would make rebinding N references take O(N^2) time.
+         *
+         * @since 3.2.3
+         */
+        void replaceResolvedItem(CollectionReferring ref, Object oldItem, Object newItem) {
+            if (ref.resolvedValue() == oldItem) {
+                ref.resolve(newItem);
+                // Still pending: will be moved to result as is
+                if (!ref.isMoved()) {
+                    return;
+                }
+                final int index = ref.resultIndex();
+                if (index >= 0) {
+                    @SuppressWarnings("unchecked")
+                    List<Object> list = (List<Object>) _result;
+                    if ((index < list.size()) && (list.get(index) == oldItem)) {
+                        list.set(index, newItem);
+                        return;
+                    }
+                } else if (_result.getClass() == HashSet.class) {
+                    // Unordered so position need not be retained
+                    if (_replacedSetItems == null) {
+                        _replacedSetItems = Collections.newSetFromMap(new IdentityHashMap<>());
+                    }
+                    // Already replaced via another reference to it? (must check by
+                    // identity: an equal but different built value may be present)
+                    if (!_replacedSetItems.add(oldItem)) {
+                        return;
+                    }
+                    if (_result.remove(oldItem)) {
+                        _result.add(newItem);
+                        return;
+                    }
+                    // Not found: hash code of `oldItem` changed after being added
+                    // (need to scan)
+                }
+            }
+            // Ordered Sets and other Collections (or List modified by caller): need to
+            // replace by scanning, to retain ordering
+            replaceResolvedItem(oldItem, newItem);
+        }
+
         // @since 3.2
         private static boolean _containsIdentity(Collection<?> coll, Object target) {
             for (Object item : coll) {
@@ -766,6 +821,17 @@ public class CollectionDeserializer
         private boolean _resolved;
         private Object _value;
 
+        /**
+         * Whether resolved value has been moved to the result collection.
+         */
+        private boolean _moved;
+
+        /**
+         * Index of the resolved value in the result collection, if moved there and
+         * result is a {@link List}; -1 otherwise.
+         */
+        private int _resultIndex = -1;
+
         CollectionReferring(CollectionReferringAccumulator parent,
                 UnresolvedForwardReference reference, Class<?> contentType)
         {
@@ -782,6 +848,15 @@ public class CollectionDeserializer
 
         Object resolvedValue() { return _value; }
 
+        void markMoved(int resultIndex) {
+            _moved = true;
+            _resultIndex = resultIndex;
+        }
+
+        boolean isMoved() { return _moved; }
+
+        int resultIndex() { return _resultIndex; }
+
         @Override
         public void handleResolvedForwardReference(DeserializationContext ctxt, Object id, Object value) throws JacksonException {
             _parent.resolveForwardReference(ctxt, id, value);
@@ -789,7 +864,7 @@ public class CollectionDeserializer
 
         @Override
         public void handleItemRebind(Object oldItem, Object newItem) {
-            _parent.replaceResolvedItem(oldItem, newItem);
+            _parent.replaceResolvedItem(this, oldItem, newItem);
         }
     }
 

@@ -243,7 +243,7 @@ public abstract class NumericFPNode extends NumericNode
 
     @Override
     public final BigInteger bigIntegerValue(BigInteger defaultValue) {
-        if (isNaN() || hasFractionalPart()) {
+        if (isNaN() || hasFractionalPart() || !_bigIntegerScaleInRange()) {
             return defaultValue;
         }
         return _asBigIntegerValueUnchecked();
@@ -251,7 +251,7 @@ public abstract class NumericFPNode extends NumericNode
 
     @Override
     public final Optional<BigInteger> bigIntegerValueOpt() {
-        if (isNaN() || hasFractionalPart()) {
+        if (isNaN() || hasFractionalPart() || !_bigIntegerScaleInRange()) {
             return Optional.empty();
         }
         return Optional.of(_asBigIntegerValueUnchecked());
@@ -267,7 +267,7 @@ public abstract class NumericFPNode extends NumericNode
 
     @Override
     public final BigInteger asBigInteger(BigInteger defaultValue) {
-        if (isNaN()) {
+        if (isNaN() || !_bigIntegerScaleInRange()) {
             return defaultValue;
         }
         return _asBigIntegerValueUnchecked();
@@ -275,7 +275,7 @@ public abstract class NumericFPNode extends NumericNode
 
     @Override
     public final Optional<BigInteger> asBigIntegerOpt() {
-        if (isNaN()) {
+        if (isNaN() || !_bigIntegerScaleInRange()) {
             return Optional.empty();
         }
         return Optional.of(_asBigIntegerValueUnchecked());
@@ -343,6 +343,21 @@ public abstract class NumericFPNode extends NumericNode
      * must ensure validity prior to calling
      */
     protected abstract BigInteger _asBigIntegerValueUnchecked();
+
+    /**
+     * Method for sub-classes in this package to override if conversion to
+     * {@link BigInteger} may be rejected due to excessive {@code BigDecimal}
+     * scale magnitude ([databind#6214]): called by non-throwing accessors,
+     * which need to return default/empty value instead of failing.
+     * Only {@link DecimalNode} can exceed the limit; for other types
+     * conversion is always within limits.
+     *<p>
+     * NOTE: deliberately package-private, to avoid adding a new extension
+     * point to public API.
+     *
+     * @since 3.1.7
+     */
+    boolean _bigIntegerScaleInRange() { return true; }
 
     // NOTE: we do not need these ones (not enough commonality):
     //protected abstract float _asFloatValueUnchecked();

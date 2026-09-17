@@ -7,8 +7,6 @@ import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import tools.jackson.core.*;
@@ -62,7 +60,6 @@ public class JDKFromStringDeserializer
     public final static int STD_CLASS = 5;
     public final static int STD_JAVA_TYPE = 6;
     public final static int STD_CURRENCY = 7;
-    public final static int STD_PATTERN = 8;
     public final static int STD_LOCALE = 9;
     public final static int STD_CHARSET = 10;
     public final static int STD_TIME_ZONE = 11;
@@ -78,7 +75,6 @@ public class JDKFromStringDeserializer
             Class.class,
             JavaType.class,
             Currency.class,
-            Pattern.class,
             Locale.class,
             Charset.class,
             TimeZone.class,
@@ -125,8 +121,6 @@ public class JDKFromStringDeserializer
             kind = STD_JAVA_TYPE;
         } else if (rawType == Currency.class) {
             kind = STD_CURRENCY;
-        } else if (rawType == Pattern.class) {
-            kind = STD_PATTERN;
         } else if (rawType == Locale.class) {
             kind = STD_LOCALE;
         } else if (rawType == Charset.class) {
@@ -189,13 +183,6 @@ public class JDKFromStringDeserializer
                 return ctxt.handleWeirdStringValue(_valueClass, value,
                         "Unrecognized currency");
             }
-        case STD_PATTERN:
-            try {
-                return Pattern.compile(value);
-            } catch (PatternSyntaxException e) {
-                return ctxt.handleWeirdStringValue(_valueClass, value,
-                        "Invalid Pattern, problem: "+e.getDescription());
-            }
         case STD_LOCALE:
             return _deserializeLocale(value, ctxt);
         case STD_CHARSET:
@@ -234,12 +221,6 @@ public class JDKFromStringDeserializer
         }
         VersionUtil.throwInternal();
         return null;
-    }
-
-    @Override
-    protected boolean _shouldTrim() {
-        // 04-Dec-2021, tatu: [databind#3299] Do not trim (trailing) white space:
-        return (_kind != STD_PATTERN);
     }
 
     @Override

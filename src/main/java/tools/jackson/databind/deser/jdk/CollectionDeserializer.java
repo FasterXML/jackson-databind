@@ -635,6 +635,13 @@ public class CollectionDeserializer
          */
         private final Map<Object, Deque<CollectionReferring>> _unresolvedById = new HashMap<>();
 
+        /**
+         * Identity set of items already replaced in a {@link HashSet} result (when
+         * rebound), to avoid scanning the result for each further reference to them.
+         * Lazily created.
+         */
+        private Set<Object> _replacedSetItems;
+
         public CollectionReferringAccumulator(Class<?> elementType, Collection<Object> result) {
             _elementType = elementType;
             _result = result;
@@ -772,15 +779,20 @@ public class CollectionDeserializer
                     }
                 } else if (_result.getClass() == HashSet.class) {
                     // Unordered so position need not be retained
+                    if (_replacedSetItems == null) {
+                        _replacedSetItems = Collections.newSetFromMap(new IdentityHashMap<>());
+                    }
+                    // Already replaced via another reference to it? (must check by
+                    // identity: an equal but different built value may be present)
+                    if (!_replacedSetItems.add(oldItem)) {
+                        return;
+                    }
                     if (_result.remove(oldItem)) {
                         _result.add(newItem);
                         return;
                     }
-                    // Not found: either already replaced via another reference to it, or
-                    // hash code of `oldItem` changed after being added (need to scan)
-                    if (_result.contains(newItem)) {
-                        return;
-                    }
+                    // Not found: hash code of `oldItem` changed after being added
+                    // (need to scan)
                 }
             }
             // Ordered Sets and other Collections (or List modified by caller): need to

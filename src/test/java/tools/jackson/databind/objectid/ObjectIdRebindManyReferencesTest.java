@@ -132,6 +132,17 @@ public class ObjectIdRebindManyReferencesTest extends DatabindTestUtil
         }
 
         public int getId() { return id; }
+
+        // Value equality: different instances may be equal
+        @Override
+        public boolean equals(Object o) {
+            return (o instanceof Named n) && Objects.equals(n.name, name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(name);
+        }
     }
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -182,6 +193,21 @@ public class ObjectIdRebindManyReferencesTest extends DatabindTestUtil
         assertEquals(2, set.size());
         assertTrue(set.contains(c.entities.get(1)));
         assertTrue(set.contains(c.entities.get(2)));
+    }
+
+    // As above, but with equal built values: must not be mistaken for the
+    // Builder having been replaced already
+    @Test
+    public void forwardReferencesInSetWithChangingBuilderHashCodeEqualValues()
+    {
+        NamedContainer c = MAPPER.readValue("""
+                {"entities":[{"id":0,"set":[1,2]},{"id":1,"name":"a"},{"id":2,"name":"a"}]}
+                """, NamedContainer.class);
+        Set<Named> set = c.entities.get(0).set;
+
+        assertEquals(HashSet.class, set.getClass());
+        assertEquals(1, set.size());
+        assertEquals(Named.class, set.iterator().next().getClass());
     }
 
     // Values following rebound ones refer to them: must get the built values

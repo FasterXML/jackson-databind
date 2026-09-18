@@ -717,6 +717,14 @@ Fabian Lange (@CodingFabian)
  * Requested #3182: Support value deduplication for enumeration like values
   [3.3.0]
 
+Mateusz Hubert Stefaniak (@EmhyrVarEmreis)
+ * Reported #6164: `@JsonCreator` for enums converts value to String even if it is not
+  [3.3.0]
+
+@arimu1
+ * Fixed #6164: `@JsonCreator` for enums converts value to String even if it is not
+  [3.3.0]
+
 @jjh75607
  * Reported #6175: Parse object-form `QName` after `As.PROPERTY` type id
   [3.3.0]

@@ -162,6 +162,17 @@ public class SimpleBeanPropertyDefinition
         return null;
     }
 
+    @Override
+    public Class<?>[] findViews() {
+        if (_member != null) {
+            final AnnotationIntrospector intr = _config.getAnnotationIntrospector();
+            if (intr != null) {
+                return intr.findViews(_config, _member);
+            }
+        }
+        return null;
+    }
+
     // hmmh. what should we claim here?
 
     @Override public boolean isExplicitlyIncluded() { return false; }

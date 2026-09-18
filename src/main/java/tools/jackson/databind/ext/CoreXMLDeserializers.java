@@ -92,9 +92,15 @@ public class CoreXMLDeserializers
                     return _gregorianFromDate(ctxt, _parseDate(p, ctxt));
                 }
             }
-            // QName also allows object value, which needs separate handling
+            // QName also allows object value, which needs separate handling.
+            // PROPERTY_NAME (or END_OBJECT, if there are no other properties):
+            // As.PROPERTY type deserializer has already consumed START_OBJECT
+            // (and the type id), so the parser sits within the same object form
+            // that START_OBJECT starts. [databind#6175]
             if (_kind == TYPE_QNAME) {
-                if (p.hasToken(JsonToken.START_OBJECT)) {
+                if (p.hasToken(JsonToken.START_OBJECT)
+                        || p.hasToken(JsonToken.PROPERTY_NAME)
+                        || p.hasToken(JsonToken.END_OBJECT)) {
                     return _parseQNameObject(p, ctxt);
                 }
             }

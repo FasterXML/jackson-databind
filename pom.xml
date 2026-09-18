@@ -340,8 +340,28 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
             <configuration>
-              <compilerArgs>
+              <!-- 08-Sep-2026, tatu: ErrorProne runs inside javac and needs access to
+                   internal `jdk.compiler` packages; on JDK 17+ that requires forking
+                   so that the `add-exports` / `add-opens` JVM flags can be passed to the
+                   compiler JVM (in-process compilation fails with `IllegalAccessError`)
+                -->
+              <fork>true</fork>
+              <!-- NOTE: `combine.children` needed so that base `-parameters` (required by
+                   tests, for parameter-name detection) is not replaced by these args
+                -->
+              <compilerArgs combine.children="append">
+                <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
+                <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+                <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+                <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+                <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+                <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
                 <arg>-XDcompilePolicy=simple</arg>
+                <arg>--should-stop=ifError=FLOW</arg>
                 <arg>
                   -Xplugin:ErrorProne
                   <!--
@@ -392,8 +412,6 @@
                   -Xep:JavaLangClash:OFF
                   <!-- These can likely be updated from protected to private, but it's relatively low signal -->
                   -Xep:ProtectedMembersInFinalClass:OFF
-                  <!-- These can likely be updated from public to protected, but it's relatively low signal -->
-                  -Xep:PublicConstructorForAbstractClass:OFF
                   <!-- jackson-databind doesn't have a logger, in many cases there's no way to pre-validate inputs -->
                   -Xep:EmptyCatch:OFF
                   -Xep:EqualsGetClass:OFF
@@ -415,6 +433,16 @@
                   <!-- This check is generally high signal, however it is noisy in
                   low level projects which implement caches and interning. -->
                   -Xep:ReferenceEquality:OFF
+                  <!-- Requires `@InlineMe` from `error_prone_annotations`, which would be a
+                  new runtime dependency: not acceptable for `jackson-databind`. Since the
+                  check can never be satisfied, and databind retains many deprecated
+                  delegating methods, it is pure noise here. -->
+                  -Xep:InlineMeSuggester:OFF
+                  <!-- Databind deliberately uses `Enum.ordinal()` for array indexing and
+                  cache-key packing on hot paths (`EnumValues`, `VisibilityChecker`, ...) -->
+                  -Xep:EnumOrdinal:OFF
+                  <!-- `java.util.Date` is part of the API databind must support -->
+                  -Xep:JavaUtilDate:OFF
                 </arg>
               </compilerArgs>
               <annotationProcessorPaths>

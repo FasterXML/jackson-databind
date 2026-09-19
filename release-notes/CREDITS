@@ -619,11 +619,21 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Fixed #6115: Honor `@JsonIgnoreProperties` before any-setter on more deser paths
   [3.2.2]
  * Fixed #6116: Reject non-ASCII digits in `InetAddress` literal validation
-  [3.2.2]
+  [3.1.6]
+ * Fixed #6157: `@JsonIncludeProperties` not honored for `Throwable` types with
+   `@JsonAnySetter`
+  [3.2.3]
+ * Fixed #6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float` Map keys
+  [3.1.6]
+ * Fixed #6174: Honor `@JsonView` in `ThrowableDeserializer.deserializeFromObject()`
+  [3.2.3]
+ * Fixed #6179: Apply `StreamReadConstraints` number length limit when coercing
+   String to `double`
+  [3.2.3]
 
 @waydeshi
- * Reported #6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
-   and Duration
+ * Reported #6127: Add `StreamReadConstraints` number len constraint to
+   `javax.xml.datatype.XMLGregorianCalendar` and `javax.xml.datatype.Duration`
   [3.2.2]
  * Reported #6129: Limit the supported URL schemes for `java.nio.file.Path`
    deserialization
@@ -633,3 +643,24 @@ DongNyoung Lee (@Dongnyoung)
  * Fixed #6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
    for unspecified values
   [3.2.2]
+
+@prvazsahnazarov
+ * Reported #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic
+   base types
+  [3.2.2]
+
+Francesco Nigro (@franz1981)
+ * Reported, contributed fix for #6182: `StdDateFormat.<clinit>` degrades JIT
+   compilation of `UTF8JsonGenerator._writeStringSegment`
+  [3.2.3]
+
+@renechoi
+ * Reported #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+  [3.2.3]
+
+@dabirt
+ * Reported #6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [3.2.3]
+ * Reported #6204: Avoid quadratic forward-reference resolution in Collection/Map
+   deserializers
+  [3.2.3]

@@ -39,6 +39,8 @@ No changes since 3.2
  (fix by @pjfanning, w/ Claude code)
 #6223: Avoid quadratic Object Id rebinding for Builder- and delegate-based values
  (fix by @cowtowncoder, w/ Claude code)
+#6225: `ArrayStoreException` when a Builder-based typed array resolves a forward
+  Object Id reference within the same array
 
 3.2.2 (14-Aug-2026)
 

@@ -562,16 +562,15 @@ public class ObjectArrayDeserializer
          * @since 3.2
          */
         void replaceResolvedItem(ArrayReferring forRef, Object oldItem, Object newItem) {
-            if (_array == null) {
-                return;
-            }
             // Only the slot of `forRef` itself: if the same id was forward-referenced
             // more than once, each reference gets a call of its own. Scanning all
             // slots instead would make rebinding N references take O(N^2) time.
             final int index = forRef._index;
             final Object slot = _accumulator.get(index);
             if (slot == forRef || slot == oldItem) {
-                _array[index] = newItem;
+                if (_array != null) {
+                    _array[index] = newItem;
+                }
                 _accumulator.set(index, newItem);
             }
         }

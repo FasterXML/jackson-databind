@@ -8,7 +8,7 @@ Project: jackson-databind
 
 No changes since 2.22
 
-2.22.3 (not yet released)
+2.22.3 (21-Sep-2026)
 
 #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
  (fix by @pjfanning, w/ Claude code)

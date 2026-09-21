@@ -70,7 +70,7 @@ No changes since 2.22
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.7 (not yet released)
+2.21.7 (21-Sep-2026)
 
 #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
  (fix by @pjfanning, w/ Claude code)

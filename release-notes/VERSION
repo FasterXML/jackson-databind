@@ -332,7 +332,7 @@ No changes since 3.2
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 
-3.1.7 (not yet released)
+3.1.7 (21-Sep-2026)
 
 #6157: `@JsonIncludeProperties` not honored for `Throwable` types with
   `@JsonAnySetter`

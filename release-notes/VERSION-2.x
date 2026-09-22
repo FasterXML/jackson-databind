@@ -6,8 +6,8 @@ Project: jackson-databind
 
 2.21.8 (not yet released)
 
-#6227: `BeanDescription.findProperties()` is not thread-safe when called
-  concurrently on the same instance
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
  (reported by @sergeylappo)
  (fix by @pjfanning, w/ Claude code)
 

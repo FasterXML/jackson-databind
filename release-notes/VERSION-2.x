@@ -4,6 +4,13 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.21.8 (not yet released)
+
+#6227: `BeanDescription.findProperties()` is not thread-safe when called
+  concurrently on the same instance
+ (reported by @sergeylappo)
+ (fix by @pjfanning, w/ Claude code)
+
 2.21.7 (21-Sep-2026)
 
 #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization

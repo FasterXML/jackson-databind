@@ -156,7 +156,8 @@ public class BasicBeanDescription extends BeanDescription
                 ac, Collections.<BeanPropertyDefinition>emptyList());
     }
 
-    protected List<BeanPropertyDefinition> _properties() {
+    // [databind#6227]: synchronized in case instance is shared across threads
+    protected synchronized List<BeanPropertyDefinition> _properties() {
         if (_properties == null) {
             _properties = _propCollector.getProperties();
         }

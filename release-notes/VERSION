@@ -81,7 +81,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
   for the declared type, before the refinement
  (fix by @pjfanning)
 
-3.2.3 (not yet released)
+3.2.3 (21-Sep-2026)
 
 #6157: `@JsonIncludeProperties` not honored for `Throwable` types with
   `@JsonAnySetter`

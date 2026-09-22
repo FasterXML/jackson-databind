@@ -448,7 +448,14 @@ public class EnumResolver implements java.io.Serializable
         final Class<?> enumCls0 = annotatedClass.getRawType();
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
-        
+
+        // introspect
+        // 10-Sep-2026, pjfanning: [databind#6210] Aliases need to be honored here too
+        final String[][] allAliases = new String[enumConstants.length][];
+        if (ai != null) {
+            ai.findEnumAliases(config, annotatedClass, enumConstants, allAliases);
+        }
+
         // build
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
         // from last to first, so that in case of duplicate values, first wins
@@ -461,6 +468,13 @@ public class EnumResolver implements java.io.Serializable
                 }
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to access @JsonValue of Enum value "+en+": "+e.getMessage());
+            }
+            String[] aliases = allAliases[i];
+            if (aliases != null) {
+                for (String alias : aliases) {
+                    // Avoid overriding any primary names
+                    map.putIfAbsent(alias, en);
+                }
             }
         }
         return new EnumResolver(enumCls, enumConstants, map,

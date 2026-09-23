@@ -137,6 +137,20 @@ public class JsonValueCycleSer6206Test extends DatabindTestUtil
     }
 
     @Test
+    public void selfReferenceAsNull() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(SerializationFeature.FAIL_ON_SELF_REFERENCES)
+                .enable(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL)
+                .build();
+        assertEquals("null", mapper.writeValueAsString(new SelfValue()));
+        assertEquals("null", mapper.writeValueAsString(new TypedSelf()));
+        assertEquals(a2q("{'self':null}"),
+                mapper.writeValueAsString(Collections.singletonMap("self", new SelfValue())));
+        // but custom serializer still used as-is
+        assertEquals(q("fixed"), mapper.writeValueAsString(new SelfWithCustomSerializer()));
+    }
+
+    @Test
     public void selfReferenceWithCustomSerializer() throws Exception {
         assertEquals(q("fixed"), MAPPER.writeValueAsString(new SelfWithCustomSerializer()));
     }

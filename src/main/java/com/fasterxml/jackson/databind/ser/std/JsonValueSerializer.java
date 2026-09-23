@@ -283,8 +283,9 @@ public class JsonValueSerializer
                 ser = _findDynamicSerializer(ctxt, value.getClass());
             }
             // [databind#6206]: simple check for direct cycle through accessor
-            if (value == bean) {
-                _checkSelfReference(ctxt, bean, ser);
+            if ((value == bean) && _checkSelfReference(ctxt, bean, ser)) {
+                ctxt.defaultSerializeNull(gen);
+                return;
             }
             try {
                 if (_valueTypeSerializer != null) {
@@ -328,8 +329,10 @@ public class JsonValueSerializer
             ser = _findDynamicSerializer(ctxt, value.getClass());
         }
         // [databind#6206]: simple check for direct cycle through accessor
-        if (value == bean) {
-            _checkSelfReference(ctxt, bean, ser);
+        //   (if written as null, no type id, same as with actual null value above)
+        if ((value == bean) && _checkSelfReference(ctxt, bean, ser)) {
+            ctxt.defaultSerializeNull(gen);
+            return;
         }
         if (staticSer) {
             // 09-Dec-2010, tatu: To work around natural type's refusal to add type info, we do
@@ -376,21 +379,31 @@ public class JsonValueSerializer
      * and a different accessor (as with static typing, for a supertype) may not
      * lead back here at all -- and if it does, recursion is caught as
      * {@link StackOverflowError} as with longer cycles.
+     *<p>
+     * If {@link SerializationFeature#FAIL_ON_SELF_REFERENCES} is disabled but
+     * {@link SerializationFeature#WRITE_SELF_REFERENCES_AS_NULL} enabled,
+     * self-reference is to be written as {@code null} instead.
+     *
+     * @return {@code true} if self-reference is to be written as {@code null};
+     *    {@code false} if value is to be serialized normally
      *
      * @since 2.21.8
      */
-    protected void _checkSelfReference(SerializerProvider ctxt, Object bean,
+    protected boolean _checkSelfReference(SerializerProvider ctxt, Object bean,
             JsonSerializer<?> ser)
         throws JsonMappingException
     {
         if ((ser instanceof JsonValueSerializer)
                 && _accessor.getMember().equals(((JsonValueSerializer) ser)._accessor.getMember())
-                && !ser.usesObjectId()
-                && ctxt.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES)) {
-            ctxt.reportBadDefinition(bean.getClass(), String.format(
-                    "Direct self-reference leading to cycle (through `@JsonValue` accessor `%s()`)",
-                    _accessor.getName()));
+                && !ser.usesObjectId()) {
+            if (ctxt.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES)) {
+                ctxt.reportBadDefinition(bean.getClass(), String.format(
+                        "Direct self-reference leading to cycle (through `@JsonValue` accessor `%s()`)",
+                        _accessor.getName()));
+            }
+            return ctxt.isEnabled(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL);
         }
+        return false;
     }
 
     /*

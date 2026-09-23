@@ -141,7 +141,7 @@ public class AnnotatedMethodCollector
     //   may also result in faster method calls (interface calls are slightly
     //   costlier than regular method calls)
     // 03-Jan-2021, scs: But we should probably prefer more public interface methods
-    //   (and respect class visibility too!) rather than relying on setAccessible
+    //   (and respect class visibility too!) rather than relying on `trySetAccessible`
     private boolean shouldReplace(Method current, Method replace) {
         if (accessLevel(replace) > accessLevel(current)) {
             return true;

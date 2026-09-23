@@ -71,6 +71,12 @@ public class MonthSerializer
             g.writeString(_formatter.format(value));
             return;
         }
+        // [databind#6233]: explicit `Shape.STRING` (without pattern) means Enum name,
+        // which is locale-independent and readable by `MonthDeserializer`
+        if (Boolean.FALSE.equals(_useTimestamp)) {
+            g.writeString(value.name());
+            return;
+        }
         if (ctxt.isEnabled(DateTimeFeature.ONE_BASED_MONTHS)) {
             g.writeNumber(value.getValue());
         } else {

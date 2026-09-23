@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.21.8 (not yet released)
+
+#6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
+  (instead of `StackOverflowError`)
+ (fix by @pjfanning, w/ Claude code)
+
 2.21.7 (21-Sep-2026)
 
 #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization

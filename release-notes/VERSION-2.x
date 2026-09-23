@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.21.8 (not yet released)
 
+#6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
+  (instead of `StackOverflowError`)
+ (fix by @pjfanning, w/ Claude code)
 #6227: `BeanDescription` is not thread-safe when called concurrently on the
   same instance (`findProperties()`, `findDefaultViews()`)
  (reported by @sergeylappo)

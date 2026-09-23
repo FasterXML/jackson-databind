@@ -352,24 +352,25 @@ public class JacksonAnnotationIntrospector
     @Override
     public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember m)
     {
+        // 22-Sep-2026: [databind#5314] (regression fixed in [databind#6229])
+        //   For Jackson 2.x parity, only gates bytecode-derived (`-parameters`)
+        //   name detection below; must NOT gate `@ConstructorProperties` handling.
+        final boolean detectParamNames = config.isEnabled(MapperFeature.DETECT_PARAMETER_NAMES);
+
         if (m instanceof AnnotatedParameter p) {
             AnnotatedWithParams owner = p.getOwner();
             if (owner instanceof AnnotatedConstructor) {
                 // 15-Sep-2025, tatu: May seem odd but we'll keep access dynamic due
                 //   to support for optional {@code @ConstructorProperties} annotation
                 //   (not part of minimal JDK core module)
-                // 22-Sep-2026: [databind#5314] `DETECT_PARAMETER_NAMES` must NOT gate this:
-                //   `@ConstructorProperties` predates and is independent of the
-                //   bytecode-derived (`-parameters`) name detection the feature controls.
                 if (_javaBeansHelper != null) {
                     PropertyName name = _javaBeansHelper.findConstructorName(p);
                     if (name != null) {
                         return name.getSimpleName();
                     }
                 }
-                // ... or parameter names from bytecode (JDK8); this part IS controlled
-                // by `DETECT_PARAMETER_NAMES` (as per [databind#5314])
-                if (config.isEnabled(MapperFeature.DETECT_PARAMETER_NAMES)) {
+                // ... or parameter names from bytecode (JDK8)
+                if (detectParamNames) {
                     return _findImplicitName(owner, p.getIndex());
                 }
                 return null;
@@ -377,7 +378,7 @@ public class JacksonAnnotationIntrospector
             if (owner instanceof AnnotatedMethod) {
                 // For now let's only bother discovering names for static methods as they
                 // (only) may be creators
-                if (owner.isStatic() && config.isEnabled(MapperFeature.DETECT_PARAMETER_NAMES)) {
+                if (owner.isStatic() && detectParamNames) {
                     return _findImplicitName(owner, p.getIndex());
                 }
             }

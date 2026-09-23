@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser;
 
+import java.beans.ConstructorProperties;
+
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.MapperFeature;
@@ -27,6 +29,21 @@ public class WithoutParamNamesModule5314Test
         }
     }
 
+    // [databind#6229]: same shape as Bean178 above, but with `@ConstructorProperties`
+    // added -- specifically to validate Jackson 2.x compatibility, `@ConstructorProperties`
+    // must keep resolving names regardless of `DETECT_PARAMETER_NAMES`.
+    static class CtorPropsBean178
+    {
+        final String hiddenName;
+        final int hiddenAge;
+
+        @ConstructorProperties({"openName", "openAge"})
+        public CtorPropsBean178(String openName, int openAge) {
+            hiddenName = openName;
+            hiddenAge = openAge;
+        }
+    }
+
     private final String JSON = a2q("{'openName':'stu','openAge':22}");
 
     @Test
@@ -46,10 +63,29 @@ public class WithoutParamNamesModule5314Test
                 .builderWithJackson2Defaults().build());
     }
 
+    // [databind#6229]: `CtorPropsBean178` (see above) must deserialize
+    // successfully under all three configs below.
+    @Test
+    public void testConstructorPropertiesIgnoresDetectParameterNames()
+    {
+        _runCtorPropsSuccess(JsonMapper.builder()
+                .enable(MapperFeature.DETECT_PARAMETER_NAMES).build());
+        _runCtorPropsSuccess(JsonMapper.builder()
+                .disable(MapperFeature.DETECT_PARAMETER_NAMES).build());
+        _runCtorPropsSuccess(JsonMapper
+                .builderWithJackson2Defaults().build());
+    }
+
     private void _runTestSuccess(JsonMapper mapper)
     {
         Bean178 bean = mapper.readValue(JSON, Bean178.class);
+        assertEquals("stu", bean.hiddenName);
+        assertEquals(22, bean.hiddenAge);
+    }
 
+    private void _runCtorPropsSuccess(JsonMapper mapper)
+    {
+        CtorPropsBean178 bean = mapper.readValue(JSON, CtorPropsBean178.class);
         assertEquals("stu", bean.hiddenName);
         assertEquals(22, bean.hiddenAge);
     }

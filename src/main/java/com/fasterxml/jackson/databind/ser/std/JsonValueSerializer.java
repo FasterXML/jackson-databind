@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
@@ -371,8 +372,10 @@ public class JsonValueSerializer
      * detected before recursing (and running out of stack).
      *<p>
      * Only reported as a problem if the value would be serialized by another
-     * {@code @JsonValue} based serializer: custom serializers (and Object Id
-     * handling) may well handle self-reference just fine.
+     * {@code @JsonValue} based serializer that uses the same accessor: custom
+     * serializers (and Object Id handling) may well handle self-reference just fine,
+     * and a different accessor (as with static typing, for a supertype) may not
+     * lead back here at all.
      *
      * @since 2.21.8
      */
@@ -381,12 +384,25 @@ public class JsonValueSerializer
         throws JsonMappingException
     {
         if ((ser instanceof JsonValueSerializer)
+                && _sameAccessor(((JsonValueSerializer) ser)._accessor)
                 && !ser.usesObjectId()
                 && ctxt.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES)) {
             ctxt.reportBadDefinition(bean.getClass(), String.format(
                     "Direct self-reference leading to cycle (through `@JsonValue` accessor `%s()`)",
                     _accessor.getName()));
         }
+    }
+
+    // Whether given accessor would return the same value as ours, for the same bean:
+    // for methods (always no-arg), same name suffices since calls are dispatched to
+    // the same (possibly overriding) implementation
+    private boolean _sameAccessor(AnnotatedMember other)
+    {
+        if (other.getMember().equals(_accessor.getMember())) {
+            return true;
+        }
+        return (other instanceof AnnotatedMethod) && (_accessor instanceof AnnotatedMethod)
+                && other.getName().equals(_accessor.getName());
     }
 
     /*

@@ -94,6 +94,22 @@ public class JsonValueCycleSer6206Test extends DatabindTestUtil
         public String value() { return _value; }
     }
 
+    // Accessor returning `this` but typed as a base type whose own (different)
+    // `@JsonValue` accessor is used with static typing: not a cycle
+    static class NamedBase {
+        @JsonValue
+        public String name() { return "base"; }
+    }
+
+    static class SelfAsBase extends NamedBase {
+        @JsonValue(false)
+        @Override
+        public String name() { return "sub"; }
+
+        @JsonValue
+        public NamedBase self() { return this; }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // Immediate self-reference: detected before recursing, with a specific message
@@ -150,6 +166,15 @@ public class JsonValueCycleSer6206Test extends DatabindTestUtil
         t1.other = t2;
         t2.other = t1;
         _verifyInfiniteRecursion(t1);
+    }
+
+    // Self-reference via a different `@JsonValue` accessor is not a cycle
+    @Test
+    public void selfReferenceThroughDifferentAccessor() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.USE_STATIC_TYPING)
+                .build();
+        assertEquals(q("sub"), mapper.writeValueAsString(new SelfAsBase()));
     }
 
     // Ordinary `@JsonValue` handling must be unaffected

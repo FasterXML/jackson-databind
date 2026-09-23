@@ -243,18 +243,16 @@ public final class SerializerCache
      */
     public void addTypedSerializer(JavaType type, ValueSerializer<Object> ser)
     {
-        if (_sharedMap.put(new TypeKey(type, true), ser) == null) {
-            // let's invalidate the read-only copy, too, to get it updated
-            _readOnlyMap.set(null);
-        }
+        _sharedMap.put(new TypeKey(type, true), ser);
+        // let's invalidate the read-only copy, too, to get it updated
+        _readOnlyMap.set(null);
     }
 
     public void addTypedSerializer(Class<?> cls, ValueSerializer<Object> ser)
     {
-        if (_sharedMap.put(new TypeKey(cls, true), ser) == null) {
-            // let's invalidate the read-only copy, too, to get it updated
-            _readOnlyMap.set(null);
-        }
+        _sharedMap.put(new TypeKey(cls, true), ser);
+        // let's invalidate the read-only copy, too, to get it updated
+        _readOnlyMap.set(null);
     }
 
     public void addAndResolveNonTypedSerializer(Class<?> type, ValueSerializer<Object> ser,

@@ -44,4 +44,11 @@ public class TestFeatures
         assertTrue(DateTimeFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE.enabledByDefault(),
                 "Adjust dates to context time zone setting should be enabled by default.");
     }
+
+    @Test
+    public void testAlwaysWriteSubSecondDigitsSettingDisabledByDefault()
+    {
+        assertFalse(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS.enabledByDefault(),
+                "Always write sub-second digits setting should be disabled by default.");
+    }
 }

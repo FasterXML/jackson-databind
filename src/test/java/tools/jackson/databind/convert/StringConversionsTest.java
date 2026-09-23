@@ -9,11 +9,14 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.util.StringCanonicalizingConverter;
 import tools.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class StringConversionsTest
+    extends DatabindTestUtil
 {
     static class LCConverter extends StdConverter<String,String>
     {
@@ -30,6 +33,18 @@ public class StringConversionsTest
 
         protected StringWrapperWithConvert() { }
         public StringWrapperWithConvert(String v) { value = v; }
+    }
+
+    static class CanonicalizedStringWrapper
+    {
+        @JsonDeserialize(converter=StringCanonicalizingConverter.class)
+        public String value;
+    }
+
+    static class CanonicalizedStringListWrapper
+    {
+        @JsonDeserialize(contentConverter=StringCanonicalizingConverter.class)
+        public List<String> values;
     }
 
     private final ObjectMapper MAPPER = new JsonMapper();
@@ -98,5 +113,28 @@ public class StringConversionsTest
         StringWrapperWithConvert value = MAPPER.readValue("{\"value\":\"XyZ\"}",
                 StringWrapperWithConvert.class);
         assertEquals("xyz", value.value);
+    }
+
+    @Test
+    public void stringCanonicalizingConverterForProperty() throws Exception
+    {
+        String raw = new String("canonical-property".toCharArray());
+        CanonicalizedStringWrapper value = MAPPER.readValue(a2q("{'value':'canonical-property'}"),
+                CanonicalizedStringWrapper.class);
+
+        assertSame(raw.intern(), value.value);
+    }
+
+    @Test
+    public void stringCanonicalizingConverterForContents() throws Exception
+    {
+        String raw = new String("canonical-content".toCharArray());
+        CanonicalizedStringListWrapper value = MAPPER.readValue(
+                a2q("{'values':['canonical-content','canonical-content']}"),
+                CanonicalizedStringListWrapper.class);
+
+        assertEquals(2, value.values.size());
+        assertSame(raw.intern(), value.values.get(0));
+        assertSame(value.values.get(0), value.values.get(1));
     }
 }

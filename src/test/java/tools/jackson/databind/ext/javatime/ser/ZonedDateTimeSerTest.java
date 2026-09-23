@@ -283,6 +283,40 @@ public class ZonedDateTimeSerTest
         assertEquals("\"" + DateTimeFormatter.ISO_ZONED_DATE_TIME.format(date) + "\"", value);
     }
 
+    // [databind#6151]: caller-provided default formatter should override
+    //   `WRITE_DATES_WITH_ZONE_ID`, same as `@JsonFormat` pattern does
+    @Test
+    public void testSerializationAsStringWithZoneIdOnAndACustomFormatter() throws Exception {
+        ZonedDateTime date = ZonedDateTime.now(Z3);
+        ObjectMapper mapper = newMapperBuilder().addModule(
+                new SimpleModule().addSerializer(new ZonedDateTimeSerializer(FORMATTER_WITHOUT_ZONEID)))
+                .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                .configure(DateTimeFeature.WRITE_DATES_WITH_ZONE_ID, true)
+                .build();
+        assertEquals(q(FORMATTER_WITHOUT_ZONEID.format(date)),
+                mapper.writeValueAsString(date));
+    }
+
+    // ... but explicitly requested Zone Id (via `@JsonFormat`) is still appended
+    @Test
+    public void testSerializationAsStringWithExplicitZoneIdAndACustomFormatter() throws Exception {
+        ZonedDateTime date = ZonedDateTime.now(Z3);
+        ObjectMapper mapper = newMapperBuilder().addModule(
+                new SimpleModule().addSerializer(new ZonedDateTimeSerializer(FORMATTER_WITHOUT_ZONEID)))
+                .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                .build();
+        assertEquals(a2q("{'value':'"
+                        + FORMATTER_WITHOUT_ZONEID.format(date) + "[" + date.getZone().getId() + "]'}"),
+                mapper.writeValueAsString(new ZoneIdRequestedWrapper(date)));
+    }
+
+    static class ZoneIdRequestedWrapper {
+        @JsonFormat(with = JsonFormat.Feature.WRITE_DATES_WITH_ZONE_ID)
+        public ZonedDateTime value;
+
+        public ZoneIdRequestedWrapper(ZonedDateTime v) { value = v; }
+    }
+
     @Test
     public void testSerializationAsStringWithDefaultTimeZoneAndContextTimeZoneOnAndACustomFormatter() throws Exception {
         ZonedDateTime date = ZonedDateTime.now(Z3);

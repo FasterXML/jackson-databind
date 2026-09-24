@@ -55,19 +55,13 @@ public class LocalTimeSerializer extends JSR310FormattedSerializerBase<LocalTime
 
     protected LocalTimeSerializer(LocalTimeSerializer base, DateTimeFormatter dtf,
             Boolean useTimestamp, Boolean useNanoseconds) {
-        this(base, dtf, useTimestamp, useNanoseconds, null);
-    }
-
-    // @since 3.1.8
-    protected LocalTimeSerializer(LocalTimeSerializer base, DateTimeFormatter dtf,
-            Boolean useTimestamp, Boolean useNanoseconds, JsonFormat.Shape shape) {
-        super(base, dtf, useTimestamp, useNanoseconds, shape);
+        super(base, dtf, useTimestamp, useNanoseconds, null);
     }
 
     @Override
     protected JSR310FormattedSerializerBase<LocalTime> withFormat(DateTimeFormatter dtf, 
             Boolean useTimestamp, JsonFormat.Shape shape) {
-        return new LocalTimeSerializer(this, dtf, useTimestamp, _useNanoseconds, shape);
+        return new LocalTimeSerializer(this, dtf, useTimestamp, _useNanoseconds);
     }
 
     // since 2.7: TODO in 3.x; change to use per-type defaulting

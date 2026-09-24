@@ -103,6 +103,11 @@ public enum DateTimeFeature implements DatatypeFeature
      * Conversely JSON Number {@code 1} would be deserialized as {@code Month.JANUARY}
      * when enabled, but as {@code Month.FEBRUARY} when disabled.
      *<p>
+     * Note that this feature only affects numeric representation: if String shape is
+     * specified (with {@code @JsonFormat(shape = JsonFormat.Shape.STRING)} or config override),
+     * {@link java.time.Month} is serialized as Enum name (like {@code "JANUARY"}) regardless
+     * of this setting.
+     *<p>
      * Default setting is {@code true}, meaning that Month is serialized using one-based index
      * and deserialized expecting one-based index.
      *<p>

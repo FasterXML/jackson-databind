@@ -2,10 +2,13 @@ package tools.jackson.databind.ext.javatime.misc;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Month;
 import java.time.ZonedDateTime;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
@@ -66,10 +69,16 @@ public class DateTimeSchemasTest extends DateTimeTestBase
 
         @Override
         public JsonStringFormatVisitor expectStringFormat(JavaType type) {
+            traversedProperties.put(baseName, "STRING");
             return new JsonStringFormatVisitor.Base() {
                 @Override
                 public void format(JsonValueFormat format) {
                     traversedProperties.put(baseName, "STRING/"+format.name());
+                }
+
+                @Override
+                public void enumTypes(Set<String> enums) {
+                    traversedProperties.put(baseName, "STRING/ENUM"+enums);
                 }
             };
         }
@@ -178,6 +187,51 @@ public class DateTimeSchemasTest extends DateTimeTestBase
             .acceptJsonFormatVisitor(LocalDate.class, wrapper);
         properties = wrapper.getTraversedProperties();
         _verifyDateType(properties.get(""));
+    }
+
+    // [databind#6233]: schema must match actual serialization
+    @Test
+    public void monthSchema() throws Exception
+    {
+        // By default serialized as int, regardless of WRITE_DATES_AS_TIMESTAMPS
+        for (boolean asTimestamps : new boolean[] { false, true }) {
+            ObjectMapper mapper = mapperBuilder()
+                    .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, asTimestamps)
+                    .build();
+            Map<String, String> properties = _visitMonth(mapper);
+            assertEquals(1, properties.size());
+            assertEquals("INTEGER/INT", properties.get("numberType"));
+        }
+
+        // Explicit String shape: Enum names
+        Map<String, String> properties = _visitMonth(mapperBuilder()
+                .withConfigOverride(Month.class, o -> o.setFormat(
+                        JsonFormat.Value.forShape(JsonFormat.Shape.STRING)))
+                .build());
+        assertEquals(1, properties.size());
+        assertEquals("STRING/ENUM" + Arrays.toString(Month.values()), properties.get(""));
+
+        // Pattern: String without specific format
+        properties = _visitMonth(mapperBuilder()
+                .withConfigOverride(Month.class, o -> o.setFormat(
+                        JsonFormat.Value.forPattern("MMMM")))
+                .build());
+        assertEquals(1, properties.size());
+        assertEquals("STRING", properties.get(""));
+
+        // Array shape: array of ints
+        properties = _visitMonth(mapperBuilder()
+                .withConfigOverride(Month.class, o -> o.setFormat(
+                        JsonFormat.Value.forShape(JsonFormat.Shape.ARRAY)))
+                .build());
+        assertEquals(1, properties.size());
+        _verifyIntArrayType(properties.get(""));
+    }
+
+    private Map<String, String> _visitMonth(ObjectMapper mapper) throws Exception {
+        VisitorWrapper wrapper = new VisitorWrapper(null, "", new HashMap<String, String>());
+        mapper.writer().acceptJsonFormatVisitor(Month.class, wrapper);
+        return wrapper.getTraversedProperties();
     }
 
     // // // Zoned date/time types

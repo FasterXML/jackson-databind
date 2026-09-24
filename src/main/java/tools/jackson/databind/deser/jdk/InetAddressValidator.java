@@ -168,12 +168,13 @@ class InetAddressValidator
 
     private static String _convertDottedQuadToHex(String ipString) {
         int lastColon = ipString.lastIndexOf(':');
-        String initialPart = ipString.substring(0, lastColon + 1);
+
         String dottedQuad = ipString.substring(lastColon + 1);
         byte[] quad = _textToNumericFormatV4(dottedQuad);
         if (quad == null) {
             return null;
         }
+        String initialPart = ipString.substring(0, lastColon + 1);
         String penultimate = Integer.toHexString(((quad[0] & 0xff) << 8) | (quad[1] & 0xff));
         String ultimate = Integer.toHexString(((quad[2] & 0xff) << 8) | (quad[3] & 0xff));
         return initialPart + penultimate + ":" + ultimate;

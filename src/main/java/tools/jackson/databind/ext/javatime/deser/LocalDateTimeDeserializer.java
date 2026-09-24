@@ -86,8 +86,7 @@ public class LocalDateTimeDeserializer
     {
         LocalDateTimeDeserializer deser = (LocalDateTimeDeserializer)
             super._withFormatOverrides(ctxt, property, formatOverrides);
-        Boolean readTimestampsAsNanosOverride = formatOverrides.getFeature(
-            JsonFormat.Feature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+        Boolean readTimestampsAsNanosOverride = _findReadTimestampsAsNanosOverride(formatOverrides);
         if (!Objects.equals(readTimestampsAsNanosOverride, deser._readTimestampsAsNanosOverride)) {
             return new LocalDateTimeDeserializer(deser, deser._isLenient, deser._formatter,
                 deser._shape, readTimestampsAsNanosOverride);

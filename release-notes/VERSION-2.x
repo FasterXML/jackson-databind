@@ -6,9 +6,30 @@ Project: jackson-databind
 
 2.23.0 (not yet released)
 
-No change since 2.22
+No changes since 2.22
 
-2.22.2 (not yet released)
+2.22.4 (not yet released)
+
+#6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
+  (instead of `StackOverflowError`)
+ (fix by @pjfanning, w/ Claude code)
+
+2.22.3 (21-Sep-2026)
+
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [CVE-2026-91776]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [CVE-2026-91777]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6205: Avoid quadratic forward-reference resolution in `ObjectArrayDeserializer`
+ (fix by @pjfanning, w/ Claude code)
+
+2.22.2 (16-Aug-2026)
 
 #6099: Resolve classes without initialization in `TypeFactory.findClass()`
  (fixed by Aysha A-Z)
@@ -23,7 +44,7 @@ No change since 2.22
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
-  [GHSA-gx83-3vf8-gh7j]
+  [CVE-2026-83557]
  (reported by @prvazsahnazarov)
 
 2.22.1 (07-Jul-2026)
@@ -34,7 +55,7 @@ No change since 2.22
 #6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
-#6058: Do not allow DNS resolution when deserializing `InetAddress`
+#6058: Do not allow DNS resolution when deserializing `InetAddress` [CVE-2026-77310]
  (reported by @thientd)
  (fix by @pjfanning)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
@@ -55,7 +76,28 @@ No change since 2.22
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.6 (not yet released)
+2.21.8 (not yet released)
+
+#6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
+  (instead of `StackOverflowError`)
+ (fix by @pjfanning, w/ Claude code)
+
+2.21.7 (21-Sep-2026)
+
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [CVE-2026-91776]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [CVE-2026-91777]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6205: Avoid quadratic forward-reference resolution in `ObjectArrayDeserializer`
+ (fix by @pjfanning, w/ Claude code)
+
+2.21.6 (14-Aug-2026)
 
 #6099: Resolve classes without initialization in `TypeFactory.findClass()`
  (fixed by Aysha A-Z)
@@ -74,7 +116,7 @@ No change since 2.22
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
-  [GHSA-gx83-3vf8-gh7j]
+  [CVE-2026-83557]
  (reported by @prvazsahnazarov)
 
 2.21.5 (06-Jul-2026)
@@ -85,7 +127,7 @@ No change since 2.22
 #6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
-#6058: Do not allow DNS resolution when deserializing `InetAddress`
+#6058: Do not allow DNS resolution when deserializing `InetAddress` [CVE-2026-77310]
  (reported by @thientd)
  (fix by @pjfanning)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
@@ -381,7 +423,20 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
-2.18.10 (not yet released)
+2.18.11 (20-Sep-2026)
+
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [CVE-2026-91776]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [CVE-2026-91777]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+
+2.18.10 (15-Aug-2026)
 
 #6099: Resolve classes without initialization in `TypeFactory.findClass()`
  (fixed by Aysha A-Z)
@@ -396,7 +451,7 @@ No changes since 2.19.2
  (reported by @waydeshi)
  (fix by @pjfanning)
 #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
-  [GHSA-gx83-3vf8-gh7j]
+  [CVE-2026-83557]
  (reported by @prvazsahnazarov)
 #6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float` Map keys
  (fix by Aysha A-Z)
@@ -409,7 +464,7 @@ No changes since 2.19.2
 #6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
-#6058: Do not allow DNS resolution when deserializing `InetAddress`
+#6058: Do not allow DNS resolution when deserializing `InetAddress` [CVE-2026-77310]
  (reported by @thientd)
  (fix by @pjfanning)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]

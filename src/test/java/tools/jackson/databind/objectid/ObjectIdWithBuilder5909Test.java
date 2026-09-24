@@ -420,6 +420,7 @@ class ObjectIdWithBuilder5909Test extends DatabindTestUtil
                 "forward ref must be rebound from Builder to built object in typed array");
     }
 
+    // [databind#6225]: rebind a Builder before the typed array is materialized.
     @Test
     public void forwardReferenceResolvedWithinTypedArrayWithBuilder() throws Exception
     {
@@ -432,6 +433,7 @@ class ObjectIdWithBuilder5909Test extends DatabindTestUtil
         assertSame(entity.refs[1], entity.refs[0]);
     }
 
+    // [databind#6225]: repeated forward references share the final built value.
     @Test
     public void multipleForwardReferencesResolvedWithinTypedArrayWithBuilder() throws Exception
     {

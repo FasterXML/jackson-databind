@@ -127,6 +127,14 @@ public enum DateTimeFeature implements DatatypeFeature
      * If disabled, standard millisecond timestamps are assumed.
      * This is the counterpart to {@link DateTimeFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}.
      *<p>
+     * This is the global default: it may be overridden per-type or per-property with
+     * {@code @JsonFormat} (or config override), either by explicit
+     * {@code JsonFormat.Feature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS}, or
+     * (if no such feature is specified) by explicit numeric shape:
+     * {@code JsonFormat.Shape.NUMBER_INT} means timestamps are read as milliseconds,
+     * {@code JsonFormat.Shape.NUMBER_FLOAT} that they are read as nanoseconds
+     * (since 3.3).
+     *<p>
      * Feature used to be one of {@link tools.jackson.databind.DeserializationFeature}s
      * in Jackson 2.x but was moved here in 3.0.
      *<p>
@@ -237,6 +245,14 @@ public enum DateTimeFeature implements DatatypeFeature
      *<p>
      * If disabled, standard millisecond timestamps are assumed.
      * This is the counterpart to {@link DateTimeFeature#READ_DATE_TIMESTAMPS_AS_NANOSECONDS}.
+     *<p>
+     * This is the global default: it may be overridden per-type or per-property with
+     * {@code @JsonFormat} (or config override), either by explicit
+     * {@code JsonFormat.Feature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}, or
+     * (if no such feature is specified) by explicit numeric shape:
+     * {@code JsonFormat.Shape.NUMBER_INT} means timestamps are written as milliseconds,
+     * {@code JsonFormat.Shape.NUMBER_FLOAT} that they are written as nanoseconds
+     * (since 3.3).
      *<p>
      * Feature used to be one of {@link tools.jackson.databind.SerializationFeature}s
      * in Jackson 2.x but was moved here in 3.0.

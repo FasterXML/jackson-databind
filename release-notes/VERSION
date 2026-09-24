@@ -83,6 +83,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6231: Add copy constructor for `JacksonAnnotationIntrospector` (for sub-classes
   to create re-configured copies)
  (fix by @cowtowncoder, w/ Claude code)
+#6233: Serialize `Month` as Enum name with `@JsonFormat(shape = STRING)`
+ (fix by @pjfanning)
 
 3.2.4 (not yet released)
 

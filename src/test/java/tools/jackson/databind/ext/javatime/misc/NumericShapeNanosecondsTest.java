@@ -54,7 +54,7 @@ public class NumericShapeNanosecondsTest extends DateTimeTestBase
         public OffsetTime offsetTime = OFFSET_TIME;
     }
 
-    // [databind#6236]: `NUMBER_INT` means "not as nanoseconds" regardless of global settings
+    // [databind#6239]: `NUMBER_INT` means "not as nanoseconds" regardless of global settings
     @ParameterizedTest(name = "globalNanos={0}")
     @ValueSource(booleans = { false, true })
     public void shapeIntRoundTrip(boolean globalNanos) throws Exception
@@ -73,7 +73,7 @@ public class NumericShapeNanosecondsTest extends DateTimeTestBase
         assertEquals(OFFSET_TIME, result.offsetTime);
     }
 
-    // [databind#6236]: `NUMBER_FLOAT` means "as nanoseconds" regardless of global settings
+    // [databind#6239]: `NUMBER_FLOAT` means "as nanoseconds" regardless of global settings
     @ParameterizedTest(name = "globalNanos={0}")
     @ValueSource(booleans = { false, true })
     public void shapeFloatRoundTrip(boolean globalNanos) throws Exception

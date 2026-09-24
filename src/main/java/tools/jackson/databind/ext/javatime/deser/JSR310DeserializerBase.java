@@ -92,7 +92,7 @@ abstract class JSR310DeserializerBase<T> extends StdScalarDeserializer<T>
     protected static Boolean _findReadTimestampsAsNanosOverride(JsonFormat.Value format) {
         Boolean b = format.getFeature(JsonFormat.Feature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
         if (b == null) {
-            // [databind#6236]: match `JSR310FormattedSerializerBase.useNanoseconds()`
+            // [databind#6239]: match `JSR310FormattedSerializerBase.useNanoseconds()`
             switch (format.getShape()) {
             case NUMBER_INT:
                 return Boolean.FALSE;

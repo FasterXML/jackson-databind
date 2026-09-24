@@ -85,7 +85,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #6233: Serialize `Month` as Enum name with `@JsonFormat(shape = STRING)`
  (fix by @pjfanning)
-#6236: Explicit `JsonFormat.Shape.NUMBER_INT`/`NUMBER_FLOAT` not honored for
+#6239: Explicit `JsonFormat.Shape.NUMBER_INT`/`NUMBER_FLOAT` not honored for
   nanosecond handling of `java.time` values (serialization, deserialization)
  (fix by @cowtowncoder, w/ Claude code)
 

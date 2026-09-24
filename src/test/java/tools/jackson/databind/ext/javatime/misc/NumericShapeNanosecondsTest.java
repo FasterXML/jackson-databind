@@ -27,6 +27,8 @@ public class NumericShapeNanosecondsTest extends DateTimeTestBase
     static final LocalTime LOCAL_TIME = LocalTime.of(1, 2, 3, 500_000_000);
     static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2026, 9, 23, 1, 2, 3, 500_000_000);
     static final OffsetTime OFFSET_TIME = OffsetTime.of(1, 2, 3, 500_000_000, ZoneOffset.UTC);
+    static final OffsetDateTime OFFSET_DATE_TIME = OffsetDateTime.of(LOCAL_DATE_TIME, ZoneOffset.UTC);
+    static final ZonedDateTime ZONED_DATE_TIME = ZonedDateTime.of(LOCAL_DATE_TIME, ZoneOffset.UTC);
 
     static class IntBean {
         @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
@@ -39,6 +41,10 @@ public class NumericShapeNanosecondsTest extends DateTimeTestBase
         public LocalDateTime localDateTime = LOCAL_DATE_TIME;
         @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
         public OffsetTime offsetTime = OFFSET_TIME;
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
+        public OffsetDateTime offsetDateTime = OFFSET_DATE_TIME;
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
+        public ZonedDateTime zonedDateTime = ZONED_DATE_TIME;
     }
 
     static class FloatBean {
@@ -52,6 +58,10 @@ public class NumericShapeNanosecondsTest extends DateTimeTestBase
         public LocalDateTime localDateTime = LOCAL_DATE_TIME;
         @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT)
         public OffsetTime offsetTime = OFFSET_TIME;
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT)
+        public OffsetDateTime offsetDateTime = OFFSET_DATE_TIME;
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT)
+        public ZonedDateTime zonedDateTime = ZONED_DATE_TIME;
     }
 
     // Unrelated `JsonFormat.Feature` must not cause shape to be dropped
@@ -79,7 +89,8 @@ public class NumericShapeNanosecondsTest extends DateTimeTestBase
         String json = mapper.writeValueAsString(new IntBean());
         assertEquals("""
                 {"duration":3500,"instant":3500,"localDateTime":[2026,9,23,1,2,3,500],\
-                "localTime":[1,2,3,500],"offsetTime":[1,2,3,500,"Z"]}""", json);
+                "localTime":[1,2,3,500],"offsetDateTime":1790125323500,\
+                "offsetTime":[1,2,3,500,"Z"],"zonedDateTime":1790125323500}""", json);
 
         IntBean result = mapper.readValue(json, IntBean.class);
         assertEquals(DURATION, result.duration);
@@ -87,6 +98,9 @@ public class NumericShapeNanosecondsTest extends DateTimeTestBase
         assertEquals(LOCAL_TIME, result.localTime);
         assertEquals(LOCAL_DATE_TIME, result.localDateTime);
         assertEquals(OFFSET_TIME, result.offsetTime);
+        // compare as instants: deserialized zone depends on context time zone
+        assertEquals(OFFSET_DATE_TIME.toInstant(), result.offsetDateTime.toInstant());
+        assertEquals(ZONED_DATE_TIME.toInstant(), result.zonedDateTime.toInstant());
     }
 
     // [databind#6239]: `NUMBER_FLOAT` means "as nanoseconds" regardless of global settings
@@ -99,7 +113,8 @@ public class NumericShapeNanosecondsTest extends DateTimeTestBase
         assertEquals("""
                 {"duration":3.500000000,"instant":3.500000000,\
                 "localDateTime":[2026,9,23,1,2,3,500000000],\
-                "localTime":[1,2,3,500000000],"offsetTime":[1,2,3,500000000,"Z"]}""", json);
+                "localTime":[1,2,3,500000000],"offsetDateTime":1790125323.500000000,\
+                "offsetTime":[1,2,3,500000000,"Z"],"zonedDateTime":1790125323.500000000}""", json);
 
         FloatBean result = mapper.readValue(json, FloatBean.class);
         assertEquals(DURATION, result.duration);
@@ -107,6 +122,9 @@ public class NumericShapeNanosecondsTest extends DateTimeTestBase
         assertEquals(LOCAL_TIME, result.localTime);
         assertEquals(LOCAL_DATE_TIME, result.localDateTime);
         assertEquals(OFFSET_TIME, result.offsetTime);
+        // compare as instants: deserialized zone depends on context time zone
+        assertEquals(OFFSET_DATE_TIME.toInstant(), result.offsetDateTime.toInstant());
+        assertEquals(ZONED_DATE_TIME.toInstant(), result.zonedDateTime.toInstant());
     }
 
     // [databind#6239]: shape must be retained even if other format features are specified

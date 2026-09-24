@@ -50,13 +50,19 @@ public class OffsetTimeSerializer extends JSR310FormattedSerializerBase<OffsetTi
 
     protected OffsetTimeSerializer(OffsetTimeSerializer base, DateTimeFormatter dtf,
             Boolean useTimestamp, Boolean useNanoseconds) {
-        super(base, dtf, useTimestamp, useNanoseconds, null);
+        this(base, dtf, useTimestamp, useNanoseconds, null);
+    }
+
+    // @since 3.1.8
+    protected OffsetTimeSerializer(OffsetTimeSerializer base, DateTimeFormatter dtf,
+            Boolean useTimestamp, Boolean useNanoseconds, JsonFormat.Shape shape) {
+        super(base, dtf, useTimestamp, useNanoseconds, shape);
     }
 
     @Override
     protected OffsetTimeSerializer withFormat(DateTimeFormatter dtf,
             Boolean useTimestamp, JsonFormat.Shape shape) {
-        return new OffsetTimeSerializer(this, dtf, useTimestamp);
+        return new OffsetTimeSerializer(this, dtf, useTimestamp, null, shape);
     }
 
     @Override

@@ -54,6 +54,22 @@ public class NumericShapeNanosecondsTest extends DateTimeTestBase
         public OffsetTime offsetTime = OFFSET_TIME;
     }
 
+    // Unrelated `JsonFormat.Feature` must not cause shape to be dropped
+    static class IntWithFeatureBean {
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT,
+                with = JsonFormat.Feature.WRITE_DATES_WITH_ZONE_ID)
+        public Duration duration = DURATION;
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT,
+                with = JsonFormat.Feature.WRITE_DATES_WITH_ZONE_ID)
+        public LocalTime localTime = LOCAL_TIME;
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT,
+                with = JsonFormat.Feature.WRITE_DATES_WITH_ZONE_ID)
+        public LocalDateTime localDateTime = LOCAL_DATE_TIME;
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT,
+                with = JsonFormat.Feature.WRITE_DATES_WITH_ZONE_ID)
+        public OffsetTime offsetTime = OFFSET_TIME;
+    }
+
     // [databind#6239]: `NUMBER_INT` means "not as nanoseconds" regardless of global settings
     @ParameterizedTest(name = "globalNanos={0}")
     @ValueSource(booleans = { false, true })
@@ -88,6 +104,24 @@ public class NumericShapeNanosecondsTest extends DateTimeTestBase
         FloatBean result = mapper.readValue(json, FloatBean.class);
         assertEquals(DURATION, result.duration);
         assertEquals(INSTANT, result.instant);
+        assertEquals(LOCAL_TIME, result.localTime);
+        assertEquals(LOCAL_DATE_TIME, result.localDateTime);
+        assertEquals(OFFSET_TIME, result.offsetTime);
+    }
+
+    // [databind#6239]: shape must be retained even if other format features are specified
+    @ParameterizedTest(name = "globalNanos={0}")
+    @ValueSource(booleans = { false, true })
+    public void shapeIntWithFeatureRoundTrip(boolean globalNanos) throws Exception
+    {
+        ObjectMapper mapper = _mapper(globalNanos);
+        String json = mapper.writeValueAsString(new IntWithFeatureBean());
+        assertEquals("""
+                {"duration":3500,"localDateTime":[2026,9,23,1,2,3,500],\
+                "localTime":[1,2,3,500],"offsetTime":[1,2,3,500,"Z"]}""", json);
+
+        IntWithFeatureBean result = mapper.readValue(json, IntWithFeatureBean.class);
+        assertEquals(DURATION, result.duration);
         assertEquals(LOCAL_TIME, result.localTime);
         assertEquals(LOCAL_DATE_TIME, result.localDateTime);
         assertEquals(OFFSET_TIME, result.offsetTime);

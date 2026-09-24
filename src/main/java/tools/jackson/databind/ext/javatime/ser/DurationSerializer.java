@@ -185,7 +185,7 @@ public class DurationSerializer extends JSR310FormattedSerializerBase<Duration>
 
     @Override
     protected JSR310FormattedSerializerBase<?> withFeatures(Boolean writeZoneId, Boolean writeNanoseconds) {
-        return new DurationSerializer(this, _formatter, _useTimestamp, writeNanoseconds);
+        return new DurationSerializer(this, _formatter, _useTimestamp, writeNanoseconds, _shape);
     }
 
     @Override

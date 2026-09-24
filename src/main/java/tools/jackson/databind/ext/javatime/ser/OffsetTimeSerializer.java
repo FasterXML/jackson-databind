@@ -135,6 +135,6 @@ public class OffsetTimeSerializer extends JSR310FormattedSerializerBase<OffsetTi
 
     @Override
     protected JSR310FormattedSerializerBase<?> withFeatures(Boolean writeZoneId, Boolean writeNanoseconds) {
-        return new OffsetTimeSerializer(this, _formatter, _useTimestamp, writeNanoseconds);
+        return new OffsetTimeSerializer(this, _formatter, _useTimestamp, writeNanoseconds, _shape);
     }
 }

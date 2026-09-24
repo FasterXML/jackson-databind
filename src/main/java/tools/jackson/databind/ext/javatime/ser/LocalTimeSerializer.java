@@ -152,7 +152,7 @@ public class LocalTimeSerializer extends JSR310FormattedSerializerBase<LocalTime
     @Override
     protected JSR310FormattedSerializerBase<?> withFeatures(Boolean writeZoneId, Boolean useNanoseconds) {
         return new LocalTimeSerializer(this, _formatter,
-                _useTimestamp, useNanoseconds);
+                _useTimestamp, useNanoseconds, _shape);
     }
 
     // as per [modules-java8#105]

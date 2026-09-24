@@ -161,6 +161,6 @@ public class LocalDateTimeSerializer extends JSR310FormattedSerializerBase<Local
 
     @Override
     protected JSR310FormattedSerializerBase<?> withFeatures(Boolean writeZoneId, Boolean writeNanoseconds) {
-        return new LocalDateTimeSerializer(this, _formatter, _useTimestamp, writeNanoseconds);
+        return new LocalDateTimeSerializer(this, _formatter, _useTimestamp, writeNanoseconds, _shape);
     }
 }

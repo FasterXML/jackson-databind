@@ -87,12 +87,20 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6231: Add copy constructor for `JacksonAnnotationIntrospector` (for sub-classes
   to create re-configured copies)
  (fix by @cowtowncoder, w/ Claude code)
+#6233: Serialize `Month` as Enum name with `@JsonFormat(shape = STRING)`
+ (fix by @pjfanning)
+#6239: Explicit `JsonFormat.Shape.NUMBER_INT`/`NUMBER_FLOAT` not honored for
+  nanosecond handling of `java.time` values (serialization, deserialization)
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.2.4 (not yet released)
 
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)
  (fix by @pjfanning, w/ Claude code)
+#6236: Retain `JsonFormat.Shape` in `withFormat()` of `Month`, `MonthDay`, `Year`
+  and `YearMonth` serializers
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.2.3 (21-Sep-2026)
 
@@ -422,6 +430,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)
  (fix by @pjfanning, w/ Claude code)
+#6236: Retain `JsonFormat.Shape` in `withFormat()` of `Month`, `MonthDay`, `Year`
+  and `YearMonth` serializers
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.1.7 (21-Sep-2026)
 

@@ -244,9 +244,12 @@ public class POJOPropertiesCollector
     }
 
     /**
+     * NOTE: {@code synchronized} since resolution of conflicting accessors
+     * modifies the accessor list (see [databind#6227]).
+     *
      * @since 2.12
      */
-    public AnnotatedMember getJsonKeyAccessor() {
+    public synchronized AnnotatedMember getJsonKeyAccessor() {
         if (!_collected) {
             collectAll();
         }
@@ -266,9 +269,12 @@ public class POJOPropertiesCollector
     }
 
     /**
+     * NOTE: {@code synchronized} since resolution of conflicting accessors
+     * modifies the accessor list (see [databind#6227]).
+     *
      * @since 2.9
      */
-    public AnnotatedMember getJsonValueAccessor()
+    public synchronized AnnotatedMember getJsonValueAccessor()
     {
         if (!_collected) {
             collectAll();

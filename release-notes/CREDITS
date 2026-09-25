@@ -746,3 +746,8 @@ Sergey Lappo (@sergeylappo)
  * Reported #6227: `BeanDescription` is not thread-safe when called concurrently on the
    same instance (`findProperties()`, `findDefaultViews()`)
   [3.2.4]
+
+Mauricio Souza (@mauriciocsz)
+ * Reported, contributed fix for #6229: `DETECT_PARAMETER_NAMES` disabled also prevents
+   `@ConstructorProperties` based Creator detection
+  [3.3.0]

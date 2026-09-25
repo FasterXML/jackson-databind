@@ -80,6 +80,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   (Default Typing, `@JsonTypeInfo`) resolves a type id: type deserializer was built
   for the declared type, before the refinement
  (fix by @pjfanning)
+#6229: `DETECT_PARAMETER_NAMES` disabled also prevents `@ConstructorProperties`
+  based Creator detection
+ (fix by @mauriciocsz)
 #6231: Add copy constructor for `JacksonAnnotationIntrospector` (for sub-classes
   to create re-configured copies)
  (fix by @cowtowncoder, w/ Claude code)

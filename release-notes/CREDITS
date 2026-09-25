@@ -405,6 +405,9 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Fixed #6179: Apply `StreamReadConstraints` number length limit when coercing
    String to `double`
   [3.1.7]
+ * Fixed #6232: Validate `StreamReadConstraints` number length when coercing
+   `StringNode` to number
+  [3.1.8]
 
 @waydeshi
  * Reported #6127: Add `StreamReadConstraints` number len constraint to

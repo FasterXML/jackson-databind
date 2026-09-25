@@ -13,6 +13,10 @@ No changes since 2.22
 #6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
   (instead of `StackOverflowError`)
  (fix by @pjfanning, w/ Claude code)
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
+ (reported by @sergeylappo)
+ (fix by @pjfanning, w/ Claude code)
 
 2.22.3 (21-Sep-2026)
 
@@ -80,6 +84,10 @@ No changes since 2.22
 
 #6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
   (instead of `StackOverflowError`)
+ (fix by @pjfanning, w/ Claude code)
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
+ (reported by @sergeylappo)
  (fix by @pjfanning, w/ Claude code)
 
 2.21.7 (21-Sep-2026)

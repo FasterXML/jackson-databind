@@ -1214,14 +1214,17 @@ ctor.creator()));
             //   (used to return)
         }
         else {
+            // [databind#6240]: may have both (as with fields); neither is a regular property
             boolean asKey = Boolean.TRUE.equals(ai.hasAsKey(_config, m));
             boolean asValue = Boolean.TRUE.equals(ai.hasAsValue(m));
+            // @JsonKey?
             if (asKey) {
                 if (_jsonKeyAccessors == null) {
                     _jsonKeyAccessors = new LinkedList<>();
                 }
                 _jsonKeyAccessors.add(m);
             }
+            // @JsonValue?
             if (asValue) {
                 if (_jsonValueAccessors == null) {
                     _jsonValueAccessors = new LinkedList<>();

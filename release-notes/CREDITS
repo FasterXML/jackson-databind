@@ -741,3 +741,8 @@ Aditya Bagla (@adityabagla7)
  * Fixed #6190: Explicit `@JsonView` on a standard `Throwable` property is ignored
    by `ThrowableDeserializer`
   [3.3.0]
+
+Sergey Lappo (@sergeylappo)
+ * Reported #6227: `BeanDescription` is not thread-safe when called concurrently on the
+   same instance (`findProperties()`, `findDefaultViews()`)
+  [3.2.4]

@@ -107,6 +107,20 @@ public class JacksonAnnotationIntrospector
 
     public JacksonAnnotationIntrospector() { }
 
+    /**
+     * Copy constructor for sub-classes to use when creating re-configured
+     * copies (instead of modifying an instance that may be shared by multiple
+     * mappers): copies all configuration settings of {@code src}, but not
+     * cached state.
+     *
+     * @param src Introspector to copy configuration settings from
+     *
+     * @since 3.3
+     */
+    protected JacksonAnnotationIntrospector(JacksonAnnotationIntrospector src) {
+        _cfgConstructorPropertiesImpliesCreator = src._cfgConstructorPropertiesImpliesCreator;
+    }
+
     @Override
     public Version version() {
         return tools.jackson.databind.cfg.PackageVersion.VERSION;

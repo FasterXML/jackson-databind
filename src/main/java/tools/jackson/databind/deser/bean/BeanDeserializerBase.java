@@ -99,8 +99,14 @@ public abstract class BeanDeserializerBase
     protected boolean _nonStandardCreation;
 
     /**
-     * Flag that indicates that no "special features" whatsoever
-     * are enabled, so the simplest processing is possible.
+     * Flag that indicates that no "special features" other than possible
+     * JSON View handling are enabled, so the simplest processing is
+     * possible when no view is active.
+     * <p>
+     * View handling is checked at call time (see {@link #_useVanillaProcessing})
+     * because {@link MapperFeature#DEFAULT_VIEW_INCLUSION} is disabled by default
+     * in 3.x: that requires view filtering only when a view is actually active.
+     * See [databind#6219].
      */
     protected boolean _vanillaProcessing;
 
@@ -288,9 +294,10 @@ public abstract class BeanDeserializerBase
         _serializationShape = beanDescRef.findExpectedFormat(_beanType.getRawClass()).getShape();
 
         _needViewProcesing = hasViews;
+        // [databind#6219]: do not disable vanilla just because view processing
+        // may be needed; that is decided per-call from the active view.
         _vanillaProcessing = !_nonStandardCreation
                 && (_injectables == null)
-                && !_needViewProcesing
                 // also, may need to reorder stuff if we expect Object Id:
                 && (_objectIdReader == null)
                 ;
@@ -1316,6 +1323,17 @@ ClassUtil.getTypeDescription(ct));
 
     public boolean hasViews() {
         return _needViewProcesing;
+    }
+
+    /**
+     * Whether the vanilla fast path may be used for this call.
+     * View processing is required only when a view is actually active;
+     * otherwise the fast path is valid even if {@link #_needViewProcesing}
+     * is set because {@link MapperFeature#DEFAULT_VIEW_INCLUSION} is disabled
+     * (the 3.x default). See [databind#6219].
+     */
+    protected final boolean _useVanillaProcessing(DeserializationContext ctxt) {
+        return _vanillaProcessing && (!_needViewProcesing || (ctxt.getActiveView() == null));
     }
 
     @Override

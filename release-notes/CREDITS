@@ -731,6 +731,8 @@ Burak KALAYCI (@kalayciburak)
   [3.3.0]
  * Fixed #6198: Make `InvokerHolder` access in `AnnotatedMethod` lazy
   [3.3.0]
+ * Fixed #6219: Vanilla `BeanDeserializer` fast path never used with 3.x defaults
+  [3.3.0]
 
 @laech
  * Reported #6178: `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` does not work

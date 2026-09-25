@@ -107,6 +107,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6236: Retain `JsonFormat.Shape` in `withFormat()` of `Month`, `MonthDay`, `Year`
   and `YearMonth` serializers
  (fix by @cowtowncoder, w/ Claude code)
+#6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+ (fix by @kimsanhaa)
 
 3.2.3 (21-Sep-2026)
 
@@ -446,6 +448,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6236: Retain `JsonFormat.Shape` in `withFormat()` of `Month`, `MonthDay`, `Year`
   and `YearMonth` serializers
  (fix by @cowtowncoder, w/ Claude code)
+#6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+ (fix by @kimsanhaa)
 
 3.1.7 (21-Sep-2026)
 

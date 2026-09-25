@@ -751,3 +751,7 @@ Mauricio Souza (@mauriciocsz)
  * Reported, contributed fix for #6229: `DETECT_PARAMETER_NAMES` disabled also prevents
    `@ConstructorProperties` based Creator detection
   [3.3.0]
+
+Sanha (@kimsanhaa)
+ * Fixed #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+  [3.2.4]

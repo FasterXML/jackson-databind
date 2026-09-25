@@ -14,6 +14,10 @@ No changes since 3.2
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)
  (fix by @pjfanning, w/ Claude code)
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
+ (reported by @sergeylappo)
+ (fix by @pjfanning, w/ Claude code)
 #6232: Validate `StreamReadConstraints` number length when coercing `StringNode`
   to number
  (fix by Aysha A-Z)
@@ -348,6 +352,10 @@ No changes since 3.2
 
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)
+ (fix by @pjfanning, w/ Claude code)
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
+ (reported by @sergeylappo)
  (fix by @pjfanning, w/ Claude code)
 #6232: Validate `StreamReadConstraints` number length when coercing `StringNode`
   to number

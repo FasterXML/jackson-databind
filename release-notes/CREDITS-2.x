@@ -2117,3 +2117,7 @@ Sergey Lappo (@sergeylappo)
  * Reported #6227: `BeanDescription` is not thread-safe when called concurrently on the
    same instance (`findProperties()`, `findDefaultViews()`)
   [2.21.8]
+
+Sanha (@kimsanhaa)
+ * Fixed #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+  [2.23.0]

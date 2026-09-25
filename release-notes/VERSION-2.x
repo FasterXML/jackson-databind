@@ -6,7 +6,8 @@ Project: jackson-databind
 
 2.23.0 (not yet released)
 
-No changes since 2.22
+#6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+ (fix by @kimsanhaa)
 
 2.22.4 (not yet released)
 

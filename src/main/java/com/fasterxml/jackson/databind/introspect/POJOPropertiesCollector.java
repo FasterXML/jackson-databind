@@ -78,8 +78,12 @@ public class POJOPropertiesCollector
     /**
      * State flag we keep to indicate whether actual property information
      * has been collected or not.
+     *<p>
+     * NOTE: {@code volatile} so that the "collected" state (and,
+     * transitively, results assigned before it) is visible across threads in case
+     * a {@link BeanDescription} instance is shared, see [databind#6227].
      */
-    protected boolean _collected;
+    protected volatile boolean _collected;
 
     /**
      * Set of logical property information collected so far.
@@ -240,9 +244,12 @@ public class POJOPropertiesCollector
     }
 
     /**
+     * NOTE: {@code synchronized} since resolution of conflicting accessors
+     * modifies the accessor list (see [databind#6227]).
+     *
      * @since 2.12
      */
-    public AnnotatedMember getJsonKeyAccessor() {
+    public synchronized AnnotatedMember getJsonKeyAccessor() {
         if (!_collected) {
             collectAll();
         }
@@ -262,9 +269,12 @@ public class POJOPropertiesCollector
     }
 
     /**
+     * NOTE: {@code synchronized} since resolution of conflicting accessors
+     * modifies the accessor list (see [databind#6227]).
+     *
      * @since 2.9
      */
-    public AnnotatedMember getJsonValueAccessor()
+    public synchronized AnnotatedMember getJsonValueAccessor()
     {
         if (!_collected) {
             collectAll();
@@ -425,11 +435,20 @@ public class POJOPropertiesCollector
 
     /**
      * Internal method that will collect actual property information.
+     *<p>
+     * NOTE: {@code synchronized} since although instances are
+     * not designed to be shared across threads, if they are, concurrent collection
+     * would corrupt internal state (see [databind#6227]).
      *
      * @since 2.6
      */
-    protected void collectAll()
+    protected synchronized void collectAll()
     {
+        // [databind#6227]: another thread may have completed collection while we
+        // were waiting for the lock
+        if (_collected) {
+            return;
+        }
         _potentialCreators = new PotentialCreators();
 
         // First: gather basic accessors

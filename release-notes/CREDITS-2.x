@@ -2102,3 +2102,8 @@ seonwoo_jung (@seonwooj0810)
  * Fixed #6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
    after all entries are filtered
   [2.21.6]
+
+Sergey Lappo (@sergeylappo)
+ * Reported #6227: `BeanDescription` is not thread-safe when called concurrently on the
+   same instance (`findProperties()`, `findDefaultViews()`)
+  [2.21.8]

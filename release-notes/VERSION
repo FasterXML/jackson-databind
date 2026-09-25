@@ -94,6 +94,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)
  (fix by @pjfanning, w/ Claude code)
+#6232: Validate `StreamReadConstraints` number length when coercing `StringNode`
+  to number
+ (fix by Aysha A-Z)
 #6236: Retain `JsonFormat.Shape` in `withFormat()` of `Month`, `MonthDay`, `Year`
   and `YearMonth` serializers
  (fix by @cowtowncoder, w/ Claude code)
@@ -426,6 +429,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)
  (fix by @pjfanning, w/ Claude code)
+#6232: Validate `StreamReadConstraints` number length when coercing `StringNode`
+  to number
+ (fix by Aysha A-Z)
 #6236: Retain `JsonFormat.Shape` in `withFormat()` of `Month`, `MonthDay`, `Year`
   and `YearMonth` serializers
  (fix by @cowtowncoder, w/ Claude code)

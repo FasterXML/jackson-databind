@@ -32,13 +32,13 @@ public class WithoutParamNamesModule5314Test
     // [databind#6229]: same shape as Bean178 above, but with `@ConstructorProperties`
     // added -- specifically to validate Jackson 2.x compatibility, `@ConstructorProperties`
     // must keep resolving names regardless of `DETECT_PARAMETER_NAMES`.
-    static class CtorPropsBean178
+    static class CtorPropsBean6229
     {
         final String hiddenName;
         final int hiddenAge;
 
         @ConstructorProperties({"openName", "openAge"})
-        public CtorPropsBean178(String openName, int openAge) {
+        public CtorPropsBean6229(String openName, int openAge) {
             hiddenName = openName;
             hiddenAge = openAge;
         }
@@ -85,7 +85,7 @@ public class WithoutParamNamesModule5314Test
 
     private void _runCtorPropsSuccess(JsonMapper mapper)
     {
-        CtorPropsBean178 bean = mapper.readValue(JSON, CtorPropsBean178.class);
+        CtorPropsBean6229 bean = mapper.readValue(JSON, CtorPropsBean6229.class);
         assertEquals("stu", bean.hiddenName);
         assertEquals(22, bean.hiddenAge);
     }

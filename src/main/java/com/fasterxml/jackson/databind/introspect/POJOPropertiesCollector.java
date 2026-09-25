@@ -1213,21 +1213,24 @@ ctor.creator()));
             // 07-Feb-2025: [databind#4775] Do not stop processing here
             //   (used to return)
         }
-        // @JsonKey?
-        else if (Boolean.TRUE.equals(ai.hasAsKey(_config, m))) {
-            if (_jsonKeyAccessors == null) {
-                _jsonKeyAccessors = new LinkedList<>();
+        else {
+            boolean asKey = Boolean.TRUE.equals(ai.hasAsKey(_config, m));
+            boolean asValue = Boolean.TRUE.equals(ai.hasAsValue(m));
+            if (asKey) {
+                if (_jsonKeyAccessors == null) {
+                    _jsonKeyAccessors = new LinkedList<>();
+                }
+                _jsonKeyAccessors.add(m);
             }
-            _jsonKeyAccessors.add(m);
-            return;
-        }
-        // @JsonValue?
-        else if (Boolean.TRUE.equals(ai.hasAsValue(m))) {
-            if (_jsonValueAccessors == null) {
-                _jsonValueAccessors = new LinkedList<>();
+            if (asValue) {
+                if (_jsonValueAccessors == null) {
+                    _jsonValueAccessors = new LinkedList<>();
+                }
+                _jsonValueAccessors.add(m);
             }
-            _jsonValueAccessors.add(m);
-            return;
+            if (asKey || asValue) {
+                return;
+            }
         }
         String implName; // from naming convention
         boolean visible;

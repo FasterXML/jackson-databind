@@ -366,12 +366,10 @@ public class JacksonAnnotationIntrospector
     @Override
     public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember m)
     {
-        // 22-Sep-2026: [databind#5314] (regression fixed in [databind#6229])
-        //   For Jackson 2.x parity, only gates bytecode-derived (`-parameters`)
-        //   name detection below; must NOT gate `@ConstructorProperties` handling.
-        final boolean detectParamNames = config.isEnabled(MapperFeature.DETECT_PARAMETER_NAMES);
-
         if (m instanceof AnnotatedParameter p) {
+            // 15-Sep-2025: As per [databind#5314] possible to disable introspection
+            final boolean detectParamNames = config.isEnabled(MapperFeature.DETECT_PARAMETER_NAMES);
+
             AnnotatedWithParams owner = p.getOwner();
             if (owner instanceof AnnotatedConstructor) {
                 // 15-Sep-2025, tatu: May seem odd but we'll keep access dynamic due
@@ -392,7 +390,7 @@ public class JacksonAnnotationIntrospector
             if (owner instanceof AnnotatedMethod) {
                 // For now let's only bother discovering names for static methods as they
                 // (only) may be creators
-                if (owner.isStatic() && detectParamNames) {
+                if (detectParamNames && owner.isStatic()) {
                     return _findImplicitName(owner, p.getIndex());
                 }
             }

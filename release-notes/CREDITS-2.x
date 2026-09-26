@@ -15,7 +15,7 @@ Co-Authors (with only partial listings below):
 
 ----------------------------------------------------------------------------
 
-Pascal Glinas:
+Pascal Gélinas:
   * Contributed fixes to 'MappingIterator' handling (Pull#58 and Pull#59)
    (2.1.0)
   * Reported #220: ContainerNode missing 'createNumber(BigInteger)'
@@ -1945,10 +1945,13 @@ Aysha Afrah Ziya (@aysha-afrah26)
   (2.18.10)
  * Fixed #6116: Reject non-ASCII digits in `InetAddress` literal validation
   (2.18.10)
+ * Fixed #6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float`
+   Map keys
+  (2.18.10)
 
 @waydeshi
- * Reported #6127: Add `StreamReadConstraints` number len constraint to GregorianCalendar
-   and Duration
+ * Reported #6127: Add `StreamReadConstraints` number len constraint to
+   `javax.xml.datatype.XMLGregorianCalendar` and `javax.xml.datatype.Duration`
   (2.18.10)
  * Reported #6129: Limit the supported URL schemes for `java.nio.file.Path`
    deserialization
@@ -1958,6 +1961,17 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Reported #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic
    base types
   (2.18.10)
+
+@renechoi
+ * Reported #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+  (2.18.11)
+
+@dabirt
+ * Reported #6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  (2.18.11)
+ * Reported #6204: Avoid quadratic forward-reference resolution in Collection/Map
+   deserializers
+  (2.18.11)
 
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
@@ -2098,3 +2112,12 @@ Christian Danner cdadac
  * Reported #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
    are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
   [2.22.0]
+
+Sergey Lappo (@sergeylappo)
+ * Reported #6227: `BeanDescription` is not thread-safe when called concurrently on the
+   same instance (`findProperties()`, `findDefaultViews()`)
+  [2.21.8]
+
+Sanha (@kimsanhaa)
+ * Fixed #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+  [2.23.0]

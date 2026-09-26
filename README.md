@@ -4,7 +4,7 @@ This project contains the general-purpose data-binding functionality
 and tree-model for [Jackson Data Processor](../../../jackson).
 It builds on [Streaming API](../../../jackson-core) (stream parser/generator) package,
 and uses [Jackson Annotations](../../../jackson-annotations) for configuration.
-Project is licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+Project is licensed under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
 While the original use case for Jackson was JSON data-binding, it can now be used to read content
 encoded in other data formats as well, as long as parser and generator implementations exist.

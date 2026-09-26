@@ -471,9 +471,8 @@ public class BeanDeserializer
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.assignCurrentValue(bean);
 
-        int ix = p.nextNameMatch(_propNameMatcher);
+        int ix = p.nextNameMatchAndToken(_propNameMatcher);
         while (ix >= 0) {
-            p.nextToken();
             SettableBeanProperty prop = _propsByIndex[ix];
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
@@ -481,11 +480,10 @@ public class BeanDeserializer
                 wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             // Elem #2
-            ix = p.nextNameMatch(_propNameMatcher);
+            ix = p.nextNameMatchAndToken(_propNameMatcher);
             if (ix < 0) {
                 break;
             }
-            p.nextToken();
             prop = _propsByIndex[ix];
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
@@ -493,11 +491,10 @@ public class BeanDeserializer
                 wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             // Elem #3
-            ix = p.nextNameMatch(_propNameMatcher);
+            ix = p.nextNameMatchAndToken(_propNameMatcher);
             if (ix < 0) {
                 break;
             }
-            p.nextToken();
             prop = _propsByIndex[ix];
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
@@ -505,18 +502,17 @@ public class BeanDeserializer
                 wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             // Elem #4
-            ix = p.nextNameMatch(_propNameMatcher);
+            ix = p.nextNameMatchAndToken(_propNameMatcher);
             if (ix < 0) {
                 break;
             }
-            p.nextToken();
             prop = _propsByIndex[ix];
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
                 wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
-            ix = p.nextNameMatch(_propNameMatcher);
+            ix = p.nextNameMatchAndToken(_propNameMatcher);
         }
         if (ix != PropertyNameMatcher.MATCH_END_OBJECT) {
             if (ix == PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
@@ -584,9 +580,8 @@ public class BeanDeserializer
         handleUnknownVanilla(p, ctxt, bean, propName);
 
         while (true) {
-            int ix = p.nextNameMatch(_propNameMatcher);
+            int ix = p.nextNameMatchAndToken(_propNameMatcher);
             if (ix >= 0) { // normal case
-                p.nextToken();
                 try {
                     _propsByIndex[ix].deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {

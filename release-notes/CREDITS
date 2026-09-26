@@ -670,6 +670,9 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Fixed #6179: Apply `StreamReadConstraints` number length limit when coercing
    String to `double`
   [3.2.3]
+ * Fixed #6232: Validate `StreamReadConstraints` number length when coercing
+   `StringNode` to number
+  [3.2.4]
 
 @waydeshi
  * Reported #6127: Add `StreamReadConstraints` number len constraint to
@@ -741,3 +744,17 @@ Aditya Bagla (@adityabagla7)
  * Fixed #6190: Explicit `@JsonView` on a standard `Throwable` property is ignored
    by `ThrowableDeserializer`
   [3.3.0]
+
+Sergey Lappo (@sergeylappo)
+ * Reported #6227: `BeanDescription` is not thread-safe when called concurrently on the
+   same instance (`findProperties()`, `findDefaultViews()`)
+  [3.2.4]
+
+Mauricio Souza (@mauriciocsz)
+ * Reported, contributed fix for #6229: `DETECT_PARAMETER_NAMES` disabled also prevents
+   `@ConstructorProperties` based Creator detection
+  [3.3.0]
+
+Sanha (@kimsanhaa)
+ * Fixed #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+  [3.2.4]

@@ -14,6 +14,7 @@ import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.UnresolvedForwardReference;
 import tools.jackson.databind.deser.impl.*;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
+import tools.jackson.databind.node.TreeTraversingParser;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
@@ -186,6 +187,24 @@ public class BeanDeserializer
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
+        if (_jsonPointerPropertyHandler != null && p.isExpectedStartObjectToken()) {
+            JsonNode source = ctxt.readTree(p);
+            JsonNode beanSource = _jsonPointerPropertyHandler
+                    .prepareForBeanBinding(source, _beanProperties);
+            Object bean;
+            try (JsonParser treeParser = new TreeTraversingParser(beanSource, ctxt)) {
+                treeParser.nextToken();
+                bean = _deserializeWithoutJsonPointer(treeParser, ctxt);
+            }
+            _jsonPointerPropertyHandler.process(ctxt, bean, source);
+            return bean;
+        }
+        return _deserializeWithoutJsonPointer(p, ctxt);
+    }
+
+    private Object _deserializeWithoutJsonPointer(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
+    {
         // common case first
         if (p.isExpectedStartObjectToken()) {
             if (_vanillaProcessing) {
@@ -246,6 +265,24 @@ public class BeanDeserializer
      */
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt, Object bean) throws JacksonException
+    {
+        if (_jsonPointerPropertyHandler != null && p.isExpectedStartObjectToken()) {
+            JsonNode source = ctxt.readTree(p);
+            JsonNode beanSource = _jsonPointerPropertyHandler
+                    .prepareForBeanBinding(source, _beanProperties);
+            Object updated;
+            try (JsonParser treeParser = new TreeTraversingParser(beanSource, ctxt)) {
+                treeParser.nextToken();
+                updated = _deserializeWithoutJsonPointer(treeParser, ctxt, bean);
+            }
+            _jsonPointerPropertyHandler.process(ctxt, updated, source);
+            return updated;
+        }
+        return _deserializeWithoutJsonPointer(p, ctxt, bean);
+    }
+
+    private Object _deserializeWithoutJsonPointer(JsonParser p, DeserializationContext ctxt,
+            Object bean) throws JacksonException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.assignCurrentValue(bean);

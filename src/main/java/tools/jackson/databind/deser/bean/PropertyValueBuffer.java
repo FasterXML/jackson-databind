@@ -326,9 +326,11 @@ public class PropertyValueBuffer
         try {
             // Third: NullValueProvider? (22-Sep-2019, [databind#2458])
             // 08-Aug-2021, tatu: consider [databind#3214]; not null but "absent" value...
-            Object absentValue = prop.getNullValueProvider().getAbsentValue(_context);
-            if (absentValue != null) {
-                return absentValue;
+            if (_context.isEnabled(DeserializationFeature.ABSENT_BEHAVES_LIKE_NULL)) {
+                Object absentValue = prop.getNullValueProvider().getAbsentValue(_context);
+                if (absentValue != null) {
+                    return absentValue;
+                }
             }
 
             // Fourth: default value

@@ -657,6 +657,9 @@ Aysha Afrah Ziya (@aysha-afrah26)
   [3.2.2]
  * Fixed #6116: Reject non-ASCII digits in `InetAddress` literal validation
   [3.1.6]
+ * Reported, fixed #6136: `@JsonFilter` with `serializeAllExcept()` does not filter
+   `@JsonAnyGetter` entries
+  [3.3.0]
  * Fixed #6157: `@JsonIncludeProperties` not honored for `Throwable` types with
    `@JsonAnySetter`
   [3.2.3]

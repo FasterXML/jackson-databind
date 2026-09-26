@@ -889,6 +889,25 @@ public class MapSerializer
     }
 
     /**
+     * Variant of {@link #serializeFilteredAnyProperties(SerializationContext, JsonGenerator,
+     * Object, Map, PropertyFilter, Object)} that applies the inclusion criteria configured
+     * for this serializer, so that a filtered any-getter suppresses the same entries an
+     * unfiltered one does (see {@link #serializeWithoutTypeInfo}).
+     *<p>
+     * NOTE: {@code public} only because it is called by {@code AnyGetterWriter}
+     *
+     * @param bean Enclosing POJO that has any-getter used to obtain "any properties"
+     *
+     * @since 3.3
+     */
+    public void serializeFilteredAnyProperties(SerializationContext ctxt, JsonGenerator gen,
+            Object bean, Map<?,?> value, PropertyFilter filter)
+        throws JacksonException
+    {
+        serializeFilteredAnyProperties(ctxt, gen, bean, value, filter, _suppressableValue);
+    }
+
+    /**
      * Helper method used when we have a JSON Filter to use AND contents are
      * "any properties" of a POJO.
      *<p>

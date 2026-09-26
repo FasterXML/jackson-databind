@@ -420,6 +420,36 @@ class ObjectIdWithBuilder5909Test extends DatabindTestUtil
                 "forward ref must be rebound from Builder to built object in typed array");
     }
 
+    // [databind#6225]: rebind a Builder before the typed array is materialized.
+    @Test
+    public void forwardReferenceResolvedWithinTypedArrayWithBuilder() throws Exception
+    {
+        EntityArray entity = MAPPER.readValue("""
+                {"id":0,"refs":[1,{"id":1}]}
+                """, EntityArray.class);
+
+        assertEquals(2, entity.refs.length);
+        assertEquals(1, entity.refs[0].id);
+        assertSame(entity.refs[1], entity.refs[0]);
+    }
+
+    // [databind#6225]: repeated forward references share the final built value.
+    @Test
+    public void multipleForwardReferencesResolvedWithinTypedArrayWithBuilder() throws Exception
+    {
+        EntityArray entity = MAPPER.readValue("""
+                {"id":0,"refs":[1,2,1,{"id":2},null,{"id":1}]}
+                """, EntityArray.class);
+
+        assertEquals(6, entity.refs.length);
+        assertEquals(1, entity.refs[0].id);
+        assertEquals(2, entity.refs[1].id);
+        assertSame(entity.refs[5], entity.refs[0]);
+        assertSame(entity.refs[3], entity.refs[1]);
+        assertSame(entity.refs[5], entity.refs[2]);
+        assertNull(entity.refs[4]);
+    }
+
     // ---- Delegating-creator variant ([databind#1706] + collection forward
     // refs): the bound id'd instance is a transient delegate (Mutable*) which
     // is replaced via updateObjectId after createUsingDelegate. Forward refs

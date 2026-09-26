@@ -14,9 +14,18 @@ No changes since 3.2
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)
  (fix by @pjfanning, w/ Claude code)
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
+ (reported by @sergeylappo)
+ (fix by @pjfanning, w/ Claude code)
+#6232: Validate `StreamReadConstraints` number length when coercing `StringNode`
+  to number
+ (fix by Aysha A-Z)
 #6236: Retain `JsonFormat.Shape` in `withFormat()` of `Month`, `MonthDay`, `Year`
   and `YearMonth` serializers
  (fix by @cowtowncoder, w/ Claude code)
+#6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+ (fix by @kimsanhaa)
 
 3.2.3 (21-Sep-2026)
 
@@ -348,9 +357,18 @@ No changes since 3.2
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)
  (fix by @pjfanning, w/ Claude code)
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
+ (reported by @sergeylappo)
+ (fix by @pjfanning, w/ Claude code)
+#6232: Validate `StreamReadConstraints` number length when coercing `StringNode`
+  to number
+ (fix by Aysha A-Z)
 #6236: Retain `JsonFormat.Shape` in `withFormat()` of `Month`, `MonthDay`, `Year`
   and `YearMonth` serializers
  (fix by @cowtowncoder, w/ Claude code)
+#6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+ (fix by @kimsanhaa)
 
 3.1.7 (21-Sep-2026)
 

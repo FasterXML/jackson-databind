@@ -630,6 +630,9 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Fixed #6179: Apply `StreamReadConstraints` number length limit when coercing
    String to `double`
   [3.2.3]
+ * Fixed #6232: Validate `StreamReadConstraints` number length when coercing
+   `StringNode` to number
+  [3.2.4]
 
 @waydeshi
  * Reported #6127: Add `StreamReadConstraints` number len constraint to
@@ -664,3 +667,12 @@ Francesco Nigro (@franz1981)
  * Reported #6204: Avoid quadratic forward-reference resolution in Collection/Map
    deserializers
   [3.2.3]
+
+Sergey Lappo (@sergeylappo)
+ * Reported #6227: `BeanDescription` is not thread-safe when called concurrently on the
+   same instance (`findProperties()`, `findDefaultViews()`)
+  [3.2.4]
+
+Sanha (@kimsanhaa)
+ * Fixed #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+  [3.2.4]

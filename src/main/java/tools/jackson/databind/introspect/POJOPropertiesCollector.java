@@ -72,8 +72,12 @@ public class POJOPropertiesCollector
     /**
      * State flag we keep to indicate whether actual property information
      * has been collected or not.
+     *<p>
+     * NOTE: {@code volatile} so that the "collected" state (and,
+     * transitively, results assigned before it) is visible across threads in case
+     * a {@link BeanDescription} instance is shared, see [databind#6227].
      */
-    protected boolean _collected;
+    protected volatile boolean _collected;
 
     /**
      * Set of logical property information collected so far.
@@ -257,7 +261,11 @@ public class POJOPropertiesCollector
         return _injectables;
     }
 
-    public AnnotatedMember getJsonKeyAccessor() {
+    /**
+     * NOTE: {@code synchronized} since resolution of conflicting accessors
+     * modifies the accessor list (see [databind#6227]).
+     */
+    public synchronized AnnotatedMember getJsonKeyAccessor() {
         if (!_collected) {
             collectAll();
         }
@@ -276,7 +284,11 @@ public class POJOPropertiesCollector
         return null;
     }
 
-    public AnnotatedMember getJsonValueAccessor()
+    /**
+     * NOTE: {@code synchronized} since resolution of conflicting accessors
+     * modifies the accessor list (see [databind#6227]).
+     */
+    public synchronized AnnotatedMember getJsonValueAccessor()
     {
         if (!_collected) {
             collectAll();
@@ -484,10 +496,19 @@ public class POJOPropertiesCollector
 
     /**
      * Internal method that will collect actual property information.
+     *<p>
+     * NOTE: {@code synchronized} since although instances are
+     * not designed to be shared across threads, if they are, concurrent collection
+     * would corrupt internal state (see [databind#6227]).
      */
-    protected void collectAll()
+    protected synchronized void collectAll()
     {
 //System.out.println(" PojoPropsCollector.collectAll() for  "+_classDef.getRawType().getName()); 
+        // [databind#6227]: another thread may have completed collection while we
+        // were waiting for the lock
+        if (_collected) {
+            return;
+        }
         _potentialCreators = new PotentialCreators();
 
         // First: gather basic accessors
@@ -1237,21 +1258,27 @@ ctor.creator()));
             // 07-Feb-2025: [databind#4775] Do not stop processing here
             //   (used to return)
         }
-        // @JsonKey?
-        else if (Boolean.TRUE.equals(_annotationIntrospector.hasAsKey(_config, m))) {
-            if (_jsonKeyAccessors == null) {
-                _jsonKeyAccessors = new LinkedList<>();
+        else {
+            // [databind#6240]: may have both (as with fields); neither is a regular property
+            boolean asKey = Boolean.TRUE.equals(_annotationIntrospector.hasAsKey(_config, m));
+            boolean asValue = Boolean.TRUE.equals(_annotationIntrospector.hasAsValue(_config, m));
+            // @JsonKey?
+            if (asKey) {
+                if (_jsonKeyAccessors == null) {
+                    _jsonKeyAccessors = new LinkedList<>();
+                }
+                _jsonKeyAccessors.add(m);
             }
-            _jsonKeyAccessors.add(m);
-            return;
-        }
-        // @JsonValue?
-        else if (Boolean.TRUE.equals(_annotationIntrospector.hasAsValue(_config, m))) {
-            if (_jsonValueAccessors == null) {
-                _jsonValueAccessors = new LinkedList<>();
+            // @JsonValue?
+            if (asValue) {
+                if (_jsonValueAccessors == null) {
+                    _jsonValueAccessors = new LinkedList<>();
+                }
+                _jsonValueAccessors.add(m);
             }
-            _jsonValueAccessors.add(m);
-            return;
+            if (asKey || asValue) {
+                return;
+            }
         }
         String implName; // from naming convention
         boolean visible;

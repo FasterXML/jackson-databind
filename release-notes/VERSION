@@ -11,6 +11,9 @@ No changes since 3.2
 
 3.2.4 (not yet released)
 
+#6145: `@JsonIgnoreProperties` bypassed for Creator properties with builders
+  and external type ids
+ (fix by Aysha A-Z)
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)
  (fix by @pjfanning, w/ Claude code)

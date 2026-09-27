@@ -488,7 +488,7 @@ public class BuilderBasedDeserializer
                     p.skipChildren();
                     continue;
                 }
-                // [databind#4629] Need to check for ignored properties for Creator properties since
+                // [databind#6145] Need to check for ignored properties for Creator properties since
                 // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
                 // so if we don't check for ignore first, the ignore configuration will be bypassed.
                 if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
@@ -867,7 +867,7 @@ public class BuilderBasedDeserializer
                     p.skipChildren();
                     continue;
                 }
-                // [databind#4629] Need to check for ignored properties for Creator properties since
+                // [databind#6145] Need to check for ignored properties for Creator properties since
                 // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
                 // so if we don't check for ignore first, the ignore configuration will be bypassed.
                 if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {

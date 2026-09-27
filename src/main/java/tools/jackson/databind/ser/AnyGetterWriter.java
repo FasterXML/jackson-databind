@@ -95,6 +95,27 @@ public class AnyGetterWriter extends BeanPropertyWriter
         getAndSerialize(bean, gen, ctxt);
     }
 
+    /**
+     * [databind#6136]: The any-getter accessor name is not a property name in the
+     * output -- the entries it emits are -- so the filter decides inclusion per
+     * entry, instead of once for the accessor.
+     *<p>
+     * Note that as a result the accessor name (e.g. {@code "anyProperties"}) is no
+     * longer usable as a filter key: {@code serializeAllExcept(accessorName)} no
+     * longer suppresses the whole map, and {@code filterOutAllExcept(accessorName)}
+     * no longer includes all of its entries. Inclusion is decided by the emitted
+     * entry names instead.
+     *
+     * @since 3.3
+     */
+    @Override
+    public void serializeFilteredAsProperty(Object bean, JsonGenerator gen,
+            SerializationContext ctxt, PropertyFilter filter)
+        throws Exception
+    {
+        getAndFilter(bean, gen, ctxt, filter);
+    }
+
     public void getAndFilter(Object bean, JsonGenerator gen, SerializationContext ctxt,
             PropertyFilter filter)
         throws Exception

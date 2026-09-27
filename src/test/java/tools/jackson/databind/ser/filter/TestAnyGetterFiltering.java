@@ -145,6 +145,31 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
         }
     }
 
+    // [databind#6136]: view-gated any-getter (accessor gets wrapped in a
+    // view-filtering writer when a view is active) must still filter per entry
+    static class Views {
+        static class Public { }
+    }
+
+    @JsonFilter("anyFilter")
+    static class ViewAnyBeanWithSecret
+    {
+        @JsonView(Views.Public.class)
+        public String name = "bob";
+
+        private Map<String, String> properties = new LinkedHashMap<String, String>();
+        {
+            properties.put("a", "1");
+            properties.put("secret", "s3cr3t");
+        }
+
+        @JsonView(Views.Public.class)
+        @JsonAnyGetter
+        public Map<String, String> anyProperties() {
+            return properties;
+        }
+    }
+
     // [databind#1655]
     @JsonFilter("CustomFilter")
     static class OuterObject {
@@ -290,6 +315,19 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
                 SimpleBeanPropertyFilter.filterOutAllExcept("name", "a", "blank"));
         assertEquals(EXP,
                 MAPPER.writer(including).writeValueAsString(new FilteredNonEmptyAnyBean()));
+    }
+
+    // [databind#6136]: excluded entries must not leak when the any-getter is gated
+    // by an active JSON View (accessor gets wrapped in a view-filtering writer)
+    @Test
+    public void anyGetterFilteringWithActiveView() throws Exception
+    {
+        FilterProvider prov = new SimpleFilterProvider().addFilter("anyFilter",
+                SimpleBeanPropertyFilter.serializeAllExcept("secret"));
+        assertEquals("""
+                {"name":"bob","a":"1"}""",
+                MAPPER.writer(prov).withView(Views.Public.class)
+                        .writeValueAsString(new ViewAnyBeanWithSecret()));
     }
 
     // for [databind#1142]

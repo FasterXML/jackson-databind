@@ -1014,16 +1014,12 @@ public abstract class BeanSerializerBase
             for (final int len = props.length; i < len; ++i) {
                 BeanPropertyWriter prop = props[i];
                 if (prop != null) { // can have nulls in filtered list
-                    // [databind#6136]: Name of an any-getter accessor is not a property
-                    // name in output -- the entries it produces are -- so it is unpacked
-                    // here and the filter gets to decide inclusion of each entry.
-                    // Done by caller (instead of by filter) so that this works for all
-                    // `PropertyFilter` implementations, not just standard ones.
-                    if (prop instanceof AnyGetterWriter anyGetter) {
-                        anyGetter.getAndFilter(bean, g, ctxt, filter);
-                    } else {
-                        filter.serializeAsProperty(bean, g, ctxt, prop);
-                    }
+                    // [databind#6136]: let the writer route filtering; most defer to
+                    // the filter by name, but e.g. an any-getter unpacks its entries
+                    // so each is filtered individually, and view-based writers apply
+                    // their view check first. Done polymorphically so this works for
+                    // all writer and `PropertyFilter` implementations.
+                    prop.serializeFilteredAsProperty(bean, g, ctxt, filter);
                 }
             }
         } catch (Exception e) {

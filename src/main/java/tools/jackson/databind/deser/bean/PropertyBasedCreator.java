@@ -159,6 +159,11 @@ public final class PropertyBasedCreator
         _includableProps = base._includableProps;
     }
 
+    /**
+     * Copy constructor used by {@link #withByNameInclusion}.
+     *
+     * @since 3.3
+     */
     protected PropertyBasedCreator(PropertyBasedCreator base,
             Set<String> ignorableProps, Set<String> includableProps)
     {

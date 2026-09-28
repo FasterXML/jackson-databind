@@ -138,6 +138,11 @@ public final class PropertyBasedCreator
         _filteredLookup = _propertyLookup;
     }
 
+    /**
+     * Copy constructor used by {@link #renameAll} and {@link #withByNameInclusion}.
+     *
+     * @since 3.3
+     */
     protected PropertyBasedCreator(PropertyBasedCreator base,
             HashMap<String, SettableBeanProperty> propertyLookup,
             HashMap<String, SettableBeanProperty> filteredLookup,

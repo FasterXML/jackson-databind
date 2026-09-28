@@ -1491,15 +1491,19 @@ public class BeanDeserializer
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
             }
-            // Things marked as ignorable should not be passed to any setter, nor to
-            // external type id handling (same order as `_deserializeWithExternalTypeId()`):
-            // [databind#6243] ignored Creator properties, too, end up here
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+            // [databind#6243]: Creator property not found above is one to ignore; must not
+            // be passed to external type id handling (but other ignored names, like type id, are)
+            if (creator.hasCreatorProperty(propName)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
             // external type id (or property that depends on it)?
             if (ext.handlePropertyValue(p, ctxt, propName, null)) {
+                continue;
+            }
+            // Things marked as ignorable should not be passed to any setter
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
             // "any property"?

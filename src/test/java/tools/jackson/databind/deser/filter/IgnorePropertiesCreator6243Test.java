@@ -12,6 +12,7 @@ import tools.jackson.databind.exc.IgnoredPropertyException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -66,6 +67,25 @@ public class IgnorePropertiesCreator6243Test extends DatabindTestUtil
         }
     }
 
+    // Ignored name differs from the Creator property's name only by case; no fallback
+    // setter or field, so it can only be bound via Creator
+    @JsonIgnoreProperties("NAME")
+    static class NameIgnoredOtherCase {
+        private final String _name;
+
+        @JsonCreator
+        public NameIgnoredOtherCase(@JsonProperty("name") String name) {
+            _name = name;
+        }
+
+        public String name() { return _name; }
+    }
+
+    static class NameIgnoredOtherCaseWrapper {
+        @JsonIgnoreProperties("Y")
+        public Point p;
+    }
+
     static class Points {
         @JsonIgnoreProperties("y")
         public Point ignoring;
@@ -100,6 +120,18 @@ public class IgnorePropertiesCreator6243Test extends DatabindTestUtil
     // Ignores the Creator property that the external type id is for
     static class ExtTypeValueWrapper {
         @JsonIgnoreProperties("value")
+        public ExtTypeValue child;
+    }
+
+    // External type id property is not a bean property, so it is not included here...
+    static class ExtTypeIncludeWrapper {
+        @JsonIncludeProperties({ "secret", "value" })
+        public ExtTypeValue child;
+    }
+
+    // ... and ignoring it (as a bean property) should not prevent its use as type id either
+    static class ExtTypeIgnoreTypeWrapper {
+        @JsonIgnoreProperties("type")
         public ExtTypeValue child;
     }
 
@@ -170,6 +202,26 @@ public class IgnorePropertiesCreator6243Test extends DatabindTestUtil
         assertEquals(4, result.plain.y);
     }
 
+    // Case-insensitive matching of input does not make ignoral case-insensitive:
+    // a Creator property is only ignored by its exact name
+    @Test
+    public void ignoredNameInOtherCaseCaseInsensitive() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+                .build();
+        NameIgnoredOtherCase result = mapper.readValue("""
+                {"name":"v"}
+                """, NameIgnoredOtherCase.class);
+        assertEquals("v", result.name());
+
+        NameIgnoredOtherCaseWrapper wrapper = mapper.readValue("""
+                {"p":{"x":1,"y":2}}
+                """, NameIgnoredOtherCaseWrapper.class);
+        assertEquals(1, wrapper.p.x);
+        assertEquals(2, wrapper.p.y);
+    }
+
     @Test
     public void ignoredCreatorPropertyReportedAsIgnored() throws Exception
     {
@@ -190,5 +242,24 @@ public class IgnorePropertiesCreator6243Test extends DatabindTestUtil
                 """, ExtTypeValueWrapper.class);
         assertEquals("s", result.child.secret);
         assertNull(result.child.value);
+    }
+
+    // External type id name is handled as type id even if not a name to include
+    // (or is a name to ignore): only ignored Creator properties are skipped
+    @Test
+    public void externalTypeIdNotIncludedOrIgnored() throws Exception
+    {
+        final String json = """
+                {"child":{"secret":"s","type":"dog","value":{"name":"Rex"}}}
+                """;
+        ExtTypeIncludeWrapper incl = MAPPER.readValue(json, ExtTypeIncludeWrapper.class);
+        assertEquals("s", incl.child.secret);
+        assertInstanceOf(Dog.class, incl.child.value);
+        assertEquals("Rex", incl.child.value.name);
+
+        ExtTypeIgnoreTypeWrapper ign = MAPPER.readValue(json, ExtTypeIgnoreTypeWrapper.class);
+        assertEquals("s", ign.child.secret);
+        assertInstanceOf(Dog.class, ign.child.value);
+        assertEquals("Rex", ign.child.value.name);
     }
 }

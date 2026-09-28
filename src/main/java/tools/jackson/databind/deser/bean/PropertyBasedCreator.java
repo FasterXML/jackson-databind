@@ -294,10 +294,17 @@ public final class PropertyBasedCreator
         // properties to ignore are not found by any name (including aliases)
         filtered.values().removeIf(prop -> IgnorePropertiesUtil.shouldIgnore(prop.getName(),
                 ignorableProps, includableProps));
-        // nor is anything found by (alias) names to ignore
+        // nor is anything found by (alias) names to ignore. But with case-insensitive
+        // lookup, a name may match property's own name in different case: that does not
+        // ignore the property (checked above by exact name, same as for bean properties)
         if (ignorableProps != null) {
+            final boolean caseInsensitive = (filtered instanceof CaseInsensitiveMap);
             for (String name : ignorableProps) {
-                filtered.remove(name);
+                SettableBeanProperty prop = filtered.get(name);
+                if ((prop != null)
+                        && !(caseInsensitive && name.equalsIgnoreCase(prop.getName()))) {
+                    filtered.remove(name);
+                }
             }
         }
         return new PropertyBasedCreator(this, _propertyLookup, filtered, _propertiesInOrder);
@@ -333,6 +340,17 @@ public final class PropertyBasedCreator
      */
     public SettableBeanProperty findCreatorProperty(String name) {
         return _filteredLookup.get(name);
+    }
+
+    /**
+     * Method for checking whether there is a Creator property with given name
+     * (or alias), including ones {@link #findCreatorProperty(String)} does not find
+     * because the name is to be ignored.
+     *
+     * @since 3.3
+     */
+    public boolean hasCreatorProperty(String name) {
+        return _propertyLookup.get(name) != null;
     }
 
     public SettableBeanProperty findCreatorProperty(int propertyIndex) {

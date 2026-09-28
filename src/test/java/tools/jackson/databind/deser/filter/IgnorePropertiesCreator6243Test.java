@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.exc.IgnoredPropertyException;
@@ -47,6 +48,22 @@ public class IgnorePropertiesCreator6243Test extends DatabindTestUtil
         public Renamed ignoringAlias;
 
         public Renamed plain;
+    }
+
+    // Ignores a Creator property, which then must not be found by its alias either
+    static class RenamedIgnoringWrapper {
+        @JsonIgnoreProperties("newName")
+        public Renamed ignoring;
+    }
+
+    @JsonIgnoreProperties("newName")
+    static class RenamedIgnored {
+        public final String value;
+
+        @JsonCreator
+        public RenamedIgnored(@JsonProperty("newName") @JsonAlias("oldName") String value) {
+            this.value = value;
+        }
     }
 
     static class Points {
@@ -120,6 +137,37 @@ public class IgnorePropertiesCreator6243Test extends DatabindTestUtil
                 {"ignoringAlias":{"newName":"c"}}
                 """, RenamedWrapper.class);
         assertEquals("c", result.ignoringAlias.value);
+    }
+
+    @Test
+    public void ignoredCreatorPropertyNotFoundByAlias() throws Exception
+    {
+        RenamedIgnoringWrapper wrapper = MAPPER.readValue("""
+                {"ignoring":{"oldName":"a"}}
+                """, RenamedIgnoringWrapper.class);
+        assertNull(wrapper.ignoring.value);
+
+        RenamedIgnored result = MAPPER.readValue("""
+                {"oldName":"b"}
+                """, RenamedIgnored.class);
+        assertNull(result.value);
+    }
+
+    @Test
+    public void ignoredCreatorPropertyCaseInsensitive() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+                .build();
+        Points result = mapper.readValue("""
+                {"ignoring":{"x":1,"Y":2},"including":{"X":5,"Y":6},"plain":{"X":3,"Y":4}}
+                """, Points.class);
+        assertEquals(1, result.ignoring.x);
+        assertEquals(0, result.ignoring.y);
+        assertEquals(5, result.including.x);
+        assertEquals(0, result.including.y);
+        assertEquals(3, result.plain.x);
+        assertEquals(4, result.plain.y);
     }
 
     @Test

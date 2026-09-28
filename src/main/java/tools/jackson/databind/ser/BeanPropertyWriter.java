@@ -415,13 +415,24 @@ public class BeanPropertyWriter
     }
 
     /**
-     * Method called to assign value serializer for property
+     * Method called to assign value serializer for property.
+     * An already assigned serializer may be replaced with another one
+     * (for example by {@link ValueSerializerModifier}), but {@code null}
+     * may never be assigned.
+     *<p>
+     * NOTE: serializer is used as-is: it will NOT be contextualized
+     * (no call to {@link ValueSerializer#createContextual}) nor resolved
+     * by the containing bean serializer. Caller is responsible for passing
+     * a fully configured serializer.
+     *<p>
+     * NOTE: before 3.3 override of non-{@code null} serializer was blocked.
+     *
+     * @throws IllegalStateException if {@code ser} is {@code null}
      */
     public void assignSerializer(ValueSerializer<Object> ser) {
-        // may need to disable check in future?
-        if ((_serializer != null) && (_serializer != ser)) {
-            throw new IllegalStateException("Cannot override _serializer: had a %s, trying to set to %s".formatted(
-                    ClassUtil.classNameOf(_serializer), ClassUtil.classNameOf(ser)));
+        if (ser == null) {
+            throw new IllegalStateException("Cannot assign `null` as _serializer (had a %s)".formatted(
+                    ClassUtil.classNameOf(_serializer)));
         }
         _serializer = ser;
     }

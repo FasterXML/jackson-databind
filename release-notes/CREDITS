@@ -758,3 +758,8 @@ Mauricio Souza (@mauriciocsz)
 Sanha (@kimsanhaa)
  * Fixed #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
   [3.2.4]
+
+한의준 (@exijn)
+ * Contributed fix for #4385: Allow changing serializer used for a single property
+   of a Class
+  [3.3.0]

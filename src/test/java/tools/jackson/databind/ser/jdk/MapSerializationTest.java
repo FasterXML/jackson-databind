@@ -168,6 +168,41 @@ public class MapSerializationTest extends DatabindTestUtil
         }
     }
 
+    // [databind#6240]: same as `Outer2871`, but annotations on getter
+    static class OuterWithGetter6240 {
+        private final Inner2871 inner;
+
+        OuterWithGetter6240(Inner2871 inner) {
+            this.inner = inner;
+        }
+
+        @JsonKey
+        @JsonValue
+        public Inner2871 getInner() {
+            return inner;
+        }
+    }
+
+    // [databind#6240]
+    static class KeyOnlyGetter6240 {
+        public String name = "value";
+
+        @JsonKey
+        @JsonValue(false)
+        public String getId() {
+            return "a";
+        }
+    }
+
+    // [databind#6240]
+    static class ValueOnlyGetter6240 {
+        @JsonKey(false)
+        @JsonValue
+        public String getId() {
+            return "a";
+        }
+    }
+
     // // // Inner types from MapKeySerializationTest
 
     static class KarlSerializer extends ValueSerializer<String>
@@ -485,6 +520,37 @@ public class MapSerializationTest extends DatabindTestUtil
         Map<String, NoKeyOuter> mapA = Collections.singletonMap("key", new NoKeyOuter(new Inner2871("innerKey", "innerValue")));
         String actual = MAPPER.writeValueAsString(mapA);
         assertEquals("{\"key\":\"innerValue\"}", actual);
+    }
+
+    // [databind#6240]
+    @Test
+    public void testClassAsKeyWithGetter() throws Exception {
+        OuterWithGetter6240 outer = new OuterWithGetter6240(new Inner2871("innerKey", "innerValue"));
+        assertEquals("{\"innerKey\":\"value\"}",
+                MAPPER.writeValueAsString(Collections.singletonMap(outer, "value")));
+    }
+
+    // [databind#6240]
+    @Test
+    public void testClassAsValueWithGetter() throws Exception {
+        OuterWithGetter6240 outer = new OuterWithGetter6240(new Inner2871("innerKey", "innerValue"));
+        assertEquals("\"innerValue\"", MAPPER.writeValueAsString(outer));
+        assertEquals("{\"key\":\"innerValue\"}",
+                MAPPER.writeValueAsString(Collections.singletonMap("key", outer)));
+    }
+
+    // [databind#6240]: disabled `@JsonValue` must not expose key getter as property
+    @Test
+    public void testKeyOnlyGetter() throws Exception {
+        assertEquals("{\"name\":\"value\"}", MAPPER.writeValueAsString(new KeyOnlyGetter6240()));
+        assertEquals("{\"a\":1}",
+                MAPPER.writeValueAsString(Collections.singletonMap(new KeyOnlyGetter6240(), 1)));
+    }
+
+    // [databind#6240]: disabled `@JsonKey` must not disable `@JsonValue`
+    @Test
+    public void testValueOnlyGetter() throws Exception {
+        assertEquals("\"a\"", MAPPER.writeValueAsString(new ValueOnlyGetter6240()));
     }
 
     // // // Tests from MapKeySerializationTest

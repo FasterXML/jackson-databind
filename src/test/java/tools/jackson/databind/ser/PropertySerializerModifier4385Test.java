@@ -15,11 +15,13 @@ import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PropertySerializerModifier4385Test
+    extends DatabindTestUtil
 {
     static class Value {
         public String value;
@@ -138,25 +140,24 @@ public class PropertySerializerModifier4385Test
             .build();
 
     @Test
-    public void testOnlySelectedPropertyIsReplaced() throws Exception {
-        assertEquals("{\"selected\":\"modifier:selected\","
-                + "\"annotatedOther\":\"annotation:annotated\","
-                + "\"plainOther\":\"global:plain\"}",
+    public void onlySelectedPropertyIsReplaced() throws Exception {
+        assertEquals("""
+                {"selected":"modifier:selected","annotatedOther":"annotation:annotated","plainOther":"global:plain"}""",
                 MAPPER.writeValueAsString(new TargetBean(new Value("selected"))));
-        assertEquals("{\"value\":\"global:other\"}",
+        assertEquals("""
+                {"value":"global:other"}""",
                 MAPPER.writeValueAsString(new OtherBean()));
     }
 
     @Test
-    public void testNullSerializerIsNotReplaced() throws Exception {
-        assertEquals("{\"selected\":\"annotation-null\","
-                + "\"annotatedOther\":\"annotation:annotated\","
-                + "\"plainOther\":\"global:plain\"}",
+    public void nullSerializerIsNotReplaced() throws Exception {
+        assertEquals("""
+                {"selected":"annotation-null","annotatedOther":"annotation:annotated","plainOther":"global:plain"}""",
                 MAPPER.writeValueAsString(new TargetBean(null)));
     }
 
     @Test
-    public void testNullAssignmentIsRejected() {
+    public void nullAssignmentIsRejected() {
         assertThrows(IllegalStateException.class,
                 () -> NULLING_MAPPER.writeValueAsString(new TargetBean(new Value("selected"))));
     }

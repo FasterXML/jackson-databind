@@ -420,6 +420,11 @@ public class BeanPropertyWriter
      * (for example by {@link ValueSerializerModifier}), but {@code null}
      * may never be assigned.
      *<p>
+     * NOTE: serializer is used as-is: it will NOT be contextualized
+     * (no call to {@link ValueSerializer#createContextual}) nor resolved
+     * by the containing bean serializer. Caller is responsible for passing
+     * a fully configured serializer.
+     *<p>
      * NOTE: before 3.3 override of non-{@code null} serializer was blocked.
      *
      * @throws IllegalStateException if {@code ser} is {@code null}

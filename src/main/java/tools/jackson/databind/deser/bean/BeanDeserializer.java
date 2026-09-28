@@ -382,11 +382,6 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
-                // [databind#5966] Honor @JsonIgnoreProperties on creator parameters
-                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
-                    continue;
-                }
                 // Override the pre-populated value
                 buffer.assignParameter(creatorProp,
                         _deserializeWithErrorWrapping(p, ctxt, creatorProp));
@@ -758,13 +753,6 @@ public class BeanDeserializer
                 if (creatorProp.isInjectionOnly()) {
                     // Skip the input value, will be injected later in PropertyValueBuffer
                     p.skipChildren();
-                    continue;
-                }
-                // [databind#4629] Need to check for ignored properties for Creator properties since
-                // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
-                // so if we don't check for ignore first, the ignore configuration will be bypassed.
-                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
                     continue;
                 }
                 // Last creator property to set?
@@ -1260,13 +1248,6 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
-                // [databind#4629] Need to check for ignored properties for Creator properties since
-                // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
-                // so if we don't check for ignore first, the ignore configuration will be bypassed.
-                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
-                    continue;
-                }
                 // Last creator property to set?
                 // [databind#4690] cannot quit early as optimization any more
                 // if (buffer.assignParameter(creatorProp, value)) { ... build ... }
@@ -1479,14 +1460,6 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
-                // [databind#6145] Need to check for ignored properties for Creator properties since
-                // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
-                // so if we don't check for ignore first, the ignore configuration will be bypassed.
-                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
-                    continue;
-                }
-
                 // first: let's check to see if this might be part of value with external type id:
                 // 11-Sep-2015, tatu: Important; do NOT pass buffer as last arg, but null,
                 //   since it is not the bean
@@ -1518,13 +1491,15 @@ public class BeanDeserializer
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
             }
-            // external type id (or property that depends on it)?
-            if (ext.handlePropertyValue(p, ctxt, propName, null)) {
-                continue;
-            }
-            // Things marked as ignorable should not be passed to any setter
+            // Things marked as ignorable should not be passed to any setter, nor to
+            // external type id handling (same order as `_deserializeWithExternalTypeId()`):
+            // [databind#6243] ignored Creator properties, too, end up here
             if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
+                continue;
+            }
+            // external type id (or property that depends on it)?
+            if (ext.handlePropertyValue(p, ctxt, propName, null)) {
                 continue;
             }
             // "any property"?

@@ -12,6 +12,7 @@ import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.deser.impl.ManagedReferenceProperty;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
+import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
 
 /**
@@ -61,6 +62,22 @@ public final class PropertyBasedCreator
      * @since 3.1
      */
     protected final boolean _hasManagedReferenceProperties;
+
+    /**
+     * Names to ignore (as per {@code @JsonIgnoreProperties}), if any:
+     * {@link #findCreatorProperty(String)} finds no Creator property by these.
+     *
+     * @since 3.3
+     */
+    protected final Set<String> _ignorableProps;
+
+    /**
+     * Names to include (as per {@code @JsonIncludeProperties}), if any:
+     * {@link #findCreatorProperty(String)} finds no Creator property by other names.
+     *
+     * @since 3.3
+     */
+    protected final Set<String> _includableProps;
 
     /*
     /**********************************************************************
@@ -124,6 +141,8 @@ public final class PropertyBasedCreator
 
         _injectablePropIndexes = injectablePropIndexes;
         _hasManagedReferenceProperties = hasManagedRef;
+        _ignorableProps = null;
+        _includableProps = null;
     }
 
     protected PropertyBasedCreator(PropertyBasedCreator base,
@@ -136,6 +155,21 @@ public final class PropertyBasedCreator
         _propertyLookup = propertyLookup;
         _propertiesInOrder = allProperties;
         _hasManagedReferenceProperties = base._hasManagedReferenceProperties;
+        _ignorableProps = base._ignorableProps;
+        _includableProps = base._includableProps;
+    }
+
+    protected PropertyBasedCreator(PropertyBasedCreator base,
+            Set<String> ignorableProps, Set<String> includableProps)
+    {
+        _propertyCount = base._propertyCount;
+        _valueInstantiator = base._valueInstantiator;
+        _injectablePropIndexes = base._injectablePropIndexes;
+        _propertyLookup = base._propertyLookup;
+        _propertiesInOrder = base._propertiesInOrder;
+        _hasManagedReferenceProperties = base._hasManagedReferenceProperties;
+        _ignorableProps = ignorableProps;
+        _includableProps = includableProps;
     }
 
     /**
@@ -237,6 +271,25 @@ public final class PropertyBasedCreator
         );
     }
 
+    /**
+     * Mutant factory method for constructing a creator that does not find Creator
+     * properties by names to ignore, as per {@code @JsonIgnoreProperties} and
+     * {@code @JsonIncludeProperties} (see {@link #findCreatorProperty(String)}).
+     * Contextual variants of a deserializer may ignore different names, so each
+     * uses its own instance.
+     *
+     * @since 3.3
+     */
+    public PropertyBasedCreator withByNameInclusion(Set<String> ignorableProps,
+            Set<String> includableProps)
+    {
+        if (Objects.equals(ignorableProps, _ignorableProps)
+                && Objects.equals(includableProps, _includableProps)) {
+            return this;
+        }
+        return new PropertyBasedCreator(this, ignorableProps, includableProps);
+    }
+
     /*
     /**********************************************************************
     /* Accessors
@@ -259,8 +312,21 @@ public final class PropertyBasedCreator
         return _propertiesInOrder;
     }
 
+    /**
+     * Method for finding the Creator property to bind a property with given name to.
+     * Returns {@code null} for a name to ignore (see {@link #withByNameInclusion}),
+     * so that callers handle it like any other ignored property instead of
+     * each checking ignorals of their own ([databind#6243]). The check uses the name
+     * as given, not the property's own name, so that an alias is ignored by its own
+     * name as well.
+     */
     public SettableBeanProperty findCreatorProperty(String name) {
-        return _propertyLookup.get(name);
+        SettableBeanProperty prop = _propertyLookup.get(name);
+        if ((prop != null)
+                && IgnorePropertiesUtil.shouldIgnore(name, _ignorableProps, _includableProps)) {
+            return null;
+        }
+        return prop;
     }
 
     public SettableBeanProperty findCreatorProperty(int propertyIndex) {

@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
@@ -448,6 +449,60 @@ class ObjectIdWithBuilder5909Test extends DatabindTestUtil
         assertSame(entity.refs[3], entity.refs[1]);
         assertSame(entity.refs[5], entity.refs[2]);
         assertNull(entity.refs[4]);
+    }
+
+    // ---- Error-path variant: a sibling property of the forward-referenced
+    // object fails *before* its Builder is rebound to the built object, i.e.
+    // while a not-yet-rebound Builder is still sitting in the accumulator
+    // slot. The error-path `buildArray()` call (used to attach a `Reference`
+    // to the wrapped exception) must not itself throw `ArrayStoreException`
+    // by trying to store that Builder into the typed array, which would mask
+    // the real, informative failure.
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonDeserialize(builder = StrictEntityArrayBuilder.class)
+    static class StrictEntityArray
+    {
+        public final long id;
+        public final StrictEntityArray[] refs;
+        public final UUID bad;
+
+        StrictEntityArray(long id, StrictEntityArray[] refs, UUID bad) {
+            this.id = id;
+            this.refs = refs;
+            this.bad = bad;
+        }
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonPOJOBuilder(withPrefix = "")
+    static class StrictEntityArrayBuilder
+    {
+        private long id;
+        private StrictEntityArray[] refs;
+        private UUID bad;
+
+        public StrictEntityArrayBuilder id(long id) { this.id = id; return this; }
+        public StrictEntityArrayBuilder refs(StrictEntityArray[] refs) { this.refs = refs; return this; }
+        public StrictEntityArrayBuilder bad(UUID bad) { this.bad = bad; return this; }
+
+        public StrictEntityArray build() { return new StrictEntityArray(id, refs, bad); }
+    }
+
+    @Test
+    public void failureBeforeRebindSurfacesRealError() throws Exception
+    {
+        DatabindException e = assertThrows(DatabindException.class, () ->
+                MAPPER.readValue("""
+                        {"id":0,"refs":[1,{"id":1,"bad":"not-a-uuid"}]}
+                        """, StrictEntityArray.class));
+
+        // Must surface the real UUID-coercion failure, not an ArrayStoreException
+        // thrown by the error-path buildArray() call trying to store the
+        // not-yet-rebound Builder into the typed `StrictEntityArray[]`.
+        assertInstanceOf(DatabindException.class, e);
+        assertNull(e.getCause());
+        verifyException(e, "not-a-uuid");
     }
 
     // ---- Delegating-creator variant ([databind#1706] + collection forward

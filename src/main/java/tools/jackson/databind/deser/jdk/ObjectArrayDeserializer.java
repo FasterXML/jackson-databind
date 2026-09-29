@@ -586,7 +586,10 @@ public class ObjectArrayDeserializer
             }
             for (int i = 0; i < size; i++) {
                 Object value = _accumulator.get(i);
-                if (!(value instanceof ArrayReferring)) {
+                // Slot may still hold a not-yet-rebound Builder (see
+                // resolveForwardReference()); skip it to avoid ArrayStoreException.
+                if (!(value instanceof ArrayReferring)
+                        && (_untyped || value == null || _elementType.isInstance(value))) {
                     _array[i] = value;
                 }
             }

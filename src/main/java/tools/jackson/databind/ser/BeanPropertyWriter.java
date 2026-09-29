@@ -715,6 +715,23 @@ public class BeanPropertyWriter
     }
 
     /**
+     * Method called to serialize this property when a {@link PropertyFilter} is
+     * in effect. Default implementation simply hands this writer to the filter,
+     * which decides inclusion based on the property name. Subclasses that do not
+     * map to a single output property (such as {@code AnyGetterWriter}), or that
+     * decorate another writer (such as view-based filtering), override this to
+     * route filtering appropriately.
+     *
+     * @since 3.3
+     */
+    public void serializeFilteredAsProperty(Object bean, JsonGenerator g,
+            SerializationContext ctxt, PropertyFilter filter)
+        throws Exception
+    {
+        filter.serializeAsProperty(bean, g, ctxt, this);
+    }
+
+    /**
      * Method called to indicate that serialization of a field was omitted due
      * to filtering, in cases where backend data format does not allow basic
      * omission.

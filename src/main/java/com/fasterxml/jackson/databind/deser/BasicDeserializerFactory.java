@@ -1097,6 +1097,10 @@ public abstract class BasicDeserializerFactory
             ValueInstantiator valueInstantiator = _constructDefaultValueInstantiator(ctxt, beanDesc);
             SettableBeanProperty[] creatorProps = (valueInstantiator == null) ? null
                     : valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+            // [databind#6250]: need to pass views of creator parameters, if any
+            if (creatorProps != null) {
+                _assignEnumCreatorViews(ctxt, beanDesc, creatorProps);
+            }
             // May have @JsonCreator for static factory method:
             for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
                 if (_hasCreatorAnnotation(config, factory)) {
@@ -1134,6 +1138,34 @@ factory.toString()));
             }
         }
         return deser;
+    }
+
+    /**
+     * Helper method for assigning views (if any) of properties-based Enum Creator
+     * parameters, so that they are honored same as with POJO creator properties.
+     * Only explicit {@code @JsonView} annotations (on parameter, or on Enum type)
+     * are considered, so un-annotated parameters are always visible.
+     *
+     * @since 2.18.12
+     */
+    private void _assignEnumCreatorViews(DeserializationContext ctxt,
+            BeanDescription beanDesc, SettableBeanProperty[] creatorProps)
+    {
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        final Class<?>[] defaultViews = intr.findViews(beanDesc.getClassInfo());
+        for (SettableBeanProperty prop : creatorProps) {
+            Class<?>[] views = null;
+            AnnotatedMember member = prop.getMember();
+            if (member != null) {
+                views = intr.findViews(member);
+            }
+            if (views == null) {
+                views = defaultViews;
+            }
+            if (views != null) {
+                prop.setViews(views);
+            }
+        }
     }
 
     @Override

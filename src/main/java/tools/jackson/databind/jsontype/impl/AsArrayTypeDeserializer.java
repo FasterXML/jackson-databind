@@ -149,8 +149,11 @@ public class AsArrayTypeDeserializer
                 // 25-Nov-2022, tatu: [databind#1761] Also accept other scalars
             || ((t != null) && t.isScalarValue())) {
             String result = p.getString();
-            p.nextToken();
-            return result;
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+            if (result != null) {
+                p.nextToken();
+                return result;
+            }
         }
 
         // 11-Nov-2020, tatu: I don't think this branch ever gets executed by

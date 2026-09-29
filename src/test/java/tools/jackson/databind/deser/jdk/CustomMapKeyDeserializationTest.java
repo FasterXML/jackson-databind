@@ -6,14 +6,18 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
@@ -67,6 +71,27 @@ public class CustomMapKeyDeserializationTest
         @Override
         public Object deserializeKey(String key, DeserializationContext ctxt) {
             return new Key4444(key + "-mapper");
+        }
+    }
+
+    // [databind#6242]: delegating key deserializer (used for enum keys with a
+    // custom `@JsonDeserialize(using = ...)` value deserializer) must report the
+    // actual offending token, not the outer parser's unrelated current position.
+    @JsonDeserialize(using = ColorKeyValueDeserializer.class)
+    enum AnnotatedColorKey { RED, GREEN, BLUE }
+
+    static class ColorKeyValueDeserializer extends StdDeserializer<AnnotatedColorKey> {
+        ColorKeyValueDeserializer() { super(AnnotatedColorKey.class); }
+
+        @Override
+        public AnnotatedColorKey deserialize(JsonParser p, DeserializationContext ctxt) {
+            String value = p.getString();
+            try {
+                return AnnotatedColorKey.valueOf(value);
+            } catch (IllegalArgumentException e) {
+                return (AnnotatedColorKey) ctxt.reportInputMismatch(AnnotatedColorKey.class,
+                        "not a valid color: %s", value);
+            }
         }
     }
 
@@ -163,5 +188,21 @@ public class CustomMapKeyDeserializationTest
         Map<String, Object> cityMap = (Map<String, Object>) addressMap.get("city_");
         assertEquals(1, cityMap.get("id_"));
         assertEquals("Berlin", cityMap.get("name_"));
+    }
+
+    // [databind#6242]
+    @Test
+    public void testDelegatingKeyDeserializerReportsOffendingToken() throws Exception
+    {
+        String json = a2q("{'RED':1,'notAColor':2}");
+        TypeReference<Map<AnnotatedColorKey, Integer>> typeRef =
+                new TypeReference<Map<AnnotatedColorKey, Integer>>() { };
+        try (JsonParser input = MAPPER.createParser(json)) {
+            MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                    () -> MAPPER.readValue(input, typeRef));
+            JsonParser parser = assertInstanceOf(JsonParser.class, e.processor());
+            assertEquals(JsonToken.VALUE_STRING, parser.currentToken());
+            assertEquals("notAColor", parser.getString());
+        }
     }
 }

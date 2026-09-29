@@ -686,16 +686,18 @@ Aysha Afrah Ziya (@aysha-afrah26)
   [3.2.2]
 
 DongNyoung Lee (@Dongnyoung)
+ * Contributed #3182: Add `StringCanonicalizingConverter` for opt-in canonicalization
+   ("de-duplication") of low-cardinality `String` values
+  [3.3.0]
  * Fixed #6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
    for unspecified values
   [3.2.2]
  * Reported, fixed #6142: Invalidate read-only lookup snapshot in `SerializerCache`
    when a typed serializer entry is replaced
   [3.3.0]
- * Contributed #3182: Add `StringCanonicalizingConverter` for opt-in canonicalization
-   ("de-duplication") of low-cardinality `String` values
-  [3.3.0]
  * Fixed #6168: Cache raw parameter types in `AnnotatedConstructor`
+  [3.3.0]
+ * Fixed #6170: Allow skipping null values for properties handled by `@JsonAnySetter`
   [3.3.0]
  * Fixed #6178: `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` does not work
    for `java.time.Month`

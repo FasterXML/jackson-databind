@@ -261,13 +261,13 @@ public abstract class StdDeserializer<T>
         final Class<?> rawTargetType = handledType();
         String value = p.getValueAsString();
 
-        if ((inst != null) && inst.canCreateFromString()) {
-            return (T) inst.createFromString(ctxt, value);
-        }
-        // Some parsers (like Ion, for typed nulls) may report VALUE_STRING
+        // Some parsers (like Ion, for corrupt content) may report VALUE_STRING
         // but have no String value to return
         if (value == null) {
             return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        }
+        if ((inst != null) && inst.canCreateFromString()) {
+            return (T) inst.createFromString(ctxt, value);
         }
         if (value.isEmpty()) {
             final CoercionAction act = ctxt.findCoercionAction(logicalType(), rawTargetType,

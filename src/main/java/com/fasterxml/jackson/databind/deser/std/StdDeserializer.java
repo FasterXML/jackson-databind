@@ -261,8 +261,7 @@ public abstract class StdDeserializer<T>
         final Class<?> rawTargetType = handledType();
         String value = p.getValueAsString();
 
-        // Some parsers (like Ion, for corrupt content) may report VALUE_STRING
-        // but have no String value to return
+        // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
         if (value == null) {
             return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }

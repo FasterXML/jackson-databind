@@ -296,8 +296,7 @@ _containerType,
     {
         final Class<?> rawTargetType = handledType();
 
-        // Some parsers (like Ion, for corrupt content) may report VALUE_STRING
-        // but have no String value to return
+        // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
         if (value == null) {
             return (Collection<Object>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }

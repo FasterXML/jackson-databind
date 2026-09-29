@@ -174,8 +174,7 @@ public class DateDeserializers
             throws IOException
         {
             if (_customFormat != null) {
-                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without
-                // text: if so, let base class handle it
+                // No text (VALUE_STRING with corrupt content, e.g. Ion): let base class handle it
                 if (p.hasToken(JsonToken.VALUE_STRING) && (p.getText() != null)) {
                     String str = p.getText().trim();
                     if (str.isEmpty()) {

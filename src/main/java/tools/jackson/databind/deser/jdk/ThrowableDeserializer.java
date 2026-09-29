@@ -228,6 +228,9 @@ public class ThrowableDeserializer
                 continue;
             }
             if (_anySetter != null) {
+                if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                    continue;
+                }
                 // [databind#4316] Since 2.16.2 : at this point throwable should be non-null
                 if (throwable == null) {
                     throwable = _instantiate(ctxt, hasStringCreator, null);

@@ -677,17 +677,30 @@ ClassUtil.name(propName)));
             for (SettableBeanProperty prop : creatorProps) {
                 AnnotatedMember member = prop.getMember();
                 if (member != null && Boolean.TRUE.equals(ctxt.getAnnotationIntrospector().hasAnySetter(ctxt.getConfig(), member))) {
-                    return constructAnySetter(ctxt, beanDescRef, member);
+                    return _withAnySetterViews(ctxt, member,
+                            constructAnySetter(ctxt, beanDescRef, member));
                 }
             }
         }
         // else find the regular method/field level any-setter
         AnnotatedMember anySetter = beanDescRef.get().findAnySetterAccessor();
         if (anySetter != null) {
-            return constructAnySetter(ctxt, beanDescRef, anySetter);
+            return _withAnySetterViews(ctxt, anySetter,
+                    constructAnySetter(ctxt, beanDescRef, anySetter));
         }
         // not found, that's fine, too
         return null;
+    }
+
+    // Only explicit `@JsonView` on the any-setter accessor is considered
+    // (not class-level default views) to retain behavior for un-annotated any-setters
+    private SettableAnyProperty _withAnySetterViews(DeserializationContext ctxt,
+            AnnotatedMember mutator, SettableAnyProperty anySetter)
+    {
+        if (anySetter != null) {
+            anySetter.setViews(ctxt.getAnnotationIntrospector().findViews(ctxt.getConfig(), mutator));
+        }
+        return anySetter;
     }
 
     private boolean _isSetterlessType(Class<?> rawType) {

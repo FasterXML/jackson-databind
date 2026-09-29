@@ -686,16 +686,18 @@ Aysha Afrah Ziya (@aysha-afrah26)
   [3.2.2]
 
 DongNyoung Lee (@Dongnyoung)
+ * Contributed #3182: Add `StringCanonicalizingConverter` for opt-in canonicalization
+   ("de-duplication") of low-cardinality `String` values
+  [3.3.0]
  * Fixed #6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
    for unspecified values
   [3.2.2]
  * Reported, fixed #6142: Invalidate read-only lookup snapshot in `SerializerCache`
    when a typed serializer entry is replaced
   [3.3.0]
- * Contributed #3182: Add `StringCanonicalizingConverter` for opt-in canonicalization
-   ("de-duplication") of low-cardinality `String` values
-  [3.3.0]
  * Fixed #6168: Cache raw parameter types in `AnnotatedConstructor`
+  [3.3.0]
+ * Fixed #6170: Allow skipping null values for properties handled by `@JsonAnySetter`
   [3.3.0]
  * Fixed #6178: `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` does not work
    for `java.time.Month`
@@ -721,6 +723,14 @@ Francesco Nigro (@franz1981)
  * Reported #6204: Avoid quadratic forward-reference resolution in Collection/Map
    deserializers
   [3.2.3]
+
+Jake Wang (@jakezwang)
+ * Fixed #6091: Report the active token when polymorphic deserialization
+   replays buffered content
+  [3.3.0]
+ * Fixed #6225: `ArrayStoreException` when a Builder-based typed array resolves
+   a forward Object Id reference within the same array
+  [3.2.4]
 
 Fabian Lange (@CodingFabian)
  * Requested #3182: Support value deduplication for enumeration like values
@@ -773,4 +783,8 @@ Sanha (@kimsanhaa)
 한의준 (@exijn)
  * Contributed fix for #4385: Allow changing serializer used for a single property
    of a Class
+  [3.3.0]
+
+@Laar
+ * Reported #6091: Current token incorrectly reported when using `@JsonTypeInfo`
   [3.3.0]

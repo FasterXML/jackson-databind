@@ -215,6 +215,10 @@ public abstract class StdDeserializer<T>
         final Class<?> rawTargetType = handledType();
         String value = p.getValueAsString();
 
+        // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+        if (value == null) {
+            return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        }
         if ((inst != null) && inst.canCreateFromString()) {
             return (T) inst.createFromString(ctxt, value);
         }
@@ -292,11 +296,15 @@ public abstract class StdDeserializer<T>
     {
         final ValueInstantiator inst = getValueInstantiator();
         final Class<?> rawTargetType = handledType();
-
-        if ((inst != null) && inst.canCreateFromString()) {
-            return (T) inst.createFromString(ctxt, p.getValueAsString());
-        }
         String value = p.getValueAsString();
+
+        // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+        if (value == null) {
+            return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        }
+        if ((inst != null) && inst.canCreateFromString()) {
+            return (T) inst.createFromString(ctxt, value);
+        }
         if (value.isEmpty()) {
             final CoercionAction act = ctxt.findCoercionAction(logicalType(), rawTargetType,
                     CoercionInputShape.EmptyString);
@@ -387,6 +395,10 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getString();
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+            if (text == null) {
+                return ((Boolean) ctxt.handleUnexpectedToken(Boolean.TYPE, p)).booleanValue();
+            }
             break;
         case JsonTokenId.ID_NUMBER_INT:
             // may accept ints too, (0 == false, otherwise true)
@@ -503,6 +515,10 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getString();
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+            if (text == null) {
+                return (Boolean) ctxt.handleUnexpectedToken(targetType, p);
+            }
             break;
         case JsonTokenId.ID_NUMBER_INT:
             // may accept ints too, (0 == false, otherwise true)
@@ -563,6 +579,10 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getString();
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+            if (text == null) {
+                return ((Byte) ctxt.handleUnexpectedToken(ctxt.constructType(Byte.TYPE), p)).byteValue();
+            }
             break;
         case JsonTokenId.ID_NUMBER_FLOAT:
             CoercionAction act = _checkFloatToIntCoercion(p, ctxt, Byte.TYPE);
@@ -645,6 +665,10 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getString();
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+            if (text == null) {
+                return ((Short) ctxt.handleUnexpectedToken(ctxt.constructType(Short.TYPE), p)).shortValue();
+            }
             break;
         case JsonTokenId.ID_NUMBER_FLOAT:
             CoercionAction act = _checkFloatToIntCoercion(p, ctxt, Short.TYPE);
@@ -725,6 +749,10 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getString();
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+            if (text == null) {
+                return ((Number) ctxt.handleUnexpectedToken(Integer.TYPE, p)).intValue();
+            }
             break;
         case JsonTokenId.ID_NUMBER_FLOAT:
             final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, Integer.TYPE);
@@ -811,6 +839,10 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getString();
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+            if (text == null) {
+                return (Integer) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+            }
             break;
         case JsonTokenId.ID_NUMBER_FLOAT: // coercing may work too
             final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, targetType);
@@ -881,6 +913,10 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getString();
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+            if (text == null) {
+                return ((Number) ctxt.handleUnexpectedToken(Long.TYPE, p)).longValue();
+            }
             break;
         case JsonTokenId.ID_NUMBER_FLOAT:
             final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, Long.TYPE);
@@ -956,6 +992,10 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getString();
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+            if (text == null) {
+                return (Long) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+            }
             break;
         case JsonTokenId.ID_NUMBER_FLOAT:
             final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, targetType);
@@ -1019,6 +1059,10 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getString();
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+            if (text == null) {
+                return ((Number) ctxt.handleUnexpectedToken(Float.TYPE, p)).floatValue();
+            }
             break;
         case JsonTokenId.ID_NUMBER_INT:
             final CoercionAction act = _checkIntToFloatCoercion(p, ctxt, Float.TYPE);
@@ -1139,6 +1183,10 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getString();
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+            if (text == null) {
+                return ((Number) ctxt.handleUnexpectedToken(Double.TYPE, p)).doubleValue();
+            }
             break;
         case JsonTokenId.ID_NUMBER_INT:
             final CoercionAction act = _checkIntToFloatCoercion(p, ctxt, Double.TYPE);
@@ -1271,6 +1319,10 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getString();
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+            if (text == null) {
+                return (java.util.Date) ctxt.handleUnexpectedToken(_valueClass, p);
+            }
             break;
         case JsonTokenId.ID_NUMBER_INT:
             {
@@ -1466,6 +1518,10 @@ public abstract class StdDeserializer<T>
 
     protected final static boolean _isBlank(String text)
     {
+        // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+        if (text == null) {
+            return false;
+        }
         final int len = text.length();
         for (int i = 0; i < len; ++i) {
             if (text.charAt(i) > 0x0020) {

@@ -29,6 +29,18 @@ class PolymorphicErrorToken6091Test extends DatabindTestUtil
         public int amount;
     }
 
+    @JsonTypeName("shape")
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+            property = "type", defaultImpl = Shape.class)
+    static class Shape {
+        public int radius;
+    }
+
+    static class ShapeEnvelope {
+        public Shape shape;
+        public String type;
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @ParameterizedTest
@@ -59,6 +71,13 @@ class PolymorphicErrorToken6091Test extends DatabindTestUtil
         _assertErrorToken("""
                 {"message":{"amount":1},"amount":"bad"}
                 """, Envelope.class);
+    }
+
+    @Test
+    void reportsOffendingTokenForExternalTypeId() {
+        _assertErrorToken("""
+                {"shape":{"radius":"bad"},"type":"shape"}
+                """, ShapeEnvelope.class);
     }
 
     private void _assertErrorToken(String json, Class<?> type) {

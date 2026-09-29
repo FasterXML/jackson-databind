@@ -199,6 +199,7 @@ public final class PropertyBasedCreator
      *
      * @since 2.19
      */
+    @SuppressWarnings("unchecked")
     public PropertyBasedCreator renameAll(DeserializationContext ctxt,
             NameTransformer transformer)
     {
@@ -207,7 +208,8 @@ public final class PropertyBasedCreator
         }
 
         final int len = _propertiesInOrder.length;
-        HashMap<String, SettableBeanProperty> newLookup = new HashMap<>(_propertyLookup);
+        // clone() retains type of lookup (and with it, case-insensitivity)
+        HashMap<String, SettableBeanProperty> newLookup = (HashMap<String, SettableBeanProperty>) _propertyLookup.clone();
         List<SettableBeanProperty> newProps = new ArrayList<>(len);
 
         for (SettableBeanProperty prop : _propertiesInOrder) {
@@ -395,6 +397,16 @@ public final class PropertyBasedCreator
         public SettableBeanProperty put(String key, SettableBeanProperty value) {
             key = key.toLowerCase(_locale);
             return super.put(key, value);
+        }
+
+        @Override
+        public boolean containsKey(Object key0) {
+            return super.containsKey(((String) key0).toLowerCase(_locale));
+        }
+
+        @Override
+        public SettableBeanProperty remove(Object key0) {
+            return super.remove(((String) key0).toLowerCase(_locale));
         }
     }
 }

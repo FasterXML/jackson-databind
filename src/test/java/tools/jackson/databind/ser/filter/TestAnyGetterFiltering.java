@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.BeanDescription;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationConfig;
 import tools.jackson.databind.SerializationContext;
@@ -347,6 +348,26 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
                 MAPPER.writer(prov).writeValueAsString(new AnyBeanWithSecret()));
     }
 
+    // [databind#6136]: accessor name of any-getter is no longer used as filter key;
+    // only names of entries are
+    @Test
+    public void anyGetterAccessorNameNotFilterKey() throws Exception
+    {
+        // used to include all entries; now none (no entry named "anyProperties")
+        FilterProvider including = new SimpleFilterProvider().addFilter("anyFilter",
+                SimpleBeanPropertyFilter.filterOutAllExcept("name", "anyProperties"));
+        assertEquals("""
+                {"name":"bob"}""",
+                MAPPER.writer(including).writeValueAsString(new AnyBeanWithSecret()));
+
+        // and excluding accessor name does not exclude any entries
+        FilterProvider excluding = new SimpleFilterProvider().addFilter("anyFilter",
+                SimpleBeanPropertyFilter.serializeAllExcept("anyProperties"));
+        assertEquals("""
+                {"name":"bob","a":"1","secret":"s3cr3t"}""",
+                MAPPER.writer(excluding).writeValueAsString(new AnyBeanWithSecret()));
+    }
+
     // [databind#6136]
     @Test
     public void objectNodeAnyGetterFiltering() throws Exception
@@ -461,6 +482,38 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
         assertEquals("""
                 {"a":1,"x":1}""",
                 MAPPER.writer(prov).writeValueAsString(new MapFilteredAnyBean()));
+    }
+
+    // [databind#6136]: checked exception from class filter, when chained with
+    // any-getter's own filter, must be wrapped (not lost or thrown as-is)
+    @Test
+    public void anyGetterFilteringWithMapFilterCheckedException() throws Exception
+    {
+        PropertyFilter failing = new SimpleBeanPropertyFilter() {
+            @Override
+            public void serializeAsProperty(Object pojo, JsonGenerator g,
+                    SerializationContext ctxt, PropertyWriter writer)
+                throws Exception
+            {
+                if ("x".equals(writer.getName())) {
+                    throw new CheckedFilterException("Filter failure for 'x'");
+                }
+                super.serializeAsProperty(pojo, g, ctxt, writer);
+            }
+        };
+        FilterProvider prov = new SimpleFilterProvider()
+                .addFilter("anyFilter", failing)
+                .addFilter("mapFilter", SimpleBeanPropertyFilter.serializeAll());
+        DatabindException e = assertThrows(DatabindException.class,
+                () -> MAPPER.writer(prov).writeValueAsString(new MapFilteredAnyBean()));
+        assertInstanceOf(CheckedFilterException.class, e.getCause());
+        verifyException(e, "Filter failure for 'x'");
+    }
+
+    static class CheckedFilterException extends Exception {
+        private static final long serialVersionUID = 1L;
+
+        public CheckedFilterException(String msg) { super(msg); }
     }
 
     // [databind#6136]: filtered ObjectNode any-getter must write names same as

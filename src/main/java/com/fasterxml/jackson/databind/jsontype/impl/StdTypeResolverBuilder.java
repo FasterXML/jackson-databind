@@ -408,7 +408,7 @@ public class StdTypeResolverBuilder
             }
             // If there's indication that any and all subtypes are fine, replace validator itself:
             if (validity == PolymorphicTypeValidator.Validity.ALLOWED) {
-                return LaissezFaireSubTypeValidator.instance;
+                return new BaseTypeAllowingValidator(baseType, ptv);
             }
             // otherwise just return validator, is to be called for each distinct type
         }

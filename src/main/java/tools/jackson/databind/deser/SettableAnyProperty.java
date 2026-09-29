@@ -206,10 +206,33 @@ public abstract class SettableAnyProperty
     public String getPropertyName() { return _property.getName(); }
 
     /**
+     * Method called before deserializing value of property {@code propName}
+     * to handle explicit JSON {@code null} for "skip" and "fail" null-handling
+     * settings; other settings are handled by
+     * {@link #deserialize(JsonParser, DeserializationContext)}.
+     *
+     * @return {@code true} if the value is an explicit {@code null} that is to
+     *    be skipped (not passed to any-setter); {@code false} otherwise
+     *
+     * @throws InvalidNullException if the value is an explicit {@code null}
+     *    and nulls are not allowed; reported using {@code propName} (JSON key)
+     *    instead of the name of the any-setter method or field
+     *
      * @since 3.3
      */
-    public boolean shouldSkipNullValue(JsonParser p) {
-        return _skipNulls && p.hasToken(JsonToken.VALUE_NULL);
+    public boolean skipOrFailOnNull(JsonParser p, DeserializationContext ctxt,
+            String propName)
+        throws JacksonException
+    {
+        if (p.hasToken(JsonToken.VALUE_NULL)) {
+            if (_skipNulls) {
+                return true;
+            }
+            if (_failOnNulls) {
+                throw InvalidNullException.from(ctxt, PropertyName.construct(propName), _type);
+            }
+        }
+        return false;
     }
 
     /**
@@ -258,12 +281,12 @@ public abstract class SettableAnyProperty
         throws JacksonException
     {
         try {
-            if (shouldSkipNullValue(p)) {
+            if (skipOrFailOnNull(p, ctxt, propName)) {
                 return;
             }
             Object key = (_keyDeserializer == null) ? propName
                     : _keyDeserializer.deserializeKey(propName, ctxt);
-            set(ctxt, instance, key, deserialize(p, ctxt, propName));
+            set(ctxt, instance, key, deserialize(p, ctxt));
         } catch (UnresolvedForwardReference reference) {
             if (_valueDeserializer.getObjectIdReader(ctxt) == null) {
                 throw DatabindException.from(p, "Unresolved forward reference but no identity info.", reference);
@@ -272,22 +295,6 @@ public abstract class SettableAnyProperty
                     _type.getRawClass(), instance, propName);
             reference.getRoid().appendReferring(referring);
         }
-    }
-
-    /**
-     * Variant of {@link #deserialize(JsonParser, DeserializationContext)} used when
-     * the property name (JSON key) is known, to allow including it in possible
-     * {@link InvalidNullException}.
-     *
-     * @since 3.3
-     */
-    public Object deserialize(JsonParser p, DeserializationContext ctxt, String propName)
-        throws JacksonException
-    {
-        if (_failOnNulls && p.hasToken(JsonToken.VALUE_NULL)) {
-            throw InvalidNullException.from(ctxt, PropertyName.construct(propName), _type);
-        }
-        return deserialize(p, ctxt);
     }
 
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
@@ -537,10 +544,10 @@ public abstract class SettableAnyProperty
                 Object instance, String propName)
             throws JacksonException
         {
-            if (shouldSkipNullValue(p)) {
+            if (skipOrFailOnNull(p, ctxt, propName)) {
                 return;
             }
-            setProperty(instance, propName, (JsonNode) deserialize(p, ctxt, propName));
+            setProperty(instance, propName, (JsonNode) deserialize(p, ctxt));
         }
 
         @Override

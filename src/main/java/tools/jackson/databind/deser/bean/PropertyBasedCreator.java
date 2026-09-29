@@ -242,9 +242,10 @@ public final class PropertyBasedCreator
         }
 
         final int len = _propertiesInOrder.length;
-        HashMap<String, SettableBeanProperty> newLookup = new HashMap<>(_propertyLookup);
+        // [databind#6243]: copies must retain type (case-insensitivity) of lookups
+        HashMap<String, SettableBeanProperty> newLookup = _copy(_propertyLookup);
         HashMap<String, SettableBeanProperty> newFiltered = (_filteredLookup == _propertyLookup)
-                ? newLookup : new HashMap<>(_filteredLookup);
+                ? newLookup : _copy(_filteredLookup);
         List<SettableBeanProperty> newProps = new ArrayList<>(len);
 
         for (SettableBeanProperty prop : _propertiesInOrder) {
@@ -276,6 +277,11 @@ public final class PropertyBasedCreator
                 newLookup, newFiltered,
                 newProps.toArray(new SettableBeanProperty[0])
         );
+    }
+
+    @SuppressWarnings("unchecked")
+    private static HashMap<String, SettableBeanProperty> _copy(HashMap<String, SettableBeanProperty> lookup) {
+        return (HashMap<String, SettableBeanProperty>) lookup.clone();
     }
 
     /**
@@ -491,6 +497,16 @@ public final class PropertyBasedCreator
         public SettableBeanProperty put(String key, SettableBeanProperty value) {
             key = key.toLowerCase(_locale);
             return super.put(key, value);
+        }
+
+        @Override
+        public boolean containsKey(Object key0) {
+            return super.containsKey(((String) key0).toLowerCase(_locale));
+        }
+
+        @Override
+        public SettableBeanProperty remove(Object key0) {
+            return super.remove(((String) key0).toLowerCase(_locale));
         }
     }
 }

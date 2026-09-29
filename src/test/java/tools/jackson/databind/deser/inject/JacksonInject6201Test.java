@@ -34,6 +34,16 @@ class JacksonInject6201Test extends DatabindTestUtil
         public void setTenant(String t) { tenant = t; }
     }
 
+    // Annotation on Field, but binding would use the plain Setter
+    static class FieldWithPlainSetterBean {
+        @JacksonInject(value = "tenant", useInput = OptBoolean.FALSE)
+        String tenant = "unset";
+
+        public String title = "";
+
+        public void setTenant(String t) { tenant = t; }
+    }
+
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
     @JsonPropertyOrder({ "title", "tenant" })
     static class AsArrayBean {
@@ -106,6 +116,11 @@ class JacksonInject6201Test extends DatabindTestUtil
     @Test
     void injectOnlySetter() throws Exception {
         assertEquals("injected", MAPPER.readValue(DOC, SetterBean.class).tenant);
+    }
+
+    @Test
+    void injectOnlyFieldWithPlainSetter() throws Exception {
+        assertEquals("injected", MAPPER.readValue(DOC, FieldWithPlainSetterBean.class).tenant);
     }
 
     @Test

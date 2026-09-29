@@ -821,19 +821,23 @@ public class BeanDeserializerFactory
     private boolean _isInjectOnlyMutator(DeserializationContext ctxt,
             Map<Object, AnnotatedMember> injectables, BeanPropertyDefinition property)
     {
-        AnnotatedMember mutator = property.getNonConstructorMutator();
-        if (mutator == null) {
-            return false;
+        // Annotation may be on the Setter, or on a Field that was pruned from the property
+        // (not visible) and so is only reachable via injectables; match the latter by
+        // the implicit name
+        final AnnotatedMember setter = property.getSetter();
+        final AnnotatedMember field = property.getField();
+        final String implName = property.getInternalName();
+        for (AnnotatedMember m : injectables.values()) {
+            if (m.equals(setter) || m.equals(field)
+                    || ((m instanceof AnnotatedField) && m.getName().equals(implName))) {
+                JacksonInject.Value injectable = ctxt.getAnnotationIntrospector()
+                        .findInjectableValue(ctxt.getConfig(), m);
+                if ((injectable != null) && Boolean.FALSE.equals(injectable.getUseInput())) {
+                    return true;
+                }
+            }
         }
-        JacksonInject.Value injectable = ctxt.getAnnotationIntrospector()
-                .findInjectableValue(ctxt.getConfig(), mutator);
-        if ((injectable == null) || !Boolean.FALSE.equals(injectable.getUseInput())) {
-            return false;
-        }
-        // Only when the member really is the one injection uses: [databind#4218] drops
-        // injectables masked by a Creator parameter with the same id, and dropping the
-        // mutator for those would leave the property unset instead of injected.
-        return injectables.containsValue(mutator);
+        return false;
     }
 
     /**

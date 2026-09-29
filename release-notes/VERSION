@@ -22,6 +22,11 @@ Versions: 3.x (for earlier see VERSION-2.x)
   Key deserializer when using record als key in Map
  (reported by @toonborgers)
  (fix by @DragonFSKY)
+#4385: Allow changing serializer used for a single property of a Class
+  (allow `ValueSerializerModifier` to replace property serializer via
+  `BeanPropertyWriter.assignSerializer()`)
+ (requested by @Guy2You)
+ (fix by @exijn)
 #4762: `@JsonValue` serialization ignores annotations on the annotated accessor
   (particularly `@JsonInclude`, `@JsonFormat`)
  (reported by @sikorskii)
@@ -39,6 +44,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #6128: Fail explicitly on POJO that has both `@JsonFormat(shape=ARRAY)` and `@JsonFilter`
  (fix by @DragonFSKY)
+#6136: `@JsonFilter` with `serializeAllExcept()` does not filter `@JsonAnyGetter`
+  entries
+ (fix by Aysha A-Z)
 #6142: Invalidate read-only lookup snapshot in `SerializerCache` when a typed
   serializer entry is replaced (and not just when added)
  (fix by @Dongnyoung)
@@ -94,6 +102,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.2.4 (not yet released)
 
+#6145: `@JsonIgnoreProperties` bypassed for Creator properties with builders
+  and external type ids
+ (fix by Aysha A-Z)
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)
  (fix by @pjfanning, w/ Claude code)

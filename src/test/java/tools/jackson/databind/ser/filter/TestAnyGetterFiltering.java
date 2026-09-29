@@ -7,7 +7,9 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.BeanDescription;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationConfig;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.ValueSerializer;
@@ -15,9 +17,13 @@ import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
+import tools.jackson.databind.ser.BeanPropertyWriter;
+import tools.jackson.databind.ser.BeanSerializer;
 import tools.jackson.databind.ser.FilterProvider;
 import tools.jackson.databind.ser.PropertyFilter;
 import tools.jackson.databind.ser.PropertyWriter;
+import tools.jackson.databind.ser.ValueSerializerModifier;
+import tools.jackson.databind.ser.bean.BeanSerializerBase;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
 import tools.jackson.databind.ser.std.SimpleFilterProvider;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -224,6 +230,29 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
             m.put("y", 2);
             m.put("secret", 3);
             return m;
+        }
+    }
+
+    // [databind#6136]: serializer that (like `XmlBeanSerializerBase`) calls
+    // `PropertyFilter` directly with each writer, including `AnyGetterWriter`
+    static class DirectFilterCallingSerializer extends BeanSerializer
+    {
+        DirectFilterCallingSerializer(BeanSerializerBase src) {
+            super(src);
+        }
+
+        @Override
+        protected void _serializePropertiesFiltered(Object bean, JsonGenerator g,
+                SerializationContext ctxt, Object filterId)
+        {
+            PropertyFilter filter = findPropertyFilter(ctxt, filterId, bean);
+            try {
+                for (BeanPropertyWriter prop : _props) {
+                    filter.serializeAsProperty(bean, g, ctxt, prop);
+                }
+            } catch (Exception e) {
+                wrapAndThrow(ctxt, e, bean, "?");
+            }
         }
     }
 
@@ -454,6 +483,36 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
         assertEquals("""
                 {"name":"bob","a":"1"}""",
                 mapper.writer(prov).writeValueAsString(new ObjectNodeAnyBeanWithSecret()));
+    }
+
+    // [databind#6136]: serializers that call filter directly with `AnyGetterWriter`
+    // (instead of `BeanPropertyWriter.serializeFilteredAsProperty()`) must still
+    // get per-entry filtering
+    @Test
+    public void anyGetterFilteringWithDirectFilterCall() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule().setSerializerModifier(new ValueSerializerModifier() {
+                    @Override
+                    public ValueSerializer<?> modifySerializer(SerializationConfig config,
+                            BeanDescription.Supplier beanDesc, ValueSerializer<?> ser) {
+                        if (ser instanceof BeanSerializer beanSer) {
+                            return new DirectFilterCallingSerializer(beanSer);
+                        }
+                        return ser;
+                    }
+                }))
+                .build();
+        FilterProvider excluding = new SimpleFilterProvider().addFilter("anyFilter",
+                SimpleBeanPropertyFilter.serializeAllExcept("secret"));
+        assertEquals("""
+                {"name":"bob","a":"1"}""",
+                mapper.writer(excluding).writeValueAsString(new AnyBeanWithSecret()));
+        FilterProvider including = new SimpleFilterProvider().addFilter("anyFilter",
+                SimpleBeanPropertyFilter.filterOutAllExcept("name", "a"));
+        assertEquals("""
+                {"name":"bob","a":"1"}""",
+                mapper.writer(including).writeValueAsString(new AnyBeanWithSecret()));
     }
 
     // for [databind#1142]

@@ -234,6 +234,7 @@ public final class PropertyBasedCreator
      *
      * @since 2.19
      */
+    @SuppressWarnings("unchecked")
     public PropertyBasedCreator renameAll(DeserializationContext ctxt,
             NameTransformer transformer)
     {
@@ -242,10 +243,10 @@ public final class PropertyBasedCreator
         }
 
         final int len = _propertiesInOrder.length;
-        // [databind#6243]: copies must retain type (case-insensitivity) of lookups
-        HashMap<String, SettableBeanProperty> newLookup = _copy(_propertyLookup);
+        // clone() retains type of lookup (and with it, case-insensitivity)
+        HashMap<String, SettableBeanProperty> newLookup = (HashMap<String, SettableBeanProperty>) _propertyLookup.clone();
         HashMap<String, SettableBeanProperty> newFiltered = (_filteredLookup == _propertyLookup)
-                ? newLookup : _copy(_filteredLookup);
+                ? newLookup : (HashMap<String, SettableBeanProperty>) _filteredLookup.clone();
         List<SettableBeanProperty> newProps = new ArrayList<>(len);
 
         for (SettableBeanProperty prop : _propertiesInOrder) {
@@ -277,11 +278,6 @@ public final class PropertyBasedCreator
                 newLookup, newFiltered,
                 newProps.toArray(new SettableBeanProperty[0])
         );
-    }
-
-    @SuppressWarnings("unchecked")
-    private static HashMap<String, SettableBeanProperty> _copy(HashMap<String, SettableBeanProperty> lookup) {
-        return (HashMap<String, SettableBeanProperty>) lookup.clone();
     }
 
     /**

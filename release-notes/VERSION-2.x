@@ -89,6 +89,8 @@ No changes since 2.22
   same instance (`findProperties()`, `findDefaultViews()`)
  (reported by @sergeylappo)
  (fix by @pjfanning, w/ Claude code)
+#6249: Avoid NPE when parser reports `VALUE_STRING` with `null` text
+ (fix by @pjfanning, w/ Claude code)
 
 2.21.7 (21-Sep-2026)
 

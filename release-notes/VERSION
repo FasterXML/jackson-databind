@@ -22,6 +22,11 @@ Versions: 3.x (for earlier see VERSION-2.x)
   Key deserializer when using record als key in Map
  (reported by @toonborgers)
  (fix by @DragonFSKY)
+#4385: Allow changing serializer used for a single property of a Class
+  (allow `ValueSerializerModifier` to replace property serializer via
+  `BeanPropertyWriter.assignSerializer()`)
+ (requested by @Guy2You)
+ (fix by @exijn)
 #4762: `@JsonValue` serialization ignores annotations on the annotated accessor
   (particularly `@JsonInclude`, `@JsonFormat`)
  (reported by @sikorskii)
@@ -30,6 +35,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   is actually thrown
  (reported by @pctF)
  (fix by @pjfanning)
+#6091: Report the active token when polymorphic deserialization replays buffered content
+ (reported by @Laar)
+ (fix by @jakezwang, w/ OpenAI Codex)
 #6113: Fix `DOMSerializer` to support polymorphic serialization
  (fix by @dong0713)
 #6114: Fix QName object deserialization to reject non-String namespaceURI/prefix
@@ -39,12 +47,17 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #6128: Fail explicitly on POJO that has both `@JsonFormat(shape=ARRAY)` and `@JsonFilter`
  (fix by @DragonFSKY)
+#6136: `@JsonFilter` with `serializeAllExcept()` does not filter `@JsonAnyGetter`
+  entries
+ (fix by Aysha A-Z)
 #6142: Invalidate read-only lookup snapshot in `SerializerCache` when a typed
   serializer entry is replaced (and not just when added)
  (fix by @Dongnyoung)
 #6151: Add `DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS`
  (contributed by @seonwooj0810)
 #6168: Cache raw parameter types in `AnnotatedConstructor`
+ (fix by @Dongnyoung)
+#6170: Allow skipping null values for properties handled by `@JsonAnySetter`
  (fix by @Dongnyoung)
 #6175: Parse object-form `QName` after `As.PROPERTY` type id
  (reported by @jjh75607)
@@ -80,6 +93,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   (Default Typing, `@JsonTypeInfo`) resolves a type id: type deserializer was built
   for the declared type, before the refinement
  (fix by @pjfanning)
+#6229: `DETECT_PARAMETER_NAMES` disabled also prevents `@ConstructorProperties`
+  based Creator detection
+ (fix by @mauriciocsz)
 #6231: Add copy constructor for `JacksonAnnotationIntrospector` (for sub-classes
   to create re-configured copies)
  (fix by @cowtowncoder, w/ Claude code)
@@ -91,14 +107,29 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.2.4 (not yet released)
 
+#6145: `@JsonIgnoreProperties` bypassed for Creator properties with builders
+  and external type ids
+ (fix by Aysha A-Z)
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)
+ (fix by @pjfanning, w/ Claude code)
+#6225: `ArrayStoreException` when a Builder-based typed array resolves a forward
+  Object Id reference within the same array
+ (fix by @jakezwang)
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
+ (reported by @sergeylappo)
  (fix by @pjfanning, w/ Claude code)
 #6232: Validate `StreamReadConstraints` number length when coercing `StringNode`
   to number
  (fix by Aysha A-Z)
 #6236: Retain `JsonFormat.Shape` in `withFormat()` of `Month`, `MonthDay`, `Year`
   and `YearMonth` serializers
+ (fix by @cowtowncoder, w/ Claude code)
+#6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+ (fix by @kimsanhaa)
+#6246: Creator properties not renamed for `@JsonUnwrapped` with prefix/suffix
+  with `MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES`
  (fix by @cowtowncoder, w/ Claude code)
 
 3.2.3 (21-Sep-2026)
@@ -429,11 +460,20 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)
  (fix by @pjfanning, w/ Claude code)
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
+ (reported by @sergeylappo)
+ (fix by @pjfanning, w/ Claude code)
 #6232: Validate `StreamReadConstraints` number length when coercing `StringNode`
   to number
  (fix by Aysha A-Z)
 #6236: Retain `JsonFormat.Shape` in `withFormat()` of `Month`, `MonthDay`, `Year`
   and `YearMonth` serializers
+ (fix by @cowtowncoder, w/ Claude code)
+#6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+ (fix by @kimsanhaa)
+#6246: Creator properties not renamed for `@JsonUnwrapped` with prefix/suffix
+  with `MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES`
  (fix by @cowtowncoder, w/ Claude code)
 
 3.1.7 (21-Sep-2026)

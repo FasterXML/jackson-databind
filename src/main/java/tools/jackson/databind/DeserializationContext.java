@@ -3,6 +3,7 @@ package tools.jackson.databind;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
+import java.util.function.Supplier;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
@@ -485,6 +486,29 @@ public abstract class DeserializationContext
      * to the active parser, that should be used instead.
      */
     public final JsonParser getParser() { return _parser; }
+
+    /**
+     * Executes an operation with the specified parser as the active parser for
+     * this context. The previous parser is restored even if the operation fails.
+     * This is useful when replaying buffered content through a deserializer.
+     * The caller retains ownership of both parsers; neither is closed here.
+     *
+     * @param <T> Type of the operation result
+     * @param parser Parser to expose through {@link #getParser()} during the operation
+     * @param operation Operation to execute
+     * @return Result of the operation
+     *
+     * @since 3.3
+     */
+    public final <T> T withParser(JsonParser parser, Supplier<T> operation) {
+        final JsonParser previous = _parser;
+        _parser = Objects.requireNonNull(parser, "parser");
+        try {
+            return operation.get();
+        } finally {
+            _parser = previous;
+        }
+    }
 
     public final Object findInjectableValue(Object valueId,
             BeanProperty forProperty, Object beanInstance, Boolean optional, Boolean useInput)

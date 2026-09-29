@@ -424,8 +424,7 @@ public class BeanDeserializer
                                 _anySetter.deserialize(p, ctxt));
                     } else {
                         */
-                    buffer.bufferAnyParameterProperty(_anySetter, propName,
-                            _anySetter.deserialize(p, ctxt));
+                    buffer.bufferAnyParameterProperty(_anySetter, propName, p, ctxt);
                     //}
                 } catch (Exception e) {
                     throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
@@ -842,9 +841,9 @@ public class BeanDeserializer
                     if (_anySetter.isFieldType() ||
                             // [databind#4639] 2.18.2: Also should account for setter type :-/
                             _anySetter.isSetterType()) {
-                        buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                        buffer.bufferAnyProperty(_anySetter, propName, p, ctxt);
                     } else {
-                        buffer.bufferAnyParameterProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                        buffer.bufferAnyParameterProperty(_anySetter, propName, p, ctxt);
                     }
                 } catch (Exception e) {
                     throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
@@ -1316,8 +1315,7 @@ public class BeanDeserializer
                 tokens.writeName(propName);
                 tokens.append(b2);
                 try {
-                    buffer.bufferAnyProperty(_anySetter, propName,
-                            _anySetter.deserialize(b2.asParserOnFirstToken(ctxt), ctxt));
+                    buffer.bufferAnyProperty(_anySetter, propName, b2.asParserOnFirstToken(ctxt), ctxt);
                 } catch (Exception e) {
                     throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                 }
@@ -1479,6 +1477,13 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
+                // [databind#6145] Need to check for ignored properties for Creator properties since
+                // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
+                // so if we don't check for ignore first, the ignore configuration will be bypassed.
+                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                    handleIgnoredProperty(p, ctxt, handledType(), propName);
+                    continue;
+                }
 
                 // first: let's check to see if this might be part of value with external type id:
                 // 11-Sep-2015, tatu: Important; do NOT pass buffer as last arg, but null,
@@ -1522,8 +1527,7 @@ public class BeanDeserializer
             }
             // "any property"?
             if (_anySetter != null) {
-                buffer.bufferAnyProperty(_anySetter, propName,
-                        _anySetter.deserialize(p, ctxt));
+                buffer.bufferAnyProperty(_anySetter, propName, p, ctxt);
                 continue;
             }
             // Unknown: let's call handler method

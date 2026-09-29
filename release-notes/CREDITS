@@ -657,6 +657,12 @@ Aysha Afrah Ziya (@aysha-afrah26)
   [3.2.2]
  * Fixed #6116: Reject non-ASCII digits in `InetAddress` literal validation
   [3.1.6]
+ * Reported, fixed #6136: `@JsonFilter` with `serializeAllExcept()` does not filter
+   `@JsonAnyGetter` entries
+  [3.3.0]
+ * Fixed #6145: `@JsonIgnoreProperties` bypassed for Creator properties with
+   builders and external type ids
+  [3.2.4]
  * Fixed #6157: `@JsonIncludeProperties` not honored for `Throwable` types with
    `@JsonAnySetter`
   [3.2.3]
@@ -680,16 +686,18 @@ Aysha Afrah Ziya (@aysha-afrah26)
   [3.2.2]
 
 DongNyoung Lee (@Dongnyoung)
+ * Contributed #3182: Add `StringCanonicalizingConverter` for opt-in canonicalization
+   ("de-duplication") of low-cardinality `String` values
+  [3.3.0]
  * Fixed #6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
    for unspecified values
   [3.2.2]
  * Reported, fixed #6142: Invalidate read-only lookup snapshot in `SerializerCache`
    when a typed serializer entry is replaced
   [3.3.0]
- * Contributed #3182: Add `StringCanonicalizingConverter` for opt-in canonicalization
-   ("de-duplication") of low-cardinality `String` values
-  [3.3.0]
  * Fixed #6168: Cache raw parameter types in `AnnotatedConstructor`
+  [3.3.0]
+ * Fixed #6170: Allow skipping null values for properties handled by `@JsonAnySetter`
   [3.3.0]
  * Fixed #6178: `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` does not work
    for `java.time.Month`
@@ -716,6 +724,14 @@ Francesco Nigro (@franz1981)
    deserializers
   [3.2.3]
 
+Jake Wang (@jakezwang)
+ * Fixed #6091: Report the active token when polymorphic deserialization
+   replays buffered content
+  [3.3.0]
+ * Fixed #6225: `ArrayStoreException` when a Builder-based typed array resolves
+   a forward Object Id reference within the same array
+  [3.2.4]
+
 Fabian Lange (@CodingFabian)
  * Requested #3182: Support value deduplication for enumeration like values
   [3.3.0]
@@ -740,4 +756,27 @@ Burak KALAYCI (@kalayciburak)
 Aditya Bagla (@adityabagla7)
  * Fixed #6190: Explicit `@JsonView` on a standard `Throwable` property is ignored
    by `ThrowableDeserializer`
+  [3.3.0]
+
+Sergey Lappo (@sergeylappo)
+ * Reported #6227: `BeanDescription` is not thread-safe when called concurrently on the
+   same instance (`findProperties()`, `findDefaultViews()`)
+  [3.2.4]
+
+Mauricio Souza (@mauriciocsz)
+ * Reported, contributed fix for #6229: `DETECT_PARAMETER_NAMES` disabled also prevents
+   `@ConstructorProperties` based Creator detection
+  [3.3.0]
+
+Sanha (@kimsanhaa)
+ * Fixed #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+  [3.2.4]
+
+한의준 (@exijn)
+ * Contributed fix for #4385: Allow changing serializer used for a single property
+   of a Class
+  [3.3.0]
+
+@Laar
+ * Reported #6091: Current token incorrectly reported when using `@JsonTypeInfo`
   [3.3.0]

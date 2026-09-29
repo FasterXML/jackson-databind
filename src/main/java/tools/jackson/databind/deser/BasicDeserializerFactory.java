@@ -623,10 +623,10 @@ public abstract class BasicDeserializerFactory
     }
 
     /**
-     * Helper method copied from {@code POJOPropertyBuilder} since that won't be
-     * applied to creator parameters.
+     * Helper method copied from {@code POJOPropertyBuilder} for synthetic
+     * properties that do not go through regular property collection.
      */
-    private PropertyMetadata _getSetterInfo(MapperConfig<?> config,
+    final PropertyMetadata _getSetterInfo(MapperConfig<?> config,
             BeanProperty prop, PropertyMetadata metadata)
     {
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
@@ -635,8 +635,8 @@ public abstract class BasicDeserializerFactory
         Nulls valueNulls = null;
         Nulls contentNulls = null;
 
-        // NOTE: compared to `POJOPropertyBuilder`, we only have access to creator
-        // parameter, not other accessors, so code bit simpler
+        // NOTE: compared to `POJOPropertyBuilder`, synthetic properties only
+        // have the primary member, not other accessors, so code bit simpler
         AnnotatedMember prim = prop.getMember();
 
         if (prim != null) {

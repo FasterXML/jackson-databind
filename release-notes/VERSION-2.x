@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.18.12 (not yet released)
+
+#6250: `@JsonView` on properties-based Enum Creator parameters not honored
+ (fix by @pjfanning, w/ Claude code)
+
 2.18.11 (20-Sep-2026)
 
 #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization

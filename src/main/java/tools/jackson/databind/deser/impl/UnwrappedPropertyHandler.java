@@ -39,6 +39,23 @@ public class UnwrappedPropertyHandler
     protected final Set<String> _unwrappedPropertyNames;
 
     /**
+     * When {@code true}, {@link #hasUnwrappedProperty} also matches names that
+     * differ only in case. Set when an unwrapped bean deserializer was built
+     * with case-insensitive property matching.
+     *
+     * @since 3.1.8
+     */
+    protected final boolean _caseInsensitive;
+
+    /**
+     * Locale used to lowercase names when {@link #_caseInsensitive} is set.
+     * Same locale {@code BeanPropertyMap} uses for case-insensitive lookup.
+     *
+     * @since 3.1.8
+     */
+    protected final Locale _locale;
+
+    /**
      * Flag that indicates that we cannot tell from property names alone whether an
      * incoming property is "unwrapped": either some unwrapped deserializer has an
      * "any setter" (see {@link com.fasterxml.jackson.annotation.JsonAnySetter}), or
@@ -57,6 +74,8 @@ public class UnwrappedPropertyHandler
         _properties = new ArrayList<>();
         // placeholder: won't be modified in-place
         _unwrappedPropertyNames = Collections.emptySet();
+        _caseInsensitive = false;
+        _locale = Locale.ROOT;
         _acceptsAllUnwrapped = false;
     }
 
@@ -64,10 +83,21 @@ public class UnwrappedPropertyHandler
             List<SettableBeanProperty> props,
             Set<String> unwrappedPropertyNames,
             boolean acceptsAllUnwrapped) {
+        this(creatorProps, props, unwrappedPropertyNames, acceptsAllUnwrapped, false, Locale.ROOT);
+    }
+
+    protected UnwrappedPropertyHandler(List<SettableBeanProperty> creatorProps,
+            List<SettableBeanProperty> props,
+            Set<String> unwrappedPropertyNames,
+            boolean acceptsAllUnwrapped,
+            boolean caseInsensitive,
+            Locale locale) {
         _creatorProperties = creatorProps;
         _properties = props;
         _unwrappedPropertyNames = unwrappedPropertyNames;
         _acceptsAllUnwrapped = acceptsAllUnwrapped;
+        _caseInsensitive = caseInsensitive;
+        _locale = (locale == null) ? Locale.ROOT : locale;
     }
 
     /**
@@ -76,9 +106,22 @@ public class UnwrappedPropertyHandler
      * @since 3.1
      */
     public UnwrappedPropertyHandler initializeUnwrappedPropertyNames() {
+        return initializeUnwrappedPropertyNames(Locale.getDefault());
+    }
+
+    /**
+     * @param locale locale used to lowercase names when an unwrapped bean
+     *    matches properties case-insensitively; {@code null} means {@link Locale#ROOT}
+     *
+     * @since 3.1.8
+     */
+    public UnwrappedPropertyHandler initializeUnwrappedPropertyNames(Locale locale) {
         Set<String> unwrappedNames = new HashSet<>();
-        boolean acceptsAll = _collectUnwrappedPropertyNames(_properties, _creatorProperties, unwrappedNames);
-        return new UnwrappedPropertyHandler(_creatorProperties, _properties, unwrappedNames, acceptsAll);
+        boolean[] caseInsensitive = new boolean[1];
+        boolean acceptsAll = _collectUnwrappedPropertyNames(_properties, _creatorProperties,
+                unwrappedNames, locale, caseInsensitive);
+        return new UnwrappedPropertyHandler(_creatorProperties, _properties, unwrappedNames,
+                acceptsAll, caseInsensitive[0], locale);
     }
 
     /**
@@ -100,9 +143,12 @@ public class UnwrappedPropertyHandler
 
         // Collect unwrapped property names and check whether we must accept all unknowns
         Set<String> names = new HashSet<>();
-        boolean acceptsAll = _collectUnwrappedPropertyNames(renamedProps, renamedCreatorProps, names);
+        boolean[] caseInsensitive = new boolean[1];
+        boolean acceptsAll = _collectUnwrappedPropertyNames(renamedProps, renamedCreatorProps,
+                names, _locale, caseInsensitive);
 
-        return new UnwrappedPropertyHandler(renamedCreatorProps, renamedProps, names, acceptsAll);
+        return new UnwrappedPropertyHandler(renamedCreatorProps, renamedProps, names,
+                acceptsAll, caseInsensitive[0], _locale);
     }
 
     private List<SettableBeanProperty> renameProperties(DeserializationContext ctxt,
@@ -210,7 +256,14 @@ public class UnwrappedPropertyHandler
         if (_acceptsAllUnwrapped) {
             return true;
         }
-        return _unwrappedPropertyNames.contains(propName);
+        if (_unwrappedPropertyNames.contains(propName)) {
+            return true;
+        }
+        // [databind#6247]: case-insensitive beans store lowercased names
+        if (_caseInsensitive && (propName != null)) {
+            return _unwrappedPropertyNames.contains(propName.toLowerCase(_locale));
+        }
+        return false;
     }
 
     /**
@@ -219,7 +272,7 @@ public class UnwrappedPropertyHandler
      * @since 3.1
      */
     public void collectUnwrappedPropertyNamesTo(Set<String> names) {
-        _collectUnwrappedPropertyNames(_properties, _creatorProperties, names);
+        _collectUnwrappedPropertyNames(_properties, _creatorProperties, names, null, null);
     }
 
     /**
@@ -232,13 +285,15 @@ public class UnwrappedPropertyHandler
      */
     private boolean _collectUnwrappedPropertyNames(List<SettableBeanProperty> properties,
             List<SettableBeanProperty> creatorProperties,
-            Set<String> names) {
+            Set<String> names,
+            Locale locale,
+            boolean[] caseInsensitive) {
         boolean acceptsAll = false;
         for (SettableBeanProperty prop : properties) {
-            acceptsAll |= _collectDeserializerPropertyNames(prop, names);
+            acceptsAll |= _collectDeserializerPropertyNames(prop, names, locale, caseInsensitive);
         }
         for (SettableBeanProperty prop : creatorProperties) {
-            acceptsAll |= _collectDeserializerPropertyNames(prop, names);
+            acceptsAll |= _collectDeserializerPropertyNames(prop, names, locale, caseInsensitive);
         }
         return acceptsAll;
     }
@@ -253,7 +308,9 @@ public class UnwrappedPropertyHandler
      * @since 3.1
      */
     private boolean _collectDeserializerPropertyNames(SettableBeanProperty prop,
-            Set<String> names)
+            Set<String> names,
+            Locale locale,
+            boolean[] caseInsensitive)
     {
         if (prop == null) {
             return false;
@@ -278,7 +335,15 @@ public class UnwrappedPropertyHandler
         //   (typically a custom unwrapping deserializer capturing arbitrary fields).
         Set<String> propNames = new HashSet<>();
         bd.collectAllPropertyNamesTo(propNames);
-        names.addAll(propNames);
+        if ((caseInsensitive != null) && bd.isCaseInsensitive()) {
+            caseInsensitive[0] = true;
+            Locale loc = (locale == null) ? Locale.ROOT : locale;
+            for (String name : propNames) {
+                names.add(name.toLowerCase(loc));
+            }
+        } else {
+            names.addAll(propNames);
+        }
         return propNames.isEmpty();
     }
 

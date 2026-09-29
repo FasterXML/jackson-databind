@@ -909,7 +909,8 @@ public class MapSerializer
 
     /**
      * Helper method used when we have a JSON Filter to use AND contents are
-     * "any properties" of a POJO.
+     * "any properties" of a POJO. Entries are ordered, and filtered by this
+     * serializer's own filter (if any), same as by {@link #serializeWithoutTypeInfo}.
      *<p>
      * NOTE: {@code public} only because it is called by {@code AnyGetterWriter}
      *
@@ -920,7 +921,16 @@ public class MapSerializer
             Object suppressableValue)
         throws JacksonException
     {
+        // [databind#6136]: same ordering as with unfiltered "any properties"
+        if (_sortKeys || ctxt.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
+            value = _orderEntries(value, gen, ctxt);
+        }
+        // [databind#6136]: any-getter may have its own filter; if so, entries must pass both
+        final PropertyFilter mapFilter = (_filterId == null) ? null
+                : findPropertyFilter(ctxt, _filterId, value);
         final MapProperty prop = new MapProperty(_valueTypeSerializer, _property);
+        final ChainedMapProperty chainedProp = (mapFilter == null) ? null
+                : new ChainedMapProperty(_valueTypeSerializer, _property, prop, filter, bean);
         final boolean checkEmpty = (MARKER_FOR_EMPTY == suppressableValue);
 
         for (Map.Entry<?,?> entry : value.entrySet()) {
@@ -962,12 +972,53 @@ public class MapSerializer
                     }
                 }
             }
-            // and with that, ask filter to handle it
+            // and with that, ask filter(s) to handle it
             prop.reset(keyElem, valueElem, keySerializer, valueSer);
             try {
-                filter.serializeAsProperty(bean, gen, ctxt, prop);
+                if (chainedProp == null) {
+                    filter.serializeAsProperty(bean, gen, ctxt, prop);
+                } else {
+                    chainedProp.reset(keyElem, valueElem, keySerializer, valueSer);
+                    mapFilter.serializeAsProperty(value, gen, ctxt, chainedProp);
+                }
             } catch (Exception e) {
                 wrapAndThrow(ctxt, e, value, String.valueOf(keyElem));
+            }
+        }
+    }
+
+    /**
+     * {@link MapProperty} that, when included by the filter of the {@code Map} itself,
+     * hands the entry to the filter of the enclosing POJO (instead of writing it
+     * directly), so that an entry of "any properties" must pass both filters.
+     */
+    private static final class ChainedMapProperty extends MapProperty
+    {
+        private final MapProperty _delegate;
+        private final PropertyFilter _beanFilter;
+        private final Object _bean;
+
+        ChainedMapProperty(TypeSerializer typeSer, BeanProperty prop,
+                MapProperty delegate, PropertyFilter beanFilter, Object bean)
+        {
+            super(typeSer, prop);
+            _delegate = delegate;
+            _beanFilter = beanFilter;
+            _bean = bean;
+        }
+
+        @Override
+        public void serializeAsProperty(Object map, JsonGenerator gen,
+                SerializationContext ctxt)
+        {
+            try {
+                _beanFilter.serializeAsProperty(_bean, gen, ctxt, _delegate);
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                // Cannot throw checked exceptions from here; caller
+                // (`serializeFilteredAnyProperties()`) will add path reference
+                throw DatabindException.from(ctxt, ClassUtil.exceptionMessage(e), e);
             }
         }
     }

@@ -9,6 +9,9 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
@@ -192,6 +195,38 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
         }
     }
 
+    // [databind#6136]: filtered any-getter must still honor Map entry ordering
+    @JsonFilter("anyFilter")
+    static class UnsortedAnyBean
+    {
+        public int a = 1;
+
+        @JsonAnyGetter
+        public Map<String, Integer> anyProperties() {
+            Map<String, Integer> m = new LinkedHashMap<>();
+            m.put("z", 1);
+            m.put("b", 2);
+            return m;
+        }
+    }
+
+    // [databind#6136]: any-getter with its own filter, in addition to class filter
+    @JsonFilter("anyFilter")
+    static class MapFilteredAnyBean
+    {
+        public int a = 1;
+
+        @JsonFilter("mapFilter")
+        @JsonAnyGetter
+        public Map<String, Integer> anyProperties() {
+            Map<String, Integer> m = new LinkedHashMap<>();
+            m.put("x", 1);
+            m.put("y", 2);
+            m.put("secret", 3);
+            return m;
+        }
+    }
+
     // [databind#1655]
     @JsonFilter("CustomFilter")
     static class OuterObject {
@@ -371,6 +406,54 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
                 {"name":"bob"}""",
                 MAPPER.writer(prov).withView(Views.Other.class)
                         .writeValueAsString(new MultiViewAnyBeanWithSecret()));
+    }
+
+    // [databind#6136]: filtering must not lose ORDER_MAP_ENTRIES_BY_KEYS
+    @Test
+    public void anyGetterFilteringWithSortedEntries() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+                .build();
+        FilterProvider prov = new SimpleFilterProvider().addFilter("anyFilter",
+                SimpleBeanPropertyFilter.serializeAllExcept("nosuch"));
+        assertEquals("""
+                {"a":1,"b":2,"z":1}""",
+                mapper.writer(prov).writeValueAsString(new UnsortedAnyBean()));
+    }
+
+    // [databind#6136]: both class filter and any-getter's own filter must apply
+    @Test
+    public void anyGetterFilteringWithMapFilter() throws Exception
+    {
+        FilterProvider prov = new SimpleFilterProvider()
+                .addFilter("anyFilter", SimpleBeanPropertyFilter.serializeAllExcept("secret"))
+                .addFilter("mapFilter", SimpleBeanPropertyFilter.filterOutAllExcept("x", "secret"));
+        assertEquals("""
+                {"a":1,"x":1}""",
+                MAPPER.writer(prov).writeValueAsString(new MapFilteredAnyBean()));
+    }
+
+    // [databind#6136]: filtered ObjectNode any-getter must write names same as
+    // unfiltered one (not via custom `String` key serializer)
+    @Test
+    public void objectNodeAnyGetterFilteringKeyNames() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule().addKeySerializer(String.class,
+                        new ValueSerializer<String>() {
+                            @Override
+                            public void serialize(String value, JsonGenerator g,
+                                    SerializationContext ctxt) {
+                                g.writeName(value.toUpperCase());
+                            }
+                        }))
+                .build();
+        FilterProvider prov = new SimpleFilterProvider().addFilter("anyFilter",
+                SimpleBeanPropertyFilter.serializeAllExcept("secret"));
+        assertEquals("""
+                {"name":"bob","a":"1"}""",
+                mapper.writer(prov).writeValueAsString(new ObjectNodeAnyBeanWithSecret()));
     }
 
     // for [databind#1142]

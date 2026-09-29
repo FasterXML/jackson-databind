@@ -7,6 +7,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ser.jdk.JDKKeySerializers;
 import tools.jackson.databind.ser.jdk.MapProperty;
 import tools.jackson.databind.ser.jdk.MapSerializer;
 
@@ -191,7 +192,9 @@ public class AnyGetterWriter extends BeanPropertyWriter
         throws Exception
     {
         final MapProperty prop = new MapProperty(null, _property);
-        final ValueSerializer<Object> keySer = ctxt.findKeySerializer(String.class, _property);
+        // plain names, same as `_serializeObjectNodeEntries()` (no custom key serializer)
+        final ValueSerializer<Object> keySer = JDKKeySerializers.getStdKeySerializer(
+                ctxt.getConfig(), String.class, false);
         for (Map.Entry<String, JsonNode> entry : objectNode.properties()) {
             final JsonNode v = entry.getValue();
             prop.reset(entry.getKey(), v, keySer, ctxt.findValueSerializer(v.getClass()));

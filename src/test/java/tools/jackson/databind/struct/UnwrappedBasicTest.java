@@ -404,6 +404,23 @@ public class UnwrappedBasicTest extends DatabindTestUtil
         }
     }
 
+    static class CamelPrefixOuter {
+        @JsonUnwrapped(prefix = "inner-")
+        public CamelPrefixInner inner;
+    }
+
+    // Creator-only (no fallback setter or field)
+    static class CamelPrefixInner {
+        private final String _myName;
+
+        @JsonCreator
+        public CamelPrefixInner(@JsonProperty("myName") String myName) {
+            _myName = myName;
+        }
+
+        public String myName() { return _myName; }
+    }
+
     // // // Inner types for @JsonUnwrapped with prefix/suffix tests
 
     // Class with unwrapping using prefixes
@@ -1203,5 +1220,19 @@ public class UnwrappedBasicTest extends DatabindTestUtil
                 a2q("{'name': 'test', 'nested.field': 'value'}"), A650WithCreatorAndPrefix.class);
         assertEquals("test", value.name);
         assertEquals("value", value.b.field);
+    }
+
+    // Renaming Creator properties of case-insensitive deserializer must find
+    // names that are not all lower-case (and retain case-insensitivity of lookup)
+    @Test
+    public void caseInsensitiveUnwrapWithPrefixAndCreator() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+                .build();
+        CamelPrefixOuter result = mapper.readValue("""
+                {"inner-myName":"a"}
+                """, CamelPrefixOuter.class);
+        assertEquals("a", result.inner.myName());
     }
 }

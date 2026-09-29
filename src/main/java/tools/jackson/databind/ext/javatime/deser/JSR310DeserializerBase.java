@@ -20,6 +20,8 @@ import java.time.DateTimeException;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
@@ -75,6 +77,32 @@ abstract class JSR310DeserializerBase<T> extends StdScalarDeserializer<T>
     }
 
     protected abstract JSR310DeserializerBase<T> withLeniency(Boolean leniency);
+
+    /**
+     * Helper method for resolving per-property override for reading numeric timestamps
+     * as nanoseconds (or not): explicit
+     * {@link JsonFormat.Feature#READ_DATE_TIMESTAMPS_AS_NANOSECONDS} has precedence;
+     * if not defined, explicit numeric shape is used ({@link JsonFormat.Shape#NUMBER_INT}
+     * meaning "not as nanoseconds", {@link JsonFormat.Shape#NUMBER_FLOAT} "as nanoseconds")
+     * to match handling on serialization side.
+     * Returns {@code null} if neither is defined (to use global default).
+     *
+     * @since 3.3
+     */
+    protected static Boolean _findReadTimestampsAsNanosOverride(JsonFormat.Value format) {
+        Boolean b = format.getFeature(JsonFormat.Feature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+        if (b == null) {
+            // [databind#6239]: match `JSR310FormattedSerializerBase.useNanoseconds()`
+            switch (format.getShape()) {
+            case NUMBER_INT:
+                return Boolean.FALSE;
+            case NUMBER_FLOAT:
+                return Boolean.TRUE;
+            default:
+            }
+        }
+        return b;
+    }
 
     /**
      * @return {@code true} if lenient handling is enabled; {code false} if not (strict mode)

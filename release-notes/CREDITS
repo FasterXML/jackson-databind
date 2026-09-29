@@ -657,6 +657,12 @@ Aysha Afrah Ziya (@aysha-afrah26)
   [3.2.2]
  * Fixed #6116: Reject non-ASCII digits in `InetAddress` literal validation
   [3.1.6]
+ * Reported, fixed #6136: `@JsonFilter` with `serializeAllExcept()` does not filter
+   `@JsonAnyGetter` entries
+  [3.3.0]
+ * Fixed #6145: `@JsonIgnoreProperties` bypassed for Creator properties with
+   builders and external type ids
+  [3.2.4]
  * Fixed #6157: `@JsonIncludeProperties` not honored for `Throwable` types with
    `@JsonAnySetter`
   [3.2.3]
@@ -667,6 +673,9 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Fixed #6179: Apply `StreamReadConstraints` number length limit when coercing
    String to `double`
   [3.2.3]
+ * Fixed #6232: Validate `StreamReadConstraints` number length when coercing
+   `StringNode` to number
+  [3.2.4]
 
 @waydeshi
  * Reported #6127: Add `StreamReadConstraints` number len constraint to
@@ -739,4 +748,23 @@ Burak KALAYCI (@kalayciburak)
 Aditya Bagla (@adityabagla7)
  * Fixed #6190: Explicit `@JsonView` on a standard `Throwable` property is ignored
    by `ThrowableDeserializer`
+  [3.3.0]
+
+Sergey Lappo (@sergeylappo)
+ * Reported #6227: `BeanDescription` is not thread-safe when called concurrently on the
+   same instance (`findProperties()`, `findDefaultViews()`)
+  [3.2.4]
+
+Mauricio Souza (@mauriciocsz)
+ * Reported, contributed fix for #6229: `DETECT_PARAMETER_NAMES` disabled also prevents
+   `@ConstructorProperties` based Creator detection
+  [3.3.0]
+
+Sanha (@kimsanhaa)
+ * Fixed #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+  [3.2.4]
+
+한의준 (@exijn)
+ * Contributed fix for #4385: Allow changing serializer used for a single property
+   of a Class
   [3.3.0]

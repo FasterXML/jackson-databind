@@ -69,7 +69,13 @@ public class DurationSerializer extends JSR310FormattedSerializerBase<Duration>
 
     protected DurationSerializer(DurationSerializer base, DateTimeFormatter dtf,
             Boolean useTimestamp, Boolean useNanoseconds) {
-        super(base, dtf, useTimestamp, useNanoseconds, null);
+        this(base, dtf, useTimestamp, useNanoseconds, null);
+    }
+
+    // @since 3.3
+    protected DurationSerializer(DurationSerializer base, DateTimeFormatter dtf,
+            Boolean useTimestamp, Boolean useNanoseconds, JsonFormat.Shape shape) {
+        super(base, dtf, useTimestamp, useNanoseconds, shape);
     }
 
     protected DurationSerializer(DurationSerializer base, DurationUnitConverter converter) {
@@ -80,7 +86,7 @@ public class DurationSerializer extends JSR310FormattedSerializerBase<Duration>
     @Override
     protected DurationSerializer withFormat(DateTimeFormatter dtf,
             Boolean useTimestamp, JsonFormat.Shape shape) {
-        return new DurationSerializer(this, dtf, useTimestamp);
+        return new DurationSerializer(this, dtf, useTimestamp, null, shape);
     }
 
     protected DurationSerializer withConverter(DurationUnitConverter converter) {
@@ -179,7 +185,7 @@ public class DurationSerializer extends JSR310FormattedSerializerBase<Duration>
 
     @Override
     protected JSR310FormattedSerializerBase<?> withFeatures(Boolean writeZoneId, Boolean writeNanoseconds) {
-        return new DurationSerializer(this, _formatter, _useTimestamp, writeNanoseconds);
+        return new DurationSerializer(this, _formatter, _useTimestamp, writeNanoseconds, _shape);
     }
 
     @Override

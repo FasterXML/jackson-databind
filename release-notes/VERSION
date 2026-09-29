@@ -35,6 +35,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   is actually thrown
  (reported by @pctF)
  (fix by @pjfanning)
+#6091: Report the active token when polymorphic deserialization replays buffered content
+ (reported by @Laar)
+ (fix by @jakezwang, w/ OpenAI Codex)
 #6113: Fix `DOMSerializer` to support polymorphic serialization
  (fix by @dong0713)
 #6114: Fix QName object deserialization to reject non-String namespaceURI/prefix

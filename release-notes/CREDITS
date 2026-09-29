@@ -725,6 +725,9 @@ Francesco Nigro (@franz1981)
   [3.2.3]
 
 Jake Wang (@jakezwang)
+ * Fixed #6091: Report the active token when polymorphic deserialization
+   replays buffered content
+  [3.3.0]
  * Fixed #6225: `ArrayStoreException` when a Builder-based typed array resolves
    a forward Object Id reference within the same array
   [3.2.4]
@@ -772,4 +775,8 @@ Sanha (@kimsanhaa)
 한의준 (@exijn)
  * Contributed fix for #4385: Allow changing serializer used for a single property
    of a Class
+  [3.3.0]
+
+@Laar
+ * Reported #6091: Current token incorrectly reported when using `@JsonTypeInfo`
   [3.3.0]

@@ -1222,7 +1222,7 @@ public class UnwrappedBasicTest extends DatabindTestUtil
         assertEquals("value", value.b.field);
     }
 
-    // Renaming Creator properties of case-insensitive deserializer must find
+    // [databind#6246]: renaming Creator properties of case-insensitive deserializer must find
     // names that are not all lower-case (and retain case-insensitivity of lookup)
     @Test
     public void caseInsensitiveUnwrapWithPrefixAndCreator() throws Exception

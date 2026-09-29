@@ -26,6 +26,9 @@ No changes since 3.1
  (fix by @cowtowncoder, w/ Claude code)
 #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
  (fix by @kimsanhaa)
+#6246: Creator properties not renamed for `@JsonUnwrapped` with prefix/suffix
+  with `MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES`
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.1.7 (21-Sep-2026)
 

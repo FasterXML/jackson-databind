@@ -234,6 +234,17 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
         assertEquals(NestedBindingList.class, result.value.getClass());
     }
 
+    @Test
+    public void nestedInheritedBindingMismatchRejected() throws Exception
+    {
+        ObjectMapper mapper = mapperWithClassIdMixin(List.class);
+        String typeId = NestedBindingList.class.getName() + "<java.lang.Integer>";
+        String json = "{\"value\":[\"" + typeId + "\",[]]}";
+
+        assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json, NestedListHolder.class));
+    }
+
     // The declared parameter type is the base type the validator sees, so
     // `allowIfBaseType(Animal.class)` covers `Dog` as an argument even though
     // no rule names `Dog` itself.
@@ -294,6 +305,17 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
     }
 
     @Test
+    public void inheritedGenericArrayMismatchRejected() throws Exception
+    {
+        ObjectMapper mapper = mapperWithClassIdMixin(List.class);
+        String typeId = ArrayBindingList.class.getName() + "<java.lang.Integer>";
+        String json = "{\"value\":[\"" + typeId + "\",[]]}";
+
+        assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json, ArrayBindingHolder.class));
+    }
+
+    @Test
     public void recursiveGenericBindingAccepted() throws Exception
     {
         BasicPolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
@@ -309,6 +331,17 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
 
         RecursiveListHolder result = mapper.readValue(json, RecursiveListHolder.class);
         assertEquals(RecursiveList.class, result.value.getClass());
+    }
+
+    @Test
+    public void recursiveGenericBindingMismatchRejected() throws Exception
+    {
+        ObjectMapper mapper = mapperWithClassIdMixin(List.class);
+        String typeId = RecursiveList.class.getName() + "<java.lang.Integer>";
+        String json = "{\"value\":[\"" + typeId + "\",[]]}";
+
+        assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json, RecursiveListHolder.class));
     }
 
     // The projection of `SelfSupplier<X>` onto `Supplier` is `Supplier<SelfSupplier<X>>`,

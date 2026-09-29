@@ -6,7 +6,7 @@ Project: jackson-databind
 
 2.18.12 (not yet released)
 
-#6254: Validate type arguments of generic type ids against the declared type
+#6259: Validate type arguments of generic type ids against the declared type
   parameters of the base type (rejects `HashMap<String,Long>` for `Map<String,Integer>`,
   accepts subtypes of an allowed base type as type arguments)
  (contributed by @martinfrancois)

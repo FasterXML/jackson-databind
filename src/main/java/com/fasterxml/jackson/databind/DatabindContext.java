@@ -1,10 +1,7 @@
 package com.fasterxml.jackson.databind;
 
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.Locale;
-import java.util.Set;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.*;
@@ -16,7 +13,6 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
-import com.fasterxml.jackson.databind.type.PlaceholderForType;
 import com.fasterxml.jackson.databind.type.ResolvedRecursiveType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -316,69 +312,19 @@ public abstract class DatabindContext
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        JavaType projectedBase = subType.findSuperType(declaredType.getRawClass());
-        if (projectedBase != null) {
-            for (int i = 0, n = projectedBase.containedTypeCount(); i < n; ++i) {
-                _validateTypeParameter(polymorphicBase, typeId,
-                        declaredType.containedTypeOrUnknown(i), projectedBase.containedType(i),
-                        ptv, config);
-            }
+        final JavaType expectedSubtype;
+        try {
+            expectedSubtype = getTypeFactory().constructSpecializedType(
+                    declaredType, subType.getRawClass());
+        } catch (IllegalArgumentException e) {
+            throw invalidTypeIdException(polymorphicBase, typeId,
+                    "Generic type is not compatible with its declared base: "
+                            + ClassUtil.exceptionMessage(e));
         }
-        boolean[] projectedParameters = _projectedTypeParameters(declaredType, subType);
         for (int i = 0, n = subType.containedTypeCount(); i < n; ++i) {
-            if (!projectedParameters[i]) {
-                _validateTypeParameter(polymorphicBase, typeId,
-                        getTypeFactory().unknownType(), subType.containedType(i), ptv, config);
-            }
-        }
-    }
-
-    private boolean[] _projectedTypeParameters(JavaType declaredType, JavaType subType)
-    {
-        int count = subType.containedTypeCount();
-        if (count == 0) {
-            return new boolean[0];
-        }
-        PlaceholderForType[] placeholders = new PlaceholderForType[count];
-        for (int i = 0; i < count; ++i) {
-            placeholders[i] = new PlaceholderForType(i);
-        }
-        JavaType placeholderSubtype = getTypeFactory().constructParametricType(
-                subType.getRawClass(), placeholders);
-        JavaType placeholderBase = placeholderSubtype.findSuperType(declaredType.getRawClass());
-        boolean[] projected = new boolean[count];
-        if (placeholderBase != null) {
-            Set<JavaType> seen = Collections.newSetFromMap(
-                    new IdentityHashMap<JavaType, Boolean>());
-            _markProjectedTypeParameters(placeholderBase, placeholders, projected, seen);
-        }
-        return projected;
-    }
-
-    private void _markProjectedTypeParameters(JavaType type,
-            PlaceholderForType[] placeholders, boolean[] projected, Set<JavaType> seen)
-    {
-        for (int i = 0; i < placeholders.length; ++i) {
-            if (type == placeholders[i]) {
-                projected[i] = true;
-                return;
-            }
-        }
-        if (!seen.add(type)) {
-            return;
-        }
-        if (type instanceof ResolvedRecursiveType) {
-            JavaType referencedType = ((ResolvedRecursiveType) type).getSelfReferencedType();
-            if (referencedType != null) {
-                _markProjectedTypeParameters(referencedType, placeholders, projected, seen);
-            }
-        } else if (type.isArrayType()) {
-            _markProjectedTypeParameters(type.getContentType(), placeholders, projected, seen);
-        } else {
-            for (int i = 0, n = type.containedTypeCount(); i < n; ++i) {
-                _markProjectedTypeParameters(type.containedType(i),
-                        placeholders, projected, seen);
-            }
+            _validateTypeParameter(polymorphicBase, typeId,
+                    expectedSubtype.containedTypeOrUnknown(i), subType.containedType(i),
+                    ptv, config);
         }
     }
 

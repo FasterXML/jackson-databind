@@ -88,6 +88,10 @@ public class NioPathDeserializer extends StdScalarDeserializer<Path>
         }
 
         final String value = p.getText();
+        // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+        if (value == null) {
+            return (Path) ctxt.handleUnexpectedToken(Path.class, p);
+        }
 
         // If someone gives us an input with no : at all, treat as local path, instead of failing
         // with invalid URI.

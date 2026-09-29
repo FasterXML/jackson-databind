@@ -174,7 +174,9 @@ public class DateDeserializers
             throws IOException
         {
             if (_customFormat != null) {
-                if (p.hasToken(JsonToken.VALUE_STRING)) {
+                // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without
+                // text: if so, let base class handle it
+                if (p.hasToken(JsonToken.VALUE_STRING) && (p.getText() != null)) {
                     String str = p.getText().trim();
                     if (str.isEmpty()) {
                         final CoercionAction act = _checkFromStringCoercion(ctxt, str);

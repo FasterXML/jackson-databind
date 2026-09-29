@@ -296,6 +296,12 @@ _containerType,
     {
         final Class<?> rawTargetType = handledType();
 
+        // Some parsers (like Ion, for typed nulls) may report VALUE_STRING
+        // but have no String value to return
+        if (value == null) {
+            return (Collection<Object>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        }
+
         // 05-Nov-2020, ckozak: As per [jackson-databind#2922] string values may be handled
         // using handleNonArray, however empty strings may result in a null or empty collection
         // depending on configuration.

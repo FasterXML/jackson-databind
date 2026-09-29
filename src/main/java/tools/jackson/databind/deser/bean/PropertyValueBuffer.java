@@ -470,6 +470,16 @@ public class PropertyValueBuffer
         _buffered = new PropertyValue.Any(_buffered, value, prop, propName);
     }
 
+    /**
+     * @since 3.3
+     */
+    public void bufferAnyProperty(SettableAnyProperty prop, String propName,
+            JsonParser p, DeserializationContext ctxt) throws JacksonException {
+        if (!prop.skipOrFailOnNull(p, ctxt, propName)) {
+            bufferAnyProperty(prop, propName, prop.deserialize(p, ctxt));
+        }
+    }
+
     public void bufferMapProperty(Object key, Object value) {
         _buffered = new PropertyValue.Map(_buffered, value, key);
     }
@@ -483,6 +493,16 @@ public class PropertyValueBuffer
             _anyParamBufferedTail.next = newEntry;
         }
         _anyParamBufferedTail = newEntry;
+    }
+
+    /**
+     * @since 3.3
+     */
+    public void bufferAnyParameterProperty(SettableAnyProperty prop, String propName,
+            JsonParser p, DeserializationContext ctxt) throws JacksonException {
+        if (!prop.skipOrFailOnNull(p, ctxt, propName)) {
+            bufferAnyParameterProperty(prop, propName, prop.deserialize(p, ctxt));
+        }
     }
 
     public void bufferMergingProperty(SettableBeanProperty prop, TokenBuffer buffered) {

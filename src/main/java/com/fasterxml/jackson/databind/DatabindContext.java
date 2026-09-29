@@ -1,7 +1,10 @@
 package com.fasterxml.jackson.databind;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.*;
@@ -13,6 +16,8 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
+import com.fasterxml.jackson.databind.type.PlaceholderForType;
+import com.fasterxml.jackson.databind.type.ResolvedRecursiveType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -288,15 +293,85 @@ public abstract class DatabindContext
         // be validated -- otherwise a name-based allow-list for a safe container
         // (e.g. "java.util.ArrayList") can be bypassed by smuggling a gadget
         // class as a type argument (e.g. "java.util.ArrayList<EvilGadget>").
-        // The container itself was already validated above; walk its parameter
-        // tree (and array component, if any) and validate each node.
-        for (int i = 0, n = subType.containedTypeCount(); i < n; ++i) {
-            _validateTypeParameter(baseType, subType.containedType(i), ptv, config);
-        }
-        if (subType.isArrayType()) {
-            _validateTypeParameter(baseType, subType.getContentType(), ptv, config);
-        }
+        // The container itself was already validated above. Validate its type
+        // parameters against the corresponding declared base parameters.
+        _validateTypeParameters(baseType, subType, ptv, config);
         return subType;
+    }
+
+    /**
+     * Project {@code subType} onto {@code baseType} before comparing type
+     * parameters because subtype declarations may reorder or fix inherited
+     * type variables. Parameters declared only by the subtype are validated
+     * against the unknown base.
+     */
+    private void _validateTypeParameters(JavaType baseType, JavaType subType,
+            PolymorphicTypeValidator ptv, MapperConfig<?> config)
+        throws JsonMappingException
+    {
+        JavaType projectedBase = subType.findSuperType(baseType.getRawClass());
+        if (projectedBase != null) {
+            for (int i = 0, n = projectedBase.containedTypeCount(); i < n; ++i) {
+                JavaType param = projectedBase.containedType(i);
+                _validateTypeParameter(baseType.containedTypeOrUnknown(i), param, ptv, config);
+            }
+        }
+        boolean[] projectedParameters = _projectedTypeParameters(baseType, subType);
+        for (int i = 0, n = subType.containedTypeCount(); i < n; ++i) {
+            if (!projectedParameters[i]) {
+                _validateTypeParameter(getTypeFactory().unknownType(),
+                        subType.containedType(i), ptv, config);
+            }
+        }
+    }
+
+    private boolean[] _projectedTypeParameters(JavaType baseType, JavaType subType)
+    {
+        int count = subType.containedTypeCount();
+        if (count == 0) {
+            return new boolean[0];
+        }
+        PlaceholderForType[] placeholders = new PlaceholderForType[count];
+        for (int i = 0; i < count; ++i) {
+            placeholders[i] = new PlaceholderForType(i);
+        }
+        JavaType placeholderSubtype = getTypeFactory().constructParametricType(
+                subType.getRawClass(), placeholders);
+        JavaType placeholderBase = placeholderSubtype.findSuperType(baseType.getRawClass());
+        boolean[] projected = new boolean[count];
+        if (placeholderBase != null) {
+            Set<JavaType> seen = Collections.newSetFromMap(
+                    new IdentityHashMap<JavaType, Boolean>());
+            _markProjectedTypeParameters(placeholderBase, placeholders, projected, seen);
+        }
+        return projected;
+    }
+
+    private void _markProjectedTypeParameters(JavaType type,
+            PlaceholderForType[] placeholders, boolean[] projected, Set<JavaType> seen)
+    {
+        for (int i = 0; i < placeholders.length; ++i) {
+            if (type == placeholders[i]) {
+                projected[i] = true;
+                return;
+            }
+        }
+        if (!seen.add(type)) {
+            return;
+        }
+        if (type instanceof ResolvedRecursiveType) {
+            JavaType referencedType = ((ResolvedRecursiveType) type).getSelfReferencedType();
+            if (referencedType != null) {
+                _markProjectedTypeParameters(referencedType, placeholders, projected, seen);
+            }
+        } else if (type.isArrayType()) {
+            _markProjectedTypeParameters(type.getContentType(), placeholders, projected, seen);
+        } else {
+            for (int i = 0, n = type.containedTypeCount(); i < n; ++i) {
+                _markProjectedTypeParameters(type.containedType(i),
+                        placeholders, projected, seen);
+            }
+        }
     }
 
     /**
@@ -323,12 +398,31 @@ public abstract class DatabindContext
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        if (!param.isJavaLangObject() && !param.isEnumType()) {
+        final String rawName = param.getRawClass().getName();
+        // Primitive types cannot resolve to attacker-controlled implementations.
+        // Object is the canonical placeholder for wildcards, unbound parameters,
+        // and runtime-erased values; it cannot itself instantiate an attacker-
+        // selected class either.
+        if (param.isPrimitive() || param.isJavaLangObject()) {
+            return;
+        }
+        if (!param.isTypeOrSubTypeOf(baseType.getRawClass())) {
+            throw invalidTypeIdException(baseType, rawName,
+                    "Type parameter is not a subtype of its declared generic base");
+        }
+        if (!param.isEnumType()) {
+            Validity baseValidity = ptv.validateBaseType(config, baseType);
+            if (baseValidity == Validity.DENIED) {
+                throw invalidTypeIdException(baseType, rawName,
+                        "Configured `PolymorphicTypeValidator` (of type "
+                                + ClassUtil.classNameOf(ptv)
+                                + ") denied resolution of type parameter base");
+            }
             // First consult the name-based allow rules (mirrors the container
             // check in _resolveAndValidateGeneric), then fall back to the class-
             // based check so all configured matchers can approve the parameter.
-            final String rawName = param.getRawClass().getName();
-            Validity vld = ptv.validateSubClassName(config, baseType, rawName);
+            Validity vld = (baseValidity == Validity.ALLOWED) ? Validity.ALLOWED
+                    : ptv.validateSubClassName(config, baseType, rawName);
             if (vld == Validity.DENIED) {
                 throw invalidTypeIdException(baseType, rawName,
                         "Configured `PolymorphicTypeValidator` (of type "
@@ -344,11 +438,15 @@ public abstract class DatabindContext
                 }
             }
         }
-        for (int i = 0, n = param.containedTypeCount(); i < n; ++i) {
-            _validateTypeParameter(baseType, param.containedType(i), ptv, config);
+        if (this instanceof DeserializationContext) {
+            ((DeserializationContext) this)._validateGenericSubType(param);
         }
         if (param.isArrayType()) {
-            _validateTypeParameter(baseType, param.getContentType(), ptv, config);
+            JavaType declaredComponent = baseType.isArrayType()
+                    ? baseType.getContentType() : getTypeFactory().unknownType();
+            _validateTypeParameter(declaredComponent, param.getContentType(), ptv, config);
+        } else {
+            _validateTypeParameters(baseType, param, ptv, config);
         }
     }
 

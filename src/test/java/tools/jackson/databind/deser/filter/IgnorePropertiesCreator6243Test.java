@@ -81,6 +81,32 @@ public class IgnorePropertiesCreator6243Test extends DatabindTestUtil
         public String name() { return _name; }
     }
 
+    // Ignored/included names differ from the alias only by case: not the alias
+    // (no fallback setter or field, so can only be bound via Creator)
+    @JsonIgnoreProperties("OLDNAME")
+    static class AliasIgnoredOtherCase {
+        private final String _value;
+
+        @JsonCreator
+        public AliasIgnoredOtherCase(@JsonProperty("newName") @JsonAlias("oldName") String value) {
+            _value = value;
+        }
+
+        public String value() { return _value; }
+    }
+
+    @JsonIncludeProperties({ "newName", "OLDNAME" })
+    static class AliasIncludedOtherCase {
+        private final String _value;
+
+        @JsonCreator
+        public AliasIncludedOtherCase(@JsonProperty("newName") @JsonAlias("oldName") String value) {
+            _value = value;
+        }
+
+        public String value() { return _value; }
+    }
+
     static class NameIgnoredOtherCaseWrapper {
         @JsonIgnoreProperties("Y")
         public Point p;
@@ -220,6 +246,21 @@ public class IgnorePropertiesCreator6243Test extends DatabindTestUtil
                 """, NameIgnoredOtherCaseWrapper.class);
         assertEquals(1, wrapper.p.x);
         assertEquals(2, wrapper.p.y);
+    }
+
+    // Same for aliases: only exact alias is ignored (or included), same as with
+    // bean properties
+    @Test
+    public void aliasInOtherCaseCaseInsensitive() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+                .build();
+        final String json = """
+                {"oldName":"a"}
+                """;
+        assertEquals("a", mapper.readValue(json, AliasIgnoredOtherCase.class).value());
+        assertNull(mapper.readValue(json, AliasIncludedOtherCase.class).value());
     }
 
     @Test

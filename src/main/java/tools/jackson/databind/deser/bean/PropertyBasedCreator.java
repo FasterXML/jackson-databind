@@ -73,6 +73,15 @@ public final class PropertyBasedCreator
      */
     protected final HashMap<String, SettableBeanProperty> _filteredLookup;
 
+    /**
+     * Creator properties by their aliases, as declared (keys not lower-cased like those
+     * of a case-insensitive {@link #_propertyLookup}), if any: {@code null} if none.
+     * Needed to match names to ignore/include exactly, same as for bean properties.
+     *
+     * @since 3.3
+     */
+    protected final Map<String, SettableBeanProperty> _aliasLookup;
+
     /*
     /**********************************************************************
     /* Construction, initialization
@@ -94,6 +103,7 @@ public final class PropertyBasedCreator
 
         // 26-Feb-2017, tatu: Let's start by aliases, so that there is no
         //    possibility of accidental override of primary names
+        Map<String, SettableBeanProperty> aliasLookup = null;
         if (addAliases) {
             final DeserializationConfig config = ctxt.getConfig();
             for (SettableBeanProperty prop : creatorProps) {
@@ -101,8 +111,12 @@ public final class PropertyBasedCreator
                 if (!prop.isIgnorable()) {
                     List<PropertyName> aliases = prop.findAliases(config);
                     if (!aliases.isEmpty()) {
+                        if (aliasLookup == null) {
+                            aliasLookup = new HashMap<>();
+                        }
                         for (PropertyName pn : aliases) {
                             _propertyLookup.put(pn.getSimpleName(), prop);
+                            aliasLookup.put(pn.getSimpleName(), prop);
                         }
                     }
                 }
@@ -136,6 +150,7 @@ public final class PropertyBasedCreator
         _injectablePropIndexes = injectablePropIndexes;
         _hasManagedReferenceProperties = hasManagedRef;
         _filteredLookup = _propertyLookup;
+        _aliasLookup = aliasLookup;
     }
 
     /**
@@ -153,6 +168,7 @@ public final class PropertyBasedCreator
         _injectablePropIndexes = base._injectablePropIndexes;
         _propertyLookup = propertyLookup;
         _filteredLookup = filteredLookup;
+        _aliasLookup = base._aliasLookup;
         _propertiesInOrder = allProperties;
         _hasManagedReferenceProperties = base._hasManagedReferenceProperties;
     }
@@ -271,7 +287,6 @@ public final class PropertyBasedCreator
      *
      * @since 3.3
      */
-    @SuppressWarnings("unchecked")
     public PropertyBasedCreator withByNameInclusion(Set<String> ignorableProps,
             Set<String> includableProps)
     {
@@ -279,32 +294,23 @@ public final class PropertyBasedCreator
             return (_filteredLookup == _propertyLookup) ? this
                     : new PropertyBasedCreator(this, _propertyLookup, _propertyLookup, _propertiesInOrder);
         }
-        // clone() retains the type of lookup, so case-insensitivity too
-        HashMap<String, SettableBeanProperty> filtered = (HashMap<String, SettableBeanProperty>) _propertyLookup.clone();
-        if (includableProps != null) {
-            // only names to include (including aliases) find anything
-            filtered.clear();
-            for (String name : includableProps) {
-                SettableBeanProperty prop = _propertyLookup.get(name);
-                if (prop != null) {
-                    filtered.put(name, prop);
+        HashMap<String, SettableBeanProperty> filtered = (_propertyLookup instanceof CaseInsensitiveMap ciMap)
+                ? CaseInsensitiveMap.construct(ciMap._locale) : new HashMap<>();
+        // Same as bean properties: name (alias) to ignore finds nothing; nor does any
+        // name of a property to ignore. Aliases first, same as when constructing.
+        if (_aliasLookup != null) {
+            for (Map.Entry<String, SettableBeanProperty> entry : _aliasLookup.entrySet()) {
+                SettableBeanProperty prop = entry.getValue();
+                if (!IgnorePropertiesUtil.shouldIgnore(entry.getKey(), ignorableProps, includableProps)
+                        && !IgnorePropertiesUtil.shouldIgnore(prop.getName(), ignorableProps, includableProps)) {
+                    filtered.put(entry.getKey(), prop);
                 }
             }
         }
-        // properties to ignore are not found by any name (including aliases)
-        filtered.values().removeIf(prop -> IgnorePropertiesUtil.shouldIgnore(prop.getName(),
-                ignorableProps, includableProps));
-        // nor is anything found by (alias) names to ignore. But with case-insensitive
-        // lookup, a name may match property's own name in different case: that does not
-        // ignore the property (checked above by exact name, same as for bean properties)
-        if (ignorableProps != null) {
-            final boolean caseInsensitive = (filtered instanceof CaseInsensitiveMap);
-            for (String name : ignorableProps) {
-                SettableBeanProperty prop = filtered.get(name);
-                if ((prop != null)
-                        && !(caseInsensitive && name.equalsIgnoreCase(prop.getName()))) {
-                    filtered.remove(name);
-                }
+        for (SettableBeanProperty prop : _propertiesInOrder) {
+            if ((prop != null) && !prop.isIgnorable()
+                    && !IgnorePropertiesUtil.shouldIgnore(prop.getName(), ignorableProps, includableProps)) {
+                filtered.put(prop.getName(), prop);
             }
         }
         return new PropertyBasedCreator(this, _propertyLookup, filtered, _propertiesInOrder);
@@ -485,11 +491,6 @@ public final class PropertyBasedCreator
         public SettableBeanProperty put(String key, SettableBeanProperty value) {
             key = key.toLowerCase(_locale);
             return super.put(key, value);
-        }
-
-        @Override
-        public SettableBeanProperty remove(Object key0) {
-            return super.remove(((String) key0).toLowerCase(_locale));
         }
     }
 }

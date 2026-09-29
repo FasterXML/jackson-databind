@@ -33,9 +33,15 @@ class PolymorphicErrorToken6091Test extends DatabindTestUtil
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "{\"kind\":\"message\",\"amount\":\"bad\"}",
-            "{\"amount\":\"bad\"}",
-            "{\"amount\":\"bad\",\"kind\":\"message\"}"
+            """
+            {"kind":"message","amount":"bad"}
+            """,
+            """
+            {"amount":"bad"}
+            """,
+            """
+            {"amount":"bad","kind":"message"}
+            """
     })
     void reportsOffendingToken(String json) {
         _assertErrorToken(json, Message.class);

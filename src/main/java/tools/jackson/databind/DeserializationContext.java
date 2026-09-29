@@ -501,6 +501,7 @@ public abstract class DeserializationContext
      * @since 3.3
      */
     public final <T> T withParser(JsonParser parser, Supplier<T> operation) {
+        Objects.requireNonNull(parser, "parser");
         final JsonParser previous = _parser;
         _parser = parser;
         try {

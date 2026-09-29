@@ -102,10 +102,10 @@ public class AnyGetterWriter extends BeanPropertyWriter
      * entry, instead of once for the accessor.
      *<p>
      * Note that as a result the accessor name (e.g. {@code "anyProperties"}) is no
-     * longer usable as a filter key: {@code serializeAllExcept(accessorName)} no
-     * longer suppresses the whole map, and {@code filterOutAllExcept(accessorName)}
-     * no longer includes all of its entries. Inclusion is decided by the emitted
-     * entry names instead.
+     * longer consulted as a filter key: inclusion is decided by the emitted entry
+     * names only. In particular {@code filterOutAllExcept(accessorName)} no longer
+     * includes all of its entries, and a custom {@link PropertyFilter} that excluded
+     * the accessor to drop the whole map no longer does so.
      *
      * @since 3.3
      */

@@ -671,6 +671,11 @@ Francesco Nigro (@franz1981)
    deserializers
   [3.2.3]
 
+Jake Wang (@jakezwang)
+ * Fixed #6225: `ArrayStoreException` when a Builder-based typed array resolves
+   a forward Object Id reference within the same array
+  [3.2.4]
+
 Sergey Lappo (@sergeylappo)
  * Reported #6227: `BeanDescription` is not thread-safe when called concurrently on the
    same instance (`findProperties()`, `findDefaultViews()`)

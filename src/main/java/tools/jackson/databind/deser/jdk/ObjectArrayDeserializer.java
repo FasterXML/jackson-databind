@@ -568,7 +568,7 @@ public class ObjectArrayDeserializer
             final int index = forRef._index;
             final Object slot = _accumulator.get(index);
             if (slot == forRef || slot == oldItem) {
-                // Since 3.2.3, [databind#6225]: rebinding may happen before
+                // Since 3.2.4, [databind#6225]: rebinding may happen before
                 // buildArray(), so update the accumulator even without an array.
                 if (_array != null) {
                     _array[index] = newItem;

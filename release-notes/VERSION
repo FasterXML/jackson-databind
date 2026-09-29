@@ -17,6 +17,9 @@ No changes since 3.2
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)
  (fix by @pjfanning, w/ Claude code)
+#6225: `ArrayStoreException` when a Builder-based typed array resolves a forward
+  Object Id reference within the same array
+ (fix by @jakezwang)
 #6227: `BeanDescription` is not thread-safe when called concurrently on the
   same instance (`findProperties()`, `findDefaultViews()`)
  (reported by @sergeylappo)
@@ -63,8 +66,6 @@ No changes since 3.2
  (fix by @pjfanning, w/ Claude code)
 #6223: Avoid quadratic Object Id rebinding for Builder- and delegate-based values
  (fix by @cowtowncoder, w/ Claude code)
-#6225: `ArrayStoreException` when a Builder-based typed array resolves a forward
-  Object Id reference within the same array
 
 3.2.2 (14-Aug-2026)
 

@@ -149,6 +149,8 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
     // view-filtering writer when a view is active) must still filter per entry
     static class Views {
         static class Public { }
+        static class Internal { }
+        static class Other { }
     }
 
     @JsonFilter("anyFilter")
@@ -164,6 +166,26 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
         }
 
         @JsonView(Views.Public.class)
+        @JsonAnyGetter
+        public Map<String, String> anyProperties() {
+            return properties;
+        }
+    }
+
+    // [databind#6136]: same but any-getter in multiple views (different wrapper)
+    @JsonFilter("anyFilter")
+    static class MultiViewAnyBeanWithSecret
+    {
+        @JsonView({ Views.Public.class, Views.Internal.class, Views.Other.class })
+        public String name = "bob";
+
+        private Map<String, String> properties = new LinkedHashMap<String, String>();
+        {
+            properties.put("a", "1");
+            properties.put("secret", "s3cr3t");
+        }
+
+        @JsonView({ Views.Public.class, Views.Internal.class })
         @JsonAnyGetter
         public Map<String, String> anyProperties() {
             return properties;
@@ -328,6 +350,27 @@ public class TestAnyGetterFiltering extends DatabindTestUtil
                 {"name":"bob","a":"1"}""",
                 MAPPER.writer(prov).withView(Views.Public.class)
                         .writeValueAsString(new ViewAnyBeanWithSecret()));
+        // and with a view that excludes the any-getter, no entries at all
+        assertEquals("{}",
+                MAPPER.writer(prov).withView(Views.Other.class)
+                        .writeValueAsString(new ViewAnyBeanWithSecret()));
+    }
+
+    // [databind#6136]: same for any-getter in multiple views
+    @Test
+    public void anyGetterFilteringWithActiveMultiView() throws Exception
+    {
+        FilterProvider prov = new SimpleFilterProvider().addFilter("anyFilter",
+                SimpleBeanPropertyFilter.serializeAllExcept("secret"));
+        assertEquals("""
+                {"name":"bob","a":"1"}""",
+                MAPPER.writer(prov).withView(Views.Internal.class)
+                        .writeValueAsString(new MultiViewAnyBeanWithSecret()));
+        // and with a view that excludes the any-getter, no entries at all
+        assertEquals("""
+                {"name":"bob"}""",
+                MAPPER.writer(prov).withView(Views.Other.class)
+                        .writeValueAsString(new MultiViewAnyBeanWithSecret()));
     }
 
     // for [databind#1142]

@@ -8,6 +8,8 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DeserializationContextTest extends DatabindTestUtil
 {
@@ -52,6 +54,30 @@ public class DeserializationContextTest extends DatabindTestUtil
             assertNull(ctxt.readTreeAsValue(nodeF.missingNode(), String.class));
 
             assertNull(ctxt.readTreeAsValue(nodeF.missingNode(), Bean4934.class));
+        }
+    }
+
+    @Test
+    void withParserRestoresNestedScopes() {
+        try (JsonParser original = MAPPER.createParser("1");
+                JsonParser first = MAPPER.createParser("2");
+                JsonParser second = MAPPER.createParser("3")) {
+            DeserializationContext ctxt = MAPPER.readerFor(Integer.class)
+                    ._deserializationContext(original);
+            IllegalStateException failure = new IllegalStateException("failed operation");
+
+            String result = ctxt.withParser(first, () -> {
+                assertSame(first, ctxt.getParser());
+                assertSame(failure, assertThrows(IllegalStateException.class,
+                        () -> ctxt.withParser(second, () -> {
+                            assertSame(second, ctxt.getParser());
+                            throw failure;
+                        })));
+                assertSame(first, ctxt.getParser());
+                return "success";
+            });
+            assertEquals("success", result);
+            assertSame(original, ctxt.getParser());
         }
     }
 }

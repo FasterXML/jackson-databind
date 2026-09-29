@@ -538,7 +538,7 @@ public class BuilderBasedDeserializer
             }
             // "any" property?
             if (_anySetter != null) {
-                buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                buffer.bufferAnyProperty(_anySetter, propName, p, ctxt);
                 continue;
             }
             if (skipUnknown) {
@@ -924,7 +924,7 @@ public class BuilderBasedDeserializer
                 handleUnknownVanilla(p, ctxt, null, propName);
                 continue;
             }
-            buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+            buffer.bufferAnyProperty(_anySetter, propName, p, ctxt);
         }
         tokens.writeEndObject();
 

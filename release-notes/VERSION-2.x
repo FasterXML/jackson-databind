@@ -16,6 +16,9 @@ Project: jackson-databind
   deserializers [CVE-2026-91777]
  (reported by @dabirt)
  (fix by @pjfanning)
+#6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+ (reported by @bugada)
+ (fix by @pjfanning, w/ Claude code)
 
 2.18.10 (15-Aug-2026)
 

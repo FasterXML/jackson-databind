@@ -286,7 +286,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 JsonToken t;
                 while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                     String str;
-                    // Some parsers (like Ion, for typed nulls) may report VALUE_STRING
+                    // Some parsers (like Ion, for corrupt content) may report VALUE_STRING
                     // without text: if so, handle as unexpected token
                     if ((t == JsonToken.VALUE_STRING) && (p.getText() != null)) {
                         str = p.getText();

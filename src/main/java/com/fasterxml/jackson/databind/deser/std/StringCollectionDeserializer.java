@@ -319,7 +319,7 @@ public final class StringCollectionDeserializer
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 String textValue = p.getText();
                 // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
-                // (and textValue may be null for some parsers, like Ion for typed nulls)
+                // (and textValue may be null for some parsers, like Ion for corrupt content)
                 if ((textValue != null) && textValue.isEmpty()) {
                     final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
                             CoercionInputShape.EmptyString);

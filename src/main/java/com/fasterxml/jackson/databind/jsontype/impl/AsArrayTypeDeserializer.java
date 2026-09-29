@@ -156,7 +156,7 @@ public class AsArrayTypeDeserializer
                 // 25-Nov-2022, tatu: [databind#1761] Also accept other scalars
             || ((t != null) && t.isScalarValue())) {
             String result = p.getText();
-            // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
             if (result != null) {
                 p.nextToken();
                 return result;

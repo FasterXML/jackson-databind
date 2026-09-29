@@ -282,7 +282,7 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
                 text = p.getText();
-                // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
                 if (text == null) {
                     return (Byte) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                 }
@@ -378,7 +378,7 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
                 text = p.getText();
-                // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
                 if (text == null) {
                     return (Short) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                 }
@@ -465,7 +465,7 @@ public class NumberDeserializers
                 //   have canonical shape in JSON, and String in particular does not need
                 //   coercion -- as long as it has length of 1.
                 text = p.getText();
-                // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
                 if (text == null) {
                     return (Character) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                 }
@@ -632,7 +632,7 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING:
                 text = p.getText();
-                // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
                 if (text == null) {
                     return (Float) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                 }
@@ -741,7 +741,7 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING:
                 text = p.getText();
-                // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
                 if (text == null) {
                     return (Double) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                 }
@@ -841,7 +841,7 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING:
                 text = p.getText();
-                // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
                 if (text == null) {
                     return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                 }
@@ -987,7 +987,7 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
                 text = p.getText();
-                // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
                 if (text == null) {
                     return (BigInteger) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                 }
@@ -1079,7 +1079,7 @@ public class NumberDeserializers
                 return p.getDecimalValue();
             case JsonTokenId.ID_STRING:
                 text = p.getText();
-                // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
                 if (text == null) {
                     return (BigDecimal) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                 }

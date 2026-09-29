@@ -24,8 +24,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests to verify that a parser reporting {@code VALUE_STRING} but returning
- * {@code null} as its text (like Ion does for {@code null.string}) results in
- * a {@link MismatchedInputException} and not a {@link NullPointerException}.
+ * {@code null} as its text (like Ion does for corrupt content, e.g. a SYMBOL
+ * whose text cannot be resolved) results in a {@link MismatchedInputException}
+ * and not a {@link NullPointerException}.
  */
 public class NullStringValueDeserTest extends DatabindTestUtil
 {
@@ -46,7 +47,8 @@ public class NullStringValueDeserTest extends DatabindTestUtil
 
     static class Impl extends Base { }
 
-    // Mimics Ion parser behavior for typed nulls like `null.string`
+    // Mimics Ion parser behavior for corrupt content (e.g. a SYMBOL whose text
+    // cannot be resolved): reports VALUE_STRING but returns null text
     static class NullStringParser extends JsonParserDelegate
     {
         public NullStringParser(JsonParser p) {

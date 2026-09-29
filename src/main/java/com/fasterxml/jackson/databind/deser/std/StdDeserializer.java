@@ -398,7 +398,7 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getText();
-            // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
             if (text == null) {
                 return ((Boolean) ctxt.handleUnexpectedToken(Boolean.TYPE, p)).booleanValue();
             }
@@ -519,7 +519,7 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getText();
-            // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
             if (text == null) {
                 return (Boolean) ctxt.handleUnexpectedToken(targetType, p);
             }
@@ -583,7 +583,7 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getText();
-            // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
             if (text == null) {
                 return ((Byte) ctxt.handleUnexpectedToken(ctxt.constructType(Byte.TYPE), p)).byteValue();
             }
@@ -664,7 +664,7 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getText();
-            // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
             if (text == null) {
                 return ((Short) ctxt.handleUnexpectedToken(ctxt.constructType(Short.TYPE), p)).shortValue();
             }
@@ -743,7 +743,7 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getText();
-            // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
             if (text == null) {
                 return ((Number) ctxt.handleUnexpectedToken(Integer.TYPE, p)).intValue();
             }
@@ -865,7 +865,7 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getText();
-            // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
             if (text == null) {
                 return (Integer) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
             }
@@ -966,7 +966,7 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getText();
-            // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
             if (text == null) {
                 return ((Number) ctxt.handleUnexpectedToken(Long.TYPE, p)).longValue();
             }
@@ -1070,7 +1070,7 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getText();
-            // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
             if (text == null) {
                 return (Long) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
             }
@@ -1152,7 +1152,7 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getText();
-            // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
             if (text == null) {
                 return ((Number) ctxt.handleUnexpectedToken(Float.TYPE, p)).floatValue();
             }
@@ -1304,7 +1304,7 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getText();
-            // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
             if (text == null) {
                 return ((Number) ctxt.handleUnexpectedToken(Double.TYPE, p)).doubleValue();
             }
@@ -1470,7 +1470,7 @@ public abstract class StdDeserializer<T>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             text = p.getText();
-            // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+            // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
             if (text == null) {
                 return (java.util.Date) ctxt.handleUnexpectedToken(_valueClass, p);
             }
@@ -1692,7 +1692,7 @@ public abstract class StdDeserializer<T>
     // @since 2.12
     protected final static boolean _isBlank(String text)
     {
-        // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+        // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
         if (text == null) {
             return false;
         }

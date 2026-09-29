@@ -197,7 +197,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                     String str = p.getText();
-                    // Some parsers (like Ion, for typed nulls) may report VALUE_STRING without text
+                    // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
                     if ((str != null) && str.trim().isEmpty()) {
                         return null;
                     }

@@ -1223,9 +1223,9 @@ public class UnwrappedBasicTest extends DatabindTestUtil
     }
 
     // [databind#6246]: renaming Creator properties of case-insensitive deserializer must find
-    // names that are not all lower-case (and retain case-insensitivity of lookup)
+    // names that are not all lower-case
     @Test
-    public void caseInsensitiveUnwrapWithPrefixAndCreator() throws Exception
+    public void unwrapWithPrefixAndCreatorWhenCaseInsensitiveEnabled() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)

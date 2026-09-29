@@ -231,6 +231,28 @@ public class NullHandlingDeserTest
         assertEquals(Collections.singletonMap("b", Integer.valueOf(1)), result.any);
     }
 
+    // [databind#6169]: failure should report JSON key, not any-setter method/field name
+    @Test
+    public void anySetterWithDefaultNullFailReportsKey6169() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultNullHandling(v -> v.withValueNulls(Nulls.FAIL))
+                .build();
+        final String JSON = """
+                {"b":1,"a":null,"id":7}
+                """;
+
+        for (Class<?> type : List.of(CountingAnySetter.class, FieldStringAnySetter.class,
+                CreatorWithCountingAnySetter.class)) {
+            try {
+                mapper.readValue(JSON, type);
+                fail("InvalidNullException expected for "+type.getSimpleName());
+            } catch (InvalidNullException e) {
+                assertEquals("a", e.getPropertyName().getSimpleName());
+                verifyException(e, "Invalid `null` value encountered for property \"a\"");
+            }
+        }
+    }
+
     // [databind#6169]
     @Test
     public void testAnySetterNonNullTokenReturningNull6169() throws Exception {

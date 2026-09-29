@@ -470,10 +470,13 @@ public class PropertyValueBuffer
         _buffered = new PropertyValue.Any(_buffered, value, prop, propName);
     }
 
+    /**
+     * @since 3.3
+     */
     public void bufferAnyProperty(SettableAnyProperty prop, String propName,
             JsonParser p, DeserializationContext ctxt) throws JacksonException {
         if (!prop.shouldSkipNullValue(p)) {
-            bufferAnyProperty(prop, propName, prop.deserialize(p, ctxt));
+            bufferAnyProperty(prop, propName, prop.deserialize(p, ctxt, propName));
         }
     }
 
@@ -492,10 +495,13 @@ public class PropertyValueBuffer
         _anyParamBufferedTail = newEntry;
     }
 
+    /**
+     * @since 3.3
+     */
     public void bufferAnyParameterProperty(SettableAnyProperty prop, String propName,
             JsonParser p, DeserializationContext ctxt) throws JacksonException {
         if (!prop.shouldSkipNullValue(p)) {
-            bufferAnyParameterProperty(prop, propName, prop.deserialize(p, ctxt));
+            bufferAnyParameterProperty(prop, propName, prop.deserialize(p, ctxt, propName));
         }
     }
 

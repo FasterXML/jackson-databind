@@ -331,10 +331,12 @@ public abstract class DeserializationContext
         return getConfig().getTypeFactory().constructSpecializedType(baseType, subclass, false);
     }
 
-    final void _validateGenericSubType(JavaType type) throws JsonMappingException
+    @Override
+    protected void _validateGenericSubType(JavaType type) throws JsonMappingException
     {
+        // Class annotations suffice: the description is only used to report a denial
         SubTypeValidator.instance().validateSubType(this, type,
-                getConfig().introspect(type));
+                getConfig().introspectClassAnnotations(type));
     }
 
     /**

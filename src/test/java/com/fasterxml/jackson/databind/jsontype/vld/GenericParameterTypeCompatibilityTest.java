@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
@@ -51,6 +52,20 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
         public List<RecursiveList<String>> value;
     }
 
+    static class SupplierHolder {
+        public Supplier<Object> value;
+    }
+
+    static class AnimalListHolder {
+        public List<Animal> value;
+    }
+
+    public static class Animal {
+        public String name;
+    }
+
+    public static class Dog extends Animal { }
+
     static class ObjectHolder {
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,
                 include = JsonTypeInfo.As.WRAPPER_ARRAY)
@@ -83,6 +98,15 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
 
     public static class RecursiveList<T> extends ArrayList<RecursiveList<T>> {
         private static final long serialVersionUID = 1L;
+    }
+
+    public static class SelfSupplier<T> implements Supplier<SelfSupplier<T>> {
+        public T payload;
+
+        @Override
+        public SelfSupplier<T> get() {
+            return this;
+        }
     }
 
     public static class IncompatibleKey {
@@ -148,9 +172,30 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
                 + "\",{\"key\":{\"value\":\"attacker-controlled\"}}]}";
 
         GenericGadget.constructions = 0;
-        assertThrows(InvalidTypeIdException.class,
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
                 () -> mapper.readValue(json, ObjectMapHolder.class));
         assertEquals(0, GenericGadget.constructions);
+        assertEquals(typeId, e.getTypeId());
+        verifyException(e, "as a subtype of `java.util.Map<java.lang.Object,java.lang.Object>`");
+        verifyException(e, "denied resolution of type parameter `"
+                + GenericGadget.class.getName() + "` (declared as `java.lang.Object`)");
+    }
+
+    @Test
+    public void incompatibleTypeArgumentMessageNamesPolymorphicBaseAndTypeId() throws Exception
+    {
+        ObjectMapper mapper = mapperWithClassIdMixin(Map.class);
+        String typeId = "java.util.HashMap<java.lang.String,java.lang.Long>";
+        String json = "{\"value\":[\"" + typeId + "\",{\"key\":3}]}";
+
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json, IntegerMapHolder.class));
+        assertEquals(typeId, e.getTypeId());
+        assertEquals(Map.class, e.getBaseType().getRawClass());
+        verifyException(e, "Could not resolve type id '" + typeId
+                + "' as a subtype of `java.util.Map<java.lang.String,java.lang.Integer>`");
+        verifyException(e, "type parameter `java.lang.Long` (declared as `java.lang.Integer`)"
+                + " is not a subtype of its declared type");
     }
 
     @Test
@@ -187,6 +232,28 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
 
         NestedListHolder result = mapper.readValue(json, NestedListHolder.class);
         assertEquals(NestedBindingList.class, result.value.getClass());
+    }
+
+    // The declared parameter type is the base type the validator sees, so
+    // `allowIfBaseType(Animal.class)` covers `Dog` as an argument even though
+    // no rule names `Dog` itself.
+    @Test
+    public void allowedDeclaredParameterBaseAcceptsSubtypeArgument() throws Exception
+    {
+        BasicPolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType(ArrayList.class)
+                .allowIfBaseType(Animal.class)
+                .build();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(List.class, ClassIdMixin.class)
+                .polymorphicTypeValidator(ptv)
+                .build();
+        String typeId = ArrayList.class.getName() + "<" + Dog.class.getName() + ">";
+        String json = "{\"value\":[\"" + typeId + "\",[{\"name\":\"Rex\"}]]}";
+
+        AnimalListHolder result = mapper.readValue(json, AnimalListHolder.class);
+        assertEquals(Dog.class, result.value.get(0).getClass());
+        assertEquals("Rex", result.value.get(0).name);
     }
 
     @Test
@@ -242,6 +309,27 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
 
         RecursiveListHolder result = mapper.readValue(json, RecursiveListHolder.class);
         assertEquals(RecursiveList.class, result.value.getClass());
+    }
+
+    // The projection of `SelfSupplier<X>` onto `Supplier` is `Supplier<SelfSupplier<X>>`,
+    // where the argument is a self-reference: `X` must still be validated through it.
+    @Test
+    public void selfReferencingBindingDoesNotHideSubtypeArgument() throws Exception
+    {
+        BasicPolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType(SelfSupplier.class)
+                .build();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(Supplier.class, ClassIdMixin.class)
+                .polymorphicTypeValidator(ptv)
+                .build();
+        String typeId = SelfSupplier.class.getName() + "<" + GenericGadget.class.getName() + ">";
+        String json = "{\"value\":[\"" + typeId + "\",{\"payload\":{\"value\":\"x\"}}]}";
+
+        GenericGadget.constructions = 0;
+        assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json, SupplierHolder.class));
+        assertEquals(0, GenericGadget.constructions);
     }
 
     @Test

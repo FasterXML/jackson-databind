@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
  * Validator used after a configured validator approves all subtypes of one
  * base type. Validation for any other base type is delegated to the original
  * validator so canonical generic arguments do not inherit that approval.
+ *
+ * @since 2.18.12
  */
 final class BaseTypeAllowingValidator extends PolymorphicTypeValidator.Base
 {
@@ -31,7 +33,7 @@ final class BaseTypeAllowingValidator extends PolymorphicTypeValidator.Base
     @Override
     public Validity validateSubClassName(MapperConfig<?> config,
             JavaType baseType, String subClassName) throws JsonMappingException {
-        if (baseType == _allowedBaseType) {
+        if (_allowedBaseType.equals(baseType)) {
             return Validity.ALLOWED;
         }
         return _delegate.validateSubClassName(config, baseType, subClassName);
@@ -40,7 +42,7 @@ final class BaseTypeAllowingValidator extends PolymorphicTypeValidator.Base
     @Override
     public Validity validateSubType(MapperConfig<?> config, JavaType baseType,
             JavaType subType) throws JsonMappingException {
-        if (baseType == _allowedBaseType) {
+        if (_allowedBaseType.equals(baseType)) {
             return Validity.ALLOWED;
         }
         return _delegate.validateSubType(config, baseType, subType);

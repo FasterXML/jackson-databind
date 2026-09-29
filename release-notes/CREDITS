@@ -724,6 +724,11 @@ Francesco Nigro (@franz1981)
    deserializers
   [3.2.3]
 
+Jake Wang (@jakezwang)
+ * Fixed #6225: `ArrayStoreException` when a Builder-based typed array resolves
+   a forward Object Id reference within the same array
+  [3.2.4]
+
 Fabian Lange (@CodingFabian)
  * Requested #3182: Support value deduplication for enumeration like values
   [3.3.0]

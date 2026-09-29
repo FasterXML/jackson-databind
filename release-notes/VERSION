@@ -113,6 +113,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)
  (fix by @pjfanning, w/ Claude code)
+#6225: `ArrayStoreException` when a Builder-based typed array resolves a forward
+  Object Id reference within the same array
+ (fix by @jakezwang)
 #6227: `BeanDescription` is not thread-safe when called concurrently on the
   same instance (`findProperties()`, `findDefaultViews()`)
  (reported by @sergeylappo)

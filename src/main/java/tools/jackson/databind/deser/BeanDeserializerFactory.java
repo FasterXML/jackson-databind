@@ -771,6 +771,9 @@ public class BeanDeserializerFactory
         ArrayList<BeanPropertyDefinition> result = new ArrayList<BeanPropertyDefinition>(
                 Math.max(4, propDefsIn.size()));
         HashMap<Class<?>,Boolean> ignoredTypes = new HashMap<Class<?>,Boolean>();
+        // [databind#6201]: fetched once; usually null/empty, in which case no checks needed
+        final Map<Object, AnnotatedMember> injectables = beanDescRef.get().findInjectables();
+        final boolean hasInjectables = (injectables != null) && !injectables.isEmpty();
         // These are all valid setters, but we do need to introspect bit more
         for (BeanPropertyDefinition property : propDefsIn) {
             String name = property.getName();
@@ -782,7 +785,7 @@ public class BeanDeserializerFactory
                 // [databind#6201]: `@JacksonInject(useInput=OptBoolean.FALSE)` means value
                 // from input is to be ignored; drop the mutator so nothing can bind it
                 // (`ValueInjector` still assigns the injected value)
-                if (_isInjectOnlyMutator(ctxt, beanDescRef.get(), property)) {
+                if (hasInjectables && _isInjectOnlyMutator(ctxt, injectables, property)) {
                     // important: make ignorable, to avoid errors if value is actually seen
                     builder.addIgnorable(name);
                     continue;
@@ -816,7 +819,7 @@ public class BeanDeserializerFactory
      * @since 3.3
      */
     private boolean _isInjectOnlyMutator(DeserializationContext ctxt,
-            BeanDescription beanDesc, BeanPropertyDefinition property)
+            Map<Object, AnnotatedMember> injectables, BeanPropertyDefinition property)
     {
         AnnotatedMember mutator = property.getNonConstructorMutator();
         if (mutator == null) {
@@ -830,8 +833,7 @@ public class BeanDeserializerFactory
         // Only when the member really is the one injection uses: [databind#4218] drops
         // injectables masked by a Creator parameter with the same id, and dropping the
         // mutator for those would leave the property unset instead of injected.
-        Map<Object, AnnotatedMember> injectables = beanDesc.findInjectables();
-        return (injectables != null) && injectables.containsValue(mutator);
+        return injectables.containsValue(mutator);
     }
 
     /**

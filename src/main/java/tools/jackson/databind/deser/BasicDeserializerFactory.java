@@ -924,8 +924,17 @@ public abstract class BasicDeserializerFactory
                 if (!keyType.isEnumImplType()) {
                     throw new IllegalArgumentException("Cannot construct EnumMap; generic (key) type not available");
                 }
-                deser = new EnumMapDeserializer(type, inst, null,
+                EnumMapDeserializer emd = new EnumMapDeserializer(type, inst, null,
                         contentDeser, contentTypeDeser, null);
+                // [databind#6252]: class-level and config-override ignorals/inclusions, same as with `MapDeserializer`
+                JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Map.class,
+                        beanDescRef.getClassInfo());
+                emd.setIgnorableProperties((ignorals == null) ? null
+                        : ignorals.findIgnoredForDeserialization());
+                JsonIncludeProperties.Value inclusions = config.getDefaultPropertyInclusions(Map.class,
+                        beanDescRef.getClassInfo());
+                emd.setIncludableProperties((inclusions == null) ? null : inclusions.getIncluded());
+                deser = emd;
             }
 
             // Otherwise, generic handler works ok.

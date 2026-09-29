@@ -431,4 +431,63 @@ public class EnumMapDeserializationTest
 
         assertTrue(dst.getMap().isEmpty());
     }
+
+    /*
+    /**********************************************************************
+    /* Test methods: `@JsonIgnoreProperties`, `@JsonIncludeProperties`
+    /**********************************************************************
+     */
+
+    // [databind#6252]
+    static class IgnoralsWrapper {
+        @JsonIgnoreProperties({"RULES"})
+        public EnumMap<TestEnum,String> enumMap;
+
+        // plain `Map` with Enum keys is upgraded to `EnumMap` (see [databind#1883])
+        @JsonIgnoreProperties({"RULES"})
+        public Map<TestEnum,String> map;
+
+        @JsonIncludeProperties({"OK"})
+        public EnumMap<TestEnum,String> included;
+
+        @JsonIgnoreProperties({"RULES"})
+        public FromPropertiesEnumMap fromProps;
+    }
+
+    // [databind#6252]
+    @JsonIgnoreProperties({"RULES"})
+    static class IgnoringEnumMap extends EnumMap<TestEnum,String> {
+        public IgnoringEnumMap() { super(TestEnum.class); }
+    }
+
+    // [databind#6252]: property-level ignorals were not applied to `EnumMap`s
+    @Test
+    public void ignorePropertiesOnEnumMapProperty() throws Exception
+    {
+        IgnoralsWrapper result = MAPPER.readValue("""
+                {
+                  "enumMap": {"JACKSON":"a", "RULES":"b", "OK":"c"},
+                  "map": {"JACKSON":"a", "RULES":"b", "OK":"c"},
+                  "included": {"JACKSON":"a", "RULES":"b", "OK":"c"},
+                  "fromProps": {"a":13, "RULES":"b", "b":-731, "OK":"c"}
+                }
+                """, IgnoralsWrapper.class);
+        assertEquals(Map.of(TestEnum.JACKSON, "a", TestEnum.OK, "c"), result.enumMap);
+        assertEquals(EnumMap.class, result.map.getClass());
+        assertEquals(Map.of(TestEnum.JACKSON, "a", TestEnum.OK, "c"), result.map);
+        assertEquals(Map.of(TestEnum.OK, "c"), result.included);
+        assertEquals(13, result.fromProps.a0);
+        assertEquals(-731, result.fromProps.b0);
+        assertEquals(Map.of(TestEnum.OK, "c"), result.fromProps);
+    }
+
+    // [databind#6252]: nor were class-level ones
+    @Test
+    public void ignorePropertiesOnEnumMapSubClass() throws Exception
+    {
+        IgnoringEnumMap result = MAPPER.readValue("""
+                {"JACKSON":"a", "RULES":"b", "OK":"c"}
+                """, IgnoringEnumMap.class);
+        assertEquals(Map.of(TestEnum.JACKSON, "a", TestEnum.OK, "c"), result);
+    }
 }

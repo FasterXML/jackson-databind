@@ -84,9 +84,23 @@ public class EnumMapDeserializer
     /**********************************************************************
      */
 
+    /**
+     * @deprecated Since 3.1.8 use constructor that takes ignorable and includable properties instead
+     */
+    @Deprecated
     public EnumMapDeserializer(JavaType mapType, ValueInstantiator valueInst,
             KeyDeserializer keyDeser, ValueDeserializer<?> valueDeser, TypeDeserializer vtd,
             NullValueProvider nuller)
+    {
+        this(mapType, valueInst, keyDeser, valueDeser, vtd, nuller, null, null);
+    }
+
+    /**
+     * @since 3.1.8
+     */
+    public EnumMapDeserializer(JavaType mapType, ValueInstantiator valueInst,
+            KeyDeserializer keyDeser, ValueDeserializer<?> valueDeser, TypeDeserializer vtd,
+            NullValueProvider nuller, Set<String> ignorable, Set<String> includable)
     {
         super(mapType, nuller, null);
         _enumClass = mapType.getKeyType().getRawClass();
@@ -94,8 +108,15 @@ public class EnumMapDeserializer
         _valueDeserializer = (ValueDeserializer<Object>) valueDeser;
         _valueTypeDeserializer = vtd;
         _valueInstantiator = valueInst;
+        _ignorableProperties = (ignorable == null || ignorable.isEmpty()) ? null : ignorable;
+        _includableProperties = includable;
+        _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(_ignorableProperties, includable);
     }
 
+    /**
+     * @deprecated Since 3.1.8 use constructor that takes ignorable and includable properties instead
+     */
+    @Deprecated
     protected EnumMapDeserializer(EnumMapDeserializer base,
             KeyDeserializer keyDeser, ValueDeserializer<?> valueDeser, TypeDeserializer vtd,
             NullValueProvider nuller)
@@ -127,6 +148,10 @@ public class EnumMapDeserializer
         _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(ignorable, includable);
     }
 
+    /**
+     * @deprecated Since 3.1.8 use variant of `withResolved()` that takes ignorable and includable properties instead
+     */
+    @Deprecated
     public EnumMapDeserializer withResolved(KeyDeserializer keyDeserializer,
             ValueDeserializer<?> valueDeserializer, TypeDeserializer valueTypeDeser,
             NullValueProvider nuller)
@@ -149,23 +174,6 @@ public class EnumMapDeserializer
         }
         return new EnumMapDeserializer(this,
                 keyDeserializer, valueDeserializer, valueTypeDeser, nuller, ignorable, includable);
-    }
-
-    /**
-     * @since 3.1.8
-     */
-    public void setIgnorableProperties(Set<String> ignorable) {
-        _ignorableProperties = (ignorable == null || ignorable.isEmpty())
-                ? null : ignorable;
-        _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(_ignorableProperties, _includableProperties);
-    }
-
-    /**
-     * @since 3.1.8
-     */
-    public void setIncludableProperties(Set<String> includable) {
-        _includableProperties = includable;
-        _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(_ignorableProperties, _includableProperties);
     }
 
     /*

@@ -105,9 +105,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
   nanosecond handling of `java.time` values (serialization, deserialization)
  (fix by @cowtowncoder, w/ Claude code)
 #6243: Filter ignored Creator properties at build time instead of per-loop
-  read-time checks (ignored Creator properties no longer bound via alias or
-  case-insensitive match; for prefixed `@JsonUnwrapped` values, ignorals now
-  match un-prefixed names, same as for other properties)
+  read-time checks
  (fix by @dlwhdgus0810)
 
 3.2.4 (not yet released)

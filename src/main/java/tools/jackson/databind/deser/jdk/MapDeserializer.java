@@ -91,7 +91,6 @@ public class MapDeserializer
      */
     protected IgnorePropertiesUtil.Checker _inclusionChecker;
 
-
     /**
      * Flag used to check, whether the {@link tools.jackson.core.StreamReadCapability#DUPLICATE_PROPERTIES}
      * can be applied, because the Map has declared value type of {@code java.lang.Object}.

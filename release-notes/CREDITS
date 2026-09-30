@@ -676,6 +676,9 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Fixed #6232: Validate `StreamReadConstraints` number length when coercing
    `StringNode` to number
   [3.2.4]
+ * Fixed #6255: `@JsonIgnoreProperties`/`@JsonIncludeProperties` not honored for
+   `ObjectNode`/`JsonNode`-valued `@JsonAnyGetter` entries
+  [3.3.0]
 
 @waydeshi
  * Reported #6127: Add `StreamReadConstraints` number len constraint to

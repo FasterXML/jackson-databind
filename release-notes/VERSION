@@ -107,6 +107,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6243: Filter ignored Creator properties at build time instead of per-loop
   read-time checks
  (fix by @dlwhdgus0810)
+#6255: `@JsonIgnoreProperties`/`@JsonIncludeProperties` not honored for
+  `ObjectNode`/`JsonNode`-valued `@JsonAnyGetter` entries
+ (fix by Aysha A-Z)
 
 3.2.4 (not yet released)
 

@@ -38,6 +38,8 @@ public class AnyGetterWriter extends BeanPropertyWriter
      * emitted entries. Map-valued any-getters get the same treatment through their
      * `MapSerializer` during contextualization; the node path has no such serializer,
      * so the check is captured here instead. `null` when no rules apply.
+     *
+     * @since 3.3
      */
     protected IgnorePropertiesUtil.Checker _inclusionChecker;
 
@@ -91,12 +93,10 @@ public class AnyGetterWriter extends BeanPropertyWriter
             return null;
         }
         final MapperConfig<?> config = ctxt.getConfig();
-        Set<String> ignored = intr.findPropertyIgnoralByName(config, member).findIgnoredForSerialization();
-        if ((ignored != null) && ignored.isEmpty()) {
-            ignored = null;
-        }
-        final Set<String> included = intr.findPropertyInclusionByName(config, member).getIncluded();
-        return IgnorePropertiesUtil.buildCheckerIfNeeded(ignored, included);
+        // (empty "ignored" set is handled by `buildCheckerIfNeeded()`)
+        return IgnorePropertiesUtil.buildCheckerIfNeeded(
+                intr.findPropertyIgnoralByName(config, member).findIgnoredForSerialization(),
+                intr.findPropertyInclusionByName(config, member).getIncluded());
     }
 
     public void getAndSerialize(Object bean, JsonGenerator gen, SerializationContext ctxt)

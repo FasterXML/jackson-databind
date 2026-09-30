@@ -155,8 +155,8 @@ public class EnumMapDeserializer
      * @since 3.1.8
      */
     public void setIgnorableProperties(Set<String> ignorable) {
-        _ignorableProperties = (ignorable == null || ignorable.isEmpty()) ?
-                null : ignorable;
+        _ignorableProperties = (ignorable == null || ignorable.isEmpty())
+                ? null : ignorable;
         _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(_ignorableProperties, _includableProperties);
     }
 

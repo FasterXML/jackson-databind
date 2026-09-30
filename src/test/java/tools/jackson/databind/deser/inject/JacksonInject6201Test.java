@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.InjectableValues;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.annotation.JsonDeserialize;
@@ -90,6 +91,25 @@ class JacksonInject6201Test extends DatabindTestUtil
         public void addLeftover(String name, Object value) { leftovers.put(name, value); }
     }
 
+    static class AliasBean {
+        @JacksonInject(value = "tenant", useInput = OptBoolean.FALSE)
+        @JsonAlias("tenantId")
+        public String tenant = "unset";
+
+        public String title = "";
+    }
+
+    static class AliasAnySetterBean {
+        @JacksonInject(value = "tenant", useInput = OptBoolean.FALSE)
+        @JsonAlias("tenantId")
+        public String tenant = "unset";
+
+        public Map<String, Object> leftovers = new LinkedHashMap<>();
+
+        @JsonAnySetter
+        public void addLeftover(String name, Object value) { leftovers.put(name, value); }
+    }
+
     static class UseInputTrueBean {
         @JacksonInject(value = "tenant", useInput = OptBoolean.TRUE)
         public String tenant = "unset";
@@ -101,6 +121,11 @@ class JacksonInject6201Test extends DatabindTestUtil
     }
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .injectableValues(new InjectableValues.Std().addValue("tenant", "injected"))
+            .build();
+
+    private final ObjectMapper STRICT_MAPPER = jsonMapperBuilder()
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .injectableValues(new InjectableValues.Std().addValue("tenant", "injected"))
             .build();
 
@@ -156,6 +181,25 @@ class JacksonInject6201Test extends DatabindTestUtil
     void injectOnlyWhenUpdating() throws Exception {
         FieldBean bean = MAPPER.readerForUpdating(new FieldBean()).readValue(DOC);
         assertEquals("injected", bean.tenant);
+    }
+
+    // Value from input under an alias must be dropped too
+    @Test
+    void injectOnlyWithAlias() throws Exception {
+        AliasBean bean = STRICT_MAPPER.readValue("""
+                {"tenantId":"from-input","title":"x"}
+                """, AliasBean.class);
+        assertEquals("injected", bean.tenant);
+        assertEquals("x", bean.title);
+    }
+
+    @Test
+    void injectOnlyWithAliasAndAnySetter() throws Exception {
+        AliasAnySetterBean bean = MAPPER.readValue("""
+                {"tenantId":"from-input"}
+                """, AliasAnySetterBean.class);
+        assertEquals("injected", bean.tenant);
+        assertEquals(0, bean.leftovers.size());
     }
 
     // ... while the other two settings keep binding from input

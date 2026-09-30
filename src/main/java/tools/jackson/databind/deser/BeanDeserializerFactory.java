@@ -786,8 +786,12 @@ public class BeanDeserializerFactory
                 // from input is to be ignored; drop the mutator so nothing can bind it
                 // (`ValueInjector` still assigns the injected value)
                 if (hasInjectables && _isInjectOnlyMutator(ctxt, injectables, property)) {
-                    // important: make ignorable, to avoid errors if value is actually seen
+                    // important: make ignorable, to avoid errors if value is actually seen;
+                    // aliases too, as they would otherwise have matched this property
                     builder.addIgnorable(name);
+                    for (PropertyName alias : property.findAliases()) {
+                        builder.addIgnorable(alias.getSimpleName());
+                    }
                     continue;
                 }
                 Class<?> rawPropertyType = property.getRawPrimaryType();

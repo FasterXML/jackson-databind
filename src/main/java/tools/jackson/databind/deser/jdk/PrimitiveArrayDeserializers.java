@@ -276,7 +276,8 @@ public abstract class PrimitiveArrayDeserializers<T>
                 StringBuilder sb = new StringBuilder(64);
                 while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                     String str;
-                    if (t == JsonToken.VALUE_STRING) {
+                    // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                    if ((t == JsonToken.VALUE_STRING) && (p.getString() != null)) {
                         str = p.getString();
                     } else if (t == JsonToken.VALUE_NULL) {
                         if (_nuller != null) {

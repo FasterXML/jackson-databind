@@ -408,6 +408,8 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Fixed #6232: Validate `StreamReadConstraints` number length when coercing
    `StringNode` to number
   [3.1.8]
+ * Fixed #6252: `@JsonIgnoreProperties` not honored for `EnumMap` properties
+  [3.1.8]
 
 @waydeshi
  * Reported #6127: Add `StreamReadConstraints` number len constraint to

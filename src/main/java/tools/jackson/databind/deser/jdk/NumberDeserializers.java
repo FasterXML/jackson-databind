@@ -281,6 +281,10 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
                 text = p.getString();
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                if (text == null) {
+                    return (Byte) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                }
                 break;
             case JsonTokenId.ID_NUMBER_FLOAT:
                 final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
@@ -389,6 +393,10 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
                 text = p.getString();
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                if (text == null) {
+                    return (Short) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                }
                 break;
             case JsonTokenId.ID_NUMBER_FLOAT:
                 final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
@@ -477,6 +485,10 @@ public class NumberDeserializers
                 //   have canonical shape in JSON, and String in particular does not need
                 //   coercion -- as long as it has length of 1.
                 text = p.getString();
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                if (text == null) {
+                    return (Character) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                }
                 break;
             case JsonTokenId.ID_NUMBER_INT: // ok iff Unicode value
                 CoercionAction act = ctxt.findCoercionAction(logicalType(), _valueClass, CoercionInputShape.Integer);
@@ -658,6 +670,10 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING:
                 text = p.getString();
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                if (text == null) {
+                    return (Float) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                }
                 break;
             case JsonTokenId.ID_NULL: // null fine for non-primitive
                 return (Float) getNullValue(ctxt);
@@ -761,6 +777,10 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING:
                 text = p.getString();
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                if (text == null) {
+                    return (Double) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                }
                 break;
             case JsonTokenId.ID_NULL: // null fine for non-primitive
                 return (Double) getNullValue(ctxt);
@@ -856,6 +876,10 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING:
                 text = p.getString();
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                if (text == null) {
+                    return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                }
                 break;
             case JsonTokenId.ID_NUMBER_INT:
                 if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
@@ -1008,6 +1032,10 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
                 text = p.getString();
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                if (text == null) {
+                    return (BigInteger) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                }
                 break;
             case JsonTokenId.ID_NUMBER_FLOAT:
                 final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
@@ -1095,6 +1123,10 @@ public class NumberDeserializers
                 return p.getDecimalValue();
             case JsonTokenId.ID_STRING:
                 text = p.getString();
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                if (text == null) {
+                    return (BigDecimal) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                }
                 break;
             case JsonTokenId.ID_START_ARRAY:
                 return _deserializeFromArray(p, ctxt);

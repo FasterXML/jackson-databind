@@ -1,15 +1,18 @@
 package tools.jackson.databind.ser;
 
 import java.util.Map;
+import java.util.Set;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.ser.jdk.JDKKeySerializers;
 import tools.jackson.databind.ser.jdk.MapProperty;
 import tools.jackson.databind.ser.jdk.MapSerializer;
+import tools.jackson.databind.util.IgnorePropertiesUtil;
 
 /**
  * Class similar to {@link BeanPropertyWriter}, but that will be used
@@ -28,6 +31,15 @@ public class AnyGetterWriter extends BeanPropertyWriter
     protected ValueSerializer<Object> _anySerializer;
 
     protected MapSerializer _mapSerializer;
+
+    /**
+     * For `ObjectNode`/`JsonNode`-valued any-getters only: property-level
+     * `@JsonIgnoreProperties` / `@JsonIncludeProperties` rules to apply to the
+     * emitted entries. Map-valued any-getters get the same treatment through their
+     * `MapSerializer` during contextualization; the node path has no such serializer,
+     * so the check is captured here instead. `null` when no rules apply.
+     */
+    protected IgnorePropertiesUtil.Checker _inclusionChecker;
 
     /**
      * @since 2.19
@@ -57,6 +69,10 @@ public class AnyGetterWriter extends BeanPropertyWriter
     {
         // [databind#3604]: _anySerializer may be null for ObjectNode/JsonNode any-getters
         if (_anySerializer == null) {
+            // Map-valued any-getters honor property-level `@JsonIgnoreProperties` /
+            // `@JsonIncludeProperties` via their `MapSerializer`; capture the same rules
+            // here so the node path filters entries the same way.
+            _inclusionChecker = _buildInclusionChecker(ctxt);
             return;
         }
         // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
@@ -65,6 +81,22 @@ public class AnyGetterWriter extends BeanPropertyWriter
         if (ser instanceof MapSerializer mapSer) {
             _mapSerializer = mapSer;
         }
+    }
+
+    private IgnorePropertiesUtil.Checker _buildInclusionChecker(SerializationContext ctxt)
+    {
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        final AnnotatedMember member = (_property == null) ? null : _property.getMember();
+        if ((intr == null) || (member == null)) {
+            return null;
+        }
+        final MapperConfig<?> config = ctxt.getConfig();
+        Set<String> ignored = intr.findPropertyIgnoralByName(config, member).findIgnoredForSerialization();
+        if ((ignored != null) && ignored.isEmpty()) {
+            ignored = null;
+        }
+        final Set<String> included = intr.findPropertyInclusionByName(config, member).getIncluded();
+        return IgnorePropertiesUtil.buildCheckerIfNeeded(ignored, included);
     }
 
     public void getAndSerialize(Object bean, JsonGenerator gen, SerializationContext ctxt)
@@ -173,6 +205,9 @@ public class AnyGetterWriter extends BeanPropertyWriter
         throws Exception
     {
         for (Map.Entry<String, JsonNode> entry : objectNode.properties()) {
+            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(entry.getKey())) {
+                continue;
+            }
             gen.writeName(entry.getKey());
             entry.getValue().serialize(gen, ctxt);
         }
@@ -196,6 +231,9 @@ public class AnyGetterWriter extends BeanPropertyWriter
         final ValueSerializer<Object> keySer = JDKKeySerializers.getStdKeySerializer(
                 ctxt.getConfig(), String.class, false);
         for (Map.Entry<String, JsonNode> entry : objectNode.properties()) {
+            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(entry.getKey())) {
+                continue;
+            }
             final JsonNode v = entry.getValue();
             prop.reset(entry.getKey(), v, keySer, ctxt.findValueSerializer(v.getClass()));
             filter.serializeAsProperty(bean, gen, ctxt, prop);

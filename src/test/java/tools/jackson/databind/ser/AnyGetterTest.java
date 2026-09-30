@@ -807,4 +807,40 @@ public class AnyGetterTest extends DatabindTestUtil
                 "'b':'4'," +
                 "'z':'5'}"), mapper.writeValueAsString(b));
     }
+
+    // [databind#6255]: property-level `@JsonIgnoreProperties` / `@JsonIncludeProperties`
+    // on an `ObjectNode`/`JsonNode`-valued any-getter was ignored (Map-valued honored it)
+    static class NodeIgnorePropsBean {
+        public int a = 1;
+
+        @JsonIgnoreProperties("secret")
+        @JsonAnyGetter
+        public ObjectNode extra;
+    }
+
+    static class NodeIncludePropsBean {
+        public int a = 1;
+
+        @JsonIncludeProperties("keep")
+        @JsonAnyGetter
+        public ObjectNode extra;
+    }
+
+    @Test
+    public void objectNodeAnyGetterHonorsIgnoreProperties() throws Exception {
+        NodeIgnorePropsBean bean = new NodeIgnorePropsBean();
+        bean.extra = MAPPER.createObjectNode();
+        bean.extra.put("keep", 1);
+        bean.extra.put("secret", 2);
+        assertEquals(a2q("{'a':1,'keep':1}"), MAPPER.writeValueAsString(bean));
+    }
+
+    @Test
+    public void objectNodeAnyGetterHonorsIncludeProperties() throws Exception {
+        NodeIncludePropsBean bean = new NodeIncludePropsBean();
+        bean.extra = MAPPER.createObjectNode();
+        bean.extra.put("keep", 1);
+        bean.extra.put("secret", 2);
+        assertEquals(a2q("{'a':1,'keep':1}"), MAPPER.writeValueAsString(bean));
+    }
 }

@@ -139,6 +139,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #6249: Avoid NPE when parser reports `VALUE_STRING` with `null` text
  (fix by @pjfanning, w/ Claude code)
+#6252: `@JsonIgnoreProperties` not honored for `EnumMap` properties
+ (fix by Aysha A-Z)
 
 3.2.3 (21-Sep-2026)
 
@@ -485,6 +487,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #6249: Avoid NPE when parser reports `VALUE_STRING` with `null` text
  (fix by @pjfanning, w/ Claude code)
+#6252: `@JsonIgnoreProperties` not honored for `EnumMap` properties
+ (fix by Aysha A-Z)
 
 3.1.7 (21-Sep-2026)
 

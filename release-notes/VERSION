@@ -110,6 +110,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6255: `@JsonIgnoreProperties`/`@JsonIncludeProperties` not honored for
   `ObjectNode`/`JsonNode`-valued `@JsonAnyGetter` entries
  (fix by Aysha A-Z)
+#6257: `MapDeserializer`: `@JsonIgnoreProperties`/`@JsonIncludeProperties` checked
+  after key deserialization, so ignored non-convertible key names still failed
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.2.4 (not yet released)
 

@@ -254,13 +254,8 @@ public class EnumMapDeserializer
                 final DeserializationConfig config = ctxt.getConfig();
                 JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, member);
                 if (ignorals != null) {
-                    Set<String> ignoresToAdd = ignorals.findIgnoredForDeserialization();
-                    if (!ignoresToAdd.isEmpty()) {
-                        ignored = new HashSet<>(ignoresToAdd);
-                        if (_ignorableProperties != null) {
-                            ignored.addAll(_ignorableProperties);
-                        }
-                    }
+                    ignored = IgnorePropertiesUtil.combineNamesToIgnore(ignored,
+                            ignorals.findIgnoredForDeserialization());
                 }
                 JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, member);
                 if (inclusions != null) {

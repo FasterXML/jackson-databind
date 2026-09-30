@@ -317,34 +317,14 @@ public class MapDeserializer
             AnnotatedMember member = property.getMember();
             if (member != null) {
                 final DeserializationConfig config = ctxt.getConfig();
-                JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(ctxt.getConfig(), member);
+                JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, member);
                 if (ignorals != null) {
-                    Set<String> ignoresToAdd = ignorals.findIgnoredForDeserialization();
-                    if (!ignoresToAdd.isEmpty()) {
-                        if (ignored == null) {
-                            ignored = new HashSet<>(ignoresToAdd);
-                        } else {
-                            ignored = new HashSet<>(ignored);
-                            ignored.addAll(ignoresToAdd);
-                        }
-                    }
+                    ignored = IgnorePropertiesUtil.combineNamesToIgnore(ignored,
+                            ignorals.findIgnoredForDeserialization());
                 }
                 JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, member);
                 if (inclusions != null) {
-                    Set<String> includedToAdd = inclusions.getIncluded();
-                    if (includedToAdd != null) {
-                        Set<String> newIncluded = new HashSet<>();
-                        if (included == null) {
-                            newIncluded = new HashSet<>(includedToAdd);
-                        } else {
-                            for (String str : includedToAdd) {
-                                if (included.contains(str)) {
-                                    newIncluded.add(str);
-                                }
-                            }
-                        }
-                        included = newIncluded;
-                    }
+                    included = IgnorePropertiesUtil.combineNamesToInclude(included, inclusions.getIncluded());
                 }
             }
         }

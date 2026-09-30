@@ -161,6 +161,39 @@ public class IgnorePropertiesCreator6243Test extends DatabindTestUtil
         public ExtTypeValue child;
     }
 
+    // Creator-only (no fallback setter or field)
+    static class AB {
+        private final String _a, _b;
+
+        @JsonCreator
+        public AB(@JsonProperty("a") String a, @JsonProperty("b") String b) {
+            _a = a;
+            _b = b;
+        }
+
+        public String a() { return _a; }
+        public String b() { return _b; }
+    }
+
+    // Ignorals of unwrapped value use its property names, not prefixed ones
+    static class UnwrappedIgnoring {
+        @JsonUnwrapped(prefix = "p_")
+        @JsonIgnoreProperties("b")
+        public AB ab;
+    }
+
+    static class UnwrappedIncluding {
+        @JsonUnwrapped(prefix = "p_")
+        @JsonIncludeProperties("a")
+        public AB ab;
+    }
+
+    static class UnwrappedIgnoringPrefixed {
+        @JsonUnwrapped(prefix = "p_")
+        @JsonIgnoreProperties("p_b")
+        public AB ab;
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
@@ -302,5 +335,26 @@ public class IgnorePropertiesCreator6243Test extends DatabindTestUtil
         assertEquals("s", ign.child.secret);
         assertInstanceOf(Dog.class, ign.child.value);
         assertEquals("Rex", ign.child.value.name);
+    }
+
+    // Ignorals of prefixed unwrapped Creator-based value match un-prefixed names,
+    // same as for other (setter/field) properties
+    @Test
+    public void ignoralsOfUnwrappedWithPrefix() throws Exception
+    {
+        final String json = """
+                {"p_a":"A","p_b":"B"}
+                """;
+        UnwrappedIgnoring ign = MAPPER.readValue(json, UnwrappedIgnoring.class);
+        assertEquals("A", ign.ab.a());
+        assertNull(ign.ab.b());
+
+        UnwrappedIncluding incl = MAPPER.readValue(json, UnwrappedIncluding.class);
+        assertEquals("A", incl.ab.a());
+        assertNull(incl.ab.b());
+
+        UnwrappedIgnoringPrefixed prefixed = MAPPER.readValue(json, UnwrappedIgnoringPrefixed.class);
+        assertEquals("A", prefixed.ab.a());
+        assertEquals("B", prefixed.ab.b());
     }
 }

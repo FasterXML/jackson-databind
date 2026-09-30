@@ -2,6 +2,9 @@ package tools.jackson.databind.deser.jdk;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
@@ -10,8 +13,10 @@ import tools.jackson.databind.deser.*;
 import tools.jackson.databind.deser.bean.PropertyBasedCreator;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
+import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.util.IgnorePropertiesUtil;
 
 /**
  * Deserializer for {@link EnumMap} values.
@@ -54,15 +59,48 @@ public class EnumMapDeserializer
      */
     protected PropertyBasedCreator _propertyBasedCreator;
 
+    // // Any properties to ignore if seen?
+
+    /**
+     * @since 3.1.8
+     */
+    protected Set<String> _ignorableProperties;
+
+    /**
+     * @since 3.1.8
+     */
+    protected Set<String> _includableProperties;
+
+    /**
+     * Helper object used for name-based filtering
+     *
+     * @since 3.1.8
+     */
+    protected IgnorePropertiesUtil.Checker _inclusionChecker;
+
     /*
     /**********************************************************************
     /* Life-cycle
     /**********************************************************************
      */
 
+    /**
+     * @deprecated Since 3.1.8 use constructor that takes ignorable and includable properties instead
+     */
+    @Deprecated
     public EnumMapDeserializer(JavaType mapType, ValueInstantiator valueInst,
             KeyDeserializer keyDeser, ValueDeserializer<?> valueDeser, TypeDeserializer vtd,
             NullValueProvider nuller)
+    {
+        this(mapType, valueInst, keyDeser, valueDeser, vtd, nuller, null, null);
+    }
+
+    /**
+     * @since 3.1.8
+     */
+    public EnumMapDeserializer(JavaType mapType, ValueInstantiator valueInst,
+            KeyDeserializer keyDeser, ValueDeserializer<?> valueDeser, TypeDeserializer vtd,
+            NullValueProvider nuller, Set<String> ignorable, Set<String> includable)
     {
         super(mapType, nuller, null);
         _enumClass = mapType.getKeyType().getRawClass();
@@ -70,11 +108,30 @@ public class EnumMapDeserializer
         _valueDeserializer = (ValueDeserializer<Object>) valueDeser;
         _valueTypeDeserializer = vtd;
         _valueInstantiator = valueInst;
+        _ignorableProperties = (ignorable == null || ignorable.isEmpty()) ? null : ignorable;
+        _includableProperties = includable;
+        _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(_ignorableProperties, includable);
     }
 
+    /**
+     * @deprecated Since 3.1.8 use constructor that takes ignorable and includable properties instead
+     */
+    @Deprecated
     protected EnumMapDeserializer(EnumMapDeserializer base,
             KeyDeserializer keyDeser, ValueDeserializer<?> valueDeser, TypeDeserializer vtd,
             NullValueProvider nuller)
+    {
+        this(base, keyDeser, valueDeser, vtd, nuller,
+                base._ignorableProperties, base._includableProperties);
+    }
+
+    /**
+     * @since 3.1.8
+     */
+    protected EnumMapDeserializer(EnumMapDeserializer base,
+            KeyDeserializer keyDeser, ValueDeserializer<?> valueDeser, TypeDeserializer vtd,
+            NullValueProvider nuller,
+            Set<String> ignorable, Set<String> includable)
     {
         super(base, nuller, base._unwrapSingle);
         _enumClass = base._enumClass;
@@ -85,18 +142,38 @@ public class EnumMapDeserializer
         _valueInstantiator = base._valueInstantiator;
         _delegateDeserializer = base._delegateDeserializer;
         _propertyBasedCreator = base._propertyBasedCreator;
+
+        _ignorableProperties = ignorable;
+        _includableProperties = includable;
+        _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(ignorable, includable);
     }
 
+    /**
+     * @deprecated Since 3.1.8 use variant of `withResolved()` that takes ignorable and includable properties instead
+     */
+    @Deprecated
     public EnumMapDeserializer withResolved(KeyDeserializer keyDeserializer,
             ValueDeserializer<?> valueDeserializer, TypeDeserializer valueTypeDeser,
             NullValueProvider nuller)
     {
+        return withResolved(keyDeserializer, valueDeserializer, valueTypeDeser, nuller,
+                _ignorableProperties, _includableProperties);
+    }
+
+    /**
+     * @since 3.1.8
+     */
+    public EnumMapDeserializer withResolved(KeyDeserializer keyDeserializer,
+            ValueDeserializer<?> valueDeserializer, TypeDeserializer valueTypeDeser,
+            NullValueProvider nuller, Set<String> ignorable, Set<String> includable)
+    {
         if ((keyDeserializer == _keyDeserializer) && (nuller == _nullProvider)
-                && (valueDeserializer == _valueDeserializer) && (valueTypeDeser == _valueTypeDeserializer)) {
+                && (valueDeserializer == _valueDeserializer) && (valueTypeDeser == _valueTypeDeserializer)
+                && (ignorable == _ignorableProperties) && (includable == _includableProperties)) {
             return this;
         }
         return new EnumMapDeserializer(this,
-                keyDeserializer, valueDeserializer, valueTypeDeser, nuller);
+                keyDeserializer, valueDeserializer, valueTypeDeser, nuller, ignorable, includable);
     }
 
     /*
@@ -167,7 +244,27 @@ public class EnumMapDeserializer
         if (vtd != null) {
             vtd = vtd.forProperty(property);
         }
-        return withResolved(keyDeser, valueDeser, vtd, findContentNullProvider(ctxt, property, valueDeser));
+        // [databind#6252]: property-level ignorals/inclusions, same as with `MapDeserializer`
+        Set<String> ignored = _ignorableProperties;
+        Set<String> included = _includableProperties;
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (_neitherNull(intr, property)) {
+            AnnotatedMember member = property.getMember();
+            if (member != null) {
+                final DeserializationConfig config = ctxt.getConfig();
+                JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, member);
+                if (ignorals != null) {
+                    ignored = IgnorePropertiesUtil.combineNamesToIgnore(ignored,
+                            ignorals.findIgnoredForDeserialization());
+                }
+                JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, member);
+                if (inclusions != null) {
+                    included = IgnorePropertiesUtil.combineNamesToInclude(included, inclusions.getIncluded());
+                }
+            }
+        }
+        return withResolved(keyDeser, valueDeser, vtd,
+                findContentNullProvider(ctxt, property, valueDeser), ignored, included);
     }
 
     /**
@@ -179,7 +276,9 @@ public class EnumMapDeserializer
         // Important: do NOT cache if polymorphic values
         return (_valueDeserializer == null)
                 && (_keyDeserializer == null)
-                && (_valueTypeDeserializer == null);
+                && (_valueTypeDeserializer == null)
+                && (_ignorableProperties == null)
+                && (_includableProperties == null);
     }
 
     @Override // since 2.12
@@ -265,6 +364,12 @@ public class EnumMapDeserializer
         }
 
         for (; keyStr != null; keyStr = p.nextName()) {
+            // Check ignorals first: ignored name need not be a valid Enum name
+            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
+                p.nextToken();
+                p.skipChildren();
+                continue;
+            }
             // but we need to let key deserializer handle it separately, nonetheless
             Enum<?> key = (Enum<?>) _keyDeserializer.deserializeKey(keyStr, ctxt);
             JsonToken t = p.nextToken();
@@ -348,6 +453,10 @@ public class EnumMapDeserializer
 
         for (; keyName != null; keyName = p.nextName()) {
             JsonToken t = p.nextToken(); // to get to value
+            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyName)) {
+                p.skipChildren(); // and skip it (in case of array/object)
+                continue;
+            }
             // creator property?
             SettableBeanProperty prop = creator.findCreatorProperty(keyName);
             if (prop != null) {

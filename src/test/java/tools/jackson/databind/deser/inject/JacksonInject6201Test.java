@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.InjectableValues;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
@@ -200,6 +201,20 @@ class JacksonInject6201Test extends DatabindTestUtil
                 """, AliasAnySetterBean.class);
         assertEquals("injected", bean.tenant);
         assertEquals(0, bean.leftovers.size());
+    }
+
+    @Test
+    void injectOnlyCaseInsensitive() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .injectableValues(new InjectableValues.Std().addValue("tenant", "injected"))
+                .build();
+        FieldBean bean = mapper.readValue("""
+                {"TENANT":"from-input","title":"x"}
+                """, FieldBean.class);
+        assertEquals("injected", bean.tenant);
+        assertEquals("x", bean.title);
     }
 
     // ... while the other two settings keep binding from input

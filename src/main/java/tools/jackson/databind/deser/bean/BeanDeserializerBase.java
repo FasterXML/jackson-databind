@@ -1993,6 +1993,26 @@ ClassUtil.getTypeDescription(ct));
     }
 
     /**
+     * Helper method for checking whether a property with given name from input,
+     * one that did not match any property, is to be ignored as per
+     * {@code @JsonIgnoreProperties}, {@code @JsonIncludeProperties} and other
+     * name-based ignorals.
+     *<p>
+     * With case-insensitive property matching, names are matched case-insensitively
+     * here too, the same way they would have matched properties. Which properties
+     * are removed is still decided by exact names.
+     *
+     * @since 3.3
+     */
+    protected final boolean _isIgnoredName(DeserializationContext ctxt, String propName) {
+        if (_beanProperties.isCaseInsensitive()) {
+            return IgnorePropertiesUtil.shouldIgnoreCaseInsensitive(propName,
+                    _ignorableProps, _includableProps, ctxt.getConfig().getLocale());
+        }
+        return IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps);
+    }
+
+    /**
      * Helper method called for an unknown property, when using "vanilla"
      * processing.
      *
@@ -2004,7 +2024,7 @@ ClassUtil.getTypeDescription(ct));
             Object beanOrBuilder, String propName)
         throws JacksonException
     {
-        if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+        if (_isIgnoredName(ctxt, propName)) {
             handleIgnoredProperty(p, ctxt, beanOrBuilder, propName);
         } else if (_anySetter != null) {
             try {
@@ -2032,7 +2052,7 @@ ClassUtil.getTypeDescription(ct));
             p.skipChildren();
             return;
         }
-        if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+        if (_isIgnoredName(ctxt, propName)) {
             handleIgnoredProperty(p, ctxt, beanOrClass, propName);
             return;
         }

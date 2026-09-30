@@ -86,7 +86,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
     private IgnorePropertiesUtil.Checker _buildInclusionChecker(SerializationContext ctxt)
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        final AnnotatedMember member = _property.getMember();
+        final AnnotatedMember member = (_property == null) ? null : _property.getMember();
         if (member == null) {
             return null;
         }

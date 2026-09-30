@@ -4,6 +4,13 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.18.12 (not yet released)
+
+#6259: Validate type arguments of generic type ids against the declared type
+  parameters of the base type (rejects `HashMap<String,Long>` for `Map<String,Integer>`,
+  accepts subtypes of an allowed base type as type arguments)
+ (contributed by @martinfrancois)
+
 2.18.11 (20-Sep-2026)
 
 #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization

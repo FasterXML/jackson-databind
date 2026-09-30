@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 import com.fasterxml.jackson.databind.type.LogicalType;
@@ -328,6 +329,14 @@ public abstract class DeserializationContext
         // On deserialization side, still uses "strict" type-compatibility checking;
         // see [databind#2632] about serialization side
         return getConfig().getTypeFactory().constructSpecializedType(baseType, subclass, false);
+    }
+
+    @Override
+    protected void _validateGenericSubType(JavaType type) throws JsonMappingException
+    {
+        // Class annotations suffice: the description is only used to report a denial
+        SubTypeValidator.instance().validateSubType(this, type,
+                getConfig().introspectClassAnnotations(type));
     }
 
     /**

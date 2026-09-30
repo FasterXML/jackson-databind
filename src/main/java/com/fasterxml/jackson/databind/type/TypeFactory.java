@@ -628,6 +628,9 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
             ((PlaceholderForType) act).actualType(exp);
             return true;
         }
+        if (exp.isArrayType() && act.isArrayType()) {
+            return _verifyAndResolvePlaceholders(exp.getContentType(), act.getContentType());
+        }
         // if not, try to verify compatibility. But note that we can not
         // use simple equality as we need to resolve recursively
         if (exp.getRawClass() != act.getRawClass()) {

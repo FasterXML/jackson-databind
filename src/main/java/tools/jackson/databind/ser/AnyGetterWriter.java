@@ -1,7 +1,6 @@
 package tools.jackson.databind.ser;
 
 import java.util.Map;
-import java.util.Set;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
@@ -33,11 +32,11 @@ public class AnyGetterWriter extends BeanPropertyWriter
     protected MapSerializer _mapSerializer;
 
     /**
-     * For `ObjectNode`/`JsonNode`-valued any-getters only: property-level
-     * `@JsonIgnoreProperties` / `@JsonIncludeProperties` rules to apply to the
-     * emitted entries. Map-valued any-getters get the same treatment through their
-     * `MapSerializer` during contextualization; the node path has no such serializer,
-     * so the check is captured here instead. `null` when no rules apply.
+     * For {@code ObjectNode}/{@code JsonNode}-valued any-getters only: property-level
+     * {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties} rules to apply to
+     * the emitted entries. Map-valued any-getters get the same treatment through their
+     * {@code MapSerializer} during contextualization; the node path has no such
+     * serializer, so the check is captured here instead. {@code null} when no rules apply.
      *
      * @since 3.3
      */
@@ -69,12 +68,11 @@ public class AnyGetterWriter extends BeanPropertyWriter
     @SuppressWarnings("unchecked")
     public void resolve(SerializationContext ctxt)
     {
+        // Built regardless of `_anySerializer`: a custom `@JsonSerialize` on a node-valued
+        // any-getter leaves it non-null, but node entries are still written directly
+        _inclusionChecker = _buildInclusionChecker(ctxt);
         // [databind#3604]: _anySerializer may be null for ObjectNode/JsonNode any-getters
         if (_anySerializer == null) {
-            // Map-valued any-getters honor property-level `@JsonIgnoreProperties` /
-            // `@JsonIncludeProperties` via their `MapSerializer`; capture the same rules
-            // here so the node path filters entries the same way.
-            _inclusionChecker = _buildInclusionChecker(ctxt);
             return;
         }
         // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
@@ -88,8 +86,8 @@ public class AnyGetterWriter extends BeanPropertyWriter
     private IgnorePropertiesUtil.Checker _buildInclusionChecker(SerializationContext ctxt)
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        final AnnotatedMember member = (_property == null) ? null : _property.getMember();
-        if ((intr == null) || (member == null)) {
+        final AnnotatedMember member = _property.getMember();
+        if (member == null) {
             return null;
         }
         final MapperConfig<?> config = ctxt.getConfig();
@@ -97,6 +95,10 @@ public class AnyGetterWriter extends BeanPropertyWriter
         return IgnorePropertiesUtil.buildCheckerIfNeeded(
                 intr.findPropertyIgnoralByName(config, member).findIgnoredForSerialization(),
                 intr.findPropertyInclusionByName(config, member).getIncluded());
+    }
+
+    private boolean _isIgnored(String name) {
+        return (_inclusionChecker != null) && _inclusionChecker.shouldIgnore(name);
     }
 
     public void getAndSerialize(Object bean, JsonGenerator gen, SerializationContext ctxt)
@@ -205,7 +207,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
         throws Exception
     {
         for (Map.Entry<String, JsonNode> entry : objectNode.properties()) {
-            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(entry.getKey())) {
+            if (_isIgnored(entry.getKey())) {
                 continue;
             }
             gen.writeName(entry.getKey());
@@ -231,7 +233,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
         final ValueSerializer<Object> keySer = JDKKeySerializers.getStdKeySerializer(
                 ctxt.getConfig(), String.class, false);
         for (Map.Entry<String, JsonNode> entry : objectNode.properties()) {
-            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(entry.getKey())) {
+            if (_isIgnored(entry.getKey())) {
                 continue;
             }
             final JsonNode v = entry.getValue();

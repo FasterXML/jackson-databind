@@ -237,7 +237,7 @@ public class BeanPropertyMap
                 if (!IgnorePropertiesUtil.shouldIgnore(prop.getName(), toExclude, toInclude)) {
                     newProps.add(prop);
                     if (newAliasList != null) {
-                        newAliasList.add(_aliasDefs[i]);
+                        newAliasList.add(_keptAliases(prop, _aliasDefs[i], toExclude, toInclude));
                     }
                 }
             }
@@ -248,6 +248,24 @@ public class BeanPropertyMap
         // 17-Nov-2017, tatu: do NOT try to change indexes since this could lead to discrepancies
         //    (unless we actually copy property instances)
         return new BeanPropertyMap(newProps, newAliases, _locale, _caseInsensitive, false);
+    }
+
+    /**
+     * Aliases of {@code prop} to keep when filtering by name: a Creator property is not
+     * found by an alias that is a name to ignore, the same as its Creator does not resolve
+     * that name ([databind#6243]).
+     */
+    private static PropertyName[] _keptAliases(SettableBeanProperty prop, PropertyName[] aliases,
+            Collection<String> toExclude, Collection<String> toInclude)
+    {
+        if ((aliases == null) || !prop.isCreatorProperty()) {
+            return aliases;
+        }
+        PropertyName[] kept = Arrays.stream(aliases)
+                .filter(alias -> !IgnorePropertiesUtil.shouldIgnore(alias.getSimpleName(),
+                        toExclude, toInclude))
+                .toArray(PropertyName[]::new);
+        return (kept.length == 0) ? null : kept;
     }
 
     /**

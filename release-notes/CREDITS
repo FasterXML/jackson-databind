@@ -783,3 +783,8 @@ Sanha (@kimsanhaa)
 @Laar
  * Reported #6091: Current token incorrectly reported when using `@JsonTypeInfo`
   [3.3.0]
+
+Hyun Lee (@dlwhdgus0810)
+ * Contributed #6243: Filter ignored Creator properties at build time instead of
+   per-loop read-time checks
+  [3.3.0]

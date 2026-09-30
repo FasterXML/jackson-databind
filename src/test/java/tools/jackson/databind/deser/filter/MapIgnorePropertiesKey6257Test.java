@@ -45,22 +45,25 @@ public class MapIgnorePropertiesKey6257Test extends DatabindTestUtil
 
     @Test
     void ignoredNonConvertibleIntKey() throws Exception {
-        IntKeyMap result = MAPPER.readValue(a2q(
-                "{'map':{'1':'a','comment':{'x':[1]}}}"), IntKeyMap.class);
+        IntKeyMap result = MAPPER.readValue("""
+                {"map":{"1":"a","comment":{"x":[1]}}}
+                """, IntKeyMap.class);
         assertEquals(Map.of(1, "a"), result.map);
     }
 
     @Test
     void ignoredNonConvertibleEnumKey() throws Exception {
-        EnumKeyMap result = MAPPER.readValue(a2q(
-                "{'map':{'A':'a','unknown':'x'}}"), EnumKeyMap.class);
+        EnumKeyMap result = MAPPER.readValue("""
+                {"map":{"A":"a","unknown":"x"}}
+                """, EnumKeyMap.class);
         assertEquals(Map.of(ABC.A, "a"), result.map);
     }
 
     @Test
     void notIncludedNonConvertibleKey() throws Exception {
-        IncludeIntKeyMap result = MAPPER.readValue(a2q(
-                "{'map':{'1':'a','comment':'x'}}"), IncludeIntKeyMap.class);
+        IncludeIntKeyMap result = MAPPER.readValue("""
+                {"map":{"1":"a","comment":"x"}}
+                """, IncludeIntKeyMap.class);
         assertEquals(Map.of(1, "a"), result.map);
     }
 

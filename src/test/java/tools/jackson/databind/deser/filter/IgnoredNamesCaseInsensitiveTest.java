@@ -1,6 +1,7 @@
 package tools.jackson.databind.deser.filter;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,11 @@ import static org.junit.jupiter.api.Assertions.*;
 // property in some other case is reported as unknown, or goes to the any-setter
 class IgnoredNamesCaseInsensitiveTest extends DatabindTestUtil
 {
+    static class IgnoredIdBean {
+        @JsonIgnore
+        public String id = "unset";
+    }
+
     static class IgnoredFieldBean {
         @JsonIgnore
         public String secret = "unset";
@@ -160,6 +166,24 @@ class IgnoredNamesCaseInsensitiveTest extends DatabindTestUtil
                 """, PerPropertyContainer.class);
         assertEquals("unset", c.inner.secret);
         assertEquals("x", c.inner.title);
+    }
+
+    // Names to ignore must be matched with the same Locale as property names
+    // (one deserializer was built with), not that of a later reader: in Turkish,
+    // "ID" lower-cases to "ıd" (dotless i)
+    @Test
+    void localeOfPropertyMatching() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .defaultLocale(Locale.ENGLISH)
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
+        final String json = """
+                {"ID":"from-input"}
+                """;
+        assertEquals("unset", mapper.readValue(json, IgnoredIdBean.class).id);
+        assertEquals("unset", mapper.readerFor(IgnoredIdBean.class)
+                .with(Locale.forLanguageTag("tr")).<IgnoredIdBean>readValue(json).id);
     }
 
     // ... but without case-insensitivity, names only match exactly

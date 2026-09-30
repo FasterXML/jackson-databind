@@ -2004,10 +2004,11 @@ ClassUtil.getTypeDescription(ct));
      *
      * @since 3.3
      */
-    protected final boolean _isIgnoredName(DeserializationContext ctxt, String propName) {
+    protected final boolean _isIgnoredName(String propName) {
         if (_beanProperties.isCaseInsensitive()) {
+            // same Locale as property name matching uses
             return IgnorePropertiesUtil.shouldIgnoreCaseInsensitive(propName,
-                    _ignorableProps, _includableProps, ctxt.getConfig().getLocale());
+                    _ignorableProps, _includableProps, _beanProperties.getLocale());
         }
         return IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps);
     }
@@ -2024,7 +2025,7 @@ ClassUtil.getTypeDescription(ct));
             Object beanOrBuilder, String propName)
         throws JacksonException
     {
-        if (_isIgnoredName(ctxt, propName)) {
+        if (_isIgnoredName(propName)) {
             handleIgnoredProperty(p, ctxt, beanOrBuilder, propName);
         } else if (_anySetter != null) {
             try {
@@ -2052,7 +2053,7 @@ ClassUtil.getTypeDescription(ct));
             p.skipChildren();
             return;
         }
-        if (_isIgnoredName(ctxt, propName)) {
+        if (_isIgnoredName(propName)) {
             handleIgnoredProperty(p, ctxt, beanOrClass, propName);
             return;
         }

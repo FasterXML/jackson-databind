@@ -403,7 +403,7 @@ public class BeanDeserializer
             }
             */
             // [databind#6115] Things marked as ignorable should not be passed to any setter
-            if (_isIgnoredName(ctxt, propName)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
@@ -817,7 +817,7 @@ public class BeanDeserializer
             }
 
             // [databind#5865] Things marked as ignorable should not be passed to any setter
-            if (_isIgnoredName(ctxt, propName)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
@@ -1119,7 +1119,7 @@ public class BeanDeserializer
                 continue;
             }
             // Things marked as ignorable should not be passed to any setter
-            if (_isIgnoredName(ctxt, propName)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
@@ -1186,7 +1186,7 @@ public class BeanDeserializer
                 hasUnwrappedContent = true;
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
-            } else if (_isIgnoredName(ctxt, propName)) {
+            } else if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
             } else if (_anySetter == null) {
                 handleUnknownVanilla(p, ctxt, bean, propName);
@@ -1277,7 +1277,7 @@ public class BeanDeserializer
                 hasUnwrappedContent = true;
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
-            } else if (_isIgnoredName(ctxt, propName)) {
+            } else if (_isIgnoredName(propName)) {
                 // [databind#6115] Things marked as ignorable should not be passed to any setter
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
             } else if (_anySetter == null) {
@@ -1402,7 +1402,7 @@ public class BeanDeserializer
             // ignorable things should be ignored
             final String propName = p.currentName();
             p.nextToken();
-            if (_isIgnoredName(ctxt, propName)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
@@ -1499,7 +1499,7 @@ public class BeanDeserializer
                 continue;
             }
             // Things marked as ignorable should not be passed to any setter
-            if (_isIgnoredName(ctxt, propName)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }

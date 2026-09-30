@@ -429,7 +429,7 @@ public class ThrowableDeserializer
             // `Throwable` properties above, so those are never dropped by the
             // ignore/include lists ([databind#6157]). They may still be excluded by an
             // explicit `@JsonView`, but that is decided by the branches above, not here.
-            if (_isIgnoredName(ctxt, propName)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }

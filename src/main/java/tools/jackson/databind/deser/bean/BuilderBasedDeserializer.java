@@ -524,7 +524,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // Things marked as ignorable should not be passed to "any"-setter
-            if (_isIgnoredName(ctxt, propName)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
@@ -752,7 +752,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // ignorable things should be ignored
-            if (_isIgnoredName(ctxt, propName)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
@@ -808,7 +808,7 @@ public class BuilderBasedDeserializer
                 tokens.copyCurrentStructure(p);
                 continue;
             }
-            if (_isIgnoredName(ctxt, propName)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, builder, propName);
                 continue;
             }
@@ -900,7 +900,7 @@ public class BuilderBasedDeserializer
                 tokens.copyCurrentStructure(p);
                 continue;
             }
-            if (_isIgnoredName(ctxt, propName)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
@@ -975,7 +975,7 @@ public class BuilderBasedDeserializer
             p.nextToken();
             // ignorable things should be ignored
             final String propName = p.currentName();
-            if (_isIgnoredName(ctxt, propName)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }

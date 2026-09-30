@@ -91,6 +91,8 @@ public class AnyGetterWriter extends BeanPropertyWriter
             return null;
         }
         final MapperConfig<?> config = ctxt.getConfig();
+        // Mirrors annotation handling in `MapSerializer.createContextual()`, minus its merge
+        // with pre-set ignored/included names (none exist for any-getters); keep in sync.
         // (empty "ignored" set is handled by `buildCheckerIfNeeded()`)
         return IgnorePropertiesUtil.buildCheckerIfNeeded(
                 intr.findPropertyIgnoralByName(config, member).findIgnoredForSerialization(),

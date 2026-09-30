@@ -843,4 +843,70 @@ public class AnyGetterTest extends DatabindTestUtil
         bean.extra.put("secret", 2);
         assertEquals(a2q("{'a':1,'keep':1}"), MAPPER.writeValueAsString(bean));
     }
+
+    @JsonFilter("nodeAnyFilter")
+    static class NodeIgnorePropsFilteredBean {
+        public int a = 1;
+
+        @JsonIgnoreProperties("secret")
+        @JsonAnyGetter
+        public ObjectNode extra;
+    }
+
+    static class NodeIgnoreAndIncludeBean {
+        @JsonIgnoreProperties("b")
+        @JsonIncludeProperties({ "a", "b" })
+        @JsonAnyGetter
+        public ObjectNode extra;
+    }
+
+    // never actually used for any-getter entries (node path writes them directly);
+    // only its presence makes the any-getter's serializer non-null
+    static class NodeAnySerializer extends StdSerializer<Object> {
+        public NodeAnySerializer() { super(Object.class); }
+
+        @Override
+        public void serialize(Object value, JsonGenerator g, SerializationContext ctxt) {
+            g.writeNull();
+        }
+    }
+
+    static class NodeIgnoreCustomSerBean {
+        @JsonIgnoreProperties("secret")
+        @JsonSerialize(using = NodeAnySerializer.class)
+        @JsonAnyGetter
+        public ObjectNode extra;
+    }
+
+    @Test
+    public void objectNodeAnyGetterIgnorePropertiesWithJsonFilter() throws Exception {
+        NodeIgnorePropsFilteredBean bean = new NodeIgnorePropsFilteredBean();
+        bean.extra = MAPPER.createObjectNode();
+        bean.extra.put("keep", 1);
+        bean.extra.put("secret", 2);
+        ObjectMapper filtered = JsonMapper.builder()
+                .filterProvider(new SimpleFilterProvider()
+                        .addFilter("nodeAnyFilter", SimpleBeanPropertyFilter.serializeAll()))
+                .build();
+        assertEquals(a2q("{'a':1,'keep':1}"), filtered.writeValueAsString(bean));
+    }
+
+    @Test
+    public void objectNodeAnyGetterIgnoreAndIncludeCombined() throws Exception {
+        NodeIgnoreAndIncludeBean bean = new NodeIgnoreAndIncludeBean();
+        bean.extra = MAPPER.createObjectNode();
+        bean.extra.put("a", 1);
+        bean.extra.put("b", 2);
+        bean.extra.put("c", 3);
+        assertEquals(a2q("{'a':1}"), MAPPER.writeValueAsString(bean));
+    }
+
+    @Test
+    public void objectNodeAnyGetterIgnorePropertiesWithCustomSerializer() throws Exception {
+        NodeIgnoreCustomSerBean bean = new NodeIgnoreCustomSerBean();
+        bean.extra = MAPPER.createObjectNode();
+        bean.extra.put("keep", 1);
+        bean.extra.put("secret", 2);
+        assertEquals(a2q("{'keep':1}"), MAPPER.writeValueAsString(bean));
+    }
 }

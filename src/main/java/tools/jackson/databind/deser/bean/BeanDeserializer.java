@@ -382,11 +382,6 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
-                // [databind#5966] Honor @JsonIgnoreProperties on creator parameters
-                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
-                    continue;
-                }
                 // Override the pre-populated value
                 buffer.assignParameter(creatorProp,
                         _deserializeWithErrorWrapping(p, ctxt, creatorProp));
@@ -766,13 +761,6 @@ public class BeanDeserializer
                 if (creatorProp.isInjectionOnly()) {
                     // Skip the input value, will be injected later in PropertyValueBuffer
                     p.skipChildren();
-                    continue;
-                }
-                // [databind#4629] Need to check for ignored properties for Creator properties since
-                // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
-                // so if we don't check for ignore first, the ignore configuration will be bypassed.
-                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
                     continue;
                 }
                 // Last creator property to set?
@@ -1270,13 +1258,6 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
-                // [databind#4629] Need to check for ignored properties for Creator properties since
-                // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
-                // so if we don't check for ignore first, the ignore configuration will be bypassed.
-                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
-                    continue;
-                }
                 // Last creator property to set?
                 // [databind#4690] cannot quit early as optimization any more
                 // if (buffer.assignParameter(creatorProp, value)) { ... build ... }
@@ -1489,14 +1470,6 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
-                // [databind#6145] Need to check for ignored properties for Creator properties since
-                // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
-                // so if we don't check for ignore first, the ignore configuration will be bypassed.
-                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
-                    continue;
-                }
-
                 // first: let's check to see if this might be part of value with external type id:
                 // 11-Sep-2015, tatu: Important; do NOT pass buffer as last arg, but null,
                 //   since it is not the bean
@@ -1526,6 +1499,12 @@ public class BeanDeserializer
                     continue;
                 }
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
+                continue;
+            }
+            // [databind#6243]: Creator property not found above is one to ignore; must not
+            // be passed to external type id handling (but other ignored names, like type id, are)
+            if (creator.hasCreatorProperty(propName)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
             // external type id (or property that depends on it)?

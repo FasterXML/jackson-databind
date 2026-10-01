@@ -12,6 +12,7 @@ import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.deser.impl.ManagedReferenceProperty;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
+import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
 
 /**
@@ -62,6 +63,25 @@ public final class PropertyBasedCreator
      */
     protected final boolean _hasManagedReferenceProperties;
 
+    /**
+     * {@link #_propertyLookup} without names to ignore as per {@code @JsonIgnoreProperties}
+     * and {@code @JsonIncludeProperties} (see {@link #withByNameInclusion}); used by
+     * {@link #findCreatorProperty(String)}. Same instance as {@link #_propertyLookup}
+     * if there are none.
+     *
+     * @since 3.3
+     */
+    protected final HashMap<String, SettableBeanProperty> _filteredLookup;
+
+    /**
+     * Creator properties by their aliases, as declared (keys not lower-cased like those
+     * of a case-insensitive {@link #_propertyLookup}), if any: {@code null} if none.
+     * Needed to match names to ignore/include exactly, same as for bean properties.
+     *
+     * @since 3.3
+     */
+    protected final Map<String, SettableBeanProperty> _aliasLookup;
+
     /*
     /**********************************************************************
     /* Construction, initialization
@@ -83,6 +103,7 @@ public final class PropertyBasedCreator
 
         // 26-Feb-2017, tatu: Let's start by aliases, so that there is no
         //    possibility of accidental override of primary names
+        Map<String, SettableBeanProperty> aliasLookup = null;
         if (addAliases) {
             final DeserializationConfig config = ctxt.getConfig();
             for (SettableBeanProperty prop : creatorProps) {
@@ -90,8 +111,12 @@ public final class PropertyBasedCreator
                 if (!prop.isIgnorable()) {
                     List<PropertyName> aliases = prop.findAliases(config);
                     if (!aliases.isEmpty()) {
+                        if (aliasLookup == null) {
+                            aliasLookup = new HashMap<>();
+                        }
                         for (PropertyName pn : aliases) {
                             _propertyLookup.put(pn.getSimpleName(), prop);
+                            aliasLookup.put(pn.getSimpleName(), prop);
                         }
                     }
                 }
@@ -124,16 +149,26 @@ public final class PropertyBasedCreator
 
         _injectablePropIndexes = injectablePropIndexes;
         _hasManagedReferenceProperties = hasManagedRef;
+        _filteredLookup = _propertyLookup;
+        _aliasLookup = aliasLookup;
     }
 
+    /**
+     * Copy constructor used by {@link #renameAll} and {@link #withByNameInclusion}.
+     *
+     * @since 3.3
+     */
     protected PropertyBasedCreator(PropertyBasedCreator base,
             HashMap<String, SettableBeanProperty> propertyLookup,
+            HashMap<String, SettableBeanProperty> filteredLookup,
             SettableBeanProperty[] allProperties)
     {
         _propertyCount = base._propertyCount;
         _valueInstantiator = base._valueInstantiator;
         _injectablePropIndexes = base._injectablePropIndexes;
         _propertyLookup = propertyLookup;
+        _filteredLookup = filteredLookup;
+        _aliasLookup = base._aliasLookup;
         _propertiesInOrder = allProperties;
         _hasManagedReferenceProperties = base._hasManagedReferenceProperties;
     }
@@ -210,6 +245,8 @@ public final class PropertyBasedCreator
         final int len = _propertiesInOrder.length;
         // clone() retains type of lookup (and with it, case-insensitivity)
         HashMap<String, SettableBeanProperty> newLookup = (HashMap<String, SettableBeanProperty>) _propertyLookup.clone();
+        HashMap<String, SettableBeanProperty> newFiltered = (_filteredLookup == _propertyLookup)
+                ? newLookup : (HashMap<String, SettableBeanProperty>) _filteredLookup.clone();
         List<SettableBeanProperty> newProps = new ArrayList<>(len);
 
         for (SettableBeanProperty prop : _propertiesInOrder) {
@@ -231,12 +268,54 @@ public final class PropertyBasedCreator
                 newLookup.remove(oldName);
                 newLookup.put(newName, renamedProperty);
             }
+            if ((newFiltered != newLookup) && newFiltered.containsKey(oldName)) {
+                newFiltered.remove(oldName);
+                newFiltered.put(newName, renamedProperty);
+            }
         }
 
         return new PropertyBasedCreator(this,
-                newLookup,
+                newLookup, newFiltered,
                 newProps.toArray(new SettableBeanProperty[0])
         );
+    }
+
+    /**
+     * Mutant factory method for constructing a creator that does not find Creator
+     * properties by names to ignore, as per {@code @JsonIgnoreProperties} and
+     * {@code @JsonIncludeProperties} (see {@link #findCreatorProperty(String)}).
+     * Contextual variants of a deserializer may ignore different names, so each
+     * uses its own instance.
+     *
+     * @since 3.3
+     */
+    public PropertyBasedCreator withByNameInclusion(Set<String> ignorableProps,
+            Set<String> includableProps)
+    {
+        if ((ignorableProps == null) && (includableProps == null)) {
+            return (_filteredLookup == _propertyLookup) ? this
+                    : new PropertyBasedCreator(this, _propertyLookup, _propertyLookup, _propertiesInOrder);
+        }
+        HashMap<String, SettableBeanProperty> filtered = (_propertyLookup instanceof CaseInsensitiveMap ciMap)
+                ? CaseInsensitiveMap.construct(ciMap._locale) : new HashMap<>();
+        // Same as bean properties: name (alias) to ignore finds nothing; nor does any
+        // name of a property to ignore. Aliases first, same as when constructing.
+        if (_aliasLookup != null) {
+            for (Map.Entry<String, SettableBeanProperty> entry : _aliasLookup.entrySet()) {
+                SettableBeanProperty prop = entry.getValue();
+                if (!IgnorePropertiesUtil.shouldIgnore(entry.getKey(), ignorableProps, includableProps)
+                        && !IgnorePropertiesUtil.shouldIgnore(prop.getName(), ignorableProps, includableProps)) {
+                    filtered.put(entry.getKey(), prop);
+                }
+            }
+        }
+        for (SettableBeanProperty prop : _propertiesInOrder) {
+            if ((prop != null) && !prop.isIgnorable()
+                    && !IgnorePropertiesUtil.shouldIgnore(prop.getName(), ignorableProps, includableProps)) {
+                filtered.put(prop.getName(), prop);
+            }
+        }
+        return new PropertyBasedCreator(this, _propertyLookup, filtered, _propertiesInOrder);
     }
 
     /*
@@ -261,8 +340,25 @@ public final class PropertyBasedCreator
         return _propertiesInOrder;
     }
 
+    /**
+     * Method for finding the Creator property to bind a property with given name to.
+     * Returns {@code null} for a name to ignore (see {@link #withByNameInclusion}),
+     * so that callers handle it like any other ignored property instead of
+     * each checking ignorals of their own ([databind#6243]).
+     */
     public SettableBeanProperty findCreatorProperty(String name) {
-        return _propertyLookup.get(name);
+        return _filteredLookup.get(name);
+    }
+
+    /**
+     * Method for checking whether there is a Creator property with given name
+     * (or alias), including ones {@link #findCreatorProperty(String)} does not find
+     * because the name is to be ignored.
+     *
+     * @since 3.3
+     */
+    public boolean hasCreatorProperty(String name) {
+        return _propertyLookup.get(name) != null;
     }
 
     public SettableBeanProperty findCreatorProperty(int propertyIndex) {

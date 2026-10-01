@@ -424,7 +424,9 @@ public abstract class BeanDeserializerBase
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
-        _propertyBasedCreator = src._propertyBasedCreator;
+        // [databind#6243]: Creator must not find properties by names this variant ignores
+        _propertyBasedCreator = (src._propertyBasedCreator == null) ? null
+                : src._propertyBasedCreator.withByNameInclusion(ignorableProps, includableProps);
 
         _backRefs = src._backRefs;
         _ignorableProps = ignorableProps;
@@ -685,7 +687,8 @@ public abstract class BeanDeserializerBase
         // And now that we know CreatorProperty instances are also resolved can finally create the creator:
         if (creatorProps != null) {
             _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator,
-                    creatorProps, _beanProperties);
+                    creatorProps, _beanProperties)
+                    .withByNameInclusion(_ignorableProps, _includableProps);
         }
 
         if (extTypes != null) {
@@ -891,7 +894,8 @@ public abstract class BeanDeserializerBase
                     try {
                         SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
                         _propertyBasedCreator = PropertyBasedCreator.construct(
-                                ctxt, _valueInstantiator, creatorProps, _beanProperties);
+                                ctxt, _valueInstantiator, creatorProps, _beanProperties)
+                                .withByNameInclusion(_ignorableProps, _includableProps);
                     } finally {
                         _creatorBeingResolved = false;
                     }

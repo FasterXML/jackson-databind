@@ -108,12 +108,84 @@ public class AnySetterViewDeserializationTest extends DatabindTestUtil
         }
     }
 
+    // Only any-setter has view: used with `DEFAULT_VIEW_INCLUSION` enabled
+    static class OnlyAnyViewBean {
+        public String a;
+
+        @JsonAnySetter
+        @JsonView(ViewB.class)
+        public Map<String, Object> other = new LinkedHashMap<>();
+    }
+
+    static class Unwrapped {
+        public String b;
+    }
+
+    static class UnwrappedAnyBean {
+        public String a;
+
+        @JsonUnwrapped
+        public Unwrapped unwrapped;
+
+        @JsonAnySetter
+        @JsonView(ViewB.class)
+        public Map<String, Object> other = new LinkedHashMap<>();
+    }
+
+    static class UnwrappedCreatorAnyBean {
+        final String a;
+
+        @JsonUnwrapped
+        public Unwrapped unwrapped;
+
+        @JsonAnySetter
+        @JsonView(ViewB.class)
+        public Map<String, Object> other = new LinkedHashMap<>();
+
+        @JsonCreator
+        public UnwrappedCreatorAnyBean(@JsonProperty("a") String a) {
+            this.a = a;
+        }
+    }
+
+    static class ExtTypeImpl {
+        public int v;
+    }
+
+    static class ExtTypeAnyBean {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+                property = "type")
+        @JsonSubTypes(@JsonSubTypes.Type(value = ExtTypeImpl.class, name = "impl"))
+        public Object value;
+
+        @JsonAnySetter
+        @JsonView(ViewB.class)
+        public Map<String, Object> other = new LinkedHashMap<>();
+    }
+
+    @SuppressWarnings("serial")
+    static class AnyException extends Exception {
+        final Map<String, Object> other = new LinkedHashMap<>();
+
+        @JsonAnySetter
+        @JsonView(ViewB.class)
+        public void set(String key, Object value) {
+            other.put(key, value);
+        }
+    }
+
     private static final String JSON = """
             {"a":"1","b":"2","x":"3","y":4}
             """;
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+            .build();
+
+    // With default view inclusion, view processing is only needed due to
+    // view(s) of the any-setter
+    private final ObjectMapper DEFAULT_INCL_MAPPER = jsonMapperBuilder()
+            .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
             .build();
 
     @Test
@@ -211,6 +283,94 @@ public class AnySetterViewDeserializationTest extends DatabindTestUtil
                 .readValue(JSON);
         assertNull(bean.a);
         assertEquals(Map.of("b", "2", "x", "3", "y", 4), bean.other);
+    }
+
+    @Test
+    public void onlyAnySetterWithViewDefaultInclusion() throws Exception
+    {
+        OnlyAnyViewBean bean = DEFAULT_INCL_MAPPER.readerWithView(ViewA.class)
+                .forType(OnlyAnyViewBean.class)
+                .readValue(JSON);
+        assertEquals("1", bean.a);
+        assertEquals(Collections.emptyMap(), bean.other);
+
+        bean = DEFAULT_INCL_MAPPER.readerWithView(ViewB.class)
+                .forType(OnlyAnyViewBean.class)
+                .readValue(JSON);
+        assertEquals("1", bean.a);
+        assertEquals(Map.of("b", "2", "x", "3", "y", 4), bean.other);
+    }
+
+    @Test
+    public void unwrappedAnySetterWithView() throws Exception
+    {
+        UnwrappedAnyBean bean = DEFAULT_INCL_MAPPER.readerWithView(ViewA.class)
+                .forType(UnwrappedAnyBean.class)
+                .readValue(JSON);
+        assertEquals("1", bean.a);
+        assertEquals("2", bean.unwrapped.b);
+        assertEquals(Collections.emptyMap(), bean.other);
+
+        bean = DEFAULT_INCL_MAPPER.readerWithView(ViewB.class)
+                .forType(UnwrappedAnyBean.class)
+                .readValue(JSON);
+        assertEquals("1", bean.a);
+        assertEquals("2", bean.unwrapped.b);
+        assertEquals(Map.of("x", "3", "y", 4), bean.other);
+    }
+
+    @Test
+    public void unwrappedCreatorAnySetterWithView() throws Exception
+    {
+        UnwrappedCreatorAnyBean bean = DEFAULT_INCL_MAPPER.readerWithView(ViewA.class)
+                .forType(UnwrappedCreatorAnyBean.class)
+                .readValue(JSON);
+        assertEquals("1", bean.a);
+        assertEquals("2", bean.unwrapped.b);
+        assertEquals(Collections.emptyMap(), bean.other);
+
+        bean = DEFAULT_INCL_MAPPER.readerWithView(ViewB.class)
+                .forType(UnwrappedCreatorAnyBean.class)
+                .readValue(JSON);
+        assertEquals("1", bean.a);
+        assertEquals("2", bean.unwrapped.b);
+        assertEquals(Map.of("x", "3", "y", 4), bean.other);
+    }
+
+    @Test
+    public void externalTypeIdAnySetterWithView() throws Exception
+    {
+        final String json = """
+                {"type":"impl","value":{"v":1},"x":"3"}
+                """;
+        ExtTypeAnyBean bean = DEFAULT_INCL_MAPPER.readerWithView(ViewA.class)
+                .forType(ExtTypeAnyBean.class)
+                .readValue(json);
+        assertEquals(1, ((ExtTypeImpl) bean.value).v);
+        assertEquals(Collections.emptyMap(), bean.other);
+
+        bean = DEFAULT_INCL_MAPPER.readerWithView(ViewB.class)
+                .forType(ExtTypeAnyBean.class)
+                .readValue(json);
+        assertEquals(1, ((ExtTypeImpl) bean.value).v);
+        assertEquals(Map.of("x", "3"), bean.other);
+    }
+
+    @Test
+    public void throwableAnySetterWithView() throws Exception
+    {
+        final String json = """
+                {"message":"boom","x":"3"}
+                """;
+        AnyException e = DEFAULT_INCL_MAPPER.readerWithView(ViewA.class)
+                .forType(AnyException.class)
+                .readValue(json);
+        assertEquals(Collections.emptyMap(), e.other);
+
+        e = DEFAULT_INCL_MAPPER.readerWithView(ViewB.class)
+                .forType(AnyException.class)
+                .readValue(json);
+        assertEquals(Map.of("x", "3"), e.other);
     }
 
     @Test

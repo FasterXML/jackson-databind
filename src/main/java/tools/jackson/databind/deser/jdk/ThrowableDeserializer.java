@@ -11,7 +11,6 @@ import tools.jackson.databind.deser.bean.BeanDeserializer;
 import tools.jackson.databind.deser.bean.BeanPropertyMap;
 import tools.jackson.databind.deser.bean.PropertyBasedCreator;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
-import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
 
@@ -135,14 +134,7 @@ public class ThrowableDeserializer
                 // (but standard `Throwable` properties always are, see below)
                 if ((activeView != null) && !prop.visibleInView(activeView)
                         && !_isStandardThrowableProperty(prop.getName())) {
-                    // [databind#437]: fields in other views to be considered as unknown properties
-                    if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)) {
-                        ctxt.reportInputMismatch(handledType(),
-                                String.format("Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'" +
-                                        " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
-                                        ClassUtil.nameOf(handledType()), prop.getName(), activeView.getName()));
-                    }
-                    p.skipChildren();
+                    handlePropertyNotInView(p, ctxt, prop.getName(), activeView);
                     continue;
                 }
                 if (throwable != null) {

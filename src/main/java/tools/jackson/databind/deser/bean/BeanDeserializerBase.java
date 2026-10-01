@@ -1816,17 +1816,33 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         if (_needViewProcesing) {
             final Class<?> activeView = ctxt.getActiveView();
             if ((activeView != null) && !_anySetter.visibleInView(activeView)) {
-                if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)) {
-                    ctxt.reportInputMismatch(handledType(),
-                            String.format("Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'" +
-                                    " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
-                                    ClassUtil.nameOf(handledType()), propName, activeView.getName()));
-                }
-                p.skipChildren();
+                handlePropertyNotInView(p, ctxt, propName, activeView);
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Method called when a property value is encountered for a property
+     * (or "any setter") not visible in the active view: value is skipped,
+     * unless {@link DeserializationFeature#FAIL_ON_UNEXPECTED_VIEW_PROPERTIES}
+     * is enabled, in which case an exception is thrown.
+     *
+     * @since 3.1.8
+     */
+    protected void handlePropertyNotInView(JsonParser p, DeserializationContext ctxt,
+            String propName, Class<?> activeView)
+        throws JacksonException
+    {
+        // [databind#437]: fields in other views to be considered as unknown properties
+        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)) {
+            ctxt.reportInputMismatch(handledType(),
+                    String.format("Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'" +
+                            " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
+                            ClassUtil.nameOf(handledType()), propName, activeView.getName()));
+        }
+        p.skipChildren();
     }
 
     /**

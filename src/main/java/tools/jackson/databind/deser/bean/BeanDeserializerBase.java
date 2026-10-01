@@ -1783,6 +1783,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
             handleIgnoredProperty(p, ctxt, beanOrBuilder, propName);
         } else if (_anySetter != null) {
+            if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                return;
+            }
             try {
                // should we consider return type of any setter?
                 _anySetter.deserializeAndSet(p, ctxt, beanOrBuilder, propName);
@@ -1793,6 +1796,53 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             // Unknown: let's call handler method
             handleUnknownProperty(p, ctxt, beanOrBuilder, propName);
         }
+    }
+
+    /**
+     * Helper method called before passing a property value to "any setter":
+     * if the any-setter is not visible in the active view (if any), value is
+     * skipped (or, if {@link DeserializationFeature#FAIL_ON_UNEXPECTED_VIEW_PROPERTIES}
+     * is enabled, an exception is thrown), same as with regular properties.
+     *
+     * @return {@code true} if value was skipped; {@code false} if it is to be
+     *    passed to any-setter
+     *
+     * @since 3.1.8
+     */
+    protected boolean _skipIfAnySetterNotInView(JsonParser p, DeserializationContext ctxt,
+            String propName)
+        throws JacksonException
+    {
+        if (_needViewProcesing) {
+            final Class<?> activeView = ctxt.getActiveView();
+            if ((activeView != null) && !_anySetter.visibleInView(activeView)) {
+                handlePropertyNotInView(p, ctxt, propName, activeView);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Method called when a property value is encountered for a property
+     * (or "any setter") not visible in the active view: value is skipped,
+     * unless {@link DeserializationFeature#FAIL_ON_UNEXPECTED_VIEW_PROPERTIES}
+     * is enabled, in which case an exception is thrown.
+     *
+     * @since 3.1.8
+     */
+    protected void handlePropertyNotInView(JsonParser p, DeserializationContext ctxt,
+            String propName, Class<?> activeView)
+        throws JacksonException
+    {
+        // [databind#437]: fields in other views to be considered as unknown properties
+        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)) {
+            ctxt.reportInputMismatch(handledType(),
+                    String.format("Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'" +
+                            " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
+                            ClassUtil.nameOf(handledType()), propName, activeView.getName()));
+        }
+        p.skipChildren();
     }
 
     /**

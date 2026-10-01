@@ -459,6 +459,9 @@ public class BuilderBasedDeserializer
             }
             // "any" property?
             if (_anySetter != null) {
+                if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                    continue;
+                }
                 buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
                 continue;
             }
@@ -591,14 +594,7 @@ public class BuilderBasedDeserializer
                 p.nextToken();
                 SettableBeanProperty prop = _propertiesByIndex[ix];
                 if (!prop.visibleInView(activeView)) {
-                    // [databind#437]: fields in other views to be considered as unknown properties
-                    if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)){
-                        ctxt.reportInputMismatch(handledType(),
-                            String.format("Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'" +
-                                    " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
-                                ClassUtil.nameOf(handledType()), prop.getName(), activeView.getName()));
-                    }
-                    p.skipChildren();
+                    handlePropertyNotInView(p, ctxt, prop.getName(), activeView);
                     continue;
                 }
                 try {
@@ -691,6 +687,9 @@ public class BuilderBasedDeserializer
                 handleUnknownVanilla(p, ctxt, bean, propName);
                 continue;
             }
+            if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                continue;
+            }
             try {
                 _anySetter.deserializeAndSet(p, ctxt, bean, propName);
             } catch (Exception e) {
@@ -745,6 +744,9 @@ public class BuilderBasedDeserializer
             // how about any setter?
             if (_anySetter == null) {
                 handleUnknownVanilla(p, ctxt, builder, propName);
+                continue;
+            }
+            if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
                 continue;
             }
             _anySetter.deserializeAndSet(p, ctxt, builder, propName);
@@ -833,6 +835,9 @@ public class BuilderBasedDeserializer
                 handleUnknownVanilla(p, ctxt, null, propName);
                 continue;
             }
+            if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                continue;
+            }
             buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
         }
         tokens.writeEndObject();
@@ -909,6 +914,9 @@ public class BuilderBasedDeserializer
             }
             // if not, the usual fallback handling:
             if (_anySetter != null) {
+                if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                    continue;
+                }
                 try {
                     _anySetter.deserializeAndSet(p, ctxt, bean, propName);
                 } catch (Exception e) {

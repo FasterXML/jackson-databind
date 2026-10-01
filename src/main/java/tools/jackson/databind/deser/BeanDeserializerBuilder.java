@@ -568,8 +568,12 @@ public class BeanDeserializerBuilder
     {
         // view processing must be enabled if:
         // (a) fields are not included by default (when deserializing with view), OR
-        // (b) one of properties has view(s) to included in defined
+        // (b) one of properties has view(s) to included in defined, OR
+        // (c) "any setter" has view(s) defined
         if (!_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION)) {
+            return true;
+        }
+        if ((_anySetter != null) && _anySetter.hasViews()) {
             return true;
         }
         for (SettableBeanProperty prop : props) {

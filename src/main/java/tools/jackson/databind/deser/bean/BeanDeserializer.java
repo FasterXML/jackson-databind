@@ -391,6 +391,9 @@ public class BeanDeserializer
             }
             // "Any property"?
             if (_anySetter != null) {
+                if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                    continue;
+                }
                 try {
                     // 09-Feb-2026, tatu: as with Mutators, should never have non-Creator
                     //   "any"-properties, so commento out
@@ -786,6 +789,9 @@ public class BeanDeserializer
             }
             // "any property"?
             if (_anySetter != null) {
+                if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                    continue;
+                }
                 try {
                     // [databind#4639] Since 2.18.1 AnySetter might not part of the creator, but just some field.
                     if (_anySetter.isFieldType() ||
@@ -983,14 +989,7 @@ public class BeanDeserializer
                 p.nextToken();
                 SettableBeanProperty prop = _propsByIndex[ix];
                 if (!prop.visibleInView(activeView)) {
-                    // [databind#437]: fields in other views to be considered as unknown properties
-                    if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)){
-                        ctxt.reportInputMismatch(handledType(),
-                                String.format("Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'" +
-                                        " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
-                                        ClassUtil.nameOf(handledType()), prop.getName(), activeView.getName()));
-                    }
-                    p.skipChildren();
+                    handlePropertyNotInView(p, ctxt, prop.getName(), activeView);
                     continue;
                 }
                 try {
@@ -1088,6 +1087,9 @@ public class BeanDeserializer
                 handleUnknownVanilla(p, ctxt, bean, propName);
                 continue;
             }
+            if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                continue;
+            }
             // Need to copy to a separate buffer first
             TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
             tokens.writeName(propName);
@@ -1154,6 +1156,8 @@ public class BeanDeserializer
                 tokens.copyCurrentStructure(p);
             } else if (_anySetter == null) {
                 handleUnknownVanilla(p, ctxt, bean, propName);
+            } else if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                ; // any-setter not visible in active view: value skipped
             } else {
                 // Need to copy to a separate buffer first
                 TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
@@ -1263,6 +1267,8 @@ public class BeanDeserializer
                 } else {
                     p.skipChildren();
                 }
+            } else if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                ; // any-setter not visible in active view: value skipped
             } else {
                 // Need to copy to a separate buffer first
                 TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
@@ -1383,6 +1389,9 @@ public class BeanDeserializer
             }
             // if not, the usual fallback handling:
             if (_anySetter != null) {
+                if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                    continue;
+                }
                 try {
                     _anySetter.deserializeAndSet(p, ctxt, bean, propName);
                 } catch (Exception e) {
@@ -1467,6 +1476,9 @@ public class BeanDeserializer
             }
             // "any property"?
             if (_anySetter != null) {
+                if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                    continue;
+                }
                 buffer.bufferAnyProperty(_anySetter, propName,
                         _anySetter.deserialize(p, ctxt));
                 continue;

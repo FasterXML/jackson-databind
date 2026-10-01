@@ -29,6 +29,8 @@ No changes since 3.1
 #6246: Creator properties not renamed for `@JsonUnwrapped` with prefix/suffix
   with `MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES`
  (fix by @cowtowncoder, w/ Claude code)
+#6248: `@JsonView` on `@JsonAnySetter` not honored when deserializing
+ (fix by @pjfanning, w/ Claude code)
 #6249: Avoid NPE when parser reports `VALUE_STRING` with `null` text
  (fix by @pjfanning, w/ Claude code)
 #6252: `@JsonIgnoreProperties` not honored for `EnumMap` properties

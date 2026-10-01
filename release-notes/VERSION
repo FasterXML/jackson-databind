@@ -87,6 +87,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6197: `ClassCastException` for `AutoCloseable` (but not `Closeable`) values in
   `ObjectMapper.writeValue(JsonGenerator, Object)` with `SerializationFeature.CLOSE_CLOSEABLE`
  (fix by @pjfanning)
+#6201: `@JacksonInject(useInput = OptBoolean.FALSE)` not honored for Field/Setter
+  properties (value from input overwrites injected value)
+ (fix by Aysha A-Z)
 #6216: Add `TreeTraversingParser` constructors that take explicit
   `StreamReadConstraints` (for tree-backed format backends)
 #6220: `@JsonDeserialize(as/keyAs/contentAs)` lost when property's type deserializer

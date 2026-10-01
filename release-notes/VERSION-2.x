@@ -6,7 +6,7 @@ Project: jackson-databind
 
 2.18.12 (not yet released)
 
-#6250: `@JsonView` on properties-based Enum Creator parameters not honored
+#6261: Support `@JsonView` on properties-based Enum Creator parameters
  (fix by @pjfanning, w/ Claude code)
 
 2.18.11 (20-Sep-2026)

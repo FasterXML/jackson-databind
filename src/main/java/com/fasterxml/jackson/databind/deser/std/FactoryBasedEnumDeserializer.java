@@ -235,7 +235,7 @@ class FactoryBasedEnumDeserializer
                 continue;
             }
             if (creatorProp != null) {
-                // [databind#6250]: honor active view, same as for POJO creator properties
+                // [databind#6261]: honor active view, same as for POJO creator properties
                 if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;

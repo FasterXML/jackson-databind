@@ -89,10 +89,11 @@ class FactoryBasedEnumDeserializer
     public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
-        // So: no need to fetch if we had it; or if target is `String`(-like); or
-        // if we have properties-based Creator (for which we probably SHOULD do
-        // different contextualization?)
-        if ((_deser == null) && (_inputType != null) && (_creatorProps == null)) {
+        // Need deserializer for non-String factory parameter even when a
+        // properties-based Creator is also present: JSON Object still uses
+        // `_creatorProps`, but scalar input (JSON Number etc) must not be
+        // coerced to String (see [databind#6164]).
+        if ((_deser == null) && (_inputType != null)) {
             return new FactoryBasedEnumDeserializer(this,
                     ctxt.findContextualValueDeserializer(_inputType, property));
         }
@@ -121,6 +122,20 @@ class FactoryBasedEnumDeserializer
     {
         Object value;
 
+        // 16-Aug-2026, [databind#6164]: properties-based Creator must see JSON Object
+        // first. Otherwise a matching accessor (e.g. `getValue()`) would skip the
+        // typed `_deser` and coerce scalars via `getValueAsString()`.
+        if (_hasArgs && (_creatorProps != null) && p.isExpectedStartObjectToken()) {
+            PropertyBasedCreator pc = _propCreator;
+            if (pc == null) {
+                _propCreator = pc = PropertyBasedCreator.construct(ctxt,
+                        _valueInstantiator, _creatorProps,
+                        ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
+            }
+            p.nextToken();
+            return deserializeEnumUsingPropertyBased(p, ctxt, pc);
+        }
+
         // First: the case of having deserializer for non-String input for delegating
         // Creator method
         if (_deser != null) {
@@ -131,16 +146,6 @@ class FactoryBasedEnumDeserializer
             // 30-Mar-2020, tatu: For properties-based one, MUST get JSON Object (before
             //   2.11, was just assuming match)
             if (_creatorProps != null) {
-                if (p.isExpectedStartObjectToken()) {
-                    PropertyBasedCreator pc = _propCreator;
-                    if (pc == null) {
-                        _propCreator = pc = PropertyBasedCreator.construct(ctxt,
-                                _valueInstantiator, _creatorProps,
-                                ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
-                    }
-                    p.nextToken();
-                    return deserializeEnumUsingPropertyBased(p, ctxt, pc);
-                }
                 // If value cannot possibly be delegating-creator,
                 if (!_valueInstantiator.canCreateFromString()) {
                     final JavaType targetType = getValueType(ctxt);

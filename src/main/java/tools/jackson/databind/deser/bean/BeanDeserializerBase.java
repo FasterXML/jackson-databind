@@ -659,6 +659,7 @@ public abstract class BeanDeserializerBase
             if (nuller != null) {
                 _anySetter = _anySetter.withNullProvider(nuller);
             }
+            _anySetter.resolve(ctxt);
         }
         // as well as delegate-based constructor:
         if (_valueInstantiator.canCreateUsingDelegate()) {

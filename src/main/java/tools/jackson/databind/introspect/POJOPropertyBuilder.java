@@ -801,13 +801,50 @@ public class POJOPropertyBuilder
         return _hasAccessor(_fields, member) || _hasAccessor(_getters, member);
     }
 
+    /**
+     * Check if this property contains the given member (field, setter, or getter).
+     * Uses Member.equals() comparison via underlying JDK Member objects.
+     *&lt;p&gt;
+     * Note: Constructor parameters are NOT checked because:
+     * &lt;ul&gt;
+     *   &lt;li&gt;They are handled separately through _creatorProperties mechanism&lt;/li&gt;
+     *   &lt;li&gt;AnnotatedParameter.getMember() returns the owning Constructor/Method,
+     *       not a unique identifier per parameter&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param member the member to check (may be null)
+     * @return true if this property contains the given member as field, setter, or getter
+     * @since 3.1
+     */
+    public boolean containsMember(AnnotatedMember member) {
+        if (member == null) {
+            return false;
+        }
+        return _hasAccessor(_fields, member)
+            || _hasAccessor(_setters, member)
+            || _hasAccessor(_getters, member);
+    }
+
     private boolean _hasAccessor(Linked<? extends AnnotatedMember> node,
             AnnotatedMember memberToMatch)
     {
-        // AnnotatedXxx are not canonical, but underlying JDK Members are:
+        // Null safety: memberToMatch or its underlying Member could be null
+        if (memberToMatch == null) {
+            return false;
+        }
         final Member rawMemberToMatch = memberToMatch.getMember();
+        if (rawMemberToMatch == null) {
+            return false;
+        }
+        // Note: Use equals() comparison since AnnotatedXxx wrappers may differ
+        // even for the same underlying Member. Member.equals() compares by
+        // declaring class, name, and type/parameter types.
         for (; node != null; node = node.next) {
-            if (node.value.getMember() == rawMemberToMatch) {
+            Member nodeMember = node.value.getMember();
+            if (nodeMember == null) {
+                continue;  // Skip null members in the chain
+            }
+            if (Objects.equals(rawMemberToMatch, nodeMember)) {
                 return true;
             }
         }

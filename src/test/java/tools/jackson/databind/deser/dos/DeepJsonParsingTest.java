@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.dos;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.exc.StreamConstraintsException;
@@ -22,6 +24,7 @@ public class DeepJsonParsingTest extends DatabindTestUtil
     private final ObjectMapper unconstrainedMapper = JsonMapper.builder(unconstrainedFactory).build();
     private final ObjectMapper defaultMapper = JsonMapper.builder().build();
 
+    @Test
     public void testParseWithArrayWithDefaultConfig() throws Exception
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
@@ -36,6 +39,7 @@ public class DeepJsonParsingTest extends DatabindTestUtil
         }
     }
 
+    @Test
     public void testParseWithObjectWithDefaultConfig() throws Exception
     {
         final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
@@ -49,6 +53,7 @@ public class DeepJsonParsingTest extends DatabindTestUtil
         }
     }
 
+    @Test
     public void testParseWithArrayWithUnconstrainedConfig() throws Exception
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
@@ -57,6 +62,7 @@ public class DeepJsonParsingTest extends DatabindTestUtil
         }
     }
 
+    @Test
     public void testParseWithObjectWithUnconstrainedConfig() throws Exception
     {
         final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";

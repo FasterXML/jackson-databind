@@ -503,6 +503,7 @@ public class JDKScalarsDeserTest
         }
     }
 
+    @Test
     public void testDoubleAsArray() throws Exception
     {
         final double value = 0.016;

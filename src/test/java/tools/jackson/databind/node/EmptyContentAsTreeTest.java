@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.TreeNode;
 import tools.jackson.databind.*;
@@ -27,6 +29,7 @@ public class EmptyContentAsTreeTest extends DatabindTestUtil
     // [databind#1406]: when passing `JsonParser`, indicate lack of content
     // by returning `null`
 
+    @Test
     public void testNullFromEOFWithParserAndMapper() throws Exception
     {
         try (JsonParser p = MAPPER.createParser(EMPTY0)) {
@@ -60,6 +63,7 @@ public class EmptyContentAsTreeTest extends DatabindTestUtil
     }
 
     // [databind#1406]
+    @Test
     public void testNullFromEOFWithParserAndReader() throws Exception
     {
         try (JsonParser p = MAPPER.createParser(EMPTY0)) {
@@ -95,6 +99,7 @@ public class EmptyContentAsTreeTest extends DatabindTestUtil
 
     // [databind#2211]: when passing content sources OTHER than `JsonParser`,
     // return "missing node" instead of alternate (return `null`, throw exception).
+    @Test
     public void testMissingNodeForEOFOtherMapper() throws Exception
     {
         _assertMissing(MAPPER.readTree(EMPTY0));
@@ -113,6 +118,7 @@ public class EmptyContentAsTreeTest extends DatabindTestUtil
         // work since it cannot easily/gracefully handle unexpected end-of-input
     }
 
+    @Test
     public void testMissingNodeViaObjectReader() throws Exception
     {
         _assertMissing(MAPPER.reader().readTree(EMPTY0));

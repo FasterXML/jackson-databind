@@ -16,6 +16,7 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.ViewMatcher;
 
 /**
  * Class that represents a "wildcard" set method which can be used
@@ -43,6 +44,14 @@ public abstract class SettableAnyProperty
 
     protected final TypeDeserializer _valueTypeDeserializer;
     protected final KeyDeserializer _keyDeserializer;
+
+    /**
+     * Matcher for views (if any) this "any" property is visible in;
+     * {@code null} if no explicit views specified.
+     *
+     * @since 3.1.8
+     */
+    protected ViewMatcher _viewMatcher;
 
     /*
     /**********************************************************************
@@ -127,6 +136,24 @@ public abstract class SettableAnyProperty
     // Abstract @since 2.14
     public abstract SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser);
 
+    /**
+     * @since 3.1.8
+     */
+    public void setViews(Class<?>[] views) {
+        _viewMatcher = (views == null) ? null : ViewMatcher.construct(views);
+    }
+
+    /**
+     * Helper method for copying view information from original instance
+     * when constructing a new, modified instance.
+     *
+     * @since 3.1.8
+     */
+    protected SettableAnyProperty _withViewsFrom(SettableAnyProperty src) {
+        _viewMatcher = src._viewMatcher;
+        return this;
+    }
+
     public void fixAccess(DeserializationConfig config) {
         _setter.fixAccess(
                 config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -145,6 +172,18 @@ public abstract class SettableAnyProperty
     public JavaType getType() { return _type; }
 
     public String getPropertyName() { return _property.getName(); }
+
+    /**
+     * @since 3.1.8
+     */
+    public boolean visibleInView(Class<?> activeView) {
+        return (_viewMatcher == null) || _viewMatcher.isVisibleForView(activeView);
+    }
+
+    /**
+     * @since 3.1.8
+     */
+    public boolean hasViews() { return _viewMatcher != null; }
 
     /**
      * Accessor for parameterIndex.
@@ -329,7 +368,8 @@ public abstract class SettableAnyProperty
         @Override
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
             return new MethodAnyProperty(_property, _setter, _type,
-                    _keyDeserializer, deser, _valueTypeDeserializer);
+                    _keyDeserializer, deser, _valueTypeDeserializer)
+                    ._withViewsFrom(this);
         }
     }
 
@@ -354,7 +394,8 @@ public abstract class SettableAnyProperty
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
             return new MapFieldAnyProperty(_property, _setter, _type,
                     _keyDeserializer, deser, _valueTypeDeserializer,
-                    _valueInstantiator);
+                    _valueInstantiator)
+                    ._withViewsFrom(this);
         }
 
         @SuppressWarnings("unchecked")
@@ -473,7 +514,8 @@ public abstract class SettableAnyProperty
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser)
         {
             return new MapParameterAnyProperty(_property, _setter, _type, _keyDeserializer, deser,
-                    _valueTypeDeserializer, _valueInstantiator, _parameterIndex);
+                    _valueTypeDeserializer, _valueInstantiator, _parameterIndex)
+                    ._withViewsFrom(this);
         }
 
         @SuppressWarnings("unchecked")

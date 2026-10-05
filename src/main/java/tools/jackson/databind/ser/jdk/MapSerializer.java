@@ -1,5 +1,6 @@
 package tools.jackson.databind.ser.jdk;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -9,9 +10,11 @@ import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
+import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.PropertyFilter;
 import tools.jackson.databind.ser.std.StdContainerSerializer;
@@ -332,16 +335,25 @@ public class MapSerializer
 
         // First: if we have a property, may have property-annotation overrides
         if (_neitherNull(propertyAcc, intr)) {
-            keySer = ctxt.serializerInstance(propertyAcc,
-                    intr.findKeySerializer(config, propertyAcc));
+            if (!(property instanceof _ContentProperty)) {
+                keySer = ctxt.serializerInstance(propertyAcc,
+                        intr.findKeySerializer(config, propertyAcc));
+            }
             ser = ctxt.serializerInstance(propertyAcc,
                     intr.findContentSerializer(config, propertyAcc));
         }
+        // [databind#2050]: A property key serializer belongs to this Map, not
+        // Maps contained in its values. Preserve the rest of the property context.
+        final BeanProperty contentProperty = (keySer == null) ? property : new _ContentProperty(property);
         if (ser == null) {
             ser = _valueSerializer;
         }
         // [databind#124]: May have a content converter
-        ser = findContextualConvertingSerializer(ctxt, property, ser);
+        // When creating a property view, preserve an enclosing converter's
+        // identity-based recursion guard for the original property.
+        if ((contentProperty == property) || !_isContentConverterActive(ctxt, property)) {
+            ser = findContextualConvertingSerializer(ctxt, contentProperty, ser);
+        }
         if (ser == null) {
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
@@ -349,7 +361,7 @@ public class MapSerializer
             // [databind#1515]: but allow per-property DYNAMIC override
             if (_valueTypeIsStatic && !_valueType.isJavaLangObject()
                     && !_hasDynamicTypingOverride(ctxt, property)) {
-                ser = ctxt.findContentValueSerializer(_valueType, property);
+                ser = ctxt.findContentValueSerializer(_valueType, contentProperty);
             }
         }
         if (keySer == null) {
@@ -391,7 +403,7 @@ public class MapSerializer
                 sortKeys = B;
             }
         }
-        MapSerializer mser = withResolved(property, keySer, ser, ignored, included, sortKeys);
+        MapSerializer mser = withResolved(contentProperty, keySer, ser, ignored, included, sortKeys);
 
         // [databind#307]: allow filtering
         if (propertyAcc != null) {
@@ -1154,5 +1166,63 @@ public class MapSerializer
                     ctxt.constructSpecializedType(_valueType, cc));
         }
         return _findAndAddDynamic(ctxt, cc);
+    }
+
+    /**
+     * Property view used after a Map has consumed the property's key serializer.
+     * All other property metadata remains available to nested serializers.
+     */
+    private static final class _ContentProperty implements BeanProperty
+    {
+        private final BeanProperty _delegate;
+
+        _ContentProperty(BeanProperty delegate) {
+            _delegate = delegate;
+        }
+
+        @Override public String getName() { return _delegate.getName(); }
+        @Override public PropertyName getFullName() { return _delegate.getFullName(); }
+        @Override public JavaType getType() { return _delegate.getType(); }
+        @Override public PropertyName getWrapperName() { return _delegate.getWrapperName(); }
+        @Override public PropertyMetadata getMetadata() { return _delegate.getMetadata(); }
+        @Override public boolean isRequired() { return _delegate.isRequired(); }
+        @Override public boolean isVirtual() { return _delegate.isVirtual(); }
+        @Override public AnnotatedMember getMember() { return _delegate.getMember(); }
+
+        @Override
+        public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
+            return _delegate.getAnnotation(annotationClass);
+        }
+
+        @Override
+        public <A extends Annotation> A getContextAnnotation(Class<A> annotationClass) {
+            return _delegate.getContextAnnotation(annotationClass);
+        }
+
+        @Override
+        public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType) {
+            return _delegate.findPropertyFormat(config, baseType);
+        }
+
+        @Override
+        public JsonFormat.Value findFormatOverrides(MapperConfig<?> config) {
+            return _delegate.findFormatOverrides(config);
+        }
+
+        @Override
+        public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType) {
+            return _delegate.findPropertyInclusion(config, baseType);
+        }
+
+        @Override
+        public List<PropertyName> findAliases(MapperConfig<?> config) {
+            return _delegate.findAliases(config);
+        }
+
+        @Override
+        public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
+                SerializationContext ctxt) {
+            _delegate.depositSchemaProperty(objectVisitor, ctxt);
+        }
     }
 }

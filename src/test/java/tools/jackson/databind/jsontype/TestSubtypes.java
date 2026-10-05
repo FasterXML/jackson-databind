@@ -360,6 +360,7 @@ public class TestSubtypes extends DatabindTestUtil
     }
 
     // [databind#2525]
+    @Test
     public void testSerializationWithDuplicateRegisteredSubtypes() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(new NamedType(Sub.class, "sub1"))
@@ -372,6 +373,7 @@ public class TestSubtypes extends DatabindTestUtil
     }
 
     // [databind#2525]
+    @Test
     public void testDeserializationWithDuplicateRegisteredSubtypes() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
         // We can register the same class with different names

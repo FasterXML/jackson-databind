@@ -201,8 +201,9 @@ public class JsonValueSerializer
             }
         } else {
             // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
-            ser = ctxt.handlePrimaryContextualization(ser, property);
-            return withResolved(property, vts, ser, _forceTypeInformation);
+            BeanProperty valueProp = _accessorProperty(property);
+            ser = ctxt.handlePrimaryContextualization(ser, valueProp);
+            return withResolved(valueProp, vts, ser, _forceTypeInformation);
         }
         return this;
     }

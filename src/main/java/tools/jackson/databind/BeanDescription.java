@@ -287,7 +287,42 @@ public abstract class BeanDescription
     /**********************************************************************
      */
 
+    /**
+     * Method for finding injectable values. If multiple targets exist for the same
+     * injectable ID, only one is exposed by this legacy method.
+     *
+     * @return Map from injectable ID to single target member
+     * @deprecated Since 3.1: Use {@link #findAllInjectables()} to access all injection targets.
+     */
+    @Deprecated
     public abstract Map<Object, AnnotatedMember> findInjectables();
+
+    /**
+     * Method for finding all injectable values, where a single injectable ID
+     * can map to multiple target members.
+     * <p>
+     * Default implementation wraps single members from {@link #findInjectables()}
+     * into singleton lists for backward compatibility with custom implementations
+     * that only override the deprecated {@code findInjectables()} method.
+     * <p>
+     * Note: Returned {@link Map} is unmodifiable and value {@link List}s are read-only views.
+     *
+     * @return Map from injectable ID to list of target members
+     * @since 3.1
+     */
+    public Map<Object, List<AnnotatedMember>> findAllInjectables() {
+        Map<Object, AnnotatedMember> single = findInjectables();
+        if (single == null || single.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        LinkedHashMap<Object, List<AnnotatedMember>> result = new LinkedHashMap<>();
+        for (Map.Entry<Object, AnnotatedMember> entry : single.entrySet()) {
+            if (entry.getValue() != null) {
+                result.put(entry.getKey(), Collections.singletonList(entry.getValue()));
+            }
+        }
+        return Collections.unmodifiableMap(result);
+    }
 
     /**
      * Method called to create a "default instance" of the bean, currently

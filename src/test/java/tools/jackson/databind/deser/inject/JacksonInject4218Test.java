@@ -16,7 +16,7 @@ class JacksonInject4218Test extends DatabindTestUtil
 {
     static class Dto {
         @JacksonInject("id")
-        String id;
+        public String id;
 
         @JsonCreator
         Dto(@JacksonInject("id")

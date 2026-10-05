@@ -370,6 +370,15 @@ public class BeanPropertyMap
         return _caseInsensitive;
     }
 
+    /**
+     * Accessor for {@link Locale} used for case-insensitive name matching.
+     *
+     * @since 3.3
+     */
+    public Locale getLocale() {
+        return _locale;
+    }
+
     public boolean hasAliases() {
         return _aliasDefs != null;
     }

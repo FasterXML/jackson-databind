@@ -16,7 +16,6 @@ import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
 import tools.jackson.databind.introspect.AnnotatedMethod;
 import tools.jackson.databind.introspect.BeanPropertyDefinition;
 import tools.jackson.databind.util.ClassUtil;
-import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.ViewMatcher;
 
@@ -430,7 +429,7 @@ public class ThrowableDeserializer
             // `Throwable` properties above, so those are never dropped by the
             // ignore/include lists ([databind#6157]). They may still be excluded by an
             // explicit `@JsonView`, but that is decided by the branches above, not here.
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }

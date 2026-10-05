@@ -294,6 +294,14 @@
       <activation>
         <jdk>[21,)</jdk>
       </activation>
+      <properties>
+        <!-- JDK 21 test package is not declared in (JDK 17 compatible) test module-info,
+             so need to open it to JUnit here -->
+        <argLine>--add-opens=java.base/java.lang=tools.jackson.databind
+             --add-opens=java.base/java.util=tools.jackson.databind
+             --add-opens=tools.jackson.databind/tools.jackson.databind.jdk21=org.junit.platform.commons
+        </argLine>
+      </properties>
       <build>
         <plugins>
           <plugin>

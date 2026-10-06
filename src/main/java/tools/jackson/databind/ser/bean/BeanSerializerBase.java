@@ -80,6 +80,15 @@ public abstract class BeanSerializerBase
      */
     final protected JsonFormat.Shape _serializationShape;
 
+    /**
+     * Name of a bean property whose serialized name equals the
+     * {@code EXTERNAL_PROPERTY} type id name of this type's polymorphic
+     * {@link TypeSerializer}, if any. Computed in {@link #resolve}. When
+     * non-null, {@link #serializeWithType} suppresses the otherwise-emitted
+     * duplicate type id key so the bean's own property wins ([databind#2844]).
+     */
+    protected String _externalTypeIdToSuppress;
+
     /*
     /**********************************************************************
     /* Life-cycle: constructors
@@ -137,6 +146,7 @@ public abstract class BeanSerializerBase
         _objectIdWriter = src._objectIdWriter;
         _propertyFilterId = src._propertyFilterId;
         _serializationShape = src._serializationShape;
+        _externalTypeIdToSuppress = src._externalTypeIdToSuppress;
     }
 
     protected BeanSerializerBase(BeanSerializerBase src,
@@ -157,6 +167,7 @@ public abstract class BeanSerializerBase
         _objectIdWriter = objectIdWriter;
         _propertyFilterId = filterId;
         _serializationShape = src._serializationShape;
+        _externalTypeIdToSuppress = src._externalTypeIdToSuppress;
     }
 
     protected BeanSerializerBase(BeanSerializerBase src, Set<String> toIgnore, Set<String> toInclude)
@@ -189,6 +200,22 @@ public abstract class BeanSerializerBase
         _objectIdWriter = src._objectIdWriter;
         _propertyFilterId = src._propertyFilterId;
         _serializationShape = src._serializationShape;
+        // If the removed property was the one that triggered suppression, drop
+        // the flag so the type id is once again emitted.
+        String suppressName = src._externalTypeIdToSuppress;
+        if (suppressName != null) {
+            boolean stillPresent = false;
+            for (BeanPropertyWriter w : _props) {
+                if (suppressName.equals(w.getName())) {
+                    stillPresent = true;
+                    break;
+                }
+            }
+            if (!stillPresent) {
+                suppressName = null;
+            }
+        }
+        _externalTypeIdToSuppress = suppressName;
     }
 
     /**
@@ -349,6 +376,47 @@ public abstract class BeanSerializerBase
         // property names) are known, verify no unwrapped property clashes with any
         // other property
         _verifyNoUnwrappedPropertyConflict(ctxt);
+
+        // [databind#2844]: if this type's polymorphic TypeSerializer would emit
+        // a type id under a property name that collides with one of our bean
+        // properties, remember that name so serializeWithType can suppress the
+        // duplicate key emission and let the bean's own property value win.
+        _externalTypeIdToSuppress = _findExternalTypeIdPropertyToSuppress(ctxt);
+    }
+
+    private String _findExternalTypeIdPropertyToSuppress(SerializationContext ctxt)
+    {
+        // Read the annotation directly rather than resolving a TypeSerializer:
+        // findTypeSerializer would construct a fresh TypeSerializer instance and
+        // call init() on any custom TypeIdResolver, which is a visible side
+        // effect some tests (and users) rely on being invoked exactly once.
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr == null) {
+            return null;
+        }
+        JsonTypeInfo.Value typeInfo = intr.findPolymorphicTypeInfo(ctxt.getConfig(),
+                ctxt.introspectClassAnnotations(_beanType));
+        if (typeInfo == null) {
+            return null;
+        }
+        // Class-level EXTERNAL_PROPERTY is rewritten to PROPERTY by
+        // TypeResolverProvider (external-id only makes sense on a containing
+        // property). Either value collides with a same-named bean property.
+        JsonTypeInfo.As incl = typeInfo.getInclusionType();
+        if (incl != JsonTypeInfo.As.PROPERTY
+                && incl != JsonTypeInfo.As.EXTERNAL_PROPERTY) {
+            return null;
+        }
+        String name = typeInfo.getPropertyName();
+        if (name == null || name.isEmpty()) {
+            return null;
+        }
+        for (BeanPropertyWriter w : _props) {
+            if (name.equals(w.getName())) {
+                return name;
+            }
+        }
+        return null;
     }
 
     /**
@@ -743,6 +811,25 @@ public abstract class BeanSerializerBase
             _serializeWithObjectId(bean, gen, ctxt, typeSer);
             return;
         }
+        // [databind#2844]: when this bean has a property whose serialized name
+        // equals the type id property name and the type id would be emitted as
+        // a JSON property (PROPERTY / EXTERNAL_PROPERTY inclusion on a
+        // non-native-type-id format), suppress the type id so the bean's own
+        // property wins instead of producing a duplicate key. Binary formats
+        // with native type id support (canWriteTypeId()) don't have a
+        // collision, so we leave them alone.
+        if (_shouldSuppressTypeIdForDuplicateProperty(gen, typeSer)) {
+            gen.writeStartObject(bean);
+            gen.assignCurrentValue(bean);
+            if (_propertyFilterId != null) {
+                _serializePropertiesFiltered(bean, gen, ctxt, _propertyFilterId);
+            } else {
+                _serializeProperties(bean, gen, ctxt);
+            }
+            gen.writeEndObject();
+            return;
+        }
+
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_OBJECT);
         typeSer.writeTypePrefix(gen, ctxt, typeIdDef);
         gen.assignCurrentValue(bean); // [databind#631]
@@ -753,6 +840,22 @@ public abstract class BeanSerializerBase
             _serializeProperties(bean, gen, ctxt);
         }
         typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
+    }
+
+    private boolean _shouldSuppressTypeIdForDuplicateProperty(JsonGenerator gen,
+            TypeSerializer typeSer)
+    {
+        if (_externalTypeIdToSuppress == null
+                || !_externalTypeIdToSuppress.equals(typeSer.getPropertyName())) {
+            return false;
+        }
+        JsonTypeInfo.As incl = typeSer.getTypeInclusion();
+        if (incl != JsonTypeInfo.As.PROPERTY && incl != JsonTypeInfo.As.EXTERNAL_PROPERTY) {
+            return false;
+        }
+        // Native type id formats encode the type id outside the JSON property
+        // space, so no key collision can occur.
+        return !gen.canWriteTypeId();
     }
 
     protected final void _serializeWithObjectId(Object bean, JsonGenerator g,

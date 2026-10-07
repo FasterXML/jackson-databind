@@ -140,6 +140,9 @@ public class TreeTraversingParser
     @Override
     public JsonParser skipChildren()
     {
+        if (_trackMaxTokenCount) {
+            return super.skipChildren();
+        }
         if (_currToken == JsonToken.START_OBJECT) {
             _nodeCursor = _nodeCursor.getParent();
             _updateToken(JsonToken.END_OBJECT);

@@ -33,6 +33,9 @@ No changes since 3.1
  (fix by @pjfanning, w/ Claude code)
 #6252: `@JsonIgnoreProperties` not honored for `EnumMap` properties
  (fix by Aysha A-Z)
+#6270: `TreeTraversingParser.skipChildren()` does not count skipped tokens
+  toward `StreamReadConstraints.maxTokenCount`
+ (fix by @kas5852)
 
 3.1.7 (21-Sep-2026)
 

@@ -15,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static tools.jackson.databind.testutil.DatabindTestUtil.q;
 
@@ -80,6 +81,16 @@ public class LocaleDeserializationTest
         assertNotNull(ob);
         assertEquals(Locale.class, ob.getClass());
         assertEquals(key, ob);
+    }
+
+    // [databind#6273]: empty String as Map key should map to `Locale.ROOT`
+    @Test
+    public void testLocaleKeyMapEmptyKey() throws Exception {
+        Map<Locale, Integer> result = MAPPER.readValue(a2q("{'':1,'de-DE':2}"),
+                new TypeReference<Map<Locale, Integer>>() { });
+        assertEquals(2, result.size());
+        assertEquals(Integer.valueOf(1), result.get(Locale.ROOT));
+        assertEquals(Integer.valueOf(2), result.get(Locale.GERMANY));
     }
 
     /*

@@ -283,6 +283,11 @@ public class JDKFromStringDeserializer
         // manually
         int ix = _firstHyphenOrUnderscore(fullValue);
         if (ix < 0) { // single argument
+            // [databind#6273]: `Locale.Builder.setLanguageTag("")` fails on some JDKs
+            //    (JDK-8369452), so handle empty String explicitly
+            if (fullValue.isEmpty()) {
+                return Locale.ROOT;
+            }
             // 06-Apr-2026, tatu: Use Builder to avoid deprecated Locale(String) constructor
             return new Locale.Builder().setLanguageTag(fullValue).build();
         }

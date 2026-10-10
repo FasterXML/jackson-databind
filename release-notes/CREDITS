@@ -686,3 +686,7 @@ Sergey Lappo (@sergeylappo)
 Sanha (@kimsanhaa)
  * Fixed #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
   [3.2.4]
+
+@schabe77
+ * Reported #6273: Deserializing empty `Locale` Map keys fails on Java 25
+  [3.2.4]

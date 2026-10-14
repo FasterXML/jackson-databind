@@ -1073,10 +1073,6 @@ public abstract class BasicDeserializerFactory
             ValueInstantiator valueInstantiator = _constructDefaultValueInstantiator(ctxt, beanDesc);
             SettableBeanProperty[] creatorProps = (valueInstantiator == null) ? null
                     : valueInstantiator.getFromObjectArguments(ctxt.getConfig());
-            // [databind#6261]: need to pass views of creator parameters, if any
-            if (creatorProps != null) {
-                _assignEnumCreatorViews(ctxt, beanDesc, creatorProps);
-            }
             // May have @JsonCreator for static factory method:
             for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
                 if (_hasCreatorAnnotation(config, factory)) {
@@ -1090,6 +1086,10 @@ public abstract class BasicDeserializerFactory
                         ctxt.reportBadDefinition(type, String.format(
 "Invalid `@JsonCreator` annotated Enum factory method [%s]: needs to return compatible type",
 factory.toString()));
+                    }
+                    // [databind#6261]: need to pass views of creator parameters, if any
+                    if (creatorProps != null) {
+                        _assignEnumCreatorViews(ctxt, beanDesc, creatorProps);
                     }
                     deser = EnumDeserializer.deserializerForCreator(
                         config, enumClass, factory, valueInstantiator, creatorProps,
@@ -1124,8 +1124,6 @@ factory.toString()));
      * Parameters without explicit {@code @JsonView} use default views of the Enum type,
      * which (as with POJOs) is an empty set if {@code MapperFeature.DEFAULT_VIEW_INCLUSION}
      * is disabled and type has no {@code @JsonView}.
-     *
-     * @since 2.23
      */
     private void _assignEnumCreatorViews(DeserializationContext ctxt,
             BeanDescription beanDesc, SettableBeanProperty[] creatorProps)
@@ -1141,6 +1139,8 @@ factory.toString()));
             if (views == null) {
                 views = defaultViews;
             }
+            // Unlike with POJOs, only set if we have something: avoids clearing views
+            // that may have already been assigned (for example by a module)
             if (views != null) {
                 prop.setViews(views);
             }

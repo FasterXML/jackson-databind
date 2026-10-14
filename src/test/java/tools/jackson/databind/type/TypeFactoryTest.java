@@ -499,6 +499,33 @@ public class TypeFactoryTest extends DatabindTestUtil
         assertEquals(Integer.class, superType.getContentType().getContentType().getRawClass());
     }
 
+    // [databind#6220]: key/content type refined without changing type bindings (as with
+    // `@JsonDeserialize(keyAs/contentAs)`) must be retained, not only for short-cut types
+    @Test
+    public void specializedTypeRetainsRefinedKeyAndContent()
+    {
+        TypeFactory tf = newTypeFactory();
+        MapType mapType = (MapType) tf.constructType(new TypeReference<Map<Object,Object>>() { });
+        JavaType refinedMap = mapType.withKeyType(tf.constructType(Integer.class))
+                .withContentType(tf.constructType(Long.class));
+
+        JavaType subMap = tf.constructSpecializedType(refinedMap, Hashtable.class);
+        assertEquals(Hashtable.class, subMap.getRawClass());
+        assertEquals(Integer.class, subMap.getKeyType().getRawClass());
+        assertEquals(Long.class, subMap.getContentType().getRawClass());
+
+        // but key type bound by subtype itself is not replaced
+        JavaType stringKeyMap = tf.constructSpecializedType(refinedMap, MyStringXMap.class);
+        assertEquals(String.class, stringKeyMap.getKeyType().getRawClass());
+        assertEquals(Long.class, stringKeyMap.getContentType().getRawClass());
+
+        JavaType listType = tf.constructType(new TypeReference<List<Object>>() { });
+        JavaType refinedList = listType.withContentType(tf.constructType(Long.class));
+        JavaType subList = tf.constructSpecializedType(refinedList, GenericList.class);
+        assertEquals(GenericList.class, subList.getRawClass());
+        assertEquals(Long.class, subList.getContentType().getRawClass());
+    }
+
     @Test
     public void testTypeGeneralization()
     {

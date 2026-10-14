@@ -1,6 +1,8 @@
 package tools.jackson.databind.module;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.junit.jupiter.api.Test;
 
@@ -9,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.Version;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -80,6 +83,22 @@ public class TestAbstractTypes extends DatabindTestUtil
         public String getValue() {
             return value;
         }
+    }
+
+    // [databind#6220]
+    static class LongContentListHolder {
+        @JsonDeserialize(contentAs = Long.class)
+        public List<Object> list;
+    }
+
+    static class IntKeyMapHolder {
+        @JsonDeserialize(keyAs = Integer.class)
+        public Map<Object, String> map;
+    }
+
+    static class LongContentMapHolder {
+        @JsonDeserialize(contentAs = Long.class)
+        public Map<String, Object> map;
     }
 
     /*
@@ -189,5 +208,52 @@ public class TestAbstractTypes extends DatabindTestUtil
 
         Datatype2 value2 = mapper.readValue(JSON_EXAMPLE, Datatype2.class);
         assertNotNull(value2);
+    }
+
+    // [databind#6220]: `@JsonDeserialize(keyAs/contentAs)` must be retained when mapping
+    // to a container type `TypeFactory` has no short-cut for (unlike `ArrayList`, `HashMap`)
+
+    @Test
+    public void contentAsRetainedForMappedCollection()
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addAbstractTypeMapping(List.class, CopyOnWriteArrayList.class))
+                .build();
+        LongContentListHolder result = mapper.readValue("""
+                {"list":[1,2]}
+                """, LongContentListHolder.class);
+        assertEquals(CopyOnWriteArrayList.class, result.list.getClass());
+        assertEquals(Arrays.asList(1L, 2L), result.list);
+        assertEquals(Long.class, result.list.get(0).getClass());
+    }
+
+    @Test
+    public void keyAsRetainedForMappedMap()
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addAbstractTypeMapping(Map.class, ConcurrentHashMap.class))
+                .build();
+        IntKeyMapHolder result = mapper.readValue("""
+                {"map":{"1":"a"}}
+                """, IntKeyMapHolder.class);
+        assertEquals(ConcurrentHashMap.class, result.map.getClass());
+        assertEquals(Integer.class, result.map.keySet().iterator().next().getClass());
+        assertEquals("a", result.map.get(1));
+    }
+
+    @Test
+    public void contentAsRetainedForMappedMap()
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addAbstractTypeMapping(Map.class, ConcurrentHashMap.class))
+                .build();
+        LongContentMapHolder result = mapper.readValue("""
+                {"map":{"a":1}}
+                """, LongContentMapHolder.class);
+        assertEquals(ConcurrentHashMap.class, result.map.getClass());
+        assertEquals(Long.class, result.map.get("a").getClass());
     }
 }

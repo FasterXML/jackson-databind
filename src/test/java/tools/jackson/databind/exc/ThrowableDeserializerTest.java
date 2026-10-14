@@ -60,6 +60,17 @@ public class ThrowableDeserializerTest extends DatabindTestUtil
         public AnySetterException(String msg) { super(msg); }
     }
 
+    // Exception combining @JsonIncludeProperties allow-list with @JsonAnySetter
+    @JsonIncludeProperties({"message"})
+    @SuppressWarnings("serial")
+    static class IncludePropsAnySetterException extends Exception {
+        @JsonAnySetter
+        public Map<String, Object> extra = new LinkedHashMap<>();
+
+        public IncludePropsAnySetterException() { super(); }
+        public IncludePropsAnySetterException(String msg) { super(msg); }
+    }
+
     // Exception with @JsonCreator, @JsonAnySetter and extra props
     @SuppressWarnings("serial")
     static class MyException extends Exception
@@ -414,6 +425,57 @@ public class ThrowableDeserializerTest extends DatabindTestUtil
         assertNotNull(result);
         assertNull(result.getMessage());
         assertTrue(result.extra.containsKey("unknownProp"));
+    }
+
+    @Test
+    public void includePropertiesHonoredWithAnySetter() throws Exception
+    {
+        // a property outside the @JsonIncludeProperties allow-list must not be
+        // routed to the any-setter
+        String json = """
+                {"message":"the msg","secret":"leaked","admin":true}""";
+        IncludePropsAnySetterException result = MAPPER.readValue(json, IncludePropsAnySetterException.class);
+        assertNotNull(result);
+        assertEquals("the msg", result.getMessage());
+        assertTrue(result.extra.isEmpty(),
+                "non-included properties leaked into any-setter: " + result.extra.keySet());
+    }
+
+    @Test
+    public void includePropertiesDoesNotDropStandardProps() throws Exception
+    {
+        // ...but the standard `Throwable` properties are not subject to the
+        // allow-list: they carry no annotations of their own and so would
+        // otherwise be dropped by every allow-list that fails to name them
+        String json = """
+                {"message":"the msg","localizedMessage":"the msg",\
+                "suppressed":[{"message":"suppressed one"}]}""";
+        IncludePropsAnySetterException result = MAPPER.readValue(json,
+                IncludePropsAnySetterException.class);
+        assertNotNull(result);
+        assertEquals("the msg", result.getMessage());
+        assertTrue(result.extra.isEmpty(),
+                "standard properties leaked into any-setter: " + result.extra.keySet());
+
+        Throwable[] suppressed = result.getSuppressed();
+        assertEquals(1, suppressed.length,
+                "'suppressed' should be set despite @JsonIncludeProperties allow-list");
+        assertEquals("suppressed one", suppressed[0].getMessage());
+    }
+
+    @Test
+    public void includePropertiesStandardPropsWithFailOnIgnored() throws Exception
+    {
+        // and, being exempt, they must not trigger FAIL_ON_IGNORED_PROPERTIES either
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
+                .build();
+        String json = """
+                {"message":"the msg","localizedMessage":"the msg","suppressed":[]}""";
+        IncludePropsAnySetterException result = mapper.readValue(json,
+                IncludePropsAnySetterException.class);
+        assertEquals("the msg", result.getMessage());
+        assertEquals(0, result.getSuppressed().length);
     }
 
     /*

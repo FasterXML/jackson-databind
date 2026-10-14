@@ -6,11 +6,34 @@ Project: jackson-databind
 
 2.23.0 (not yet released)
 
-No changes since 2.22
+#6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+ (fix by @kimsanhaa)
 
-2.22.3 (not yet released)
+2.22.4 (not yet released)
+
+#6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
+  (instead of `StackOverflowError`)
+ (fix by @pjfanning, w/ Claude code)
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
+ (reported by @sergeylappo)
+ (fix by @pjfanning, w/ Claude code)
+#6249: Avoid NPE when parser reports `VALUE_STRING` with `null` text
+ (fix by @pjfanning, w/ Claude code)
+
+2.22.3 (21-Sep-2026)
 
 #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [CVE-2026-91776]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [CVE-2026-91777]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6205: Avoid quadratic forward-reference resolution in `ObjectArrayDeserializer`
  (fix by @pjfanning, w/ Claude code)
 
 2.22.2 (16-Aug-2026)
@@ -60,9 +83,31 @@ No changes since 2.22
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.7 (not yet released)
+2.21.8 (not yet released)
+
+#6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
+  (instead of `StackOverflowError`)
+ (fix by @pjfanning, w/ Claude code)
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
+ (reported by @sergeylappo)
+ (fix by @pjfanning, w/ Claude code)
+#6249: Avoid NPE when parser reports `VALUE_STRING` with `null` text
+ (fix by @pjfanning, w/ Claude code)
+
+2.21.7 (21-Sep-2026)
 
 #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [CVE-2026-91776]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [CVE-2026-91777]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6205: Avoid quadratic forward-reference resolution in `ObjectArrayDeserializer`
  (fix by @pjfanning, w/ Claude code)
 
 2.21.6 (14-Aug-2026)
@@ -391,10 +436,18 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
-2.18.11 (Not yet released)
+2.18.11 (20-Sep-2026)
 
 #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
  (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [CVE-2026-91776]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [CVE-2026-91777]
+ (reported by @dabirt)
+ (fix by @pjfanning)
 
 2.18.10 (15-Aug-2026)
 

@@ -11,6 +11,8 @@ import tools.jackson.databind.annotation.JsonNaming;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RecordNamingStrategyTest extends DatabindTestUtil
 {
@@ -27,6 +29,13 @@ public class RecordNamingStrategyTest extends DatabindTestUtil
             this.toSnakeCase = toSnakeCase;
         }
     }
+
+    // [databind#6217]: "is"-prefixed component, accessor looks like an is-getter
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    record IsPrefixBoxedRecord6217(Boolean isTrue) {}
+
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    record IsPrefixPrimitiveRecord6217(boolean isTrue) {}
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -63,5 +72,46 @@ public class RecordNamingStrategyTest extends DatabindTestUtil
 "{'id':123,'to_snake_case':'snakey'}"));
         assertEquals(123, value.id);
         assertEquals("snakey", value.toSnakeCase);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, @JsonNaming with "is"-prefixed components [databind#6217]
+    /**********************************************************************
+     */
+
+    // [databind#6217]
+    @Test
+    public void roundtripIsPrefixBoxed6217() throws Exception
+    {
+        IsPrefixBoxedRecord6217 src = new IsPrefixBoxedRecord6217(false);
+        String json = MAPPER.writeValueAsString(src);
+        assertEquals("""
+                {"is_true":false}""", json);
+        IsPrefixBoxedRecord6217 after = MAPPER.readValue(json, IsPrefixBoxedRecord6217.class);
+        assertEquals(src, after);
+        assertFalse(after.isTrue());
+    }
+
+    // [databind#6217]
+    @Test
+    public void roundtripIsPrefixPrimitive6217() throws Exception
+    {
+        IsPrefixPrimitiveRecord6217 src = new IsPrefixPrimitiveRecord6217(true);
+        String json = MAPPER.writeValueAsString(src);
+        assertEquals("""
+                {"is_true":true}""", json);
+        IsPrefixPrimitiveRecord6217 after = MAPPER.readValue(json, IsPrefixPrimitiveRecord6217.class);
+        assertEquals(src, after);
+        assertTrue(after.isTrue());
+    }
+
+    // [databind#6217]: exact input from the issue report
+    @Test
+    public void deserializeIssueInput6217() throws Exception
+    {
+        IsPrefixBoxedRecord6217 r = MAPPER.readValue("""
+                {"is_true" : false}""", IsPrefixBoxedRecord6217.class);
+        assertEquals(Boolean.FALSE, r.isTrue());
     }
 }

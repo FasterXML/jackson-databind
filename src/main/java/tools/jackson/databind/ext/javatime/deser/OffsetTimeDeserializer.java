@@ -87,8 +87,7 @@ public class OffsetTimeDeserializer extends JSR310DateTimeDeserializerBase<Offse
     {
         OffsetTimeDeserializer deser = (OffsetTimeDeserializer)
             super._withFormatOverrides(ctxt, property, formatOverrides);
-        Boolean readTimestampsAsNanosOverride = formatOverrides.getFeature(
-            JsonFormat.Feature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+        Boolean readTimestampsAsNanosOverride = _findReadTimestampsAsNanosOverride(formatOverrides);
         if (!Objects.equals(readTimestampsAsNanosOverride, deser._readTimestampsAsNanosOverride)) {
             return new OffsetTimeDeserializer(deser, deser._isLenient, deser._formatter,
                 deser._shape, readTimestampsAsNanosOverride);

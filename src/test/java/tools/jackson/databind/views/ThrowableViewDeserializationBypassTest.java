@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -39,6 +40,21 @@ public class ThrowableViewDeserializationBypassTest extends DatabindTestUtil
         @JsonView(Internal.class) public String sec; // internal-only
         public StdPropsException() { super(); }
         public StdPropsException(String msg) { super(msg); }
+    }
+
+    // [databind#6174]: the exemption must cover ALL standard `Throwable` properties,
+    // including "message" and "suppressed" -- which a sub-class may make settable, in
+    // which case they are bound as regular properties (and not handled separately)
+    @SuppressWarnings("serial")
+    static class SettableStdPropsException extends RuntimeException {
+        protected String _msg;
+        public Throwable[] supp;
+
+        public SettableStdPropsException() { super(); }
+
+        @Override public String getMessage() { return _msg; }
+        public void setMessage(String msg) { _msg = msg; }
+        public void setSuppressed(Throwable[] s) { supp = s; }
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -117,6 +133,31 @@ public class ThrowableViewDeserializationBypassTest extends DatabindTestUtil
         assertEquals("suppressed one", suppressed[0].getMessage());
     }
 
+    // [databind#6174]: ...and that holds for "message"/"suppressed" bound as regular
+    // properties, too: without an explicit `@JsonView` they must not be view-filtered
+    @Test
+    public void settableStandardThrowablePropsIncludedUnderView() throws Exception {
+        final String json = """
+{
+  "message" : "the message",
+  "suppressed" : [ { "message" : "suppressed one" } ]
+}
+""";
+        SettableStdPropsException ex = MAPPER.readerWithView(Public.class)
+                .forType(SettableStdPropsException.class)
+                .readValue(json);
+        assertEquals("the message", ex.getMessage(),
+                "settable 'message' should be set from input under active view");
+        assertNotNull(ex.supp, "settable 'suppressed' should be set from input under active view");
+        assertEquals(1, ex.supp.length);
+
+        // ... and must not trigger `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` either
+        SettableStdPropsException ex2 = FAIL_ON_UNEXPECTED_MAPPER.readerWithView(Public.class)
+                .forType(SettableStdPropsException.class)
+                .readValue(json);
+        assertEquals("the message", ex2.getMessage());
+    }
+
     // [databind#437]: with `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` enabled, a property
     // outside the active view is reported as an unexpected property instead of skipped
     @Test
@@ -154,5 +195,37 @@ public class ThrowableViewDeserializationBypassTest extends DatabindTestUtil
         assertEquals("the message", ex.getMessage());
         assertNotNull(ex.getCause());
         assertEquals(0, ex.getStackTrace().length);
+    }
+
+    // [databind#3497]: ...and the exemption must survive a `PropertyNamingStrategy`.
+    // With SNAKE_CASE the property is externally named "stack_trace", which no
+    // case-insensitive comparison against "stackTrace" can ever match
+    @Test
+    public void standardThrowablePropsIncludedUnderViewWithNamingStrategy() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+                .build();
+        final String json = """
+{
+  "message" : "the message",
+  "cause" : { "message" : "root cause" },
+  "stack_trace" : [ {
+    "class_name" : "some.Class", "method_name" : "someMethod",
+    "file_name" : "Class.java", "line_number" : 42
+  } ],
+  "pub" : "visible",
+  "sec" : "leaked"
+}
+""";
+        StdPropsException ex = mapper.readerWithView(Public.class)
+                .forType(StdPropsException.class)
+                .readValue(json);
+
+        assertEquals("visible", ex.pub);
+        assertNull(ex.sec);
+        assertEquals("the message", ex.getMessage());
+        assertNotNull(ex.getCause(), "'cause' should be set under active view");
+        assertEquals(1, ex.getStackTrace().length,
+                "'stack_trace' should be set from input under active view");
     }
 }

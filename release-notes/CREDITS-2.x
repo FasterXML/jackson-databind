@@ -1966,6 +1966,13 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Reported #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
   (2.18.11)
 
+@dabirt
+ * Reported #6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  (2.18.11)
+ * Reported #6204: Avoid quadratic forward-reference resolution in Collection/Map
+   deserializers
+  (2.18.11)
+
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
   (2.19.0)
@@ -2105,3 +2112,12 @@ Christian Danner cdadac
  * Reported #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
    are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
   [2.22.0]
+
+Sergey Lappo (@sergeylappo)
+ * Reported #6227: `BeanDescription` is not thread-safe when called concurrently on the
+   same instance (`findProperties()`, `findDefaultViews()`)
+  [2.21.8]
+
+Sanha (@kimsanhaa)
+ * Fixed #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+  [2.23.0]

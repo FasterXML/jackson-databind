@@ -676,6 +676,11 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Fixed #6232: Validate `StreamReadConstraints` number length when coercing
    `StringNode` to number
   [3.2.4]
+ * Fixed #6252: `@JsonIgnoreProperties` not honored for `EnumMap` properties
+  [3.2.4]
+ * Fixed #6255: `@JsonIgnoreProperties`/`@JsonIncludeProperties` not honored for
+   `ObjectNode`/`JsonNode`-valued `@JsonAnyGetter` entries
+  [3.3.0]
 
 @waydeshi
  * Reported #6127: Add `StreamReadConstraints` number len constraint to
@@ -788,3 +793,13 @@ Sanha (@kimsanhaa)
 @Laar
  * Reported #6091: Current token incorrectly reported when using `@JsonTypeInfo`
   [3.3.0]
+
+Hyun Lee (@dlwhdgus0810)
+ * Contributed #6243: Filter ignored Creator properties at build time instead of
+   per-loop read-time checks
+  [3.3.0]
+
+@schabe77
+ * Reported #6273: Deserializing empty `Locale` Map keys (and other non-BCP-47
+   single-segment values) fails since 3.2.0
+  [3.2.4]

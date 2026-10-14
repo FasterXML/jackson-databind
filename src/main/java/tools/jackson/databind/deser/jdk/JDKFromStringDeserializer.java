@@ -283,8 +283,11 @@ public class JDKFromStringDeserializer
         // manually
         int ix = _firstHyphenOrUnderscore(fullValue);
         if (ix < 0) { // single argument
-            // 06-Apr-2026, tatu: Use Builder to avoid deprecated Locale(String) constructor
-            return new Locale.Builder().setLanguageTag(fullValue).build();
+            // [databind#6273]: must NOT use `Locale.Builder.setLanguageTag()` here:
+            //   it rejects values that are not valid BCP-47 tags (including "",
+            //   which must map to `Locale.ROOT`) and throws `IllformedLocaleException`
+            //   (not an `IllegalArgumentException`)
+            return new Locale(fullValue);
         }
         // But also of interest: "_" signals "old" serialization, simpleish;
         // but "-" language-tag

@@ -790,3 +790,8 @@ Hyun Lee (@dlwhdgus0810)
  * Contributed #6243: Filter ignored Creator properties at build time instead of
    per-loop read-time checks
   [3.3.0]
+
+@schabe77
+ * Reported #6273: Deserializing empty `Locale` Map keys (and other non-BCP-47
+   single-segment values) fails since 3.2.0
+  [3.2.4]

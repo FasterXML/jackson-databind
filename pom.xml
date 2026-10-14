@@ -52,7 +52,7 @@
     <version.android.sdk>26</version.android.sdk>
     <version.android.sdk.signature>0.12.0</version.android.sdk.signature>
 
-    <version.bytebuddy>1.15.10</version.bytebuddy>
+    <version.bytebuddy>1.18.15</version.bytebuddy>
 
     <!-- 25-Sep-2025, tatu: Last 4.x Mockito: 5.x requires JDK 11 so
           cannot upgrade further
@@ -459,8 +459,11 @@
         <jdk>[21,)</jdk>
       </activation>
       <properties>
+        <!-- TEMPORARY: -Dnet.bytebuddy.agent.attacher.dump prints output of failed
+             ByteBuddy self-attach to build log, to diagnose Mockito failures on JDK 21 -->
         <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED
 	         --add-opens=java.base/java.util=ALL-UNNAMED
+	         -Dnet.bytebuddy.agent.attacher.dump=/dev/stdout
 	</argLine>
       </properties>
       <build>

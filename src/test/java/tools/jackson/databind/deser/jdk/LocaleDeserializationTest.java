@@ -42,6 +42,7 @@ public class LocaleDeserializationTest
                 MAPPER.readValue(q("en"), Locale.class));
     }
 
+    @Test
     public void testLocaleTwoPart() throws IOException
     {
         // Simple; language+country
@@ -60,6 +61,7 @@ public class LocaleDeserializationTest
                 MAPPER.readValue(q("zh_CN"), Locale.class));
     }
 
+    @Test
     public void testLocaleThreePart() throws IOException
     {
         assertEquals(new Locale("FI", "fi", "savo"),

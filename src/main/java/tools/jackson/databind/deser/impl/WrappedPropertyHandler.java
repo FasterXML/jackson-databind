@@ -12,7 +12,7 @@ import tools.jackson.databind.deser.SettableBeanProperty;
  * When the wrapper field is encountered during deserialization, enters
  * the sub-object and dispatches inner properties to the flat bean setters.
  *
- * @since 3.1
+ * @since 3.3
  */
 public class WrappedPropertyHandler implements java.io.Serializable
 {

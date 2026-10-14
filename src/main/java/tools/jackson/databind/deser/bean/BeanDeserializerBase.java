@@ -197,7 +197,7 @@ public abstract class BeanDeserializerBase
     /**
      * Handler for properties annotated with {@code @JsonWrapped}, if any.
      *
-     * @since 3.1
+     * @since 3.3
      */
     protected WrappedPropertyHandler _wrappedPropertyHandler;
 
@@ -2321,5 +2321,4 @@ ClassUtil.getTypeDescription(ct));
         }
         return ctxt.handleInstantiationProblem(_beanType.getRawClass(), null, t);
     }
-
 }

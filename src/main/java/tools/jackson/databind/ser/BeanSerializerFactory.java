@@ -936,28 +936,25 @@ public class BeanSerializerFactory
             return props;
         }
 
-        // 1. Scan for @JsonWrapped, group by wrapper name
-        // LinkedHashMap preserves insertion order (first occurrence)
-        // Cache wrapper names to avoid redundant introspection calls
+        // 1. Scan for @JsonWrapped, group by wrapper name (LinkedHashMap keeps
+        // first-occurrence order); remember each wrapped property's name
         LinkedHashMap<String, List<BeanPropertyWriter>> groups = null;
-        Map<BeanPropertyWriter, String> wrapperNameCache = new HashMap<>();
+        Map<BeanPropertyWriter, String> wrapperNames = new HashMap<>();
+        boolean hasUnwrapped = false;
 
         for (BeanPropertyWriter prop : props) {
-            if (prop == null) {
-                continue;
-            }
-            AnnotatedMember member = prop.getMember();
+            AnnotatedMember member = (prop == null) ? null : prop.getMember();
             if (member == null) {
                 continue;
+            }
+            if (intr.findUnwrappingNameTransformer(config, member) != null) {
+                hasUnwrapped = true;
             }
             String wrapperName = intr.findWrappedGroupName(config, member);
             if (wrapperName == null || wrapperName.isEmpty()) {
                 continue;  // not wrapped, or explicitly disabled via @JsonWrapped("")
             }
-
-            // Cache the wrapper name for later use
-            wrapperNameCache.put(prop, wrapperName);
-
+            wrapperNames.put(prop, wrapperName);
             if (groups == null) {
                 groups = new LinkedHashMap<>();
             }
@@ -968,92 +965,47 @@ public class BeanSerializerFactory
             return props;  // no wrapped properties
         }
 
-        // 1b. Validate: @JsonWrapped + @JsonUnwrapped cannot be mixed on the same bean
-        for (BeanPropertyWriter prop : props) {
-            if (prop == null) continue;
-            AnnotatedMember member = prop.getMember();
-            if (member == null) continue;
-            if (intr.findUnwrappingNameTransformer(config, member) != null) {
-                ctxt.reportBadTypeDefinition(beanDescRef,
-                    "Cannot use both @JsonWrapped and @JsonUnwrapped on the same bean '%s': " +
-                    "combined serialization is not supported. Use one or the other.",
-                    beanDescRef.get().getBeanClass().getName());
-            }
+        // 2. Validate: @JsonWrapped + @JsonUnwrapped cannot be mixed on the same bean
+        if (hasUnwrapped) {
+            ctxt.reportBadTypeDefinition(beanDescRef,
+                "Cannot use both @JsonWrapped and @JsonUnwrapped on the same bean '%s': " +
+                "combined serialization is not supported. Use one or the other.",
+                beanDescRef.get().getBeanClass().getName());
         }
 
-        // 2. Validate: name conflicts (wrapper name vs non-wrapped property name)
-        Set<String> wrapperNames = groups.keySet();
+        // 3. Validate: name conflicts (wrapper name vs non-wrapped property name)
         for (BeanPropertyWriter prop : props) {
-            if (prop == null) {
-                continue;
-            }
-            // Use cached wrapper name to avoid redundant introspection
-            String wn = wrapperNameCache.get(prop);
-            if (wn != null) {
-                continue;  // this is a wrapped property, skip
-            }
-            if (wrapperNames.contains(prop.getName())) {
+            if (prop != null && !wrapperNames.containsKey(prop)
+                    && groups.containsKey(prop.getName())) {
                 ctxt.reportBadTypeDefinition(beanDescRef,
                     "Wrapper name '%s' from @JsonWrapped conflicts with existing non-wrapped property name '%s'",
                     prop.getName(), prop.getName());
             }
         }
 
-        // 3. Build new property list:
-        //    - Replace first occurrence of each group with a WrappedPropertyGroupWriter
-        //    - Remove subsequent members of the group
+        // 4. Build new property list: replace first occurrence of each group
+        //    with a WrappedPropertyGroupWriter, drop the other members
         List<BeanPropertyWriter> result = new ArrayList<>(props.size());
         Set<String> emittedGroups = new HashSet<>();
-        Set<BeanPropertyWriter> groupedProps = new HashSet<>();
-        for (List<BeanPropertyWriter> g : groups.values()) {
-            if (g != null) {
-                groupedProps.addAll(g);
-            }
-        }
-
         for (BeanPropertyWriter prop : props) {
             if (prop == null) {
                 continue;
             }
-            if (!groupedProps.contains(prop)) {
+            String wrapperName = wrapperNames.get(prop);
+            if (wrapperName == null) {
                 result.add(prop);  // non-wrapped, keep as-is
                 continue;
             }
-            // This prop is part of a wrapped group
-            // Use cached wrapper name to avoid redundant introspection
-            String wrapperName = wrapperNameCache.get(prop);
-            // Defensive null checks (should not happen due to cache, but defensive)
-            if (wrapperName == null) {
-                AnnotatedMember member = prop.getMember();
-                if (member == null) {
-                    result.add(prop);
-                    continue;
-                }
-                wrapperName = intr.findWrappedGroupName(config, member);
-                if (wrapperName == null) {
-                    result.add(prop);
-                    continue;
-                }
-            }
-            if (emittedGroups.contains(wrapperName)) {
-                continue;  // already emitted via the group writer, skip
-            }
-            // First occurrence → create the group writer
-            List<BeanPropertyWriter> group = groups.get(wrapperName);
-            if (group == null || group.isEmpty()) {
-                // Defensive check: should not happen, but skip if empty
-                continue;
+            if (!emittedGroups.add(wrapperName)) {
+                continue;  // already emitted via the group writer
             }
             // Unwrap any FilteredBeanPropertyWriter delegates so that @JsonView
             // annotations on inner fields are not applied (MVP limitation: wrapped
             // properties always serialize regardless of active view).
-            BeanPropertyWriter[] innerWriters = group.stream()
+            BeanPropertyWriter[] innerWriters = groups.get(wrapperName).stream()
                 .map(FilteredBeanPropertyWriter::unwrapDelegate)
                 .toArray(BeanPropertyWriter[]::new);
-            WrappedPropertyGroupWriter groupWriter =
-                new WrappedPropertyGroupWriter(wrapperName, innerWriters, ctxt.getTypeFactory());
-            result.add(groupWriter);
-            emittedGroups.add(wrapperName);
+            result.add(new WrappedPropertyGroupWriter(wrapperName, innerWriters, ctxt.getTypeFactory()));
         }
 
         return result;

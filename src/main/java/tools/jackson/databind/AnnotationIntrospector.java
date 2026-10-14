@@ -562,7 +562,7 @@ public abstract class AnnotationIntrospector
      *   <li>non-empty string — active wrapper name</li>
      * </ul>
      *
-     * @since 3.1
+     * @since 3.3
      */
     public String findWrappedGroupName(MapperConfig<?> config, AnnotatedMember member) {
         return null;

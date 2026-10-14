@@ -301,6 +301,7 @@ public class JDKStringLikeTypeDeserTest
         buf.close();
     }
 
+    @Test
     public void testURLInvalid() throws Exception
     {
         // and finally, invalid URL should be handled appropriately too

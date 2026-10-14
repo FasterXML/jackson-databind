@@ -91,7 +91,6 @@ public class MapDeserializer
      */
     protected IgnorePropertiesUtil.Checker _inclusionChecker;
 
-
     /**
      * Flag used to check, whether the {@link tools.jackson.core.StreamReadCapability#DUPLICATE_PROPERTIES}
      * can be applied, because the Map has declared value type of {@code java.lang.Object}.
@@ -363,34 +362,14 @@ public class MapDeserializer
             AnnotatedMember member = property.getMember();
             if (member != null) {
                 final DeserializationConfig config = ctxt.getConfig();
-                JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(ctxt.getConfig(), member);
+                JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, member);
                 if (ignorals != null) {
-                    Set<String> ignoresToAdd = ignorals.findIgnoredForDeserialization();
-                    if (!ignoresToAdd.isEmpty()) {
-                        if (ignored == null) {
-                            ignored = new HashSet<>(ignoresToAdd);
-                        } else {
-                            ignored = new HashSet<>(ignored);
-                            ignored.addAll(ignoresToAdd);
-                        }
-                    }
+                    ignored = IgnorePropertiesUtil.combineNamesToIgnore(ignored,
+                            ignorals.findIgnoredForDeserialization());
                 }
                 JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, member);
                 if (inclusions != null) {
-                    Set<String> includedToAdd = inclusions.getIncluded();
-                    if (includedToAdd != null) {
-                        Set<String> newIncluded = new HashSet<>();
-                        if (included == null) {
-                            newIncluded = new HashSet<>(includedToAdd);
-                        } else {
-                            for (String str : includedToAdd) {
-                                if (included.contains(str)) {
-                                    newIncluded.add(str);
-                                }
-                            }
-                        }
-                        included = newIncluded;
-                    }
+                    included = IgnorePropertiesUtil.combineNamesToInclude(included, inclusions.getIncluded());
                 }
             }
         }
@@ -567,16 +546,19 @@ public class MapDeserializer
                 && nks.skipNullKeys(ctxt);
 
         for (; keyStr != null; keyStr = p.nextName()) {
+            // [databind#6257] Check ignorals on raw name, before key deserialization,
+            // so that ignored names that are not valid keys do not fail
+            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
+                p.nextToken(); // to value, so we can skip it
+                p.skipChildren();
+                continue;
+            }
             Object key = _keyDeserializer.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
             // [databind#3188] Skip entry when key deserializer requests null-key skipping
             if (skipNullKeys && key == null) {
                 p.skipChildren(); // no-op for scalar tokens; safe to call unconditionally
-                continue;
-            }
-            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
-                p.skipChildren();
                 continue;
             }
             try {
@@ -807,16 +789,19 @@ public class MapDeserializer
                 && nks.skipNullKeys(ctxt);
 
         for (; keyStr != null; keyStr = p.nextName()) {
+            // [databind#6257] Check ignorals on raw name, before key deserialization,
+            // so that ignored names that are not valid keys do not fail
+            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
+                p.nextToken(); // to value, so we can skip it
+                p.skipChildren();
+                continue;
+            }
             Object key = _keyDeserializer.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
             // [databind#3188] Skip entry when key deserializer requests null-key skipping
             if (skipNullKeys && key == null) {
                 p.skipChildren(); // no-op for scalar tokens; safe to call unconditionally
-                continue;
-            }
-            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
-                p.skipChildren();
                 continue;
             }
             try {

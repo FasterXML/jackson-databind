@@ -453,3 +453,8 @@ Sergey Lappo (@sergeylappo)
 Sanha (@kimsanhaa)
  * Fixed #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
   [3.1.8]
+
+Karim Sabar (@kas5852)
+ * Reported, contributed fix for #6270: `TreeTraversingParser.skipChildren()` does not
+   count skipped tokens toward `StreamReadConstraints.maxTokenCount`
+  [3.1.8]

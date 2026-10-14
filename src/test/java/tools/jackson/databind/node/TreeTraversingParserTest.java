@@ -12,8 +12,11 @@ import tools.jackson.core.*;
 import tools.jackson.core.JsonParser.NumberType;
 import tools.jackson.core.JsonParser.NumberTypeFP;
 import tools.jackson.core.exc.InputCoercionException;
+import tools.jackson.core.exc.StreamConstraintsException;
+import tools.jackson.core.json.JsonFactory;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.JsonNodeException;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -430,5 +433,75 @@ public class TreeTraversingParserTest
                 assertToken(JsonToken.END_OBJECT, p.nextToken());
             }
         }
+    }
+
+    @Test
+    public void skipChildrenCountsSkippedTokens() throws Exception
+    {
+        try (JsonParser p = _tokenLimitedMapper(8).treeAsTokens(_skipDoc())) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            try {
+                p.skipChildren();
+                fail("Should not pass");
+            } catch (StreamConstraintsException e) {
+                verifyException(e, "Token count (9) exceeds the maximum allowed (8");
+            }
+        }
+    }
+
+    @Test
+    public void skipChildrenCountsSkippedArrayTokens() throws Exception
+    {
+        JsonNode tree = MAPPER.readTree("""
+                {"a":[1,2,3,4,5,6,7,8,9,10],"b":6}
+                """);
+        try (JsonParser p = _tokenLimitedMapper(8).treeAsTokens(tree)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            try {
+                p.skipChildren();
+                fail("Should not pass");
+            } catch (StreamConstraintsException e) {
+                verifyException(e, "Token count (9) exceeds the maximum allowed (8");
+            }
+        }
+    }
+
+    @Test
+    public void skipChildrenWithinTokenLimit() throws Exception
+    {
+        try (JsonParser p = _tokenLimitedMapper(17).treeAsTokens(_skipDoc())) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            p.skipChildren();
+            assertToken(JsonToken.END_OBJECT, p.currentToken());
+            assertEquals(14, p.currentTokenCount());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertEquals("b", p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(6, p.getIntValue());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+            assertNull(p.nextToken());
+            assertEquals(17, p.currentTokenCount());
+        }
+    }
+
+    private JsonNode _skipDoc() throws Exception
+    {
+        return MAPPER.readTree("""
+                {"a":{"x":1,"y":2,"z":3,"w":4,"v":5},"b":6}
+                """);
+    }
+
+    private ObjectMapper _tokenLimitedMapper(long maxTokens)
+    {
+        return JsonMapper.builder(JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxTokenCount(maxTokens).build())
+                .build())
+            .build();
     }
 }

@@ -45,7 +45,7 @@
              --add-opens=java.base/java.util=tools.jackson.databind
     </argLine>
 
-    <version.bytebuddy>1.18.4</version.bytebuddy>
+    <version.bytebuddy>1.18.15</version.bytebuddy>
     <version.mockito>5.21.0</version.mockito>
 
     <!-- 07-Mar-2025, tatu: For some reason, release fails due to missing

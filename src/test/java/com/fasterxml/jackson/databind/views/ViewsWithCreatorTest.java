@@ -5,9 +5,12 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ViewsWithCreatorTest extends DatabindTestUtil
 {
@@ -79,6 +82,11 @@ public class ViewsWithCreatorTest extends DatabindTestUtil
             .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
             .build();
 
+    private final ObjectMapper FAIL_ON_MISSING_MAPPER = jsonMapperBuilder()
+            .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+            .enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)
+            .build();
+
     private final ObjectMapper NO_DEFAULT_INCLUSION_MAPPER = jsonMapperBuilder()
             .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
             .build();
@@ -113,59 +121,66 @@ public class ViewsWithCreatorTest extends DatabindTestUtil
     /**********************************************************************
      */
 
+    // All Enums below have the same constants, which tell which creator parameters
+    // were actually passed a value (as opposed to being hidden by the active view):
+    // `NONE` neither, `A_ONLY` only "a", `B_ONLY` only "b", `BOTH` both.
+
+    private static int seen(Object a, Object b) {
+        return ((a == null) ? 0 : 1) + ((b == null) ? 0 : 2);
+    }
 
     enum ParamViewEnum {
-        A, B;
+        NONE, A_ONLY, B_ONLY, BOTH;
 
         @JsonCreator
         static ParamViewEnum create(@JsonProperty("a") @JsonView(View1.class) String a,
                 @JsonProperty("b") @JsonView(View2.class) String b) {
-            return (b == null) ? A : B;
+            return values()[seen(a, b)];
         }
     }
 
     // View on Enum type applies to parameters without explicit view
     @JsonView(View2.class)
     enum TypeViewEnum {
-        A, B;
+        NONE, A_ONLY, B_ONLY, BOTH;
 
         @JsonCreator
         static TypeViewEnum create(@JsonProperty("a") @JsonView(View1.class) String a,
                 @JsonProperty("b") String b) {
-            return (b == null) ? A : B;
+            return values()[seen(a, b)];
         }
     }
 
     // No views: all parameters always visible
     enum NoViewEnum {
-        A, B;
+        NONE, A_ONLY, B_ONLY, BOTH;
 
         @JsonCreator
         static NoViewEnum create(@JsonProperty("a") String a,
                 @JsonProperty("b") String b) {
-            return (b == null) ? A : B;
+            return values()[seen(a, b)];
         }
     }
 
     // Parameter view is a super-type of the active view
     enum SuperViewEnum {
-        A, B;
+        NONE, A_ONLY, B_ONLY, BOTH;
 
         @JsonCreator
         static SuperViewEnum create(@JsonProperty("a") @JsonView(View1.class) String a,
                 @JsonProperty("b") @JsonView(View.class) String b) {
-            return (b == null) ? A : B;
+            return values()[seen(a, b)];
         }
     }
 
     // Enum whose view is set via mix-in, not annotations on the Enum itself
     enum MixInViewEnum {
-        A, B;
+        NONE, A_ONLY, B_ONLY, BOTH;
 
         @JsonCreator
         static MixInViewEnum create(@JsonProperty("a") String a,
                 @JsonProperty("b") String b) {
-            return (b == null) ? A : B;
+            return values()[seen(a, b)];
         }
     }
 
@@ -174,6 +189,18 @@ public class ViewsWithCreatorTest extends DatabindTestUtil
         static MixInViewEnum create(@JsonProperty("a") @JsonView(View1.class) String a,
                 @JsonProperty("b") @JsonView(View2.class) String b) {
             return null;
+        }
+    }
+
+    // "a" is required but only visible in View1
+    enum RequiredViewEnum {
+        NONE, A_ONLY, B_ONLY, BOTH;
+
+        @JsonCreator
+        static RequiredViewEnum create(
+                @JsonProperty(value = "a", required = true) @JsonView(View1.class) String a,
+                @JsonProperty("b") @JsonView(View2.class) String b) {
+            return values()[seen(a, b)];
         }
     }
 
@@ -192,21 +219,21 @@ public class ViewsWithCreatorTest extends DatabindTestUtil
     public void testEnumCreatorParamWithView() throws Exception
     {
         for (ObjectMapper mapper : new ObjectMapper[] { MAPPER, NO_DEFAULT_INCLUSION_MAPPER }) {
-            assertEquals(ParamViewEnum.A, mapper.readerWithView(View1.class)
+            assertEquals(ParamViewEnum.A_ONLY, mapper.readerWithView(View1.class)
                     .forType(ParamViewEnum.class).readValue(ENUM_JSON));
-            assertEquals(ParamViewEnum.B, mapper.readerWithView(View2.class)
+            assertEquals(ParamViewEnum.B_ONLY, mapper.readerWithView(View2.class)
                     .forType(ParamViewEnum.class).readValue(ENUM_JSON));
             // and without active view, all parameters included
-            assertEquals(ParamViewEnum.B, mapper.readValue(ENUM_JSON, ParamViewEnum.class));
+            assertEquals(ParamViewEnum.BOTH, mapper.readValue(ENUM_JSON, ParamViewEnum.class));
         }
     }
 
     @Test
     public void testEnumCreatorParamWithTypeView() throws Exception
     {
-        assertEquals(TypeViewEnum.A, MAPPER.readerWithView(View1.class)
+        assertEquals(TypeViewEnum.A_ONLY, MAPPER.readerWithView(View1.class)
                 .forType(TypeViewEnum.class).readValue(ENUM_JSON));
-        assertEquals(TypeViewEnum.B, MAPPER.readerWithView(View2.class)
+        assertEquals(TypeViewEnum.B_ONLY, MAPPER.readerWithView(View2.class)
                 .forType(TypeViewEnum.class).readValue(ENUM_JSON));
     }
 
@@ -214,26 +241,25 @@ public class ViewsWithCreatorTest extends DatabindTestUtil
     public void testEnumCreatorParamWithoutView() throws Exception
     {
         // By default un-annotated parameters are included regardless of active view
-        assertEquals(NoViewEnum.B, MAPPER.readerWithView(View1.class)
+        assertEquals(NoViewEnum.BOTH, MAPPER.readerWithView(View1.class)
                 .forType(NoViewEnum.class).readValue(ENUM_JSON));
 
         // but if default inclusion disabled, excluded (same as with POJOs)
-        assertEquals(NoViewEnum.A, NO_DEFAULT_INCLUSION_MAPPER.readerWithView(View1.class)
+        assertEquals(NoViewEnum.NONE, NO_DEFAULT_INCLUSION_MAPPER.readerWithView(View1.class)
                 .forType(NoViewEnum.class).readValue(ENUM_JSON));
         // and without active view, all included
-        assertEquals(NoViewEnum.B, NO_DEFAULT_INCLUSION_MAPPER.readValue(ENUM_JSON, NoViewEnum.class));
+        assertEquals(NoViewEnum.BOTH, NO_DEFAULT_INCLUSION_MAPPER.readValue(ENUM_JSON, NoViewEnum.class));
     }
 
     @Test
     public void testEnumCreatorParamWithSuperView() throws Exception
     {
-        // "b" has view `View`, which is visible in sub-view `View1`; "a" is not visible in `View2`
-        assertEquals(SuperViewEnum.B, MAPPER.readerWithView(View1.class)
+        // "b" has view `View`, which is visible in sub-views `View1` and `View2`;
+        // "a" has `View1` so is not visible in `View2`
+        assertEquals(SuperViewEnum.BOTH, MAPPER.readerWithView(View1.class)
                 .forType(SuperViewEnum.class).readValue(ENUM_JSON));
-        assertEquals(SuperViewEnum.B, MAPPER.readerWithView(View2.class)
+        assertEquals(SuperViewEnum.B_ONLY, MAPPER.readerWithView(View2.class)
                 .forType(SuperViewEnum.class).readValue(ENUM_JSON));
-        assertEquals(SuperViewEnum.A, MAPPER.readerWithView(View2.class)
-                .forType(SuperViewEnum.class).readValue(a2q("{'a':'1'}")));
     }
 
     @Test
@@ -243,9 +269,9 @@ public class ViewsWithCreatorTest extends DatabindTestUtil
                 .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
                 .addMixIn(MixInViewEnum.class, MixInViewEnumMixIn.class)
                 .build();
-        assertEquals(MixInViewEnum.A, mapper.readerWithView(View1.class)
+        assertEquals(MixInViewEnum.A_ONLY, mapper.readerWithView(View1.class)
                 .forType(MixInViewEnum.class).readValue(ENUM_JSON));
-        assertEquals(MixInViewEnum.B, mapper.readerWithView(View2.class)
+        assertEquals(MixInViewEnum.B_ONLY, mapper.readerWithView(View2.class)
                 .forType(MixInViewEnum.class).readValue(ENUM_JSON));
     }
 
@@ -253,7 +279,7 @@ public class ViewsWithCreatorTest extends DatabindTestUtil
     @Test
     public void testEnumCreatorHiddenParamWithStructuredValue() throws Exception
     {
-        assertEquals(ParamViewEnum.A, MAPPER.readerWithView(View1.class)
+        assertEquals(ParamViewEnum.A_ONLY, MAPPER.readerWithView(View1.class)
                 .forType(ParamViewEnum.class)
                 .readValue(a2q("{'b':{'x':[1,{'y':2}]},'a':'1'}")));
     }
@@ -266,13 +292,47 @@ public class ViewsWithCreatorTest extends DatabindTestUtil
 
         EnumHolder result = MAPPER.readerWithView(View1.class)
                 .forType(EnumHolder.class).readValue(json);
-        assertEquals(ParamViewEnum.A, result.param);
-        assertEquals(NoViewEnum.B, result.noView);
+        assertEquals(ParamViewEnum.A_ONLY, result.param);
+        assertEquals(NoViewEnum.BOTH, result.noView);
 
         // With default inclusion disabled, un-annotated Enum parameters are hidden too
         result = NO_DEFAULT_INCLUSION_MAPPER.readerWithView(View1.class)
                 .forType(EnumHolder.class).readValue(json);
-        assertEquals(ParamViewEnum.A, result.param);
-        assertEquals(NoViewEnum.A, result.noView);
+        assertEquals(ParamViewEnum.A_ONLY, result.param);
+        assertEquals(NoViewEnum.NONE, result.noView);
+    }
+
+    // Behavior pinned (same as for POJOs): a hidden parameter is treated as absent
+    // from input, even if it is `required` and actually present in the JSON
+    @Test
+    public void testEnumCreatorRequiredParamHiddenByView() throws Exception
+    {
+        // visible: fine
+        assertEquals(RequiredViewEnum.A_ONLY, MAPPER.readerWithView(View1.class)
+                .forType(RequiredViewEnum.class).readValue(ENUM_JSON));
+        assertEquals(RequiredViewEnum.BOTH, MAPPER.readValue(ENUM_JSON, RequiredViewEnum.class));
+
+        // hidden: reported as missing although present in input
+        Exception e = assertThrows(MismatchedInputException.class, () ->
+            MAPPER.readerWithView(View2.class)
+                .forType(RequiredViewEnum.class).readValue(ENUM_JSON));
+        assertTrue(e.getMessage().contains("Missing required creator property 'a'"),
+                () -> "Unexpected message: " + e.getMessage());
+    }
+
+    // Likewise for `FAIL_ON_MISSING_CREATOR_PROPERTIES`
+    @Test
+    public void testEnumCreatorParamHiddenByViewWithFailOnMissing() throws Exception
+    {
+        // no active view: all visible, fine
+        assertEquals(ParamViewEnum.BOTH,
+                FAIL_ON_MISSING_MAPPER.readValue(ENUM_JSON, ParamViewEnum.class));
+
+        // "b" hidden in View1: reported as missing although present in input
+        Exception e = assertThrows(MismatchedInputException.class, () ->
+            FAIL_ON_MISSING_MAPPER.readerWithView(View1.class)
+                .forType(ParamViewEnum.class).readValue(ENUM_JSON));
+        assertTrue(e.getMessage().contains("Missing creator property 'b'"),
+                () -> "Unexpected message: " + e.getMessage());
     }
 }

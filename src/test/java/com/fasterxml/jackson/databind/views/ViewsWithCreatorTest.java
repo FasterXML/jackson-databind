@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.databind.views;
 
+import java.util.EnumMap;
+import java.util.HashMap;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
@@ -334,5 +337,51 @@ public class ViewsWithCreatorTest extends DatabindTestUtil
                 .forType(ParamViewEnum.class).readValue(ENUM_JSON));
         assertTrue(e.getMessage().contains("Missing creator property 'b'"),
                 () -> "Unexpected message: " + e.getMessage());
+    }
+
+    // Same for properties-based Creators of Map and EnumMap sub-types
+    @SuppressWarnings("serial")
+    static class ViewMap extends HashMap<String, String> {
+        public final int seen;
+
+        @JsonCreator
+        public ViewMap(@JsonProperty("a") @JsonView(View1.class) String a,
+                @JsonProperty("b") @JsonView(View2.class) String b) {
+            seen = seen(a, b);
+        }
+    }
+
+    enum MapKey { X, Y }
+
+    @SuppressWarnings("serial")
+    static class ViewEnumMap extends EnumMap<MapKey, String> {
+        public final int seen;
+
+        @JsonCreator
+        public ViewEnumMap(@JsonProperty("a") @JsonView(View1.class) String a,
+                @JsonProperty("b") @JsonView(View2.class) String b) {
+            super(MapKey.class);
+            seen = seen(a, b);
+        }
+    }
+
+    @Test
+    public void testMapCreatorParamWithView() throws Exception
+    {
+        assertEquals(1, MAPPER.readerWithView(View1.class)
+                .forType(ViewMap.class).<ViewMap>readValue(ENUM_JSON).seen);
+        assertEquals(2, MAPPER.readerWithView(View2.class)
+                .forType(ViewMap.class).<ViewMap>readValue(ENUM_JSON).seen);
+        assertEquals(3, MAPPER.readValue(ENUM_JSON, ViewMap.class).seen);
+    }
+
+    @Test
+    public void testEnumMapCreatorParamWithView() throws Exception
+    {
+        assertEquals(1, MAPPER.readerWithView(View1.class)
+                .forType(ViewEnumMap.class).<ViewEnumMap>readValue(ENUM_JSON).seen);
+        assertEquals(2, MAPPER.readerWithView(View2.class)
+                .forType(ViewEnumMap.class).<ViewEnumMap>readValue(ENUM_JSON).seen);
+        assertEquals(3, MAPPER.readValue(ENUM_JSON, ViewEnumMap.class).seen);
     }
 }

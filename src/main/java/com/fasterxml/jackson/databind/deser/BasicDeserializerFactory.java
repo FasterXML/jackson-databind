@@ -1121,16 +1121,17 @@ factory.toString()));
     /**
      * Helper method for assigning views (if any) of properties-based Enum Creator
      * parameters, so that they are honored same as with POJO creator properties.
-     * Only explicit {@code @JsonView} annotations (on parameter, or on Enum type)
-     * are considered, so un-annotated parameters are always visible.
+     * Parameters without explicit {@code @JsonView} use default views of the Enum type,
+     * which (as with POJOs) is an empty set if {@code MapperFeature.DEFAULT_VIEW_INCLUSION}
+     * is disabled and type has no {@code @JsonView}.
      *
-     * @since 2.18.12
+     * @since 2.23
      */
     private void _assignEnumCreatorViews(DeserializationContext ctxt,
             BeanDescription beanDesc, SettableBeanProperty[] creatorProps)
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        final Class<?>[] defaultViews = intr.findViews(beanDesc.getClassInfo());
+        final Class<?>[] defaultViews = beanDesc.findDefaultViews();
         for (SettableBeanProperty prop : creatorProps) {
             Class<?>[] views = null;
             AnnotatedMember member = prop.getMember();

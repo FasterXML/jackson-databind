@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
  (fix by @kimsanhaa)
+#6261: Support `@JsonView` on properties-based Enum Creator parameters
+ (fix by @pjfanning, w/ Claude code)
 
 2.22.4 (not yet released)
 

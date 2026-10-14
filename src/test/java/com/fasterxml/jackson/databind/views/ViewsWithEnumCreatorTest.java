@@ -80,10 +80,18 @@ public class ViewsWithEnumCreatorTest extends DatabindTestUtil
     @Test
     public void enumCreatorParamWithoutView() throws Exception
     {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
-                .build();
+        // By default un-annotated parameters are included regardless of active view
+        ObjectMapper mapper = newJsonMapper();
         assertEquals(NoViewEnum.B, mapper.readerWithView(ViewA.class)
                 .forType(NoViewEnum.class).readValue(JSON));
+
+        // but if default inclusion disabled, excluded (same as with POJOs)
+        ObjectMapper noDefault = jsonMapperBuilder()
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .build();
+        assertEquals(NoViewEnum.A, noDefault.readerWithView(ViewA.class)
+                .forType(NoViewEnum.class).readValue(JSON));
+        // and without active view, all included
+        assertEquals(NoViewEnum.B, noDefault.readValue(JSON, NoViewEnum.class));
     }
 }

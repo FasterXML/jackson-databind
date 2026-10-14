@@ -42,6 +42,7 @@ public class LocaleDeserializationTest
                 MAPPER.readValue(q("en"), Locale.class));
     }
 
+    @Test
     public void testLocaleTwoPart() throws IOException
     {
         // Simple; language+country
@@ -60,6 +61,7 @@ public class LocaleDeserializationTest
                 MAPPER.readValue(q("zh_CN"), Locale.class));
     }
 
+    @Test
     public void testLocaleThreePart() throws IOException
     {
         assertEquals(new Locale("FI", "fi", "savo"),
@@ -80,6 +82,41 @@ public class LocaleDeserializationTest
         assertNotNull(ob);
         assertEquals(Locale.class, ob.getClass());
         assertEquals(key, ob);
+    }
+
+    // [databind#6273]: empty String as Map key should map to `Locale.ROOT`
+    @Test
+    public void localeKeyMapEmptyKey() throws Exception {
+        Map<Locale, Integer> result = MAPPER.readValue("""
+                {"":1,"de-DE":2}
+                """,
+                new TypeReference<Map<Locale, Integer>>() { });
+        assertEquals(2, result.size());
+        assertEquals(Integer.valueOf(1), result.get(Locale.ROOT));
+        assertEquals(Integer.valueOf(2), result.get(Locale.GERMANY));
+    }
+
+    // [databind#6273]: single-segment values that are not valid BCP-47 tags
+    // must still be accepted as Map keys (as they were before 3.2.0)
+    @Test
+    public void localeKeyMapNonBCP47SingleSegment() throws Exception {
+        Map<Locale, Integer> result = MAPPER.readValue("""
+                {" ":1,"x":2,"abcdefghij":3}
+                """,
+                new TypeReference<Map<Locale, Integer>>() { });
+        assertEquals(3, result.size());
+        assertEquals(Integer.valueOf(1), result.get(new Locale(" ")));
+        assertEquals(Integer.valueOf(2), result.get(new Locale("x")));
+        assertEquals(Integer.valueOf(3), result.get(new Locale("abcdefghij")));
+    }
+
+    // [databind#6273]: ... and as values
+    @Test
+    public void localeNonBCP47SingleSegment() throws Exception {
+        for (String value : new String[] { "x", "1", "zz9", "abcdefghij" }) {
+            assertEquals(new Locale(value),
+                    MAPPER.readValue(q(value), Locale.class));
+        }
     }
 
     /*

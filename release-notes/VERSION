@@ -39,6 +39,10 @@ No changes since 3.2
  (fix by @pjfanning, w/ Claude code)
 #6252: `@JsonIgnoreProperties` not honored for `EnumMap` properties
  (fix by Aysha A-Z)
+#6273: Deserializing empty `Locale` Map keys (and other non-BCP-47 single-segment
+  values) fails since 3.2.0
+ (reported by @schabe77)
+ (fix by @pjfanning, w/ Claude code)
 
 3.2.3 (21-Sep-2026)
 

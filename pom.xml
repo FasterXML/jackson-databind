@@ -46,7 +46,7 @@
     </argLine>
 
     <version.bytebuddy>1.18.15</version.bytebuddy>
-    <version.mockito>5.21.0</version.mockito>
+    <version.mockito>5.24.0</version.mockito>
 
     <!-- 07-Mar-2025, tatu: For some reason, release fails due to missing
            jacoco... so disable for now

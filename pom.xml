@@ -459,10 +459,13 @@
         <jdk>[21,)</jdk>
       </activation>
       <properties>
+        <!-- Load ByteBuddy agent at startup instead of Mockito self-attaching it
+             dynamically (which fails on JDK 21 CI with "Agent JAR loaded but agent failed to initialize") -->
         <!-- TEMPORARY: -Dnet.bytebuddy.agent.attacher.dump writes output of failed
              ByteBuddy self-attach to target/, to diagnose Mockito failures on JDK 21 -->
         <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED
 	         --add-opens=java.base/java.util=ALL-UNNAMED
+	         -javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${version.bytebuddy}/byte-buddy-agent-${version.bytebuddy}.jar
 	         -Dnet.bytebuddy.agent.attacher.dump=${project.build.directory}/bytebuddy-attach.log
 	</argLine>
       </properties>

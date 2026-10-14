@@ -459,11 +459,11 @@
         <jdk>[21,)</jdk>
       </activation>
       <properties>
-        <!-- TEMPORARY: -Dnet.bytebuddy.agent.attacher.dump prints output of failed
-             ByteBuddy self-attach to build log, to diagnose Mockito failures on JDK 21 -->
+        <!-- TEMPORARY: -Dnet.bytebuddy.agent.attacher.dump writes output of failed
+             ByteBuddy self-attach to target/, to diagnose Mockito failures on JDK 21 -->
         <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED
 	         --add-opens=java.base/java.util=ALL-UNNAMED
-	         -Dnet.bytebuddy.agent.attacher.dump=/dev/stdout
+	         -Dnet.bytebuddy.agent.attacher.dump=${project.build.directory}/bytebuddy-attach.log
 	</argLine>
       </properties>
       <build>

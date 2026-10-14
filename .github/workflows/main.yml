@@ -46,6 +46,13 @@ jobs:
         # gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
     - name: Build
       run: ./mvnw -B -ff -ntp verify
+    # TEMPORARY: show ByteBuddy self-attach failure details (see pom.xml, java21 profile)
+    - name: Show ByteBuddy attach dump
+      if: failure()
+      run: |
+        ls -la target/bytebuddy-attach.log* 2>&1 || true
+        cat target/bytebuddy-attach.log* 2>&1 || true
+        grep -h -A30 -i "attach" target/surefire-reports/*.dumpstream 2>&1 | head -100 || true
     - name: Extract project Maven version
       id: projectVersion
       if: ${{ !matrix.is_windows }}

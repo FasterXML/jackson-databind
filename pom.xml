@@ -297,9 +297,12 @@
       <properties>
         <!-- JDK 21 test package is not declared in (JDK 17 compatible) test module-info,
              so need to open it to JUnit here -->
+        <!-- Load ByteBuddy agent at startup instead of Mockito self-attaching it
+             dynamically (which fails on JDK 21 CI with "Agent JAR loaded but agent failed to initialize") -->
         <argLine>--add-opens=java.base/java.lang=tools.jackson.databind
              --add-opens=java.base/java.util=tools.jackson.databind
              --add-opens=tools.jackson.databind/tools.jackson.databind.jdk21=org.junit.platform.commons
+             -javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${version.bytebuddy}/byte-buddy-agent-${version.bytebuddy}.jar
         </argLine>
       </properties>
       <build>

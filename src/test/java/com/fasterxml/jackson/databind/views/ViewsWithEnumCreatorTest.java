@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// [databind#6250]: `@JsonView` on properties-based Enum Creator parameters
+// [databind#6261]: `@JsonView` on properties-based Enum Creator parameters
 // must be honored, same as with POJO Creator parameters
 public class ViewsWithEnumCreatorTest extends DatabindTestUtil
 {

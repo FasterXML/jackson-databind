@@ -1073,7 +1073,7 @@ public abstract class BasicDeserializerFactory
             ValueInstantiator valueInstantiator = _constructDefaultValueInstantiator(ctxt, beanDesc);
             SettableBeanProperty[] creatorProps = (valueInstantiator == null) ? null
                     : valueInstantiator.getFromObjectArguments(ctxt.getConfig());
-            // [databind#6250]: need to pass views of creator parameters, if any
+            // [databind#6261]: need to pass views of creator parameters, if any
             if (creatorProps != null) {
                 _assignEnumCreatorViews(ctxt, beanDesc, creatorProps);
             }

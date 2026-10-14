@@ -69,9 +69,6 @@ jobs:
         CI_DEPLOY_PASSWORD: ${{ secrets.CENTRAL_DEPLOY_PASSWORD }}
         # MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       run: ./mvnw -B -q -ff -DskipTests -ntp source:jar deploy
-    - name: Generate code coverage
-      if: ${{ matrix.release_build }}
-      run: ./mvnw -B -q -ff -ntp test jacoco:report
     - name: Publish code coverage
       if: ${{ matrix.release_build && github.event_name != 'pull_request' && github.repository == 'FasterXML/jackson-databind' }}
       uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1

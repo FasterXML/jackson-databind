@@ -75,6 +75,23 @@ public class JsonIgnoreSetterFieldBypass5398Test extends DatabindTestUtil
         public int b;
     }
 
+    // Annotation on (non-visible) field must still be merged into getter
+    // for serialization, even if setter is ignored
+    static class AnnotatedFieldIgnoredSetter {
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        private String prop;
+
+        @JsonProperty
+        public String getProp() {
+            return prop;
+        }
+
+        @JsonIgnore
+        public void setProp(String prop) {
+            this.prop = prop;
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
@@ -168,5 +185,20 @@ public class JsonIgnoreSetterFieldBypass5398Test extends DatabindTestUtil
         ReadOnlyRenameCollision result = MAPPER.readValue("{\"b\":5}",
                 ReadOnlyRenameCollision.class);
         assertEquals(5, result.b);
+    }
+
+    // Fix for [databind#5967] must not drop field annotations on serialization
+    @Test
+    public void fieldAnnotationsRetainedForSerialization() throws Exception
+    {
+        AnnotatedFieldIgnoredSetter bean = new AnnotatedFieldIgnoredSetter();
+        bean.setProp("");
+        assertEquals("{}", MAPPER.writeValueAsString(bean));
+        bean.setProp("x");
+        assertEquals("{\"prop\":\"x\"}", MAPPER.writeValueAsString(bean));
+
+        AnnotatedFieldIgnoredSetter result = MAPPER.readValue("{\"prop\":\"x\"}",
+                AnnotatedFieldIgnoredSetter.class);
+        assertNull(result.getProp());
     }
 }

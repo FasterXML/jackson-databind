@@ -303,6 +303,10 @@ public abstract class DatabindContext
         // [CVE-2026-110879]: ... and validated as if named as a direct type id,
         // see `_validateContainedType()`
         _validateContainedTypes(baseType, subClass, subType, ptv, config);
+        // Cannot (currently) get array types here, but just in case
+        if (subType.isArrayType()) {
+            _validateArrayElementType(baseType, subClass, baseType, subType, ptv, config);
+        }
         return subType;
     }
 
@@ -315,7 +319,9 @@ public abstract class DatabindContext
     }
 
     // Declared type of array elements: element type of declared type if it is an
-    // array type; `Object` if declared as `Object` (any array); `null` (none) otherwise
+    // array type; `Object` for other declared types (which can only be `Object`,
+    // `Serializable` or `Cloneable`, supertypes of all arrays); `null` (none) if
+    // no declared type
     private static JavaType _declaredContentType(JavaType declaredType) {
         if (declaredType == null) {
             return null;
@@ -323,7 +329,7 @@ public abstract class DatabindContext
         if (declaredType.isArrayType()) {
             return declaredType.getContentType();
         }
-        return declaredType.isJavaLangObject() ? declaredType : null;
+        return TypeFactory.unknownType();
     }
 
     /**
@@ -417,6 +423,9 @@ public abstract class DatabindContext
                                 + ") denied resolution of contained type "
                                 + ClassUtil.getTypeDescription(param));
             }
+            // NOTE: `BeanDeserializerFactory` also checks deny list for types it creates
+            // bean deserializers for, but not all contained types get one (Map keys,
+            // for example, may be deserialized via single-String constructor)
             if (SubTypeValidator.instance().isIllegalType(param.getRawClass())) {
                 throw invalidTypeIdException(baseType, typeId,
                         "Illegal contained type " + ClassUtil.getTypeDescription(param)

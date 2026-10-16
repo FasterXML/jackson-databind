@@ -709,6 +709,27 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         assertArrayEquals(new Date[] { new Date(456L) }, (Date[]) result.values[0]);
     }
 
+    // `Serializable` (like `Object`) accepts arrays of any element type
+    @Test
+    public void laissezFaireSerializableArrayRoundTrip() throws Exception
+    {
+        ObjectMapper mapper = newJsonMapper();
+        SerializableWrapper input = new SerializableWrapper();
+        SafeBean bean = new SafeBean();
+        bean.data = "x";
+        // `SafeBean` itself is not `Serializable`, but its arrays are
+        input.value = new SafeBean[] { bean };
+        SerializableWrapper result = mapper.readValue(mapper.writeValueAsString(input),
+                SerializableWrapper.class);
+        assertEquals(SafeBean[].class, result.value.getClass());
+        assertEquals("x", ((SafeBean[]) result.value)[0].data);
+
+        input.value = new SafeBean[][] { { bean } };
+        result = mapper.readValue(mapper.writeValueAsString(input), SerializableWrapper.class);
+        assertEquals(SafeBean[][].class, result.value.getClass());
+        assertEquals("x", ((SafeBean[][]) result.value)[0][0].data);
+    }
+
     /*
     /**********************************************************************
     /* JDK containers as type parameters

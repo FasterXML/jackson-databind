@@ -262,7 +262,21 @@ public class SubTypeValidator
         // There are certain nasty classes that could cause problems, mostly
         // via default typing -- catch them here.
         final Class<?> raw = type.getRawClass();
-        String full = raw.getName();
+        if (isIllegalType(raw)) {
+            ctxt.reportBadTypeDefinition(beanDesc,
+                    "Illegal type (%s) to deserialize: prevented for security reasons", raw.getName());
+        }
+    }
+
+    /**
+     * Method for checking whether given class is one of known "gadget" types
+     * that are never to be deserialized.
+     *
+     * @since 2.18.12
+     */
+    public boolean isIllegalType(Class<?> raw)
+    {
+        final String full = raw.getName();
 
         main_check:
         do {
@@ -296,10 +310,8 @@ public class SubTypeValidator
                     break main_check;
                 }
             }
-            return;
+            return false;
         } while (false);
-
-        ctxt.reportBadTypeDefinition(beanDesc,
-                "Illegal type (%s) to deserialize: prevented for security reasons", full);
+        return true;
     }
 }

@@ -122,9 +122,6 @@ public class IgnorePropertiesUtil
         }
 
         public boolean shouldIgnore(Object propertyName) {
-            if (!(propertyName instanceof String)) {
-                propertyName = String.valueOf(propertyName);
-            }
             return ((_toInclude != null) && !_toInclude.contains(propertyName))
                     || _toIgnore.contains(propertyName);
         }

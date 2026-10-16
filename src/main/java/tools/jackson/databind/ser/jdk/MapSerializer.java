@@ -20,6 +20,7 @@ import tools.jackson.databind.util.ArrayBuilders;
 import tools.jackson.databind.util.BeanUtil;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
+import tools.jackson.databind.util.TokenBuffer;
 
 /**
  * Standard serializer implementation for serializing {link java.util.Map} types.
@@ -639,7 +640,7 @@ public class MapSerializer
                     ctxt.findNullKeySerializer(_keyType, _property).serialize(null, gen, ctxt);
                 } else {
                     // One twist: is entry ignorable? If so, skip
-                    if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyElem)) {
+                    if (_shouldIgnore(keyElem, ctxt)) {
                         continue;
                     }
                     keySerializer.serialize(keyElem, gen, ctxt);
@@ -684,7 +685,7 @@ public class MapSerializer
             if (keyElem == null) {
                 keySerializer = ctxt.findNullKeySerializer(_keyType, _property);
             } else {
-                if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyElem)) {
+                if (_shouldIgnore(keyElem, ctxt)) {
                     continue;
                 }
                 keySerializer = _keySerializer;
@@ -741,7 +742,7 @@ public class MapSerializer
 
         for (Map.Entry<?,?> entry : value.entrySet()) {
             Object keyElem = entry.getKey();
-            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyElem)) {
+            if (_shouldIgnore(keyElem, ctxt)) {
                 continue;
             }
 
@@ -785,7 +786,7 @@ public class MapSerializer
         for (Map.Entry<?,?> entry : value.entrySet()) {
             // First, serialize key; unless ignorable by key
             final Object keyElem = entry.getKey();
-            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyElem)) {
+            if (_shouldIgnore(keyElem, ctxt)) {
                 continue;
             }
 
@@ -849,7 +850,7 @@ public class MapSerializer
                 keySerializer = ctxt.findNullKeySerializer(_keyType, _property);
             } else {
                 // One twist: is entry ignorable? If so, skip
-                if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyElem)) {
+                if (_shouldIgnore(keyElem, ctxt)) {
                     continue;
                 }
                 keySerializer = _keySerializer;
@@ -936,7 +937,7 @@ public class MapSerializer
         for (Map.Entry<?,?> entry : value.entrySet()) {
             // First, serialize key; unless ignorable by key
             final Object keyElem = entry.getKey();
-            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyElem)) {
+            if (_shouldIgnore(keyElem, ctxt)) {
                 continue;
             }
 
@@ -1048,6 +1049,33 @@ public class MapSerializer
     /* Internal helper methods
     /**********************************************************************
      */
+
+    /**
+     * Check inclusion rules against the name that the configured key serializer
+     * actually writes. This matters for enum aliases, custom key serializers and
+     * serialization features that change the textual representation of a key.
+     */
+    protected boolean _shouldIgnore(Object key, SerializationContext ctxt)
+        throws JacksonException
+    {
+        if (_inclusionChecker == null) {
+            return false;
+        }
+        if ((key == null) || (key instanceof String)) {
+            return _inclusionChecker.shouldIgnore(key);
+        }
+
+        TokenBuffer buffer = TokenBuffer.forGeneration();
+        buffer.writeStartObject();
+        _keySerializer.serialize(key, buffer, ctxt);
+        try (JsonParser parser = buffer.asParser()) {
+            parser.nextToken();
+            if (parser.nextToken() != JsonToken.PROPERTY_NAME) {
+                return _inclusionChecker.shouldIgnore(key);
+            }
+            return _inclusionChecker.shouldIgnore(parser.currentName());
+        }
+    }
 
     protected Map<?,?> _orderEntries(Map<?,?> input, JsonGenerator gen,
             SerializationContext ctxt) throws JacksonException

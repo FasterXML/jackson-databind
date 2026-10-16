@@ -581,15 +581,8 @@ public abstract class DatabindContext
      * equal to it passes without further checks, since the type id then
      * chose nothing the property does not declare already. Otherwise
      * {@code param} must be a subtype of it, and the
-     * {@link PolymorphicTypeValidator} is consulted with it as the base type.
-     * A base type the validator approves
-     * outright approves the argument; a base type it denies does not reject
-     * the argument, since {@code BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES} and
-     * {@code denyForExactBaseType} describe what may not be declared
-     * polymorphic, and the declared type parameter was not. Name-based and
-     * class-based allow rules are both consulted (matching the top-level
-     * container check), so a name-prefix configuration like
-     * {@code allowIfSubType("com.example.")} applies to type parameters as well.
+     * {@link PolymorphicTypeValidator} is consulted about it as if it were a
+     * direct type id for {@code declaredType}, see {@link #_validateTypeArgument}.
      *<p>
      * Primitive types and {@code Object} only have to fit {@code declaredType},
      * a primitive as its wrapper since that is what gets deserialized: a
@@ -625,26 +618,7 @@ public abstract class DatabindContext
             return;
         }
         if (!_isSafeTypeArgument(param)) {
-            // A base type the validator approves outright approves every subtype;
-            // a denied base type only says what may not be declared polymorphic,
-            // which the declared type parameter is not, so it decides nothing here.
-            // Otherwise consult the name-based allow rules first (mirrors the
-            // container check in _resolveAndValidateGeneric), then fall back to
-            // the class-based check so all configured matchers can approve the
-            // parameter.
-            Validity vld = (ptv.validateBaseType(config, declaredType) == Validity.ALLOWED)
-                    ? Validity.ALLOWED
-                    : ptv.validateSubClassName(config, declaredType, param.getRawClass().getName());
-            if (vld == Validity.DENIED) {
-                throw _typeParameterDeniedException(polymorphicBase, typeId,
-                        declaredType, param, ptv);
-            }
-            if (vld != Validity.ALLOWED) {
-                if (ptv.validateSubType(config, declaredType, param) != Validity.ALLOWED) {
-                    throw _typeParameterDeniedException(polymorphicBase, typeId,
-                            declaredType, param, ptv);
-                }
-            }
+            _validateTypeArgument(polymorphicBase, typeId, declaredType, param, ptv, config);
         }
         _validateGenericSubType(param);
         if (param.isArrayType()) {
@@ -652,6 +626,45 @@ public abstract class DatabindContext
                     _componentTypeOrUnknown(declaredType), param.getContentType(), ptv, config);
         } else {
             _validateTypeParameters(polymorphicBase, typeId, declaredType, param, ptv, config);
+        }
+    }
+
+    /**
+     * Consult the {@link PolymorphicTypeValidator} about {@code param} as if it
+     * were a direct type id for {@code declaredType}: the base type first (a
+     * base type the validator approves outright approves every subtype, one it
+     * denies approves none), then the name-based rules, then the class-based
+     * ones, so every configured matcher can approve the argument and a
+     * name-prefix configuration like {@code allowIfSubType("com.example.")}
+     * applies to type arguments as well.
+     *<p>
+     * An argument the validator does not approve that way is still accepted if
+     * it is a subtype of the polymorphic base type and a direct type id naming
+     * it for that base type would be accepted: the validity of the base type
+     * itself has been established already, so only the subtype rules apply.
+     */
+    private void _validateTypeArgument(JavaType polymorphicBase, String typeId,
+            JavaType declaredType, JavaType param,
+            PolymorphicTypeValidator ptv, MapperConfig<?> config)
+        throws JsonMappingException
+    {
+        final String rawName = param.getRawClass().getName();
+        Validity vld = ptv.validateBaseType(config, declaredType);
+        if (vld == Validity.INDETERMINATE) {
+            vld = ptv.validateSubClassName(config, declaredType, rawName);
+            if (vld == Validity.INDETERMINATE) {
+                vld = ptv.validateSubType(config, declaredType, param);
+            }
+        }
+        if ((vld != Validity.ALLOWED) && param.isTypeOrSubTypeOf(polymorphicBase.getRawClass())) {
+            vld = ptv.validateSubClassName(config, polymorphicBase, rawName);
+            if (vld == Validity.INDETERMINATE) {
+                vld = ptv.validateSubType(config, polymorphicBase, param);
+            }
+        }
+        if (vld != Validity.ALLOWED) {
+            throw _typeParameterDeniedException(polymorphicBase, typeId,
+                    declaredType, param, ptv);
         }
     }
 

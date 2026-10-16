@@ -656,11 +656,11 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
         assertEquals(Integer.valueOf(3), result.value.get(0));
     }
 
-    // `BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` and `denyForExactBaseType` say what
-    // may not be declared polymorphic; a declared type parameter of `Object`
-    // is not a polymorphic declaration, so neither rejects an argument there
+    // `BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` and `denyForExactBaseType(Object.class)`
+    // deny every argument declared as `Object` that could name a class to
+    // construct; `String` cannot, so it needs no rule
     @Test
-    public void deniedBaseTypeDoesNotRejectArgumentDeclaredAsIt() throws Exception
+    public void safeArgumentPassesUnderDeniedBaseType() throws Exception
     {
         ObjectMapper blocking = jsonMapperBuilder()
                 .addMixIn(List.class, ClassIdMixin.class)

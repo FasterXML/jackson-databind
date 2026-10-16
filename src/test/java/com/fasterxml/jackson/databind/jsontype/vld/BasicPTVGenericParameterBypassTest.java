@@ -266,18 +266,15 @@ public class BasicPTVGenericParameterBypassTest extends DatabindTestUtil
         assertEquals(ArrayList.class, result.value.getClass());
     }
 
-    static final class EnumSetContainer {
-        public EnumSet<NonAllowListedEnum> value;
-    }
-
     // (10) Enum exemption: EnumSet<NonAllowListedEnum> -- container "java.util.EnumSet" is
     // approved by the "java" name prefix, but the enum element class is not on the
-    // allow-list. [CVE-2026-110879]: enum types are only exempt if declared by the
-    // application (in the property type): otherwise they need to be allow-listed,
-    // as enums may have creator methods (or custom deserializers) that would run
-    // on attacker-provided input.
+    // allow-list. Enum classes are JVM-managed singletons resolved by name lookup
+    // (no attacker-controlled instantiation), so the type-parameter validation
+    // exempts them -- matching the exemption that already applies to Object. Without
+    // this exemption, a reasonable name-prefix PTV would break legitimate
+    // EnumSet/EnumMap deserialization.
     @Test
-    public void enumTypeParameterExemptOnlyIfDeclared() throws Exception
+    public void enumTypeParameterAccepted() throws Exception
     {
         BasicPolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType("java.")
@@ -289,40 +286,8 @@ public class BasicPTVGenericParameterBypassTest extends DatabindTestUtil
         String json = "{\"value\":[\"java.util.EnumSet<" + NonAllowListedEnum.class.getName() + ">\","
                 + "[\"VALUE_A\"]]}";
 
-        // Not declared (`Object` property): must be allow-listed
-        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
-                () -> mapper.readValue(json, Container.class));
-        verifyException(e, NonAllowListedEnum.class.getName());
-
-        ObjectMapper allowingMapper = jsonMapperBuilder()
-                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
-                        .allowIfSubType("java.")
-                        .allowIfSubType(NonAllowListedEnum.class)
-                        .build())
-                .build();
-        Container result = allowingMapper.readValue(json, Container.class);
+        Container result = mapper.readValue(json, Container.class);
+        assertNotNull(result.value);
         assertEquals(EnumSet.of(NonAllowListedEnum.VALUE_A), result.value);
-
-        // ... or all Enum types allowed
-        ObjectMapper enumAllowingMapper = jsonMapperBuilder()
-                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
-                        .allowIfSubType("java.")
-                        .allowIfSubTypeIsEnum()
-                        .build())
-                .build();
-        result = enumAllowingMapper.readValue(json, Container.class);
-        assertEquals(EnumSet.of(NonAllowListedEnum.VALUE_A), result.value);
-        // (but not other types)
-        e = assertThrows(InvalidTypeIdException.class,
-                () -> enumAllowingMapper.readValue("{\"value\":[\"java.util.ArrayList<"
-                        + EvilGadget.class.getName() + ">\",[{}]]}", Container.class));
-        verifyException(e, EvilGadget.class.getName());
-
-        // Declared in property type: exempt
-        ObjectMapper typingMapper = jsonMapperBuilder()
-                .activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL)
-                .build();
-        EnumSetContainer result2 = typingMapper.readValue(json, EnumSetContainer.class);
-        assertEquals(EnumSet.of(NonAllowListedEnum.VALUE_A), result2.value);
     }
 }

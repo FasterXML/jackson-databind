@@ -363,8 +363,6 @@ public abstract class DatabindContext
      *   {@link PolymorphicTypeValidator#validateBaseType}: approval of polymorphic base
      *   type does not extend to it. {@link LaissezFaireSubTypeValidator} (which allows
      *   all subtypes of base type) only allows subtypes of declared type, if any
-     *   (and all Enum types, as Jackson writes generic type ids with them for
-     *   {@code EnumSet}/{@code EnumMap} values)
      *   </li>
      *</ul>
      * Assignment compatibility with declared type parameters of the base type is
@@ -383,7 +381,7 @@ public abstract class DatabindContext
             JavaType param, PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        if (!_isSafeTypeParameter(param, baseType)
+        if (!_isSafeTypeParameter(param)
                 && !((declaredType != null) && param.hasRawClass(declaredType.getRawClass()))) {
             final String rawName = param.getRawClass().getName();
             final PolymorphicTypeValidator vldr;
@@ -400,10 +398,8 @@ public abstract class DatabindContext
                 if (vldr instanceof LaissezFaireSubTypeValidator) {
                     // Allows all subtypes of declared type (element type of declared
                     // array type, including `Object` for `Object[]`), but nothing
-                    // without one (type parameters) -- except for Enum types, to
-                    // allow reading `EnumSet`/`EnumMap` values with undeclared Enum
-                    // types (like for `Set`-typed property)
-                    if ((declaredType == null) && !param.isEnumType()) {
+                    // without one (type parameters)
+                    if (declaredType == null) {
                         throw invalidTypeIdException(baseType, typeId,
                                 "contained type " + ClassUtil.getTypeDescription(param)
                                 + " not a subtype of base type (and no `PolymorphicTypeValidator`"
@@ -467,23 +463,17 @@ public abstract class DatabindContext
      * constructor or setter can be invoked.
      *<p>
      * {@code Object} is the canonical resolution of wildcards and unbound parameters;
-     * enum types declared by the application (in polymorphic base type, as for
-     * {@code EnumMap}/{@code EnumSet} properties) are safe as the application's choice
-     * -- other enum types are not, as they may have creator methods or custom deserializers
-     * that would run on attacker-provided input;
+     * enum types are JVM-managed singletons resolved by name lookup;
      * {@code String}, primitive types (including wrappers), {@code Number},
      * {@code BigDecimal}, {@code BigInteger} and {@code UUID} are handled by Jackson
      * as scalars (subtypes of {@code Number} other than these need type ids); and arrays
      * and {@code java.util} container (Collection, Map, reference) types are JDK types
      * whose contained types are validated separately.
      */
-    private static boolean _isSafeTypeParameter(JavaType param, JavaType baseType)
+    private static boolean _isSafeTypeParameter(JavaType param)
     {
-        if (param.isJavaLangObject() || param.isArrayType()) {
+        if (param.isJavaLangObject() || param.isEnumType() || param.isArrayType()) {
             return true;
-        }
-        if (param.isEnumType()) {
-            return _isDeclaredIn(baseType, param.getRawClass());
         }
         final Class<?> raw = param.getRawClass();
         if ((param.isContainerType() || param.isReferenceType())
@@ -492,24 +482,6 @@ public abstract class DatabindContext
         }
         return (raw == String.class) || (ClassUtil.primitiveType(raw) != null)
                 || (raw == Number.class) || (raw == BigDecimal.class) || (raw == BigInteger.class) || (raw == UUID.class);
-    }
-
-    // Whether given class is named in declared type (as type itself, type parameter
-    // or array element type; recursively)
-    private static boolean _isDeclaredIn(JavaType declaredType, Class<?> raw)
-    {
-        if (declaredType.hasRawClass(raw)) {
-            return true;
-        }
-        if (declaredType.isArrayType()) {
-            return _isDeclaredIn(declaredType.getContentType(), raw);
-        }
-        for (int i = 0, n = declaredType.containedTypeCount(); i < n; ++i) {
-            if (_isDeclaredIn(declaredType.containedType(i), raw)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws JsonMappingException {

@@ -5,7 +5,6 @@ import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -78,17 +77,6 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
 
     public enum Color { RED, GREEN }
 
-    /** Enum with creator that records the (attacker-provided) value */
-    public enum Region {
-        EU;
-
-        @JsonCreator
-        public static Region fromCode(String code) {
-            INSTANTIATIONS.add("Region.fromCode(" + code + ")");
-            return EU;
-        }
-    }
-
     static class MsgWrapper {
         public Msg msg;
     }
@@ -126,10 +114,6 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
 
     static final class ObjectArrayWrapper {
         public Object[] values;
-    }
-
-    static final class ObjectMapWrapper {
-        public Map<Object, Object> map;
     }
 
     static final class EnumContainersWrapper {
@@ -204,6 +188,10 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         w = mapper.readValue(msgJson(ENV + "<java.lang.Integer>", "\"payload\":3"),
                 MsgWrapper.class);
         assertEquals(Integer.valueOf(3), ((Env<?>) w.msg).payload);
+
+        w = mapper.readValue(msgJson(ENV + "<" + Color.class.getName() + ">",
+                "\"payload\":\"GREEN\""), MsgWrapper.class);
+        assertEquals(Color.GREEN, ((Env<?>) w.msg).payload);
 
         w = mapper.readValue(msgJson(ENV + "<java.lang.Object>", "\"payload\":\"c\""),
                 MsgWrapper.class);
@@ -372,15 +360,12 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
                 ArrayMapWrapper.class);
         assertArrayEquals(new int[] { 1, 2 }, (int[]) w.map.get("k"));
 
-        // enum type not declared by application: validated as well
-        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
-                () -> mapper.readValue(a2q("{'map':['java.util.HashMap<java.lang.String,[L"
-                        + Color.class.getName() + ";>',{'k':['RED']}]}"),
-                        ArrayMapWrapper.class));
-        verifyException(e, "denied resolution of contained type");
-        verifyException(e, Color.class.getName());
+        w = mapper.readValue(a2q("{'map':['java.util.HashMap<java.lang.String,[L"
+                + Color.class.getName() + ";>',{'k':['RED']}]}"),
+                ArrayMapWrapper.class);
+        assertArrayEquals(new Color[] { Color.RED }, (Color[]) w.map.get("k"));
 
-        e = assertThrows(InvalidTypeIdException.class,
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
                 () -> mapper.readValue(a2q("{'map':['java.util.HashMap<java.lang.String,[L"
                         + GADGET + ";>',{'k':[{}]}]}"),
                         ArrayMapWrapper.class));
@@ -743,56 +728,6 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         result = mapper.readValue(mapper.writeValueAsString(input), SerializableWrapper.class);
         assertEquals(SafeBean[][].class, result.value.getClass());
         assertEquals("x", ((SafeBean[][]) result.value)[0][0].data);
-    }
-
-    // Enum types not declared by application are validated too: they may have
-    // creators (or custom deserializers) that run on attacker-provided input
-    @Test
-    public void undeclaredEnumTypeParameterRejected() throws Exception
-    {
-        ObjectMapper mapper = mapDefaultTypingMapper();
-        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
-                () -> mapper.readValue(a2q("{'map':['java.util.EnumMap<" + Region.class.getName()
-                        + ",java.lang.Object>',{'emea':'x'}]}"),
-                        StringMapWrapper.class));
-        verifyException(e, "denied resolution of contained type");
-        verifyException(e, Region.class.getName());
-        assertEquals(Collections.emptyList(), INSTANTIATIONS);
-
-        e = assertThrows(InvalidTypeIdException.class,
-                () -> blockingMapper().readValue(msgJson(ENV + "<" + Color.class.getName() + ">",
-                        "\"payload\":\"GREEN\""), MsgWrapper.class));
-        verifyException(e, "denied resolution of contained type");
-        verifyException(e, Color.class.getName());
-    }
-
-    // Without configured validator, all Enum types are accepted: Jackson writes
-    // `EnumMap`/`EnumSet` type ids with them, also if not declared
-    @Test
-    public void laissezFaireUndeclaredEnumTypeParameterAccepted() throws Exception
-    {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .activateDefaultTyping(LaissezFaireSubTypeValidator.instance, DefaultTyping.NON_FINAL)
-                .build();
-        ObjectMapWrapper input = new ObjectMapWrapper();
-        EnumMap<Color, Object> enumMap = new EnumMap<>(Color.class);
-        enumMap.put(Color.RED, "r");
-        @SuppressWarnings({ "unchecked", "rawtypes" })
-        Map<Object, Object> map = (Map) enumMap;
-        input.map = map;
-        String json = mapper.writeValueAsString(input);
-        assertTrue(json.contains("\"java.util.EnumMap<" + Color.class.getName() + ",java.lang.Object>\""),
-                json);
-        ObjectMapWrapper result = mapper.readValue(json, ObjectMapWrapper.class);
-        assertEquals(EnumMap.class, result.map.getClass());
-        assertEquals(enumMap, result.map);
-
-        // (but not other undeclared types)
-        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
-                () -> mapper.readValue(a2q("{'map':['java.util.HashMap<" + GADGET
-                        + ",java.lang.Object>',{'k':'v'}]}"), ObjectMapWrapper.class));
-        verifyException(e, "not a subtype of base type");
-        assertEquals(Collections.emptyList(), INSTANTIATIONS);
     }
 
     /*

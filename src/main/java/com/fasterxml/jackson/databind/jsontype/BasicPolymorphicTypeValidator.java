@@ -108,13 +108,6 @@ public class BasicPolymorphicTypeValidator
          */
         protected boolean _acceptArrayTypes = false;
 
-        /**
-         * [CVE-2026-110879]: when true, all Enum types are accepted as subtypes.
-         *
-         * @since 2.18.12
-         */
-        protected boolean _acceptEnumTypes = false;
-
         protected Builder() { }
 
         // // Methods for checking solely by base type (before subtype even considered)
@@ -348,29 +341,6 @@ public class BasicPolymorphicTypeValidator
             return this;
         }
 
-        /**
-         * Method for allowing all Enum types as subtypes (including as type parameters
-         * of generic type ids, like {@code java.util.EnumSet<com.app.Color>}, and as
-         * array element types).
-         *<p>
-         * Since 2.18.12 ([CVE-2026-110879]), Enum types used as type parameters are only
-         * accepted without validation if declared in the property type (like
-         * {@code Color} for an {@code EnumSet<Color>} property); this method may be used
-         * to allow others too, for example {@code EnumSet}s and {@code EnumMap}s
-         * as values of {@code Object}-typed properties.
-         *<p>
-         * NOTE: Enum types with creator methods ({@code @JsonCreator}) or custom
-         * deserializers will run that code on (possibly attacker-provided) input,
-         * so only use this method if no Enum type on the classpath has unsafe
-         * deserialization logic.
-         *
-         * @since 2.18.12
-         */
-        public Builder allowIfSubTypeIsEnum() {
-            _acceptEnumTypes = true;
-            return this;
-        }
-
         // 18-Nov-2019, tatu: alas, [databind#2539] can not be implemented with 2.x due
         //    to (in hindsight) obvious design flaw: instead `MapperConfig`, `DatabindContext`
         //    must be available to check what deserializers are registered.
@@ -395,8 +365,7 @@ public class BasicPolymorphicTypeValidator
                     (_baseTypeMatchers == null) ? null : _baseTypeMatchers.toArray(new TypeMatcher[0]),
                     (_subTypeNameMatchers == null) ? null : _subTypeNameMatchers.toArray(new NameMatcher[0]),
                     (_subTypeClassMatchers == null) ? null : _subTypeClassMatchers.toArray(new TypeMatcher[0]),
-                    _acceptArrayTypes, // [databind#5981]
-                    _acceptEnumTypes // [CVE-2026-110879]
+                    _acceptArrayTypes // [databind#5981]
             );
         }
 
@@ -466,14 +435,6 @@ public class BasicPolymorphicTypeValidator
      */
     protected final boolean _acceptArrayTypes;
 
-    /**
-     * [CVE-2026-110879]: when true, validateSubType() accepts all Enum types
-     * (including as array element types, if array handling enabled).
-     *
-     * @since 2.18.12
-     */
-    protected final boolean _acceptEnumTypes;
-
     protected BasicPolymorphicTypeValidator(Set<Class<?>> invalidBaseTypes,
             TypeMatcher[] baseTypeMatchers,
             NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers) {
@@ -488,24 +449,11 @@ public class BasicPolymorphicTypeValidator
             TypeMatcher[] baseTypeMatchers,
             NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers,
             boolean acceptArrayTypes) {
-        this(invalidBaseTypes, baseTypeMatchers, subTypeNameMatchers, subClassMatchers,
-                acceptArrayTypes, false);
-    }
-
-    /**
-     * @since 2.18.12
-     */
-    // [CVE-2026-110879]
-    protected BasicPolymorphicTypeValidator(Set<Class<?>> invalidBaseTypes,
-            TypeMatcher[] baseTypeMatchers,
-            NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers,
-            boolean acceptArrayTypes, boolean acceptEnumTypes) {
         _invalidBaseTypes = invalidBaseTypes;
         _baseTypeMatchers = baseTypeMatchers;
         _subTypeNameMatchers = subTypeNameMatchers;
         _subClassMatchers = subClassMatchers;
         _acceptArrayTypes = acceptArrayTypes;
-        _acceptEnumTypes = acceptEnumTypes;
     }
 
     public static Builder builder() {
@@ -578,10 +526,6 @@ public class BasicPolymorphicTypeValidator
             if (validateSubClassName(ctxt, baseType, subClass.getName()) == Validity.ALLOWED) {
                 return Validity.ALLOWED;
             }
-        }
-        // [CVE-2026-110879]: may allow all Enum types (also array element types)
-        if (_acceptEnumTypes && Enum.class.isAssignableFrom(subClass)) {
-            return Validity.ALLOWED;
         }
         if (_subClassMatchers != null)  {
             for (TypeMatcher m : _subClassMatchers) {

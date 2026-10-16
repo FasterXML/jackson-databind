@@ -303,10 +303,6 @@ public abstract class DatabindContext
         // [CVE-2026-110879]: ... and validated as if named as a direct type id,
         // see `_validateContainedType()`
         _validateContainedTypes(baseType, subClass, subType, ptv, config);
-        // Cannot (currently) get array types here, but just in case
-        if (subType.isArrayType()) {
-            _validateArrayElementType(baseType, subClass, baseType, subType, ptv, config);
-        }
         return subType;
     }
 
@@ -442,7 +438,9 @@ public abstract class DatabindContext
     /**
      * Helper for validating element type of an array type: like other contained types
      * (including abstract types: they may still be deserializable, via
-     * {@code @JsonDeserialize(as=...)} or factory methods).
+     * {@code @JsonDeserialize(as=...)} or factory methods), unless the configured
+     * validator specifically approves the array type itself (see
+     * {@link #_isSpecificallyApprovedArrayType}).
      *
      * @param declaredType Declared type of the array, if any ({@code null} if none)
      *
@@ -453,8 +451,41 @@ public abstract class DatabindContext
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
+        if (_isSpecificallyApprovedArrayType(declaredType, arrayType, ptv, config)) {
+            return;
+        }
         _validateContainedType(baseType, typeId, _declaredContentType(declaredType),
                 arrayType.getContentType(), ptv, config);
+    }
+
+    /**
+     * Helper for checking whether configured validator approves given array type
+     * specifically (like {@code allowIfSubType(Bar[].class)} does for {@code Bar[]}),
+     * in which case approval covers its element type too. Approval that also covers
+     * {@code Object[]} (like with {@code allowIfSubType(Serializable.class)}, which
+     * matches all array types) does not count, nor does approval of base type.
+     *
+     * @since 2.18.12
+     */
+    private static boolean _isSpecificallyApprovedArrayType(JavaType declaredType,
+            JavaType arrayType, PolymorphicTypeValidator ptv, MapperConfig<?> config)
+        throws JsonMappingException
+    {
+        final PolymorphicTypeValidator vldr = _configuredValidator(ptv);
+        final JavaType vldBaseType = (declaredType == null) ? TypeFactory.unknownType() : declaredType;
+        return _isApprovedSubType(vldr, config, vldBaseType, arrayType)
+                && !_isApprovedSubType(vldr, config, vldBaseType, config.constructType(Object[].class));
+    }
+
+    private static boolean _isApprovedSubType(PolymorphicTypeValidator vldr,
+            MapperConfig<?> config, JavaType baseType, JavaType subType)
+        throws JsonMappingException
+    {
+        Validity vld = vldr.validateSubClassName(config, baseType, subType.getRawClass().getName());
+        if (vld == Validity.INDETERMINATE) {
+            vld = vldr.validateSubType(config, baseType, subType);
+        }
+        return (vld == Validity.ALLOWED);
     }
 
     /**

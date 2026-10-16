@@ -312,15 +312,15 @@ public class BasicPolymorphicTypeValidator
          * types (exactly, for example with {@link #allowIfSubType(Pattern)}, unless
          * all subtypes are to be allowed as well).
          *<p>
-         * NOTE: the array-element check runs as part of {@code validateSubType()},
-         * so it only applies when name-based sub-type matchers (see
-         * {@link #allowIfSubType(Pattern)} / {@link #allowIfSubType(String)}) have
-         * NOT already approved the array's class name -- per
-         * {@link com.fasterxml.jackson.databind.DatabindContext#resolveAndValidateSubType},
-         * a {@code validateSubClassName} of {@code ALLOWED} skips the subsequent
-         * {@code validateSubType} call. In practice typical name matchers do not
-         * match array class names (which start with {@code [L} / {@code [I} etc.),
-         * so this is normally not a concern.
+         * NOTE: the array-element check of this method runs as part of
+         * {@code validateSubType()}, so it does not apply when name-based sub-type
+         * matchers (see {@link #allowIfSubType(Pattern)} / {@link #allowIfSubType(String)})
+         * have already approved the array's class name. But since 2.18.12
+         * ([CVE-2026-110879]) element types of array type ids are also validated
+         * separately (by {@link com.fasterxml.jackson.databind.DatabindContext}),
+         * unless the array type itself is approved specifically: that is, by a
+         * matcher that does not also match {@code Object[]} (as, for example,
+         * {@code allowIfSubType(Serializable.class)} does).
          *<p>
          * NOTE (behavior change in 2.18.8 for [databind#5981]): prior versions added a
          * matcher that approved every array regardless of element type, which let

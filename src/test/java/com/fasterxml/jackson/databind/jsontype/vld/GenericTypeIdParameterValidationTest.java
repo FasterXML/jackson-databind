@@ -730,6 +730,57 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         assertEquals("x", ((SafeBean[][]) result.value)[0][0].data);
     }
 
+    // Specific approval of array type covers its element type...
+    @Test
+    public void specificallyApprovedArrayTypeAccepted() throws Exception
+    {
+        final String json = a2q("{'value':['[L" + SafeBean.class.getName() + ";',[{'data':'x'}]]}");
+        for (PolymorphicTypeValidator ptv : new PolymorphicTypeValidator[] {
+                BasicPolymorphicTypeValidator.builder()
+                    .allowIfSubType(Env.class)
+                    .allowIfSubType(SafeBean[].class)
+                    .build(),
+                BasicPolymorphicTypeValidator.builder()
+                    .allowIfSubType(Env.class)
+                    .allowIfSubType(java.util.regex.Pattern.compile(
+                            java.util.regex.Pattern.quote("[L" + SafeBean.class.getName() + ";")))
+                    .build() }) {
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .polymorphicTypeValidator(ptv)
+                    .build();
+            ObjectValueWrapper w = mapper.readValue(json, ObjectValueWrapper.class);
+            assertEquals("x", ((SafeBean[]) w.value)[0].data);
+
+            // also as type parameter
+            w = mapper.readValue(a2q("{'value':['" + ENV + "<[L" + SafeBean.class.getName()
+                    + ";>',{'payload':[{'data':'y'}]}]}"), ObjectValueWrapper.class);
+            assertEquals("y", ((SafeBean[]) ((Env<?>) w.value).payload)[0].data);
+            // but not other array types
+            InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                    () -> mapper.readValue(a2q("{'value':['[L" + GADGET + ";',[{'cmd':'x'}]]}"),
+                            ObjectValueWrapper.class));
+            verifyException(e, GADGET);
+            assertEquals(Collections.emptyList(), INSTANTIATIONS);
+        }
+    }
+
+    // ... but not approval that covers all array types (like `Object[]`)
+    @Test
+    public void nonSpecificallyApprovedArrayTypeElementValidated() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType("[L")
+                        .build())
+                .build();
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(a2q("{'value':['[L" + GADGET + ";',[{'cmd':'x'}]]}"),
+                        ObjectValueWrapper.class));
+        verifyException(e, "denied resolution of contained type");
+        verifyException(e, GADGET);
+        assertEquals(Collections.emptyList(), INSTANTIATIONS);
+    }
+
     /*
     /**********************************************************************
     /* JDK containers as type parameters

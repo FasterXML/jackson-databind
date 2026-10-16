@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
@@ -100,6 +101,10 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
     }
 
     public static class SubBean extends SafeBean {
+        public int extra;
+    }
+
+    public static final class FinalSubBean extends SafeBean {
         public int extra;
     }
 
@@ -450,6 +455,21 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         assertEquals("x", result.beans[0].data);
     }
 
+    // Approval of declared array type covers arrays of subtypes of its element type
+    @Test
+    public void defaultTypingApprovedArrayBaseCoversElementSubtypes() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(SafeBean[].class)
+                        .build(), DefaultTyping.NON_FINAL)
+                .build();
+        BeanArrayWrapper result = mapper.readValue(a2q("{'beans':['[L"
+                + FinalSubBean.class.getName() + ";',[{'extra':4}]]}"), BeanArrayWrapper.class);
+        assertEquals(FinalSubBean[].class, result.beans.getClass());
+        assertEquals(4, ((FinalSubBean) result.beans[0]).extra);
+    }
+
     // Element type of array type id that is subtype of declared element type
     @Test
     public void defaultTypingDeclaredArraySubtypeAccepted() throws Exception
@@ -522,11 +542,12 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         // Default (laissez-faire) validator for annotation-based typing, base type
         // `Object`: contained types are allowed by validator, but not by deny list
         ObjectMapper mapper = newJsonMapper();
-        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
                 () -> mapper.readValue(a2q("{'value':{'@class':'" + ENV
                         + "<java.util.logging.FileHandler>','payload':{}}}"),
                         ObjectValueWrapper.class));
-        verifyException(e, "Illegal contained type");
+        verifyException(e, "Illegal type");
+        verifyException(e, "prevented for security reasons");
         verifyException(e, "java.util.logging.FileHandler");
     }
 

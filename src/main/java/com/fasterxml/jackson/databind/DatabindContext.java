@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity
 import com.fasterxml.jackson.databind.jsontype.impl.ApprovedBaseTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
+import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -34,6 +35,9 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public abstract class DatabindContext
 {
+    // [CVE-2026-110879]: for checking whether validator approves all array types
+    private final static JavaType OBJECT_ARRAY_TYPE = ArrayType.construct(TypeFactory.unknownType(), null);
+
     /**
      * Let's limit length of error messages, for cases where underlying data
      * may be very large -- no point in spamming logs with megabytes of meaningless
@@ -379,7 +383,6 @@ public abstract class DatabindContext
     {
         if (!_isSafeTypeParameter(param)
                 && !((declaredType != null) && param.hasRawClass(declaredType.getRawClass()))) {
-            final String rawName = param.getRawClass().getName();
             final PolymorphicTypeValidator vldr;
             final JavaType vldBaseType;
             Validity vld;
@@ -388,6 +391,14 @@ public abstract class DatabindContext
                 vldr = ptv;
                 vldBaseType = baseType;
                 vld = Validity.INDETERMINATE;
+            } else if ((ptv instanceof ApprovedBaseTypeValidator)
+                    && (declaredType != null) && !declaredType.isJavaLangObject()
+                    && param.isTypeOrSubTypeOf(declaredType.getRawClass())) {
+                // Approval of base type (declared array type) covers subtypes of its
+                // element type (except for `Object[]`, which would cover everything)
+                vldr = ptv;
+                vldBaseType = declaredType;
+                vld = Validity.ALLOWED;
             } else {
                 vldr = _configuredValidator(ptv);
                 vldBaseType = (declaredType == null) ? TypeFactory.unknownType() : declaredType;
@@ -406,11 +417,9 @@ public abstract class DatabindContext
                     vld = vldr.validateBaseType(config, vldBaseType);
                 }
             }
-            if (vld == Validity.INDETERMINATE) {
-                vld = vldr.validateSubClassName(config, vldBaseType, rawName);
-                if (vld == Validity.INDETERMINATE) {
-                    vld = vldr.validateSubType(config, vldBaseType, param);
-                }
+            if ((vld == Validity.INDETERMINATE)
+                    && _isApprovedSubType(vldr, config, vldBaseType, param)) {
+                vld = Validity.ALLOWED;
             }
             if (vld != Validity.ALLOWED) {
                 throw invalidTypeIdException(baseType, typeId,
@@ -422,10 +431,11 @@ public abstract class DatabindContext
             // NOTE: `BeanDeserializerFactory` also checks deny list for types it creates
             // bean deserializers for, but not all contained types get one (Map keys,
             // for example, may be deserialized via single-String constructor)
+            // (same exception as `BeanDeserializerFactory` would throw)
             if (SubTypeValidator.instance().isIllegalType(param.getRawClass())) {
-                throw invalidTypeIdException(baseType, typeId,
-                        "Illegal contained type " + ClassUtil.getTypeDescription(param)
-                                + ": prevented for security reasons");
+                reportBadDefinition(param, String.format(
+                        "Illegal type (%s) to deserialize: prevented for security reasons",
+                        param.getRawClass().getName()));
             }
         }
         if (param.isArrayType()) {
@@ -474,7 +484,7 @@ public abstract class DatabindContext
         final PolymorphicTypeValidator vldr = _configuredValidator(ptv);
         final JavaType vldBaseType = (declaredType == null) ? TypeFactory.unknownType() : declaredType;
         return _isApprovedSubType(vldr, config, vldBaseType, arrayType)
-                && !_isApprovedSubType(vldr, config, vldBaseType, config.constructType(Object[].class));
+                && !_isApprovedSubType(vldr, config, TypeFactory.unknownType(), OBJECT_ARRAY_TYPE);
     }
 
     private static boolean _isApprovedSubType(PolymorphicTypeValidator vldr,

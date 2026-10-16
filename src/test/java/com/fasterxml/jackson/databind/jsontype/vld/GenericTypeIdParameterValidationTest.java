@@ -83,8 +83,16 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         public java.io.Serializable value;
     }
 
+    public static class SubBean extends SafeBean {
+        public int extra;
+    }
+
     static final class BeanArrayWrapper {
         public SafeBean[] beans;
+    }
+
+    static final class ObjectArrayWrapper {
+        public Object[] values;
     }
 
     static final class EnumContainersWrapper {
@@ -215,6 +223,26 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
                 () -> mapper.readValue(msgJson(ENV + "<" + SafeBean.class.getName() + ">",
                         "\"payload\":{\"data\":\"x\"}"), MsgWrapper.class));
         verifyException(e, SafeBean.class.getName());
+    }
+
+    // Type parameter that is subtype of polymorphic base type: same checks as direct type id
+    @Test
+    public void baseSubtypeAsTypeParameterAccepted() throws Exception
+    {
+        final String plainMsgId = ENV + "<" + PlainMsg.class.getName() + ">";
+        // (payload is a `Msg` so has type id of its own)
+        final String json = msgJson(plainMsgId, "\"payload\":{\"@class\":\""
+                + PlainMsg.class.getName() + "\",\"text\":\"x\"}");
+        ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(Msg.class)
+                        .build())
+                .build();
+        MsgWrapper w = mapper.readValue(json, MsgWrapper.class);
+        assertEquals("x", ((PlainMsg) ((Env<?>) w.msg).payload).text);
+
+        w = blockingMapper().readValue(json, MsgWrapper.class);
+        assertEquals("x", ((PlainMsg) ((Env<?>) w.msg).payload).text);
     }
 
     @Test
@@ -398,6 +426,44 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         assertTrue(json.contains("[L" + SafeBean.class.getName() + ";"), json);
         BeanArrayWrapper result = mapper.readValue(json, BeanArrayWrapper.class);
         assertEquals("x", result.beans[0].data);
+    }
+
+    // Element type of array type id that is subtype of declared element type
+    @Test
+    public void defaultTypingDeclaredArraySubtypeAccepted() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(SafeBean[].class)
+                        .allowIfBaseType(SafeBean.class)
+                        .build(), DefaultTyping.NON_FINAL)
+                .build();
+        BeanArrayWrapper input = new BeanArrayWrapper();
+        SubBean bean = new SubBean();
+        bean.data = "x";
+        bean.extra = 3;
+        input.beans = new SubBean[] { bean };
+        String json = mapper.writeValueAsString(input);
+        assertTrue(json.contains("[L" + SubBean.class.getName() + ";"), json);
+        BeanArrayWrapper result = mapper.readValue(json, BeanArrayWrapper.class);
+        assertEquals(SubBean[].class, result.beans.getClass());
+        assertEquals(3, ((SubBean) result.beans[0]).extra);
+    }
+
+    // ... but approval of declared array type does not cover any element type
+    @Test
+    public void defaultTypingDeclaredObjectArrayGadgetRejected() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(Object[].class)
+                        .build(), DefaultTyping.NON_FINAL)
+                .build();
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(a2q("{'values':['[L" + GADGET + ";',[]]}"),
+                        ObjectArrayWrapper.class));
+        verifyException(e, "denied resolution of contained type");
+        verifyException(e, GADGET);
     }
 
     @Test

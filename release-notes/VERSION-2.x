@@ -12,8 +12,8 @@ Project: jackson-databind
 #6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
   [CVE-2026-110879]
   NOTE: type parameters (and element types of array type ids) are now validated
-  as if base type was `Object`;
-  base type approval (`allowIfBaseType()`) no longer covers them
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type
  (reported by @AdamKorcz, @martinfrancois)
  (fix by @cowtowncoder, w/ Claude code)
 

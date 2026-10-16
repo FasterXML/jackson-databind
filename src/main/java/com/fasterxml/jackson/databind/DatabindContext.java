@@ -264,14 +264,13 @@ public abstract class DatabindContext
             }
         }
         // [CVE-2026-110879]: element type of an array type id is attacker-selected
-        // as well (unless type id is the declared type): if array type was only
-        // approved via its base type, element type needs validation like type
-        // parameters of generic type ids. (Validators that approve the array type
-        // itself see the element type and are trusted to validate it)
-        if (subType.isArrayType() && (ptv instanceof ApprovedBaseTypeValidator)
-                && !subType.hasRawClass(baseType.getRawClass())) {
-            _validateTypeParameter(baseType, subClass, subType.getContentType(),
-                    _typeParameterValidator(ptv), config);
+        // as well: if array type was only approved via its base type, element type
+        // needs validation like type parameters of generic type ids. (Validators
+        // that approve the array type itself see the element type and are trusted
+        // to validate it)
+        if (subType.isArrayType() && (ptv instanceof ApprovedBaseTypeValidator)) {
+            _validateContainedType(baseType, subClass, _declaredContentType(baseType),
+                    subType.getContentType(), ptv, config);
         }
         return subType;
     }
@@ -303,73 +302,97 @@ public abstract class DatabindContext
         // be validated -- otherwise a name-based allow-list for a safe container
         // (e.g. "java.util.ArrayList") can be bypassed by smuggling a gadget
         // class as a type argument (e.g. "java.util.ArrayList<EvilGadget>").
-        // [CVE-2026-110879]: ... and validated with the configured validator (not one
-        // that approves all subtypes of the base type) and as if named as a direct
-        // type id for base type `Object` -- type parameter may bind to anything.
-        _validateTypeParameters(baseType, subClass, subType, _typeParameterValidator(ptv), config);
+        // [CVE-2026-110879]: ... and validated as if named as a direct type id,
+        // see `_validateContainedType()`
+        _validateContainedTypes(baseType, subClass, subType, ptv, config);
         return subType;
     }
 
     // Approval of base type does not extend to contained types: need configured validator
-    private static PolymorphicTypeValidator _typeParameterValidator(PolymorphicTypeValidator ptv) {
+    private static PolymorphicTypeValidator _configuredValidator(PolymorphicTypeValidator ptv) {
         if (ptv instanceof ApprovedBaseTypeValidator) {
             return ((ApprovedBaseTypeValidator) ptv).getTypeParameterValidator();
         }
         return ptv;
     }
 
+    // Declared type of array elements (or type parameters): `Object` unless declared
+    // type is an array type
+    private static JavaType _declaredContentType(JavaType declaredType) {
+        return declaredType.isArrayType() ? declaredType.getContentType() : TypeFactory.unknownType();
+    }
+
     /**
      * Helper for [databind#5988]: validate all type parameters (and array
      * component, if any) of given type, recursively (for nested generics like
      * {@code Map<String, List<Evil>>} or {@code List<String[]>}).
-     *<p>
-     * Every class named as a type parameter (or, for array type ids, as element
-     * type) goes through the same checks as a
-     * class named directly as type id for base type {@code Object}:
-     * {@link PolymorphicTypeValidator#validateBaseType},
-     * {@link PolymorphicTypeValidator#validateSubClassName},
-     * {@link PolymorphicTypeValidator#validateSubType} and the
-     * {@link SubTypeValidator} deny list.
+     *
+     * @since 2.18.12
+     */
+    private void _validateContainedTypes(JavaType baseType, String typeId, JavaType type,
+            PolymorphicTypeValidator ptv, MapperConfig<?> config)
+        throws JsonMappingException
+    {
+        for (int i = 0, n = type.containedTypeCount(); i < n; ++i) {
+            _validateContainedType(baseType, typeId, TypeFactory.unknownType(),
+                    type.containedType(i), ptv, config);
+        }
+    }
+
+    /**
+     * Helper for validating a class named in a type id as type parameter (or as element
+     * type of an array type): it gets the same checks a class named directly as type id
+     * would get. Unless it is a safe type (see {@link #_isSafeTypeParameter}) or exactly
+     * its declared type, the {@link SubTypeValidator} deny list applies, and:
+     *<ul>
+     * <li>If assignable to polymorphic base type, checked as if a direct type id for it
+     *   </li>
+     * <li>Otherwise checked by configured {@link PolymorphicTypeValidator} as a direct type
+     *   id for its declared type ({@code Object} for type parameters; element type of
+     *   declared array type for array elements), starting with
+     *   {@link PolymorphicTypeValidator#validateBaseType}: approval of polymorphic base
+     *   type does not extend to it
+     *   </li>
+     *</ul>
      * Assignment compatibility with declared type parameters of the base type is
      * NOT verified: classes named in the type id are the only attacker-selected
      * ones (other types come from the declared base type or from class
      * declarations), so validating them suffices to prevent instantiation of
      * unapproved types.
      *
+     * @param baseType Polymorphic base type
+     * @param declaredType Declared type of the contained type
+     * @param ptv Validator used for validating type id as subtype of {@code baseType}
+     *
      * @since 2.18.12
      */
-    private void _validateTypeParameters(JavaType baseType, String typeId, JavaType type,
-            PolymorphicTypeValidator ptv, MapperConfig<?> config)
+    private void _validateContainedType(JavaType baseType, String typeId, JavaType declaredType,
+            JavaType param, PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        for (int i = 0, n = type.containedTypeCount(); i < n; ++i) {
-            _validateTypeParameter(baseType, typeId, type.containedType(i), ptv, config);
-        }
-        if (type.isArrayType()) {
-            _validateTypeParameter(baseType, typeId, type.getContentType(), ptv, config);
-        }
-    }
-
-    private void _validateTypeParameter(JavaType baseType, String typeId, JavaType param,
-            PolymorphicTypeValidator ptv, MapperConfig<?> config)
-        throws JsonMappingException
-    {
-        if (!_isSafeTypeParameter(param)) {
-            // NOTE: `validateBaseType()` deliberately called per (unsafe) type parameter
-            // and not once per type id: only needed if there are any unsafe ones
-            final JavaType objectType = TypeFactory.unknownType();
+        if (!_isSafeTypeParameter(param) && !param.hasRawClass(declaredType.getRawClass())) {
             final String rawName = param.getRawClass().getName();
-            Validity vld = ptv.validateBaseType(config, objectType);
+            final PolymorphicTypeValidator vldr;
+            Validity vld;
+            if (param.isTypeOrSubTypeOf(baseType.getRawClass())) {
+                // validity of base type itself already checked
+                vldr = ptv;
+                vld = Validity.INDETERMINATE;
+                declaredType = baseType;
+            } else {
+                vldr = _configuredValidator(ptv);
+                vld = vldr.validateBaseType(config, declaredType);
+            }
             if (vld == Validity.INDETERMINATE) {
-                vld = ptv.validateSubClassName(config, objectType, rawName);
+                vld = vldr.validateSubClassName(config, declaredType, rawName);
                 if (vld == Validity.INDETERMINATE) {
-                    vld = ptv.validateSubType(config, objectType, param);
+                    vld = vldr.validateSubType(config, declaredType, param);
                 }
             }
             if (vld != Validity.ALLOWED) {
                 throw invalidTypeIdException(baseType, typeId,
                         "Configured `PolymorphicTypeValidator` (of type "
-                                + ClassUtil.classNameOf(ptv)
+                                + ClassUtil.classNameOf(_configuredValidator(vldr))
                                 + ") denied resolution of contained type "
                                 + ClassUtil.getTypeDescription(param));
             }
@@ -379,7 +402,12 @@ public abstract class DatabindContext
                                 + ": prevented for security reasons");
             }
         }
-        _validateTypeParameters(baseType, typeId, param, ptv, config);
+        if (param.isArrayType()) {
+            _validateContainedType(baseType, typeId, _declaredContentType(declaredType),
+                    param.getContentType(), ptv, config);
+        } else {
+            _validateContainedTypes(baseType, typeId, param, ptv, config);
+        }
     }
 
     /**

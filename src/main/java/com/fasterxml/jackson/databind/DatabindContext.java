@@ -343,24 +343,36 @@ public abstract class DatabindContext
         for (int i = 0; i < count; ++i) {
             ownArguments[i] = subType.containedType(i);
         }
-        final JavaType[] placeholders;
-        final JavaType projected;
-        if (count == 0) {
-            // Nothing to substitute: the resolved subtype is its own projection
-            placeholders = NO_TYPES;
-            projected = subType;
-        } else {
-            placeholders = new JavaType[count];
-            for (int i = 0; i < count; ++i) {
-                placeholders[i] = new PlaceholderForType(i);
-            }
-            projected = _placeholderType(subType.getRawClass(), placeholders);
-        }
         // The walk only records what it reaches; the descent into the arguments
         // happens after it returns, to keep the stack depth per nesting level
         // the same as before
-        ProjectedArguments walk = new ProjectedArguments(placeholders, ownArguments);
-        _validateProjectedType(polymorphicBase, typeId, declaredType, projected, walk);
+        final ProjectedArguments walk;
+        if (declaredType.isJavaLangObject()) {
+            // A projection onto `Object` has no type arguments, so it reaches none
+            walk = new ProjectedArguments(NO_TYPES, ownArguments);
+        } else if ((count > 0) && (declaredType.getRawClass() == subType.getRawClass())) {
+            // The subtype is its own projection: the arguments line up
+            walk = new ProjectedArguments(NO_TYPES, ownArguments);
+            for (int i = 0; i < count; ++i) {
+                walk.reach(i, declaredType.containedTypeOrUnknown(i));
+            }
+        } else {
+            final JavaType[] placeholders;
+            final JavaType projected;
+            if (count == 0) {
+                // Nothing to substitute: the resolved subtype is its own projection
+                placeholders = NO_TYPES;
+                projected = subType;
+            } else {
+                placeholders = new JavaType[count];
+                for (int i = 0; i < count; ++i) {
+                    placeholders[i] = new PlaceholderForType(i);
+                }
+                projected = _placeholderType(subType.getRawClass(), placeholders);
+            }
+            walk = new ProjectedArguments(placeholders, ownArguments);
+            _validateProjectedType(polymorphicBase, typeId, declaredType, projected, walk);
+        }
         for (int i = 0, n = walk.reachedArguments.size(); i < n; ++i) {
             _validateTypeParameter(polymorphicBase, typeId,
                     walk.reachedDeclaredTypes.get(i), walk.reachedArguments.get(i), ptv, config);

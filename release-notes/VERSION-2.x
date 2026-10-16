@@ -19,6 +19,15 @@ No changes since 2.22
  (fix by @pjfanning, w/ Claude code)
 #6249: Avoid NPE when parser reports `VALUE_STRING` with `null` text
  (fix by @pjfanning, w/ Claude code)
+#6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: type parameters (and element types of array type ids) are now validated
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type (also without configured validator);
+  `allowIfSubTypeIsArray()` no longer accepts abstract or interface element types
+  without allow-listing (except `Number`)
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, w/ Claude code)
 
 2.22.3 (21-Sep-2026)
 

@@ -1322,6 +1322,11 @@ ctor.creator()));
                 // otherwise just remove ones marked to be ignored
                 prop.removeIgnored();
                 if (!prop.couldDeserialize()) {
+                    // [databind#5967]: Strip inferred non-visible field mutators to preserve
+                    // @JsonIgnore semantics: since couldDeserialize() is false, any remaining
+                    // fields are non-visible (kept only for INFER_PROPERTY_MUTATORS) and must
+                    // not be used to bypass the ignored setter.
+                    prop.removeFields();
                     _collectIgnorals(prop.getName());
                 }
             }

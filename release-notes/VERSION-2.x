@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.18.12 (not yet released)
 
+#5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+ [CVE-2026-54516]
+ (fixed by Omkhar A)
 #6254: Validate type arguments of generic type ids against the declared type
   parameters of the base type (rejects `HashMap<String,Long>` for `Map<String,Integer>`,
   accepts subtypes of an allowed base type as type arguments)

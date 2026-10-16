@@ -11,6 +11,8 @@ Project: jackson-databind
  (fixed by Omkhar A)
 #6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
   [CVE-2026-110879]
+  NOTE: type parameters are now validated as if base type was `Object`;
+  base type approval (`allowIfBaseType()`) no longer covers them
  (reported by @AdamKorcz, @martinfrancois)
  (fix by @cowtowncoder, w/ Claude code)
 

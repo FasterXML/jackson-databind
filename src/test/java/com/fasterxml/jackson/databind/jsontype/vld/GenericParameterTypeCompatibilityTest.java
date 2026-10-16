@@ -4,17 +4,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.LookupCache;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -110,6 +114,62 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
         @Override
         public SelfSupplier<T> get() {
             return this;
+        }
+    }
+
+    // Names its own class with a fixed argument: not a self-reference, but
+    // `TypeFactory` resolves it as one unless `FixedStringSupplier<String>`
+    // is already in its cache.
+    public static class FixedStringSupplier<T> implements Supplier<FixedStringSupplier<String>> {
+        public T payload;
+
+        @Override
+        public FixedStringSupplier<String> get() {
+            return null;
+        }
+    }
+
+    public static class InternalKey { }
+
+    public static class KeyedList<T> extends ArrayList<InternalKey> {
+        private static final long serialVersionUID = 1L;
+    }
+
+    static class FixedStringSupplierHolder {
+        public Supplier<FixedStringSupplier<String>> value;
+    }
+
+    static class ObjectListHolder {
+        public List<Object> value;
+    }
+
+    // Type cache that lets a test evict one entry, which `LRUMap` cannot
+    static class EvictableTypeCache implements LookupCache<Object, JavaType> {
+        private final Map<Object, JavaType> _map = new HashMap<>();
+
+        @Override
+        public int size() { return _map.size(); }
+
+        @Override
+        public JavaType get(Object key) { return _map.get(key); }
+
+        @Override
+        public JavaType put(Object key, JavaType value) { return _map.put(key, value); }
+
+        @Override
+        public JavaType putIfAbsent(Object key, JavaType value) { return _map.putIfAbsent(key, value); }
+
+        @Override
+        public void clear() { _map.clear(); }
+
+        @Override
+        public void contents(BiConsumer<Object, JavaType> consumer) { _map.forEach(consumer); }
+
+        @Override
+        public LookupCache<Object, JavaType> emptyCopy() { return new EvictableTypeCache(); }
+
+        void evict(String canonical) {
+            _map.values().removeIf(type -> canonical.equals(type.toCanonical()));
         }
     }
 
@@ -451,5 +511,59 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
 
         assertThrows(InvalidTypeIdException.class,
                 () -> mapper.readValue(json, StringMapHolder.class));
+    }
+
+    // `FixedStringSupplier<Gadget>` resolves to `Supplier<FixedStringSupplier<String>>`
+    // while `FixedStringSupplier<String>` is cached, and to a self-reference
+    // otherwise. The check must find `Gadget` either way.
+    @Test
+    public void typeCacheStateDoesNotHideSubtypeArgument() throws Exception
+    {
+        EvictableTypeCache cache = new EvictableTypeCache();
+        TypeFactory typeFactory = TypeFactory.defaultInstance().withCache(cache);
+        BasicPolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType(FixedStringSupplier.class)
+                .allowIfSubType(String.class)
+                .build();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .typeFactory(typeFactory)
+                .addMixIn(Supplier.class, ClassIdMixin.class)
+                .polymorphicTypeValidator(ptv)
+                .build();
+        String fixedTypeId = FixedStringSupplier.class.getName() + "<java.lang.String>";
+        String typeId = FixedStringSupplier.class.getName()
+                + "<" + GenericGadget.class.getName() + ">";
+        String json = "{\"value\":[\"" + typeId + "\",{\"payload\":{\"value\":\"x\"}}]}";
+
+        // Resolve the type id while the fixed argument type is cached, then evict it
+        typeFactory.constructFromCanonical(fixedTypeId);
+        typeFactory.constructFromCanonical(typeId);
+        cache.evict(fixedTypeId);
+
+        GenericGadget.constructions = 0;
+        assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json, SupplierHolder.class));
+        assertEquals(0, GenericGadget.constructions);
+    }
+
+    // `InternalKey` comes from the declaration of `KeyedList`, not from the
+    // type id, so it needs no entry in the allow-list: the plain id
+    // `KeyedList` does not need one either.
+    @Test
+    public void argumentFixedBySubtypeDeclarationNeedsNoAllowListEntry() throws Exception
+    {
+        BasicPolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType(KeyedList.class)
+                .allowIfSubType(String.class)
+                .build();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(List.class, ClassIdMixin.class)
+                .polymorphicTypeValidator(ptv)
+                .build();
+        String typeId = KeyedList.class.getName() + "<java.lang.String>";
+        String json = "{\"value\":[\"" + typeId + "\",[]]}";
+
+        ObjectListHolder result = mapper.readValue(json, ObjectListHolder.class);
+        assertEquals(KeyedList.class, result.value.getClass());
     }
 }

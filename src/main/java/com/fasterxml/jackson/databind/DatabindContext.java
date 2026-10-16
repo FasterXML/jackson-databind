@@ -1,8 +1,10 @@
 package com.fasterxml.jackson.databind;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
@@ -21,6 +23,7 @@ import com.fasterxml.jackson.databind.type.ResolvedRecursiveType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
+import com.fasterxml.jackson.databind.util.LRUMap;
 
 /**
  * Shared base class for {@link DeserializationContext} and
@@ -33,6 +36,8 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public abstract class DatabindContext
 {
+    private final static JavaType[] NO_TYPES = new JavaType[0];
+
     /**
      * Let's limit length of error messages, for cases where underlying data
      * may be very large -- no point in spamming logs with megabytes of meaningless
@@ -300,10 +305,20 @@ public abstract class DatabindContext
     }
 
     /**
-     * Project {@code subType} onto {@code declaredType} before comparing type
-     * parameters because subtype declarations may reorder or fix inherited
-     * type variables. Parameters declared only by the subtype are validated
-     * against the unknown base.
+     * Validate the type arguments of {@code subType} against the type parameters
+     * of {@code declaredType}.
+     *<p>
+     * A subtype declaration may reorder, fix, nest or drop the type parameters
+     * it inherits, so the arguments cannot be compared position by position.
+     * Instead the subtype is resolved once with a placeholder for each of its
+     * own type parameters, and the projection of that placeholder type onto
+     * {@code declaredType} is walked alongside {@code declaredType}
+     * (see {@link #_validateProjectedType}). A placeholder met during the walk
+     * stands for the argument the type id gave at that position, which is
+     * validated in full against the declared type found there. Any other type
+     * met comes from the class declarations, not from the type id, and only has
+     * to fit the declared type. Own arguments the projection never reaches are
+     * validated against the unknown type.
      *
      * @param polymorphicBase Base type the complete type id is resolved against;
      *    only used for error messages
@@ -316,70 +331,175 @@ public abstract class DatabindContext
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        JavaType projectedBase = subType.findSuperType(declaredType.getRawClass());
-        if (projectedBase != null) {
-            for (int i = 0, n = projectedBase.containedTypeCount(); i < n; ++i) {
-                _validateTypeParameter(polymorphicBase, typeId,
-                        declaredType.containedTypeOrUnknown(i), projectedBase.containedType(i),
-                        ptv, config);
-            }
+        // `TypeParser` cannot produce an array with type arguments today; handled
+        // anyway so the check does not depend on that.
+        if (subType.isArrayType()) {
+            _validateTypeParameter(polymorphicBase, typeId,
+                    _componentTypeOrUnknown(declaredType), subType.getContentType(), ptv, config);
+            return;
         }
-        boolean[] projectedParameters = _projectedTypeParameters(declaredType, subType);
-        for (int i = 0, n = subType.containedTypeCount(); i < n; ++i) {
-            if (!projectedParameters[i]) {
-                _validateTypeParameter(polymorphicBase, typeId,
-                        getTypeFactory().unknownType(), subType.containedType(i), ptv, config);
-            }
-        }
-    }
-
-    private boolean[] _projectedTypeParameters(JavaType declaredType, JavaType subType)
-    {
-        int count = subType.containedTypeCount();
-        if (count == 0) {
-            return new boolean[0];
-        }
-        PlaceholderForType[] placeholders = new PlaceholderForType[count];
+        final int count = subType.containedTypeCount();
+        final JavaType[] ownArguments = new JavaType[count];
         for (int i = 0; i < count; ++i) {
-            placeholders[i] = new PlaceholderForType(i);
+            ownArguments[i] = subType.containedType(i);
         }
-        JavaType placeholderSubtype = getTypeFactory().constructParametricType(
-                subType.getRawClass(), placeholders);
-        JavaType placeholderBase = placeholderSubtype.findSuperType(declaredType.getRawClass());
-        boolean[] projected = new boolean[count];
-        if (placeholderBase != null) {
-            Set<JavaType> seen = Collections.newSetFromMap(
-                    new IdentityHashMap<JavaType, Boolean>());
-            _markProjectedTypeParameters(placeholderBase, placeholders, projected, seen);
+        final JavaType[] placeholders;
+        final JavaType projected;
+        if (count == 0) {
+            // Nothing to substitute: the resolved subtype is its own projection
+            placeholders = NO_TYPES;
+            projected = subType;
+        } else {
+            placeholders = new JavaType[count];
+            for (int i = 0; i < count; ++i) {
+                placeholders[i] = new PlaceholderForType(i);
+            }
+            projected = _placeholderType(subType.getRawClass(), placeholders);
         }
-        return projected;
+        // The walk only records what it reaches; the descent into the arguments
+        // happens after it returns, to keep the stack depth per nesting level
+        // the same as before
+        ProjectedArguments walk = new ProjectedArguments(placeholders, ownArguments);
+        _validateProjectedType(polymorphicBase, typeId, declaredType, projected, walk);
+        for (int i = 0, n = walk.reachedArguments.size(); i < n; ++i) {
+            _validateTypeParameter(polymorphicBase, typeId,
+                    walk.reachedDeclaredTypes.get(i), walk.reachedArguments.get(i), ptv, config);
+        }
+        for (int i = 0; i < count; ++i) {
+            if (!walk.reached[i]) {
+                _validateTypeParameter(polymorphicBase, typeId,
+                        getTypeFactory().unknownType(), ownArguments[i], ptv, config);
+            }
+        }
     }
 
-    private void _markProjectedTypeParameters(JavaType type,
-            PlaceholderForType[] placeholders, boolean[] projected, Set<JavaType> seen)
+    /**
+     * State of one walk over a placeholder projection, see
+     * {@link #_validateProjectedType}.
+     */
+    private static final class ProjectedArguments
     {
+        /**
+         * Placeholders standing for the subtype's own type parameters, matched
+         * by identity
+         */
+        final JavaType[] placeholders;
+
+        /**
+         * Type arguments the type id gave for those parameters
+         */
+        final JavaType[] ownArguments;
+
+        /**
+         * For each own argument, whether the projection reached it
+         */
+        final boolean[] reached;
+
+        /**
+         * Own arguments the projection reached, once per position it reached
+         * them at (a subtype may use one type parameter several times), with the
+         * declared type found at that position
+         */
+        final List<JavaType> reachedArguments = new ArrayList<>();
+        final List<JavaType> reachedDeclaredTypes = new ArrayList<>();
+
+        /**
+         * Self-referenced types already walked, to end a cycle
+         */
+        final Set<JavaType> seen = Collections.newSetFromMap(
+                new IdentityHashMap<JavaType, Boolean>());
+
+        ProjectedArguments(JavaType[] placeholders, JavaType[] ownArguments) {
+            this.placeholders = placeholders;
+            this.ownArguments = ownArguments;
+            reached = new boolean[ownArguments.length];
+        }
+
+        void reach(int index, JavaType declaredType) {
+            reached[index] = true;
+            reachedArguments.add(ownArguments[index]);
+            reachedDeclaredTypes.add(declaredType);
+        }
+    }
+
+    /**
+     * Resolve {@code rawType} with the given placeholders as its type arguments.
+     *<p>
+     * The resolution goes through an empty type cache so that the result depends
+     * on the class declarations alone. {@link TypeFactory} treats a reference to
+     * a class it is still resolving as a self-reference unless the cache already
+     * holds that exact type; the outcome of this check must not change with what
+     * other type ids were resolved before it. It also keeps the placeholder types,
+     * which no later lookup can match, out of the shared cache.
+     */
+    private JavaType _placeholderType(Class<?> rawType, JavaType[] placeholders)
+    {
+        return getTypeFactory().withCache(new LRUMap<Object, JavaType>(4, 16))
+                .constructParametricType(rawType, placeholders);
+    }
+
+    /**
+     * Walk one type of the placeholder projection next to the declared type at
+     * the same position; see {@link #_validateTypeParameters} for the idea.
+     * A placeholder is recorded in {@code walk} together with the declared type;
+     * any other type is fixed by the class declarations, so not the type id's
+     * choice, and only has to fit the declared type.
+     */
+    private void _validateProjectedType(JavaType polymorphicBase, String typeId,
+            JavaType declaredType, JavaType projected, ProjectedArguments walk)
+        throws JsonMappingException
+    {
+        final JavaType[] placeholders = walk.placeholders;
         for (int i = 0; i < placeholders.length; ++i) {
-            if (type == placeholders[i]) {
-                projected[i] = true;
+            if (projected == placeholders[i]) {
+                walk.reach(i, declaredType);
                 return;
             }
         }
-        if (!seen.add(type)) {
+        if (projected instanceof ResolvedRecursiveType) {
+            // A reference to a type still being resolved (`SelfSupplier<T>`
+            // implementing `Supplier<SelfSupplier<T>>`) reports no type
+            // parameters of its own; walk the type it stands for, once.
+            JavaType referenced = ((ResolvedRecursiveType) projected).getSelfReferencedType();
+            if ((referenced == null) || !walk.seen.add(referenced)) {
+                return;
+            }
+            projected = referenced;
+        }
+        if (projected.isArrayType()) {
+            // The component decides whether `T[]` fits a declared array type
+            if (!declaredType.isArrayType()) {
+                _verifyDeclaredType(polymorphicBase, typeId, declaredType, projected);
+            }
+            _validateProjectedType(polymorphicBase, typeId,
+                    _componentTypeOrUnknown(declaredType), projected.getContentType(), walk);
             return;
         }
-        if (type instanceof ResolvedRecursiveType) {
-            JavaType referencedType = ((ResolvedRecursiveType) type).getSelfReferencedType();
-            if (referencedType != null) {
-                _markProjectedTypeParameters(referencedType, placeholders, projected, seen);
-            }
-        } else if (type.isArrayType()) {
-            _markProjectedTypeParameters(type.getContentType(), placeholders, projected, seen);
-        } else {
-            for (int i = 0, n = type.containedTypeCount(); i < n; ++i) {
-                _markProjectedTypeParameters(type.containedType(i),
-                        placeholders, projected, seen);
+        _verifyDeclaredType(polymorphicBase, typeId, declaredType, projected);
+        JavaType projectedBase = projected.findSuperType(declaredType.getRawClass());
+        if (projectedBase != null) {
+            for (int i = 0, n = projectedBase.containedTypeCount(); i < n; ++i) {
+                _validateProjectedType(polymorphicBase, typeId,
+                        declaredType.containedTypeOrUnknown(i), projectedBase.containedType(i), walk);
             }
         }
+    }
+
+    private void _verifyDeclaredType(JavaType polymorphicBase, String typeId,
+            JavaType declaredType, JavaType type)
+        throws JsonMappingException
+    {
+        if (!type.isPrimitive() && !type.isJavaLangObject()
+                && !type.isTypeOrSubTypeOf(declaredType.getRawClass())) {
+            throw invalidTypeIdException(polymorphicBase, typeId,
+                    _typeParameterDescription(declaredType, type)
+                    + " is not a subtype of its declared type");
+        }
+    }
+
+    private JavaType _componentTypeOrUnknown(JavaType declaredType) {
+        return declaredType.isArrayType()
+                ? declaredType.getContentType() : getTypeFactory().unknownType();
     }
 
     /**
@@ -419,15 +539,6 @@ public abstract class DatabindContext
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        // A self-reference (e.g. the argument of `Supplier<SelfSupplier<X>>` when
-        // `SelfSupplier<X>` is projected onto `Supplier`) reports no type
-        // parameters of its own; validate the type it stands for instead.
-        if (param instanceof ResolvedRecursiveType) {
-            JavaType referencedType = ((ResolvedRecursiveType) param).getSelfReferencedType();
-            if (referencedType != null) {
-                param = referencedType;
-            }
-        }
         if (param.isPrimitive() || param.isJavaLangObject()) {
             return;
         }
@@ -460,10 +571,8 @@ public abstract class DatabindContext
         }
         _validateGenericSubType(param);
         if (param.isArrayType()) {
-            JavaType declaredComponent = declaredType.isArrayType()
-                    ? declaredType.getContentType() : getTypeFactory().unknownType();
             _validateTypeParameter(polymorphicBase, typeId,
-                    declaredComponent, param.getContentType(), ptv, config);
+                    _componentTypeOrUnknown(declaredType), param.getContentType(), ptv, config);
         } else {
             _validateTypeParameters(polymorphicBase, typeId, declaredType, param, ptv, config);
         }

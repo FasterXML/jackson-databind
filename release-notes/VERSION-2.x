@@ -13,7 +13,8 @@ Project: jackson-databind
   [CVE-2026-110879]
   NOTE: type parameters (and element types of array type ids) are now validated
   like direct type ids; base type approval (`allowIfBaseType()`) only covers
-  ones that are subtypes of the base type (also without configured validator)
+  ones that are subtypes of the base type (also without configured validator);
+  enum types are only exempt if declared in the property type
  (reported by @AdamKorcz, @martinfrancois)
  (fix by @cowtowncoder, w/ Claude code)
 

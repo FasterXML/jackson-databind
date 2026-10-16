@@ -10,8 +10,8 @@ Project: jackson-databind
  [CVE-2026-54516]
  (fixed by Omkhar A)
 #6254: Validate type arguments of generic type ids against the declared type
-  parameters of the base type (rejects `HashMap<String,Long>` for `Map<String,Integer>`,
-  accepts subtypes of an allowed base type as type arguments)
+  parameters of the base type (rejects `HashMap<String,Long>` and `HashMap<String,Object>`
+  for `Map<String,Integer>`, accepts subtypes of an allowed base type as type arguments)
  (contributed by @martinfrancois)
 
 2.18.11 (20-Sep-2026)

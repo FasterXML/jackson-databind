@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.util.LookupCache;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
 {
@@ -141,6 +142,20 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
 
     static class ObjectListHolder {
         public List<Object> value;
+    }
+
+    static class IntegerListHolder {
+        public List<Integer> value;
+    }
+
+    static class StringListHolder {
+        public List<String> value;
+    }
+
+    public enum Letter { A, B }
+
+    static class LetterMapHolder {
+        public Map<Letter, Integer> value;
     }
 
     // Type cache that lets a test evict one entry, which `LRUMap` cannot
@@ -565,5 +580,76 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
 
         ObjectListHolder result = mapper.readValue(json, ObjectListHolder.class);
         assertEquals(KeyedList.class, result.value.getClass());
+    }
+
+    @Test
+    public void objectArgumentMustFitDeclaredValueType() throws Exception
+    {
+        ObjectMapper mapper = mapperWithClassIdMixin(Map.class);
+        String typeId = "java.util.HashMap<java.lang.String,java.lang.Object>";
+        String json = "{\"value\":[\"" + typeId + "\",{\"key\":\"not an Integer\"}]}";
+
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json, IntegerMapHolder.class));
+        verifyException(e, "type parameter `java.lang.Object` (declared as `java.lang.Integer`)"
+                + " is not a subtype of its declared type");
+    }
+
+    @Test
+    public void objectArgumentMustFitDeclaredElementType() throws Exception
+    {
+        ObjectMapper mapper = mapperWithClassIdMixin(List.class);
+        String typeId = "java.util.ArrayList<java.lang.Object>";
+        String json = "{\"value\":[\"" + typeId + "\",[{}]]}";
+
+        assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json, StringListHolder.class));
+    }
+
+    // Keys are read from property names whatever the key type says, and
+    // `TypeFactory` accepts `Object` for the key type of any map-like type
+    @Test
+    public void objectArgumentFitsDeclaredMapKeyType() throws Exception
+    {
+        ObjectMapper mapper = mapperWithClassIdMixin(Map.class);
+        String typeId = "java.util.HashMap<java.lang.Object,java.lang.Integer>";
+        String json = "{\"value\":[\"" + typeId + "\",{\"key\":3}]}";
+
+        IntegerMapHolder result = mapper.readValue(json, IntegerMapHolder.class);
+        assertEquals(Integer.valueOf(3), result.value.get("key"));
+    }
+
+    // Jackson's own type id for an `EnumMap` value names `Object` as the value
+    // type whatever is declared; it must still be accepted
+    @Test
+    public void enumMapTypeIdWithObjectValueTypeAccepted() throws Exception
+    {
+        ObjectMapper mapper = mapperWithClassIdMixin(Map.class);
+        LetterMapHolder holder = new LetterMapHolder();
+        holder.value = new java.util.EnumMap<>(Letter.class);
+        holder.value.put(Letter.A, 1);
+        String json = mapper.writeValueAsString(holder);
+        if (!json.contains("java.util.EnumMap<" + Letter.class.getName() + ",java.lang.Object>")) {
+            fail("Unexpected type id in " + json);
+        }
+
+        LetterMapHolder result = mapper.readValue(json, LetterMapHolder.class);
+        assertEquals(Integer.valueOf(1), result.value.get(Letter.A));
+    }
+
+    @Test
+    public void primitiveArgumentIsCheckedAsItsWrapper() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(Map.class, ClassIdMixin.class)
+                .addMixIn(List.class, ClassIdMixin.class)
+                .build();
+        String mismatch = "{\"value\":[\"java.util.HashMap<java.lang.String,int>\",{\"key\":3}]}";
+        assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(mismatch, StringMapHolder.class));
+
+        String match = "{\"value\":[\"java.util.ArrayList<int>\",[3]]}";
+        IntegerListHolder result = mapper.readValue(match, IntegerListHolder.class);
+        assertEquals(Integer.valueOf(3), result.value.get(0));
     }
 }

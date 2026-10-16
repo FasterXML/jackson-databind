@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -339,22 +340,19 @@ public abstract class DatabindContext
             return;
         }
         final int count = subType.containedTypeCount();
-        final JavaType[] ownArguments = new JavaType[count];
-        for (int i = 0; i < count; ++i) {
-            ownArguments[i] = subType.containedType(i);
-        }
         // The walk only records what it reaches; the descent into the arguments
         // happens after it returns, to keep the stack depth per nesting level
         // the same as before
         final ProjectedArguments walk;
         if (declaredType.isJavaLangObject()) {
             // A projection onto `Object` has no type arguments, so it reaches none
-            walk = new ProjectedArguments(NO_TYPES, ownArguments);
+            walk = new ProjectedArguments(NO_TYPES, subType);
         } else if ((count > 0) && (declaredType.getRawClass() == subType.getRawClass())) {
             // The subtype is its own projection: the arguments line up
-            walk = new ProjectedArguments(NO_TYPES, ownArguments);
+            walk = new ProjectedArguments(NO_TYPES, subType);
             for (int i = 0; i < count; ++i) {
-                walk.reach(i, declaredType.containedTypeOrUnknown(i));
+                walk.reach(i, declaredType.containedTypeOrUnknown(i),
+                        _objectAllowedAt(declaredType, i));
             }
         } else {
             final JavaType[] placeholders;
@@ -370,8 +368,8 @@ public abstract class DatabindContext
                 }
                 projected = _placeholderType(subType.getRawClass(), placeholders);
             }
-            walk = new ProjectedArguments(placeholders, ownArguments);
-            _validateProjectedType(polymorphicBase, typeId, declaredType, projected, walk);
+            walk = new ProjectedArguments(placeholders, subType);
+            _validateProjectedType(polymorphicBase, typeId, declaredType, projected, false, walk);
         }
         for (int i = 0, n = walk.reachedArguments.size(); i < n; ++i) {
             _validateTypeParameter(polymorphicBase, typeId,
@@ -380,9 +378,20 @@ public abstract class DatabindContext
         for (int i = 0; i < count; ++i) {
             if (!walk.reached[i]) {
                 _validateTypeParameter(polymorphicBase, typeId,
-                        getTypeFactory().unknownType(), ownArguments[i], ptv, config);
+                        getTypeFactory().unknownType(), walk.ownArguments[i], ptv, config);
             }
         }
+    }
+
+    /**
+     * Whether a type argument of {@code Object} fits type parameter {@code index}
+     * of {@code declaredType} whatever that parameter is: {@link TypeFactory}
+     * accepts {@code Object} for the key type of any map-like type (see
+     * [databind#1964] and [databind#2422]), since keys are read from property
+     * names either way.
+     */
+    private static boolean _objectAllowedAt(JavaType declaredType, int index) {
+        return (index == 0) && declaredType.isMapLikeType();
     }
 
     /**
@@ -403,6 +412,12 @@ public abstract class DatabindContext
         final JavaType[] ownArguments;
 
         /**
+         * For each own argument, whether {@code Object} fits whatever type
+         * is declared for it
+         */
+        final boolean[] objectAllowed;
+
+        /**
          * For each own argument, whether the projection reached it
          */
         final boolean[] reached;
@@ -421,15 +436,34 @@ public abstract class DatabindContext
         final Set<JavaType> seen = Collections.newSetFromMap(
                 new IdentityHashMap<JavaType, Boolean>());
 
-        ProjectedArguments(JavaType[] placeholders, JavaType[] ownArguments) {
+        ProjectedArguments(JavaType[] placeholders, JavaType subType) {
             this.placeholders = placeholders;
-            this.ownArguments = ownArguments;
-            reached = new boolean[ownArguments.length];
+            final int count = subType.containedTypeCount();
+            ownArguments = new JavaType[count];
+            for (int i = 0; i < count; ++i) {
+                ownArguments[i] = subType.containedType(i);
+            }
+            objectAllowed = new boolean[count];
+            reached = new boolean[count];
+            // `ClassNameIdResolver` writes `EnumMap<E,Object>` as the id of every
+            // `EnumMap` value, whatever value type is declared
+            if ((subType.getRawClass() == EnumMap.class) && (count == 2)) {
+                objectAllowed[1] = true;
+            }
         }
 
-        void reach(int index, JavaType declaredType) {
+        /**
+         * @param objectAllowedHere Whether {@code Object} fits at the position
+         *    reached whatever {@code declaredType} is
+         */
+        void reach(int index, JavaType declaredType, boolean objectAllowedHere) {
+            JavaType argument = ownArguments[index];
+            if (argument.isJavaLangObject() && (objectAllowedHere || objectAllowed[index])) {
+                // Fits here whatever is declared, and names no class to construct
+                declaredType = TypeFactory.unknownType();
+            }
             reached[index] = true;
-            reachedArguments.add(ownArguments[index]);
+            reachedArguments.add(argument);
             reachedDeclaredTypes.add(declaredType);
         }
     }
@@ -458,13 +492,14 @@ public abstract class DatabindContext
      * choice, and only has to fit the declared type.
      */
     private void _validateProjectedType(JavaType polymorphicBase, String typeId,
-            JavaType declaredType, JavaType projected, ProjectedArguments walk)
+            JavaType declaredType, JavaType projected, boolean objectAllowed,
+            ProjectedArguments walk)
         throws JsonMappingException
     {
         final JavaType[] placeholders = walk.placeholders;
         for (int i = 0; i < placeholders.length; ++i) {
             if (projected == placeholders[i]) {
-                walk.reach(i, declaredType);
+                walk.reach(i, declaredType, objectAllowed);
                 return;
             }
         }
@@ -481,28 +516,45 @@ public abstract class DatabindContext
         if (projected.isArrayType()) {
             // The component decides whether `T[]` fits a declared array type
             if (!declaredType.isArrayType()) {
-                _verifyDeclaredType(polymorphicBase, typeId, declaredType, projected);
+                _verifyDeclaredType(polymorphicBase, typeId, declaredType, projected, false);
             }
             _validateProjectedType(polymorphicBase, typeId,
-                    _componentTypeOrUnknown(declaredType), projected.getContentType(), walk);
+                    _componentTypeOrUnknown(declaredType), projected.getContentType(), false, walk);
             return;
         }
-        _verifyDeclaredType(polymorphicBase, typeId, declaredType, projected);
+        _verifyDeclaredType(polymorphicBase, typeId, declaredType, projected, objectAllowed);
         JavaType projectedBase = projected.findSuperType(declaredType.getRawClass());
         if (projectedBase != null) {
             for (int i = 0, n = projectedBase.containedTypeCount(); i < n; ++i) {
                 _validateProjectedType(polymorphicBase, typeId,
-                        declaredType.containedTypeOrUnknown(i), projectedBase.containedType(i), walk);
+                        declaredType.containedTypeOrUnknown(i), projectedBase.containedType(i),
+                        _objectAllowedAt(declaredType, i), walk);
             }
         }
     }
 
+    /**
+     * Check that {@code type} fits {@code declaredType}: it has to be a subtype,
+     * a primitive counting as its wrapper since that is what gets deserialized.
+     *
+     * @param objectAllowed Whether {@code Object} fits whatever {@code declaredType} is
+     */
     private void _verifyDeclaredType(JavaType polymorphicBase, String typeId,
-            JavaType declaredType, JavaType type)
+            JavaType declaredType, JavaType type, boolean objectAllowed)
         throws JsonMappingException
     {
-        if (!type.isPrimitive() && !type.isJavaLangObject()
-                && !type.isTypeOrSubTypeOf(declaredType.getRawClass())) {
+        if (declaredType.isJavaLangObject()) {
+            return;
+        }
+        Class<?> raw = type.getRawClass();
+        if (raw == Object.class) {
+            if (objectAllowed) {
+                return;
+            }
+        } else if (raw.isPrimitive()) {
+            raw = (raw == Void.TYPE) ? Void.class : ClassUtil.wrapperType(raw);
+        }
+        if (!declaredType.getRawClass().isAssignableFrom(raw)) {
             throw invalidTypeIdException(polymorphicBase, typeId,
                     _typeParameterDescription(declaredType, type)
                     + " is not a subtype of its declared type");
@@ -528,10 +580,14 @@ public abstract class DatabindContext
      * name-prefix configuration like {@code allowIfSubType("com.example.")}
      * applies to type parameters as well.
      *<p>
-     * Primitive types and {@code Object} are exempt from all checks: a primitive
-     * cannot name an attacker-selected class, and {@code Object} is the
-     * canonical resolution of wildcards and unbound parameters, which cannot
-     * themselves carry attacker-controlled types.
+     * Primitive types and {@code Object} only have to fit {@code declaredType},
+     * a primitive as its wrapper since that is what gets deserialized: a
+     * primitive cannot name an attacker-selected class, and {@code Object} is
+     * the canonical resolution of wildcards and unbound parameters, which cannot
+     * themselves carry attacker-controlled types. {@code Object} also fits the
+     * key type of a map-like type and the value type of an {@code EnumMap}
+     * whatever is declared, see {@link #_objectAllowedAt} and
+     * {@link ProjectedArguments}.
      * Enum types are exempt from the {@link PolymorphicTypeValidator} only:
      * they are JVM-managed singletons resolved by name lookup (no
      * attacker-controlled constructor or setter runs), so they cannot serve as
@@ -551,13 +607,9 @@ public abstract class DatabindContext
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
+        _verifyDeclaredType(polymorphicBase, typeId, declaredType, param, false);
         if (param.isPrimitive() || param.isJavaLangObject()) {
             return;
-        }
-        if (!param.isTypeOrSubTypeOf(declaredType.getRawClass())) {
-            throw invalidTypeIdException(polymorphicBase, typeId,
-                    _typeParameterDescription(declaredType, param)
-                    + " is not a subtype of its declared type");
         }
         if (!param.isEnumType()) {
             Validity baseValidity = ptv.validateBaseType(config, declaredType);

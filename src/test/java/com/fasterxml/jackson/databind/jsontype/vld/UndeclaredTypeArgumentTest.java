@@ -55,6 +55,21 @@ public class UndeclaredTypeArgumentTest extends DatabindTestUtil
         public String text;
     }
 
+    public static class Animal {
+        public String name;
+    }
+
+    public static class Dog extends Animal { }
+
+    static class AnimalListHolder {
+        public List<Animal> value;
+    }
+
+    static class MinimalClassHolder {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.WRAPPER_ARRAY)
+        public Iterable<String> values;
+    }
+
     enum Color { RED, GREEN }
 
     /** Stand-in for a gadget class: never allow-listed */
@@ -72,6 +87,7 @@ public class UndeclaredTypeArgumentTest extends DatabindTestUtil
     static final String ENV = Env.class.getName();
     static final String PLAIN_MSG = PlainMsg.class.getName();
     static final String SAFE_BEAN = SafeBean.class.getName();
+    static final String DOG = Dog.class.getName();
 
     private static ObjectMapper listMapper(PolymorphicTypeValidator ptv) {
         return jsonMapperBuilder()
@@ -202,5 +218,114 @@ public class UndeclaredTypeArgumentTest extends DatabindTestUtil
         InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
                 () -> mapper.readValue(listJson(SAFE_BEAN, "{\"text\":\"hi\"}"), ObjectListHolder.class));
         verifyException(e, "denied resolution of type parameter `" + SAFE_BEAN + "`");
+    }
+
+    // Without a validator (the 2.x default) a direct type id has to name a
+    // subtype of the base type; an argument nothing declares has to as well
+    @Test
+    public void noValidatorRejectsUndeclaredArgumentOutsideBaseType() throws Exception
+    {
+        ObjectMapper mapper = newJsonMapper();
+
+        InvalidTypeIdException e = assertRejected(mapper,
+                envJson(GADGET, "{\"cmd\":\"x\"}"), MsgHolder.class);
+        verifyException(e, "type parameter `" + GADGET + "` (undeclared) is not a subtype"
+                + " of the base type, and no `PolymorphicTypeValidator` is configured to allow it");
+
+        e = assertRejected(mapper,
+                envJson("java.util.ArrayList<" + GADGET + ">", "[{\"cmd\":\"x\"}]"), MsgHolder.class);
+        verifyException(e, "type parameter `" + GADGET + "` (undeclared) is not a subtype");
+
+        e = assertRejected(mapper,
+                envJson("[L" + GADGET + ";", "[{\"cmd\":\"x\"}]"), MsgHolder.class);
+        verifyException(e, "type parameter `" + GADGET + "` (undeclared) is not a subtype");
+    }
+
+    @Test
+    public void noValidatorAcceptsBaseSubtypeAndScalarArguments() throws Exception
+    {
+        ObjectMapper mapper = newJsonMapper();
+
+        Msg msg = mapper.readValue(envJson(PLAIN_MSG, "[\"" + PLAIN_MSG + "\",{\"text\":\"hi\"}]"),
+                MsgHolder.class).value;
+        assertEquals("hi", ((PlainMsg) ((Env<?>) msg).payload).text);
+
+        msg = mapper.readValue(envJson("java.lang.String", "\"hi\""), MsgHolder.class).value;
+        assertEquals("hi", ((Env<?>) msg).payload);
+
+        msg = mapper.readValue(envJson("[Ljava.lang.String;", "[\"hi\"]"), MsgHolder.class).value;
+        assertEquals("hi", ((String[]) ((Env<?>) msg).payload)[0]);
+
+        msg = mapper.readValue(envJson("java.util.ArrayList<java.lang.String>", "[\"hi\"]"),
+                MsgHolder.class).value;
+        assertEquals("hi", ((List<?>) ((Env<?>) msg).payload).get(0));
+    }
+
+    // A declared type parameter vouches for its subtypes as a base type would
+    // for a direct type id; a declared `Object` vouches for nothing
+    @Test
+    public void noValidatorAcceptsSubtypeOfDeclaredParameterOnly() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(List.class, ClassIdMixin.class)
+                .build();
+
+        String json = "{\"value\":[\"java.util.ArrayList<" + DOG + ">\",[{\"name\":\"Rex\"}]]}";
+        Animal animal = mapper.readValue(json, AnimalListHolder.class).value.get(0);
+        assertEquals(Dog.class, animal.getClass());
+        assertEquals("Rex", animal.name);
+
+        InvalidTypeIdException e = assertRejected(mapper, listJson(GADGET, "{\"cmd\":\"x\"}"));
+        verifyException(e, "type parameter `" + GADGET + "` (undeclared) is not a subtype");
+    }
+
+    @Test
+    public void minimalClassIdArgumentIsValidatedToo() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(Iterable.class)
+                        .build())
+                .build();
+
+        MinimalClassHolder holder = mapper.readValue(
+                "{\"values\":[\"java.util.ArrayList<java.lang.String>\",[\"a\"]]}",
+                MinimalClassHolder.class);
+        assertEquals("a", holder.values.iterator().next());
+
+        InvalidTypeIdException e = assertRejected(mapper,
+                "{\"values\":[\"java.util.ArrayList<" + GADGET + ">\",[{\"cmd\":\"x\"}]]}",
+                MinimalClassHolder.class);
+        verifyException(e, "type parameter `" + GADGET + "` (declared as `java.lang.String`)"
+                + " is not a subtype of its declared type");
+    }
+
+    // Approving the base type covers arguments that are its subtypes, as it
+    // covers direct type ids; anything else needs a rule of its own
+    @Test
+    public void allowedBaseTypeCoversOnlyItsSubtypesAsArguments() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(Msg.class)
+                        .build())
+                .build();
+
+        Msg msg = mapper.readValue(envJson(PLAIN_MSG, "[\"" + PLAIN_MSG + "\",{\"text\":\"hi\"}]"),
+                MsgHolder.class).value;
+        assertEquals("hi", ((PlainMsg) ((Env<?>) msg).payload).text);
+
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(envJson(SAFE_BEAN, "{\"text\":\"hi\"}"), MsgHolder.class));
+        verifyException(e, "denied resolution of type parameter `" + SAFE_BEAN + "` (undeclared)");
+
+        ObjectMapper allowing = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(Msg.class)
+                        .allowIfSubType(SafeBean.class)
+                        .build())
+                .build();
+        msg = allowing.readValue(envJson(SAFE_BEAN, "{\"text\":\"hi\"}"), MsgHolder.class).value;
+        assertEquals("hi", ((SafeBean) ((Env<?>) msg).payload).text);
     }
 }

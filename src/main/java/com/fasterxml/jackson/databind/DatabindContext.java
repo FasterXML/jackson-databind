@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
 import com.fasterxml.jackson.databind.jsontype.impl.BaseTypeAllowingValidator;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.type.PlaceholderForType;
 import com.fasterxml.jackson.databind.type.ResolvedRecursiveType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -322,14 +323,15 @@ public abstract class DatabindContext
      * stands for the argument the type id gave at that position, which is
      * validated in full against the declared type found there. Any other type
      * met comes from the class declarations, not from the type id, and only has
-     * to fit the declared type. Own arguments the projection never reaches are
-     * validated against the unknown type.
+     * to fit the declared type. Own arguments the projection never reaches, or
+     * reaches where {@code Object} is declared, have no declared type: nothing
+     * the property declares says what they may be.
      *
      * @param polymorphicBase Base type the complete type id is resolved against;
      *    only used for error messages
      * @param typeId Complete type id being resolved; only used for error messages
      * @param declaredType Type whose type parameters {@code subType} has to be
-     *    compatible with
+     *    compatible with, {@code null} if nothing declares them
      */
     private void _validateTypeParameters(JavaType polymorphicBase, String typeId,
             JavaType declaredType, JavaType subType,
@@ -340,7 +342,7 @@ public abstract class DatabindContext
         // anyway so the check does not depend on that.
         if (subType.isArrayType()) {
             _validateTypeParameter(polymorphicBase, typeId,
-                    _componentTypeOrUnknown(declaredType), subType.getContentType(), ptv, config);
+                    _componentTypeOrNone(declaredType), subType.getContentType(), ptv, config);
             return;
         }
         final int count = subType.containedTypeCount();
@@ -348,7 +350,7 @@ public abstract class DatabindContext
         // happens after it returns, to keep the stack depth per nesting level
         // the same as before
         final ProjectedArguments walk;
-        if (declaredType.isJavaLangObject()) {
+        if ((declaredType == null) || declaredType.isJavaLangObject()) {
             // A projection onto `Object` has no type arguments, so it reaches none
             walk = new ProjectedArguments(NO_TYPES, subType);
         } else if ((count > 0) && (declaredType.getRawClass() == subType.getRawClass())) {
@@ -382,7 +384,7 @@ public abstract class DatabindContext
         for (int i = 0; i < count; ++i) {
             if (!walk.reached[i]) {
                 _validateTypeParameter(polymorphicBase, typeId,
-                        getTypeFactory().unknownType(), walk.ownArguments[i], ptv, config);
+                        null, walk.ownArguments[i], ptv, config);
             }
         }
     }
@@ -462,9 +464,11 @@ public abstract class DatabindContext
          */
         void reach(int index, JavaType declaredType, boolean objectAllowedHere) {
             JavaType argument = ownArguments[index];
-            if (argument.isJavaLangObject() && (objectAllowedHere || objectAllowed[index])) {
-                // Fits here whatever is declared, and names no class to construct
-                declaredType = TypeFactory.unknownType();
+            if (declaredType.isJavaLangObject()
+                    || (argument.isJavaLangObject() && (objectAllowedHere || objectAllowed[index]))) {
+                // A declared `Object` says nothing about the argument; an `Object`
+                // argument that fits whatever is declared names no class to construct
+                declaredType = null;
             }
             reached[index] = true;
             reachedArguments.add(argument);
@@ -500,6 +504,8 @@ public abstract class DatabindContext
             ProjectedArguments walk)
         throws JsonMappingException
     {
+        // (declared types met during the walk are never null: `Object` where
+        // the declared type declares nothing)
         final JavaType[] placeholders = walk.placeholders;
         for (int i = 0; i < placeholders.length; ++i) {
             if (projected == placeholders[i]) {
@@ -523,7 +529,7 @@ public abstract class DatabindContext
                 _verifyDeclaredType(polymorphicBase, typeId, declaredType, projected, false);
             }
             _validateProjectedType(polymorphicBase, typeId,
-                    _componentTypeOrUnknown(declaredType), projected.getContentType(), false, walk);
+                    _componentTypeOrNone(declaredType), projected.getContentType(), false, walk);
             return;
         }
         _verifyDeclaredType(polymorphicBase, typeId, declaredType, projected, objectAllowed);
@@ -565,7 +571,17 @@ public abstract class DatabindContext
         }
     }
 
-    private JavaType _componentTypeOrUnknown(JavaType declaredType) {
+    /**
+     * Declared type of the elements of an array argument: the element type of
+     * a declared array type; {@code Object} for any other declared type, since
+     * an array fits only {@code Object}, {@code Serializable} and
+     * {@code Cloneable}, which an element of any type fits; none if the array
+     * has no declared type.
+     */
+    private JavaType _componentTypeOrNone(JavaType declaredType) {
+        if (declaredType == null) {
+            return null;
+        }
         return declaredType.isArrayType()
                 ? declaredType.getContentType() : getTypeFactory().unknownType();
     }
@@ -577,12 +593,13 @@ public abstract class DatabindContext
      * {@code List<String[]>}).
      *<p>
      * {@code declaredType} is the type parameter the base type declares at the
-     * same position (or the unknown type if it declares none). An argument
-     * equal to it passes without further checks, since the type id then
-     * chose nothing the property does not declare already. Otherwise
-     * {@code param} must be a subtype of it, and the
-     * {@link PolymorphicTypeValidator} is consulted about it as if it were a
-     * direct type id for {@code declaredType}, see {@link #_validateTypeArgument}.
+     * same position, {@code null} if it declares none (or declares
+     * {@code Object}, which says nothing). An argument equal to it passes
+     * without further checks, since the type id then chose nothing the
+     * property does not declare already. Otherwise {@code param} must be a
+     * subtype of it, and the {@link PolymorphicTypeValidator} is consulted
+     * about it as if it were a direct type id for {@code declaredType}, see
+     * {@link #_validateTypeArgument}.
      *<p>
      * Primitive types and {@code Object} only have to fit {@code declaredType},
      * a primitive as its wrapper since that is what gets deserialized: a
@@ -609,11 +626,13 @@ public abstract class DatabindContext
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        if (param.equals(declaredType)) {
-            // Exactly what the property declares: the type id chose nothing here
-            return;
+        if (declaredType != null) {
+            if (param.equals(declaredType)) {
+                // Exactly what the property declares: the type id chose nothing here
+                return;
+            }
+            _verifyDeclaredType(polymorphicBase, typeId, declaredType, param, false);
         }
-        _verifyDeclaredType(polymorphicBase, typeId, declaredType, param, false);
         if (param.isPrimitive() || param.isJavaLangObject()) {
             return;
         }
@@ -623,7 +642,7 @@ public abstract class DatabindContext
         _validateGenericSubType(param);
         if (param.isArrayType()) {
             _validateTypeParameter(polymorphicBase, typeId,
-                    _componentTypeOrUnknown(declaredType), param.getContentType(), ptv, config);
+                    _componentTypeOrNone(declaredType), param.getContentType(), ptv, config);
         } else {
             _validateTypeParameters(polymorphicBase, typeId, declaredType, param, ptv, config);
         }
@@ -642,6 +661,15 @@ public abstract class DatabindContext
      * it is a subtype of the polymorphic base type and a direct type id naming
      * it for that base type would be accepted: the validity of the base type
      * itself has been established already, so only the subtype rules apply.
+     *<p>
+     * {@link LaissezFaireSubTypeValidator}, the default when no validator is
+     * configured, allows every subtype of a base type. An argument with a
+     * declared type is one (checked by the caller); one without has no base
+     * type to be a subtype of, so only the polymorphic base type can vouch for
+     * it: {@code Env<Gadget>} is rejected for base {@code Msg} as a direct
+     * {@code Gadget} id is, while {@code Env<PlainMsg>} is accepted.
+     *
+     * @param declaredType Declared type of the argument, {@code null} if none
      */
     private void _validateTypeArgument(JavaType polymorphicBase, String typeId,
             JavaType declaredType, JavaType param,
@@ -649,11 +677,18 @@ public abstract class DatabindContext
         throws JsonMappingException
     {
         final String rawName = param.getRawClass().getName();
-        Validity vld = ptv.validateBaseType(config, declaredType);
-        if (vld == Validity.INDETERMINATE) {
-            vld = ptv.validateSubClassName(config, declaredType, rawName);
+        Validity vld;
+        if (ptv instanceof LaissezFaireSubTypeValidator) {
+            vld = (declaredType == null) ? Validity.INDETERMINATE : Validity.ALLOWED;
+        } else {
+            final JavaType baseType = (declaredType == null)
+                    ? getTypeFactory().unknownType() : declaredType;
+            vld = ptv.validateBaseType(config, baseType);
             if (vld == Validity.INDETERMINATE) {
-                vld = ptv.validateSubType(config, declaredType, param);
+                vld = ptv.validateSubClassName(config, baseType, rawName);
+                if (vld == Validity.INDETERMINATE) {
+                    vld = ptv.validateSubType(config, baseType, param);
+                }
             }
         }
         if ((vld != Validity.ALLOWED) && param.isTypeOrSubTypeOf(polymorphicBase.getRawClass())) {
@@ -663,6 +698,12 @@ public abstract class DatabindContext
             }
         }
         if (vld != Validity.ALLOWED) {
+            if (ptv instanceof LaissezFaireSubTypeValidator) {
+                throw invalidTypeIdException(polymorphicBase, typeId,
+                        _typeParameterDescription(declaredType, param)
+                        + " is not a subtype of the base type, and no `PolymorphicTypeValidator`"
+                        + " is configured to allow it");
+            }
             throw _typeParameterDeniedException(polymorphicBase, typeId,
                     declaredType, param, ptv);
         }
@@ -713,7 +754,8 @@ public abstract class DatabindContext
     private static String _typeParameterDescription(JavaType declaredType, JavaType param)
     {
         return "type parameter " + ClassUtil.getTypeDescription(param)
-                + " (declared as " + ClassUtil.getTypeDescription(declaredType) + ")";
+                + ((declaredType == null) ? " (undeclared)"
+                        : " (declared as " + ClassUtil.getTypeDescription(declaredType) + ")");
     }
 
     /**

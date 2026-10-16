@@ -13,6 +13,9 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
+import com.fasterxml.jackson.databind.jsontype.impl.ApprovedBaseTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
+import com.fasterxml.jackson.databind.type.ResolvedRecursiveType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -288,68 +291,98 @@ public abstract class DatabindContext
         // be validated -- otherwise a name-based allow-list for a safe container
         // (e.g. "java.util.ArrayList") can be bypassed by smuggling a gadget
         // class as a type argument (e.g. "java.util.ArrayList<EvilGadget>").
-        // The container itself was already validated above; walk its parameter
-        // tree (and array component, if any) and validate each node.
-        for (int i = 0, n = subType.containedTypeCount(); i < n; ++i) {
-            _validateTypeParameter(baseType, subType.containedType(i), ptv, config);
+        // [CVE-2026-110879]: ... and validated with the configured validator (not one
+        // that approves all subtypes of the base type) and as if named as a direct
+        // type id for base type `Object` -- type parameter may bind to anything.
+        if (ptv instanceof ApprovedBaseTypeValidator) {
+            ptv = ((ApprovedBaseTypeValidator) ptv).getTypeParameterValidator();
         }
-        if (subType.isArrayType()) {
-            _validateTypeParameter(baseType, subType.getContentType(), ptv, config);
-        }
+        _validateTypeParameters(baseType, subClass, subType, ptv, config);
         return subType;
     }
 
     /**
-     * Helper for [databind#5988]: validate a single type parameter against the
-     * given {@link PolymorphicTypeValidator}, then recurse into its own contained
-     * types and array component (for nested generics like
+     * Helper for [databind#5988]: validate all type parameters (and array
+     * component, if any) of given type, recursively (for nested generics like
      * {@code Map<String, List<Evil>>} or {@code List<String[]>}).
      *<p>
-     * Name-based and class-based allow rules are both consulted (matching the
-     * top-level container check), so a name-prefix configuration like
-     * {@code allowIfSubType("com.example.")} applies to type parameters as well.
-     *<p>
-     * {@code Object} is exempt: it is the canonical resolution of wildcards and
-     * unbound parameters, which cannot themselves carry attacker-controlled types.
-     * Enum types are also exempt: they are JVM-managed singletons resolved by
-     * name lookup (no attacker-controlled constructor or setter runs), so they
-     * cannot serve as gadget classes -- and a name-prefix PTV configuration that
-     * allow-lists a container like {@code EnumSet} should not have to also
-     * allow-list every enum class that may legitimately appear as its element.
+     * Every class named as a type parameter goes through the same checks as a
+     * class named directly as type id for base type {@code Object}:
+     * {@link PolymorphicTypeValidator#validateBaseType},
+     * {@link PolymorphicTypeValidator#validateSubClassName},
+     * {@link PolymorphicTypeValidator#validateSubType} and the
+     * {@link SubTypeValidator} deny list.
+     * Assignment compatibility with declared type parameters of the base type is
+     * NOT verified: classes named in the type id are the only attacker-selected
+     * ones (other types come from the declared base type or from class
+     * declarations), so validating them suffices to prevent instantiation of
+     * unapproved types.
      *
-     * @since 2.18.8
+     * @since 2.18.12
      */
-    private void _validateTypeParameter(JavaType baseType, JavaType param,
+    private void _validateTypeParameters(JavaType baseType, String typeId, JavaType type,
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        if (!param.isJavaLangObject() && !param.isEnumType()) {
-            // First consult the name-based allow rules (mirrors the container
-            // check in _resolveAndValidateGeneric), then fall back to the class-
-            // based check so all configured matchers can approve the parameter.
+        for (int i = 0, n = type.containedTypeCount(); i < n; ++i) {
+            _validateTypeParameter(baseType, typeId, type.containedType(i), ptv, config);
+        }
+        if (type.isArrayType()) {
+            _validateTypeParameter(baseType, typeId, type.getContentType(), ptv, config);
+        }
+    }
+
+    private void _validateTypeParameter(JavaType baseType, String typeId, JavaType param,
+            PolymorphicTypeValidator ptv, MapperConfig<?> config)
+        throws JsonMappingException
+    {
+        // Self-reference to a type being walked: validate class but do not recurse
+        final boolean recursive = (param instanceof ResolvedRecursiveType);
+        if (!_isSafeTypeParameter(param)) {
+            final JavaType objectType = config.constructType(Object.class);
             final String rawName = param.getRawClass().getName();
-            Validity vld = ptv.validateSubClassName(config, baseType, rawName);
-            if (vld == Validity.DENIED) {
-                throw invalidTypeIdException(baseType, rawName,
-                        "Configured `PolymorphicTypeValidator` (of type "
-                                + ClassUtil.classNameOf(ptv)
-                                + ") denied resolution of type parameter");
-            }
-            if (vld != Validity.ALLOWED) {
-                if (ptv.validateSubType(config, baseType, param) != Validity.ALLOWED) {
-                    throw invalidTypeIdException(baseType, rawName,
-                            "Configured `PolymorphicTypeValidator` (of type "
-                                    + ClassUtil.classNameOf(ptv)
-                                    + ") denied resolution of type parameter");
+            Validity vld = ptv.validateBaseType(config, objectType);
+            if (vld == Validity.INDETERMINATE) {
+                vld = ptv.validateSubClassName(config, objectType, rawName);
+                if (vld == Validity.INDETERMINATE) {
+                    vld = ptv.validateSubType(config, objectType, param);
                 }
             }
+            if (vld != Validity.ALLOWED) {
+                throw invalidTypeIdException(baseType, typeId,
+                        "Configured `PolymorphicTypeValidator` (of type "
+                                + ClassUtil.classNameOf(ptv)
+                                + ") denied resolution of type parameter "
+                                + ClassUtil.getTypeDescription(param));
+            }
+            if (SubTypeValidator.instance().isIllegalType(param.getRawClass())) {
+                throw invalidTypeIdException(baseType, typeId,
+                        "Illegal type parameter " + ClassUtil.getTypeDescription(param)
+                                + ": prevented for security reasons");
+            }
         }
-        for (int i = 0, n = param.containedTypeCount(); i < n; ++i) {
-            _validateTypeParameter(baseType, param.containedType(i), ptv, config);
+        if (!recursive) {
+            _validateTypeParameters(baseType, typeId, param, ptv, config);
         }
-        if (param.isArrayType()) {
-            _validateTypeParameter(baseType, param.getContentType(), ptv, config);
+    }
+
+    /**
+     * Types that may be used as type parameters without validation: ones that
+     * cannot be used as "gadget" types, since no attacker-controlled
+     * constructor or setter can be invoked.
+     *<p>
+     * {@code Object} is the canonical resolution of wildcards and unbound parameters;
+     * enum types are JVM-managed singletons resolved by name lookup;
+     * and {@code String} and primitive types (including wrappers) are
+     * handled by Jackson as scalars.
+     */
+    private static boolean _isSafeTypeParameter(JavaType param)
+    {
+        if (param.isJavaLangObject() || param.isPrimitive() || param.isEnumType()) {
+            return true;
         }
+        final Class<?> raw = param.getRawClass();
+        return (raw == String.class) || (ClassUtil.primitiveType(raw) != null);
     }
 
     protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws JsonMappingException {

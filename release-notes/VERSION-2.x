@@ -9,6 +9,10 @@ Project: jackson-databind
 #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
  [CVE-2026-54516]
  (fixed by Omkhar A)
+#NNNN: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, w/ Claude code)
 
 2.18.11 (20-Sep-2026)
 

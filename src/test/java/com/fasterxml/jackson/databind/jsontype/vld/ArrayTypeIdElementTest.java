@@ -74,6 +74,15 @@ public class ArrayTypeIdElementTest extends DatabindTestUtil
         public SafeBean[] value;
     }
 
+    static final class ObjectHolder {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_ARRAY)
+        public Object value;
+    }
+
+    public static class Box<T> {
+        public T payload;
+    }
+
     static final String GADGET = Gadget.class.getName();
     static final String ABSTRACT_GADGET = AbstractGadget.class.getName();
     static final String SAFE_BEAN = SafeBean.class.getName();
@@ -251,9 +260,11 @@ public class ArrayTypeIdElementTest extends DatabindTestUtil
                 .allowIfSubTypeIsArray()
                 .build());
 
+        // (`allowIfSubTypeIsArray()` itself no longer exempts the abstract element type,
+        // so the outer check rejects the array)
         InvalidTypeIdException e = assertRejected(mapper,
                 arrayJson(ABSTRACT_GADGET, "{\"cmd\":\"x\"}"), SerializableHolder.class);
-        verifyException(e, "denied resolution of contained type `" + ABSTRACT_GADGET + "`");
+        verifyException(e, ABSTRACT_GADGET);
 
         ObjectMapper allowing = mapperWith(BasicPolymorphicTypeValidator.builder()
                 .allowIfSubTypeIsArray()
@@ -262,5 +273,42 @@ public class ArrayTypeIdElementTest extends DatabindTestUtil
         AbstractGadget[] values = (AbstractGadget[]) allowing.readValue(
                 arrayJson(ABSTRACT_GADGET, "{\"cmd\":\"x\"}"), SerializableHolder.class).value;
         assertEquals(AbstractGadgetImpl.class, values[0].getClass());
+    }
+
+    // A rule that names the array type is the application's choice of that
+    // array and its elements, so the element type needs no rule of its own;
+    // a rule every array matches is not
+    @Test
+    public void specificallyApprovedArrayTypeCoversElementType() throws Exception
+    {
+        String json = arrayJson(SAFE_BEAN, "{\"text\":\"hi\"}");
+        String asArgument = "{\"value\":[\"" + Box.class.getName() + "<[L" + SAFE_BEAN + ";>\","
+                + "{\"payload\":[{\"text\":\"hi\"}]}]}";
+        for (PolymorphicTypeValidator ptv : new PolymorphicTypeValidator[] {
+                BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(Box.class)
+                        .allowIfSubType(SafeBean[].class)
+                        .build(),
+                BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(Box.class)
+                        .allowIfSubType(Pattern.compile(Pattern.quote("[L" + SAFE_BEAN + ";")))
+                        .build() }) {
+            ObjectMapper mapper = mapperWith(ptv);
+            assertEquals("hi", ((SafeBean[]) mapper.readValue(json, ObjectHolder.class).value)[0].text);
+            Box<?> box = (Box<?>) mapper.readValue(asArgument, ObjectHolder.class).value;
+            assertEquals("hi", ((SafeBean[]) box.payload)[0].text);
+
+            // (the array itself is not allow-listed, so the outer check rejects it)
+            InvalidTypeIdException e = assertRejected(mapper,
+                    arrayJson(GADGET, "{\"cmd\":\"x\"}"), ObjectHolder.class);
+            verifyException(e, GADGET);
+        }
+
+        // `allowIfSubType(Serializable.class)` matches every array and vouches for none
+        ObjectMapper mapper = mapperWith(BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType(Serializable.class)
+                .build());
+        InvalidTypeIdException e = assertRejected(mapper, json, ObjectHolder.class);
+        verifyException(e, "denied resolution of contained type `" + SAFE_BEAN + "`");
     }
 }

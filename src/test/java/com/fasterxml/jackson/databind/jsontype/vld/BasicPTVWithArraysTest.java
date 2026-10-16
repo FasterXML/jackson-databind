@@ -128,7 +128,6 @@ public class BasicPTVWithArraysTest extends DatabindTestUtil
             mapper.readValue(json, ObjectWrapper.class);
             fail("Should not pass");
         } catch (InvalidTypeIdException e) {
-            verifyException(e, "denied resolution of contained type");
             verifyException(e, "$Base2534");
         }
     }

@@ -279,8 +279,7 @@ public abstract class DatabindContext
         // approval of the array (every array is `Serializable`, `Cloneable` and
         // an `Object`) does not extend to it, it is validated like a type argument
         if (subType.isArrayType()) {
-            _validateTypeParameter(baseType, subClass,
-                    _componentTypeOrNone(baseType), subType.getContentType(), ptv, config);
+            _validateArrayElementType(baseType, subClass, baseType, subType, ptv, config);
         }
         return subType;
     }
@@ -349,8 +348,7 @@ public abstract class DatabindContext
         // `TypeParser` cannot produce an array with type arguments today; handled
         // anyway so the check does not depend on that.
         if (subType.isArrayType()) {
-            _validateTypeParameter(polymorphicBase, typeId,
-                    _componentTypeOrNone(declaredType), subType.getContentType(), ptv, config);
+            _validateArrayElementType(polymorphicBase, typeId, declaredType, subType, ptv, config);
             return;
         }
         final int count = subType.containedTypeCount();
@@ -660,11 +658,48 @@ public abstract class DatabindContext
                     + ": prevented for security reasons");
         }
         if (param.isArrayType()) {
-            _validateTypeParameter(polymorphicBase, typeId,
-                    _componentTypeOrNone(declaredType), param.getContentType(), ptv, config);
+            _validateArrayElementType(polymorphicBase, typeId, declaredType, param, ptv, config);
         } else {
             _validateTypeParameters(polymorphicBase, typeId, declaredType, param, ptv, config);
         }
+    }
+
+    /**
+     * Validate the element type of an array named in a type id like a type
+     * argument, with the element type of the declared array type as its
+     * declared type (see {@link #_componentTypeOrNone}), unless the validator
+     * approves the array type specifically: a rule naming it, like
+     * {@code allowIfSubType(Bar[].class)}, is the application's choice of that
+     * array and its elements. A rule every array matches, like
+     * {@code allowIfSubType(Serializable.class)}, approves nothing about the
+     * element type, nor does approval of the base type.
+     *
+     * @param declaredType Declared type of the array, {@code null} if none
+     */
+    private void _validateArrayElementType(JavaType polymorphicBase, String typeId,
+            JavaType declaredType, JavaType arrayType,
+            PolymorphicTypeValidator ptv, MapperConfig<?> config)
+        throws JsonMappingException
+    {
+        final JavaType baseType = (declaredType == null)
+                ? getTypeFactory().unknownType() : declaredType;
+        if (_isApprovedSubType(ptv, config, baseType, arrayType)
+                && !_isApprovedSubType(ptv, config, baseType, config.constructType(Object[].class))) {
+            return;
+        }
+        _validateTypeParameter(polymorphicBase, typeId,
+                _componentTypeOrNone(declaredType), arrayType.getContentType(), ptv, config);
+    }
+
+    private static boolean _isApprovedSubType(PolymorphicTypeValidator ptv,
+            MapperConfig<?> config, JavaType baseType, JavaType subType)
+        throws JsonMappingException
+    {
+        Validity vld = ptv.validateSubClassName(config, baseType, subType.getRawClass().getName());
+        if (vld == Validity.INDETERMINATE) {
+            vld = ptv.validateSubType(config, baseType, subType);
+        }
+        return (vld == Validity.ALLOWED);
     }
 
     /**

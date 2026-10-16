@@ -274,6 +274,13 @@ public abstract class DatabindContext
                 return _throwSubtypeClassNotAllowed(baseType, subClass, ptv);
             }
         }
+        // The element type of an array type id is named by the type id as well:
+        // approval of the array (every array is `Serializable`, `Cloneable` and
+        // an `Object`) does not extend to it, it is validated like a type argument
+        if (subType.isArrayType()) {
+            _validateTypeParameter(baseType, subClass,
+                    _componentTypeOrNone(baseType), subType.getContentType(), ptv, config);
+        }
         return subType;
     }
 

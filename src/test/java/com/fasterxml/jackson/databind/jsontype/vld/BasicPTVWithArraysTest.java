@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype.vld;
 
+import java.util.regex.Pattern;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.*;
@@ -76,6 +78,9 @@ public class BasicPTVWithArraysTest extends DatabindTestUtil
         ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubTypeIsArray() // key addition
                 .allowIfSubType(Good2534.class)
+                // The abstract element type is named by the array type id and needs
+                // a rule too, exactly it so that `Bad2534` stays out
+                .allowIfSubType(Pattern.compile(Pattern.quote(Base2534.class.getName())))
                 .build();
         mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
@@ -98,6 +103,33 @@ public class BasicPTVWithArraysTest extends DatabindTestUtil
             verifyException(e, "Could not resolve type id 'com.fasterxml.jackson.");
             verifyException(e, "$Bad2534");
             verifyException(e, "as a subtype of");
+        }
+    }
+
+    // The element type of an array type id is validated like a type argument:
+    // `Number` cannot name a class to construct and needs no rule, an abstract
+    // bean type can still be deserialized (`@JsonDeserialize(as=...)`, factory
+    // methods, `defaultImpl`) and does
+    @Test
+    public void testAbstractElementTypeNeedsRule() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubTypeIsArray()
+                        .build(), DefaultTyping.NON_FINAL)
+                .build();
+        final Number[] input = new Number[] { 1, 2.5 };
+        ObjectWrapper w = mapper.readValue(mapper.writeValueAsString(new ObjectWrapper(input)),
+                ObjectWrapper.class);
+        assertEquals(Number[].class, w.value.getClass());
+        assertArrayEquals(input, (Number[]) w.value);
+
+        final String json = mapper.writeValueAsString(new ObjectWrapper(new Base2534[0]));
+        try {
+            mapper.readValue(json, ObjectWrapper.class);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "denied resolution of type parameter");
+            verifyException(e, "$Base2534");
         }
     }
 }

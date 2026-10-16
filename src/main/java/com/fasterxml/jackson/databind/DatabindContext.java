@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
+import com.fasterxml.jackson.databind.jsontype.impl.BaseTypeAllowingValidator;
 import com.fasterxml.jackson.databind.type.PlaceholderForType;
 import com.fasterxml.jackson.databind.type.ResolvedRecursiveType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -657,6 +658,11 @@ public abstract class DatabindContext
             String typeId, JavaType declaredType, JavaType param,
             PolymorphicTypeValidator ptv)
     {
+        // Name the validator the user configured, not the wrapper that approved
+        // the outer base type
+        if (ptv instanceof BaseTypeAllowingValidator) {
+            ptv = ((BaseTypeAllowingValidator) ptv).getDelegate();
+        }
         return invalidTypeIdException(polymorphicBase, typeId,
                 "Configured `PolymorphicTypeValidator` (of type " + ClassUtil.classNameOf(ptv)
                 + ") denied resolution of " + _typeParameterDescription(declaredType, param));

@@ -9,10 +9,13 @@ import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
  * Validator used after a configured validator approves all subtypes of one
  * base type. Validation for any other base type is delegated to the original
  * validator so canonical generic arguments do not inherit that approval.
+ *<p>
+ * Error messages should name the configured validator, available through
+ * {@link #getDelegate()}, since this wrapper is not what the user set up.
  *
  * @since 2.18.12
  */
-final class BaseTypeAllowingValidator extends PolymorphicTypeValidator.Base
+public final class BaseTypeAllowingValidator extends PolymorphicTypeValidator.Base
 {
     private static final long serialVersionUID = 1L;
 
@@ -23,6 +26,14 @@ final class BaseTypeAllowingValidator extends PolymorphicTypeValidator.Base
             PolymorphicTypeValidator delegate) {
         _allowedBaseType = allowedBaseType;
         _delegate = delegate;
+    }
+
+    /**
+     * @return The configured validator this one delegates to for every base
+     *    type but the approved one
+     */
+    public PolymorphicTypeValidator getDelegate() {
+        return _delegate;
     }
 
     @Override

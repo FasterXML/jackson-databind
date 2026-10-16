@@ -257,6 +257,8 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
         assertEquals(0, GenericGadget.constructions);
         assertEquals(typeId, e.getTypeId());
         verifyException(e, "as a subtype of `java.util.Map<java.lang.Object,java.lang.Object>`");
+        // The validator the user configured, not the wrapper that approved the base type
+        verifyException(e, "(of type `" + BasicPolymorphicTypeValidator.class.getName() + "`)");
         verifyException(e, "denied resolution of type parameter `"
                 + GenericGadget.class.getName() + "` (declared as `java.lang.Object`)");
     }

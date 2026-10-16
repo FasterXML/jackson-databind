@@ -16,7 +16,9 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.ApprovedBaseTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -264,12 +266,10 @@ public abstract class DatabindContext
             }
         }
         // [CVE-2026-110879]: element type of an array type id is attacker-selected
-        // as well: if array type was only approved via its base type, element type
-        // needs validation like type parameters of generic type ids. (Validators
-        // that approve the array type itself see the element type and are trusted
-        // to validate it)
-        if (subType.isArrayType() && (ptv instanceof ApprovedBaseTypeValidator)) {
-            _validateContainedType(baseType, subClass, _declaredContentType(baseType),
+        // as well and needs validation like type parameters of generic type ids
+        // (approval of array type, by base type or by sub-type, does not extend to it)
+        if (subType.isArrayType()) {
+            _validateArrayElementType(baseType, subClass, _declaredContentType(baseType),
                     subType.getContentType(), ptv, config);
         }
         return subType;
@@ -323,9 +323,9 @@ public abstract class DatabindContext
     }
 
     /**
-     * Helper for [databind#5988]: validate all type parameters (and array
-     * component, if any) of given type, recursively (for nested generics like
-     * {@code Map<String, List<Evil>>} or {@code List<String[]>}).
+     * Helper for [databind#5988]: validate all type parameters of given type,
+     * recursively (for nested generics like {@code Map<String, List<Evil>>}
+     * or {@code List<Evil[]>}).
      *
      * @since 2.18.12
      */
@@ -351,7 +351,9 @@ public abstract class DatabindContext
      *   id for its declared type ({@code Object} for type parameters; element type of
      *   declared array type for array elements), starting with
      *   {@link PolymorphicTypeValidator#validateBaseType}: approval of polymorphic base
-     *   type does not extend to it
+     *   type does not extend to it. {@link LaissezFaireSubTypeValidator} (which allows
+     *   all subtypes of base type) only allows subtypes of declared type other
+     *   than {@code Object}
      *   </li>
      *</ul>
      * Assignment compatibility with declared type parameters of the base type is
@@ -373,20 +375,34 @@ public abstract class DatabindContext
         if (!_isSafeTypeParameter(param) && !param.hasRawClass(declaredType.getRawClass())) {
             final String rawName = param.getRawClass().getName();
             final PolymorphicTypeValidator vldr;
+            final JavaType vldBaseType;
             Validity vld;
             if (param.isTypeOrSubTypeOf(baseType.getRawClass())) {
                 // validity of base type itself already checked
                 vldr = ptv;
+                vldBaseType = baseType;
                 vld = Validity.INDETERMINATE;
-                declaredType = baseType;
             } else {
                 vldr = _configuredValidator(ptv);
-                vld = vldr.validateBaseType(config, declaredType);
+                vldBaseType = declaredType;
+                if (vldr instanceof LaissezFaireSubTypeValidator) {
+                    // Allows all subtypes of declared type (element type of declared
+                    // array type), but nothing for unknown (type parameters)
+                    if (declaredType.isJavaLangObject()) {
+                        throw invalidTypeIdException(baseType, typeId,
+                                "contained type " + ClassUtil.getTypeDescription(param)
+                                + " not a subtype of base type (and no `PolymorphicTypeValidator`"
+                                + " configured to allow it)");
+                    }
+                    vld = Validity.ALLOWED;
+                } else {
+                    vld = vldr.validateBaseType(config, vldBaseType);
+                }
             }
             if (vld == Validity.INDETERMINATE) {
-                vld = vldr.validateSubClassName(config, declaredType, rawName);
+                vld = vldr.validateSubClassName(config, vldBaseType, rawName);
                 if (vld == Validity.INDETERMINATE) {
-                    vld = vldr.validateSubType(config, declaredType, param);
+                    vld = vldr.validateSubType(config, vldBaseType, param);
                 }
             }
             if (vld != Validity.ALLOWED) {
@@ -403,10 +419,29 @@ public abstract class DatabindContext
             }
         }
         if (param.isArrayType()) {
-            _validateContainedType(baseType, typeId, _declaredContentType(declaredType),
+            _validateArrayElementType(baseType, typeId, _declaredContentType(declaredType),
                     param.getContentType(), ptv, config);
         } else {
             _validateContainedTypes(baseType, typeId, param, ptv, config);
+        }
+    }
+
+    /**
+     * Helper for validating element type of an array type: like other contained
+     * types, except that (as with {@link BasicPolymorphicTypeValidator} handling
+     * of arrays) abstract types are accepted -- they are not directly
+     * instantiable, and elements need type ids of their own (validated separately).
+     *
+     * @since 2.18.12
+     */
+    private void _validateArrayElementType(JavaType baseType, String typeId,
+            JavaType declaredType, JavaType elemType,
+            PolymorphicTypeValidator ptv, MapperConfig<?> config)
+        throws JsonMappingException
+    {
+        // NOTE: `ArrayType.isAbstract()` is false, so nested arrays still get validated
+        if (!elemType.isAbstract()) {
+            _validateContainedType(baseType, typeId, declaredType, elemType, ptv, config);
         }
     }
 
@@ -418,8 +453,9 @@ public abstract class DatabindContext
      * {@code Object} is the canonical resolution of wildcards and unbound parameters;
      * enum types are JVM-managed singletons resolved by name lookup;
      * {@code String}, primitive types (including wrappers), {@code BigDecimal},
-     * {@code BigInteger} and {@code UUID} are handled by Jackson as scalars; and arrays are JDK types whose
-     * element type is validated separately.
+     * {@code BigInteger} and {@code UUID} are handled by Jackson as scalars; and arrays
+     * and {@code java.util} container (Collection, Map, reference) types are JDK types
+     * whose contained types are validated separately.
      */
     private static boolean _isSafeTypeParameter(JavaType param)
     {
@@ -427,6 +463,10 @@ public abstract class DatabindContext
             return true;
         }
         final Class<?> raw = param.getRawClass();
+        if ((param.isContainerType() || param.isReferenceType())
+                && raw.getName().startsWith("java.util.")) {
+            return true;
+        }
         return (raw == String.class) || (ClassUtil.primitiveType(raw) != null)
                 || (raw == BigDecimal.class) || (raw == BigInteger.class) || (raw == UUID.class);
     }

@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
@@ -23,7 +25,7 @@ public final class ApprovedBaseTypeValidator
     private final PolymorphicTypeValidator _typeParameterValidator;
 
     public ApprovedBaseTypeValidator(PolymorphicTypeValidator typeParameterValidator) {
-        _typeParameterValidator = typeParameterValidator;
+        _typeParameterValidator = Objects.requireNonNull(typeParameterValidator);
     }
 
     /**

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -89,6 +90,11 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
 
     static final class BeanArrayWrapper {
         public SafeBean[] beans;
+    }
+
+    static class ObjectValueWrapper {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+        public Object value;
     }
 
     static final class ObjectArrayWrapper {
@@ -497,13 +503,156 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
     @Test
     public void denyListedTypeParameterRejected() throws Exception
     {
-        // Default (laissez-faire) validator for annotation-based typing
+        // Default (laissez-faire) validator for annotation-based typing, base type
+        // `Object`: contained types are allowed by validator, but not by deny list
         ObjectMapper mapper = newJsonMapper();
         InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
-                () -> mapper.readValue(msgJson(ENV + "<java.util.logging.FileHandler>",
-                        "\"payload\":{}"), MsgWrapper.class));
+                () -> mapper.readValue(a2q("{'value':{'@class':'" + ENV
+                        + "<java.util.logging.FileHandler>','payload':{}}}"),
+                        ObjectValueWrapper.class));
         verifyException(e, "Illegal contained type");
         verifyException(e, "java.util.logging.FileHandler");
+    }
+
+    /*
+    /**********************************************************************
+    /* Default (laissez-faire) validator
+    /**********************************************************************
+     */
+
+    // Laissez-faire validator allows all subtypes of base type, but contained types
+    // need to be subtypes of base type as well (not just of `Object`)
+    @Test
+    public void laissezFaireNonSubtypeTypeParameterRejected() throws Exception
+    {
+        ObjectMapper mapper = newJsonMapper();
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(msgJson(ENV + "<" + GADGET + ">",
+                        "\"payload\":{\"cmd\":\"x\"}"), MsgWrapper.class));
+        verifyException(e, "not a subtype of base type");
+        verifyException(e, GADGET);
+        assertEquals(Collections.emptyList(), INSTANTIATIONS);
+
+        MsgWrapper w = mapper.readValue(msgJson(ENV + "<java.lang.String>", "\"payload\":\"b\""),
+                MsgWrapper.class);
+        assertEquals("b", ((Env<?>) w.msg).payload);
+        w = mapper.readValue(msgJson(ENV + "<" + PlainMsg.class.getName() + ">",
+                "\"payload\":{\"@class\":\"" + PlainMsg.class.getName() + "\",\"text\":\"x\"}"),
+                MsgWrapper.class);
+        assertEquals("x", ((PlainMsg) ((Env<?>) w.msg).payload).text);
+    }
+
+    @Test
+    public void laissezFaireDefaultTyping() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(LaissezFaireSubTypeValidator.instance, DefaultTyping.NON_FINAL)
+                .build();
+        // Map key not subtype of `Map`: rejected
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(a2q("{'map':['java.util.HashMap<" + GADGET
+                        + ",java.lang.String>',{'attacker-chosen':'x'}]}"),
+                        StringMapWrapper.class));
+        verifyException(e, "not a subtype of base type");
+        assertEquals(Collections.emptyList(), INSTANTIATIONS);
+
+        // Array of subtype of declared element type: fine
+        BeanArrayWrapper input = new BeanArrayWrapper();
+        SubBean bean = new SubBean();
+        bean.extra = 5;
+        input.beans = new SubBean[] { bean };
+        BeanArrayWrapper result = mapper.readValue(mapper.writeValueAsString(input),
+                BeanArrayWrapper.class);
+        assertEquals(5, ((SubBean) result.beans[0]).extra);
+    }
+
+    /*
+    /**********************************************************************
+    /* Array type ids approved by sub-type matcher
+    /**********************************************************************
+     */
+
+    @Test
+    public void arrayTypeIdApprovedBySubTypeMatcher() throws Exception
+    {
+        // Every array type is `Serializable`, even if element type is not
+        ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(java.io.Serializable.class)
+                        .build())
+                .build();
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(a2q("{'value':['[L" + GADGET + ";',[{'cmd':'x'}]]}"),
+                        ObjectValueWrapper.class));
+        verifyException(e, "denied resolution of contained type");
+        verifyException(e, GADGET);
+        assertEquals(Collections.emptyList(), INSTANTIATIONS);
+
+        ObjectValueWrapper w = mapper.readValue(a2q("{'value':['[Ljava.lang.String;',['a']]}"),
+                ObjectValueWrapper.class);
+        assertArrayEquals(new String[] { "a" }, (String[]) w.value);
+    }
+
+    /*
+    /**********************************************************************
+    /* JDK containers as type parameters
+    /**********************************************************************
+     */
+
+    @Test
+    public void jdkContainerTypeParametersAccepted() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(Msg.class)
+                        .build())
+                .build();
+        MsgWrapper w = mapper.readValue(msgJson(ENV + "<java.util.List<java.lang.String>>",
+                "\"payload\":[\"a\"]"), MsgWrapper.class);
+        assertEquals(Arrays.asList("a"), ((Env<?>) w.msg).payload);
+        w = mapper.readValue(msgJson(ENV + "<java.util.ArrayList<java.lang.String>>",
+                "\"payload\":[\"b\"]"), MsgWrapper.class);
+        assertEquals(Arrays.asList("b"), ((Env<?>) w.msg).payload);
+        w = mapper.readValue(msgJson(ENV + "<java.util.HashMap<java.lang.String,java.lang.Integer>>",
+                "\"payload\":{\"c\":1}"), MsgWrapper.class);
+        assertEquals(Collections.singletonMap("c", 1), ((Env<?>) w.msg).payload);
+        w = mapper.readValue(msgJson(ENV
+                + "<java.util.concurrent.atomic.AtomicReference<java.lang.String>>",
+                "\"payload\":\"d\""), MsgWrapper.class);
+        assertEquals("d", ((java.util.concurrent.atomic.AtomicReference<?>) ((Env<?>) w.msg).payload).get());
+
+        // ... but their contents are still validated
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(msgJson(ENV + "<java.util.ArrayList<" + GADGET + ">>",
+                        "\"payload\":[{}]"), MsgWrapper.class));
+        verifyException(e, "denied resolution of contained type");
+        verifyException(e, GADGET);
+        assertEquals(Collections.emptyList(), INSTANTIATIONS);
+    }
+
+    /*
+    /**********************************************************************
+    /* Validators that deny `Object` as base type
+    /**********************************************************************
+     */
+
+    // Intentional: contained types that are not subtypes of base type are validated
+    // as type ids for base type `Object`, which such validators deny
+    @Test
+    public void objectBaseDenyingValidatorRejectsAllowListedTypeParameter() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(Msg.class)
+                        .allowIfSubType(SafeBean.class)
+                        .denyForExactBaseType(Object.class)
+                        .build())
+                .build();
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(msgJson(ENV + "<" + SafeBean.class.getName() + ">",
+                        "\"payload\":{\"data\":\"x\"}"), MsgWrapper.class));
+        verifyException(e, "denied resolution of contained type");
+        verifyException(e, SafeBean.class.getName());
     }
 
     private String msgJson(String typeId, String props) {

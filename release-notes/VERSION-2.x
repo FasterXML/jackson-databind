@@ -14,7 +14,8 @@ Project: jackson-databind
   NOTE: type parameters (and element types of array type ids) are now validated
   like direct type ids; base type approval (`allowIfBaseType()`) only covers
   ones that are subtypes of the base type (also without configured validator);
-  enum types are only exempt if declared in the property type
+  enum types are only exempt if declared in the property type (or allowed with
+  new `BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsEnum()`)
  (reported by @AdamKorcz, @martinfrancois)
  (fix by @cowtowncoder, w/ Claude code)
 

@@ -128,6 +128,10 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         public Object[] values;
     }
 
+    static final class ObjectMapWrapper {
+        public Map<Object, Object> map;
+    }
+
     static final class EnumContainersWrapper {
         public EnumMap<Color, String> enumMap;
         public EnumSet<Color> enumSet;
@@ -760,6 +764,35 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
                         "\"payload\":\"GREEN\""), MsgWrapper.class));
         verifyException(e, "denied resolution of contained type");
         verifyException(e, Color.class.getName());
+    }
+
+    // Without configured validator, all Enum types are accepted: Jackson writes
+    // `EnumMap`/`EnumSet` type ids with them, also if not declared
+    @Test
+    public void laissezFaireUndeclaredEnumTypeParameterAccepted() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(LaissezFaireSubTypeValidator.instance, DefaultTyping.NON_FINAL)
+                .build();
+        ObjectMapWrapper input = new ObjectMapWrapper();
+        EnumMap<Color, Object> enumMap = new EnumMap<>(Color.class);
+        enumMap.put(Color.RED, "r");
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        Map<Object, Object> map = (Map) enumMap;
+        input.map = map;
+        String json = mapper.writeValueAsString(input);
+        assertTrue(json.contains("\"java.util.EnumMap<" + Color.class.getName() + ",java.lang.Object>\""),
+                json);
+        ObjectMapWrapper result = mapper.readValue(json, ObjectMapWrapper.class);
+        assertEquals(EnumMap.class, result.map.getClass());
+        assertEquals(enumMap, result.map);
+
+        // (but not other undeclared types)
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(a2q("{'map':['java.util.HashMap<" + GADGET
+                        + ",java.lang.Object>',{'k':'v'}]}"), ObjectMapWrapper.class));
+        verifyException(e, "not a subtype of base type");
+        assertEquals(Collections.emptyList(), INSTANTIATIONS);
     }
 
     /*

@@ -363,6 +363,8 @@ public abstract class DatabindContext
      *   {@link PolymorphicTypeValidator#validateBaseType}: approval of polymorphic base
      *   type does not extend to it. {@link LaissezFaireSubTypeValidator} (which allows
      *   all subtypes of base type) only allows subtypes of declared type, if any
+     *   (and all Enum types, as Jackson writes generic type ids with them for
+     *   {@code EnumSet}/{@code EnumMap} values)
      *   </li>
      *</ul>
      * Assignment compatibility with declared type parameters of the base type is
@@ -398,8 +400,10 @@ public abstract class DatabindContext
                 if (vldr instanceof LaissezFaireSubTypeValidator) {
                     // Allows all subtypes of declared type (element type of declared
                     // array type, including `Object` for `Object[]`), but nothing
-                    // without one (type parameters)
-                    if (declaredType == null) {
+                    // without one (type parameters) -- except for Enum types, to
+                    // allow reading `EnumSet`/`EnumMap` values with undeclared Enum
+                    // types (like for `Set`-typed property)
+                    if ((declaredType == null) && !param.isEnumType()) {
                         throw invalidTypeIdException(baseType, typeId,
                                 "contained type " + ClassUtil.getTypeDescription(param)
                                 + " not a subtype of base type (and no `PolymorphicTypeValidator`"

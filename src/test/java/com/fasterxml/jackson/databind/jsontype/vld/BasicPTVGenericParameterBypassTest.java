@@ -303,6 +303,21 @@ public class BasicPTVGenericParameterBypassTest extends DatabindTestUtil
         Container result = allowingMapper.readValue(json, Container.class);
         assertEquals(EnumSet.of(NonAllowListedEnum.VALUE_A), result.value);
 
+        // ... or all Enum types allowed
+        ObjectMapper enumAllowingMapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType("java.")
+                        .allowIfSubTypeIsEnum()
+                        .build())
+                .build();
+        result = enumAllowingMapper.readValue(json, Container.class);
+        assertEquals(EnumSet.of(NonAllowListedEnum.VALUE_A), result.value);
+        // (but not other types)
+        e = assertThrows(InvalidTypeIdException.class,
+                () -> enumAllowingMapper.readValue("{\"value\":[\"java.util.ArrayList<"
+                        + EvilGadget.class.getName() + ">\",[{}]]}", Container.class));
+        verifyException(e, EvilGadget.class.getName());
+
         // Declared in property type: exempt
         ObjectMapper typingMapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL)

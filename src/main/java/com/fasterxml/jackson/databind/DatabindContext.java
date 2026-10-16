@@ -575,10 +575,14 @@ public abstract class DatabindContext
      * {@code declaredType} is the type parameter the base type declares at the
      * same position (or the unknown type if it declares none): {@code param}
      * must be a subtype of it, and the {@link PolymorphicTypeValidator} is
-     * consulted with it as the base type. Name-based and class-based allow
-     * rules are both consulted (matching the top-level container check), so a
-     * name-prefix configuration like {@code allowIfSubType("com.example.")}
-     * applies to type parameters as well.
+     * consulted with it as the base type. A base type the validator approves
+     * outright approves the argument; a base type it denies does not reject
+     * the argument, since {@code BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES} and
+     * {@code denyForExactBaseType} describe what may not be declared
+     * polymorphic, and the declared type parameter was not. Name-based and
+     * class-based allow rules are both consulted (matching the top-level
+     * container check), so a name-prefix configuration like
+     * {@code allowIfSubType("com.example.")} applies to type parameters as well.
      *<p>
      * Primitive types and {@code Object} only have to fit {@code declaredType},
      * a primitive as its wrapper since that is what gets deserialized: a
@@ -612,24 +616,24 @@ public abstract class DatabindContext
             return;
         }
         if (!param.isEnumType()) {
-            Validity baseValidity = ptv.validateBaseType(config, declaredType);
-            if (baseValidity == Validity.DENIED) {
-                throw _typeParameterDeniedException(polymorphicBase, typeId,
-                        declaredType, param, ptv, true);
-            }
-            // First consult the name-based allow rules (mirrors the container
-            // check in _resolveAndValidateGeneric), then fall back to the class-
-            // based check so all configured matchers can approve the parameter.
-            Validity vld = (baseValidity == Validity.ALLOWED) ? Validity.ALLOWED
+            // A base type the validator approves outright approves every subtype;
+            // a denied base type only says what may not be declared polymorphic,
+            // which the declared type parameter is not, so it decides nothing here.
+            // Otherwise consult the name-based allow rules first (mirrors the
+            // container check in _resolveAndValidateGeneric), then fall back to
+            // the class-based check so all configured matchers can approve the
+            // parameter.
+            Validity vld = (ptv.validateBaseType(config, declaredType) == Validity.ALLOWED)
+                    ? Validity.ALLOWED
                     : ptv.validateSubClassName(config, declaredType, param.getRawClass().getName());
             if (vld == Validity.DENIED) {
                 throw _typeParameterDeniedException(polymorphicBase, typeId,
-                        declaredType, param, ptv, false);
+                        declaredType, param, ptv);
             }
             if (vld != Validity.ALLOWED) {
                 if (ptv.validateSubType(config, declaredType, param) != Validity.ALLOWED) {
                     throw _typeParameterDeniedException(polymorphicBase, typeId,
-                            declaredType, param, ptv, false);
+                            declaredType, param, ptv);
                 }
             }
         }
@@ -644,15 +648,11 @@ public abstract class DatabindContext
 
     private JsonMappingException _typeParameterDeniedException(JavaType polymorphicBase,
             String typeId, JavaType declaredType, JavaType param,
-            PolymorphicTypeValidator ptv, boolean baseTypeDenied)
+            PolymorphicTypeValidator ptv)
     {
-        String denied = baseTypeDenied
-                ? "all subtypes of " + ClassUtil.getTypeDescription(declaredType)
-                        + " for type parameter " + ClassUtil.getTypeDescription(param)
-                : _typeParameterDescription(declaredType, param);
         return invalidTypeIdException(polymorphicBase, typeId,
                 "Configured `PolymorphicTypeValidator` (of type " + ClassUtil.classNameOf(ptv)
-                + ") denied resolution of " + denied);
+                + ") denied resolution of " + _typeParameterDescription(declaredType, param));
     }
 
     private static String _typeParameterDescription(JavaType declaredType, JavaType param)

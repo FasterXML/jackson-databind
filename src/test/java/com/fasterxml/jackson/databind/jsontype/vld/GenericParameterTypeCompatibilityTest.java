@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
@@ -651,5 +652,30 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
         String match = "{\"value\":[\"java.util.ArrayList<int>\",[3]]}";
         IntegerListHolder result = mapper.readValue(match, IntegerListHolder.class);
         assertEquals(Integer.valueOf(3), result.value.get(0));
+    }
+
+    // `BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` and `denyForExactBaseType` say what
+    // may not be declared polymorphic; a declared type parameter of `Object`
+    // is not a polymorphic declaration, so neither rejects an argument there
+    @Test
+    public void deniedBaseTypeDoesNotRejectArgumentDeclaredAsIt() throws Exception
+    {
+        ObjectMapper blocking = jsonMapperBuilder()
+                .addMixIn(List.class, ClassIdMixin.class)
+                .enable(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
+                .build();
+        String json = "{\"value\":[\"java.util.ArrayList<java.lang.String>\",[\"a\"]]}";
+        assertEquals("a", blocking.readValue(json, ObjectListHolder.class).value.get(0));
+
+        BasicPolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+                .denyForExactBaseType(Object.class)
+                .allowIfSubType(ArrayList.class)
+                .allowIfSubType(String.class)
+                .build();
+        ObjectMapper denying = jsonMapperBuilder()
+                .addMixIn(List.class, ClassIdMixin.class)
+                .polymorphicTypeValidator(ptv)
+                .build();
+        assertEquals("a", denying.readValue(json, ObjectListHolder.class).value.get(0));
     }
 }

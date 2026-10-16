@@ -74,6 +74,10 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         public Map<String, String> map;
     }
 
+    static final class ArrayMapWrapper {
+        public Map<String, Object> map;
+    }
+
     static final class EnumContainersWrapper {
         public EnumMap<Color, String> enumMap;
         public EnumSet<Color> enumSet;
@@ -268,6 +272,34 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
                 "{'map':['java.util.HashMap<java.lang.String,java.lang.String>',{'c':'d'}]}"),
                 StringMapWrapper.class);
         assertEquals(Collections.singletonMap("c", "d"), w.map);
+    }
+
+    // Arrays are not gadgets by themselves: only their element type is validated
+    @Test
+    public void defaultTypingArrayTypeParameters() throws Exception
+    {
+        ObjectMapper mapper = mapDefaultTypingMapper();
+        ArrayMapWrapper w = mapper.readValue(a2q(
+                "{'map':['java.util.HashMap<java.lang.String,[Ljava.lang.String;>',{'k':['a','b']}]}"),
+                ArrayMapWrapper.class);
+        assertArrayEquals(new String[] { "a", "b" }, (String[]) w.map.get("k"));
+
+        w = mapper.readValue(a2q("{'map':['java.util.HashMap<java.lang.String,[I>',{'k':[1,2]}]}"),
+                ArrayMapWrapper.class);
+        assertArrayEquals(new int[] { 1, 2 }, (int[]) w.map.get("k"));
+
+        w = mapper.readValue(a2q("{'map':['java.util.HashMap<java.lang.String,[L"
+                + Color.class.getName() + ";>',{'k':['RED']}]}"),
+                ArrayMapWrapper.class);
+        assertArrayEquals(new Color[] { Color.RED }, (Color[]) w.map.get("k"));
+
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(a2q("{'map':['java.util.HashMap<java.lang.String,[L"
+                        + GADGET + ";>',{'k':[{}]}]}"),
+                        ArrayMapWrapper.class));
+        verifyException(e, "denied resolution of type parameter");
+        verifyException(e, GADGET);
+        assertEquals(Collections.emptyList(), INSTANTIATIONS);
     }
 
     @Test

@@ -11,6 +11,12 @@ Project: jackson-databind
  (fixed by Omkhar A)
 #NNNN: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
   [CVE-2026-110879]
+  NOTE: classes named as type parameters of a generic type id (other than `Object`,
+  `String`, primitives/wrappers, enums and arrays thereof) are now validated as if
+  named directly as type id for base type `Object`. Approval of the base type (like
+  `allowIfBaseType(MyBase.class)`) no longer covers them: allow them with
+  `allowIfSubType(...)` instead. Validators that deny `Object` as base type (like
+  with `BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` enabled) deny all of them.
  (reported by @AdamKorcz, @martinfrancois)
  (fix by @cowtowncoder, w/ Claude code)
 

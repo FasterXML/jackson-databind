@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
 import com.fasterxml.jackson.databind.jsontype.impl.ApprovedBaseTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
-import com.fasterxml.jackson.databind.type.ResolvedRecursiveType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -336,10 +335,10 @@ public abstract class DatabindContext
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        // Self-reference to a type being walked: validate class but do not recurse
-        final boolean recursive = (param instanceof ResolvedRecursiveType);
         if (!_isSafeTypeParameter(param)) {
-            final JavaType objectType = config.constructType(Object.class);
+            // NOTE: `validateBaseType()` deliberately called per (unsafe) type parameter
+            // and not once per type id: only needed if there are any unsafe ones
+            final JavaType objectType = TypeFactory.unknownType();
             final String rawName = param.getRawClass().getName();
             Validity vld = ptv.validateBaseType(config, objectType);
             if (vld == Validity.INDETERMINATE) {
@@ -361,9 +360,7 @@ public abstract class DatabindContext
                                 + ": prevented for security reasons");
             }
         }
-        if (!recursive) {
-            _validateTypeParameters(baseType, typeId, param, ptv, config);
-        }
+        _validateTypeParameters(baseType, typeId, param, ptv, config);
     }
 
     /**
@@ -373,12 +370,13 @@ public abstract class DatabindContext
      *<p>
      * {@code Object} is the canonical resolution of wildcards and unbound parameters;
      * enum types are JVM-managed singletons resolved by name lookup;
-     * and {@code String} and primitive types (including wrappers) are
-     * handled by Jackson as scalars.
+     * {@code String} and primitive types (including wrappers) are
+     * handled by Jackson as scalars; and arrays are JDK types whose
+     * element type is validated separately.
      */
     private static boolean _isSafeTypeParameter(JavaType param)
     {
-        if (param.isJavaLangObject() || param.isPrimitive() || param.isEnumType()) {
+        if (param.isJavaLangObject() || param.isEnumType() || param.isArrayType()) {
             return true;
         }
         final Class<?> raw = param.getRawClass();

@@ -316,10 +316,15 @@ public abstract class DatabindContext
     }
 
     // Declared type of array elements: element type of declared type if it is an
-    // array type; `null` (none) otherwise
+    // array type; `Object` if declared as `Object` (any array); `null` (none) otherwise
     private static JavaType _declaredContentType(JavaType declaredType) {
-        return ((declaredType != null) && declaredType.isArrayType())
-                ? declaredType.getContentType() : null;
+        if (declaredType == null) {
+            return null;
+        }
+        if (declaredType.isArrayType()) {
+            return declaredType.getContentType();
+        }
+        return declaredType.isJavaLangObject() ? declaredType : null;
     }
 
     /**

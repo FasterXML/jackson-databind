@@ -549,6 +549,14 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         verifyException(e, GADGET);
         assertEquals(Collections.emptyList(), INSTANTIATIONS);
 
+        // also as element type of (nested) arrays
+        e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(msgJson(ENV + "<[[L" + GADGET + ";>",
+                        "\"payload\":[[{\"cmd\":\"x\"}]]"), MsgWrapper.class));
+        verifyException(e, "not a subtype of base type");
+        verifyException(e, GADGET);
+        assertEquals(Collections.emptyList(), INSTANTIATIONS);
+
         MsgWrapper w = mapper.readValue(msgJson(ENV + "<java.lang.String>", "\"payload\":\"b\""),
                 MsgWrapper.class);
         assertEquals("b", ((Env<?>) w.msg).payload);
@@ -693,6 +701,12 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         input.values = new Date[] { new Date(123L) };
         result = mapper.readValue(mapper.writeValueAsString(input), ObjectArrayWrapper.class);
         assertArrayEquals(new Date[] { new Date(123L) }, result.values);
+
+        // nested arrays too
+        input.values = new Date[][] { { new Date(456L) } };
+        result = mapper.readValue(mapper.writeValueAsString(input), ObjectArrayWrapper.class);
+        assertEquals(Date[][].class, result.values.getClass());
+        assertArrayEquals(new Date[] { new Date(456L) }, (Date[]) result.values[0]);
     }
 
     /*

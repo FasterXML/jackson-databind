@@ -460,17 +460,6 @@ public class BasicPolymorphicTypeValidator
         return new Builder();
     }
 
-    /**
-     * Accessor for checking whether this validator was built with
-     * {@link Builder#allowIfSubTypeIsArray()}: if so, array types with
-     * abstract (or interface) element types are accepted.
-     *
-     * @since 2.18.12
-     */
-    public boolean acceptsArrayTypes() {
-        return _acceptArrayTypes;
-    }
-
     @Override
     public Validity validateBaseType(MapperConfig<?> ctxt, JavaType baseType) {
 //System.err.println("validateBaseType("+baseType+")");

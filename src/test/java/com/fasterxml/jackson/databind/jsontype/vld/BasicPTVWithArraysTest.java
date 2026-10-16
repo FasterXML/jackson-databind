@@ -105,4 +105,29 @@ public class BasicPTVWithArraysTest extends DatabindTestUtil
             verifyException(e, "as a subtype of");
         }
     }
+
+    // [CVE-2026-110879]: `Number` is not abstract-like wrt gadgets: accepted
+    // without allow-listing (elements are scalars or have type ids of their own)
+    @Test
+    public void testNumberArrayAccepted() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubTypeIsArray()
+                        .build(), DefaultTyping.NON_FINAL)
+                .build();
+        final Number[] input = new Number[] { 1, 2.5 };
+        ObjectWrapper w = mapper.readValue(mapper.writeValueAsString(new ObjectWrapper(input)),
+                ObjectWrapper.class);
+        assertEquals(Number[].class, w.value.getClass());
+        assertArrayEquals(input, (Number[]) w.value);
+
+        // but not other abstract element types
+        final String json = mapper.writeValueAsString(new ObjectWrapper(new Base2534[0]));
+        try {
+            mapper.readValue(json, ObjectWrapper.class);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "$Base2534");
+        }
+    }
 }

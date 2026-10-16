@@ -299,15 +299,18 @@ public class BasicPolymorphicTypeValidator
          * Method for enabling validation of Java array sub-types: when called, the
          * validator unwraps any array (recursively for nested arrays) and validates
          * the innermost element type against the configured sub-class matchers.
-         * Arrays of primitive element types are accepted without an explicit
-         * allow-list entry, since primitives can't carry gadget chains.
+         * Arrays of primitive element types (and of {@link java.lang.Number}) are accepted
+         * without an explicit allow-list entry, since they can't carry gadget chains
+         * (elements of {@code Number[]} are JDK scalars, or have validated type ids
+         * of their own).
          *<p>
          * NOTE (behavior change in 2.18.12 for [CVE-2026-110879]): prior versions also
          * accepted arrays of abstract or interface element types without an explicit
          * allow-list entry. But such types may still be deserializable without type ids
          * of their own (via {@code @JsonDeserialize(as=...)}, factory methods or
          * {@code defaultImpl}), so they now need to be allow-listed like other element
-         * types.
+         * types (exactly, for example with {@link #allowIfSubType(Pattern)}, unless
+         * all subtypes are to be allowed as well).
          *<p>
          * NOTE: the array-element check runs as part of {@code validateSubType()},
          * so it only applies when name-based sub-type matchers (see
@@ -512,16 +515,17 @@ public class BasicPolymorphicTypeValidator
         Class<?> subClass = subType.getRawClass();
         // [databind#5981]: if array handling is enabled, unwrap (recursively for
         // nested arrays) and validate the innermost element type. Primitive
-        // element types are accepted without an explicit allow-list entry, since
-        // primitives can't carry gadget chains ([CVE-2026-110879]: abstract and
-        // interface types no longer are, as they may still be deserializable).
+        // element types (and `Number`) are accepted without an explicit allow-list
+        // entry, since they can't carry gadget chains ([CVE-2026-110879]: abstract
+        // and interface types in general no longer are, as they may still be
+        // deserializable).
         // Otherwise fall through to the regular sub-class matcher loop with the
         // unwrapped element type.
         if (_acceptArrayTypes && subClass.isArray()) {
             do {
                 subClass = subClass.getComponentType();
             } while (subClass.isArray());
-            if (subClass.isPrimitive()) {
+            if (subClass.isPrimitive() || (subClass == Number.class)) {
                 return Validity.ALLOWED;
             }
             // [databind#5988]: after array unwrap, also consult name-based matchers

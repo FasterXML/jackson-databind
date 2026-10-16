@@ -451,8 +451,9 @@ public abstract class DatabindContext
      *<p>
      * {@code Object} is the canonical resolution of wildcards and unbound parameters;
      * enum types are JVM-managed singletons resolved by name lookup;
-     * {@code String}, primitive types (including wrappers), {@code BigDecimal},
-     * {@code BigInteger} and {@code UUID} are handled by Jackson as scalars; and arrays
+     * {@code String}, primitive types (including wrappers), {@code Number},
+     * {@code BigDecimal}, {@code BigInteger} and {@code UUID} are handled by Jackson
+     * as scalars (subtypes of {@code Number} other than these need type ids); and arrays
      * and {@code java.util} container (Collection, Map, reference) types are JDK types
      * whose contained types are validated separately.
      */
@@ -467,7 +468,7 @@ public abstract class DatabindContext
             return true;
         }
         return (raw == String.class) || (ClassUtil.primitiveType(raw) != null)
-                || (raw == BigDecimal.class) || (raw == BigInteger.class) || (raw == UUID.class);
+                || (raw == Number.class) || (raw == BigDecimal.class) || (raw == BigInteger.class) || (raw == UUID.class);
     }
 
     protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws JsonMappingException {

@@ -162,10 +162,10 @@ public class UndeclaredTypeArgumentTest extends DatabindTestUtil
 
         InvalidTypeIdException e = assertRejected(mapper,
                 listJson("java.util.ArrayList<" + GADGET + ">", "[{\"cmd\":\"x\"}]"));
-        verifyException(e, "denied resolution of type parameter `" + GADGET + "`");
+        verifyException(e, "denied resolution of contained type `" + GADGET + "`");
 
         e = assertRejected(mapper, listJson("[L" + GADGET + ";", "[{\"cmd\":\"x\"}]"));
-        verifyException(e, "denied resolution of type parameter `" + GADGET + "`");
+        verifyException(e, "denied resolution of contained type `" + GADGET + "`");
     }
 
     // The advisory's default-validator case: a direct `Gadget` id is not a
@@ -179,11 +179,11 @@ public class UndeclaredTypeArgumentTest extends DatabindTestUtil
 
         InvalidTypeIdException e = assertRejected(mapper,
                 envJson(GADGET, "{\"cmd\":\"x\"}"), MsgHolder.class);
-        verifyException(e, "denied resolution of type parameter `" + GADGET + "`");
+        verifyException(e, "denied resolution of contained type `" + GADGET + "`");
 
         e = assertRejected(mapper,
                 envJson("java.util.ArrayList<" + GADGET + ">", "[{\"cmd\":\"x\"}]"), MsgHolder.class);
-        verifyException(e, "denied resolution of type parameter `" + GADGET + "`");
+        verifyException(e, "denied resolution of contained type `" + GADGET + "`");
     }
 
     // A subtype of the polymorphic base type is accepted where a direct type id
@@ -217,7 +217,7 @@ public class UndeclaredTypeArgumentTest extends DatabindTestUtil
 
         InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
                 () -> mapper.readValue(listJson(SAFE_BEAN, "{\"text\":\"hi\"}"), ObjectListHolder.class));
-        verifyException(e, "denied resolution of type parameter `" + SAFE_BEAN + "`");
+        verifyException(e, "denied resolution of contained type `" + SAFE_BEAN + "`");
     }
 
     // Without a validator (the 2.x default) a direct type id has to name a
@@ -229,16 +229,16 @@ public class UndeclaredTypeArgumentTest extends DatabindTestUtil
 
         InvalidTypeIdException e = assertRejected(mapper,
                 envJson(GADGET, "{\"cmd\":\"x\"}"), MsgHolder.class);
-        verifyException(e, "type parameter `" + GADGET + "` (undeclared) is not a subtype"
-                + " of the base type, and no `PolymorphicTypeValidator` is configured to allow it");
+        verifyException(e, "contained type `" + GADGET + "` (undeclared) is not a subtype"
+                + " of base type, and no `PolymorphicTypeValidator` is configured to allow it");
 
         e = assertRejected(mapper,
                 envJson("java.util.ArrayList<" + GADGET + ">", "[{\"cmd\":\"x\"}]"), MsgHolder.class);
-        verifyException(e, "type parameter `" + GADGET + "` (undeclared) is not a subtype");
+        verifyException(e, "contained type `" + GADGET + "` (undeclared) is not a subtype");
 
         e = assertRejected(mapper,
                 envJson("[L" + GADGET + ";", "[{\"cmd\":\"x\"}]"), MsgHolder.class);
-        verifyException(e, "type parameter `" + GADGET + "` (undeclared) is not a subtype");
+        verifyException(e, "contained type `" + GADGET + "` (undeclared) is not a subtype");
     }
 
     @Test
@@ -276,7 +276,7 @@ public class UndeclaredTypeArgumentTest extends DatabindTestUtil
         assertEquals("Rex", animal.name);
 
         InvalidTypeIdException e = assertRejected(mapper, listJson(GADGET, "{\"cmd\":\"x\"}"));
-        verifyException(e, "type parameter `" + GADGET + "` (undeclared) is not a subtype");
+        verifyException(e, "contained type `" + GADGET + "` (undeclared) is not a subtype");
     }
 
     @Test
@@ -296,8 +296,9 @@ public class UndeclaredTypeArgumentTest extends DatabindTestUtil
         InvalidTypeIdException e = assertRejected(mapper,
                 "{\"values\":[\"java.util.ArrayList<" + GADGET + ">\",[{\"cmd\":\"x\"}]]}",
                 MinimalClassHolder.class);
-        verifyException(e, "type parameter `" + GADGET + "` (declared as `java.lang.String`)"
-                + " is not a subtype of its declared type");
+        // The validator speaks first; the declared-type mismatch would reject it too
+        verifyException(e, "denied resolution of contained type `" + GADGET
+                + "` (declared as `java.lang.String`)");
     }
 
     // Approving the base type covers arguments that are its subtypes, as it
@@ -317,7 +318,7 @@ public class UndeclaredTypeArgumentTest extends DatabindTestUtil
 
         InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
                 () -> mapper.readValue(envJson(SAFE_BEAN, "{\"text\":\"hi\"}"), MsgHolder.class));
-        verifyException(e, "denied resolution of type parameter `" + SAFE_BEAN + "` (undeclared)");
+        verifyException(e, "denied resolution of contained type `" + SAFE_BEAN + "` (undeclared)");
 
         ObjectMapper allowing = jsonMapperBuilder()
                 .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()

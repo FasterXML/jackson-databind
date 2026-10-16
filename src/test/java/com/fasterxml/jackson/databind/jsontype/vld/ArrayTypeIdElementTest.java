@@ -116,18 +116,18 @@ public class ArrayTypeIdElementTest extends DatabindTestUtil
         InvalidTypeIdException e = assertRejected(mapper,
                 arrayJson(GADGET, "{\"cmd\":\"x\"}"), SerializableHolder.class);
         assertEquals("[L" + GADGET + ";", e.getTypeId());
-        verifyException(e, "denied resolution of type parameter `" + GADGET
+        verifyException(e, "denied resolution of contained type `" + GADGET
                 + "` (declared as `java.lang.Object`)");
 
         e = assertRejected(mapper,
                 "{\"value\":[\"[[L" + GADGET + ";\",[[{\"cmd\":\"x\"}]]]}", SerializableHolder.class);
-        verifyException(e, "denied resolution of type parameter `" + GADGET + "`");
+        verifyException(e, "denied resolution of contained type `" + GADGET + "`");
 
         ObjectMapper arrays = defaultTypingWith(BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType(Object[].class)
                 .build());
         e = assertRejected(arrays, arrayJson(GADGET, "{\"cmd\":\"x\"}"), ObjectArrayHolder.class);
-        verifyException(e, "denied resolution of type parameter `" + GADGET + "`");
+        verifyException(e, "denied resolution of contained type `" + GADGET + "`");
     }
 
     // Likewise for a subtype rule every array matches
@@ -140,7 +140,7 @@ public class ArrayTypeIdElementTest extends DatabindTestUtil
 
         InvalidTypeIdException e = assertRejected(mapper,
                 arrayJson(GADGET, "{\"cmd\":\"x\"}"), SerializableHolder.class);
-        verifyException(e, "denied resolution of type parameter `" + GADGET + "`");
+        verifyException(e, "denied resolution of contained type `" + GADGET + "`");
     }
 
     @Test
@@ -218,7 +218,7 @@ public class ArrayTypeIdElementTest extends DatabindTestUtil
         InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
                 () -> mapper.readValue(arrayJson("javax.swing.JEditorPane", "{}"),
                         ObjectArrayHolder.class));
-        verifyException(e, "Illegal type parameter `javax.swing.JEditorPane`");
+        verifyException(e, "Illegal contained type `javax.swing.JEditorPane`");
     }
 
     // The element type of an array for a non-array property is declared as
@@ -235,7 +235,7 @@ public class ArrayTypeIdElementTest extends DatabindTestUtil
 
         InvalidTypeIdException e = assertRejected(mapper,
                 arrayJson(SAFE_BEAN, "{\"text\":\"hi\"}"), SerializableHolder.class);
-        verifyException(e, "denied resolution of type parameter `" + SAFE_BEAN
+        verifyException(e, "denied resolution of contained type `" + SAFE_BEAN
                 + "` (declared as `java.lang.Object`)");
 
         assertArrayEquals(new String[] { "a" }, (String[]) mapper.readValue(
@@ -253,7 +253,7 @@ public class ArrayTypeIdElementTest extends DatabindTestUtil
 
         InvalidTypeIdException e = assertRejected(mapper,
                 arrayJson(ABSTRACT_GADGET, "{\"cmd\":\"x\"}"), SerializableHolder.class);
-        verifyException(e, "denied resolution of type parameter `" + ABSTRACT_GADGET + "`");
+        verifyException(e, "denied resolution of contained type `" + ABSTRACT_GADGET + "`");
 
         ObjectMapper allowing = mapperWith(BasicPolymorphicTypeValidator.builder()
                 .allowIfSubTypeIsArray()

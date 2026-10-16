@@ -43,7 +43,7 @@ public class LegacyDenylistGenericArgumentTest extends DatabindTestUtil
         // Rejected while the type id is resolved, like every other rejected argument
         InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
                 () -> mapper.readValue(json, Object.class));
-        verifyException(e, "Illegal type parameter `javax.swing.JEditorPane`");
+        verifyException(e, "Illegal contained type `javax.swing.JEditorPane`");
         verifyException(e, "prevented for security reasons");
     }
 }

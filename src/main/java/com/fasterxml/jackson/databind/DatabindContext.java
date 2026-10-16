@@ -635,18 +635,20 @@ public abstract class DatabindContext
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
+        if ((declaredType != null) && param.equals(declaredType)) {
+            // Exactly what the property declares: the type id chose nothing here
+            return;
+        }
+        // The validator first: a class it denies is reported as such, whether
+        // or not it would fit the declared type
+        if (!param.isJavaLangObject() && !_isSafeTypeArgument(param)) {
+            _validateTypeArgument(polymorphicBase, typeId, declaredType, param, ptv, config);
+        }
         if (declaredType != null) {
-            if (param.equals(declaredType)) {
-                // Exactly what the property declares: the type id chose nothing here
-                return;
-            }
             _verifyDeclaredType(polymorphicBase, typeId, declaredType, param, false);
         }
         if (param.isPrimitive() || param.isJavaLangObject()) {
             return;
-        }
-        if (!_isSafeTypeArgument(param)) {
-            _validateTypeArgument(polymorphicBase, typeId, declaredType, param, ptv, config);
         }
         // The deny list of known gadget types applies as to a direct type id
         // (`BeanDeserializerFactory` applies it to types it creates bean
@@ -680,11 +682,11 @@ public abstract class DatabindContext
      * itself has been established already, so only the subtype rules apply.
      *<p>
      * {@link LaissezFaireSubTypeValidator}, the default when no validator is
-     * configured, allows every subtype of a base type. An argument with a
-     * declared type is one (checked by the caller); one without has no base
-     * type to be a subtype of, so only the polymorphic base type can vouch for
-     * it: {@code Env<Gadget>} is rejected for base {@code Msg} as a direct
-     * {@code Gadget} id is, while {@code Env<PlainMsg>} is accepted.
+     * configured, allows every subtype of a base type: an argument is accepted
+     * if it is a subtype of its declared type. One without a declared type has
+     * no base type to be a subtype of, so only the polymorphic base type can
+     * vouch for it: {@code Env<Gadget>} is rejected for base {@code Msg} as a
+     * direct {@code Gadget} id is, while {@code Env<PlainMsg>} is accepted.
      *
      * @param declaredType Declared type of the argument, {@code null} if none
      */
@@ -696,7 +698,8 @@ public abstract class DatabindContext
         final String rawName = param.getRawClass().getName();
         Validity vld;
         if (ptv instanceof LaissezFaireSubTypeValidator) {
-            vld = (declaredType == null) ? Validity.INDETERMINATE : Validity.ALLOWED;
+            vld = ((declaredType != null) && param.isTypeOrSubTypeOf(declaredType.getRawClass()))
+                    ? Validity.ALLOWED : Validity.INDETERMINATE;
         } else {
             final JavaType baseType = (declaredType == null)
                     ? getTypeFactory().unknownType() : declaredType;
@@ -718,7 +721,7 @@ public abstract class DatabindContext
             if (ptv instanceof LaissezFaireSubTypeValidator) {
                 throw invalidTypeIdException(polymorphicBase, typeId,
                         _typeParameterDescription(declaredType, param)
-                        + " is not a subtype of the base type, and no `PolymorphicTypeValidator`"
+                        + " is not a subtype of base type, and no `PolymorphicTypeValidator`"
                         + " is configured to allow it");
             }
             throw _typeParameterDeniedException(polymorphicBase, typeId,
@@ -770,7 +773,7 @@ public abstract class DatabindContext
 
     private static String _typeParameterDescription(JavaType declaredType, JavaType param)
     {
-        return "type parameter " + ClassUtil.getTypeDescription(param)
+        return "contained type " + ClassUtil.getTypeDescription(param)
                 + ((declaredType == null) ? " (undeclared)"
                         : " (declared as " + ClassUtil.getTypeDescription(declaredType) + ")");
     }

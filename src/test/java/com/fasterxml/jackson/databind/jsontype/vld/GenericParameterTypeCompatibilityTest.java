@@ -259,7 +259,7 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
         verifyException(e, "as a subtype of `java.util.Map<java.lang.Object,java.lang.Object>`");
         // The validator the user configured, not the wrapper that approved the base type
         verifyException(e, "(of type `" + BasicPolymorphicTypeValidator.class.getName() + "`)");
-        verifyException(e, "denied resolution of type parameter `"
+        verifyException(e, "denied resolution of contained type `"
                 + GenericGadget.class.getName() + "` (undeclared)");
     }
 
@@ -276,7 +276,7 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
         assertEquals(Map.class, e.getBaseType().getRawClass());
         verifyException(e, "Could not resolve type id '" + typeId
                 + "' as a subtype of `java.util.Map<java.lang.String,java.lang.Integer>`");
-        verifyException(e, "type parameter `java.lang.Long` (declared as `java.lang.Integer`)"
+        verifyException(e, "contained type `java.lang.Long` (declared as `java.lang.Integer`)"
                 + " is not a subtype of its declared type");
     }
 
@@ -594,7 +594,7 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
 
         InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
                 () -> mapper.readValue(json, IntegerMapHolder.class));
-        verifyException(e, "type parameter `java.lang.Object` (declared as `java.lang.Integer`)"
+        verifyException(e, "contained type `java.lang.Object` (declared as `java.lang.Integer`)"
                 + " is not a subtype of its declared type");
     }
 

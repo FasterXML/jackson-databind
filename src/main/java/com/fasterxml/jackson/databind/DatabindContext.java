@@ -35,9 +35,6 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public abstract class DatabindContext
 {
-    // [CVE-2026-110879]: for checking whether validator approves all array types
-    private final static JavaType OBJECT_ARRAY_TYPE = ArrayType.construct(TypeFactory.unknownType(), null);
-
     /**
      * Let's limit length of error messages, for cases where underlying data
      * may be very large -- no point in spamming logs with megabytes of meaningless
@@ -484,8 +481,38 @@ public abstract class DatabindContext
         final PolymorphicTypeValidator vldr = _configuredValidator(ptv);
         final JavaType vldBaseType = (declaredType == null) ? TypeFactory.unknownType() : declaredType;
         return _isApprovedSubType(vldr, config, vldBaseType, arrayType)
-                && !_isApprovedSubType(vldr, config, TypeFactory.unknownType(), OBJECT_ARRAY_TYPE);
+                && !_approvesEveryArrayOfSameDepth(vldr, config, arrayType);
     }
+
+    /**
+     * Whether given validator approves an array type with as many dimensions as
+     * given array type whose element type is one every class (and every array)
+     * is assignable to: {@code Object}, {@code Serializable} or {@code Cloneable}.
+     * Such a rule (like {@code allowIfSubType(Serializable[][].class)}, which
+     * matches {@code Gadget[][]} for any {@code Serializable} gadget) approves
+     * all arrays of that depth and cannot count as specifically approving the
+     * element type.
+     */
+    private static boolean _approvesEveryArrayOfSameDepth(PolymorphicTypeValidator vldr,
+            MapperConfig<?> config, JavaType arrayType)
+        throws JsonMappingException
+    {
+        for (Class<?> leaf : UNIVERSAL_ARRAY_ELEMENT_TYPES) {
+            JavaType probe = config.constructType(leaf);
+            for (JavaType t = arrayType; t.isArrayType(); t = t.getContentType()) {
+                probe = ArrayType.construct(probe, null);
+            }
+            if (_isApprovedSubType(vldr, config, TypeFactory.unknownType(), probe)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Types every class and every array is assignable to
+    private final static Class<?>[] UNIVERSAL_ARRAY_ELEMENT_TYPES = new Class<?>[] {
+        Object.class, java.io.Serializable.class, Cloneable.class
+    };
 
     private static boolean _isApprovedSubType(PolymorphicTypeValidator vldr,
             MapperConfig<?> config, JavaType baseType, JavaType subType)

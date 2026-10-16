@@ -752,6 +752,54 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
     }
 
     // Specific approval of array type covers its element type...
+    /** Stand-in gadget type that is `Serializable`, like most real ones */
+    public static class SerializableGadget extends Gadget implements java.io.Serializable {
+        private static final long serialVersionUID = 1L;
+    }
+
+    // A rule every array of some depth matches (`Object[][]` for all 2-D
+    // reference arrays, `Serializable[]` for all arrays of `Serializable`
+    // elements) is not specific approval of the element type either
+    @Test
+    public void arrayRuleMatchingEveryArrayOfDepthRejected() throws Exception
+    {
+        final String gadget = SerializableGadget.class.getName();
+        for (Class<?> everyArrayOfDepth : new Class<?>[] {
+                Object[][].class, Object[][][].class,
+                java.io.Serializable[].class, java.io.Serializable[][].class }) {
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                            .allowIfSubType(everyArrayOfDepth)
+                            .build())
+                    .build();
+            int depth = 0;
+            for (Class<?> c = everyArrayOfDepth; c.isArray(); c = c.getComponentType()) {
+                ++depth;
+            }
+            String dims = "", open = "", close = "";
+            for (int i = 0; i < depth; ++i) {
+                dims += "["; open += "["; close += "]";
+            }
+            final String json = a2q("{'value':['" + dims + "L" + gadget + ";',"
+                    + open + "{'cmd':'x'}" + close + "]}");
+            InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                    () -> mapper.readValue(json, ObjectValueWrapper.class),
+                    "rule " + everyArrayOfDepth.getSimpleName());
+            verifyException(e, "denied resolution of contained type");
+            verifyException(e, gadget);
+            assertEquals(Collections.emptyList(), INSTANTIATIONS);
+        }
+        // but rule naming 2-D array type specifically is fine
+        ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(SafeBean[][].class)
+                        .build())
+                .build();
+        ObjectValueWrapper w = mapper.readValue(a2q("{'value':['[[L" + SafeBean.class.getName()
+                + ";',[[{'data':'x'}]]]}"), ObjectValueWrapper.class);
+        assertEquals("x", ((SafeBean[][]) w.value)[0][0].data);
+    }
+
     @Test
     public void specificallyApprovedArrayTypeAccepted() throws Exception
     {

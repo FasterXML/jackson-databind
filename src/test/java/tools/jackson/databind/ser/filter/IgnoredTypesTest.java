@@ -191,6 +191,33 @@ public class IgnoredTypesTest extends DatabindTestUtil
         assertNull(result.creds());
     }
 
+    // Ignored-type Creator properties are never bound, so must not count as missing
+    @Test
+    public void ignoredTypeAsCreatorPropertyWithFailOnMissing() throws Exception
+    {
+        final ObjectReader r = MAPPER.readerFor(RecordWithIgnoredType.class)
+                .with(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES);
+        RecordWithIgnoredType result = r.readValue("""
+                {"name":"bob","creds":{"role":"admin"}}
+                """);
+        assertEquals("bob", result.name());
+        assertNull(result.creds());
+
+        result = r.readValue("""
+                {"name":"bob"}
+                """);
+        assertEquals("bob", result.name());
+        assertNull(result.creds());
+
+        CreatorWithIgnoredType pojo = MAPPER.readerFor(CreatorWithIgnoredType.class)
+                .with(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)
+                .readValue("""
+                {"name":"bob","creds":{"role":"admin"}}
+                """);
+        assertEquals("bob", pojo.name);
+        assertNull(pojo.creds);
+    }
+
     @Test
     public void ignoredTypeAsRecordComponentViaConfigOverride() throws Exception
     {

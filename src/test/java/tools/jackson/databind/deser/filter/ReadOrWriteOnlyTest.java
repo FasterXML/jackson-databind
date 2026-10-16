@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -138,6 +139,42 @@ public class ReadOrWriteOnlyTest extends DatabindTestUtil
         public int b = 2;
     }
 
+    // `WRITE_ONLY` on an accessor whose Java name differs from the property
+    // name (so it only joins the getter's property when renamed)
+    static class WriteOnlyCreatorParam {
+        private final String name, password;
+
+        @JsonCreator
+        public WriteOnlyCreatorParam(@JsonProperty("name") String name,
+                @JsonProperty(value = "password", access = JsonProperty.Access.WRITE_ONLY) String pwd) {
+            this.name = name;
+            password = pwd;
+        }
+
+        public String getName() { return name; }
+        public String getPassword() { return password; }
+    }
+
+    static class WriteOnlyRenamedField {
+        public String name = "n";
+
+        @JsonProperty(value = "password", access = JsonProperty.Access.WRITE_ONLY)
+        private String pwd = "secret";
+
+        public String getPassword() { return pwd; }
+    }
+
+    static class WriteOnlyRenamedSetter {
+        public String name = "n";
+
+        private String pwd = "secret";
+
+        @JsonProperty(value = "password", access = JsonProperty.Access.WRITE_ONLY)
+        public void setPwd(String pwd) { this.pwd = pwd; }
+
+        public String getPassword() { return pwd; }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -233,5 +270,35 @@ public class ReadOrWriteOnlyTest extends DatabindTestUtil
         assertNotNull(result);
         assertEquals(5, result.a);
         assertEquals(2, result.b);
+    }
+
+    @Test
+    public void writeOnlyRenamedCreatorParam() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new WriteOnlyCreatorParam("n", "secret"));
+        assertEquals("""
+                {"name":"n"}""", json);
+
+        WriteOnlyCreatorParam result = MAPPER.readValue("""
+                {"name":"n","password":"secret"}""", WriteOnlyCreatorParam.class);
+        assertEquals("secret", result.getPassword());
+    }
+
+    @Test
+    public void writeOnlyRenamedField() throws Exception
+    {
+        assertEquals("""
+                {"name":"n"}""", MAPPER.writeValueAsString(new WriteOnlyRenamedField()));
+    }
+
+    @Test
+    public void writeOnlyRenamedSetter() throws Exception
+    {
+        assertEquals("""
+                {"name":"n"}""", MAPPER.writeValueAsString(new WriteOnlyRenamedSetter()));
+
+        WriteOnlyRenamedSetter result = MAPPER.readValue("""
+                {"password":"other"}""", WriteOnlyRenamedSetter.class);
+        assertEquals("other", result.getPassword());
     }
 }

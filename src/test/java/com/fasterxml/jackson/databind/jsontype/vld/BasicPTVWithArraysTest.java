@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype.vld;
 
+import java.util.regex.Pattern;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.*;
@@ -75,6 +77,9 @@ public class BasicPTVWithArraysTest extends DatabindTestUtil
         // and then accepted:
         ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubTypeIsArray() // key addition
+                // [CVE-2026-110879]: abstract element type must be allowed too (but
+                // only exactly it, not its subtypes)
+                .allowIfSubType(Pattern.compile(Pattern.quote(Base2534.class.getName())))
                 .allowIfSubType(Good2534.class)
                 .build();
         mapper = jsonMapperBuilder()

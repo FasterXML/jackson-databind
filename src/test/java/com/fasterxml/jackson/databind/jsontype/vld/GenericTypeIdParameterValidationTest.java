@@ -640,9 +640,9 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         assertEquals(Collections.emptyList(), INSTANTIATIONS);
     }
 
-    // ... except with `allowIfSubTypeIsArray()`, which explicitly accepts them
+    // ... even with `allowIfSubTypeIsArray()`
     @Test
-    public void abstractArrayElementTypeAcceptedWithArraySupport() throws Exception
+    public void abstractArrayElementTypeWithArraySupport() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
@@ -650,7 +650,24 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
                         .allowIfSubTypeIsArray()
                         .build())
                 .build();
-        MsgWrapper w = mapper.readValue(msgJson(ENV + "<[L" + Msg.class.getName() + ";>",
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(a2q("{'value':['[L" + ABSTRACT_GADGET + ";',[{'cmd':'x'}]]}"),
+                        ObjectValueWrapper.class));
+        verifyException(e, ABSTRACT_GADGET);
+        e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(msgJson(ENV + "<[L" + ABSTRACT_GADGET + ";>",
+                        "\"payload\":[{\"cmd\":\"x\"}]"), MsgWrapper.class));
+        verifyException(e, ABSTRACT_GADGET);
+        assertEquals(Collections.emptyList(), INSTANTIATIONS);
+
+        // but fine if allow-listed
+        ObjectMapper mapper2 = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(Msg.class)
+                        .allowIfSubTypeIsArray()
+                        .build())
+                .build();
+        MsgWrapper w = mapper2.readValue(msgJson(ENV + "<[L" + Msg.class.getName() + ";>",
                 "\"payload\":[{\"@class\":\"" + ENV + "\"}]"), MsgWrapper.class);
         Object[] payload = (Object[]) ((Env<?>) w.msg).payload;
         assertEquals(Msg[].class, payload.getClass());

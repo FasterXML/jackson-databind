@@ -427,11 +427,9 @@ public abstract class DatabindContext
     }
 
     /**
-     * Helper for validating element type of an array type: like other contained types.
-     * Abstract element types are not exempt in general (they may still be deserialized,
-     * via {@code @JsonDeserialize(as=...)} or factory methods), only if configured
-     * validator is a {@link BasicPolymorphicTypeValidator} that accepts them (see
-     * {@link BasicPolymorphicTypeValidator.Builder#allowIfSubTypeIsArray()}).
+     * Helper for validating element type of an array type: like other contained types
+     * (including abstract types: they may still be deserializable, via
+     * {@code @JsonDeserialize(as=...)} or factory methods).
      *
      * @param declaredType Declared type of the array, if any ({@code null} if none)
      *
@@ -442,17 +440,8 @@ public abstract class DatabindContext
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        final JavaType elemType = arrayType.getContentType();
-        // NOTE: `ArrayType.isAbstract()` is false, so nested arrays always get validated
-        if (elemType.isAbstract()) {
-            final PolymorphicTypeValidator vldr = _configuredValidator(ptv);
-            if ((vldr instanceof BasicPolymorphicTypeValidator)
-                    && ((BasicPolymorphicTypeValidator) vldr).acceptsArrayTypes()) {
-                return;
-            }
-        }
         _validateContainedType(baseType, typeId, _declaredContentType(declaredType),
-                elemType, ptv, config);
+                arrayType.getContentType(), ptv, config);
     }
 
     /**

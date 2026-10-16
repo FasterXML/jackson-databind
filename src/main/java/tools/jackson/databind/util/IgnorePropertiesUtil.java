@@ -121,8 +121,10 @@ public class IgnorePropertiesUtil
             return new Checker(toIgnore, toInclude);
         }
 
-        // May seem odd but during serialization key is not cast up to String:
         public boolean shouldIgnore(Object propertyName) {
+            if (!(propertyName instanceof String)) {
+                propertyName = String.valueOf(propertyName);
+            }
             return ((_toInclude != null) && !_toInclude.contains(propertyName))
                     || _toIgnore.contains(propertyName);
         }

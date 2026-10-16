@@ -381,7 +381,7 @@ public abstract class DatabindContext
             JavaType param, PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        if (!_isSafeTypeParameter(param)
+        if (!_isSafeTypeParameter(param, baseType)
                 && !((declaredType != null) && param.hasRawClass(declaredType.getRawClass()))) {
             final String rawName = param.getRawClass().getName();
             final PolymorphicTypeValidator vldr;
@@ -463,17 +463,23 @@ public abstract class DatabindContext
      * constructor or setter can be invoked.
      *<p>
      * {@code Object} is the canonical resolution of wildcards and unbound parameters;
-     * enum types are JVM-managed singletons resolved by name lookup;
+     * enum types declared by the application (in polymorphic base type, as for
+     * {@code EnumMap}/{@code EnumSet} properties) are safe as the application's choice
+     * -- other enum types are not, as they may have creator methods or custom deserializers
+     * that would run on attacker-provided input;
      * {@code String}, primitive types (including wrappers), {@code Number},
      * {@code BigDecimal}, {@code BigInteger} and {@code UUID} are handled by Jackson
      * as scalars (subtypes of {@code Number} other than these need type ids); and arrays
      * and {@code java.util} container (Collection, Map, reference) types are JDK types
      * whose contained types are validated separately.
      */
-    private static boolean _isSafeTypeParameter(JavaType param)
+    private static boolean _isSafeTypeParameter(JavaType param, JavaType baseType)
     {
-        if (param.isJavaLangObject() || param.isEnumType() || param.isArrayType()) {
+        if (param.isJavaLangObject() || param.isArrayType()) {
             return true;
+        }
+        if (param.isEnumType()) {
+            return _isDeclaredIn(baseType, param.getRawClass());
         }
         final Class<?> raw = param.getRawClass();
         if ((param.isContainerType() || param.isReferenceType())
@@ -482,6 +488,24 @@ public abstract class DatabindContext
         }
         return (raw == String.class) || (ClassUtil.primitiveType(raw) != null)
                 || (raw == Number.class) || (raw == BigDecimal.class) || (raw == BigInteger.class) || (raw == UUID.class);
+    }
+
+    // Whether given class is named in declared type (as type itself, type parameter
+    // or array element type; recursively)
+    private static boolean _isDeclaredIn(JavaType declaredType, Class<?> raw)
+    {
+        if (declaredType.hasRawClass(raw)) {
+            return true;
+        }
+        if (declaredType.isArrayType()) {
+            return _isDeclaredIn(declaredType.getContentType(), raw);
+        }
+        for (int i = 0, n = declaredType.containedTypeCount(); i < n; ++i) {
+            if (_isDeclaredIn(declaredType.containedType(i), raw)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws JsonMappingException {

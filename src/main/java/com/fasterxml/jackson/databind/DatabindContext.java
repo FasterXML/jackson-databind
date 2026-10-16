@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -9,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.cfg.DatatypeFeature;
@@ -596,13 +599,11 @@ public abstract class DatabindContext
      * key type of a map-like type and the value type of an {@code EnumMap}
      * whatever is declared, see {@link #_objectAllowedAt} and
      * {@link ProjectedArguments}.
-     * Enum types are exempt from the {@link PolymorphicTypeValidator} only:
-     * they are JVM-managed singletons resolved by name lookup (no
-     * attacker-controlled constructor or setter runs), so they cannot serve as
-     * gadget classes -- and a name-prefix configuration that allow-lists a
-     * container like {@code EnumSet} should not have to also allow-list every
-     * enum class that may legitimately appear as its element. They are still
-     * checked against {@code declaredType} and by {@link #_validateGenericSubType}.
+     * Arguments that cannot name a class to construct (see
+     * {@link #_isSafeTypeArgument}) are exempt from the
+     * {@link PolymorphicTypeValidator} only: they are still checked against
+     * {@code declaredType} and by {@link #_validateGenericSubType}, and their
+     * own type parameters or array component are validated like any other.
      *
      * @param polymorphicBase Base type the complete type id is resolved against;
      *    only used for error messages
@@ -623,7 +624,7 @@ public abstract class DatabindContext
         if (param.isPrimitive() || param.isJavaLangObject()) {
             return;
         }
-        if (!param.isEnumType()) {
+        if (!_isSafeTypeArgument(param)) {
             // A base type the validator approves outright approves every subtype;
             // a denied base type only says what may not be declared polymorphic,
             // which the declared type parameter is not, so it decides nothing here.
@@ -652,6 +653,34 @@ public abstract class DatabindContext
         } else {
             _validateTypeParameters(polymorphicBase, typeId, declaredType, param, ptv, config);
         }
+    }
+
+    /**
+     * Whether a type argument cannot name an attacker-selected class to
+     * construct, so that the {@link PolymorphicTypeValidator} need not approve
+     * it. Enum types are JVM-managed singletons resolved by name lookup: no
+     * attacker-controlled constructor or setter runs, and a name-prefix
+     * configuration that allow-lists a container like {@code EnumSet} should
+     * not have to also allow-list every enum class that may legitimately appear
+     * as its element. {@code String}, primitive wrappers, {@code Number},
+     * {@code BigDecimal}, {@code BigInteger} and {@code UUID} are read as
+     * scalars (a {@code Number} subtype other than these needs a type id of its
+     * own). Arrays and the {@code java.util} container and reference types are
+     * JDK types whose contained types are validated on their own.
+     */
+    private static boolean _isSafeTypeArgument(JavaType param)
+    {
+        if (param.isEnumType() || param.isArrayType()) {
+            return true;
+        }
+        final Class<?> raw = param.getRawClass();
+        if ((param.isContainerType() || param.isReferenceType())
+                && raw.getName().startsWith("java.util.")) {
+            return true;
+        }
+        return (raw == String.class) || (ClassUtil.primitiveType(raw) != null)
+                || (raw == Number.class) || (raw == BigDecimal.class)
+                || (raw == BigInteger.class) || (raw == UUID.class);
     }
 
     private JsonMappingException _typeParameterDeniedException(JavaType polymorphicBase,

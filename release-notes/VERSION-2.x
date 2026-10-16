@@ -9,9 +9,17 @@ Project: jackson-databind
 #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
  [CVE-2026-54516]
  (fixed by Omkhar A)
-#6254: Validate type arguments of generic type ids against the declared type
-  parameters of the base type (rejects `HashMap<String,Long>` and `HashMap<String,Object>`
-  for `Map<String,Integer>`, accepts subtypes of an allowed base type as type arguments)
+#6254: Type arguments of generic type ids and element types of array type ids
+  bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: a type argument has to fit the type parameter the base type declares
+  (`HashMap<String,Long>` no longer fits `Map<String,Integer>`) and is checked by
+  the configured validator as a direct type id for that type parameter would be;
+  base type approval (`allowIfBaseType()`) covers arguments that are subtypes of
+  the base type or of the declared type parameter; without a validator, an
+  argument the base type declares nothing about has to be a subtype of the base
+  type; element types of array type ids are validated the same way
+ (reported by @AdamKorcz, @martinfrancois)
  (contributed by @martinfrancois)
 
 2.18.11 (20-Sep-2026)

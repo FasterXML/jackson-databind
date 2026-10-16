@@ -151,6 +151,14 @@ Versions: 3.x (for earlier see VERSION-2.x)
   values) fails since 3.2.0
  (reported by @schabe77)
  (fix by @pjfanning, w/ Claude code)
+#6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: type parameters (and element types of array type ids) are now validated
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type; `allowIfSubTypeIsArray()` no longer
+  accepts abstract or interface element types without allow-listing (except `Number`)
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.2.3 (21-Sep-2026)
 
@@ -502,6 +510,14 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6261: Support `@JsonView` on properties-based Creator parameters of Enum, Map
   and EnumMap types
  (fix by @pjfanning, w/ Claude code)
+#6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: type parameters (and element types of array type ids) are now validated
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type; `allowIfSubTypeIsArray()` no longer
+  accepts abstract or interface element types without allow-listing (except `Number`)
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.1.7 (21-Sep-2026)
 

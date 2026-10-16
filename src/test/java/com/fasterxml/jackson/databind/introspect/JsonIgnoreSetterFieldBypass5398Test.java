@@ -61,6 +61,20 @@ public class JsonIgnoreSetterFieldBypass5398Test extends DatabindTestUtil
         }
     }
 
+    // READ_ONLY getter renamed onto the name of another, writable property:
+    // fix for [databind#5967] must not strip fields of that other property
+    static class ReadOnlyRenameCollision {
+        private int a;
+
+        @JsonProperty(value = "b", access = JsonProperty.Access.READ_ONLY)
+        public int getA() {
+            return a;
+        }
+
+        @JsonProperty
+        public int b;
+    }
+
     // 2.x defaults FAIL_ON_UNKNOWN_PROPERTIES to true; disable so the "not written"
     // outcome (rather than an exception) is what we assert on read paths.
     private final ObjectMapper MAPPER = jsonMapperBuilder()
@@ -153,4 +167,11 @@ public class JsonIgnoreSetterFieldBypass5398Test extends DatabindTestUtil
         assertNull(result.getProp());
     }
 
+    @Test
+    public void readOnlyRenameCollisionKeepsOtherPropertyWritable() throws Exception
+    {
+        ReadOnlyRenameCollision result = MAPPER.readValue("{\"b\":5}",
+                ReadOnlyRenameCollision.class);
+        assertEquals(5, result.b);
+    }
 }

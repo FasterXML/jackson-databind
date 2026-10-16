@@ -1541,6 +1541,11 @@ ctor.creator()));
                 // otherwise just remove ones marked to be ignored
                 prop.removeIgnored();
                 if (!prop.couldDeserialize()) {
+                    // [databind#5967]: Strip inferred non-visible field mutators to preserve
+                    // @JsonIgnore semantics: since couldDeserialize() is false, any remaining
+                    // fields are non-visible (kept only for INFER_PROPERTY_MUTATORS) and must
+                    // not be used to bypass the ignored setter.
+                    prop.removeFields();
                     _collectIgnorals(prop.getName());
                 }
             }
@@ -1611,11 +1616,6 @@ ctor.creator()));
                 if (isRecordType() || !prop.anyExplicitsWithoutIgnoral()) {
                     continue;
                 }
-                // [databind#5967]: Strip inferred non-visible field mutators to preserve @JsonIgnore
-                // semantics. The ignored name was collected because couldDeserialize()==false,
-                // meaning any retained fields are non-visible (kept only by INFER_PROPERTY_MUTATORS).
-                // Removing them ensures the renamed property remains read-only (serialization only).
-                prop.removeFields();
             }
 
             Collection<PropertyName> l = prop.findExplicitNames();

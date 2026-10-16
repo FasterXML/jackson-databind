@@ -1383,6 +1383,13 @@ ctor.creator()));
             // 10-Apr-2025: [databind#4628] skip properties that are marked to be ignored
             // TODO: we are using implicit name, is that ok?
             if (_ignoredPropertyNames != null && _ignoredPropertyNames.contains(prop.getName())) {
+                // [databind#5967]: Strip inferred non-visible field mutators to preserve @JsonIgnore
+                // semantics. The ignored name was collected because couldDeserialize()==false,
+                // meaning any retained fields are non-visible (kept only by INFER_PROPERTY_MUTATORS).
+                // Removing them ensures the property remains read-only (serialization only).
+                if (!isRecordType() && prop.anyExplicitsWithoutIgnoral()) {
+                    prop.removeFields();
+                }
                 continue;
             }
 

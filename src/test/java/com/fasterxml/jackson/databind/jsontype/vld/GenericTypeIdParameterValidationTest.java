@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
@@ -52,6 +53,20 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
 
         public void setCmd(String cmd) {
             INSTANTIATIONS.add("setCmd(" + cmd + ")");
+        }
+    }
+
+    /** Abstract, but still deserializable "gadget" type */
+    @JsonDeserialize(as = AbstractGadgetImpl.class)
+    public static abstract class AbstractGadget {
+        public void setCmd(String cmd) {
+            INSTANTIATIONS.add("setCmd(" + cmd + ")");
+        }
+    }
+
+    public static class AbstractGadgetImpl extends AbstractGadget {
+        public AbstractGadgetImpl() {
+            INSTANTIATIONS.add("AbstractGadgetImpl()");
         }
     }
 
@@ -108,6 +123,7 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
 
     private final String ENV = Env.class.getName();
     private final String GADGET = Gadget.class.getName();
+    private final String ABSTRACT_GADGET = AbstractGadget.class.getName();
 
     @BeforeEach
     public void clearInstantiations() {
@@ -591,6 +607,75 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         ObjectValueWrapper w = mapper.readValue(a2q("{'value':['[Ljava.lang.String;',['a']]}"),
                 ObjectValueWrapper.class);
         assertArrayEquals(new String[] { "a" }, (String[]) w.value);
+    }
+
+    // Abstract element types are not exempt: may still be deserializable
+    @Test
+    public void abstractArrayElementTypeValidated() throws Exception
+    {
+        // Name-only allow-list for the generic type
+        ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(ENV)
+                        .build())
+                .build();
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(msgJson(ENV + "<[L" + ABSTRACT_GADGET + ";>",
+                        "\"payload\":[{\"cmd\":\"x\"}]"), MsgWrapper.class));
+        verifyException(e, "denied resolution of contained type");
+        verifyException(e, ABSTRACT_GADGET);
+        assertEquals(Collections.emptyList(), INSTANTIATIONS);
+
+        // Array type id approved by sub-type matcher (every array is `Serializable`)
+        ObjectMapper mapper2 = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(java.io.Serializable.class)
+                        .build())
+                .build();
+        e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper2.readValue(a2q("{'value':['[L" + ABSTRACT_GADGET + ";',[{'cmd':'x'}]]}"),
+                        ObjectValueWrapper.class));
+        verifyException(e, "denied resolution of contained type");
+        verifyException(e, ABSTRACT_GADGET);
+        assertEquals(Collections.emptyList(), INSTANTIATIONS);
+    }
+
+    // ... except with `allowIfSubTypeIsArray()`, which explicitly accepts them
+    @Test
+    public void abstractArrayElementTypeAcceptedWithArraySupport() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(ENV)
+                        .allowIfSubTypeIsArray()
+                        .build())
+                .build();
+        MsgWrapper w = mapper.readValue(msgJson(ENV + "<[L" + Msg.class.getName() + ";>",
+                "\"payload\":[{\"@class\":\"" + ENV + "\"}]"), MsgWrapper.class);
+        Object[] payload = (Object[]) ((Env<?>) w.msg).payload;
+        assertEquals(Msg[].class, payload.getClass());
+        assertEquals(Env.class, payload[0].getClass());
+    }
+
+    // `Object[]` (with legacy default typing) accepts any element type
+    @Test
+    public void laissezFaireDeclaredObjectArrayRoundTrip() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(LaissezFaireSubTypeValidator.instance, DefaultTyping.NON_FINAL)
+                .build();
+        ObjectArrayWrapper input = new ObjectArrayWrapper();
+        SubBean bean = new SubBean();
+        bean.extra = 7;
+        input.values = new SubBean[] { bean };
+        ObjectArrayWrapper result = mapper.readValue(mapper.writeValueAsString(input),
+                ObjectArrayWrapper.class);
+        assertEquals(SubBean[].class, result.values.getClass());
+        assertEquals(7, ((SubBean) result.values[0]).extra);
+
+        input.values = new Date[] { new Date(123L) };
+        result = mapper.readValue(mapper.writeValueAsString(input), ObjectArrayWrapper.class);
+        assertArrayEquals(new Date[] { new Date(123L) }, result.values);
     }
 
     /*

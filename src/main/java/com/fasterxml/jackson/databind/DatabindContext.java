@@ -269,8 +269,7 @@ public abstract class DatabindContext
         // as well and needs validation like type parameters of generic type ids
         // (approval of array type, by base type or by sub-type, does not extend to it)
         if (subType.isArrayType()) {
-            _validateArrayElementType(baseType, subClass, _declaredContentType(baseType),
-                    subType.getContentType(), ptv, config);
+            _validateArrayElementType(baseType, subClass, baseType, subType, ptv, config);
         }
         return subType;
     }
@@ -316,10 +315,11 @@ public abstract class DatabindContext
         return ptv;
     }
 
-    // Declared type of array elements (or type parameters): `Object` unless declared
-    // type is an array type
+    // Declared type of array elements: element type of declared type if it is an
+    // array type; `null` (none) otherwise
     private static JavaType _declaredContentType(JavaType declaredType) {
-        return declaredType.isArrayType() ? declaredType.getContentType() : TypeFactory.unknownType();
+        return ((declaredType != null) && declaredType.isArrayType())
+                ? declaredType.getContentType() : null;
     }
 
     /**
@@ -334,7 +334,7 @@ public abstract class DatabindContext
         throws JsonMappingException
     {
         for (int i = 0, n = type.containedTypeCount(); i < n; ++i) {
-            _validateContainedType(baseType, typeId, TypeFactory.unknownType(),
+            _validateContainedType(baseType, typeId, null,
                     type.containedType(i), ptv, config);
         }
     }
@@ -348,12 +348,11 @@ public abstract class DatabindContext
      * <li>If assignable to polymorphic base type, checked as if a direct type id for it
      *   </li>
      * <li>Otherwise checked by configured {@link PolymorphicTypeValidator} as a direct type
-     *   id for its declared type ({@code Object} for type parameters; element type of
-     *   declared array type for array elements), starting with
+     *   id for its declared type (element type of declared array type for array
+     *   elements; none -- validated as {@code Object} -- otherwise), starting with
      *   {@link PolymorphicTypeValidator#validateBaseType}: approval of polymorphic base
      *   type does not extend to it. {@link LaissezFaireSubTypeValidator} (which allows
-     *   all subtypes of base type) only allows subtypes of declared type other
-     *   than {@code Object}
+     *   all subtypes of base type) only allows subtypes of declared type, if any
      *   </li>
      *</ul>
      * Assignment compatibility with declared type parameters of the base type is
@@ -363,7 +362,7 @@ public abstract class DatabindContext
      * unapproved types.
      *
      * @param baseType Polymorphic base type
-     * @param declaredType Declared type of the contained type
+     * @param declaredType Declared type of the contained type, if any ({@code null} if none)
      * @param ptv Validator used for validating type id as subtype of {@code baseType}
      *
      * @since 2.18.12
@@ -372,7 +371,8 @@ public abstract class DatabindContext
             JavaType param, PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        if (!_isSafeTypeParameter(param) && !param.hasRawClass(declaredType.getRawClass())) {
+        if (!_isSafeTypeParameter(param)
+                && !((declaredType != null) && param.hasRawClass(declaredType.getRawClass()))) {
             final String rawName = param.getRawClass().getName();
             final PolymorphicTypeValidator vldr;
             final JavaType vldBaseType;
@@ -384,11 +384,12 @@ public abstract class DatabindContext
                 vld = Validity.INDETERMINATE;
             } else {
                 vldr = _configuredValidator(ptv);
-                vldBaseType = declaredType;
+                vldBaseType = (declaredType == null) ? TypeFactory.unknownType() : declaredType;
                 if (vldr instanceof LaissezFaireSubTypeValidator) {
                     // Allows all subtypes of declared type (element type of declared
-                    // array type), but nothing for unknown (type parameters)
-                    if (declaredType.isJavaLangObject()) {
+                    // array type, including `Object` for `Object[]`), but nothing
+                    // without one (type parameters)
+                    if (declaredType == null) {
                         throw invalidTypeIdException(baseType, typeId,
                                 "contained type " + ClassUtil.getTypeDescription(param)
                                 + " not a subtype of base type (and no `PolymorphicTypeValidator`"
@@ -408,7 +409,7 @@ public abstract class DatabindContext
             if (vld != Validity.ALLOWED) {
                 throw invalidTypeIdException(baseType, typeId,
                         "Configured `PolymorphicTypeValidator` (of type "
-                                + ClassUtil.classNameOf(_configuredValidator(vldr))
+                                + ClassUtil.classNameOf(vldr)
                                 + ") denied resolution of contained type "
                                 + ClassUtil.getTypeDescription(param));
             }
@@ -419,30 +420,39 @@ public abstract class DatabindContext
             }
         }
         if (param.isArrayType()) {
-            _validateArrayElementType(baseType, typeId, _declaredContentType(declaredType),
-                    param.getContentType(), ptv, config);
+            _validateArrayElementType(baseType, typeId, declaredType, param, ptv, config);
         } else {
             _validateContainedTypes(baseType, typeId, param, ptv, config);
         }
     }
 
     /**
-     * Helper for validating element type of an array type: like other contained
-     * types, except that (as with {@link BasicPolymorphicTypeValidator} handling
-     * of arrays) abstract types are accepted -- they are not directly
-     * instantiable, and elements need type ids of their own (validated separately).
+     * Helper for validating element type of an array type: like other contained types.
+     * Abstract element types are not exempt in general (they may still be deserialized,
+     * via {@code @JsonDeserialize(as=...)} or factory methods), only if configured
+     * validator is a {@link BasicPolymorphicTypeValidator} that accepts them (see
+     * {@link BasicPolymorphicTypeValidator.Builder#allowIfSubTypeIsArray()}).
+     *
+     * @param declaredType Declared type of the array, if any ({@code null} if none)
      *
      * @since 2.18.12
      */
     private void _validateArrayElementType(JavaType baseType, String typeId,
-            JavaType declaredType, JavaType elemType,
+            JavaType declaredType, JavaType arrayType,
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        // NOTE: `ArrayType.isAbstract()` is false, so nested arrays still get validated
-        if (!elemType.isAbstract()) {
-            _validateContainedType(baseType, typeId, declaredType, elemType, ptv, config);
+        final JavaType elemType = arrayType.getContentType();
+        // NOTE: `ArrayType.isAbstract()` is false, so nested arrays always get validated
+        if (elemType.isAbstract()) {
+            final PolymorphicTypeValidator vldr = _configuredValidator(ptv);
+            if ((vldr instanceof BasicPolymorphicTypeValidator)
+                    && ((BasicPolymorphicTypeValidator) vldr).acceptsArrayTypes()) {
+                return;
+            }
         }
+        _validateContainedType(baseType, typeId, _declaredContentType(declaredType),
+                elemType, ptv, config);
     }
 
     /**

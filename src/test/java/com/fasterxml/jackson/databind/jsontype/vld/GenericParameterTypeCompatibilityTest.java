@@ -678,4 +678,32 @@ public class GenericParameterTypeCompatibilityTest extends DatabindTestUtil
                 .build();
         assertEquals("a", denying.readValue(json, ObjectListHolder.class).value.get(0));
     }
+
+    // `allowIfBaseType(List.class)` approves the container; an argument equal
+    // to the declared type parameter adds nothing the property does not
+    // declare already, so it needs no rule of its own, at any depth
+    @Test
+    public void argumentEqualToDeclaredTypeNeedsNoAllowListEntry() throws Exception
+    {
+        BasicPolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+                .allowIfBaseType(List.class)
+                .build();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(List.class, ClassIdMixin.class)
+                .polymorphicTypeValidator(ptv)
+                .build();
+
+        String json = "{\"value\":[\"java.util.ArrayList<java.lang.String>\",[\"a\"]]}";
+        assertEquals("a", mapper.readValue(json, StringListHolder.class).value.get(0));
+
+        // The inner list is polymorphic too and carries its own type id
+        String nested = "{\"value\":[\"java.util.ArrayList<java.util.ArrayList<java.lang.String>>\","
+                + "[[\"java.util.ArrayList<java.lang.String>\",[\"a\"]]]]}";
+        assertEquals("a", mapper.readValue(nested, NestedListHolder.class).value.get(0).get(0));
+
+        // A subtype of the declared parameter is a choice the type id made
+        String subtype = "{\"value\":[\"java.util.ArrayList<" + Dog.class.getName() + ">\",[]]}";
+        assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(subtype, AnimalListHolder.class));
+    }
 }

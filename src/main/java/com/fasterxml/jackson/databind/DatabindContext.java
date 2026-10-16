@@ -573,9 +573,12 @@ public abstract class DatabindContext
      * {@code List<String[]>}).
      *<p>
      * {@code declaredType} is the type parameter the base type declares at the
-     * same position (or the unknown type if it declares none): {@code param}
-     * must be a subtype of it, and the {@link PolymorphicTypeValidator} is
-     * consulted with it as the base type. A base type the validator approves
+     * same position (or the unknown type if it declares none). An argument
+     * equal to it passes without further checks, since the type id then
+     * chose nothing the property does not declare already. Otherwise
+     * {@code param} must be a subtype of it, and the
+     * {@link PolymorphicTypeValidator} is consulted with it as the base type.
+     * A base type the validator approves
      * outright approves the argument; a base type it denies does not reject
      * the argument, since {@code BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES} and
      * {@code denyForExactBaseType} describe what may not be declared
@@ -611,6 +614,10 @@ public abstract class DatabindContext
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
+        if (param.equals(declaredType)) {
+            // Exactly what the property declares: the type id chose nothing here
+            return;
+        }
         _verifyDeclaredType(polymorphicBase, typeId, declaredType, param, false);
         if (param.isPrimitive() || param.isJavaLangObject()) {
             return;

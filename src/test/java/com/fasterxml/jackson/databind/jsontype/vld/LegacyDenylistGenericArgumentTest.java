@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
@@ -39,7 +40,10 @@ public class LegacyDenylistGenericArgumentTest extends DatabindTestUtil
         ObjectMapper mapper = newDefaultTypingMapper();
         String json = "[\"java.util.HashMap<javax.swing.JEditorPane,java.lang.String>\",{}]";
 
-        assertThrows(JsonMappingException.class,
+        // Rejected while the type id is resolved, like every other rejected argument
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
                 () -> mapper.readValue(json, Object.class));
+        verifyException(e, "Illegal type parameter `javax.swing.JEditorPane`");
+        verifyException(e, "prevented for security reasons");
     }
 }

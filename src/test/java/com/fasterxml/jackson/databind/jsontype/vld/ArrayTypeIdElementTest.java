@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
@@ -216,11 +215,10 @@ public class ArrayTypeIdElementTest extends DatabindTestUtil
         assertEquals(new Date(1L), ((Date[][]) result.value)[0][0]);
 
         // The deny list still applies to the element type
-        Exception e = assertThrows(InvalidDefinitionException.class,
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
                 () -> mapper.readValue(arrayJson("javax.swing.JEditorPane", "{}"),
                         ObjectArrayHolder.class));
-        verifyException(e, "Illegal type");
-        verifyException(e, "javax.swing.JEditorPane");
+        verifyException(e, "Illegal type parameter `javax.swing.JEditorPane`");
     }
 
     // The element type of an array for a non-array property is declared as

@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
 import com.fasterxml.jackson.databind.jsontype.impl.BaseTypeAllowingValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
 import com.fasterxml.jackson.databind.type.PlaceholderForType;
 import com.fasterxml.jackson.databind.type.ResolvedRecursiveType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -619,8 +620,9 @@ public abstract class DatabindContext
      * Arguments that cannot name a class to construct (see
      * {@link #_isSafeTypeArgument}) are exempt from the
      * {@link PolymorphicTypeValidator} only: they are still checked against
-     * {@code declaredType} and by {@link #_validateGenericSubType}, and their
-     * own type parameters or array component are validated like any other.
+     * {@code declaredType} and against the {@link SubTypeValidator} deny list,
+     * and their own type parameters or array component are validated like any
+     * other.
      *
      * @param polymorphicBase Base type the complete type id is resolved against;
      *    only used for error messages
@@ -646,7 +648,15 @@ public abstract class DatabindContext
         if (!_isSafeTypeArgument(param)) {
             _validateTypeArgument(polymorphicBase, typeId, declaredType, param, ptv, config);
         }
-        _validateGenericSubType(param);
+        // The deny list of known gadget types applies as to a direct type id
+        // (`BeanDeserializerFactory` applies it to types it creates bean
+        // deserializers for, but not every argument gets one: a `Map` key type
+        // may be deserialized through its single-`String` constructor)
+        if (SubTypeValidator.instance().isIllegalType(param.getRawClass())) {
+            throw invalidTypeIdException(polymorphicBase, typeId,
+                    "Illegal " + _typeParameterDescription(declaredType, param)
+                    + ": prevented for security reasons");
+        }
         if (param.isArrayType()) {
             _validateTypeParameter(polymorphicBase, typeId,
                     _componentTypeOrNone(declaredType), param.getContentType(), ptv, config);
@@ -764,17 +774,6 @@ public abstract class DatabindContext
                 + ((declaredType == null) ? " (undeclared)"
                         : " (declared as " + ClassUtil.getTypeDescription(declaredType) + ")");
     }
-
-    /**
-     * Hook called for each type parameter of a generic type id after the checks
-     * in {@code _validateTypeParameter} passed (enums skip the
-     * {@link PolymorphicTypeValidator} there). The deserialization side applies
-     * its built-in deny list of known unsafe classes here; the default
-     * implementation does nothing.
-     *
-     * @since 2.18.12
-     */
-    protected void _validateGenericSubType(JavaType type) throws JsonMappingException { }
 
     protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws JsonMappingException {
         throw invalidTypeIdException(baseType, subType, "Not a subtype");

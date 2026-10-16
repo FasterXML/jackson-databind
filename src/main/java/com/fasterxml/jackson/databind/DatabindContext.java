@@ -1,8 +1,11 @@
 package com.fasterxml.jackson.databind;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.cfg.DatatypeFeature;
@@ -260,6 +263,16 @@ public abstract class DatabindContext
                 return _throwSubtypeClassNotAllowed(baseType, subClass, ptv);
             }
         }
+        // [CVE-2026-110879]: element type of an array type id is attacker-selected
+        // as well (unless type id is the declared type): if array type was only
+        // approved via its base type, element type needs validation like type
+        // parameters of generic type ids. (Validators that approve the array type
+        // itself see the element type and are trusted to validate it)
+        if (subType.isArrayType() && (ptv instanceof ApprovedBaseTypeValidator)
+                && !subType.hasRawClass(baseType.getRawClass())) {
+            _validateTypeParameter(baseType, subClass, subType.getContentType(),
+                    _typeParameterValidator(ptv), config);
+        }
         return subType;
     }
 
@@ -293,11 +306,16 @@ public abstract class DatabindContext
         // [CVE-2026-110879]: ... and validated with the configured validator (not one
         // that approves all subtypes of the base type) and as if named as a direct
         // type id for base type `Object` -- type parameter may bind to anything.
-        if (ptv instanceof ApprovedBaseTypeValidator) {
-            ptv = ((ApprovedBaseTypeValidator) ptv).getTypeParameterValidator();
-        }
-        _validateTypeParameters(baseType, subClass, subType, ptv, config);
+        _validateTypeParameters(baseType, subClass, subType, _typeParameterValidator(ptv), config);
         return subType;
+    }
+
+    // Approval of base type does not extend to contained types: need configured validator
+    private static PolymorphicTypeValidator _typeParameterValidator(PolymorphicTypeValidator ptv) {
+        if (ptv instanceof ApprovedBaseTypeValidator) {
+            return ((ApprovedBaseTypeValidator) ptv).getTypeParameterValidator();
+        }
+        return ptv;
     }
 
     /**
@@ -305,7 +323,8 @@ public abstract class DatabindContext
      * component, if any) of given type, recursively (for nested generics like
      * {@code Map<String, List<Evil>>} or {@code List<String[]>}).
      *<p>
-     * Every class named as a type parameter goes through the same checks as a
+     * Every class named as a type parameter (or, for array type ids, as element
+     * type) goes through the same checks as a
      * class named directly as type id for base type {@code Object}:
      * {@link PolymorphicTypeValidator#validateBaseType},
      * {@link PolymorphicTypeValidator#validateSubClassName},
@@ -351,12 +370,12 @@ public abstract class DatabindContext
                 throw invalidTypeIdException(baseType, typeId,
                         "Configured `PolymorphicTypeValidator` (of type "
                                 + ClassUtil.classNameOf(ptv)
-                                + ") denied resolution of type parameter "
+                                + ") denied resolution of contained type "
                                 + ClassUtil.getTypeDescription(param));
             }
             if (SubTypeValidator.instance().isIllegalType(param.getRawClass())) {
                 throw invalidTypeIdException(baseType, typeId,
-                        "Illegal type parameter " + ClassUtil.getTypeDescription(param)
+                        "Illegal contained type " + ClassUtil.getTypeDescription(param)
                                 + ": prevented for security reasons");
             }
         }
@@ -370,8 +389,8 @@ public abstract class DatabindContext
      *<p>
      * {@code Object} is the canonical resolution of wildcards and unbound parameters;
      * enum types are JVM-managed singletons resolved by name lookup;
-     * {@code String} and primitive types (including wrappers) are
-     * handled by Jackson as scalars; and arrays are JDK types whose
+     * {@code String}, primitive types (including wrappers), {@code BigDecimal},
+     * {@code BigInteger} and {@code UUID} are handled by Jackson as scalars; and arrays are JDK types whose
      * element type is validated separately.
      */
     private static boolean _isSafeTypeParameter(JavaType param)
@@ -380,7 +399,8 @@ public abstract class DatabindContext
             return true;
         }
         final Class<?> raw = param.getRawClass();
-        return (raw == String.class) || (ClassUtil.primitiveType(raw) != null);
+        return (raw == String.class) || (ClassUtil.primitiveType(raw) != null)
+                || (raw == BigDecimal.class) || (raw == BigInteger.class) || (raw == UUID.class);
     }
 
     protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws JsonMappingException {

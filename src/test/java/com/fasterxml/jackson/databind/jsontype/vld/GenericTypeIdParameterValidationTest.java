@@ -78,6 +78,15 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         public Map<String, Object> map;
     }
 
+    static class SerializableWrapper {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+        public java.io.Serializable value;
+    }
+
+    static final class BeanArrayWrapper {
+        public SafeBean[] beans;
+    }
+
     static final class EnumContainersWrapper {
         public EnumMap<Color, String> enumMap;
         public EnumSet<Color> enumSet;
@@ -119,7 +128,7 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
                 () -> blockingMapper().readValue(msgJson(ENV + "<" + GADGET + ">",
                         "\"payload\":{\"cmd\":\"x\"}"), MsgWrapper.class));
-        verifyException(e, "denied resolution of type parameter");
+        verifyException(e, "denied resolution of contained type");
         verifyException(e, GADGET);
         assertEquals(Collections.emptyList(), INSTANTIATIONS);
     }
@@ -131,7 +140,7 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
                 () -> blockingMapper().readValue(
                         msgJson(ENV + "<java.util.ArrayList<" + GADGET + ">>",
                                 "\"payload\":[{},{},{}]"), MsgWrapper.class));
-        verifyException(e, "denied resolution of type parameter");
+        verifyException(e, "denied resolution of contained type");
         assertEquals(Collections.emptyList(), INSTANTIATIONS);
     }
 
@@ -157,6 +166,19 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         w = mapper.readValue(msgJson(ENV + "<java.lang.Object>", "\"payload\":\"c\""),
                 MsgWrapper.class);
         assertEquals("c", ((Env<?>) w.msg).payload);
+
+        w = mapper.readValue(msgJson(ENV + "<java.math.BigDecimal>", "\"payload\":1.25"),
+                MsgWrapper.class);
+        assertEquals(new java.math.BigDecimal("1.25"), ((Env<?>) w.msg).payload);
+
+        w = mapper.readValue(msgJson(ENV + "<java.math.BigInteger>", "\"payload\":7"),
+                MsgWrapper.class);
+        assertEquals(java.math.BigInteger.valueOf(7), ((Env<?>) w.msg).payload);
+
+        final UUID uuid = UUID.randomUUID();
+        w = mapper.readValue(msgJson(ENV + "<java.util.UUID>", "\"payload\":\"" + uuid + "\""),
+                MsgWrapper.class);
+        assertEquals(uuid, ((Env<?>) w.msg).payload);
     }
 
     /*
@@ -184,7 +206,7 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
                 () -> mapper.readValue(msgJson(ENV + "<" + GADGET + ">",
                         "\"payload\":{\"cmd\":\"x\"}"), MsgWrapper.class));
-        verifyException(e, "denied resolution of type parameter");
+        verifyException(e, "denied resolution of contained type");
         // Should name the configured validator, not the internal wrapper
         verifyException(e, BasicPolymorphicTypeValidator.class.getName());
         assertEquals(Collections.emptyList(), INSTANTIATIONS);
@@ -226,7 +248,7 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
                 () -> mapper.readValue(a2q(
                         "{'values':['java.util.ArrayList<" + GADGET + ">',[{}]]}"),
                         MinimalClassWrapper.class));
-        verifyException(e, "denied resolution of type parameter");
+        verifyException(e, "denied resolution of contained type");
         assertEquals(Collections.emptyList(), INSTANTIATIONS);
     }
 
@@ -253,7 +275,7 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
                 () -> mapper.readValue(a2q("{'map':['java.util.HashMap<" + GADGET
                         + ",java.lang.String>',{'attacker-chosen':'x'}]}"),
                         StringMapWrapper.class));
-        verifyException(e, "denied resolution of type parameter");
+        verifyException(e, "denied resolution of contained type");
         verifyException(e, GADGET);
         assertEquals(Collections.emptyList(), INSTANTIATIONS);
     }
@@ -297,9 +319,85 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
                 () -> mapper.readValue(a2q("{'map':['java.util.HashMap<java.lang.String,[L"
                         + GADGET + ";>',{'k':[{}]}]}"),
                         ArrayMapWrapper.class));
-        verifyException(e, "denied resolution of type parameter");
+        verifyException(e, "denied resolution of contained type");
         verifyException(e, GADGET);
         assertEquals(Collections.emptyList(), INSTANTIATIONS);
+    }
+
+    /*
+    /**********************************************************************
+    /* Array type ids: element type must be validated too
+    /**********************************************************************
+     */
+
+    private ObjectMapper serializableMapper(Class<?>... allowedSubTypes) {
+        BasicPolymorphicTypeValidator.Builder b = BasicPolymorphicTypeValidator.builder()
+                .allowIfBaseType(java.io.Serializable.class);
+        for (Class<?> cls : allowedSubTypes) {
+            b = b.allowIfSubType(cls);
+        }
+        return jsonMapperBuilder()
+                .polymorphicTypeValidator(b.build())
+                .build();
+    }
+
+    @Test
+    public void arrayTypeIdGadgetElementRejected() throws Exception
+    {
+        // Every array type is `Serializable` (even if element type is not)
+        ObjectMapper mapper = serializableMapper();
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(a2q("{'value':['[L" + GADGET + ";',[{'cmd':'x'}]]}"),
+                        SerializableWrapper.class));
+        verifyException(e, "denied resolution of contained type");
+        verifyException(e, GADGET);
+
+        e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(a2q("{'value':['[[L" + GADGET + ";',[[{'cmd':'x'}]]]}"),
+                        SerializableWrapper.class));
+        verifyException(e, "denied resolution of contained type");
+        assertEquals(Collections.emptyList(), INSTANTIATIONS);
+
+        e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(a2q("{'value':['[L" + SafeBean.class.getName()
+                        + ";',[{'data':'x'}]]}"), SerializableWrapper.class));
+        verifyException(e, SafeBean.class.getName());
+    }
+
+    @Test
+    public void arrayTypeIdSafeElementAccepted() throws Exception
+    {
+        SerializableWrapper w = serializableMapper().readValue(
+                a2q("{'value':['[Ljava.lang.String;',['a']]}"), SerializableWrapper.class);
+        assertArrayEquals(new String[] { "a" }, (String[]) w.value);
+
+        w = serializableMapper().readValue(a2q("{'value':['[I',[1]]}"), SerializableWrapper.class);
+        assertArrayEquals(new int[] { 1 }, (int[]) w.value);
+
+        w = serializableMapper(SafeBean.class).readValue(a2q("{'value':['[L"
+                + SafeBean.class.getName() + ";',[{'data':'x'}]]}"), SerializableWrapper.class);
+        assertEquals("x", ((SafeBean[]) w.value)[0].data);
+    }
+
+    // Array type id for exactly the declared type: element type not selected by attacker
+    @Test
+    public void defaultTypingDeclaredArrayTypeAccepted() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        // approves array base type (but not `SafeBean` for base `Object`)
+                        .allowIfBaseType(SafeBean[].class)
+                        .allowIfBaseType(SafeBean.class)
+                        .build(), DefaultTyping.NON_FINAL)
+                .build();
+        BeanArrayWrapper input = new BeanArrayWrapper();
+        SafeBean bean = new SafeBean();
+        bean.data = "x";
+        input.beans = new SafeBean[] { bean };
+        String json = mapper.writeValueAsString(input);
+        assertTrue(json.contains("[L" + SafeBean.class.getName() + ";"), json);
+        BeanArrayWrapper result = mapper.readValue(json, BeanArrayWrapper.class);
+        assertEquals("x", result.beans[0].data);
     }
 
     @Test
@@ -338,7 +436,7 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
                 () -> mapper.readValue(msgJson(ENV + "<java.util.logging.FileHandler>",
                         "\"payload\":{}"), MsgWrapper.class));
-        verifyException(e, "Illegal type parameter");
+        verifyException(e, "Illegal contained type");
         verifyException(e, "java.util.logging.FileHandler");
     }
 

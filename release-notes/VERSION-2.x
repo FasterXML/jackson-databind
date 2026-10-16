@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.18.12 (not yet released)
+
+#5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+ [CVE-2026-54516]
+ (fixed by Omkhar A)
+
 2.18.11 (20-Sep-2026)
 
 #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization

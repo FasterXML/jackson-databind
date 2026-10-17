@@ -74,6 +74,7 @@ class FinalArraySubtypeDefaultTyping6290Test extends DatabindTestUtil
         assertEquals(Base[].class, result.values.getClass());
         assertEquals(FinalSub.class, result.values[0].getClass());
     }
+
     @Test
     void propertyLevelTypeIdsArePreservedWithoutArrayTypeId() throws Exception {
         ObjectMapper mapper = JsonMapper.builder().build();
@@ -100,6 +101,6 @@ class FinalArraySubtypeDefaultTyping6290Test extends DatabindTestUtil
         AnnotatedObjectArrayWrapper result = mapper.readValue(json, AnnotatedObjectArrayWrapper.class);
         assertEquals(1, result.values.length);
         assertEquals(Long.class, result.values[0].getClass());
-        assertEquals(5L, result.values[0]);
+        assertEquals(Long.valueOf(5L), result.values[0]);
     }
 }

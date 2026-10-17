@@ -1,5 +1,6 @@
 package tools.jackson.databind.ser.jdk;
 
+import java.lang.reflect.Modifier;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -338,6 +339,8 @@ public class ObjectArraySerializer
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
         final boolean filtered = _needToCheckFiltering(ctxt);
+        final boolean skipRuntimeElementTypeIds = (typeSer != null)
+                && _skipRuntimeArrayElementTypeIds(value, ctxt);
         // [databind#3194]: only need per-element type id check when elements
         // are themselves arrays (nested array case like Object[][])
         final TypeIdCheck typeIdCheck = ((typeSer != null) && _elementType.isArrayType())
@@ -363,8 +366,8 @@ public class ObjectArraySerializer
                     ser.serialize(elem, g, ctxt);
                 // [databind#3194]: for nested array elements, skip type id if runtime
                 // array type unwraps to final component (e.g. String[] -> String is final)
-                } else if ((typeIdCheck != null)
-                        && !typeIdCheck.needsTypeId(ctxt, elem.getClass())) {
+                } else if (skipRuntimeElementTypeIds || ((typeIdCheck != null)
+                        && !typeIdCheck.needsTypeId(ctxt, elem.getClass()))) {
                     ser.serialize(elem, g, ctxt);
                 } else {
                     ser.serializeWithType(elem, g, ctxt, typeSer);
@@ -381,6 +384,8 @@ public class ObjectArraySerializer
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
         final boolean filtered = _needToCheckFiltering(ctxt);
+        final boolean skipRuntimeElementTypeIds = (typeSer != null)
+                && _skipRuntimeArrayElementTypeIds(value, ctxt);
         // [databind#3194]: only need per-element type id check when elements
         // are themselves arrays (nested array case like Object[][])
         final TypeIdCheck typeIdCheck = _elementType.isArrayType()
@@ -408,8 +413,8 @@ public class ObjectArraySerializer
                 }
                 // [databind#3194]: for nested array elements, skip type id if runtime
                 // array type unwraps to final component (e.g. String[] -> String is final)
-                if ((typeIdCheck != null)
-                        && !typeIdCheck.needsTypeId(ctxt, cc)) {
+                if (skipRuntimeElementTypeIds || ((typeIdCheck != null)
+                        && !typeIdCheck.needsTypeId(ctxt, cc))) {
                     serializer.serialize(elem, g, ctxt);
                 } else {
                     serializer.serializeWithType(elem, g, ctxt, typeSer);
@@ -418,6 +423,18 @@ public class ObjectArraySerializer
         } catch (Exception e) {
             wrapAndThrow(ctxt, e, elem, i);
         }
+    }
+
+    /**
+     * When the runtime array has a final component type, element type ids that
+     * were selected for the declared array type may not be expected by the
+     * runtime array's element deserializer.
+     */
+    private boolean _skipRuntimeArrayElementTypeIds(Object[] value, SerializationContext ctxt) {
+        Class<?> componentType = value.getClass().getComponentType();
+        return componentType != _elementType.getRawClass()
+                && Modifier.isFinal(componentType.getModifiers())
+                && ctxt.findTypeSerializer(ctxt.constructType(componentType)) == null;
     }
 
     /*

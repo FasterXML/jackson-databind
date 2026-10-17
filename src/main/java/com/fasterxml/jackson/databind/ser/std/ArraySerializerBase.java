@@ -126,7 +126,7 @@ public abstract class ArraySerializerBase<T>
     }
 
     @Override
-    public final void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer)
         throws IOException
     {

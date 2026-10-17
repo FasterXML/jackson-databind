@@ -138,6 +138,38 @@ public abstract class PolymorphicTypeValidator
             JavaType subType);
 
     /**
+     * Method called for an array type named directly by a type id (like
+     * {@code [Lcom.foo.Bar;}), once approved as a subtype of the base type, to
+     * check whether this validator allows that array type explicitly, so that the
+     * approval covers its element type ({@code Bar}) as well. If not, the element
+     * type is validated on its own: approval by a rule that matches other arrays
+     * too (every {@code Serializable}, every array of some depth or package) says
+     * nothing about the element type. Not called for inner dimensions of arrays
+     * nor for array type parameters: their element types are always validated.
+     *<p>
+     * Default implementation returns {@code false}. {@link BasicPolymorphicTypeValidator}
+     * returns {@code true} for array types passed to
+     * {@link BasicPolymorphicTypeValidator.Builder#allowIfSubType(Class)}, and for arrays
+     * of the same depth with subtypes of their element type (unless that is
+     * {@code Object}, {@code Serializable} or {@code Cloneable}).
+     *<p>
+     * Validator may also choose to indicate denial by throwing a {@link DatabindException}
+     * (such as {@link tools.jackson.databind.exc.InvalidTypeIdException})
+     *
+     * @param ctxt Context for resolution: typically will be {@code DeserializationContext}
+     * @param baseType Nominal base type the array type was resolved for
+     * @param arrayType Array type named by the type id, already approved as subtype
+     *
+     * @return {@code true} if the approval of the array type covers its element type
+     *
+     * @since 3.1.8
+     */
+    public boolean isArrayTypeAllowedExplicitly(DatabindContext ctxt, JavaType baseType,
+            JavaType arrayType) {
+        return false;
+    }
+
+    /**
      * Shared base class with partial implementation (with all validation calls returning
      * {@link Validity#INDETERMINATE}) and convenience methods for indicating failure reasons.
      * Use of this base class is strongly recommended over directly implement

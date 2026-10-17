@@ -41,9 +41,14 @@ No changes since 3.1
   NOTE: type parameters (and element types of array type ids) are now validated
   like direct type ids; base type approval (`allowIfBaseType()`) only covers
   ones that are subtypes of the base type; `allowIfSubTypeIsArray()` no longer
-  accepts abstract or interface element types without allow-listing (except `Number`)
+  accepts abstract or interface element types without allow-listing (except `Number`);
+  approval of an array type covers its element type only if given as exactly that
+  class (`allowIfSubType(Bar[].class)`, new
+  `PolymorphicTypeValidator.isArrayTypeAllowedExplicitly()`), a name-based rule
+  does not; base type approval of a declared array type covers subtypes of its
+  element type unless that is `Object`, `Serializable` or `Cloneable`
  (reported by @AdamKorcz, @martinfrancois)
- (fix by @cowtowncoder, w/ Claude code)
+ (fix by @cowtowncoder, @martinfrancois)
 
 3.1.7 (21-Sep-2026)
 

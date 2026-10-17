@@ -107,14 +107,14 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6243: Filter ignored Creator properties at build time instead of per-loop
   read-time checks
  (fix by @dlwhdgus0810)
-#6248: `@JsonView` on `@JsonAnySetter` not honored when deserializing
- (fix by @pjfanning, w/ Claude code)
 #6255: `@JsonIgnoreProperties`/`@JsonIncludeProperties` not honored for
   `ObjectNode`/`JsonNode`-valued `@JsonAnyGetter` entries
  (fix by Aysha A-Z)
 #6257: `MapDeserializer`: `@JsonIgnoreProperties`/`@JsonIncludeProperties` checked
   after key deserialization, so ignored non-convertible key names still failed
  (fix by @cowtowncoder, w/ Claude code)
+#6260: `@JsonView` on `@JsonAnySetter` not honored when deserializing
+ (fix by @pjfanning, w/ Claude code)
 
 3.2.4 (not yet released)
 

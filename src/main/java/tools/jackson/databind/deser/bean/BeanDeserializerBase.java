@@ -2031,7 +2031,7 @@ ClassUtil.getTypeDescription(ct));
      * @return {@code true} if value was skipped; {@code false} if it is to be
      *    passed to any-setter
      *
-     * @since 3.1.8
+     * @since 3.3
      */
     protected boolean _skipIfAnySetterNotInView(JsonParser p, DeserializationContext ctxt,
             String propName)
@@ -2053,7 +2053,7 @@ ClassUtil.getTypeDescription(ct));
      * unless {@link DeserializationFeature#FAIL_ON_UNEXPECTED_VIEW_PROPERTIES}
      * is enabled, in which case an exception is thrown.
      *
-     * @since 3.1.8
+     * @since 3.3
      */
     protected void handlePropertyNotInView(JsonParser p, DeserializationContext ctxt,
             String propName, Class<?> activeView)

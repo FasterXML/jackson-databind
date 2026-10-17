@@ -75,7 +75,7 @@ public abstract class SettableAnyProperty
      * Matcher for views (if any) this "any" property is visible in;
      * {@code null} if no explicit views specified.
      *
-     * @since 3.1.8
+     * @since 3.3
      */
     protected ViewMatcher _viewMatcher;
 
@@ -177,7 +177,7 @@ public abstract class SettableAnyProperty
     public abstract SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser);
 
     /**
-     * @since 3.1.8
+     * @since 3.3
      */
     public void setViews(Class<?>[] views) {
         _viewMatcher = (views == null) ? null : ViewMatcher.construct(views);
@@ -187,7 +187,7 @@ public abstract class SettableAnyProperty
      * Helper method for copying view information from original instance
      * when constructing a new, modified instance.
      *
-     * @since 3.1.8
+     * @since 3.3
      */
     protected SettableAnyProperty _withViewsFrom(SettableAnyProperty src) {
         _viewMatcher = src._viewMatcher;
@@ -263,14 +263,14 @@ public abstract class SettableAnyProperty
     }
 
     /**
-     * @since 3.1.8
+     * @since 3.3
      */
     public boolean visibleInView(Class<?> activeView) {
         return (_viewMatcher == null) || _viewMatcher.isVisibleForView(activeView);
     }
 
     /**
-     * @since 3.1.8
+     * @since 3.3
      */
     public boolean hasViews() { return _viewMatcher != null; }
 

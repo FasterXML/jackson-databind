@@ -986,6 +986,25 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         assertEquals(4, ((FinalSubBean[]) sub.value)[0].extra);
     }
 
+    // The array class named by the rule counts whatever its element type: elements
+    // of an exactly named `Serializable[]` are of an abstract type and get type ids
+    // of their own
+    @Test
+    public void exactUniversalArrayRuleCoversItself() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(java.io.Serializable[].class)
+                        .build())
+                .build();
+        ObjectValueWrapper w = mapper.readValue(a2q("{'value':['[Ljava.io.Serializable;',[]]}"),
+                ObjectValueWrapper.class);
+        assertEquals(java.io.Serializable[].class, w.value.getClass());
+        // but not an array of a `Serializable` gadget
+        _assertGadgetArrayRejected(mapper, nestedArrayJson("value", SerializableGadget.class.getName(), 1),
+                ObjectValueWrapper.class, "allowIfSubType(Serializable[])");
+    }
+
     @Test
     public void nameBasedArrayRuleDoesNotCoverElementType() throws Exception
     {

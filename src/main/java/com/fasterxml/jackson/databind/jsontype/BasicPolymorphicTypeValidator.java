@@ -538,10 +538,15 @@ public class BasicPolymorphicTypeValidator
     @Override
     public boolean isArrayTypeAllowedExplicitly(MapperConfig<?> config, JavaType baseType,
             JavaType arrayType) {
+        final Class<?> raw = arrayType.getRawClass();
+        // The array class named by the rule itself always counts, `Serializable[]`
+        // included: its elements are of an abstract type and get type ids of their own
+        if ((_explicitArrayTypes != null) && _explicitArrayTypes.contains(raw)) {
+            return true;
+        }
         if (_explicitArrayTypesToMatch != null) {
             // No array is an instance of their element types, so `Bar[][]` is only
             // assignable from 2-dimensional arrays of `Bar` and its subtypes
-            final Class<?> raw = arrayType.getRawClass();
             for (Class<?> allowed : _explicitArrayTypesToMatch) {
                 if (allowed.isAssignableFrom(raw)) {
                     return true;

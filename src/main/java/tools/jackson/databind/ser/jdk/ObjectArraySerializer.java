@@ -466,6 +466,9 @@ public class ObjectArraySerializer
     private boolean _skipRuntimeArrayElementTypeIds(Object[] value, SerializationContext ctxt) {
         Class<?> componentType = value.getClass().getComponentType();
         return componentType != _elementType.getRawClass()
+                // Preserve legacy nested-array typing; this fix concerns final
+                // non-array runtime components only.
+                && !componentType.isArray()
                 && Modifier.isFinal(componentType.getModifiers())
                 && ctxt.findTypeSerializer(ctxt.constructType(componentType)) == null;
     }

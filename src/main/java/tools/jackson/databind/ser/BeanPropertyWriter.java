@@ -821,7 +821,16 @@ public class BeanPropertyWriter
     }
 
     // @since 3.2
-    private void _serialize(Object value, JsonGenerator g, SerializationContext ctxt,
+    /**
+     * Helper method that writes the property value with this writer's type serializer
+     * (if any): the part of serialization that runs under the {@code @JsonApplyView}
+     * override. {@code protected} so that sub-classes that override
+     * {@link #serializeAsProperty} (like {@code UnwrappingBeanPropertyWriter}) can
+     * apply the same override.
+     *
+     * @since 3.3 (converted from {@code private})
+     */
+    protected void _serialize(Object value, JsonGenerator g, SerializationContext ctxt,
             ValueSerializer<Object> ser) {
         if (_typeSerializer == null) {
             ser.serialize(value, g, ctxt);

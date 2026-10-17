@@ -2,6 +2,8 @@ package tools.jackson.databind.ser.bean;
 
 import java.util.Map.Entry;
 
+import com.fasterxml.jackson.annotation.JsonApplyView;
+
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.databind.JavaType;
@@ -117,10 +119,13 @@ public class UnwrappingBeanPropertyWriter
             gen.writeName(_name);
         }
 
-        if (_typeSerializer == null) {
-            ser.serialize(value, gen, prov);
+        // [databind#5745]: honor `@JsonApplyView`, same as base class `serializeAsProperty()`
+        if (_applyView == null) {
+            _serialize(value, gen, prov, ser);
         } else {
-            ser.serializeWithType(value, gen, prov, _typeSerializer);
+            final ValueSerializer<Object> actualSer = ser;
+            prov.withActiveView((_applyView != JsonApplyView.NONE.class) ? _applyView : null,
+                    () -> _serialize(value, gen, prov, actualSer));
         }
     }
 

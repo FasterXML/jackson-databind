@@ -336,7 +336,10 @@ public class BasicPolymorphicTypeValidator
          * unless the array type was passed as such to {@link #allowIfSubType(Class)}
          * ({@code allowIfSubType(Bar[].class)} covers {@code Bar}); a name-based
          * rule for {@code [Lcom.foo.Bar;} does not cover {@code Bar}, which then
-         * needs a rule of its own.
+         * needs a rule of its own. Note that with this method enabled, sub-class
+         * matchers are applied to the innermost element type instead of the array
+         * type, so {@code allowIfSubType(Bar[].class)} never matches an array:
+         * use {@code allowIfSubType(Bar.class)} instead.
          *<p>
          * NOTE (behavior change in 2.18.8 for [databind#5981]): prior versions added a
          * matcher that approved every array regardless of element type, which let

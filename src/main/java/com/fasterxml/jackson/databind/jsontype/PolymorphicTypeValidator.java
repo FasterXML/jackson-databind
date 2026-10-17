@@ -157,7 +157,10 @@ public abstract class PolymorphicTypeValidator
      * Default implementation returns {@code false}: element types are always
      * validated. {@link BasicPolymorphicTypeValidator} returns {@code true} for
      * array types passed as such to {@link BasicPolymorphicTypeValidator.Builder#allowIfSubType(Class)},
-     * and for arrays of the same depth whose element type is a subtype of theirs.
+     * and for arrays of the same depth whose element type is a subtype of theirs
+     * (except if their element type is {@code Object}, {@code Serializable} or
+     * {@code Cloneable}, which every array is an instance of: such array types
+     * only count as given).
      *<p>
      * Validator may also choose to indicate denial by throwing a {@link JsonMappingException}
      * (such as {@link com.fasterxml.jackson.databind.exc.InvalidTypeIdException})

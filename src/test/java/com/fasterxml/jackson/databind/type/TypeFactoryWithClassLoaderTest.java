@@ -4,7 +4,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIf;
 import org.mockito.Mock;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,14 +18,6 @@ public class TypeFactoryWithClassLoaderTest {
   private static ClassLoader threadClassLoader;
   private static String aClassName;
   private ObjectMapper mapper;
-
-  // JDK 25+ has stricter restrictions on Mockito's ability to mock classes
-  static boolean isJdk25OrLater() {
-      String version = System.getProperty("java.version");
-      // Parse major version from version string (e.g., "25.0.1" -> 25)
-      int majorVersion = Integer.parseInt(version.split("\\.")[0]);
-      return majorVersion >= 25;
-  }
 
   @BeforeAll
   public static void beforeClass() {
@@ -47,8 +38,6 @@ public class TypeFactoryWithClassLoaderTest {
 	mapper = null;
   }
 
-  // Mockito cannot mock TypeFactory on JDK 25+ due to stricter class modification restrictions
-  @DisabledIf("isJdk25OrLater")
   @Test
   public void testUsesCorrectClassLoaderWhenThreadClassLoaderIsNull() throws ClassNotFoundException {
 	Thread.currentThread().setContextClassLoader(null);
@@ -62,8 +51,6 @@ public class TypeFactoryWithClassLoaderTest {
 	assertEquals(null, Thread.currentThread().getContextClassLoader());
   }
 
-  // Mockito cannot mock TypeFactory on JDK 25+ due to stricter class modification restrictions
-  @DisabledIf("isJdk25OrLater")
   @Test
 public void testUsesCorrectClassLoaderWhenThreadClassLoaderIsNotNull() throws ClassNotFoundException {
 	TypeFactory spySut = spy(mapper.getTypeFactory().withModifier(typeModifier).withClassLoader(classLoader));
@@ -110,8 +97,6 @@ public void testSetsTheCorrectClassLoderIfUsingWithClassLoaderFollowedByWithModi
 	assertNotNull(sut.getClassLoader());
 }
 
-// Mockito cannot mock TypeFactory on JDK 25+ due to stricter class modification restrictions
-@DisabledIf("isJdk25OrLater")
 @Test
 public void testThreadContextClassLoaderIsUsedIfNotUsingWithClassLoader() throws ClassNotFoundException {
 	TypeFactory spySut = spy(mapper.getTypeFactory());
@@ -121,8 +106,6 @@ public void testThreadContextClassLoaderIsUsedIfNotUsingWithClassLoader() throws
 	verify(spySut).classForName(any(String.class), any(Boolean.class), eq(threadClassLoader));
 }
 
-// Mockito cannot mock TypeFactory on JDK 25+ due to stricter class modification restrictions
-@DisabledIf("isJdk25OrLater")
 @Test
 public void testUsesFallBackClassLoaderIfNoThreadClassLoaderAndNoWithClassLoader() throws ClassNotFoundException {
 	Thread.currentThread().setContextClassLoader(null);

@@ -43,6 +43,7 @@ class FinalArraySubtypeDefaultTyping6290Test extends DatabindTestUtil
                 .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
                         .allowIfBaseType(Base[].class)
                         .allowIfBaseType(Base.class)
+                        .allowIfSubType(Wrapper.class)
                         .build(), DefaultTyping.NON_FINAL)
                 .build();
     }

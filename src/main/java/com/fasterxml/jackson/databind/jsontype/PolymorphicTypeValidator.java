@@ -141,6 +141,33 @@ public abstract class PolymorphicTypeValidator
             JavaType subType) throws JsonMappingException;
 
     /**
+     * Method called after {@link #validateSubType} approved an array type named
+     * by a type id (like {@code [Lcom.foo.Bar;}), to check whether that approval
+     * was given for exactly that array type, so that it covers the element type
+     * ({@code Bar}) as well. If not, the element type is validated on its own, as
+     * a class named in a type id: approval of the array by a rule that matches
+     * other arrays too (every {@code Serializable}, every array of some depth or
+     * package) says nothing about the application's choice of element type.
+     *<p>
+     * Default implementation returns {@code false}: element types are always
+     * validated. {@link BasicPolymorphicTypeValidator} returns {@code true} for
+     * array types passed as such to {@link BasicPolymorphicTypeValidator.Builder#allowIfSubType(Class)}.
+     *
+     * @param config Configuration for resolution: typically either {@code DeserializationConfig}
+     *   or {@code SerializationConfig}
+     * @param baseType Nominal base type the array type was resolved for
+     * @param arrayType Array type named by the type id, already approved as subtype
+     *
+     * @return {@code true} if the approval of the array type covers its element type
+     *
+     * @since 2.18.12
+     */
+    public boolean isArrayTypeAllowedExplicitly(MapperConfig<?> config, JavaType baseType,
+            JavaType arrayType) {
+        return false;
+    }
+
+    /**
      * Shared base class with partial implementation (with all validation calls returning
      * {@link Validity#INDETERMINATE}) and convenience methods for indicating failure reasons.
      * Use of this base class is strongly recommended over directly implement

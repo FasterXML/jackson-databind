@@ -447,8 +447,12 @@ public abstract class DatabindContext
      * Helper for validating element type of an array type: like other contained types
      * (including abstract types: they may still be deserializable, via
      * {@code @JsonDeserialize(as=...)} or factory methods), unless the configured
-     * validator specifically approves the array type itself (see
-     * {@link #_isSpecificallyApprovedArrayType}).
+     * validator says its approval of the array type was given for exactly that
+     * type (see {@link PolymorphicTypeValidator#isArrayTypeAllowedExplicitly}).
+     * Approval by any other rule is not inferred to cover the element type: there
+     * is no way to tell a rule naming that array type from one matching every
+     * array of its depth. The declared type can vouch for it as well (see the
+     * {@link ApprovedBaseTypeValidator} case in {@link #_validateContainedType}).
      *
      * @param declaredType Declared type of the array, if any ({@code null} if none)
      *
@@ -459,78 +463,12 @@ public abstract class DatabindContext
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        if (_isSpecificallyApprovedArrayType(declaredType, arrayType, ptv, config)) {
+        final JavaType vldBaseType = (declaredType == null) ? TypeFactory.unknownType() : declaredType;
+        if (_configuredValidator(ptv).isArrayTypeAllowedExplicitly(config, vldBaseType, arrayType)) {
             return;
         }
         _validateContainedType(baseType, typeId, _declaredContentType(declaredType),
                 arrayType.getContentType(), ptv, config);
-    }
-
-    /**
-     * Helper for checking whether configured validator approves given array type
-     * specifically (like {@code allowIfSubType(Bar[].class)} does for {@code Bar[]}),
-     * in which case approval covers its element type too. Approval that also covers
-     * an array of the same depth with an element type the application did not
-     * name (see {@link #_arrayProbesOfSameDepth}) does not count: it is approval
-     * of every array of that depth (like with {@code allowIfSubType(Serializable.class)},
-     * {@code allowIfSubType(Object[][].class)} or {@code allowIfSubType("[Ljava.")}).
-     * Nor does approval of base type.
-     *
-     * @since 2.18.12
-     */
-    private static boolean _isSpecificallyApprovedArrayType(JavaType declaredType,
-            JavaType arrayType, PolymorphicTypeValidator ptv, MapperConfig<?> config)
-        throws JsonMappingException
-    {
-        final PolymorphicTypeValidator vldr = _configuredValidator(ptv);
-        final JavaType vldBaseType = (declaredType == null) ? TypeFactory.unknownType() : declaredType;
-        if (!_isApprovedSubType(vldr, config, vldBaseType, arrayType)) {
-            return false;
-        }
-        // The probes are checked against the same base type as the array itself, so
-        // a validator deciding by base type cannot approve one and not the other
-        for (JavaType probe : _arrayProbesOfSameDepth(config, arrayType)) {
-            if (_isApprovedSubType(vldr, config, vldBaseType, probe)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Element type that no rule written for the application's own classes can
-     * match, but that every rule matching all arrays of a depth does: it is
-     * {@code Serializable} and {@code Cloneable} like every array, and an
-     * {@code Object} like everything. An array of it, probed in place of the
-     * array named in a type id, tells a rule naming that array type
-     * ({@code allowIfSubType(Bar[][].class)}) from one that approves every array
-     * of that depth ({@code allowIfSubType(Object[][].class)},
-     * {@code Serializable[]}, a name pattern like {@code "\\[\\[L(?!java\\.).*"}).
-     */
-    private static final class ArrayElementProbe implements java.io.Serializable, Cloneable {
-        private static final long serialVersionUID = 1L;
-    }
-
-    /**
-     * Arrays with as many dimensions as given array type to probe a validator
-     * with: one of {@link ArrayElementProbe}, and one of {@code Object}, whose
-     * name {@code [Ljava.lang.Object;} a name rule for JDK arrays like
-     * {@code allowIfSubType("[Ljava.")} matches. Built through the configured
-     * {@link TypeFactory}, so a validator that inspects the type sees the probe's
-     * supertypes and interfaces as it sees those of a real element type.
-     */
-    private static JavaType[] _arrayProbesOfSameDepth(MapperConfig<?> config, JavaType arrayType)
-    {
-        final TypeFactory tf = config.getTypeFactory();
-        JavaType[] probes = new JavaType[] {
-            tf.constructType(ArrayElementProbe.class), tf.constructType(Object.class)
-        };
-        for (JavaType t = arrayType; t.isArrayType(); t = t.getContentType()) {
-            for (int i = 0; i < probes.length; ++i) {
-                probes[i] = tf.constructArrayType(probes[i]);
-            }
-        }
-        return probes;
     }
 
     /**
@@ -539,7 +477,8 @@ public abstract class DatabindContext
      * {@code Object}, {@code Serializable}, {@code Cloneable}.
      */
     private static boolean _isUniversalElementType(JavaType declaredType) {
-        return declaredType.getRawClass().isAssignableFrom(ArrayElementProbe.class);
+        final Class<?> raw = declaredType.getRawClass();
+        return (raw == Object.class) || (raw == java.io.Serializable.class) || (raw == Cloneable.class);
     }
 
     private static boolean _isApprovedSubType(PolymorphicTypeValidator vldr,

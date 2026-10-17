@@ -108,6 +108,15 @@ public class BasicPolymorphicTypeValidator
          */
         protected boolean _acceptArrayTypes = false;
 
+        /**
+         * Array types passed to {@link #allowIfSubType(Class)}: approval of exactly
+         * these covers their element types too, see
+         * {@link PolymorphicTypeValidator#isArrayTypeAllowedExplicitly}.
+         *
+         * @since 2.18.12
+         */
+        protected Set<Class<?>> _explicitArrayTypes;
+
         protected Builder() { }
 
         // // Methods for checking solely by base type (before subtype even considered)
@@ -227,6 +236,12 @@ public class BasicPolymorphicTypeValidator
          * would be allowed.
          */
         public Builder allowIfSubType(final Class<?> subTypeBase) {
+            if (subTypeBase.isArray()) {
+                if (_explicitArrayTypes == null) {
+                    _explicitArrayTypes = new HashSet<>();
+                }
+                _explicitArrayTypes.add(subTypeBase);
+            }
             return _appendSubClassMatcher(new TypeMatcher() {
                 @Override
                 public boolean match(MapperConfig<?> config, Class<?> clazz) {
@@ -318,11 +333,10 @@ public class BasicPolymorphicTypeValidator
          * have already approved the array's class name. But since 2.18.12
          * ([CVE-2026-110879]) element types of array type ids are also validated
          * separately (by {@link com.fasterxml.jackson.databind.DatabindContext}),
-         * unless the array type itself is approved specifically: that is, by a
-         * matcher that does not also match every array of that depth (as, for
-         * example, {@code allowIfSubType(Serializable.class)},
-         * {@code allowIfSubType(Object[][].class)} or {@code allowIfSubType("[Ljava.")}
-         * do).
+         * unless the array type was passed as such to {@link #allowIfSubType(Class)}
+         * ({@code allowIfSubType(Bar[].class)} covers {@code Bar}); a name-based
+         * rule for {@code [Lcom.foo.Bar;} does not cover {@code Bar}, which then
+         * needs a rule of its own.
          *<p>
          * NOTE (behavior change in 2.18.8 for [databind#5981]): prior versions added a
          * matcher that approved every array regardless of element type, which let
@@ -367,7 +381,8 @@ public class BasicPolymorphicTypeValidator
                     (_baseTypeMatchers == null) ? null : _baseTypeMatchers.toArray(new TypeMatcher[0]),
                     (_subTypeNameMatchers == null) ? null : _subTypeNameMatchers.toArray(new NameMatcher[0]),
                     (_subTypeClassMatchers == null) ? null : _subTypeClassMatchers.toArray(new TypeMatcher[0]),
-                    _acceptArrayTypes // [databind#5981]
+                    _acceptArrayTypes, // [databind#5981]
+                    _explicitArrayTypes
             );
         }
 
@@ -437,6 +452,14 @@ public class BasicPolymorphicTypeValidator
      */
     protected final boolean _acceptArrayTypes;
 
+    /**
+     * Array types approval of which covers their element types, see
+     * {@link #isArrayTypeAllowedExplicitly}; {@code null} if none.
+     *
+     * @since 2.18.12
+     */
+    protected final Set<Class<?>> _explicitArrayTypes;
+
     protected BasicPolymorphicTypeValidator(Set<Class<?>> invalidBaseTypes,
             TypeMatcher[] baseTypeMatchers,
             NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers) {
@@ -451,11 +474,36 @@ public class BasicPolymorphicTypeValidator
             TypeMatcher[] baseTypeMatchers,
             NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers,
             boolean acceptArrayTypes) {
+        this(invalidBaseTypes, baseTypeMatchers, subTypeNameMatchers, subClassMatchers,
+                acceptArrayTypes, null);
+    }
+
+    /**
+     * @since 2.18.12
+     */
+    protected BasicPolymorphicTypeValidator(Set<Class<?>> invalidBaseTypes,
+            TypeMatcher[] baseTypeMatchers,
+            NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers,
+            boolean acceptArrayTypes, Set<Class<?>> explicitArrayTypes) {
         _invalidBaseTypes = invalidBaseTypes;
         _baseTypeMatchers = baseTypeMatchers;
         _subTypeNameMatchers = subTypeNameMatchers;
         _subClassMatchers = subClassMatchers;
         _acceptArrayTypes = acceptArrayTypes;
+        _explicitArrayTypes = explicitArrayTypes;
+    }
+
+    /**
+     * An array type counts as allowed explicitly if it was passed as such to
+     * {@link Builder#allowIfSubType(Class)}: that rule names the array type and
+     * so the application's choice of element type. Name-based rules do not count,
+     * since a pattern matching exactly one array class name cannot be told from
+     * one matching every array of some package or depth.
+     */
+    @Override
+    public boolean isArrayTypeAllowedExplicitly(MapperConfig<?> config, JavaType baseType,
+            JavaType arrayType) {
+        return (_explicitArrayTypes != null) && _explicitArrayTypes.contains(arrayType.getRawClass());
     }
 
     public static Builder builder() {

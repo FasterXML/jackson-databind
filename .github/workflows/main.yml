@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         # 10-Jun-2025, tatu: JDK 23 fails for Mockito, don't use
-        java_version: ['8', '11', '17', '21']
+        java_version: ['8', '11', '17', '21', '25']
         os: ['ubuntu-24.04']
         include:
           - java_version: '8'

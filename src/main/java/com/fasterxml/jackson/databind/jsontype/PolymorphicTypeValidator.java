@@ -158,6 +158,9 @@ public abstract class PolymorphicTypeValidator
      * validated. {@link BasicPolymorphicTypeValidator} returns {@code true} for
      * array types passed as such to {@link BasicPolymorphicTypeValidator.Builder#allowIfSubType(Class)},
      * and for arrays of the same depth whose element type is a subtype of theirs.
+     *<p>
+     * Validator may also choose to indicate denial by throwing a {@link JsonMappingException}
+     * (such as {@link com.fasterxml.jackson.databind.exc.InvalidTypeIdException})
      *
      * @param config Configuration for resolution: typically either {@code DeserializationConfig}
      *   or {@code SerializationConfig}
@@ -169,7 +172,7 @@ public abstract class PolymorphicTypeValidator
      * @since 2.18.12
      */
     public boolean isArrayTypeAllowedExplicitly(MapperConfig<?> config, JavaType baseType,
-            JavaType arrayType) {
+            JavaType arrayType) throws JsonMappingException {
         return false;
     }
 

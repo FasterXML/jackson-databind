@@ -52,7 +52,7 @@
     <version.android.sdk>26</version.android.sdk>
     <version.android.sdk.signature>0.5.1</version.android.sdk.signature>
 
-    <version.bytebuddy>1.14.13</version.bytebuddy>
+    <version.bytebuddy>1.18.15</version.bytebuddy>
     <version.mockito>4.11.0</version.mockito>
 
     <!-- Can not use default, since group id != Java package name here -->
@@ -436,7 +436,12 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <argLine>--add-opens=java.base/java.util=ALL-UNNAMED</argLine>
+              <!-- Load ByteBuddy agent at startup instead of Mockito self-attaching it
+                   dynamically (which fails on JDK 21+ CI) -->
+              <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED
+                --add-opens=java.base/java.util=ALL-UNNAMED
+                -javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${version.bytebuddy}/byte-buddy-agent-${version.bytebuddy}.jar
+              </argLine>
             </configuration>
           </plugin>
         </plugins>

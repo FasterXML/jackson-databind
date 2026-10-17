@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.ApprovedBaseTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
 import com.fasterxml.jackson.databind.type.ArrayType;
+import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -389,10 +390,11 @@ public abstract class DatabindContext
                 vldBaseType = baseType;
                 vld = Validity.INDETERMINATE;
             } else if ((ptv instanceof ApprovedBaseTypeValidator)
-                    && (declaredType != null) && !declaredType.isJavaLangObject()
+                    && (declaredType != null) && !_isUniversalElementType(declaredType)
                     && param.isTypeOrSubTypeOf(declaredType.getRawClass())) {
                 // Approval of base type (declared array type) covers subtypes of its
-                // element type (except for `Object[]`, which would cover everything)
+                // element type (except for `Object[]`, `Serializable[]` and
+                // `Cloneable[]`, which would cover everything)
                 vldr = ptv;
                 vldBaseType = declaredType;
                 vld = Validity.ALLOWED;
@@ -480,39 +482,55 @@ public abstract class DatabindContext
     {
         final PolymorphicTypeValidator vldr = _configuredValidator(ptv);
         final JavaType vldBaseType = (declaredType == null) ? TypeFactory.unknownType() : declaredType;
+        // The probe is checked against the same base type as the array itself, so
+        // a validator deciding by base type cannot approve one and not the other
         return _isApprovedSubType(vldr, config, vldBaseType, arrayType)
-                && !_approvesEveryArrayOfSameDepth(vldr, config, arrayType);
+                && !_isApprovedSubType(vldr, config, vldBaseType, _arrayProbeOfSameDepth(arrayType));
     }
 
     /**
-     * Whether given validator approves an array type with as many dimensions as
-     * given array type whose element type is one every class (and every array)
-     * is assignable to: {@code Object}, {@code Serializable} or {@code Cloneable}.
-     * Such a rule (like {@code allowIfSubType(Serializable[][].class)}, which
-     * matches {@code Gadget[][]} for any {@code Serializable} gadget) approves
-     * all arrays of that depth and cannot count as specifically approving the
-     * element type.
+     * Element type that no rule written for the application's own classes can
+     * match, but that every rule matching all arrays of a depth does: it is
+     * {@code Serializable} and {@code Cloneable} like every array, and an
+     * {@code Object} like everything. An array of it, probed in place of the
+     * array named in a type id, tells a rule naming that array type
+     * ({@code allowIfSubType(Bar[][].class)}) from one that approves every array
+     * of that depth ({@code allowIfSubType(Object[][].class)},
+     * {@code Serializable[]}, a name pattern like {@code "\\[\\[L(?!java\\.).*"}).
      */
-    private static boolean _approvesEveryArrayOfSameDepth(PolymorphicTypeValidator vldr,
-            MapperConfig<?> config, JavaType arrayType)
-        throws JsonMappingException
-    {
-        for (Class<?> leaf : UNIVERSAL_ARRAY_ELEMENT_TYPES) {
-            JavaType probe = config.constructType(leaf);
-            for (JavaType t = arrayType; t.isArrayType(); t = t.getContentType()) {
-                probe = ArrayType.construct(probe, null);
-            }
-            if (_isApprovedSubType(vldr, config, TypeFactory.unknownType(), probe)) {
-                return true;
-            }
-        }
-        return false;
+    private static final class ArrayElementProbe implements java.io.Serializable, Cloneable {
+        private static final long serialVersionUID = 1L;
     }
 
-    // Types every class and every array is assignable to
-    private final static Class<?>[] UNIVERSAL_ARRAY_ELEMENT_TYPES = new Class<?>[] {
-        Object.class, java.io.Serializable.class, Cloneable.class
-    };
+    // Probe arrays by depth, built once each (benign race: all callers build the same type)
+    private static final JavaType[] ARRAY_PROBES = new JavaType[256];
+
+    private static JavaType _arrayProbeOfSameDepth(JavaType arrayType)
+    {
+        int depth = 0;
+        for (JavaType t = arrayType; t.isArrayType(); t = t.getContentType()) {
+            ++depth;
+        }
+        JavaType probe = ARRAY_PROBES[depth];
+        if (probe == null) {
+            // Plain types, untouched by any registered `TypeModifier`
+            probe = SimpleType.constructUnsafe(ArrayElementProbe.class);
+            for (int i = 0; i < depth; ++i) {
+                probe = ArrayType.construct(probe, null);
+            }
+            ARRAY_PROBES[depth] = probe;
+        }
+        return probe;
+    }
+
+    /**
+     * Whether given declared element type is one that every array (and most
+     * classes) fits, so that approving all its subtypes approves everything:
+     * {@code Object}, {@code Serializable}, {@code Cloneable}.
+     */
+    private static boolean _isUniversalElementType(JavaType declaredType) {
+        return declaredType.getRawClass().isAssignableFrom(ArrayElementProbe.class);
+    }
 
     private static boolean _isApprovedSubType(PolymorphicTypeValidator vldr,
             MapperConfig<?> config, JavaType baseType, JavaType subType)

@@ -13,8 +13,11 @@ import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
@@ -751,43 +754,86 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         assertEquals("x", ((SafeBean[][]) result.value)[0][0].data);
     }
 
-    // Specific approval of array type covers its element type...
-    /** Stand-in gadget type that is `Serializable`, like most real ones */
-    public static class SerializableGadget extends Gadget implements java.io.Serializable {
+    /**
+     * Stand-in gadget type that is `Serializable` (and `Cloneable`), like many real
+     * ones; final so that `NON_FINAL` default typing gives its instances no type id
+     * of their own, which would be validated separately
+     */
+    public static final class SerializableGadget extends Gadget implements java.io.Serializable, Cloneable {
         private static final long serialVersionUID = 1L;
+    }
+
+    // (final: no type id on the wrapper itself under `NON_FINAL` default typing)
+    static final class SerializableMatrixWrapper {
+        public java.io.Serializable[][] value;
+    }
+
+    static final class ObjectMatrixWrapper {
+        public Object[][] value;
+    }
+
+    /** Approves any array, but only for one base type */
+    static class BaseTypeDependentValidator extends PolymorphicTypeValidator.Base {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public Validity validateSubType(MapperConfig<?> config, JavaType baseType,
+                JavaType subType) {
+            return (baseType.hasRawClass(Object[][].class) && subType.isArrayType())
+                    ? Validity.ALLOWED : Validity.INDETERMINATE;
+        }
+    }
+
+    private static String nestedArrayJson(String property, String elementType, int depth)
+    {
+        String dims = "", open = "", close = "";
+        for (int i = 0; i < depth; ++i) {
+            dims += "["; open += "["; close += "]";
+        }
+        return a2q("{'" + property + "':['" + dims + "L" + elementType + ";',"
+                + open + "{'cmd':'x'}" + close + "]}");
+    }
+
+    private void _assertGadgetArrayRejected(ObjectMapper mapper, String json, Class<?> target,
+            String rule)
+    {
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json, target), rule);
+        verifyException(e, "denied resolution of contained type");
+        verifyException(e, SerializableGadget.class.getName());
+        assertEquals(Collections.emptyList(), INSTANTIATIONS);
     }
 
     // A rule every array of some depth matches (`Object[][]` for all 2-D
     // reference arrays, `Serializable[]` for all arrays of `Serializable`
-    // elements) is not specific approval of the element type either
+    // elements, a name pattern for all non-JDK arrays) is not specific approval
+    // of the element type either, whatever the depth of the type id
     @Test
     public void arrayRuleMatchingEveryArrayOfDepthRejected() throws Exception
     {
         final String gadget = SerializableGadget.class.getName();
-        for (Class<?> everyArrayOfDepth : new Class<?>[] {
-                Object[][].class, Object[][][].class,
-                java.io.Serializable[].class, java.io.Serializable[][].class }) {
+        final Object[][] cases = {
+            // rule, depth of the type id
+            { Object[][].class, 2 }, { Object[][][].class, 3 },
+            { java.io.Serializable[].class, 1 }, { java.io.Serializable[][].class, 2 },
+            { Cloneable[].class, 1 }, { Cloneable[][].class, 2 },
+            // rule for one depth, type id of a deeper one (`Gadget[][]` is an `Object[]`)
+            { Object[].class, 2 }, { Object[][].class, 3 },
+            // name pattern matching all 2-D arrays of non-JDK classes
+            { java.util.regex.Pattern.compile("\\[\\[L(?!java\\.).*"), 2 },
+        };
+        for (Object[] c : cases) {
+            BasicPolymorphicTypeValidator.Builder b = BasicPolymorphicTypeValidator.builder();
+            if (c[0] instanceof Class<?>) {
+                b = b.allowIfSubType((Class<?>) c[0]);
+            } else {
+                b = b.allowIfSubType((java.util.regex.Pattern) c[0]);
+            }
             ObjectMapper mapper = jsonMapperBuilder()
-                    .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
-                            .allowIfSubType(everyArrayOfDepth)
-                            .build())
+                    .polymorphicTypeValidator(b.build())
                     .build();
-            int depth = 0;
-            for (Class<?> c = everyArrayOfDepth; c.isArray(); c = c.getComponentType()) {
-                ++depth;
-            }
-            String dims = "", open = "", close = "";
-            for (int i = 0; i < depth; ++i) {
-                dims += "["; open += "["; close += "]";
-            }
-            final String json = a2q("{'value':['" + dims + "L" + gadget + ";',"
-                    + open + "{'cmd':'x'}" + close + "]}");
-            InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
-                    () -> mapper.readValue(json, ObjectValueWrapper.class),
-                    "rule " + everyArrayOfDepth.getSimpleName());
-            verifyException(e, "denied resolution of contained type");
-            verifyException(e, gadget);
-            assertEquals(Collections.emptyList(), INSTANTIATIONS);
+            _assertGadgetArrayRejected(mapper, nestedArrayJson("value", gadget, (Integer) c[1]),
+                    ObjectValueWrapper.class, String.valueOf(c[0]));
         }
         // but rule naming 2-D array type specifically is fine
         ObjectMapper mapper = jsonMapperBuilder()
@@ -800,6 +846,36 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         assertEquals("x", ((SafeBean[][]) w.value)[0][0].data);
     }
 
+    // Approval of a declared `Serializable[][]` (or `Object[][]`, `Cloneable[][]`)
+    // base type covers subtypes of its element type no more than a subtype rule
+    // for it does: every gadget is one
+    @Test
+    public void approvedUniversalArrayBaseTypeDoesNotCoverElements() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(java.io.Serializable[][].class)
+                        .build(), DefaultTyping.NON_FINAL)
+                .build();
+        _assertGadgetArrayRejected(mapper,
+                nestedArrayJson("value", SerializableGadget.class.getName(), 2),
+                SerializableMatrixWrapper.class, "allowIfBaseType(Serializable[][])");
+    }
+
+    // The probe is checked against the base type the array itself was checked
+    // against, so a validator deciding by base type cannot tell them apart
+    @Test
+    public void probeUsesSameBaseTypeAsArray() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(new BaseTypeDependentValidator(), DefaultTyping.NON_FINAL)
+                .build();
+        _assertGadgetArrayRejected(mapper,
+                nestedArrayJson("value", SerializableGadget.class.getName(), 2),
+                ObjectMatrixWrapper.class, "base-type dependent validator");
+    }
+
+    // Specific approval of array type covers its element type...
     @Test
     public void specificallyApprovedArrayTypeAccepted() throws Exception
     {

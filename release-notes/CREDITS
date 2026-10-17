@@ -673,6 +673,9 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Fixed #6179: Apply `StreamReadConstraints` number length limit when coercing
    String to `double`
   [3.2.3]
+ * Reported, fixed #6201: `@JacksonInject(useInput = OptBoolean.FALSE)` not honored
+   for Field/Setter properties
+  [3.3.0]
  * Fixed #6232: Validate `StreamReadConstraints` number length when coercing
    `StringNode` to number
   [3.2.4]

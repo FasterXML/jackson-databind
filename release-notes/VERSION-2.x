@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.21.8 (not yet released)
+2.21.8 (17-Oct-2026)
 
 #6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
   (instead of `StackOverflowError`)

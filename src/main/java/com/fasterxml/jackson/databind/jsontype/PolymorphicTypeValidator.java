@@ -142,25 +142,19 @@ public abstract class PolymorphicTypeValidator
 
     /**
      * Method called for an array type named directly by a type id (like
-     * {@code [Lcom.foo.Bar;}), once it has been approved as a subtype of the
-     * base type (by {@link #validateSubClassName} / {@link #validateSubType} of
-     * this validator, or by approval of the base type itself), to check whether
-     * this validator allows that array type explicitly, so that the approval
-     * covers the element type ({@code Bar}) as well. If not, the element type is
-     * validated on its own, as a class named in a type id: approval of the array
-     * by a rule that matches other arrays too (every {@code Serializable}, every
-     * array of some depth or package) says nothing about the application's choice
-     * of element type. The method is not called for inner dimensions of the array
-     * nor for array types named as type parameters, which no validator approved:
-     * their element types are always validated.
+     * {@code [Lcom.foo.Bar;}), once approved as a subtype of the base type, to
+     * check whether this validator allows that array type explicitly, so that the
+     * approval covers its element type ({@code Bar}) as well. If not, the element
+     * type is validated on its own: approval by a rule that matches other arrays
+     * too (every {@code Serializable}, every array of some depth or package) says
+     * nothing about the element type. Not called for inner dimensions of arrays
+     * nor for array type parameters: their element types are always validated.
      *<p>
-     * Default implementation returns {@code false}: element types are always
-     * validated. {@link BasicPolymorphicTypeValidator} returns {@code true} for
-     * array types passed as such to {@link BasicPolymorphicTypeValidator.Builder#allowIfSubType(Class)},
-     * and for arrays of the same depth whose element type is a subtype of theirs
-     * (except if their element type is {@code Object}, {@code Serializable} or
-     * {@code Cloneable}, which every array is an instance of: such array types
-     * only count as given).
+     * Default implementation returns {@code false}. {@link BasicPolymorphicTypeValidator}
+     * returns {@code true} for array types passed to
+     * {@link BasicPolymorphicTypeValidator.Builder#allowIfSubType(Class)}, and for arrays
+     * of the same depth with subtypes of their element type (unless that is
+     * {@code Object}, {@code Serializable} or {@code Cloneable}).
      *<p>
      * Validator may also choose to indicate denial by throwing a {@link JsonMappingException}
      * (such as {@link com.fasterxml.jackson.databind.exc.InvalidTypeIdException})

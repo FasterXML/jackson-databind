@@ -447,15 +447,10 @@ public abstract class DatabindContext
      * Helper for validating element type of an array type: like other contained types
      * (including abstract types: they may still be deserializable, via
      * {@code @JsonDeserialize(as=...)} or factory methods). Approval of the array
-     * type is not inferred to cover the element type: there is no way to tell a
-     * rule naming that array type from one matching every array of its depth.
-     * Only the validator can say so, for an array type named directly by a type
-     * id and approved as subtype (see
-     * {@link PolymorphicTypeValidator#isArrayTypeAllowedExplicitly}, checked by
-     * the caller); an inner dimension or an array type parameter, which no
-     * validator approved, always gets here. The declared type can vouch for the
-     * element type as well (see the {@link ApprovedBaseTypeValidator} case in
-     * {@link #_validateContainedType}).
+     * type does not by itself cover the element type: only the validator can say
+     * it does (see {@link PolymorphicTypeValidator#isArrayTypeAllowedExplicitly},
+     * checked by the caller for array types named by type id). Inner dimensions
+     * and array type parameters always get here.
      *
      * @param declaredType Declared type of the array, if any ({@code null} if none)
      *

@@ -17,11 +17,7 @@ Project: jackson-databind
   `allowIfSubTypeIsArray()` no longer accepts abstract or interface element types
   without allow-listing (except `Number`)
  (reported by @AdamKorcz, @martinfrancois)
- (fix by @cowtowncoder, w/ Claude code)
-#6289: Array type id approved by a rule every array of its depth matches
-  (`allowIfSubType(Object[][].class)`, `Serializable[]`) skipped validation of
-  its element type [CVE-2026-110879]
- (fix by @martinfrancois, w/ Claude code)
+ (fix by @cowtowncoder, @martinfrancois)
 
 2.18.11 (20-Sep-2026)
 

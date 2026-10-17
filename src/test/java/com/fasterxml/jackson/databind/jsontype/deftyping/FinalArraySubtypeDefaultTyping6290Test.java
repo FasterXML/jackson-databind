@@ -41,6 +41,9 @@ class FinalArraySubtypeDefaultTyping6290Test extends DatabindTestUtil
                 .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
                         .allowIfBaseType(Base[].class)
                         .allowIfBaseType(Base.class)
+                        // NON_FINAL also writes the Wrapper's type id: allow
+                        // only this test container rather than all types.
+                        .allowIfSubType(Wrapper.class)
                         .build(), DefaultTyping.NON_FINAL)
                 .build();
     }

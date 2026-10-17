@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-(not yet released)
+2.19.5 (not yet released)
 
 #5393: `@JsonAnyGetter property gets included in generated schema since 2.19.0`
  (reported by @victor-noel-pfx)

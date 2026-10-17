@@ -7,7 +7,6 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -222,12 +221,9 @@ public class ObjectArraySerializer
      * must preserve property-level element type ids.
      */
     @Override
-    public void serializeWithType(Object[] value, JsonGenerator gen, SerializerProvider provider,
-            TypeSerializer typeSer) throws IOException
+    protected void serializeContentsWithType(Object[] value, JsonGenerator gen, SerializerProvider provider)
+            throws IOException
     {
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
-                typeSer.typeId(value, JsonToken.START_ARRAY));
-        gen.assignCurrentValue(value);
         if ((_valueTypeSerializer != null) && _skipRuntimeArrayElementTypeIds(value, provider)) {
             if (_elementSerializer != null) {
                 serializeContentsUsing(value, gen, provider, _elementSerializer, true);
@@ -237,7 +233,6 @@ public class ObjectArraySerializer
         } else {
             serializeContents(value, gen, provider);
         }
-        typeSer.writeTypeSuffix(gen, typeIdDef);
     }
 
     @Override

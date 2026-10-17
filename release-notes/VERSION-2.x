@@ -11,7 +11,7 @@ Project: jackson-databind
 #6261: Support `@JsonView` on properties-based Creator parameters of Enum, Map and EnumMap types
  (fix by @pjfanning, w/ Claude code)
 
-2.22.4 (not yet released)
+2.22.4 (17-Oct-2026)
 
 #6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
   (instead of `StackOverflowError`)

@@ -35,8 +35,23 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public abstract class DatabindContext
 {
-    // [CVE-2026-110879]: for checking whether validator approves all array types
-    private final static JavaType OBJECT_ARRAY_TYPE = ArrayType.construct(TypeFactory.unknownType(), null);
+    // [CVE-2026-110879]: for checking whether validator approves all array types of
+    // given depth (index 0 for depth 1 and so on): ones with element type that all
+    // classes (and array types) are assignable to
+    private final static JavaType[][] UNIVERSAL_ARRAY_TYPES = _universalArrayTypes(3);
+
+    private static JavaType[][] _universalArrayTypes(int maxDepth) {
+        final Class<?>[] elemTypes = { Object.class, java.io.Serializable.class, Cloneable.class };
+        final JavaType[][] result = new JavaType[maxDepth][elemTypes.length];
+        for (int i = 0; i < elemTypes.length; ++i) {
+            JavaType type = TypeFactory.defaultInstance().constructType(elemTypes[i]);
+            for (int depth = 0; depth < maxDepth; ++depth) {
+                type = ArrayType.construct(type, null);
+                result[depth][i] = type;
+            }
+        }
+        return result;
+    }
 
     /**
      * Let's limit length of error messages, for cases where underlying data
@@ -471,9 +486,10 @@ public abstract class DatabindContext
     /**
      * Helper for checking whether configured validator approves given array type
      * specifically (like {@code allowIfSubType(Bar[].class)} does for {@code Bar[]}),
-     * in which case approval covers its element type too. Approval that also covers
-     * {@code Object[]} (like with {@code allowIfSubType(Serializable.class)}, which
-     * matches all array types) does not count, nor does approval of base type.
+     * in which case approval covers its element type too. Approval that covers all
+     * array types of the same depth does not count: like {@code allowIfSubType(Serializable.class)}
+     * (which matches all array types), or {@code allowIfSubType(Object[][].class)}
+     * (all 2-dimensional reference arrays); nor does approval of base type.
      *
      * @since 2.18.12
      */
@@ -483,8 +499,24 @@ public abstract class DatabindContext
     {
         final PolymorphicTypeValidator vldr = _configuredValidator(ptv);
         final JavaType vldBaseType = (declaredType == null) ? TypeFactory.unknownType() : declaredType;
-        return _isApprovedSubType(vldr, config, vldBaseType, arrayType)
-                && !_isApprovedSubType(vldr, config, TypeFactory.unknownType(), OBJECT_ARRAY_TYPE);
+        if (!_isApprovedSubType(vldr, config, vldBaseType, arrayType)) {
+            return false;
+        }
+        // But not if all array types of same depth are approved (and for simplicity,
+        // never for deeply nested arrays: just means element type gets validated)
+        int depth = 0;
+        for (JavaType t = arrayType; t.isArrayType(); t = t.getContentType()) {
+            ++depth;
+        }
+        if (depth > UNIVERSAL_ARRAY_TYPES.length) {
+            return false;
+        }
+        for (JavaType universalType : UNIVERSAL_ARRAY_TYPES[depth-1]) {
+            if (_isApprovedSubType(vldr, config, TypeFactory.unknownType(), universalType)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean _isApprovedSubType(PolymorphicTypeValidator vldr,

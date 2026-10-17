@@ -71,6 +71,11 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         }
     }
 
+    /** Stand-in "gadget" type that is also `Serializable` (like most real ones) */
+    public static class SerializableGadget extends Gadget implements java.io.Serializable {
+        private static final long serialVersionUID = 1L;
+    }
+
     /** Allow-listed (by some tests) bean type */
     public static class SafeBean {
         public String data;
@@ -128,6 +133,7 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
 
     private final String ENV = Env.class.getName();
     private final String GADGET = Gadget.class.getName();
+    private final String SERIALIZABLE_GADGET = SerializableGadget.class.getName();
     private final String ABSTRACT_GADGET = AbstractGadget.class.getName();
 
     @BeforeEach
@@ -800,6 +806,60 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         verifyException(e, "denied resolution of contained type");
         verifyException(e, GADGET);
         assertEquals(Collections.emptyList(), INSTANTIATIONS);
+    }
+
+    // ... nor approval that covers all array types of the same depth (like
+    // `Object[][]` for all 2-dimensional reference arrays)
+    @Test
+    public void sameDepthArrayApprovalElementValidated() throws Exception
+    {
+        for (Class<?> arrayType : new Class<?>[] {
+                Object[][].class, Object[][][].class,
+                java.io.Serializable[].class, java.io.Serializable[][].class }) {
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                            .allowIfSubType(arrayType)
+                            .build())
+                    .build();
+            int depth = 0;
+            for (Class<?> c = arrayType; c.isArray(); c = c.getComponentType()) {
+                ++depth;
+            }
+            StringBuilder id = new StringBuilder();
+            StringBuilder value = new StringBuilder("{'cmd':'x'}");
+            for (int i = 0; i < depth; ++i) {
+                id.append('[');
+                value.insert(0, '[').append(']');
+            }
+            id.append('L').append(SERIALIZABLE_GADGET).append(';');
+            final String json = a2q("{'value':['" + id + "'," + value + "]}");
+            InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                    () -> mapper.readValue(json, ObjectValueWrapper.class),
+                    "for " + arrayType.getSimpleName());
+            verifyException(e, "denied resolution of contained type");
+            verifyException(e, SERIALIZABLE_GADGET);
+            assertEquals(Collections.emptyList(), INSTANTIATIONS);
+        }
+
+        // but specific approval of 2-dimensional array type still covers elements
+        ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(SafeBean[][].class)
+                        .build())
+                .build();
+        ObjectValueWrapper w = mapper.readValue(a2q("{'value':['[[L" + SafeBean.class.getName()
+                + ";',[[{'data':'x'}]]]}"), ObjectValueWrapper.class);
+        assertEquals("x", ((SafeBean[][]) w.value)[0][0].data);
+        // (except for deeply nested arrays, for which element type is always validated)
+        ObjectMapper mapper4 = jsonMapperBuilder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(SafeBean[][][][].class)
+                        .build())
+                .build();
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper4.readValue(a2q("{'value':['[[[[L" + SafeBean.class.getName()
+                        + ";',[[[[{'data':'x'}]]]]]}"), ObjectValueWrapper.class));
+        verifyException(e, "denied resolution of contained type");
     }
 
     /*

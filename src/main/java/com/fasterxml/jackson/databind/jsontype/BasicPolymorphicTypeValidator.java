@@ -461,6 +461,15 @@ public class BasicPolymorphicTypeValidator
      */
     protected final Set<Class<?>> _explicitArrayTypes;
 
+    /**
+     * Those of {@link #_explicitArrayTypes} whose element type is not one every
+     * class fits ({@code Object}, {@code Serializable}, {@code Cloneable});
+     * {@code null} if none.
+     *
+     * @since 2.18.12
+     */
+    private final List<Class<?>> _explicitArrayTypesToMatch;
+
     protected BasicPolymorphicTypeValidator(Set<Class<?>> invalidBaseTypes,
             TypeMatcher[] baseTypeMatchers,
             NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers) {
@@ -492,6 +501,26 @@ public class BasicPolymorphicTypeValidator
         _subClassMatchers = subClassMatchers;
         _acceptArrayTypes = acceptArrayTypes;
         _explicitArrayTypes = explicitArrayTypes;
+        _explicitArrayTypesToMatch = _explicitArrayTypesToMatch(explicitArrayTypes);
+    }
+
+    private static List<Class<?>> _explicitArrayTypesToMatch(Set<Class<?>> arrayTypes)
+    {
+        if (arrayTypes == null) {
+            return null;
+        }
+        List<Class<?>> result = new ArrayList<>();
+        for (Class<?> arrayType : arrayTypes) {
+            Class<?> element = arrayType;
+            while (element.isArray()) {
+                element = element.getComponentType();
+            }
+            if ((element != Object.class) && (element != java.io.Serializable.class)
+                    && (element != Cloneable.class)) {
+                result.add(arrayType);
+            }
+        }
+        return result.isEmpty() ? null : result;
     }
 
     /**
@@ -509,43 +538,17 @@ public class BasicPolymorphicTypeValidator
     @Override
     public boolean isArrayTypeAllowedExplicitly(MapperConfig<?> config, JavaType baseType,
             JavaType arrayType) {
-        if (_explicitArrayTypes == null) {
-            return false;
-        }
-        final Class<?> raw = arrayType.getRawClass();
-        if (_explicitArrayTypes.contains(raw)) {
-            return true;
-        }
-        final Class<?> element = _elementTypeOf(raw);
-        final int depth = _depthOf(raw);
-        for (Class<?> allowed : _explicitArrayTypes) {
-            if (_depthOf(allowed) != depth) {
-                continue;
-            }
-            final Class<?> allowedElement = _elementTypeOf(allowed);
-            if ((allowedElement != Object.class) && (allowedElement != java.io.Serializable.class)
-                    && (allowedElement != Cloneable.class)
-                    && allowedElement.isAssignableFrom(element)) {
-                return true;
+        if (_explicitArrayTypesToMatch != null) {
+            // No array is an instance of their element types, so `Bar[][]` is only
+            // assignable from 2-dimensional arrays of `Bar` and its subtypes
+            final Class<?> raw = arrayType.getRawClass();
+            for (Class<?> allowed : _explicitArrayTypesToMatch) {
+                if (allowed.isAssignableFrom(raw)) {
+                    return true;
+                }
             }
         }
         return false;
-    }
-
-    private static int _depthOf(Class<?> arrayClass) {
-        int depth = 0;
-        for (Class<?> c = arrayClass; c.isArray(); c = c.getComponentType()) {
-            ++depth;
-        }
-        return depth;
-    }
-
-    private static Class<?> _elementTypeOf(Class<?> arrayClass) {
-        Class<?> c = arrayClass;
-        while (c.isArray()) {
-            c = c.getComponentType();
-        }
-        return c;
     }
 
     public static Builder builder() {

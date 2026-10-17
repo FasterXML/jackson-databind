@@ -389,7 +389,7 @@ public abstract class DatabindContext
                 vldBaseType = baseType;
                 vld = Validity.INDETERMINATE;
             } else if ((ptv instanceof ApprovedBaseTypeValidator)
-                    && (declaredType != null) && !_isUniversalElementType(declaredType)
+                    && (declaredType != null) && !ClassUtil.isArraySuperType(declaredType.getRawClass())
                     && param.isTypeOrSubTypeOf(declaredType.getRawClass())) {
                 // Approval of base type (declared array type) covers subtypes of its
                 // element type (except for `Object[]`, `Serializable[]` and
@@ -468,16 +468,6 @@ public abstract class DatabindContext
     {
         _validateContainedType(baseType, typeId, _declaredContentType(declaredType),
                 arrayType.getContentType(), ptv, config);
-    }
-
-    /**
-     * Whether given declared element type is one that every array (and most
-     * classes) fits, so that approving all its subtypes approves everything:
-     * {@code Object}, {@code Serializable}, {@code Cloneable}.
-     */
-    private static boolean _isUniversalElementType(JavaType declaredType) {
-        final Class<?> raw = declaredType.getRawClass();
-        return (raw == Object.class) || (raw == java.io.Serializable.class) || (raw == Cloneable.class);
     }
 
     private static boolean _isApprovedSubType(PolymorphicTypeValidator vldr,

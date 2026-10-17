@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Standard {@link BasicPolymorphicTypeValidator} implementation that users may want
@@ -518,8 +519,7 @@ public class BasicPolymorphicTypeValidator
             while (element.isArray()) {
                 element = element.getComponentType();
             }
-            if ((element != Object.class) && (element != java.io.Serializable.class)
-                    && (element != Cloneable.class)) {
+            if (!ClassUtil.isArraySuperType(element)) {
                 result.add(arrayType);
             }
         }

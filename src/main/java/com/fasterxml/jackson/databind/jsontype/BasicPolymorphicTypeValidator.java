@@ -319,8 +319,10 @@ public class BasicPolymorphicTypeValidator
          * ([CVE-2026-110879]) element types of array type ids are also validated
          * separately (by {@link com.fasterxml.jackson.databind.DatabindContext}),
          * unless the array type itself is approved specifically: that is, by a
-         * matcher that does not also match {@code Object[]} (as, for example,
-         * {@code allowIfSubType(Serializable.class)} does).
+         * matcher that does not also match every array of that depth (as, for
+         * example, {@code allowIfSubType(Serializable.class)},
+         * {@code allowIfSubType(Object[][].class)} or {@code allowIfSubType("[Ljava.")}
+         * do).
          *<p>
          * NOTE (behavior change in 2.18.8 for [databind#5981]): prior versions added a
          * matcher that approved every array regardless of element type, which let

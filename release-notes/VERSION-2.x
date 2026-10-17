@@ -15,7 +15,10 @@ Project: jackson-databind
   like direct type ids; base type approval (`allowIfBaseType()`) only covers
   ones that are subtypes of the base type (also without configured validator);
   `allowIfSubTypeIsArray()` no longer accepts abstract or interface element types
-  without allow-listing (except `Number`)
+  without allow-listing (except `Number`); a rule matching every array of a depth
+  (`allowIfSubType(Object[][].class)`, `Serializable[]`, `Cloneable[]`, name
+  prefix `"[Ljava."`) and base type approval of a declared `Object[]`,
+  `Serializable[]` or `Cloneable[]` (any depth) do not cover the element type
  (reported by @AdamKorcz, @martinfrancois)
  (fix by @cowtowncoder, @martinfrancois)
 

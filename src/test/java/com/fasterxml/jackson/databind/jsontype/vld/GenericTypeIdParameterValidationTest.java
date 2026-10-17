@@ -846,6 +846,27 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
         assertEquals("x", ((SafeBean[][]) w.value)[0][0].data);
     }
 
+    // A name rule for JDK arrays matches every array of a JDK element type, so
+    // the element type is validated on its own (`Date` here: not exempt, not
+    // allow-listed, and harmless if ever constructed)
+    @Test
+    public void arrayRuleMatchingJdkArraysRejected() throws Exception
+    {
+        for (Object rule : new Object[] { "[Ljava.", java.util.regex.Pattern.compile("\\[+Ljava\\..*") }) {
+            BasicPolymorphicTypeValidator.Builder b = BasicPolymorphicTypeValidator.builder();
+            b = (rule instanceof String) ? b.allowIfSubType((String) rule)
+                    : b.allowIfSubType((java.util.regex.Pattern) rule);
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .polymorphicTypeValidator(b.build())
+                    .build();
+            InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                    () -> mapper.readValue(a2q("{'value':['[Ljava.util.Date;',[0]]}"),
+                            ObjectValueWrapper.class), String.valueOf(rule));
+            verifyException(e, "denied resolution of contained type");
+            verifyException(e, "java.util.Date");
+        }
+    }
+
     // Approval of a declared `Serializable[][]` (or `Object[][]`, `Cloneable[][]`)
     // base type covers subtypes of its element type no more than a subtype rule
     // for it does: every gadget is one

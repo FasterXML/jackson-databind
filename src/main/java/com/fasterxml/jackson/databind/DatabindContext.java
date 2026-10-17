@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.jsontype.impl.ApprovedBaseTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
 import com.fasterxml.jackson.databind.type.ArrayType;
-import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -471,8 +470,11 @@ public abstract class DatabindContext
      * Helper for checking whether configured validator approves given array type
      * specifically (like {@code allowIfSubType(Bar[].class)} does for {@code Bar[]}),
      * in which case approval covers its element type too. Approval that also covers
-     * {@code Object[]} (like with {@code allowIfSubType(Serializable.class)}, which
-     * matches all array types) does not count, nor does approval of base type.
+     * an array of the same depth with an element type the application did not
+     * name (see {@link #_arrayProbesOfSameDepth}) does not count: it is approval
+     * of every array of that depth (like with {@code allowIfSubType(Serializable.class)},
+     * {@code allowIfSubType(Object[][].class)} or {@code allowIfSubType("[Ljava.")}).
+     * Nor does approval of base type.
      *
      * @since 2.18.12
      */
@@ -482,10 +484,17 @@ public abstract class DatabindContext
     {
         final PolymorphicTypeValidator vldr = _configuredValidator(ptv);
         final JavaType vldBaseType = (declaredType == null) ? TypeFactory.unknownType() : declaredType;
-        // The probe is checked against the same base type as the array itself, so
+        if (!_isApprovedSubType(vldr, config, vldBaseType, arrayType)) {
+            return false;
+        }
+        // The probes are checked against the same base type as the array itself, so
         // a validator deciding by base type cannot approve one and not the other
-        return _isApprovedSubType(vldr, config, vldBaseType, arrayType)
-                && !_isApprovedSubType(vldr, config, vldBaseType, _arrayProbeOfSameDepth(arrayType));
+        for (JavaType probe : _arrayProbesOfSameDepth(config, arrayType)) {
+            if (_isApprovedSubType(vldr, config, vldBaseType, probe)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -502,28 +511,26 @@ public abstract class DatabindContext
         private static final long serialVersionUID = 1L;
     }
 
-    // The JVM allows at most 255 dimensions (JVMS 4.4.1), so this is every depth
-    private static final int MAX_ARRAY_DIMENSIONS = 255;
-
-    // Probe arrays by depth, built once each (benign race: all callers build the same type)
-    private static final JavaType[] ARRAY_PROBES = new JavaType[MAX_ARRAY_DIMENSIONS + 1];
-
-    private static JavaType _arrayProbeOfSameDepth(JavaType arrayType)
+    /**
+     * Arrays with as many dimensions as given array type to probe a validator
+     * with: one of {@link ArrayElementProbe}, and one of {@code Object}, whose
+     * name {@code [Ljava.lang.Object;} a name rule for JDK arrays like
+     * {@code allowIfSubType("[Ljava.")} matches. Built through the configured
+     * {@link TypeFactory}, so a validator that inspects the type sees the probe's
+     * supertypes and interfaces as it sees those of a real element type.
+     */
+    private static JavaType[] _arrayProbesOfSameDepth(MapperConfig<?> config, JavaType arrayType)
     {
-        int depth = 0;
+        final TypeFactory tf = config.getTypeFactory();
+        JavaType[] probes = new JavaType[] {
+            tf.constructType(ArrayElementProbe.class), tf.constructType(Object.class)
+        };
         for (JavaType t = arrayType; t.isArrayType(); t = t.getContentType()) {
-            ++depth;
-        }
-        JavaType probe = ARRAY_PROBES[depth];
-        if (probe == null) {
-            // Plain types, untouched by any registered `TypeModifier`
-            probe = SimpleType.constructUnsafe(ArrayElementProbe.class);
-            for (int i = 0; i < depth; ++i) {
-                probe = ArrayType.construct(probe, null);
+            for (int i = 0; i < probes.length; ++i) {
+                probes[i] = tf.constructArrayType(probes[i]);
             }
-            ARRAY_PROBES[depth] = probe;
         }
-        return probe;
+        return probes;
     }
 
     /**

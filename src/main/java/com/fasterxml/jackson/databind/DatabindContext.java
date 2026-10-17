@@ -268,7 +268,8 @@ public abstract class DatabindContext
         // [CVE-2026-110879]: element type of an array type id is attacker-selected
         // as well and needs validation like type parameters of generic type ids
         // (approval of array type, by base type or by sub-type, does not extend to it)
-        if (subType.isArrayType()) {
+        if (subType.isArrayType()
+                && !_configuredValidator(ptv).isArrayTypeAllowedExplicitly(config, baseType, subType)) {
             _validateArrayElementType(baseType, subClass, baseType, subType, ptv, config);
         }
         return subType;
@@ -446,13 +447,16 @@ public abstract class DatabindContext
     /**
      * Helper for validating element type of an array type: like other contained types
      * (including abstract types: they may still be deserializable, via
-     * {@code @JsonDeserialize(as=...)} or factory methods), unless the configured
-     * validator says its approval of the array type was given for exactly that
-     * type (see {@link PolymorphicTypeValidator#isArrayTypeAllowedExplicitly}).
-     * Approval by any other rule is not inferred to cover the element type: there
-     * is no way to tell a rule naming that array type from one matching every
-     * array of its depth. The declared type can vouch for it as well (see the
-     * {@link ApprovedBaseTypeValidator} case in {@link #_validateContainedType}).
+     * {@code @JsonDeserialize(as=...)} or factory methods). Approval of the array
+     * type is not inferred to cover the element type: there is no way to tell a
+     * rule naming that array type from one matching every array of its depth.
+     * Only the validator can say so, for an array type named directly by a type
+     * id and approved as subtype (see
+     * {@link PolymorphicTypeValidator#isArrayTypeAllowedExplicitly}, checked by
+     * the caller); an inner dimension or an array type parameter, which no
+     * validator approved, always gets here. The declared type can vouch for the
+     * element type as well (see the {@link ApprovedBaseTypeValidator} case in
+     * {@link #_validateContainedType}).
      *
      * @param declaredType Declared type of the array, if any ({@code null} if none)
      *
@@ -463,10 +467,6 @@ public abstract class DatabindContext
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        final JavaType vldBaseType = (declaredType == null) ? TypeFactory.unknownType() : declaredType;
-        if (_configuredValidator(ptv).isArrayTypeAllowedExplicitly(config, vldBaseType, arrayType)) {
-            return;
-        }
         _validateContainedType(baseType, typeId, _declaredContentType(declaredType),
                 arrayType.getContentType(), ptv, config);
     }

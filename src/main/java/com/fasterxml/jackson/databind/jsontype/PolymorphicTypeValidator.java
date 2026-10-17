@@ -141,17 +141,23 @@ public abstract class PolymorphicTypeValidator
             JavaType subType) throws JsonMappingException;
 
     /**
-     * Method called after {@link #validateSubType} approved an array type named
-     * by a type id (like {@code [Lcom.foo.Bar;}), to check whether that approval
-     * was given for exactly that array type, so that it covers the element type
-     * ({@code Bar}) as well. If not, the element type is validated on its own, as
-     * a class named in a type id: approval of the array by a rule that matches
-     * other arrays too (every {@code Serializable}, every array of some depth or
-     * package) says nothing about the application's choice of element type.
+     * Method called for an array type named directly by a type id (like
+     * {@code [Lcom.foo.Bar;}), once it has been approved as a subtype of the
+     * base type (by {@link #validateSubClassName} / {@link #validateSubType} of
+     * this validator, or by approval of the base type itself), to check whether
+     * this validator allows that array type explicitly, so that the approval
+     * covers the element type ({@code Bar}) as well. If not, the element type is
+     * validated on its own, as a class named in a type id: approval of the array
+     * by a rule that matches other arrays too (every {@code Serializable}, every
+     * array of some depth or package) says nothing about the application's choice
+     * of element type. The method is not called for inner dimensions of the array
+     * nor for array types named as type parameters, which no validator approved:
+     * their element types are always validated.
      *<p>
      * Default implementation returns {@code false}: element types are always
      * validated. {@link BasicPolymorphicTypeValidator} returns {@code true} for
-     * array types passed as such to {@link BasicPolymorphicTypeValidator.Builder#allowIfSubType(Class)}.
+     * array types passed as such to {@link BasicPolymorphicTypeValidator.Builder#allowIfSubType(Class)},
+     * and for arrays of the same depth whose element type is a subtype of theirs.
      *
      * @param config Configuration for resolution: typically either {@code DeserializationConfig}
      *   or {@code SerializationConfig}

@@ -382,7 +382,8 @@ public class BasicPolymorphicTypeValidator
                     (_subTypeNameMatchers == null) ? null : _subTypeNameMatchers.toArray(new NameMatcher[0]),
                     (_subTypeClassMatchers == null) ? null : _subTypeClassMatchers.toArray(new TypeMatcher[0]),
                     _acceptArrayTypes, // [databind#5981]
-                    _explicitArrayTypes
+                    // (copied: the builder may go on being used)
+                    (_explicitArrayTypes == null) ? null : new HashSet<>(_explicitArrayTypes)
             );
         }
 
@@ -494,16 +495,57 @@ public class BasicPolymorphicTypeValidator
     }
 
     /**
-     * An array type counts as allowed explicitly if it was passed as such to
-     * {@link Builder#allowIfSubType(Class)}: that rule names the array type and
-     * so the application's choice of element type. Name-based rules do not count,
-     * since a pattern matching exactly one array class name cannot be told from
-     * one matching every array of some package or depth.
+     * An array type counts as allowed explicitly if it, or an array of the same
+     * depth whose element type is a supertype of its element type, was passed as
+     * such to {@link Builder#allowIfSubType(Class)}: that rule names the array
+     * type and so the application's choice of element type, subtypes included as
+     * for any class rule ({@code allowIfSubType(Bar[].class)} covers
+     * {@code SubBar[]}). An element type every class fits ({@code Object},
+     * {@code Serializable}, {@code Cloneable}) names no such choice.
+     * Name-based rules do not count, since a pattern matching exactly one array
+     * class name cannot be told from one matching every array of some package
+     * or depth.
      */
     @Override
     public boolean isArrayTypeAllowedExplicitly(MapperConfig<?> config, JavaType baseType,
             JavaType arrayType) {
-        return (_explicitArrayTypes != null) && _explicitArrayTypes.contains(arrayType.getRawClass());
+        if (_explicitArrayTypes == null) {
+            return false;
+        }
+        final Class<?> raw = arrayType.getRawClass();
+        if (_explicitArrayTypes.contains(raw)) {
+            return true;
+        }
+        final Class<?> element = _elementTypeOf(raw);
+        final int depth = _depthOf(raw);
+        for (Class<?> allowed : _explicitArrayTypes) {
+            if (_depthOf(allowed) != depth) {
+                continue;
+            }
+            final Class<?> allowedElement = _elementTypeOf(allowed);
+            if ((allowedElement != Object.class) && (allowedElement != java.io.Serializable.class)
+                    && (allowedElement != Cloneable.class)
+                    && allowedElement.isAssignableFrom(element)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static int _depthOf(Class<?> arrayClass) {
+        int depth = 0;
+        for (Class<?> c = arrayClass; c.isArray(); c = c.getComponentType()) {
+            ++depth;
+        }
+        return depth;
+    }
+
+    private static Class<?> _elementTypeOf(Class<?> arrayClass) {
+        Class<?> c = arrayClass;
+        while (c.isArray()) {
+            c = c.getComponentType();
+        }
+        return c;
     }
 
     public static Builder builder() {

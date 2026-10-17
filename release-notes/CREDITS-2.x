@@ -2121,3 +2121,7 @@ Sergey Lappo (@sergeylappo)
 Sanha (@kimsanhaa)
  * Fixed #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
   [2.23.0]
+
+zsewasdsdsd (@zsewasdsdsd)
+ * Fixed #6290: Default typing round-trip for final-subtype arrays
+  [2.23.0]

@@ -335,6 +335,17 @@ public final class ClassUtil
     }
 
     /**
+     * Whether given type is one that all array types are assignable to:
+     * {@code Object}, {@code Serializable} or {@code Cloneable}.
+     *
+     * @since 2.18.12
+     */
+    public static boolean isArraySuperType(Class<?> cls) {
+        return (cls == CLS_OBJECT) || (cls == java.io.Serializable.class)
+                || (cls == Cloneable.class);
+    }
+
+    /**
      * @since 2.9
      */
     public static boolean hasClass(Object inst, Class<?> raw) {

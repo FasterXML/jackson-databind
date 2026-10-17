@@ -2,6 +2,8 @@ package tools.jackson.databind.jsontype.deftyping;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import tools.jackson.databind.DefaultTyping;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
@@ -24,6 +26,16 @@ class FinalArraySubtypeDefaultTyping6290Test extends DatabindTestUtil
 
     public static class Wrapper {
         public Base[] values;
+    }
+
+    public static class AnnotatedBaseArrayWrapper {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+        public Base[] values;
+    }
+
+    public static class AnnotatedObjectArrayWrapper {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+        public Object[] values;
     }
 
     private ObjectMapper mapper() {
@@ -61,5 +73,33 @@ class FinalArraySubtypeDefaultTyping6290Test extends DatabindTestUtil
 
         assertEquals(Base[].class, result.values.getClass());
         assertEquals(FinalSub.class, result.values[0].getClass());
+    }
+    @Test
+    void propertyLevelTypeIdsArePreservedWithoutArrayTypeId() throws Exception {
+        ObjectMapper mapper = JsonMapper.builder().build();
+        AnnotatedBaseArrayWrapper input = new AnnotatedBaseArrayWrapper();
+        input.values = new FinalSub[] { new FinalSub() };
+
+        String json = mapper.writeValueAsString(input);
+        assertTrue(json.contains(FinalSub.class.getName()));
+
+        AnnotatedBaseArrayWrapper result = mapper.readValue(json, AnnotatedBaseArrayWrapper.class);
+        assertEquals(1, result.values.length);
+        assertEquals(FinalSub.class, result.values[0].getClass());
+    }
+
+    @Test
+    void propertyLevelObjectArrayIdsPreserveLongValues() throws Exception {
+        ObjectMapper mapper = JsonMapper.builder().build();
+        AnnotatedObjectArrayWrapper input = new AnnotatedObjectArrayWrapper();
+        input.values = new Long[] { 5L };
+
+        String json = mapper.writeValueAsString(input);
+        assertTrue(json.contains(Long.class.getName()));
+
+        AnnotatedObjectArrayWrapper result = mapper.readValue(json, AnnotatedObjectArrayWrapper.class);
+        assertEquals(1, result.values.length);
+        assertEquals(Long.class, result.values[0].getClass());
+        assertEquals(5L, result.values[0]);
     }
 }

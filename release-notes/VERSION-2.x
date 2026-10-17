@@ -98,7 +98,7 @@ Project: jackson-databind
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.8 (not yet released)
+2.21.8 (17-Oct-2026)
 
 #6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
   (instead of `StackOverflowError`)
@@ -464,7 +464,7 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
-2.18.12 (not yet released)
+2.18.12 (17-Oct-2026)
 
 #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
  [CVE-2026-54516]

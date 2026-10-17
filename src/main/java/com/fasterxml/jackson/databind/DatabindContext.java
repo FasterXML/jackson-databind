@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity
 import com.fasterxml.jackson.databind.jsontype.impl.ApprovedBaseTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
-import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -35,9 +34,6 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public abstract class DatabindContext
 {
-    // [CVE-2026-110879]: for checking whether validator approves all array types
-    private final static JavaType OBJECT_ARRAY_TYPE = ArrayType.construct(TypeFactory.unknownType(), null);
-
     /**
      * Let's limit length of error messages, for cases where underlying data
      * may be very large -- no point in spamming logs with megabytes of meaningless
@@ -271,7 +267,8 @@ public abstract class DatabindContext
         // [CVE-2026-110879]: element type of an array type id is attacker-selected
         // as well and needs validation like type parameters of generic type ids
         // (approval of array type, by base type or by sub-type, does not extend to it)
-        if (subType.isArrayType()) {
+        if (subType.isArrayType()
+                && !_configuredValidator(ptv).isArrayTypeAllowedExplicitly(config, baseType, subType)) {
             _validateArrayElementType(baseType, subClass, baseType, subType, ptv, config);
         }
         return subType;
@@ -392,10 +389,11 @@ public abstract class DatabindContext
                 vldBaseType = baseType;
                 vld = Validity.INDETERMINATE;
             } else if ((ptv instanceof ApprovedBaseTypeValidator)
-                    && (declaredType != null) && !declaredType.isJavaLangObject()
+                    && (declaredType != null) && !ClassUtil.isArraySuperType(declaredType.getRawClass())
                     && param.isTypeOrSubTypeOf(declaredType.getRawClass())) {
                 // Approval of base type (declared array type) covers subtypes of its
-                // element type (except for `Object[]`, which would cover everything)
+                // element type (except for `Object[]`, `Serializable[]` and
+                // `Cloneable[]`, which would cover everything)
                 vldr = ptv;
                 vldBaseType = declaredType;
                 vld = Validity.ALLOWED;
@@ -448,9 +446,11 @@ public abstract class DatabindContext
     /**
      * Helper for validating element type of an array type: like other contained types
      * (including abstract types: they may still be deserializable, via
-     * {@code @JsonDeserialize(as=...)} or factory methods), unless the configured
-     * validator specifically approves the array type itself (see
-     * {@link #_isSpecificallyApprovedArrayType}).
+     * {@code @JsonDeserialize(as=...)} or factory methods). Approval of the array
+     * type does not by itself cover the element type: only the validator can say
+     * it does (see {@link PolymorphicTypeValidator#isArrayTypeAllowedExplicitly},
+     * checked by the caller for array types named by type id). Inner dimensions
+     * and array type parameters always get here.
      *
      * @param declaredType Declared type of the array, if any ({@code null} if none)
      *
@@ -461,30 +461,8 @@ public abstract class DatabindContext
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        if (_isSpecificallyApprovedArrayType(declaredType, arrayType, ptv, config)) {
-            return;
-        }
         _validateContainedType(baseType, typeId, _declaredContentType(declaredType),
                 arrayType.getContentType(), ptv, config);
-    }
-
-    /**
-     * Helper for checking whether configured validator approves given array type
-     * specifically (like {@code allowIfSubType(Bar[].class)} does for {@code Bar[]}),
-     * in which case approval covers its element type too. Approval that also covers
-     * {@code Object[]} (like with {@code allowIfSubType(Serializable.class)}, which
-     * matches all array types) does not count, nor does approval of base type.
-     *
-     * @since 2.18.12
-     */
-    private static boolean _isSpecificallyApprovedArrayType(JavaType declaredType,
-            JavaType arrayType, PolymorphicTypeValidator ptv, MapperConfig<?> config)
-        throws JsonMappingException
-    {
-        final PolymorphicTypeValidator vldr = _configuredValidator(ptv);
-        final JavaType vldBaseType = (declaredType == null) ? TypeFactory.unknownType() : declaredType;
-        return _isApprovedSubType(vldr, config, vldBaseType, arrayType)
-                && !_isApprovedSubType(vldr, config, TypeFactory.unknownType(), OBJECT_ARRAY_TYPE);
     }
 
     private static boolean _isApprovedSubType(PolymorphicTypeValidator vldr,

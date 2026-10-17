@@ -502,8 +502,11 @@ public abstract class DatabindContext
         private static final long serialVersionUID = 1L;
     }
 
+    // The JVM allows at most 255 dimensions (JVMS 4.4.1), so this is every depth
+    private static final int MAX_ARRAY_DIMENSIONS = 255;
+
     // Probe arrays by depth, built once each (benign race: all callers build the same type)
-    private static final JavaType[] ARRAY_PROBES = new JavaType[256];
+    private static final JavaType[] ARRAY_PROBES = new JavaType[MAX_ARRAY_DIMENSIONS + 1];
 
     private static JavaType _arrayProbeOfSameDepth(JavaType arrayType)
     {

@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.18.12 (not yet released)
+2.18.12 (17-Oct-2026)
 
 #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
  [CVE-2026-54516]

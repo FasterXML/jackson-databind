@@ -354,6 +354,9 @@ public class ObjectArraySerializer
     {
         Class<?> componentType = value.getClass().getComponentType();
         return componentType != _elementType.getRawClass()
+                // Nested array typing (#3194) is a separate case: preserve its
+                // existing per-element ids rather than changing the JSON shape.
+                && !componentType.isArray()
                 && Modifier.isFinal(componentType.getModifiers())
                 && provider.findTypeSerializer(provider.constructType(componentType)) == null;
     }

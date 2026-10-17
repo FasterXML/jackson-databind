@@ -54,6 +54,8 @@ public class PropertyBuilder
      * False for per-type {@code NON_DEFAULT}, which writes an explicit
      * {@code null} over a non-null default so the null can round-trip
      * ([databind#6275]). A null real default still suppresses nulls in both cases.
+     *
+     * @since 3.3
      */
     protected final boolean _suppressNullsOnRealDefaults;
 

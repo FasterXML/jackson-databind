@@ -475,7 +475,9 @@ public class PropertyValueBuffer
      */
     public void bufferAnyProperty(SettableAnyProperty prop, String propName,
             JsonParser p, DeserializationContext ctxt) throws JacksonException {
-        if (!prop.skipOrFailOnNull(p, ctxt, propName)) {
+        if (!prop.isIncluded(propName)) {
+            p.skipChildren();
+        } else if (!prop.skipOrFailOnNull(p, ctxt, propName)) {
             bufferAnyProperty(prop, propName, prop.deserialize(p, ctxt));
         }
     }

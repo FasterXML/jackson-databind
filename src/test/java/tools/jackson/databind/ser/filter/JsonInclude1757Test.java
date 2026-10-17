@@ -9,6 +9,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 // [databind#1757]: Global NON_DEFAULT should use real bean defaults
 //  for round-trip consistency when USE_REAL_NON_DEFAULT is enabled
@@ -168,5 +169,44 @@ public class JsonInclude1757Test extends DatabindTestUtil
         public String getSomeFieldWithDefault() {
             return someFieldWithDefault;
         }
+    }
+
+    // [databind#6275]: per-type NON_DEFAULT, non-null constructor default
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    static class PerTypeMode {
+        public String mode = "default";
+    }
+
+    // [databind#6275]: per-type NON_DEFAULT whose real default is null
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    static class PerTypeNullDefault {
+        public String mode;
+    }
+
+    // [databind#6275]: explicit null over a non-null per-type default must round-trip
+    @Test
+    public void testPerTypeNonDefaultExplicitNullRoundTrip() throws Exception {
+        ObjectMapper mapper = newJsonMapper();
+
+        PerTypeMode bean = new PerTypeMode();
+        bean.mode = null;
+        String json = mapper.writeValueAsString(bean);
+        assertEquals(a2q("{'mode':null}"), json);
+
+        PerTypeMode deserialized = mapper.readValue(json, PerTypeMode.class);
+        assertNull(deserialized.mode);
+
+        // Unchanged constructor default is omitted
+        assertEquals("{}", mapper.writeValueAsString(new PerTypeMode()));
+
+        // Non-default non-null value is included
+        bean.mode = "custom";
+        assertEquals(a2q("{'mode':'custom'}"), mapper.writeValueAsString(bean));
+    }
+
+    // [databind#6275]: a null real default still suppresses nulls
+    @Test
+    public void testPerTypeNonDefaultNullDefaultSuppressesNull() throws Exception {
+        assertEquals("{}", newJsonMapper().writeValueAsString(new PerTypeNullDefault()));
     }
 }

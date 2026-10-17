@@ -4,10 +4,6 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.23.0 (not yet released)
-
-No changes since 2.22
-
 2.22.4 (not yet released)
 
 #6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`

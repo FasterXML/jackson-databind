@@ -65,6 +65,29 @@ public class UntypedObjectWithDupsTest extends DatabindTestUtil
                 _readWriteDupDoc(DOC, StringStringMap.class));
     }
 
+    // [databind#6296]: with a custom key deserializer the non-vanilla deserializer
+    // is used; duplicates of a later key must be merged under that key, not the first one
+    @Test
+    public void docWithDupsAsUntypedWithKeyDeserializer() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new com.fasterxml.jackson.databind.module.SimpleModule()
+                        .addKeyDeserializer(Object.class, new KeyDeserializer() {
+                            @Override
+                            public Object deserializeKey(String key, DeserializationContext ctxt) {
+                                return key;
+                            }
+                        }))
+                .build();
+        final String DOC = a2q("{'a':1,'a':2,'b':3,'c':4,'b':5}");
+        Object value;
+        try (JsonParser p = new WithDupsParser(mapper.createParser(DOC))) {
+            value = mapper.readValue(p, Object.class);
+        }
+        assertEquals(a2q("{'a':[1,2],'b':[3,5],'c':4}"),
+                mapper.writeValueAsString(value));
+    }
+
     /*
     ///////////////////////////////////////////////////////////////////////
     // Helper methods

@@ -253,6 +253,26 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
+    public void inetSocketAddressBracketedWithInvalidSuffix() throws IOException
+    {
+        // bracketed IPv6 without port is still fine
+        InetSocketAddress ip6 = MAPPER.readValue(q("[2001:db8::1]"), InetSocketAddress.class);
+        assertEquals("[2001:db8::1]", ip6.getHostName());
+        assertEquals(0, ip6.getPort());
+
+        // but text between the closing bracket and the port must not be dropped
+        for (String value : new String[] { "[2001:db8::1]junk:443", "[2001:db8::1]junk",
+                "[2001:db8::1] 443" }) {
+            try {
+                InetSocketAddress result = MAPPER.readValue(q(value), InetSocketAddress.class);
+                fail("Should not pass for "+value+", got: "+result);
+            } catch (InvalidFormatException e) {
+                verifyException(e, "must be followed by ':' and port number");
+            }
+        }
+    }
+
+    @Test
     public void testPattern() throws IOException
     {
         Pattern exp = Pattern.compile("abc:\\s?(\\d+)");

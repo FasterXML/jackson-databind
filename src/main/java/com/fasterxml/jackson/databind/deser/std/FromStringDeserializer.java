@@ -372,8 +372,16 @@ _coercedTypeDesc());
                                 value, InetSocketAddress.class);
                     }
 
-                    int j = value.indexOf(':', i);
-                    int port = j > -1 ? Integer.parseInt(value.substring(j + 1)) : 0;
+                    // closing bracket must be followed by nothing or by ":port"
+                    int port = 0;
+                    if (i + 1 < value.length()) {
+                        if (value.charAt(i + 1) != ':') {
+                            throw new InvalidFormatException(ctxt.getParser(),
+                                    "Bracketed IPv6 address must be followed by ':' and port number",
+                                    value, InetSocketAddress.class);
+                        }
+                        port = Integer.parseInt(value.substring(i + 2));
+                    }
                     return _inetSocketAddress(value.substring(0, i + 1), port);
                 }
                 int ix = value.indexOf(':');

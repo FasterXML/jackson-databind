@@ -289,6 +289,16 @@ public abstract class PrimitiveArrayDeserializers<T>
                         continue;
                     } else {
                         CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                        // [databind#6300]: problem handler may substitute `null`
+                        if (cs == null) {
+                            if (_nuller != null) {
+                                _nuller.getNullValue(ctxt);
+                                continue;
+                            }
+                            char value = (char) _verifyNullForPrimitive(ctxt, p, '\0');
+                            sb.append(value);
+                            continue;
+                        }
                         str = cs.toString();
                     }
                     if (str.length() != 1) {
@@ -525,16 +535,19 @@ public abstract class PrimitiveArrayDeserializers<T>
             JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_NUMBER_INT) {
                 value = p.getByteValue(); // note: may throw due to overflow
-            } else {
+            } else if (t == JsonToken.VALUE_NULL) {
                 // should we accept nulls as null for byte[], or { 0 } ?
-                if (t == JsonToken.VALUE_NULL) {
-                    if (_nuller != null) {
-                        _nuller.getNullValue(ctxt);
-                        return (byte[]) getEmptyValue(ctxt);
-                    }
-                    value = (byte) _verifyNullForPrimitive(ctxt, p, (byte) 0);
+                if (_nuller != null) {
+                    _nuller.getNullValue(ctxt);
+                    return (byte[]) getEmptyValue(ctxt);
                 }
+                value = (byte) _verifyNullForPrimitive(ctxt, p, (byte) 0);
+            } else {
+                // [databind#6300]: handler may return null ("use null"), same as handleNonArray()
                 Number n = (Number) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                if (n == null) {
+                    return null;
+                }
                 value = n.byteValue();
             }
             return new byte[] { value };

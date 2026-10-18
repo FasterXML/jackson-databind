@@ -43,6 +43,7 @@ class FinalArraySubtypeDefaultTyping6290Test extends DatabindTestUtil
                 .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
                         .allowIfBaseType(Base[].class)
                         .allowIfBaseType(Base.class)
+                        .allowIfBaseType(Wrapper.class)
                         .allowIfSubType(Wrapper.class)
                         .build(), DefaultTyping.NON_FINAL)
                 .build();
@@ -92,7 +93,13 @@ class FinalArraySubtypeDefaultTyping6290Test extends DatabindTestUtil
 
     @Test
     void propertyLevelObjectArrayIdsPreserveLongValues() throws Exception {
-        ObjectMapper mapper = JsonMapper.builder().build();
+        // This test uses a trusted Long element type for an Object[] property.
+        // Configure a narrow allow-list instead of disabling polymorphic validation.
+        ObjectMapper mapper = JsonMapper.builder()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(Long.class)
+                        .build())
+                .build();
         AnnotatedObjectArrayWrapper input = new AnnotatedObjectArrayWrapper();
         input.values = new Long[] { 5L };
 

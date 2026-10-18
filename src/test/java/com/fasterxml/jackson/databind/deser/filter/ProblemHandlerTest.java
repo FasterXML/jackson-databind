@@ -35,6 +35,19 @@ public class ProblemHandlerTest
     /**********************************************************
      */
 
+    // [databind#6300]: handler that substitutes `null` for any unexpected token
+    static class NullForUnexpectedTokenHandler
+        extends DeserializationProblemHandler
+    {
+        @Override
+        public Object handleUnexpectedToken(DeserializationContext ctxt,
+                JavaType targetType, JsonToken t, JsonParser p,
+                String failureMsg)
+        {
+            return null;
+        }
+    }
+
     static class WeirdKeyHandler
         extends DeserializationProblemHandler
     {
@@ -410,5 +423,43 @@ public class ProblemHandlerTest
         } catch (MismatchedInputException e) {
             verifyException(e, "from Boolean value (token `JsonToken.VALUE_TRUE`)");
         }
+    }
+
+    // [databind#6300]: handler `null` is treated like a JSON null element
+    // (not a NullPointerException)
+    @Test
+    public void nullFromHandlerForUnwrappedByteArray() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
+        assertNull(mapper.readValue("true", byte[].class));
+        // ... and with FAIL_ON_NULL_FOR_PRIMITIVES a mismatch is reported
+        ObjectMapper strict = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        assertThrows(MismatchedInputException.class,
+                () -> strict.readValue("true", byte[].class));
+    }
+
+    @Test
+    public void nullFromHandlerForCharArrayElement() throws Exception
+    {
+        final String JSON = a2q("['a',true,'b']");
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .build();
+        assertArrayEquals(new char[] { 'a', '\0', 'b' },
+                mapper.readValue(JSON, char[].class));
+        // ... and with FAIL_ON_NULL_FOR_PRIMITIVES a mismatch is reported
+        ObjectMapper strict = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        assertThrows(MismatchedInputException.class,
+                () -> strict.readValue(JSON, char[].class));
     }
 }

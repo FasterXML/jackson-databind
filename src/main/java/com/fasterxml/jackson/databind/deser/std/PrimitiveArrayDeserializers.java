@@ -298,7 +298,17 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                         str = "\0";
                     } else {
                         CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(Character.TYPE, p);
-                        str = cs.toString();
+                        if (cs == null) {
+                            // problem handler substituted `null`: same as JSON null element
+                            if (_nuller != null) {
+                                _nuller.getNullValue(ctxt);
+                                continue;
+                            }
+                            _verifyNullForPrimitive(ctxt);
+                            str = "\0";
+                        } else {
+                            str = cs.toString();
+                        }
                     }
                     if (str.length() != 1) {
                         ctxt.reportInputMismatch(this,
@@ -549,6 +559,15 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                     return null;
                 }
                 Number n = (Number) ctxt.handleUnexpectedToken(_valueClass.getComponentType(), p);
+                if (n == null) {
+                    // problem handler substituted `null`: same as JSON null
+                    if (_nuller != null) {
+                        _nuller.getNullValue(ctxt);
+                        return (byte[]) getEmptyValue(ctxt);
+                    }
+                    _verifyNullForPrimitive(ctxt);
+                    return null;
+                }
                 value = n.byteValue();
             }
             return new byte[] { value };

@@ -657,7 +657,12 @@ public abstract class BeanSerializerBase
         // If not, need to inject the id:
         Object id = objectId.generateId(bean);
         if (w.alwaysAsId) {
-            w.serializer.serialize(id, gen, provider);
+            // id may not have been assigned yet (e.g. a `null` id property)
+            if (id == null) {
+                provider.defaultSerializeNull(gen);
+            } else {
+                w.serializer.serialize(id, gen, provider);
+            }
             return;
         }
         if (startEndObject) {
@@ -686,7 +691,12 @@ public abstract class BeanSerializerBase
         // If not, need to inject the id:
         Object id = objectId.generateId(bean);
         if (w.alwaysAsId) {
-            w.serializer.serialize(id, gen, provider);
+            // id may not have been assigned yet (e.g. a `null` id property)
+            if (id == null) {
+                provider.defaultSerializeNull(gen);
+            } else {
+                w.serializer.serialize(id, gen, provider);
+            }
             return;
         }
         _serializeObjectId(bean, gen, provider, typeSer, objectId);

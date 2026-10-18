@@ -355,4 +355,28 @@ public class TestObjectIdSerialization extends DatabindTestUtil
             verifyException(e, "cannot find property with name 'id'");
         }
     }
+
+    // Object id property with a `null` value, referenced always as id
+    @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+    static class ItemWithNullableId {
+        public Long id;
+        public String name = "item";
+    }
+
+    static class ItemReference {
+        @JsonIdentityReference(alwaysAsId=true)
+        public ItemWithNullableId item;
+    }
+
+    @Test
+    public void nullObjectIdWrittenAsId() throws Exception
+    {
+        ItemReference ref = new ItemReference();
+        ref.item = new ItemWithNullableId();
+        // id not yet assigned: write `null` instead of failing
+        assertEquals(a2q("{'item':null}"), MAPPER.writeValueAsString(ref));
+
+        ref.item.id = 5L;
+        assertEquals(a2q("{'item':5}"), MAPPER.writeValueAsString(ref));
+    }
 }

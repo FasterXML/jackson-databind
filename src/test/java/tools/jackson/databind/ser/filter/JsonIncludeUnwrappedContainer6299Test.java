@@ -264,7 +264,7 @@ class JsonIncludeUnwrappedContainer6299Test extends DatabindTestUtil
         DatabindException exception = assertThrows(DatabindException.class,
                 () -> writer.writeValueAsString(value));
         Object expectedSource = value instanceof Object[] array ? array[0] : value;
-        assertSame(expectedSource, exception.getPath().get(0).getFrom());
+        assertSame(expectedSource, exception.getPath().get(0).from());
         assertEquals(0, exception.getPath().get(0).getIndex());
         assertEquals(IllegalStateException.class, exception.getCause().getClass());
         ObjectWriter unwrapped = writer.without(SerializationFeature.WRAP_EXCEPTIONS);

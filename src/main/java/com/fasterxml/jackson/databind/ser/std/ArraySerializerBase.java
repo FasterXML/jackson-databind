@@ -141,6 +141,8 @@ public abstract class ArraySerializerBase<T>
     /**
      * Hook for serializers that need different contents when the container's
      * runtime type id has already been emitted. Defaults to the regular path.
+     *
+     * @since 2.23
      */
     protected void serializeContentsWithType(T value, JsonGenerator gen, SerializerProvider provider)
             throws IOException {

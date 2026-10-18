@@ -25,6 +25,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class JsonIncludeUnwrappedContainer6299Test extends DatabindTestUtil
@@ -62,7 +63,7 @@ class JsonIncludeUnwrappedContainer6299Test extends DatabindTestUtil
         }
     }
 
-    enum Size { SMALL, LARGE }
+    enum Size { SMALL, LARGE { } }
 
     static class SuppressSmallFilter {
         @Override
@@ -262,6 +263,8 @@ class JsonIncludeUnwrappedContainer6299Test extends DatabindTestUtil
         ObjectWriter writer = mapper.writerFor(type).with(SerializationFeature.WRAP_EXCEPTIONS);
         DatabindException exception = assertThrows(DatabindException.class,
                 () -> writer.writeValueAsString(value));
+        Object expectedSource = value instanceof Object[] array ? array[0] : value;
+        assertSame(expectedSource, exception.getPath().get(0).getFrom());
         assertEquals(0, exception.getPath().get(0).getIndex());
         assertEquals(IllegalStateException.class, exception.getCause().getClass());
         ObjectWriter unwrapped = writer.without(SerializationFeature.WRAP_EXCEPTIONS);

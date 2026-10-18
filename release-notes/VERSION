@@ -383,7 +383,7 @@ No changes since 3.2
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 
-3.1.8 (not yet released)
+3.1.8 (17-Oct-2026)
 
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)

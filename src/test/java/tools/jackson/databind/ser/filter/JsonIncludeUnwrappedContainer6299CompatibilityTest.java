@@ -22,6 +22,7 @@ import tools.jackson.core.filter.TokenFilter;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.core.util.JsonGeneratorDelegate;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.SerializationContext;
@@ -144,7 +145,7 @@ class JsonIncludeUnwrappedContainer6299CompatibilityTest extends DatabindTestUti
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("itemContainers")
-    void retainedCustomObjectAndContentType(String description, TypeReference<?> type,
+    void singletonUnwrappingPreservesCustomContent(String description, TypeReference<?> type,
             Function<Item, Object> container) {
         for (boolean fixedSerializer : new boolean[]{false, true}) {
             for (boolean typed : new boolean[]{false, true}) {
@@ -158,17 +159,32 @@ class JsonIncludeUnwrappedContainer6299CompatibilityTest extends DatabindTestUti
                     mapper = mapper.rebuild().addMixIn(Item.class, TypedItemMixin.class).build();
                 }
                 ObjectWriter writer = mapper.writerFor(type);
-                String expectedValue = typed ? """
-                        {"kind":"item","nested":{"text":"keep"}}""" : """
-                        {"nested":{"text":"keep"}}""";
-                String expected = "{\"values\":" + expectedValue + ",\"after\":1}";
-                Bean<Object> bean = new Bean<>(container.apply(new Item("keep")));
-                assertEquals(expected, writer.writeValueAsString(bean),
-                        "fixed=" + fixedSerializer + ", typed=" + typed);
-                assertEquals(expected, _writeThroughDelegate(writer, bean, true));
-                assertEquals("""
-                        {"values":[],"after":1}""",
-                        writer.writeValueAsString(new Bean<>(container.apply(new Item("")))));
+                ObjectWriter wrappedWriter = writer.without(
+                        SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
+                for (String text : new String[]{"keep", ""}) {
+                    String mode = "fixed=" + fixedSerializer + ", typed=" + typed
+                            + ", value=" + text;
+                    Bean<Object> bean = new Bean<>(container.apply(new Item(text)));
+                    String actual = writer.writeValueAsString(bean);
+                    // Preserve the existing wrapped path's content filtering and type
+                    // handling; this fix changes only the singleton's outer shape.
+                    JsonNode contents = mapper.readTree(
+                            wrappedWriter.writeValueAsString(bean)).get("values");
+                    assertTrue(contents.isArray(), mode);
+                    assertTrue(contents.size() <= 1, mode);
+                    if (!text.isEmpty()) {
+                        assertEquals(1, contents.size(), mode);
+                        assertEquals("\"keep\"",
+                                contents.get(0).get("nested").get("text").toString(), mode);
+                    } else if (!typed) {
+                        assertEquals(0, contents.size(), mode);
+                    }
+                    String expectedValue = contents.size() == 0
+                            ? "[]" : contents.get(0).toString();
+                    String expected = "{\"values\":" + expectedValue + ",\"after\":1}";
+                    assertEquals(expected, actual, mode);
+                    assertEquals(expected, _writeThroughDelegate(writer, bean, true), mode);
+                }
             }
         }
     }

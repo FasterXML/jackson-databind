@@ -447,7 +447,9 @@ public abstract class BeanDeserializerBase
         //    to avoid them being deserialized
         _beanProperties = src._beanProperties.withoutProperties(ignorableProps, includableProps);
 
-        _externalTypeIdHandler = src._externalTypeIdHandler;
+        // ... and same for external-typed properties, only known to the handler
+        _externalTypeIdHandler = (src._externalTypeIdHandler == null) ? null
+                : src._externalTypeIdHandler.withoutProperties(ignorableProps, includableProps);
     }
 
     protected BeanDeserializerBase(BeanDeserializerBase src, BeanPropertyMap beanProps)

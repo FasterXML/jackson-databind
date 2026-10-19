@@ -410,6 +410,9 @@ public class BeanDeserializer
             }
             // "Any property"?
             if (_anySetter != null) {
+                if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                    continue;
+                }
                 try {
                     // 09-Feb-2026, tatu: as with Mutators, should never have non-Creator
                     //   "any"-properties, so commento out
@@ -824,6 +827,9 @@ public class BeanDeserializer
             }
             // "any property"?
             if (_anySetter != null) {
+                if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                    continue;
+                }
                 try {
                     // [databind#4639] Since 2.18.1 AnySetter might not part of the creator, but just some field.
                     if (_anySetter.isFieldType() ||
@@ -1129,6 +1135,9 @@ public class BeanDeserializer
                 handleUnknownVanilla(p, ctxt, bean, propName);
                 continue;
             }
+            if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                continue;
+            }
             // Need to copy to a separate buffer first
             TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
             tokens.writeName(propName);
@@ -1191,6 +1200,8 @@ public class BeanDeserializer
                 handleIgnoredProperty(p, ctxt, bean, propName);
             } else if (_anySetter == null) {
                 handleUnknownVanilla(p, ctxt, bean, propName);
+            } else if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                ; // any-setter not visible in active view: value skipped
             } else {
                 // Need to copy to a separate buffer first
                 TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
@@ -1290,6 +1301,8 @@ public class BeanDeserializer
                 } else {
                     p.skipChildren();
                 }
+            } else if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                ; // any-setter not visible in active view: value skipped
             } else {
                 // Need to copy to a separate buffer first
                 TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
@@ -1413,6 +1426,9 @@ public class BeanDeserializer
             }
             // if not, the usual fallback handling:
             if (_anySetter != null) {
+                if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                    continue;
+                }
                 try {
                     _anySetter.deserializeAndSet(p, ctxt, bean, propName);
                 } catch (Exception e) {
@@ -1506,6 +1522,9 @@ public class BeanDeserializer
             }
             // "any property"?
             if (_anySetter != null) {
+                if (_skipIfAnySetterNotInView(p, ctxt, propName)) {
+                    continue;
+                }
                 buffer.bufferAnyProperty(_anySetter, propName, p, ctxt);
                 continue;
             }

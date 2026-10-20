@@ -13,12 +13,15 @@ import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.SerializableString;
+import tools.jackson.core.io.SerializedString;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
+import tools.jackson.databind.util.TokenBuffer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -91,6 +94,42 @@ class MapKeyInclusion6282Test extends DatabindTestUtil
         @JsonIncludeProperties("A1")
         @JsonSerialize(keyUsing = CountingKeySerializer.class)
         public Map<Key, String> values = new LinkedHashMap<>();
+    }
+
+    public static class SerializableKeySerializer extends ValueSerializer<Key> {
+        @Override
+        public void serialize(Key value, JsonGenerator gen, SerializationContext ctxt) {
+            gen.writeName(new SerializedString(value.name()));
+        }
+    }
+
+    static class IncludeSerializableKey {
+        @JsonIncludeProperties("A")
+        @JsonSerialize(keyUsing = SerializableKeySerializer.class)
+        public Map<Key, String> values = new LinkedHashMap<>();
+    }
+
+    static class TrackingTokenBuffer extends TokenBuffer {
+        int propertyIds;
+        int serializableNames;
+
+        TrackingTokenBuffer() {
+            super(false);
+        }
+
+        @Override
+        public JsonGenerator writePropertyId(long id) {
+            ++propertyIds;
+            return super.writePropertyId(id);
+        }
+
+        @Override
+        public JsonGenerator writeName(SerializableString name) {
+            if ("A".equals(name.getValue())) {
+                ++serializableNames;
+            }
+            return super.writeName(name);
+        }
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -173,5 +212,27 @@ class MapKeyInclusion6282Test extends DatabindTestUtil
 
         assertEquals("{\"values\":{\"A1\":\"a\"}}", MAPPER.writeValueAsString(input));
         assertEquals(1, CountingKeySerializer.CALLS.get());
+    }
+
+    @Test
+    void filteringRetainsNativeNumericPropertyId()
+    {
+        IncludeIntegerKeys input = new IncludeIntegerKeys();
+        input.values.put(1, "a");
+        TrackingTokenBuffer output = new TrackingTokenBuffer();
+
+        MAPPER.writeValue(output, input);
+        assertEquals(1, output.propertyIds);
+    }
+
+    @Test
+    void filteringRetainsSerializableFieldName()
+    {
+        IncludeSerializableKey input = new IncludeSerializableKey();
+        input.values.put(Key.A, "a");
+        TrackingTokenBuffer output = new TrackingTokenBuffer();
+
+        MAPPER.writeValue(output, input);
+        assertEquals(1, output.serializableNames);
     }
 }

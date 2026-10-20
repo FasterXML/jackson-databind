@@ -1067,7 +1067,7 @@ public class MapSerializer
             return _inclusionChecker.shouldIgnore(key) ? null : _keySerializer;
         }
 
-        TokenBuffer buffer = TokenBuffer.forGeneration();
+        FilteringKeyBuffer buffer = new FilteringKeyBuffer(ctxt);
         buffer.writeStartObject();
         _keySerializer.serialize(key, buffer, ctxt);
         try (JsonParser parser = buffer.asParser()) {
@@ -1076,20 +1076,50 @@ public class MapSerializer
                 return _inclusionChecker.shouldIgnore(key) ? null : _keySerializer;
             }
             String name = parser.currentName();
-            return _inclusionChecker.shouldIgnore(name) ? null : new FilteredKeySerializer(name);
+            return _inclusionChecker.shouldIgnore(name) ? null
+                    : new FilteredKeySerializer(name, buffer.nativeName);
         }
+    }
+
+    private static class FilteringKeyBuffer extends TokenBuffer {
+        Object nativeName;
+
+        FilteringKeyBuffer(SerializationContext ctxt) {
+            super(ctxt, false);
+        }
+
+        @Override
+        public JsonGenerator writePropertyId(long id) {
+            nativeName = id;
+            return super.writePropertyId(id);
+        }
+
+        @Override
+        public JsonGenerator writeName(SerializableString name) {
+            nativeName = name;
+            return super.writeName(name);
+        }
+
     }
 
     private static class FilteredKeySerializer extends ValueSerializer<Object> {
         private final String _name;
+        private final Object _nativeName;
 
-        FilteredKeySerializer(String name) {
+        FilteredKeySerializer(String name, Object nativeName) {
             _name = name;
+            _nativeName = nativeName;
         }
 
         @Override
         public void serialize(Object key, JsonGenerator gen, SerializationContext ctxt) {
-            gen.writeName(_name);
+            if (_nativeName instanceof Long id) {
+                gen.writePropertyId(id);
+            } else if (_nativeName instanceof SerializableString name) {
+                gen.writeName(name);
+            } else {
+                gen.writeName(_name);
+            }
         }
     }
 

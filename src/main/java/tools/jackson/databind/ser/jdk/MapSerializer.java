@@ -628,7 +628,6 @@ public class MapSerializer
             serializeTypedEntries(value, gen, ctxt, null);
             return;
         }
-        final ValueSerializer<Object> keySerializer = _keySerializer;
         Object keyElem = null;
 
         try {
@@ -640,10 +639,11 @@ public class MapSerializer
                     ctxt.findNullKeySerializer(_keyType, _property).serialize(null, gen, ctxt);
                 } else {
                     // One twist: is entry ignorable? If so, skip
-                    if (_shouldIgnore(keyElem, ctxt)) {
+                    ValueSerializer<Object> filteredKeySerializer = _filteredKeySerializer(keyElem, ctxt);
+                    if (filteredKeySerializer == null) {
                         continue;
                     }
-                    keySerializer.serialize(keyElem, gen, ctxt);
+                    filteredKeySerializer.serialize(keyElem, gen, ctxt);
                 }
                 // And then value
                 if (valueElem == null) {
@@ -685,10 +685,10 @@ public class MapSerializer
             if (keyElem == null) {
                 keySerializer = ctxt.findNullKeySerializer(_keyType, _property);
             } else {
-                if (_shouldIgnore(keyElem, ctxt)) {
+                keySerializer = _filteredKeySerializer(keyElem, ctxt);
+                if (keySerializer == null) {
                     continue;
                 }
-                keySerializer = _keySerializer;
             }
 
             // Then value serializer
@@ -737,19 +737,19 @@ public class MapSerializer
             ValueSerializer<Object> ser)
         throws JacksonException
     {
-        final ValueSerializer<Object> keySerializer = _keySerializer;
         final TypeSerializer typeSer = _valueTypeSerializer;
 
         for (Map.Entry<?,?> entry : value.entrySet()) {
             Object keyElem = entry.getKey();
-            if (_shouldIgnore(keyElem, ctxt)) {
+            ValueSerializer<Object> filteredKeySerializer = _filteredKeySerializer(keyElem, ctxt);
+            if (filteredKeySerializer == null) {
                 continue;
             }
 
             if (keyElem == null) {
                 ctxt.findNullKeySerializer(_keyType, _property).serialize(null, gen, ctxt);
             } else {
-                keySerializer.serialize(keyElem, gen, ctxt);
+                filteredKeySerializer.serialize(keyElem, gen, ctxt);
             }
             final Object valueElem = entry.getValue();
             if (valueElem == null) {
@@ -786,7 +786,8 @@ public class MapSerializer
         for (Map.Entry<?,?> entry : value.entrySet()) {
             // First, serialize key; unless ignorable by key
             final Object keyElem = entry.getKey();
-            if (_shouldIgnore(keyElem, ctxt)) {
+            ValueSerializer<Object> filteredKeySerializer = _filteredKeySerializer(keyElem, ctxt);
+            if (filteredKeySerializer == null) {
                 continue;
             }
 
@@ -794,7 +795,7 @@ public class MapSerializer
             if (keyElem == null) {
                 keySerializer = ctxt.findNullKeySerializer(_keyType, _property);
             } else {
-                keySerializer = _keySerializer;
+                keySerializer = filteredKeySerializer;
             }
             // or by value; nulls often suppressed
             final Object valueElem = entry.getValue();
@@ -850,10 +851,10 @@ public class MapSerializer
                 keySerializer = ctxt.findNullKeySerializer(_keyType, _property);
             } else {
                 // One twist: is entry ignorable? If so, skip
-                if (_shouldIgnore(keyElem, ctxt)) {
+                keySerializer = _filteredKeySerializer(keyElem, ctxt);
+                if (keySerializer == null) {
                     continue;
                 }
-                keySerializer = _keySerializer;
             }
             final Object valueElem = entry.getValue();
 
@@ -937,7 +938,8 @@ public class MapSerializer
         for (Map.Entry<?,?> entry : value.entrySet()) {
             // First, serialize key; unless ignorable by key
             final Object keyElem = entry.getKey();
-            if (_shouldIgnore(keyElem, ctxt)) {
+            ValueSerializer<Object> filteredKeySerializer = _filteredKeySerializer(keyElem, ctxt);
+            if (filteredKeySerializer == null) {
                 continue;
             }
 
@@ -945,7 +947,7 @@ public class MapSerializer
             if (keyElem == null) {
                 keySerializer = ctxt.findNullKeySerializer(_keyType, _property);
             } else {
-                keySerializer = _keySerializer;
+                keySerializer = filteredKeySerializer;
             }
             // or by value; nulls often suppressed
             final Object valueElem = entry.getValue();
@@ -1055,14 +1057,14 @@ public class MapSerializer
      * actually writes. This matters for enum aliases, custom key serializers and
      * serialization features that change the textual representation of a key.
      */
-    protected boolean _shouldIgnore(Object key, SerializationContext ctxt)
+    protected ValueSerializer<Object> _filteredKeySerializer(Object key, SerializationContext ctxt)
         throws JacksonException
     {
         if (_inclusionChecker == null) {
-            return false;
+            return _keySerializer;
         }
         if ((key == null) || (key instanceof String)) {
-            return _inclusionChecker.shouldIgnore(key);
+            return _inclusionChecker.shouldIgnore(key) ? null : _keySerializer;
         }
 
         TokenBuffer buffer = TokenBuffer.forGeneration();
@@ -1071,9 +1073,23 @@ public class MapSerializer
         try (JsonParser parser = buffer.asParser()) {
             parser.nextToken();
             if (parser.nextToken() != JsonToken.PROPERTY_NAME) {
-                return _inclusionChecker.shouldIgnore(key);
+                return _inclusionChecker.shouldIgnore(key) ? null : _keySerializer;
             }
-            return _inclusionChecker.shouldIgnore(parser.currentName());
+            String name = parser.currentName();
+            return _inclusionChecker.shouldIgnore(name) ? null : new FilteredKeySerializer(name);
+        }
+    }
+
+    private static class FilteredKeySerializer extends ValueSerializer<Object> {
+        private final String _name;
+
+        FilteredKeySerializer(String name) {
+            _name = name;
+        }
+
+        @Override
+        public void serialize(Object key, JsonGenerator gen, SerializationContext ctxt) {
+            gen.writeName(_name);
         }
     }
 

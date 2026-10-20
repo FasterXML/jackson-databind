@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +12,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 
@@ -71,6 +76,21 @@ class MapKeyInclusion6282Test extends DatabindTestUtil
     static class IncludeRenamedEnumKeys {
         @JsonIncludeProperties("alpha")
         public Map<RenamedKey, String> values = new LinkedHashMap<>();
+    }
+
+    public static class CountingKeySerializer extends ValueSerializer<Key> {
+        static final AtomicInteger CALLS = new AtomicInteger();
+
+        @Override
+        public void serialize(Key value, JsonGenerator gen, SerializationContext ctxt) {
+            gen.writeName(value.name() + CALLS.incrementAndGet());
+        }
+    }
+
+    static class IncludeStatefulKey {
+        @JsonIncludeProperties("A1")
+        @JsonSerialize(keyUsing = CountingKeySerializer.class)
+        public Map<Key, String> values = new LinkedHashMap<>();
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -142,5 +162,16 @@ class MapKeyInclusion6282Test extends DatabindTestUtil
                 .shouldIgnore(null));
         assertTrue(IgnorePropertiesUtil.Checker.construct(new HashSet<>(), new HashSet<>(Set.of("null")))
                 .shouldIgnore(null));
+    }
+
+    @Test
+    void filteringUsesTheSameSerializedKeyThatItWrites() throws Exception
+    {
+        CountingKeySerializer.CALLS.set(0);
+        IncludeStatefulKey input = new IncludeStatefulKey();
+        input.values.put(Key.A, "a");
+
+        assertEquals("{\"values\":{\"A1\":\"a\"}}", MAPPER.writeValueAsString(input));
+        assertEquals(1, CountingKeySerializer.CALLS.get());
     }
 }

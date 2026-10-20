@@ -11,7 +11,7 @@ Project: jackson-databind
 #6261: Support `@JsonView` on properties-based Creator parameters of Enum, Map and EnumMap types
  (fix by @pjfanning, w/ Claude code)
 
-2.22.4 (not yet released)
+2.22.4 (17-Oct-2026)
 
 #6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
   (instead of `StackOverflowError`)
@@ -22,6 +22,19 @@ Project: jackson-databind
  (fix by @pjfanning, w/ Claude code)
 #6249: Avoid NPE when parser reports `VALUE_STRING` with `null` text
  (fix by @pjfanning, w/ Claude code)
+#6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: type parameters (and element types of array type ids) are now validated
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type (also without configured validator);
+  `allowIfSubTypeIsArray()` no longer accepts abstract or interface element types
+  without allow-listing (except `Number`); approval of an array type covers its
+  element type only if given as exactly that class (`allowIfSubType(Bar[].class)`,
+  new `PolymorphicTypeValidator.isArrayTypeAllowedExplicitly()`), a name-based
+  rule does not; base type approval of a declared array type covers subtypes of
+  its element type unless that is `Object`, `Serializable` or `Cloneable`
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, @martinfrancois)
 
 2.22.3 (21-Sep-2026)
 
@@ -85,7 +98,7 @@ Project: jackson-databind
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.8 (not yet released)
+2.21.8 (17-Oct-2026)
 
 #6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
   (instead of `StackOverflowError`)
@@ -96,6 +109,19 @@ Project: jackson-databind
  (fix by @pjfanning, w/ Claude code)
 #6249: Avoid NPE when parser reports `VALUE_STRING` with `null` text
  (fix by @pjfanning, w/ Claude code)
+#6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: type parameters (and element types of array type ids) are now validated
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type (also without configured validator);
+  `allowIfSubTypeIsArray()` no longer accepts abstract or interface element types
+  without allow-listing (except `Number`); approval of an array type covers its
+  element type only if given as exactly that class (`allowIfSubType(Bar[].class)`,
+  new `PolymorphicTypeValidator.isArrayTypeAllowedExplicitly()`), a name-based
+  rule does not; base type approval of a declared array type covers subtypes of
+  its element type unless that is `Object`, `Serializable` or `Cloneable`
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, @martinfrancois)
 
 2.21.7 (21-Sep-2026)
 
@@ -437,6 +463,25 @@ No changes since 2.19.2
  (reported by @seadbrane)
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
+
+2.18.12 (17-Oct-2026)
+
+#5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+ [CVE-2026-54516]
+ (fixed by Omkhar A)
+#6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: type parameters (and element types of array type ids) are now validated
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type (also without configured validator);
+  `allowIfSubTypeIsArray()` no longer accepts abstract or interface element types
+  without allow-listing (except `Number`); approval of an array type covers its
+  element type only if given as exactly that class (`allowIfSubType(Bar[].class)`,
+  new `PolymorphicTypeValidator.isArrayTypeAllowedExplicitly()`), a name-based
+  rule does not; base type approval of a declared array type covers subtypes of
+  its element type unless that is `Object`, `Serializable` or `Cloneable`
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, @martinfrancois)
 
 2.18.11 (20-Sep-2026)
 

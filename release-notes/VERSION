@@ -17,6 +17,9 @@ No changes since 3.2
 #6296: Duplicate properties merged under the wrong key in non-vanilla
   `UntypedObjectDeserializer`
  (reported, fixed by @Marti2203)
+#6305: `InetSocketAddress` deserialization ignores text after the closing bracket
+  of an IPv6 address
+ (reported, fixed by @Marti2203)
 
 3.2.4 (18-Oct-2026)
 
@@ -399,6 +402,9 @@ No changes since 3.2
  (reported, fixed by @Marti2203)
 #6296: Duplicate properties merged under the wrong key in non-vanilla
   `UntypedObjectDeserializer`
+ (reported, fixed by @Marti2203)
+#6305: `InetSocketAddress` deserialization ignores text after the closing bracket
+  of an IPv6 address
  (reported, fixed by @Marti2203)
 
 3.1.8 (17-Oct-2026)

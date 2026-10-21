@@ -26,7 +26,7 @@ public class MapKeyTypeCheckTest extends DatabindTestUtil
         JavaType mapType = MAPPER.getTypeFactory().constructMapType(HashMap.class,
                 FileHandler.class, String.class);
         InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
-                () -> MAPPER.readValue("{\"key\":\"x\"}", mapType));
+                () -> MAPPER.readValue(a2q("{'key':'x'}"), mapType));
         verifyException(e, "Illegal type");
     }
 
@@ -35,7 +35,7 @@ public class MapKeyTypeCheckTest extends DatabindTestUtil
     {
         JavaType mapType = MAPPER.getTypeFactory().constructMapType(HashMap.class,
                 StringBuilder.class, String.class);
-        Map<StringBuilder, String> result = MAPPER.readValue("{\"key\":\"x\"}", mapType);
+        Map<StringBuilder, String> result = MAPPER.readValue(a2q("{'key':'x'}"), mapType);
         assertEquals(1, result.size());
         assertEquals("key", result.keySet().iterator().next().toString());
     }

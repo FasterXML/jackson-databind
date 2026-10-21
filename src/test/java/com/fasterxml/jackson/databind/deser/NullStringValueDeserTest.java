@@ -140,9 +140,15 @@ public class NullStringValueDeserTest extends DatabindTestUtil
 
     // Arrays
 
+    // `char[]` element with null text is handled like a JSON null element
     @Test
     public void nullStringAsCharArrayElement() throws Exception {
-        _verifyFails(MAPPER, MAPPER.constructType(char[].class), "['a','b']");
+        assertArrayEquals(new char[] { '\0', '\0' },
+                (char[]) _read(MAPPER, MAPPER.constructType(char[].class), "['a','b']"));
+        ObjectMapper strict = jsonMapperBuilder()
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        _verifyFails(strict, strict.constructType(char[].class), "['a','b']");
     }
 
     @Test

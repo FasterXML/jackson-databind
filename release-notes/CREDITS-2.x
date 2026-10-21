@@ -2135,3 +2135,7 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)`
    to an object whose id is `null`
   [2.23.0]
+
+@bugada
+ * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+  [2.23.0]

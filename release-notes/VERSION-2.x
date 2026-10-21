@@ -16,6 +16,9 @@ Project: jackson-databind
 #6296: Duplicate properties merged under the wrong key in non-vanilla
   `UntypedObjectDeserializer`
  (reported, fixed by @Marti2203)
+#6305: `InetSocketAddress` deserialization ignores text after the closing bracket
+  of an IPv6 address
+ (reported, fixed by @Marti2203)
 #6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)` to an object
   whose id is `null`
  (reported, fixed by @Marti2203)

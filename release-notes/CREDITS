@@ -815,7 +815,7 @@ Martin Mirchev (@Marti2203)
    writes a `null` over a non-null default, so the `null` can't round-trip
   [3.3.0]
 
-Matt Van Horn
+Matt Van Horn (@mvanhorn)
  * Fixed #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
    writes a `null` over a non-null default, so the `null` can't round-trip
   [3.3.0]

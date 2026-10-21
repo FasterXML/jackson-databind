@@ -290,25 +290,19 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                     if ((t == JsonToken.VALUE_STRING) && (p.getText() != null)) {
                         str = p.getText();
                     } else if (t == JsonToken.VALUE_NULL) {
+                        str = null;
+                    } else {
+                        CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(Character.TYPE, p);
+                        str = (cs == null) ? null : cs.toString();
+                    }
+                    // JSON null, or `null` substituted by a problem handler
+                    if (str == null) {
                         if (_nuller != null) {
                             _nuller.getNullValue(ctxt);
                             continue;
                         }
                         _verifyNullForPrimitive(ctxt);
                         str = "\0";
-                    } else {
-                        CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(Character.TYPE, p);
-                        if (cs == null) {
-                            // problem handler substituted `null`: same as JSON null element
-                            if (_nuller != null) {
-                                _nuller.getNullValue(ctxt);
-                                continue;
-                            }
-                            _verifyNullForPrimitive(ctxt);
-                            str = "\0";
-                        } else {
-                            str = cs.toString();
-                        }
                     }
                     if (str.length() != 1) {
                         ctxt.reportInputMismatch(this,
@@ -550,17 +544,12 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 value = p.getByteValue(); // note: may throw due to overflow
             } else {
                 // should probably accept nulls as 'false'
-                if (t == JsonToken.VALUE_NULL) {
-                    if (_nuller != null) {
-                        _nuller.getNullValue(ctxt);
-                        return (byte[]) getEmptyValue(ctxt);
-                    }
-                    _verifyNullForPrimitive(ctxt);
-                    return null;
+                Number n = null;
+                if (t != JsonToken.VALUE_NULL) {
+                    n = (Number) ctxt.handleUnexpectedToken(_valueClass.getComponentType(), p);
                 }
-                Number n = (Number) ctxt.handleUnexpectedToken(_valueClass.getComponentType(), p);
+                // JSON null, or `null` substituted by a problem handler
                 if (n == null) {
-                    // problem handler substituted `null`: same as JSON null
                     if (_nuller != null) {
                         _nuller.getNullValue(ctxt);
                         return (byte[]) getEmptyValue(ctxt);

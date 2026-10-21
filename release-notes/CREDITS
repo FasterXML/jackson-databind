@@ -795,3 +795,17 @@ Hyun Lee (@dlwhdgus0810)
  * Reported #6273: Deserializing empty `Locale` Map keys (and other non-BCP-47
    single-segment values) fails since 3.2.0
   [3.2.4]
+
+Martin Mirchev (@Marti2203)
+ * Reported, fixed #6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property
+   when the default array contains `null`
+  [3.2.5]
+ * Reported, fixed #6296: Duplicate properties merged under the wrong key in non-vanilla
+   `UntypedObjectDeserializer`
+  [3.2.5]
+ * Reported, fixed #6305: `InetSocketAddress` deserialization ignores text after the closing
+   bracket of an IPv6 address
+  [3.2.5]
+ * Reported, fixed #6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)`
+   to an object whose id is `null`
+  [3.2.5]

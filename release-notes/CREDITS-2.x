@@ -2129,6 +2129,9 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6296: Duplicate properties merged under the wrong key in non-vanilla
    `UntypedObjectDeserializer`
   [2.23.0]
+ * Reported, fixed #6300: NPE when a `DeserializationProblemHandler` returns `null`
+   for `byte[]` (single value unwrapped) and `char[]` elements
+  [2.23.0]
  * Reported, fixed #6305: `InetSocketAddress` deserialization ignores text after the closing
    bracket of an IPv6 address
   [2.23.0]

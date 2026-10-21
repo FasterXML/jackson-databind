@@ -13,6 +13,9 @@ Project: jackson-databind
 #6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
   array contains `null`
  (reported, fixed by @Marti2203)
+#6296: Duplicate properties merged under the wrong key in non-vanilla
+  `UntypedObjectDeserializer`
+ (reported, fixed by @Marti2203)
 
 2.22.4 (17-Oct-2026)
 

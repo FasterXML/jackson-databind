@@ -209,4 +209,52 @@ public class JsonInclude1757Test extends DatabindTestUtil
     public void testPerTypeNonDefaultNullDefaultSuppressesNull() throws Exception {
         assertEquals("{}", newJsonMapper().writeValueAsString(new PerTypeNullDefault()));
     }
+
+    static class NullDefaultEntity {
+        public String mode;
+    }
+
+    static class PropertyOverrideEntity {
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        public String mode = "default";
+    }
+
+    private ObjectMapper globalRealNonDefaultMapper() {
+        return jsonMapperBuilder()
+                .enable(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT)
+                .changeDefaultPropertyInclusion(incl ->
+                        incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
+                .build();
+    }
+
+    // [databind#6317]: explicit null over non-null global real default must round-trip
+    @Test
+    public void testGlobalNonDefaultExplicitNullRoundTrip() throws Exception {
+        ObjectMapper mapper = globalRealNonDefaultMapper();
+        Entity entity = new Entity();
+        entity.setSomeFieldWithDefault(null);
+        String json = mapper.writeValueAsString(entity);
+        assertEquals(a2q("{'someFieldWithDefault':null}"), json);
+        assertNull(mapper.readValue(json, Entity.class).getSomeFieldWithDefault());
+    }
+
+    // [databind#6317]: a null real default still suppresses nulls in global mode
+    @Test
+    public void testGlobalNonDefaultNullDefaultSuppressesNull() throws Exception {
+        ObjectMapper mapper = globalRealNonDefaultMapper();
+        assertEquals("{}", mapper.writeValueAsString(new NullDefaultEntity()));
+        NullDefaultEntity bean = new NullDefaultEntity();
+        bean.mode = "x";
+        assertEquals(a2q("{'mode':'x'}"), mapper.writeValueAsString(bean));
+    }
+
+    // [databind#6317]: per-property NON_NULL overrides global NON_DEFAULT
+    @Test
+    public void testGlobalNonDefaultPerPropertyOverride() throws Exception {
+        ObjectMapper mapper = globalRealNonDefaultMapper();
+        PropertyOverrideEntity bean = new PropertyOverrideEntity();
+        assertEquals(a2q("{'mode':'default'}"), mapper.writeValueAsString(bean));
+        bean.mode = null;
+        assertEquals("{}", mapper.writeValueAsString(bean));
+    }
 }

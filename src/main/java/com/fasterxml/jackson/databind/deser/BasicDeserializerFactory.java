@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.*;
 
@@ -1287,6 +1288,8 @@ factory.toString()));
             if (type.isEnumType()) {
                 deser = _createEnumKeyDeserializer(ctxt, type);
             } else {
+                // Same type checks as for bean deserializers
+                SubTypeValidator.instance().validateSubType(ctxt, type, beanDesc);
                 deser = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
             }
         }

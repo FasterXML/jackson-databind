@@ -309,7 +309,6 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 JsonToken t;
                 while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                     String str;
-                    // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
                     if (t == JsonToken.VALUE_STRING) {
                         str = p.getText();
                     } else if (t == JsonToken.VALUE_NULL) {
@@ -574,10 +573,12 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                         _nuller.getNullValue(ctxt);
                         return (byte[]) getEmptyValue(ctxt);
                     }
+                    // As with other primitive arrays, `null` becomes the default element
                     _verifyNullForPrimitive(ctxt, t);
-                    return null;
+                    value = 0;
+                } else {
+                    value = n.byteValue();
                 }
-                value = n.byteValue();
             }
             return new byte[] { value };
         }

@@ -434,7 +434,7 @@ public class ProblemHandlerTest
                 .addHandler(new NullForUnexpectedTokenHandler())
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                 .build();
-        assertNull(mapper.readValue("true", byte[].class));
+        assertArrayEquals(new byte[] { 0 }, mapper.readValue("true", byte[].class));
         // ... and with FAIL_ON_NULL_FOR_PRIMITIVES a mismatch is reported
         ObjectMapper strict = jsonMapperBuilder()
                 .addHandler(new NullForUnexpectedTokenHandler())

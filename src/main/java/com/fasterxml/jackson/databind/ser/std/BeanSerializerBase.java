@@ -659,7 +659,7 @@ public abstract class BeanSerializerBase
         if (w.alwaysAsId) {
             // id may not have been assigned yet (e.g. a `null` id property)
             if (id == null) {
-                provider.defaultSerializeNull(gen);
+                gen.writeNull();
             } else {
                 w.serializer.serialize(id, gen, provider);
             }
@@ -693,7 +693,7 @@ public abstract class BeanSerializerBase
         if (w.alwaysAsId) {
             // id may not have been assigned yet (e.g. a `null` id property)
             if (id == null) {
-                provider.defaultSerializeNull(gen);
+                gen.writeNull();
             } else {
                 w.serializer.serialize(id, gen, provider);
             }

@@ -236,6 +236,29 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         throw InvalidNullException.from(ctxt, null, ctxt.constructType(_valueClass));
     }
 
+    /**
+     * Variant of {@link #_verifyNullForPrimitive(DeserializationContext)} that also
+     * covers {@code null} substituted by a {@code DeserializationProblemHandler}
+     * for an unexpected token: if so, error message refers to that token
+     * instead of a JSON {@code null}.
+     *
+     * @param t Token that produced {@code null}: either {@link JsonToken#VALUE_NULL}
+     *    or the unexpected token passed to problem handler
+     *
+     * @since 2.23
+     */
+    protected void _verifyNullForPrimitive(DeserializationContext ctxt, JsonToken t)
+        throws JsonMappingException
+    {
+        if (t == JsonToken.VALUE_NULL) {
+            _verifyNullForPrimitive(ctxt);
+        } else if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            ctxt.reportInputMismatch(this,
+"Cannot coerce `null` returned by `DeserializationProblemHandler` for token `JsonToken.%s` to %s (disable `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to allow)",
+                    t, _coercedTypeDesc());
+        }
+    }
+
     /*
     /********************************************************
     /* Actual deserializers: efficient String[], char[] deserializers
@@ -287,21 +310,19 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                     String str;
                     // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
-                    if ((t == JsonToken.VALUE_STRING) && (p.getText() != null)) {
+                    if (t == JsonToken.VALUE_STRING) {
                         str = p.getText();
                     } else if (t == JsonToken.VALUE_NULL) {
                         str = null;
                     } else {
-                        CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(Character.TYPE, p);
-                        str = (cs == null) ? null : cs.toString();
+                        // Handler may only return `Character` (or `null`) for `Character.TYPE`
+                        Object ob = ctxt.handleUnexpectedToken(Character.TYPE, p);
+                        str = (ob == null) ? null : ob.toString();
                     }
                     // JSON null, or `null` substituted by a problem handler
+                    // (no `_nuller` to check: `withResolved()` does not retain it)
                     if (str == null) {
-                        if (_nuller != null) {
-                            _nuller.getNullValue(ctxt);
-                            continue;
-                        }
-                        _verifyNullForPrimitive(ctxt);
+                        _verifyNullForPrimitive(ctxt, t);
                         str = "\0";
                     }
                     if (str.length() != 1) {
@@ -543,7 +564,6 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             if (t == JsonToken.VALUE_NUMBER_INT) {
                 value = p.getByteValue(); // note: may throw due to overflow
             } else {
-                // should probably accept nulls as 'false'
                 Number n = null;
                 if (t != JsonToken.VALUE_NULL) {
                     n = (Number) ctxt.handleUnexpectedToken(_valueClass.getComponentType(), p);
@@ -554,7 +574,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                         _nuller.getNullValue(ctxt);
                         return (byte[]) getEmptyValue(ctxt);
                     }
-                    _verifyNullForPrimitive(ctxt);
+                    _verifyNullForPrimitive(ctxt, t);
                     return null;
                 }
                 value = n.byteValue();

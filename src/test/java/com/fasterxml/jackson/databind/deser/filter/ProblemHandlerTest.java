@@ -441,8 +441,10 @@ public class ProblemHandlerTest
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                 .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .build();
-        assertThrows(MismatchedInputException.class,
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
                 () -> strict.readValue("true", byte[].class));
+        verifyException(e, "Cannot coerce `null` returned by `DeserializationProblemHandler`"
+                +" for token `JsonToken.VALUE_TRUE`");
     }
 
     @Test
@@ -459,7 +461,21 @@ public class ProblemHandlerTest
                 .addHandler(new NullForUnexpectedTokenHandler())
                 .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .build();
-        assertThrows(MismatchedInputException.class,
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
                 () -> strict.readValue(JSON, char[].class));
+        verifyException(e, "Cannot coerce `null` returned by `DeserializationProblemHandler`"
+                +" for token `JsonToken.VALUE_TRUE`");
+    }
+
+    // [databind#6300]: `Character` (only valid non-null value for `char` element)
+    // is accepted, not cast to `CharSequence`
+    @Test
+    public void characterFromHandlerForCharArrayElement() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new WeirdTokenHandler(Character.valueOf('x')))
+                .build();
+        assertArrayEquals(new char[] { 'a', 'x', 'b' },
+                mapper.readValue(a2q("['a',true,'b']"), char[].class));
     }
 }

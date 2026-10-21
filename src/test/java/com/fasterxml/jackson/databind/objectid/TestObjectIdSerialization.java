@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import com.fasterxml.jackson.databind.*;
@@ -403,5 +404,55 @@ public class TestObjectIdSerialization extends DatabindTestUtil
 
         ref.item.id = 5L;
         assertEquals(a2q("{'item':5}"), MAPPER.writeValueAsString(ref));
+    }
+
+    // Custom generator that does not assign an id (written as separate id field)
+    static class NullLongIdGenerator extends ObjectIdGenerator<Long> {
+        private static final long serialVersionUID = 1L;
+
+        protected final Class<?> _scope;
+
+        public NullLongIdGenerator() { this(Object.class); }
+        public NullLongIdGenerator(Class<?> scope) { _scope = scope; }
+
+        @Override
+        public Class<?> getScope() { return _scope; }
+
+        @Override
+        public boolean canUseFor(ObjectIdGenerator<?> gen) {
+            return (gen.getClass() == getClass()) && (gen.getScope() == _scope);
+        }
+
+        @Override
+        public ObjectIdGenerator<Long> forScope(Class<?> scope) {
+            return (_scope == scope) ? this : new NullLongIdGenerator(scope);
+        }
+
+        @Override
+        public ObjectIdGenerator<Long> newForSerialization(Object context) {
+            return this;
+        }
+
+        @Override
+        public IdKey key(Object key) {
+            return (key == null) ? null : new IdKey(getClass(), _scope, key);
+        }
+
+        @Override
+        public Long generateId(Object forPojo) {
+            return null;
+        }
+    }
+
+    @JsonIdentityInfo(generator=NullLongIdGenerator.class, property="@id")
+    static class ItemWithGeneratedNullId {
+        public String name = "item";
+    }
+
+    @Test
+    public void nullObjectIdWrittenAsField() throws Exception
+    {
+        assertEquals(a2q("{'@id':null,'name':'item'}"),
+                MAPPER.writeValueAsString(new ItemWithGeneratedNullId()));
     }
 }

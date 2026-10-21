@@ -2132,3 +2132,6 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6305: `InetSocketAddress` deserialization ignores text after the closing
    bracket of an IPv6 address
   [2.23.0]
+ * Reported, fixed #6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)`
+   to an object whose id is `null`
+  [2.23.0]

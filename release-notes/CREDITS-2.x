@@ -2126,3 +2126,6 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property
    when the default array contains `null`
   [2.23.0]
+ * Reported, fixed #6296: Duplicate properties merged under the wrong key in non-vanilla
+   `UntypedObjectDeserializer`
+  [2.23.0]

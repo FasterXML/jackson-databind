@@ -87,17 +87,11 @@ public class PropertyBuilder
         // [databind#6275]: Per-type NON_DEFAULT still writes an explicit null when the
         //  compared default is non-null. Only the global real-default mode suppresses
         //  those nulls.
-        if (inclPerType.getValueInclusion() == JsonInclude.Include.NON_DEFAULT) {
-            _useRealPropertyDefaults = true;
-            _suppressNullsOnRealDefaults = false;
-        } else if (_defaultInclusion.getValueInclusion() == JsonInclude.Include.NON_DEFAULT
-                && config.isEnabled(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT)) {
-            _useRealPropertyDefaults = true;
-            _suppressNullsOnRealDefaults = true;
-        } else {
-            _useRealPropertyDefaults = false;
-            _suppressNullsOnRealDefaults = false;
-        }
+        _suppressNullsOnRealDefaults = (inclPerType.getValueInclusion() != JsonInclude.Include.NON_DEFAULT)
+                && (_defaultInclusion.getValueInclusion() == JsonInclude.Include.NON_DEFAULT)
+                && config.isEnabled(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT);
+        _useRealPropertyDefaults = _suppressNullsOnRealDefaults
+                || (inclPerType.getValueInclusion() == JsonInclude.Include.NON_DEFAULT);
         _annotationIntrospector = _config.getAnnotationIntrospector();
     }
 

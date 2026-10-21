@@ -16,6 +16,9 @@ Project: jackson-databind
 #6296: Duplicate properties merged under the wrong key in non-vanilla
   `UntypedObjectDeserializer`
  (reported, fixed by @Marti2203)
+#6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)` to an object
+  whose id is `null`
+ (reported, fixed by @Marti2203)
 
 2.22.4 (17-Oct-2026)
 

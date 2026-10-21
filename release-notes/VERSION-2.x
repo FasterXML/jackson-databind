@@ -19,6 +19,9 @@ Project: jackson-databind
 #6305: `InetSocketAddress` deserialization ignores text after the closing bracket
   of an IPv6 address
  (reported, fixed by @Marti2203)
+#6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)` to an object
+  whose id is `null`
+ (reported, fixed by @Marti2203)
 
 2.22.4 (17-Oct-2026)
 

@@ -809,3 +809,13 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)`
    to an object whose id is `null`
   [3.2.5]
+
+@essiembre
+ * Reported #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
+   writes a `null` over a non-null default, so the `null` can't round-trip
+  [3.3.0]
+
+Matt Van Horn (@mvanhorn)
+ * Fixed #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
+   writes a `null` over a non-null default, so the `null` can't round-trip
+  [3.3.0]

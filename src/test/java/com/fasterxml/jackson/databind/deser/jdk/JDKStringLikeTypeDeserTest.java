@@ -17,6 +17,7 @@ import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -262,13 +263,41 @@ public class JDKStringLikeTypeDeserTest
 
         // but text between the closing bracket and the port must not be dropped
         for (String value : new String[] { "[2001:db8::1]junk:443", "[2001:db8::1]junk",
-                "[2001:db8::1] 443" }) {
+                "[2001:db8::1] 443",
+                // also if the suffix itself ends in a closing bracket
+                "[2001:db8::1]junk]" }) {
             try {
                 InetSocketAddress result = MAPPER.readValue(q(value), InetSocketAddress.class);
                 fail("Should not pass for "+value+", got: "+result);
             } catch (InvalidFormatException e) {
-                verifyException(e, "must be followed by ':' and port number");
+                verifyException(e, "must be followed by nothing or ':' and port number");
             }
+        }
+
+        // and port number must not be followed by anything either
+        try {
+            InetSocketAddress result = MAPPER.readValue(q("[2001:db8::1]:443]"), InetSocketAddress.class);
+            fail("Should not pass, got: "+result);
+        } catch (InvalidFormatException e) {
+            verifyException(e, "not a valid textual representation");
+        }
+    }
+
+    @Test
+    public void inetSocketAddressBracketedInvalidWithProblemHandler() throws IOException
+    {
+        final InetSocketAddress fallback = InetSocketAddress.createUnresolved("localhost", 80);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new DeserializationProblemHandler() {
+                    @Override
+                    public Object handleWeirdStringValue(DeserializationContext ctxt,
+                            Class<?> targetType, String valueToConvert, String failureMsg) {
+                        return fallback;
+                    }
+                })
+                .build();
+        for (String value : new String[] { "[2001:db8::1]junk:443", "[2001:db8::1" }) {
+            assertSame(fallback, mapper.readValue(q(value), InetSocketAddress.class));
         }
     }
 

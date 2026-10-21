@@ -19,7 +19,6 @@ import com.fasterxml.jackson.core.util.VersionUtil;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -365,20 +364,18 @@ _coercedTypeDesc());
                 if (value.startsWith("[")) {
                     // bracketed IPv6 (with port number)
 
-                    int i = value.lastIndexOf(']');
+                    int i = value.indexOf(']');
                     if (i == -1) {
-                        throw new InvalidFormatException(ctxt.getParser(),
-                                "Bracketed IPv6 address must contain closing bracket",
-                                value, InetSocketAddress.class);
+                        return ctxt.handleWeirdStringValue(_valueClass, value,
+                                "Bracketed IPv6 address must contain closing bracket");
                     }
 
                     // closing bracket must be followed by nothing or by ":port"
                     int port = 0;
                     if (i + 1 < value.length()) {
                         if (value.charAt(i + 1) != ':') {
-                            throw new InvalidFormatException(ctxt.getParser(),
-                                    "Bracketed IPv6 address must be followed by ':' and port number",
-                                    value, InetSocketAddress.class);
+                            return ctxt.handleWeirdStringValue(_valueClass, value,
+                                    "Bracketed IPv6 address must be followed by nothing or ':' and port number");
                         }
                         port = Integer.parseInt(value.substring(i + 2));
                     }

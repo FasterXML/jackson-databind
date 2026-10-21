@@ -81,9 +81,9 @@ public class JsonInclude1757Test extends DatabindTestUtil
         assertEquals(a2q("{'someFieldWithDefault':''}"), json);
     }
 
-    // [databind#1757]: null should be suppressed with global NON_DEFAULT
+    // [databind#6317]: null over non-null default written as explicit null (like per-type)
     @Test
-    public void testGlobalNonDefaultSuppressesNull() throws Exception {
+    public void testGlobalNonDefaultWritesExplicitNull() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT)
                 .changeDefaultPropertyInclusion(incl ->
@@ -93,7 +93,7 @@ public class JsonInclude1757Test extends DatabindTestUtil
         Entity entity = new Entity();
         entity.setSomeFieldWithDefault(null);
         String json = mapper.writeValueAsString(entity);
-        assertEquals("{}", json);
+        assertEquals("{\"someFieldWithDefault\":null}", json);
     }
 
     // [databind#1757]: global NON_DEFAULT with primitive field having non-zero default

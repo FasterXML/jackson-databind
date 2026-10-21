@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import com.fasterxml.jackson.databind.*;
@@ -374,6 +375,30 @@ public class TestObjectIdSerialization extends DatabindTestUtil
         ItemReference ref = new ItemReference();
         ref.item = new ItemWithNullableId();
         // id not yet assigned: write `null` instead of failing
+        assertEquals(a2q("{'item':null}"), MAPPER.writeValueAsString(ref));
+
+        ref.item.id = 5L;
+        assertEquals(a2q("{'item':5}"), MAPPER.writeValueAsString(ref));
+    }
+
+    // Same, but for polymorphic value (via `serializeWithType()`)
+    @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS)
+    @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+    static class PolymorphicItemWithNullableId {
+        public Long id;
+        public String name = "item";
+    }
+
+    static class PolymorphicItemReference {
+        @JsonIdentityReference(alwaysAsId=true)
+        public PolymorphicItemWithNullableId item;
+    }
+
+    @Test
+    public void nullObjectIdWrittenAsIdPolymorphic() throws Exception
+    {
+        PolymorphicItemReference ref = new PolymorphicItemReference();
+        ref.item = new PolymorphicItemWithNullableId();
         assertEquals(a2q("{'item':null}"), MAPPER.writeValueAsString(ref));
 
         ref.item.id = 5L;

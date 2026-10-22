@@ -130,8 +130,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
   whose id is `null`
  (reported, fixed by @Marti2203)
 #6317: Global `NON_DEFAULT` with `USE_REAL_INCLUDE_NON_DEFAULT` now writes explicit
-  `null` over a non-null default (like per-type, also for per-property `NON_DEFAULT`);
-  previously nulls were suppressed
+  `null` over a non-null default (like per-type); previously nulls were suppressed
  (fix by @cowtowncoder, w/ Claude code)
 
 3.2.5 (not yet released)

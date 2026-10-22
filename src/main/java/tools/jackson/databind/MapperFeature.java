@@ -572,8 +572,10 @@ public enum MapperFeature
      * deserialization.
      * As with per-class setting, a {@code null} value is written explicitly
      * if the real default value is non-null (so that it round-trips); if the real
-     * default is {@code null}, nulls are suppressed. This also applies to properties
-     * with per-property {@code NON_DEFAULT} (annotation or config override).
+     * default is {@code null}, nulls are suppressed.
+     * Note that if class-level inclusion overrides global {@code NON_DEFAULT} (for example,
+     * {@code @JsonInclude(NON_NULL)} on the class), per-property {@code NON_DEFAULT} for
+     * properties of that class uses static type-based defaults, and nulls are suppressed.
      *<p>
      * Feature is disabled by default for backwards-compatibility.
      *

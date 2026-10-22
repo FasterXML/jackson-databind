@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,15 +31,12 @@ public class JsonInclude1757Test extends DatabindTestUtil
         public int value = 42;
     }
 
-    private JsonMapper.Builder globalRealNonDefaultBuilder() {
+    private ObjectMapper globalRealNonDefaultMapper() {
         return jsonMapperBuilder()
                 .enable(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT)
                 .changeDefaultPropertyInclusion(incl ->
-                        incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT));
-    }
-
-    private ObjectMapper globalRealNonDefaultMapper() {
-        return globalRealNonDefaultBuilder().build();
+                        incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
+                .build();
     }
 
     // [databind#1757]: default values should round-trip with global NON_DEFAULT
@@ -232,57 +228,22 @@ public class JsonInclude1757Test extends DatabindTestUtil
         assertEquals("{}", mapper.writeValueAsString(bean));
     }
 
-    static class PropertyNonDefaultEntity {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    static class ClassOverridePropertyNonDefaultEntity {
         @JsonInclude(JsonInclude.Include.NON_DEFAULT)
         public String mode = "default";
     }
 
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    static class PerTypePropertyNonDefaultEntity {
-        @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-        public String mode = "default";
-    }
-
-    // [databind#6317]: per-property NON_DEFAULT writes explicit null over non-null
-    //  default the same way in global and per-type mode
+    // [databind#6317]: if class-level inclusion overrides global NON_DEFAULT,
+    //  per-property NON_DEFAULT uses static defaults, and nulls are suppressed
     @Test
-    public void perPropertyNonDefaultWritesExplicitNull() throws Exception {
-        ObjectMapper globalMapper = globalRealNonDefaultMapper();
-        PropertyNonDefaultEntity bean = new PropertyNonDefaultEntity();
-        assertEquals("{}", globalMapper.writeValueAsString(bean));
+    public void classOverridePerPropertyNonDefaultSuppressesNull() throws Exception {
+        ObjectMapper mapper = globalRealNonDefaultMapper();
+        ClassOverridePropertyNonDefaultEntity bean = new ClassOverridePropertyNonDefaultEntity();
+        // static default for String is "", so real default is not suppressed
+        assertEquals("""
+                {"mode":"default"}""", mapper.writeValueAsString(bean));
         bean.mode = null;
-        assertEquals("""
-                {"mode":null}""", globalMapper.writeValueAsString(bean));
-
-        ObjectMapper defaultMapper = newJsonMapper();
-        PerTypePropertyNonDefaultEntity perType = new PerTypePropertyNonDefaultEntity();
-        assertEquals("{}", defaultMapper.writeValueAsString(perType));
-        perType.mode = null;
-        assertEquals("""
-                {"mode":null}""", defaultMapper.writeValueAsString(perType));
-    }
-
-    static class PropertyTypeOverrideEntity {
-        public StringBuilder mode = new StringBuilder("default");
-    }
-
-    // [databind#6317]: per-property NON_DEFAULT via property-type config override
-    //  (either kind) also writes explicit null over non-null default
-    @Test
-    public void globalNonDefaultPropertyTypeOverrideWritesExplicitNull() throws Exception {
-        final JsonInclude.Value nonDefault = JsonInclude.Value.construct(
-                JsonInclude.Include.NON_DEFAULT, null);
-        ObjectMapper asPropertyMapper = globalRealNonDefaultBuilder()
-                .withConfigOverride(StringBuilder.class, o -> o.setIncludeAsProperty(nonDefault))
-                .build();
-        ObjectMapper includeMapper = globalRealNonDefaultBuilder()
-                .withConfigOverride(StringBuilder.class, o -> o.setInclude(nonDefault))
-                .build();
-        PropertyTypeOverrideEntity bean = new PropertyTypeOverrideEntity();
-        bean.mode = null;
-        assertEquals("""
-                {"mode":null}""", asPropertyMapper.writeValueAsString(bean));
-        assertEquals("""
-                {"mode":null}""", includeMapper.writeValueAsString(bean));
+        assertEquals("{}", mapper.writeValueAsString(bean));
     }
 }

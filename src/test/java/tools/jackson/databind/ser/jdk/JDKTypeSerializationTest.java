@@ -276,6 +276,38 @@ public class JDKTypeSerializationTest
         assertEquals(json, MAPPER.writeValueAsString(result));
     }
 
+    // [databind#6320]: ROOT check must use `equals()`, not identity, for values too
+    @SuppressWarnings("deprecation")
+    @Test
+    public void localeRootNonSingletonAsValue() throws IOException
+    {
+        assertEquals(q(""), MAPPER.writeValueAsString(new Locale("")));
+
+        // and one obtained via deserialization (not `Locale.ROOT` instance)
+        Locale root = MAPPER.readValue(q(""), Locale.class);
+        assertEquals(q(""), MAPPER.writeValueAsString(root));
+    }
+
+    // [databind#6320]: Locales that BCP-47 tag cannot represent must not collide as keys
+    @SuppressWarnings("deprecation")
+    @Test
+    public void localeAsMapKeyNotRepresentableAsTag() throws IOException
+    {
+        Map<Locale, Integer> map = new LinkedHashMap<>();
+        map.put(new Locale("en"), 1);
+        map.put(new Locale("en", "USA"), 2);
+        map.put(new Locale("und"), 3);
+        map.put(new Locale("verylonglanguage"), 4);
+        map.put(Locale.ROOT, 5);
+        final String json = MAPPER.writeValueAsString(map);
+        assertEquals("""
+                {"en":1,"en_USA":2,"und":3,"verylonglanguage":4,"":5}""", json);
+
+        Map<Locale, Integer> result = MAPPER.readValue(json,
+                new TypeReference<Map<Locale, Integer>>() { });
+        assertEquals(map, result);
+    }
+
     @Test
     public void testInetAddress() throws Exception
     {

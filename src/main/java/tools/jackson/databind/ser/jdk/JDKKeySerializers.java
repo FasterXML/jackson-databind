@@ -188,12 +188,26 @@ public abstract class JDKKeySerializers
                 }
                 break;
             case TYPE_LOCALE: // [databind#6320]
-                g.writeName(JDKStringLikeSerializer.localeToString((Locale) value));
+                g.writeName(_localeToKey((Locale) value));
                 break;
             case TYPE_TO_STRING:
             default:
                 g.writeName(value.toString());
             }
+        }
+
+        // [databind#6320]: Unlike for values, key String must identify the Locale uniquely
+        // (otherwise Map entries collide as duplicate property names, and get silently lost
+        // on read). But `toLanguageTag()` is lossy: ill-formed parts are dropped or replaced
+        // (`new Locale("en", "USA")` -> "en", ill-formed language -> "und"), so different
+        // Locales may give same tag. So only use tag if it maps back to the same Locale;
+        // otherwise fall back to `toString()` ("en_USA"), which key deserializer also accepts.
+        private static String _localeToKey(Locale loc) {
+            String tag = JDKStringLikeSerializer.localeToString(loc);
+            if (tag.isEmpty() || Locale.forLanguageTag(tag).equals(loc)) {
+                return tag;
+            }
+            return loc.toString();
         }
     }
 

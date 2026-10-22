@@ -6,7 +6,9 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.Nulls;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -44,6 +46,22 @@ public class ProblemHandlerTest
                 JavaType targetType, JsonToken t, JsonParser p,
                 String failureMsg)
         {
+            return null;
+        }
+    }
+
+    static class NullForWeirdValueHandler
+        extends DeserializationProblemHandler
+    {
+        @Override
+        public Object handleWeirdNumberValue(DeserializationContext ctxt,
+                Class<?> targetType, Number valueToConvert, String failureMsg) {
+            return null;
+        }
+
+        @Override
+        public Object handleWeirdStringValue(DeserializationContext ctxt,
+                Class<?> targetType, String valueToConvert, String failureMsg) {
             return null;
         }
     }
@@ -471,6 +489,56 @@ public class ProblemHandlerTest
         MismatchedInputException e = assertThrows(MismatchedInputException.class,
                 () -> strict.readValue(JSON, CharPrimitiveBean.class));
         verifyException(e, "Cannot coerce `null` returned by `DeserializationProblemHandler`");
+    }
+
+    // `null` from handler for out-of-range int / multi-char String
+    @Test
+    public void nullFromWeirdValueHandlerForCharPrimitive() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new NullForWeirdValueHandler())
+                .build();
+        assertEquals('\0', mapper.readValue(a2q("{'c':70000}"), CharPrimitiveBean.class).c);
+        assertEquals('\0', mapper.readValue(a2q("{'c':'ab'}"), CharPrimitiveBean.class).c);
+        assertEquals(Character.valueOf('\0'), mapper.readValue("\"ab\"", Character.TYPE));
+        // wrapper type is allowed to be `null`
+        assertNull(mapper.readValue("\"ab\"", Character.class));
+        assertNull(mapper.readValue("70000", Character.class));
+
+        ObjectMapper strict = jsonMapperBuilder()
+                .addHandler(new NullForWeirdValueHandler())
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        assertThrows(MismatchedInputException.class,
+                () -> strict.readValue(a2q("{'c':70000}"), CharPrimitiveBean.class));
+        assertThrows(MismatchedInputException.class,
+                () -> strict.readValue("\"ab\"", Character.TYPE));
+        assertNull(strict.readValue("\"ab\"", Character.class));
+    }
+
+    // `char` root value and wrapper `Character` with unexpected token
+    @Test
+    public void nullFromHandlerForCharRoot() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .build();
+        assertEquals(Character.valueOf('\0'), mapper.readValue("true", Character.TYPE));
+        assertNull(mapper.readValue("true", Character.class));
+    }
+
+    static class CharArrayBean {
+        @JsonSetter(contentNulls = Nulls.SKIP)
+        public char[] values;
+    }
+
+    // `contentNulls=SKIP` is honored for `char[]` elements
+    @Test
+    public void contentNullsSkipForCharArray() throws Exception
+    {
+        CharArrayBean bean = jsonMapperBuilder().build()
+                .readValue(a2q("{'values':['a',null,'b']}"), CharArrayBean.class);
+        assertArrayEquals(new char[] { 'a', 'b' }, bean.values);
     }
 
     @Test

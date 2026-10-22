@@ -455,11 +455,9 @@ public class NumberDeserializers
         }
 
         // Problem handler may return `null`, which is not acceptable for primitive `char`
-        private Character _handleUnexpectedToken(JsonParser p, DeserializationContext ctxt)
+        private Character _handlerResult(DeserializationContext ctxt, Character c, JsonToken t)
             throws IOException
         {
-            final JsonToken t = p.currentToken();
-            Character c = (Character) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
             if (c == null && _primitive) {
                 _verifyNullForPrimitive(ctxt, t);
                 return Character.valueOf('\0');
@@ -467,10 +465,18 @@ public class NumberDeserializers
             return c;
         }
 
+        private Character _handleUnexpectedToken(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+        {
+            final JsonToken t = p.currentToken();
+            return _handlerResult(ctxt, (Character) ctxt.handleUnexpectedToken(getValueType(ctxt), p), t);
+        }
+
         @Override
         public Character deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
         {
+            final JsonToken tok = p.currentToken();
             String text;
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING:
@@ -504,15 +510,15 @@ public class NumberDeserializers
                 if (value >= 0 && value <= 0xFFFF) {
                     return Character.valueOf((char) value);
                 }
-                return (Character) ctxt.handleWeirdNumberValue(handledType(), value,
-                        "value outside valid Character range (0x0000 - 0xFFFF)");
+                return _handlerResult(ctxt, (Character) ctxt.handleWeirdNumberValue(handledType(), value,
+                        "value outside valid Character range (0x0000 - 0xFFFF)"), tok);
             case JsonTokenId.ID_NULL:
                 if (_primitive) {
                     _verifyNullForPrimitive(ctxt);
                 }
                 return (Character) getNullValue(ctxt);
             case JsonTokenId.ID_START_ARRAY:
-                return _deserializeFromArray(p, ctxt);
+                return _handlerResult(ctxt, _deserializeFromArray(p, ctxt), tok);
             // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
             case JsonTokenId.ID_START_OBJECT:
                 text = ctxt.extractScalarFromObject(p, this, _valueClass);
@@ -539,8 +545,8 @@ public class NumberDeserializers
             if (_checkTextualNull(ctxt, text)) {
                 return (Character) getNullValue(ctxt);
             }
-            return (Character) ctxt.handleWeirdStringValue(handledType(), text,
-                    "Expected either Integer value code or 1-character String");
+            return _handlerResult(ctxt, (Character) ctxt.handleWeirdStringValue(handledType(), text,
+                    "Expected either Integer value code or 1-character String"), tok);
         }
     }
 

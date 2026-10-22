@@ -256,8 +256,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         @Override
         protected PrimitiveArrayDeserializers<?> withResolved(NullValueProvider nuller,
                 Boolean unwrapSingle) {
-            // 11-Dec-2015, tatu: Not sure how re-wrapping would work; omit
-            return this;
+            return new CharDeser(this, nuller, unwrapSingle);
         }
 
         @Override

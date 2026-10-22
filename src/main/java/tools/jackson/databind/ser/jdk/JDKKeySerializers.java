@@ -188,10 +188,7 @@ public abstract class JDKKeySerializers
                 }
                 break;
             case TYPE_LOCALE: // [databind#6320]
-                {
-                    Locale loc = (Locale) value;
-                    g.writeName((loc == Locale.ROOT) ? "" : loc.toLanguageTag());
-                }
+                g.writeName(JDKStringLikeSerializer.localeToString((Locale) value));
                 break;
             case TYPE_TO_STRING:
             default:

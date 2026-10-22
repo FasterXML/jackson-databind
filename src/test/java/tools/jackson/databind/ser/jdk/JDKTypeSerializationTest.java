@@ -251,24 +251,29 @@ public class JDKTypeSerializationTest
     // [databind#6320]: Locale as Map key should use same form as Locale value
     @SuppressWarnings("deprecation")
     @Test
-    public void testLocaleAsMapKey() throws IOException
+    public void localeAsMapKey() throws IOException
     {
         Map<Locale, String> map = new LinkedHashMap<>();
         map.put(Locale.US, "a");
         map.put(new Locale("FI", "fi", "savo"), "b");
         map.put(Locale.ROOT, "c");
         final String json = MAPPER.writeValueAsString(map);
-        assertEquals(a2q("{'en-US':'a','fi-FI-x-lvariant-savo':'b','':'c'}"), json);
+        assertEquals("""
+                {"en-US":"a","fi-FI-x-lvariant-savo":"b","":"c"}""", json);
 
         // also with untyped (dynamic) key serializer
         Map<Object, String> untyped = new LinkedHashMap<>();
         untyped.put(Locale.US, "a");
-        assertEquals(a2q("{'en-US':'a'}"), MAPPER.writeValueAsString(untyped));
+        assertEquals("""
+                {"en-US":"a"}""", MAPPER.writeValueAsString(untyped));
 
         // and round-trip
         Map<Locale, String> result = MAPPER.readValue(json,
                 new TypeReference<Map<Locale, String>>() { });
         assertEquals(map, result);
+
+        // deserialized ROOT is not the `Locale.ROOT` instance: must still write as ""
+        assertEquals(json, MAPPER.writeValueAsString(result));
     }
 
     @Test

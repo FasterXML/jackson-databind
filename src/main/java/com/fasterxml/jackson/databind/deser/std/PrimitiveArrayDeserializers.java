@@ -537,28 +537,12 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         protected byte[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException
         {
-            byte value;
-            JsonToken t = p.currentToken();
-            if (t == JsonToken.VALUE_NUMBER_INT) {
-                value = p.getByteValue(); // note: may throw due to overflow
-            } else {
-                Number n = null;
-                if (t != JsonToken.VALUE_NULL) {
-                    n = (Number) ctxt.handleUnexpectedToken(_valueClass.getComponentType(), p);
-                }
-                // JSON null, or `null` substituted by a problem handler
-                if (n == null) {
-                    if (_nuller != null) {
-                        _nuller.getNullValue(ctxt);
-                        return (byte[]) getEmptyValue(ctxt);
-                    }
-                    // As with other primitive arrays, `null` becomes the default element
-                    _verifyNullForPrimitive(ctxt, t);
-                    value = 0;
-                } else {
-                    value = n.byteValue();
-                }
+            if (_nuller != null && p.hasToken(JsonToken.VALUE_NULL)) {
+                _nuller.getNullValue(ctxt);
+                return (byte[]) getEmptyValue(ctxt);
             }
+            // Handles `null` (including one from a problem handler) and coercions
+            final byte value = _parseBytePrimitive(p, ctxt);
             return new byte[] { value };
         }
 

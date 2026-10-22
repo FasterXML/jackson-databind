@@ -71,6 +71,11 @@ public class JDKStringLikeSerializer
         return value.toString().isEmpty();
     }
 
+    // Shared with key serializer; must use `equals()` as deserialized ROOT may be a distinct instance
+    static String localeToString(Locale loc) {
+        return Locale.ROOT.equals(loc) ? "" : loc.toLanguageTag();
+    }
+
     @Override
     public void serialize(Object value, JsonGenerator g, SerializationContext provider)
         throws JacksonException
@@ -88,14 +93,7 @@ public class JDKStringLikeSerializer
             str = ((Class<?>)value).getName();
             break;
         case TYPE_LOCALE: // [databind#1600]
-            {
-                Locale loc = (Locale) value;
-                if (loc == Locale.ROOT) {
-                    str = "";
-                } else {
-                    str = loc.toLanguageTag();
-                }
-            }
+            str = localeToString((Locale) value);
             break;
         default:
             str = value.toString();

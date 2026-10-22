@@ -466,7 +466,11 @@ public abstract class StdDeserializer<T>
         }
         Boolean b = (Boolean) ctxt.handleWeirdStringValue(Boolean.TYPE, text,
                 "only \"true\"/\"True\"/\"TRUE\" or \"false\"/\"False\"/\"FALSE\" recognized");
-        return Boolean.TRUE.equals(b);
+        if (b == null) {
+            _verifyNullForPrimitive(ctxt, JsonToken.VALUE_STRING);
+            return false;
+        }
+        return b.booleanValue();
     }
 
     // [databind#1852]
@@ -645,13 +649,13 @@ public abstract class StdDeserializer<T>
         try {
             value = NumberInput.parseInt(text);
         } catch (IllegalArgumentException iae) {
-            return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
-                    "not a valid `byte` value");
+            return _nonNullNumberFromHandler(ctxt, (Number) ctxt.handleWeirdStringValue(_valueClass, text,
+                    "not a valid `byte` value")).byteValue();
         }
         // So far so good: but does it fit? Allow both -128 / 255 range (inclusive)
         if (_byteOverflow(value)) {
-            return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
-                    "overflow, value cannot be represented as 8-bit value");
+            return _nonNullNumberFromHandler(ctxt, (Number) ctxt.handleWeirdStringValue(_valueClass, text,
+                    "overflow, value cannot be represented as 8-bit value")).byteValue();
         }
         return (byte) value;
     }
@@ -725,12 +729,12 @@ public abstract class StdDeserializer<T>
         try {
             value = NumberInput.parseInt(text);
         } catch (IllegalArgumentException iae) {
-            return (Short) ctxt.handleWeirdStringValue(Short.TYPE, text,
-                    "not a valid `short` value");
+            return _nonNullNumberFromHandler(ctxt, (Number) ctxt.handleWeirdStringValue(Short.TYPE, text,
+                    "not a valid `short` value")).shortValue();
         }
         if (_shortOverflow(value)) {
-            return (Short) ctxt.handleWeirdStringValue(Short.TYPE, text,
-                    "overflow, value cannot be represented as 16-bit value");
+            return _nonNullNumberFromHandler(ctxt, (Number) ctxt.handleWeirdStringValue(Short.TYPE, text,
+                    "overflow, value cannot be represented as 16-bit value")).shortValue();
         }
         return (short) value;
     }
@@ -815,7 +819,7 @@ public abstract class StdDeserializer<T>
                     Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
                         "Overflow: numeric value (%s) out of range of int (%d -%d)",
                         text, Integer.MIN_VALUE, Integer.MAX_VALUE);
-                    return _nonNullNumber(v).intValue();
+                    return _nonNullNumberFromHandler(ctxt, v).intValue();
                 }
                 return (int) l;
             }
@@ -823,7 +827,7 @@ public abstract class StdDeserializer<T>
         } catch (IllegalArgumentException iae) {
             Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
                     "not a valid `int` value");
-            return _nonNullNumber(v).intValue();
+            return _nonNullNumberFromHandler(ctxt, v).intValue();
         }
     }
 
@@ -841,7 +845,7 @@ public abstract class StdDeserializer<T>
                     Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
                         "Overflow: numeric value (%s) out of range of int (%d -%d)",
                         text, Integer.MIN_VALUE, Integer.MAX_VALUE);
-                    return _nonNullNumber(v).intValue();
+                    return _nonNullNumberFromHandler(ctxt, v).intValue();
                 }
                 return (int) l;
             }
@@ -849,7 +853,7 @@ public abstract class StdDeserializer<T>
         } catch (IllegalArgumentException iae) {
             Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
                     "not a valid `int` value");
-            return _nonNullNumber(v).intValue();
+            return _nonNullNumberFromHandler(ctxt, v).intValue();
         }
     }
 
@@ -1037,7 +1041,7 @@ public abstract class StdDeserializer<T>
         {
             Number v = (Number) ctxt.handleWeirdStringValue(Long.TYPE, text,
                     "not a valid `long` value");
-            return _nonNullNumber(v).longValue();
+            return _nonNullNumberFromHandler(ctxt, v).longValue();
         }
     }
 
@@ -1054,7 +1058,7 @@ public abstract class StdDeserializer<T>
         {
             Number v = (Number) ctxt.handleWeirdStringValue(Long.TYPE, text,
                     "not a valid `long` value");
-            return _nonNullNumber(v).longValue();
+            return _nonNullNumberFromHandler(ctxt, v).longValue();
         }
     }
 
@@ -1238,7 +1242,7 @@ public abstract class StdDeserializer<T>
         }
         Number v = (Number) ctxt.handleWeirdStringValue(Float.TYPE, text,
                 "not a valid `float` value");
-        return _nonNullNumber(v).floatValue();
+        return _nonNullNumberFromHandler(ctxt, v).floatValue();
     }
 
     /**
@@ -1256,7 +1260,7 @@ public abstract class StdDeserializer<T>
         }
         Number v = (Number) ctxt.handleWeirdStringValue(Float.TYPE, text,
                 "not a valid `float` value");
-        return _nonNullNumber(v).floatValue();
+        return _nonNullNumberFromHandler(ctxt, v).floatValue();
     }
 
     /**
@@ -1383,7 +1387,7 @@ public abstract class StdDeserializer<T>
         } catch (IllegalArgumentException iae) { }
         Number v = (Number) ctxt.handleWeirdStringValue(Double.TYPE, text,
                 "not a valid `double` value (as String to convert)");
-        return _nonNullNumber(v).doubleValue();
+        return _nonNullNumberFromHandler(ctxt, v).doubleValue();
     }
 
     /**
@@ -1397,7 +1401,7 @@ public abstract class StdDeserializer<T>
         } catch (IllegalArgumentException iae) { }
         Number v = (Number) ctxt.handleWeirdStringValue(Double.TYPE, text,
                 "not a valid `double` value (as String to convert)");
-        return _nonNullNumber(v).doubleValue();
+        return _nonNullNumberFromHandler(ctxt, v).doubleValue();
     }
 
     /**
@@ -2626,6 +2630,24 @@ handledType().getName());
      */
     protected final boolean _intOverflow(long value) {
         return (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE);
+    }
+
+    /**
+     * Variant of {@link #_nonNullNumber} for values returned by a
+     * {@code DeserializationProblemHandler} for a (primitive) String value:
+     * {@code null} is verified with {@link #_verifyNullForPrimitive(DeserializationContext, JsonToken)}
+     * and, if allowed, becomes {@code 0}.
+     *
+     * @since 2.23
+     */
+    protected final Number _nonNullNumberFromHandler(DeserializationContext ctxt, Number n)
+        throws JsonMappingException
+    {
+        if (n == null) {
+            _verifyNullForPrimitive(ctxt, JsonToken.VALUE_STRING);
+            return Integer.valueOf(0);
+        }
+        return n;
     }
 
     /**

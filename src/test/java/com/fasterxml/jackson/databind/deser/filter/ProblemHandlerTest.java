@@ -541,6 +541,38 @@ public class ProblemHandlerTest
         assertArrayEquals(new char[] { 'a', 'b' }, bean.values);
     }
 
+    // `null` from `handleWeirdStringValue` for primitives: default value, or
+    // mismatch with FAIL_ON_NULL_FOR_PRIMITIVES
+    @Test
+    public void nullFromWeirdStringHandlerForPrimitives() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new NullForWeirdValueHandler())
+                .build();
+        ObjectMapper strict = jsonMapperBuilder()
+                .addHandler(new NullForWeirdValueHandler())
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        // "999" overflows byte/short; "abc" is not valid for any
+        assertEquals(Byte.valueOf((byte) 0), mapper.readValue("\"abc\"", Byte.TYPE));
+        assertEquals(Short.valueOf((short) 0), mapper.readValue("\"999999\"", Short.TYPE));
+        assertEquals(Integer.valueOf(0), mapper.readValue("\"abc\"", Integer.TYPE));
+        assertEquals(Long.valueOf(0L), mapper.readValue("\"abc\"", Long.TYPE));
+        assertEquals(Float.valueOf(0f), mapper.readValue("\"abc\"", Float.TYPE));
+        assertEquals(Double.valueOf(0.0), mapper.readValue("\"abc\"", Double.TYPE));
+        assertEquals(Boolean.FALSE, mapper.readValue("\"abc\"", Boolean.TYPE));
+        assertArrayEquals(new byte[] { 1, 0 }, mapper.readValue("[1,\"abc\"]", byte[].class));
+        assertArrayEquals(new short[] { 1, 0 }, mapper.readValue("[1,\"abc\"]", short[].class));
+
+        for (Class<?> type : new Class<?>[] { Byte.TYPE, Short.TYPE, Integer.TYPE,
+                Long.TYPE, Float.TYPE, Double.TYPE, Boolean.TYPE, byte[].class, short[].class }) {
+            final String json = type.isArray() ? "[\"abc\"]" : "\"abc\"";
+            MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                    () -> strict.readValue(json, type), type.getName());
+            verifyException(e, "Cannot coerce `null` returned by `DeserializationProblemHandler`");
+        }
+    }
+
     @Test
     public void nullFromHandlerForCharArrayElement() throws Exception
     {

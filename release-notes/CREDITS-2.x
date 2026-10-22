@@ -2130,7 +2130,7 @@ Martin Mirchev (@Marti2203)
    `UntypedObjectDeserializer`
   [2.23.0]
  * Reported, fixed #6300: NPE when a `DeserializationProblemHandler` returns `null`
-   for `byte[]` (single value unwrapped) and `char[]` elements
+   for primitive values (including primitive array elements)
   [2.23.0]
  * Reported, fixed #6305: `InetSocketAddress` deserialization ignores text after the closing
    bracket of an IPv6 address

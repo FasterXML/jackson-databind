@@ -205,6 +205,10 @@ public class ProblemHandlerTest
     /**********************************************************
      */
 
+    static class IntPrimitiveBean {
+        public int x = 42;
+    }
+
     static class IntKeyMapWrapper {
         public Map<Integer,String> stuff;
     }
@@ -477,5 +481,57 @@ public class ProblemHandlerTest
                 .build();
         assertArrayEquals(new char[] { 'a', 'x', 'b' },
                 mapper.readValue(a2q("['a',true,'b']"), char[].class));
+    }
+
+    // [databind#6300]: same for other primitive arrays, scalar elements and
+    // single-value unwrapping, all going through `StdDeserializer._parseXxxPrimitive()`
+    @Test
+    public void nullFromHandlerForOtherPrimitiveArrays() throws Exception
+    {
+        final String JSON = "[1,true,2]";
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
+        assertArrayEquals(new byte[] { 1, 0, 2 }, mapper.readValue(JSON, byte[].class));
+        assertArrayEquals(new short[] { 1, 0, 2 }, mapper.readValue(JSON, short[].class));
+        assertArrayEquals(new int[] { 1, 0, 2 }, mapper.readValue(JSON, int[].class));
+        assertArrayEquals(new long[] { 1, 0, 2 }, mapper.readValue(JSON, long[].class));
+        assertArrayEquals(new float[] { 1, 0, 2 }, mapper.readValue(JSON, float[].class));
+        assertArrayEquals(new double[] { 1, 0, 2 }, mapper.readValue(JSON, double[].class));
+        // `boolean` accepts ints but not floats
+        assertArrayEquals(new boolean[] { true, false, true },
+                mapper.readValue("[true,1.5,true]", boolean[].class));
+
+        // single value unwrapped
+        assertArrayEquals(new int[] { 0 }, mapper.readValue("true", int[].class));
+        assertArrayEquals(new boolean[] { false }, mapper.readValue("1.5", boolean[].class));
+
+        ObjectMapper strict = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        for (Class<?> type : new Class<?>[] { short[].class, int[].class, long[].class,
+                float[].class, double[].class }) {
+            MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                    () -> strict.readValue(JSON, type));
+            verifyException(e, "Cannot coerce `null` returned by `DeserializationProblemHandler`"
+                    +" for token `JsonToken.VALUE_TRUE`");
+        }
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> strict.readValue("[1.5]", boolean[].class));
+        verifyException(e, "Cannot coerce `null` returned by `DeserializationProblemHandler`"
+                +" for token `JsonToken.VALUE_NUMBER_FLOAT`");
+    }
+
+    // [databind#6300]: and for primitive (non-array) properties
+    @Test
+    public void nullFromHandlerForPrimitiveProperty() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .build();
+        IntPrimitiveBean bean = mapper.readValue(a2q("{'x':true}"), IntPrimitiveBean.class);
+        assertEquals(0, bean.x);
     }
 }

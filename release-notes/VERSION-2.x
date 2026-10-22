@@ -16,8 +16,8 @@ Project: jackson-databind
 #6296: Duplicate properties merged under the wrong key in non-vanilla
   `UntypedObjectDeserializer`
  (reported, fixed by @Marti2203)
-#6300: NPE when a `DeserializationProblemHandler` returns `null` for `byte[]`
-  (single value unwrapped) and `char[]` elements
+#6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
+  values (including primitive array elements)
  (reported, fixed by @Marti2203)
 #6305: `InetSocketAddress` deserialization ignores text after the closing bracket
   of an IPv6 address

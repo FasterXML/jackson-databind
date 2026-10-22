@@ -236,29 +236,6 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         throw InvalidNullException.from(ctxt, null, ctxt.constructType(_valueClass));
     }
 
-    /**
-     * Variant of {@link #_verifyNullForPrimitive(DeserializationContext)} that also
-     * covers {@code null} substituted by a {@code DeserializationProblemHandler}
-     * for an unexpected token: if so, error message refers to that token
-     * instead of a JSON {@code null}.
-     *
-     * @param t Token that produced {@code null}: either {@link JsonToken#VALUE_NULL}
-     *    or the unexpected token passed to problem handler
-     *
-     * @since 2.23
-     */
-    protected void _verifyNullForPrimitive(DeserializationContext ctxt, JsonToken t)
-        throws JsonMappingException
-    {
-        if (t == JsonToken.VALUE_NULL) {
-            _verifyNullForPrimitive(ctxt);
-        } else if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-            ctxt.reportInputMismatch(this,
-"Cannot coerce `null` returned by `DeserializationProblemHandler` for token `JsonToken.%s` to %s (disable `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to allow)",
-                    t, _coercedTypeDesc());
-        }
-    }
-
     /*
     /********************************************************
     /* Actual deserializers: efficient String[], char[] deserializers

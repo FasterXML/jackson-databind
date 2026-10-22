@@ -570,10 +570,16 @@ public enum MapperFeature
      * This ensures round-trip consistency: values that match the constructor defaults
      * are suppressed during serialization and restored by the constructor during
      * deserialization.
+     * As with per-class setting, a {@code null} value is written explicitly
+     * if the real default value is non-null (so that it round-trips); if the real
+     * default is {@code null}, nulls are suppressed.
+     * Note that if class-level inclusion overrides global {@code NON_DEFAULT} (for example,
+     * {@code @JsonInclude(NON_NULL)} on the class), per-property {@code NON_DEFAULT} for
+     * properties of that class uses static type-based defaults, and nulls are suppressed.
      *<p>
      * Feature is disabled by default for backwards-compatibility.
      *
-     * @since 3.2
+     * @since 3.2 (null handling changed in 3.3)
      */
     USE_REAL_INCLUDE_NON_DEFAULT(false),
 

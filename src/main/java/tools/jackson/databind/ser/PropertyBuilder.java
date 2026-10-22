@@ -28,8 +28,7 @@ public class PropertyBuilder
      * we may need to know the default value of the bean, to know if property value
      * equals default one.
      *<p>
-     * NOTE: only used if enclosing class defines NON_DEFAULT, but NOT if it is the
-     * global default OR per-property override.
+     * NOTE: only used if {@link #_useRealPropertyDefaults} is enabled.
      */
     protected Object _defaultBean;
 
@@ -43,21 +42,11 @@ public class PropertyBuilder
 
     /**
      * Marker flag used to indicate that "real" default values are to be used
-     * for properties, as per per-type value inclusion of type <code>NON_DEFAULT</code>
+     * for properties: either due to per-type value inclusion of type <code>NON_DEFAULT</code>,
+     * or global default <code>NON_DEFAULT</code> with
+     * {@link MapperFeature#USE_REAL_INCLUDE_NON_DEFAULT} enabled.
      */
     protected final boolean _useRealPropertyDefaults;
-
-    /**
-     * Whether the real-default path suppresses nulls even when the compared
-     * default is non-null. True for global {@code NON_DEFAULT} with
-     * {@link MapperFeature#USE_REAL_INCLUDE_NON_DEFAULT} ([databind#1757]).
-     * False for per-type {@code NON_DEFAULT}, which writes an explicit
-     * {@code null} over a non-null default so the null can round-trip
-     * ([databind#6275]). A null real default still suppresses nulls in both cases.
-     *
-     * @since 3.3
-     */
-    protected final boolean _suppressNullsOnRealDefaults;
 
     public PropertyBuilder(SerializationConfig config, BeanDescription beanDesc)
     {
@@ -81,17 +70,12 @@ public class PropertyBuilder
                 inclPerType);
         // [databind#1757]: Use "real" property defaults (from default bean instance)
         //  when NON_DEFAULT is set per-type (b), or when set as global default (a)
-        //  AND MapperFeature.USE_REAL_NON_DEFAULT is enabled. This ensures round-trip
+        //  AND MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT is enabled. This ensures round-trip
         //  consistency: values that match the no-arg constructor defaults are suppressed
         //  during serialization and restored by the constructor during deserialization.
-        // [databind#6275]: Per-type NON_DEFAULT still writes an explicit null when the
-        //  compared default is non-null. Only the global real-default mode suppresses
-        //  those nulls.
-        _suppressNullsOnRealDefaults = (inclPerType.getValueInclusion() != JsonInclude.Include.NON_DEFAULT)
-                && (_defaultInclusion.getValueInclusion() == JsonInclude.Include.NON_DEFAULT)
-                && config.isEnabled(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT);
-        _useRealPropertyDefaults = _suppressNullsOnRealDefaults
-                || (inclPerType.getValueInclusion() == JsonInclude.Include.NON_DEFAULT);
+        _useRealPropertyDefaults = (inclPerType.getValueInclusion() == JsonInclude.Include.NON_DEFAULT)
+                || ((_defaultInclusion.getValueInclusion() == JsonInclude.Include.NON_DEFAULT)
+                        && config.isEnabled(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT));
         _annotationIntrospector = _config.getAnnotationIntrospector();
     }
 
@@ -177,10 +161,10 @@ public class PropertyBuilder
         switch (inclusion) {
         case NON_DEFAULT:
             // 11-Nov-2015, tatu: This is tricky because semantics differ between cases,
-            //    so that if enclosing class has this, we may need to access values of property,
-            //    whereas for global defaults OR per-property overrides, we have more
-            //    static definition. Sigh.
-            // First: case of class/type specifying it; try to find POJO property defaults
+            //    so that if enclosing class has this (or global default does, with
+            //    USE_REAL_INCLUDE_NON_DEFAULT), we may need to access values of property,
+            //    whereas otherwise we have more static definition. Sigh.
+            // First: case of "real" defaults; try to find POJO property defaults
             Object defaultBean;
 
             // 16-Oct-2016, tatu: Note: if we cannot for some reason create "default instance",
@@ -197,12 +181,9 @@ public class PropertyBuilder
                 } catch (Exception e) {
                     _throwWrapped(e, propDef.getName(), defaultBean);
                 }
-                // [databind#1757]: Global real-default NON_DEFAULT suppresses nulls.
-                // [databind#6275]: Per-type NON_DEFAULT does not, when the compared
-                //  default is non-null; a null real default is handled below.
-                if (_suppressNullsOnRealDefaults) {
-                    suppressNulls = true;
-                }
+                // [databind#6275], [databind#6317]: Null is not suppressed here when the
+                //  compared default is non-null (same for per-type and global, including
+                //  per-property NON_DEFAULT); a null real default is handled below.
             } else {
                 valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, actualType);
                 suppressNulls = true;

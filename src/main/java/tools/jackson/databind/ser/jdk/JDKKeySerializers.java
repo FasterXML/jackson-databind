@@ -3,6 +3,7 @@ package tools.jackson.databind.ser.jdk;
 import java.io.Serial;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
@@ -72,6 +73,10 @@ public abstract class JDKKeySerializers
         if (rawKeyType == byte[].class) {
             return new Default(Default.TYPE_BYTE_ARRAY, rawKeyType);
         }
+        // [databind#6320]: Locale keys to use same BCP-47 form as values
+        if (rawKeyType == Locale.class) {
+            return new Default(Default.TYPE_LOCALE, rawKeyType);
+        }
         if (useDefault) {
             // 19-Oct-2016, tatu: Used to just return DEFAULT_KEY_SERIALIZER but why not:
             return new Default(Default.TYPE_TO_STRING, rawKeyType);
@@ -131,6 +136,7 @@ public abstract class JDKKeySerializers
         final static int TYPE_LONG = 6; // since 2.9
         final static int TYPE_BYTE_ARRAY = 7; // since 2.9
         final static int TYPE_TO_STRING = 8;
+        final static int TYPE_LOCALE = 9; // since 3.3
 
         protected final int _typeId;
 
@@ -179,6 +185,12 @@ public abstract class JDKKeySerializers
                 {
                     String encoded = ctxt.getConfig().getBase64Variant().encode((byte[]) value);
                     g.writeName(encoded);
+                }
+                break;
+            case TYPE_LOCALE: // [databind#6320]
+                {
+                    Locale loc = (Locale) value;
+                    g.writeName((loc == Locale.ROOT) ? "" : loc.toLanguageTag());
                 }
                 break;
             case TYPE_TO_STRING:

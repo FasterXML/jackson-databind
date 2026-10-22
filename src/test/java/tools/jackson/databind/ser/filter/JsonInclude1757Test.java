@@ -2,10 +2,16 @@ package tools.jackson.databind.ser.filter;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -245,5 +251,82 @@ public class JsonInclude1757Test extends DatabindTestUtil
                 {"mode":"default"}""", mapper.writeValueAsString(bean));
         bean.mode = null;
         assertEquals("{}", mapper.writeValueAsString(bean));
+    }
+
+    // [databind#6319]: custom "empty" check must apply when default bean cannot be created
+    static class Money {
+        final long cents;
+        Money(long c) { cents = c; }
+    }
+
+    static class MoneySer extends ValueSerializer<Money> {
+        @Override
+        public void serialize(Money v, JsonGenerator g, SerializationContext ctxt) {
+            g.writeNumber(v.cents);
+        }
+
+        @Override
+        public boolean isEmpty(SerializationContext ctxt, Money v) {
+            return v.cents == 0;
+        }
+    }
+
+    // No default constructor: default bean cannot be created
+    static class CreatorOnly {
+        @JsonSerialize(using = MoneySer.class)
+        public Money amount;
+
+        @JsonCreator
+        CreatorOnly(@JsonProperty("amount") Money amount) { this.amount = amount; }
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    static class PerTypeCreatorOnly {
+        @JsonSerialize(using = MoneySer.class)
+        public Money amount;
+
+        @JsonCreator
+        PerTypeCreatorOnly(@JsonProperty("amount") Money amount) { this.amount = amount; }
+    }
+
+    record MoneyRecord(@JsonSerialize(using = MoneySer.class) Money amount) { }
+
+    private ObjectMapper globalNonDefaultMapper(boolean real) {
+        return jsonMapperBuilder()
+                .configure(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT, real)
+                .changeDefaultPropertyInclusion(incl ->
+                        incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
+                .build();
+    }
+
+    @Test
+    public void testNoDefaultBeanGlobalNonDefault() throws Exception {
+        for (boolean real : new boolean[] { false, true }) {
+            ObjectMapper mapper = globalNonDefaultMapper(real);
+            assertEquals("{}", mapper.writeValueAsString(new CreatorOnly(new Money(0))),
+                    "real=" + real);
+            assertEquals("{\"amount\":5}", mapper.writeValueAsString(new CreatorOnly(new Money(5))),
+                    "real=" + real);
+        }
+    }
+
+    @Test
+    public void testNoDefaultBeanPerTypeNonDefault() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder().build();
+        assertEquals("{}", mapper.writeValueAsString(new PerTypeCreatorOnly(new Money(0))));
+        assertEquals("{\"amount\":5}",
+                mapper.writeValueAsString(new PerTypeCreatorOnly(new Money(5))));
+    }
+
+    // Records are excluded from "empty" fallback ([databind#5312]), regardless of feature
+    @Test
+    public void testRecordGlobalNonDefault() throws Exception {
+        for (boolean real : new boolean[] { false, true }) {
+            ObjectMapper mapper = globalNonDefaultMapper(real);
+            assertEquals("{\"amount\":0}", mapper.writeValueAsString(new MoneyRecord(new Money(0))),
+                    "real=" + real);
+            assertEquals("{\"amount\":5}", mapper.writeValueAsString(new MoneyRecord(new Money(5))),
+                    "real=" + real);
+        }
     }
 }

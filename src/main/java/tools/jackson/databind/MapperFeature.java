@@ -577,9 +577,15 @@ public enum MapperFeature
      * {@code @JsonInclude(NON_NULL)} on the class), per-property {@code NON_DEFAULT} for
      * properties of that class uses static type-based defaults, and nulls are suppressed.
      *<p>
+     * If the bean cannot be instantiated (for example, no default constructor is
+     * available), real defaults cannot be determined and handling falls back to that of
+     * the disabled case: static type-based defaults, plus suppression of
+     * values deemed "empty" by the serializer (for non-{@code Record} types).
+     * This applies to per-class {@code NON_DEFAULT} as well.
+     *<p>
      * Feature is disabled by default for backwards-compatibility.
      *
-     * @since 3.2 (null handling changed in 3.3)
+     * @since 3.2 (null handling changed in 3.3, no-default-bean handling in 3.3)
      */
     USE_REAL_INCLUDE_NON_DEFAULT(false),
 

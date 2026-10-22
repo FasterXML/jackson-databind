@@ -165,13 +165,13 @@ public class PropertyBuilder
             //    USE_REAL_INCLUDE_NON_DEFAULT), we may need to access values of property,
             //    whereas otherwise we have more static definition. Sigh.
             // First: case of "real" defaults; try to find POJO property defaults
-            Object defaultBean;
+            final Object defaultBean = _useRealPropertyDefaults ? getDefaultBean() : null;
 
             // 16-Oct-2016, tatu: Note: if we cannot for some reason create "default instance",
             //    revert logic to the case of general/per-property handling, so both
             //    type-default AND null are to be excluded.
             //    (as per [databind#1417]
-            if (_useRealPropertyDefaults && (defaultBean = getDefaultBean()) != null) {
+            if (defaultBean != null) {
                 // 07-Sep-2016, tatu: may also need to front-load access forcing now
                 if (ctxt.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
                     am.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -192,7 +192,9 @@ public class PropertyBuilder
                 suppressNulls = true;
                 // [databind#4471] Different behavior when Include.NON_DEFAULT
                 //   setting is used on POJO vs global setting, as per documentation.
-                if (!_useRealPropertyDefaults) {
+                // [databind#6319] Only when real defaults not used (including case where
+                //   default bean could not be created, see [databind#1417])
+                if (defaultBean == null) {
                     // [databind#4464] NON_DEFAULT does not work with NON_EMPTY for custom serializer
                     // [databind#5312] But for Record types, default value for reference-type
                     //   properties is always null; no need to fall back to MARKER_FOR_EMPTY

@@ -23,6 +23,9 @@ No changes since 3.1
 #6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)` to an object
   whose id is `null`
  (reported, fixed by @Marti2203)
+#6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
+  values (including primitive array elements)
+ (reported, fixed by @Marti2203)
 
 3.1.8 (17-Oct-2026)
 

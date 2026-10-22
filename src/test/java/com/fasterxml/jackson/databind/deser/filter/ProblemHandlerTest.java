@@ -451,6 +451,28 @@ public class ProblemHandlerTest
                 +" for token `JsonToken.VALUE_TRUE`");
     }
 
+    static class CharPrimitiveBean {
+        public char c = 'x';
+    }
+
+    // scalar primitive `char`: `null` from handler must not reach the setter
+    @Test
+    public void nullFromHandlerForCharPrimitive() throws Exception
+    {
+        final String JSON = a2q("{'c':true}");
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .build();
+        assertEquals('\0', mapper.readValue(JSON, CharPrimitiveBean.class).c);
+        ObjectMapper strict = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> strict.readValue(JSON, CharPrimitiveBean.class));
+        verifyException(e, "Cannot coerce `null` returned by `DeserializationProblemHandler`");
+    }
+
     @Test
     public void nullFromHandlerForCharArrayElement() throws Exception
     {

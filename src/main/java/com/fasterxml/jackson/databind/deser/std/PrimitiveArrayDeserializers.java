@@ -289,6 +289,10 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                     if (t == JsonToken.VALUE_STRING) {
                         str = p.getText();
                     } else if (t == JsonToken.VALUE_NULL) {
+                        if (_nuller != null) {
+                            _nuller.getNullValue(ctxt);
+                            continue;
+                        }
                         str = null;
                     } else {
                         // Handler may only return `Character` (or `null`) for `Character.TYPE`
@@ -296,7 +300,6 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                         str = (ob == null) ? null : ob.toString();
                     }
                     // JSON null, or `null` substituted by a problem handler
-                    // (no `_nuller` to check: `withResolved()` does not retain it)
                     if (str == null) {
                         _verifyNullForPrimitive(ctxt, t);
                         str = "\0";

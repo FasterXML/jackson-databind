@@ -454,6 +454,19 @@ public class NumberDeserializers
                     LogicalType.Integer, nvl, '\0');
         }
 
+        // Problem handler may return `null`, which is not acceptable for primitive `char`
+        private Character _handleUnexpectedToken(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+        {
+            final JsonToken t = p.currentToken();
+            Character c = (Character) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+            if (c == null && _primitive) {
+                _verifyNullForPrimitive(ctxt, t);
+                return Character.valueOf('\0');
+            }
+            return c;
+        }
+
         @Override
         public Character deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
@@ -465,9 +478,13 @@ public class NumberDeserializers
                 //   have canonical shape in JSON, and String in particular does not need
                 //   coercion -- as long as it has length of 1.
                 text = p.getText();
-                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text:
+                // handled like JSON null (as is the case for `char[]` elements)
                 if (text == null) {
-                    return (Character) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                    if (_primitive) {
+                        _verifyNullForPrimitive(ctxt);
+                    }
+                    return (Character) getNullValue(ctxt);
                 }
                 break;
             case JsonTokenId.ID_NUMBER_INT: // ok iff Unicode value
@@ -505,7 +522,7 @@ public class NumberDeserializers
                 }
                 // fall through
             default:
-                return (Character) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                return _handleUnexpectedToken(p, ctxt);
             }
 
             if (text.length() == 1) {

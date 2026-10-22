@@ -1,5 +1,7 @@
 package tools.jackson.databind.ser.filter;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -310,12 +312,47 @@ public class JsonInclude1757Test extends DatabindTestUtil
         }
     }
 
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    static class PerTypeBuiltInsCreatorOnly {
+        public String text;
+        public List<String> list;
+
+        @JsonCreator
+        PerTypeBuiltInsCreatorOnly(@JsonProperty("text") String text,
+                @JsonProperty("list") List<String> list) {
+            this.text = text;
+            this.list = list;
+        }
+    }
+
     @Test
     public void testNoDefaultBeanPerTypeNonDefault() throws Exception {
-        ObjectMapper mapper = jsonMapperBuilder().build();
-        assertEquals("{}", mapper.writeValueAsString(new PerTypeCreatorOnly(new Money(0))));
-        assertEquals("{\"amount\":5}",
-                mapper.writeValueAsString(new PerTypeCreatorOnly(new Money(5))));
+        for (boolean real : new boolean[] { false, true }) {
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .configure(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT, real)
+                    .build();
+            assertEquals("{}", mapper.writeValueAsString(new PerTypeCreatorOnly(new Money(0))),
+                    "real=" + real);
+            assertEquals("{\"amount\":5}",
+                    mapper.writeValueAsString(new PerTypeCreatorOnly(new Money(5))),
+                    "real=" + real);
+        }
+    }
+
+    // Built-in types: static defaults ("", empty List) apply, as no real default available
+    @Test
+    public void testNoDefaultBeanPerTypeBuiltIns() throws Exception {
+        for (boolean real : new boolean[] { false, true }) {
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .configure(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT, real)
+                    .build();
+            assertEquals("{}",
+                    mapper.writeValueAsString(new PerTypeBuiltInsCreatorOnly("", List.of())),
+                    "real=" + real);
+            assertEquals("{\"text\":\"a\",\"list\":[\"b\"]}",
+                    mapper.writeValueAsString(new PerTypeBuiltInsCreatorOnly("a", List.of("b"))),
+                    "real=" + real);
+        }
     }
 
     // Records are excluded from "empty" fallback ([databind#5312]), regardless of feature

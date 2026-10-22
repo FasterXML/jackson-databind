@@ -6,13 +6,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 // [databind#1757]: Global NON_DEFAULT should use real bean defaults
-//  for round-trip consistency when USE_REAL_NON_DEFAULT is enabled
+//  for round-trip consistency when USE_REAL_INCLUDE_NON_DEFAULT is enabled
 public class JsonInclude1757Test extends DatabindTestUtil
 {
     static class Entity {
@@ -31,12 +32,15 @@ public class JsonInclude1757Test extends DatabindTestUtil
         public int value = 42;
     }
 
-    private ObjectMapper globalRealNonDefaultMapper() {
+    private JsonMapper.Builder globalRealNonDefaultBuilder() {
         return jsonMapperBuilder()
                 .enable(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT)
                 .changeDefaultPropertyInclusion(incl ->
-                        incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
-                .build();
+                        incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT));
+    }
+
+    private ObjectMapper globalRealNonDefaultMapper() {
+        return globalRealNonDefaultBuilder().build();
     }
 
     // [databind#1757]: default values should round-trip with global NON_DEFAULT
@@ -129,11 +133,11 @@ public class JsonInclude1757Test extends DatabindTestUtil
         assertEquals("{}", globalJson);
     }
 
-    // [databind#1757]: Without USE_REAL_NON_DEFAULT, old behavior is preserved
+    // [databind#1757]: Without USE_REAL_INCLUDE_NON_DEFAULT, old behavior is preserved
     @Test
     public void testOldBehaviorWithoutFeature() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                // USE_REAL_NON_DEFAULT is disabled by default
+                // USE_REAL_INCLUDE_NON_DEFAULT is disabled by default
                 .changeDefaultPropertyInclusion(incl ->
                         incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
                 .build();
@@ -233,14 +237,29 @@ public class JsonInclude1757Test extends DatabindTestUtil
         public String mode = "default";
     }
 
-    // [databind#6317]: explicit per-property NON_DEFAULT still suppresses nulls
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    static class PerTypePropertyNonDefaultEntity {
+        @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+        public String mode = "default";
+    }
+
+    // [databind#6317]: per-property NON_DEFAULT writes explicit null over non-null
+    //  default the same way in global and per-type mode
     @Test
-    public void globalNonDefaultPerPropertyNonDefaultSuppressesNull() throws Exception {
-        ObjectMapper mapper = globalRealNonDefaultMapper();
+    public void perPropertyNonDefaultWritesExplicitNull() throws Exception {
+        ObjectMapper globalMapper = globalRealNonDefaultMapper();
         PropertyNonDefaultEntity bean = new PropertyNonDefaultEntity();
-        assertEquals("{}", mapper.writeValueAsString(bean));
+        assertEquals("{}", globalMapper.writeValueAsString(bean));
         bean.mode = null;
-        assertEquals("{}", mapper.writeValueAsString(bean));
+        assertEquals("""
+                {"mode":null}""", globalMapper.writeValueAsString(bean));
+
+        ObjectMapper defaultMapper = newJsonMapper();
+        PerTypePropertyNonDefaultEntity perType = new PerTypePropertyNonDefaultEntity();
+        assertEquals("{}", defaultMapper.writeValueAsString(perType));
+        perType.mode = null;
+        assertEquals("""
+                {"mode":null}""", defaultMapper.writeValueAsString(perType));
     }
 
     static class PropertyTypeOverrideEntity {
@@ -248,19 +267,22 @@ public class JsonInclude1757Test extends DatabindTestUtil
     }
 
     // [databind#6317]: per-property NON_DEFAULT via property-type config override
-    //  also suppresses nulls
+    //  (either kind) also writes explicit null over non-null default
     @Test
-    public void globalNonDefaultPropertyTypeOverrideSuppressesNull() throws Exception {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .enable(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT)
-                .changeDefaultPropertyInclusion(incl ->
-                        incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
-                .withConfigOverride(StringBuilder.class,
-                        o -> o.setIncludeAsProperty(JsonInclude.Value.construct(
-                                JsonInclude.Include.NON_DEFAULT, null)))
+    public void globalNonDefaultPropertyTypeOverrideWritesExplicitNull() throws Exception {
+        final JsonInclude.Value nonDefault = JsonInclude.Value.construct(
+                JsonInclude.Include.NON_DEFAULT, null);
+        ObjectMapper asPropertyMapper = globalRealNonDefaultBuilder()
+                .withConfigOverride(StringBuilder.class, o -> o.setIncludeAsProperty(nonDefault))
+                .build();
+        ObjectMapper includeMapper = globalRealNonDefaultBuilder()
+                .withConfigOverride(StringBuilder.class, o -> o.setInclude(nonDefault))
                 .build();
         PropertyTypeOverrideEntity bean = new PropertyTypeOverrideEntity();
         bean.mode = null;
-        assertEquals("{}", mapper.writeValueAsString(bean));
+        assertEquals("""
+                {"mode":null}""", asPropertyMapper.writeValueAsString(bean));
+        assertEquals("""
+                {"mode":null}""", includeMapper.writeValueAsString(bean));
     }
 }

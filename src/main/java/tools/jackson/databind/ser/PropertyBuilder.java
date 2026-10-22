@@ -48,14 +48,6 @@ public class PropertyBuilder
      */
     protected final boolean _useRealPropertyDefaults;
 
-    /**
-     * Whether per-type value inclusion (annotation or config override on the
-     * enclosing type) is <code>NON_DEFAULT</code>.
-     *
-     * @since 3.3
-     */
-    protected final boolean _perTypeNonDefault;
-
     public PropertyBuilder(SerializationConfig config, BeanDescription beanDesc)
     {
         _config = config;
@@ -78,11 +70,10 @@ public class PropertyBuilder
                 inclPerType);
         // [databind#1757]: Use "real" property defaults (from default bean instance)
         //  when NON_DEFAULT is set per-type (b), or when set as global default (a)
-        //  AND MapperFeature.USE_REAL_NON_DEFAULT is enabled. This ensures round-trip
+        //  AND MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT is enabled. This ensures round-trip
         //  consistency: values that match the no-arg constructor defaults are suppressed
         //  during serialization and restored by the constructor during deserialization.
-        _perTypeNonDefault = (inclPerType.getValueInclusion() == JsonInclude.Include.NON_DEFAULT);
-        _useRealPropertyDefaults = _perTypeNonDefault
+        _useRealPropertyDefaults = (inclPerType.getValueInclusion() == JsonInclude.Include.NON_DEFAULT)
                 || ((_defaultInclusion.getValueInclusion() == JsonInclude.Include.NON_DEFAULT)
                         && config.isEnabled(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT));
         _annotationIntrospector = _config.getAnnotationIntrospector();
@@ -170,10 +161,10 @@ public class PropertyBuilder
         switch (inclusion) {
         case NON_DEFAULT:
             // 11-Nov-2015, tatu: This is tricky because semantics differ between cases,
-            //    so that if enclosing class has this, we may need to access values of property,
-            //    whereas for global defaults OR per-property overrides, we have more
-            //    static definition. Sigh.
-            // First: case of class/type specifying it; try to find POJO property defaults
+            //    so that if enclosing class has this (or global default does, with
+            //    USE_REAL_INCLUDE_NON_DEFAULT), we may need to access values of property,
+            //    whereas otherwise we have more static definition. Sigh.
+            // First: case of "real" defaults; try to find POJO property defaults
             Object defaultBean;
 
             // 16-Oct-2016, tatu: Note: if we cannot for some reason create "default instance",
@@ -191,13 +182,8 @@ public class PropertyBuilder
                     _throwWrapped(e, propDef.getName(), defaultBean);
                 }
                 // [databind#6275], [databind#6317]: Null is not suppressed here when the
-                //  compared default is non-null (same for per-type and global); a null
-                //  real default is handled below.
-                // ...except for explicit per-property NON_DEFAULT under global mode,
-                //  which suppresses nulls (as it did before [databind#6317])
-                if (!_perTypeNonDefault && _hasPropertyNonDefault(propDef, rawPropertyType)) {
-                    suppressNulls = true;
-                }
+                //  compared default is non-null (same for per-type and global, including
+                //  per-property NON_DEFAULT); a null real default is handled below.
             } else {
                 valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, actualType);
                 suppressNulls = true;
@@ -375,24 +361,6 @@ public class PropertyBuilder
     /* Helper methods for default value handling
     /**********************************************************************
      */
-
-    /**
-     * Helper method for checking whether <code>NON_DEFAULT</code> inclusion is
-     * explicitly specified for the property itself: either by annotation on
-     * the property, or by config override for the property type.
-     *
-     * @since 3.3
-     */
-    protected boolean _hasPropertyNonDefault(BeanPropertyDefinition propDef,
-            Class<?> rawPropertyType)
-    {
-        JsonInclude.Value v = propDef.findInclusion();
-        if ((v != null) && (v.getValueInclusion() == JsonInclude.Include.NON_DEFAULT)) {
-            return true;
-        }
-        v = _config.getConfigOverride(rawPropertyType).getIncludeAsProperty();
-        return (v != null) && (v.getValueInclusion() == JsonInclude.Include.NON_DEFAULT);
-    }
 
     protected Object getDefaultBean()
     {

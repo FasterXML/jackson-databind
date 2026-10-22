@@ -288,6 +288,50 @@ public class JDKTypeSerializationTest
         assertEquals(q(""), MAPPER.writeValueAsString(root));
     }
 
+    // [databind#6320]: Well-formed Locales (tag round-trips) use BCP-47 form for keys
+    @Test
+    public void localeAsMapKeyWithRoundTrippingTag() throws IOException
+    {
+        Map<Locale, Integer> map = new LinkedHashMap<>();
+        map.put(Locale.forLanguageTag("zh-Hans-CN"), 1);
+        map.put(Locale.CANADA_FRENCH, 2);
+        final String json = MAPPER.writeValueAsString(map);
+        assertEquals("""
+                {"zh-Hans-CN":1,"fr-CA":2}""", json);
+        assertEquals(map, MAPPER.readValue(json,
+                new TypeReference<Map<Locale, Integer>>() { }));
+    }
+
+    // [databind#6320]: Legacy Locales whose tag differs from Locale ("no_NO_NY" -> "nn-NO")
+    // must not be changed into another Locale by key round-trip
+    @SuppressWarnings("deprecation")
+    @Test
+    public void localeAsMapKeyLegacy() throws IOException
+    {
+        Map<Locale, Integer> map = new LinkedHashMap<>();
+        map.put(new Locale("no", "NO", "NY"), 1);
+        map.put(new Locale("nn", "NO"), 2);
+        map.put(new Locale("ja", "JP", "JP"), 3);
+        final String json = MAPPER.writeValueAsString(map);
+        Map<Locale, Integer> result = MAPPER.readValue(json,
+                new TypeReference<Map<Locale, Integer>>() { });
+        assertEquals(map, result);
+        // keys are unique, so no entries lost
+        assertEquals(3, result.size());
+    }
+
+    // [databind#6320]: same for dynamically resolved key serializer
+    @SuppressWarnings("deprecation")
+    @Test
+    public void localeAsUntypedMapKeyNotRepresentableAsTag() throws IOException
+    {
+        Map<Object, Integer> map = new LinkedHashMap<>();
+        map.put(new Locale("en"), 1);
+        map.put(new Locale("en", "USA"), 2);
+        assertEquals("""
+                {"en":1,"en_USA":2}""", MAPPER.writeValueAsString(map));
+    }
+
     // [databind#6320]: Locales that BCP-47 tag cannot represent must not collide as keys
     @SuppressWarnings("deprecation")
     @Test

@@ -2,6 +2,7 @@ package tools.jackson.databind.deser.jdk;
 
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.std.StdNodeBasedDeserializer;
 
 /**
@@ -10,6 +11,7 @@ import tools.jackson.databind.deser.std.StdNodeBasedDeserializer;
  * This to match automatic serialization by Jackson which does write out
  * all accessible properties.
  */
+@JacksonStdImpl
 public class ThreadGroupDeserializer
     extends StdNodeBasedDeserializer<ThreadGroup>
 {

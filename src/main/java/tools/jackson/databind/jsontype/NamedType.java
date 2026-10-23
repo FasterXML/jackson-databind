@@ -1,5 +1,6 @@
 package tools.jackson.databind.jsontype;
 
+import java.io.Serial;
 import java.util.Objects;
 
 /**
@@ -8,6 +9,7 @@ import java.util.Objects;
  */
 public final class NamedType implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected final Class<?> _class;

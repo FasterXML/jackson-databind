@@ -679,7 +679,7 @@ public class GenericTypeSerializationTest extends DatabindTestUtil
     public void testIndexedListExample() throws Exception
     {
         UUID uuid = UUID.randomUUID();
-        IndexedList<TestIndexed, String> value = MAPPER.readValue(String.format("[\"%s\"]", uuid.toString()),
+        IndexedList<TestIndexed, String> value = MAPPER.readValue("[\"%s\"]".formatted(uuid.toString()),
                 new TypeReference<IndexedList<TestIndexed, String>>() {});
         assertEquals(1, value.size());
         assertEquals(uuid, value.delegate.get(0).value);

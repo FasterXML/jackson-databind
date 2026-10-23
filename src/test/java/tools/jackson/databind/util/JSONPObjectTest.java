@@ -19,7 +19,7 @@ public class JSONPObjectTest extends DatabindTestUtil
      */
     @Test
     public void testU2028Escaped() throws IOException {
-        String containsU2028 = String.format("This string contains %c char", '\u2028');
+        String containsU2028 = "This string contains %c char".formatted('\u2028');
         JSONPObject jsonpObject = new JSONPObject(CALLBACK, containsU2028);
         String valueAsString = MAPPER.writeValueAsString(jsonpObject);
         assertFalse(valueAsString.contains("\u2028"));
@@ -27,7 +27,7 @@ public class JSONPObjectTest extends DatabindTestUtil
 
     @Test
     public void testU2029Escaped() throws IOException {
-        String containsU2029 = String.format("This string contains %c char", '\u2029');
+        String containsU2029 = "This string contains %c char".formatted('\u2029');
         JSONPObject jsonpObject = new JSONPObject(CALLBACK, containsU2029);
         String valueAsString = MAPPER.writeValueAsString(jsonpObject);
         assertFalse(valueAsString.contains("\u2029"));
@@ -35,7 +35,7 @@ public class JSONPObjectTest extends DatabindTestUtil
 
     @Test
     public void testU2030NotEscaped() throws IOException {
-        String containsU2030 = String.format("This string contains %c char", '\u2030');
+        String containsU2030 = "This string contains %c char".formatted('\u2030');
         JSONPObject jsonpObject = new JSONPObject(CALLBACK, containsU2030);
         String valueAsString = MAPPER.writeValueAsString(jsonpObject);
         assertTrue(valueAsString.contains("\u2030"));

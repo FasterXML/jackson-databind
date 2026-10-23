@@ -306,10 +306,12 @@ public class TreeTraversingParserTest
     public void testDataBind() throws Exception
     {
         JsonNode tree = MAPPER.readTree
-            ("{ \"name\" : \"Tatu\", \n"
-             +"\"magicNumber\" : 42,"
-             +"\"kids\" : [ \"Leo\", \"Lila\", \"Leia\" ] \n"
-             +"}");
+            ("""
+             { "name" : "Tatu",\s
+             "magicNumber" : 42,\
+             "kids" : [ "Leo", "Lila", "Leia" ]\s
+             }
+             """);
         Person tatu = MAPPER.treeToValue(tree, Person.class);
         assertNotNull(tatu);
         assertEquals(42, tatu.magicNumber);

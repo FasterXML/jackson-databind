@@ -150,6 +150,35 @@ public class RecursiveTypeTest extends DatabindTestUtil
         }
     }
 
+    // [databind#5857]: mutually recursive generic bounds causing StackOverflowError
+    static class RuleSetRevisionDTO<RS extends RuleSetDTO<?>, RSR extends RuleSetRuleDTO<?, ?>> {
+        public RS ruleSet;
+        public List<RSR> rules;
+    }
+
+    static class RuleSetDTO<RSRV extends RuleSetRevisionDTO<?, ?>> {
+        public List<RSRV> revisions;
+    }
+
+    static class RuleSetRuleDTO<RR, RS extends RuleSetRevisionDTO<?, ?>> {
+        public RR rule;
+        public RS revision;
+    }
+
+    // [databind#5857]
+    @Test
+    public void testMutuallyRecursiveGenericBounds5857() {
+        TypeFactory tf = MAPPER.getTypeFactory();
+
+        // Should not throw StackOverflowError
+        JavaType type1 = tf.constructType(
+                new TypeReference<List<RuleSetRevisionDTO<?, ?>>>() {});
+        assertNotNull(type1);
+
+        JavaType type2 = tf.constructCollectionType(List.class, RuleSetRevisionDTO.class);
+        assertNotNull(type2);
+    }
+
     // [databind#1658]
     @Test
     public void testRecursive1658() throws Exception

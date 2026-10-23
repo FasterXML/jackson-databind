@@ -43,6 +43,14 @@ public class MonthDeserializerTest extends DateTimeTestBase
         public Month value;
     }
 
+    record Estimate(
+            @JsonFormat(with = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES)
+            Month month) { }
+
+    record StrictEstimate(
+            @JsonFormat(without = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES)
+            Month month) { }
+
     @ParameterizedTest
     @EnumSource(Month.class)
     public void testDeserializationAsString01_oneBased(Month expectedMonth) throws Exception
@@ -94,13 +102,13 @@ public class MonthDeserializerTest extends DateTimeTestBase
     static void assertError(Executable codeToRun, Class<? extends Throwable> expectedException, String expectedMessage) {
         try {
             codeToRun.execute();
-            fail(String.format("Expecting %s, but nothing was thrown!", expectedException.getName()));
+            fail("Expecting %s, but nothing was thrown!".formatted(expectedException.getName()));
         } catch (Throwable actualException) {
             if (!expectedException.isInstance(actualException)) {
-                fail(String.format("Expecting exception of type %s, but %s was thrown instead", expectedException.getName(), actualException.getClass().getName()));
+                fail("Expecting exception of type %s, but %s was thrown instead".formatted(expectedException.getName(), actualException.getClass().getName()));
             }
             if (actualException.getMessage() == null || !actualException.getMessage().contains(expectedMessage)) {
-                fail(String.format("Expecting exception with message containing: '%s', but the actual error message was:'%s'", expectedMessage, actualException.getMessage()));
+                fail("Expecting exception with message containing: '%s', but the actual error message was:'%s'".formatted(expectedMessage, actualException.getMessage()));
             }
         }
     }
@@ -261,78 +269,106 @@ public class MonthDeserializerTest extends DateTimeTestBase
     @Test
     public void testDeserializationAsEmptyArray() throws Exception
     {
-        // Empty array returns null
-        Month result = readerForOneBased().readValue("[]");
+        // [databind#5957]: Empty array now requires ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT to return null
+        assertError(
+            () -> readerForOneBased().readValue("[]"),
+            MismatchedInputException.class,
+            "Cannot deserialize"
+        );
+    }
+
+    @Test
+    public void testDeserializationAsEmptyArray_withFeatureEnabled() throws Exception
+    {
+        ObjectMapper mapper = newMapper().rebuild()
+                .enable(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT).build();
+        Month result = mapper.readerFor(Month.class).readValue("[]");
         assertNull(result);
     }
 
     @Test
     public void testDeserializationAsArrayWithIntValue() throws Exception
     {
-        // Array with single int value (interpreted as 1-based month)
-        Month result = readerForOneBased().readValue("[3]");
+        // [databind#5957]: Single-element int array now requires UNWRAP_SINGLE_VALUE_ARRAYS
+        assertError(
+            () -> readerForOneBased().readValue("[3]"),
+            MismatchedInputException.class,
+            "from Array value"
+        );
+    }
+
+    @Test
+    public void testDeserializationAsArrayWithIntValue_withFeatureEnabled() throws Exception
+    {
+        ObjectReader r = readerForOneBased()
+                .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        Month result = r.readValue("[3]");
         assertEquals(Month.MARCH, result);
     }
 
     @Test
     public void testDeserializationAsArrayWithIntValue_zeroBased() throws Exception
     {
-        // Array with single int value (0-based mode still uses Month.of for array)
-        Month result = readerForZeroBased().readValue("[3]");
-        assertEquals(Month.MARCH, result);
+        // [databind#5957]: Single-element int array now requires UNWRAP_SINGLE_VALUE_ARRAYS
+        assertError(
+            () -> readerForZeroBased().readValue("[3]"),
+            MismatchedInputException.class,
+            "from Array value"
+        );
     }
 
     @Test
     public void testDeserializationAsArrayWithMoreThanOneElement() throws Exception
     {
+        // [databind#5957]: Multi-element array (no UNWRAP) rejected as Array-token mismatch
         assertError(
             () -> readerForOneBased().readValue("[1, 2]"),
             MismatchedInputException.class,
-            "Expected array to end"
+            "from Array value"
         );
     }
 
     @Test
     public void testDeserializationAsArrayWithWrongToken() throws Exception
     {
-        // Boolean in array without UNWRAP should fail with specific error
+        // [databind#5957]: Boolean in array (no UNWRAP) rejected as Array-token mismatch
         assertError(
             () -> readerForOneBased().readValue("[true]"),
             MismatchedInputException.class,
-            "Expected VALUE_NUMBER_INT"
+            "from Array value"
         );
     }
 
     @Test
     public void testDeserializationAsArrayWithStringUnwrapDisabled() throws Exception
     {
-        // String in array without UNWRAP_SINGLE_VALUE_ARRAYS should fail
+        // [databind#5957]: String in array without UNWRAP_SINGLE_VALUE_ARRAYS should fail
         assertError(
             () -> readerForOneBased().readValue("[\"JANUARY\"]"),
             MismatchedInputException.class,
-            "Expected VALUE_NUMBER_INT"
+            "from Array value"
         );
     }
 
     @Test
     public void testDeserializationAsArrayWithFloatUnwrapDisabled() throws Exception
     {
-        // Float in array without UNWRAP should fail
+        // [databind#5957]: Float in array (no UNWRAP) rejected as Array-token mismatch
         assertError(
             () -> readerForOneBased().readValue("[1.5]"),
             MismatchedInputException.class,
-            "Expected VALUE_NUMBER_INT"
+            "from Array value"
         );
     }
 
     @Test
     public void testDeserializationAsArrayWithObjectUnwrapDisabled() throws Exception
     {
-        // Object in array without UNWRAP should fail
+        // [databind#5957]: Object in array (no UNWRAP) rejected as Array-token mismatch
         assertError(
             () -> readerForOneBased().readValue("[{}]"),
             MismatchedInputException.class,
-            "Expected VALUE_NUMBER_INT"
+            "from Array value"
         );
     }
 
@@ -494,6 +530,69 @@ public class MonthDeserializerTest extends DateTimeTestBase
         WrapperWithFullMonthFormat result = MAPPER.readValue(
                 "{\"value\":\"January\"}", WrapperWithFullMonthFormat.class);
         assertEquals(Month.JANUARY, result.value);
+    }
+
+    // [databind#6178]
+    @ParameterizedTest
+    @ValueSource(strings = {"JANUARY", "January", "january"})
+    public void testDeserializationWithCaseInsensitiveValues(String input) throws Exception
+    {
+        Estimate result = MAPPER.readValue("{\"month\":\"" + input + "\"}", Estimate.class);
+        assertEquals(Month.JANUARY, result.month());
+    }
+
+    // [databind#6178]
+    @Test
+    public void testDeserializationWithGlobalCaseInsensitiveValues() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES)
+                .build();
+
+        assertEquals(Month.JANUARY, mapper.readValue("\"january\"", Month.class));
+    }
+
+    // [databind#6178]
+    @Test
+    public void testDeserializationWithCaseInsensitiveValuesDisabledForProperty() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES)
+                .build();
+
+        assertThrows(InvalidFormatException.class,
+                () -> mapper.readValue("{\"month\":\"January\"}", StrictEstimate.class));
+    }
+
+    // [databind#6178]: `Month` is an `Enum` so Enum-specific setting applies too
+    @Test
+    public void testDeserializationWithGlobalCaseInsensitiveEnums() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .build();
+
+        assertEquals(Month.JANUARY, mapper.readValue("\"january\"", Month.class));
+    }
+
+    // [databind#6178]
+    @Test
+    public void testDeserializationWithCaseInsensitiveEnumsDisabledForProperty() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .build();
+
+        assertThrows(InvalidFormatException.class,
+                () -> mapper.readValue("{\"month\":\"January\"}", StrictEstimate.class));
+    }
+
+    // [databind#6178]: neither global setting enabled -> still strict
+    @Test
+    public void testDeserializationCaseSensitiveByDefault() throws Exception
+    {
+        assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readValue("\"January\"", Month.class));
     }
 
     /*

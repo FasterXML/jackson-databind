@@ -94,25 +94,29 @@ public class ExternalTypeId2588Test extends DatabindTestUtil
         // works?
 
         pet = MAPPER.readValue(a2q(
-"{\n" +
-"  'type': 'cat',\n" +
-"  'animal': { },\n" +
-"  'ignoredObject\": {\n" +
-"    'someField': 'someValue'\n" +
-"  }"+
-"}"
+"""
+{
+  'type': 'cat',
+  'animal': { },
+  'ignoredObject": {
+    'someField': 'someValue'
+  }\
+}
+"""
                 ), Pet.class);
         assertNotNull(pet);
 
         // fails:
         pet = MAPPER.readValue(a2q(
-"{\n" +
-"  'animal\": { },\n" +
-"  'ignoredObject': {\n" +
-"    'someField': 'someValue'\n" +
-"  },\n" +
-"  'type': 'cat'\n" +
-"}"
+"""
+{
+  'animal": { },
+  'ignoredObject': {
+    'someField': 'someValue'
+  },
+  'type': 'cat'
+}
+"""
                 ), Pet.class);
         assertNotNull(pet);
     }

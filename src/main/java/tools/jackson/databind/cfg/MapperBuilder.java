@@ -157,6 +157,14 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     protected PrettyPrinter _defaultPrettyPrinter;
 
+    /**
+     * Optional {@link GeneratorInitializer} to call after constructing
+     * {@link tools.jackson.core.JsonGenerator} instances.
+     *
+     * @since 3.2
+     */
+    protected GeneratorInitializer _generatorInitializer;
+
     /*
     /**********************************************************************
     /* Factories etc for deserialization
@@ -361,6 +369,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _serializerFactory = state._serializerFactory;
         _filterProvider = state._filterProvider;
         _defaultPrettyPrinter = state._defaultPrettyPrinter;
+        _generatorInitializer = state._generatorInitializer;
 
         // Factories for deserialization
         _deserializationContexts = state._deserializationContexts;
@@ -642,6 +651,13 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _filterProvider;
     }
 
+    /**
+     * @since 3.2
+     */
+    public GeneratorInitializer generatorInitializer() {
+        return _generatorInitializer;
+    }
+
     public PrettyPrinter defaultPrettyPrinter() {
         if (_defaultPrettyPrinter == null) {
             _defaultPrettyPrinter = _defaultPrettyPrinter();
@@ -842,6 +858,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
                 .enable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
                 .enable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
                 .disable(MapperFeature.DETECT_PARAMETER_NAMES) // [databind#5314]
+                .disable(MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX) // [databind#6011]
                 .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
                 .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
@@ -987,9 +1004,13 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /**
-     * Method for setting default Setter configuration, regarding things like
-     * merging, null-handling; used for properties for which there are
-     * no per-type or per-property overrides (via annotations or config overrides).
+     * Sets the default value of {@link JsonFormat#lenient()} for types and
+     * properties without a more specific format override.
+     * Whether and how this setting is used depends on the deserializer;
+     * for example, date deserializers use it to control lenient date parsing.
+     *
+     * @param b {@link Boolean#TRUE} to enable leniency, {@link Boolean#FALSE}
+     *   to request strict handling, or {@code null} to leave the default unspecified
      */
     public B defaultLeniency(Boolean b) {
         _configOverrides.setDefaultLeniency(b);
@@ -1088,15 +1109,29 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         }
 
         // 10-Sep-2019, tatu: [databind#2432] Module dependencies; need to add first
-        //   but unlike main module, do NOT replace module if already added
+        //   but unlike main module, do NOT replace module if already added.
+        // 24-Apr-2026, tatu: [databind#5941] Walk dependencies transitively to match
+        //   2.x recursive behavior
         for (JacksonModule dep : module.getDependencies()) {
-            _verifyModuleMetadata(dep);
-            _modules.putIfAbsent(dep.getRegistrationId(), dep);
+            _addDependency(dep);
         }
         _modules.put(moduleId, module);
         // [databind#5481]: invalidate cached state when modules are modified
         _savedState = null;
         return _this();
+    }
+
+    private void _addDependency(JacksonModule module)
+    {
+        _verifyModuleMetadata(module);
+        final Object moduleId = module.getRegistrationId();
+        if (_modules.containsKey(moduleId)) {
+            return;
+        }
+        for (JacksonModule dep : module.getDependencies()) {
+            _addDependency(dep);
+        }
+        _modules.put(moduleId, module);
     }
 
     private void _verifyModuleMetadata(JacksonModule module)
@@ -1375,6 +1410,18 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B defaultPrettyPrinter(PrettyPrinter pp) {
         _defaultPrettyPrinter = pp;
+        return _this();
+    }
+
+    /**
+     * Method for configuring a {@link GeneratorInitializer} to be called immediately
+     * after a {@link tools.jackson.core.JsonGenerator} is constructed by the mapper,
+     * before it is used for serialization or returned to the caller.
+     *
+     * @since 3.2
+     */
+    public B generatorInitializer(GeneratorInitializer init) {
+        _generatorInitializer = init;
         return _this();
     }
 

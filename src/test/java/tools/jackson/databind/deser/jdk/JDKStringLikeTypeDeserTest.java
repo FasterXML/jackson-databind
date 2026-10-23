@@ -3,6 +3,7 @@ package tools.jackson.databind.deser.jdk;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Currency;
 import java.util.regex.Pattern;
 
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.databind.*;
+import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.exc.ValueInstantiationException;
@@ -42,10 +44,9 @@ public class JDKStringLikeTypeDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testCharset() throws Exception
+    public void testCharset()
     {
-        Charset UTF8 = Charset.forName("UTF-8");
-        assertSame(UTF8, MAPPER.readValue(q("UTF-8"), Charset.class));
+        assertSame(StandardCharsets.UTF_8, MAPPER.readValue(q("UTF-8"), Charset.class));
     }
 
     @Test
@@ -125,13 +126,55 @@ public class JDKStringLikeTypeDeserTest
     @Test
     public void testInetAddress() throws Exception
     {
+        // Valid IPv4 address
         InetAddress address = MAPPER.readValue(q("127.0.0.1"), InetAddress.class);
         assertEquals("127.0.0.1", address.getHostAddress());
 
-        // should we try resolving host names? That requires connectivity...
-        final String HOST = "google.com";
-        address = MAPPER.readValue(q(HOST), InetAddress.class);
-        assertEquals(HOST, address.getHostName());
+        // Valid IPv6 address
+        InetAddress ip6 = MAPPER.readValue(
+                q("2001:db8:85a3:8d3:1319:8a2e:370:7348"), InetAddress.class);
+        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6.getHostAddress());
+
+        // IPv6 loopback
+        InetAddress loopback6 = MAPPER.readValue(q("::1"), InetAddress.class);
+        assertEquals("0:0:0:0:0:0:0:1", loopback6.getHostAddress());
+    }
+
+    @Test
+    public void testInetAddressNoDNSLookup() throws Exception
+    {
+        // [databind#6058]: should NOT perform DNS lookup — only IP address literals accepted
+        expectInvalidInetAddress("localhost");
+        expectInvalidInetAddress("google.com");
+        // starts off looking like an IP address (edge case)
+        expectInvalidInetAddress("1.2.3.4.example.com");
+        // punycode
+        expectInvalidInetAddress("xn--bcher-kva.example.com");
+    }
+
+    @Test
+    public void testInetAddressNonAsciiDigits() throws Exception
+    {
+        // [databind#6116], follow-up to [databind#6058]: Character.digit() accepts
+        // non-ASCII digits, but InetAddress.getByName() only treats ASCII literals as
+        // addresses and resolves the rest via DNS, so these must be rejected too.
+        // NOTE: unicode escapes used on purpose -- non-ASCII digit forms are visually
+        // hard to tell apart from the ASCII ones they mimic.
+        expectInvalidInetAddress("\uFF11\uFF12\uFF17.0.0.1"); // full-width "127".0.0.1
+        expectInvalidInetAddress("\u0661\u0662\u0667.0.0.1"); // Arabic-Indic "127".0.0.1
+        expectInvalidInetAddress("\uFF12001:db8::1"); // full-width digit in IPv6 hextet
+        expectInvalidInetAddress("fe80::\uFF11"); // full-width digit in IPv6 hextet
+        // and same goes for non-ASCII hex letters (radix 16), not just digits
+        expectInvalidInetAddress("\uFF41bcd::1"); // full-width "a"bcd::1
+    }
+
+    private void expectInvalidInetAddress(String address) throws Exception {
+        try {
+            MAPPER.readValue(q(address), InetAddress.class);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Not a valid IP address string literal");
+        }
     }
 
     @Test
@@ -139,14 +182,14 @@ public class JDKStringLikeTypeDeserTest
     {
         ObjectReader r = MAPPER.readerFor(InetSocketAddress.class);
         InetSocketAddress address = r.readValue(q("127.0.0.1"));
-        assertEquals("127.0.0.1", address.getAddress().getHostAddress());
+        assertEquals("127.0.0.1", address.getHostName());
 
         InetSocketAddress ip6 = r.readValue(q("2001:db8:85a3:8d3:1319:8a2e:370:7348"));
-        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6.getAddress().getHostAddress());
+        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6.getHostName());
 
         InetSocketAddress ip6port = r.readValue(
                 q("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"));
-        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6port.getAddress().getHostAddress());
+        assertEquals("[2001:db8:85a3:8d3:1319:8a2e:370:7348]", ip6port.getHostName());
         assertEquals(443, ip6port.getPort());
 
         // should we try resolving host names? That requires connectivity...
@@ -167,6 +210,56 @@ public class JDKStringLikeTypeDeserTest
             verifyException(e, "Cannot deserialize value of type `java.net.InetSocketAddress`");
             verifyException(e, "from String \""+BAD_VALUE+"\"");
             verifyException(e, "Bracketed IPv6 address must contain closing bracket");
+        }
+    }
+
+    // [databind#6305]
+    @Test
+    public void inetSocketAddressBracketedWithInvalidSuffix() throws Exception
+    {
+        // bracketed IPv6 without port is still fine
+        InetSocketAddress ip6 = MAPPER.readValue(q("[2001:db8::1]"), InetSocketAddress.class);
+        assertEquals("[2001:db8::1]", ip6.getHostName());
+        assertEquals(0, ip6.getPort());
+
+        // but text between the closing bracket and the port must not be dropped
+        for (String value : new String[] { "[2001:db8::1]junk:443", "[2001:db8::1]junk",
+                "[2001:db8::1] 443",
+                // also if the suffix itself ends in a closing bracket
+                "[2001:db8::1]junk]" }) {
+            try {
+                InetSocketAddress result = MAPPER.readValue(q(value), InetSocketAddress.class);
+                fail("Should not pass for "+value+", got: "+result);
+            } catch (InvalidFormatException e) {
+                verifyException(e, "must be followed by nothing or ':' and port number");
+            }
+        }
+
+        // and port number must not be followed by anything either
+        try {
+            InetSocketAddress result = MAPPER.readValue(q("[2001:db8::1]:443]"), InetSocketAddress.class);
+            fail("Should not pass, got: "+result);
+        } catch (InvalidFormatException e) {
+            verifyException(e, "not a valid textual representation");
+        }
+    }
+
+    // [databind#6305]
+    @Test
+    public void inetSocketAddressBracketedInvalidWithProblemHandler() throws Exception
+    {
+        final InetSocketAddress fallback = InetSocketAddress.createUnresolved("localhost", 80);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new DeserializationProblemHandler() {
+                    @Override
+                    public Object handleWeirdStringValue(DeserializationContext ctxt,
+                            Class<?> targetType, String valueToConvert, String failureMsg) {
+                        return fallback;
+                    }
+                })
+                .build();
+        for (String value : new String[] { "[2001:db8::1]junk:443", "[2001:db8::1" }) {
+            assertSame(fallback, mapper.readValue(q(value), InetSocketAddress.class));
         }
     }
 
@@ -259,6 +352,7 @@ public class JDKStringLikeTypeDeserTest
         buf.close();
     }
 
+    @Test
     public void testURLInvalid() throws Exception
     {
         // and finally, invalid URL should be handled appropriately too

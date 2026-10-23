@@ -127,8 +127,8 @@ public class JSOGDeserialize622Test extends DatabindTestUtil
 
         @Override
         public boolean equals(Object other) {
-            return (other instanceof JSOGRef)
-                    && ((JSOGRef) other).ref == this.ref;
+            return (other instanceof JSOGRef jsogr)
+                    && jsogr.ref == this.ref;
         }
     }
 
@@ -224,8 +224,7 @@ public class JSOGDeserialize622Test extends DatabindTestUtil
         JSOGWrapper out = mapper.readValue(json, JSOGWrapper.class);
         assertNotNull(out);
         assertEquals(15, out.value);
-        assertInstanceOf(IdentifiableExampleJSOG.class, out.jsog);
-        IdentifiableExampleJSOG jsog = (IdentifiableExampleJSOG) out.jsog;
+        IdentifiableExampleJSOG jsog = assertInstanceOf(IdentifiableExampleJSOG.class, out.jsog);
         assertEquals(123, jsog.foo);
         assertSame(jsog, jsog.next);
     }

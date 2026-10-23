@@ -135,6 +135,7 @@ public class NumberSerializer
         return BigDecimalAsStringSerializer.BD_INSTANCE;
     }
 
+    @JacksonStdImpl
     final static class BigDecimalAsStringSerializer
         extends ToStringSerializerBase
     {
@@ -163,8 +164,8 @@ public class NumberSerializer
                     // ... but wouldn't it be nice to trigger error via generator? Alas,
                     // no method to do that. So we'll do...
                     final String errorMsg = String.format(
-"Attempt to write plain `java.math.BigDecimal` (see JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN) with illegal scale (%d): needs to be between [-%d, %d]",
-bd.scale(), MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE);
+                            "Attempt to write plain `java.math.BigDecimal` (see JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN) with illegal scale (%d): needs to be between [-%d, %d]",
+                            bd.scale(), MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE);
                     ctxt.reportMappingProblem(errorMsg);
                 }
                 text = bd.toPlainString();

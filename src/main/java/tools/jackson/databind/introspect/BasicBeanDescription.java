@@ -148,7 +148,9 @@ public class BasicBeanDescription extends BeanDescription
         return new BasicBeanDescription(config, type, ac);
     }
 
-    protected List<BeanPropertyDefinition> _properties() {
+    // [databind#6227]: synchronized to guard lazy initialization in case instance
+    //   is shared across threads; returned List itself is NOT thread-safe
+    protected synchronized List<BeanPropertyDefinition> _properties() {
         if (_properties == null) {
             _properties = _propCollector.getProperties();
         }
@@ -248,6 +250,12 @@ public class BasicBeanDescription extends BeanDescription
     }
 
     @Override
+    public Set<String> getNonRescuedIgnoredPropertyNames() {
+        return (_propCollector == null) ? Collections.emptySet()
+                : _propCollector.getNonRescuedIgnoredPropertyNames();
+    }
+
+    @Override
     public JsonIgnoreProperties.Value getPropertyIgnorals() {
         return (_propCollector == null) ? null
                 : _propCollector.getPropertyIgnorals();
@@ -283,8 +291,8 @@ public class BasicBeanDescription extends BeanDescription
                 Class<?> type = anyMethod.getRawParameterType(0);
                 if ((type != String.class) && (type != Object.class)) {
                     throw new IllegalArgumentException(String.format(
-"Invalid 'any-setter' annotation on method '%s()': first argument not of type String or Object, but %s",
-anyMethod.getName(), type.getName()));
+                            "Invalid 'any-setter' annotation on method '%s()': first argument not of type `String` or `Object`, but %s",
+                            anyMethod.getName(), ClassUtil.nameOf(type)));
                 }
                 return anyMethod;
             }
@@ -296,8 +304,8 @@ anyMethod.getName(), type.getName()));
                 if (!Map.class.isAssignableFrom(type)
                         && !JsonNode.class.isAssignableFrom(type)) {
                     throw new IllegalArgumentException(String.format(
-"Invalid 'any-setter' annotation on field '%s': type is not instance of `java.util.Map` or `JsonNode`",
-anyField.getName()));
+                            "Invalid 'any-setter' annotation on field '%s': type is not instance of `java.util.Map` or `JsonNode`",
+                            anyField.getName()));
                 }
                 return anyField;
             }
@@ -383,11 +391,11 @@ anyField.getName()));
     /**********************************************************************
      */
 
+    // [databind#6227]: synchronized in case instance is shared across threads
     @Override
-    public Class<?>[] findDefaultViews()
+    public synchronized Class<?>[] findDefaultViews()
     {
         if (!_defaultViewsResolved) {
-            _defaultViewsResolved = true;
             Class<?>[] def = _intr.findViews(_config, _classInfo);
             // one more twist: if default inclusion disabled, need to force empty set of views
             if (def == null) {
@@ -395,7 +403,10 @@ anyField.getName()));
                     def = NO_VIEWS;
                 }
             }
+            // 22-Sep-2026: [databind#6227] MUST assign value before flag: otherwise another
+            //    thread may see "resolved" flag set and return not-yet-assigned `null`
             _defaultViews = def;
+            _defaultViewsResolved = true;
         }
         return _defaultViews;
     }
@@ -433,12 +444,12 @@ anyField.getName()));
         if (_propCollector != null) {
             AnnotatedMember anyGetter = _propCollector.getAnyGetterMethod();
             if (anyGetter != null) {
-                // For now let's require a Map; in future can add support for other
-                // types like perhaps Iterable<Map.Entry>?
+                // Allow Map and JsonNode (ObjectNode) types [databind#3604]
                 Class<?> type = anyGetter.getRawType();
-                if (!Map.class.isAssignableFrom(type)) {
+                if (!Map.class.isAssignableFrom(type)
+                        && !JsonNode.class.isAssignableFrom(type)) {
                     throw new IllegalArgumentException(String.format(
-                            "Invalid 'any-getter' annotation on method %s(): return type is not instance of java.util.Map",
+                            "Invalid 'any-getter' annotation on method '%s()': return type is not instance of `java.util.Map` or `JsonNode`",
                             anyGetter.getName()));
                 }
                 return anyGetter;
@@ -446,12 +457,12 @@ anyField.getName()));
 
             AnnotatedMember anyField = _propCollector.getAnyGetterField();
             if (anyField != null) {
-                // For now let's require a Map; in future can add support for other
-                // types like perhaps Iterable<Map.Entry>?
+                // Allow Map and JsonNode (ObjectNode) types [databind#3604]
                 Class<?> type = anyField.getRawType();
-                if (!Map.class.isAssignableFrom(type)) {
+                if (!Map.class.isAssignableFrom(type)
+                        && !JsonNode.class.isAssignableFrom(type)) {
                     throw new IllegalArgumentException(String.format(
-                            "Invalid 'any-getter' annotation on field '%s': type is not instance of java.util.Map",
+                            "Invalid 'any-getter' annotation on field '%s': type is not instance of `java.util.Map` or `JsonNode`",
                             anyField.getName()));
                 }
                 return anyField;

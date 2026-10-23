@@ -185,7 +185,7 @@ public class BeanUtil
         } else {
             return null;
         }
-        return String.format("%s type %s not supported by default: add Module \"%s\" to enable handling",
+        return "%s type %s not supported by default: add Module \"%s\" to enable handling".formatted(
                 typeName, ClassUtil.getTypeDescription(type), moduleName);
     }
     

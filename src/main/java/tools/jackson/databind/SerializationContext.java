@@ -105,8 +105,13 @@ public abstract class SerializationContext
 
     /**
      * View used for currently active serialization, if any.
+     *<p>
+     * NOTE: non-{@code final} since 3.2, to allow temporary override via
+     * {@link #withActiveView(Class, Runnable)}. Mutation is safe because
+     * runtime {@link SerializationContext} instances are per-call (not
+     * blueprints) and therefore not shared across threads.
      */
-    protected final Class<?> _activeView;
+    protected Class<?> _activeView;
 
     /*
     /**********************************************************************
@@ -224,6 +229,34 @@ public abstract class SerializationContext
         _attributes = src._attributes;
 
         _knownSerializers = src._knownSerializers;
+    }
+
+    /*
+    /**********************************************************************
+    /* State-changing
+    /**********************************************************************
+     */
+
+    /**
+     * Method for overriding active view during processing of given
+     * {@code callback} (and reverting to currently active view once
+     * that is complete)
+     *
+     * @param viewToApply Active view to use during {@code callback} execution
+     * @param callback Callback to call for processing with overridden view
+     *
+     * @since 3.2
+     */
+    public void withActiveView(Class<?> viewToApply, Runnable callback)
+        throws JacksonException
+    {
+        final Class<?> currentView = _activeView;
+        _activeView = viewToApply;
+        try {
+            callback.run();
+        } finally {
+            _activeView = currentView;
+        }
     }
 
     /*
@@ -1328,7 +1361,7 @@ public abstract class SerializationContext
         if (bean != null) {
             beanDesc = ClassUtil.nameOf(bean.getBeanClass());
         }
-        msg = String.format("Invalid type definition for type %s: %s",
+        msg = "Invalid type definition for type %s: %s".formatted(
                 beanDesc, _format(msg, msgArgs));
         throw InvalidDefinitionException.from(getGenerator(), msg, bean, null);
     }
@@ -1351,7 +1384,7 @@ public abstract class SerializationContext
         if (bean != null) {
             beanDesc = ClassUtil.nameOf(bean.getBeanClass());
         }
-        message = String.format("Invalid definition for property %s (of type %s): %s",
+        message = "Invalid definition for property %s (of type %s): %s".formatted(
                 propName, beanDesc, message);
         throw InvalidDefinitionException.from(getGenerator(), message, bean, prop);
     }
@@ -1406,7 +1439,7 @@ public abstract class SerializationContext
     public DatabindException invalidTypeIdException(JavaType baseType, String typeId,
             String extraDesc)
     {
-        String msg = String.format("Could not resolve type id '%s' as a subtype of %s",
+        String msg = "Could not resolve type id '%s' as a subtype of %s".formatted(
                 typeId, ClassUtil.getTypeDescription(baseType));
         return InvalidTypeIdException.from(null, _colonConcat(msg, extraDesc), baseType, typeId);
     }
@@ -1422,8 +1455,7 @@ public abstract class SerializationContext
                 return;
             }
         }
-        reportBadDefinition(rootType, String.format(
-                "Incompatible types: declared root type (%s) vs %s",
+        reportBadDefinition(rootType, "Incompatible types: declared root type (%s) vs %s".formatted(
                 rootType, ClassUtil.classNameOf(value)));
     }
 

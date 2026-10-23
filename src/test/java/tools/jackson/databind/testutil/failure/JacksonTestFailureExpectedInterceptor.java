@@ -36,7 +36,7 @@ public class JacksonTestFailureExpectedInterceptor
         //List<Object> arguments = invocationContext.getArguments();
 
         // Create message
-        String message = String.format("Test method %s.%s() passed, but should have failed", targetClass, testMethod);
+        String message = "Test method %s.%s() passed, but should have failed".formatted(targetClass, testMethod);
 
         // throw exception
         throw new JacksonTestShouldFailException(message);

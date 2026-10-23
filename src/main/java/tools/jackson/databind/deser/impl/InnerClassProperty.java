@@ -78,9 +78,8 @@ public final class InnerClassProperty
             try {
                 value = _creator.newInstance(bean);
             } catch (Exception e) {
-                ClassUtil.unwrapAndThrowAsIAE(e, String.format(
-"Failed to instantiate class %s, problem: %s",
-_creator.getDeclaringClass().getName(), e.getMessage()));
+                ClassUtil.unwrapAndThrowAsIAE(e, "Failed to instantiate class %s, problem: %s".formatted(
+                        _creator.getDeclaringClass().getName(), e.getMessage()));
                 value = null;
             }
             _valueDeserializer.deserialize(p, ctxt, value);

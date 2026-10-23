@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
@@ -50,6 +51,7 @@ import tools.jackson.databind.type.ReferenceType;
 public abstract class ValueDeserializerModifier
     implements Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

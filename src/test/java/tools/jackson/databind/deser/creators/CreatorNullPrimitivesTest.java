@@ -61,16 +61,12 @@ public class CreatorNullPrimitivesTest
         @Override
         public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember param) {
             if (param instanceof AnnotatedParameter ap) {
-                switch (ap.getIndex()) {
-                    case 0:
-                        return "a";
-                    case 1:
-                        return "b";
-                    case 2:
-                        return "c";
-                    default:
-                        return "param" + ap.getIndex();
-                }
+                return switch (ap.getIndex()) {
+                    case 0 -> "a";
+                    case 1 -> "b";
+                    case 2 -> "c";
+                    default -> "param" + ap.getIndex();
+                };
             }
             return super.findImplicitPropertyName(config, param);
         }

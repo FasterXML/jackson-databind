@@ -47,13 +47,15 @@ public class CustomMapMerge5237Test
     @Test
     void customMapMerging5237() throws Exception
     {
-        String json = "{\n"
-                + "  \"inter\" : 5,\n"
-                + "  \"map\" : {\n"
-                + "    \"3\" : \"ADS\"\n"
-                + "  },\n"
-                + "  \"s\" : \"abc\"\n"
-                + "}";
+        String json = """
+                {
+                  "inter" : 5,
+                  "map" : {
+                    "3" : "ADS"
+                  },
+                  "s" : "abc"
+                }
+                """;
         MergeMap merge2 = MAPPER.readValue(json, MergeMap.class);
         assertNotNull(merge2);
         assertEquals(Collections.singletonMap(3, "ADS"), merge2.map);

@@ -179,8 +179,7 @@ public class CreatorCollector
                     }
                     Integer old = names.put(name, Integer.valueOf(i));
                     if (old != null) {
-                        throw new IllegalArgumentException(String.format(
-                                "Duplicate creator property \"%s\" (index %s vs %d) for type %s ",
+                        throw new IllegalArgumentException("Duplicate creator property \"%s\" (index %s vs %d) for type %s ".formatted(
                                 name, old, i, ClassUtil.nameOf(_beanType.getRawClass())));
                     }
                 }
@@ -338,8 +337,7 @@ public class CreatorCollector
     // @since 2.12
     protected void _reportDuplicateCreator(int typeIndex, boolean explicit,
             AnnotatedWithParams oldOne, AnnotatedWithParams newOne) {
-        throw new IllegalArgumentException(String.format(
-                "Conflicting %s creators: already had %s creator %s, encountered another: %s",
+        throw new IllegalArgumentException("Conflicting %s creators: already had %s creator %s, encountered another: %s".formatted(
                 TYPE_DESCS[typeIndex],
                 explicit ? "explicitly marked"
                         : "implicitly discovered",

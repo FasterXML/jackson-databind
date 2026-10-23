@@ -91,12 +91,21 @@ public class MapDeserializer
      */
     protected IgnorePropertiesUtil.Checker _inclusionChecker;
 
-
     /**
      * Flag used to check, whether the {@link tools.jackson.core.StreamReadCapability#DUPLICATE_PROPERTIES}
      * can be applied, because the Map has declared value type of {@code java.lang.Object}.
      */
-    protected boolean _checkDupSquash;
+    protected final boolean _checkDupSquash;
+
+    /**
+     * Flag that indicates whether value merging should be applied when
+     * deserializing content (Map values) during Map merge operation.
+     * Set to {@code false} when content type has ConfigOverride with
+     * {@code mergeable = false}.
+     *
+     * @since 3.2
+     */
+    protected final boolean _mergeValues;
 
     /*
     /**********************************************************************
@@ -119,6 +128,7 @@ public class MapDeserializer
         _standardStringKey = _isStdKeyDeser(mapType, keyDeser);
         _inclusionChecker = null;
         _checkDupSquash = mapType.getContentType().hasRawClass(Object.class);
+        _mergeValues = true;
     }
 
     /**
@@ -142,6 +152,7 @@ public class MapDeserializer
 
         _standardStringKey = src._standardStringKey;
         _checkDupSquash = src._checkDupSquash;
+        _mergeValues = src._mergeValues;
     }
 
     protected MapDeserializer(MapDeserializer src,
@@ -177,6 +188,29 @@ public class MapDeserializer
 
         _standardStringKey = _isStdKeyDeser(_containerType, keyDeser);
         _checkDupSquash = src._checkDupSquash;
+        _mergeValues = src._mergeValues;
+    }
+
+    /**
+     * @since 3.2
+     */
+    protected MapDeserializer(MapDeserializer src, boolean mergeValues)
+    {
+        super(src);
+        _keyDeserializer = src._keyDeserializer;
+        _valueDeserializer = src._valueDeserializer;
+        _valueTypeDeserializer = src._valueTypeDeserializer;
+        _valueInstantiator = src._valueInstantiator;
+        _propertyBasedCreator = src._propertyBasedCreator;
+        _delegateDeserializer = src._delegateDeserializer;
+        _hasDefaultCreator = src._hasDefaultCreator;
+        _ignorableProperties = src._ignorableProperties;
+        _includableProperties = src._includableProperties;
+        _inclusionChecker = src._inclusionChecker;
+
+        _standardStringKey = src._standardStringKey;
+        _checkDupSquash = src._checkDupSquash;
+        _mergeValues = mergeValues;
     }
 
     /**
@@ -208,6 +242,16 @@ public class MapDeserializer
         return new MapDeserializer(this,
                 keyDeser, (ValueDeserializer<Object>) valueDeser, valueTypeDeser,
                 nuller, ignorable, includable);
+    }
+
+    /**
+     * @since 3.2
+     */
+    protected MapDeserializer withMergeValues(boolean mergeValues) {
+        if (_mergeValues == mergeValues) {
+            return this;
+        }
+        return new MapDeserializer(this, mergeValues);
     }
 
     /**
@@ -253,9 +297,9 @@ public class MapDeserializer
             JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
             if (delegateType == null) {
                 ctxt.reportBadDefinition(_containerType, String.format(
-"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
-                _containerType,
-                _valueInstantiator.getClass().getName()));
+                        "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
+                        _containerType,
+                        _valueInstantiator.getClass().getName()));
             }
             // Theoretically should be able to get CreatorProperty for delegate
             // parameter to pass; but things get tricky because DelegateCreator
@@ -265,9 +309,9 @@ public class MapDeserializer
             JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
             if (delegateType == null) {
                 ctxt.reportBadDefinition(_containerType, String.format(
-"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
-                    _containerType,
-                    _valueInstantiator.getClass().getName()));
+                        "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
+                        _containerType,
+                        _valueInstantiator.getClass().getName()));
             }
             _delegateDeserializer = findDeserializer(ctxt, delegateType, null);
         }
@@ -318,39 +362,25 @@ public class MapDeserializer
             AnnotatedMember member = property.getMember();
             if (member != null) {
                 final DeserializationConfig config = ctxt.getConfig();
-                JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(ctxt.getConfig(), member);
+                JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, member);
                 if (ignorals != null) {
-                    Set<String> ignoresToAdd = ignorals.findIgnoredForDeserialization();
-                    if (!ignoresToAdd.isEmpty()) {
-                        if (ignored == null) {
-                            ignored = new HashSet<>(ignoresToAdd);
-                        } else {
-                            ignored = new HashSet<>(ignored);
-                            ignored.addAll(ignoresToAdd);
-                        }
-                    }
+                    ignored = IgnorePropertiesUtil.combineNamesToIgnore(ignored,
+                            ignorals.findIgnoredForDeserialization());
                 }
                 JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, member);
                 if (inclusions != null) {
-                    Set<String> includedToAdd = inclusions.getIncluded();
-                    if (includedToAdd != null) {
-                        Set<String> newIncluded = new HashSet<>();
-                        if (included == null) {
-                            newIncluded = new HashSet<>(includedToAdd);
-                        } else {
-                            for (String str : includedToAdd) {
-                                if (included.contains(str)) {
-                                    newIncluded.add(str);
-                                }
-                            }
-                        }
-                        included = newIncluded;
-                    }
+                    included = IgnorePropertiesUtil.combineNamesToInclude(included, inclusions.getIncluded());
                 }
             }
         }
-        return withResolved(keyDeser, vtd, valueDeser,
+        MapDeserializer deser = withResolved(keyDeser, vtd, valueDeser,
                 findContentNullProvider(ctxt, property, valueDeser), ignored, included);
+        // [databind#3205]: Check if content type has mergeable disabled
+        Boolean contentMergeable = ctxt.getConfig().getDefaultMergeable(vt.getRawClass());
+        if (Boolean.FALSE.equals(contentMergeable)) {
+            deser = deser.withMergeValues(false);
+        }
+        return deser;
     }
 
     /*
@@ -489,13 +519,6 @@ public class MapDeserializer
     protected final Map<Object,Object> _readAndBind(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws JacksonException
     {
-        MapReferringAccumulator referringAccumulator = null;
-        boolean useObjectId = _valueDeserializer.getObjectIdReader(ctxt) != null;
-        if (useObjectId) {
-            referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(),
-                    result);
-        }
-
         String keyStr;
         if (p.isExpectedStartObjectToken()) {
             keyStr = p.nextName();
@@ -507,22 +530,35 @@ public class MapDeserializer
             }
             keyStr = p.currentName();
         }
+        if (keyStr == null) {
+            return result;
+        }
+
+        MapReferringAccumulator referringAccumulator = null;
+        boolean useObjectId = _valueDeserializer.getObjectIdReader(ctxt) != null;
+        if (useObjectId) {
+            referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(),
+                    result);
+        }
 
         // [databind#3188] Cache capability once outside the loop
         final boolean skipNullKeys = (_keyDeserializer instanceof NullKeySkippable nks)
                 && nks.skipNullKeys(ctxt);
 
         for (; keyStr != null; keyStr = p.nextName()) {
+            // [databind#6257] Check ignorals on raw name, before key deserialization,
+            // so that ignored names that are not valid keys do not fail
+            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
+                p.nextToken(); // to value, so we can skip it
+                p.skipChildren();
+                continue;
+            }
             Object key = _keyDeserializer.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
             // [databind#3188] Skip entry when key deserializer requests null-key skipping
             if (skipNullKeys && key == null) {
                 p.skipChildren(); // no-op for scalar tokens; safe to call unconditionally
-                continue;
-            }
-            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
-                p.skipChildren();
                 continue;
             }
             try {
@@ -570,12 +606,6 @@ public class MapDeserializer
     protected final Map<Object,Object> _readAndBindStringKeyMap(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws JacksonException
     {
-        MapReferringAccumulator referringAccumulator = null;
-        boolean useObjectId = (_valueDeserializer.getObjectIdReader(ctxt) != null);
-        if (useObjectId) {
-            referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(), result);
-        }
-
         String key;
         if (p.isExpectedStartObjectToken()) {
             key = p.nextName();
@@ -586,6 +616,15 @@ public class MapDeserializer
                 return result;
             }
             key = p.currentName();
+        }
+        if (key == null) {
+            return result;
+        }
+
+        MapReferringAccumulator referringAccumulator = null;
+        boolean useObjectId = (_valueDeserializer.getObjectIdReader(ctxt) != null);
+        if (useObjectId) {
+            referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(), result);
         }
 
         for (; key != null; key = p.nextName()) {
@@ -639,7 +678,8 @@ public class MapDeserializer
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         // null -> no ObjectIdReader for Maps (yet?)
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null, false);
+        final Class<?> activeView = ctxt.getActiveView();
 
         String key;
         if (p.isExpectedStartObjectToken()) {
@@ -663,6 +703,11 @@ public class MapDeserializer
             // creator property?
             SettableBeanProperty prop = creator.findCreatorProperty(key);
             if (prop != null) {
+                // [databind#6261]: honor active view, same as for POJO creator properties
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // Last property to set?
                 if (buffer.assignParameter(prop, prop.deserialize(p, ctxt))) {
                     p.nextToken(); // from value to END_OBJECT or PROPERTY_NAME
@@ -750,16 +795,19 @@ public class MapDeserializer
                 && nks.skipNullKeys(ctxt);
 
         for (; keyStr != null; keyStr = p.nextName()) {
+            // [databind#6257] Check ignorals on raw name, before key deserialization,
+            // so that ignored names that are not valid keys do not fail
+            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
+                p.nextToken(); // to value, so we can skip it
+                p.skipChildren();
+                continue;
+            }
             Object key = _keyDeserializer.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
             // [databind#3188] Skip entry when key deserializer requests null-key skipping
             if (skipNullKeys && key == null) {
                 p.skipChildren(); // no-op for scalar tokens; safe to call unconditionally
-                continue;
-            }
-            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
-                p.skipChildren();
                 continue;
             }
             try {
@@ -771,7 +819,9 @@ public class MapDeserializer
                     result.put(key, _nullProvider.getNullValue(ctxt));
                     continue;
                 }
-                Object old = result.get(key);
+                // [databind#3205]: Only attempt to merge content values if
+                // content type's ConfigOverride allows it
+                Object old = _mergeValues ? result.get(key) : null;
                 Object value;
                 if (old != null) {
                     if (typeDeser == null) {
@@ -841,7 +891,9 @@ public class MapDeserializer
                     result.put(key, _nullProvider.getNullValue(ctxt));
                     continue;
                 }
-                Object old = result.get(key);
+                // [databind#3205]: Only attempt to merge content values if
+                // content type's ConfigOverride allows it
+                Object old = _mergeValues ? result.get(key) : null;
                 Object value;
                 if (old != null) {
                     if (typeDeser == null) {
@@ -932,10 +984,30 @@ public class MapDeserializer
     final static class MapReferringAccumulator {
         private final Class<?> _valueType;
         private final Map<Object,Object> _result;
+
         /**
-         * A list of {@link MapReferring} to maintain ordering.
+         * Entries read at or after the first still unresolved reference, in encounter
+         * order: {@link Map.Entry}s for plain entries, and {@link MapReferring}s for
+         * references (resolved or not). Entries are moved to the result map from the front
+         * (starting at {@link #_pendingStart}) once no unresolved reference precedes them:
+         * this retains ordering while moving each entry just once -- instead of merging
+         * buffers of resolved references into preceding ones, which takes O(N^2) time when
+         * references resolve in reverse order (see [databind#6204]).
          */
-        private final List<MapReferring> _accumulator = new ArrayList<MapReferring>();
+        private final List<Object> _pending = new ArrayList<>();
+
+        /**
+         * Index of the first entry in {@link #_pending} not yet moved to the result.
+         */
+        private int _pendingStart;
+
+        /**
+         * Lookup from unresolved id to the -- usually single -- {@link MapReferring}s with
+         * that id, in encounter order. Without this, resolution would need to scan all
+         * pending references to find the matching one, which makes resolving N references
+         * take O(N^2) time (see [databind#6204]).
+         */
+        private final Map<Object, Deque<MapReferring>> _unresolvedById = new HashMap<>();
 
         public MapReferringAccumulator(Class<?> valueType, Map<Object, Object> result) {
             _valueType = valueType;
@@ -944,55 +1016,148 @@ public class MapDeserializer
 
         public void put(Object key, Object value)
         {
-            if (_accumulator.isEmpty()) {
+            if (_pendingStart == _pending.size()) {
                 _result.put(key, value);
             } else {
-                MapReferring ref = _accumulator.get(_accumulator.size() - 1);
-                ref.next.put(key, value);
+                _pending.add(new AbstractMap.SimpleEntry<Object, Object>(key, value));
             }
         }
 
         public Referring handleUnresolvedReference(UnresolvedForwardReference reference, Object key)
         {
             MapReferring id = new MapReferring(this, reference, _valueType, key);
-            _accumulator.add(id);
+            _pending.add(id);
+            // Ids are usable as hash keys: `ObjectIdResolver`s already rely on that
+            Deque<MapReferring> refs = _unresolvedById.get(reference.getUnresolvedId());
+            if (refs == null) {
+                refs = new ArrayDeque<MapReferring>(2);
+                _unresolvedById.put(reference.getUnresolvedId(), refs);
+            }
+            refs.add(id);
             return id;
         }
 
         public void resolveForwardReference(DeserializationContext ctxt, Object id, Object value)
             throws JacksonException
         {
-            Iterator<MapReferring> iterator = _accumulator.iterator();
-            // Resolve ordering after resolution of an id. This means either:
-            // 1- adding to the result map in case of the first unresolved id.
-            // 2- merge the content of the resolved id with its previous unresolved id.
-            Map<Object,Object> previous = _result;
-            while (iterator.hasNext()) {
-                MapReferring ref = iterator.next();
-                if (ref.hasId(id)) {
-                    iterator.remove();
-                    previous.put(ref.key, value);
-                    previous.putAll(ref.next);
+            Deque<MapReferring> refs = _unresolvedById.get(id);
+            if (refs == null) {
+                throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
+                        + "] that wasn't previously seen as unresolved.");
+            }
+            MapReferring ref = refs.removeFirst();
+            if (refs.isEmpty()) {
+                _unresolvedById.remove(id);
+            }
+            ref.resolve(value);
+
+            // Move entries no longer preceded by an unresolved reference to the result
+            final int end = _pending.size();
+            int i = _pendingStart;
+            for (; i < end; ++i) {
+                Object pending = _pending.get(i);
+                if (pending instanceof MapReferring) {
+                    MapReferring pendingRef = (MapReferring) pending;
+                    if (!pendingRef.isResolved()) {
+                        break;
+                    }
+                    pendingRef.markMoved();
+                    _result.put(pendingRef.key, pendingRef.resolvedValue());
+                } else {
+                    Map.Entry<?,?> entry = (Map.Entry<?,?>) pending;
+                    _result.put(entry.getKey(), entry.getValue());
+                }
+                _pending.set(i, null);
+            }
+            if (i == end) {
+                _pending.clear();
+                _pendingStart = 0;
+            } else {
+                _pendingStart = i;
+            }
+        }
+
+        /**
+         * Replace a resolved item in the result map. Called when the bound item
+         * is rebound (e.g., builder → built object).
+         *
+         * @param oldItem Item to replace (Builder)
+         * @param newItem Item to replace {@code oldItem} with (Built value)
+         *
+         * @since 3.2
+         */
+        public void replaceResolvedItem(Object oldItem, Object newItem) {
+            replaceInMap(_result, oldItem, newItem);
+            // Same item may also still be pending, if an earlier forward reference has
+            // not yet been resolved: as the value of a resolved reference, or as the value
+            // of a plain entry (see [databind#6204] for the pending list)
+            for (int i = _pendingStart, end = _pending.size(); i < end; ++i) {
+                Object pending = _pending.get(i);
+                if (pending instanceof MapReferring) {
+                    MapReferring ref = (MapReferring) pending;
+                    if (ref.isResolved() && (ref.resolvedValue() == oldItem)) {
+                        ref.resolve(newItem);
+                    }
+                } else {
+                    @SuppressWarnings("unchecked")
+                    Map.Entry<Object,Object> entry = (Map.Entry<Object,Object>) pending;
+                    if (entry.getValue() == oldItem) {
+                        entry.setValue(newItem);
+                    }
+                }
+            }
+        }
+
+        /**
+         * Replace the item resolved for given reference, after the bound item is rebound
+         * (e.g., builder → built object). Unlike {@link #replaceResolvedItem(Object, Object)},
+         * only replaces the entry of the reference itself (other references to the same
+         * item get calls of their own): scanning the whole map instead would make
+         * rebinding N references take O(N^2) time.
+         *
+         * @since 3.2.3
+         */
+        void replaceResolvedItem(MapReferring ref, Object oldItem, Object newItem) {
+            if (ref.resolvedValue() == oldItem) {
+                ref.resolve(newItem);
+                // Still pending: will be moved to result as is
+                if (!ref.isMoved()) {
                     return;
                 }
-                previous = ref.next;
+                if (_result.get(ref.key) == oldItem) {
+                    _result.put(ref.key, newItem);
+                    return;
+                }
+                // Overridden by a later entry with the same key: nothing to replace
+                if (_result.containsKey(ref.key)) {
+                    return;
+                }
             }
+            // Should not occur, unless result was modified by caller: need to scan
+            replaceResolvedItem(oldItem, newItem);
+        }
 
-            throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
-                    + "] that wasn't previously seen as unresolved.");
+        private static void replaceInMap(Map<Object, Object> map, Object oldItem, Object newItem) {
+            // Identity match: oldItem is the exact bound delegate (e.g. Builder).
+            for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                if (entry.getValue() == oldItem) {
+                    entry.setValue(newItem);
+                }
+            }
         }
     }
 
     /**
-     * Helper class to maintain processing order of value.
-     * The resolved object associated with {@link #key} comes before the values in
-     * {@link #next}.
+     * Placeholder for a Map value that is a forward reference, to maintain processing
+     * order of entries: holds the resolved value, once the reference has been resolved.
      */
     static class MapReferring extends Referring {
         private final MapReferringAccumulator _parent;
 
-        public final Map<Object, Object> next = new LinkedHashMap<Object, Object>();
         public final Object key;
+
+        private boolean _resolved;
+        private Object _value;
 
         MapReferring(MapReferringAccumulator parent, UnresolvedForwardReference ref,
                 Class<?> valueType, Object key)
@@ -1002,11 +1167,34 @@ public class MapDeserializer
             this.key = key;
         }
 
+        /**
+         * Whether resolved value has been moved to the result map.
+         */
+        private boolean _moved;
+
+        void resolve(Object value) {
+            _value = value;
+            _resolved = true;
+        }
+
+        boolean isResolved() { return _resolved; }
+
+        Object resolvedValue() { return _value; }
+
+        void markMoved() { _moved = true; }
+
+        boolean isMoved() { return _moved; }
+
         @Override
         public void handleResolvedForwardReference(DeserializationContext ctxt, Object id, Object value)
             throws JacksonException
         {
             _parent.resolveForwardReference(ctxt, id, value);
+        }
+
+        @Override
+        public void handleItemRebind(Object oldItem, Object newItem) {
+            _parent.replaceResolvedItem(this, oldItem, newItem);
         }
     }
 }

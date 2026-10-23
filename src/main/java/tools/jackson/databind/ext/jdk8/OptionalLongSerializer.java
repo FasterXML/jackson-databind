@@ -7,10 +7,12 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 
+@JacksonStdImpl
 public class OptionalLongSerializer extends StdScalarSerializer<OptionalLong>
 {
     static final OptionalLongSerializer INSTANCE = new OptionalLongSerializer();

@@ -13,6 +13,7 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.deser.std.StdNodeBasedDeserializer;
 import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,6 +26,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
  * expected.
  */
 public class UpdateViaObjectReaderTest
+    extends DatabindTestUtil
 {
     static class Bean {
         public String a = "a";
@@ -376,6 +378,65 @@ public class UpdateViaObjectReaderTest
         // Assert
         assertSame(obj, newObj);
         assertEquals(30, newObj.age);
+    }
+
+    // [databind#3229]: readerForUpdating should work with anonymous/local classes
+    @Test
+    public void testReaderForUpdatingAnonymousClass3229() throws Exception {
+        Object anonBean = new Object() {
+            @SuppressWarnings("unused")
+            public int value = 1;
+        };
+        Object result = MAPPER.readerForUpdating(anonBean).readValue(a2q("{'value':42}"));
+        assertSame(anonBean, result);
+        // Verify the field was updated
+        assertEquals(42, anonBean.getClass().getField("value").getInt(anonBean));
+    }
+
+    // [databind#3229]: readerForUpdating should work with local classes
+    @Test
+    public void testReaderForUpdatingLocalClass3229() throws Exception {
+        class LocalBean {
+            public int x = 1;
+            public String y = "original";
+        }
+        LocalBean localBean = new LocalBean();
+        Object result = MAPPER.readerForUpdating(localBean).readValue(a2q("{'x':99,'y':'updated'}"));
+        assertSame(localBean, result);
+        assertEquals(99, localBean.x);
+        assertEquals("updated", localBean.y);
+    }
+
+    // [databind#3229]: direct deserialization (not updating) of anonymous class should still fail
+    @Test
+    public void testDeserializeAnonymousClassFails3229() throws Exception {
+        Object anonBean = new Object() {
+            @SuppressWarnings("unused")
+            public int value = 1;
+        };
+        try {
+            MAPPER.readValue(a2q("{'value':42}"), anonBean.getClass());
+            fail("Should not pass");
+        } catch (DatabindException e) {
+            verifyException(e, "Cannot construct instance of");
+            verifyException(e, "local/anonymous class");
+        }
+    }
+
+    // [databind#3229]: direct deserialization (not updating) of local class should still fail
+    @Test
+    public void testDeserializeLocalClassFails3229() throws Exception {
+        class LocalBean {
+            @SuppressWarnings("unused")
+            public int x = 1;
+        }
+        try {
+            MAPPER.readValue(a2q("{'x':42}"), LocalBean.class);
+            fail("Should not pass");
+        } catch (DatabindException e) {
+            verifyException(e, "Cannot construct instance of");
+            verifyException(e, "local/anonymous class");
+        }
     }
 
     // [databind#3814]

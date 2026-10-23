@@ -18,6 +18,7 @@ package tools.jackson.databind.ext.javatime.ser;
 
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
+import tools.jackson.databind.module.SimpleModule;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,6 +41,24 @@ public class LocalDateTimeSerTest
         public LocalDateTime value;
 
         public LDTWrapper(LocalDateTime v) { value = v; }
+    }
+
+    /**
+     * Sub-class that changes the default textual format via {@code _defaultFormatter()};
+     * also has to retain itself through contextualization (see {@code withFormat()}).
+     */
+    static class CustomDefaultLocalDateTimeSerializer extends LocalDateTimeSerializer {
+        private final static DateTimeFormatter DF
+            = DateTimeFormatter.ofPattern("yyyy_MM_dd'X'HH:mm:ss");
+
+        @Override
+        protected DateTimeFormatter _defaultFormatter() { return DF; }
+
+        @Override
+        protected JSR310FormattedSerializerBase<LocalDateTime> withFormat(DateTimeFormatter f,
+                Boolean useTimestamp, JsonFormat.Shape shape) {
+            return this;
+        }
     }
 
     // 05-Feb-2025, tatu: Use Jackson 2.x defaults wrt as-timestamps
@@ -190,5 +210,19 @@ public class LocalDateTimeSerTest
         LocalDateTime time = LocalDateTime.of(2005, Month.NOVEMBER, 5, 22, 31, 5, 829837);
         String value = m.writeValueAsString(time);
         assertEquals("[\"" + LocalDateTime.class.getName() + "\",\"" + time.toString() + "\"]", value);
+    }
+
+    // [databind#6151]: default format provided by a sub-class must not be replaced
+    //   by `DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS`
+    @Test
+    public void serializationWithSubClassDefaultFormat() throws Exception
+    {
+        LocalDateTime time = LocalDateTime.of(2017, Month.SEPTEMBER, 14, 4, 28, 48);
+        ObjectMapper mapper = newMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addSerializer(new CustomDefaultLocalDateTimeSerializer()))
+                .enable(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS)
+                .build();
+        assertEquals(q("2017_09_14X04:28:48"), mapper.writeValueAsString(time));
     }
 }

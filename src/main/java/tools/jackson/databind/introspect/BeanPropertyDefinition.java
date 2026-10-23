@@ -242,6 +242,23 @@ public abstract class BeanPropertyDefinition
     public Class<?>[] findViews() { return null; }
 
     /**
+     * Method used to find an override view that should be activated when
+     * processing this property's value (and any nested values reached through
+     * it), as configured by {@code @JsonApplyView}.
+     *<p>
+     * Unlike {@link #findViews()} (which lists views in which the property
+     * itself is included), this returns the view to make active while the
+     * value is being serialized. Special marker
+     * {@code JsonApplyView.NONE} indicates that view processing should be
+     * disabled (active view set to {@code null}) for the property and its subtree.
+     *
+     * @return Override view to apply, or {@code null} if no override is configured
+     *
+     * @since 3.2
+     */
+    public Class<?> findApplyView() { return null; }
+
+    /**
      * Method used to find whether property is part of a bi-directional
      * reference.
      */

@@ -85,9 +85,7 @@ public class StringCollectionSerializer
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                if (ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
-                    && ((_suppressableValue != null) || _suppressNulls)
-                ) {
+                if (_needToCheckFiltering(ctxt)) {
                     serializeFilteredContents(value, g, ctxt);
                 } else {
                     serializeContents(value, g, ctxt);
@@ -96,9 +94,7 @@ public class StringCollectionSerializer
             }
         }
         g.writeStartArray(value, len);
-        if (ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
-            && ((_suppressableValue != null) || _suppressNulls)
-        ) {
+        if (_needToCheckFiltering(ctxt)) {
             serializeFilteredContents(value, g, ctxt);
         } else {
             serializeContents(value, g, ctxt);
@@ -114,7 +110,11 @@ public class StringCollectionSerializer
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
         g.assignCurrentValue(value);
-        serializeContents(value, g, ctxt);
+        if (_needToCheckFiltering(ctxt)) {
+            serializeFilteredContents(value, g, ctxt);
+        } else {
+            serializeContents(value, g, ctxt);
+        }
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 

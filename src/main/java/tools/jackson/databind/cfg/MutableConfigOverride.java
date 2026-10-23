@@ -1,5 +1,7 @@
 package tools.jackson.databind.cfg;
 
+import java.io.Serial;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -17,6 +19,7 @@ public class MutableConfigOverride
     extends ConfigOverride
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public MutableConfigOverride() { super(); }

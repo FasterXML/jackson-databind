@@ -32,8 +32,8 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     protected final boolean _strictTypeIdHandling;
 
     protected final String _msgForMissingId = (_property == null)
-            ? String.format("missing type id property '%s'", _typePropertyName)
-            : String.format("missing type id property '%s' (for POJO property '%s')", _typePropertyName, _property.getName());
+            ? "missing type id property '%s'".formatted(_typePropertyName)
+            : "missing type id property '%s' (for POJO property '%s')".formatted(_typePropertyName, _property.getName());
 
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
@@ -88,6 +88,12 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
              */
             return _deserializeTypedUsingDefaultImpl(p, ctxt, null, _msgForMissingId);
         }
+
+        // [dataformats-text#25]: Capture native Object Id (e.g. YAML anchor)
+        //  at first PROPERTY_NAME position; it may get lost during
+        //  property scanning/buffering below.
+        final Object nativeObjectId = p.canReadObjectId() ? p.getObjectId() : null;
+
         // Ok, let's try to find the property. But first, need token buffer...
         TokenBuffer tb = null;
         final boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
@@ -105,6 +111,11 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             }
             if (tb == null) {
                 tb = ctxt.bufferForInputBuffering(p);
+                // [dataformats-text#25]: Preserve native Object Id in buffered content
+                //  so it is available to BeanDeserializer for Object Id registration
+                if (nativeObjectId != null) {
+                    tb.writeObjectId(nativeObjectId);
+                }
             }
             tb.writeName(name);
             tb.copyCurrentStructure(p);
@@ -135,6 +146,11 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             p.nextToken(); // to skip past String value
         }
         // deserializer should take care of closing END_OBJECT as well
+        if (tb != null) {
+            final JsonParser bufferedParser = p;
+            return ctxt.withParser(bufferedParser,
+                    () -> deser.deserialize(bufferedParser, ctxt));
+        }
         return deser.deserialize(p, ctxt);
     }
 
@@ -158,8 +174,9 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             }
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                    String str = p.getString().trim();
-                    if (str.isEmpty()) {
+                    String str = p.getString();
+                    // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                    if ((str != null) && str.trim().isEmpty()) {
                         return null;
                     }
                 }
@@ -180,9 +197,12 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         }
         if (tb != null) {
             tb.writeEndObject();
-            p = tb.asParser(ctxt, p);
+            final JsonParser bufferedParser = tb.asParser(ctxt, p);
             // must move to point to the first token:
-            p.nextToken();
+            bufferedParser.nextToken();
+            final ValueDeserializer<Object> defaultDeserializer = deser;
+            return ctxt.withParser(bufferedParser,
+                    () -> defaultDeserializer.deserialize(bufferedParser, ctxt));
         }
         return deser.deserialize(p, ctxt);
     }

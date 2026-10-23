@@ -1,5 +1,6 @@
 package tools.jackson.databind.cfg;
 
+import java.io.Serial;
 import java.text.DateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -22,6 +23,7 @@ import tools.jackson.databind.util.StdDateFormat;
 public final class BaseSettings
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

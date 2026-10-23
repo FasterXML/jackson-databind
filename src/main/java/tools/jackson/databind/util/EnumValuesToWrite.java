@@ -2,6 +2,7 @@ package tools.jackson.databind.util;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
 
 import tools.jackson.core.SerializableString;
@@ -161,7 +162,7 @@ public class EnumValuesToWrite
             if (ser == null) {
                 String str = accessor.apply(_enumConstants[i]);
                 if (lowerCase) {
-                    str = str.toLowerCase();
+                    str = str.toLowerCase(Locale.ROOT);
                 }
                 ser = config.compileString(str);
             }

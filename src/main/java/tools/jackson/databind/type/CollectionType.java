@@ -1,5 +1,7 @@
 package tools.jackson.databind.type;
 
+import java.io.Serial;
+
 import tools.jackson.databind.JavaType;
 
 /**
@@ -8,6 +10,7 @@ import tools.jackson.databind.JavaType;
 public final class CollectionType
     extends CollectionLikeType
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /*

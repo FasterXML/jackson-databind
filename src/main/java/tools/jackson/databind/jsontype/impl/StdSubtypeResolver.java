@@ -1,5 +1,6 @@
 package tools.jackson.databind.jsontype.impl;
 
+import java.io.Serial;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
@@ -17,6 +18,7 @@ public class StdSubtypeResolver
     extends SubtypeResolver
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected Set<NamedType> _registeredSubtypes;

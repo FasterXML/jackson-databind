@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.*;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.ser.BasicSerializerFactory;
 import tools.jackson.databind.ser.jackson.TokenBufferSerializer;
@@ -59,6 +60,7 @@ public class JDKMiscSerializers
     /**********************************************************************
      */
 
+    @JacksonStdImpl
     public static class AtomicBooleanSerializer
         extends StdScalarSerializer<AtomicBoolean>
     {
@@ -75,6 +77,7 @@ public class JDKMiscSerializers
         }
     }
 
+    @JacksonStdImpl
     public static class AtomicIntegerSerializer
         extends StdScalarSerializer<AtomicInteger>
     {
@@ -92,6 +95,7 @@ public class JDKMiscSerializers
         }
     }
 
+    @JacksonStdImpl
     public static class AtomicLongSerializer
         extends StdScalarSerializer<AtomicLong>
     {
@@ -120,6 +124,7 @@ public class JDKMiscSerializers
     /**
      * @since 3.0
      */
+    @JacksonStdImpl
     public static class ByteArrayOutputStreamSerializer
         extends StdScalarSerializer<ByteArrayOutputStream>
     {

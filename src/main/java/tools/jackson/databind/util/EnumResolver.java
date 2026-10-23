@@ -1,5 +1,6 @@
 package tools.jackson.databind.util;
 
+import java.io.Serial;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,6 +16,7 @@ import tools.jackson.databind.introspect.AnnotatedMember;
  */
 public class EnumResolver implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected final Class<Enum<?>> _enumClass;

@@ -231,7 +231,7 @@ public class BeanAsArrayDeserializer
             // Ok; extra fields? Let's fail, unless ignoring extra props is fine
             if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
                 ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
-                        "Unexpected JSON values; expected at most %d properties (in JSON Array)",
+                        "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                         propCount);
                 // never gets here
             }
@@ -259,6 +259,7 @@ public class BeanAsArrayDeserializer
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final SettableBeanProperty[] props = _orderedProperties;
         int i = 0;
         final int propCount = props.length;
@@ -270,22 +271,28 @@ public class BeanAsArrayDeserializer
                 break;
             }
             SettableBeanProperty prop = props[i];
-            if (prop != null) { // normal case
-                try {
-                    prop.deserializeAndSet(p, ctxt, bean);
-                } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
-                }
-            } else { // just skip?
-                p.skipChildren();
-            }
             ++i;
+            if (prop != null) { // normal case
+                if (activeView == null || prop.visibleInView(activeView)) {
+                    try {
+                        prop.deserializeAndSet(p, ctxt, bean);
+                    } catch (Exception e) {
+                        throw wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    }
+                    continue;
+                }
+                // [databind#6077]: view-hidden property: fail, or skip, as per feature
+                handleUnexpectedView(p, ctxt, prop, activeView);
+                continue;
+            }
+            // otherwise, skip it (no property for this position)
+            p.skipChildren();
         }
 
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
             ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
-                    "Unexpected JSON values; expected at most %d properties (in JSON Array)",
+                    "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                     propCount);
             // never gets here
         }
@@ -348,14 +355,17 @@ public class BeanAsArrayDeserializer
                     }
                     continue;
                 }
+                // [databind#6077]: view-hidden property: fail, or skip, as per feature
+                handleUnexpectedView(p, ctxt, prop, activeView);
+                continue;
             }
-            // otherwise, skip it (view-filtered, no prop etc)
+            // otherwise, skip it (no property for this position)
             p.skipChildren();
         }
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
             ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
-                    "Unexpected JSON values; expected at most %d properties (in JSON Array)",
+                    "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                     propCount);
             // will never reach here as exception has been thrown
         }
@@ -379,7 +389,7 @@ public class BeanAsArrayDeserializer
         throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, false);
 
         final SettableBeanProperty[] props = _orderedProperties;
         final int propCount = props.length;
@@ -390,11 +400,24 @@ public class BeanAsArrayDeserializer
         for (; p.nextToken() != JsonToken.END_ARRAY; ++i) {
             SettableBeanProperty prop = (i < propCount) ? props[i] : null;
             if (prop == null) { // we get null if there are extra elements; maybe otherwise too?
+                // [databind#6043]: extra JSON Array elements past property count must
+                // honor FAIL_ON_UNKNOWN_PROPERTIES, same as the non-creator path above.
+                // Only genuinely-extra elements (past property count) count as "unknown":
+                // in-bounds null slots (e.g. from renamed/unwrapped properties) are skipped,
+                // matching the non-creator path's position-based check.
+                if (i >= propCount
+                        && !_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+                    ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
+                            "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
+                            propCount);
+                    // never gets here
+                }
                 p.skipChildren();
                 continue;
             }
+            // [databind#6077]: view-hidden property: fail, or skip, as per feature
             if ((activeView != null) && !prop.visibleInView(activeView)) {
-                p.skipChildren();
+                handleUnexpectedView(p, ctxt, prop, activeView);
                 continue;
             }
 

@@ -124,8 +124,8 @@ public class AbstractDeserializer
                         idProp = (_properties == null) ? null : _properties.get(propName.getSimpleName());
                         if (idProp == null) {
                             ctxt.reportBadDefinition(_baseType, String.format(
-"Invalid Object Id definition for %s: cannot find property with name %s",
-ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
+                                    "Invalid Object Id definition for %s: cannot find property with name %s",
+                                    ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
                         }
                         idType = idProp.getType(); // lgtm [java/dereferenced-value-may-be-null]
                         idGen = new PropertyBasedObjectIdGenerator(objectIdInfo.getScope());

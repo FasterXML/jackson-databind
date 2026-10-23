@@ -4,9 +4,11 @@ import java.util.*;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.AsArraySerializerBase;
 
+@JacksonStdImpl
 public class EnumSetSerializer
     extends AsArraySerializerBase<EnumSet<? extends Enum<?>>>
 {
@@ -46,7 +48,15 @@ public class EnumSetSerializer
 
     @Override
     public boolean isEmpty(SerializationContext prov, EnumSet<? extends Enum<?>> value) {
-        return value.isEmpty();
+        if (value.isEmpty()) {
+            return true;
+        }
+        // [databind#6065]: with content @JsonInclude applied to containers,
+        // an EnumSet whose every element is suppressed is considered empty
+        if (_needToCheckFiltering(prov)) {
+            return _allElementsSuppressed(prov, value.iterator());
+        }
+        return false;
     }
 
     @Override

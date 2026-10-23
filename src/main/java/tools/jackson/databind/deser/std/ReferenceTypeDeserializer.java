@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.std;
 
+import java.util.Set;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
@@ -9,6 +11,7 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.type.ReferenceType;
 import tools.jackson.databind.util.AccessPattern;
+import tools.jackson.databind.util.NameTransformer;
 
 /**
  * Base deserializer implementation for properties {@link ReferenceType} values.
@@ -67,6 +70,37 @@ public abstract class ReferenceTypeDeserializer<T>
             return this;
         }
         return withResolved(typeDeser, deser);
+    }
+
+    // [databind#2736]: look through ReferenceType wrapper so that `@JsonUnwrapped`
+    //   applied to a reference-typed property (e.g. Optional<Child>) delegates
+    //   unwrapping support to the referenced value's deserializer.
+    @SuppressWarnings("unchecked")
+    @Override
+    public ValueDeserializer<T> unwrappingDeserializer(DeserializationContext ctxt,
+            NameTransformer unwrapper) {
+        if (_valueDeserializer != null) {
+            ValueDeserializer<?> unwrappingValueDeser = _valueDeserializer.unwrappingDeserializer(ctxt, unwrapper);
+            if (unwrappingValueDeser != _valueDeserializer) {
+                return (ValueDeserializer<T>) withResolved(_valueTypeDeserializer, unwrappingValueDeser);
+            }
+        }
+        return this;
+    }
+
+    // [databind#2736]: delegate to referenced deserializer so that the set of
+    //   unwrapped property names recognized by the parent handler includes the
+    //   child bean's properties.
+    @Override
+    public void collectAllPropertyNamesTo(Set<String> names) {
+        if (_valueDeserializer != null) {
+            _valueDeserializer.collectAllPropertyNamesTo(names);
+        }
+    }
+
+    @Override
+    public boolean hasAnySetter() {
+        return (_valueDeserializer != null) && _valueDeserializer.hasAnySetter();
     }
 
     /*

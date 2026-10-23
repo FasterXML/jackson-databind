@@ -33,11 +33,12 @@ public class BeanPropertyMapTest
     {
         List<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>();
         PropertyMetadata md = PropertyMetadata.STD_REQUIRED;
-        props.add(new ObjectIdValueProperty(new MyObjectIdReader("pk"), md));
-        props.add(new ObjectIdValueProperty(new MyObjectIdReader("firstName"), md));
+        props.add(new ObjectIdValueProperty(new MyObjectIdReader("pk"), md, false));
+        props.add(new ObjectIdValueProperty(new MyObjectIdReader("firstName"), md, false));
         BeanPropertyMap propMap = new BeanPropertyMap(props,
                 null, Locale.getDefault(), false, true);
-        propMap = propMap.withProperty(new ObjectIdValueProperty(new MyObjectIdReader("@id"), md));
+        propMap = propMap.withProperty(new ObjectIdValueProperty(new MyObjectIdReader("@id"),
+                md, false));
         assertNotNull(propMap);
     }
 }

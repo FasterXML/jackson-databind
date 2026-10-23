@@ -1,5 +1,6 @@
 package tools.jackson.databind.cfg;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ public class CoercionConfigs
     implements Snapshottable<CoercionConfigs>,
         java.io.Serializable // needed in 3.0 too, still
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     private final static int TARGET_TYPE_COUNT = LogicalType.values().length;

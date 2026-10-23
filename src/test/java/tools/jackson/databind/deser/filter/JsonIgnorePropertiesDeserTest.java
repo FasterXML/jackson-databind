@@ -1,9 +1,12 @@
 package tools.jackson.databind.deser.filter;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -220,6 +223,61 @@ public class JsonIgnorePropertiesDeserTest
         assertNotNull(museum);
         Building2803 building = MAPPER.readValue(DOC, Building2803.class);
         assertNotNull(building);
+    }
+
+    // [databind#5865]: @JsonIgnoreProperties should work with FAIL_ON_UNKNOWN_PROPERTIES
+    @Test
+    public void testIgnorePropertiesWithFailOnUnknown5865() throws Exception
+    {
+        // Test with Record type
+        final ObjectMapper strictMapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
+        final String json = a2q("{'name':'test','type':'animal'}");
+
+        Simple5865Record result = strictMapper.readValue(json, Simple5865Record.class);
+        assertNotNull(result);
+        assertEquals("test", result.name);
+
+        // Test with POJO type
+        Simple5865Pojo pojoResult = strictMapper.readValue(json, Simple5865Pojo.class);
+        assertNotNull(pojoResult);
+        assertEquals("test", pojoResult.name);
+    }
+
+    // [databind#5865]
+    @JsonIgnoreProperties({"type"})
+    record Simple5865Record(String name) { }
+
+    // [databind#5865]
+    @JsonIgnoreProperties({"type"})
+    static class Simple5865Pojo {
+        public String name;
+    }
+
+    // [databind#5865]: @JsonIgnoreProperties should take precedence over @JsonAnySetter
+    @Test
+    public void testIgnorePropertiesNotPassedToAnySetter5865() throws Exception
+    {
+        final String json = a2q("{'name':'test','type':'animal','extra':'value'}");
+        AnySetter5865Pojo result = MAPPER.readValue(json, AnySetter5865Pojo.class);
+        assertEquals("test", result.name);
+        // "type" is ignored, should NOT appear in any-setter map
+        assertFalse(result.other.containsKey("type"));
+        // "extra" is not ignored, should be captured by any-setter
+        assertEquals("value", result.other.get("extra"));
+    }
+
+    // [databind#5865]
+    @JsonIgnoreProperties({"type"})
+    static class AnySetter5865Pojo {
+        public String name;
+        public Map<String, Object> other = new HashMap<>();
+
+        @JsonAnySetter
+        public void setOther(String key, Object value) {
+            other.put(key, value);
+        }
     }
 }
 

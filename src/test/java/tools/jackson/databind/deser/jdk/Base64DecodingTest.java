@@ -59,7 +59,7 @@ public class Base64DecodingTest
         }
 
         // and then tree model
-        JsonNode tree = mapper.readTree(String.format("{\"foo\":\"%s\"}", value));
+        JsonNode tree = mapper.readTree("{\"foo\":\"%s\"}".formatted(value));
         JsonNode nodeValue = tree.get("foo");
         try {
             /*byte[] b =*/ nodeValue.binaryValue();

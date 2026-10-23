@@ -59,14 +59,14 @@ public class ReadValuesTest extends DatabindTestUtil
     {
         switch (srcType) {
         case BYTE_ARRAY:
-            return r.readValues(json.getBytes("UTF-8"));
+            return r.readValues(utf8Bytes(json));
         case BYTE_ARRAY_OFFSET:
             {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 out.write(0);
                 out.write(0);
                 out.write(0);
-                out.write(json.getBytes("UTF-8"));
+                out.write(utf8Bytes(json));
                 out.write(0);
                 out.write(0);
                 out.write(0);
@@ -74,7 +74,7 @@ public class ReadValuesTest extends DatabindTestUtil
                 return r.readValues(b, 3, b.length-6);
             }
         case INPUT_STREAM:
-            return r.readValues(new ByteArrayInputStream(json.getBytes("UTF-8")));
+            return r.readValues(new ByteArrayInputStream(utf8Bytes(json)));
         case READER:
             return r.readValues(new StringReader(json));
         case STRING:
@@ -286,8 +286,9 @@ public class ReadValuesTest extends DatabindTestUtil
     @Test
     public void testNonRootMapsWithObjectReader() throws Exception
     {
-        String JSON = "[{ \"hi\": \"ho\", \"neighbor\": \"Joe\" },\n"
-            +"{\"boy\": \"howdy\", \"huh\": \"what\"}]";
+        String JSON = """
+            [{ "hi": "ho", "neighbor": "Joe" },
+            {"boy": "howdy", "huh": "what"}]""";
         final MappingIterator<Map<String, Object>> iterator = MAPPER
                 .reader()
                 .forType(new TypeReference<Map<String, Object>>(){})

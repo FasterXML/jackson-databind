@@ -1,6 +1,7 @@
 package tools.jackson.databind;
 
 import java.io.*;
+import java.io.Serial;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.text.DateFormat;
@@ -94,6 +95,7 @@ public class ObjectMapper
     implements TreeCodec<JsonNode>, Versioned,
         java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /*
@@ -129,6 +131,7 @@ public class ObjectMapper
      // We also need actual instance of state as base class cannot implement logic
      // for reinstating mapper (via mapper builder) from state.
         static class StateImpl extends MapperBuilderState {
+            @Serial
             private static final long serialVersionUID = 3L;
 
             public StateImpl(PrivateBuilder b) {
@@ -136,6 +139,7 @@ public class ObjectMapper
             }
 
             @Override
+            @Serial
             protected Object readResolve() {
                 return new PrivateBuilder(this).build();
             }
@@ -379,11 +383,13 @@ public class ObjectMapper
     // easier, and we go with that.
     // But note that return direction has to be supported, then, by that state object
     // and NOT anything in here.
+    @Serial
     protected Object writeReplace() {
         return _savedBuilderState;
     }
 
     // Just as a sanity check verify there is no attempt at directly instantiating mapper here
+    @Serial
     protected Object readResolve() {
         throw new IllegalStateException("Should never deserialize `"+getClass().getName()+"` directly");
     }
@@ -761,7 +767,8 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(OutputStream out) throws JacksonException {
         _assertNotNull("out", out);
-        return _streamFactory.createGenerator(_serializationContext(), out);
+        return _initializeManagedGenerator(
+                _streamFactory.createGenerator(_serializationContext(), out));
     }
 
     /**
@@ -774,7 +781,8 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws JacksonException {
         _assertNotNull("out", out);
-        return _streamFactory.createGenerator(_serializationContext(), out, enc);
+        return _initializeManagedGenerator(
+                _streamFactory.createGenerator(_serializationContext(), out, enc));
     }
 
     /**
@@ -787,7 +795,8 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(Writer w) throws JacksonException {
         _assertNotNull("w", w);
-        return _streamFactory.createGenerator(_serializationContext(), w);
+        return _initializeManagedGenerator(
+                _streamFactory.createGenerator(_serializationContext(), w));
     }
 
     /**
@@ -800,7 +809,8 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(File f, JsonEncoding enc) throws JacksonException {
         _assertNotNull("f", f);
-        return _streamFactory.createGenerator(_serializationContext(), f, enc);
+        return _initializeManagedGenerator(
+                _streamFactory.createGenerator(_serializationContext(), f, enc));
     }
 
     /**
@@ -813,7 +823,8 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(Path path, JsonEncoding enc) throws JacksonException {
         _assertNotNull("path", path);
-        return _streamFactory.createGenerator(_serializationContext(), path, enc);
+        return _initializeManagedGenerator(
+                _streamFactory.createGenerator(_serializationContext(), path, enc));
     }
 
     /**
@@ -826,7 +837,8 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(DataOutput out) throws JacksonException {
         _assertNotNull("out", out);
-        return _streamFactory.createGenerator(_serializationContext(), out);
+        return _initializeManagedGenerator(
+                _streamFactory.createGenerator(_serializationContext(), out));
     }
 
     /*
@@ -1892,9 +1904,17 @@ public class ObjectMapper
             JsonGenerator g, Object value)
         throws JacksonException
     {
+        try {
+            _initializeGenerator(g);
+        } catch (Exception e) {
+            // 07-Sep-2026, pjfanning: `GeneratorInitializer` is caller-provided and
+            //   may fail; generator owns the output target so it must not leak
+            ClassUtil.closeOnFailAndThrowAsJacksonE(g, e);
+            return;
+        }
         if (ctxt.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
-                && (value instanceof AutoCloseable)) {
-            _configAndWriteCloseable(ctxt, g, value);
+                && (value instanceof AutoCloseable toClose)) {
+            _configAndWriteCloseable(ctxt, g, toClose);
             return;
         }
         try {
@@ -1907,34 +1927,41 @@ public class ObjectMapper
     }
 
     /**
-     * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
+     * Helper method used when value to serialize is {@link AutoCloseable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
     private final void _configAndWriteCloseable(SerializationContextExt ctxt,
-            JsonGenerator g, Object value)
+            JsonGenerator g, AutoCloseable value)
         throws JacksonException
     {
-        AutoCloseable toClose = (AutoCloseable) value;
         try {
             ctxt.serializeValue(g, value);
-            AutoCloseable tmpToClose = toClose;
-            toClose = null;
-            tmpToClose.close();
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsJacksonE(g, toClose, e);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(g, value, e);
+            return;
+        }
+        try {
+            value.close();
+        } catch (Exception e) {
+            // Generator is ours to close, but `close()` failure still needs wrapping
+            ClassUtil.closeOnFailAndThrowAsJacksonE(g,
+                    ClassUtil.closeFailureAsJacksonE(g, value, e));
             return;
         }
         g.close();
     }
 
     /**
-     * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
-     * method is to be called right after serialization has been called
+     * Helper method used when value to serialize is {@link AutoCloseable} and its
+     * <code>close()</code> method is to be called right after serialization has been called
      */
     protected final void _writeCloseableValue(JsonGenerator g, Object value, SerializationConfig cfg)
         throws JacksonException
     {
-        Closeable toClose = (Closeable) value;
+        // 07-Sep-2026, pjfanning: caller checks for `AutoCloseable`, not `Closeable`,
+        //   so casting to the latter would fail for f.ex `Stream`s (see also
+        //   `ObjectWriter.writeValue(JsonGenerator, Object)` which got this right)
+        AutoCloseable toClose = (AutoCloseable) value;
         try {
             _serializationContext(cfg).serializeValue(g, value);
             if (cfg.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
@@ -1946,8 +1973,10 @@ public class ObjectMapper
         }
         try {
             toClose.close();
-        } catch (IOException e) {
-            throw JacksonIOException.construct(e);
+        } catch (Exception e) {
+            // 07-Sep-2026, tatu: Note that caller-owned Generator must NOT be closed
+            //   here (see `writeValue(JsonGenerator, Object)`)
+            throw ClassUtil.closeFailureAsJacksonE(g, toClose, e);
         }
     }
 
@@ -2346,13 +2375,13 @@ public class ObjectMapper
      * cases, such as conversion of polymorphic values, or cases where Object Identity
      * is used.
      *
-     * @throws IllegalArgumentException If conversion fails due to incompatible type;
+     * @throws JacksonException If conversion fails due to incompatible type;
      *    if so, root cause will contain underlying checked exception data binding
      *    functionality threw
      */
     @SuppressWarnings("unchecked")
     public <T> T convertValue(Object fromValue, Class<T> toValueType)
-        throws IllegalArgumentException
+        throws JacksonException
     {
         _assertNotNull("toValueType", toValueType);
         return (T) _convert(fromValue, _typeFactory.constructType(toValueType));
@@ -2363,7 +2392,7 @@ public class ObjectMapper
      */
     @SuppressWarnings("unchecked")
     public <T> T convertValue(Object fromValue, TypeReference<T> toValueTypeRef)
-        throws IllegalArgumentException
+        throws JacksonException
     {
         _assertNotNull("toValueTypeRef", toValueTypeRef);
         return (T) _convert(fromValue, _typeFactory.constructType(toValueTypeRef));
@@ -2374,7 +2403,7 @@ public class ObjectMapper
      */
     @SuppressWarnings("unchecked")
     public <T> T convertValue(Object fromValue, JavaType toValueType)
-        throws IllegalArgumentException
+        throws JacksonException
     {
         _assertNotNull("toValueType", toValueType);
         return (T) _convert(fromValue, toValueType);
@@ -2577,6 +2606,34 @@ public class ObjectMapper
         // 03-Oct-2017, tatu: Should be ok to pass "empty" generator settings...
         return _serializationContexts.createContext(serializationConfig(),
                 GeneratorSettings.empty());
+    }
+
+    /**
+     * Helper method that applies configured {@link GeneratorInitializer},
+     * if any, to the given generator and returns it.
+     *
+     * @since 3.2
+     */
+    protected JsonGenerator _initializeGenerator(JsonGenerator gen) {
+        GeneratorInitializer init = _serializationConfig.getGeneratorInitializer();
+        if (init != null) {
+            init.initialize(_serializationConfig, gen);
+        }
+        return gen;
+    }
+
+    /**
+     * Variant of {@link #_initializeGenerator} for the case where {@code gen}
+     * owns the output target: {@link GeneratorInitializer} is caller-provided
+     * and may fail, and if it does the generator must not leak.
+     */
+    protected JsonGenerator _initializeManagedGenerator(JsonGenerator gen) {
+        try {
+            return _initializeGenerator(gen);
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, e);
+            return null; // never gets here
+        }
     }
 
     /*

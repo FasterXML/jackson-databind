@@ -51,7 +51,7 @@ public abstract class VirtualBeanPropertyWriter
         super(propDef, propDef.getPrimaryMember(), contextAnnotations, declaredType,
                 ser, typeSer, serType,
                 _suppressNulls(inclusion), _suppressableValue(inclusion),
-                includeInViews, inclusion);
+                includeInViews, inclusion, null);
     }
 
     protected VirtualBeanPropertyWriter(VirtualBeanPropertyWriter base) {

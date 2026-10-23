@@ -16,6 +16,7 @@
 
 package tools.jackson.databind.ext.javatime;
 
+import java.io.Serial;
 import java.time.*;
 
 import tools.jackson.databind.*;
@@ -81,6 +82,7 @@ import tools.jackson.databind.ser.std.ToStringSerializer;
 public final class JavaTimeInitializer
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
     private static final JavaTimeInitializer INSTANCE = new JavaTimeInitializer();
 

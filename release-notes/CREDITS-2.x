@@ -15,7 +15,7 @@ Co-Authors (with only partial listings below):
 
 ----------------------------------------------------------------------------
 
-Pascal Glinas:
+Pascal Gélinas:
   * Contributed fixes to 'MappingIterator' handling (Pull#58 and Pull#59)
    (2.1.0)
   * Reported #220: ContainerNode missing 'createNumber(BigInteger)'
@@ -1074,6 +1074,10 @@ João Guerra (joca-bt@github)
  * Reported #3924: Incorrect target type when disabling coercion, trying to deserialize
     String from Array/Object
   (2.16.0)
+ * Reported, fixed #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected
+   with constructor-backed properties (nor with Builders, `@JsonUnwrapped`,
+   external type ids or `Shape.ARRAY`)
+  [2.23.0]
 
 Ryan Bohn (bohnman@github)
   * Reported #2475: `StringCollectionSerializer` calls `JsonGenerator.setCurrentValue(value)`,
@@ -1917,6 +1921,62 @@ Fawzi Essam (@iifawzi)
    on simple java record
   (2.18.4)
 
+Omkhar Arasaratnam (@omkhar)
+ * Reported #5950: Improve `UUIDDeserializer` error handling
+  (2.18.8)
+ * Reported #5951: Improve `InetSocketAddress` deserialization
+  (2.18.8)
+ * Contributed fix for #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+  (2.18.12)
+ * Contributed fix for #5969: `@JsonView` by-passed for some "setterless" creator properties
+  (2.18.8)
+ * Contributed fix for #5971: `@JsonView` by-passed for unwrapped creator parameters
+  (2.18.8)
+ * Contributed fix for #5974: `@JsonIgnore` on Record property ignored with
+   `PropertyNamingStrategy`
+  (2.18.8)
+ * Reported #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
+   should validate element type
+  (2.18.8)
+ * Reported #5988: `PolymorphicTypeValidator` needs to validate generic type parameters too
+  (2.18.8)
+ * Contributed fix for #5962: Case-insensitive deserialization may use
+   wrong `@JsonIgnoreProperties`
+  (2.18.9)
+
+Aysha Afrah Ziya (@aysha-afrah26)
+ * Fixed #6099: Resolve classes without initialization in `TypeFactory.findClass()`
+  (2.18.10)
+ * Fixed #6116: Reject non-ASCII digits in `InetAddress` literal validation
+  (2.18.10)
+ * Fixed #6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float`
+   Map keys
+  (2.18.10)
+
+@waydeshi
+ * Reported #6127: Add `StreamReadConstraints` number len constraint to
+   `javax.xml.datatype.XMLGregorianCalendar` and `javax.xml.datatype.Duration`
+  (2.18.10)
+ * Reported #6129: Limit the supported URL schemes for `java.nio.file.Path`
+   deserialization
+  (2.18.10)
+
+@prvazsahnazarov
+ * Reported #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic
+   base types
+  (2.18.10)
+
+@renechoi
+ * Reported #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+  (2.18.11)
+
+@dabirt
+ * Reported #6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  (2.18.11)
+ * Reported #6204: Avoid quadratic forward-reference resolution in Collection/Map
+   deserializers
+  (2.18.11)
+
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
   (2.19.0)
@@ -2017,14 +2077,73 @@ David Nelson (@eatdrinksleepcode)
    `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` override
   [2.21.2]
 
-Christian Danner cdadac
- * Reported #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
-   are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
-  [2.22.0]
+Alexey Tsvetkov (@AlexeyTsvetkov)
+ * Reported #5840: Jackson 2.21 throws Conflicting property-based creators if both
+   default (0-arg) and multi-arg constructor annotated
+  [2.21.3]
+
+Kenta Yoshii (@KentaYoshii)
+ * Reported #5898: `DoubleDeserializer` rejects "+INF"/"+Infinity" despite accepting
+   "INF"/"Infinity" and "-INF"/"-Infinity"
+  [2.21.3]
+
+Joshua Arnold (@josharnold52)
+ * Reported, fixed #5923: Deserialization behavior change with Records,
+   `@JsonCreator` and `@JsonValue`
+  [2.21.3]
+
+CharmingKyu (@loadkrnis)
+ * Fixed #5993: `UPPER_SNAKE_CASE` / `LOWER_CASE` `NamingStrategyImpls` fold case
+   using JVM default locale (Turkish-I bug)
+  [2.21.4]
 
 Lee Jiwon (@dlwldnjs1009)
+ * Reported #6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+   after all entries are filtered
+  [2.21.6]
  * Contributed #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
    are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
   [2.22.0]
  * Contributed #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
   [2.22.0]
+
+seonwoo_jung (@seonwooj0810)
+ * Fixed #6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+   after all entries are filtered
+  [2.21.6]
+
+Christian Danner cdadac
+ * Reported #3064: `@JsonPropertyOrder(alphabetic=true)` is ignored in case indices
+   are defined for `@JsonProperty` -- add `MapperFeature.SORT_PROPERTIES_BY_INDEX`
+  [2.22.0]
+
+Sergey Lappo (@sergeylappo)
+ * Reported #6227: `BeanDescription` is not thread-safe when called concurrently on the
+   same instance (`findProperties()`, `findDefaultViews()`)
+  [2.21.8]
+
+Sanha (@kimsanhaa)
+ * Fixed #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+  [2.23.0]
+
+Martin Mirchev (@Marti2203)
+ * Reported, fixed #6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property
+   when the default array contains `null`
+  [2.23.0]
+ * Reported, fixed #6296: Duplicate properties merged under the wrong key in non-vanilla
+   `UntypedObjectDeserializer`
+  [2.23.0]
+ * Reported, fixed #6300: NPE when a `DeserializationProblemHandler` returns `null`
+   for primitive values (including primitive array elements)
+  [2.23.0]
+ * Reported, fixed #6305: `InetSocketAddress` deserialization ignores text after the closing
+   bracket of an IPv6 address
+  [2.23.0]
+ * Reported, fixed #6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)`
+   to an object whose id is `null`
+  [2.23.0]
+
+DongNyoung Lee (@Dongnyoung)
+ * Contributed fix for #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected
+   with constructor-backed properties (backport to 2.x)
+  [2.23.0]

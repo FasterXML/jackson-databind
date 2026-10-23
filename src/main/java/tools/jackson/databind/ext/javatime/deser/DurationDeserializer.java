@@ -113,13 +113,11 @@ public class DurationDeserializer extends JSR310DeserializerBase<Duration>
                 unitConverter = DurationUnitConverter.from(pattern);
                 if (unitConverter == null) {
                     ctxt.reportBadDefinition(getValueType(ctxt),
-                            String.format(
-                                    "Bad 'pattern' definition (\"%s\") for `Duration`: expected one of [%s]",
+                            "Bad 'pattern' definition (\"%s\") for `Duration`: expected one of [%s]".formatted(
                                     pattern, DurationUnitConverter.descForAllowed()));
                 }
             }
-            timestampsAsNanosOverride =
-                format.getFeature(JsonFormat.Feature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+            timestampsAsNanosOverride = _findReadTimestampsAsNanosOverride(format);
         }
         if (leniency != _isLenient
             || !Objects.equals(unitConverter, _durationUnitConverter)
@@ -144,7 +142,7 @@ public class DurationDeserializer extends JSR310DeserializerBase<Duration>
                     result = DecimalUtils.extractSecondsAndNanos(value, Duration::ofSeconds, false);
                 } catch (DateTimeException | ArithmeticException e) {
                     throw DateTimeParseException.from(parser,
-                            String.format("Failed to deserialize %s from decimal value %s: %s",
+                            "Failed to deserialize %s from decimal value %s: %s".formatted(
                                     handledType().getName(), value, e.getMessage()),
                             value.toString(), handledType(), e);
                 }

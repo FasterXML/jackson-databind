@@ -1,5 +1,6 @@
 package tools.jackson.databind.ser;
 
+import java.io.Serial;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -56,6 +57,7 @@ public class BeanSerializerFactory
     extends BasicSerializerFactory
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3;
 
     /**
@@ -360,19 +362,29 @@ public class BeanSerializerFactory
         AnnotatedMember anyGetter = beanDescRef.get().findAnyGetter();
         if (anyGetter != null) {
             JavaType anyType = anyGetter.getType();
-            // copied from BasicSerializerFactory.buildMapSerializer():
-            JavaType valueType = anyType.getContentType();
-            TypeSerializer typeSer = ctxt.findTypeSerializer(valueType);
-            // last 2 nulls; don't know key, value serializers (yet)
             // 23-Feb-2015, tatu: As per [databind#705], need to support custom serializers
             ValueSerializer<?> anySer = findSerializerFromAnnotation(ctxt, anyGetter);
-            if (anySer == null) {
-                // TODO: support '@JsonIgnoreProperties' with any setter?
-                anySer = MapSerializer.construct(
-                        anyType, config.isEnabled(MapperFeature.USE_STATIC_TYPING),
-                        typeSer, null, null, /*filterId*/ null,
-                        /* ignored props*/ (Set<String>) null,
-                        /* included props*/ (Set<String>) null);
+            JavaType valueType;
+
+            // [databind#3604]: Support ObjectNode/JsonNode for @JsonAnyGetter
+            if (JsonNode.class.isAssignableFrom(anyType.getRawClass())) {
+                // For JsonNode-valued any-getters, value type is JsonNode;
+                // no default serializer needed since AnyGetterWriter handles
+                // ObjectNode entries directly (anySer may still be non-null
+                // from custom @JsonSerialize annotation above)
+                valueType = ctxt.constructType(JsonNode.class);
+            } else {
+                // copied from BasicSerializerFactory.buildMapSerializer():
+                valueType = anyType.getContentType();
+                if (anySer == null) {
+                    TypeSerializer typeSer = ctxt.findTypeSerializer(valueType);
+                    // TODO: support '@JsonIgnoreProperties' with any setter?
+                    anySer = MapSerializer.construct(
+                            anyType, config.isEnabled(MapperFeature.USE_STATIC_TYPING),
+                            typeSer, null, null, /*filterId*/ null,
+                            /* ignored props*/ (Set<String>) null,
+                            /* included props*/ (Set<String>) null);
+                }
             }
             // TODO: can we find full PropertyName?
             PropertyName name = PropertyName.construct(anyGetter.getName());
@@ -474,9 +486,8 @@ public class BeanSerializerFactory
 
             for (int i = 0, len = props.size() ;; ++i) {
                 if (i == len) {
-                    throw new IllegalArgumentException(String.format(
-"Invalid Object Id definition for %s: cannot find property with name %s",
-ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
+                    throw new IllegalArgumentException("Invalid Object Id definition for %s: cannot find property with name %s".formatted(
+                            ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
                 }
                 BeanPropertyWriter prop = props.get(i);
                 if (propName.equals(prop.getName())) {

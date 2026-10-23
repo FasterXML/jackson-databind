@@ -3,10 +3,12 @@ package tools.jackson.databind.ext.jdk8;
 import java.util.Optional;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.deser.std.ReferenceTypeDeserializer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 
+@JacksonStdImpl
 public class Jdk8OptionalDeserializer
     extends ReferenceTypeDeserializer<Optional<?>>
 {

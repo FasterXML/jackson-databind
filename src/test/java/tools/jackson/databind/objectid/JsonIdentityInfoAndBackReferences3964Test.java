@@ -208,21 +208,23 @@ public class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil
      */
     @Test
     public void testOriginalBackReference() throws Exception {
-        String json = "{" +
-                "              \"id\": 1,\n" +
-                "              \"fruits\": [\n" +
-                "                {\n" +
-                "                  \"id\": 2,\n" +
-                "                  \"tree\": 1,\n" +
-                "                  \"calories\": [\n" +
-                "                    {\n" +
-                "                      \"id\": 3,\n" +
-                "                      \"fruit\": 2\n" +
-                "                    }\n" +
-                "                  ]\n" +
-                "                }\n" +
-                "              ]\n" +
-                "            }";
+        String json = """
+                {\
+                              "id": 1,
+                              "fruits": [
+                                {
+                                  "id": 2,
+                                  "tree": 1,
+                                  "calories": [
+                                    {
+                                      "id": 3,
+                                      "fruit": 2
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                """;
 
         Tree tree = MAPPER.readValue(json, Tree.class);
         // should reach here and pass... but throws Exception and fails

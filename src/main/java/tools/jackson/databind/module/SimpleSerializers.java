@@ -1,5 +1,6 @@
 package tools.jackson.databind.module;
 
+import java.io.Serial;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -30,6 +31,7 @@ public class SimpleSerializers
     extends Serializers.Base
     implements java.io.Serializable // since included by SimpleModule
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**

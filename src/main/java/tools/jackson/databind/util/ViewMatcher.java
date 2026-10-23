@@ -1,4 +1,8 @@
 package tools.jackson.databind.util;
+import java.io.Serial;
+
+
+import java.io.Serial;
 
 /**
  * Helper class used for checking whether a property is visible
@@ -6,6 +10,7 @@ package tools.jackson.databind.util;
  */
 public class ViewMatcher implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected final static ViewMatcher EMPTY = new ViewMatcher();
@@ -34,6 +39,7 @@ public class ViewMatcher implements java.io.Serializable
 
     private final static class Single extends ViewMatcher
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         private final Class<?> _view;
@@ -47,6 +53,7 @@ public class ViewMatcher implements java.io.Serializable
     private final static class Multi extends ViewMatcher
         implements java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         private final Class<?>[] _views;

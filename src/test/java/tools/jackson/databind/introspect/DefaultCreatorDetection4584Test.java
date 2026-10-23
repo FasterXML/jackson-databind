@@ -47,7 +47,7 @@ public class DefaultCreatorDetection4584Test extends DatabindTestUtil
 
         @Override
         public boolean equals(Object o) {
-            return (o instanceof POJO4584) && Objects.equals(((POJO4584) o).value, value);
+            return (o instanceof POJO4584 pojo) && Objects.equals(pojo.value, value);
         }
 
         @Override
@@ -80,7 +80,7 @@ public class DefaultCreatorDetection4584Test extends DatabindTestUtil
 
         @Override
         public boolean equals(Object o) {
-            return (o instanceof POJO4584Annotated) && Objects.equals(((POJO4584Annotated) o).value, value);
+            return (o instanceof POJO4584Annotated pojoa) && Objects.equals(pojoa.value, value);
         }
 
         @Override

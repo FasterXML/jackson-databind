@@ -1,5 +1,7 @@
 package tools.jackson.databind.cfg;
 
+import java.io.Serial;
+
 import tools.jackson.core.*;
 import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.io.SerializedString;
@@ -13,6 +15,7 @@ import tools.jackson.core.util.Instantiatable;
 public final class GeneratorSettings
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected final static GeneratorSettings EMPTY = new GeneratorSettings(null, null, null, null);

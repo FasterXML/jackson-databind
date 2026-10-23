@@ -78,7 +78,7 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
             for (BeanPropertyDefinition property : properties) {
                 String name = property.getName();
                 if (ignoreCase) {
-                    name = name.toLowerCase();
+                    name = name.toLowerCase(Locale.ROOT);
                 }
                 Integer bitIndex = propertyBitIndex.get(name);
                 if (bitIndex == null) {
@@ -89,7 +89,7 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
                 for (PropertyName alias : property.findAliases()) {
                     String simpleName = alias.getSimpleName();
                     if (ignoreCase) {
-                        simpleName = simpleName.toLowerCase();
+                        simpleName = simpleName.toLowerCase(Locale.ROOT);
                     }
                     // but do not override entries (in case alias overlaps a regular name;
                     // is this even legal?)
@@ -104,9 +104,9 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
 
             // Validate uniqueness
             if (existingFingerprint != null) {
-                throw new IllegalStateException(
-                        String.format("Subtypes %s and %s have the same signature and cannot be uniquely deduced.", existingFingerprint, subtype.getType().getName())
-                        );
+                throw new IllegalStateException(String.format(
+                        "Subtypes %s and %s have the same signature and cannot be uniquely deduced.",
+                        existingFingerprint, subtype.getType().getName()));
             }
         }
         return fingerprints;
@@ -147,7 +147,7 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
 
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String name = p.currentName();
-            if (ignoreCase) name = name.toLowerCase();
+            if (ignoreCase) name = name.toLowerCase(Locale.ROOT);
 
             tb.copyCurrentStructure(p);
 
@@ -163,7 +163,9 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         }
 
         // We have zero or multiple candidates, deduction has failed
-        String msgToReportIfDefaultImplFailsToo = String.format("Cannot deduce unique subtype of %s (%d candidates match)", ClassUtil.getTypeDescription(_baseType), candidates.size());
+        String msgToReportIfDefaultImplFailsToo = String.format(
+                "Cannot deduce unique subtype of %s (%d candidates match)",
+                ClassUtil.getTypeDescription(_baseType), candidates.size());
         return _deserializeTypedUsingDefaultImpl(p, ctxt, tb, msgToReportIfDefaultImplFailsToo);
     }
 

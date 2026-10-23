@@ -139,10 +139,5 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
             ctxt.removePendingForwardRef(_pojo);
             _parent.set(ctxt, _pojo, value);
         }
-
-        @Override
-        public boolean refersTo(Object obj) {
-            return _pojo == obj;
-        }
     }
 }

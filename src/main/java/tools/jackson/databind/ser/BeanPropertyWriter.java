@@ -3,9 +3,11 @@ package tools.jackson.databind.ser;
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.annotation.JsonApplyView;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.core.JacksonException;
@@ -25,7 +27,6 @@ import tools.jackson.databind.ser.impl.PropertySerializerMap;
 import tools.jackson.databind.util.Annotations;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.NameTransformer;
-import tools.jackson.databind.util.internal.UnreflectHandleSupplier;
 
 import static java.lang.invoke.MethodType.methodType;
 
@@ -44,6 +45,8 @@ import static tools.jackson.databind.util.ClassUtil.sneakyThrow;
 public class BeanPropertyWriter
     extends PropertyWriter // which extends `ConcreteBeanPropertyBase`
 {
+    private static final MethodType GETTER_TYPE = methodType(Object.class, Object.class);
+
     /**
      * Marker object used to indicate "do not serialize if empty"
      */
@@ -113,10 +116,12 @@ public class BeanPropertyWriter
     protected final AnnotatedMember _member;
 
     /**
-     * Accessor method used to get property value.
-     * Wrapped in a holder since MethodHandle is not serializable.
+     * Lazily resolved accessor handle used to get property value
+     * ({@code null} for virtual properties);
+     * {@code volatile} so a racy first use is safely published (duplicate
+     * resolution is harmless, handles are equivalent).
      */
-    protected final GetterHolder _accessor = new GetterHolder();
+    protected volatile MethodHandle _accessor;
 
     /*
     /**********************************************************************
@@ -178,6 +183,13 @@ public class BeanPropertyWriter
     protected final Class<?>[] _includeInViews;
 
     /**
+     * View to apply for this property when applyView is available for the Bean.
+     *
+     * @since 3.2
+     */
+    protected final Class<?> _applyView;
+
+    /**
      * Inclusion settings for this property, pre-computed in {@code PropertyBuilder}
      * by merging global defaults, type defaults, and property-level annotations,
      * including contextual annotations from the enclosing class.
@@ -214,13 +226,31 @@ public class BeanPropertyWriter
     {
         this(propDef, member, contextAnnotations, declaredType,
                 ser, typeSer, serType, suppressNulls, suppressableValue,
-                includeInViews, null);
+                includeInViews, null, null);
     }
 
     /**
-     * Constructor with additional inclusion parameter.
+     * @deprecated Since 3.2 use {@link #BeanPropertyWriter(BeanPropertyDefinition,
+     *     AnnotatedMember, Annotations, JavaType, ValueSerializer, TypeSerializer,
+     *     JavaType, boolean, Object, Class[], JsonInclude.Value, Class)} instead.
+     */
+    @Deprecated // @since 3.2
+    public BeanPropertyWriter(BeanPropertyDefinition propDef,
+            AnnotatedMember member, Annotations contextAnnotations,
+            JavaType declaredType,
+            ValueSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
+            boolean suppressNulls, Object suppressableValue,
+            Class<?>[] includeInViews, JsonInclude.Value inclusion)
+    {
+        this(propDef, member, contextAnnotations, declaredType,
+                ser, typeSer, serType, suppressNulls, suppressableValue,
+                includeInViews, inclusion, null);
+    }
+
+    /**
+     * Constructor with additional inclusion and applyView parameter.
      *
-     * @since 3.1
+     * @since 3.2
      */
     @SuppressWarnings("unchecked")
     public BeanPropertyWriter(BeanPropertyDefinition propDef,
@@ -228,7 +258,7 @@ public class BeanPropertyWriter
             JavaType declaredType,
             ValueSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             boolean suppressNulls, Object suppressableValue,
-            Class<?>[] includeInViews, JsonInclude.Value inclusion)
+            Class<?>[] includeInViews, JsonInclude.Value inclusion, Class<?> applyView)
     {
         super(propDef);
         _member = member;
@@ -260,6 +290,7 @@ public class BeanPropertyWriter
         // this will be resolved later on, unless nulls are to be suppressed
         _nullSerializer = null;
         _includeInViews = includeInViews;
+        _applyView = applyView;
         _inclusion = (inclusion == null) ? JsonInclude.Value.empty() : inclusion;
     }
 
@@ -276,6 +307,7 @@ public class BeanPropertyWriter
         _name = null;
         _wrapperName = null;
         _includeInViews = null;
+        _applyView = null;
 
         _declaredType = null;
         _serializer = null;
@@ -310,6 +342,7 @@ public class BeanPropertyWriter
         _declaredType = base._declaredType;
 
         _member = base._member;
+        _accessor = base._accessor;
 
         _serializer = base._serializer;
         _nullSerializer = base._nullSerializer;
@@ -323,6 +356,7 @@ public class BeanPropertyWriter
         _suppressNulls = base._suppressNulls;
         _suppressableValue = base._suppressableValue;
         _includeInViews = base._includeInViews;
+        _applyView = base._applyView;
         _typeSerializer = base._typeSerializer;
         _nonTrivialBaseType = base._nonTrivialBaseType;
         _inclusion = base._inclusion;
@@ -334,6 +368,7 @@ public class BeanPropertyWriter
         _wrapperName = base._wrapperName;
 
         _member = base._member;
+        _accessor = base._accessor;
         _contextAnnotations = base._contextAnnotations;
         _declaredType = base._declaredType;
         _serializer = base._serializer;
@@ -347,6 +382,7 @@ public class BeanPropertyWriter
         _suppressNulls = base._suppressNulls;
         _suppressableValue = base._suppressableValue;
         _includeInViews = base._includeInViews;
+        _applyView = base._applyView;
         _typeSerializer = base._typeSerializer;
         _nonTrivialBaseType = base._nonTrivialBaseType;
         _inclusion = base._inclusion;
@@ -379,14 +415,24 @@ public class BeanPropertyWriter
     }
 
     /**
-     * Method called to assign value serializer for property
+     * Method called to assign value serializer for property.
+     * An already assigned serializer may be replaced with another one
+     * (for example by {@link ValueSerializerModifier}), but {@code null}
+     * may never be assigned.
+     *<p>
+     * NOTE: serializer is used as-is: it will NOT be contextualized
+     * (no call to {@link ValueSerializer#createContextual}) nor resolved
+     * by the containing bean serializer. Caller is responsible for passing
+     * a fully configured serializer.
+     *<p>
+     * NOTE: before 3.3 override of non-{@code null} serializer was blocked.
+     *
+     * @throws IllegalStateException if {@code ser} is {@code null}
      */
     public void assignSerializer(ValueSerializer<Object> ser) {
-        // may need to disable check in future?
-        if ((_serializer != null) && (_serializer != ser)) {
-            throw new IllegalStateException(String.format(
-                    "Cannot override _serializer: had a %s, trying to set to %s",
-                    ClassUtil.classNameOf(_serializer), ClassUtil.classNameOf(ser)));
+        if (ser == null) {
+            throw new IllegalStateException("Cannot assign `null` as _serializer (had a %s)".formatted(
+                    ClassUtil.classNameOf(_serializer)));
         }
         _serializer = ser;
     }
@@ -397,8 +443,7 @@ public class BeanPropertyWriter
     public void assignNullSerializer(ValueSerializer<Object> nullSer) {
         // may need to disable check in future?
         if ((_nullSerializer != null) && (_nullSerializer != nullSer)) {
-            throw new IllegalStateException(String.format(
-                    "Cannot override _nullSerializer: had a %s, trying to set to %s",
+            throw new IllegalStateException("Cannot override _nullSerializer: had a %s, trying to set to %s".formatted(
                     ClassUtil.classNameOf(_nullSerializer), ClassUtil.classNameOf(nullSer)));
         }
         _nullSerializer = nullSer;
@@ -660,11 +705,30 @@ public class BeanPropertyWriter
             }
         }
         g.writeName(_name);
-        if (_typeSerializer == null) {
-            ser.serialize(value, g, ctxt);
+        if (_applyView == null) {
+            _serialize(value, g, ctxt, ser);
         } else {
-            ser.serializeWithType(value, g, ctxt, _typeSerializer);
+            ValueSerializer<Object> actualSer = ser;
+            ctxt.withActiveView(_applyView != JsonApplyView.NONE.class ? _applyView : null,
+                    () -> _serialize(value, g, ctxt, actualSer));
         }
+    }
+
+    /**
+     * Method called to serialize this property when a {@link PropertyFilter} is
+     * in effect. Default implementation simply hands this writer to the filter,
+     * which decides inclusion based on the property name. Subclasses that do not
+     * map to a single output property (such as {@code AnyGetterWriter}), or that
+     * decorate another writer (such as view-based filtering), override this to
+     * route filtering appropriately.
+     *
+     * @since 3.3
+     */
+    public void serializeFilteredAsProperty(Object bean, JsonGenerator g,
+            SerializationContext ctxt, PropertyFilter filter)
+        throws Exception
+    {
+        filter.serializeAsProperty(bean, g, ctxt, this);
     }
 
     /**
@@ -728,10 +792,13 @@ public class BeanPropertyWriter
                 return;
             }
         }
-        if (_typeSerializer == null) {
-            ser.serialize(value, g, ctxt);
+
+        if (_applyView == null) {
+            _serialize(value, g, ctxt, ser);
         } else {
-            ser.serializeWithType(value, g, ctxt, _typeSerializer);
+            ValueSerializer<Object> actualSer = ser;
+            ctxt.withActiveView(_applyView != JsonApplyView.NONE.class ? _applyView : null,
+                    () -> _serialize(value, g, ctxt, actualSer));
         }
     }
 
@@ -750,6 +817,16 @@ public class BeanPropertyWriter
             _nullSerializer.serialize(null, g, prov);
         } else {
             g.writeNull();
+        }
+    }
+
+    // @since 3.2
+    private void _serialize(Object value, JsonGenerator g, SerializationContext ctxt,
+            ValueSerializer<Object> ser) {
+        if (_typeSerializer == null) {
+            ser.serialize(value, g, ctxt);
+        } else {
+            ser.serializeWithType(value, g, ctxt, _typeSerializer);
         }
     }
 
@@ -803,7 +880,7 @@ public class BeanPropertyWriter
      */
     public final Object get(Object bean) throws Exception {
         try {
-            return _accessor.get().invokeExact(bean);
+            return _accessorHandle().invokeExact(bean);
         } catch (Throwable e) {
             throw sneakyThrow(e);
         }
@@ -897,22 +974,30 @@ public class BeanPropertyWriter
         return sb.toString();
     }
 
-    class GetterHolder extends UnreflectHandleSupplier {
-        public GetterHolder() {
-            super(methodType(Object.class, Object.class));
+    private MethodHandle _accessorHandle() throws IllegalAccessException {
+        MethodHandle h = _accessor;
+        if (h == null) {
+            h = _unreflectAccessor();
+            _accessor = h;
         }
+        return h;
+    }
 
-        @Override
-        protected MethodHandle unreflect() throws IllegalAccessException {
-            if (_member instanceof AnnotatedField) {
-                return MethodHandles.lookup().unreflectGetter((Field) _member.getMember());
-            } else if (_member instanceof AnnotatedMethod method) {
-                return MethodHandles.lookup().unreflect(method.getMember());
-            } else {
-                // 01-Dec-2014, tatu: Used to be illegal, but now explicitly allowed
-                // for virtual props
-                return null;
-            }
+    /**
+     * Note: resolved lazily, on first use, since access to non-public members
+     * is only enabled by {@link #fixAccess} which is called after construction.
+     */
+    private MethodHandle _unreflectAccessor() throws IllegalAccessException {
+        MethodHandle h;
+        if (_member instanceof AnnotatedField) {
+            h = MethodHandles.lookup().unreflectGetter((Field) _member.getMember());
+        } else if (_member instanceof AnnotatedMethod method) {
+            h = MethodHandles.lookup().unreflect(method.getMember());
+        } else {
+            // 01-Dec-2014, tatu: Used to be illegal, but now explicitly allowed
+            // for virtual props
+            return null;
         }
+        return h.asType(GETTER_TYPE);
     }
 }

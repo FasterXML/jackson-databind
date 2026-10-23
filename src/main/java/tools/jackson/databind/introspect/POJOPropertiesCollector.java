@@ -72,8 +72,12 @@ public class POJOPropertiesCollector
     /**
      * State flag we keep to indicate whether actual property information
      * has been collected or not.
+     *<p>
+     * NOTE: {@code volatile} so that the "collected" state (and,
+     * transitively, results assigned before it) is visible across threads in case
+     * a {@link BeanDescription} instance is shared, see [databind#6227].
      */
-    protected boolean _collected;
+    protected volatile boolean _collected;
 
     /**
      * Set of logical property information collected so far.
@@ -122,24 +126,53 @@ public class POJOPropertiesCollector
     protected LinkedList<AnnotatedMember> _jsonValueAccessors;
 
     /**
-     * Lazily collected set of properties that are explicitly ignored, combining
-     * both per-property markers ({@code @JsonIgnore}, via {@link #_collectIgnorals})
-     * and direction-specific names derived from class-level
-     * {@code @JsonIgnoreProperties} (via {@link #_collectClassLevelIgnorals}).
+     * Per-property ignorals: names collected from {@code @JsonIgnore} markers and
+     * read/write-only access rules via {@link #_collectIgnorals}.
      *<p>
      * Kept as a mutable set because {@link #_renameProperties} may remove entries
-     * (when a creator property is renamed to a previously-ignored name).
-     * {@link #_propertyIgnorals} holds the immutable class-level value in parallel.
+     * for {@code [databind#2001]} when a per-property ignoral is overridden by a
+     * creator parameter renamed to the same name. The pre-rescue state is
+     * captured into {@link #_nonRescuedIgnoredPropertyNames} on the first such
+     * removal so {@link #getNonRescuedIgnoredPropertyNames()} can still report
+     * it. Class-level ignorals are tracked in {@link #_classLevelIgnoredNames}
+     * instead so they remain immune to that rescue.
      */
-    protected HashSet<String> _ignoredPropertyNames;
+    protected HashSet<String> _perPropertyIgnoredNames;
+
+    /**
+     * Class-level ignorals: direction-specific names derived from
+     * {@code @JsonIgnoreProperties} (annotation plus config overrides), copied here
+     * from {@link #_propertyIgnorals} during {@link #_collectClassLevelIgnorals()}.
+     *<p>
+     * Held separately from {@link #_perPropertyIgnoredNames} so that the
+     * {@code [databind#2001]} creator-rename rescue does not strip them: class-level
+     * ignorals are absolute, per-property ignorals can be overridden by creators.
+     *
+     * @since 3.2
+     */
+    protected HashSet<String> _classLevelIgnoredNames;
+
+    /**
+     * Snapshot of {@link #_perPropertyIgnoredNames} taken just before the
+     * {@code [databind#2001]} creator-rename rescue can fire, used by
+     * {@link #getNonRescuedIgnoredPropertyNames()}. Null when no rescue happened
+     * (in which case {@link #_perPropertyIgnoredNames} itself is still complete).
+     *
+     * @since 3.2
+     */
+    protected HashSet<String> _nonRescuedIgnoredPropertyNames;
 
     /**
      * Class-level ignorals (annotation plus config overrides), computed once during
      * {@link #_collectClassLevelIgnorals()} and exposed to the factory layer via
      * {@link #getPropertyIgnorals()} so that {@code findPropertyIgnoralByName()} is
-     * called exactly once per type.  The direction-specific property names it contains
-     * are also copied into {@link #_ignoredPropertyNames} for internal use by
-     * {@link #_renameProperties}.
+     * called exactly once per type.
+     *<p>
+     * The direction-specific name set carried here is also mirrored into
+     * {@link #_classLevelIgnoredNames} for inclusion in
+     * {@link #getIgnoredPropertyNames()}; this field additionally retains the
+     * {@code ignoreUnknown}, {@code allowGetters}/{@code allowSetters}, and
+     * {@code merge} attributes which the simple name set does not.
      */
     protected JsonIgnoreProperties.Value _propertyIgnorals;
 
@@ -228,7 +261,11 @@ public class POJOPropertiesCollector
         return _injectables;
     }
 
-    public AnnotatedMember getJsonKeyAccessor() {
+    /**
+     * NOTE: {@code synchronized} since resolution of conflicting accessors
+     * modifies the accessor list (see [databind#6227]).
+     */
+    public synchronized AnnotatedMember getJsonKeyAccessor() {
         if (!_collected) {
             collectAll();
         }
@@ -247,7 +284,11 @@ public class POJOPropertiesCollector
         return null;
     }
 
-    public AnnotatedMember getJsonValueAccessor()
+    /**
+     * NOTE: {@code synchronized} since resolution of conflicting accessors
+     * modifies the accessor list (see [databind#6227]).
+     */
+    public synchronized AnnotatedMember getJsonValueAccessor()
     {
         if (!_collected) {
             collectAll();
@@ -329,21 +370,69 @@ public class POJOPropertiesCollector
     }
 
     /**
-     * Accessor for set of properties that are explicitly marked to be ignored
-     * via per-property markers ({@code @JsonIgnore}) and/or class-level
-     * {@code @JsonIgnoreProperties} annotation.
+     * Accessor for the full set of property names marked ignored — combining
+     * per-property {@code @JsonIgnore} markers, class-level
+     * {@code @JsonIgnoreProperties}, and read/write-only access rules. Filtered
+     * by direction (ser vs. deser) at collection time.
+     *<p>
+     * Per-property names that have been "rescued" by the {@code [databind#2001]}
+     * creator-rename redirect are excluded from this set; class-level names are
+     * not subject to that rescue and always appear here. This is the set factory
+     * code should consult to populate a deserializer's runtime ignore-list (see
+     * {@code BeanDeserializerFactory#addBeanProps}). For the un-rescued
+     * per-property view see {@link #getNonRescuedIgnoredPropertyNames()}.
+     *<p>
+     * <b>Performance note:</b> when both per-property and class-level ignorals
+     * exist, this allocates a fresh {@link HashSet} on every call to merge them.
+     * Callers that reference the result repeatedly (or in a loop) should cache
+     * the returned set in a local. The intended call-site is
+     * {@code BeanDeserializerFactory#addBeanProps}, which runs once per type
+     * during deserializer construction — not on the dispatch hot path.
      */
     public Set<String> getIgnoredPropertyNames() {
         if (!_collected) {
             collectAll();
         }
-        return _ignoredPropertyNames;
+        return _unionWithClassLevel(_perPropertyIgnoredNames);
+    }
+
+    /**
+     * Accessor for the per-property ignorals view <em>before</em> any
+     * {@code [databind#2001]} creator-rename rescue is applied: includes every
+     * per-property {@code @JsonIgnore} or read/write-only name that was originally
+     * collected, even those later overridden by a creator parameter renamed to
+     * the same name. Class-level {@code @JsonIgnoreProperties} names are also
+     * included (they are never rescued in the first place).
+     *<p>
+     * Most callers should use {@link #getIgnoredPropertyNames()} instead — this
+     * accessor exists for the rare case where a caller needs to know about
+     * names that <em>would</em> have been ignored but for the rescue.
+     *
+     * @since 3.2
+     */
+    public Set<String> getNonRescuedIgnoredPropertyNames() {
+        if (!_collected) {
+            collectAll();
+        }
+        // Snapshot of pre-rescue per-property names is captured into
+        // _nonRescuedIgnoredPropertyNames just before strip-out can fire (see
+        // _renameProperties); it is null when no rescue ever happened, in which
+        // case _perPropertyIgnoredNames itself is still the full pre-rescue view.
+        Set<String> perPropertyView = (_nonRescuedIgnoredPropertyNames != null)
+                ? _nonRescuedIgnoredPropertyNames
+                : _perPropertyIgnoredNames;
+        return _unionWithClassLevel(perPropertyView);
     }
 
     /**
      * Accessor for class-level property ignorals (annotation plus config overrides),
      * computed once during collection and cached for reuse by the factory layer.
      * Returns {@code null} when no ignorals are defined.
+     *<p>
+     * Carries only class-level ignorals, in their original (un-stripped) form.
+     * Equivalent to the class-level subset of {@link #getIgnoredPropertyNames()},
+     * but in {@link JsonIgnoreProperties.Value} form (which also carries
+     * {@code ignoreUnknown}, {@code allowGetters}/{@code allowSetters}, etc.).
      */
     public JsonIgnoreProperties.Value getPropertyIgnorals() {
         if (!_collected) {
@@ -407,10 +496,19 @@ public class POJOPropertiesCollector
 
     /**
      * Internal method that will collect actual property information.
+     *<p>
+     * NOTE: {@code synchronized} since although instances are
+     * not designed to be shared across threads, if they are, concurrent collection
+     * would corrupt internal state (see [databind#6227]).
      */
-    protected void collectAll()
+    protected synchronized void collectAll()
     {
 //System.out.println(" PojoPropsCollector.collectAll() for  "+_classDef.getRawType().getName()); 
+        // [databind#6227]: another thread may have completed collection while we
+        // were waiting for the lock
+        if (_collected) {
+            return;
+        }
         _potentialCreators = new PotentialCreators();
 
         // First: gather basic accessors
@@ -669,17 +767,19 @@ public class POJOPropertiesCollector
         // and use annotations to find explicitly chosen Creators
         if (_useAnnotations) { // can't have explicit ones without Annotation introspection
             // Start with Constructors as they have higher precedence
-
-            // 08-Sep-2025, tatu: [databind#5045] Need to ensure 0-param ("default")
-            //   constructor considered if annotated (disabled case handled above).
-            if (zeroParamsConstructor != null && zeroParamsConstructor.isAnnotated()) {
-                creators.setPropertiesBased(_config, zeroParamsConstructor, "explicit");
-            }
-
             _addExplicitlyAnnotatedCreators(creators, constructors, props, false);
             // followed by Factory methods (lower precedence)
             _addExplicitlyAnnotatedCreators(creators, factories, props,
                     creators.hasPropertiesBased());
+
+            // 08-Sep-2025, tatu: [databind#5045] Need to ensure 0-param ("default")
+            //   constructor considered if annotated (disabled case handled above).
+            // 27-Mar-2026, [databind#5840] But only if no other properties-based
+            //   creator was found (multi-arg @JsonCreator takes precedence over 0-arg one)
+            if (zeroParamsConstructor != null && zeroParamsConstructor.isAnnotated()
+                    && !creators.hasPropertiesBased()) {
+                creators.setExplicitPropertiesBased(_config, zeroParamsConstructor);
+            }
         }
 
         // If no Explicitly annotated creators (or Primary one) found, look
@@ -688,6 +788,7 @@ public class POJOPropertiesCollector
             // only discover constructor Creators?
             _addCreatorsWithAnnotatedNames(creators, constructors, primaryCreator);
         }
+
 
         // But if no annotation-based Creators found, find/use Primary Creator
         // detected earlier, if any
@@ -699,13 +800,13 @@ public class POJOPropertiesCollector
                 if (_isDelegatingConstructor(primaryCreator)) {
                     // 08-Oct-2024, tatu: [databind#4724] Only add if no explicit
                     //    candidates added
-                    if (!creators.hasDelegating()) {
+                    if (!creators.hasDelegating() && !creators.hasExplicitPropertiesBased()) {
                         // ... not technically explicit but simpler this way
                         creators.addExplicitDelegating(primaryCreator);
                     }
                 } else { // primary creator is properties-based
                     if (!creators.hasPropertiesBased()) {
-                        creators.setPropertiesBased(_config, primaryCreator, "Primary");
+                        creators.setPropertiesBased(_config, primaryCreator, "primary");
                     }
                 }
             }
@@ -887,7 +988,7 @@ public class POJOPropertiesCollector
             if (isPropsBased) {
                 // Skipping done if we already got higher-precedence Creator
                 if (!skipPropsBased) {
-                    collector.setPropertiesBased(_config, ctor, "explicit");
+                    collector.setExplicitPropertiesBased(_config, ctor);
                 }
             } else {
                 collector.addExplicitDelegating(ctor);
@@ -1157,21 +1258,27 @@ ctor.creator()));
             // 07-Feb-2025: [databind#4775] Do not stop processing here
             //   (used to return)
         }
-        // @JsonKey?
-        else if (Boolean.TRUE.equals(_annotationIntrospector.hasAsKey(_config, m))) {
-            if (_jsonKeyAccessors == null) {
-                _jsonKeyAccessors = new LinkedList<>();
+        else {
+            // [databind#6240]: may have both (as with fields); neither is a regular property
+            boolean asKey = Boolean.TRUE.equals(_annotationIntrospector.hasAsKey(_config, m));
+            boolean asValue = Boolean.TRUE.equals(_annotationIntrospector.hasAsValue(_config, m));
+            // @JsonKey?
+            if (asKey) {
+                if (_jsonKeyAccessors == null) {
+                    _jsonKeyAccessors = new LinkedList<>();
+                }
+                _jsonKeyAccessors.add(m);
             }
-            _jsonKeyAccessors.add(m);
-            return;
-        }
-        // @JsonValue?
-        else if (Boolean.TRUE.equals(_annotationIntrospector.hasAsValue(_config, m))) {
-            if (_jsonValueAccessors == null) {
-                _jsonValueAccessors = new LinkedList<>();
+            // @JsonValue?
+            if (asValue) {
+                if (_jsonValueAccessors == null) {
+                    _jsonValueAccessors = new LinkedList<>();
+                }
+                _jsonValueAccessors.add(m);
             }
-            _jsonValueAccessors.add(m);
-            return;
+            if (asKey || asValue) {
+                return;
+            }
         }
         String implName; // from naming convention
         boolean visible;
@@ -1481,6 +1588,15 @@ ctor.creator()));
                 // otherwise just remove ones marked to be ignored
                 prop.removeIgnored();
                 if (!prop.couldDeserialize()) {
+                    // [databind#5967]: Strip inferred non-visible field mutators to preserve
+                    // @JsonIgnore semantics: since couldDeserialize() is false, any remaining
+                    // fields are non-visible (kept only for INFER_PROPERTY_MUTATORS) and must
+                    // not be used to bypass the ignored setter.
+                    // But only for deserialization: for serialization fields are needed
+                    // for merging annotations (like @JsonInclude) into getter
+                    if (!_forSerialization) {
+                        prop.removeFields();
+                    }
                     _collectIgnorals(prop.getName());
                 }
             }
@@ -1511,18 +1627,39 @@ ctor.creator()));
 
     /**
      * Helper method called to record a per-property ignoral (from {@code @JsonIgnore}
-     * or read/write-only rules) into {@link #_ignoredPropertyNames}.
+     * or read/write-only rules) into {@link #_perPropertyIgnoredNames}.
      * Used by {@link #_renameProperties} to skip renaming ignored properties, and
      * surfaced externally via {@link #getIgnoredPropertyNames()}.
      */
     protected void _collectIgnorals(String name)
     {
         if (name != null) {
-            if (_ignoredPropertyNames == null) {
-                _ignoredPropertyNames = new HashSet<>();
+            if (_perPropertyIgnoredNames == null) {
+                _perPropertyIgnoredNames = new HashSet<>();
             }
-            _ignoredPropertyNames.add(name);
+            _perPropertyIgnoredNames.add(name);
         }
+    }
+
+    /**
+     * Returns {@code true} if the (already-collected) properties-based creator
+     * has a parameter currently bound to the given name. Used by
+     * {@link POJOPropertyBuilder#removeNonVisible} to skip {@code READ_ONLY}
+     * explicit-name ignorals that would shadow a sibling creator parameter
+     * ({@code [databind#5975]}).
+     *
+     * @since 3.2
+     */
+    public boolean hasCreatorBoundProperty(String name) {
+        if (_creatorProperties == null) {
+            return false;
+        }
+        for (POJOPropertyBuilder p : _creatorProperties) {
+            if (p != null && name.equals(p.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -1530,7 +1667,9 @@ ctor.creator()));
      * full {@link com.fasterxml.jackson.annotation.JsonIgnoreProperties.Value}
      * (annotation + config overrides) in {@link #_propertyIgnorals} for reuse by
      * the factory layer, and copies the direction-specific property names into
-     * {@link #_ignoredPropertyNames} so that {@link #_renameProperties} can skip them.
+     * {@link #_classLevelIgnoredNames} (held separately from
+     * {@link #_perPropertyIgnoredNames} so the {@code [databind#2001]} creator-rename
+     * rescue does not strip them — class-level ignorals are absolute).
      *<p>
      * Uses {@link MapperConfig#getDefaultPropertyIgnorals} rather than calling
      * {@code findPropertyIgnoralByName()} directly, so that config-level overrides
@@ -1547,10 +1686,10 @@ ctor.creator()));
                     ? _propertyIgnorals.findIgnoredForSerialization()
                     : _propertyIgnorals.findIgnoredForDeserialization();
             if (_nonNullNonEmpty(ignored)) {
-                if (_ignoredPropertyNames == null) {
-                    _ignoredPropertyNames = new HashSet<>(ignored);
+                if (_classLevelIgnoredNames == null) {
+                    _classLevelIgnoredNames = new HashSet<>(ignored);
                 } else {
-                    _ignoredPropertyNames.addAll(ignored);
+                    _classLevelIgnoredNames.addAll(ignored);
                 }
             }
         }
@@ -1577,7 +1716,10 @@ ctor.creator()));
             //   on accessors that are NOT ignored (e.g., @JsonProperty on getter but @JsonIgnore on setter).
             //   NOTE: For Records we need to be more conservative as constructor parameters may have
             //   both annotations but generated accessors don't always inherit @JsonIgnore
-            if (_ignoredPropertyNames != null && _ignoredPropertyNames.contains(prop.getName())) {
+            // 04-May-2026: [databind#5952] Check both per-property and class-level
+            //   ignoral sets (previously a single combined set; now separated to keep
+            //   class-level names immune from creator-rename rescue).
+            if (_isIgnored(prop.getName())) {
                 // For Records: always skip (safer due to annotation inheritance issues)
                 // For regular classes: only skip if NO explicit names on non-ignored accessors
                 if (isRecordType() || !prop.anyExplicitsWithoutIgnoral()) {
@@ -1638,11 +1780,72 @@ ctor.creator()));
                     //    ignoral is ONLY removed if there was matching creator property.
                     //
                     //    Chances are this is not the last tweak we need but... that bridge then etc
-                    if (_ignoredPropertyNames != null) {
-                        _ignoredPropertyNames.remove(name);
-                    }
+
+                    // 04-May-2026, tatu: [databind#5952] Operates only on the
+                    //   per-property set (_perPropertyIgnoredNames). Class-level names
+                    //   (in _classLevelIgnoredNames) are absolute and must
+                    //   never be rescued — that is what previously required the
+                    //   factory layer to maintain a parallel un-stripped class-level
+                    //   loop. Snapshot the un-rescued per-property view here so
+                    //   getNonRescuedIgnoredPropertyNames() can still report it.
+                    _rescuePerPropertyIgnoral(name);
                 }
             }
+        }
+
+        // [databind#6031]: a creator property's @JsonAlias names are legitimate
+        // deserialization input names, so — like the creator-rename rescue above —
+        // they must not be suppressed by an unrelated per-property ignoral whose
+        // implicit name happens to coincide with one (e.g. a @JsonIgnore getter
+        // named "oldName" colliding with @JsonAlias("oldName") on a creator param).
+        // Deser-only: aliases never apply to serialization. Class-level ignorals
+        // (in _classLevelIgnoredNames) stay absolute and are deliberately untouched.
+        if (!_forSerialization) {
+            _rescueCreatorAliasIgnorals();
+        }
+    }
+
+    /**
+     * Removes from {@link #_perPropertyIgnoredNames} any name that is a
+     * {@code @JsonAlias} of a (live) properties-based creator parameter.
+     * Companion to the {@code [databind#2001]} creator-rename rescue in
+     * {@link #_renameProperties}; see {@code [databind#6031]}.
+     *
+     * @since 3.2.1
+     */
+    protected void _rescueCreatorAliasIgnorals()
+    {
+        if (_perPropertyIgnoredNames == null || _creatorProperties == null) {
+            return;
+        }
+        for (POJOPropertyBuilder creatorProp : _creatorProperties) {
+            if (creatorProp == null) {
+                continue;
+            }
+            for (PropertyName alias : creatorProp.findAliases()) {
+                _rescuePerPropertyIgnoral(alias.getSimpleName());
+            }
+        }
+    }
+
+    /**
+     * Removes a single name from {@link #_perPropertyIgnoredNames} (if present),
+     * snapshotting the pre-rescue view into {@link #_nonRescuedIgnoredPropertyNames}
+     * on the first removal so {@link #getNonRescuedIgnoredPropertyNames()} can still
+     * report names that <em>would</em> have been ignored but for the rescue. Shared
+     * by the {@code [databind#2001]} creator-rename rescue and the
+     * {@code [databind#6031]} creator-alias rescue. Class-level ignorals
+     * (in {@link #_classLevelIgnoredNames}) are intentionally never touched here.
+     *
+     * @since 3.2.1
+     */
+    private void _rescuePerPropertyIgnoral(String name)
+    {
+        if (_perPropertyIgnoredNames != null && _perPropertyIgnoredNames.contains(name)) {
+            if (_nonRescuedIgnoredPropertyNames == null) {
+                _nonRescuedIgnoredPropertyNames = new HashSet<>(_perPropertyIgnoredNames);
+            }
+            _perPropertyIgnoredNames.remove(name);
         }
     }
 
@@ -1687,6 +1890,11 @@ ctor.creator()));
             }
             final String simpleName;
             if ((rename != null) && !fullName.hasSimpleName(rename)) {
+                // [databind#5974]: preserve @JsonIgnore semantics through naming-strategy
+                // rename so the renamed key is also recognized as ignored.
+                if (_isIgnored(fullName.getSimpleName())) {
+                    _collectIgnorals(rename);
+                }
                 prop = prop.withSimpleName(rename);
                 simpleName = rename;
             } else {
@@ -1787,7 +1995,7 @@ ctor.creator()));
         final boolean useIndexOrdering = _anyIndexed(props.values())
                 && _config.isEnabled(MapperFeature.SORT_PROPERTIES_BY_INDEX);
         final boolean sortCreatorsFirst = (_creatorProperties != null)
-                && (!sortAlpha || _config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+                && _config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST);
         final AnnotatedMember anyAccessor = _findAnyAccessor();
 
         String[] propertyOrder = intr.findSerializationPropertyOrder(_config, _classDef);
@@ -1988,7 +2196,7 @@ ctor.creator()));
 
     protected void reportProblem(String msg, Object... args) {
         if (args.length > 0) {
-            msg = String.format(msg, args);
+            msg = msg.formatted(args);
         }
         throw new IllegalArgumentException("Problem with definition of "+_classDef+": "+msg);
     }
@@ -2024,8 +2232,8 @@ ctor.creator()));
         if (namingDef == null) {
             return _config.getPropertyNamingStrategy();
         }
-        if (namingDef instanceof PropertyNamingStrategy) {
-            return (PropertyNamingStrategy) namingDef;
+        if (namingDef instanceof PropertyNamingStrategy strategy) {
+            return strategy;
         }
         // Alas, there's no way to force return type of "either class
         // X or Y" -- need to throw an exception after the fact
@@ -2078,5 +2286,44 @@ ctor.creator()));
     // @since 3.2
     private final static boolean _nonNullNonEmpty(Collection<?> coll) {
         return (coll != null) && !coll.isEmpty();
+    }
+
+    /**
+     * Returns true when {@code name} appears in either of the two ignoral sets
+     * (per-property or class-level), without merging them. Used by the rename
+     * gate in {@link #_renameProperties} where we only need a containment test
+     * and want to avoid the merge allocation that {@link #getIgnoredPropertyNames()}
+     * would do.
+     *
+     * @since 3.2
+     */
+    final boolean _isIgnored(String name) {
+        return (_perPropertyIgnoredNames != null && _perPropertyIgnoredNames.contains(name))
+                || (_classLevelIgnoredNames != null
+                    && _classLevelIgnoredNames.contains(name));
+    }
+
+    /**
+     * Returns the union of {@code base} (a per-property ignoral view) with
+     * {@link #_classLevelIgnoredNames}. Avoids allocation when one or both inputs
+     * are {@code null} or when only one of the two sets is present, and falls
+     * back to {@link Collections#emptySet()} when both are {@code null}. Shared
+     * by {@link #getIgnoredPropertyNames()} and
+     * {@link #getNonRescuedIgnoredPropertyNames()}.
+     *
+     * @since 3.2
+     */
+    private Set<String> _unionWithClassLevel(Set<String> base) {
+        if (_classLevelIgnoredNames == null) {
+            return (base == null) ? Collections.emptySet() : base;
+        }
+        if (base == null) {
+            return _classLevelIgnoredNames;
+        }
+        HashSet<String> result = new HashSet<>(base.size()
+                + _classLevelIgnoredNames.size());
+        result.addAll(base);
+        result.addAll(_classLevelIgnoredNames);
+        return result;
     }
 }

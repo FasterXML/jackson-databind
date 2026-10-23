@@ -12,7 +12,8 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class StaticTyping1515Test extends DatabindTestUtil {
+class StaticTyping1515Test extends DatabindTestUtil
+{
     static abstract class Base {
         public int a = 1;
     }
@@ -31,7 +32,7 @@ class StaticTyping1515Test extends DatabindTestUtil {
     }
 
     @JsonPropertyOrder({"value", "aValue", "dValue"})
-    static class Issue515Singles {
+    static class Issue1515Singles {
         public Base value = new Derived();
 
         @JsonSerialize(typing = JsonSerialize.Typing.DYNAMIC)
@@ -41,7 +42,7 @@ class StaticTyping1515Test extends DatabindTestUtil {
     }
 
     @JsonPropertyOrder({"map", "aMap", "dMap"})
-    static class Issue515Maps {
+    static class Issue1515Maps {
         public Map<String, Base> map = new LinkedHashMap<>();
 
         {
@@ -63,7 +64,7 @@ class StaticTyping1515Test extends DatabindTestUtil {
     }
 
     @JsonPropertyOrder({"list", "aList", "dList"})
-    static class Issue515Lists {
+    static class Issue1515Lists {
         public List<Base> list = new ArrayList<>();
 
         {
@@ -84,25 +85,41 @@ class StaticTyping1515Test extends DatabindTestUtil {
         }
     }
 
+    @JsonPropertyOrder({"array", "aArray", "dArray"})
+    static class Issue1515Arrays {
+        public Base[] array = new Base[] { new Derived() };
+
+        @JsonSerialize(typing = JsonSerialize.Typing.DYNAMIC)
+        public Base[] aArray = new Base[] { new Derived() };
+
+        public BaseDynamic[] dArray = new BaseDynamic[] { new DerivedDynamic() };
+    }
+
     private final ObjectMapper STAT_MAPPER = jsonMapperBuilder()
             .enable(MapperFeature.USE_STATIC_TYPING)
             .build();
 
     @Test
     void staticTypingForProperties() throws Exception {
-        String json = STAT_MAPPER.writeValueAsString(new Issue515Singles());
+        String json = STAT_MAPPER.writeValueAsString(new Issue1515Singles());
         assertEquals(a2q("{'value':{'a':1},'aValue':{'a':1,'b':2},'dValue':{'a':3,'b':4}}"), json);
     }
 
     @Test
     void staticTypingForMaps() throws Exception {
-        String json = STAT_MAPPER.writeValueAsString(new Issue515Maps());
+        String json = STAT_MAPPER.writeValueAsString(new Issue1515Maps());
         assertEquals(a2q("{'map':{'x':{'a':1}},'aMap':{'x':{'a':1,'b':2}},'dMap':{'x':{'a':3,'b':4}}}"), json);
     }
 
     @Test
     void staticTypingForLists() throws Exception {
-        String json = STAT_MAPPER.writeValueAsString(new Issue515Lists());
+        String json = STAT_MAPPER.writeValueAsString(new Issue1515Lists());
         assertEquals(a2q("{'list':[{'a':1}],'aList':[{'a':1,'b':2}],'dList':[{'a':3,'b':4}]}"), json);
+    }
+
+    @Test
+    void staticTypingForObjectArrays() throws Exception {
+        String json = STAT_MAPPER.writeValueAsString(new Issue1515Arrays());
+        assertEquals(a2q("{'array':[{'a':1}],'aArray':[{'a':1,'b':2}],'dArray':[{'a':3,'b':4}]}"), json);
     }
 }

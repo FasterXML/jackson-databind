@@ -33,8 +33,8 @@ public class WrapperNameAsPropertyNameTest extends DatabindTestUtil
     {
         @Override
         public PropertyName findWrapperName(MapperConfig<?> config, Annotated ann) {
-            if (ann instanceof AnnotatedField) {
-                String fieldName = ((AnnotatedField) ann).getName();
+            if (ann instanceof AnnotatedField field) {
+                String fieldName = field.getName();
                 if ("value".equals(fieldName)) {
                     return PropertyName.construct("wrappedValue");
                 }

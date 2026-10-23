@@ -1,5 +1,6 @@
 package tools.jackson.databind;
 
+import java.io.Serial;
 import java.text.DateFormat;
 
 import tools.jackson.core.*;
@@ -30,6 +31,7 @@ public final class SerializationConfig
     extends MapperConfigBase<SerializationFeature, SerializationConfig>
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /*
@@ -49,6 +51,14 @@ public final class SerializationConfig
      * from this blueprint object.
      */
     protected final PrettyPrinter _defaultPrettyPrinter;
+
+    /**
+     * Optional initializer called immediately after a {@link JsonGenerator}
+     * is constructed, before it is used or returned. {@code null} if none configured.
+     *
+     * @since 3.2
+     */
+    protected final GeneratorInitializer _generatorInitializer;
 
     /*
     /**********************************************************************
@@ -94,6 +104,7 @@ public final class SerializationConfig
         _streamWriteFeatures = streamWriteFeatures;
         _formatWriteFeatures = formatWriteFeatures;
         _defaultPrettyPrinter = b.defaultPrettyPrinter();
+        _generatorInitializer = b.generatorInitializer();
     }
 
     /*
@@ -110,6 +121,7 @@ public final class SerializationConfig
         _serFeatures = serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _generatorInitializer = src._generatorInitializer;
         _streamWriteFeatures = streamWriteFeatures;
         _formatWriteFeatures = formatWriteFeatures;
     }
@@ -120,6 +132,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _generatorInitializer = src._generatorInitializer;
         _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
     }
@@ -130,6 +143,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = filters;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _generatorInitializer = src._generatorInitializer;
         _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
     }
@@ -140,6 +154,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _generatorInitializer = src._generatorInitializer;
         _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
     }
@@ -150,6 +165,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _generatorInitializer = src._generatorInitializer;
         _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
     }
@@ -160,6 +176,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _generatorInitializer = src._generatorInitializer;
         _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
     }
@@ -170,6 +187,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = defaultPP;
+        _generatorInitializer = src._generatorInitializer;
         _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
     }
@@ -180,6 +198,19 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _generatorInitializer = src._generatorInitializer;
+        _streamWriteFeatures = src._streamWriteFeatures;
+        _formatWriteFeatures = src._formatWriteFeatures;
+    }
+
+    // Use boolean marker parameter to avoid constructor ambiguity with other (src, Object) constructors
+    private SerializationConfig(SerializationConfig src, GeneratorInitializer init, boolean marker)
+    {
+        super(src);
+        _serFeatures = src._serFeatures;
+        _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _generatorInitializer = init;
         _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
     }
@@ -466,6 +497,16 @@ public final class SerializationConfig
         return (_defaultPrettyPrinter == pp) ? this:  new SerializationConfig(this, pp);
     }
 
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with the specified {@link GeneratorInitializer}.
+     *
+     * @since 3.2
+     */
+    public SerializationConfig withGeneratorInitializer(GeneratorInitializer init) {
+        return (_generatorInitializer == init) ? this : new SerializationConfig(this, init, true);
+    }
+
     /*
     /**********************************************************************
     /* Factories for objects configured here
@@ -572,6 +613,17 @@ public final class SerializationConfig
      */
     public PrettyPrinter getDefaultPrettyPrinter() {
         return _defaultPrettyPrinter;
+    }
+
+    /**
+     * Accessor for the configured {@link GeneratorInitializer}, if any.
+     *
+     * @return Configured initializer, or {@code null} if none
+     *
+     * @since 3.2
+     */
+    public GeneratorInitializer getGeneratorInitializer() {
+        return _generatorInitializer;
     }
 
     /*

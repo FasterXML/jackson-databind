@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser;
 
+import java.io.Serial;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -35,6 +36,7 @@ public class BeanDeserializerFactory
     extends BasicDeserializerFactory
     implements java.io.Serializable // since 2.1
 {
+    @Serial
     private static final long serialVersionUID = 1;
 
     /**
@@ -166,9 +168,7 @@ public class BeanDeserializerFactory
         }
         BeanDescription.Supplier builderDescRef = ctxt.lazyIntrospectBeanDescriptionForBuilder(builderType,
                 valueBeanDescRef.get());
-        // 20-Aug-2020, tatu: May want to change at some point to pass "valueBeanDesc"
-        //    too; no urgent need at this point
-        return buildBuilderBasedDeserializer(ctxt, valueType, builderDescRef);
+        return buildBuilderBasedDeserializer(ctxt, valueType, builderDescRef, valueBeanDescRef);
     }
 
     /**
@@ -309,10 +309,28 @@ public class BeanDeserializerFactory
      * Note that implementation is mostly copied from the regular
      * BeanDeserializer build method.
      */
+    /**
+     * @deprecated Since 3.2 use
+     *   {@link #buildBuilderBasedDeserializer(DeserializationContext, JavaType, BeanDescription.Supplier, BeanDescription.Supplier)}
+     *   instead
+     */
+    @Deprecated // since 3.2
     @SuppressWarnings("unchecked")
     protected ValueDeserializer<Object> buildBuilderBasedDeserializer(
     		DeserializationContext ctxt, JavaType valueType,
     		BeanDescription.Supplier builderDescRef)
+    {
+        return buildBuilderBasedDeserializer(ctxt, valueType, builderDescRef, builderDescRef);
+    }
+
+    /**
+     * @since 3.2
+     */
+    @SuppressWarnings("unchecked")
+    protected ValueDeserializer<Object> buildBuilderBasedDeserializer(
+    		DeserializationContext ctxt, JavaType valueType,
+    		BeanDescription.Supplier builderDescRef,
+    		BeanDescription.Supplier valueBeanDescRef)
     {
         // Creators, anyone? (to create builder itself)
         ValueInstantiator valueInstantiator;
@@ -333,7 +351,13 @@ public class BeanDeserializerFactory
         deserBuilder.setValueInstantiator(valueInstantiator);
          // And then "with methods" for deserializing from JSON Object
         addBeanProps(ctxt, builderDescRef, deserBuilder);
+        // [databind#5872]: Try builder class first for ObjectIdReader; if not found,
+        //   fall back to value type (target type) which may have @JsonIdentityInfo
+        //   inherited from an interface or parent class
         addObjectIdReader(ctxt, builderDescRef, deserBuilder);
+        if (deserBuilder.getObjectIdReader() == null) {
+            addObjectIdReader(ctxt, valueBeanDescRef, deserBuilder);
+        }
 
         // managed/back reference fields/setters need special handling... first part
         // [databind#2686]: For Builder pattern, pass target type so that back-reference
@@ -390,10 +414,16 @@ public class BeanDeserializerFactory
             PropertyName propName = objectIdInfo.getPropertyName();
             idProp = deserBuilder.findProperty(propName);
             if (idProp == null) {
-                throw new IllegalArgumentException(String.format(
-"Invalid Object Id definition for %s: cannot find property with name %s",
-ClassUtil.getTypeDescription(beanDescRef.getType()),
-ClassUtil.name(propName)));
+                // [databind#4014]: For abstract types (interfaces, abstract classes),
+                // the builder may not have settable properties (no setter/field).
+                // Concrete subtype deserializers will set up their own ObjectIdReader,
+                // so we can safely skip it here for the abstract type.
+                if (beanDescRef.getType().isAbstract()) {
+                    return;
+                }
+                throw new IllegalArgumentException("Invalid Object Id definition for %s: cannot find property with name %s".formatted(
+                        ClassUtil.getTypeDescription(beanDescRef.getType()),
+                        ClassUtil.name(propName)));
             }
             idType = idProp.getType();
             gen = new PropertyBasedObjectIdGenerator(objectIdInfo.getScope());
@@ -421,6 +451,35 @@ ClassUtil.name(propName)));
         addBeanProps(ctxt, beanDescRef, deserBuilder);
         // (and assume there won't be any back references)
 
+        // [databind#6190]: Standard Throwable properties without explicit @JsonView
+        // must not have default views (NO_VIEWS) forced on them, so they remain
+        // included under any active view.
+        final BeanDescription beanDesc = beanDescRef.get();
+        // ... but a class-level `@JsonView` is explicit intent covering every property of
+        // the class, so it must be honored too (see `explicitClassViews()` for why the
+        // "no annotation at all" case cannot simply be read off `findDefaultViews()`)
+        final Class<?>[] classViews = ThrowableDeserializer.explicitClassViews(config, beanDesc);
+        // Explicit views on the "cause" property, if any: captured in this same pass, for
+        // use below where the property is replaced with the `initCause()`-backed one
+        Class<?>[] causeViews = null;
+        for (BeanPropertyDefinition propDef : beanDesc.findProperties()) {
+            final String internalName = propDef.getInternalName();
+            if (!ThrowableDeserializer.STD_PROP_NAMES.contains(internalName)) {
+                continue;
+            }
+            final Class<?>[] propViews = propDef.findViews();
+            if ((causeViews == null) && (propViews != null)
+                    && ThrowableDeserializer.PROP_NAME_CAUSE.equals(internalName)) {
+                causeViews = propViews;
+            }
+            if ((propViews == null) && (classViews == null)) {
+                SettableBeanProperty prop = deserBuilder.findProperty(PropertyName.construct(propDef.getName()));
+                if (prop != null) {
+                    prop.setViews(null);
+                }
+            }
+        }
+
         // But then let's decorate things a bit
         // Need to add "initCause" as setter for exceptions (sub-classes of Throwable).
         // 26-May-2022, tatu: [databind#3275] Looks like JDK 12 added "setCause()"
@@ -434,7 +493,7 @@ ClassUtil.name(propName)));
                 break;
             }
         }
-        AnnotatedMethod am = beanDescRef.get().findMethod("initCause", INIT_CAUSE_PARAMS);
+        AnnotatedMethod am = beanDesc.findMethod("initCause", INIT_CAUSE_PARAMS);
         if (am != null) { // should never be null
             SettableBeanProperty causeCreatorProp = deserBuilder.findProperty(PropertyName.construct("cause"));
             // [databind#4827] : Consider case where sub-classed `Exception` has `JsonCreator` with `cause` parameter
@@ -453,6 +512,16 @@ ClassUtil.name(propName)));
                 SettableBeanProperty prop = constructSettableProperty(ctxt, beanDescRef, propDef,
                         am.getParameterType(0));
                 if (prop != null) {
+                    // [databind#6190]: If cause has explicit @JsonView on initCause or getCause, honor it
+                    Class<?>[] views = propDef.findViews();
+                    if (views == null) {
+                        // ...else views found on the "cause" property above, else the
+                        // class-level `@JsonView` (if any)
+                        views = (causeViews != null) ? causeViews : classViews;
+                    }
+                    if (views != null) {
+                        prop.setViews(views);
+                    }
                     // 21-Aug-2011, tatus: We may actually have found 'cause' property
                     //   to set... but let's replace it just in case, otherwise can end up with odd errors.
                     deserBuilder.addOrReplaceProperty(prop, true);
@@ -470,7 +539,7 @@ ClassUtil.name(propName)));
         // At this point it ought to be a BeanDeserializer; if not, must assume
         // it's some other thing that can handle deserialization ok...
         if (deserializer instanceof BeanDeserializer beanDeserializer) {
-            deserializer = ThrowableDeserializer.construct(ctxt, beanDeserializer);
+            deserializer = ThrowableDeserializer.construct(ctxt, beanDeserializer, beanDescRef);
         }
 
         // may have modifier(s) that wants to modify or replace serializer we just built:
@@ -516,15 +585,13 @@ ClassUtil.name(propName)));
         final boolean hasCreatorProps = (creatorProps != null);
 
         // Class-level ignorals (annotation + config overrides): pre-computed during
-        // property collection, so no second findPropertyIgnoralByName() call needed.
+        // property collection. Surface the direction-specific name set so we can
+        // pass it to filterBeanProps() and the ignoreUnknown flag to the builder.
         JsonIgnoreProperties.Value ignorals = beanDesc.getPropertyIgnorals();
         Set<String> ignored;
         if (ignorals != null) {
             builder.setIgnoreUnknownProperties(ignorals.getIgnoreUnknown());
             ignored = ignorals.findIgnoredForDeserialization();
-            for (String propName : ignored) {
-                builder.addIgnorable(propName);
-            }
         } else {
             ignored = Collections.emptySet();
         }
@@ -545,20 +612,15 @@ ClassUtil.name(propName)));
         SettableAnyProperty anySetter = _resolveAnySetter(ctxt, beanDescRef, creatorProps);
         if (anySetter != null) {
             builder.setAnySetter(anySetter);
-        } else {
-            // 23-Jan-2018, tatu: although [databind#1805] would suggest we should block
-            //   properties regardless, for now only consider unless there's any setter...
-            // NOTE: getIgnoredPropertyNames() adds per-property @JsonIgnore names on top
-            //   of the class-level names already registered above; the overlap is harmless
-            //   (builder uses a Set internally).
-            Collection<String> ignored2 = beanDesc.getIgnoredPropertyNames();
-            if (ignored2 != null) {
-                for (String propName : ignored2) {
-                    // allow ignoral of similarly named JSON property, but do not force;
-                    // latter means NOT adding this to 'ignored':
-                    builder.addIgnorable(propName);
-                }
-            }
+        }
+        // [databind#5952]: register the full deser-side ignore-list (per-property
+        // @JsonIgnore, class-level @JsonIgnoreProperties, read-only access rules)
+        // unconditionally, so the any-setter does not receive properties the user
+        // explicitly marked as ignored. getIgnoredPropertyNames() returns the
+        // already-merged set with the [databind#2001] creator-rename rescue
+        // applied to per-property names only — class-level names remain absolute.
+        for (String propName : beanDesc.getIgnoredPropertyNames()) {
+            builder.addIgnorable(propName);
         }
         final boolean useGettersAsSetters = ctxt.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS);
         // 24-Sep-2017, tatu: Legacy setting removed from 3.x, not sure if other visibility checks
@@ -854,9 +916,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
             valueType = am.getParameterType(1);
             // Need to resolve for possible generic types (like Maps, Collections)
             valueType = resolveMemberAndTypeAnnotations(ctxt, mutator, valueType);
-            prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                    valueType, null, mutator,
-                    PropertyMetadata.STD_OPTIONAL);
+            prop = _constructAnySetterProperty(ctxt, mutator, valueType);
 
         } else if (isField) {
             AnnotatedField af = (AnnotatedField) mutator;
@@ -867,15 +927,13 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                 fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
                 keyType = fieldType.getKeyType();
                 valueType = fieldType.getContentType();
-                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                        fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+                prop = _constructAnySetterProperty(ctxt, mutator, valueType);
             } else if (fieldType.hasRawClass(JsonNode.class)
                     || fieldType.hasRawClass(ObjectNode.class)) {
                 fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
                 // Deserialize is individual values of ObjectNode, not full ObjectNode, so:
                 valueType = ctxt.constructType(JsonNode.class);
-                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                        fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+                prop = _constructAnySetterProperty(ctxt, mutator, valueType);
 
                 // Unlike with more complicated types, here we do not allow any annotation
                 // overrides etc but instead short-cut handling:
@@ -896,14 +954,12 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                 paramType = resolveMemberAndTypeAnnotations(ctxt, mutator, paramType);
                 keyType = paramType.getKeyType();
                 valueType = paramType.getContentType();
-                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                        paramType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+                prop = _constructAnySetterProperty(ctxt, mutator, valueType);
             } else if (paramType.hasRawClass(JsonNode.class) || paramType.hasRawClass(ObjectNode.class)) {
                 paramType = resolveMemberAndTypeAnnotations(ctxt, mutator, paramType);
                 // Deserialize is individual values of ObjectNode, not full ObjectNode, so:
                 valueType = ctxt.constructType(JsonNode.class);
-                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                        paramType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+                prop = _constructAnySetterProperty(ctxt, mutator, valueType);
 
                 // Unlike with more complicated types, here we do not allow any annotation
                 // overrides etc but instead short-cut handling:
@@ -911,12 +967,11 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                         ctxt.findRootValueDeserializer(valueType), parameterIndex);
             } else {
                 return ctxt.reportBadDefinition(beanDescRef.getType(), String.format(
-                    "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
-                    ClassUtil.getTypeDescription(paramType)));
+                        "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
+                        ClassUtil.getTypeDescription(paramType)));
             }
         } else {
-            return ctxt.reportBadDefinition(beanDescRef.getType(), String.format(
-                    "Unrecognized mutator type for any-setter: %s",
+            return ctxt.reportBadDefinition(beanDescRef.getType(), "Unrecognized mutator type for any-setter: %s".formatted(
                     ClassUtil.nameOf(mutator.getClass())));
         }
 
@@ -956,6 +1011,19 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         }
         return SettableAnyProperty.constructForMethod(ctxt,
                 prop, mutator, valueType, keyDeser, deser, typeDeser);
+    }
+
+    private BeanProperty.Std _constructAnySetterProperty(DeserializationContext ctxt,
+            AnnotatedMember mutator, JavaType propType)
+    {
+        PropertyName name = PropertyName.construct(mutator.getName());
+        BeanProperty.Std prop = new BeanProperty.Std(name, propType, null, mutator,
+                PropertyMetadata.STD_OPTIONAL);
+        PropertyMetadata metadata = _getSetterInfo(ctxt.getConfig(), prop, prop.getMetadata());
+        if (metadata != prop.getMetadata()) {
+            prop = new BeanProperty.Std(name, propType, null, mutator, metadata);
+        }
+        return prop;
     }
 
     /**
@@ -1048,12 +1116,10 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         if (ClassUtil.isProxyType(type)) {
             throw new IllegalArgumentException("Cannot deserialize Proxy class "+type.getName()+" as a Bean");
         }
-        // also: can't deserialize some local classes: static are ok; in-method not;
-        // other non-static inner classes are ok
-        typeStr = ClassUtil.isLocalType(type, true);
-        if (typeStr != null) {
-            throw new IllegalArgumentException("Cannot deserialize Class "+type.getName()+" (of type "+typeStr+") as a Bean");
-        }
+        // [databind#3229]: Local/anonymous classes cannot be instantiated but
+        //   can still be updated via `readerForUpdating()`. So let them through
+        //   here; if actual instantiation is attempted, `ValueInstantiator` will
+        //   fail with a clear error.
         return true;
     }
 
@@ -1088,6 +1154,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         return status.booleanValue();
     }
 
+    @SuppressWarnings("deprecation")
     protected void _validateSubType(DeserializationContext ctxt, JavaType type,
             BeanDescription.Supplier beanDescRef)
     {

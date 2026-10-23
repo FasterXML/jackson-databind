@@ -5,6 +5,7 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.ValueInstantiator;
@@ -22,6 +23,7 @@ import tools.jackson.databind.util.ExceptionUtil;
  * Deserializer that uses a single-String static factory method
  * for locating Enum values by String id.
  */
+@JacksonStdImpl
 class FactoryBasedEnumDeserializer
     extends StdDeserializer<Object>
 {
@@ -231,7 +233,8 @@ class FactoryBasedEnumDeserializer
     protected Object deserializeEnumUsingPropertyBased(final JsonParser p, final DeserializationContext ctxt,
     		final PropertyBasedCreator creator) throws JacksonException
     {
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null, false);
+        final Class<?> activeView = ctxt.getActiveView();
 
         JsonToken t = p.currentToken();
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
@@ -243,6 +246,11 @@ class FactoryBasedEnumDeserializer
                 continue;
             }
             if (creatorProp != null) {
+                // [databind#6261]: honor active view, same as for POJO creator properties
+                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp));
                 continue;
             }

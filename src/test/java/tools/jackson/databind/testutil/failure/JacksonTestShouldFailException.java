@@ -1,5 +1,7 @@
 package tools.jackson.databind.testutil.failure;
 
+import java.io.Serial;
+
 /**
  * Exception used to alert that a test is passing, but should be failing.
  *
@@ -10,6 +12,7 @@ package tools.jackson.databind.testutil.failure;
 public class JacksonTestShouldFailException
     extends RuntimeException
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public JacksonTestShouldFailException(String msg) {

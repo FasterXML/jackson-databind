@@ -907,10 +907,12 @@ public class ParentChildReferencesTest
     @Test
     public void testWithParentCreator() throws Exception {
         String json = a2q(
-                "{ 'id': 'abc',\n" +
-                "  'name': 'Bob',\n" +
-                "  'child': { 'id': 'def', 'name':'Bert' }\n" +
-                "}");
+                """
+                { 'id': 'abc',
+                  'name': 'Bob',
+                  'child': { 'id': 'def', 'name':'Bert' }
+                }
+                """);
         ParentWithCreator result = MAPPER.readValue(json, ParentWithCreator.class);
         assertNotNull(result);
         assertNotNull(result.child);
@@ -921,10 +923,12 @@ public class ParentChildReferencesTest
     @Test
     public void testWithParentNoCreator() throws Exception {
         String json = a2q(
-                "{ 'id': 'abc',\n" +
-                "  'name': 'Bob',\n" +
-                "  'child': { 'id': 'def', 'name':'Bert' }\n" +
-                "}");
+                """
+                { 'id': 'abc',
+                  'name': 'Bob',
+                  'child': { 'id': 'def', 'name':'Bert' }
+                }
+                """);
         ParentWithoutCreator result = MAPPER.readValue(json, ParentWithoutCreator.class);
         assertNotNull(result);
         assertNotNull(result.child);

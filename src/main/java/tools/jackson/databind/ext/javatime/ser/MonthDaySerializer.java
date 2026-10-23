@@ -49,14 +49,15 @@ public class MonthDaySerializer extends JSR310FormattedSerializerBase<MonthDay>
         super(MonthDay.class, formatter);
     }
 
-    private MonthDaySerializer(MonthDaySerializer base, DateTimeFormatter dtf, Boolean useTimestamp) {
-        super(base, dtf, useTimestamp, null, null);
+    private MonthDaySerializer(MonthDaySerializer base, DateTimeFormatter dtf, Boolean useTimestamp,
+            JsonFormat.Shape shape) {
+        super(base, dtf, useTimestamp, null, shape);
     }
 
     @Override
     protected MonthDaySerializer withFormat(DateTimeFormatter dtf,
             Boolean useTimestamp, JsonFormat.Shape shape) {
-        return new MonthDaySerializer(this, dtf, useTimestamp);
+        return new MonthDaySerializer(this, dtf, useTimestamp, shape);
     }
 
     @Override

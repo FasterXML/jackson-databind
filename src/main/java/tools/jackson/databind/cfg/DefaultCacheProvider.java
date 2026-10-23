@@ -1,5 +1,7 @@
 package tools.jackson.databind.cfg;
 
+import java.io.Serial;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.DeserializerCache;
 import tools.jackson.databind.ser.SerializerCache;
@@ -17,6 +19,7 @@ import tools.jackson.databind.util.TypeKey;
 public class DefaultCacheProvider
     implements CacheProvider
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final static DefaultCacheProvider DEFAULT
@@ -132,19 +135,19 @@ public class DefaultCacheProvider
          * Maximum Size of the {@link LookupCache} instance created by {@link #forDeserializerCache(DeserializationConfig)}.
          * Corresponds to {@link DefaultCacheProvider#_maxDeserializerCacheSize}.
          */
-        private int _maxDeserializerCacheSize;
+        private int _maxDeserializerCacheSize = DeserializerCache.DEFAULT_MAX_CACHE_SIZE;
 
         /**
          * Maximum Size of the {@link LookupCache} instance created by {@link #forSerializerCache(SerializationConfig)}
          * Corresponds to {@link DefaultCacheProvider#_maxSerializerCacheSize}.
          */
-        private int _maxSerializerCacheSize;
+        private int _maxSerializerCacheSize = SerializerCache.DEFAULT_MAX_CACHE_SIZE;
 
         /**
          * Maximum Size of the {@link LookupCache} instance created by {@link #forTypeFactory()}.
          * Corresponds to {@link DefaultCacheProvider#_maxTypeFactoryCacheSize}.
          */
-        private int _maxTypeFactoryCacheSize;
+        private int _maxTypeFactoryCacheSize = TypeFactory.DEFAULT_MAX_CACHE_SIZE;
 
         Builder() { }
 

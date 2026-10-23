@@ -88,6 +88,18 @@ public class AnySetterTest extends DatabindTestUtil
         }
     }
 
+    // [databind#5952]
+    static class UserWithAnySetter5952
+    {
+        public String name;
+
+        @JsonIgnore
+        public String sensitiveField;
+
+        @JsonAnySetter
+        public Map<String, Object> extras = new HashMap<>();
+    }
+
     static class Bean744
     {
         protected Map<String,Object> additionalProperties;
@@ -324,10 +336,9 @@ public class AnySetterTest extends DatabindTestUtil
         assertEquals(Integer.valueOf(3), result.get("a"));
         assertEquals(Boolean.TRUE, result.get("b"));
         Object ob = result.get("c");
-        assertInstanceOf(List.class, ob);
-        List<?> l = (List<?>)ob;
+        List<?> l = assertInstanceOf(List.class, ob);
         assertEquals(3, l.size());
-        assertEquals(Integer.valueOf(3), l.get(2));
+        assertEquals(3, l.get(2));
     }
 
     @Test
@@ -385,13 +396,30 @@ public class AnySetterTest extends DatabindTestUtil
         _testIgnorals(mapper);
     }
 
+    // [databind#5952]: per-property @JsonIgnore must block routing to any-setter
+    @Test
+    public void testJsonIgnoreFieldNotPassedToAnySetter5952() throws Exception
+    {
+        UserWithAnySetter5952 u = MAPPER.readValue(
+                a2q("{'name':'alice','sensitiveField':'secret','other':'val'}"),
+                UserWithAnySetter5952.class);
+        assertEquals("alice", u.name);
+        assertNull(u.sensitiveField);
+        assertEquals(1, u.extras.size());
+        assertEquals("val", u.extras.get("other"));
+    }
+
     @Test
     public void testProblem744() throws Exception
     {
-        Bean744 bean = MAPPER.readValue("{\"name\":\"Bob\"}", Bean744.class);
+        // [databind#5952]: @JsonIgnore on getter "getName" makes "name" an ignored
+        // property; with the per-property ignore now applied even when an any-setter
+        // is present, "name" no longer flows into the any-setter map.
+        Bean744 bean = MAPPER.readValue("{\"name\":\"Bob\",\"other\":\"val\"}", Bean744.class);
         assertNotNull(bean.additionalProperties);
         assertEquals(1, bean.additionalProperties.size());
-        assertEquals("Bob", bean.additionalProperties.get("name"));
+        assertEquals("val", bean.additionalProperties.get("other"));
+        assertNull(bean.additionalProperties.get("name"));
     }
 
     @Test
@@ -416,8 +444,8 @@ public class AnySetterTest extends DatabindTestUtil
         assertEquals(1, result.props.size());
         Base ob = result.props.get("a");
         assertNotNull(ob);
-        assertInstanceOf(Impl.class, ob);
-        assertEquals("xyz", ((Impl) ob).value);
+        Impl impl = assertInstanceOf(Impl.class, ob);
+        assertEquals("xyz", impl.value);
     }
 
     @Test
@@ -587,10 +615,11 @@ public class AnySetterTest extends DatabindTestUtil
     private void _testIgnorals(ObjectMapper mapper) throws Exception
     {
         Ignored bean = mapper.readValue("{\"name\":\"Bob\", \"bogus\": [ 1, 2, 3], \"dummy\" : 13 }", Ignored.class);
-        // as of 2.0, @JsonIgnoreProperties does block; @JsonIgnore not
+        // [databind#5952]: both @JsonIgnoreProperties (class-level) and @JsonIgnore
+        // (per-property) must block routing to the any-setter
         assertNull(bean.map.get("dummy"));
-        assertEquals("[1, 2, 3]", ""+bean.map.get("bogus"));
+        assertNull(bean.map.get("bogus"));
         assertEquals("Bob", bean.map.get("name"));
-        assertEquals(2, bean.map.size());
+        assertEquals(1, bean.map.size());
     }
 }

@@ -1,5 +1,7 @@
 package tools.jackson.databind;
 
+import java.io.Serial;
+
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedField;
 import tools.jackson.databind.introspect.AnnotatedMethod;
@@ -31,6 +33,7 @@ import tools.jackson.databind.introspect.AnnotatedParameter;
 public class PropertyNamingStrategy
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 2L;
 
     /*

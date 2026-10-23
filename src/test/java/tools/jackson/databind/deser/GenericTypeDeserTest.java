@@ -59,7 +59,7 @@ public class GenericTypeDeserTest
 
         @Override
         public boolean equals(Object o) {
-            return (o instanceof Wrapper<?>) && (((Wrapper<?>) o).value.equals(value));
+            return (o instanceof Wrapper<?> w) && (w.value.equals(value));
         }
     }
 

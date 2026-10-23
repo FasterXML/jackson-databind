@@ -5,6 +5,7 @@ import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.ser.BeanPropertyWriter;
+import tools.jackson.databind.ser.PropertyFilter;
 import tools.jackson.databind.util.NameTransformer;
 
 /**
@@ -69,6 +70,21 @@ public abstract class FilteredBeanPropertyWriter
             }
         }
 
+        // [databind#6136]: apply the view check first, then let the delegate route
+        // filtering (so an any-getter delegate still filters per entry)
+        @Override
+        public void serializeFilteredAsProperty(Object bean, JsonGenerator gen,
+                SerializationContext prov, PropertyFilter filter)
+            throws Exception
+        {
+            Class<?> activeView = prov.getActiveView();
+            if (activeView == null || _view.isAssignableFrom(activeView)) {
+                _delegate.serializeFilteredAsProperty(bean, gen, prov, filter);
+            } else {
+                _delegate.serializeAsOmittedProperty(bean, gen, prov);
+            }
+        }
+
         @Override
         public void serializeAsElement(Object bean, JsonGenerator gen, SerializationContext prov)
             throws Exception
@@ -126,6 +142,20 @@ public abstract class FilteredBeanPropertyWriter
         {
             if (_inView(prov.getActiveView())) {
                 _delegate.serializeAsProperty(bean, gen, prov);
+                return;
+            }
+            _delegate.serializeAsOmittedProperty(bean, gen, prov);
+        }
+
+        // [databind#6136]: apply the view check first, then let the delegate route
+        // filtering (so an any-getter delegate still filters per entry)
+        @Override
+        public void serializeFilteredAsProperty(Object bean, JsonGenerator gen,
+                SerializationContext prov, PropertyFilter filter)
+            throws Exception
+        {
+            if (_inView(prov.getActiveView())) {
+                _delegate.serializeFilteredAsProperty(bean, gen, prov, filter);
                 return;
             }
             _delegate.serializeAsOmittedProperty(bean, gen, prov);

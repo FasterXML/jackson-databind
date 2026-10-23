@@ -1,5 +1,6 @@
 package tools.jackson.databind.jsontype;
 
+import java.io.Serial;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,6 +28,7 @@ public class DefaultBaseTypeLimitingValidator
     extends PolymorphicTypeValidator
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Override
@@ -73,6 +75,8 @@ ClassUtil.classNameOf(getClass()), ClassUtil.classNameOf(baseType.getRawClass())
      *  <li>{@link java.io.Serializable}</li>
      *  <li>{@link java.lang.AutoCloseable}</li>
      *  <li>{@link java.lang.Cloneable}</li>
+     *  <li>{@link java.lang.Comparable} (2.18.10+)</li>
+     *  <li>{@link java.lang.Runnable} (2.19.0+)</li>
      *  <li>{@link java.util.logging.Handler}</li>
      *  <li>{@link javax.naming.Referenceable}</li>
      *  <li>{@link javax.sql.DataSource}</li>
@@ -114,6 +118,8 @@ ClassUtil.classNameOf(getClass()), ClassUtil.classNameOf(baseType.getRawClass())
             UNSAFE.add(java.io.Serializable.class.getName());
             UNSAFE.add(AutoCloseable.class.getName());
             UNSAFE.add(Cloneable.class.getName());
+            // [databind#6156]: "Comparable" added as well.
+            UNSAFE.add(Comparable.class.getName());
             // [databind#5014]:
             UNSAFE.add(Runnable.class.getName());
 

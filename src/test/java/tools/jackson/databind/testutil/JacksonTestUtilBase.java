@@ -97,7 +97,7 @@ public class JacksonTestUtilBase
         String lmsg = (msg == null) ? "" : msg.toLowerCase();
         for (String match : anyMatches) {
             String lmatch = match.toLowerCase();
-            if (lmsg.indexOf(lmatch) >= 0) {
+            if (lmsg.contains(lmatch)) {
                 return;
             }
         }
@@ -150,7 +150,15 @@ public class JacksonTestUtilBase
     }
 
     public String utf8String(ByteArrayOutputStream bytes) {
-        return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
+        return bytes.toString(StandardCharsets.UTF_8);
+    }
+
+    public String utf8String(byte[] bytes) {
+        return new String(bytes, StandardCharsets.UTF_8);
+    }
+
+    public static String repeatString(String str, int repeatCount) {
+        return str.repeat(repeatCount);
     }
 
     /*
@@ -200,14 +208,11 @@ public class JacksonTestUtilBase
     @SuppressWarnings("unchecked")
     public static <T> T jdkDeserialize(byte[] raw) throws IOException
     {
-        ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(raw));
-        try {
+        try (ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(raw))) {
             return (T) objIn.readObject();
         } catch (ClassNotFoundException e) {
             fail("Missing class: "+e.getMessage());
             return null;
-        } finally {
-            objIn.close();
         }
     }
 }

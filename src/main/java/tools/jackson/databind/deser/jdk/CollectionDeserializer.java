@@ -191,8 +191,8 @@ public class CollectionDeserializer
                 JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
                     ctxt.reportBadDefinition(_containerType, String.format(
-"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
-_containerType,
+                            "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
+                            _containerType,
                             _valueInstantiator.getClass().getName()));
                 }
                 delegateDeser = findDeserializer(ctxt, delegateType, property);
@@ -200,7 +200,7 @@ _containerType,
                 JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
                     ctxt.reportBadDefinition(_containerType, String.format(
-"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
+                            "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
                             _containerType,
                             _valueInstantiator.getClass().getName()));
                 }
@@ -326,6 +326,11 @@ _containerType,
         throws JacksonException
     {
         final Class<?> rawTargetType = handledType();
+
+        // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+        if (value == null) {
+            return (Collection<Object>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        }
 
         // 05-Nov-2020, ckozak: As per [jackson-databind#2922] string values may be handled
         // using handleNonArray, however empty strings may result in a null or empty collection
@@ -612,9 +617,35 @@ _containerType,
         private final Collection<Object> _result;
 
         /**
-         * A list of {@link CollectionReferring} to maintain ordering.
+         * Values read at or after the first still unresolved reference, in encounter
+         * order: plain values, and {@link CollectionReferring}s for references (resolved
+         * or not). Values are moved to the result collection from the front (starting at
+         * {@link #_pendingStart}) once no unresolved reference precedes them: this retains
+         * ordering while moving each value just once -- instead of merging buffers of
+         * resolved references into preceding ones, which takes O(N^2) time when
+         * references resolve in reverse order (see [databind#6204]).
          */
-        private List<CollectionReferring> _accumulator = new ArrayList<>();
+        private final List<Object> _pending = new ArrayList<>();
+
+        /**
+         * Index of the first entry in {@link #_pending} not yet moved to the result.
+         */
+        private int _pendingStart;
+
+        /**
+         * Lookup from unresolved id to the -- usually single -- {@link CollectionReferring}s
+         * with that id, in encounter order. Without this, resolution would need to scan
+         * all pending references to find the matching one, which makes resolving N
+         * references take O(N^2) time (see [databind#6204]).
+         */
+        private final Map<Object, Deque<CollectionReferring>> _unresolvedById = new HashMap<>();
+
+        /**
+         * Identity set of items already replaced in a {@link HashSet} result (when
+         * rebound), to avoid scanning the result for each further reference to them.
+         * Lazily created.
+         */
+        private Set<Object> _replacedSetItems;
 
         public CollectionReferringAccumulator(Class<?> elementType, Collection<Object> result) {
             _elementType = elementType;
@@ -623,52 +654,188 @@ _containerType,
 
         public void add(Object value)
         {
-            if (_accumulator.isEmpty()) {
+            if (_pendingStart == _pending.size()) {
                 _result.add(value);
             } else {
-                CollectionReferring ref = _accumulator.get(_accumulator.size() - 1);
-                ref.next.add(value);
+                _pending.add(value);
             }
         }
 
         public Referring handleUnresolvedReference(UnresolvedForwardReference reference)
         {
             CollectionReferring id = new CollectionReferring(this, reference, _elementType);
-            _accumulator.add(id);
+            _pending.add(id);
+            // Ids are usable as hash keys: `ObjectIdResolver`s already rely on that
+            Deque<CollectionReferring> refs = _unresolvedById.get(reference.getUnresolvedId());
+            if (refs == null) {
+                refs = new ArrayDeque<>(2);
+                _unresolvedById.put(reference.getUnresolvedId(), refs);
+            }
+            refs.add(id);
             return id;
         }
 
         public void resolveForwardReference(DeserializationContext ctxt, Object id, Object value) throws JacksonException
         {
-            Iterator<CollectionReferring> iterator = _accumulator.iterator();
-            // Resolve ordering after resolution of an id. This mean either:
-            // 1- adding to the result collection in case of the first unresolved id.
-            // 2- merge the content of the resolved id with its previous unresolved id.
-            Collection<Object> previous = _result;
-            while (iterator.hasNext()) {
-                CollectionReferring ref = iterator.next();
-                if (ref.hasId(id)) {
-                    iterator.remove();
-                    previous.add(value);
-                    previous.addAll(ref.next);
+            Deque<CollectionReferring> refs = _unresolvedById.get(id);
+            if (refs == null) {
+                throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
+                        + "] that wasn't previously seen as unresolved.");
+            }
+            CollectionReferring ref = refs.removeFirst();
+            if (refs.isEmpty()) {
+                _unresolvedById.remove(id);
+            }
+            ref.resolve(value);
+
+            // Move values no longer preceded by an unresolved reference to the result
+            final int end = _pending.size();
+            int i = _pendingStart;
+            for (; i < end; ++i) {
+                Object pending = _pending.get(i);
+                if (pending instanceof CollectionReferring) {
+                    CollectionReferring pendingRef = (CollectionReferring) pending;
+                    if (!pendingRef.isResolved()) {
+                        break;
+                    }
+                    pendingRef.markMoved((_result instanceof List<?>) ? _result.size() : -1);
+                    pending = pendingRef.resolvedValue();
+                }
+                _result.add(pending);
+                _pending.set(i, null);
+            }
+            if (i == end) {
+                _pending.clear();
+                _pendingStart = 0;
+            } else {
+                _pendingStart = i;
+            }
+        }
+
+        /**
+         * Replace a resolved item in the result collection. Called when the bound
+         * item is rebound (e.g., builder → built object) via
+         * {@link Referring#handleItemRebind}.
+         *
+         * @param oldItem Item to replace (Builder)
+         * @param newItem Item to replace {@code oldItem} with (Built value)
+         *
+         * @since 3.2
+         */
+        public void replaceResolvedItem(Object oldItem, Object newItem) {
+            if (_result instanceof List<?>) {
+                @SuppressWarnings("unchecked")
+                List<Object> list = (List<Object>) _result;
+                for (int i = 0, len = list.size(); i < len; i++) {
+                    if (list.get(i) == oldItem) {
+                        list.set(i, newItem);
+                    }
+                }
+            } else if (_containsIdentity(_result, oldItem)) {
+                // Non-list collections (e.g. LinkedHashSet, TreeSet): snapshot,
+                // clear, and replay with substitution so insertion order /
+                // comparator-based ordering is preserved and counts stay correct
+                // for any Collection impl.
+                List<Object> snapshot = new ArrayList<>(_result);
+                _result.clear();
+                for (Object item : snapshot) {
+                    _result.add(item == oldItem ? newItem : item);
+                }
+            }
+            // Same item may also still be pending, if an earlier forward reference has
+            // not yet been resolved: as the value of a resolved reference, or as a plain
+            // value (see [databind#6204] for the pending list)
+            for (int i = _pendingStart, end = _pending.size(); i < end; ++i) {
+                Object pending = _pending.get(i);
+                if (pending instanceof CollectionReferring) {
+                    CollectionReferring ref = (CollectionReferring) pending;
+                    if (ref.isResolved() && (ref.resolvedValue() == oldItem)) {
+                        ref.resolve(newItem);
+                    }
+                } else if (pending == oldItem) {
+                    _pending.set(i, newItem);
+                }
+            }
+        }
+
+        /**
+         * Replace the item resolved for given reference, after the bound item is rebound
+         * (e.g., builder → built object). Unlike {@link #replaceResolvedItem(Object, Object)},
+         * only replaces the slot of the reference itself (other references to the same
+         * item get calls of their own) where possible: scanning the whole collection
+         * instead would make rebinding N references take O(N^2) time.
+         *
+         * @since 3.2.3
+         */
+        void replaceResolvedItem(CollectionReferring ref, Object oldItem, Object newItem) {
+            if (ref.resolvedValue() == oldItem) {
+                ref.resolve(newItem);
+                // Still pending: will be moved to result as is
+                if (!ref.isMoved()) {
                     return;
                 }
-                previous = ref.next;
+                final int index = ref.resultIndex();
+                if (index >= 0) {
+                    @SuppressWarnings("unchecked")
+                    List<Object> list = (List<Object>) _result;
+                    if ((index < list.size()) && (list.get(index) == oldItem)) {
+                        list.set(index, newItem);
+                        return;
+                    }
+                } else if (_result.getClass() == HashSet.class) {
+                    // Unordered so position need not be retained
+                    if (_replacedSetItems == null) {
+                        _replacedSetItems = Collections.newSetFromMap(new IdentityHashMap<>());
+                    }
+                    // Already replaced via another reference to it? (must check by
+                    // identity: an equal but different built value may be present)
+                    if (!_replacedSetItems.add(oldItem)) {
+                        return;
+                    }
+                    if (_result.remove(oldItem)) {
+                        _result.add(newItem);
+                        return;
+                    }
+                    // Not found: hash code of `oldItem` changed after being added
+                    // (need to scan)
+                }
             }
+            // Ordered Sets and other Collections (or List modified by caller): need to
+            // replace by scanning, to retain ordering
+            replaceResolvedItem(oldItem, newItem);
+        }
 
-            throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
-                    + "] that wasn't previously seen as unresolved.");
+        // @since 3.2
+        private static boolean _containsIdentity(Collection<?> coll, Object target) {
+            for (Object item : coll) {
+                if (item == target) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
     /**
-     * Helper class to maintain processing order of value. The resolved
-     * object associated with {@code #id} parameter from {@link #handleResolvedForwardReference(DeserializationContext, Object, Object)} 
-     * comes before the values in {@link #next}.
+     * Placeholder for a value that is a forward reference, to maintain processing order
+     * of values: holds the resolved value, once the reference has been resolved.
      */
     private final static class CollectionReferring extends Referring {
         private final CollectionReferringAccumulator _parent;
-        public final List<Object> next = new ArrayList<>();
+
+        private boolean _resolved;
+        private Object _value;
+
+        /**
+         * Whether resolved value has been moved to the result collection.
+         */
+        private boolean _moved;
+
+        /**
+         * Index of the resolved value in the result collection, if moved there and
+         * result is a {@link List}; -1 otherwise.
+         */
+        private int _resultIndex = -1;
 
         CollectionReferring(CollectionReferringAccumulator parent,
                 UnresolvedForwardReference reference, Class<?> contentType)
@@ -677,9 +844,32 @@ _containerType,
             _parent = parent;
         }
 
+        void resolve(Object value) {
+            _value = value;
+            _resolved = true;
+        }
+
+        boolean isResolved() { return _resolved; }
+
+        Object resolvedValue() { return _value; }
+
+        void markMoved(int resultIndex) {
+            _moved = true;
+            _resultIndex = resultIndex;
+        }
+
+        boolean isMoved() { return _moved; }
+
+        int resultIndex() { return _resultIndex; }
+
         @Override
         public void handleResolvedForwardReference(DeserializationContext ctxt, Object id, Object value) throws JacksonException {
             _parent.resolveForwardReference(ctxt, id, value);
+        }
+
+        @Override
+        public void handleItemRebind(Object oldItem, Object newItem) {
+            _parent.replaceResolvedItem(this, oldItem, newItem);
         }
     }
 

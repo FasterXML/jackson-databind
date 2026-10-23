@@ -1,6 +1,7 @@
 package perf;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import tools.jackson.core.type.TypeReference;
@@ -38,7 +39,7 @@ public class ManualReadWithTypeResolution
         _desc2 = "Generic type";
         _mapper = new JsonMapper();
 
-        _input = "[\"value\",\"123\"]".getBytes("UTF-8");
+        _input = "[\"value\",\"123\"]".getBytes(StandardCharsets.UTF_8);
         _inputType = List.class;
         _inputTypeRef = new TypeReference<List<String>>() { };
 
@@ -73,18 +74,17 @@ public class ManualReadWithTypeResolution
             String msg;
             double msesc;
 
-            switch (type) {
-            case 0:
-                msesc = testDeser(REPS, _input, _mapper, _inputType);
-                msg = _desc1;
-                break;
-            case 1:
-                msesc = testDeser(REPS, _input, _mapper, _inputTypeRef);
-                msg = _desc2;
-                break;
-            default:
-                throw new Error();
-            }
+            msg = switch (type) {
+                case 0 -> {
+                    msesc = testDeser(REPS, _input, _mapper, _inputType);
+                    yield _desc1;
+                }
+                case 1 -> {
+                    msesc = testDeser(REPS, _input, _mapper, _inputTypeRef);
+                    yield _desc2;
+                }
+                default -> throw new Error();
+            };
             updateStats(type, (i % 17) == 0, msg, msesc);
         }
     }

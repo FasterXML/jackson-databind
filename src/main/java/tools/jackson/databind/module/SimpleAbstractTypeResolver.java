@@ -1,5 +1,6 @@
 package tools.jackson.databind.module;
 
+import java.io.Serial;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
@@ -30,6 +31,7 @@ public class SimpleAbstractTypeResolver
     extends AbstractTypeResolver
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

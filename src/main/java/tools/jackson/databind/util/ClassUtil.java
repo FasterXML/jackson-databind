@@ -12,6 +12,7 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.util.Named;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.annotation.JacksonStdImpl;
@@ -250,6 +251,17 @@ public final class ClassUtil
         return (cls == CLS_OBJECT) || cls.isPrimitive();
     }
 
+    /**
+     * Whether given type is one that all array types are assignable to:
+     * {@code Object}, {@code Serializable} or {@code Cloneable}.
+     *
+     * @since 3.1.8
+     */
+    public static boolean isArraySuperType(Class<?> cls) {
+        return (cls == CLS_OBJECT) || (cls == java.io.Serializable.class)
+                || (cls == Cloneable.class);
+    }
+
     public static boolean hasClass(Object inst, Class<?> raw) {
         // 10-Nov-2016, tatu: Could use `Class.isInstance()` if we didn't care
         //    about being exactly that type
@@ -260,9 +272,8 @@ public final class ClassUtil
             String method)
     {
         if (instance.getClass() != expType) {
-            throw new IllegalStateException(String.format(
-                    "Sub-class %s (of class %s) must override method '%s'",
-                instance.getClass().getName(), expType.getName(), method));
+            throw new IllegalStateException("Sub-class %s (of class %s) must override method '%s'".formatted(
+                    instance.getClass().getName(), expType.getName(), method));
         }
     }
 
@@ -443,6 +454,27 @@ public final class ClassUtil
             throw JacksonIOException.construct(ioException, g);
         }
         throw new RuntimeException(fail);
+    }
+
+    /**
+     * Helper method for converting an exception thrown by {@link AutoCloseable#close()}
+     * into {@link JacksonException}: needed since {@code close()} may throw any checked
+     * {@code Exception} (and not just {@link IOException} as {@link Closeable} does), and
+     * such failure must not be leaked as plain {@link RuntimeException}.
+     *
+     * @since 3.3
+     */
+    public static JacksonException closeFailureAsJacksonE(JsonGenerator g,
+            AutoCloseable value, Exception fail)
+    {
+        if (fail instanceof JacksonException jacksonException) { // pass through as-is
+            return jacksonException;
+        }
+        if (fail instanceof IOException ioException) {
+            return JacksonIOException.construct(ioException, g);
+        }
+        return DatabindException.from(g, String.format("Failed to close value of type %s: %s",
+                classNameOf(value), exceptionMessage(fail)), fail);
     }
 
     /*
@@ -873,8 +905,7 @@ public final class ClassUtil
             if ("InaccessibleObjectException".equals(e.getClass().getSimpleName())) {
                 return;
             }
-            throw new IllegalArgumentException(String.format(
-                    "Failed to call `setAccess()` on %s '%s' (of class %s) due to `%s`, problem: %s",
+            throw new IllegalArgumentException("Failed to call `setAccess()` on %s '%s' (of class %s) due to `%s`, problem: %s".formatted(
                     member.getClass().getSimpleName(), member.getName(),
                     nameOf(member.getDeclaringClass()),
                     e.getClass().getName(), e.getMessage()), e);
@@ -1118,9 +1149,8 @@ public final class ClassUtil
     private static Method[] _failGetClassMethods(Class<?> cls, Throwable rootCause)
             throws IllegalArgumentException
     {
-        throw new IllegalArgumentException(String.format(
-"Failed on call to `getDeclaredMethods()` on class `%s`, problem: (%s) %s",
-cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
+        throw new IllegalArgumentException("Failed on call to `getDeclaredMethods()` on class `%s`, problem: (%s) %s".formatted(
+                cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
                 rootCause);
     }
 
@@ -1242,8 +1272,7 @@ cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
                 return f;
             }
             // If not found, indicate with exception
-            throw new IllegalStateException(String.format(
-"No field named '%s' in class '%s'", expectedName, fromClass.getName()));
+            throw new IllegalStateException("No field named '%s' in class '%s'".formatted(expectedName, fromClass.getName()));
         }
     }
 

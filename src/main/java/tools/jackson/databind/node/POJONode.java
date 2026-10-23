@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
@@ -18,6 +19,7 @@ import tools.jackson.databind.util.ClassUtil;
 public class POJONode
     extends ValueNode
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     protected final Object _value;
@@ -327,8 +329,8 @@ public class POJONode
 
     @Override
     public BigInteger asBigInteger(BigInteger defaultValue) {
-        // If not a Number (including `null`), return default
-        if (!(_value instanceof Number)) {
+        // If not a Number (including `null`), or scale out of range, return default
+        if (!(_value instanceof Number) || !_bigIntegerScaleInRange()) {
             return defaultValue;
         }
 
@@ -338,8 +340,8 @@ public class POJONode
 
     @Override
     public Optional<BigInteger> asBigIntegerOpt() {
-        // If not a Number (including `null`), return empty
-        if (!(_value instanceof Number)) {
+        // If not a Number (including `null`), or scale out of range, return empty
+        if (!(_value instanceof Number) || !_bigIntegerScaleInRange()) {
             return Optional.empty();
         }
 
@@ -522,18 +524,33 @@ public class POJONode
         return null;
     }
 
-    // extract BigInteger from Number, or return null if range check fails
+    // extract BigInteger from Number, or return null if not a Number; throws
+    // `StreamConstraintsException` if `BigDecimal` scale magnitude exceeds limit
     protected BigInteger _extractAsBigInteger() {
         if (_value instanceof Number N) {
             if (N instanceof BigInteger big) {
                 return big;
             } else if (N instanceof BigDecimal dec) {
+                // [databind#6214]: guard against excessive scale magnitude
+                StreamReadConstraints.defaults().validateBigIntegerScale(dec.scale());
                 return dec.toBigInteger();
             } else {
                 return BigInteger.valueOf(N.longValue());
             }
         }
         return null;
+    }
+
+    // [databind#6214]: whether conversion to `BigInteger` is within scale limit;
+    // called by non-throwing accessors, which need to return default/empty value
+    // instead of failing.
+    private boolean _bigIntegerScaleInRange() {
+        if (_value instanceof BigDecimal dec) {
+            final int max = StreamReadConstraints.defaults().getMaxBigIntegerScale();
+            final int scale = dec.scale();
+            return (scale >= -max) && (scale <= max);
+        }
+        return true;
     }
 
     // extract Float from Number, or return null if range check fails
@@ -596,8 +613,8 @@ public class POJONode
     {
         if (_value == null) {
             ctxt.defaultSerializeNullValue(gen);
-        } else if (_value instanceof JacksonSerializable) {
-            ((JacksonSerializable) _value).serialize(gen, ctxt);
+        } else if (_value instanceof JacksonSerializable serializable) {
+            serializable.serialize(gen, ctxt);
         } else {
             // 25-May-2018, tatu: [databind#1991] do not call via generator but through context;
             //    this to preserve contextual information

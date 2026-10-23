@@ -1,5 +1,6 @@
 package tools.jackson.databind.util;
 
+import java.io.Serial;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -14,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class UniqueId
     implements java.io.Serializable, Comparable<UniqueId>
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     // Start with 0x1000 for funsies

@@ -107,20 +107,22 @@ public class ThreadSafetyWithConverterMixin5813Test
     // when the fix is absent
     @RepeatedTest(50)
     public void testConcurrentSerializationWithConverterMixin() throws Throwable {
-        final String expectedJson = a2q("{\n"
-                + "  'locales' : [ {\n"
-                + "    'code' : 'en'\n"
-                + "  }, {\n"
-                + "    'code' : 'de'\n"
-                + "  } ],\n"
-                + "  'localizedTexts' : [ {\n"
-                + "    'locale' : 'en',\n"
-                + "    'text' : 'text 1'\n"
-                + "  }, {\n"
-                + "    'locale' : 'de',\n"
-                + "    'text' : 'text 2'\n"
-                + "  } ]\n"
-                + "}");
+        final String expectedJson = """
+                {
+                  "locales" : [ {
+                    "code" : "en"
+                  }, {
+                    "code" : "de"
+                  } ],
+                  "localizedTexts" : [ {
+                    "locale" : "en",
+                    "text" : "text 1"
+                  }, {
+                    "locale" : "de",
+                    "text" : "text 2"
+                  } ]
+                }\
+                """;
 
         JsonMapper mapper = createMapper();
         MyObject myObject = mapper.readValue(expectedJson, MyObject.class);
@@ -159,7 +161,7 @@ public class ThreadSafetyWithConverterMixin5813Test
         }
 
         assertTrue(errors.isEmpty(),
-                () -> String.format("test failed with %d error(s):\n%s",
+                () -> "test failed with %d error(s):\n%s".formatted(
                         errors.size(),
                         errors.stream()
                                 .map(Throwable::toString)

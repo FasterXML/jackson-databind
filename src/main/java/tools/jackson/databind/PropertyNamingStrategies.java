@@ -1,5 +1,7 @@
 package tools.jackson.databind;
 
+import java.io.Serial;
+
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedField;
 import tools.jackson.databind.introspect.AnnotatedMethod;
@@ -13,6 +15,7 @@ import tools.jackson.databind.util.NamingStrategyImpls;
 public abstract class PropertyNamingStrategies
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /*
@@ -94,6 +97,7 @@ public abstract class PropertyNamingStrategies
     public static abstract class NamingBase
         extends PropertyNamingStrategy
     {
+        @Serial
         private static final long serialVersionUID = 3L;
 
         @Override
@@ -177,6 +181,7 @@ public abstract class PropertyNamingStrategies
      */
     public static class SnakeCaseStrategy extends NamingBase
     {
+        @Serial
         private static final long serialVersionUID = 3L;
 
         @Override
@@ -193,6 +198,7 @@ public abstract class PropertyNamingStrategies
      */
     public static class UpperSnakeCaseStrategy extends SnakeCaseStrategy
     {
+        @Serial
         private static final long serialVersionUID = 3L;
 
         @Override
@@ -207,6 +213,7 @@ public abstract class PropertyNamingStrategies
      */
     public static class LowerCamelCaseStrategy extends NamingBase
     {
+        @Serial
         private static final long serialVersionUID = 3L;
 
         @Override
@@ -230,6 +237,7 @@ public abstract class PropertyNamingStrategies
      */
     public static class UpperCamelCaseStrategy extends NamingBase
     {
+        @Serial
         private static final long serialVersionUID = 3L;
 
         /**
@@ -255,6 +263,7 @@ public abstract class PropertyNamingStrategies
      */
     public static class LowerCaseStrategy extends NamingBase
     {
+        @Serial
         private static final long serialVersionUID = 3L;
 
         @Override
@@ -271,6 +280,7 @@ public abstract class PropertyNamingStrategies
      */
     public static class KebabCaseStrategy extends NamingBase
     {
+        @Serial
         private static final long serialVersionUID = 3L;
 
         @Override
@@ -285,6 +295,7 @@ public abstract class PropertyNamingStrategies
      * as separators, uses dots. Naming convention widely used as configuration properties name.
      */
     public static class LowerDotCaseStrategy extends NamingBase {
+        @Serial
         private static final long serialVersionUID = 3L;
 
         @Override

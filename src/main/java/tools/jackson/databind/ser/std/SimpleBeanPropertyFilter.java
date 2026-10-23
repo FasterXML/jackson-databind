@@ -1,5 +1,6 @@
 package tools.jackson.databind.ser.std;
 
+import java.io.Serial;
 import java.util.*;
 
 import tools.jackson.core.JsonGenerator;
@@ -118,12 +119,15 @@ public class SimpleBeanPropertyFilter
             SerializationContext provider, PropertyWriter writer)
         throws Exception
     {
-        if (include(writer)) {
+        // [databind#6136]: `BeanSerializerBase` has any-getters filter their entries
+        // individually (each passed here as a `MapProperty`), but serializers that call
+        // filter directly with `AnyGetterWriter` need to be routed the same way
+        if (writer instanceof AnyGetterWriter anyGetterWriter) {
+            anyGetterWriter.serializeFilteredAsProperty(pojo, g, provider, this);
+        } else if (include(writer)) {
             writer.serializeAsProperty(pojo, g, provider);
         } else if (!g.canOmitProperties()) {
             writer.serializeAsOmittedProperty(pojo, g, provider);
-        } else if (writer instanceof AnyGetterWriter anyGetterWriter) {
-            anyGetterWriter.getAndFilter(pojo, g, provider, this);
         }
     }
 
@@ -161,6 +165,7 @@ public class SimpleBeanPropertyFilter
         extends SimpleBeanPropertyFilter
         implements java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         static final FilterExceptFilter EXCLUDE_ALL = new FilterExceptFilter(Collections.emptySet());
@@ -193,6 +198,7 @@ public class SimpleBeanPropertyFilter
         extends SimpleBeanPropertyFilter
         implements java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         final static SerializeExceptFilter INCLUDE_ALL = new SerializeExceptFilter(Collections.emptySet());

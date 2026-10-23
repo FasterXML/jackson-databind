@@ -162,7 +162,7 @@ public class BeanAsArrayBuilderDeserializer
         //   non-optimal exception message so...
         if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
             ctxt.reportInputMismatch(handledType(),
-                    "Unexpected JSON values; expected at most %d properties (in JSON Array)",
+                    "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                     propCount);
             // fall through
         }
@@ -233,8 +233,11 @@ public class BeanAsArrayBuilderDeserializer
                     }
                     continue;
                 }
+                // [databind#6077]: view-hidden property: fail, or skip, as per feature
+                handleUnexpectedView(p, ctxt, prop, activeView);
+                continue;
             }
-            // otherwise, skip it (view-filtered, no prop etc)
+            // otherwise, skip it (no property for this position)
             p.skipChildren();
         }
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
@@ -265,7 +268,8 @@ public class BeanAsArrayBuilderDeserializer
         throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        // [databind#5909]: builder will be rebuilt via finishBuild
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, true);
 
         final SettableBeanProperty[] props = _orderedProperties;
         final int propCount = props.length;
@@ -276,11 +280,24 @@ public class BeanAsArrayBuilderDeserializer
         for (; p.nextToken() != JsonToken.END_ARRAY; ++i) {
             SettableBeanProperty prop = (i < propCount) ? props[i] : null;
             if (prop == null) { // we get null if there are extra elements; maybe otherwise too?
+                // [databind#6043]: extra JSON Array elements past property count must
+                // honor FAIL_ON_UNKNOWN_PROPERTIES, same as the non-creator path above.
+                // Only genuinely-extra elements (past property count) count as "unknown":
+                // in-bounds null slots (e.g. from renamed/unwrapped properties) are skipped,
+                // matching the non-creator path's position-based check.
+                if (i >= propCount
+                        && !_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+                    ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
+                            "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
+                            propCount);
+                    // never gets here
+                }
                 p.skipChildren();
                 continue;
             }
+            // [databind#6077]: view-hidden property: fail, or skip, as per feature
             if ((activeView != null) && !prop.visibleInView(activeView)) {
-                p.skipChildren();
+                handleUnexpectedView(p, ctxt, prop, activeView);
                 continue;
             }
             // if we have already constructed POJO, things are simple:
@@ -321,7 +338,7 @@ public class BeanAsArrayBuilderDeserializer
                          *   but make explicitly non-supported for now.
                          */
                         return ctxt.reportBadDefinition(_beanType, String.format(
-"Cannot support implicit polymorphic deserialization for POJOs-as-Arrays style: nominal type %s, actual type %s",
+                                "Cannot support implicit polymorphic deserialization for POJOs-as-Arrays style: nominal type %s, actual type %s",
                                 ClassUtil.getTypeDescription(_beanType),
                                 builder.getClass().getName()));
                     }

@@ -1,5 +1,6 @@
 package tools.jackson.databind.introspect;
 
+import java.beans.ConstructorProperties;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -489,9 +490,149 @@ public class POJOPropertiesCollectorTest
         assertEquals(2, ignoredSer.size());
     }
 
+    // [databind#5952]: with class-level @JsonIgnoreProperties on a creator-based POJO,
+    // getIgnoredPropertyNames() must report the class-level name even when it
+    // collides with a creator parameter (where the [databind#2001] rescue path
+    // would previously have stripped it).
+    @JsonIgnoreProperties("name")
+    static class ClassIgnoredCreator5952 {
+        final int id;
+        final String name;
+
+        @JsonCreator
+        public ClassIgnoredCreator5952(@JsonProperty("id") int id,
+                @JsonProperty("name") String name) {
+            this.id = id;
+            this.name = name;
+        }
+    }
+
+    @Test
+    public void testClassLevelIgnoredSurvivesCreatorRescue5952()
+    {
+        BeanDescription desc = beanDesc(MAPPER, ClassIgnoredCreator5952.class, false);
+        Set<String> ignored = desc.getIgnoredPropertyNames();
+        assertTrue(ignored.contains("name"),
+                "class-level @JsonIgnoreProperties name must survive the creator-rename rescue: " + ignored);
+        assertEquals(1, ignored.size());
+    }
+
+    // [databind#5952]: getNonRescuedIgnoredPropertyNames() exposes the un-rescued
+    // per-property view so tooling can still see names that were "rescued" by a
+    // creator parameter renamed to the same name.
+    static class PerPropertyIgnoredCreator5952 {
+        @JsonIgnore
+        public String query;
+
+        @JsonCreator
+        public PerPropertyIgnoredCreator5952(@JsonProperty("query") String rawQuery) {
+            this.query = rawQuery;
+        }
+    }
+
+    @Test
+    public void testNonRescuedIgnoredPropertyNames5952()
+    {
+        BeanDescription desc = beanDesc(MAPPER, PerPropertyIgnoredCreator5952.class, false);
+
+        // Rescued view: "query" is overridden by the creator and should not appear.
+        Set<String> rescued = desc.getIgnoredPropertyNames();
+        assertFalse(rescued.contains("query"),
+                "per-property @JsonIgnore should be rescued by creator-rename: " + rescued);
+
+        // Un-rescued view: original ignoral declaration is still visible.
+        Set<String> unrescued = desc.getNonRescuedIgnoredPropertyNames();
+        assertTrue(unrescued.contains("query"),
+                "getNonRescuedIgnoredPropertyNames() should report the original per-property ignoral: " + unrescued);
+    }
+
+    // [databind#5952]: when multiple per-property @JsonIgnore names are rescued by
+    // creator parameters in the same type, the snapshot taken on the FIRST rescue
+    // must capture both names — not just the one that triggered the snapshot. This
+    // exercises the once-only-take semantics in _renameProperties' strip-out site.
+    //
+    // Pattern follows [databind#2001]: the creator parameters' implicit names
+    // (from @ConstructorProperties) differ from the field names, and @JsonProperty
+    // renames each parameter to match the corresponding ignored field name — that
+    // is what causes _replaceCreatorProperty to fire and the strip-out to run.
+    static class MultiRescueCreator5952 {
+        @JsonIgnore
+        public String alpha;
+
+        @JsonIgnore
+        public String beta;
+
+        @JsonCreator
+        @ConstructorProperties({"rawAlpha", "rawBeta"})
+        public MultiRescueCreator5952(
+                @JsonProperty("alpha") String alpha,
+                @JsonProperty("beta") String beta) {
+            this.alpha = alpha;
+            this.beta = beta;
+        }
+    }
+
+    @Test
+    public void testMultiRescueSnapshotCapturesAllNames5952()
+    {
+        BeanDescription desc = beanDesc(MAPPER, MultiRescueCreator5952.class, false);
+
+        // Rescued view: both per-property @JsonIgnore names are overridden by creator
+        // parameters and should be absent.
+        Set<String> rescued = desc.getIgnoredPropertyNames();
+        assertFalse(rescued.contains("alpha"),
+                "alpha should be rescued by creator-rename: " + rescued);
+        assertFalse(rescued.contains("beta"),
+                "beta should be rescued by creator-rename: " + rescued);
+
+        // Un-rescued view: snapshot taken on first rescue must contain BOTH names,
+        // proving the snapshot captures pre-rescue state rather than just the
+        // currently-being-rescued name.
+        Set<String> unrescued = desc.getNonRescuedIgnoredPropertyNames();
+        assertTrue(unrescued.contains("alpha"),
+                "snapshot should contain alpha: " + unrescued);
+        assertTrue(unrescued.contains("beta"),
+                "snapshot should contain beta: " + unrescued);
+    }
+
+    // [databind#6031]: a creator parameter's @JsonAlias name that collides with an
+    // unrelated @JsonIgnore accessor must be rescued from the per-property ignore set
+    // (so it remains a usable deser input), while still being reported by the
+    // un-rescued view — exactly as for the creator-rename rescue above.
+    static class AliasIgnoredCreator6031 {
+        @JsonProperty("newName")
+        private final String value;
+
+        @JsonCreator
+        public AliasIgnoredCreator6031(@JsonProperty("newName") @JsonAlias("oldName") String value) {
+            this.value = value;
+        }
+
+        public String getValue() { return value; }
+
+        @JsonIgnore
+        public String getOldName() { return value; }
+    }
+
+    @Test
+    public void testNonRescuedAliasIgnoredPropertyNames6031()
+    {
+        BeanDescription desc = beanDesc(MAPPER, AliasIgnoredCreator6031.class, false);
+
+        // Rescued view: "oldName" is a live creator alias and must not appear.
+        Set<String> rescued = desc.getIgnoredPropertyNames();
+        assertFalse(rescued.contains("oldName"),
+                "creator @JsonAlias should be rescued from per-property ignorals: " + rescued);
+
+        // Un-rescued view: the original @JsonIgnore-getter ignoral is still visible.
+        Set<String> unrescued = desc.getNonRescuedIgnoredPropertyNames();
+        assertTrue(unrescued.contains("oldName"),
+                "getNonRescuedIgnoredPropertyNames() should report the pre-rescue alias ignoral: " + unrescued);
+    }
+
     @SuppressWarnings("deprecation")
     @Test
-    public void testFormatOverridesDeprcated()
+    public void testFormatOverridesDeprecated()
     {
         POJOPropertiesCollector coll = collector(MAPPER,  Simple.class, false);
         JsonFormat.Value format = coll.getFormatOverrides();

@@ -42,7 +42,7 @@ public class TestDoubleJsonCreator extends DatabindTestUtil
 
         @Override
         public boolean equals(Object other) {
-            return this == other || (other instanceof UnionExample && equalTo((UnionExample) other));
+            return this == other || (other instanceof UnionExample ue && equalTo(ue));
         }
 
         private boolean equalTo(UnionExample other) {
@@ -94,7 +94,7 @@ public class TestDoubleJsonCreator extends DatabindTestUtil
 
             @Override
             public boolean equals(Object other) {
-                return this == other || (other instanceof DoubleWrapper && equalTo((DoubleWrapper) other));
+                return this == other || (other instanceof DoubleWrapper dw && equalTo(dw));
             }
 
             private boolean equalTo(DoubleWrapper other) {
@@ -156,7 +156,7 @@ public class TestDoubleJsonCreator extends DatabindTestUtil
 
             @Override
             public boolean equals(Object other) {
-                return this == other || (other instanceof UnknownWrapper && equalTo((UnknownWrapper) other));
+                return this == other || (other instanceof UnknownWrapper uw && equalTo(uw));
             }
 
             private boolean equalTo(UnknownWrapper other) {
@@ -195,8 +195,8 @@ public class TestDoubleJsonCreator extends DatabindTestUtil
         @Override
         public boolean equals(Object other) {
             return this == other
-                    || (other instanceof AliasDouble
-                    && Double.doubleToLongBits(this.value) == Double.doubleToLongBits(((AliasDouble) other).value));
+                    || (other instanceof AliasDouble ad
+                    && Double.doubleToLongBits(this.value) == Double.doubleToLongBits(ad.value));
         }
 
         @Override

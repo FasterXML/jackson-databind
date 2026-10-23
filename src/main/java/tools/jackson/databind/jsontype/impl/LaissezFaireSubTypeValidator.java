@@ -1,5 +1,7 @@
 package tools.jackson.databind.jsontype.impl;
 
+import java.io.Serial;
+
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
@@ -16,6 +18,7 @@ import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 final class LaissezFaireSubTypeValidator
     extends PolymorphicTypeValidator.Base
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public final static LaissezFaireSubTypeValidator instance = new LaissezFaireSubTypeValidator();

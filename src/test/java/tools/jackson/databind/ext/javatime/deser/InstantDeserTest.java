@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Timeout;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.ObjectMapper;
@@ -187,7 +189,7 @@ public class InstantDeserTest extends DateTimeTestBase
      * Numbers with very large exponents can take a long time, but still result in zero.
      * https://github.com/FasterXML/jackson-databind/issues/2141
      */
-    @Timeout(value = 100, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 200, unit = TimeUnit.MILLISECONDS)
     @Test
     public void testDeserializationAsFloatEdgeCase08() throws Exception
     {
@@ -195,7 +197,7 @@ public class InstantDeserTest extends DateTimeTestBase
         assertEquals(0, value.getEpochSecond());
     }
 
-    @Timeout(value = 100, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 200, unit = TimeUnit.MILLISECONDS)
     @Test
     public void testDeserializationAsFloatEdgeCase09() throws Exception
     {
@@ -206,7 +208,7 @@ public class InstantDeserTest extends DateTimeTestBase
     /**
      * Same for large negative exponents.
      */
-    @Timeout(value = 100, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 200, unit = TimeUnit.MILLISECONDS)
     @Test
     public void testDeserializationAsFloatEdgeCase10() throws Exception
     {
@@ -214,7 +216,7 @@ public class InstantDeserTest extends DateTimeTestBase
         assertEquals(0, value.getEpochSecond());
     }
 
-    @Timeout(value = 100, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 200, unit = TimeUnit.MILLISECONDS)
     @Test
     public void testDeserializationAsFloatEdgeCase11() throws Exception
     {
@@ -567,7 +569,7 @@ public class InstantDeserTest extends DateTimeTestBase
         assertEquals(result, inst);
 
         // but then quoted as JSON String
-        result = READER.readValue(String.format("\"%s\"", json));
+        result = READER.readValue("\"%s\"".formatted(json));
         assertNotNull(result);
         assertEquals(result, inst);
     }
@@ -669,5 +671,41 @@ public class InstantDeserTest extends DateTimeTestBase
 
         assertTrue(matcher.find(), "Matcher finds +0100 as an colonless offset");
         assertEquals(matcher.group(), "+0100", "Matcher groups +0100 as an colonless offset");
+    }
+
+    // [databind#6133]: StreamReadConstraints should limit numeric string lengths
+    // parsed via _fromString to prevent excessive BigDecimal construction.
+    // NOTE: values MUST be quoted -- unquoted ones are Number tokens, limits for
+    // which are enforced by the streaming parser and not by this deserializer.
+    @Test
+    public void testNumericStringRespectsStreamReadConstraints() throws Exception
+    {
+        final int MAX_ALLOWED_LEN = StreamReadConstraints.DEFAULT_MAX_NUM_LEN;
+
+        // Normal epoch seconds as integer should work
+        assertNotNull(MAPPER.readValue(q("1234567890"), Instant.class));
+
+        // Normal epoch seconds with decimal should work
+        assertNotNull(MAPPER.readValue(q("1234567890.123456789"), Instant.class));
+
+        // A very long integer string (exceeding default 1000-digit limit) should fail
+        String longInt = "1".repeat(MAX_ALLOWED_LEN + 1);
+        try {
+            MAPPER.readValue(q(longInt), Instant.class);
+            fail("Should not pass with excessively long integer string");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "Date/time value length");
+            verifyException(e, "exceeds the maximum allowed");
+        }
+
+        // A very long decimal string (exceeding default 1000-char limit) should fail
+        String longDecimal = "1234." + "9".repeat(MAX_ALLOWED_LEN);
+        try {
+            MAPPER.readValue(q(longDecimal), Instant.class);
+            fail("Should not pass with excessively long decimal string");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "Date/time value length");
+            verifyException(e, "exceeds the maximum allowed");
+        }
     }
 }

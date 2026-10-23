@@ -391,12 +391,14 @@ public class TestNamingStrategyStd extends DatabindTestUtil
     @Test
     public void testSnakeCase3368() throws Exception
     {
-        String test = "    {\n" +
-"      \"time_zone\": {\n" +
-"        \"name\": \"XXX\",\n" +
-"        \"utc_zone\": \"ZZZ\"\n" +
-"      }\n" +
-"    }";
+        String test = """
+    {
+      "time_zone": {
+        "name": "XXX",
+        "utc_zone": "ZZZ"
+      }
+    }
+""";
         Value3368 res = sharedMapper().readerFor(Value3368.class).readValue(test);
         assertEquals("XXX", res.getTimeZone());
         assertEquals("ZZZ", res.getUtcZone());

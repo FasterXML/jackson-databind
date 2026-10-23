@@ -482,7 +482,7 @@ public class MapDeserializationTest
     @Test
     public void testUUIDKeyMap() throws Exception
     {
-         UUID key = UUID.nameUUIDFromBytes("foobar".getBytes("UTF-8"));
+         UUID key = UUID.nameUUIDFromBytes(utf8Bytes("foobar"));
          String JSON = "{ \""+key+"\":4}";
          Map<UUID,Object> result = MAPPER.readValue(JSON, new TypeReference<Map<UUID,Object>>() { });
          assertNotNull(result);

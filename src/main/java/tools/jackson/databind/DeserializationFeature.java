@@ -302,7 +302,7 @@ public enum DeserializationFeature implements ConfigFeature
      * {@link com.fasterxml.jackson.annotation.JsonSubTypes}).
      *<p>
      * Note that for Type Name - based Type Id mechanism ({@code JsonTypeInfo.Id.NAME})
-     * you already need to register the subtypes but with so this feature has no effect.
+     * you already need to register the subtypes so this feature has no effect.
      *<p>
      * Feature is disabled by default.
      */

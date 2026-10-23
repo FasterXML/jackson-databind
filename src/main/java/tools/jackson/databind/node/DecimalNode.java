@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
@@ -16,6 +17,7 @@ import tools.jackson.databind.*;
 public class DecimalNode
     extends NumericFPNode
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     public static final DecimalNode ZERO = new DecimalNode(BigDecimal.ZERO);
@@ -222,7 +224,22 @@ public class DecimalNode
 
     @Override
     protected BigInteger _asBigIntegerValueUnchecked() {
+        // [databind#6214]: guard against excessive scale magnitude, which would
+        // make `toBigInteger()` very expensive (huge multiplication/allocation);
+        // same check as `ParserBase.convertNumberToBigInteger()` (and
+        // 2.x `BaseJsonNode._bigIntFromBigDec()`). No access to actual
+        // `StreamReadConstraints` here, so use defaults.
+        StreamReadConstraints.defaults().validateBigIntegerScale(_value.scale());
         return _value.toBigInteger();
+    }
+
+    @Override
+    boolean _bigIntegerScaleInRange() {
+        // [databind#6214]: same limit as guard in `_asBigIntegerValueUnchecked()`,
+        // but as a predicate, for non-throwing accessors
+        final int max = StreamReadConstraints.defaults().getMaxBigIntegerScale();
+        final int scale = _value.scale();
+        return (scale >= -max) && (scale <= max);
     }
 
     @Override

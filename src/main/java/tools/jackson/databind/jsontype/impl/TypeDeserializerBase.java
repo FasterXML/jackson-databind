@@ -18,6 +18,22 @@ import tools.jackson.databind.util.ClassUtil;
 public abstract class TypeDeserializerBase
     extends TypeDeserializer
 {
+    /**
+     * Maximum number of type id to deserializer mappings to cache (see
+     * {@link #_deserializers}); if exceeded, cache is cleared.
+     *
+     * @since 2.18.11
+     */
+    final static int MAX_CACHED_TYPE_IDS = 1000;
+
+    /**
+     * Maximum length of type ids to cache (see {@link #_deserializers}): longer ones
+     * are resolved every time, as cache size is only limited by number of entries.
+     *
+     * @since 2.18.11
+     */
+    final static int MAX_CACHED_TYPE_ID_LENGTH = 256;
+
     protected final TypeIdResolver _idResolver;
 
     protected final JavaType _baseType;
@@ -51,7 +67,7 @@ public abstract class TypeDeserializerBase
      */
     protected final Map<String,ValueDeserializer<Object>> _deserializers;
 
-    protected ValueDeserializer<Object> _defaultImplDeserializer;
+    protected volatile ValueDeserializer<Object> _defaultImplDeserializer;
 
     /*
     /**********************************************************************
@@ -165,7 +181,22 @@ public abstract class TypeDeserializerBase
                         return NullifyingDeserializer.instance;
                     }
                     // ... would this actually work?
-                    deser = ctxt.findContextualValueDeserializer(actual, _property);
+                    // 14-Sep-2026, tatu: [databind#6203] Should not cache by type id here:
+                    //   problem handler may map any number of unrecognized ids to a type, and
+                    //   its answer is only valid for readers configured with that handler.
+                    //   NOTE: does NOT cover class name-based ids (`Id.CLASS`, `Id.MINIMAL_CLASS`):
+                    //   their resolver calls problem handlers itself, so the answer comes back
+                    //   as a resolved type and is cached as such (bounded by MAX_CACHED_TYPE_IDS)
+                    return ctxt.findContextualValueDeserializer(actual, _property);
+                }
+                // 14-Sep-2026, tatu: [databind#6203] Should not cache "nullifying" fallback by
+                //   type id, as its use depends on reader configuration (FAIL_ON_INVALID_SUBTYPE).
+                //   But `defaultImpl` deserializer is cached: re-resolving unrecognized ids every
+                //   time (like failing class loading for `Id.CLASS`) is costly; cache is bounded
+                if (deser == NullifyingDeserializer.instance) {
+                    // (not same as return above: here from `_findDefaultImplDeserializer()`,
+                    // mostly due to FAIL_ON_INVALID_SUBTYPE being disabled)
+                    return deser;
                 }
             } else {
                 /* 16-Dec-2010, tatu: Since nominal type we get here has no (generic) type parameters,
@@ -199,6 +230,17 @@ public abstract class TypeDeserializerBase
                 }
                 deser = ctxt.findContextualValueDeserializer(type, _property);
             }
+            // 14-Sep-2026, tatu: [databind#6203] Must bound the cache: even type ids that
+            //   do resolve (like differently spelled variants of the same id) may come in
+            //   unbounded numbers. If full, clear, so that commonly used ids get re-added.
+            //   And as that only limits number of entries, not their size, do not cache
+            //   overlong ids either: real type ids are short
+            if (typeId.length() > MAX_CACHED_TYPE_ID_LENGTH) {
+                return deser;
+            }
+            if (_deserializers.size() >= MAX_CACHED_TYPE_IDS) {
+                _deserializers.clear();
+            }
             _deserializers.put(typeId, deser);
         }
         return deser;
@@ -229,6 +271,24 @@ public abstract class TypeDeserializerBase
             }
         }
         return _defaultImplDeserializer;
+    }
+
+    /**
+     * Fast-path override: resolve subtype deserializer from the type id via the
+     * existing lookup cache and invoke it directly on the value, avoiding the
+     * synthetic {@code WRAPPER_ARRAY} encoding used by the default implementation
+     * on {@link TypeDeserializer}. Keeps {@link JsonParser#streamReadContext()}
+     * clean for custom {@link ValueDeserializer}s examining parsing state.
+     *
+     * @since 3.2 (fix for [databind#2747])
+     */
+    @Override
+    public Object deserializeTypedWithKnownTypeId(JsonParser p, DeserializationContext ctxt,
+            String typeId)
+        throws JacksonException
+    {
+        ValueDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
+        return ctxt.withParser(p, () -> deser.deserialize(p, ctxt));
     }
 
     /**
@@ -275,7 +335,7 @@ public abstract class TypeDeserializerBase
             extraDesc = "known type ids = " + extraDesc;
         }
         if (_property != null) {
-            extraDesc = String.format("%s (for POJO property '%s')", extraDesc,
+            extraDesc = "%s (for POJO property '%s')".formatted(extraDesc,
                     _property.getName());
         }
         return ctxt.handleUnknownTypeId(_baseType, typeId, _idResolver, extraDesc);

@@ -173,11 +173,13 @@ public class ConstructorPropertiesAnnotationTest
     public void testSkipNonScalar3252() throws Exception
     {
         List<Value3252> testData = MAPPER.readValue(a2q(
-"[\n"+
-"      {'name': 'first entry'},\n"+
-"      {'name': 'second entry', 'breaker': ['' ]},\n"+
-"      {'name': 'third entry'}\n"+
-"    ]\n"),
+"""
+[
+      {'name': 'first entry'},
+      {'name': 'second entry', 'breaker': ['' ]},
+      {'name': 'third entry'}
+    ]
+"""),
             new TypeReference<List<Value3252>>() {});
 
 //System.err.println("JsON: "+MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(testData));

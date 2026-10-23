@@ -54,13 +54,11 @@ public class CurrentValueDeser4184Test extends DatabindTestUtil
             }
             JsonNode node = ctxt.readTree(p);
             int value = node.path("value").asInt(-1);
-            switch (value) {
-            case 1:
-                return UserType.ADMIN;
-            case 2:
-                return UserType.USER;
-            }
-            throw new IllegalArgumentException("Bad value: "+value);
+            return switch (value) {
+                case 1 -> UserType.ADMIN;
+                case 2 -> UserType.USER;
+                default -> throw new IllegalArgumentException("Bad value: " + value);
+            };
         }
     }
 

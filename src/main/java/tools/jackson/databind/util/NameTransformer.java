@@ -1,4 +1,6 @@
 package tools.jackson.databind.util;
+import java.io.Serial;
+
 
 /**
  * Helper class used to encapsulate details of name mangling, transforming
@@ -17,6 +19,7 @@ public abstract class NameTransformer
         extends NameTransformer
         implements java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         @Override
@@ -116,6 +119,7 @@ public abstract class NameTransformer
     public static class Chained extends NameTransformer
         implements java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         protected final NameTransformer _t1, _t2;

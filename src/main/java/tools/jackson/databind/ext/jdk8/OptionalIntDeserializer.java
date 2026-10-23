@@ -8,9 +8,11 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.JsonTokenId;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.type.LogicalType;
 
+@JacksonStdImpl
 public class OptionalIntDeserializer extends BaseScalarOptionalDeserializer<OptionalInt>
 {
     static final OptionalIntDeserializer INSTANCE = new OptionalIntDeserializer();

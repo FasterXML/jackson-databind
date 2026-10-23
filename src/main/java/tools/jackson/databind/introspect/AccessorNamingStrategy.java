@@ -1,5 +1,7 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
+
 import tools.jackson.databind.BeanDescription;
 import tools.jackson.databind.cfg.MapperConfig;
 
@@ -110,6 +112,7 @@ public abstract class AccessorNamingStrategy
         extends AccessorNamingStrategy
         implements java.io.Serializable // since one configured with Mapper/MapperBuilder
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         @Override
@@ -140,6 +143,7 @@ public abstract class AccessorNamingStrategy
     public abstract static class Provider
         implements java.io.Serializable // since one configured with Mapper/MapperBuilder
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         /**

@@ -15,7 +15,7 @@ public class AsDeductionTypeSerializer extends TypeSerializerBase
     private final static AsDeductionTypeSerializer INSTANCE = new AsDeductionTypeSerializer();
 
     protected AsDeductionTypeSerializer() {
-        super(null, null);
+        super(null, null, null);
     }
 
     public static AsDeductionTypeSerializer instance() {

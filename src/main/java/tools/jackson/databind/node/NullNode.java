@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import tools.jackson.databind.SerializationContext;
 public class NullNode
     extends ValueNode
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     // // Just need a fly-weight singleton
@@ -26,6 +28,7 @@ public class NullNode
     public static NullNode getInstance() { return instance; }
 
     // To support JDK serialization, recovery of Singleton instance
+    @Serial
     protected Object readResolve() {
         return instance;
     }

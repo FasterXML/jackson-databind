@@ -1,5 +1,6 @@
 package tools.jackson.databind.cfg;
 
+import java.io.Serial;
 import java.util.Arrays;
 
 /**
@@ -8,6 +9,7 @@ import java.util.Arrays;
 public class CoercionConfig
     implements java.io.Serializable // needed in 3.0 too, still
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     private final static int INPUT_SHAPE_COUNT = CoercionInputShape.values().length;

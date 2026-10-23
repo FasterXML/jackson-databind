@@ -110,8 +110,8 @@ public abstract class DateTimeSerializerBase<T>
         //    So: require it be `SimpleDateFormat`; can't config other types
         if (!(df0 instanceof SimpleDateFormat)) {
             serializers.reportBadDefinition(handledType(), String.format(
-"Configured `DateFormat` (%s) not a `SimpleDateFormat`; cannot configure `Locale` or `TimeZone`",
-df0.getClass().getName()));
+                    "Configured `DateFormat` (%s) not a `SimpleDateFormat`; cannot configure `Locale` or `TimeZone`",
+                    df0.getClass().getName()));
         }
         SimpleDateFormat df = (SimpleDateFormat) df0;
         if (hasLocale) {

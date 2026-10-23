@@ -1,5 +1,6 @@
 package tools.jackson.databind.cfg;
 
+import java.io.Serial;
 import java.util.Objects;
 
 import tools.jackson.databind.ValueSerializer;
@@ -15,6 +16,7 @@ import tools.jackson.databind.util.ArrayIterator;
 public final class SerializerFactoryConfig
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     public final static ValueSerializer<Object> DEFAULT_NULL_KEY_SERIALIZER =

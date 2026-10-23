@@ -1,5 +1,7 @@
 package tools.jackson.databind.exc;
 
+import java.io.Serial;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.JavaType;
@@ -22,6 +24,7 @@ import tools.jackson.databind.util.ClassUtil;
 public class MismatchedInputException
     extends DatabindException
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**

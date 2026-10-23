@@ -1,5 +1,6 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.MalformedParametersException;
 import java.lang.reflect.Parameter;
@@ -31,6 +32,7 @@ public class JacksonAnnotationIntrospector
     extends AnnotationIntrospector
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("unchecked")
@@ -105,11 +107,26 @@ public class JacksonAnnotationIntrospector
 
     public JacksonAnnotationIntrospector() { }
 
+    /**
+     * Copy constructor for sub-classes to use when creating re-configured
+     * copies (instead of modifying an instance that may be shared by multiple
+     * mappers): copies all configuration settings of {@code src}, but not
+     * cached state.
+     *
+     * @param src Introspector to copy configuration settings from
+     *
+     * @since 3.3
+     */
+    protected JacksonAnnotationIntrospector(JacksonAnnotationIntrospector src) {
+        _cfgConstructorPropertiesImpliesCreator = src._cfgConstructorPropertiesImpliesCreator;
+    }
+
     @Override
     public Version version() {
         return tools.jackson.databind.cfg.PackageVersion.VERSION;
     }
 
+    @Serial
     protected Object readResolve() {
         if (_annotationsInside == null) {
             _annotationsInside = new SimpleLookupCache<>(48, 96);
@@ -349,11 +366,10 @@ public class JacksonAnnotationIntrospector
     @Override
     public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember m)
     {
-        // 15-Sep-2025: As per [databind#5314] possible to disable introspection
-        if (!config.isEnabled(MapperFeature.DETECT_PARAMETER_NAMES)) {
-            return null;
-        }
         if (m instanceof AnnotatedParameter p) {
+            // 15-Sep-2025: As per [databind#5314] possible to disable introspection
+            final boolean detectParamNames = config.isEnabled(MapperFeature.DETECT_PARAMETER_NAMES);
+
             AnnotatedWithParams owner = p.getOwner();
             if (owner instanceof AnnotatedConstructor) {
                 // 15-Sep-2025, tatu: May seem odd but we'll keep access dynamic due
@@ -366,12 +382,15 @@ public class JacksonAnnotationIntrospector
                     }
                 }
                 // ... or parameter names from bytecode (JDK8)
-                return _findImplicitName(owner, p.getIndex());
+                if (detectParamNames) {
+                    return _findImplicitName(owner, p.getIndex());
+                }
+                return null;
             }
             if (owner instanceof AnnotatedMethod) {
                 // For now let's only bother discovering names for static methods as they
                 // (only) may be creators
-                if (owner.isStatic()) {
+                if (detectParamNames && owner.isStatic()) {
                     return _findImplicitName(owner, p.getIndex());
                 }
             }
@@ -548,6 +567,13 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    public Class<?> findApplyView(MapperConfig<?> config, Annotated a)
+    {
+        JsonApplyView ann = _findAnnotation(a, JsonApplyView.class);
+        return (ann == null) ? null : ann.value();
+    }
+
+    @Override
     /**
      * Specific implementation that will use following tie-breaker on
      * given setter parameter types:
@@ -612,6 +638,20 @@ public class JacksonAnnotationIntrospector
         return (t == null) ? null : JsonTypeInfo.Value.from(t);
     }
 
+    @Override
+    public JavaType findPolymorphicBaseType(MapperConfig<?> config,
+            AnnotatedClass ac, JsonTypeInfo.Value typeInfo, JavaType assumedBaseType) {
+        for (JavaType type : ac.getSuperTypes()) {
+            // 23-Mar-2026, tatu: Unusual in that we do not (and can not) use
+            //   `_findAnnotation()` and must resort to direct lookup. This
+            //   means we will miss mix-in annotations but it is what it is...
+            JsonTypeInfo t = type.getRawClass().getAnnotation(JsonTypeInfo.class);
+            if (t != null) {
+                return type;
+            }
+        }
+        return null;
+    }
     @Override
     public Object findTypeResolverBuilder(MapperConfig<?> config,
             Annotated ann) {
@@ -915,12 +955,12 @@ public class JacksonAnnotationIntrospector
                         type = type.withStaticTyping();
                     } else {
                         throw _databindException(
-                                String.format("Cannot refine serialization type %s into %s; types not related",
+                                "Cannot refine serialization type %s into %s; types not related".formatted(
                                         type, serClass.getName()));
                     }
                 } catch (IllegalArgumentException iae) {
                     throw _databindException(iae,
-                            String.format("Failed to widen type %s with annotation (value %s), from '%s': %s",
+                            "Failed to widen type %s with annotation (value %s), from '%s': %s".formatted(
                                     type, serClass.getName(), a.getName(), iae.getMessage()));
                 }
             }
@@ -953,12 +993,12 @@ public class JacksonAnnotationIntrospector
                             keyType = keyType.withStaticTyping();
                         } else {
                             throw _databindException(
-                                    String.format("Cannot refine serialization key type %s into %s; types not related",
+                                    "Cannot refine serialization key type %s into %s; types not related".formatted(
                                             keyType, keyClass.getName()));
                         }
                     } catch (IllegalArgumentException iae) {
                         throw _databindException(iae,
-                                String.format("Failed to widen key type of %s with concrete-type annotation (value %s), from '%s': %s",
+                                "Failed to widen key type of %s with concrete-type annotation (value %s), from '%s': %s".formatted(
                                         type, keyClass.getName(), a.getName(), iae.getMessage()));
                     }
                 }
@@ -992,13 +1032,13 @@ public class JacksonAnnotationIntrospector
                            contentType = contentType.withStaticTyping();
                        } else {
                            throw _databindException(
-                                   String.format("Cannot refine serialization content type %s into %s; types not related",
+                                   "Cannot refine serialization content type %s into %s; types not related".formatted(
                                            contentType, contentClass.getName()));
                        }
                    } catch (IllegalArgumentException iae) { // shouldn't really happen
-                       throw _databindException(iae,
-                               String.format("Internal error: failed to refine value type of %s with concrete-type annotation (value %s), from '%s': %s",
-                                       type, contentClass.getName(), a.getName(), iae.getMessage()));
+                       throw _databindException(iae, String.format(
+                               "Internal error: failed to refine value type of %s with concrete-type annotation (value %s), from '%s': %s",
+                               type, contentClass.getName(), a.getName(), iae.getMessage()));
                    }
                }
                type = type.withContentType(contentType);
@@ -1282,7 +1322,7 @@ public class JacksonAnnotationIntrospector
                 type = tf.constructSpecializedType(type, valueClass);
             } catch (IllegalArgumentException iae) {
                 throw _databindException(iae,
-                        String.format("Failed to narrow type %s with annotation (value %s), from '%s': %s",
+                        "Failed to narrow type %s with annotation (value %s), from '%s': %s".formatted(
                                 type, valueClass.getName(), a.getName(), iae.getMessage()));
             }
         }
@@ -1303,7 +1343,7 @@ public class JacksonAnnotationIntrospector
                     type = ((MapLikeType) type).withKeyType(keyType);
                 } catch (IllegalArgumentException iae) {
                     throw _databindException(iae,
-                            String.format("Failed to narrow key type of %s with concrete-type annotation (value %s), from '%s': %s",
+                            "Failed to narrow key type of %s with concrete-type annotation (value %s), from '%s': %s".formatted(
                                     type, keyClass.getName(), a.getName(), iae.getMessage()));
                 }
             }
@@ -1323,7 +1363,7 @@ public class JacksonAnnotationIntrospector
                     type = type.withContentType(contentType);
                 } catch (IllegalArgumentException iae) {
                     throw _databindException(iae,
-                            String.format("Failed to narrow value type of %s with concrete-type annotation (value %s), from '%s': %s",
+                            "Failed to narrow value type of %s with concrete-type annotation (value %s), from '%s': %s".formatted(
                                     type, contentClass.getName(), a.getName(), iae.getMessage()));
                 }
             }

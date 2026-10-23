@@ -18,7 +18,7 @@ import tools.jackson.databind.type.*;
 public interface Serializers
 {
     /**
-     * Fallback ethod called by serialization framework first time a serializer is needed for
+     * Fallback method called by serialization framework first time a serializer is needed for
      * given type, which is not of any more specific type (like enum, tree node,
      * reference or container type)
      * for which other methods are called).

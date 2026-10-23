@@ -1,5 +1,6 @@
 package tools.jackson.databind.module;
 
+import java.io.Serial;
 import java.util.*;
 
 import tools.jackson.core.Version;
@@ -44,6 +45,7 @@ public class SimpleModule
     extends JacksonModule
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     protected final String _name;
@@ -569,8 +571,7 @@ public class SimpleModule
     protected void _checkNotNull(Object thingy, String type)
     {
         if (thingy == null) {
-            throw new IllegalArgumentException(String.format(
-                    "Cannot pass `null` as %s", type));
+            throw new IllegalArgumentException("Cannot pass `null` as %s".formatted(type));
         }
     }
 }

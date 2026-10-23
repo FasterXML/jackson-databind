@@ -95,17 +95,26 @@ public class StdDateFormat
 
     protected final static Locale DEFAULT_LOCALE = Locale.US;
 
-    protected final static DateFormat DATE_FORMAT_RFC1123;
-
-    /* Let's construct "blueprint" date format instances: cannot be used
-     * as is, due to thread-safety issues, but can be used for constructing
-     * actual instances more cheaply (avoids re-parsing).
-     */
-    static {
-        // Another important thing: let's force use of default timezone for
-        // baseline DataFormat objects
-        DATE_FORMAT_RFC1123 = new SimpleDateFormat(DATE_FORMAT_STR_RFC1123, DEFAULT_LOCALE);
-        DATE_FORMAT_RFC1123.setTimeZone(DEFAULT_TIMEZONE);
+    // 01-Sep-2026, franz1981: [databind#6182] Built lazily, not in <clinit>: constructing a
+    //   SimpleDateFormat reaches DecimalFormatSymbols, which calls String.charAt on the
+    //   locale per-mille sign -- a UTF-16 String. String.charAt has one process-wide
+    //   MethodData and C2 prunes its isLatin1 branch only at a zero UTF-16 count, so that
+    //   one call leaves a cold StringUTF16.charAt in every ASCII charAt loop compiled
+    //   later, including UTF8JsonGenerator._writeStringSegment. MapperBuilder's <clinit>
+    //   references StdDateFormat.instance, so building an ObjectMapper was enough to
+    //   trigger it. Only parseAsRFC1123() reads this.
+    private static final class RFC1123Holder {
+        /* Let's construct "blueprint" date format instance: cannot be used
+         * as is, due to thread-safety issues, but can be used for constructing
+         * actual instances more cheaply (avoids re-parsing).
+         */
+        static final DateFormat DATE_FORMAT_RFC1123;
+        static {
+            // Another important thing: let's force use of default timezone for
+            // baseline DataFormat objects
+            DATE_FORMAT_RFC1123 = new SimpleDateFormat(DATE_FORMAT_STR_RFC1123, DEFAULT_LOCALE);
+            DATE_FORMAT_RFC1123.setTimeZone(DEFAULT_TIMEZONE);
+        }
     }
 
     /**
@@ -364,8 +373,8 @@ public class StdDateFormat
         }
         sb.append('"');
         throw new ParseException
-            (String.format("Cannot parse date \"%s\": not compatible with any of standard forms (%s)",
-                           dateStr, sb.toString()), pos.getErrorIndex());
+            ("Cannot parse date \"%s\": not compatible with any of standard forms (%s)".formatted(
+                dateStr, sb.toString()), pos.getErrorIndex());
     }
 
     // 24-Jun-2017, tatu: I don't think this ever gets called. So could... just not implement?
@@ -553,7 +562,7 @@ public class StdDateFormat
 
     @Override
     public String toString() {
-        return String.format("DateFormat %s: (timezone: %s, locale: %s, lenient: %s)",
+        return "DateFormat %s: (timezone: %s, locale: %s, lenient: %s)".formatted(
                 getClass().getName(), _timezone, _locale, _lenient);
     }
 
@@ -631,8 +640,7 @@ public class StdDateFormat
         try {
             ts = NumberInput.parseLong(longStr);
         } catch (NumberFormatException e) {
-            throw new ParseException(String.format(
-                    "Timestamp value %s out of 64-bit value range", longStr),
+            throw new ParseException("Timestamp value %s out of 64-bit value range".formatted(longStr),
                     pos.getErrorIndex());
         }
         return new Date(ts);
@@ -644,7 +652,7 @@ public class StdDateFormat
         try {
             return _parseAsISO8601(dateStr, pos);
         } catch (IllegalArgumentException e) {
-            throw new ParseException(String.format("Cannot parse date \"%s\", problem: %s",
+            throw new ParseException("Cannot parse date \"%s\", problem: %s".formatted(
                     dateStr, e.getMessage()),
                     pos.getErrorIndex());
         }
@@ -727,9 +735,9 @@ public class StdDateFormat
 
                         if (fractLen > 9) { // only allow up to nanos
                             throw new ParseException(String.format(
-"Cannot parse date \"%s\": invalid fractional seconds '%s'; can use at most 9 digits",
-                                       dateStr, m.group(1).substring(1)
-                                       ), start);
+                                    "Cannot parse date \"%s\": invalid fractional seconds '%s'; can use at most 9 digits",
+                                    dateStr, m.group(1).substring(1)
+                            ), start);
                         }
                         // fall through
                     case 3:
@@ -750,8 +758,8 @@ public class StdDateFormat
         }
 
         throw new ParseException
-        (String.format("Cannot parse date \"%s\": while it seems to fit format '%s', parsing fails (leniency? %s)",
-                       dateStr, formatStr, _lenient),
+        ("Cannot parse date \"%s\": while it seems to fit format '%s', parsing fails (leniency? %s)".formatted(
+                dateStr, formatStr, _lenient),
                 // [databind#1742]: Might be able to give actual location, some day, but for now
                 //  we can't give anything more indicative
                 0);
@@ -772,7 +780,7 @@ public class StdDateFormat
     protected Date parseAsRFC1123(String dateStr, ParsePosition pos)
     {
         if (_formatRFC1123 == null) {
-            _formatRFC1123 = _cloneFormat(DATE_FORMAT_RFC1123, DATE_FORMAT_STR_RFC1123,
+            _formatRFC1123 = _cloneFormat(RFC1123Holder.DATE_FORMAT_RFC1123, DATE_FORMAT_STR_RFC1123,
                     _timezone, _locale, _lenient);
         }
         return _formatRFC1123.parse(dateStr, pos);

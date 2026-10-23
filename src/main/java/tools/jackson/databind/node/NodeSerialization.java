@@ -3,6 +3,7 @@ package tools.jackson.databind.node;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.Serial;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.util.ByteArrayBuilder;
@@ -19,6 +20,7 @@ class NodeSerialization implements java.io.Serializable,
     // To avoid malicious input only allocate up to 100k
     protected final static int LONGEST_EAGER_ALLOC = 100_000;
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private static final JsonMapper JSON_MAPPER = JsonMapper.shared();
@@ -30,6 +32,7 @@ class NodeSerialization implements java.io.Serializable,
 
     public NodeSerialization(byte[] b) { json = b; }
 
+    @Serial
     protected Object readResolve() {
         try {
             return bytesToNode(json);

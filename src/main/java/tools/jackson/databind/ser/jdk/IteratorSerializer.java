@@ -57,6 +57,10 @@ public class IteratorSerializer
 
     @Override
     public boolean isEmpty(SerializationContext ctxt, Iterator<?> value) {
+        // [databind#6065]: unlike other containers, cannot apply content @JsonInclude
+        // filtering here: inspecting elements would consume the (single-use) Iterator,
+        // leaving nothing for `serialize()`. So an Iterator that becomes empty after
+        // content filtering is still emitted as `[]` rather than dropped.
         return !value.hasNext();
     }
 

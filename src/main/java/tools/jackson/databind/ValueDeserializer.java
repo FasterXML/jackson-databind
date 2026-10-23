@@ -479,7 +479,11 @@ public abstract class ValueDeserializer<T>
     }
     
     /**
-     * Method to collect all property names including nested unwrapped properties
+     * Method to collect all property names including nested unwrapped properties.
+     *<p>
+     * NOTE: if no names are returned, properties are considered to be
+     * unknown and caller will NOT assume names are statically known: this
+     * can affect processing of things like unwrapped properties.
      *
      * @param names (not null) Set to add property names to; for both regular
      *   and "any" properties.

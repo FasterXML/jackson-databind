@@ -73,7 +73,7 @@ public class WriteZoneIdTest extends DateTimeTestBase
         if (!json.contains("\"01-01-1970T")) {
             fail("Should contain time prefix, did not: "+json);
         }
-        String match = String.format("[%s]", ZONE_ID_STR);
+        String match = "[%s]".formatted(ZONE_ID_STR);
         if (!json.contains(match)) {
             fail("Should contain zone id "+match+", does not: "+json);
         }

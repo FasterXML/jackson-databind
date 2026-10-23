@@ -1,5 +1,6 @@
 package tools.jackson.databind.jsontype.impl;
 
+import java.io.Serial;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -18,6 +19,7 @@ import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 public class MinimalClassNameIdResolver
     extends ClassNameIdResolver
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

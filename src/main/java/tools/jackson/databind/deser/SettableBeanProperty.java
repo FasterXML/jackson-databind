@@ -464,8 +464,7 @@ public abstract class SettableBeanProperty
      */
     public int getCreatorIndex() {
         // changed from 'return -1' in 2.7.9 / 2.8.7
-        throw new IllegalStateException(String.format(
-                "Internal error: no creator index for property '%s' (of type %s)",
+        throw new IllegalStateException("Internal error: no creator index for property '%s' (of type %s)".formatted(
                 this.getName(), getClass().getName()));
     }
 
@@ -609,6 +608,13 @@ public abstract class SettableBeanProperty
 
     /**
      * Returns a copy of this property, unwrapped using given {@link NameTransformer}.
+     *<p>
+     * NOTE: this is the <i>propagating</i> rename — the transformer is applied both to
+     * the property name AND recursively to the value deserializer (via
+     * {@link ValueDeserializer#unwrappingDeserializer}). This is correct for properties
+     * stored in an {@code UnwrappedPropertyHandler} (where nested {@code @JsonUnwrapped}
+     * must inherit the prefix/suffix), but wrong for ordinary non-unwrapped properties —
+     * those should be renamed by name only (see [databind#3178]).
      *
      * @since 2.19
      */

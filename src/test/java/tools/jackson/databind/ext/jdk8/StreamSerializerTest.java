@@ -61,7 +61,7 @@ public class StreamSerializerTest extends StreamTestBase
 
         @Override
         public boolean equals(Object o) {
-            return (o instanceof FinalValueBean) && ((FinalValueBean) o).x == x;
+            return (o instanceof FinalValueBean fvb) && fvb.x == x;
         }
 
         @Override

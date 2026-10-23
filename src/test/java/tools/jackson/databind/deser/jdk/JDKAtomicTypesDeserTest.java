@@ -185,6 +185,23 @@ public class JDKAtomicTypesDeserTest
         assertEquals(12345678901L, value.get());
     }
 
+    // Coerced-from-String / coerced-from-Float paths went through
+    // `_parseLong` + `Long.intValue()`, silently truncating values above
+    // `Integer.MAX_VALUE`.
+    @Test
+    public void testAtomicLongFromStringAboveIntRange() throws Exception
+    {
+        AtomicLong value = MAPPER.readValue("\"9999999999\"", AtomicLong.class);
+        assertEquals(9999999999L, value.get());
+    }
+
+    @Test
+    public void testAtomicLongFromFloatAboveIntRange() throws Exception
+    {
+        AtomicLong value = MAPPER.readValue("12345678901.25", AtomicLong.class);
+        assertEquals(12345678901L, value.get());
+    }
+
     @Test
     public void testAtomicReference() throws Exception
     {

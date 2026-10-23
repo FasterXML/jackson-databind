@@ -7,12 +7,14 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.bean.BeanDeserializerBase;
 import tools.jackson.databind.deser.bean.BeanPropertyMap;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.introspect.BeanPropertyDefinition;
 
+@JacksonStdImpl
 public class StackTraceElementDeserializer
     extends StdScalarDeserializer<StackTraceElement>
 {

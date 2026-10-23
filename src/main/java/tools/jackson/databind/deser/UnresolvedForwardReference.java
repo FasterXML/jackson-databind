@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -14,6 +15,7 @@ import tools.jackson.databind.DatabindException;
  */
 public class UnresolvedForwardReference extends DatabindException
 {
+    @Serial
     private static final long serialVersionUID = 1L;
     private ReadableObjectId _roid;
     private List<UnresolvedId> _unresolvedIds;

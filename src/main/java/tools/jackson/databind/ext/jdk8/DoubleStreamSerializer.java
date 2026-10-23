@@ -5,6 +5,7 @@ import java.util.stream.DoubleStream;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
@@ -14,6 +15,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
  * so we need to define each in a specific class
  * </p>
  */
+@JacksonStdImpl
 public class DoubleStreamSerializer extends StdSerializer<DoubleStream>
 {
     /**

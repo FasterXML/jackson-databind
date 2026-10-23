@@ -5,9 +5,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.type.LogicalType;
 
+@JacksonStdImpl
 public class AtomicIntegerDeserializer extends StdScalarDeserializer<AtomicInteger>
 {
     public AtomicIntegerDeserializer() { super(AtomicInteger.class); }

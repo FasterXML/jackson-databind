@@ -1,7 +1,6 @@
 
 package tools.jackson.databind.deser.creators;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -42,11 +41,7 @@ public class TestCreators2
         public byte[] deserialize(JsonParser p, DeserializationContext ctxt)
         {
             String str = p.getString();
-            try {
-                return str.getBytes("UTF-8");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            return utf8Bytes(str);
         }
     }
 
@@ -257,7 +252,7 @@ public class TestCreators2
     {
         HashTest test = MAPPER.readValue("{\"type\":\"custom\",\"bytes\":\"abc\" }", HashTest.class);
         assertEquals("custom", test.type);
-        assertEquals("abc", new String(test.bytes, "UTF-8"));
+        assertEquals("abc", utf8String(test.bytes));
     }
 
     @Test
@@ -276,11 +271,13 @@ public class TestCreators2
     public void testJackson431() throws Exception
     {
         final Test431Container foo = MAPPER.readValue(
-                "{\"items\":\n"
-                +"[{\"bar\": 0,\n"
-                +"\"id\": \"id123\",\n"
-                +"\"foo\": 1\n"
-                +"}]}",
+                """
+                {"items":
+                [{"bar": 0,
+                "id": "id123",
+                "foo": 1
+                }]}
+                """,
                 Test431Container.class);
         assertNotNull(foo);
     }

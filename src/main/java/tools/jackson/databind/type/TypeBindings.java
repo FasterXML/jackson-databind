@@ -1,5 +1,6 @@
 package tools.jackson.databind.type;
 
+import java.io.Serial;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -12,6 +13,7 @@ import tools.jackson.databind.util.ClassUtil;
 public class TypeBindings
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final static String[] NO_STRINGS = new String[0];
@@ -64,6 +66,7 @@ public class TypeBindings
     }
 
     // Let's just canonicalize serialized EMPTY back to static instance, if need be
+    @Serial
     protected Object readResolve() {
         if ((_names == null) || (_names.length == 0)) {
             return EMPTY;

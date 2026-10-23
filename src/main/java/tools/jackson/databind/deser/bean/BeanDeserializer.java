@@ -275,6 +275,15 @@ public class BeanDeserializer
         } else {
             return bean;
         }
+        // [databind#1921]: Immutable POJO whose only assignment path is @JsonCreator:
+        // existing instance cannot be updated in-place (no setters/fields/any-setter),
+        // so construct a new instance via the creator. This discards existing values
+        // (true per-property merge requires getter introspection; out of scope here).
+        // Positioned after the `propName == null` / non-object short-circuits so that
+        // empty-object and non-object updates continue to return `bean` unchanged.
+        if (_propertyBasedCreator != null && !_hasUpdateableProperties()) {
+            return deserializeFromObject(p, ctxt);
+        }
         if (_needViewProcesing) {
             Class<?> view = ctxt.getActiveView();
             if (view != null) {
@@ -318,13 +327,18 @@ public class BeanDeserializer
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = (_anySetter != null)
-            ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter)
-            : creator.startBuilding(p, ctxt, _objectIdReader);
+            ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter, false)
+            : creator.startBuilding(p, ctxt, _objectIdReader, false);
 
-        // Step 1: Pre-populate buffer from existing Record values
+        // Step 1: Pre-populate buffer from existing Record values, including
+        // components marked ignorable so their original values are retained
+        // (JSON cannot overwrite them; see Step 2).
         final Class<?> recordClass = _beanType.getRawClass();
         final RecordComponent[] components = recordClass.getRecordComponents();
-        for (SettableBeanProperty creatorProp : creator.properties()) {
+        for (SettableBeanProperty creatorProp : creator.allPropertiesInOrder()) {
+            if (creatorProp == null) {
+                continue;
+            }
             final int creatorIndex = creatorProp.getCreatorIndex();
             if (creatorIndex >= 0 && creatorIndex < components.length) {
                 try {
@@ -352,10 +366,22 @@ public class BeanDeserializer
             return _buildRecordFromBuffer(ctxt, creator, buffer);
         }
 
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
+
         do {
             p.nextToken(); // to point to value
             final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
+                // [databind#5966] Honor @JsonView visibility, injection-only on creator parameters
+                // (also covers [databind#5971] view check on the record-update path)
+                if (activeView != null && !creatorProp.visibleInView(activeView)) {
+                    handleUnexpectedView(p, ctxt, creatorProp, activeView);
+                    continue;
+                }
+                if (creatorProp.isInjectionOnly()) {
+                    p.skipChildren();
+                    continue;
+                }
                 // Override the pre-populated value
                 buffer.assignParameter(creatorProp,
                         _deserializeWithErrorWrapping(p, ctxt, creatorProp));
@@ -377,6 +403,11 @@ public class BeanDeserializer
                 continue;
             }
             */
+            // [databind#6115] Things marked as ignorable should not be passed to any setter
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
+                continue;
+            }
             // "Any property"?
             if (_anySetter != null) {
                 try {
@@ -388,8 +419,7 @@ public class BeanDeserializer
                                 _anySetter.deserialize(p, ctxt));
                     } else {
                         */
-                    buffer.bufferAnyParameterProperty(_anySetter, propName,
-                            _anySetter.deserialize(p, ctxt));
+                    buffer.bufferAnyParameterProperty(_anySetter, propName, p, ctxt);
                     //}
                 } catch (Exception e) {
                     throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
@@ -435,9 +465,8 @@ public class BeanDeserializer
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.assignCurrentValue(bean);
 
-        int ix = p.nextNameMatch(_propNameMatcher);
+        int ix = p.nextNameMatchAndToken(_propNameMatcher);
         while (ix >= 0) {
-            p.nextToken();
             SettableBeanProperty prop = _propsByIndex[ix];
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
@@ -445,11 +474,10 @@ public class BeanDeserializer
                 wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             // Elem #2
-            ix = p.nextNameMatch(_propNameMatcher);
+            ix = p.nextNameMatchAndToken(_propNameMatcher);
             if (ix < 0) {
                 break;
             }
-            p.nextToken();
             prop = _propsByIndex[ix];
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
@@ -457,11 +485,10 @@ public class BeanDeserializer
                 wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             // Elem #3
-            ix = p.nextNameMatch(_propNameMatcher);
+            ix = p.nextNameMatchAndToken(_propNameMatcher);
             if (ix < 0) {
                 break;
             }
-            p.nextToken();
             prop = _propsByIndex[ix];
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
@@ -469,18 +496,17 @@ public class BeanDeserializer
                 wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             // Elem #4
-            ix = p.nextNameMatch(_propNameMatcher);
+            ix = p.nextNameMatchAndToken(_propNameMatcher);
             if (ix < 0) {
                 break;
             }
-            p.nextToken();
             prop = _propsByIndex[ix];
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
                 wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
-            ix = p.nextNameMatch(_propNameMatcher);
+            ix = p.nextNameMatchAndToken(_propNameMatcher);
         }
         if (ix != PropertyNameMatcher.MATCH_END_OBJECT) {
             if (ix == PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
@@ -548,9 +574,8 @@ public class BeanDeserializer
         handleUnknownVanilla(p, ctxt, bean, propName);
 
         while (true) {
-            int ix = p.nextNameMatch(_propNameMatcher);
+            int ix = p.nextNameMatchAndToken(_propNameMatcher);
             if (ix >= 0) { // normal case
-                p.nextToken();
                 try {
                     _propsByIndex[ix].deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
@@ -680,13 +705,33 @@ public class BeanDeserializer
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = (_anySetter != null)
-            ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter)
-            : creator.startBuilding(p, ctxt, _objectIdReader);
+            ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter, false)
+            : creator.startBuilding(p, ctxt, _objectIdReader, false);
+
+        // [dataformats-text#22]: Handle native Object Ids (e.g. YAML anchors) that
+        // are exposed via parser.getObjectId() rather than as a JSON property.
+        // The standard path (no-arg constructor) handles this after bean creation,
+        // but for property-based creators we need to capture the id value early
+        // so that PropertyValueBuffer.handleIdValue() can bind it after construction.
+        if (_objectIdReader != null && p.canReadObjectId()) {
+            Object rawId = p.getObjectId();
+            if (rawId != null) {
+                Object id;
+                ValueDeserializer<Object> idDeser = _objectIdReader.getDeserializer();
+                if (idDeser.handledType() == rawId.getClass()) {
+                    id = rawId;
+                } else {
+                    id = _convertObjectId(p, ctxt, rawId, idDeser);
+                }
+                buffer.assignNativeObjectId(id);
+            }
+        }
+
         TokenBuffer unknown = null;
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
+        final boolean skipUnknown = _shouldSkipUnknowns(ctxt);
         JsonToken t = p.currentToken();
         List<BeanReferring> referrings = null;
-        final boolean isRecord = _beanType.isRecordType();
 
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
@@ -699,21 +744,14 @@ public class BeanDeserializer
 
             // Creator property?
             if (creatorProp != null) {
-                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
-                    p.skipChildren();
+                if (activeView != null && !creatorProp.visibleInView(activeView)) {
+                    handleUnexpectedView(p, ctxt, creatorProp, activeView);
                     continue;
                 }
                 // [databind#1381]: if useInput=FALSE, skip deserialization from input
                 if (creatorProp.isInjectionOnly()) {
                     // Skip the input value, will be injected later in PropertyValueBuffer
                     p.skipChildren();
-                    continue;
-                }
-                // [databind#4629] Need to check for ignored properties for Creator properties since
-                // Records will have a valid 'creatorProp', so if we don't
-                // check for ignore first, the ignore configuration will be bypassed.
-                if (isRecord && IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
                     continue;
                 }
                 // Last creator property to set?
@@ -740,6 +778,13 @@ public class BeanDeserializer
             int ix = _propNameMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
+                // [databind#5969]: must honor active view here too -- otherwise
+                // setterless/merging collection properties hidden by view can be
+                // populated via the buffering path below.
+                if (activeView != null && !prop.visibleInView(activeView)) {
+                    handleUnexpectedView(p, ctxt, prop, activeView);
+                    continue;
+                }
                 // [databind#3724]: Special handling because Records' ignored creator props
                 // weren't removed (to help in creating constructor-backed PropertyCreator)
                 // so they ended up in _beanProperties, unlike POJO (whose ignored
@@ -772,6 +817,11 @@ public class BeanDeserializer
                 }
             }
 
+            // [databind#5865] Things marked as ignorable should not be passed to any setter
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
+                continue;
+            }
             // "any property"?
             if (_anySetter != null) {
                 try {
@@ -779,9 +829,9 @@ public class BeanDeserializer
                     if (_anySetter.isFieldType() ||
                             // [databind#4639] 2.18.2: Also should account for setter type :-/
                             _anySetter.isSetterType()) {
-                        buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                        buffer.bufferAnyProperty(_anySetter, propName, p, ctxt);
                     } else {
-                        buffer.bufferAnyParameterProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                        buffer.bufferAnyParameterProperty(_anySetter, propName, p, ctxt);
                     }
                 } catch (Exception e) {
                     throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
@@ -790,8 +840,9 @@ public class BeanDeserializer
             }
             // 29-Mar-2021, tatu: [databind#3082] May skip collection if we know
             //    they'd just get ignored (note: any-setter handled above; unwrapped
-            //    properties also separately handled)
-            if (_ignoreAllUnknown) {
+            //    properties also separately handled). Covers `_ignoreAllUnknown` and
+            //    [databind#5897] (final type, no handlers, `FAIL_ON_UNKNOWN_PROPERTIES` off).
+            if (skipUnknown) {
                 // 22-Aug-2021, tatu: [databind#3252] must ensure we do skip the whole value
                 p.skipChildren();
                 continue;
@@ -824,7 +875,14 @@ public class BeanDeserializer
             }
         }
 
-        p.assignCurrentValue(bean);
+        // [databind#5980]: Do NOT assign current value here. With property-based
+        //   creators the bean only exists after the closing END_OBJECT has been
+        //   consumed -- by which point the stream-read context has already been
+        //   popped back to the *enclosing* value. Assigning here would therefore
+        //   clobber the enclosing value's `currentValue()` (it can never reach the
+        //   bean's own, already-closed scope), breaking custom deserializers of
+        //   later sibling properties that rely on `JsonParser.currentValue()`.
+
         // [databind#4938] Since 2.19, allow returning `null` from creator,
         //  but if so, need to skip all possibly relevant content
         if (bean == null) {
@@ -971,14 +1029,7 @@ public class BeanDeserializer
                 p.nextToken();
                 SettableBeanProperty prop = _propsByIndex[ix];
                 if (!prop.visibleInView(activeView)) {
-                    // [databind#437]: fields in other views to be considered as unknown properties
-                    if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)){
-                        ctxt.reportInputMismatch(handledType(),
-                                String.format("Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'" +
-                                        " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
-                                        ClassUtil.nameOf(handledType()), prop.getName(), activeView.getName()));
-                    }
-                    p.skipChildren();
+                    handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
                 try {
@@ -1037,8 +1088,8 @@ public class BeanDeserializer
             if (ix >= 0) { // common case
                 p.nextToken();
                 SettableBeanProperty prop = _propsByIndex[ix];
-                if ((activeView != null) && !prop.visibleInView(activeView)) {
-                    p.skipChildren();
+                if (activeView != null && !prop.visibleInView(activeView)) {
+                    handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
                 try {
@@ -1111,8 +1162,8 @@ public class BeanDeserializer
             if (ix >= 0) { // common case
                 p.nextToken();
                 SettableBeanProperty prop = _propsByIndex[ix];
-                if ((activeView != null) && !prop.visibleInView(activeView)) {
-                    p.skipChildren();
+                if (activeView != null && !prop.visibleInView(activeView)) {
+                    handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
                 try {
@@ -1166,12 +1217,12 @@ public class BeanDeserializer
         //    Ok however to pass via setter or field.
 
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, false);
 
         TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
 
-        final boolean isRecord = _beanType.isRecordType();
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         boolean hasUnwrappedContent = false;
         JsonToken t = p.currentToken();
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
@@ -1185,17 +1236,15 @@ public class BeanDeserializer
             }
 
             if (creatorProp != null) {
+                // [databind#5971]: must honor active view here too
+                if (activeView != null && !creatorProp.visibleInView(activeView)) {
+                    handleUnexpectedView(p, ctxt, creatorProp, activeView);
+                    continue;
+                }
                 // [databind#1381]: if useInput=FALSE, skip deserialization from input
                 if (creatorProp.isInjectionOnly()) {
                     // Skip the input value, will be injected later in PropertyValueBuffer
                     p.skipChildren();
-                    continue;
-                }
-                // [databind#4629] Need to check for ignored properties for Creator properties since
-                // Records will have a valid 'creatorProp', so if we don't
-                // check for ignore first, the ignore configuration will be bypassed.
-                if (isRecord && IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
                     continue;
                 }
                 // Last creator property to set?
@@ -1210,6 +1259,11 @@ public class BeanDeserializer
             int ix = _propNameMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
+                // [databind#5969]: must honor active view here too
+                if (activeView != null && !prop.visibleInView(activeView)) {
+                    handleUnexpectedView(p, ctxt, prop, activeView);
+                    continue;
+                }
                 buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
                 continue;
             }
@@ -1218,16 +1272,19 @@ public class BeanDeserializer
             //    we can do.
             // 19-Dec-2025: [databind#650] We can now distinguish the cases
             // but... others should be passed to unwrapped property deserializers
+            // 09-Mar-2026: [databind#1075] Check unwrapped properties BEFORE ignorable,
+            //    so that @JsonIgnore on outer getter doesn't block unwrapped inner property
             if (_unwrappedPropertyHandler.hasUnwrappedProperty(propName)) {
                 hasUnwrappedContent = true;
                 tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
+            } else if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                // [databind#6115] Things marked as ignorable should not be passed to any setter
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
             } else if (_anySetter == null) {
                 // [databind#650]: priority: @JsonIgnoreProperties > FAIL_ON_UNKNOWN_PROPERTIES
                 if (_ignoreAllUnknown) {
                     p.skipChildren();
-                } else if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
                 } else if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
                     throw UnrecognizedPropertyException.from(p, handledType(), propName, getKnownPropertyNames());
                 } else {
@@ -1239,8 +1296,7 @@ public class BeanDeserializer
                 tokens.writeName(propName);
                 tokens.append(b2);
                 try {
-                    buffer.bufferAnyProperty(_anySetter, propName,
-                            _anySetter.deserialize(b2.asParserOnFirstToken(ctxt), ctxt));
+                    buffer.bufferAnyProperty(_anySetter, propName, b2.asParserOnFirstToken(ctxt), ctxt);
                 } catch (Exception e) {
                     throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                 }
@@ -1261,7 +1317,9 @@ public class BeanDeserializer
         } catch (Exception e) {
             return wrapInstantiationProblem(ctxt, e);
         }
-        p.assignCurrentValue(bean);
+        // [databind#5980]: Do NOT assign current value here -- see explanation in
+        //   `_deserializeUsingPropertyBased()`: bean only exists after END_OBJECT has
+        //   been consumed, so assigning here would clobber the *enclosing* value.
 
         // [databind#4938] Since 2.19, allow returning `null` from creator,
         //  but if so, need to skip all possibly relevant content
@@ -1326,7 +1384,7 @@ public class BeanDeserializer
                     continue;
                 }
                 if (activeView != null && !prop.visibleInView(activeView)) {
-                    p.skipChildren();
+                    handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
                 try {
@@ -1375,7 +1433,9 @@ public class BeanDeserializer
     {
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, false);
+        // [databind#5958]: capture active view so type-ID properties respect @JsonView restrictions
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
         for (JsonToken t = p.currentToken(); t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
@@ -1387,13 +1447,17 @@ public class BeanDeserializer
                 continue;
             }
             if (creatorProp != null) {
+                // [databind#5971]: must honor active view here too
+                if (activeView != null && !creatorProp.visibleInView(activeView)) {
+                    handleUnexpectedView(p, ctxt, creatorProp, activeView);
+                    continue;
+                }
                 // [databind#1381]: if useInput=FALSE, skip deserialization from input
                 if (creatorProp.isInjectionOnly()) {
                     // Skip the input value, will be injected later in PropertyValueBuffer
                     p.skipChildren();
                     continue;
                 }
-
                 // first: let's check to see if this might be part of value with external type id:
                 // 11-Sep-2015, tatu: Important; do NOT pass buffer as last arg, but null,
                 //   since it is not the bean
@@ -1410,6 +1474,12 @@ public class BeanDeserializer
             int ix = _propNameMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
+                // [databind#5958]: check view before storing external type ID so that a
+                // view-restricted type discriminator is not processed in other views.
+                if (activeView != null && !prop.visibleInView(activeView)) {
+                    handleUnexpectedView(p, ctxt, prop, activeView);
+                    continue;
+                }
                 // [databind#3045]: may have property AND be used as external type id:
                 // [databind#1329]: if so, and visible=false, skip buffering
                 if (t.isScalarValue()
@@ -1417,6 +1487,12 @@ public class BeanDeserializer
                     continue;
                 }
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
+                continue;
+            }
+            // [databind#6243]: Creator property not found above is one to ignore; must not
+            // be passed to external type id handling (but other ignored names, like type id, are)
+            if (creator.hasCreatorProperty(propName)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
             // external type id (or property that depends on it)?
@@ -1430,8 +1506,7 @@ public class BeanDeserializer
             }
             // "any property"?
             if (_anySetter != null) {
-                buffer.bufferAnyProperty(_anySetter, propName,
-                        _anySetter.deserialize(p, ctxt));
+                buffer.bufferAnyProperty(_anySetter, propName, p, ctxt);
                 continue;
             }
             // Unknown: let's call handler method
@@ -1514,11 +1589,6 @@ public class BeanDeserializer
             } else {
                 _prop.set(ctxt, _bean, value);
             }
-        }
-
-        @Override
-        public boolean refersTo(Object obj) {
-            return _bean == obj;
         }
     }
 }

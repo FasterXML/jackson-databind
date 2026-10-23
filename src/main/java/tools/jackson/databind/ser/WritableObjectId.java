@@ -93,7 +93,11 @@ public final class WritableObjectId
         if (name != null) {
             // 05-Feb-2019, tatu: How about `null` id? For now, write
             g.writeName(name);
-            w.serializer.serialize(id, g, ctxt);
+            if (id == null) {
+                g.writeNull();
+            } else {
+                w.serializer.serialize(id, g, ctxt);
+            }
         }
     }
 }

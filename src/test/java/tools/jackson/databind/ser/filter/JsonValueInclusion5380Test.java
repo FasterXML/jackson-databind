@@ -8,8 +8,13 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.ser.ValueSerializerModifier;
+import tools.jackson.databind.ser.jackson.JsonValueSerializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -57,6 +62,44 @@ class JsonValueInclusion5380Test extends DatabindTestUtil
     }
 
     record NestedWrapper(@JsonInclude(JsonInclude.Include.NON_EMPTY) OuterValue value) { }
+
+    // Non-Record wrapper, needed for global NON_DEFAULT to fall back to "empty" check
+    static class PojoWrapper {
+        public JsonValuePojo value;
+
+        PojoWrapper(JsonValuePojo value) { this.value = value; }
+    }
+
+    // Custom sub-class: must be retained through contextualization
+    static class CustomJsonValueSerializer extends JsonValueSerializer {
+        CustomJsonValueSerializer(JsonValueSerializer src) {
+            super(src, null, null, null, true);
+        }
+
+        CustomJsonValueSerializer(CustomJsonValueSerializer src, BeanProperty property,
+                TypeSerializer vts, ValueSerializer<?> ser, boolean forceTypeInfo,
+                boolean emptyCheckDisabled) {
+            super(src, property, vts, ser, forceTypeInfo, emptyCheckDisabled);
+        }
+
+        @Override
+        public JsonValueSerializer withResolved(BeanProperty property,
+                TypeSerializer vts, ValueSerializer<?> ser, boolean forceTypeInfo) {
+            return new CustomJsonValueSerializer(this, property, vts, ser, forceTypeInfo,
+                    _emptyCheckDisabled);
+        }
+
+        @Override
+        public JsonValueSerializer withEmptyCheckDisabled(boolean state) {
+            return new CustomJsonValueSerializer(this, _property, _valueTypeSerializer,
+                    _valueSerializer, _forceTypeInformation, state);
+        }
+
+        @Override
+        public void serialize(Object bean, JsonGenerator gen, SerializationContext ctxt) {
+            gen.writeString("custom:" + bean);
+        }
+    }
 
     record MapWrapper(@JsonInclude(content = JsonInclude.Include.NON_EMPTY)
             Map<String, JsonValuePojo> values) { }
@@ -139,6 +182,67 @@ class JsonValueInclusion5380Test extends DatabindTestUtil
                         JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, null)))
                 .build();
         assertEquals("{}", mapper.writeValueAsString(new WrapperPojo(new JsonValuePojo(""))));
+    }
+
+    // Override "include" (not just "include as property") for declared type is
+    // also used for property inclusion, so it too has precedence
+    @Test
+    void declaredTypeIncludeOverrideHasPrecedence() throws Exception {
+        ObjectMapper mapper = mapperBuilder()
+                .withConfigOverride(String.class, o -> o.setIncludeAsProperty(
+                        JsonInclude.Value.construct(JsonInclude.Include.NON_NULL, null)))
+                .withConfigOverride(JsonValuePojo.class, o -> o.setInclude(
+                        JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, null)))
+                .build();
+        assertEquals("{}", mapper.writeValueAsString(new WrapperPojo(new JsonValuePojo(""))));
+    }
+
+    // Global NON_DEFAULT falls back to "empty" check for POJO-valued property
+    @Test
+    void nonDefaultInclusion() throws Exception {
+        JsonMapper.Builder b = JsonMapper.builder()
+                .changeDefaultPropertyInclusion(incl -> JsonInclude.Value.construct(
+                        JsonInclude.Include.NON_DEFAULT, JsonInclude.Include.NON_DEFAULT));
+        assertEquals("{}", b.build().writeValueAsString(new PojoWrapper(new JsonValuePojo(""))));
+
+        ObjectMapper mapper = b.withConfigOverride(String.class, o -> o.setIncludeAsProperty(
+                JsonInclude.Value.construct(JsonInclude.Include.NON_NULL, null)))
+                .build();
+        assertEquals("""
+                {"value":""}""", mapper.writeValueAsString(new PojoWrapper(new JsonValuePojo(""))));
+        assertEquals("{}", mapper.writeValueAsString(new PojoWrapper(null)));
+    }
+
+    // Custom sub-class retained, with and without empty check disabled
+    @Test
+    void customSubclassRetained() throws Exception {
+        SimpleModule mod = new SimpleModule().setSerializerModifier(new ValueSerializerModifier() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public ValueSerializer<?> modifySerializer(SerializationConfig config,
+                    BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
+                if (serializer instanceof JsonValueSerializer jvs) {
+                    return new CustomJsonValueSerializer(jvs);
+                }
+                return serializer;
+            }
+        });
+        // No override for value type: empty value suppressed
+        ObjectMapper mapper = mapperBuilder().addModule(mod).build();
+        assertEquals("""
+                {"jsonValuePojo":"custom:x"}""",
+                mapper.writeValueAsString(new WrapperPojo(new JsonValuePojo("x"))));
+        assertEquals("{}", mapper.writeValueAsString(new WrapperPojo(new JsonValuePojo(""))));
+
+        // With override: empty value retained, custom serializer still used
+        mapper = mapperBuilder().addModule(mod)
+                .withConfigOverride(String.class, o -> o.setIncludeAsProperty(
+                        JsonInclude.Value.construct(JsonInclude.Include.NON_NULL, null)))
+                .build();
+        assertEquals("""
+                {"jsonValuePojo":"custom:"}""",
+                mapper.writeValueAsString(new WrapperPojo(new JsonValuePojo(""))));
     }
 
     // Content inclusion of container properties not affected

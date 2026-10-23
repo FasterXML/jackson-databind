@@ -32,6 +32,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (reported by @sikorskii)
  (fix by @seonwooj0810)
 #5380: `@JsonValue` ignores property inclusion config override of the value type
+  (empty values no longer suppressed if value type override does not exclude them)
  (reported by @LSwiatek)
  (fix by @cowtowncoder, w/ Claude code)
 #6069: Change throws declaration on convertValue to JacksonException to match what

@@ -15,6 +15,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
+import tools.jackson.databind.cfg.ConfigOverride;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -299,9 +300,12 @@ public class JsonValueSerializer
                 && _hasValueInclusion(intr.findPropertyInclusion(config, _accessor))) {
             return false;
         }
-        // As does config override for declared property type
-        if (_hasValueInclusion(config.getConfigOverride(propType.getRawClass())
-                .getIncludeAsProperty())) {
+        // As do config overrides for declared property type: note that both
+        // "include as property" and "include" are considered for property (see
+        // `PropertyBuilder.buildWriter()`)
+        final ConfigOverride declOverride = config.getConfigOverride(propType.getRawClass());
+        if (_hasValueInclusion(declOverride.getIncludeAsProperty())
+                || _hasValueInclusion(declOverride.getInclude())) {
             return false;
         }
         JsonInclude.Value v = config.getConfigOverride(_valueType.getRawClass())

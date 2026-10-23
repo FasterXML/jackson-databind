@@ -254,10 +254,10 @@ public class JsonValueSerializer
 
     /**
      * Helper method for determining whether "empty" values must not be suppressed
-     * because value inclusion configured for the {@code @JsonValue} type (via
-     * {@code ConfigOverride.getIncludeAsProperty()}) does not exclude them, and
-     * nothing more specific is configured for the property: that is, neither an
-     * annotation on property or {@code @JsonValue} accessor, nor override for
+     * because value inclusion configured for the {@code @JsonValue} value (via
+     * annotation on accessor, or {@code ConfigOverride.getIncludeAsProperty()} of
+     * value type) does not exclude them, and nothing more specific is configured
+     * for the property: that is, neither an annotation on property, nor override for
      * declared property type.
      * See [databind#5380].
      *
@@ -265,15 +265,20 @@ public class JsonValueSerializer
      */
     protected boolean _isEmptyCheckDisabled(SerializationContext ctxt, BeanProperty property)
     {
-        // Only for actual bean properties of the type: not root values, nested
-        // `@JsonValue` values (see `JsonValueProperty`) nor container content
+        // Only for actual bean properties declared with exactly this type: not root
+        // values, nested `@JsonValue` values (see `JsonValueProperty`) nor content
+        // of container (or `Object`-typed) properties
         if (!(property instanceof BeanPropertyWriter)
-                || !property.getType().getRawClass().isAssignableFrom(handledType())) {
+                || !property.getType().hasRawClass(handledType())) {
             return false;
         }
         final SerializationConfig config = ctxt.getConfig();
-        final JsonInclude.Value v = config.getConfigOverride(_valueType.getRawClass())
-                .getIncludeAsProperty();
+        // Value inclusion from annotation on `@JsonValue` accessor ([databind#4762]),
+        // if any; otherwise from config override for the value type
+        JsonInclude.Value v = _findInclusion(config, _accessor);
+        if (!_hasValueInclusion(v)) {
+            v = config.getConfigOverride(_valueType.getRawClass()).getIncludeAsProperty();
+        }
         final JsonInclude.Include incl = (v == null) ? null : v.getValueInclusion();
         if ((incl != JsonInclude.Include.ALWAYS) && (incl != JsonInclude.Include.NON_NULL)
                 // "absent" means "empty" for reference types
@@ -283,15 +288,15 @@ public class JsonValueSerializer
         // Note: both "include as property" and "include" overrides of declared type
         // are used for property inclusion (see `PropertyBuilder.buildWriter()`)
         final ConfigOverride declOverride = config.getConfigOverride(property.getType().getRawClass());
-        return !_hasValueInclusion(config, property.getMember())
-                && !_hasValueInclusion(config, _accessor)
+        return !_hasValueInclusion(_findInclusion(config, property.getMember()))
                 && !_hasValueInclusion(declOverride.getIncludeAsProperty())
                 && !_hasValueInclusion(declOverride.getInclude());
     }
 
-    private static boolean _hasValueInclusion(SerializationConfig config, AnnotatedMember member) {
-        return (member != null) && _hasValueInclusion(config.getAnnotationIntrospector()
-                .findPropertyInclusion(config, member));
+    private static JsonInclude.Value _findInclusion(SerializationConfig config,
+            AnnotatedMember member) {
+        return (member == null) ? null
+                : config.getAnnotationIntrospector().findPropertyInclusion(config, member);
     }
 
     private static boolean _hasValueInclusion(JsonInclude.Value v) {

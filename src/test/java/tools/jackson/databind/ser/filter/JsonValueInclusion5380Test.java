@@ -55,6 +55,17 @@ class JsonValueInclusion5380Test extends DatabindTestUtil
 
     record AccessorAnnotatedWrapper(AccessorAnnotatedValue value) { }
 
+    record AccessorAlwaysValue(String value) {
+        @JsonValue
+        @JsonInclude(JsonInclude.Include.ALWAYS)
+        public String toString() { return value; }
+    }
+
+    record AccessorAlwaysWrapper(AccessorAlwaysValue value) { }
+
+    record AnnotatedAccessorAlwaysWrapper(
+            @JsonInclude(JsonInclude.Include.NON_EMPTY) AccessorAlwaysValue value) { }
+
     // Nested `@JsonValue`: outer serializes as inner, which serializes as String
     record OuterValue(JsonValuePojo inner) {
         @JsonValue
@@ -103,6 +114,9 @@ class JsonValueInclusion5380Test extends DatabindTestUtil
 
     record MapWrapper(@JsonInclude(content = JsonInclude.Include.NON_EMPTY)
             Map<String, JsonValuePojo> values) { }
+
+    record ObjectMapWrapper(@JsonInclude(content = JsonInclude.Include.NON_EMPTY)
+            Object values) { }
 
     private final ObjectMapper MAPPER = mapperBuilder()
             .withConfigOverride(String.class, o -> o.setIncludeAsProperty(
@@ -160,6 +174,25 @@ class JsonValueInclusion5380Test extends DatabindTestUtil
     void accessorAnnotationHasPrecedence() throws Exception {
         assertEquals("{}", MAPPER.writeValueAsString(
                 new AccessorAnnotatedWrapper(new AccessorAnnotatedValue(""))));
+    }
+
+    // Accessor annotation that does not exclude empty values is used as well;
+    // with or without value type override
+    @Test
+    void accessorAnnotationAllowingEmpty() throws Exception {
+        assertEquals("""
+                {"value":""}""", MAPPER.writeValueAsString(
+                new AccessorAlwaysWrapper(new AccessorAlwaysValue(""))));
+        assertEquals("""
+                {"value":""}""", mapperBuilder().build().writeValueAsString(
+                new AccessorAlwaysWrapper(new AccessorAlwaysValue(""))));
+    }
+
+    // ... but annotation on enclosing property has precedence over accessor annotation
+    @Test
+    void propertyAnnotationBeatsAccessorAnnotation() throws Exception {
+        assertEquals("{}", MAPPER.writeValueAsString(
+                new AnnotatedAccessorAlwaysWrapper(new AccessorAlwaysValue(""))));
     }
 
     // Explicit property annotation must also win for nested `@JsonValue`
@@ -253,5 +286,8 @@ class JsonValueInclusion5380Test extends DatabindTestUtil
         values.put("b", new JsonValuePojo("x"));
         assertEquals("""
                 {"values":{"b":"x"}}""", MAPPER.writeValueAsString(new MapWrapper(values)));
+        // including case of `Object`-typed property
+        assertEquals("""
+                {"values":{"b":"x"}}""", MAPPER.writeValueAsString(new ObjectMapWrapper(values)));
     }
 }

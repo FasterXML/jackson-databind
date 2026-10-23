@@ -6,6 +6,10 @@ Project: jackson-databind
 
 2.23.0 (not yet released)
 
+#6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
+  (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
+ (reported by João G)
+ (fix by João G, @cowtowncoder; backport by @Dongnyoung)
 #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
  (fix by @kimsanhaa)
 #6261: Support `@JsonView` on properties-based Creator parameters of Enum, Map and EnumMap types

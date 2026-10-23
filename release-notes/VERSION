@@ -11,6 +11,10 @@ No changes since 3.1
 
 3.1.9 (not yet released)
 
+#6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
+  (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
+ (reported by João G)
+ (fix by João G and @cowtowncoder, w/ Claude code)
 #6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
   array contains `null`
  (reported, fixed by @Marti2203)

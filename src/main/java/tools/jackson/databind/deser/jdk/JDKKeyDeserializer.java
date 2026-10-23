@@ -347,18 +347,19 @@ public class JDKKeyDeserializer extends KeyDeserializer
             }
             TokenBuffer tb = ctxt.bufferForInputBuffering();
             tb.writeString(key);
-            try {
-                // Ugh... should not have to give parser which may or may not be correct one...
-                JsonParser p = tb.asParser(ctxt);
-                p.nextToken();
-                Object result = _delegate.deserialize(p, ctxt);
-                if (result != null) {
-                    return result;
+            JsonParser p = tb.asParser(ctxt);
+            p.nextToken();
+            return ctxt.withParser(p, () -> {
+                try {
+                    Object result = _delegate.deserialize(p, ctxt);
+                    if (result != null) {
+                        return result;
+                    }
+                    return ctxt.handleWeirdKey(_keyClass, key, "not a valid representation");
+                } catch (Exception re) {
+                    return ctxt.handleWeirdKey(_keyClass, key, "not a valid representation: %s", re.getMessage());
                 }
-                return ctxt.handleWeirdKey(_keyClass, key, "not a valid representation");
-            } catch (Exception re) {
-                return ctxt.handleWeirdKey(_keyClass, key, "not a valid representation: %s", re.getMessage());
-            }
+            });
         }
 
         public Class<?> getKeyClass() { return _keyClass; }

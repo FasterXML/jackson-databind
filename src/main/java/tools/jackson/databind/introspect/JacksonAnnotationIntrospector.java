@@ -107,6 +107,20 @@ public class JacksonAnnotationIntrospector
 
     public JacksonAnnotationIntrospector() { }
 
+    /**
+     * Copy constructor for sub-classes to use when creating re-configured
+     * copies (instead of modifying an instance that may be shared by multiple
+     * mappers): copies all configuration settings of {@code src}, but not
+     * cached state.
+     *
+     * @param src Introspector to copy configuration settings from
+     *
+     * @since 3.3
+     */
+    protected JacksonAnnotationIntrospector(JacksonAnnotationIntrospector src) {
+        _cfgConstructorPropertiesImpliesCreator = src._cfgConstructorPropertiesImpliesCreator;
+    }
+
     @Override
     public Version version() {
         return tools.jackson.databind.cfg.PackageVersion.VERSION;
@@ -352,11 +366,10 @@ public class JacksonAnnotationIntrospector
     @Override
     public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember m)
     {
-        // 15-Sep-2025: As per [databind#5314] possible to disable introspection
-        if (!config.isEnabled(MapperFeature.DETECT_PARAMETER_NAMES)) {
-            return null;
-        }
         if (m instanceof AnnotatedParameter p) {
+            // 15-Sep-2025: As per [databind#5314] possible to disable introspection
+            final boolean detectParamNames = config.isEnabled(MapperFeature.DETECT_PARAMETER_NAMES);
+
             AnnotatedWithParams owner = p.getOwner();
             if (owner instanceof AnnotatedConstructor) {
                 // 15-Sep-2025, tatu: May seem odd but we'll keep access dynamic due
@@ -369,12 +382,15 @@ public class JacksonAnnotationIntrospector
                     }
                 }
                 // ... or parameter names from bytecode (JDK8)
-                return _findImplicitName(owner, p.getIndex());
+                if (detectParamNames) {
+                    return _findImplicitName(owner, p.getIndex());
+                }
+                return null;
             }
             if (owner instanceof AnnotatedMethod) {
                 // For now let's only bother discovering names for static methods as they
                 // (only) may be creators
-                if (owner.isStatic()) {
+                if (detectParamNames && owner.isStatic()) {
                     return _findImplicitName(owner, p.getIndex());
                 }
             }

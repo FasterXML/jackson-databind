@@ -612,6 +612,16 @@ public class BeanDeserializerBuilder
             if ((aliases == null) || aliases.isEmpty()) {
                 continue;
             }
+            // [databind#6243]: a Creator property is not found by an alias that is a name
+            //   to ignore, the same as its Creator does not resolve that name
+            if (prop.isCreatorProperty()) {
+                aliases = aliases.stream()
+                        .filter(alias -> !hasIgnorable(alias.getSimpleName()))
+                        .toList();
+                if (aliases.isEmpty()) {
+                    continue;
+                }
+            }
             if (result == null) {
                 result = new PropertyName[props.size()][];
             }

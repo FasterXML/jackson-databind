@@ -386,7 +386,8 @@ public class ObjectArrayDeserializer
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 String textValue = p.getString();
                 // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
-                if (textValue.isEmpty()) {
+                // (and textValue may be null for some parsers, like Ion for corrupt content)
+                if ((textValue != null) && textValue.isEmpty()) {
                     final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
                             CoercionInputShape.EmptyString);
                     if (act != CoercionAction.Fail) {
@@ -452,7 +453,8 @@ public class ObjectArrayDeserializer
                 if (p.hasToken(JsonToken.VALUE_STRING)) {
                     String textValue = p.getString();
                     // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
-                    if (textValue.isEmpty()) {
+                    // (and textValue may be null for some parsers, like Ion for corrupt content)
+                    if ((textValue != null) && textValue.isEmpty()) {
                         final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
                                 CoercionInputShape.EmptyString);
                         if (act != CoercionAction.Fail) {
@@ -519,33 +521,29 @@ public class ObjectArrayDeserializer
         }
 
         Referring handleUnresolvedReference(UnresolvedForwardReference reference) {
-            ArrayReferring ref = new ArrayReferring(this, reference, _elementType);
+            ArrayReferring ref = new ArrayReferring(this, reference, _elementType,
+                    _accumulator.size());
             _accumulator.add(ref);
             return ref;
         }
 
-        void resolveForwardReference(Object id, Object value) {
-            for (int i = 0, size = _accumulator.size(); i < size; i++) {
-                if ((_accumulator.get(i) instanceof ArrayReferring ref) && ref.hasId(id)) {
-                    if (_array != null) {
-                        // [databind#5946]: if `value` is a transient delegate (Builder
-                        // or @JsonCreator(DELEGATING) intermediate) whose runtime type
-                        // isn't assignable to the typed array's component, writing
-                        // would throw `ArrayStoreException`. Defer: leave the
-                        // ArrayReferring in place; `replaceResolvedItem` will write
-                        // the final value once `updateObjectId` fires the rebind.
-                        if (_untyped || value == null || _elementType.isInstance(value)) {
-                            _array[i] = value;
-                            _accumulator.set(i, value);
-                        }
-                    } else {
-                        _accumulator.set(i, value);
-                    }
-                    return;
+        // [databind#6205]: slot is passed by the reference itself, as scanning
+        // for it would make resolving N references take O(N^2) time
+        void resolveForwardReference(int index, Object value) {
+            if (_array != null) {
+                // [databind#5946]: if `value` is a transient delegate (Builder
+                // or @JsonCreator(DELEGATING) intermediate) whose runtime type
+                // isn't assignable to the typed array's component, writing
+                // would throw `ArrayStoreException`. Defer: leave the
+                // ArrayReferring in place; `replaceResolvedItem` will write
+                // the final value once `updateObjectId` fires the rebind.
+                if (_untyped || value == null || _elementType.isInstance(value)) {
+                    _array[index] = value;
+                    _accumulator.set(index, value);
                 }
+            } else {
+                _accumulator.set(index, value);
             }
-            throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
-                    + "] that wasn't previously seen as unresolved.");
         }
 
         /**
@@ -566,18 +564,18 @@ public class ObjectArrayDeserializer
          * @since 3.2
          */
         void replaceResolvedItem(ArrayReferring forRef, Object oldItem, Object newItem) {
-            if (_array == null) {
-                return;
-            }
-            // No early return on `forRef` match: the same `oldItem` may also
-            // occupy other slots if the same id was forward-referenced more
-            // than once, and we want to swap them all in a single pass.
-            for (int i = 0, size = _accumulator.size(); i < size; ++i) {
-                Object slot = _accumulator.get(i);
-                if (slot == forRef || slot == oldItem) {
-                    _array[i] = newItem;
-                    _accumulator.set(i, newItem);
+            // Only the slot of `forRef` itself: if the same id was forward-referenced
+            // more than once, each reference gets a call of its own. Scanning all
+            // slots instead would make rebinding N references take O(N^2) time.
+            final int index = forRef._index;
+            final Object slot = _accumulator.get(index);
+            if (slot == forRef || slot == oldItem) {
+                // Since 3.2.4, [databind#6225]: rebinding may happen before
+                // buildArray(), so update the accumulator even without an array.
+                if (_array != null) {
+                    _array[index] = newItem;
                 }
+                _accumulator.set(index, newItem);
             }
         }
 
@@ -590,7 +588,10 @@ public class ObjectArrayDeserializer
             }
             for (int i = 0; i < size; i++) {
                 Object value = _accumulator.get(i);
-                if (!(value instanceof ArrayReferring)) {
+                // Slot may still hold a not-yet-rebound Builder (see
+                // resolveForwardReference()); skip it to avoid ArrayStoreException.
+                if (!(value instanceof ArrayReferring)
+                        && (_untyped || value == null || _elementType.isInstance(value))) {
                     _array[i] = value;
                 }
             }
@@ -601,16 +602,24 @@ public class ObjectArrayDeserializer
     private static class ArrayReferring extends Referring {
         private final ObjectArrayReferringAccumulator _parent;
 
+        /**
+         * Position of this reference in the accumulator, and so in the array being
+         * built: fixed, since entries are only ever appended. Scanning for it instead
+         * would make resolving N references take O(N^2) time (see [databind#6205]).
+         */
+        private final int _index;
+
         ArrayReferring(ObjectArrayReferringAccumulator parent,
-                UnresolvedForwardReference ref, Class<?> type) {
+                UnresolvedForwardReference ref, Class<?> type, int index) {
             super(ref, type);
             _parent = parent;
+            _index = index;
         }
 
         @Override
         public void handleResolvedForwardReference(DeserializationContext ctxt,
                 Object id, Object value) {
-            _parent.resolveForwardReference(id, value);
+            _parent.resolveForwardReference(_index, value);
         }
 
         @Override

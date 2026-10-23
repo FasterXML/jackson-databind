@@ -200,14 +200,21 @@ public class JDKFromStringDeserializer
             if (value.startsWith("[")) {
                 // bracketed IPv6 (with port number)
 
-                int i = value.lastIndexOf(']');
+                int i = value.indexOf(']');
                 if (i == -1) {
                     return ctxt.handleWeirdStringValue(_valueClass, value,
                             "Bracketed IPv6 address must contain closing bracket");
                 }
 
-                int j = value.indexOf(':', i);
-                int port = j > -1 ? Integer.parseInt(value.substring(j + 1)) : 0;
+                // closing bracket must be followed by nothing or by ":port"
+                int port = 0;
+                if (i + 1 < value.length()) {
+                    if (value.charAt(i + 1) != ':') {
+                        return ctxt.handleWeirdStringValue(_valueClass, value,
+                                "Bracketed IPv6 address must be followed by nothing or ':' and port number");
+                    }
+                    port = Integer.parseInt(value.substring(i + 2));
+                }
                 return _inetSocketAddress(value.substring(0, i + 1), port);
             }
             int ix = value.indexOf(':');
@@ -264,8 +271,11 @@ public class JDKFromStringDeserializer
         // manually
         int ix = _firstHyphenOrUnderscore(fullValue);
         if (ix < 0) { // single argument
-            // 06-Apr-2026, tatu: Use Builder to avoid deprecated Locale(String) constructor
-            return new Locale.Builder().setLanguageTag(fullValue).build();
+            // [databind#6273]: must NOT use `Locale.Builder.setLanguageTag()` here:
+            //   it rejects values that are not valid BCP-47 tags (including "",
+            //   which must map to `Locale.ROOT`) and throws `IllformedLocaleException`
+            //   (not an `IllegalArgumentException`)
+            return new Locale(fullValue);
         }
         // But also of interest: "_" signals "old" serialization, simpleish;
         // but "-" language-tag

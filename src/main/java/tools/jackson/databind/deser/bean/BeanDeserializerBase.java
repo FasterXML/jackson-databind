@@ -174,7 +174,7 @@ public abstract class BeanDeserializerBase
      * that is, when the actual type is not statically known.
      * For other types this remains null.
      */
-    protected transient ConcurrentHashMap<ClassKey, ValueDeserializer<Object>> _subDeserializers;
+    protected transient volatile ConcurrentHashMap<ClassKey, ValueDeserializer<Object>> _subDeserializers;
 
     /**
      * [databind#1921]: Lazily computed cache for {@link #_hasUpdateableProperties()}.
@@ -424,7 +424,9 @@ public abstract class BeanDeserializerBase
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
-        _propertyBasedCreator = src._propertyBasedCreator;
+        // [databind#6243]: Creator must not find properties by names this variant ignores
+        _propertyBasedCreator = (src._propertyBasedCreator == null) ? null
+                : src._propertyBasedCreator.withByNameInclusion(ignorableProps, includableProps);
 
         _backRefs = src._backRefs;
         _ignorableProps = ignorableProps;
@@ -578,9 +580,6 @@ public abstract class BeanDeserializerBase
 
             // Second loop: contextualize, find other pieces
             for (SettableBeanProperty origProp : _beanProperties) {
-                if (skipPropertyResolution) {
-                    continue;
-                }
                 SettableBeanProperty prop = origProp;
                 ValueDeserializer<?> deser = prop.getValueDeserializer();
                 deser = ctxt.handlePrimaryContextualization(deser, prop, prop.getType());
@@ -649,9 +648,17 @@ public abstract class BeanDeserializerBase
         _propertiesContextualized = true;
 
         // "any setter" may also need to be resolved now
-        if ((_anySetter != null) && !_anySetter.hasValueDeserializer()) {
-            _anySetter = _anySetter.withValueDeserializer(findDeserializer(ctxt,
-                    _anySetter.getType(), _anySetter.getProperty()));
+        if (_anySetter != null) {
+            if (!_anySetter.hasValueDeserializer()) {
+                _anySetter = _anySetter.withValueDeserializer(findDeserializer(ctxt,
+                        _anySetter.getType(), _anySetter.getProperty()));
+            }
+            BeanProperty prop = _anySetter.getProperty();
+            NullValueProvider nuller = _findNullProvider(ctxt, prop,
+                    prop.getMetadata().getValueNulls(), _anySetter.getValueDeserializer());
+            if (nuller != null) {
+                _anySetter = _anySetter.withNullProvider(nuller);
+            }
         }
         // as well as delegate-based constructor:
         if (_valueInstantiator.canCreateUsingDelegate()) {
@@ -680,7 +687,8 @@ public abstract class BeanDeserializerBase
         // And now that we know CreatorProperty instances are also resolved can finally create the creator:
         if (creatorProps != null) {
             _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator,
-                    creatorProps, _beanProperties);
+                    creatorProps, _beanProperties)
+                    .withByNameInclusion(_ignorableProps, _includableProps);
         }
 
         if (extTypes != null) {
@@ -886,7 +894,8 @@ public abstract class BeanDeserializerBase
                     try {
                         SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
                         _propertyBasedCreator = PropertyBasedCreator.construct(
-                                ctxt, _valueInstantiator, creatorProps, _beanProperties);
+                                ctxt, _valueInstantiator, creatorProps, _beanProperties)
+                                .withByNameInclusion(_ignorableProps, _includableProps);
                     } finally {
                         _creatorBeingResolved = false;
                     }

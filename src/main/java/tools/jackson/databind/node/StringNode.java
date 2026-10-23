@@ -245,12 +245,18 @@ public class StringNode
 
     @Override
     public BigInteger asBigInteger(BigInteger defaultValue) {
+        if (!_numberLengthInRange()) {
+            return defaultValue;
+        }
         BigInteger big = _tryParseAsBigInteger();
         return (big == null) ? defaultValue : big;
     }
 
     @Override
     public Optional<BigInteger> asBigIntegerOpt() {
+        if (!_numberLengthInRange()) {
+            return Optional.empty();
+        }
         BigInteger big = _tryParseAsBigInteger();
         return (big == null) ? Optional.empty() : Optional.of(big);
     }
@@ -271,12 +277,18 @@ public class StringNode
     @Override
     public float asFloat(float defaultValue)
     {
+        if (!_numberLengthInRange()) {
+            return defaultValue;
+        }
         Float F = _tryParseAsFloat();
         return (F == null) ? defaultValue : F;
     }
 
     @Override
     public Optional<Float> asFloatOpt() {
+        if (!_numberLengthInRange()) {
+            return Optional.empty();
+        }
         Float F = _tryParseAsFloat();
         return (F == null) ? Optional.empty() : Optional.of(F);
     }
@@ -297,12 +309,18 @@ public class StringNode
     @Override
     public double asDouble(double defaultValue)
     {
+        if (!_numberLengthInRange()) {
+            return defaultValue;
+        }
         Double d = _tryParseAsDouble();
         return (d == null) ? defaultValue : d;
     }
 
     @Override
     public OptionalDouble asDoubleOpt() {
+        if (!_numberLengthInRange()) {
+            return OptionalDouble.empty();
+        }
         Double d = _tryParseAsDouble();
         return (d == null) ? OptionalDouble.empty() : OptionalDouble.of(d);
     }
@@ -321,12 +339,18 @@ public class StringNode
 
     @Override
     public BigDecimal asDecimal(BigDecimal defaultValue) {
+        if (!_numberLengthInRange()) {
+            return defaultValue;
+        }
         BigDecimal dec = _tryParseAsBigDecimal();
         return (dec == null) ? defaultValue : dec;
     }
 
     @Override
     public Optional<BigDecimal> asDecimalOpt() {
+        if (!_numberLengthInRange()) {
+            return Optional.empty();
+        }
         BigDecimal dec = _tryParseAsBigDecimal();
         return (dec == null) ? Optional.empty() : Optional.of(dec);
     }
@@ -364,6 +388,10 @@ public class StringNode
 
     protected BigInteger _tryParseAsBigInteger() {
         if (NumberInput.looksLikeValidNumber(_value)) {
+            // Enforce number-length limit before the super-linear parse, same as
+            // deserializers do; no `StreamReadConstraints` available here so use
+            // `defaults()` (compare `DecimalNode`/`POJONode`, [databind#6214])
+            StreamReadConstraints.defaults().validateIntegerLength(_value.length());
             try {
                 return NumberInput.parseBigInteger(_value, true);
             } catch (NumberFormatException e) {
@@ -375,6 +403,7 @@ public class StringNode
 
     protected Float _tryParseAsFloat() {
         if (NumberInput.looksLikeValidNumber(_value)) {
+            StreamReadConstraints.defaults().validateFPLength(_value.length());
             try {
                 return NumberInput.parseFloat(_value, true);
             } catch (NumberFormatException e) {
@@ -386,6 +415,7 @@ public class StringNode
 
     protected Double _tryParseAsDouble() {
         if (NumberInput.looksLikeValidNumber(_value)) {
+            StreamReadConstraints.defaults().validateFPLength(_value.length());
             try {
                 return NumberInput.parseDouble(_value, true);
             } catch (NumberFormatException e) {
@@ -397,6 +427,7 @@ public class StringNode
 
     protected BigDecimal _tryParseAsBigDecimal() {
         if (NumberInput.looksLikeValidNumber(_value)) {
+            StreamReadConstraints.defaults().validateFPLength(_value.length());
             try {
                 return NumberInput.parseBigDecimal(_value, true);
             } catch (NumberFormatException e) {
@@ -404,6 +435,16 @@ public class StringNode
             }
         }
         return null;
+    }
+
+    // [databind#6214]-style number-length guard for the lenient default/`Optional`
+    // accessors: they must return default/empty rather than throw, so they check the
+    // limit up front (the strict accessors instead go via the `_tryParseAs...` helpers
+    // above, which surface `StreamConstraintsException`). Both `validateIntegerLength`
+    // and `validateFPLength` reject lengths past `getMaxNumberLength()`, so a single
+    // check covers integer and floating-point coercion alike.
+    private boolean _numberLengthInRange() {
+        return _value.length() <= StreamReadConstraints.defaults().getMaxNumberLength();
     }
     
     /*

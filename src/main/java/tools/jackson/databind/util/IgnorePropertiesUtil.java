@@ -78,6 +78,29 @@ public class IgnorePropertiesUtil
     }
 
     /**
+     * Helper that encapsulates logic for combining two sets of "ignored names":
+     * default logic is to do union. Neither argument is modified.
+     *
+     * @param prevToIgnore Existing set of names to ignore, if any; {@code null} if none
+     * @param newToIgnore New names to ignore, if any; {@code null} or empty if none
+     *
+     * @return Union of the arguments; {@code prevToIgnore} as-is if there is nothing to add
+     *
+     * @since 3.1.8
+     */
+    public static Set<String> combineNamesToIgnore(Set<String> prevToIgnore,
+            Set<String> newToIgnore) {
+        if (newToIgnore == null || newToIgnore.isEmpty()) {
+            return prevToIgnore;
+        }
+        final Set<String> result = new HashSet<>(newToIgnore);
+        if (prevToIgnore != null) {
+            result.addAll(prevToIgnore);
+        }
+        return result;
+    }
+
+    /**
      * Helper class to encapsulate logic from static {@code shouldIgnore} method
      * of util class.
      */

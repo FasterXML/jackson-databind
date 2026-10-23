@@ -623,10 +623,10 @@ public abstract class BasicDeserializerFactory
     }
 
     /**
-     * Helper method copied from {@code POJOPropertyBuilder} since that won't be
-     * applied to creator parameters.
+     * Helper method copied from {@code POJOPropertyBuilder} for synthetic
+     * properties that do not go through regular property collection.
      */
-    private PropertyMetadata _getSetterInfo(MapperConfig<?> config,
+    final PropertyMetadata _getSetterInfo(MapperConfig<?> config,
             BeanProperty prop, PropertyMetadata metadata)
     {
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
@@ -635,8 +635,8 @@ public abstract class BasicDeserializerFactory
         Nulls valueNulls = null;
         Nulls contentNulls = null;
 
-        // NOTE: compared to `POJOPropertyBuilder`, we only have access to creator
-        // parameter, not other accessors, so code bit simpler
+        // NOTE: compared to `POJOPropertyBuilder`, synthetic properties only
+        // have the primary member, not other accessors, so code bit simpler
         AnnotatedMember prim = prop.getMember();
 
         if (prim != null) {
@@ -924,8 +924,16 @@ public abstract class BasicDeserializerFactory
                 if (!keyType.isEnumImplType()) {
                     throw new IllegalArgumentException("Cannot construct EnumMap; generic (key) type not available");
                 }
+                _assignCreatorViews(ctxt, beanDescRef, inst);
+                // [databind#6252]: class-level and config-override ignorals/inclusions, same as with `MapDeserializer`
+                JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Map.class,
+                        beanDescRef.getClassInfo());
+                JsonIncludeProperties.Value inclusions = config.getDefaultPropertyInclusions(Map.class,
+                        beanDescRef.getClassInfo());
                 deser = new EnumMapDeserializer(type, inst, null,
-                        contentDeser, contentTypeDeser, null);
+                        contentDeser, contentTypeDeser, null,
+                        (ignorals == null) ? null : ignorals.findIgnoredForDeserialization(),
+                        (inclusions == null) ? null : inclusions.getIncluded());
             }
 
             // Otherwise, generic handler works ok.
@@ -959,6 +967,7 @@ public abstract class BasicDeserializerFactory
                 }
                 if (deser == null) {
                     ValueInstantiator inst = findValueInstantiator(ctxt, beanDescRef);
+                    _assignCreatorViews(ctxt, beanDescRef, inst);
                     // 01-May-2016, tatu: Which base type to use here gets tricky, since
                     //   most often it ought to be `Map` or `EnumMap`, but due to abstract
                     //   mapping it will more likely be concrete type like `HashMap`.
@@ -1075,6 +1084,10 @@ public abstract class BasicDeserializerFactory
                                 "Invalid `@JsonCreator` annotated Enum factory method [%s]: needs to return compatible type",
                                 factory.toString()));
                     }
+                    // [databind#6261]: need to pass views of creator parameters, if any
+                    if (creatorProps != null) {
+                        _assignCreatorViews(ctxt, beanDescRef, creatorProps);
+                    }
                     deser = EnumDeserializer.deserializerForCreator(
                         config, enumClass, factory, valueInstantiator, creatorProps,
                         constructEnumResolver(ctxt, enumClass, beanDescRef));
@@ -1100,6 +1113,45 @@ public abstract class BasicDeserializerFactory
             }
         }
         return deser;
+    }
+
+    /**
+     * Helper method for assigning views (if any) of properties-based Creator
+     * parameters of Enum, Map and EnumMap types, so that they are honored same as
+     * with POJO creator properties.
+     * Parameters without explicit {@code @JsonView} use default views of the type,
+     * which (as with POJOs) is an empty set if {@code MapperFeature.DEFAULT_VIEW_INCLUSION}
+     * is disabled and type has no {@code @JsonView}.
+     */
+    private void _assignCreatorViews(DeserializationContext ctxt,
+            BeanDescription.Supplier beanDescRef, ValueInstantiator inst)
+    {
+        if ((inst != null) && inst.canCreateFromObjectWith()) {
+            _assignCreatorViews(ctxt, beanDescRef, inst.getFromObjectArguments(ctxt.getConfig()));
+        }
+    }
+
+    private void _assignCreatorViews(DeserializationContext ctxt,
+            BeanDescription.Supplier beanDescRef, SettableBeanProperty[] creatorProps)
+    {
+        final DeserializationConfig config = ctxt.getConfig();
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        final Class<?>[] defaultViews = beanDescRef.get().findDefaultViews();
+        for (SettableBeanProperty prop : creatorProps) {
+            Class<?>[] views = null;
+            AnnotatedMember member = prop.getMember();
+            if (member != null) {
+                views = intr.findViews(config, member);
+            }
+            if (views == null) {
+                views = defaultViews;
+            }
+            // Unlike with POJOs, only set if we have something: avoids clearing views
+            // that may have already been assigned (for example by a module)
+            if (views != null) {
+                prop.setViews(views);
+            }
+        }
     }
 
     @Override

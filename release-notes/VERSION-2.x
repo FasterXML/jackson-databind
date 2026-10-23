@@ -6,13 +6,54 @@ Project: jackson-databind
 
 2.23.0 (not yet released)
 
-No changes since 2.22
+#6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
+  (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
+ (reported by João G)
+ (fix by João G, @cowtowncoder; backport by @Dongnyoung)
+#6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+ (fix by @kimsanhaa)
+#6261: Support `@JsonView` on properties-based Creator parameters of Enum, Map and EnumMap types
+ (fix by @pjfanning, w/ Claude code)
+#6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
+  array contains `null`
+ (reported, fixed by @Marti2203)
+#6296: Duplicate properties merged under the wrong key in non-vanilla
+  `UntypedObjectDeserializer`
+ (reported, fixed by @Marti2203)
+#6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
+  values (including primitive array elements)
+ (reported, fixed by @Marti2203)
+#6305: `InetSocketAddress` deserialization ignores text after the closing bracket
+  of an IPv6 address
+ (reported, fixed by @Marti2203)
+#6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)` to an object
+  whose id is `null`
+ (reported, fixed by @Marti2203)
 
-2.22.4 (not yet released)
+2.22.4 (17-Oct-2026)
 
 #6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
   (instead of `StackOverflowError`)
  (fix by @pjfanning, w/ Claude code)
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
+ (reported by @sergeylappo)
+ (fix by @pjfanning, w/ Claude code)
+#6249: Avoid NPE when parser reports `VALUE_STRING` with `null` text
+ (fix by @pjfanning, w/ Claude code)
+#6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: type parameters (and element types of array type ids) are now validated
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type (also without configured validator);
+  `allowIfSubTypeIsArray()` no longer accepts abstract or interface element types
+  without allow-listing (except `Number`); approval of an array type covers its
+  element type only if given as exactly that class (`allowIfSubType(Bar[].class)`,
+  new `PolymorphicTypeValidator.isArrayTypeAllowedExplicitly()`), a name-based
+  rule does not; base type approval of a declared array type covers subtypes of
+  its element type unless that is `Object`, `Serializable` or `Cloneable`
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, @martinfrancois)
 
 2.22.3 (21-Sep-2026)
 
@@ -76,11 +117,30 @@ No changes since 2.22
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.8 (not yet released)
+2.21.8 (17-Oct-2026)
 
 #6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
   (instead of `StackOverflowError`)
  (fix by @pjfanning, w/ Claude code)
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
+ (reported by @sergeylappo)
+ (fix by @pjfanning, w/ Claude code)
+#6249: Avoid NPE when parser reports `VALUE_STRING` with `null` text
+ (fix by @pjfanning, w/ Claude code)
+#6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: type parameters (and element types of array type ids) are now validated
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type (also without configured validator);
+  `allowIfSubTypeIsArray()` no longer accepts abstract or interface element types
+  without allow-listing (except `Number`); approval of an array type covers its
+  element type only if given as exactly that class (`allowIfSubType(Bar[].class)`,
+  new `PolymorphicTypeValidator.isArrayTypeAllowedExplicitly()`), a name-based
+  rule does not; base type approval of a declared array type covers subtypes of
+  its element type unless that is `Object`, `Serializable` or `Cloneable`
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, @martinfrancois)
 
 2.21.7 (21-Sep-2026)
 
@@ -422,6 +482,25 @@ No changes since 2.19.2
  (reported by @seadbrane)
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
+
+2.18.12 (17-Oct-2026)
+
+#5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+ [CVE-2026-54516]
+ (fixed by Omkhar A)
+#6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: type parameters (and element types of array type ids) are now validated
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type (also without configured validator);
+  `allowIfSubTypeIsArray()` no longer accepts abstract or interface element types
+  without allow-listing (except `Number`); approval of an array type covers its
+  element type only if given as exactly that class (`allowIfSubType(Bar[].class)`,
+  new `PolymorphicTypeValidator.isArrayTypeAllowedExplicitly()`), a name-based
+  rule does not; base type approval of a declared array type covers subtypes of
+  its element type unless that is `Object`, `Serializable` or `Cloneable`
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, @martinfrancois)
 
 2.18.11 (20-Sep-2026)
 

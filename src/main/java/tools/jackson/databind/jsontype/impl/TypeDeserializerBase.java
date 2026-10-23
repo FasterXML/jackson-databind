@@ -288,7 +288,7 @@ public abstract class TypeDeserializerBase
         throws JacksonException
     {
         ValueDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
-        return deser.deserialize(p, ctxt);
+        return ctxt.withParser(p, () -> deser.deserialize(p, ctxt));
     }
 
     /**

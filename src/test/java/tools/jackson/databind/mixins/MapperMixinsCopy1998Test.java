@@ -117,6 +117,7 @@ public class MapperMixinsCopy1998Test extends DatabindTestUtil
     }
 
     // [databind#1998]: leakage of state via ObjectMapper.copy() (2.x) and similar (3.x)
+    @Test
     public void testSharingViaRebuild() throws Exception
     {
         final MapperBuilder<?,?> B = defaultMapper();

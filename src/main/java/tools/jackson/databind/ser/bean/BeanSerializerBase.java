@@ -768,7 +768,12 @@ public abstract class BeanSerializerBase
         // If not, need to inject the id:
         Object id = objectId.generateId(bean);
         if (w.alwaysAsId) {
-            w.serializer.serialize(id, g, ctxt);
+            // id may not have been assigned yet (e.g. a `null` id property)
+            if (id == null) {
+                g.writeNull();
+            } else {
+                w.serializer.serialize(id, g, ctxt);
+            }
             return;
         }
         if (startEndObject) {
@@ -814,7 +819,12 @@ public abstract class BeanSerializerBase
         // If not, need to inject the id:
         Object id = objectId.generateId(bean);
         if (w.alwaysAsId) {
-            w.serializer.serialize(id, g, ctxt);
+            // id may not have been assigned yet (e.g. a `null` id property)
+            if (id == null) {
+                g.writeNull();
+            } else {
+                w.serializer.serialize(id, g, ctxt);
+            }
             return;
         }
         _serializeObjectId(bean, g, ctxt, typeSer, objectId);
@@ -1014,7 +1024,12 @@ public abstract class BeanSerializerBase
             for (final int len = props.length; i < len; ++i) {
                 BeanPropertyWriter prop = props[i];
                 if (prop != null) { // can have nulls in filtered list
-                    filter.serializeAsProperty(bean, g, ctxt, prop);
+                    // [databind#6136]: let the writer route filtering; most defer to
+                    // the filter by name, but e.g. an any-getter unpacks its entries
+                    // so each is filtered individually, and view-based writers apply
+                    // their view check first. Done polymorphically so this works for
+                    // all writer and `PropertyFilter` implementations.
+                    prop.serializeFilteredAsProperty(bean, g, ctxt, filter);
                 }
             }
         } catch (Exception e) {

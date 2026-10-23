@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.databind.*;
+import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.exc.ValueInstantiationException;
@@ -212,6 +213,56 @@ public class JDKStringLikeTypeDeserTest
         }
     }
 
+    // [databind#6305]
+    @Test
+    public void inetSocketAddressBracketedWithInvalidSuffix() throws Exception
+    {
+        // bracketed IPv6 without port is still fine
+        InetSocketAddress ip6 = MAPPER.readValue(q("[2001:db8::1]"), InetSocketAddress.class);
+        assertEquals("[2001:db8::1]", ip6.getHostName());
+        assertEquals(0, ip6.getPort());
+
+        // but text between the closing bracket and the port must not be dropped
+        for (String value : new String[] { "[2001:db8::1]junk:443", "[2001:db8::1]junk",
+                "[2001:db8::1] 443",
+                // also if the suffix itself ends in a closing bracket
+                "[2001:db8::1]junk]" }) {
+            try {
+                InetSocketAddress result = MAPPER.readValue(q(value), InetSocketAddress.class);
+                fail("Should not pass for "+value+", got: "+result);
+            } catch (InvalidFormatException e) {
+                verifyException(e, "must be followed by nothing or ':' and port number");
+            }
+        }
+
+        // and port number must not be followed by anything either
+        try {
+            InetSocketAddress result = MAPPER.readValue(q("[2001:db8::1]:443]"), InetSocketAddress.class);
+            fail("Should not pass, got: "+result);
+        } catch (InvalidFormatException e) {
+            verifyException(e, "not a valid textual representation");
+        }
+    }
+
+    // [databind#6305]
+    @Test
+    public void inetSocketAddressBracketedInvalidWithProblemHandler() throws Exception
+    {
+        final InetSocketAddress fallback = InetSocketAddress.createUnresolved("localhost", 80);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new DeserializationProblemHandler() {
+                    @Override
+                    public Object handleWeirdStringValue(DeserializationContext ctxt,
+                            Class<?> targetType, String valueToConvert, String failureMsg) {
+                        return fallback;
+                    }
+                })
+                .build();
+        for (String value : new String[] { "[2001:db8::1]junk:443", "[2001:db8::1" }) {
+            assertSame(fallback, mapper.readValue(q(value), InetSocketAddress.class));
+        }
+    }
+
     @Test
     public void testPattern() throws Exception
     {
@@ -301,6 +352,7 @@ public class JDKStringLikeTypeDeserTest
         buf.close();
     }
 
+    @Test
     public void testURLInvalid() throws Exception
     {
         // and finally, invalid URL should be handled appropriately too

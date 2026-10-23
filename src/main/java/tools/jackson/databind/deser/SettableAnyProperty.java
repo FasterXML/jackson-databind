@@ -8,7 +8,10 @@ import java.util.Objects;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.ReadableObjectId.Referring;
+import tools.jackson.databind.deser.impl.NullsConstantProvider;
+import tools.jackson.databind.deser.impl.NullsFailProvider;
 import tools.jackson.databind.deser.jdk.JDKValueInstantiators;
+import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.introspect.AnnotatedField;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedMethod;
@@ -44,6 +47,29 @@ public abstract class SettableAnyProperty
     protected final TypeDeserializer _valueTypeDeserializer;
     protected final KeyDeserializer _keyDeserializer;
 
+    /**
+     * Entity used for possible translation from explicit JSON {@code null}
+     * into non-null value, or for skipping the any-setter call.
+     * If {@code null}, {@link #_valueDeserializer} is used.
+     *
+     * @since 3.3
+     */
+    protected final NullValueProvider _nullProvider;
+
+    /**
+     * @since 3.3
+     */
+    protected final boolean _skipNulls;
+
+    /**
+     * Whether explicit JSON {@code null} should fail; handled here (instead of
+     * via {@link #_nullProvider}) to report the actual property name (JSON key)
+     * instead of the name of any-setter method or field.
+     *
+     * @since 3.3
+     */
+    protected final boolean _failOnNulls;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -54,6 +80,17 @@ public abstract class SettableAnyProperty
             KeyDeserializer keyDeser,
             ValueDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
     {
+        this(property, setter, type, keyDeser, valueDeser, typeDeser, null);
+    }
+
+    /**
+     * @since 3.3
+     */
+    protected SettableAnyProperty(BeanProperty property, AnnotatedMember setter, JavaType type,
+            KeyDeserializer keyDeser,
+            ValueDeserializer<Object> valueDeser, TypeDeserializer typeDeser,
+            NullValueProvider nullProvider)
+    {
         _property = property;
         _setter = setter;
         _type = type;
@@ -61,6 +98,9 @@ public abstract class SettableAnyProperty
         _valueTypeDeserializer = typeDeser;
         _keyDeserializer = keyDeser;
         _setterIsField = setter instanceof AnnotatedField;
+        _nullProvider = nullProvider;
+        _skipNulls = NullsConstantProvider.isSkipper(nullProvider);
+        _failOnNulls = (nullProvider instanceof NullsFailProvider);
     }
 
     public static SettableAnyProperty constructForMethod(DeserializationContext ctxt,
@@ -127,6 +167,20 @@ public abstract class SettableAnyProperty
     // Abstract @since 2.14
     public abstract SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser);
 
+    /**
+     * Fluent factory for creating instance that uses specified {@link NullValueProvider}
+     * for handling explicit JSON {@code null} values.
+     *<p>
+     * Default implementation returns {@code this} (that is, ignores null-handling
+     * configuration) for backwards-compatibility with custom sub-classes; all
+     * standard implementations override it.
+     *
+     * @since 3.3
+     */
+    public SettableAnyProperty withNullProvider(NullValueProvider nullProvider) {
+        return this;
+    }
+
     public void fixAccess(DeserializationConfig config) {
         _setter.fixAccess(
                 config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -142,9 +196,44 @@ public abstract class SettableAnyProperty
 
     public boolean hasValueDeserializer() { return (_valueDeserializer != null); }
 
+    /**
+     * @since 3.3
+     */
+    public ValueDeserializer<Object> getValueDeserializer() { return _valueDeserializer; }
+
     public JavaType getType() { return _type; }
 
     public String getPropertyName() { return _property.getName(); }
+
+    /**
+     * Method called before deserializing value of property {@code propName}
+     * to handle explicit JSON {@code null} for "skip" and "fail" null-handling
+     * settings; other settings are handled by
+     * {@link #deserialize(JsonParser, DeserializationContext)}.
+     *
+     * @return {@code true} if the value is an explicit {@code null} that is to
+     *    be skipped (not passed to any-setter); {@code false} otherwise
+     *
+     * @throws InvalidNullException if the value is an explicit {@code null}
+     *    and nulls are not allowed; reported using {@code propName} (JSON key)
+     *    instead of the name of the any-setter method or field
+     *
+     * @since 3.3
+     */
+    public boolean skipOrFailOnNull(JsonParser p, DeserializationContext ctxt,
+            String propName)
+        throws JacksonException
+    {
+        if (p.hasToken(JsonToken.VALUE_NULL)) {
+            if (_skipNulls) {
+                return true;
+            }
+            if (_failOnNulls) {
+                throw InvalidNullException.from(ctxt, PropertyName.construct(propName), _type);
+            }
+        }
+        return false;
+    }
 
     /**
      * Accessor for parameterIndex.
@@ -192,6 +281,9 @@ public abstract class SettableAnyProperty
         throws JacksonException
     {
         try {
+            if (skipOrFailOnNull(p, ctxt, propName)) {
+                return;
+            }
             Object key = (_keyDeserializer == null) ? propName
                     : _keyDeserializer.deserializeKey(propName, ctxt);
             set(ctxt, instance, key, deserialize(p, ctxt));
@@ -209,7 +301,8 @@ public abstract class SettableAnyProperty
     {
         JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_NULL) {
-            return _valueDeserializer.getNullValue(ctxt);
+            return (_nullProvider == null) ? _valueDeserializer.getNullValue(ctxt)
+                    : _nullProvider.getNullValue(ctxt);
         }
         if (_valueTypeDeserializer != null) {
             return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
@@ -314,8 +407,19 @@ public abstract class SettableAnyProperty
                 AnnotatedMember field, JavaType valueType,
                 KeyDeserializer keyDeser,
                 ValueDeserializer<Object> valueDeser, TypeDeserializer typeDeser) {
+            this(property, field, valueType, keyDeser, valueDeser, typeDeser, null);
+        }
+
+        /**
+         * @since 3.3
+         */
+        protected MethodAnyProperty(BeanProperty property,
+                AnnotatedMember field, JavaType valueType,
+                KeyDeserializer keyDeser,
+                ValueDeserializer<Object> valueDeser, TypeDeserializer typeDeser,
+                NullValueProvider nullProvider) {
             super(property, field, valueType,
-                    keyDeser, valueDeser, typeDeser);
+                    keyDeser, valueDeser, typeDeser, nullProvider);
         }
 
         @Override
@@ -329,7 +433,13 @@ public abstract class SettableAnyProperty
         @Override
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
             return new MethodAnyProperty(_property, _setter, _type,
-                    _keyDeserializer, deser, _valueTypeDeserializer);
+                    _keyDeserializer, deser, _valueTypeDeserializer, _nullProvider);
+        }
+
+        @Override
+        public SettableAnyProperty withNullProvider(NullValueProvider nullProvider) {
+            return new MethodAnyProperty(_property, _setter, _type,
+                    _keyDeserializer, _valueDeserializer, _valueTypeDeserializer, nullProvider);
         }
     }
 
@@ -345,8 +455,19 @@ public abstract class SettableAnyProperty
                 KeyDeserializer keyDeser,
                 ValueDeserializer<Object> valueDeser, TypeDeserializer typeDeser,
                 ValueInstantiator inst) {
+            this(property, field, valueType, keyDeser, valueDeser, typeDeser, inst, null);
+        }
+
+        /**
+         * @since 3.3
+         */
+        protected MapFieldAnyProperty(BeanProperty property,
+                AnnotatedMember field, JavaType valueType,
+                KeyDeserializer keyDeser,
+                ValueDeserializer<Object> valueDeser, TypeDeserializer typeDeser,
+                ValueInstantiator inst, NullValueProvider nullProvider) {
             super(property, field, valueType,
-                    keyDeser, valueDeser, typeDeser);
+                    keyDeser, valueDeser, typeDeser, nullProvider);
             _valueInstantiator = inst;
         }
 
@@ -354,7 +475,14 @@ public abstract class SettableAnyProperty
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
             return new MapFieldAnyProperty(_property, _setter, _type,
                     _keyDeserializer, deser, _valueTypeDeserializer,
-                    _valueInstantiator);
+                    _valueInstantiator, _nullProvider);
+        }
+
+        @Override
+        public SettableAnyProperty withNullProvider(NullValueProvider nullProvider) {
+            return new MapFieldAnyProperty(_property, _setter, _type,
+                    _keyDeserializer, _valueDeserializer, _valueTypeDeserializer,
+                    _valueInstantiator, nullProvider);
         }
 
         @SuppressWarnings("unchecked")
@@ -396,7 +524,17 @@ public abstract class SettableAnyProperty
                 AnnotatedMember field, JavaType valueType,
                 ValueDeserializer<Object> valueDeser,
                 JsonNodeFactory nodeFactory) {
-            super(property, field, valueType, null, valueDeser, null);
+            this(property, field, valueType, valueDeser, nodeFactory, null);
+        }
+
+        /**
+         * @since 3.3
+         */
+        protected JsonNodeFieldAnyProperty(BeanProperty property,
+                AnnotatedMember field, JavaType valueType,
+                ValueDeserializer<Object> valueDeser,
+                JsonNodeFactory nodeFactory, NullValueProvider nullProvider) {
+            super(property, field, valueType, null, valueDeser, null, nullProvider);
             _nodeFactory = nodeFactory;
         }
 
@@ -406,14 +544,10 @@ public abstract class SettableAnyProperty
                 Object instance, String propName)
             throws JacksonException
         {
+            if (skipOrFailOnNull(p, ctxt, propName)) {
+                return;
+            }
             setProperty(instance, propName, (JsonNode) deserialize(p, ctxt));
-        }
-
-        // Let's override since this is much simpler with JsonNodes
-        @Override
-        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
-        {
-            return _valueDeserializer.deserialize(p, ctxt);
         }
 
         @Override
@@ -447,6 +581,12 @@ public abstract class SettableAnyProperty
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
             return this;
         }
+
+        @Override
+        public SettableAnyProperty withNullProvider(NullValueProvider nullProvider) {
+            return new JsonNodeFieldAnyProperty(_property, _setter, _type,
+                    _valueDeserializer, _nodeFactory, nullProvider);
+        }
     }
 
     /**
@@ -462,7 +602,17 @@ public abstract class SettableAnyProperty
                 KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser, TypeDeserializer typeDeser,
                 ValueInstantiator inst, int parameterIndex)
         {
-            super(property, field, valueType, keyDeser, valueDeser, typeDeser);
+            this(property, field, valueType, keyDeser, valueDeser, typeDeser, inst, parameterIndex, null);
+        }
+
+        /**
+         * @since 3.3
+         */
+        protected MapParameterAnyProperty(BeanProperty property, AnnotatedMember field, JavaType valueType,
+                KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser, TypeDeserializer typeDeser,
+                ValueInstantiator inst, int parameterIndex, NullValueProvider nullProvider)
+        {
+            super(property, field, valueType, keyDeser, valueDeser, typeDeser, nullProvider);
             _valueInstantiator = Objects.requireNonNull(inst, "ValueInstantiator for MapParameterAnyProperty cannot be `null`");
             _parameterIndex = parameterIndex;
         }
@@ -471,7 +621,14 @@ public abstract class SettableAnyProperty
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser)
         {
             return new MapParameterAnyProperty(_property, _setter, _type, _keyDeserializer, deser,
-                    _valueTypeDeserializer, _valueInstantiator, _parameterIndex);
+                    _valueTypeDeserializer, _valueInstantiator, _parameterIndex, _nullProvider);
+        }
+
+        @Override
+        public SettableAnyProperty withNullProvider(NullValueProvider nullProvider)
+        {
+            return new MapParameterAnyProperty(_property, _setter, _type, _keyDeserializer, _valueDeserializer,
+                    _valueTypeDeserializer, _valueInstantiator, _parameterIndex, nullProvider);
         }
 
         @SuppressWarnings("unchecked")
@@ -500,17 +657,19 @@ public abstract class SettableAnyProperty
         public JsonNodeParameterAnyProperty(BeanProperty property, AnnotatedMember field, JavaType valueType,
                 ValueDeserializer<Object> valueDeser, JsonNodeFactory nodeFactory, int parameterIndex)
         {
-            super(property, field, valueType, null, valueDeser, null);
-            _nodeFactory = nodeFactory;
-            _parameterIndex = parameterIndex;
+            this(property, field, valueType, valueDeser, nodeFactory, parameterIndex, null);
         }
 
-        // Let's override since this is much simpler with JsonNodes
-        @Override
-        public Object deserialize(JsonParser p, DeserializationContext ctxt)
-            throws JacksonException
+        /**
+         * @since 3.3
+         */
+        protected JsonNodeParameterAnyProperty(BeanProperty property, AnnotatedMember field, JavaType valueType,
+                ValueDeserializer<Object> valueDeser, JsonNodeFactory nodeFactory, int parameterIndex,
+                NullValueProvider nullProvider)
         {
-            return _valueDeserializer.deserialize(p, ctxt);
+            super(property, field, valueType, null, valueDeser, null, nullProvider);
+            _nodeFactory = nodeFactory;
+            _parameterIndex = parameterIndex;
         }
 
         @Override
@@ -524,6 +683,12 @@ public abstract class SettableAnyProperty
         @Override
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
             throw new UnsupportedOperationException("Cannot call withValueDeserializer() on " + getClass().getName());
+        }
+
+        @Override
+        public SettableAnyProperty withNullProvider(NullValueProvider nullProvider) {
+            return new JsonNodeParameterAnyProperty(_property, _setter, _type,
+                    _valueDeserializer, _nodeFactory, _parameterIndex, nullProvider);
         }
 
         @Override

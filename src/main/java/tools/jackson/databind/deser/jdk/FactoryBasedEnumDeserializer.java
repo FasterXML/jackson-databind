@@ -239,6 +239,7 @@ class FactoryBasedEnumDeserializer
     		final PropertyBasedCreator creator) throws JacksonException
     {
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null, false);
+        final Class<?> activeView = ctxt.getActiveView();
 
         JsonToken t = p.currentToken();
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
@@ -250,6 +251,11 @@ class FactoryBasedEnumDeserializer
                 continue;
             }
             if (creatorProp != null) {
+                // [databind#6261]: honor active view, same as for POJO creator properties
+                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp));
                 continue;
             }

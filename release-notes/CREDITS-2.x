@@ -1923,7 +1923,7 @@ Omkhar Arasaratnam (@omkhar)
  * Reported #5951: Improve `InetSocketAddress` deserialization
   (2.18.8)
  * Contributed fix for #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
-  (2.21.4)
+  (2.18.12)
  * Contributed fix for #5969: `@JsonView` by-passed for some "setterless" creator properties
   (2.18.8)
  * Contributed fix for #5971: `@JsonView` by-passed for unwrapped creator parameters
@@ -2120,4 +2120,21 @@ Sergey Lappo (@sergeylappo)
 
 Sanha (@kimsanhaa)
  * Fixed #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+  [2.23.0]
+
+Martin Mirchev (@Marti2203)
+ * Reported, fixed #6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property
+   when the default array contains `null`
+  [2.23.0]
+ * Reported, fixed #6296: Duplicate properties merged under the wrong key in non-vanilla
+   `UntypedObjectDeserializer`
+  [2.23.0]
+ * Reported, fixed #6300: NPE when a `DeserializationProblemHandler` returns `null`
+   for primitive values (including primitive array elements)
+  [2.23.0]
+ * Reported, fixed #6305: `InetSocketAddress` deserialization ignores text after the closing
+   bracket of an IPv6 address
+  [2.23.0]
+ * Reported, fixed #6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)`
+   to an object whose id is `null`
   [2.23.0]

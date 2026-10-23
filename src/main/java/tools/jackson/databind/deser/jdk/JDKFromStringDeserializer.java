@@ -60,6 +60,12 @@ public class JDKFromStringDeserializer
     public final static int STD_CLASS = 5;
     public final static int STD_JAVA_TYPE = 6;
     public final static int STD_CURRENCY = 7;
+    /**
+     * @deprecated Since 3.3: no longer used, {@link java.util.regex.Pattern} values
+     *   are handled by {@link PatternDeserializer}
+     */
+    @Deprecated // since 3.3
+    public final static int STD_PATTERN = 8;
     public final static int STD_LOCALE = 9;
     public final static int STD_CHARSET = 10;
     public final static int STD_TIME_ZONE = 11;

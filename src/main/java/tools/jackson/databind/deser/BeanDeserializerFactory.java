@@ -771,6 +771,9 @@ public class BeanDeserializerFactory
         ArrayList<BeanPropertyDefinition> result = new ArrayList<BeanPropertyDefinition>(
                 Math.max(4, propDefsIn.size()));
         HashMap<Class<?>,Boolean> ignoredTypes = new HashMap<Class<?>,Boolean>();
+        // [databind#6201]: fetched once; usually null/empty, in which case no checks needed
+        final Map<Object, AnnotatedMember> injectables = beanDescRef.get().findInjectables();
+        final boolean hasInjectables = (injectables != null) && !injectables.isEmpty();
         // These are all valid setters, but we do need to introspect bit more
         for (BeanPropertyDefinition property : propDefsIn) {
             String name = property.getName();
@@ -779,6 +782,18 @@ public class BeanDeserializerFactory
                 continue;
             }
             if (!property.hasConstructorParameter()) { // never skip constructor params
+                // [databind#6201]: `@JacksonInject(useInput=OptBoolean.FALSE)` means value
+                // from input is to be ignored; drop the mutator so nothing can bind it
+                // (`ValueInjector` still assigns the injected value)
+                if (hasInjectables && _isInjectOnlyMutator(ctxt, injectables, property)) {
+                    // important: make ignorable, to avoid errors if value is actually seen;
+                    // aliases too, as they would otherwise have matched this property
+                    builder.addIgnorable(name);
+                    for (PropertyName alias : property.findAliases()) {
+                        builder.addIgnorable(alias.getSimpleName());
+                    }
+                    continue;
+                }
                 Class<?> rawPropertyType = property.getRawPrimaryType();
                 // Some types are declared as ignorable as well
                 if ((rawPropertyType != null)
@@ -791,6 +806,42 @@ public class BeanDeserializerFactory
             result.add(property);
         }
         return result;
+    }
+
+    /**
+     * Helper method for [databind#6201]: checks whether given property is backed by a
+     * Field or Setter annotated with {@code @JacksonInject(useInput = OptBoolean.FALSE)},
+     * that is, one for which the value from input must be ignored in favor of the
+     * injected value.
+     *<p>
+     * Creator properties enforce this themselves, via
+     * {@link tools.jackson.databind.deser.CreatorProperty#isInjectionOnly()}, and are
+     * excluded by the caller. Field- and Setter-backed properties have no equivalent
+     * check in the property loops, and since injection runs before properties are
+     * bound, a matching value from input would simply overwrite the injected one.
+     *
+     * @since 3.3
+     */
+    private boolean _isInjectOnlyMutator(DeserializationContext ctxt,
+            Map<Object, AnnotatedMember> injectables, BeanPropertyDefinition property)
+    {
+        // Annotation may be on the Setter, or on a Field that was pruned from the property
+        // (not visible) and so is only reachable via injectables; match the latter by
+        // the implicit name
+        final AnnotatedMember setter = property.getSetter();
+        final AnnotatedMember field = property.getField();
+        final String implName = property.getInternalName();
+        for (AnnotatedMember m : injectables.values()) {
+            if (m.equals(setter) || m.equals(field)
+                    || ((m instanceof AnnotatedField) && m.getName().equals(implName))) {
+                JacksonInject.Value injectable = ctxt.getAnnotationIntrospector()
+                        .findInjectableValue(ctxt.getConfig(), m);
+                if ((injectable != null) && Boolean.FALSE.equals(injectable.getUseInput())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

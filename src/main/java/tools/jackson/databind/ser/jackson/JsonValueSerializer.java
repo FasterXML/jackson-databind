@@ -253,76 +253,45 @@ public class JsonValueSerializer
     }
 
     /**
-     * Helper method for determining whether value inclusion configured for the
-     * {@code @JsonValue} type (via {@code ConfigOverride.getIncludeAsProperty()})
-     * should prevent "empty" values from being suppressed: this is the case if such
-     * inclusion does not exclude empty values, and if neither the enclosing property
-     * nor the {@code @JsonValue} accessor (via annotation), nor declared property type
-     * (via config override) specify value inclusion.
+     * Helper method for determining whether "empty" values must not be suppressed
+     * because value inclusion configured for the {@code @JsonValue} type (via
+     * {@code ConfigOverride.getIncludeAsProperty()}) does not exclude them, and
+     * nothing more specific is configured for the property: that is, neither an
+     * annotation on property or {@code @JsonValue} accessor, nor override for
+     * declared property type.
      * See [databind#5380].
      *
      * @since 3.3
      */
     protected boolean _isEmptyCheckDisabled(SerializationContext ctxt, BeanProperty property)
     {
-        // Only applies to actual bean properties: not root values, nor nested
-        // `@JsonValue` values (contextualized with `JsonValueProperty`; for which
-        // enclosing serializer determines emptiness)
-        if (!(property instanceof BeanPropertyWriter writer)) {
+        // Only for actual bean properties of the type: not root values, nested
+        // `@JsonValue` values (see `JsonValueProperty`) nor container content
+        if (!(property instanceof BeanPropertyWriter)
+                || !property.getType().getRawClass().isAssignableFrom(handledType())) {
             return false;
         }
         final SerializationConfig config = ctxt.getConfig();
-        // Nothing to do unless inclusion computed for property may check for emptiness
-        switch (writer.findPropertyInclusion(config, handledType()).getValueInclusion()) {
-        case NON_EMPTY:
-        case NON_ABSENT:
-        case NON_DEFAULT:
-            break;
-        default:
-            return false;
-        }
-        // Only applies if we are serializer for property value itself, and not
-        // for content of a container- or reference-typed property
-        final JavaType propType = property.getType();
-        if (propType.isContainerType() || propType.isReferenceType()
-                || !propType.getRawClass().isAssignableFrom(handledType())) {
-            return false;
-        }
-        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        // Explicit annotation on the property itself has precedence
-        final AnnotatedMember member = property.getMember();
-        if ((member != null)
-                && _hasValueInclusion(intr.findPropertyInclusion(config, member))) {
-            return false;
-        }
-        // As does annotation on `@JsonValue` accessor ([databind#4762])
-        if ((_accessor != null)
-                && _hasValueInclusion(intr.findPropertyInclusion(config, _accessor))) {
-            return false;
-        }
-        // As do config overrides for declared property type: note that both
-        // "include as property" and "include" are considered for property (see
-        // `PropertyBuilder.buildWriter()`)
-        final ConfigOverride declOverride = config.getConfigOverride(propType.getRawClass());
-        if (_hasValueInclusion(declOverride.getIncludeAsProperty())
-                || _hasValueInclusion(declOverride.getInclude())) {
-            return false;
-        }
-        JsonInclude.Value v = config.getConfigOverride(_valueType.getRawClass())
+        final JsonInclude.Value v = config.getConfigOverride(_valueType.getRawClass())
                 .getIncludeAsProperty();
-        if (v == null) {
+        final JsonInclude.Include incl = (v == null) ? null : v.getValueInclusion();
+        if ((incl != JsonInclude.Include.ALWAYS) && (incl != JsonInclude.Include.NON_NULL)
+                // "absent" means "empty" for reference types
+                && ((incl != JsonInclude.Include.NON_ABSENT) || _valueType.isReferenceType())) {
             return false;
         }
-        switch (v.getValueInclusion()) {
-        case ALWAYS:
-        case NON_NULL:
-            return true;
-        case NON_ABSENT:
-            // "absent" means "empty" for reference types
-            return !_valueType.isReferenceType();
-        default:
-            return false;
-        }
+        // Note: both "include as property" and "include" overrides of declared type
+        // are used for property inclusion (see `PropertyBuilder.buildWriter()`)
+        final ConfigOverride declOverride = config.getConfigOverride(property.getType().getRawClass());
+        return !_hasValueInclusion(config, property.getMember())
+                && !_hasValueInclusion(config, _accessor)
+                && !_hasValueInclusion(declOverride.getIncludeAsProperty())
+                && !_hasValueInclusion(declOverride.getInclude());
+    }
+
+    private static boolean _hasValueInclusion(SerializationConfig config, AnnotatedMember member) {
+        return (member != null) && _hasValueInclusion(config.getAnnotationIntrospector()
+                .findPropertyInclusion(config, member));
     }
 
     private static boolean _hasValueInclusion(JsonInclude.Value v) {

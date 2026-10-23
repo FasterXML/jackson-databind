@@ -31,6 +31,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   (particularly `@JsonInclude`, `@JsonFormat`)
  (reported by @sikorskii)
  (fix by @seonwooj0810)
+#5380: `@JsonValue` ignores property inclusion config override of the value type
+ (reported by @LSwiatek)
+ (fix by @cowtowncoder, w/ Claude code)
 #6069: Change throws declaration on convertValue to JacksonException to match what
   is actually thrown
  (reported by @pctF)

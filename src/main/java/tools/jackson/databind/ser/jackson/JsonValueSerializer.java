@@ -21,6 +21,7 @@ import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import tools.jackson.databind.jsontype.TypeIdResolver;
 import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.ser.BeanPropertyWriter;
 import tools.jackson.databind.ser.BeanSerializer;
 import tools.jackson.databind.ser.std.StdDynamicSerializer;
 import tools.jackson.databind.util.ClassUtil;
@@ -140,24 +141,27 @@ public class JsonValueSerializer
     public JsonValueSerializer withResolved(BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> ser, boolean forceTypeInfo)
     {
-        return withResolved(property, vts, ser, forceTypeInfo, _emptyCheckDisabled);
+        if ((_property == property)
+                && (_valueTypeSerializer == vts) && (_valueSerializer == ser)
+                && (forceTypeInfo == _forceTypeInformation)) {
+            return this;
+        }
+        return new JsonValueSerializer(this, property, vts, ser, forceTypeInfo);
     }
 
     /**
+     * Mutant factory method for constructing instance with given setting for
+     * {@link #_emptyCheckDisabled}.
+     *
      * @since 3.3
      */
-    public JsonValueSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, ValueSerializer<?> ser, boolean forceTypeInfo,
-            boolean emptyCheckDisabled)
+    public JsonValueSerializer withEmptyCheckDisabled(boolean state)
     {
-        if ((_property == property)
-                && (_valueTypeSerializer == vts) && (_valueSerializer == ser)
-                && (forceTypeInfo == _forceTypeInformation)
-                && (emptyCheckDisabled == _emptyCheckDisabled)) {
+        if (state == _emptyCheckDisabled) {
             return this;
         }
-        return new JsonValueSerializer(this, property, vts, ser, forceTypeInfo,
-                emptyCheckDisabled);
+        return new JsonValueSerializer(this, _property, _valueTypeSerializer,
+                _valueSerializer, _forceTypeInformation, state);
     }
 
     /*
@@ -232,20 +236,19 @@ public class JsonValueSerializer
                  *   using standard serializer
                  */
                 boolean forceTypeInformation = isNaturalTypeWithStdHandling(_valueType.getRawClass(), ser);
-                return withResolved(valueProp, vts, ser, forceTypeInformation, emptyCheckDisabled);
+                return withResolved(valueProp, vts, ser, forceTypeInformation)
+                        .withEmptyCheckDisabled(emptyCheckDisabled);
             }
             // [databind#2822]: better hold on to "property", regardless. For the non-final
             //   value type the serializer is resolved dynamically at write time via
             //   `_property` in `StdDynamicSerializer#_findAndAddDynamic`.
-            if ((valueProp != _property) || (emptyCheckDisabled != _emptyCheckDisabled)) {
-                return withResolved(valueProp, vts, ser, _forceTypeInformation, emptyCheckDisabled);
-            }
-        } else {
-            // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
-            ser = ctxt.handlePrimaryContextualization(ser, property);
-            return withResolved(property, vts, ser, _forceTypeInformation, emptyCheckDisabled);
+            return withResolved(valueProp, vts, ser, _forceTypeInformation)
+                    .withEmptyCheckDisabled(emptyCheckDisabled);
         }
-        return this;
+        // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
+        ser = ctxt.handlePrimaryContextualization(ser, property);
+        return withResolved(property, vts, ser, _forceTypeInformation)
+                .withEmptyCheckDisabled(emptyCheckDisabled);
     }
 
     /**
@@ -253,15 +256,28 @@ public class JsonValueSerializer
      * {@code @JsonValue} type (via {@code ConfigOverride.getIncludeAsProperty()})
      * should prevent "empty" values from being suppressed: this is the case if such
      * inclusion does not exclude empty values, and if neither the enclosing property
-     * (via annotation) nor its declared type (via config override) specify value
-     * inclusion.
+     * nor the {@code @JsonValue} accessor (via annotation), nor declared property type
+     * (via config override) specify value inclusion.
      * See [databind#5380].
      *
      * @since 3.3
      */
     protected boolean _isEmptyCheckDisabled(SerializationContext ctxt, BeanProperty property)
     {
-        if (property == null) {
+        // Only applies to actual bean properties: not root values, nor nested
+        // `@JsonValue` values (contextualized with `JsonValueProperty`; for which
+        // enclosing serializer determines emptiness)
+        if (!(property instanceof BeanPropertyWriter writer)) {
+            return false;
+        }
+        final SerializationConfig config = ctxt.getConfig();
+        // Nothing to do unless inclusion computed for property may check for emptiness
+        switch (writer.findPropertyInclusion(config, handledType()).getValueInclusion()) {
+        case NON_EMPTY:
+        case NON_ABSENT:
+        case NON_DEFAULT:
+            break;
+        default:
             return false;
         }
         // Only applies if we are serializer for property value itself, and not
@@ -271,15 +287,17 @@ public class JsonValueSerializer
                 || !propType.getRawClass().isAssignableFrom(handledType())) {
             return false;
         }
-        final SerializationConfig config = ctxt.getConfig();
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         // Explicit annotation on the property itself has precedence
         final AnnotatedMember member = property.getMember();
-        if (member != null) {
-            JsonInclude.Value v = config.getAnnotationIntrospector()
-                    .findPropertyInclusion(config, member);
-            if (_hasValueInclusion(v)) {
-                return false;
-            }
+        if ((member != null)
+                && _hasValueInclusion(intr.findPropertyInclusion(config, member))) {
+            return false;
+        }
+        // As does annotation on `@JsonValue` accessor ([databind#4762])
+        if ((_accessor != null)
+                && _hasValueInclusion(intr.findPropertyInclusion(config, _accessor))) {
+            return false;
         }
         // As does config override for declared property type
         if (_hasValueInclusion(config.getConfigOverride(propType.getRawClass())

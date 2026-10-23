@@ -41,6 +41,23 @@ class JsonValueInclusion5380Test extends DatabindTestUtil
 
     record AnnotatedWrapper(@JsonInclude(JsonInclude.Include.NON_EMPTY) JsonValuePojo jsonValuePojo) { }
 
+    // `@JsonInclude` on the `@JsonValue` accessor itself
+    record AccessorAnnotatedValue(String value) {
+        @JsonValue
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        public String toString() { return value; }
+    }
+
+    record AccessorAnnotatedWrapper(AccessorAnnotatedValue value) { }
+
+    // Nested `@JsonValue`: outer serializes as inner, which serializes as String
+    record OuterValue(JsonValuePojo inner) {
+        @JsonValue
+        public JsonValuePojo inner() { return inner; }
+    }
+
+    record NestedWrapper(@JsonInclude(JsonInclude.Include.NON_EMPTY) OuterValue value) { }
+
     record MapWrapper(@JsonInclude(content = JsonInclude.Include.NON_EMPTY)
             Map<String, JsonValuePojo> values) { }
 
@@ -93,6 +110,23 @@ class JsonValueInclusion5380Test extends DatabindTestUtil
     void propertyAnnotationHasPrecedence() throws Exception {
         assertEquals("{}",
                 MAPPER.writeValueAsString(new AnnotatedWrapper(new JsonValuePojo(""))));
+    }
+
+    // As does annotation on the `@JsonValue` accessor
+    @Test
+    void accessorAnnotationHasPrecedence() throws Exception {
+        assertEquals("{}", MAPPER.writeValueAsString(
+                new AccessorAnnotatedWrapper(new AccessorAnnotatedValue(""))));
+    }
+
+    // Explicit property annotation must also win for nested `@JsonValue`
+    @Test
+    void nestedJsonValueHonorsPropertyAnnotation() throws Exception {
+        assertEquals("{}", MAPPER.writeValueAsString(
+                new NestedWrapper(new OuterValue(new JsonValuePojo("")))));
+        assertEquals("""
+                {"value":"x"}""", MAPPER.writeValueAsString(
+                new NestedWrapper(new OuterValue(new JsonValuePojo("x")))));
     }
 
     // As does override for declared property type

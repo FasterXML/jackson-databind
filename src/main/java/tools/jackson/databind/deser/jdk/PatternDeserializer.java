@@ -72,8 +72,7 @@ public class PatternDeserializer extends FromStringDeserializer<Pattern>
     protected Pattern _deserialize(String value, DeserializationContext ctxt)
         throws JacksonException
     {
-        // Reject excessively long regex patterns to prevent catastrophic backtracking
-        // and excessive resource usage
+        // Reject regex patterns longer than configured maximum, if any
         if ((_maxPatternLength != UNLIMITED_PATTERN_LENGTH)
                 && (value.length() > _maxPatternLength)) {
             return (Pattern) ctxt.handleWeirdStringValue(_valueClass, value,

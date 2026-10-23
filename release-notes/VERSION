@@ -113,8 +113,54 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6257: `MapDeserializer`: `@JsonIgnoreProperties`/`@JsonIncludeProperties` checked
   after key deserialization, so ignored non-convertible key names still failed
  (fix by @cowtowncoder, w/ Claude code)
+#6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer writes
+  a `null` over a non-null default, so the `null` can't round-trip
+ (reported by @essiembre)
+ (fix by @mvanhorn)
+#6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
+  array contains `null`
+ (reported, fixed by @Marti2203)
+#6296: Duplicate properties merged under the wrong key in non-vanilla
+  `UntypedObjectDeserializer`
+ (reported, fixed by @Marti2203)
+#6305: `InetSocketAddress` deserialization ignores text after the closing bracket
+  of an IPv6 address
+ (reported, fixed by @Marti2203)
+#6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)` to an object
+  whose id is `null`
+ (reported, fixed by @Marti2203)
+#6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
+  values (including primitive array elements)
+ (reported, fixed by @Marti2203)
+#6317: Global `NON_DEFAULT` with `USE_REAL_INCLUDE_NON_DEFAULT` now writes explicit
+  `null` over a non-null default (like per-type); previously nulls were suppressed
+ (fix by @cowtowncoder, w/ Claude code)
+#6319: Global `NON_DEFAULT` with `USE_REAL_INCLUDE_NON_DEFAULT` skips "empty" check
+  when default bean cannot be created
+ (fix by @cowtowncoder, w/ Claude code)
+#6320: `Locale` Map keys serialized using `Locale.toString()` instead of
+  BCP-47 language tag (like `Locale` values)
+ (fix by @pjfanning)
 
-3.2.4 (not yet released)
+3.2.5 (not yet released)
+
+#6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
+  array contains `null`
+ (reported, fixed by @Marti2203)
+#6296: Duplicate properties merged under the wrong key in non-vanilla
+  `UntypedObjectDeserializer`
+ (reported, fixed by @Marti2203)
+#6305: `InetSocketAddress` deserialization ignores text after the closing bracket
+  of an IPv6 address
+ (reported, fixed by @Marti2203)
+#6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)` to an object
+  whose id is `null`
+ (reported, fixed by @Marti2203)
+#6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
+  values (including primitive array elements)
+ (reported, fixed by @Marti2203)
+
+3.2.4 (18-Oct-2026)
 
 #6145: `@JsonIgnoreProperties` bypassed for Creator properties with builders
   and external type ids
@@ -156,9 +202,14 @@ Versions: 3.x (for earlier see VERSION-2.x)
   NOTE: type parameters (and element types of array type ids) are now validated
   like direct type ids; base type approval (`allowIfBaseType()`) only covers
   ones that are subtypes of the base type; `allowIfSubTypeIsArray()` no longer
-  accepts abstract or interface element types without allow-listing (except `Number`)
+  accepts abstract or interface element types without allow-listing (except `Number`);
+  approval of an array type covers its element type only if given as exactly that
+  class (`allowIfSubType(Bar[].class)`, new
+  `PolymorphicTypeValidator.isArrayTypeAllowedExplicitly()`), a name-based rule
+  does not; base type approval of a declared array type covers subtypes of its
+  element type unless that is `Object`, `Serializable` or `Cloneable`
  (reported by @AdamKorcz, @martinfrancois)
- (fix by @cowtowncoder, w/ Claude code)
+ (fix by @cowtowncoder, @martinfrancois)
 
 3.2.3 (21-Sep-2026)
 
@@ -483,7 +534,25 @@ Versions: 3.x (for earlier see VERSION-2.x)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 
-3.1.8 (not yet released)
+3.1.9 (not yet released)
+
+#6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
+  array contains `null`
+ (reported, fixed by @Marti2203)
+#6296: Duplicate properties merged under the wrong key in non-vanilla
+  `UntypedObjectDeserializer`
+ (reported, fixed by @Marti2203)
+#6305: `InetSocketAddress` deserialization ignores text after the closing bracket
+  of an IPv6 address
+ (reported, fixed by @Marti2203)
+#6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)` to an object
+  whose id is `null`
+ (reported, fixed by @Marti2203)
+#6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
+  values (including primitive array elements)
+ (reported, fixed by @Marti2203)
+
+3.1.8 (17-Oct-2026)
 
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)
@@ -515,9 +584,14 @@ Versions: 3.x (for earlier see VERSION-2.x)
   NOTE: type parameters (and element types of array type ids) are now validated
   like direct type ids; base type approval (`allowIfBaseType()`) only covers
   ones that are subtypes of the base type; `allowIfSubTypeIsArray()` no longer
-  accepts abstract or interface element types without allow-listing (except `Number`)
+  accepts abstract or interface element types without allow-listing (except `Number`);
+  approval of an array type covers its element type only if given as exactly that
+  class (`allowIfSubType(Bar[].class)`, new
+  `PolymorphicTypeValidator.isArrayTypeAllowedExplicitly()`), a name-based rule
+  does not; base type approval of a declared array type covers subtypes of its
+  element type unless that is `Object`, `Serializable` or `Cloneable`
  (reported by @AdamKorcz, @martinfrancois)
- (fix by @cowtowncoder, w/ Claude code)
+ (fix by @cowtowncoder, @martinfrancois)
 
 3.1.7 (21-Sep-2026)
 

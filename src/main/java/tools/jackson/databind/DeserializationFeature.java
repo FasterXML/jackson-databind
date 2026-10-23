@@ -480,7 +480,28 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default.
      */
-    EAGER_DESERIALIZER_FETCH(true)
+    EAGER_DESERIALIZER_FETCH(true),
+
+    /**
+     * Feature that determines whether a missing Creator property uses its
+     * configured {@link tools.jackson.databind.deser.NullValueProvider}, including
+     * null handling configured with {@link com.fasterxml.jackson.annotation.JsonSetter}.
+     * When enabled, settings such as {@code Nulls.FAIL} and {@code Nulls.AS_EMPTY}
+     * apply to missing values as well as explicit JSON {@code null} values.
+     * When disabled, missing values instead use the value deserializer's
+     * {@link ValueDeserializer#getAbsentValue} directly, typically returning
+     * {@code null} for reference types and the JVM default for primitives.
+     * Explicit JSON {@code null} values still use the configured null handling.
+     * <p>
+     * Required properties, {@link #FAIL_ON_MISSING_CREATOR_PROPERTIES}, and
+     * {@link #FAIL_ON_NULL_CREATOR_PROPERTIES} are still enforced independently.
+     * Injectable values are unaffected.
+     * <p>
+     * Feature is enabled by default for backwards compatibility.
+     *
+     * @since 3.3
+     */
+    ABSENT_BEHAVES_LIKE_NULL(true)
 
     ;
 

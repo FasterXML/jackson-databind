@@ -9,26 +9,22 @@ import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.std.FromStringDeserializer;
 
 /**
- * Deserializer for {@link Pattern} values, with a limit on the length of the
- * regex String accepted: regex compilation and matching can be exponential in
- * pattern length, so the limit ({@link #DEFAULT_MAX_PATTERN_LENGTH}) is much
- * lower than the general String value length limit.
+ * Deserializer for {@link Pattern} values, with optional limit on the length of
+ * the regex String accepted. By default there is no limit
+ * ({@link #DEFAULT_MAX_PATTERN_LENGTH} is {@link #UNLIMITED_PATTERN_LENGTH}).
  *<p>
  * Registered automatically for {@link Pattern} (by {@link JDKMiscDeserializers}),
- * so explicit registration is only needed for using a different maximum pattern
+ * so explicit registration is only needed for limiting maximum pattern
  * length. Since deserializers registered via {@link tools.jackson.databind.JacksonModule}s
  * take precedence over default ones, registering an instance replaces the
  * default one:
  *<pre>
  *  SimpleModule module = new SimpleModule()
- *          .addDeserializer(Pattern.class, new PatternDeserializer(5000));
+ *          .addDeserializer(Pattern.class, new PatternDeserializer(1000));
  *  ObjectMapper mapper = JsonMapper.builder()
  *          .addModule(module)
  *          .build();
  *</pre>
- * Length checking may also be disabled altogether by using
- * {@link #UNLIMITED_PATTERN_LENGTH} as the maximum length -- but note that this
- * exposes users to potential denial-of-service via maliciously crafted patterns.
  *
  * @since 3.3
  */
@@ -36,15 +32,16 @@ import tools.jackson.databind.deser.std.FromStringDeserializer;
 public class PatternDeserializer extends FromStringDeserializer<Pattern>
 {
     /**
-     * Maximum length of a regex pattern String accepted unless overridden.
-     */
-    public final static int DEFAULT_MAX_PATTERN_LENGTH = 1000;
-
-    /**
      * Value to pass as maximum pattern length to disable length checking
      * altogether (see {@link #PatternDeserializer(int)}).
      */
     public final static int UNLIMITED_PATTERN_LENGTH = -1;
+
+    /**
+     * Maximum length of a regex pattern String accepted unless overridden:
+     * by default, no limit.
+     */
+    public final static int DEFAULT_MAX_PATTERN_LENGTH = UNLIMITED_PATTERN_LENGTH;
 
     /**
      * Maximum length of a regex pattern String accepted by this instance, or

@@ -47,29 +47,12 @@ public class PatternDeserializerTest
         }
     }
 
-    // Reject excessively long regex patterns to prevent catastrophic
-    // backtracking and excessive resource usage
+    // No length limit by default
     @Test
-    public void patternLengthLimit() throws Exception
+    public void defaultPatternLengthUnlimited() throws Exception
     {
-        // A normal-length pattern should still work
-        Pattern result = MAPPER.readValue(q("abc"), Pattern.class);
-        assertEquals("abc", result.pattern());
-
-        // A pattern at exactly the limit (1000 chars) should work
-        String limitPattern = "a".repeat(PatternDeserializer.DEFAULT_MAX_PATTERN_LENGTH);
-        result = MAPPER.readValue(q(limitPattern), Pattern.class);
-        assertEquals(limitPattern, result.pattern());
-
-        // A pattern exceeding the limit (1001 chars) should be rejected
-        String overLimitPattern = "a".repeat(PatternDeserializer.DEFAULT_MAX_PATTERN_LENGTH + 1);
-        try {
-            MAPPER.readValue(q(overLimitPattern), Pattern.class);
-            fail("Should not pass");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "regex pattern length");
-            verifyException(e, "exceeds maximum");
-        }
+        String longPattern = "a".repeat(50_000);
+        assertEquals(longPattern, MAPPER.readValue(q(longPattern), Pattern.class).pattern());
     }
 
     // Maximum length is configurable by explicitly registering the deserializer
@@ -87,25 +70,6 @@ public class PatternDeserializerTest
         } catch (InvalidFormatException e) {
             verifyException(e, "regex pattern length (11) exceeds maximum (10)");
         }
-    }
-
-    // Registered deserializer must take precedence over the default one, even
-    // when it is more permissive than the default
-    @Test
-    public void customLimitOverridesDefault() throws Exception
-    {
-        ObjectMapper mapper = _mapperWithMaxLength(2000);
-
-        String longPattern = "a".repeat(1500);
-        // Would be rejected by the default deserializer...
-        try {
-            MAPPER.readValue(q(longPattern), Pattern.class);
-            fail("Should not pass");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "regex pattern length");
-        }
-        // ... but accepted by the registered one
-        assertEquals(longPattern, mapper.readValue(q(longPattern), Pattern.class).pattern());
     }
 
     // Length checking can be disabled altogether with UNLIMITED_PATTERN_LENGTH

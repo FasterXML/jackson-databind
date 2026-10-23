@@ -52,7 +52,7 @@
     <version.android.sdk>26</version.android.sdk>
     <version.android.sdk.signature>0.12.0</version.android.sdk.signature>
 
-    <version.bytebuddy>1.15.10</version.bytebuddy>
+    <version.bytebuddy>1.18.15</version.bytebuddy>
 
     <!-- 25-Sep-2025, tatu: Last 4.x Mockito: 5.x requires JDK 11 so
           cannot upgrade further
@@ -459,8 +459,11 @@
         <jdk>[21,)</jdk>
       </activation>
       <properties>
+        <!-- Load ByteBuddy agent at startup instead of Mockito self-attaching it
+             dynamically (which fails on JDK 21 CI with "Agent JAR loaded but agent failed to initialize") -->
         <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED
 	         --add-opens=java.base/java.util=ALL-UNNAMED
+	         -javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${version.bytebuddy}/byte-buddy-agent-${version.bytebuddy}.jar
 	</argLine>
       </properties>
       <build>

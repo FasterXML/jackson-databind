@@ -1,8 +1,11 @@
 package com.fasterxml.jackson.databind;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -14,6 +17,9 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
+import com.fasterxml.jackson.databind.jsontype.impl.ApprovedBaseTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -259,6 +265,13 @@ public abstract class DatabindContext
                 return _throwSubtypeClassNotAllowed(baseType, subClass, ptv);
             }
         }
+        // [CVE-2026-110879]: element type of an array type id is attacker-selected
+        // as well and needs validation like type parameters of generic type ids
+        // (approval of array type, by base type or by sub-type, does not extend to it)
+        if (subType.isArrayType()
+                && !_configuredValidator(ptv).isArrayTypeAllowedExplicitly(config, baseType, subType)) {
+            _validateArrayElementType(baseType, subClass, baseType, subType, ptv, config);
+        }
         return subType;
     }
 
@@ -289,68 +302,206 @@ public abstract class DatabindContext
         // be validated -- otherwise a name-based allow-list for a safe container
         // (e.g. "java.util.ArrayList") can be bypassed by smuggling a gadget
         // class as a type argument (e.g. "java.util.ArrayList<EvilGadget>").
-        // The container itself was already validated above; walk its parameter
-        // tree (and array component, if any) and validate each node.
-        for (int i = 0, n = subType.containedTypeCount(); i < n; ++i) {
-            _validateTypeParameter(baseType, subType.containedType(i), ptv, config);
-        }
-        if (subType.isArrayType()) {
-            _validateTypeParameter(baseType, subType.getContentType(), ptv, config);
-        }
+        // [CVE-2026-110879]: ... and validated as if named as a direct type id,
+        // see `_validateContainedType()`
+        _validateContainedTypes(baseType, subClass, subType, ptv, config);
         return subType;
     }
 
+    // Approval of base type does not extend to contained types: need configured validator
+    private static PolymorphicTypeValidator _configuredValidator(PolymorphicTypeValidator ptv) {
+        if (ptv instanceof ApprovedBaseTypeValidator) {
+            return ((ApprovedBaseTypeValidator) ptv).getTypeParameterValidator();
+        }
+        return ptv;
+    }
+
+    // Declared type of array elements: element type of declared type if it is an
+    // array type; `Object` for other declared types (which can only be `Object`,
+    // `Serializable` or `Cloneable`, supertypes of all arrays); `null` (none) if
+    // no declared type
+    private static JavaType _declaredContentType(JavaType declaredType) {
+        if (declaredType == null) {
+            return null;
+        }
+        if (declaredType.isArrayType()) {
+            return declaredType.getContentType();
+        }
+        return TypeFactory.unknownType();
+    }
+
     /**
-     * Helper for [databind#5988]: validate a single type parameter against the
-     * given {@link PolymorphicTypeValidator}, then recurse into its own contained
-     * types and array component (for nested generics like
-     * {@code Map<String, List<Evil>>} or {@code List<String[]>}).
-     *<p>
-     * Name-based and class-based allow rules are both consulted (matching the
-     * top-level container check), so a name-prefix configuration like
-     * {@code allowIfSubType("com.example.")} applies to type parameters as well.
-     *<p>
-     * {@code Object} is exempt: it is the canonical resolution of wildcards and
-     * unbound parameters, which cannot themselves carry attacker-controlled types.
-     * Enum types are also exempt: they are JVM-managed singletons resolved by
-     * name lookup (no attacker-controlled constructor or setter runs), so they
-     * cannot serve as gadget classes -- and a name-prefix PTV configuration that
-     * allow-lists a container like {@code EnumSet} should not have to also
-     * allow-list every enum class that may legitimately appear as its element.
+     * Helper for [databind#5988]: validate all type parameters of given type,
+     * recursively (for nested generics like {@code Map<String, List<Evil>>}
+     * or {@code List<Evil[]>}).
      *
-     * @since 2.18.8
+     * @since 2.18.12
      */
-    private void _validateTypeParameter(JavaType baseType, JavaType param,
+    private void _validateContainedTypes(JavaType baseType, String typeId, JavaType type,
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        if (!param.isJavaLangObject() && !param.isEnumType()) {
-            // First consult the name-based allow rules (mirrors the container
-            // check in _resolveAndValidateGeneric), then fall back to the class-
-            // based check so all configured matchers can approve the parameter.
-            final String rawName = param.getRawClass().getName();
-            Validity vld = ptv.validateSubClassName(config, baseType, rawName);
-            if (vld == Validity.DENIED) {
-                throw invalidTypeIdException(baseType, rawName,
-                        "Configured `PolymorphicTypeValidator` (of type "
-                                + ClassUtil.classNameOf(ptv)
-                                + ") denied resolution of type parameter");
-            }
-            if (vld != Validity.ALLOWED) {
-                if (ptv.validateSubType(config, baseType, param) != Validity.ALLOWED) {
-                    throw invalidTypeIdException(baseType, rawName,
-                            "Configured `PolymorphicTypeValidator` (of type "
-                                    + ClassUtil.classNameOf(ptv)
-                                    + ") denied resolution of type parameter");
+        for (int i = 0, n = type.containedTypeCount(); i < n; ++i) {
+            _validateContainedType(baseType, typeId, null,
+                    type.containedType(i), ptv, config);
+        }
+    }
+
+    /**
+     * Helper for validating a class named in a type id as type parameter (or as element
+     * type of an array type): it gets the same checks a class named directly as type id
+     * would get. Unless it is a safe type (see {@link #_isSafeTypeParameter}) or exactly
+     * its declared type, the {@link SubTypeValidator} deny list applies, and:
+     *<ul>
+     * <li>If assignable to polymorphic base type, checked as if a direct type id for it
+     *   </li>
+     * <li>Otherwise checked by configured {@link PolymorphicTypeValidator} as a direct type
+     *   id for its declared type (element type of declared array type for array
+     *   elements; none -- validated as {@code Object} -- otherwise), starting with
+     *   {@link PolymorphicTypeValidator#validateBaseType}: approval of polymorphic base
+     *   type does not extend to it. {@link LaissezFaireSubTypeValidator} (which allows
+     *   all subtypes of base type) only allows subtypes of declared type, if any
+     *   </li>
+     *</ul>
+     * Assignment compatibility with declared type parameters of the base type is
+     * NOT verified: classes named in the type id are the only attacker-selected
+     * ones (other types come from the declared base type or from class
+     * declarations), so validating them suffices to prevent instantiation of
+     * unapproved types.
+     *
+     * @param baseType Polymorphic base type
+     * @param declaredType Declared type of the contained type, if any ({@code null} if none)
+     * @param ptv Validator used for validating type id as subtype of {@code baseType}
+     *
+     * @since 2.18.12
+     */
+    private void _validateContainedType(JavaType baseType, String typeId, JavaType declaredType,
+            JavaType param, PolymorphicTypeValidator ptv, MapperConfig<?> config)
+        throws JsonMappingException
+    {
+        if (!_isSafeTypeParameter(param)
+                && !((declaredType != null) && param.hasRawClass(declaredType.getRawClass()))) {
+            final PolymorphicTypeValidator vldr;
+            final JavaType vldBaseType;
+            Validity vld;
+            if (param.isTypeOrSubTypeOf(baseType.getRawClass())) {
+                // validity of base type itself already checked
+                vldr = ptv;
+                vldBaseType = baseType;
+                vld = Validity.INDETERMINATE;
+            } else if ((ptv instanceof ApprovedBaseTypeValidator)
+                    && (declaredType != null) && !ClassUtil.isArraySuperType(declaredType.getRawClass())
+                    && param.isTypeOrSubTypeOf(declaredType.getRawClass())) {
+                // Approval of base type (declared array type) covers subtypes of its
+                // element type (except for `Object[]`, `Serializable[]` and
+                // `Cloneable[]`, which would cover everything)
+                vldr = ptv;
+                vldBaseType = declaredType;
+                vld = Validity.ALLOWED;
+            } else {
+                vldr = _configuredValidator(ptv);
+                vldBaseType = (declaredType == null) ? TypeFactory.unknownType() : declaredType;
+                if (vldr instanceof LaissezFaireSubTypeValidator) {
+                    // Allows all subtypes of declared type (element type of declared
+                    // array type, including `Object` for `Object[]`), but nothing
+                    // without one (type parameters)
+                    if (declaredType == null) {
+                        throw invalidTypeIdException(baseType, typeId,
+                                "contained type " + ClassUtil.getTypeDescription(param)
+                                + " not a subtype of base type (and no `PolymorphicTypeValidator`"
+                                + " configured to allow it)");
+                    }
+                    vld = Validity.ALLOWED;
+                } else {
+                    vld = vldr.validateBaseType(config, vldBaseType);
                 }
             }
-        }
-        for (int i = 0, n = param.containedTypeCount(); i < n; ++i) {
-            _validateTypeParameter(baseType, param.containedType(i), ptv, config);
+            if ((vld == Validity.INDETERMINATE)
+                    && _isApprovedSubType(vldr, config, vldBaseType, param)) {
+                vld = Validity.ALLOWED;
+            }
+            if (vld != Validity.ALLOWED) {
+                throw invalidTypeIdException(baseType, typeId,
+                        "Configured `PolymorphicTypeValidator` (of type "
+                                + ClassUtil.classNameOf(vldr)
+                                + ") denied resolution of contained type "
+                                + ClassUtil.getTypeDescription(param));
+            }
+            // NOTE: `BeanDeserializerFactory` also checks deny list for types it creates
+            // bean deserializers for, but not all contained types get one (Map keys,
+            // for example, may be deserialized via single-String constructor)
+            // (same exception as `BeanDeserializerFactory` would throw)
+            if (SubTypeValidator.instance().isIllegalType(param.getRawClass())) {
+                reportBadDefinition(param, String.format(
+                        "Illegal type (%s) to deserialize: prevented for security reasons",
+                        param.getRawClass().getName()));
+            }
         }
         if (param.isArrayType()) {
-            _validateTypeParameter(baseType, param.getContentType(), ptv, config);
+            _validateArrayElementType(baseType, typeId, declaredType, param, ptv, config);
+        } else {
+            _validateContainedTypes(baseType, typeId, param, ptv, config);
         }
+    }
+
+    /**
+     * Helper for validating element type of an array type: like other contained types
+     * (including abstract types: they may still be deserializable, via
+     * {@code @JsonDeserialize(as=...)} or factory methods). Approval of the array
+     * type does not by itself cover the element type: only the validator can say
+     * it does (see {@link PolymorphicTypeValidator#isArrayTypeAllowedExplicitly},
+     * checked by the caller for array types named by type id). Inner dimensions
+     * and array type parameters always get here.
+     *
+     * @param declaredType Declared type of the array, if any ({@code null} if none)
+     *
+     * @since 2.18.12
+     */
+    private void _validateArrayElementType(JavaType baseType, String typeId,
+            JavaType declaredType, JavaType arrayType,
+            PolymorphicTypeValidator ptv, MapperConfig<?> config)
+        throws JsonMappingException
+    {
+        _validateContainedType(baseType, typeId, _declaredContentType(declaredType),
+                arrayType.getContentType(), ptv, config);
+    }
+
+    private static boolean _isApprovedSubType(PolymorphicTypeValidator vldr,
+            MapperConfig<?> config, JavaType baseType, JavaType subType)
+        throws JsonMappingException
+    {
+        Validity vld = vldr.validateSubClassName(config, baseType, subType.getRawClass().getName());
+        if (vld == Validity.INDETERMINATE) {
+            vld = vldr.validateSubType(config, baseType, subType);
+        }
+        return (vld == Validity.ALLOWED);
+    }
+
+    /**
+     * Types that may be used as type parameters without validation: ones that
+     * cannot be used as "gadget" types, since no attacker-controlled
+     * constructor or setter can be invoked.
+     *<p>
+     * {@code Object} is the canonical resolution of wildcards and unbound parameters;
+     * enum types are JVM-managed singletons resolved by name lookup;
+     * {@code String}, primitive types (including wrappers), {@code Number},
+     * {@code BigDecimal}, {@code BigInteger} and {@code UUID} are handled by Jackson
+     * as scalars (subtypes of {@code Number} other than these need type ids); and arrays
+     * and {@code java.util} container (Collection, Map, reference) types are JDK types
+     * whose contained types are validated separately.
+     */
+    private static boolean _isSafeTypeParameter(JavaType param)
+    {
+        if (param.isJavaLangObject() || param.isEnumType() || param.isArrayType()) {
+            return true;
+        }
+        final Class<?> raw = param.getRawClass();
+        if ((param.isContainerType() || param.isReferenceType())
+                && raw.getName().startsWith("java.util.")) {
+            return true;
+        }
+        return (raw == String.class) || (ClassUtil.primitiveType(raw) != null)
+                || (raw == Number.class) || (raw == BigDecimal.class) || (raw == BigInteger.class) || (raw == UUID.class);
     }
 
     protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws JsonMappingException {

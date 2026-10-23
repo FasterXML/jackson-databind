@@ -75,7 +75,11 @@ public final class WritableObjectId
         if (name != null) {
             // 05-Feb-2019, tatu: How about `null` id? For now, write
             gen.writeFieldName(name);
-            w.serializer.serialize(id, gen, provider);
+            if (id == null) {
+                gen.writeNull();
+            } else {
+                w.serializer.serialize(id, gen, provider);
+            }
         }
     }
 }

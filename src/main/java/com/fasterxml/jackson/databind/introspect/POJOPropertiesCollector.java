@@ -78,8 +78,12 @@ public class POJOPropertiesCollector
     /**
      * State flag we keep to indicate whether actual property information
      * has been collected or not.
+     *<p>
+     * NOTE: {@code volatile} so that the "collected" state (and,
+     * transitively, results assigned before it) is visible across threads in case
+     * a {@link BeanDescription} instance is shared, see [databind#6227].
      */
-    protected boolean _collected;
+    protected volatile boolean _collected;
 
     /**
      * Set of logical property information collected so far.
@@ -240,9 +244,12 @@ public class POJOPropertiesCollector
     }
 
     /**
+     * NOTE: {@code synchronized} since resolution of conflicting accessors
+     * modifies the accessor list (see [databind#6227]).
+     *
      * @since 2.12
      */
-    public AnnotatedMember getJsonKeyAccessor() {
+    public synchronized AnnotatedMember getJsonKeyAccessor() {
         if (!_collected) {
             collectAll();
         }
@@ -262,9 +269,12 @@ public class POJOPropertiesCollector
     }
 
     /**
+     * NOTE: {@code synchronized} since resolution of conflicting accessors
+     * modifies the accessor list (see [databind#6227]).
+     *
      * @since 2.9
      */
-    public AnnotatedMember getJsonValueAccessor()
+    public synchronized AnnotatedMember getJsonValueAccessor()
     {
         if (!_collected) {
             collectAll();
@@ -425,11 +435,20 @@ public class POJOPropertiesCollector
 
     /**
      * Internal method that will collect actual property information.
+     *<p>
+     * NOTE: {@code synchronized} since although instances are
+     * not designed to be shared across threads, if they are, concurrent collection
+     * would corrupt internal state (see [databind#6227]).
      *
      * @since 2.6
      */
-    protected void collectAll()
+    protected synchronized void collectAll()
     {
+        // [databind#6227]: another thread may have completed collection while we
+        // were waiting for the lock
+        if (_collected) {
+            return;
+        }
         _potentialCreators = new PotentialCreators();
 
         // First: gather basic accessors
@@ -1194,21 +1213,27 @@ ctor.creator()));
             // 07-Feb-2025: [databind#4775] Do not stop processing here
             //   (used to return)
         }
-        // @JsonKey?
-        else if (Boolean.TRUE.equals(ai.hasAsKey(_config, m))) {
-            if (_jsonKeyAccessors == null) {
-                _jsonKeyAccessors = new LinkedList<>();
+        else {
+            // [databind#6240]: may have both (as with fields); neither is a regular property
+            boolean asKey = Boolean.TRUE.equals(ai.hasAsKey(_config, m));
+            boolean asValue = Boolean.TRUE.equals(ai.hasAsValue(m));
+            // @JsonKey?
+            if (asKey) {
+                if (_jsonKeyAccessors == null) {
+                    _jsonKeyAccessors = new LinkedList<>();
+                }
+                _jsonKeyAccessors.add(m);
             }
-            _jsonKeyAccessors.add(m);
-            return;
-        }
-        // @JsonValue?
-        else if (Boolean.TRUE.equals(ai.hasAsValue(m))) {
-            if (_jsonValueAccessors == null) {
-                _jsonValueAccessors = new LinkedList<>();
+            // @JsonValue?
+            if (asValue) {
+                if (_jsonValueAccessors == null) {
+                    _jsonValueAccessors = new LinkedList<>();
+                }
+                _jsonValueAccessors.add(m);
             }
-            _jsonValueAccessors.add(m);
-            return;
+            if (asKey || asValue) {
+                return;
+            }
         }
         String implName; // from naming convention
         boolean visible;
@@ -1516,6 +1541,15 @@ ctor.creator()));
                 // otherwise just remove ones marked to be ignored
                 prop.removeIgnored();
                 if (!prop.couldDeserialize()) {
+                    // [databind#5967]: Strip inferred non-visible field mutators to preserve
+                    // @JsonIgnore semantics: since couldDeserialize() is false, any remaining
+                    // fields are non-visible (kept only for INFER_PROPERTY_MUTATORS) and must
+                    // not be used to bypass the ignored setter.
+                    // But only for deserialization: for serialization fields are needed
+                    // for merging annotations (like @JsonInclude) into getter
+                    if (!_forSerialization) {
+                        prop.removeFields();
+                    }
                     _collectIgnorals(prop.getName());
                 }
             }
@@ -1586,11 +1620,6 @@ ctor.creator()));
                 if (isRecordType() || !prop.anyExplicitsWithoutIgnoral()) {
                     continue;
                 }
-                // [databind#5967]: Strip inferred non-visible field mutators to preserve @JsonIgnore
-                // semantics. The ignored name was collected because couldDeserialize()==false,
-                // meaning any retained fields are non-visible (kept only by INFER_PROPERTY_MUTATORS).
-                // Removing them ensures the renamed property remains read-only (serialization only).
-                prop.removeFields();
             }
 
             Collection<PropertyName> l = prop.findExplicitNames();

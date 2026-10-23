@@ -822,3 +822,7 @@ Matt Van Horn (@mvanhorn)
  * Fixed #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
    writes a `null` over a non-null default, so the `null` can't round-trip
   [3.3.0]
+
+@LSwiatek
+ * Reported #5380: `@JsonValue` ignores property inclusion config override of the value type
+  [3.3.0]

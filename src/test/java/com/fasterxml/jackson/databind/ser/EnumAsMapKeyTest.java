@@ -47,6 +47,7 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
     static class MyStuff594 {
         public Map<MyEnum594,String> stuff = new EnumMap<MyEnum594,String>(MyEnum594.class);
 
+        protected MyStuff594() { }
         public MyStuff594(String value) {
             stuff.put(MyEnum594.VALUE_WITH_A_REALLY_LONG_NAME_HERE, value);
         }
@@ -136,8 +137,11 @@ public class EnumAsMapKeyTest extends DatabindTestUtil
     // [databind#594]
     @Test
     public void testJsonValueForEnumMapKey() throws Exception {
-        assertEquals(a2q("{'stuff':{'longValue':'foo'}}"),
-                MAPPER.writeValueAsString(new MyStuff594("foo")));
+        final String JSON = a2q("{'stuff':{'longValue':'foo'}}");
+        assertEquals(JSON, MAPPER.writeValueAsString(new MyStuff594("foo")));
+        MyStuff594 result = MAPPER.readValue(JSON, MyStuff594.class);
+        assertNotNull(result);
+        assertEquals("foo", result.stuff.get(MyEnum594.VALUE_WITH_A_REALLY_LONG_NAME_HERE));
     }
 
     // [databind#2129]

@@ -11,7 +11,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
 
 // Test(s) for "big" creators; ones with at least 32 arguments (sic!).
-// Needed because codepaths diverge wrt handling of bitset
+// Needed because code paths diverge wrt handling of bitset.
 public class BigCreatorTest
 {
     static class Biggie {

@@ -1,27 +1,23 @@
-package com.fasterxml.jackson.databind.tofix;
+package com.fasterxml.jackson.databind.deser.builder;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
-import com.fasterxml.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 // [databind#4742] Deserialization with Builder, External type id,
-//                @JsonCreator not yet implemented
-public class JacksonBuilderCreatorSubtype4742Test
-        extends DatabindTestUtil
+// @JsonCreator failing
+public class BuilderCreatorSubtype4742Test
+    extends DatabindTestUtil
 {
-
     public static class Animals {
         @JsonProperty("animals")
         public List<Animal> animals;
@@ -64,11 +60,13 @@ public class JacksonBuilderCreatorSubtype4742Test
             private String kind;
             private AnimalProperties properties;
 
+            @Override
             public BuilderImpl kind(String kind) {
                 this.kind = kind;
                 return this;
             }
 
+            @Override
             public BuilderImpl properties(AnimalProperties properties) {
                 this.properties = properties;
                 return this;
@@ -107,12 +105,10 @@ public class JacksonBuilderCreatorSubtype4742Test
         }
     }
 
-    final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JacksonTestFailureExpected
     @Test
-    public void testDeser()
-            throws Exception
+    public void testDeser4742() throws Exception
     {
         final Animals animals = MAPPER.readValue(
                 "{\n" +
@@ -125,6 +121,5 @@ public class JacksonBuilderCreatorSubtype4742Test
         assertEquals(2, animals.animals.size());
         assertInstanceOf(BirdProperties.class, animals.animals.get(0).properties);
         assertInstanceOf(MammalProperties.class, animals.animals.get(1).properties);
-
     }
 }

@@ -10,6 +10,8 @@ package com.fasterxml.jackson.databind.testutil.failure;
 public class JacksonTestShouldFailException
     extends RuntimeException
 {
+    private static final long serialVersionUID = 1L;
+
     public JacksonTestShouldFailException(String msg) {
         super(msg);
     }

@@ -14,7 +14,7 @@ Co-Authors (with only partial listings below):
 
 ----------------------------------------------------------------------------
 
-Pascal Glinas:
+Pascal Gélinas:
   * Contributed fixes to 'MappingIterator' handling (Pull#58 and Pull#59)
    (2.1.0)
   * Reported #220: ContainerNode missing 'createNumber(BigInteger)'
@@ -425,6 +425,8 @@ Jonas Konrad (yawkat@github)
   * Contributed fix for #3655: `ObjectMapper` default heap consumption increased significantly
     from 2.13.x to 2.14.0
    (2.14.1)
+  * Contributed fix for #4848: Avoid type pollution in `StringCollectionDeserializer`
+   (2.18.3)
 
 Jirka Kremser (Jiri-Kremser@github)
   * Suggested #924: SequenceWriter.writeAll() could accept Iterable
@@ -1796,44 +1798,44 @@ Susan Witts (susanw1@github)
    assign to property '@id'
   (2.17.2)
 
-Ulf Dreyer (u3r@github)
+Ulf Dreyer (@u3r)
  * Reported #4085: `@JsonView` does not work on class-level for records
   (2.18.0)
 
-Mark Herkrath (herkrath@github)
+Mark Herkrath (@herkrath)
  * Reported #4356: `BeanDeserializerModifier::updateBuilder()` doesn't work for
    beans with Creator methods
   (2.18.0)
 
-David Moten (davidmoten@github)
+David Moten (@davidmoten)
  * Contributed #4453: Allow JSON Integer to deserialize into a single-arg constructor of
    parameter type `double`
   (2.18.0)
 
-Teodor Danciu (teodord@github)
+Teodor Danciu (@teodord)
  * Reported #4464: When `Include.NON_DEFAULT` setting is used, `isEmpty()` method is
    not called on the serializer
   (2.18.0)
 
-Matthew Luckam (mluckam@github)
+Matthew Luckam (@mluckam)
  * Contributed #4483: Remove `final` on method BeanSerializer.serialize()
   (2.18.0)
 
-Alexandre Jacob (ajacob@github)
+Alexandre Jacob (@ajacob)
  * Reported #4545: Unexpected deserialization behavior with `@JsonCreator`,
    `@JsonProperty` and javac `-parameters`
   (2.18.0)
 
-Eduard Gomoliako (Gems@github)
+Eduard Gomoliako (@Gems)
  * Reported #4602: Possible wrong use of _arrayDelegateDeserializer in
    BeanDeserializerBase::deserializeFromObjectUsingNonDefault()
   (2.18.0)
 
-Mathijs Vogelzang (mathijs81@github)
+Mathijs Vogelzang (@mathijs81)
  * Reported #4678: Java records don't serialize with `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS`
   (2.18.0)
 
-Rikkarth (rikkarth@github)
+Rikkarth (@rikkarth)
  * Contributed #4709: Add `JacksonCollectors` with `toArrayNode()` implementation
   (2.18.0)
 
@@ -1842,5 +1844,108 @@ Maxim Valeev (@MaximValeev)
   (2.18.1)
 
 wrongwrong (@k163377)
- * Contributed #4749: Fixed problem in StdDelegatingSerializer#serializeWithType where final serializer lookup was done
-   on the pre-converted value when _delegateSerializer was null
+ * Contributed #4749: Fixed problem in StdDelegatingSerializer#serializeWithType where final
+   serializer lookup was done on the pre-converted value when _delegateSerializer was null
+  (2.18.1)
+ * Reported #4878: When serializing a Map via Converter(StdDelegatingSerializer),
+   a NullPointerException is thrown due to missing key serializer
+  (2.18.3)
+ * Contributed fix for #4444: The `KeyDeserializer` specified in the class with
+   `@JsonDeserialize(keyUsing = ...)` is overwritten by the `KeyDeserializer`
+    specified in the `ObjectMapper`.
+  (2.18.3)
+
+Bernd Ahlers (@bernd)
+ * Reported #4742: Deserialization with Builder, External type id, `@JsonCreator` failing
+  (2.18.2)
+
+Mike Minicki (@martel)
+ * Reported #4788: `EnumFeature.WRITE_ENUMS_TO_LOWERCASE` overrides `@JsonProperty` values
+  (2.18.2)
+
+Jonathan Mesny (@jmesny)
+ * Reported #4810: Deserialization using `@JsonCreator` with renamed property failing (since 2.18)
+  (2.18.2)
+
+Stanislav Shcherbakov (@glorrian)
+ * Contributed #4844: Fix wrapped array hanlding wrt `null` by `StdDeserializer`
+  (2.18.3)
+
+Tomáš Poledný (@Saljack)
+ * Reported #4860: `ConstructorDetector.USE_PROPERTIES_BASED` does not work with
+   multiple constructors since 2.18
+  (2.18.3)
+
+Gustavo Bazan (@gssbzn)
+ * Reported #4908: Deserialization behavior change with @JsonCreator and
+   @ConstructorProperties between 2.17 and 2.18
+  (2.18.3)
+
+Zhen Lin Low (@zhenlin-pay2)
+ * Reported, fixed #4920: Creator properties are ignored on abstract types
+   when collecting bean properties, breaking AsExternalTypeDeserializer
+  (2.18.3)
+
+Fawzi Essam (@iifawzi)
+ * Contributed fix or #4628: `@JsonIgnore` and `@JsonProperty.access=READ_ONLY`
+   on Record property
+  (2.18.4)
+ * Contributed fix for #5049: Duplicate creator property "b" (index 0 vs 1)
+   on simple java record
+  (2.18.4)
+
+Omkhar Arasaratnam (@omkhar)
+ * Reported #5950: Improve `UUIDDeserializer` error handling
+  (2.18.8)
+ * Reported #5951: Improve `InetSocketAddress` deserialization
+  (2.18.8)
+ * Contributed fix for #5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+  (2.18.12)
+ * Contributed fix for #5969: `@JsonView` by-passed for some "setterless" creator properties
+  (2.18.8)
+ * Contributed fix for #5971: `@JsonView` by-passed for unwrapped creator parameters
+  (2.18.8)
+ * Reported #5974: `@JsonIgnore` on Record property ignored with
+   `PropertyNamingStrategy`
+  (2.18.8)
+ * Reported #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
+   should validate element type
+  (2.18.8)
+ * Reported #5988: `PolymorphicTypeValidator` needs to validate generic type parameters too
+  (2.18.8)
+ * Contributed fix for #5962: Case-insensitive deserialization may use
+   wrong `@JsonIgnoreProperties`
+  (2.18.9)
+
+Aysha Afrah Ziya (@aysha-afrah26)
+ * Fixed #6099: Resolve classes without initialization in `TypeFactory.findClass()`
+  (2.18.10)
+ * Fixed #6116: Reject non-ASCII digits in `InetAddress` literal validation
+  (2.18.10)
+ * Fixed #6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float`
+   Map keys
+  (2.18.10)
+
+@waydeshi
+ * Reported #6127: Add `StreamReadConstraints` number len constraint to
+   `javax.xml.datatype.XMLGregorianCalendar` and `javax.xml.datatype.Duration`
+  (2.18.10)
+ * Reported #6129: Limit the supported URL schemes for `java.nio.file.Path`
+   deserialization
+  (2.18.10)
+
+@prvazsahnazarov
+ * Reported #6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic
+   base types
+  (2.18.10)
+
+@renechoi
+ * Reported #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+  (2.18.11)
+
+@dabirt
+ * Reported #6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  (2.18.11)
+ * Reported #6204: Avoid quadratic forward-reference resolution in Collection/Map
+   deserializers
+  (2.18.11)

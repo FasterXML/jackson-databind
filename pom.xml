@@ -9,11 +9,11 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>2.18.2-SNAPSHOT</version>
+    <version>2.18.13-SNAPSHOT</version>
   </parent>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.18.2-SNAPSHOT</version>
+  <version>2.18.13-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>jar</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -52,7 +52,7 @@
     <version.android.sdk>26</version.android.sdk>
     <version.android.sdk.signature>0.5.1</version.android.sdk.signature>
 
-    <version.bytebuddy>1.14.13</version.bytebuddy>
+    <version.bytebuddy>1.18.15</version.bytebuddy>
     <version.mockito>4.11.0</version.mockito>
 
     <!-- Can not use default, since group id != Java package name here -->
@@ -68,7 +68,7 @@
     <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2024-10-28T23:22:37Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2026-10-17T18:24:08Z</project.build.outputTimestamp>
   </properties>
 
   <dependencyManagement>
@@ -123,7 +123,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava-testlib</artifactId>
-      <version>31.1-jre</version>
+      <version>32.0.1-jre</version>
       <scope>test</scope>
     </dependency>
     <!-- For testing TestNoClassDefFoundDeserializer -->
@@ -159,10 +159,11 @@
   <!-- Alas, need to include snapshot reference since otherwise can not find
        snapshot of parent... -->
   <repositories>
+    <!-- 13-May-2025, tatu: now access snapshots via Central Portal -->
     <repository>
-      <id>sonatype-nexus-snapshots</id>
-      <name>Sonatype Nexus Snapshots</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <id>central-snapshots</id>
+      <name>Sonatype Central Portal (snapshots)</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots</url>
       <releases><enabled>false</enabled></releases>
       <snapshots><enabled>true</enabled></snapshots>
     </repository>
@@ -211,8 +212,7 @@
             <exclude>javax.measure:jsr-275</exclude>
           </classpathDependencyExcludes>
           <excludes>
-            <exclude>com.fasterxml.jackson.databind.MapperFootprintTest</exclude>
-            <exclude>**/failing/**/*.java</exclude>
+           <exclude>com.fasterxml.jackson.databind.MapperFootprintTest</exclude>
           </excludes>
           <!-- 26-Nov-2019, tatu: moar parallelism! Per-class basis, safe, efficient enough
                   ... although not 100% sure this makes much difference TBH
@@ -228,8 +228,8 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links combine.children="append">
-            <link>https://fasterxml.github.io/jackson-annotations/javadoc/2.16</link>
-            <link>https://fasterxml.github.io/jackson-core/javadoc/2.16</link>
+            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-annotations/2.18.0</link>&gt;
+            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core/2.18.0</link>&gt;
           </links>
         </configuration>
       </plugin>
@@ -376,7 +376,6 @@
               <release>17</release>
               <compilerArgs>
                 <arg>-parameters</arg>
-                <arg>--add-opens=java.base/java.lang=ALL-UNNAMED</arg>
                 <arg>--add-opens=java.base/java.util=ALL-UNNAMED</arg>
               </compilerArgs>
             </configuration>
@@ -385,7 +384,7 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
+              <argLine>--add-opens=java.base/java.util=ALL-UNNAMED</argLine>
             </configuration>
           </plugin>
         </plugins>
@@ -429,7 +428,6 @@
               <release>21</release>
               <compilerArgs>
                 <arg>-parameters</arg>
-                <arg>--add-opens=java.base/java.lang=ALL-UNNAMED</arg>
                 <arg>--add-opens=java.base/java.util=ALL-UNNAMED</arg>
               </compilerArgs>
             </configuration>
@@ -438,7 +436,12 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
+              <!-- Load ByteBuddy agent at startup instead of Mockito self-attaching it
+                   dynamically (which fails on JDK 21+ CI) -->
+              <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED
+                --add-opens=java.base/java.util=ALL-UNNAMED
+                -javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${version.bytebuddy}/byte-buddy-agent-${version.bytebuddy}.jar
+              </argLine>
             </configuration>
           </plugin>
         </plugins>

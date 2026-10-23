@@ -268,7 +268,7 @@ public class TestPolymorphicWithDefaultImpl extends DatabindTestUtil
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
         BaseWrapper w = mapper.readValue(a2q
-                ("{'value':{'clazz':'com.foobar.Nothing'}}'"),
+                ("{'value':{'clazz':'com.foobar.Nothing'}}"),
                 BaseWrapper.class);
         assertNotNull(w);
         assertNull(w.value);

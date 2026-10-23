@@ -1,11 +1,10 @@
 package com.fasterxml.jackson.databind.testutil.failure;
 
+import java.lang.reflect.Method;
+
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
 import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
-
-import java.lang.reflect.Method;
-import java.util.List;
 
 /**
  * Custom {@link InvocationInterceptor} that intercepts test method invocation.
@@ -16,11 +15,11 @@ import java.util.List;
 public class JacksonTestFailureExpectedInterceptor
     implements InvocationInterceptor
 {
-
     @Override
     public void interceptTestMethod(Invocation<Void> invocation,
-                                    ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext)
-            throws Throwable {
+            ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext)
+        throws Throwable
+    {
         try {
             invocation.proceed();
         } catch (Throwable t) {
@@ -34,7 +33,7 @@ public class JacksonTestFailureExpectedInterceptor
         // Collect information we need
         Object targetClass = invocationContext.getTargetClass();
         Object testMethod = invocationContext.getExecutable().getName();
-        List<Object> arguments = invocationContext.getArguments();
+        //List<Object> arguments = invocationContext.getArguments();
 
         // Create message
         String message = String.format("Test method %s.%s() passed, but should have failed", targetClass, testMethod);

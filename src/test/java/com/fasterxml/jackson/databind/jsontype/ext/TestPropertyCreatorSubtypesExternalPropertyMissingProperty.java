@@ -104,9 +104,9 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
     private static final Orange orange = new Orange("Orange", "orange");
     private static final Box orangeBox = new Box("orange", orange);
     private static final String orangeBoxJson = "{\"type\":\"orange\",\"fruit\":{\"name\":\"Orange\",\"color\":\"orange\"}}";
-    private static final String orangeBoxNullJson = "{\"type\":\"orange\",\"fruit\":null}}";
-    private static final String orangeBoxEmptyJson = "{\"type\":\"orange\",\"fruit\":{}}}";
-    private static final String orangeBoxMissingJson = "{\"type\":\"orange\"}}";
+    private static final String orangeBoxNullJson = "{\"type\":\"orange\",\"fruit\":null}";
+    private static final String orangeBoxEmptyJson = "{\"type\":\"orange\",\"fruit\":{}}";
+    private static final String orangeBoxMissingJson = "{\"type\":\"orange\"}";
 
     private static final Apple apple = new Apple("Apple", 16);
     private static Box appleBox = new Box("apple", apple);

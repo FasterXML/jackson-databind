@@ -1486,8 +1486,16 @@ public class JacksonAnnotationIntrospector
     @Override
     public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
         JsonCreator ann = _findAnnotation(a, JsonCreator.class);
-        if (ann != null) {
-            return ann.mode();
+        JsonCreator.Mode mode;
+        if (ann == null) {
+            mode = null;
+        } else {
+            mode = ann.mode();
+            // 25-Jan-2025, tatu: [databind#4809] Need to avoid "DEFAULT" from masking
+            //   @CreatorProperties-provided value
+            if (mode != JsonCreator.Mode.DEFAULT) {
+                return mode;
+            }
         }
         if (_cfgConstructorPropertiesImpliesCreator
                 && config.isEnabled(MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES)
@@ -1503,7 +1511,7 @@ public class JacksonAnnotationIntrospector
                 }
             }
         }
-        return null;
+        return mode;
     }
 
     /*

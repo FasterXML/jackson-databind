@@ -610,7 +610,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     public void testIssue3008() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(Box3008.class);
-        Box3008 deserOrangeBox = r.readValue("{\"type\":null,\"fruit\":null}}");
+        Box3008 deserOrangeBox = r.readValue("{\"type\":null,\"fruit\":null}");
         assertNull(deserOrangeBox.fruit);
         assertNull(deserOrangeBox.type); // error: "expected null, but was:<null>"
     }

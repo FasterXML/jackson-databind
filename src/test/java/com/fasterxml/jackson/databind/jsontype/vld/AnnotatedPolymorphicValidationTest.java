@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.DefaultBaseTypeLimitingValidator;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
@@ -37,6 +38,14 @@ public class AnnotatedPolymorphicValidationTest
         protected WrappedPolymorphicUntypedSer() { }
     }
 
+    // [databind#6156]
+    static class WrappedPolymorphicComparable {
+        @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS)
+        public Comparable<?> value;
+
+        protected WrappedPolymorphicComparable() { }
+    }
+
     static class NumbersAreOkValidator extends DefaultBaseTypeLimitingValidator
     {
         private static final long serialVersionUID = 1L;
@@ -55,6 +64,34 @@ public class AnnotatedPolymorphicValidationTest
         protected boolean isSafeSubType(MapperConfig<?> config,
                 JavaType baseType, JavaType subType) {
             return baseType.isTypeOrSubTypeOf(Number.class);
+        }
+    }
+
+    // [databind#6156]
+    static class ComparablesAreOkValidator extends DefaultBaseTypeLimitingValidator
+    {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected boolean isUnsafeBaseType(MapperConfig<?> config, JavaType baseType)
+        {
+            // only override handling for `Comparable`
+            if (baseType.hasRawClass(Comparable.class)) {
+                return false;
+            }
+            return super.isUnsafeBaseType(config, baseType);
+        }
+
+        @Override
+        protected boolean isSafeSubType(MapperConfig<?> config,
+                JavaType baseType, JavaType subType)
+        {
+            // ... but only allow a small set of known-safe subtypes: relaxing the
+            // base type check alone would leave all "gadget" types accessible
+            if (baseType.hasRawClass(Comparable.class)) {
+                return subType.hasRawClass(java.io.File.class);
+            }
+            return super.isSafeSubType(config, baseType, subType);
         }
     }
 
@@ -99,6 +136,41 @@ public class AnnotatedPolymorphicValidationTest
             verifyException(e, "Configured");
             verifyException(e, "all subtypes of base type");
             verifyException(e, "java.io.Serializable");
+        }
+    }
+
+    // [databind#6156]: `Comparable` is too wide a base type to allow
+    @Test
+    public void testPolymorphicWithComparableBaseType() throws IOException
+    {
+        final String JSON = a2q("{'value':['java.io.File','/tmp/stuff']}");
+
+        try {
+            /*w =*/ MAPPER.readValue(JSON, WrappedPolymorphicComparable.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "Configured");
+            verifyException(e, "all subtypes of base type");
+            verifyException(e, "java.lang.Comparable");
+        }
+
+        // but may be allowed with custom validator that overrides base type check
+        ObjectMapper customMapper = JsonMapper.builder()
+                .enable(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
+                .polymorphicTypeValidator(new ComparablesAreOkValidator())
+                .build();
+        WrappedPolymorphicComparable w = customMapper.readValue(JSON,
+                WrappedPolymorphicComparable.class);
+        assertEquals(new java.io.File("/tmp/stuff"), w.value);
+
+        // ... but that validator still only allows the subtypes it knows to be safe
+        try {
+            customMapper.readValue(a2q("{'value':['java.lang.String','stuff']}"),
+                    WrappedPolymorphicComparable.class);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "Could not resolve type id 'java.lang.String'");
+            verifyException(e, "denied resolution");
         }
     }
 }

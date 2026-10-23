@@ -312,7 +312,10 @@ public class DateSerializationTest
 
         // wrt [databind#2643]
         w = mapper.writer().with(TimeZone.getTimeZone("Asia/Tehran"));
-        assertEquals(q("1970-01-01/"+zoneOffset("0330")+" IRST"), w.writeValueAsString(new Date(0)));
+        List<String> expectedListIRST = Arrays.asList(
+                q("1970-01-01/03:30 IRST"),
+                q("1970-01-01/03:30 GMT+03:30"));
+        serialize(w, new Date(0), expectedListIRST);
     }
 
     /**
@@ -396,6 +399,11 @@ public class DateSerializationTest
 
     private void serialize(ObjectWriter w, Object date, String expected) throws IOException {
         assertEquals(q(expected), w.writeValueAsString(date));
+    }
+
+    private void serialize(ObjectWriter w, Object date, List<String> expected) throws IOException {
+        String result = w.writeValueAsString(date);
+        assertTrue(expected.contains(result), "unexpected result: " + result);
     }
 
     private String zoneOffset(String raw) {

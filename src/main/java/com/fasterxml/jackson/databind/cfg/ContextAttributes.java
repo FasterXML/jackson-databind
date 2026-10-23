@@ -5,6 +5,7 @@ import java.util.*;
 /**
  * Helper class used for storing and accessing per-call attributes.
  * Storage is two-layered: at higher precedence, we have actual per-call
+ * ({@code ObjectMapper.readValue} or {@code ObjectMapper.writeValue})
  * attributes; and at lower precedence, default attributes that may be
  * defined for Object readers and writers.
  *<p>
@@ -15,11 +16,24 @@ import java.util.*;
  * sharing, by creating new copies instead of modifying state.
  * This allows sharing of default values without per-call copying, but
  * requires two-level lookup on access.
+ *<p>
+ * To set default attributes, use {@link #withSharedAttributes(Map)}
+ * or {@link #withSharedAttribute(Object, Object)}, starting with
+ * "empty" instance (see {@link #getEmpty()}). For example:
+ *<pre>
+ *   ContextAttributes attrs = ContextAttributes.getEmpty()
+ *     .withSharedAttribute("foo", "bar")
+ *     .withSharedAttribute("attr2", "value2");
+ *</pre>
  *
  * @since 2.3
  */
 public abstract class ContextAttributes
 {
+    /**
+     * Accessor for an empty instance of {@link ContextAttributes}: usable
+     * as-is, or as a starting point for building up a set of default attributes.
+     */
     public static ContextAttributes getEmpty() {
         return Impl.getEmpty();
     }
@@ -30,8 +44,27 @@ public abstract class ContextAttributes
     /**********************************************************
      */
 
+    /**
+     * Fluent factory method for creating a new instance with an additional
+     * shared attribute.
+     *
+     * @param key Name of the attribute to add
+     * @param value Value of the attribute to add; may be null, in which case
+     *   attribute will be removed if it already exists.
+     *
+     * @return New instance of {@link ContextAttributes} that has specified change.
+     */
     public abstract ContextAttributes withSharedAttribute(Object key, Object value);
 
+    /**
+     * Fluent factory method for creating a new instance with specified set of
+     * shared attributes.
+     * Any shared attributes that already exist will be replaced
+     * 
+     * @param attributes Map of shared attributes to add, replacing any existing ones.
+     *
+     * @return New instance of {@link ContextAttributes} that has specified shared attributes.
+     */
     public abstract ContextAttributes withSharedAttributes(Map<?,?> attributes);
 
     public abstract ContextAttributes withoutSharedAttribute(Object key);
@@ -115,7 +148,7 @@ public abstract class ContextAttributes
             Map<Object,Object> m;
             // need to cover one special case, since EMPTY uses Immutable map:
             if (this == EMPTY) {
-                m = new HashMap<Object,Object>(8);
+                m = new HashMap<>(8);
             } else {
                 m = _copy(_shared);
             }

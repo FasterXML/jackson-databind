@@ -33,6 +33,8 @@ import com.fasterxml.jackson.databind.type.*;
  *<p>
  * Default method implementations are "no-op"s, meaning that methods are implemented
  * but have no effect.
+ *<p>
+ * NOTE: in Jackson 3.x this class will be renamed as {@code ValueSerializerModifier}
  */
 public abstract class BeanSerializerModifier
     implements Serializable // @since 2.17

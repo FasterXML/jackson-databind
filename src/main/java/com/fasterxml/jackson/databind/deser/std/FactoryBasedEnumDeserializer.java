@@ -165,7 +165,11 @@ class FactoryBasedEnumDeserializer
             if (unwrapping) {
                 t = p.nextToken();
             }
-            if ((t == null) || !t.isScalarValue()) {
+            // 24-Nov-2024, tatu: New! "Scalar from Object" (mostly for XML) -- see
+            //   https://github.com/FasterXML/jackson-databind/issues/4807
+            if (t == JsonToken.START_OBJECT) {
+                value = ctxt.extractScalarFromObject(p, this, _valueClass);
+            } else if ((t == null) || !t.isScalarValue()) {
                 // Could argue we should throw an exception but...
                 // 01-Jun-2023, tatu: And now we will finally do it!
                 final JavaType targetType = getValueType(ctxt);

@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * Note that while it is possible to just directly implement {@link JsonSerializable},
  * actual implementations are strongly recommended to instead extend
  * {@link JsonSerializable.Base}.
+ *<p>
+ * NOTE: in Jackson 3.x this class will be renamed as {@code JacksonSerializable}
  */
 public interface JsonSerializable
 {

@@ -1502,19 +1502,25 @@ public class ObjectMapper
     }
 
     /**
-     * Accessor for the "blueprint" (or, factory) instance, from which instances
-     * are created by calling {@link DefaultSerializerProvider#createInstance}.
-     * Note that returned instance cannot be directly used as it is not properly
-     * configured: to get a properly configured instance to call, use
-     * {@link #getSerializerProviderInstance()} instead.
+     * Internal {@link SerializerProvider} accessor used by databind package to get the "blueprint"
+     * (or, factory) instance, from which actual instances are created by calling {@link DefaultSerializerProvider#createInstance}.
+     * <b>NOT TO BE USED BY APPLICATION CODE</b> directly: only databind-managed {@code SerializerProvider}
+     * instances should be used.
+     *<p>
+     * Implementation note: returned instance cannot be directly used as it is not properly
+     * configured or initialized.
      */
     public SerializerProvider getSerializerProvider() {
         return _serializerProvider;
     }
 
     /**
-     * Accessor for constructing and returning a {@link SerializerProvider}
-     * instance that may be used for accessing serializers. This is same as
+     * Internal {@link SerializerProvider} accessor used by databind package to get a
+     * properly initialized instance to pass to various handlers.
+     * <b>NOT TO BE USED BY APPLICATION CODE</b> directly: only databind-managed {@code SerializerProvider}
+     * instances should be used.
+     *<p>
+     * Implementation note: this is same as
      * calling {@link #getSerializerProvider}, and calling {@code createInstance()}
      * on it.
      *
@@ -2312,7 +2318,7 @@ public class ObjectMapper
     /**
      * Method for specifying {@link CacheProvider} instance, to provide Cache instances to be used in components downstream.
      *
-     * @cacheProvider Cache provider for this mapper to use
+     * @param cacheProvider Cache provider for this mapper to use
      *
      * @throws IllegalArgumentException if given provider is null
      *
@@ -2542,6 +2548,8 @@ public class ObjectMapper
      * NOTE: preferred way to set the defaults is to use {@code Builder} style
      * construction, see {@link com.fasterxml.jackson.databind.json.JsonMapper#builder}
      * (and {@link MapperBuilder#defaultAttributes}).
+     *
+     * @see ContextAttributes for details on setting default attributes.
      *
      * @since 2.13
      */
@@ -3637,6 +3645,8 @@ public class ObjectMapper
      *  serializable)
      *
      * @deprecated Since 2.18 use discouraged; method to be removed from Jackson 3.0
+     * It is recommended to try directly testing serialization using actual JSON inputs and outputs
+     * in test cases to ensure correctness and compatibility with real-world use cases.
      */
     @Deprecated // @since 2.18
     public boolean canSerialize(Class<?> type) {
@@ -3651,6 +3661,8 @@ public class ObjectMapper
      * @since 2.3
      *
      * @deprecated Since 2.18 use discouraged; method to be removed from Jackson 3.0
+     * It is recommended to try directly testing serialization using actual JSON inputs and outputs
+     * in test cases to ensure correctness and compatibility with real-world use cases.
      */
     @Deprecated // @since 2.18
     public boolean canSerialize(Class<?> type, AtomicReference<Throwable> cause) {
@@ -3675,6 +3687,8 @@ public class ObjectMapper
      *  serializable)
      *
      * @deprecated Since 2.18 use discouraged; method to be removed from Jackson 3.0
+     * It is recommended to try directly testing deserialization using actual JSON inputs and outputs
+     * in test cases to ensure correctness and compatibility with real-world use cases.
      */
     @Deprecated // @since 2.18
     public boolean canDeserialize(JavaType type)
@@ -3691,6 +3705,8 @@ public class ObjectMapper
      * @since 2.3
      *
      * @deprecated Since 2.18 use discouraged; method to be removed from Jackson 3.0
+     * It is recommended to try directly testing deserialization using actual JSON inputs and outputs
+     * in test cases to ensure correctness and compatibility with real-world use cases.
      */
     @Deprecated // @since 2.18
     public boolean canDeserialize(JavaType type, AtomicReference<Throwable> cause)
@@ -4889,6 +4905,9 @@ public class ObjectMapper
             result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = null;
+        } else if (t == JsonToken.NOT_AVAILABLE) {
+            // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
+            result = null;
         } else { // pointing to event other than null
             result = ctxt.readRootValue(p, valueType, _findRootDeserializer(ctxt, valueType), null);
         }
@@ -4912,6 +4931,9 @@ public class ObjectMapper
                 // Ask JsonDeserializer what 'null value' to use:
                 result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
+                result = null;
+            } else if (t == JsonToken.NOT_AVAILABLE) {
+                // 28-Jan-2025, tatu: [databind#4932] Need to handle this case too
                 result = null;
             } else {
                 result = ctxt.readRootValue(p, valueType,

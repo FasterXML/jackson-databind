@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.creators;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
@@ -139,9 +140,24 @@ public class ConstructorDetectorTest extends DatabindTestUtil
             return field;
         }
     }
-    
+
+    // [databind#4860]
+    @JsonPropertyOrder({ "id", "name "})
+    static class Foo4860 {
+        public String id;
+        public String name;
+
+        public Foo4860() { }
+
+        public Foo4860(String id) {
+            // should not be called as of Jackson 2.x
+            throw new IllegalStateException("Should not auto-detect args-taking constructor");
+        }
+    }
+
     private final ObjectMapper MAPPER_PROPS = mapperFor(ConstructorDetector.USE_PROPERTIES_BASED);
     private final ObjectMapper MAPPER_DELEGATING = mapperFor(ConstructorDetector.USE_DELEGATING);
+    private final ObjectMapper MAPPER_DEFAULT = mapperFor(ConstructorDetector.DEFAULT);
     private final ObjectMapper MAPPER_EXPLICIT = mapperFor(ConstructorDetector.EXPLICIT_ONLY);
 
     private final ObjectMapper MAPPER_MUST_ANNOTATE = mapperFor(ConstructorDetector.DEFAULT
@@ -379,6 +395,42 @@ public class ConstructorDetectorTest extends DatabindTestUtil
         }
     }
 
+    // [databind#4860]
+    @Test
+    public void testDeserialization4860PropsBased() throws Exception {
+        _test4680With(MAPPER_PROPS);
+    }
+
+    @Test
+    public void testDeserialization4860Delegating() throws Exception {
+        _test4680With(MAPPER_DELEGATING);
+    }
+
+    @Test
+    public void testDeserialization4860Default() throws Exception {
+        _test4680With(MAPPER_DEFAULT);
+    }
+
+    @Test
+    public void testDeserialization4860Explicit() throws Exception {
+        _test4680With(MAPPER_EXPLICIT);
+    }
+
+    private void _test4680With(ObjectMapper mapper) throws Exception
+    {
+        _test4680With(mapper, "{}", a2q("{'id':null,'name':null}"));
+        _test4680With(mapper, a2q("{'id':'something'}"),
+                a2q("{'id':'something','name':null}"));
+        _test4680With(mapper, a2q("{'id':'something','name':'name'}"),
+                a2q("{'id':'something','name':'name'}"));
+    }
+
+    private void _test4680With(ObjectMapper mapper, String input, String output) throws Exception
+    {
+        Foo4860 result = mapper.readValue(input, Foo4860.class);
+        assertEquals(output, mapper.writeValueAsString(result));
+    }
+    
     /*
     /**********************************************************************
     /* Helper methods

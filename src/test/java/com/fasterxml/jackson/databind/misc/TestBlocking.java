@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.misc;
 
-import java.io.*;
+import java.io.IOException;
 
 
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ public class TestBlocking
      * quite yet.
      */
     @Test
-    public void testEagerAdvance() throws IOException
+    public void testEagerAdvance() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         JsonParser jp = createParserUsingReader("[ 1  ");

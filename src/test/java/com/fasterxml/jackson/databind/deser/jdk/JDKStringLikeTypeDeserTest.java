@@ -171,28 +171,70 @@ public class JDKStringLikeTypeDeserTest
     @Test
     public void testInetAddress() throws IOException
     {
+        // Valid IPv4 address
         InetAddress address = MAPPER.readValue(q("127.0.0.1"), InetAddress.class);
         assertEquals("127.0.0.1", address.getHostAddress());
 
-        // should we try resolving host names? That requires connectivity...
-        final String HOST = "google.com";
-        address = MAPPER.readValue(q(HOST), InetAddress.class);
-        assertEquals(HOST, address.getHostName());
+        // Valid IPv6 address
+        InetAddress ip6 = MAPPER.readValue(
+                q("2001:db8:85a3:8d3:1319:8a2e:370:7348"), InetAddress.class);
+        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6.getHostAddress());
+
+        // IPv6 loopback
+        InetAddress loopback6 = MAPPER.readValue(q("::1"), InetAddress.class);
+        assertEquals("0:0:0:0:0:0:0:1", loopback6.getHostAddress());
+    }
+
+    @Test
+    public void testInetAddressNoDNSLookup() throws Exception
+    {
+        // [databind#6058]: should NOT perform DNS lookup — only IP address literals accepted
+        expectInvalidInetAddress("localhost");
+        expectInvalidInetAddress("google.com");
+        // starts off looking like an IP address (edge case)
+        expectInvalidInetAddress("1.2.3.4.example.com");
+        // punycode
+        expectInvalidInetAddress("xn--bcher-kva.example.com");
+    }
+
+    @Test
+    public void testInetAddressNonAsciiDigits() throws Exception
+    {
+        // [databind#6116], follow-up to [databind#6058]: Character.digit() accepts
+        // non-ASCII digits, but InetAddress.getByName() only treats ASCII literals as
+        // addresses and resolves the rest via DNS, so these must be rejected too.
+        // NOTE: unicode escapes used on purpose -- non-ASCII digit forms are visually
+        // hard to tell apart from the ASCII ones they mimic.
+        expectInvalidInetAddress("\uFF11\uFF12\uFF17.0.0.1"); // full-width "127".0.0.1
+        expectInvalidInetAddress("\u0661\u0662\u0667.0.0.1"); // Arabic-Indic "127".0.0.1
+        expectInvalidInetAddress("\uFF12001:db8::1"); // full-width digit in IPv6 hextet
+        expectInvalidInetAddress("fe80::\uFF11"); // full-width digit in IPv6 hextet
+        // and same goes for non-ASCII hex letters (radix 16), not just digits
+        expectInvalidInetAddress("\uFF41bcd::1"); // full-width "a"bcd::1
+    }
+
+    private void expectInvalidInetAddress(String address) throws Exception {
+        try {
+            MAPPER.readValue(q(address), InetAddress.class);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Not a valid IP address string literal");
+        }
     }
 
     @Test
     public void testInetSocketAddress() throws IOException
     {
         InetSocketAddress address = MAPPER.readValue(q("127.0.0.1"), InetSocketAddress.class);
-        assertEquals("127.0.0.1", address.getAddress().getHostAddress());
+        assertEquals("127.0.0.1", address.getHostName());
 
         InetSocketAddress ip6 = MAPPER.readValue(
                 q("2001:db8:85a3:8d3:1319:8a2e:370:7348"), InetSocketAddress.class);
-        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6.getAddress().getHostAddress());
+        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6.getHostName());
 
         InetSocketAddress ip6port = MAPPER.readValue(
                 q("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"), InetSocketAddress.class);
-        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6port.getAddress().getHostAddress());
+        assertEquals("[2001:db8:85a3:8d3:1319:8a2e:370:7348]", ip6port.getHostName());
         assertEquals(443, ip6port.getPort());
 
         // should we try resolving host names? That requires connectivity...
@@ -204,6 +246,11 @@ public class JDKStringLikeTypeDeserTest
         address = MAPPER.readValue(q(HOST_AND_PORT), InetSocketAddress.class);
         assertEquals(HOST, address.getHostName());
         assertEquals(80, address.getPort());
+
+        // [databind#5951]: should NOT resolve address
+        address = MAPPER.readValue(q("localhost:9999"), InetSocketAddress.class);
+        assertTrue(address.isUnresolved(),
+                "`InetSocketAddress` resolved localhost during deserialization: "+ address);
     }
 
     @Test
@@ -397,6 +444,16 @@ public class JDKStringLikeTypeDeserTest
         } catch (InvalidFormatException e) {
             verifyException(e, "non-hex character 'x'");
         }
+
+        // 04-May-2026, tatu: Specific invalid input to try
+        try {
+            MAPPER.readValue(q("76e6d183-5f68-4afa-b94a-922c1fdb83f\u007F"), UUID.class);
+            fail("Should fail on invalid UUID string");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "non-hex character");
+            verifyException(e, "(value 0x7F)");
+        }
+        
         // should also test from-bytes version, but that's trickier... leave for now.
     }
 

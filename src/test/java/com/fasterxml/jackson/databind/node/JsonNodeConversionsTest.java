@@ -419,4 +419,15 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
         assertEquals(wrapRootMapper.readValue(expected, Map.class), wrapRootMapper.readValue(wrapRootMapper.writeValueAsString(value), Map.class));
         assertEquals(wrapRootMapper.readValue(expected, Map.class), wrapRootMapper.readValue(wrapRootMapper.valueToTree(value).toString(), Map.class));
     }
+
+    // [databind#4932]: handling of `MissingNode` wrt conversions
+    @Test
+    public void treeToValueWithMissingNode4932() throws Exception {
+        assertNull(MAPPER.treeToValue(MAPPER.nullNode(), Object.class));
+        assertNull(MAPPER.treeToValue(MAPPER.missingNode(), Object.class));
+
+        ObjectReader r = MAPPER.readerFor(Object.class);
+        assertNull(r.treeToValue(MAPPER.nullNode(), Object.class));
+        assertNull(r.treeToValue(MAPPER.missingNode(), Object.class));
+    }
 }

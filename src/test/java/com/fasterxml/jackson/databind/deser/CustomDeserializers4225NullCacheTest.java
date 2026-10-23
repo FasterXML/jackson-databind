@@ -20,8 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CustomDeserializers4225NullCacheTest extends DatabindTestUtil
 {
     static class CustomListDeserializer extends JsonDeserializer<List<String>> {
-
-        private static int getNullValueInvocationCount = 0;
+        static int getNullValueInvocationCount = 0;
 
         @Override
         public List<String> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {

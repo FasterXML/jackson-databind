@@ -21,6 +21,9 @@ import java.util.Collections;
  * Simple interface for extensions that can be registered with {@link ObjectMapper}
  * to provide a well-defined set of extensions to default functionality; such as
  * support for new data types.
+ *<p>
+ * NOTE: in Jackson 3.x this class will be renamed as {@code JacksonModule}
+ * to avoid naming conflict with JDK 9's {@code java.lang.module.Module}.
  */
 public abstract class Module
     implements Versioned

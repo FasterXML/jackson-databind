@@ -19,7 +19,8 @@ public class InetSocketAddressSerializer
     public InetSocketAddressSerializer() { super(InetSocketAddress.class); }
 
     @Override
-    public void serialize(InetSocketAddress value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    public void serialize(InetSocketAddress value, JsonGenerator g, SerializerProvider ctxt)
+        throws IOException
     {
         InetAddress addr = value.getAddress();
         String str = addr == null ? value.getHostName() : addr.toString().trim();
@@ -33,19 +34,25 @@ public class InetSocketAddressSerializer
             } else { // otherwise use name
                 str = str.substring(0, ix);
             }
+        } else if ((str.indexOf(':') >= 0) && !str.startsWith("[")) {
+            // [databind#6185]: unresolved addresses have no InetAddress, but an IPv6
+            //   literal host name still needs bracketing so port remains unambiguous
+            //   (host names stored already-bracketed must not be bracketed twice)
+            str = "[" + str + "]";
         }
 
-        jgen.writeString(str + ":" + value.getPort());
+        g.writeString(str + ":" + value.getPort());
     }
 
     @Override
     public void serializeWithType(InetSocketAddress value, JsonGenerator g,
-            SerializerProvider provider, TypeSerializer typeSer) throws IOException
+            SerializerProvider ctxt, TypeSerializer typeSer)
+        throws IOException
     {
         // Better ensure we don't use specific sub-classes...
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
                 typeSer.typeId(value, InetSocketAddress.class, JsonToken.VALUE_STRING));
-        serialize(value, g, provider);
+        serialize(value, g, ctxt);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }
 }

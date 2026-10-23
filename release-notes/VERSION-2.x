@@ -4,15 +4,171 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.18.12 (17-Oct-2026)
+
+#5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+ [CVE-2026-54516]
+ (fixed by Omkhar A)
+#6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: type parameters (and element types of array type ids) are now validated
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type (also without configured validator);
+  `allowIfSubTypeIsArray()` no longer accepts abstract or interface element types
+  without allow-listing (except `Number`); approval of an array type covers its
+  element type only if given as exactly that class (`allowIfSubType(Bar[].class)`,
+  new `PolymorphicTypeValidator.isArrayTypeAllowedExplicitly()`), a name-based
+  rule does not; base type approval of a declared array type covers subtypes of
+  its element type unless that is `Object`, `Serializable` or `Cloneable`
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, @martinfrancois)
+
+2.18.11 (20-Sep-2026)
+
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [CVE-2026-91776]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [CVE-2026-91777]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+
+2.18.10 (15-Aug-2026)
+
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
+#6127: Add `StreamReadConstraints` number len constraint to `javax.xml.datatype.XMLGregorianCalendar`
+  and `javax.xml.datatype.Duration` [CVE-2026-68497]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6129: Limit the supported URL schemes for `java.nio.file.Path`
+  deserialization [CVE-2026-19032]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
+  [CVE-2026-83557]
+ (reported by @prvazsahnazarov)
+#6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float` Map keys
+ (fix by Aysha A-Z)
+
+2.18.9 (07-Jul-2026)
+
+#5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
+ [CVE-2026-54515]
+ (fixed by Omkhar A)
+#6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
+  properties [GHSA-mhm7-754m-9p8w]
+ (reported by @Sharlong-Wen)
+#6058: Do not allow DNS resolution when deserializing `InetAddress` [CVE-2026-77310]
+ (reported by @thientd)
+ (fix by @pjfanning)
+#6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
+
+2.18.8 (28-May-2026)
+
+#5950: Improve `UUIDDeserializer` error handling
+ (reported by Omkhar A)
+#5951: Improve `InetSocketAddress` deserialization [CVE-2026-54514]
+ (reported by Omkhar A)
+#5969: `@JsonView` by-passed for some "setterless" creator properties
+ [CVE-2026-54517]
+ (fixed by Omkhar A)
+#5971: `@JsonView` by-passed for unwrapped creator parameters [CVE-2026-54518]
+ (fixed by Omkhar A)
+#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy` [CVE-2026-59888]
+ (reported by Omkhar A)
+#5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
+  should validate element type [CVE-2026-54513]
+ (reported by Omkhar A)
+ (fix by @cowtowncoder, w/ Claude code)
+#5988: `PolymorphicTypeValidator` needs to validate generic type parameters too
+  [CVE-2026-54512]
+ (reported by Omkhar A)
+ (fix by @cowtowncoder, w/ Claude code)
+#5993: `UPPER_SNAKE_CASE` / `LOWER_CASE` `NamingStrategyImpls` fold case
+  using JVM default locale (Turkish-I bug)
+ (fix by @CharmingKyu)
+
+2.18.7 (24-Apr-2026)
+2.18.6 (22-Feb-2026)
+2.18.5 (27-Oct-2025)
+
+No changes since 2.18.4
+
+2.18.4 (06-May-2025)
+
+#4628: `@JsonIgnore` and `@JsonProperty.access=READ_ONLY` on Record property
+  ignored for deserialization
+ (reported by Sim Y-T)
+ (fix contributed by Fawzi E)
+#5049: Duplicate creator property "b" (index 0 vs 1) on simple java record
+ (reported by @richard-melvin)
+ (fix contributed by Fawzi E)
+
+2.18.3 (28-Feb-2025)
+
+#4444: The `KeyDeserializer` specified in the class with `@JsonDeserialize(keyUsing = ...)`
+  is overwritten by the `KeyDeserializer` specified in the `ObjectMapper`.
+ (fix by @wrongwrong)
+#4827: Subclassed Throwable deserialization fails since v2.18.0 - no creator
+  index for property 'cause'
+ (reported by @nilswieber)
+ (fix by Joo-Hyuk K)
+#4844: Fix wrapped array handling wrt `null` by `StdDeserializer`
+ (fix by Stanislav S)
+#4848: Avoid type pollution in `StringCollectionDeserializer`
+ (contributed by Jonas K)
+#4860: `ConstructorDetector.USE_PROPERTIES_BASED` does not work with
+  multiple constructors since 2.18
+ (reported by Tomáš P)
+ (fix by Joo-Hyuk K, @cowtowncoder)
+#4878: When serializing a Map via Converter(StdDelegatingSerializer),
+  a NullPointerException is thrown due to missing key serializer
+ (reported by @wrongwrong)
+#4908: Deserialization behavior change with @JsonCreator and
+  @ConstructorProperties between 2.17 and 2.18
+ (reported by Gustavo B)
+#4917: `BigDecimal` deserialization issue when using `@JsonCreator`
+ (reported by @dbachdev)
+#4920: Creator properties are ignored on abstract types when collecting
+  bean properties, breaking AsExternalTypeDeserializer
+ (reported, fix contributed by Zhen L-L)
+#4922: Failing `@JsonMerge` with a custom Map
+ (reported by @nlisker)
+#4932: Conversion of `MissingNode` throws `JsonProcessingException`
+ (reported by @ludgerb)
+
+2.18.2 (27-Nov-2024)
+
+#4733: Wrong serialization of Type Ids for certain types of Enum values
+ (reported by @nlisker)
+#4742: Deserialization with Builder, External type id, `@JsonCreator` failing
+ (reported by Bernd A)
+#4777: `StdValueInstantiator.withArgsCreator` is now set for creators with
+  no arguments
+ (reported by @wrongwrong)
+#4783 Possibly wrong behavior of @JsonMerge
+ (reported by @nlisker)
+ (fix by Joo-Hyuk K)
+#4787: Wrong `String.format()` in `StdDelegatingDeserializer` hides actual error
+ (reported by @Horus1337)
+#4788: `EnumFeature.WRITE_ENUMS_TO_LOWERCASE` overrides `@JsonProperty` values
+ (reported by Mike M)
+ (fix by Joo-Hyuk K)
+#4790: Fix `@JsonAnySetter` issue with "setter" method (related to #4639)
+ (reported by @bsa01)
+ (fix by Joo-Hyuk K)
+#4807: Improve `FactoryBasedEnumDeserializer` to work better with XML module
+#4810: Deserialization using `@JsonCreator` with renamed property failing (since 2.18)
+ (reported by Jonathan M)
+
 2.18.1 (28-Oct-2024)
 
-#4741: When `Include.NON_DEFAULT` setting is used on POJO, empty values
-  are not included in json if default is `null`
- (reported by @ragnhov)
- (fix by Joo-Hyuk K)
-#4749: Fixed a problem with `StdDelegatingSerializer#serializeWithType` looking up the serializer
-  with the wrong argument
- (fix by wrongwrong)
 #4508: Deserialized JsonAnySetter field in Kotlin data class is null
  (reported by @MaximValeev)
  (fix by Joo-Hyuk K)
@@ -24,6 +180,14 @@ Project: jackson-databind
 #4724: Deserialization behavior change with Records, `@JsonCreator` and
   `@JsonValue` between 2.17 and 2.18
  (reported by Antti L)
+#4727: Eclipse having issues due`module-info` class "lost" on 2.18.0 jars
+#4741: When `Include.NON_DEFAULT` setting is used on POJO, empty values
+  are not included in json if default is `null`
+ (reported by @ragnhov)
+ (fix by Joo-Hyuk K)
+#4749: Fixed a problem with `StdDelegatingSerializer#serializeWithType` looking up the serializer
+  with the wrong argument
+ (fix by @wrongwrong)
 
 2.18.0 (26-Sep-2024)
 
@@ -103,7 +267,7 @@ Project: jackson-databind
 #4709: Add `JacksonCollectors` with `toArrayNode()` implementation
  (contributed by @rikkarth)
 
-2.17.3 (not yet released)
+2.17.3 (01-Nov-2024)
 
 #4718: Should not fail on trying to serialize `java.time.DateTimeException`
 
@@ -211,6 +375,8 @@ Project: jackson-databind
  (fix contributed by Joo-Hyuk K)
 #4581: Incompatible Constructor Parameter Type in `EnumDeserializer`
  (reported by @Hunter-Lam)
+#4787: Wrong `String.format()` in `StdDelegatingDeserializer` hides actual error
+ (reported by @Horus1337)
 
 2.16.2 (09-Mar-2024)
 
@@ -539,7 +705,7 @@ Project: jackson-databind
   JSON `null` values on reading
 #3443: Do not strip generic type from `Class<C>` when resolving `JavaType`
  (contributed by Jan J)
-#3447: Deeply nested JsonNode throws StackOverflowError for toString()
+#3447: Deeply nested JsonNode throws StackOverflowError for toString() [CVE-2026-50193]
  (reported by Deniz H)
 #3475: Support use of fast double parse
  (contributed by @pjfanning)
@@ -754,6 +920,13 @@ No changes since 2.13.2.1 but fixed Gradle Module Metadata ("module.json")
   via `AsNull`
 - Add `mvnw` wrapper
 
+2.12.7.2 (02-May-2024)
+
+#3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with
+  `PropertyNamingStrategy.UPPER_CAMEL_CASE`
+ (reported by Jason H)
+ (fix suggested by gsinghlulu@github)
+
 2.12.7.1 (12-Oct-2022)
 
 #3582: Add check in `BeanDeserializer._deserializeFromArray()` to prevent
@@ -773,7 +946,7 @@ No changes since 2.13.2.1 but fixed Gradle Module Metadata ("module.json")
 #3305: ObjectMapper serializes `CharSequence` subtypes as POJO instead of
   as String (JDK 15+)
  (reported by stevenupton@github; fix suggested by Sergey C)
-#3328: Possible DoS if using JDK serialization to serialize JsonNode
+#3328: Possible DoS if using JDK serialization to serialize JsonNode [CVE-2021-46877]
 
 2.12.5 (27-Aug-2021)
 

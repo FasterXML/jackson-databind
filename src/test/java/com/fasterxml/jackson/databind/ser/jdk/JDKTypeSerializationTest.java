@@ -104,20 +104,27 @@ public class JDKTypeSerializationTest
     }
 
     @Test
-    public void testInetAddress() throws IOException
+    public void testInetAddress() throws Exception
     {
-        assertEquals(q("127.0.0.1"), MAPPER.writeValueAsString(InetAddress.getByName("127.0.0.1")));
-        InetAddress input = InetAddress.getByName("google.com");
-        assertEquals(q("google.com"), MAPPER.writeValueAsString(input));
+        // Default shape: textual form (host part of InetAddress.toString())
+        InetAddress input = InetAddress.getByName("127.0.0.1");
+        assertEquals(q("127.0.0.1"), MAPPER.writeValueAsString(input));
 
+        // Address carrying a host name (constructed WITHOUT a DNS lookup, via
+        // getByAddress()) still serializes the name in the default shape
+        InetAddress named = InetAddress.getByAddress("myhost.example.com",
+                new byte[] { 1, 2, 3, 4 });
+        assertEquals(q("myhost.example.com"), MAPPER.writeValueAsString(named));
+
+        // NUMBER shape: numeric host address regardless of host name
         ObjectMapper mapper = newJsonMapper();
         mapper.configOverride(InetAddress.class)
             .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER));
-        String json = mapper.writeValueAsString(input);
-        assertEquals(q(input.getHostAddress()), json);
+        assertEquals(q(named.getHostAddress()), mapper.writeValueAsString(named));
 
-        assertEquals(String.format("{\"value\":\"%s\"}", input.getHostAddress()),
-                mapper.writeValueAsString(new InetAddressBean(input)));
+        // ... also as a bean property
+        assertEquals(String.format("{\"value\":\"%s\"}", named.getHostAddress()),
+                mapper.writeValueAsString(new InetAddressBean(named)));
     }
 
     @Test
@@ -125,10 +132,32 @@ public class JDKTypeSerializationTest
     {
         assertEquals(q("127.0.0.1:8080"),
                 MAPPER.writeValueAsString(new InetSocketAddress("127.0.0.1", 8080)));
+        assertEquals(q("127.0.0.1:8080"),
+                MAPPER.writeValueAsString(InetSocketAddress.createUnresolved("127.0.0.1", 8080)));
         assertEquals(q("google.com:6667"),
                 MAPPER.writeValueAsString(new InetSocketAddress("google.com", 6667)));
+        assertEquals(q("google.com:6667"),
+                MAPPER.writeValueAsString(InetSocketAddress.createUnresolved("google.com", 6667)));
         assertEquals(q("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"),
                 MAPPER.writeValueAsString(new InetSocketAddress("2001:db8:85a3:8d3:1319:8a2e:370:7348", 443)));
+    }
+
+    // [databind#6185]: unresolved IPv6 literal must be bracketed like resolved one
+    @Test
+    public void testInetSocketAddressIPv6Unresolved() throws IOException
+    {
+        assertEquals(q("[2001:db8::1]:443"),
+                MAPPER.writeValueAsString(InetSocketAddress.createUnresolved("2001:db8::1", 443)));
+        // if host name is stored with brackets, must not bracket twice
+        assertEquals(q("[2001:db8::1]:443"),
+                MAPPER.writeValueAsString(InetSocketAddress.createUnresolved("[2001:db8::1]", 443)));
+        // and IPv6 value read by Jackson must survive a full round-trip with port intact
+        InetSocketAddress addr = MAPPER.readValue(q("[2001:db8::1]:443"), InetSocketAddress.class);
+        String json = MAPPER.writeValueAsString(addr);
+        assertEquals(q("[2001:db8::1]:443"), json);
+        InetSocketAddress result = MAPPER.readValue(json, InetSocketAddress.class);
+        assertEquals(addr.getHostName(), result.getHostName());
+        assertEquals(443, result.getPort());
     }
 
     // [JACKSON-597]

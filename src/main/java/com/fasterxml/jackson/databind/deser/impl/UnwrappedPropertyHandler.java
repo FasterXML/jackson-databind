@@ -56,8 +56,14 @@ public class UnwrappedPropertyHandler
             Object bean, TokenBuffer buffered)
         throws IOException
     {
+        // [databind#6060]: honor active @JsonView -- skip Field/Setter properties not
+        // visible in the active view rather than populating them from buffered input.
+        final Class<?> activeView = ctxt.getActiveView();
         for (int i = 0, len = _properties.size(); i < len; ++i) {
             SettableBeanProperty prop = _properties.get(i);
+            if ((activeView != null) && !prop.visibleInView(activeView)) {
+                continue;
+            }
             JsonParser p = buffered.asParser(originalParser.streamReadConstraints());
             p.nextToken();
             prop.deserializeAndSet(p, ctxt, bean);

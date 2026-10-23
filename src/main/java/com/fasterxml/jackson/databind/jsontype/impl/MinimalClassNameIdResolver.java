@@ -57,14 +57,23 @@ public class MinimalClassNameIdResolver
     @Override
     public String idFromValue(Object value)
     {
-        String n = value.getClass().getName();
+        return idFromValueAndType(value, value.getClass());
+    }
+
+    @Override
+    public String idFromValueAndType(Object value, Class<?> rawType) {
+        // 04-Nov-2024, tatu: [databind#4733] Need to resolve enum sub-classes
+        //   same way "ClassNameIdResolver" does
+        rawType = _resolveToParentAsNecessary(rawType);
+        String n = rawType.getName();
         if (n.startsWith(_basePackagePrefix)) {
             // note: we will leave the leading dot in there
             return n.substring(_basePackagePrefix.length()-1);
         }
         return n;
+        
     }
-
+    
     @Override
     protected JavaType _typeFromId(String id, DatabindContext ctxt) throws IOException
     {

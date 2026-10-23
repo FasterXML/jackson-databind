@@ -429,6 +429,14 @@ public class DatabindTestUtil
         return str.getBytes(StandardCharsets.UTF_8);
     }
 
+    public static String repeatString(String str, int repeatCount) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < repeatCount; ++i) {
+            sb.append(str);
+        }
+        return sb.toString();
+    }
+
     /*
     /**********************************************************************
     /* Additional assertion methods

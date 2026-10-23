@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.Nulls;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.io.NumberInput;
 
@@ -360,6 +361,10 @@ public abstract class StdDeserializer<T>
             @SuppressWarnings("unchecked")
             T result = (T) handleNestedArrayForSingle(p, ctxt);
             return result;
+        }
+        // 11-Dec-2024: [databind#4844] Caller needs to handle nulls before delegating
+        if (p.hasToken(JsonToken.VALUE_NULL)) {
+            return getNullValue(ctxt);
         }
         return (T) deserialize(p, ctxt);
     }
@@ -1505,11 +1510,11 @@ public abstract class StdDeserializer<T>
         }
         return true;
     }
-
+    
     /*
-    /****************************************************
-    /* Helper methods for sub-classes, new (2.12+)
-    /****************************************************
+    /**********************************************************************
+    /* Helper methods for sub-classes, Value Coercion (2.12+)
+    /**********************************************************************
      */
 
     /**
@@ -1937,9 +1942,54 @@ inputDesc, _coercedTypeDesc(targetType));
     }
 
     /*
-    /****************************************************
+    /**********************************************************************
+    /* Helper methods for sub-classes, Length Constraints (2.18+)
+    /**********************************************************************
+     */
+
+    /**
+     * Method called to enforce maximum length limits for "Stringified" (logical
+     * Number as physical String token) Timestamp tokens for Date/Time types.
+     * Initial implementation uses {@link StreamReadConstraints#getMaxNumberLength()}
+     * as the limit to check.
+     * 
+     * @since 2.18.10
+     */
+    protected void _validateTimestampLength(DeserializationContext ctxt,
+            String value)
+        throws IOException
+    {
+        _validateAgainstMaxNumberLen(_streamReadConstraints(ctxt), value);
+    }
+
+    /**
+     * @since 2.18.10
+     */
+    protected StreamReadConstraints _streamReadConstraints(DeserializationContext ctxt)
+    {
+        JsonParser p = ctxt.getParser();
+        StreamReadConstraints rc = (p == null) ? null : p.streamReadConstraints();
+        return (rc == null) ? StreamReadConstraints.defaults() : rc;
+    }
+
+    // @since 2.18.10
+    private void _validateAgainstMaxNumberLen(StreamReadConstraints src, String value)
+        throws IOException
+    {
+        final int length = value.length();
+        final int maxNumLen = src.getMaxNumberLength();
+        if (length > maxNumLen) {
+            throw new StreamConstraintsException(String.format(
+"Date/time value length (%d) exceeds the maximum allowed (%d, from "
++"`StreamReadConstraints.getMaxNumberLength()`)",
+                length, maxNumLen));
+        }
+    }
+
+    /*
+    /**********************************************************************
     /* Helper methods for sub-classes, resolving dependencies
-    /****************************************************
+    /**********************************************************************
      */
 
     /**

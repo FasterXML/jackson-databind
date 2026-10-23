@@ -1074,6 +1074,10 @@ João Guerra (joca-bt@github)
  * Reported #3924: Incorrect target type when disabling coercion, trying to deserialize
     String from Array/Object
   (2.16.0)
+ * Reported, fixed #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected
+   with constructor-backed properties (nor with Builders, `@JsonUnwrapped`,
+   external type ids or `Shape.ARRAY`)
+  [2.23.0]
 
 Ryan Bohn (bohnman@github)
   * Reported #2475: `StringCollectionSerializer` calls `JsonGenerator.setCurrentValue(value)`,
@@ -2137,4 +2141,9 @@ Martin Mirchev (@Marti2203)
   [2.23.0]
  * Reported, fixed #6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)`
    to an object whose id is `null`
+  [2.23.0]
+
+DongNyoung Lee (@Dongnyoung)
+ * Contributed fix for #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected
+   with constructor-backed properties (backport to 2.x)
   [2.23.0]

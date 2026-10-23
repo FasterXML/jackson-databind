@@ -1166,7 +1166,7 @@ public class BeanDeserializer
                 if (t.isScalarValue()) {
                     ext.handleTypePropertyValue(p, ctxt, propName, null);
                 }
-                // 19-Feb-2021, tatu: Should probably consider view too?
+                // [databind#6077]: view-hidden property: fail, or skip, as per feature
                 if (activeView != null && !prop.visibleInView(activeView)) {
                     handleUnexpectedView(p, ctxt, prop, activeView);
                 } else {

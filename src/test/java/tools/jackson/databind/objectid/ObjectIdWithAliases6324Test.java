@@ -32,9 +32,11 @@ public class ObjectIdWithAliases6324Test extends DatabindTestUtil
 
     // Reported reproduction: deserializer construction must not fail
     @Test
-    public void testAliasTypeWithObjectIdAndIgnoredProperties() throws Exception
+    public void aliasTypeWithObjectIdAndIgnoredProperties() throws Exception
     {
-        Container result = MAPPER.readValue(a2q("{'foo':{'x':3}}"), Container.class);
+        Container result = MAPPER.readValue("""
+                {"foo":{"x":3}}
+                """, Container.class);
 
         assertNotNull(result);
         assertNotNull(result.foo);
@@ -43,9 +45,11 @@ public class ObjectIdWithAliases6324Test extends DatabindTestUtil
 
     // Actual alias name "a1" must be matched, not just the primary name
     @Test
-    public void testAliasUsedWithObjectIdAndIgnoredProperties() throws Exception
+    public void aliasUsedWithObjectIdAndIgnoredProperties() throws Exception
     {
-        Container result = MAPPER.readValue(a2q("{'foo':{'a1':7}}"), Container.class);
+        Container result = MAPPER.readValue("""
+                {"foo":{"a1":7}}
+                """, Container.class);
 
         assertNotNull(result);
         assertNotNull(result.foo);
@@ -54,10 +58,12 @@ public class ObjectIdWithAliases6324Test extends DatabindTestUtil
 
     // Ignored property must really be skipped while non-ignored ones are bound
     @Test
-    public void testIgnoredSkippedWhileOtherPropertiesRead() throws Exception
+    public void ignoredSkippedWhileOtherPropertiesRead() throws Exception
     {
         Container result = MAPPER.readValue(
-                a2q("{'foo':{'a1':3,'name':'abc','ignored':'nope'}}"), Container.class);
+                """
+                {"foo":{"a1":3,"name":"abc","ignored":"nope"}}
+                """, Container.class);
 
         assertNotNull(result);
         assertNotNull(result.foo);
@@ -69,7 +75,7 @@ public class ObjectIdWithAliases6324Test extends DatabindTestUtil
     // Object Id handling itself must keep working: id written on ser is
     // accepted (and consumed) on deser
     @Test
-    public void testObjectIdRoundTripWithAliases() throws Exception
+    public void objectIdRoundTripWithAliases() throws Exception
     {
         Container input = new Container();
         input.foo = new Foo();
@@ -88,10 +94,12 @@ public class ObjectIdWithAliases6324Test extends DatabindTestUtil
 
     // Id given explicitly in input must be accepted, aliased property still bound
     @Test
-    public void testExplicitObjectIdWithAlias() throws Exception
+    public void explicitObjectIdWithAlias() throws Exception
     {
         Container result = MAPPER.readValue(
-                a2q("{'foo':{'@id':1,'a1':11,'name':'qux'}}"), Container.class);
+                """
+                {"foo":{"@id":1,"a1":11,"name":"qux"}}
+                """, Container.class);
 
         assertNotNull(result);
         assertNotNull(result.foo);

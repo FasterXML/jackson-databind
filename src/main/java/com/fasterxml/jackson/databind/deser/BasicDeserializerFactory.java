@@ -1305,9 +1305,9 @@ factory.toString()));
     }
 
     /**
-     * Method called to check that given type is not one of known "gadget" types
-     * that must never be deserialized: used both for bean types and for
-     * Map key types (deserialized via String-based creators).
+     * Method called to check that given type is allowed to be deserialized:
+     * used both for bean types and for Map key types (deserialized via
+     * String-based creators). Sub-classes may override to change the check.
      *
      * @since 2.8.11 (moved up from {@link BeanDeserializerFactory} in 2.18.13)
      */

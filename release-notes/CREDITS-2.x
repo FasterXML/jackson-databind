@@ -2117,3 +2117,8 @@ Sergey Lappo (@sergeylappo)
  * Reported #6227: `BeanDescription` is not thread-safe when called concurrently on the
    same instance (`findProperties()`, `findDefaultViews()`)
   [2.21.8]
+
+Anna Breeva (@ab310013)
+ * Reported #6315: Map key deserializers should apply same type checks as bean
+   deserializers
+  (2.18.13)

@@ -2190,6 +2190,10 @@ ClassUtil.getTypeDescription(ct));
             subDeser = ctxt.findRootValueDeserializer(type);
             // Also, need to cache it
             if (subDeser != null) {
+                if (_propertyFailOnUnknownProperties != null) {
+                    subDeser = subDeser.withPropertyFailOnUnknownProperties(
+                            _propertyFailOnUnknownProperties);
+                }
                 if (_subDeserializers == null) {
                     synchronized (this) {
                         if (_subDeserializers == null) {
@@ -2199,10 +2203,6 @@ ClassUtil.getTypeDescription(ct));
                 }
                 _subDeserializers.put(classKey, subDeser);
             }
-        }
-        if ((_propertyFailOnUnknownProperties != null) && (subDeser != null)) {
-            subDeser = subDeser.withPropertyFailOnUnknownProperties(
-                    _propertyFailOnUnknownProperties);
         }
         return subDeser;
     }

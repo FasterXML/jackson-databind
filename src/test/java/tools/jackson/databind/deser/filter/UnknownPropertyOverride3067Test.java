@@ -258,6 +258,26 @@ class UnknownPropertyOverride3067Test
         }
     }
 
+    static class CountingPolicyDeserializer extends PassthroughDeserializer {
+        private final AtomicInteger _copies;
+
+        CountingPolicyDeserializer(ValueDeserializer<?> delegate, AtomicInteger copies) {
+            super(delegate);
+            _copies = copies;
+        }
+
+        @Override
+        protected ValueDeserializer<?> newDelegatingInstance(ValueDeserializer<?> delegate) {
+            return new CountingPolicyDeserializer(delegate, _copies);
+        }
+
+        @Override
+        public ValueDeserializer<Object> withPropertyFailOnUnknownProperties(Boolean fail) {
+            _copies.incrementAndGet();
+            return super.withPropertyFailOnUnknownProperties(fail);
+        }
+    }
+
     static class StrictPolicyGetterDeserializer extends BeanDeserializer {
         private static final long serialVersionUID = 1L;
 
@@ -543,6 +563,40 @@ class UnknownPropertyOverride3067Test
         assertInstanceOf(PolymorphicChild.class, lenient.readValue("""
                 {"loose":{"child":"retained","extra":2,"known":1}}
                 """, PolymorphicMembers.class).loose);
+    }
+
+    @Test
+    void subtypePolicyCopiesAreReusedWithoutMixingMemberSettings() throws Exception {
+        AtomicInteger copies = new AtomicInteger();
+        SimpleModule module = new SimpleModule();
+        module.setDeserializerModifier(new ValueDeserializerModifier() {
+            @Override
+            public ValueDeserializer<?> modifyDeserializer(DeserializationConfig config,
+                    BeanDescription.Supplier description, ValueDeserializer<?> deserializer) {
+                return description.getBeanClass() == PolymorphicChild.class
+                        ? new CountingPolicyDeserializer(deserializer, copies) : deserializer;
+            }
+        });
+        ObjectMapper mapper = JsonMapper.builder()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .addModule(module).build();
+        String input = """
+                {"strict":{"child":"strict","known":1},
+                 "loose":{"child":"loose","extra":2,"known":1}}
+                """;
+        for (int i = 0; i < 5; ++i) {
+            PolymorphicMembers value = mapper.readValue(input, PolymorphicMembers.class);
+            assertEquals("strict", ((PolymorphicChild) value.strict).child);
+            assertEquals("loose", ((PolymorphicChild) value.loose).child);
+        }
+        assertEquals(2, copies.get());
+        assertThrows(UnrecognizedPropertyException.class, () -> mapper.readValue("""
+                {"strict":{"child":"strict","extra":2,"known":1}}
+                """, PolymorphicMembers.class));
+        assertInstanceOf(PolymorphicChild.class, mapper.readValue("""
+                {"child":"root","extra":2,"known":1}
+                """, PolymorphicBase.class));
+        assertEquals(2, copies.get());
     }
 
     @Test

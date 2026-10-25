@@ -13,6 +13,7 @@ import tools.jackson.databind.introspect.AnnotatedAndMetadata;
 import tools.jackson.databind.introspect.AnnotatedConstructor;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedMethod;
+import tools.jackson.databind.jsontype.impl.SubTypeValidator;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.EnumResolver;
 
@@ -72,6 +73,13 @@ public class JDKKeyDeserializers
         //   4. Implicit Factory method with name of "valueOf()" (primary) or
         //      "fromString()" (secondary). Likewise, no visibility check as of yet.
 
+        // Never construct String-based key deserializers for known "gadget" types
+        // (checked here so that all callers are covered, not just deserializer factory)
+        if (SubTypeValidator.instance().isIllegalType(type.getRawClass())) {
+            return ctxt.reportBadDefinition(type, String.format(
+                    "Illegal type (%s) to deserialize as Map key: prevented for security reasons",
+                    type.getRawClass().getName()));
+        }
         // We don't need full deserialization information, just need to know creators.
         final BeanDescription beanDesc = ctxt.introspectBeanDescriptionForCreation(type);
         // Ok, so: can we find T(String) constructor?

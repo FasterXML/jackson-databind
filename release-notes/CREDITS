@@ -474,3 +474,8 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6300: NPE when a `DeserializationProblemHandler` returns `null`
    for primitive values (including primitive array elements)
   [3.1.9]
+
+Anna Breeva (@ab310013)
+ * Reported #6315: Map key deserializers should apply same type checks as bean
+   deserializers
+  [3.1.9]

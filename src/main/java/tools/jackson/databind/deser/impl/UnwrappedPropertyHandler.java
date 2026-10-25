@@ -2,6 +2,8 @@ package tools.jackson.databind.deser.impl;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
@@ -9,6 +11,7 @@ import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
+import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.TokenBuffer;
 
@@ -270,6 +273,14 @@ public class UnwrappedPropertyHandler
         Set<String> propNames = new HashSet<>();
         deser.collectAllPropertyNamesTo(propNames);
         names.addAll(propNames);
+        // [databind#6332]: polymorphic unwrapped value also needs its type id property
+        TypeDeserializer typeDeser = prop.getValueTypeDeserializer();
+        if (typeDeser != null) {
+            JsonTypeInfo.As incl = typeDeser.getTypeInclusion();
+            if (incl == JsonTypeInfo.As.PROPERTY || incl == JsonTypeInfo.As.EXISTING_PROPERTY) {
+                names.add(typeDeser.getPropertyName());
+            }
+        }
         return propNames.isEmpty();
     }
 }

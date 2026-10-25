@@ -826,3 +826,8 @@ Matt Van Horn (@mvanhorn)
 @LSwiatek
  * Reported #5380: `@JsonValue` ignores property inclusion config override of the value type
   [3.3.0]
+
+Anna Breeva (@ab310013)
+ * Reported #6315: Map key deserializers should apply same type checks as bean
+   deserializers
+  [3.2.5]

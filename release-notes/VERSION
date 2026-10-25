@@ -138,6 +138,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
   values (including primitive array elements)
  (reported, fixed by @Marti2203)
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
 #6317: Global `NON_DEFAULT` with `USE_REAL_INCLUDE_NON_DEFAULT` now writes explicit
   `null` over a non-null default (like per-type); previously nulls were suppressed
  (fix by @cowtowncoder, w/ Claude code)
@@ -165,6 +168,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
   values (including primitive array elements)
  (reported, fixed by @Marti2203)
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
 
 3.2.4 (18-Oct-2026)
 
@@ -557,6 +563,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
   values (including primitive array elements)
  (reported, fixed by @Marti2203)
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
 
 3.1.8 (17-Oct-2026)
 

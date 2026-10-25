@@ -83,6 +83,16 @@ public class BeanAsArrayBuilderDeserializer
     }
 
     @Override
+    public BeanDeserializerBase withPropertyFailOnUnknownProperties(Boolean failOnUnknown) {
+        BeanAsArrayBuilderDeserializer copy = new BeanAsArrayBuilderDeserializer(
+                _delegate.withPropertyFailOnUnknownProperties(failOnUnknown),
+                _targetType, _orderedProperties, _buildMethod);
+        copy._failOnUnknownProperties = failOnUnknown;
+        copy._propertyFailOnUnknownProperties = failOnUnknown;
+        return copy;
+    }
+
+    @Override
     public BeanDeserializerBase withBeanProperties(BeanPropertyMap props) {
         return new BeanAsArrayBuilderDeserializer(_delegate.withBeanProperties(props),
                 _targetType, _orderedProperties, _buildMethod);
@@ -160,7 +170,7 @@ public class BeanAsArrayBuilderDeserializer
         }
         // 09-Nov-2016, tatu: Should call `handleUnknownProperty()` in Context, but it'd give
         //   non-optimal exception message so...
-        if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+        if (!_shouldIgnoreAllUnknown() && _shouldFailOnUnknownProperties(ctxt)) {
             ctxt.reportInputMismatch(handledType(),
                     "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                     propCount);
@@ -241,7 +251,7 @@ public class BeanAsArrayBuilderDeserializer
             p.skipChildren();
         }
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
-        if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+        if (!_shouldIgnoreAllUnknown() && _shouldFailOnUnknownProperties(ctxt)) {
             ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
                     "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                     propCount);
@@ -286,7 +296,7 @@ public class BeanAsArrayBuilderDeserializer
                 // in-bounds null slots (e.g. from renamed/unwrapped properties) are skipped,
                 // matching the non-creator path's position-based check.
                 if (i >= propCount
-                        && !_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+                        && !_shouldIgnoreAllUnknown() && _shouldFailOnUnknownProperties(ctxt)) {
                     ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
                             "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                             propCount);

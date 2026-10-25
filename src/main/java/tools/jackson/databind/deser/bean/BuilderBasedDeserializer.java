@@ -156,7 +156,10 @@ public class BuilderBasedDeserializer
             }
             // and handle direct unwrapping as well:
             BeanPropertyMap props = _beanProperties.renameAll(ctxt, transformer);
-            return new BuilderBasedDeserializer(this, uwHandler, pbCreator, props, true);
+            BuilderBasedDeserializer unwrapped =
+                    new BuilderBasedDeserializer(this, uwHandler, pbCreator, props, true);
+            unwrapped._ignoreAllUnknownForUnwrapped = true;
+            return unwrapped;
         } finally { _currentlyTransforming = null; }
     }
 
@@ -206,12 +209,12 @@ public class BuilderBasedDeserializer
     // `_targetType` (built value type) rather than `_beanType` (builder class).
     @Override
     protected boolean _shouldSkipUnknowns(DeserializationContext ctxt) {
-        if (_ignoreAllUnknown) {
+        if (_shouldIgnoreAllUnknown()) {
             return true;
         }
         return _targetType.isFinal()
                 && ctxt.getConfig().getProblemHandlers() == null
-                && !ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+                && !_shouldFailOnUnknownProperties(ctxt);
     }
 
     protected Object finishBuild(DeserializationContext ctxt, Object builder)

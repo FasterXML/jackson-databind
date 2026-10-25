@@ -110,6 +110,9 @@ public class BeanDeserializerBuilder
      */
     protected boolean _ignoreAllUnknown;
 
+    /** Explicit type-level setting; null retains legacy unknown handling. */
+    protected Boolean _failOnUnknownProperties;
+
     /**
      * When creating Builder-based deserializers, this indicates
      * method to call on builder to finalize value.
@@ -158,6 +161,7 @@ public class BeanDeserializerBuilder
 
         _anySetter = src._anySetter;
         _ignoreAllUnknown = src._ignoreAllUnknown;
+        _failOnUnknownProperties = src._failOnUnknownProperties;
 
         _buildMethod = src._buildMethod;
         _builderConfig = src._builderConfig;
@@ -303,6 +307,14 @@ public class BeanDeserializerBuilder
 
     public void setIgnoreUnknownProperties(boolean ignore) {
         _ignoreAllUnknown = ignore;
+    }
+
+    public void setFailOnUnknownProperties(Boolean fail) {
+        _failOnUnknownProperties = fail;
+    }
+
+    public Boolean getFailOnUnknownProperties() {
+        return _failOnUnknownProperties;
     }
 
     public void setValueInstantiator(ValueInstantiator inst) {

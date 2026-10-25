@@ -130,8 +130,10 @@ public class BeanDeserializer
                 pbCreator = pbCreator.renameAll(ctxt, transformer);
             }
             // and handle direct unwrapping as well:
-            return new BeanDeserializer(this, uwHandler, pbCreator,
+            BeanDeserializer unwrapped = new BeanDeserializer(this, uwHandler, pbCreator,
                     _beanProperties.renameAll(ctxt, transformer), true);
+            unwrapped._ignoreAllUnknownForUnwrapped = true;
+            return unwrapped;
         } finally { _currentlyTransforming = null; }
     }
 
@@ -426,7 +428,7 @@ public class BeanDeserializer
                 }
                 continue;
             }
-            if (_ignoreAllUnknown) {
+            if (_shouldIgnoreAllUnknown()) {
                 p.skipChildren();
                 continue;
             }
@@ -1283,9 +1285,13 @@ public class BeanDeserializer
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
             } else if (_anySetter == null) {
                 // [databind#650]: priority: @JsonIgnoreProperties > FAIL_ON_UNKNOWN_PROPERTIES
-                if (_ignoreAllUnknown) {
+                if (getFailOnUnknownProperties() != null) {
+                    // An explicit setting uses the ordinary unknown-property
+                    // pipeline, including problem handlers.
+                    handleUnknownProperty(p, ctxt, handledType(), propName);
+                } else if (_shouldIgnoreAllUnknown()) {
                     p.skipChildren();
-                } else if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+                } else if (_shouldFailOnUnknownProperties(ctxt)) {
                     throw UnrecognizedPropertyException.from(p, handledType(), propName, getKnownPropertyNames());
                 } else {
                     p.skipChildren();

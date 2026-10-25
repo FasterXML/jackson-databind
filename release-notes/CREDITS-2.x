@@ -2003,3 +2003,8 @@ Ryan Schmitt (@rschmitt)
 Eddú Meléndez Gonzales (@eddumelendez)
  * Reported #5215: `@JsonAnyGetter` serialization order change from 2.18.4 to 2.19.0
   (2.19.2)
+
+Anna Breeva (@ab310013)
+ * Reported #6315: Map key deserializers should apply same type checks as bean
+   deserializers
+  (2.18.13)

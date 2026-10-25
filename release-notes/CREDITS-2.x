@@ -2035,3 +2035,8 @@ Moritz Reyer (@MoritzR200)
  * Contributed #5537: Add missing `@JsonIdentityInfo` handling for implicit `Collection`s with
    `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
   (2.20.2)
+
+Anna Breeva (@ab310013)
+ * Reported #6315: Map key deserializers should apply same type checks as bean
+   deserializers
+  (2.18.13)

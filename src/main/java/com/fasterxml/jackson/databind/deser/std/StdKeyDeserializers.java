@@ -5,12 +5,15 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.KeyDeserializers;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedAndMetadata;
 import com.fasterxml.jackson.databind.introspect.AnnotatedConstructor;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
+import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumResolver;
 
@@ -82,6 +85,13 @@ public class StdKeyDeserializers
         //   4. Implicit Factory method with name of "valueOf()" (primary) or
         //      "fromString()" (secondary). Likewise, no visibility check as of yet.
 
+        // Never construct String-based key deserializers for known "gadget" types
+        // (checked here so that all callers are covered, not just deserializer factory)
+        if (SubTypeValidator.instance().isIllegalType(type.getRawClass())) {
+            throw InvalidDefinitionException.from((JsonParser) null, String.format(
+                    "Illegal type (%s) to deserialize as Map key: prevented for security reasons",
+                    type.getRawClass().getName()), type);
+        }
         // We don't need full deserialization information, just need to know creators.
         final BeanDescription beanDesc = config.introspectForCreation(type);
         // Ok, so: can we find T(String) constructor?

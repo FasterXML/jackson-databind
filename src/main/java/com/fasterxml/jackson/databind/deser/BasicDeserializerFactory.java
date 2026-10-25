@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
-import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.*;
 
@@ -1288,8 +1287,6 @@ factory.toString()));
             if (type.isEnumType()) {
                 deser = _createEnumKeyDeserializer(ctxt, type);
             } else {
-                // Same type checks as for bean deserializers
-                _validateSubType(ctxt, type, beanDesc);
                 deser = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
             }
         }
@@ -1302,20 +1299,6 @@ factory.toString()));
             }
         }
         return deser;
-    }
-
-    /**
-     * Method called to check that given type is allowed to be deserialized:
-     * used both for bean types and for Map key types (deserialized via
-     * String-based creators). Sub-classes may override to change the check.
-     *
-     * @since 2.8.11 (moved up from {@link BeanDeserializerFactory} in 2.18.13)
-     */
-    protected void _validateSubType(DeserializationContext ctxt, JavaType type,
-            BeanDescription beanDesc)
-        throws JsonMappingException
-    {
-        SubTypeValidator.instance().validateSubType(ctxt, type, beanDesc);
     }
 
     private KeyDeserializer _createEnumKeyDeserializer(DeserializationContext ctxt,

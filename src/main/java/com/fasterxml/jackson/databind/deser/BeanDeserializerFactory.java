@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -1090,5 +1091,15 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         }
         ignoredTypes.put(type, status);
         return status.booleanValue();
+    }
+
+    /**
+     * @since 2.8.11
+     */
+    protected void _validateSubType(DeserializationContext ctxt, JavaType type,
+            BeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        SubTypeValidator.instance().validateSubType(ctxt, type, beanDesc);
     }
 }

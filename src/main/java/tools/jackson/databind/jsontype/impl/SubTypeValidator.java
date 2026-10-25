@@ -46,6 +46,14 @@ public class SubTypeValidator
         s.add("org.apache.xalan.xsltc.trax.TemplatesImpl");
         // [databind#1680]: may or may not be problem, take no chance
         s.add("com.sun.rowset.JdbcRowSetImpl");
+        // Siblings of JdbcRowSetImpl: all extend `javax.sql.rowset.BaseRowSet`,
+        // expose a public no-arg constructor and inherit the same
+        // `setDataSourceName(String)` -> JNDI lookup sink. JDK-bundled,
+        // present unchanged from JDK 8 through (at least) JDK 25.
+        s.add("com.sun.rowset.CachedRowSetImpl");
+        s.add("com.sun.rowset.WebRowSetImpl");
+        s.add("com.sun.rowset.FilteredRowSetImpl");
+        s.add("com.sun.rowset.JoinRowSetImpl");
         // [databind#1737]; JDK provided
         s.add("java.util.logging.FileHandler");
         s.add("java.rmi.server.UnicastRemoteObject");

@@ -1,6 +1,7 @@
 package tools.jackson.databind.type;
 
 import java.io.Serial;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 import tools.jackson.databind.JavaType;
@@ -62,18 +63,46 @@ public class TypeParser
         }
         Class<?> base = findClass(tf, tokens.nextToken(), tokens);
 
-        // either end (ok, non generic type), or generics
+        JavaType result = parseClass(tf, base, null, tokens, nestingAllowed);
+        while (tokens.hasMoreTokens()) {
+            String token = tokens.nextToken();
+            if (!token.startsWith("$")) {
+                tokens.pushBack(token);
+                break;
+            }
+            if (--nestingAllowed < 0) {
+                throw _problem(tokens, "too deeply nested; exceeds maximum of "
+                        +MAX_TYPE_NESTING+" nesting levels");
+            }
+            Class<?> member = findClass(tf, result.getRawClass().getName() + token, tokens);
+            if (member.getDeclaringClass() != result.getRawClass()
+                    || Modifier.isStatic(member.getModifiers())) {
+                throw _problem(tokens, "Class '"+member.getName()
+                        +"' is not a non-static member of '"+result.getRawClass().getName()+"'");
+            }
+            result = parseClass(tf, member, result, tokens, nestingAllowed);
+        }
+        return result;
+    }
+
+    private JavaType parseClass(TypeFactory tf, Class<?> base, JavaType owner,
+            MyTokenizer tokens, int nestingAllowed)
+    {
+        JavaType[] parameters = new JavaType[0];
+        boolean explicitArguments = false;
         if (tokens.hasMoreTokens()) {
             String token = tokens.nextToken();
             if ("<".equals(token)) {
+                explicitArguments = true;
                 List<JavaType> parameterTypes = parseTypes(tf, tokens, nestingAllowed-1);
-                TypeBindings b = TypeBindings.create(base, parameterTypes);
-                return tf._fromClass(null, base, b);
+                parameters = parameterTypes.toArray(new JavaType[0]);
+            } else {
+                tokens.pushBack(token);
             }
-            // can be comma that separates types, or closing '>'
-            tokens.pushBack(token);
         }
-        return tf._fromClass(null, base, TypeBindings.emptyBindings());
+        TypeBindings bindings = (owner == null && !explicitArguments)
+                ? TypeBindings.emptyBindings() : TypeBindings.create(base, parameters, owner);
+        return tf._fromClass(null, base, bindings);
     }
 
     protected List<JavaType> parseTypes(TypeFactory tf, MyTokenizer tokens, int nestingAllowed)
@@ -84,6 +113,13 @@ public class TypeParser
                     +MAX_TYPE_NESTING+" nesting levels");
         }
         ArrayList<JavaType> types = new ArrayList<JavaType>();
+        if (tokens.hasMoreTokens()) {
+            String token = tokens.nextToken();
+            if (">".equals(token)) {
+                return types;
+            }
+            tokens.pushBack(token);
+        }
         while (tokens.hasMoreTokens()) {
             types.add(parseType(tf, tokens, nestingAllowed));
             if (!tokens.hasMoreTokens()) break;

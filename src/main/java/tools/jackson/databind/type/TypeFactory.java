@@ -498,13 +498,12 @@ public class TypeFactory
 
             // (3) Sub-class does not take type parameters -- just resolve subtype
             int typeParamCount = subclass.getTypeParameters().length;
-            if (typeParamCount == 0) {
+            if (typeParamCount == 0 && !_hasGenericOwner(subclass)) {
                 newType = _fromClass(null, subclass, EMPTY_BINDINGS);
                 break;
             }
             // (4) If all else fails, do the full traversal using placeholders
-            TypeBindings tb = _bindingsForSubtype(baseType, typeParamCount,
-                    subclass, relaxedCompatibilityCheck);
+            TypeBindings tb = _bindingsForSubtype(baseType, subclass, relaxedCompatibilityCheck);
             newType = _fromClass(null, subclass, tb);
 
         } while (false);
@@ -554,14 +553,10 @@ public class TypeFactory
         return baseType;
     }
 
-    private TypeBindings _bindingsForSubtype(JavaType baseType, int typeParamCount,
+    private TypeBindings _bindingsForSubtype(JavaType baseType,
             Class<?> subclass, boolean relaxedCompatibilityCheck)
     {
-        PlaceholderForType[] placeholders = new PlaceholderForType[typeParamCount];
-        for (int i = 0; i < typeParamCount; ++i) {
-            placeholders[i] = new PlaceholderForType(i);
-        }
-        TypeBindings b = TypeBindings.create(subclass, placeholders);
+        TypeBindings b = _placeholderBindings(subclass, new ArrayList<>());
         // First: pseudo-resolve to get placeholders in place:
         JavaType tmpSub = _fromClass(null, subclass, b);
         // Then find super-type
@@ -582,9 +577,57 @@ public class TypeFactory
             }
         }
 
-        final JavaType[] typeParams = new JavaType[typeParamCount];
-        for (int i = 0; i < typeParamCount; ++i) {
-            JavaType t = placeholders[i].actualType();
+        return _resolvedBindings(subclass, b);
+    }
+
+    private Class<?> _enclosingClass(Class<?> raw)
+    {
+        return Modifier.isStatic(raw.getModifiers()) ? null : raw.getDeclaringClass();
+    }
+
+    private boolean _hasGenericOwner(Class<?> raw)
+    {
+        for (Class<?> owner = _enclosingClass(raw); owner != null;
+                owner = _enclosingClass(owner)) {
+            if (owner.getTypeParameters().length > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Keep placeholders in their declaration scopes: an enclosing T and an inner T
+    // are independent, even when both contribute to the resolved supertype.
+    private TypeBindings _placeholderBindings(Class<?> raw,
+            List<PlaceholderForType> placeholders)
+    {
+        JavaType owner = null;
+        if (_hasGenericOwner(raw)) {
+            Class<?> enclosing = _enclosingClass(raw);
+            owner = _fromClass(null, enclosing, _placeholderBindings(enclosing, placeholders));
+        }
+        JavaType[] params = new JavaType[raw.getTypeParameters().length];
+        for (int i = 0; i < params.length; ++i) {
+            PlaceholderForType placeholder = new PlaceholderForType(placeholders.size());
+            placeholders.add(placeholder);
+            params[i] = placeholder;
+        }
+        return TypeBindings.create(raw, params, owner);
+    }
+
+    private TypeBindings _resolvedBindings(Class<?> raw, TypeBindings bindings)
+    {
+        JavaType owner = bindings.getOwnerType();
+        if (owner != null) {
+            owner = _fromClass(null, owner.getRawClass(),
+                    _resolvedBindings(owner.getRawClass(), owner.getBindings()));
+        }
+        JavaType[] typeParams = new JavaType[bindings.size()];
+        for (int i = 0; i < typeParams.length; ++i) {
+            JavaType t = bindings.getBoundType(i);
+            if (t instanceof PlaceholderForType placeholder) {
+                t = placeholder.actualType();
+            }
             // 18-Oct-2017, tatu: Looks like sometimes we have incomplete bindings (even if not
             //     common, it is possible if subtype is type-erased class with added type
             //     variable -- see test(s) with "bogus" type(s)).
@@ -593,12 +636,19 @@ public class TypeFactory
             }
             typeParams[i] = t;
         }
-        return TypeBindings.create(subclass, typeParams);
+        return TypeBindings.create(raw, typeParams, owner);
     }
 
     private String _resolveTypePlaceholders(JavaType sourceType, JavaType actualType)
         throws IllegalArgumentException
     {
+        JavaType sourceOwner = sourceType.getBindings().getOwnerType();
+        JavaType actualOwner = actualType.getBindings().getOwnerType();
+        if (sourceOwner != null && (actualOwner == null
+                || !_verifyAndResolvePlaceholders(sourceOwner, actualOwner))) {
+            return "Enclosing type differs; cannot specialize " + sourceType.toCanonical()
+                    + " with " + actualType.toCanonical();
+        }
         List<JavaType> expectedTypes = sourceType.getBindings().getTypeParameters();
         List<JavaType> actualTypes = actualType.getBindings().getTypeParameters();
 
@@ -653,9 +703,18 @@ public class TypeFactory
         if (exp.getRawClass() != act.getRawClass()) {
             return false;
         }
+        JavaType expectedOwner = exp.getBindings().getOwnerType();
+        JavaType actualOwner = act.getBindings().getOwnerType();
+        if (expectedOwner != null && (actualOwner == null
+                || !_verifyAndResolvePlaceholders(expectedOwner, actualOwner))) {
+            return false;
+        }
         // But we can check type parameters "blindly"
         List<JavaType> expectedTypes = exp.getBindings().getTypeParameters();
         List<JavaType> actualTypes = act.getBindings().getTypeParameters();
+        if (actualTypes.size() < expectedTypes.size()) {
+            return false;
+        }
         for (int i = 0, len = expectedTypes.size(); i < len; ++i) {
             JavaType exp2 = expectedTypes.get(i);
             JavaType act2 = actualTypes.get(i);
@@ -1393,7 +1452,7 @@ public class TypeFactory
             ClassStack prev = context.find(rawType);
             if (prev != null) {
                 // Self-reference: needs special handling, then...
-                ResolvedRecursiveType selfRef = new ResolvedRecursiveType(rawType, EMPTY_BINDINGS);
+                ResolvedRecursiveType selfRef = new ResolvedRecursiveType(rawType, bindings);
                 prev.addSelfReference(selfRef);
                 return selfRef;
             }
@@ -1571,6 +1630,11 @@ public class TypeFactory
             return CORE_TYPE_COMPARABLE;
         }
 
+        JavaType owner = null;
+        if (_enclosingClass(rawType) != null && ptype.getOwnerType() != null) {
+            owner = _fromAny(context, ptype.getOwnerType(), parentBindings);
+        }
+
         // First: what is the actual base type? One odd thing is that 'getRawType'
         // returns Type, not Class<?> as one might expect. But let's assume it is
         // always of type Class: if not, need to add more code to resolve it to Class.
@@ -1579,14 +1643,22 @@ public class TypeFactory
         TypeBindings newBindings;
 
         if (paramCount == 0) {
-            newBindings = EMPTY_BINDINGS;
+            newBindings = TypeBindings.create(rawType, new JavaType[0], owner);
         } else {
             boolean anyWildcards = false;
 
             JavaType[] pt = new JavaType[paramCount];
+            // Actual arguments belong to the caller's scope. Resolve them before
+            // declared bounds, which may refer to another parameter or the owner.
+            for (int i = 0; i < paramCount; ++i) {
+                if (!(args[i] instanceof WildcardType)) {
+                    pt[i] = _fromAny(context, args[i], parentBindings);
+                }
+            }
             for (int i = 0; i < paramCount; ++i) {
                 if (args[i] instanceof WildcardType wt) {
                     anyWildcards = true;
+                    TypeBindings boundBindings = parentBindings;
                     // [databind#5285] Resolve wildcards using best available bound:
                     // use the type variable's declared upper bound when the wildcard
                     // itself is unbounded and the variable has a non-Object bound.
@@ -1603,16 +1675,17 @@ public class TypeFactory
                                 }
                                 if (varBounds.length > 0 && varBounds[0] != Object.class) {
                                     effectiveBound = varBounds[0];
+                                    if (owner != null) {
+                                        boundBindings = TypeBindings.create(rawType, pt.clone(), owner);
+                                    }
                                 }
                             }
                         }
                     }
-                    pt[i] = _fromAny(context, effectiveBound, parentBindings);
-                } else {
-                    pt[i] = _fromAny(context, args[i], parentBindings);
+                    pt[i] = _fromAny(context, effectiveBound, boundBindings);
                 }
             }
-            newBindings = TypeBindings.create(rawType, pt);
+            newBindings = TypeBindings.create(rawType, pt, owner);
 
             // [databind#4118] Unbind wildcards in (direct) self-referential type parameters
             // to allow deserializers to use the class definition's bounds instead of Object.
@@ -1639,23 +1712,28 @@ public class TypeFactory
     protected JavaType _fromArrayType(ClassStack context, GenericArrayType type, TypeBindings bindings)
     {
         JavaType elementType = _fromAny(context, type.getGenericComponentType(), bindings);
-        return ArrayType.construct(elementType, bindings);
+        // The lexical owner belongs to the element's resolution context, not
+        // to the array class itself.
+        return ArrayType.construct(elementType,
+                bindings.getOwnerType() == null ? bindings : EMPTY_BINDINGS);
     }
 
     protected JavaType _fromVariable(ClassStack context, TypeVariable<?> var, TypeBindings bindings)
     {
-        // ideally should find it via bindings:
-        final String name = var.getName();
-        JavaType type = bindings.findBoundType(name);
+        // Owner scopes require declaration identity to distinguish shadowed names.
+        // Keep legacy name aliases otherwise: builder and factory-method inference
+        // deliberately reuse bindings from a different declaration.
+        boolean scoped = bindings.getOwnerType() != null;
+        JavaType type = scoped ? bindings.findBoundType(var) : bindings.findBoundType(var.getName());
         if (type != null) {
             return type;
         }
         // but if not, use bounds... note that approach here is simplistic; not taking
         // into account possible multiple bounds, nor consider upper bounds.
-        if (bindings.hasUnbound(name)) {
+        if (scoped ? bindings.hasUnbound(var) : bindings.hasUnbound(var.getName())) {
             return CORE_TYPE_OBJECT;
         }
-        bindings = bindings.withUnboundVariable(name);
+        bindings = scoped ? bindings.withUnboundVariable(var) : bindings.withUnboundVariable(var.getName());
 
         final Type[] bounds;
 

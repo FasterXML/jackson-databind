@@ -168,6 +168,9 @@ public class SimpleType // note: until 2.6 was final
     @Override
     protected String buildCanonicalName()
     {
+        if (_bindings.getOwnerType() != null) {
+            return _buildOwnerCanonicalName();
+        }
         StringBuilder sb = new StringBuilder();
         sb.append(_class.getName());
 
@@ -209,6 +212,9 @@ public class SimpleType // note: until 2.6 was final
     @Override
     public StringBuilder getGenericSignature(StringBuilder sb)
     {
+        if (_bindings.getOwnerType() != null) {
+            return _getOwnerGenericSignature(sb);
+        }
         _classSignature(_class, sb, false);
 
         final int count = _bindings.size();

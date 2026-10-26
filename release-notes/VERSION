@@ -18,6 +18,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   ("de-duplication") of low-cardinality `String` values
  (requested by Fabian L)
  (contributed by DongNyoung L)
+#3288: Preserve enclosing generic types when resolving and specializing
+  non-static inner classes
+ (reported by @jackwickham)
+ (fix by @umtong)
 #3947: Multiple suitable annotated Creator factory methods to be used as the
   Key deserializer when using record als key in Map
  (reported by @toonborgers)

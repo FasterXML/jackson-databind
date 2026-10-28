@@ -150,6 +150,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6320: `Locale` Map keys serialized using `Locale.toString()` instead of
   BCP-47 language tag (like `Locale` values)
  (fix by @pjfanning)
+#6342: `@JsonFormat(shape = NUMBER)` on primitive `boolean` getter written as `true`/`false`                                    
+  with Blackbird / Afterburner (regression via #6111: `@JacksonStdImpl` on `BooleanSerializer.AsNumber`)                        
+  (fix by @palprat)
 
 3.2.5 (not yet released)
 

@@ -65,28 +65,28 @@ public class JDKHandlersStdImplTest
     };
 
     @Test
-    public void jdkHandlersMarkedAsStdImpl() throws Exception {                                                                 
-          List<String> missing = new ArrayList<>();                                                                               
-          for (String name : HANDLERS) {                                                                                          
-              // fails the test (via ClassNotFoundException) if a handler gets renamed/removed                                    
-              Class<?> cls = Class.forName(name);                                                                                 
-              if (!ClassUtil.isJacksonStdImpl(cls)) {                                                                             
-                  missing.add(name);                                                                                              
-              }                                                                                                                   
-          }                                                                                                                       
-          if (!missing.isEmpty()) {                                                                                               
-              fail("Missing @JacksonStdImpl on "+missing.size()+" JDK handler(s): "+missing);                                     
-          }                                                                                                                       
-      }                                                                                                                           
-                                                                                                                                  
-      // [databind#6342]: variants that are only used for a non-default `@JsonFormat` shape must                                  
-      // NOT be marked as standard implementations: optimization modules (Afterburner, Blackbird)                                 
-      // treat std impls as the default serializer and would replace them, ignoring the shape                                     
-      // (`BooleanSerializer.AsNumber` written as `true`/`false` instead of `1`/`0`).                                             
-      @Test                                                                                                                       
-      public void booleanAsNumberNotMarkedAsStdImpl() throws Exception {                                                          
-          Class<?> cls = Class.forName("tools.jackson.databind.ser.jdk.BooleanSerializer$AsNumber");                              
-          assertFalse(ClassUtil.isJacksonStdImpl(cls),                                                                            
-                  "BooleanSerializer.AsNumber must not be @JacksonStdImpl (see databind#6342)");                                  
-      }  
+    public void jdkHandlersMarkedAsStdImpl() throws Exception {
+        List<String> missing = new ArrayList<>();
+        for (String name : HANDLERS) {
+            // fails the test (via ClassNotFoundException) if a handler gets renamed/removed
+            Class<?> cls = Class.forName(name);
+            if (!ClassUtil.isJacksonStdImpl(cls)) {
+                missing.add(name);
+            }
+        }
+        if (!missing.isEmpty()) {
+            fail("Missing @JacksonStdImpl on "+missing.size()+" JDK handler(s): "+missing);
+        }
+    }
+
+    // [databind#6342]: variants that are only used for a non-default `@JsonFormat` shape must
+    // NOT be marked as standard implementations: optimization modules (Afterburner, Blackbird)
+    // treat std impls as the default serializer and would replace them, ignoring the shape
+    // (`BooleanSerializer.AsNumber` written as `true`/`false` instead of `1`/`0`).
+    @Test
+    public void booleanAsNumberNotMarkedAsStdImpl() throws Exception {
+        Class<?> cls = Class.forName("tools.jackson.databind.ser.jdk.BooleanSerializer$AsNumber");
+        assertFalse(ClassUtil.isJacksonStdImpl(cls),
+                "BooleanSerializer.AsNumber must not be @JacksonStdImpl (see databind#6342)");
+    }
 }

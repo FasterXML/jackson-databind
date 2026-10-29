@@ -572,6 +572,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
   deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
   `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6342: `@JsonFormat(shape = NUMBER)` on primitive `boolean` getter written as `true`/`false`                                    
+  with Blackbird / Afterburner (regression via #6111: `@JacksonStdImpl` on `BooleanSerializer.AsNumber`)                        
+  (fix by @palprat)
 
 3.1.8 (17-Oct-2026)
 

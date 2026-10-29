@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.databind.ser.jdk.BooleanSerializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.ClassUtil;
 
@@ -85,7 +86,7 @@ public class JDKHandlersStdImplTest
     // (`BooleanSerializer.AsNumber` written as `true`/`false` instead of `1`/`0`).
     @Test
     public void booleanAsNumberNotMarkedAsStdImpl() throws Exception {
-        Class<?> cls = Class.forName("tools.jackson.databind.ser.jdk.BooleanSerializer$AsNumber");
+        Class<?> cls = Class.forName(BooleanSerializer.class.getName()+"$AsNumber");
         assertFalse(ClassUtil.isJacksonStdImpl(cls),
                 "BooleanSerializer.AsNumber must not be @JacksonStdImpl (see databind#6342)");
     }

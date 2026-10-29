@@ -284,9 +284,15 @@ public class JacksonAnnotationIntrospector
             }
         }
 
+        // [databind#6339]: only overwrite slots with `@JsonAlias`, to keep aliases
+        // a secondary introspector (of AnnotationIntrospectorPair) has set
         for (int i = 0, end = enumValues.length; i < end; ++i) {
-            Enum<?> enumValue = enumValues[i];
-            aliasList[i] = enumToAliasMap.getOrDefault(enumValue.name(), new String[]{});
+            String[] aliases = enumToAliasMap.get(enumValues[i].name());
+            if (aliases != null) {
+                aliasList[i] = aliases;
+            } else if (aliasList[i] == null) {
+                aliasList[i] = new String[0];
+            }
         }
     }
 

@@ -479,3 +479,8 @@ Anna Breeva (@ab310013)
  * Reported #6315: Map key deserializers should apply same type checks as bean
    deserializers
   [3.1.9]
+
+@palprat
+ * Reported #6342: `@JsonFormat(shape = NUMBER)` on primitive `boolean` getter written
+   as `true`/`false` with Blackbird / Afterburner
+  [3.1.9]

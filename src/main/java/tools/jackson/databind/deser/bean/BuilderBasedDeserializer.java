@@ -14,7 +14,6 @@ import tools.jackson.databind.deser.impl.ObjectIdReader;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
 import tools.jackson.databind.introspect.AnnotatedMethod;
 import tools.jackson.databind.util.ClassUtil;
-import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.TokenBuffer;
 
@@ -525,7 +524,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // Things marked as ignorable should not be passed to "any"-setter
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
@@ -753,7 +752,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // ignorable things should be ignored
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
@@ -809,7 +808,7 @@ public class BuilderBasedDeserializer
                 tokens.copyCurrentStructure(p);
                 continue;
             }
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, builder, propName);
                 continue;
             }
@@ -901,7 +900,7 @@ public class BuilderBasedDeserializer
                 tokens.copyCurrentStructure(p);
                 continue;
             }
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
@@ -976,7 +975,7 @@ public class BuilderBasedDeserializer
             p.nextToken();
             // ignorable things should be ignored
             final String propName = p.currentName();
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+            if (_isIgnoredName(propName)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }

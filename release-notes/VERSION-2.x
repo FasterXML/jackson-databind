@@ -29,6 +29,21 @@ Project: jackson-databind
 #6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)` to an object
   whose id is `null`
  (reported, fixed by @Marti2203)
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
+#6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
+  deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
+  `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6339: Enum aliases from an appended `AnnotationIntrospector` are discarded:
+  `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
+ (reported, fixed by @Marti2203)
+
+2.22.5 (not yet released)
+
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
 
 2.22.4 (17-Oct-2026)
 
@@ -116,6 +131,12 @@ Project: jackson-databind
 #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
+
+2.21.9 (not yet released)
+
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
 
 2.21.8 (17-Oct-2026)
 
@@ -482,6 +503,12 @@ No changes since 2.19.2
  (reported by @seadbrane)
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
+
+2.18.13 (not yet released)
+
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
 
 2.18.12 (17-Oct-2026)
 

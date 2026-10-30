@@ -6,7 +6,9 @@ import java.lang.annotation.Annotation;
 import com.fasterxml.jackson.annotation.JacksonInject;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
@@ -238,6 +240,11 @@ public class CreatorProperty
             Object instance) throws IOException
     {
         _verifySetter();
+        // [databind#6338]: fallback setter is not contextualized, so must
+        // check for "skip nulls" here
+        if (_skipNull(p)) {
+            return;
+        }
         _fallbackSetter.set(instance, deserialize(p, ctxt));
     }
 
@@ -246,7 +253,15 @@ public class CreatorProperty
             DeserializationContext ctxt, Object instance) throws IOException
     {
         _verifySetter();
+        if (_skipNull(p)) {
+            return instance;
+        }
         return _fallbackSetter.setAndReturn(instance, deserialize(p, ctxt));
+    }
+
+    private boolean _skipNull(JsonParser p) {
+        return p.hasToken(JsonToken.VALUE_NULL)
+                && NullsConstantProvider.isSkipper(_nullProvider);
     }
 
     @Override

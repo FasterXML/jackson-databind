@@ -36,6 +36,13 @@ No changes since 3.1
 #6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
   deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
   `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6342: `@JsonFormat(shape = NUMBER)` on primitive `boolean` getter written as `true`/`false`
+  with Blackbird / Afterburner (regression via #6111)
+ (reported by @palprat)
+ (fix by @cowtowncoder, w/ Claude code)
+#6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
+  `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
+ (reported, fixed by @Marti2203)
 
 3.1.8 (17-Oct-2026)
 

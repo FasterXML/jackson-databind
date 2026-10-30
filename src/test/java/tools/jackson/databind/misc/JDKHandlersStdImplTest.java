@@ -5,9 +5,11 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.databind.ser.jdk.BooleanSerializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.ClassUtil;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // [databind#6109]: built-in JDK handlers must be recognized as standard implementations,
@@ -22,7 +24,6 @@ public class JDKHandlersStdImplTest
     private final static String[] HANDLERS = new String[] {
             // Serializers, tools.jackson.databind.ser.jdk
             "tools.jackson.databind.ser.jdk.AtomicReferenceSerializer",
-            "tools.jackson.databind.ser.jdk.BooleanSerializer$AsNumber",
             "tools.jackson.databind.ser.jdk.ByteBufferSerializer",
             "tools.jackson.databind.ser.jdk.CollectionSerializer",
             "tools.jackson.databind.ser.jdk.EnumSetSerializer",
@@ -77,5 +78,16 @@ public class JDKHandlersStdImplTest
         if (!missing.isEmpty()) {
             fail("Missing @JacksonStdImpl on "+missing.size()+" JDK handler(s): "+missing);
         }
+    }
+
+    // [databind#6342]: variants that are only used for a non-default `@JsonFormat` shape must
+    // NOT be marked as standard implementations: optimization modules (Afterburner, Blackbird)
+    // treat std impls as the default serializer and would replace them, ignoring the shape
+    // (`BooleanSerializer.AsNumber` written as `true`/`false` instead of `1`/`0`).
+    @Test
+    public void booleanAsNumberNotMarkedAsStdImpl() throws Exception {
+        Class<?> cls = Class.forName(BooleanSerializer.class.getName()+"$AsNumber");
+        assertFalse(ClassUtil.isJacksonStdImpl(cls),
+                "BooleanSerializer.AsNumber must not be @JacksonStdImpl (see databind#6342)");
     }
 }

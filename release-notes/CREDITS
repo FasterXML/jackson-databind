@@ -825,6 +825,9 @@ Martin Mirchev (@Marti2203)
    with property-level `@JsonIdentityInfo` + `@JsonIgnoreProperties` when the value
    type has `@JsonAlias`
   [3.3.0]
+ * Reported #6325: `NullPointerException` when a `@JsonCreator` returns `null` and
+   the input has an Object Id forward reference
+  [3.3.0]
 
 @essiembre
  * Reported #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
@@ -854,4 +857,7 @@ Anna Breeva (@ab310013)
  * Fixed #6324: `ArrayIndexOutOfBoundsException` in `BeanPropertyMap.withoutProperties()`
    with property-level `@JsonIdentityInfo` + `@JsonIgnoreProperties` when the value
    type has `@JsonAlias`
+  [3.3.0]
+ * Fixed #6325: `NullPointerException` when a `@JsonCreator` returns `null` and
+   the input has an Object Id forward reference
   [3.3.0]

@@ -221,18 +221,12 @@ public class CreatorReturningNullTest
 
     // Same shape, but creator returns a non-null instance (control case for [databind#3030])
     static class CreatorSource6325 {
-        private Target6325 b;
-
+        public Target6325 b;
         public Target6325 extra;
 
         @JsonCreator
         public CreatorSource6325(@JsonProperty("b") Target6325 b) {
             this.b = b;
-        }
-
-        @JsonGetter("b")
-        public Target6325 getB() {
-            return b;
         }
     }
 
@@ -356,19 +350,14 @@ public class CreatorReturningNullTest
     @Test
     void nullCreatorWithAlreadyResolvedForwardRef6325()
     {
-        assertNull(MAPPER.readValue(
-                """
-                { "b": "t1", "extra": { "id": "t1" }, "name": "x" }
-                """,
+        assertNull(MAPPER.readValue(a2q("{'b':'t1','extra':{'id':'t1'},'name':'x'}"),
                 NullCreatorSource6325.class));
     }
 
     @Test
     void nullCreatorWithoutForwardRef6325()
     {
-        assertNull(MAPPER.readValue("""
-                { "name": "x" }
-                """, NullCreatorSource6325.class));
+        assertNull(MAPPER.readValue(a2q("{'name':'x'}"), NullCreatorSource6325.class));
     }
 
     // Control case: same forward reference, but creator returns a bean: deferred
@@ -376,29 +365,19 @@ public class CreatorReturningNullTest
     @Test
     void nonNullCreatorWithAlreadyResolvedForwardRef6325()
     {
-        CreatorSource6325 result = MAPPER.readValue(
-                """
-                { "b": "t1", "extra": { "id": "t1" } }
-                """,
+        CreatorSource6325 result = MAPPER.readValue(a2q("{'b':'t1','extra':{'id':'t1'}}"),
                 CreatorSource6325.class);
-
-        assertNotNull(result);
         assertEquals("t1", result.extra.id);
-        assertSame(result.extra, result.getB());
+        assertSame(result.extra, result.b);
     }
 
     // Discarding the `null` bean must not hide genuinely unresolved Object Ids
     @Test
     void nullCreatorWithUnresolvedForwardRef6325()
     {
-        try {
-            MAPPER.readValue("""
-                { "b": "t1", "name": "x" }
-                """, NullCreatorSource6325.class);
-            fail("Should not pass");
-        } catch (UnresolvedForwardReference e) {
-            verifyException(e, "Unresolved forward reference");
-        }
+        UnresolvedForwardReference e = assertThrows(UnresolvedForwardReference.class,
+                () -> MAPPER.readValue(a2q("{'b':'t1','name':'x'}"), NullCreatorSource6325.class));
+        verifyException(e, "Unresolved forward reference");
     }
 
     // Reference registered by the discarded `null` creator value is resolved only by a
@@ -408,14 +387,9 @@ public class CreatorReturningNullTest
     void nullCreatorWithForwardRefResolvedAfterwards6325()
     {
         Enclosing6325 result = MAPPER.readValue(
-                """
-                { "source": { "b": "t1", "name": "x" }, "later": { "id": "t1" } }
-                """,
+                a2q("{'source':{'b':'t1','name':'x'},'later':{'id':'t1'}}"),
                 Enclosing6325.class);
-
-        assertNotNull(result);
         assertNull(result.source);
-        assertNotNull(result.later);
         assertEquals("t1", result.later.id);
     }
 }

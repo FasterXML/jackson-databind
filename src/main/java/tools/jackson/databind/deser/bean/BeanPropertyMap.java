@@ -150,12 +150,16 @@ public class BeanPropertyMap
      */
     public BeanPropertyMap withProperty(SettableBeanProperty newProp)
     {
-        // First: maybe just replace in place?
+        // [databind#6352]: replace in a copy, never in place: this map is shared by cached,
+        // non-contextual deserializers, so overwriting a property here (an Object Id property
+        // with the same name) would leak into every other use of the value type.
         final String key = newProp.getName();
         for (int i = 0, end = _propsInOrder.length; i < end; ++i) {
             if (_propsInOrder[i].getName().equals(key)) {
-                _propsInOrder[i] = newProp;
-                return this;
+                final SettableBeanProperty[] props = _propsInOrder.clone();
+                props[i] = newProp;
+                return new BeanPropertyMap(Arrays.asList(props), _aliasDefs,
+                        _locale, _caseInsensitive, false);
             }
         }
 

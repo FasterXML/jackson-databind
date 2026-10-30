@@ -68,6 +68,21 @@ public class SkipNullsCreatorUpdate6338Test
         }
     }
 
+    // No setter or field for "value", so no fallback setter either
+    // (note: not a Collection, to avoid "setterless" property via getter)
+    static class CreatorOnlyBean {
+        protected String _value;
+        public String name;
+
+        @JsonCreator
+        public CreatorOnlyBean(@JsonProperty("value")
+                @JsonSetter(nulls = Nulls.SKIP) String value) {
+            _value = value;
+        }
+
+        public String getValue() { return _value; }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     private final static String JSON = a2q("{'values':null,'name':'x'}");
@@ -155,5 +170,15 @@ public class SkipNullsCreatorUpdate6338Test
             prop.set(bean, other);
             assertSame(other, bean.values);
         }
+    }
+
+    // Skipped null needs no fallback setter, so must not fail even if there is none
+    @Test
+    public void testSkipNullsForCreatorWithoutSetter() throws Exception
+    {
+        CreatorOnlyBean bean = new CreatorOnlyBean("a");
+        MAPPER.readerForUpdating(bean).readValue(a2q("{'value':null,'name':'x'}"));
+        assertEquals("x", bean.name);
+        assertEquals("a", bean.getValue());
     }
 }

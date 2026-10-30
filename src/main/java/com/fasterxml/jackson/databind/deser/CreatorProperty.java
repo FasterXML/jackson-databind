@@ -80,16 +80,6 @@ public class CreatorProperty
     protected boolean _ignorable;
 
     /**
-     * Whether {@code null} values are to be skipped when setting value via
-     * fallback setter (that is, when updating an existing instance), as
-     * per {@code @JsonSetter(nulls = Nulls.SKIP)}: needed since fallback
-     * setter itself is not contextualized.
-     *
-     * @since 2.23
-     */
-    protected final boolean _skipNulls;
-
-    /**
      * @since 2.11
      */
     protected CreatorProperty(PropertyName name, JavaType type, PropertyName wrapperName,
@@ -103,7 +93,6 @@ public class CreatorProperty
         _creatorIndex = index;
         _injectableValue = injectable;
         _fallbackSetter = null;
-        _skipNulls = NullsConstantProvider.isSkipper(_nullProvider);
     }
 
     /**
@@ -160,7 +149,6 @@ public class CreatorProperty
         _fallbackSetter = src._fallbackSetter;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
-        _skipNulls = src._skipNulls;
     }
 
     protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser,
@@ -171,7 +159,6 @@ public class CreatorProperty
         _fallbackSetter = src._fallbackSetter;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
-        _skipNulls = NullsConstantProvider.isSkipper(nva);
     }
 
     @Override
@@ -251,46 +238,36 @@ public class CreatorProperty
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object instance) throws IOException
     {
-        _verifySetter();
-        // [databind#6338]: fallback setter is not contextualized, so must
-        // check for "skip nulls" here. Note: `deserialize()` returns `null`
-        // for both JSON null and values coerced to null ([databind#2023])
-        Object value = deserialize(p, ctxt);
-        if ((value == null) && _skipNulls) {
-            return;
-        }
-        _fallbackSetter.set(instance, value);
+        set(instance, deserialize(p, ctxt));
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
             DeserializationContext ctxt, Object instance) throws IOException
     {
-        _verifySetter();
-        Object value = deserialize(p, ctxt);
-        if ((value == null) && _skipNulls) {
-            return instance;
-        }
-        return _fallbackSetter.setAndReturn(instance, value);
+        return setAndReturn(instance, deserialize(p, ctxt));
     }
 
     @Override
     public void set(Object instance, Object value) throws IOException
     {
-        _verifySetter();
-        if ((value == null) && _skipNulls) {
+        // [databind#6338]: fallback setter is not contextualized, so must
+        // check for "skip nulls" here. Note: `deserialize()` returns `null`
+        // for both JSON null and values coerced to null ([databind#2023])
+        if ((value == null) && NullsConstantProvider.isSkipper(_nullProvider)) {
             return;
         }
+        _verifySetter();
         _fallbackSetter.set(instance, value);
     }
 
     @Override
     public Object setAndReturn(Object instance, Object value) throws IOException
     {
-        _verifySetter();
-        if ((value == null) && _skipNulls) {
+        if ((value == null) && NullsConstantProvider.isSkipper(_nullProvider)) {
             return instance;
         }
+        _verifySetter();
         return _fallbackSetter.setAndReturn(instance, value);
     }
 

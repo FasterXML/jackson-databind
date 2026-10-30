@@ -34,6 +34,27 @@ public class EnumAliasWithJsonValue6210Test
         }
     }
 
+    // Aliases that collide with `@JsonValue` ids of other values, and each other
+    enum Colliding6210 {
+        @JsonAlias({ "b" })
+        ALPHA("a"),
+        @JsonAlias({ "a", "x" })
+        BETA("b"),
+        @JsonAlias({ "x" })
+        GAMMA("c");
+
+        private final String value;
+
+        Colliding6210(String value) {
+            this.value = value;
+        }
+
+        @JsonValue
+        public String getValue() {
+            return value;
+        }
+    }
+
     enum IntValued6210 {
         @JsonAlias({ "one" })
         FIRST(1),
@@ -62,7 +83,7 @@ public class EnumAliasWithJsonValue6210Test
 
     // [databind#6210]
     @Test
-    public void testAliasesWithJsonValue() throws Exception {
+    public void aliasesWithJsonValue() throws Exception {
         ObjectReader r = MAPPER.readerFor(Versus6210.class);
 
         // First: values from `@JsonValue` accessor still work
@@ -76,16 +97,25 @@ public class EnumAliasWithJsonValue6210Test
 
     // [databind#6210]: aliases must not override `@JsonValue`-provided ids
     @Test
-    public void testJsonValueWinsOverAlias() throws Exception {
-        // "B" is both `@JsonValue` of BUY and an alias of BUY itself, "S"
-        // similarly for SELL: primary mapping must be retained
-        assertEquals(Versus6210.BUY, MAPPER.readValue(q("B"), Versus6210.class));
-        assertEquals(Versus6210.SELL, MAPPER.readValue(q("S"), Versus6210.class));
+    public void jsonValueWinsOverAlias() throws Exception {
+        ObjectReader r = MAPPER.readerFor(Colliding6210.class);
+
+        // "a" is id of ALPHA, alias of BETA; "b" id of BETA, alias of ALPHA
+        assertEquals(Colliding6210.ALPHA, r.readValue(q("a")));
+        assertEquals(Colliding6210.BETA, r.readValue(q("b")));
+        assertEquals(Colliding6210.GAMMA, r.readValue(q("c")));
+    }
+
+    // [databind#6210]: with duplicate aliases, first Enum value wins
+    // (same as without `@JsonValue`)
+    @Test
+    public void firstAliasWinsForDuplicates() throws Exception {
+        assertEquals(Colliding6210.BETA, MAPPER.readValue(q("x"), Colliding6210.class));
     }
 
     // [databind#6210]: aliases are Strings even if `@JsonValue` is of int type
     @Test
-    public void testAliasesWithIntJsonValue() throws Exception {
+    public void aliasesWithIntJsonValue() throws Exception {
         ObjectReader r = MAPPER.readerFor(IntValued6210.class);
 
         assertEquals(IntValued6210.FIRST, r.readValue("1"));
@@ -98,7 +128,7 @@ public class EnumAliasWithJsonValue6210Test
 
     // [databind#6210]: also verify Enum-as-Map-key path
     @Test
-    public void testAliasesWithJsonValueAsMapKey() throws Exception {
+    public void aliasesWithJsonValueAsMapKey() throws Exception {
         java.util.Map<Versus6210, String> map = MAPPER.readValue(
                 a2q("{'V':'x', 'B':'y'}"),
                 MAPPER.getTypeFactory().constructMapType(java.util.LinkedHashMap.class,

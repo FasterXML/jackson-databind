@@ -299,11 +299,14 @@ public class EnumResolver implements java.io.Serializable
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to access @JsonValue of Enum value "+en+": "+e.getMessage());
             }
+        }
+        // Aliases added after all primary ids (which they must not override),
+        // from first to last so that in case of duplicate aliases, first wins
+        for (int i = 0, len = enumConstants.length; i < len; ++i) {
             String[] aliases = allAliases[i];
             if (aliases != null) {
                 for (String alias : aliases) {
-                    // Avoid overriding any primary names
-                    map.putIfAbsent(alias, en);
+                    map.putIfAbsent(alias, enumConstants[i]);
                 }
             }
         }

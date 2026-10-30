@@ -1023,6 +1023,10 @@ public abstract class AnnotationIntrospector
      * in addition to primary names that were introspected earlier, related to {@link #findEnumValues}.
      * These aliases should be returned in {@code String[][] aliases} passed in as argument. 
      * The {@code aliases.length} is expected to match the number of {@code Enum} values.
+     *<p>
+     * Implementations should only assign entries for values they have aliases for,
+     * leaving other entries as they are: with {@link tools.jackson.databind.introspect.AnnotationIntrospectorPair}
+     * the same array is first passed to the secondary, then to the primary introspector.
      *
      * @param config The configuration of the mapper
      * @param annotatedClass The annotated class of the enumeration type

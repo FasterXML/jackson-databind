@@ -258,6 +258,16 @@ public abstract class AnnotationIntrospector
         return false;
     }
 
+    /**
+     * Method called to merge two annotations of the same type when
+     * collecting class-level annotations from type hierarchy.
+     *
+     * @since 3.1
+     */
+    public Annotation tryMergeClassAnnotation(Annotation existing, Annotation newValue) {
+        return null;
+    }
+
     /*
     /**********************************************************************
     /* Annotations for Object Id handling

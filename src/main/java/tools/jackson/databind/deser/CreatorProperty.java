@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
+import tools.jackson.databind.deser.impl.NullsConstantProvider;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedParameter;
@@ -218,21 +219,25 @@ public class CreatorProperty
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object instance) throws JacksonException
     {
-        _verifySetter();
-        _fallbackSetter.set(ctxt, instance, deserialize(p, ctxt));
+        set(ctxt, instance, deserialize(p, ctxt));
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
             DeserializationContext ctxt, Object instance) throws JacksonException
     {
-        _verifySetter();
-        return _fallbackSetter.setAndReturn(ctxt, instance, deserialize(p, ctxt));
+        return setAndReturn(ctxt, instance, deserialize(p, ctxt));
     }
 
     @Override
     public void set(DeserializationContext ctxt, Object instance, Object value)
     {
+        // [databind#6338]: fallback setter is not contextualized, so must
+        // check for "skip nulls" here. Note: `deserialize()` returns `null`
+        // for both JSON null and values coerced to null ([databind#2023])
+        if ((value == null) && NullsConstantProvider.isSkipper(_nullProvider)) {
+            return;
+        }
         _verifySetter();
         _fallbackSetter.set(ctxt, instance, value);
     }
@@ -240,6 +245,9 @@ public class CreatorProperty
     @Override
     public Object setAndReturn(DeserializationContext ctxt, Object instance, Object value)
     {
+        if ((value == null) && NullsConstantProvider.isSkipper(_nullProvider)) {
+            return instance;
+        }
         _verifySetter();
         return _fallbackSetter.setAndReturn(ctxt,instance, value);
     }

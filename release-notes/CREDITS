@@ -815,6 +815,10 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
    `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
   [3.2.5]
+ * Reported #6324: `ArrayIndexOutOfBoundsException` in `BeanPropertyMap.withoutProperties()`
+   with property-level `@JsonIdentityInfo` + `@JsonIgnoreProperties` when the value
+   type has `@JsonAlias`
+  [3.3.0]
 
 @essiembre
  * Reported #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
@@ -839,3 +843,9 @@ Anna Breeva (@ab310013)
  * Reported #6342: `@JsonFormat(shape = NUMBER)` on primitive `boolean` getter written
    as `true`/`false` with Blackbird / Afterburner
   [3.2.5]
+
+@hutiefang76
+ * Fixed #6324: `ArrayIndexOutOfBoundsException` in `BeanPropertyMap.withoutProperties()`
+   with property-level `@JsonIdentityInfo` + `@JsonIgnoreProperties` when the value
+   type has `@JsonAlias`
+  [3.3.0]

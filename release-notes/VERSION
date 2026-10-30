@@ -150,6 +150,11 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6320: `Locale` Map keys serialized using `Locale.toString()` instead of
   BCP-47 language tag (like `Locale` values)
  (fix by @pjfanning)
+#6324: `ArrayIndexOutOfBoundsException` in `BeanPropertyMap.withoutProperties()`
+  with property-level `@JsonIdentityInfo` + `@JsonIgnoreProperties` when the value
+  type has `@JsonAlias`
+ (reported by @Marti2203)
+ (fix by @hutiefang76)
 
 3.2.5 (not yet released)
 

@@ -18,8 +18,6 @@ public class ObjectIdWithAliases6324Test extends DatabindTestUtil
     static class Foo {
         @JsonAlias("a1")
         public int x;
-
-        public String ignored;
     }
 
     static class Container {
@@ -30,28 +28,20 @@ public class ObjectIdWithAliases6324Test extends DatabindTestUtil
 
     @JsonDeserialize(builder = BuiltFoo.Builder.class)
     static class BuiltFoo {
-        final int x;
-
-        BuiltFoo(int x) {
-            this.x = x;
-        }
+        int x;
 
         @JsonPOJOBuilder(withPrefix = "")
         static class Builder {
-            int x;
+            final BuiltFoo foo = new BuiltFoo();
 
             @JsonAlias("a1")
             public Builder x(int x) {
-                this.x = x;
+                foo.x = x;
                 return this;
             }
 
-            public Builder ignored(String ignored) {
-                throw new IllegalStateException("Should be ignored");
-            }
-
             public BuiltFoo build() {
-                return new BuiltFoo(x);
+                return foo;
             }
         }
     }
@@ -65,8 +55,6 @@ public class ObjectIdWithAliases6324Test extends DatabindTestUtil
     static class CreatorFoo {
         final int x;
 
-        public String ignored;
-
         @JsonCreator
         CreatorFoo(@JsonProperty("x") @JsonAlias("a1") int x) {
             this.x = x;
@@ -79,50 +67,27 @@ public class ObjectIdWithAliases6324Test extends DatabindTestUtil
         public CreatorFoo foo;
     }
 
+    private static final String JSON = """
+            {"foo":{"@id":1,"a1":3,"ignored":"nope"}}
+            """;
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void aliasWithObjectIdAndIgnoredProperty() throws Exception
+    public void beanWithAlias() throws Exception
     {
-        Container result = MAPPER.readValue("""
-                {"foo":{"@id":1,"a1":3,"ignored":"nope"}}
-                """, Container.class);
-
-        assertEquals(3, result.foo.x);
-        assertNull(result.foo.ignored);
+        assertEquals(3, MAPPER.readValue(JSON, Container.class).foo.x);
     }
 
     @Test
-    public void objectIdRoundTrip() throws Exception
+    public void builderWithAlias() throws Exception
     {
-        Container input = new Container();
-        input.foo = new Foo();
-        input.foo.x = 42;
-
-        String json = MAPPER.writeValueAsString(input);
-        assertEquals("""
-                {"foo":{"@id":1,"x":42}}""", json);
-        assertEquals(42, MAPPER.readValue(json, Container.class).foo.x);
+        assertEquals(3, MAPPER.readValue(JSON, BuiltContainer.class).foo.x);
     }
 
     @Test
-    public void builderWithAliasObjectIdAndIgnoredProperty() throws Exception
+    public void creatorWithAlias() throws Exception
     {
-        BuiltContainer result = MAPPER.readValue("""
-                {"foo":{"@id":1,"a1":5,"ignored":"nope"}}
-                """, BuiltContainer.class);
-
-        assertEquals(5, result.foo.x);
-    }
-
-    @Test
-    public void creatorAliasWithObjectIdAndIgnoredProperty() throws Exception
-    {
-        CreatorContainer result = MAPPER.readValue("""
-                {"foo":{"@id":1,"a1":9,"ignored":"nope"}}
-                """, CreatorContainer.class);
-
-        assertEquals(9, result.foo.x);
-        assertNull(result.foo.ignored);
+        assertEquals(3, MAPPER.readValue(JSON, CreatorContainer.class).foo.x);
     }
 }

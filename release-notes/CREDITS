@@ -812,6 +812,9 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6300: NPE when a `DeserializationProblemHandler` returns `null`
    for primitive values (including primitive array elements)
   [3.2.5]
+ * Reported, fixed #6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
+   `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
+  [3.2.5]
 
 @essiembre
  * Reported #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer

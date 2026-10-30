@@ -175,7 +175,7 @@ public class BeanUtil
 
         if (isJodaTimeClass(className)) {
             typeName =  "Joda date/time";
-            moduleName = "com.fasterxml.jackson.datatype:jackson-datatype-joda";
+            moduleName = "tools.jackson.datatype:jackson-datatype-joda";
         } else {
             return null;
         }

@@ -1407,7 +1407,7 @@ factory.toString()));
             if (OptionalHandlerFactory.instance.hasDeserializerFor(valueType)) {
                 return true;
             }
-        } else if (clsName.startsWith("com.fasterxml.")) {
+        } else if (clsName.startsWith("tools.fasterxml.")) {
             return JsonNode.class.isAssignableFrom(valueType)
                    || (valueType == TokenBuffer.class);
         } else {

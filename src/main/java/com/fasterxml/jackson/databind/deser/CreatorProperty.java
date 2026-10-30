@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
@@ -237,21 +238,25 @@ public class CreatorProperty
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object instance) throws IOException
     {
-        _verifySetter();
-        _fallbackSetter.set(instance, deserialize(p, ctxt));
+        set(instance, deserialize(p, ctxt));
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
             DeserializationContext ctxt, Object instance) throws IOException
     {
-        _verifySetter();
-        return _fallbackSetter.setAndReturn(instance, deserialize(p, ctxt));
+        return setAndReturn(instance, deserialize(p, ctxt));
     }
 
     @Override
     public void set(Object instance, Object value) throws IOException
     {
+        // [databind#6338]: fallback setter is not contextualized, so must
+        // check for "skip nulls" here. Note: `deserialize()` returns `null`
+        // for both JSON null and values coerced to null ([databind#2023])
+        if ((value == null) && NullsConstantProvider.isSkipper(_nullProvider)) {
+            return;
+        }
         _verifySetter();
         _fallbackSetter.set(instance, value);
     }
@@ -259,6 +264,9 @@ public class CreatorProperty
     @Override
     public Object setAndReturn(Object instance, Object value) throws IOException
     {
+        if ((value == null) && NullsConstantProvider.isSkipper(_nullProvider)) {
+            return instance;
+        }
         _verifySetter();
         return _fallbackSetter.setAndReturn(instance, value);
     }

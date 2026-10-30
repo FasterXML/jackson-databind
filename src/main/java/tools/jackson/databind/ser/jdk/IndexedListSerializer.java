@@ -85,6 +85,10 @@ public final class IndexedListSerializer
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
+                if (UnwrappedContainerSerializerHelper.writeEmptyArrayIfSuppressed(value, g,
+                        _needToCheckFiltering(ctxt), () -> _isEmptySingleton(ctxt, value))) {
+                    return;
+                }
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -92,6 +96,33 @@ public final class IndexedListSerializer
         g.writeStartArray(value, len);
         serializeContents(value, g, ctxt);
         g.writeEndArray();
+    }
+
+    private boolean _isEmptySingleton(SerializationContext ctxt, List<?> value) {
+        // The fixed-serializer path obtains the element outside its catch block.
+        Object elem = (_elementSerializer == null) ? null : value.get(0);
+        try {
+            if (_elementSerializer == null) {
+                elem = value.get(0);
+            }
+            if (elem == null) {
+                return _suppressNulls;
+            }
+            ValueSerializer<Object> serializer = _elementSerializer;
+            if (serializer == null) {
+                Class<?> cc = elem.getClass();
+                serializer = _dynamicValueSerializers.serializerFor(cc);
+                if (serializer == null) {
+                    serializer = _elementType.hasGenericTypes()
+                            ? _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_elementType, cc))
+                            : _findAndAddDynamic(ctxt, cc);
+                }
+            }
+            return !_shouldSerializeElement(ctxt, elem, serializer);
+        } catch (Exception e) {
+            wrapAndThrow(ctxt, e, value, 0);
+            return false;
+        }
     }
 
     @Override

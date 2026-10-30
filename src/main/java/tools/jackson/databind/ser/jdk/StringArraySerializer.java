@@ -208,6 +208,11 @@ public class StringArraySerializer
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
+                if (UnwrappedContainerSerializerHelper.writeEmptyArrayIfSuppressed(value, g,
+                        _needToCheckFiltering(ctxt), () -> (value[0] == null) ? _suppressNulls
+                                : !_shouldSerializeElement(ctxt, value[0], _elementSerializer))) {
+                    return;
+                }
                 serializeContents(value, g, ctxt);
                 return;
             }

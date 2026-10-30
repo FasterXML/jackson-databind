@@ -6,6 +6,10 @@ Project: jackson-databind
 
 2.23.0 (not yet released)
 
+#6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
+  (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
+ (reported by João G)
+ (fix by João G, @cowtowncoder; backport by @Dongnyoung)
 #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
  (reported by @bugada)
  (fix by @pjfanning, w/ Claude code)
@@ -19,12 +23,33 @@ Project: jackson-databind
 #6296: Duplicate properties merged under the wrong key in non-vanilla
   `UntypedObjectDeserializer`
  (reported, fixed by @Marti2203)
+#6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
+  values (including primitive array elements)
+ (reported, fixed by @Marti2203)
 #6305: `InetSocketAddress` deserialization ignores text after the closing bracket
   of an IPv6 address
  (reported, fixed by @Marti2203)
 #6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)` to an object
   whose id is `null`
  (reported, fixed by @Marti2203)
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
+#6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
+  deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
+  `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)` for creator
+  properties: existing value is overwritten with `null`
+ (reported, fixed by @Marti2203)
+#6339: Enum aliases from an appended `AnnotationIntrospector` are discarded:
+  `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
+ (reported, fixed by @Marti2203)
+
+2.22.5 (not yet released)
+
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
 
 2.22.4 (17-Oct-2026)
 

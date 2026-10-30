@@ -12,6 +12,7 @@ import tools.jackson.databind.ser.jdk.JDKKeySerializers;
 import tools.jackson.databind.ser.jdk.MapProperty;
 import tools.jackson.databind.ser.jdk.MapSerializer;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
+import tools.jackson.databind.util.NameTransformer;
 
 /**
  * Class similar to {@link BeanPropertyWriter}, but that will be used
@@ -43,6 +44,13 @@ public class AnyGetterWriter extends BeanPropertyWriter
     protected IgnorePropertiesUtil.Checker _inclusionChecker;
 
     /**
+     * Optional name transformer to apply to map keys, used when this any-getter
+     * is part of a bean serialized via {@code @JsonUnwrapped} with a prefix/suffix.
+     * @since 3.3
+     */
+    protected final NameTransformer _nameTransformer;
+
+    /**
      * @since 2.19
      */
     @SuppressWarnings("unchecked")
@@ -56,6 +64,32 @@ public class AnyGetterWriter extends BeanPropertyWriter
         if (serializer instanceof MapSerializer mapSer) {
             _mapSerializer = mapSer;
         }
+        _nameTransformer = null;
+    }
+
+    /**
+     * Copy constructor used when applying a {@link NameTransformer} via {@link #rename}.
+     */
+    protected AnyGetterWriter(AnyGetterWriter src, NameTransformer transformer)
+    {
+        super(src);
+        _anyGetter = src._anyGetter;
+        _property = src._property;
+        _anySerializer = src._anySerializer;
+        _mapSerializer = src._mapSerializer;
+        _inclusionChecker = src._inclusionChecker;
+        _nameTransformer = (src._nameTransformer == null) ? transformer
+                : NameTransformer.chainedTransformer(transformer, src._nameTransformer);
+    }
+
+    /**
+     * Override to return an {@link AnyGetterWriter} with the given transformer
+     * stored so that map keys are prefixed/suffixed during serialization, rather
+     * than renaming the property itself (which has no meaning for any-getter).
+     */
+    @Override
+    public BeanPropertyWriter rename(NameTransformer transformer) {
+        return new AnyGetterWriter(this, transformer);
     }
 
     @Override
@@ -112,7 +146,11 @@ public class AnyGetterWriter extends BeanPropertyWriter
         }
         // [databind#3604]: Support ObjectNode/JsonNode for @JsonAnyGetter
         if (value instanceof JsonNode) {
-            _serializeObjectNodeEntries(_verifyObjectNode(value, ctxt), gen, ctxt);
+            ObjectNode objectNode = _verifyObjectNode(value, ctxt);
+            if (_nameTransformer != null) {
+                gen = new NameTransformingGenerator(gen, _nameTransformer);
+            }
+            _serializeObjectNodeEntries(objectNode, gen, ctxt);
             return;
         }
         if (!(value instanceof Map<?,?>)) {
@@ -121,8 +159,18 @@ public class AnyGetterWriter extends BeanPropertyWriter
         }
         // 23-Feb-2015, tatu: Nasty, but has to do (for now)
         if (_mapSerializer != null) {
+            // If we have a name transformer, wrap the generator so that
+            // MapSerializer's full key/value handling (custom key serializers,
+            // content inclusion, polymorphic typing) is preserved while keys
+            // get the prefix/suffix applied.
+            if (_nameTransformer != null) {
+                gen = new NameTransformingGenerator(gen, _nameTransformer);
+            }
             _mapSerializer.serializeWithoutTypeInfo((Map<?,?>) value, gen, ctxt);
             return;
+        }
+        if (_nameTransformer != null) {
+            gen = new NameTransformingGenerator(gen, _nameTransformer);
         }
         _anySerializer.serialize(value, gen, ctxt);
     }
@@ -163,8 +211,11 @@ public class AnyGetterWriter extends BeanPropertyWriter
         }
         // [databind#3604]: Support ObjectNode/JsonNode for @JsonAnyGetter
         if (value instanceof JsonNode) {
-            _serializeFilteredObjectNodeEntries(_verifyObjectNode(value, ctxt), gen, ctxt,
-                    bean, filter);
+            ObjectNode objectNode = _verifyObjectNode(value, ctxt);
+            if (_nameTransformer != null) {
+                gen = new NameTransformingGenerator(gen, _nameTransformer);
+            }
+            _serializeFilteredObjectNodeEntries(objectNode, gen, ctxt, bean, filter);
             return;
         }
         if (!(value instanceof Map<?,?>)) {
@@ -173,9 +224,15 @@ public class AnyGetterWriter extends BeanPropertyWriter
                             _anyGetter.getName(), value.getClass().getName()));
         }
         if (_mapSerializer != null) {
+            if (_nameTransformer != null) {
+                gen = new NameTransformingGenerator(gen, _nameTransformer);
+            }
             _mapSerializer.serializeFilteredAnyProperties(ctxt, gen, bean, (Map<?,?>) value,
                     filter);
             return;
+        }
+        if (_nameTransformer != null) {
+            gen = new NameTransformingGenerator(gen, _nameTransformer);
         }
         // ... not sure how custom handler would do it
         _anySerializer.serialize(value, gen, ctxt);

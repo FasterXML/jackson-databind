@@ -296,4 +296,33 @@ public class BasicPTVTest extends DatabindTestUtil
         verifyException(e2, "Could not resolve type id '[Ltools.jackson.");
         verifyException(e2, "as a subtype of");
     }
+
+    // [databind#6350]: `java.sql.Date` and `java.sql.Timestamp` have deserializers
+    // in databind, so must be allowed like `java.util.Date`
+    @Test
+    public void withJavaSqlDatesOk() throws Exception
+    {
+        final ObjectMapper defaultingMapper = jsonMapperBuilder()
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowSubTypesWithExplicitDeserializer()
+                        .build(),
+                        DefaultTyping.NON_FINAL)
+                .build();
+
+        for (Object value : new Object[] {
+                new java.util.Date(0L), new java.sql.Date(0L), new java.sql.Timestamp(0L) }) {
+            String json = defaultingMapper.writeValueAsString(new ObjectWrapper(value));
+            ObjectWrapper result = defaultingMapper.readValue(json, ObjectWrapper.class);
+            assertEquals(value.getClass(), result.value.getClass());
+            assertEquals(value, result.value);
+        }
+
+        // but `java.sql.Time` has no explicit deserializer, so must be denied
+        final String json2 = defaultingMapper.writeValueAsString(
+                new ObjectWrapper(new java.sql.Time(0L)));
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> defaultingMapper.readValue(json2, ObjectWrapper.class));
+        verifyException(e, "Could not resolve type id 'java.sql.Time'");
+        verifyException(e, "as a subtype of");
+    }
 }

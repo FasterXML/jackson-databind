@@ -1403,6 +1403,10 @@ factory.toString()));
             if (JDKDateDeserializers.hasDeserializerFor(valueType)) {
                 return true;
             }
+            // `java.sql.Date` and `java.sql.Timestamp`
+            if (OptionalHandlerFactory.instance.hasDeserializerFor(valueType)) {
+                return true;
+            }
         } else if (clsName.startsWith("com.fasterxml.")) {
             return JsonNode.class.isAssignableFrom(valueType)
                    || (valueType == TokenBuffer.class);

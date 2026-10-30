@@ -183,6 +183,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   with Blackbird / Afterburner (regression via #6111)
  (reported by @palprat)
  (fix by @cowtowncoder, w/ Claude code)
+#6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
+  `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
+ (reported, fixed by @Marti2203)
 
 3.2.4 (18-Oct-2026)
 
@@ -585,6 +588,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   with Blackbird / Afterburner (regression via #6111)
  (reported by @palprat)
  (fix by @cowtowncoder, w/ Claude code)
+#6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
+  `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
+ (reported, fixed by @Marti2203)
 
 3.1.8 (17-Oct-2026)
 

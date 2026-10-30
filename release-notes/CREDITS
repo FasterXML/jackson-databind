@@ -812,6 +812,9 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6300: NPE when a `DeserializationProblemHandler` returns `null`
    for primitive values (including primitive array elements)
   [3.2.5]
+ * Reported, fixed #6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
+   `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
+  [3.2.5]
  * Reported #6324: `ArrayIndexOutOfBoundsException` in `BeanPropertyMap.withoutProperties()`
    with property-level `@JsonIdentityInfo` + `@JsonIgnoreProperties` when the value
    type has `@JsonAlias`

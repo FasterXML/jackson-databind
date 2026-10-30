@@ -2139,3 +2139,8 @@ Martin Mirchev (@Marti2203)
 @bugada
  * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
   [2.23.0]
+
+Anna Breeva (@ab310013)
+ * Reported #6315: Map key deserializers should apply same type checks as bean
+   deserializers
+  (2.18.13)

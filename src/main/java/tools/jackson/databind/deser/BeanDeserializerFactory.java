@@ -351,6 +351,16 @@ public class BeanDeserializerFactory
         deserBuilder.setValueInstantiator(valueInstantiator);
          // And then "with methods" for deserializing from JSON Object
         addBeanProps(ctxt, builderDescRef, deserBuilder);
+        // The type annotation that selected the Builder describes the value being
+        // deserialized, so it takes precedence over any setting on the Builder class.
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr != null) {
+            Boolean failOnUnknown = intr.findFailOnUnknownProperties(
+                    config, valueBeanDescRef.getClassInfo());
+            if (failOnUnknown != null) {
+                deserBuilder.setFailOnUnknownProperties(failOnUnknown);
+            }
+        }
         // [databind#5872]: Try builder class first for ObjectIdReader; if not found,
         //   fall back to value type (target type) which may have @JsonIdentityInfo
         //   inherited from an interface or parent class
@@ -583,6 +593,12 @@ public class BeanDeserializerFactory
                 ? valueInstantiator.getFromObjectArguments(ctxt.getConfig())
                 : null;
         final boolean hasCreatorProps = (creatorProps != null);
+
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr != null) {
+            builder.setFailOnUnknownProperties(intr.findFailOnUnknownProperties(
+                    ctxt.getConfig(), beanDesc.getClassInfo()));
+        }
 
         // Class-level ignorals (annotation + config overrides): pre-computed during
         // property collection. Surface the direction-specific name set so we can

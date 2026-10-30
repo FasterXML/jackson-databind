@@ -239,6 +239,18 @@ public abstract class ValueDeserializer<T>
     }
 
     /**
+     * Method that can create a copy with a property-specific policy for
+     * unhandled unknown properties. Deserializers for types that do not use
+     * this policy may return this instance unchanged. The copy retains the
+     * same handled value type.
+     *
+     * @since 3.3
+     */
+    public ValueDeserializer<T> withPropertyFailOnUnknownProperties(Boolean failOnUnknown) {
+        return this;
+    }
+
+    /**
      * Method that can be called to try to replace deserializer this deserializer
      * delegates calls to. If not supported (either this deserializer does not
      * delegate anything; or it does not want any changes), should either
@@ -280,6 +292,15 @@ public abstract class ValueDeserializer<T>
      *    {@code null} if not
      */
     public LogicalType logicalType() { return null; }
+
+    /**
+     * Accessor for an explicit unknown-property failure setting carried by this
+     * deserializer, if any. A {@code null} result leaves the decision to the
+     * active {@link DeserializationFeature#FAIL_ON_UNKNOWN_PROPERTIES} setting.
+     *
+     * @since 3.3
+     */
+    public Boolean getFailOnUnknownProperties() { return null; }
 
     /**
      * Method called to see if deserializer instance is cachable and

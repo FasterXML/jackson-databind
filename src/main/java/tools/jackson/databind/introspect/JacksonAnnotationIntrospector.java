@@ -304,6 +304,13 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    public Boolean findFailOnUnknownProperties(MapperConfig<?> config, Annotated a)
+    {
+        JsonDeserialize ann = _findAnnotation(a, JsonDeserialize.class);
+        return (ann == null) ? null : ann.failOnUnknownProperties().asBoolean();
+    }
+
+    @Override
     public JsonIncludeProperties.Value findPropertyInclusionByName(MapperConfig<?> config, Annotated a)
     {
         JsonIncludeProperties v = _findAnnotation(a, JsonIncludeProperties.class);

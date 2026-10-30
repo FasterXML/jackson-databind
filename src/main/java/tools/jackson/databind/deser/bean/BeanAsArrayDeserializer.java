@@ -76,6 +76,15 @@ public class BeanAsArrayDeserializer
     }
 
     @Override
+    public BeanDeserializerBase withPropertyFailOnUnknownProperties(Boolean failOnUnknown) {
+        BeanAsArrayDeserializer copy = new BeanAsArrayDeserializer(
+                _delegate.withPropertyFailOnUnknownProperties(failOnUnknown), _orderedProperties);
+        copy._failOnUnknownProperties = failOnUnknown;
+        copy._propertyFailOnUnknownProperties = failOnUnknown;
+        return copy;
+    }
+
+    @Override
     public BeanDeserializerBase withBeanProperties(BeanPropertyMap props) {
         return new BeanAsArrayDeserializer(_delegate.withBeanProperties(props),
                 _orderedProperties);
@@ -229,7 +238,7 @@ public class BeanAsArrayDeserializer
         */
         if (p.nextToken() != JsonToken.END_ARRAY) {
             // Ok; extra fields? Let's fail, unless ignoring extra props is fine
-            if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+            if (!_shouldIgnoreAllUnknown() && _shouldFailOnUnknownProperties(ctxt)) {
                 ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
                         "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                         propCount);
@@ -290,7 +299,7 @@ public class BeanAsArrayDeserializer
         }
 
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
-        if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+        if (!_shouldIgnoreAllUnknown() && _shouldFailOnUnknownProperties(ctxt)) {
             ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
                     "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                     propCount);
@@ -363,7 +372,7 @@ public class BeanAsArrayDeserializer
             p.skipChildren();
         }
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
-        if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+        if (!_shouldIgnoreAllUnknown() && _shouldFailOnUnknownProperties(ctxt)) {
             ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
                     "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                     propCount);
@@ -406,7 +415,7 @@ public class BeanAsArrayDeserializer
                 // in-bounds null slots (e.g. from renamed/unwrapped properties) are skipped,
                 // matching the non-creator path's position-based check.
                 if (i >= propCount
-                        && !_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+                        && !_shouldIgnoreAllUnknown() && _shouldFailOnUnknownProperties(ctxt)) {
                     ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
                             "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                             propCount);

@@ -150,6 +150,21 @@ public abstract class BeanDeserializerBase
     protected final boolean _ignoreAllUnknown;
 
     /**
+     * Explicit setting for unhandled unknown properties; {@code null} retains
+     * the legacy combination of global failure configuration and ignorals.
+     * Set only on a newly-created contextual copy before it is published.
+     *
+     * @since 3.3
+     */
+    protected Boolean _failOnUnknownProperties;
+
+    /** Property-level value, retained to carry it through polymorphic replay. */
+    protected Boolean _propertyFailOnUnknownProperties;
+
+    /** Structural unknown skipping required by unwrapped-property handling. */
+    protected boolean _ignoreAllUnknownForUnwrapped;
+
+    /**
      * Flag that indicates that some aspect of deserialization depends
      * on active view used (if any)
      */
@@ -262,6 +277,9 @@ public abstract class BeanDeserializerBase
         _backRefs = backRefs;
         _ignorableProps = ignorableProps;
         _ignoreAllUnknown = ignoreAllUnknown;
+        _failOnUnknownProperties = builder.getFailOnUnknownProperties();
+        _propertyFailOnUnknownProperties = null;
+        _ignoreAllUnknownForUnwrapped = false;
         _includableProps = includableProps;
 
         _anySetter = builder.getAnySetter();
@@ -315,6 +333,9 @@ public abstract class BeanDeserializerBase
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
         _ignoreAllUnknown = ignoreAllUnknown;
+        _failOnUnknownProperties = src.getFailOnUnknownProperties();
+        _propertyFailOnUnknownProperties = src._propertyFailOnUnknownProperties;
+        _ignoreAllUnknownForUnwrapped = src._ignoreAllUnknownForUnwrapped;
         _includableProps = src._includableProps;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
@@ -349,6 +370,9 @@ public abstract class BeanDeserializerBase
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
         _ignoreAllUnknown = ignoreAllUnknown;
+        _failOnUnknownProperties = src.getFailOnUnknownProperties();
+        _propertyFailOnUnknownProperties = src._propertyFailOnUnknownProperties;
+        _ignoreAllUnknownForUnwrapped = src._ignoreAllUnknownForUnwrapped;
         _includableProps = src._includableProps;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
@@ -382,6 +406,9 @@ public abstract class BeanDeserializerBase
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
         _ignoreAllUnknown = src._ignoreAllUnknown;
+        _failOnUnknownProperties = src.getFailOnUnknownProperties();
+        _propertyFailOnUnknownProperties = src._propertyFailOnUnknownProperties;
+        _ignoreAllUnknownForUnwrapped = src._ignoreAllUnknownForUnwrapped;
         _includableProps = src._includableProps;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
@@ -431,6 +458,9 @@ public abstract class BeanDeserializerBase
         _backRefs = src._backRefs;
         _ignorableProps = ignorableProps;
         _ignoreAllUnknown = src._ignoreAllUnknown;
+        _failOnUnknownProperties = src.getFailOnUnknownProperties();
+        _propertyFailOnUnknownProperties = src._propertyFailOnUnknownProperties;
+        _ignoreAllUnknownForUnwrapped = src._ignoreAllUnknownForUnwrapped;
         _includableProps = includableProps;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
@@ -464,6 +494,9 @@ public abstract class BeanDeserializerBase
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
         _ignoreAllUnknown = src._ignoreAllUnknown;
+        _failOnUnknownProperties = src.getFailOnUnknownProperties();
+        _propertyFailOnUnknownProperties = src._propertyFailOnUnknownProperties;
+        _ignoreAllUnknownForUnwrapped = src._ignoreAllUnknownForUnwrapped;
         _includableProps = src._includableProps;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
@@ -484,6 +517,37 @@ public abstract class BeanDeserializerBase
     public abstract BeanDeserializerBase withByNameInclusion(Set<String> ignorableProps, Set<String> includableProps);
 
     public abstract BeanDeserializerBase withIgnoreAllUnknown(boolean ignoreUnknown);
+
+    @Override
+    public BeanDeserializerBase withPropertyFailOnUnknownProperties(Boolean failOnUnknown)
+    {
+        BeanDeserializerBase copy = withByNameInclusion(_ignorableProps, _includableProps);
+        if ((copy == null) || (copy == this)) {
+            throw new IllegalStateException("Cannot apply member-level failOnUnknownProperties setting: "
+                    + getClass().getName()
+                    + ".withByNameInclusion() must return a contextual copy");
+        }
+        copy._failOnUnknownProperties = failOnUnknown;
+        copy._propertyFailOnUnknownProperties = failOnUnknown;
+        return copy;
+    }
+
+    protected boolean _shouldIgnoreAllUnknown() {
+        return _ignoreAllUnknown && (_ignoreAllUnknownForUnwrapped
+                || (getFailOnUnknownProperties() == null));
+    }
+
+    protected boolean _shouldFailOnUnknownProperties(DeserializationContext ctxt) {
+        Boolean failOnUnknown = getFailOnUnknownProperties();
+        return (failOnUnknown == null)
+                ? ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                : failOnUnknown.booleanValue();
+    }
+
+    @Override
+    public Boolean getFailOnUnknownProperties() {
+        return _failOnUnknownProperties;
+    }
 
     /**
      * Mutant factory method that custom sub-classes must override; not left as
@@ -951,6 +1015,10 @@ public abstract class BeanDeserializerBase
         // And possibly add more properties to ignore
         if (accessor != null) {
             contextual = _handleByNameInclusion(ctxt, intr, contextual, accessor);
+            Boolean failOnUnknown = intr.findFailOnUnknownProperties(config, accessor);
+            if (failOnUnknown != null) {
+                contextual = contextual.withPropertyFailOnUnknownProperties(failOnUnknown);
+            }
         }
 
         // One more thing: are we asked to serialize POJO as array?
@@ -1973,10 +2041,11 @@ ClassUtil.getTypeDescription(ct));
      * instead of buffered into a {@link TokenBuffer}. The buffer is otherwise
      * needed for polymorphic replay (tokens unknown to the base may be known
      * to a resolved subtype) or {@link #handleUnknownProperties}. Returns
-     * true when {@link #_ignoreAllUnknown} is set, or (per [databind#5897])
+     * true when all unknowns are to be ignored (including structural skipping
+     * for unwrapped properties), or (per [databind#5897])
      * the bean type is {@code final} (no subtype possible), no
      * {@link DeserializationProblemHandler}s are registered, and
-     * {@link DeserializationFeature#FAIL_ON_UNKNOWN_PROPERTIES} is disabled.
+     * effective unknown-property failure is disabled.
      *<p>
      * May be overridden by subclasses (notably {@code BuilderBasedDeserializer})
      * where the type relevant to polymorphic replay differs from {@code _beanType}.
@@ -1984,12 +2053,12 @@ ClassUtil.getTypeDescription(ct));
      * @since 3.2
      */
     protected boolean _shouldSkipUnknowns(DeserializationContext ctxt) {
-        if (_ignoreAllUnknown) {
+        if (_shouldIgnoreAllUnknown()) {
             return true;
         }
         return _beanType.isFinal()
                 && ctxt.getConfig().getProblemHandlers() == null
-                && !ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+                && !_shouldFailOnUnknownProperties(ctxt);
     }
 
     /**
@@ -2028,7 +2097,7 @@ ClassUtil.getTypeDescription(ct));
             Object beanOrClass, String propName)
         throws JacksonException
     {
-        if (_ignoreAllUnknown) {
+        if (_shouldIgnoreAllUnknown()) {
             p.skipChildren();
             return;
         }
@@ -2038,6 +2107,8 @@ ClassUtil.getTypeDescription(ct));
         }
         // Otherwise use default handling (call handler(s); if not
         // handled, throw exception or skip depending on settings)
+        // The context reads any explicit policy from this deserializer, while
+        // retaining virtual dispatch through the established four-argument API.
         super.handleUnknownProperty(p, ctxt, beanOrClass, propName);
     }
 
@@ -2107,28 +2178,31 @@ ClassUtil.getTypeDescription(ct));
         // First: maybe we have already created sub-type deserializer?
         final ClassKey classKey = new ClassKey(bean.getClass());
         ValueDeserializer<Object> subDeser = (_subDeserializers == null) ? null : _subDeserializers.get(classKey);
-        if (subDeser != null) {
-            return subDeser;
-        }
-        // If not, maybe we can locate one. First, need provider
-        final JavaType type = ctxt.constructType(bean.getClass());
-        /* 30-Jan-2012, tatu: Ideally we would be passing referring
-         *   property; which in theory we could keep track of via
-         *   ResolvableDeserializer (if we absolutely must...).
-         *   But for now, let's not bother.
-         */
-//        subDeser = ctxt.findValueDeserializer(type, _property);
-        subDeser = ctxt.findRootValueDeserializer(type);
-        // Also, need to cache it
-        if (subDeser != null) {
-            if (_subDeserializers == null) {
-                synchronized (this) {
-                    if (_subDeserializers == null) {
-                        _subDeserializers = new ConcurrentHashMap<>();
+        if (subDeser == null) {
+            // If not, maybe we can locate one. First, need provider
+            final JavaType type = ctxt.constructType(bean.getClass());
+            /* 30-Jan-2012, tatu: Ideally we would be passing referring
+             *   property; which in theory we could keep track of via
+             *   ResolvableDeserializer (if we absolutely must...).
+             * For now, apply contextual member settings to a copy below.
+             */
+            //        subDeser = ctxt.findValueDeserializer(type, _property);
+            subDeser = ctxt.findRootValueDeserializer(type);
+            // Also, need to cache it
+            if (subDeser != null) {
+                if (_propertyFailOnUnknownProperties != null) {
+                    subDeser = subDeser.withPropertyFailOnUnknownProperties(
+                            _propertyFailOnUnknownProperties);
+                }
+                if (_subDeserializers == null) {
+                    synchronized (this) {
+                        if (_subDeserializers == null) {
+                            _subDeserializers = new ConcurrentHashMap<>();
+                        }
                     }
                 }
+                _subDeserializers.put(classKey, subDeser);
             }
-            _subDeserializers.put(classKey, subDeser);
         }
         return subDeser;
     }

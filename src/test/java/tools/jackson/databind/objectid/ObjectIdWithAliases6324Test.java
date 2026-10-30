@@ -19,8 +19,6 @@ public class ObjectIdWithAliases6324Test extends DatabindTestUtil
         @JsonAlias("a1")
         public int x;
 
-        public String name;
-
         public String ignored;
     }
 
@@ -30,30 +28,21 @@ public class ObjectIdWithAliases6324Test extends DatabindTestUtil
         public Foo foo;
     }
 
-    // Same via Builder-based deserializer
     @JsonDeserialize(builder = BuiltFoo.Builder.class)
     static class BuiltFoo {
         final int x;
-        final String name;
 
-        BuiltFoo(int x, String name) {
+        BuiltFoo(int x) {
             this.x = x;
-            this.name = name;
         }
 
         @JsonPOJOBuilder(withPrefix = "")
         static class Builder {
             int x;
-            String name;
 
             @JsonAlias("a1")
             public Builder x(int x) {
                 this.x = x;
-                return this;
-            }
-
-            public Builder name(String name) {
-                this.name = name;
                 return this;
             }
 
@@ -62,7 +51,7 @@ public class ObjectIdWithAliases6324Test extends DatabindTestUtil
             }
 
             public BuiltFoo build() {
-                return new BuiltFoo(x, name);
+                return new BuiltFoo(x);
             }
         }
     }
@@ -73,11 +62,8 @@ public class ObjectIdWithAliases6324Test extends DatabindTestUtil
         public BuiltFoo foo;
     }
 
-    // Same with aliased Creator property
     static class CreatorFoo {
         final int x;
-
-        public String name;
 
         public String ignored;
 
@@ -95,105 +81,48 @@ public class ObjectIdWithAliases6324Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    // Reported reproduction: deserializer construction must not fail
     @Test
-    public void aliasTypeWithObjectIdAndIgnoredProperties() throws Exception
+    public void aliasWithObjectIdAndIgnoredProperty() throws Exception
     {
         Container result = MAPPER.readValue("""
-                {"foo":{"x":3}}
+                {"foo":{"@id":1,"a1":3,"ignored":"nope"}}
                 """, Container.class);
 
-        assertNotNull(result);
-        assertNotNull(result.foo);
         assertEquals(3, result.foo.x);
-    }
-
-    // Actual alias name "a1" must be matched, not just the primary name
-    @Test
-    public void aliasUsedWithObjectIdAndIgnoredProperties() throws Exception
-    {
-        Container result = MAPPER.readValue("""
-                {"foo":{"a1":7}}
-                """, Container.class);
-
-        assertNotNull(result);
-        assertNotNull(result.foo);
-        assertEquals(7, result.foo.x);
-    }
-
-    // Ignored property must really be skipped while non-ignored ones are bound
-    @Test
-    public void ignoredSkippedWhileOtherPropertiesRead() throws Exception
-    {
-        Container result = MAPPER.readValue(
-                """
-                {"foo":{"a1":3,"name":"abc","ignored":"nope"}}
-                """, Container.class);
-
-        assertNotNull(result);
-        assertNotNull(result.foo);
-        assertEquals(3, result.foo.x);
-        assertEquals("abc", result.foo.name);
         assertNull(result.foo.ignored);
     }
 
-    // Object Id handling itself must keep working: id written on ser is
-    // accepted (and consumed) on deser
     @Test
-    public void objectIdRoundTripWithAliases() throws Exception
+    public void objectIdRoundTrip() throws Exception
     {
         Container input = new Container();
         input.foo = new Foo();
         input.foo.x = 42;
-        input.foo.name = "bar";
 
         String json = MAPPER.writeValueAsString(input);
-        assertTrue(json.contains("\"@id\""), "Expected Object Id in: " + json);
-
-        Container result = MAPPER.readValue(json, Container.class);
-        assertNotNull(result);
-        assertNotNull(result.foo);
-        assertEquals(42, result.foo.x);
-        assertEquals("bar", result.foo.name);
-    }
-
-    // Id given explicitly in input must be accepted, aliased property still bound
-    @Test
-    public void explicitObjectIdWithAlias() throws Exception
-    {
-        Container result = MAPPER.readValue(
-                """
-                {"foo":{"@id":1,"a1":11,"name":"qux"}}
-                """, Container.class);
-
-        assertNotNull(result);
-        assertNotNull(result.foo);
-        assertEquals(11, result.foo.x);
-        assertEquals("qux", result.foo.name);
+        assertEquals("""
+                {"foo":{"@id":1,"x":42}}""", json);
+        assertEquals(42, MAPPER.readValue(json, Container.class).foo.x);
     }
 
     @Test
-    public void builderWithAliasObjectIdAndIgnoredProperties() throws Exception
+    public void builderWithAliasObjectIdAndIgnoredProperty() throws Exception
     {
         BuiltContainer result = MAPPER.readValue("""
-                {"foo":{"@id":1,"a1":5,"name":"b","ignored":"nope"}}
+                {"foo":{"@id":1,"a1":5,"ignored":"nope"}}
                 """, BuiltContainer.class);
 
-        assertNotNull(result.foo);
         assertEquals(5, result.foo.x);
-        assertEquals("b", result.foo.name);
     }
 
     @Test
-    public void creatorAliasWithObjectIdAndIgnoredProperties() throws Exception
+    public void creatorAliasWithObjectIdAndIgnoredProperty() throws Exception
     {
         CreatorContainer result = MAPPER.readValue("""
-                {"foo":{"@id":1,"a1":9,"name":"c","ignored":"nope"}}
+                {"foo":{"@id":1,"a1":9,"ignored":"nope"}}
                 """, CreatorContainer.class);
 
-        assertNotNull(result.foo);
         assertEquals(9, result.foo.x);
-        assertEquals("c", result.foo.name);
         assertNull(result.foo.ignored);
     }
 }

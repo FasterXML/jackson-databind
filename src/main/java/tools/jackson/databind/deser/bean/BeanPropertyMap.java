@@ -162,13 +162,18 @@ public class BeanPropertyMap
         // If not, append
         ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(Arrays.asList(_propsInOrder));
         newProps.add(newProp);
-        // !!! TODO: assign index for the last entry?
+        // Assign next unused index (existing ones may have gaps due to filtering)
+        if (newProp.getPropertyIndex() < 0) {
+            int maxIndex = -1;
+            for (SettableBeanProperty prop : _propsInOrder) {
+                maxIndex = Math.max(maxIndex, prop.getPropertyIndex());
+            }
+            newProp.assignIndex(maxIndex + 1);
+        }
         // [databind#6324]: Must also keep `_aliasDefs` aligned with `_propsInOrder`;
         // newly appended property has no aliases (yet)
-        PropertyName[][] newAliases = _aliasDefs;
-        if (newAliases != null) {
-            newAliases = Arrays.copyOf(_aliasDefs, _aliasDefs.length + 1);
-        }
+        PropertyName[][] newAliases = (_aliasDefs == null) ? null
+                : Arrays.copyOf(_aliasDefs, _aliasDefs.length + 1);
         return new BeanPropertyMap(newProps, newAliases, _locale, _caseInsensitive, false);
     }
 

@@ -10,7 +10,7 @@ import tools.jackson.databind.deser.impl.ObjectIdReader;
 import tools.jackson.databind.deser.impl.ObjectIdValueProperty;
 import tools.jackson.databind.type.TypeFactory;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 // for [databind#884]
 public class BeanPropertyMapTest
@@ -40,5 +40,25 @@ public class BeanPropertyMapTest
         propMap = propMap.withProperty(new ObjectIdValueProperty(new MyObjectIdReader("@id"),
                 md, false));
         assertNotNull(propMap);
+    }
+
+    // Appended property must get index not used by existing ones
+    @Test
+    public void appendedPropertyGetsUnusedIndex() throws Exception
+    {
+        BeanPropertyMap propMap = new BeanPropertyMap(
+                List.of(idProperty("a"), idProperty("b"), idProperty("c")),
+                null, Locale.getDefault(), false, true)
+                // leaves a gap: remaining indexes 0, 2
+                .withoutProperties(Set.of("b"));
+        SettableBeanProperty idProp = idProperty("@id");
+        propMap = propMap.withProperty(idProp);
+
+        assertSame(idProp, propMap.findDefinition(3));
+    }
+
+    private static SettableBeanProperty idProperty(String name) {
+        return new ObjectIdValueProperty(new MyObjectIdReader(name),
+                PropertyMetadata.STD_REQUIRED, false);
     }
 }

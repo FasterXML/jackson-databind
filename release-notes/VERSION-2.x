@@ -35,6 +35,9 @@ Project: jackson-databind
 #6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
   deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
   `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)` for creator
+  properties: existing value is overwritten with `null`
+ (reported, fixed by @Marti2203)
 #6339: Enum aliases from an appended `AnnotationIntrospector` are discarded:
   `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
  (reported, fixed by @Marti2203)

@@ -289,6 +289,18 @@ public class BeanPropertyMap
         for (int i = 0, end = _propsInOrder.length; i < end; ++i) {
             if (_propsInOrder[i] == oldProp) {
                 _propsInOrder[i] = newProp;
+                // [databind#6353]: with aliases, `initMatcher()` builds `_propsWithAliases`
+                // (primary properties followed by alias entries) as a separate array, and
+                // `BeanDeserializer` matches on it; keep its entries pointing to the
+                // contextualized instance too.
+                final SettableBeanProperty[] propsByIndex = _propsWithAliases;
+                if ((propsByIndex != null) && (propsByIndex != _propsInOrder)) {
+                    for (int j = 0, end2 = propsByIndex.length; j < end2; ++j) {
+                        if (propsByIndex[j] == oldProp) {
+                            propsByIndex[j] = newProp;
+                        }
+                    }
+                }
                 return;
             }
         }

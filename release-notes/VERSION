@@ -32,6 +32,9 @@ No changes since 3.2
 #6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
   deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
   `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6339: Enum aliases from an appended `AnnotationIntrospector` are discarded:
+  `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
+ (reported, fixed by @Marti2203)
 #6342: `@JsonFormat(shape = NUMBER)` on primitive `boolean` getter written as `true`/`false`
   with Blackbird / Afterburner (regression via #6111)
  (reported by @palprat)
@@ -437,6 +440,9 @@ No changes since 3.2
 #6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
   deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
   `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6339: Enum aliases from an appended `AnnotationIntrospector` are discarded:
+  `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
+ (reported, fixed by @Marti2203)
 #6342: `@JsonFormat(shape = NUMBER)` on primitive `boolean` getter written as `true`/`false`
   with Blackbird / Afterburner (regression via #6111)
  (reported by @palprat)

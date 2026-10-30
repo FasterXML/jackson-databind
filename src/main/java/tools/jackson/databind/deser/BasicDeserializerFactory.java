@@ -1397,6 +1397,9 @@ factory.toString()));
                     || (valueType == Boolean.class)
                     || (valueType == EnumMap.class)
                     || (valueType == AtomicReference.class)
+                    || (valueType == OptionalInt.class)
+                    || (valueType == OptionalLong.class)
+                    || (valueType == OptionalDouble.class)
                     ) {
                 return true;
             }
@@ -1407,7 +1410,7 @@ factory.toString()));
             if (OptionalHandlerFactory.instance.hasDeserializerFor(valueType)) {
                 return true;
             }
-        } else if (clsName.startsWith("tools.fasterxml.")) {
+        } else if (clsName.startsWith("tools.jackson.")) {
             return JsonNode.class.isAssignableFrom(valueType)
                    || (valueType == TokenBuffer.class);
         } else {

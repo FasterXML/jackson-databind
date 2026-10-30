@@ -1,5 +1,8 @@
 package tools.jackson.databind.jsontype.vld;
 
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
@@ -9,6 +12,7 @@ import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
+import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -324,5 +328,43 @@ public class BasicPTVTest extends DatabindTestUtil
                 () -> defaultingMapper.readValue(json2, ObjectWrapper.class));
         verifyException(e, "Could not resolve type id 'java.sql.Time'");
         verifyException(e, "as a subtype of");
+    }
+
+    // [databind#6350]: `OptionalInt`, `OptionalLong` and `OptionalDouble` also
+    // have explicit deserializers
+    @Test
+    public void withJdkPrimitiveOptionalsOk() throws Exception
+    {
+        final ObjectMapper defaultingMapper = jsonMapperBuilder()
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowSubTypesWithExplicitDeserializer()
+                        .build(),
+                        DefaultTyping.NON_FINAL)
+                .build();
+
+        for (Object value : new Object[] {
+                OptionalInt.of(3), OptionalLong.of(42L), OptionalDouble.of(0.5) }) {
+            String json = defaultingMapper.writeValueAsString(new ObjectWrapper(value));
+            ObjectWrapper result = defaultingMapper.readValue(json, ObjectWrapper.class);
+            assertEquals(value, result.value);
+        }
+    }
+
+    // `JsonNode` types (and `TokenBuffer`) have explicit deserializers too
+    @Test
+    public void withJsonNodeOk() throws Exception
+    {
+        final ObjectMapper defaultingMapper = jsonMapperBuilder()
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowSubTypesWithExplicitDeserializer()
+                        .build(),
+                        DefaultTyping.NON_FINAL)
+                .build();
+
+        ObjectNode node = defaultingMapper.createObjectNode();
+        node.put("x", 1);
+        String json = defaultingMapper.writeValueAsString(new ObjectWrapper(node));
+        ObjectWrapper result = defaultingMapper.readValue(json, ObjectWrapper.class);
+        assertEquals(node, result.value);
     }
 }

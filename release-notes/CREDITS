@@ -474,8 +474,8 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6300: NPE when a `DeserializationProblemHandler` returns `null`
    for primitive values (including primitive array elements)
   [3.1.9]
- * Reported, fixed #6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`
-   and `java.sql.Timestamp`
+ * Reported, fixed #6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
+   `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
   [3.1.9]
 
 Anna Breeva (@ab310013)

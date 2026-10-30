@@ -244,9 +244,20 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
                 t = _parser.nextToken();
                 // If EOF, no more, or if we hit END_ARRAY (although we don't clear the token).
                 if (t == null || t == JsonToken.END_ARRAY) {
-                    _state = STATE_CLOSED;
-                    if (_closeParser) {
-                        _parser.close();
+                    try {
+                        if ((t == JsonToken.END_ARRAY)
+                                && _context.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                                && _isRootLevelArray()) {
+                            JsonToken trailingToken = _parser.nextToken();
+                            if (trailingToken != null) {
+                                _context.reportTrailingTokens(_type.getRawClass(), _parser, trailingToken);
+                            }
+                        }
+                    } finally {
+                        _state = STATE_CLOSED;
+                        if (_closeParser) {
+                            _parser.close();
+                        }
                     }
                     return false;
                 }
@@ -257,6 +268,11 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
             // fall through
         }
         return true;
+    }
+
+    private boolean _isRootLevelArray() {
+        return (_seqContext != null) && _seqContext.inArray()
+                && (_seqContext.getParent() != null) && _seqContext.getParent().inRoot();
     }
 
     public T nextValue() throws JacksonException

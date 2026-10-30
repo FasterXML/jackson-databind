@@ -4,6 +4,8 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.databind.*;
@@ -189,6 +191,56 @@ public class FullStreamReadTest extends DatabindTestUtil
         _verifyCollection((List<?>)rColl.readValue(JSON_OK_ARRAY));
         _verifyCollection((List<?>)rColl.readValue(JSON_OK_ARRAY_WITH_COMMENT));
         _verifyCollection((List<?>)rColl.readValue(JSON_FAIL_ARRAY));
+    }
+
+    // [databind#6334]
+    @Test
+    public void testMappingIteratorFailOnTrailingAfterRootArray()
+    {
+        ObjectReader strict = STRICT_R.forType(Integer.class);
+
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> strict.readValues("[1] [2]").readAll());
+        verifyException(e, "Trailing token (`JsonToken.START_ARRAY`)");
+        verifyException(e, "value (bound as `java.lang.Integer`)");
+
+        StreamReadException malformed = assertThrows(StreamReadException.class,
+                () -> strict.readValues("[1] garbage").readAll());
+        verifyException(malformed, "Unrecognized token 'garbage'");
+    }
+
+    // [databind#6334]
+    @Test
+    public void testMappingIteratorFailOnTrailingAfterExplicitRootArray()
+    {
+        try (JsonParser p = STRICT_MAPPER.createParser("[1] [2]")) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            p.clearCurrentToken();
+
+            MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                    () -> STRICT_R.forType(Integer.class).readValues(p).readAll());
+            verifyException(e, "Trailing token (`JsonToken.START_ARRAY`)");
+        }
+    }
+
+    // [databind#6334]
+    @Test
+    public void testMappingIteratorTrailingTokensControls()
+    {
+        ObjectReader lenient = STRICT_R.forType(Integer.class)
+                .without(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
+        assertEquals(List.of(1), lenient.readValues("[1] [2]").readAll());
+
+        try (JsonParser p = STRICT_MAPPER.createParser("{\"values\":[1],\"after\":2}")) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            p.clearCurrentToken();
+
+            assertEquals(List.of(1), STRICT_R.forType(Integer.class).readValues(p).readAll());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertEquals("after", p.currentName());
+        }
     }
 
     @Test

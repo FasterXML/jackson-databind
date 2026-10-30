@@ -345,6 +345,19 @@ public abstract class StdSerializer<T>
         return existingSerializer;
     }
 
+    /**
+     * Checks whether a content converter is already being contextualized for
+     * the specified property. Property views must check the original instance
+     * because the recursion guard uses identity comparison.
+     *
+     * @since 3.3
+     */
+    protected boolean _isContentConverterActive(SerializationContext ctxt, BeanProperty property)
+    {
+        Map<?, ?> conversions = (Map<?, ?>) ctxt.getAttribute(KEY_CONTENT_CONVERTER_LOCK);
+        return (conversions != null) && (conversions.get(property) != null);
+    }
+
     private ValueSerializer<?> _findConvertingContentSerializer(SerializationContext ctxt,
             AnnotationIntrospector intr, BeanProperty prop, ValueSerializer<?> existingSerializer)
     {

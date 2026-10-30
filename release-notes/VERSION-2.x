@@ -6,10 +6,41 @@ Project: jackson-databind
 
 2.23.0 (not yet released)
 
+#6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
+  (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
+ (reported by João G)
+ (fix by João G, @cowtowncoder; backport by @Dongnyoung)
 #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
  (fix by @kimsanhaa)
 #6261: Support `@JsonView` on properties-based Creator parameters of Enum, Map and EnumMap types
  (fix by @pjfanning, w/ Claude code)
+#6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
+  array contains `null`
+ (reported, fixed by @Marti2203)
+#6296: Duplicate properties merged under the wrong key in non-vanilla
+  `UntypedObjectDeserializer`
+ (reported, fixed by @Marti2203)
+#6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
+  values (including primitive array elements)
+ (reported, fixed by @Marti2203)
+#6305: `InetSocketAddress` deserialization ignores text after the closing bracket
+  of an IPv6 address
+ (reported, fixed by @Marti2203)
+#6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)` to an object
+  whose id is `null`
+ (reported, fixed by @Marti2203)
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
+#6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
+  deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
+  `FilteredRowSetImpl`, `JoinRowSetImpl`)
+
+2.22.5 (not yet released)
+
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
 
 2.22.4 (17-Oct-2026)
 
@@ -97,6 +128,12 @@ Project: jackson-databind
 #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
+
+2.21.9 (not yet released)
+
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
 
 2.21.8 (17-Oct-2026)
 
@@ -463,6 +500,12 @@ No changes since 2.19.2
  (reported by @seadbrane)
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
+
+2.18.13 (not yet released)
+
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
 
 2.18.12 (17-Oct-2026)
 

@@ -155,6 +155,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   type has `@JsonAlias`
  (reported by @Marti2203)
  (fix by @hutiefang76)
+#6325: `NullPointerException` when a `@JsonCreator` returns `null` and the input has
+  an Object Id forward reference
+ (reported by @Marti2203)
+ (fix by @hutiefang76)
 
 3.2.5 (not yet released)
 

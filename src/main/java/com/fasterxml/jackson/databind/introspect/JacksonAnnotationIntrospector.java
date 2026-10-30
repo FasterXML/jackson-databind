@@ -279,7 +279,8 @@ public class JacksonAnnotationIntrospector
         HashMap<String, String[]> enumToAliasMap = new HashMap<>();
         for (AnnotatedField field : annotatedClass.fields()) {
             JsonAlias alias = field.getAnnotation(JsonAlias.class);
-            if (alias != null) {
+            // [databind#6339]: skip empty `@JsonAlias`, same as deprecated variant
+            if (alias != null && alias.value().length != 0) {
                 enumToAliasMap.putIfAbsent(field.getName(), alias.value());
             }
         }
@@ -290,8 +291,6 @@ public class JacksonAnnotationIntrospector
             String[] aliases = enumToAliasMap.get(enumValues[i].name());
             if (aliases != null) {
                 aliasList[i] = aliases;
-            } else if (aliasList[i] == null) {
-                aliasList[i] = new String[0];
             }
         }
     }

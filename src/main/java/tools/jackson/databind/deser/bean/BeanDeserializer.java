@@ -586,9 +586,12 @@ public class BeanDeserializer
             if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
                 return bean;
             }
+            // Issue #6357: An unexpected token is not the end of the object;
+            // report it instead of returning a partially populated bean.
             if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
-                return bean;
+                return _handleUnexpectedWithin(p, ctxt, bean);
             }
+
             p.nextToken();
             handleUnknownVanilla(p, ctxt, bean, p.currentName());
         }
@@ -853,6 +856,12 @@ public class BeanDeserializer
             }
             unknown.writeName(propName);
             unknown.copyCurrentStructure(p);
+        }
+
+        // Issue #6357: Property iteration can stop on an unexpected token.
+        // Only build the bean after the closing END_OBJECT was actually read.
+        if (t != JsonToken.END_OBJECT) {
+            return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
 
         // We hit END_OBJECT, so:

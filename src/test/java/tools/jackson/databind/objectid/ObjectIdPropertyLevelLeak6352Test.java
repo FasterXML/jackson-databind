@@ -25,11 +25,15 @@ public class ObjectIdPropertyLevelLeak6352Test extends DatabindTestUtil
         @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
         public Foo foo;
 
+        @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+        public Foo fooRef;
+
         public List<Foo> plain;
     }
 
     private static final String HOLDER_JSON = """
             {"foo":{"id":1,"name":"a"},
+             "fooRef":1,
              "plain":[{"id":7,"name":"b"},{"id":7,"name":"c"}]}
             """;
 
@@ -58,6 +62,8 @@ public class ObjectIdPropertyLevelLeak6352Test extends DatabindTestUtil
         assertNotNull(h.foo);
         assertEquals(1, h.foo.id);
         assertEquals("a", h.foo.name);
+        // Object Id handling must still work for annotated properties
+        assertSame(h.foo, h.fooRef);
         assertEquals(2, h.plain.size());
         _verifyFoos(h.plain.toArray(new Foo[0]));
     }

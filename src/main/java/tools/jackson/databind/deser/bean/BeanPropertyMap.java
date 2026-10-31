@@ -156,9 +156,9 @@ public class BeanPropertyMap
         final String key = newProp.getName();
         for (int i = 0, end = _propsInOrder.length; i < end; ++i) {
             if (_propsInOrder[i].getName().equals(key)) {
-                SettableBeanProperty[] newProps = Arrays.copyOf(_propsInOrder, end);
-                newProps[i] = newProp;
-                return new BeanPropertyMap(Arrays.asList(newProps), _aliasDefs,
+                ArrayList<SettableBeanProperty> newProps = new ArrayList<>(Arrays.asList(_propsInOrder));
+                newProps.set(i, newProp);
+                return new BeanPropertyMap(newProps, _aliasDefs,
                         _locale, _caseInsensitive, false);
             }
         }

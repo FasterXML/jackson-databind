@@ -11,6 +11,9 @@ No changes since 3.2
 
 3.2.5 (not yet released)
 
+#6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+ (reported by @bugada)
+ (fix by @pjfanning, w/ Claude code)
 #6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
   array contains `null`
  (reported, fixed by @Marti2203)
@@ -422,6 +425,9 @@ No changes since 3.2
 
 3.1.9 (not yet released)
 
+#6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+ (reported by @bugada)
+ (fix by @pjfanning, w/ Claude code)
 #6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
   array contains `null`
  (reported, fixed by @Marti2203)

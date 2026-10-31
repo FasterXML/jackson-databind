@@ -1312,6 +1312,12 @@ public class BeanDeserializer
             }
         }
 
+        // Issue #6357: The unwrapped-property loop can stop on a token other
+        // than END_OBJECT. Reject it before finalizing buffered properties.
+        if (t != JsonToken.END_OBJECT) {
+            return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        }
+
         tokens.writeEndObject();
 
         // We could still have some not-yet-set creator properties that are unwrapped.

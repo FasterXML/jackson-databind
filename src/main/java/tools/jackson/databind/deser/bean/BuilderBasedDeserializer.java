@@ -546,6 +546,11 @@ public class BuilderBasedDeserializer
             unknown.copyCurrentStructure(p);
         }
 
+        // Issue #6357: Do not construct a builder after an unexpected token.
+        if (t != JsonToken.END_OBJECT) {
+            return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        }
+
         // We hit END_OBJECT, so:
         Object builder;
         try {
@@ -912,6 +917,11 @@ public class BuilderBasedDeserializer
             }
             buffer.bufferAnyProperty(_anySetter, propName, p, ctxt);
         }
+        // Issue #6357: Only finalize unwrapped builder properties at the actual end of the object.
+        if (t != JsonToken.END_OBJECT) {
+            return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        }
+
         tokens.writeEndObject();
 
         // We hit END_OBJECT, so:

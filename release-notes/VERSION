@@ -123,6 +123,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   a `null` over a non-null default, so the `null` can't round-trip
  (reported by @essiembre)
  (fix by @mvanhorn)
+#6284: `@JsonIgnoreType` not honored for Creator properties (including Record
+  components)
+ (fix by Aysha A-Z)
 #6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
   array contains `null`
  (reported, fixed by @Marti2203)

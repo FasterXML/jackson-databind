@@ -4,6 +4,9 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
@@ -21,9 +24,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for the "vanilla" fast path of {@link BeanDeserializer} (which uses
- * {@code JsonParser.nextNameMatchAndToken()}). Note that this path is only
- * used if {@link MapperFeature#DEFAULT_VIEW_INCLUSION} is enabled
- * (it is disabled by default in 3.x).
+ * {@code JsonParser.nextNameMatchAndToken()}).
+ * <p>
+ * The 3.x default disables {@link MapperFeature#DEFAULT_VIEW_INCLUSION}, which
+ * still requires view processing when a view is active. The fast path is used
+ * when no view is active (see [databind#6219]).
  */
 public class BeanDeserializerVanillaTest extends DatabindTestUtil
 {
@@ -53,6 +58,11 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
         public int[] g;
         public Map<String, Object> h;
         public String i;
+    }
+
+    // Mix-in that forces non-vanilla processing via Object Id handling
+    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
+    static abstract class NonVanillaMixIn {
     }
 
     // Parser delegate that overrides `nextNameMatch()` (and `currentNameMatch()`)
@@ -105,6 +115,10 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
     private final AccessibleMapper MAPPER = new AccessibleMapper(jsonMapperBuilder()
             .enable(MapperFeature.DEFAULT_VIEW_INCLUSION));
 
+    // 3.x default: DEFAULT_VIEW_INCLUSION disabled. Vanilla still applies when
+    // no view is active ([databind#6219]).
+    private final AccessibleMapper DEFAULT_MAPPER = new AccessibleMapper(jsonMapperBuilder());
+
     // Sanity check: verify tests actually exercise vanilla processing
     @Test
     void vanillaProcessingUsed() throws Exception
@@ -116,6 +130,34 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
             assertTrue(((BeanDeserializer) deser)._vanillaProcessing,
                     "Should use vanilla processing for "+type.getSimpleName());
         }
+    }
+
+    @Test
+    void vanillaProcessingUsedWithDefaultSettings() throws Exception
+    {
+        for (Class<?> type : List.of(Wide.class, Point.class)) {
+            ValueDeserializer<Object> deser = DEFAULT_MAPPER.deserializationContext()
+                    .findRootValueDeserializer(DEFAULT_MAPPER.constructType(type));
+            assertInstanceOf(BeanDeserializer.class, deser);
+            BeanDeserializer beanDeser = (BeanDeserializer) deser;
+            assertTrue(beanDeser._vanillaProcessing,
+                    "Should use vanilla processing with 3.x defaults for "+type.getSimpleName());
+            assertTrue(beanDeser.hasViews(),
+                    "View processing must remain available when DEFAULT_VIEW_INCLUSION is off");
+        }
+        Point p = DEFAULT_MAPPER.readValue("{\"x\":1,\"y\":2}", Point.class);
+        assertEquals(1, p.x);
+        assertEquals(2, p.y);
+    }
+
+    @Test
+    void unannotatedPropertiesSkippedWhenViewActive() throws Exception
+    {
+        Point p = DEFAULT_MAPPER.readerWithView(Object.class)
+                .forType(Point.class)
+                .readValue("{\"x\":1,\"y\":2}");
+        assertEquals(0, p.x);
+        assertEquals(0, p.y);
     }
 
     @Test
@@ -211,9 +253,11 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
             "e": { "x": 1, "y": "notAnInt" }
             """.strip();
 
-    // Default settings: vanilla processing NOT used (see [databind#6219]; if that
-    // changes, need some other way to get non-vanilla processing for reference)
-    private final AccessibleMapper REFERENCE_MAPPER = new AccessibleMapper(jsonMapperBuilder());
+    // Default settings now use vanilla processing (see [databind#6219]); force
+    // non-vanilla via Object Id handling so error reporting can be compared.
+    private final AccessibleMapper REFERENCE_MAPPER = new AccessibleMapper(jsonMapperBuilder()
+            .addMixIn(Wide.class, NonVanillaMixIn.class)
+            .addMixIn(Point.class, NonVanillaMixIn.class));
 
     // Errors within vanilla processing (at every position of unrolled loop, and
     // within continuation after unknown property) must be reported same as with

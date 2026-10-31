@@ -188,7 +188,7 @@ public class BeanDeserializer
     {
         // common case first
         if (p.isExpectedStartObjectToken()) {
-            if (_vanillaProcessing) {
+            if (_useVanillaProcessing(ctxt)) {
                 return _vanillaDeserialize(p, ctxt);
             }
             // 23-Sep-2015, tatu: This is wrong at some many levels, but for now... it is
@@ -226,7 +226,7 @@ public class BeanDeserializer
                 return _deserializeFromArray(p, ctxt);
             case PROPERTY_NAME:
             case END_OBJECT: // added to resolve [JACKSON-319], possible related issues
-                if (_vanillaProcessing) {
+                if (_useVanillaProcessing(ctxt)) {
                     return _vanillaDeserialize(p, ctxt, t);
                 }
                 if (_objectIdReader != null) {

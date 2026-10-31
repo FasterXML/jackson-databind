@@ -43,7 +43,8 @@ public abstract class TypeBase
             int hash,
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
-        super(raw, hash, valueHandler, typeHandler, asStatic);
+        super(raw, (bindings != null && bindings.getOwnerType() != null)
+                ? bindings.hashCode() : hash, valueHandler, typeHandler, asStatic);
         _bindings = (bindings == null) ? NO_BINDINGS : bindings;
         _superClass = superClass;
         _superInterfaces = superInts;
@@ -82,6 +83,13 @@ public abstract class TypeBase
     @Override
     public TypeBindings getBindings() {
         return _bindings;
+    }
+
+    @Override
+    public boolean hasGenericTypes() {
+        TypeBindings bindings = getBindings();
+        JavaType owner = bindings.getOwnerType();
+        return bindings.size() > 0 || (owner != null && owner.hasGenericTypes());
     }
 
     @Override
@@ -232,5 +240,67 @@ public abstract class TypeBase
     protected boolean _hasNTypeParameters(int count) {
         TypeVariable<?>[] params = _class.getTypeParameters();
         return (params.length == count);
+    }
+
+    /**
+     * Owner-bearing types must describe declared arguments, not inherited
+     * key/content types. Empty argument lists delimit member names that may
+     * themselves contain '$'.
+     */
+    protected final String _buildOwnerCanonicalName() {
+        StringBuilder sb = new StringBuilder();
+        _appendOwnerCanonical(this, sb);
+        return sb.toString();
+    }
+
+    private static void _appendOwnerCanonical(JavaType type, StringBuilder sb) {
+        TypeBindings bindings = type.getBindings();
+        JavaType owner = bindings.getOwnerType();
+        if (owner == null) {
+            sb.append(type.getRawClass().getName());
+        } else {
+            _appendOwnerCanonical(owner, sb);
+            sb.append(type.getRawClass().getName().substring(
+                    owner.getRawClass().getName().length()));
+        }
+        sb.append('<');
+        for (int i = 0; i < bindings.size(); ++i) {
+            if (i > 0) {
+                sb.append(',');
+            }
+            sb.append(bindings.getBoundType(i).toCanonical());
+        }
+        sb.append('>');
+    }
+
+    protected final StringBuilder _getOwnerGenericSignature(StringBuilder sb) {
+        _appendOwnerSignature(this, sb);
+        return sb.append(';');
+    }
+
+    private static void _appendOwnerSignature(JavaType type, StringBuilder sb) {
+        TypeBindings bindings = type.getBindings();
+        JavaType owner = bindings.getOwnerType();
+        if (owner == null) {
+            _classSignature(type.getRawClass(), sb, false);
+        } else {
+            _appendOwnerSignature(owner, sb);
+            // Only the separator between declarations changes to '.'. A '$'
+            // inside a legal member name remains part of that name.
+            sb.append('.').append(type.getRawClass().getName().substring(
+                    owner.getRawClass().getName().length() + 1));
+        }
+        if (bindings.size() > 0) {
+            sb.append('<');
+            for (int i = 0; i < bindings.size(); ++i) {
+                bindings.getBoundType(i).getGenericSignature(sb);
+            }
+            sb.append('>');
+        }
+    }
+
+    protected final boolean _equalOwnerBindings(TypeBase other) {
+        return (_bindings.getOwnerType() == null && other._bindings.getOwnerType() == null)
+                || _bindings.equals(other._bindings);
     }
 }

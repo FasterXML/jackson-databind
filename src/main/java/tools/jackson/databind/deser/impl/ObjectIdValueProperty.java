@@ -93,6 +93,21 @@ public final class ObjectIdValueProperty
 
     @Override public AnnotatedMember getMember() {  return null; }
 
+    // Views are those of the actual id property (if any): this instance replaces
+    // it in the property map, so it must not become visible in all views
+    @Override
+    public boolean hasViews() {
+        final SettableBeanProperty idProp = _objectIdReader.idProperty;
+        return (idProp == null) ? super.hasViews() : idProp.hasViews();
+    }
+
+    @Override
+    public boolean visibleInView(Class<?> activeView) {
+        final SettableBeanProperty idProp = _objectIdReader.idProperty;
+        return (idProp == null) ? super.visibleInView(activeView)
+                : idProp.visibleInView(activeView);
+    }
+
     /*
     /**********************************************************
     /* Deserialization methods

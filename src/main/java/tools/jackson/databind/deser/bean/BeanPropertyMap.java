@@ -150,12 +150,16 @@ public class BeanPropertyMap
      */
     public BeanPropertyMap withProperty(SettableBeanProperty newProp)
     {
-        // First: maybe just replace in place?
+        // First: maybe just replace existing entry?
+        // [databind#6352]: must not modify `this` (may be shared by
+        // non-contextual deserializer), so replace in a copy
         final String key = newProp.getName();
         for (int i = 0, end = _propsInOrder.length; i < end; ++i) {
             if (_propsInOrder[i].getName().equals(key)) {
-                _propsInOrder[i] = newProp;
-                return this;
+                SettableBeanProperty[] newProps = Arrays.copyOf(_propsInOrder, end);
+                newProps[i] = newProp;
+                return new BeanPropertyMap(Arrays.asList(newProps), _aliasDefs,
+                        _locale, _caseInsensitive, false);
             }
         }
 

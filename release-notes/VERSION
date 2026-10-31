@@ -159,6 +159,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   an Object Id forward reference
  (reported by @Marti2203)
  (fix by @hutiefang76)
+#6352: `BeanPropertyMap.withProperty()` modifies shared map when Object Id property
+  name matches existing property (property-level `@JsonIdentityInfo`)
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.2.5 (not yet released)
 

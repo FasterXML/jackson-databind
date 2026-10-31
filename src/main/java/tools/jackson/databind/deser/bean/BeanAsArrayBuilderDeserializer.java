@@ -65,11 +65,8 @@ public class BeanAsArrayBuilderDeserializer
 
     @Override
     public BeanDeserializerBase withObjectIdReader(ObjectIdReader oir) {
-        // [databind#6352]: delegate gets a new property map (with Object Id property),
-        // so ordered properties must be taken from it
-        BeanDeserializerBase newDelegate = _delegate.withObjectIdReader(oir);
-        return new BeanAsArrayBuilderDeserializer(newDelegate,
-                _targetType, newDelegate._beanProperties.getPrimaryProperties(), _buildMethod);
+        return new BeanAsArrayBuilderDeserializer(_delegate.withObjectIdReader(oir),
+                _targetType, _orderedProperties, _buildMethod);
     }
 
     @Override

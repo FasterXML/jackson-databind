@@ -43,7 +43,7 @@ public class UnwrappedPropertyHandler
      * differ only in case. Set when an unwrapped bean deserializer was built
      * with case-insensitive property matching.
      *
-     * @since 3.1.8
+     * @since 3.1.9
      */
     protected final boolean _caseInsensitive;
 
@@ -51,7 +51,7 @@ public class UnwrappedPropertyHandler
      * Locale used to lowercase names when {@link #_caseInsensitive} is set.
      * Same locale {@code BeanPropertyMap} uses for case-insensitive lookup.
      *
-     * @since 3.1.8
+     * @since 3.1.9
      */
     protected final Locale _locale;
 
@@ -113,7 +113,7 @@ public class UnwrappedPropertyHandler
      * @param locale locale used to lowercase names when an unwrapped bean
      *    matches properties case-insensitively; {@code null} means {@link Locale#ROOT}
      *
-     * @since 3.1.8
+     * @since 3.1.9
      */
     public UnwrappedPropertyHandler initializeUnwrappedPropertyNames(Locale locale) {
         Set<String> unwrappedNames = new HashSet<>();

@@ -144,7 +144,8 @@ public class BeanPropertyMap
     /**
      * Fluent copy method that creates a new instance that is a copy
      * of this instance except for one additional property that is
-     * passed as the argument.
+     * passed as the argument: if a property with the same name exists,
+     * it is replaced (at the same position), otherwise new property is appended.
      * Note that method does not modify this instance but constructs
      * and returns a new one.
      */

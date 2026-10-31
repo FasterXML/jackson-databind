@@ -81,6 +81,15 @@ public class ObjectIdPropertyLevelLeak6352Test extends DatabindTestUtil
         public List<BuiltFoo> plain;
     }
 
+    // Self-reference: contextualization happens while `Node` deserializer is
+    // still being resolved (used to fail with `NoSuchElementException`)
+    static class Node {
+        public int id;
+        @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+        public Node next;
+        public String name;
+    }
+
     private static final String HOLDER_JSON = """
             {"foo":{"id":1,"name":"a"},
              "fooRef":1,
@@ -122,7 +131,9 @@ public class ObjectIdPropertyLevelLeak6352Test extends DatabindTestUtil
         assertEquals("b", h.plain.get(0).name);
         assertEquals("c", h.plain.get(1).name);
 
-        ArrayFoo[] foos = mapper.readValue("[[7,\"b\"],[7,\"c\"]]", ArrayFoo[].class);
+        ArrayFoo[] foos = mapper.readValue("""
+                [[7,"b"],[7,"c"]]
+                """, ArrayFoo[].class);
         assertEquals(2, foos.length);
         assertEquals("b", foos[0].name);
         assertEquals("c", foos[1].name);
@@ -148,6 +159,19 @@ public class ObjectIdPropertyLevelLeak6352Test extends DatabindTestUtil
         assertEquals(2, foos.length);
         assertEquals("b", foos[0].name);
         assertEquals("c", foos[1].name);
+    }
+
+    @Test
+    void selfReference() throws Exception
+    {
+        final ObjectMapper mapper = newJsonMapper();
+        Node n = mapper.readValue("""
+                {"id":1,"next":{"id":2,"name":"b","next":2},"name":"a"}
+                """, Node.class);
+        assertEquals("a", n.name);
+        assertEquals(2, n.next.id);
+        assertEquals("b", n.next.name);
+        assertSame(n.next, n.next.next);
     }
 
     private void _verifyHolder(Holder h) {

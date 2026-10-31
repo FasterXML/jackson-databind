@@ -681,7 +681,7 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Fixed #6255: `@JsonIgnoreProperties`/`@JsonIncludeProperties` not honored for
    `ObjectNode`/`JsonNode`-valued `@JsonAnyGetter` entries
   [3.3.0]
- * Fixed #6313: Honor `@JsonView` for Object Id property on deserialization
+ * Fixed #6360: `@JsonView` not honored for Object Id property on deserialization
   [3.3.0]
 
 @waydeshi

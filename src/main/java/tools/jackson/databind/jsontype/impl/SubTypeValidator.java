@@ -46,6 +46,14 @@ public class SubTypeValidator
         s.add("org.apache.xalan.xsltc.trax.TemplatesImpl");
         // [databind#1680]: may or may not be problem, take no chance
         s.add("com.sun.rowset.JdbcRowSetImpl");
+        // Siblings of JdbcRowSetImpl: all extend `javax.sql.rowset.BaseRowSet`,
+        // expose a public no-arg constructor and inherit the same
+        // `setDataSourceName(String)` -> JNDI lookup sink. JDK-bundled,
+        // present unchanged from JDK 8 through (at least) JDK 25.
+        s.add("com.sun.rowset.CachedRowSetImpl");
+        s.add("com.sun.rowset.WebRowSetImpl");
+        s.add("com.sun.rowset.FilteredRowSetImpl");
+        s.add("com.sun.rowset.JoinRowSetImpl");
         // [databind#1737]; JDK provided
         s.add("java.util.logging.FileHandler");
         s.add("java.rmi.server.UnicastRemoteObject");
@@ -265,7 +273,21 @@ public class SubTypeValidator
         // There are certain nasty classes that could cause problems, mostly
         // via default typing -- catch them here.
         final Class<?> raw = type.getRawClass();
-        String full = raw.getName();
+        if (isIllegalType(raw)) {
+            ctxt.reportBadTypeDefinition(beanDescRef,
+                    "Illegal type (%s) to deserialize: prevented for security reasons", raw.getName());
+        }
+    }
+
+    /**
+     * Method for checking whether given class is one of known "gadget" types
+     * that are never to be deserialized.
+     *
+     * @since 3.1.8
+     */
+    public boolean isIllegalType(Class<?> raw)
+    {
+        final String full = raw.getName();
 
         main_check:
         do {
@@ -299,10 +321,8 @@ public class SubTypeValidator
                     break main_check;
                 }
             }
-            return;
+            return false;
         } while (false);
-
-        ctxt.reportBadTypeDefinition(beanDescRef,
-                "Illegal type (%s) to deserialize: prevented for security reasons", full);
+        return true;
     }
 }

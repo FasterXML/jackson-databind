@@ -861,3 +861,7 @@ Anna Breeva (@ab310013)
  * Fixed #6325: `NullPointerException` when a `@JsonCreator` returns `null` and
    the input has an Object Id forward reference
   [3.3.0]
+
+@bugada
+ * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+  [3.2.5]

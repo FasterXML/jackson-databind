@@ -2126,6 +2126,10 @@ Sanha (@kimsanhaa)
  * Fixed #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
   [2.23.0]
 
+zsewasdsdsd (@zsewasdsdsd)
+ * Fixed #6290: Default typing round-trip for final-subtype arrays
+  [2.23.0]
+
 Martin Mirchev (@Marti2203)
  * Reported, fixed #6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property
    when the default array contains `null`

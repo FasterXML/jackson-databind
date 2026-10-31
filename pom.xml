@@ -9,11 +9,11 @@
   <parent>
     <groupId>tools.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>3.1.8-SNAPSHOT</version>
+    <version>3.1.9-SNAPSHOT</version>
   </parent>
   <groupId>tools.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>3.1.8-SNAPSHOT</version>
+  <version>3.1.9-SNAPSHOT</version>
   <name>jackson-databind</name>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
   <url>https://github.com/FasterXML/jackson</url>
@@ -30,7 +30,7 @@
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-databind.git</developerConnection>
     <url>https://github.com/FasterXML/jackson-databind</url>
-    <tag>jackson-databind-3.1.4</tag>
+    <tag>jackson-databind-3.1.8</tag>
   </scm>
 
   <properties>
@@ -60,7 +60,7 @@
       -->
     <version.android.sdk.signature>0.12.0</version.android.sdk.signature>
 
-    <version.bytebuddy>1.18.4</version.bytebuddy>
+    <version.bytebuddy>1.18.15</version.bytebuddy>
     <version.mockito>5.21.0</version.mockito>
 
     <!-- 07-Mar-2025, tatu: For some reason, release fails due to missing
@@ -81,7 +81,7 @@
     <packageVersion.package>tools.jackson.databind.cfg</packageVersion.package>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2026-09-22T00:23:02Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2026-10-18T00:16:21Z</project.build.outputTimestamp>
   </properties>
 
   <dependencyManagement>
@@ -317,6 +317,17 @@
       <activation>
         <jdk>[21,)</jdk>
       </activation>
+      <properties>
+        <!-- JDK 21 test package is not declared in (JDK 17 compatible) test module-info,
+             so need to open it to JUnit here -->
+        <!-- Load ByteBuddy agent at startup instead of Mockito self-attaching it
+             dynamically (which fails on JDK 21 CI with "Agent JAR loaded but agent failed to initialize") -->
+        <argLine>--add-opens=java.base/java.lang=tools.jackson.databind
+             --add-opens=java.base/java.util=tools.jackson.databind
+             --add-opens=tools.jackson.databind/tools.jackson.databind.jdk21=org.junit.platform.commons
+             -javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${version.bytebuddy}/byte-buddy-agent-${version.bytebuddy}.jar
+        </argLine>
+      </properties>
       <build>
         <plugins>
           <plugin>

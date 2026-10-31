@@ -9,7 +9,51 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 No changes since 3.1
 
-3.1.8 (not yet released)
+3.1.9 (not yet released)
+
+#6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
+  (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
+ (reported by João G)
+ (fix by João G and @cowtowncoder, w/ Claude code)
+#6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+ (reported by @bugada)
+ (fix by @pjfanning, w/ Claude code)
+#6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
+  array contains `null`
+ (reported, fixed by @Marti2203)
+#6296: Duplicate properties merged under the wrong key in non-vanilla
+  `UntypedObjectDeserializer`
+ (reported, fixed by @Marti2203)
+#6305: `InetSocketAddress` deserialization ignores text after the closing bracket
+  of an IPv6 address
+ (reported, fixed by @Marti2203)
+#6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)` to an object
+  whose id is `null`
+ (reported, fixed by @Marti2203)
+#6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
+  values (including primitive array elements)
+ (reported, fixed by @Marti2203)
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
+#6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
+  deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
+  `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)` for creator
+  properties: existing value is overwritten with `null`
+ (reported, fixed by @Marti2203)
+#6339: Enum aliases from an appended `AnnotationIntrospector` are discarded:
+  `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
+ (reported, fixed by @Marti2203)
+#6342: `@JsonFormat(shape = NUMBER)` on primitive `boolean` getter written as `true`/`false`
+  with Blackbird / Afterburner (regression via #6111)
+ (reported by @palprat)
+ (fix by @cowtowncoder, w/ Claude code)
+#6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
+  `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
+ (reported, fixed by @Marti2203)
+
+3.1.8 (17-Oct-2026)
 
 #6206: Report cycle through `@JsonValue` accessor as `DatabindException`
   (instead of `StackOverflowError`)
@@ -35,6 +79,24 @@ No changes since 3.1
  (fix by @kalayciburak)
 #6249: Avoid NPE when parser reports `VALUE_STRING` with `null` text
  (fix by @pjfanning, w/ Claude code)
+#6252: `@JsonIgnoreProperties` not honored for `EnumMap` properties
+ (fix by Aysha A-Z)
+#6261: Support `@JsonView` on properties-based Creator parameters of Enum, Map
+  and EnumMap types
+ (fix by @pjfanning, w/ Claude code)
+#6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: type parameters (and element types of array type ids) are now validated
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type; `allowIfSubTypeIsArray()` no longer
+  accepts abstract or interface element types without allow-listing (except `Number`);
+  approval of an array type covers its element type only if given as exactly that
+  class (`allowIfSubType(Bar[].class)`, new
+  `PolymorphicTypeValidator.isArrayTypeAllowedExplicitly()`), a name-based rule
+  does not; base type approval of a declared array type covers subtypes of its
+  element type unless that is `Object`, `Serializable` or `Cloneable`
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, @martinfrancois)
 
 3.1.7 (21-Sep-2026)
 

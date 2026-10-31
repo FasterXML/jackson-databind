@@ -250,6 +250,17 @@ public final class ClassUtil
         return (cls == CLS_OBJECT) || cls.isPrimitive();
     }
 
+    /**
+     * Whether given type is one that all array types are assignable to:
+     * {@code Object}, {@code Serializable} or {@code Cloneable}.
+     *
+     * @since 3.1.8
+     */
+    public static boolean isArraySuperType(Class<?> cls) {
+        return (cls == CLS_OBJECT) || (cls == java.io.Serializable.class)
+                || (cls == Cloneable.class);
+    }
+
     public static boolean hasClass(Object inst, Class<?> raw) {
         // 10-Nov-2016, tatu: Could use `Class.isInstance()` if we didn't care
         //    about being exactly that type

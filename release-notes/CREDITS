@@ -385,6 +385,10 @@ Dmitry Sulman (@dmitrysulman)
 João Guerra (@joca-bt)
  * Reported #6040: Inconsistency in current token on invalid type coercion for `List<String>`
   [3.1.5]
+ * Reported, fixed #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected
+   with constructor-backed properties (nor with Builders, `@JsonUnwrapped`,
+   external type ids or `Shape.ARRAY`)
+  [3.1.9]
 
 Aysha Afrah Ziya (@aysha-afrah26)
  * Fixed #6096: Honor `@JsonView` in `BeanAsArrayDeserializer` update path
@@ -407,6 +411,8 @@ Aysha Afrah Ziya (@aysha-afrah26)
   [3.1.7]
  * Fixed #6232: Validate `StreamReadConstraints` number length when coercing
    `StringNode` to number
+  [3.1.8]
+ * Fixed #6252: `@JsonIgnoreProperties` not honored for `EnumMap` properties
   [3.1.8]
 
 @waydeshi
@@ -451,3 +457,43 @@ Sergey Lappo (@sergeylappo)
 Sanha (@kimsanhaa)
  * Fixed #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
   [3.1.8]
+
+Martin Mirchev (@Marti2203)
+ * Reported, fixed #6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property
+   when the default array contains `null`
+  [3.1.9]
+ * Reported, fixed #6296: Duplicate properties merged under the wrong key in non-vanilla
+   `UntypedObjectDeserializer`
+  [3.1.9]
+ * Reported, fixed #6305: `InetSocketAddress` deserialization ignores text after the closing
+   bracket of an IPv6 address
+  [3.1.9]
+ * Reported, fixed #6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)`
+   to an object whose id is `null`
+  [3.1.9]
+ * Reported, fixed #6300: NPE when a `DeserializationProblemHandler` returns `null`
+   for primitive values (including primitive array elements)
+  [3.1.9]
+ * Reported, fixed #6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
+   `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
+  [3.1.9]
+ * Reported, fixed #6339: Enum aliases from an appended `AnnotationIntrospector` are
+   discarded: `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
+  [3.1.9]
+ * Reported, fixed #6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)`
+   for creator properties: existing value is overwritten with `null`
+  [3.1.9]
+
+Anna Breeva (@ab310013)
+ * Reported #6315: Map key deserializers should apply same type checks as bean
+   deserializers
+  [3.1.9]
+
+@palprat
+ * Reported #6342: `@JsonFormat(shape = NUMBER)` on primitive `boolean` getter written
+   as `true`/`false` with Blackbird / Afterburner
+  [3.1.9]
+
+@bugada
+ * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+  [3.1.9]

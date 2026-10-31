@@ -10,10 +10,13 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
@@ -161,5 +164,25 @@ public class CustomMapKeyDeserializationTest
         Map<String, Object> cityMap = (Map<String, Object>) addressMap.get("city_");
         assertEquals(1, cityMap.get("id_"));
         assertEquals("Berlin", cityMap.get("name_"));
+    }
+
+    // Custom key deserializer for `Object.class` returning non-String key should
+    // fail with a meaningful exception (not `ClassCastException`)
+    @Test
+    public void testCustomKeyDeserializerWithNonStringKey() throws Exception
+    {
+        SimpleModule module = new SimpleModule();
+        module.addKeyDeserializer(Object.class, new KeyDeserializer() {
+            @Override
+            public Object deserializeKey(String key, DeserializationContext ctxt) {
+                return Integer.valueOf(key.length());
+            }
+        });
+        ObjectMapper mapper = JsonMapper.builder().addModule(module).build();
+
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> mapper.readValue("{\"a\":{\"b\":1}}", Object.class));
+        assertTrue(e.getMessage().contains("returned key of type `java.lang.Integer`"),
+                "Unexpected message: "+e.getMessage());
     }
 }

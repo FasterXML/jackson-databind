@@ -1,7 +1,9 @@
 package tools.jackson.databind.ser.filter;
 
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -248,5 +250,32 @@ public class IncludePropsForSerTest extends DatabindTestUtil
         // order=FALSE should NOT impose ordering from value(); default order used
         assertEquals(a2q("{'a':1,'b':2,'c':3}"),
                 MAPPER.writeValueAsString(new IncludeWithOrderFalse()));
+    }
+
+    // [databind#6282]: non-String Map keys must match too
+    enum KeyEnum { A, B }
+
+    static class IncludeEnumKeyMap {
+        @JsonIncludeProperties("A")
+        public Map<KeyEnum, String> m = new EnumMap<>(KeyEnum.class);
+    }
+
+    static class IncludeIntKeyMap {
+        @JsonIncludeProperties("1")
+        public Map<Integer, String> m = new LinkedHashMap<>();
+    }
+
+    @Test
+    public void testMapIncludeWithNonStringKeys() throws Exception
+    {
+        IncludeEnumKeyMap enumMap = new IncludeEnumKeyMap();
+        enumMap.m.put(KeyEnum.A, "a");
+        enumMap.m.put(KeyEnum.B, "b");
+        assertEquals(a2q("{'m':{'A':'a'}}"), MAPPER.writeValueAsString(enumMap));
+
+        IncludeIntKeyMap intMap = new IncludeIntKeyMap();
+        intMap.m.put(1, "one");
+        intMap.m.put(2, "two");
+        assertEquals(a2q("{'m':{'1':'one'}}"), MAPPER.writeValueAsString(intMap));
     }
 }

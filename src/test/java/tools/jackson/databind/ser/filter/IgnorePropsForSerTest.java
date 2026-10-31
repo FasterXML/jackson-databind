@@ -176,4 +176,31 @@ public class IgnorePropsForSerTest
         assertEquals(a2q("{'coordinates':[{'z':3}]}"),
                 MAPPER.writeValueAsString(new IgnoreForListValuesXYZ()));
     }
+
+    // for [databind#6282]: non-String Map keys must match too
+    enum KeyEnum { A, B }
+
+    static class IgnoreEnumKeyMap {
+        @JsonIgnoreProperties("B")
+        public Map<KeyEnum, String> m = new EnumMap<>(KeyEnum.class);
+    }
+
+    static class IgnoreIntKeyMap {
+        @JsonIgnoreProperties("2")
+        public Map<Integer, String> m = new LinkedHashMap<>();
+    }
+
+    @Test
+    public void testMapIgnoreWithNonStringKeys() throws Exception
+    {
+        IgnoreEnumKeyMap enumMap = new IgnoreEnumKeyMap();
+        enumMap.m.put(KeyEnum.A, "a");
+        enumMap.m.put(KeyEnum.B, "b");
+        assertEquals(a2q("{'m':{'A':'a'}}"), MAPPER.writeValueAsString(enumMap));
+
+        IgnoreIntKeyMap intMap = new IgnoreIntKeyMap();
+        intMap.m.put(1, "one");
+        intMap.m.put(2, "two");
+        assertEquals(a2q("{'m':{'1':'one'}}"), MAPPER.writeValueAsString(intMap));
+    }
 }

@@ -122,9 +122,13 @@ public class IgnorePropertiesUtil
         }
 
         // May seem odd but during serialization key is not cast up to String:
+        // Map keys may be enums or numbers, so normalize them to their JSON form
+        // before matching the String sets (see [databind#6282]).
         public boolean shouldIgnore(Object propertyName) {
-            return ((_toInclude != null) && !_toInclude.contains(propertyName))
-                    || _toIgnore.contains(propertyName);
+            final Object name = (propertyName instanceof String) ? propertyName
+                    : String.valueOf(propertyName);
+            return ((_toInclude != null) && !_toInclude.contains(name))
+                    || _toIgnore.contains(name);
         }
     }
 }

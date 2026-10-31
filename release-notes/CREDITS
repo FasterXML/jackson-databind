@@ -493,3 +493,7 @@ Anna Breeva (@ab310013)
  * Reported #6342: `@JsonFormat(shape = NUMBER)` on primitive `boolean` getter written
    as `true`/`false` with Blackbird / Afterburner
   [3.1.9]
+
+@bugada
+ * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+  [3.1.9]

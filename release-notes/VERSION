@@ -15,6 +15,9 @@ No changes since 3.1
   (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
  (reported by João G)
  (fix by João G and @cowtowncoder, w/ Claude code)
+#6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+ (reported by @bugada)
+ (fix by @pjfanning, w/ Claude code)
 #6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
   array contains `null`
  (reported, fixed by @Marti2203)

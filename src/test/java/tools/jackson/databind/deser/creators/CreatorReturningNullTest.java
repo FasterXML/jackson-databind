@@ -199,6 +199,43 @@ public class CreatorReturningNullTest
         }
     }
 
+    // [databind#6325]: null-returning properties-based creator combined with
+    // (forward) Object Id reference
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    static class Target6325 {
+        public String id;
+    }
+
+    // Properties-based creator that always returns `null`
+    static class NullCreatorSource6325 {
+        public Target6325 b;
+        public Target6325 extra;
+        public String name;
+
+        @JsonCreator
+        public static NullCreatorSource6325 create(@JsonProperty("name") String name) {
+            return null;
+        }
+    }
+
+    // Same shape, but creator returns a non-null instance (control case for [databind#3030])
+    static class CreatorSource6325 {
+        public Target6325 b;
+        public Target6325 extra;
+
+        @JsonCreator
+        public CreatorSource6325(@JsonProperty("b") Target6325 b) {
+            this.b = b;
+        }
+    }
+
+    // For a reference resolved only AFTER the `null` creator value has been discarded
+    static class Enclosing6325 {
+        public NullCreatorSource6325 source;
+        public Target6325 later;
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -306,5 +343,53 @@ public class CreatorReturningNullTest
         String json = "{ \"type\" : \"     \", \"id\" : \"000c0ffb-a0d6-4d2e-a379-4aeaaf283599\" }";
 
         assertNull(MAPPER.readValue(json, JsonEntity.class));
+    }
+
+    // [databind#6325]: forward Object Id reference ("b" -> "t1") is resolved by "extra"
+    // BEFORE the creator is even called; with no bean to set it on, it must be dropped
+    @Test
+    void nullCreatorWithAlreadyResolvedForwardRef6325()
+    {
+        assertNull(MAPPER.readValue(a2q("{'b':'t1','extra':{'id':'t1'},'name':'x'}"),
+                NullCreatorSource6325.class));
+    }
+
+    @Test
+    void nullCreatorWithoutForwardRef6325()
+    {
+        assertNull(MAPPER.readValue(a2q("{'name':'x'}"), NullCreatorSource6325.class));
+    }
+
+    // Control case: same forward reference, but creator returns a bean: deferred
+    // resolution ([databind#3030]) must still be applied to the created bean
+    @Test
+    void nonNullCreatorWithAlreadyResolvedForwardRef6325()
+    {
+        CreatorSource6325 result = MAPPER.readValue(a2q("{'b':'t1','extra':{'id':'t1'}}"),
+                CreatorSource6325.class);
+        assertEquals("t1", result.extra.id);
+        assertSame(result.extra, result.b);
+    }
+
+    // Discarding the `null` bean must not hide genuinely unresolved Object Ids
+    @Test
+    void nullCreatorWithUnresolvedForwardRef6325()
+    {
+        UnresolvedForwardReference e = assertThrows(UnresolvedForwardReference.class,
+                () -> MAPPER.readValue(a2q("{'b':'t1','name':'x'}"), NullCreatorSource6325.class));
+        verifyException(e, "Unresolved forward reference");
+    }
+
+    // Reference registered by the discarded `null` creator value is resolved only by a
+    // later sibling: nothing to apply it to, so it must be dropped (and not reported as
+    // unresolved, since it did get resolved)
+    @Test
+    void nullCreatorWithForwardRefResolvedAfterwards6325()
+    {
+        Enclosing6325 result = MAPPER.readValue(
+                a2q("{'source':{'b':'t1','name':'x'},'later':{'id':'t1'}}"),
+                Enclosing6325.class);
+        assertNull(result.source);
+        assertEquals("t1", result.later.id);
     }
 }

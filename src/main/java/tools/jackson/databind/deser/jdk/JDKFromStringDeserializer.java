@@ -7,8 +7,6 @@ import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import tools.jackson.core.*;
@@ -62,6 +60,11 @@ public class JDKFromStringDeserializer
     public final static int STD_CLASS = 5;
     public final static int STD_JAVA_TYPE = 6;
     public final static int STD_CURRENCY = 7;
+    /**
+     * @deprecated Since 3.3: no longer used, {@link java.util.regex.Pattern} values
+     *   are handled by {@link PatternDeserializer}
+     */
+    @Deprecated // since 3.3
     public final static int STD_PATTERN = 8;
     public final static int STD_LOCALE = 9;
     public final static int STD_CHARSET = 10;
@@ -78,7 +81,6 @@ public class JDKFromStringDeserializer
             Class.class,
             JavaType.class,
             Currency.class,
-            Pattern.class,
             Locale.class,
             Charset.class,
             TimeZone.class,
@@ -125,8 +127,6 @@ public class JDKFromStringDeserializer
             kind = STD_JAVA_TYPE;
         } else if (rawType == Currency.class) {
             kind = STD_CURRENCY;
-        } else if (rawType == Pattern.class) {
-            kind = STD_PATTERN;
         } else if (rawType == Locale.class) {
             kind = STD_LOCALE;
         } else if (rawType == Charset.class) {
@@ -189,13 +189,6 @@ public class JDKFromStringDeserializer
                 return ctxt.handleWeirdStringValue(_valueClass, value,
                         "Unrecognized currency");
             }
-        case STD_PATTERN:
-            try {
-                return Pattern.compile(value);
-            } catch (PatternSyntaxException e) {
-                return ctxt.handleWeirdStringValue(_valueClass, value,
-                        "Invalid Pattern, problem: "+e.getDescription());
-            }
         case STD_LOCALE:
             return _deserializeLocale(value, ctxt);
         case STD_CHARSET:
@@ -213,14 +206,21 @@ public class JDKFromStringDeserializer
             if (value.startsWith("[")) {
                 // bracketed IPv6 (with port number)
 
-                int i = value.lastIndexOf(']');
+                int i = value.indexOf(']');
                 if (i == -1) {
                     return ctxt.handleWeirdStringValue(_valueClass, value,
                             "Bracketed IPv6 address must contain closing bracket");
                 }
 
-                int j = value.indexOf(':', i);
-                int port = j > -1 ? Integer.parseInt(value.substring(j + 1)) : 0;
+                // closing bracket must be followed by nothing or by ":port"
+                int port = 0;
+                if (i + 1 < value.length()) {
+                    if (value.charAt(i + 1) != ':') {
+                        return ctxt.handleWeirdStringValue(_valueClass, value,
+                                "Bracketed IPv6 address must be followed by nothing or ':' and port number");
+                    }
+                    port = Integer.parseInt(value.substring(i + 2));
+                }
                 return _inetSocketAddress(value.substring(0, i + 1), port);
             }
             int ix = value.indexOf(':');
@@ -234,12 +234,6 @@ public class JDKFromStringDeserializer
         }
         VersionUtil.throwInternal();
         return null;
-    }
-
-    @Override
-    protected boolean _shouldTrim() {
-        // 04-Dec-2021, tatu: [databind#3299] Do not trim (trailing) white space:
-        return (_kind != STD_PATTERN);
     }
 
     @Override

@@ -86,6 +86,13 @@ public class BeanPropertyMap
         _caseInsensitive = caseInsensitive;
         _aliasDefs = aliasDefs;
         _propsInOrder = props.toArray(new SettableBeanProperty[0]);
+        // [databind#6324]: alias definitions must be aligned with properties
+        // (see also [databind#5884]); verify here so mismatch fails fast
+        if ((aliasDefs != null) && (aliasDefs.length != _propsInOrder.length)) {
+            throw new IllegalArgumentException(String.format(
+                    "Internal error: alias definitions (%d) not aligned with properties (%d)",
+                    aliasDefs.length, _propsInOrder.length));
+        }
         // Former `assignIndexes`
         // order is arbitrary, but stable:
         if (assignIndexes) {
@@ -156,7 +163,11 @@ public class BeanPropertyMap
         ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(Arrays.asList(_propsInOrder));
         newProps.add(newProp);
         // !!! TODO: assign index for the last entry?
-        return new BeanPropertyMap(newProps, _aliasDefs, _locale, _caseInsensitive, false);
+        // [databind#6324]: Must also keep `_aliasDefs` aligned with `_propsInOrder`;
+        // newly appended property has no aliases (yet)
+        PropertyName[][] newAliases = (_aliasDefs == null) ? null
+                : Arrays.copyOf(_aliasDefs, _aliasDefs.length + 1);
+        return new BeanPropertyMap(newProps, newAliases, _locale, _caseInsensitive, false);
     }
 
     /**

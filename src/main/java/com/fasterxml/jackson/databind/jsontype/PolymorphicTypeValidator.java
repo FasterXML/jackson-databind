@@ -44,6 +44,12 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
  * abstract base class, {@link PolymorphicTypeValidator.Base} which contains helper methods
  * and default implementations for returning {@link Validity#INDETERMINATE} for validation
  * methods (to allow only overriding relevant methods implementation cares about)
+ *<p>
+ * NOTE: Most users should use {@link BasicPolymorphicTypeValidator} as the implementation,
+ * rather than implementing a custom validator (by extending this class or
+ * {@link PolymorphicTypeValidator.Base}).
+ *
+ * @see BasicPolymorphicTypeValidator
  *
  * @since 2.10
  */
@@ -139,6 +145,39 @@ public abstract class PolymorphicTypeValidator
      */
     public abstract Validity validateSubType(MapperConfig<?> config, JavaType baseType,
             JavaType subType) throws JsonMappingException;
+
+    /**
+     * Method called for an array type named directly by a type id (like
+     * {@code [Lcom.foo.Bar;}), once approved as a subtype of the base type, to
+     * check whether this validator allows that array type explicitly, so that the
+     * approval covers its element type ({@code Bar}) as well. If not, the element
+     * type is validated on its own: approval by a rule that matches other arrays
+     * too (every {@code Serializable}, every array of some depth or package) says
+     * nothing about the element type. Not called for inner dimensions of arrays
+     * nor for array type parameters: their element types are always validated.
+     *<p>
+     * Default implementation returns {@code false}. {@link BasicPolymorphicTypeValidator}
+     * returns {@code true} for array types passed to
+     * {@link BasicPolymorphicTypeValidator.Builder#allowIfSubType(Class)}, and for arrays
+     * of the same depth with subtypes of their element type (unless that is
+     * {@code Object}, {@code Serializable} or {@code Cloneable}).
+     *<p>
+     * Validator may also choose to indicate denial by throwing a {@link JsonMappingException}
+     * (such as {@link com.fasterxml.jackson.databind.exc.InvalidTypeIdException})
+     *
+     * @param config Configuration for resolution: typically either {@code DeserializationConfig}
+     *   or {@code SerializationConfig}
+     * @param baseType Nominal base type the array type was resolved for
+     * @param arrayType Array type named by the type id, already approved as subtype
+     *
+     * @return {@code true} if the approval of the array type covers its element type
+     *
+     * @since 2.18.12
+     */
+    public boolean isArrayTypeAllowedExplicitly(MapperConfig<?> config, JavaType baseType,
+            JavaType arrayType) throws JsonMappingException {
+        return false;
+    }
 
     /**
      * Shared base class with partial implementation (with all validation calls returning

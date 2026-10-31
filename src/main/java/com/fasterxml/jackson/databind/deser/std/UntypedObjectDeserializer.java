@@ -587,13 +587,13 @@ public class UntypedObjectDeserializer
 
     // @since 2.12 (wrt [databind#2733]
     protected Object _mapObjectWithDups(JsonParser p, DeserializationContext ctxt,
-            final Map<String, Object> result, String key,
+            final Map<String, Object> result, String initialKey,
             Object oldValue, Object newValue, String nextKey) throws IOException
     {
         final boolean squashDups = ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES);
 
         if (squashDups) {
-            _squashDups(result, key, oldValue, newValue);
+            _squashDups(result, initialKey, oldValue, newValue);
         }
 
         while (nextKey != null) {
@@ -601,7 +601,7 @@ public class UntypedObjectDeserializer
             newValue = deserialize(p, ctxt);
             oldValue = result.put(nextKey, newValue);
             if ((oldValue != null) && squashDups) {
-                _squashDups(result, key, oldValue, newValue);
+                _squashDups(result, nextKey, oldValue, newValue);
             }
             nextKey = _customDeserializeNullableKey(p.nextFieldName(), ctxt);
         }
@@ -619,7 +619,7 @@ public class UntypedObjectDeserializer
      */
     private final String _customDeserializeKey(String key, DeserializationContext ctxt) throws IOException {
         if (_customKeyDeserializer != null) {
-            return (String) _customKeyDeserializer.deserializeKey(key, ctxt);
+            return _verifyStringKey(_customKeyDeserializer.deserializeKey(key, ctxt), ctxt);
         }
         return key;
     }
@@ -635,10 +635,24 @@ public class UntypedObjectDeserializer
     private final String _customDeserializeNullableKey(String key, DeserializationContext ctxt) throws IOException {
         if (_customKeyDeserializer != null) {
             if (key != null) {
-                return (String) _customKeyDeserializer.deserializeKey(key, ctxt);
+                return _verifyStringKey(_customKeyDeserializer.deserializeKey(key, ctxt), ctxt);
             }
         }
         return key;
+    }
+
+    /**
+     * Helper function to verify that key returned by custom key deserializer is
+     * a {@link String} (or {@code null}), as required for "untyped" {@link Map}s.
+     */
+    private final String _verifyStringKey(Object key, DeserializationContext ctxt) throws IOException {
+        if ((key == null) || (key instanceof String)) {
+            return (String) key;
+        }
+        return ctxt.reportBadDefinition(ctxt.constructType(Object.class), String.format(
+                "Custom `KeyDeserializer` (%s) for `java.lang.Object` returned key of type %s: "
+                + "must return `java.lang.String` for \"untyped\" `Map`s",
+                ClassUtil.classNameOf(_customKeyDeserializer), ClassUtil.classNameOf(key)));
     }
 
     @SuppressWarnings("unchecked")

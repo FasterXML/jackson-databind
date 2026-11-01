@@ -165,6 +165,21 @@ class UnexpectedToken6357Test extends DatabindTestUtil
         _assertRejected(MAPPER.readerForUpdating(new MutableSample()), _numberFirst());
     }
 
+    // Not a problem with token inside Object, so has its own message
+    @Test
+    void endOfInputWithinObjectReported() throws Exception {
+        TokenBuffer buffer = TokenBuffer.forGeneration();
+        buffer.writeStartObject();
+        buffer.writeName("name");
+        buffer.writeString("Alice");
+
+        try (JsonParser p = buffer.asParser()) {
+            MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                    () -> MAPPER.readerFor(Sample.class).readValue(p));
+            verifyException(e, "Unexpected end-of-input");
+        }
+    }
+
     // {"name":"Alice", 123, "category":"example"}: second creator property only
     // follows the bare number, so the creator loop is still running when it is reached
     private TokenBuffer _numberAfterName() {
@@ -193,8 +208,11 @@ class UnexpectedToken6357Test extends DatabindTestUtil
     // Must fail at the bare number
     private void _assertRejected(ObjectReader reader, TokenBuffer input) throws Exception {
         try (JsonParser p = input.asParser()) {
-            assertThrows(MismatchedInputException.class, () -> reader.readValue(p));
+            MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                    () -> reader.readValue(p));
             assertEquals(JsonToken.VALUE_NUMBER_INT, p.currentToken());
+            verifyException(e, "Unexpected token (`JsonToken.VALUE_NUMBER_INT`) within Object value");
+            verifyException(e, "expected property name or `JsonToken.END_OBJECT`");
         }
     }
 }

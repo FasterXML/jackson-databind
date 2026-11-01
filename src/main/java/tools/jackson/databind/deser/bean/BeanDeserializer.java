@@ -1613,7 +1613,7 @@ public class BeanDeserializer
     protected Object _handleUnexpectedWithin(JsonParser p,
             DeserializationContext ctxt, Object bean) throws JacksonException
     {
-        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        return _reportUnexpectedWithinObject(p, ctxt);
     }
 
     static class BeanReferring extends Referring

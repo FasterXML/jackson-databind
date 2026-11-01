@@ -2133,6 +2133,21 @@ ClassUtil.getTypeDescription(ct));
         return subDeser;
     }
 
+    // [databind#6357]: content is an Object, so generic "cannot deserialize from
+    // Number value" style message would be misleading. End-of-input has its own message.
+    final Object _reportUnexpectedWithinObject(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        final JavaType type = getValueType(ctxt);
+        final JsonToken t = p.currentToken();
+        if (t == null) {
+            return ctxt.handleUnexpectedToken(type, p);
+        }
+        return ctxt.handleUnexpectedToken(type, t, p,
+                "Unexpected token (`JsonToken.%s`) within Object value of type %s: expected property name or `JsonToken.END_OBJECT`",
+                t, ClassUtil.getTypeDescription(type));
+    }
+
     /**
      * Helper method for handling unexpected views.
      * <p>

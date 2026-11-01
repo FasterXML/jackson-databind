@@ -1047,6 +1047,6 @@ public class BuilderBasedDeserializer
     protected Object _handleUnexpectedWithin(JsonParser p,
             DeserializationContext ctxt, Object beanOrBuilder) throws JacksonException
     {
-        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        return _reportUnexpectedWithinObject(p, ctxt);
     }
 }

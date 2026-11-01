@@ -144,18 +144,23 @@ public class BeanPropertyMap
     /**
      * Fluent copy method that creates a new instance that is a copy
      * of this instance except for one additional property that is
-     * passed as the argument.
+     * passed as the argument: if a property with the same name exists,
+     * it is replaced (at the same position), otherwise new property is appended.
      * Note that method does not modify this instance but constructs
      * and returns a new one.
      */
     public BeanPropertyMap withProperty(SettableBeanProperty newProp)
     {
-        // First: maybe just replace in place?
+        // First: maybe just replace existing entry?
+        // [databind#6352]: must not modify `this` (may be shared by
+        // non-contextual deserializer), so replace in a copy
         final String key = newProp.getName();
         for (int i = 0, end = _propsInOrder.length; i < end; ++i) {
             if (_propsInOrder[i].getName().equals(key)) {
-                _propsInOrder[i] = newProp;
-                return this;
+                ArrayList<SettableBeanProperty> newProps = new ArrayList<>(Arrays.asList(_propsInOrder));
+                newProps.set(i, newProp);
+                return new BeanPropertyMap(newProps, _aliasDefs,
+                        _locale, _caseInsensitive, false);
             }
         }
 

@@ -815,9 +815,18 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
    `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
   [3.2.5]
+ * Reported, fixed #6339: Enum aliases from an appended `AnnotationIntrospector` are
+   discarded: `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
+  [3.2.5]
+ * Reported, fixed #6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)`
+   for creator properties: existing value is overwritten with `null`
+  [3.2.5]
  * Reported #6324: `ArrayIndexOutOfBoundsException` in `BeanPropertyMap.withoutProperties()`
    with property-level `@JsonIdentityInfo` + `@JsonIgnoreProperties` when the value
    type has `@JsonAlias`
+  [3.3.0]
+ * Reported #6325: `NullPointerException` when a `@JsonCreator` returns `null` and
+   the input has an Object Id forward reference
   [3.3.0]
 
 @essiembre
@@ -849,3 +858,10 @@ Anna Breeva (@ab310013)
    with property-level `@JsonIdentityInfo` + `@JsonIgnoreProperties` when the value
    type has `@JsonAlias`
   [3.3.0]
+ * Fixed #6325: `NullPointerException` when a `@JsonCreator` returns `null` and
+   the input has an Object Id forward reference
+  [3.3.0]
+
+@bugada
+ * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+  [3.2.5]

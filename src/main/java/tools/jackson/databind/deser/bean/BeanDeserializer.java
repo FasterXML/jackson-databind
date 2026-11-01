@@ -1572,6 +1572,12 @@ public class BeanDeserializer
 
         public void setBean(Object bean) {
             _bean = bean;
+            // [databind#6325]: `null` bean means creator returned `null` ([databind#4938]):
+            // there is no bean to apply the reference to, so discard instead of failing
+            if (bean == null) {
+                _resolvedValue = null;
+                return;
+            }
             // [databind#3030]: Apply deferred forward reference resolution
             if (_resolvedValue != null) {
                 _prop.set(_context, _bean, _resolvedValue);

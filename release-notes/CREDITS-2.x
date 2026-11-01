@@ -2142,6 +2142,12 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)`
    to an object whose id is `null`
   [2.23.0]
+ * Reported, fixed #6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)`
+   for creator properties: existing value is overwritten with `null`
+  [2.23.0]
+ * Reported, fixed #6339: Enum aliases from an appended `AnnotationIntrospector` are
+   discarded: `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
+  [2.23.0]
 
 DongNyoung Lee (@Dongnyoung)
  * Contributed fix for #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected
@@ -2152,3 +2158,7 @@ Anna Breeva (@ab310013)
  * Reported #6315: Map key deserializers should apply same type checks as bean
    deserializers
   (2.18.13)
+
+@bugada
+ * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+  [2.23.0]

@@ -295,11 +295,10 @@ public class BeanDeserializer
         while (ix >= 0) {
             p.nextToken();
             SettableBeanProperty prop = _propsByIndex[ix];
-            final String currentName = p.currentName();
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                throw wrapAndThrow(e, bean, currentName, ctxt);
+                throw wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             ix = p.nextNameMatch(_propNameMatcher);
         }
@@ -469,11 +468,10 @@ public class BeanDeserializer
         int ix = p.nextNameMatchAndToken(_propNameMatcher);
         while (ix >= 0) {
             SettableBeanProperty prop = _propsByIndex[ix];
-            String currentName = p.currentName();
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, currentName, ctxt);
+                wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             // Elem #2
             ix = p.nextNameMatchAndToken(_propNameMatcher);
@@ -481,11 +479,10 @@ public class BeanDeserializer
                 break;
             }
             prop = _propsByIndex[ix];
-            currentName = p.currentName();
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, currentName, ctxt);
+                wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             // Elem #3
             ix = p.nextNameMatchAndToken(_propNameMatcher);
@@ -493,11 +490,10 @@ public class BeanDeserializer
                 break;
             }
             prop = _propsByIndex[ix];
-            currentName = p.currentName();
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, currentName, ctxt);
+                wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             // Elem #4
             ix = p.nextNameMatchAndToken(_propNameMatcher);
@@ -505,11 +501,10 @@ public class BeanDeserializer
                 break;
             }
             prop = _propsByIndex[ix];
-            currentName = p.currentName();
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, currentName, ctxt);
+                wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             ix = p.nextNameMatchAndToken(_propNameMatcher);
         }
@@ -542,11 +537,10 @@ public class BeanDeserializer
         while (ix >= 0) { // minor unrolling here (by-2), less likely on critical path
             SettableBeanProperty prop = _propsByIndex[ix];
             p.nextToken();
-            String currentName = p.currentName();
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                throw wrapAndThrow(e, bean, currentName, ctxt);
+                throw wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
 
             // Elem #2
@@ -556,11 +550,10 @@ public class BeanDeserializer
             }
             prop = _propsByIndex[ix];
             p.nextToken();
-            currentName = p.currentName();
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                throw wrapAndThrow(e, bean, currentName, ctxt);
+                throw wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             ix = p.nextNameMatch(_propNameMatcher);
         }
@@ -583,11 +576,10 @@ public class BeanDeserializer
         while (true) {
             int ix = p.nextNameMatchAndToken(_propNameMatcher);
             if (ix >= 0) { // normal case
-                final String currentName = p.currentName();
                 try {
                     _propsByIndex[ix].deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, currentName, ctxt);
+                    wrapAndThrow(e, bean, _propsByIndex[ix].getName(), ctxt);
                 }
                 continue;
             }
@@ -681,11 +673,10 @@ public class BeanDeserializer
         for (int ix = p.currentNameMatch(_propNameMatcher); ; ix = p.nextNameMatch(_propNameMatcher)) {
             if (ix >= 0) { // normal case
                 p.nextToken();
-                final String currentName = p.currentName();
                 try {
                     _propsByIndex[ix].deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, currentName, ctxt);
+                    throw wrapAndThrow(e, bean, _propsByIndex[ix].getName(), ctxt);
                 }
                 continue;
             }
@@ -935,11 +926,10 @@ public class BeanDeserializer
             DeserializationContext ctxt, SettableBeanProperty prop)
         throws DatabindException
     {
-        final String currentName = p.currentName();
         try {
             return prop.deserialize(p, ctxt);
         } catch (Exception e) {
-            throw wrapAndThrow(e, _beanType.getRawClass(), currentName, ctxt);
+            throw wrapAndThrow(e, _beanType.getRawClass(), prop.getName(), ctxt);
         }
     }
 
@@ -1042,11 +1032,10 @@ public class BeanDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
-                final String currentName = p.currentName();
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, currentName, ctxt);
+                    wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }
@@ -1103,11 +1092,10 @@ public class BeanDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
-                final String currentName = p.currentName();
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, currentName, ctxt);
+                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }
@@ -1178,11 +1166,10 @@ public class BeanDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
-                final String currentName = p.currentName();
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, currentName, ctxt);
+                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }
@@ -1400,11 +1387,10 @@ public class BeanDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
-                final String currentName = p.currentName();
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, currentName, ctxt);
+                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }

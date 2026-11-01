@@ -349,12 +349,11 @@ public class BuilderBasedDeserializer
             int ix = p.nextNameMatch(_propertyNameMatcher);
             if (ix >= 0) {
                 p.nextToken();
-                // Report name as found in input (may be alias), same as `deserializeFromObject()`
-                final String currentName = p.currentName();
+                SettableBeanProperty prop = _propertiesByIndex[ix];
                 try {
-                    builder = _propertiesByIndex[ix].deserializeSetAndReturn(p, ctxt, builder);
+                    builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, builder, currentName, ctxt);
+                    throw wrapAndThrow(e, builder, prop.getName(), ctxt);
                 }
                 continue;
             }
@@ -594,11 +593,10 @@ public class BuilderBasedDeserializer
             if (ix >= 0) {
                 p.nextToken();
                 SettableBeanProperty prop = _propertiesByIndex[ix];
-                final String currentName = p.currentName();
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, builder, currentName, ctxt);
+                    throw wrapAndThrow(e, builder, prop.getName(), ctxt);
                 }
                 continue;
             }
@@ -672,11 +670,10 @@ public class BuilderBasedDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
-                final String currentName = p.currentName();
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, currentName, ctxt);
+                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }
@@ -731,11 +728,10 @@ public class BuilderBasedDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
-                final String currentName = p.currentName();
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, currentName, ctxt);
+                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }
@@ -791,11 +787,10 @@ public class BuilderBasedDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
-                final String currentName = p.currentName();
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    wrapAndThrow(e, builder, currentName, ctxt);
+                    wrapAndThrow(e, builder, prop.getName(), ctxt);
                 }
                 continue;
             }
@@ -964,11 +959,10 @@ public class BuilderBasedDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
-                final String currentName = p.currentName();
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, currentName, ctxt);
+                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }

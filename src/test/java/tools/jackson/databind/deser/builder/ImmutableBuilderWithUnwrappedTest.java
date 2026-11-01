@@ -126,7 +126,9 @@ class ImmutableBuilderWithUnwrappedTest extends DatabindTestUtil
 
     @Test
     void defaultBuilderRetainsBothUnwrappedValues() throws Exception {
-        Value result = MAPPER.readValue(a2q("{'id':7,'left.x':1,'right.x':2}"), Value.class);
+        Value result = MAPPER.readValue("""
+                {"id":7,"left.x":1,"right.x":2}
+                """, Value.class);
 
         assertValues(result);
     }
@@ -134,7 +136,9 @@ class ImmutableBuilderWithUnwrappedTest extends DatabindTestUtil
     @Test
     void creatorBuilderRetainsBothUnwrappedValues() throws Exception {
         CreatorValue result = MAPPER.readValue(
-                a2q("{'id':7,'left.x':1,'right.x':2}"), CreatorValue.class);
+                """
+                {"id":7,"left.x":1,"right.x":2}
+                """, CreatorValue.class);
 
         assertValues(result);
     }
@@ -142,7 +146,9 @@ class ImmutableBuilderWithUnwrappedTest extends DatabindTestUtil
     @Test
     void creatorBuilderRetainsBufferedUnwrappedValues() throws Exception {
         CreatorValue result = MAPPER.readValue(
-                a2q("{'left.x':1,'right.x':2,'id':7}"), CreatorValue.class);
+                """
+                {"left.x":1,"right.x":2,"id":7}
+                """, CreatorValue.class);
 
         assertValues(result);
     }
@@ -150,7 +156,9 @@ class ImmutableBuilderWithUnwrappedTest extends DatabindTestUtil
     @Test
     void viewFilteringIsPreserved() throws Exception {
         Value result = MAPPER.readerWithView(PublicView.class).forType(Value.class)
-                .readValue(a2q("{'id':7,'left.x':1,'right.x':2}"));
+                .readValue("""
+                {"id":7,"left.x":1,"right.x":2}
+                """);
 
         assertEquals(7, result.id);
         assertNotNull(result.left);
@@ -160,13 +168,17 @@ class ImmutableBuilderWithUnwrappedTest extends DatabindTestUtil
 
     @Test
     void absentUnwrappedValuesStayNull() throws Exception {
-        Value result = MAPPER.readValue(a2q("{'id':7}"), Value.class);
+        Value result = MAPPER.readValue("""
+                {"id":7}
+                """, Value.class);
 
         assertEquals(7, result.id);
         assertNull(result.left);
         assertNull(result.right);
 
-        CreatorValue creatorResult = MAPPER.readValue(a2q("{'id':7}"), CreatorValue.class);
+        CreatorValue creatorResult = MAPPER.readValue("""
+                {"id":7}
+                """, CreatorValue.class);
         assertEquals(7, creatorResult.id);
         assertNull(creatorResult.left);
         assertNull(creatorResult.right);
@@ -174,7 +186,9 @@ class ImmutableBuilderWithUnwrappedTest extends DatabindTestUtil
 
     @Test
     void mutableBeanSetterReturnValueRemainsIgnored() throws Exception {
-        MutableValue result = MAPPER.readValue(a2q("{'x':1}"), MutableValue.class);
+        MutableValue result = MAPPER.readValue("""
+                {"x":1}
+                """, MutableValue.class);
 
         assertNotNull(result.point);
         assertEquals(1, result.point.x);

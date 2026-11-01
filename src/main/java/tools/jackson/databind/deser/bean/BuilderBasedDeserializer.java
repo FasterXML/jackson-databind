@@ -547,9 +547,10 @@ public class BuilderBasedDeserializer
             unknown.copyCurrentStructure(p);
         }
 
-        // Issue #6357: Do not construct a builder after an unexpected token.
+        // [databind#6357]: loop also ends on unexpected token; builder only to be
+        // constructed after actual END_OBJECT
         if (t != JsonToken.END_OBJECT) {
-            return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+            return _handleUnexpectedWithin(p, ctxt, null);
         }
 
         // We hit END_OBJECT, so:
@@ -922,9 +923,10 @@ public class BuilderBasedDeserializer
             }
             buffer.bufferAnyProperty(_anySetter, propName, p, ctxt);
         }
-        // Issue #6357: Only finalize unwrapped builder properties at the actual end of the object.
+        // [databind#6357]: loop also ends on unexpected token; must not finalize
+        // buffered properties
         if (t != JsonToken.END_OBJECT) {
-            return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+            return _handleUnexpectedWithin(p, ctxt, null);
         }
 
         tokens.writeEndObject();
@@ -1036,7 +1038,9 @@ public class BuilderBasedDeserializer
 
     /**
      * Method called if an unexpected token (other then <code>FIELD_NAME</code>)
-     * is found after POJO has been instantiated and partially bound.
+     * is found after POJO has been instantiated and partially bound; or,
+     * with Creator-based construction, before instantiation
+     * (in which case {@code beanOrBuilder} is {@code null}).
      *
      * @since 3.0
      */

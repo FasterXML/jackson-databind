@@ -35,14 +35,14 @@ jobs:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
     - name: Set up JDK (without deployment credentials)
       if: ${{ github.event_name == 'pull_request' || github.repository != 'FasterXML/jackson-databind' }}
-      uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+      uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
       with:
         distribution: 'temurin'
         java-version: ${{ matrix.java_version }}
         cache: 'maven'
     - name: Set up JDK with deployment credentials
       if: ${{ github.event_name != 'pull_request' && github.repository == 'FasterXML/jackson-databind' }}
-      uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+      uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
       with:
         distribution: 'temurin'
         java-version: ${{ matrix.java_version }}
@@ -78,14 +78,14 @@ jobs:
         flags: unittests
     - name: Upload coverage report as artifact
       if: ${{ matrix.release_build && github.event_name != 'pull_request' && github.repository == 'FasterXML/jackson-databind' }}
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: jacoco-report
         path: target/site/jacoco/jacoco.csv
         retention-days: 30
     - name: Download base branch coverage
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
-      uses: dawidd6/action-download-artifact@27e4ae67c24b67d3b54bc6d6a45475be1e28031b # v26
+      uses: dawidd6/action-download-artifact@eab87c9830c39eff17e5a6eadb20bfb4bc880477 # v27
       continue-on-error: true
       with:
         workflow: main.yml
@@ -181,7 +181,7 @@ jobs:
         echo "$COMMENT_BODY" > pr-comment/comment-body.txt
     - name: Upload PR comment
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: pr-comment
         path: pr-comment/

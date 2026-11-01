@@ -65,7 +65,7 @@ public class SimpleFilterProvider
             _filtersById = new HashMap<>();
         } else {
             _filtersById = new HashMap<>(f.size());
-            f.forEach((k,v) -> _filtersById.put(k, v.snapshot()));
+            f.forEach((k,v) -> _filtersById.put(k, Snapshottable.takeSnapshot(v)));
         }
     }
 

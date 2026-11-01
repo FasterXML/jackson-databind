@@ -164,7 +164,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #6357: `BeanDeserializer` and `BuilderBasedDeserializer` silently stop on
   unexpected token within Object
- (fix by @cowtowncoder, w/ Claude code)
+ (fix by @OKAN-SOFTWARE, @cowtowncoder w/ Claude code)
 #6364: Report property name as found in input (alias or different case with
   `ACCEPT_CASE_INSENSITIVE_PROPERTIES`), not canonical name, in deserialization
   error paths

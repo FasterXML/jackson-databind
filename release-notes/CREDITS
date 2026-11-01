@@ -873,3 +873,8 @@ Kayokoi (@wozhenbang2004)
  * Fixed #6365: `JsonMapper.builder().filterProvider(...).build()` throws
    `NullPointerException` when a `SimpleFilterProvider` has a `null` filter
   [3.3.0]
+
+Okan Tiktas (@OKAN-SOFTWARE)
+ * Fixed #6357: `BeanDeserializer` and `BuilderBasedDeserializer` silently stop on
+   unexpected token within Object
+  [3.3.0]

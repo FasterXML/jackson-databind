@@ -5,12 +5,12 @@ import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Currency;
-import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.databind.*;
+import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.exc.ValueInstantiationException;
@@ -212,31 +212,53 @@ public class JDKStringLikeTypeDeserTest
         }
     }
 
+    // [databind#6305]
     @Test
-    public void testPattern() throws Exception
+    public void inetSocketAddressBracketedWithInvalidSuffix() throws Exception
     {
-        Pattern exp = Pattern.compile("abc:\\s?(\\d+)");
-        // Ok: easiest way is to just serialize first; problem
-        // is the backslash
-        String json = MAPPER.writeValueAsString(exp);
-        Pattern result = MAPPER.readValue(json, Pattern.class);
-        assertEquals(exp.pattern(), result.pattern());
+        // bracketed IPv6 without port is still fine
+        InetSocketAddress ip6 = MAPPER.readValue(q("[2001:db8::1]"), InetSocketAddress.class);
+        assertEquals("[2001:db8::1]", ip6.getHostName());
+        assertEquals(0, ip6.getPort());
 
-        // [databind#3290]: actually need to retain at least trailing space
-        // (and since we do that, just retain all...)
-        exp = Pattern.compile("^WIN\\ ");
-        json = MAPPER.writeValueAsString(exp);
-        result = MAPPER.readValue(json, Pattern.class);
-        assertEquals(exp.pattern(), result.pattern());
+        // but text between the closing bracket and the port must not be dropped
+        for (String value : new String[] { "[2001:db8::1]junk:443", "[2001:db8::1]junk",
+                "[2001:db8::1] 443",
+                // also if the suffix itself ends in a closing bracket
+                "[2001:db8::1]junk]" }) {
+            try {
+                InetSocketAddress result = MAPPER.readValue(q(value), InetSocketAddress.class);
+                fail("Should not pass for "+value+", got: "+result);
+            } catch (InvalidFormatException e) {
+                verifyException(e, "must be followed by nothing or ':' and port number");
+            }
+        }
 
-        // [databind#3598]: should also handle invalid pattern serialization
-        // somewhat gracefully
+        // and port number must not be followed by anything either
         try {
-            MAPPER.readValue(q("[abc"), Pattern.class);
-            fail("Should not pass");
+            InetSocketAddress result = MAPPER.readValue(q("[2001:db8::1]:443]"), InetSocketAddress.class);
+            fail("Should not pass, got: "+result);
         } catch (InvalidFormatException e) {
-            verifyException(e, "Cannot deserialize value of type `java.util.regex.Pattern` from String \"[abc\"");
-            verifyException(e, "Invalid pattern, problem");
+            verifyException(e, "not a valid textual representation");
+        }
+    }
+
+    // [databind#6305]
+    @Test
+    public void inetSocketAddressBracketedInvalidWithProblemHandler() throws Exception
+    {
+        final InetSocketAddress fallback = InetSocketAddress.createUnresolved("localhost", 80);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new DeserializationProblemHandler() {
+                    @Override
+                    public Object handleWeirdStringValue(DeserializationContext ctxt,
+                            Class<?> targetType, String valueToConvert, String failureMsg) {
+                        return fallback;
+                    }
+                })
+                .build();
+        for (String value : new String[] { "[2001:db8::1]junk:443", "[2001:db8::1" }) {
+            assertSame(fallback, mapper.readValue(q(value), InetSocketAddress.class));
         }
     }
 

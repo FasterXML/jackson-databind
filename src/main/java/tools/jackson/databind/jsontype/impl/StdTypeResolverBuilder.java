@@ -397,9 +397,10 @@ public class StdTypeResolverBuilder
             if (validity == PolymorphicTypeValidator.Validity.DENIED) {
                 return reportInvalidBaseType(ctxt, baseType, ptv);
             }
-            // If there's indication that any and all subtypes are fine, replace validator itself:
+            // If there's indication that any and all subtypes are fine, replace validator itself
+            // (but retain it for validating type parameters of generic type ids):
             if (validity == PolymorphicTypeValidator.Validity.ALLOWED) {
-                return LaissezFaireSubTypeValidator.instance;
+                return new ApprovedBaseTypeValidator(ptv);
             }
             // otherwise just return validator, is to be called for each distinct type
         }

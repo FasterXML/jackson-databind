@@ -96,7 +96,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6216: Add `TreeTraversingParser` constructors that take explicit
   `StreamReadConstraints` (for tree-backed format backends)
 #6219: Vanilla `BeanDeserializer` fast path never used with 3.x defaults
-  (`MapperFeature.DEFAULT_VIEW_INCLUSION` disabled)
+  (`MapperFeature.DEFAULT_VIEW_INCLUSION` disabled); also: error paths for failing
+  property values now use the property name as found in input (alias), not the canonical name
  (reported by @cowtowncoder)
  (fix by @kalayciburak)
 #6220: `@JsonDeserialize(as/keyAs/contentAs)` lost when property's type deserializer

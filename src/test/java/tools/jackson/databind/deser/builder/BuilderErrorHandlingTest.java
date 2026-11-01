@@ -2,10 +2,12 @@ package tools.jackson.databind.deser.builder;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -89,6 +91,32 @@ public class BuilderErrorHandlingTest extends DatabindTestUtil
                     throw new ValidationException("Missing second");
                 }
                 return new ValidatingValue(first, second);
+            }
+        }
+    }
+
+    // [databind#6219]: error path should use name from input (alias), as it
+    // did before vanilla processing was used by default
+    @JsonDeserialize(builder = AliasedValue.Builder.class)
+    static class AliasedValue
+    {
+        final int value;
+
+        AliasedValue(int value) {
+            this.value = value;
+        }
+
+        static class Builder {
+            int value;
+
+            @JsonAlias("alt")
+            public Builder withValue(int v) {
+                value = v;
+                return this;
+            }
+
+            public AliasedValue build() {
+                return new AliasedValue(value);
             }
         }
     }
@@ -200,5 +228,17 @@ public class BuilderErrorHandlingTest extends DatabindTestUtil
         } catch (ValidatingValue.ValidationException e) {
             assertEquals("Missing second", e.getMessage());
         }
+    }
+
+    // [databind#6219]
+    @Test
+    void errorPathUsesAliasAsInInput() throws Exception
+    {
+        final String json = """
+                {"alt":"notAnInt"}
+                """;
+        InvalidFormatException e = assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readValue(json, AliasedValue.class));
+        assertEquals("alt", e.getPath().get(0).getPropertyName());
     }
 }

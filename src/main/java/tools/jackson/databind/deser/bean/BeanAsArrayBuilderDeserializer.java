@@ -227,7 +227,7 @@ public class BeanAsArrayBuilderDeserializer
             if (prop != null) { // normal case
                 if (activeView == null || prop.visibleInView(activeView)) {
                     try {
-                        prop.deserializeSetAndReturn(p, ctxt, builder);
+                        builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                     } catch (Exception e) {
                         throw wrapAndThrow(e, builder, prop.getName(), ctxt);
                     }

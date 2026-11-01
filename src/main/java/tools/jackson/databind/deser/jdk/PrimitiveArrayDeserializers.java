@@ -248,8 +248,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         @Override
         protected PrimitiveArrayDeserializers<?> withResolved(NullValueProvider nuller,
                 Boolean unwrapSingle) {
-            // 11-Dec-2015, tatu: Not sure how re-wrapping would work; omit
-            return this;
+            return new CharDeser(this, nuller, unwrapSingle);
         }
 
         @Override
@@ -276,20 +275,23 @@ public abstract class PrimitiveArrayDeserializers<T>
                 StringBuilder sb = new StringBuilder(64);
                 while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                     String str;
-                    // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
-                    if ((t == JsonToken.VALUE_STRING) && (p.getString() != null)) {
+                    if (t == JsonToken.VALUE_STRING) {
                         str = p.getString();
                     } else if (t == JsonToken.VALUE_NULL) {
                         if (_nuller != null) {
                             _nuller.getNullValue(ctxt);
                             continue;
                         }
-                        char value = (char) _verifyNullForPrimitive(ctxt, p, '\0');
-                        sb.append(value);
-                        continue;
+                        str = null;
                     } else {
-                        CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
-                        str = cs.toString();
+                        // Handler may only return `Character` (or `null`) for `Character.TYPE`
+                        Object ob = ctxt.handleUnexpectedToken(ctxt.constructType(Character.TYPE), p);
+                        str = (ob == null) ? null : ob.toString();
+                    }
+                    // JSON null, or `null` substituted by a problem handler
+                    if (str == null) {
+                        _verifyNullForPrimitive(ctxt, t);
+                        str = "\0";
                     }
                     if (str.length() != 1) {
                         ctxt.reportInputMismatch(this,
@@ -521,22 +523,12 @@ public abstract class PrimitiveArrayDeserializers<T>
         protected byte[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws JacksonException
         {
-            byte value;
-            JsonToken t = p.currentToken();
-            if (t == JsonToken.VALUE_NUMBER_INT) {
-                value = p.getByteValue(); // note: may throw due to overflow
-            } else {
-                // should we accept nulls as null for byte[], or { 0 } ?
-                if (t == JsonToken.VALUE_NULL) {
-                    if (_nuller != null) {
-                        _nuller.getNullValue(ctxt);
-                        return (byte[]) getEmptyValue(ctxt);
-                    }
-                    value = (byte) _verifyNullForPrimitive(ctxt, p, (byte) 0);
-                }
-                Number n = (Number) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
-                value = n.byteValue();
+            if (_nuller != null && p.hasToken(JsonToken.VALUE_NULL)) {
+                _nuller.getNullValue(ctxt);
+                return (byte[]) getEmptyValue(ctxt);
             }
+            // Handles `null` (including one from a problem handler) and coercions
+            final byte value = _parseBytePrimitive(p, ctxt);
             return new byte[] { value };
         }
 

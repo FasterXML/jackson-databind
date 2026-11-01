@@ -354,7 +354,7 @@ public class BuilderBasedDeserializer
                 try {
                     builder = _propertiesByIndex[ix].deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, builder, currentName, ctxt);
+                    throw wrapAndThrow(e, builder, _failedPropertyName(currentName, _propertiesByIndex[ix]), ctxt);
                 }
                 continue;
             }
@@ -413,7 +413,7 @@ public class BuilderBasedDeserializer
                 try {
                     bean = _propertiesByIndex[ix].deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, currentName, ctxt);
+                    throw wrapAndThrow(e, bean, _failedPropertyName(currentName, _propertiesByIndex[ix]), ctxt);
                 }
                 continue;
             }
@@ -598,7 +598,7 @@ public class BuilderBasedDeserializer
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, builder, currentName, ctxt);
+                    throw wrapAndThrow(e, builder, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -676,7 +676,7 @@ public class BuilderBasedDeserializer
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, currentName, ctxt);
+                    throw wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -735,7 +735,7 @@ public class BuilderBasedDeserializer
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, currentName, ctxt);
+                    throw wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -795,7 +795,7 @@ public class BuilderBasedDeserializer
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    wrapAndThrow(e, builder, currentName, ctxt);
+                    wrapAndThrow(e, builder, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -968,7 +968,7 @@ public class BuilderBasedDeserializer
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, currentName, ctxt);
+                    throw wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }

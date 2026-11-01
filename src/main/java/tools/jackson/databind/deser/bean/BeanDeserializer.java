@@ -595,7 +595,8 @@ public class BeanDeserializer
                 return bean;
             }
             if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
-                return bean;
+                // [databind#6357]: report same as other loops, do not quietly stop
+                return _handleUnexpectedWithin(p, ctxt, bean);
             }
             p.nextToken();
             handleUnknownVanilla(p, ctxt, bean, p.currentName());

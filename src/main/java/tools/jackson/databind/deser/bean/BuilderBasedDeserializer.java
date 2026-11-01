@@ -266,7 +266,8 @@ public class BuilderBasedDeserializer
         // common case first:
         if (p.isExpectedStartObjectToken()) {
             if (_useVanillaProcessing(ctxt)) {
-                return finishBuild(ctxt, _vanillaDeserialize(p, ctxt));
+                return finishBuild(ctxt, _vanillaDeserialize(p, ctxt,
+                        p.nextNameMatch(_propertyNameMatcher)));
             }
             p.nextToken();
             if (_objectIdReader != null) {
@@ -293,6 +294,10 @@ public class BuilderBasedDeserializer
             return _deserializeFromArray(p, ctxt);
         case JsonTokenId.ID_PROPERTY_NAME:
         case JsonTokenId.ID_END_OBJECT:
+            if (_useVanillaProcessing(ctxt)) {
+                return finishBuild(ctxt, _vanillaDeserialize(p, ctxt,
+                        p.currentNameMatch(_propertyNameMatcher)));
+            }
             if (_objectIdReader != null) {
                 return finishBuild(ctxt, deserializeWithObjectId(p, ctxt));
             }
@@ -340,13 +345,15 @@ public class BuilderBasedDeserializer
     /**
      * Streamlined version that is only used when no "special"
      * features are enabled.
+     *
+     * @param firstIx Match result for the first property name (or end-of-object)
      */
-    private final Object _vanillaDeserialize(JsonParser p, DeserializationContext ctxt)
+    private final Object _vanillaDeserialize(JsonParser p, DeserializationContext ctxt,
+            int firstIx)
         throws JacksonException
     {
         Object builder = _valueInstantiator.createUsingDefault(ctxt);
-        while (true) {
-            int ix = p.nextNameMatch(_propertyNameMatcher);
+        for (int ix = firstIx; ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) {
                 p.nextToken();
                 // Report name as found in input (may be alias), same as `deserializeFromObject()`

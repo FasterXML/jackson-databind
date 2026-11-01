@@ -27,7 +27,9 @@ class RawMapEntryPOJO6366Test extends DatabindTestUtil
     @Test
     void rawEntryUsesUntypedKeyAndValue() throws Exception {
         Map.Entry<?, ?> result = MAPPER.readValue(
-                a2q("{'key':'answer','value':42}"), Map.Entry.class);
+                """
+                {"key":"answer","value":42}
+                """, Map.Entry.class);
 
         assertEquals("answer", result.getKey());
         assertEquals(42, result.getValue());
@@ -36,7 +38,9 @@ class RawMapEntryPOJO6366Test extends DatabindTestUtil
     @Test
     void rawEntryRetainsStructuredValues() throws Exception {
         Map.Entry<?, ?> result = MAPPER.readValue(
-                a2q("{'key':[1,2],'value':{'nested':true}}"), Map.Entry.class);
+                """
+                {"key":[1,2],"value":{"nested":true}}
+                """, Map.Entry.class);
 
         assertEquals(List.of(1, 2), result.getKey());
         assertEquals(Map.of("nested", true), result.getValue());
@@ -46,7 +50,9 @@ class RawMapEntryPOJO6366Test extends DatabindTestUtil
     void rawEntryCanUsePOJOMixIn() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder().addMixIn(Map.Entry.class, AsPOJO.class).build();
         Map.Entry<?, ?> result = mapper.readValue(
-                a2q("{'key':'answer','value':42}"), Map.Entry.class);
+                """
+                {"key":"answer","value":42}
+                """, Map.Entry.class);
 
         assertEquals("answer", result.getKey());
         assertEquals(42, result.getValue());
@@ -55,7 +61,9 @@ class RawMapEntryPOJO6366Test extends DatabindTestUtil
     @Test
     void typedEntryPreservesValueType() throws Exception {
         Map.Entry<String, Integer> result = MAPPER.readValue(
-                a2q("{'key':'answer','value':'42'}"), new TypeReference<>() { });
+                """
+                {"key":"answer","value":"42"}
+                """, new TypeReference<>() { });
 
         assertEquals("answer", result.getKey());
         assertEquals(Integer.valueOf(42), result.getValue());
@@ -64,6 +72,8 @@ class RawMapEntryPOJO6366Test extends DatabindTestUtil
     @Test
     void rawEntryInNaturalShapeStillReportsMissingTypeInformation() {
         assertThrows(InvalidDefinitionException.class,
-                () -> newJsonMapper().readValue(a2q("{'answer':42}"), Map.Entry.class));
+                () -> newJsonMapper().readValue("""
+                {"answer":42}
+                """, Map.Entry.class));
     }
 }

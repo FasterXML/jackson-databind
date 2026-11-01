@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import tools.jackson.core.JacksonException;
@@ -74,6 +75,18 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
     // active forces non-vanilla (but otherwise standard) processing
     @JsonView(RefView.class)
     static abstract class RefViewMixIn {
+    }
+
+    // Mix-ins that add an injectable: forces non-vanilla processing with
+    // no active view, that is, standard loop of `deserializeFromObject()`
+    static abstract class WideInjectMixIn {
+        @JacksonInject("str")
+        public String a;
+    }
+
+    static abstract class PointInjectMixIn {
+        @JacksonInject("int")
+        public int x;
     }
 
     // Parser delegate that overrides `nextNameMatch()` (and `currentNameMatch()`)
@@ -280,6 +293,13 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
             .addMixIn(Wide.class, RefViewMixIn.class)
             .addMixIn(Point.class, RefViewMixIn.class));
 
+    private final AccessibleMapper PLAIN_LOOP_MAPPER = new AccessibleMapper(jsonMapperBuilder()
+            .addMixIn(Wide.class, WideInjectMixIn.class)
+            .addMixIn(Point.class, PointInjectMixIn.class)
+            .injectableValues(new InjectableValues.Std()
+                    .addValue("str", "injected")
+                    .addValue("int", 0)));
+
     // Errors within vanilla processing (at every position of unrolled loop, and
     // within continuation after unknown property) must be reported same as with
     // non-vanilla processing: same exception type, message, path and location
@@ -292,6 +312,11 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
                     .findRootValueDeserializer(REFERENCE_MAPPER.constructType(type));
             assertFalse(((BeanDeserializer) deser)._useVanillaProcessing(ctxt),
                     "Reference mapper should NOT use vanilla processing for "+type.getSimpleName());
+
+            ctxt = PLAIN_LOOP_MAPPER.deserializationContext();
+            deser = ctxt.findRootValueDeserializer(PLAIN_LOOP_MAPPER.constructType(type));
+            assertFalse(((BeanDeserializer) deser)._useVanillaProcessing(ctxt),
+                    "Plain-loop mapper should NOT use vanilla processing for "+type.getSimpleName());
         }
 
         final int count = _knownProps().size();
@@ -314,8 +339,6 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
                     for (int mode = 0; mode < 3; ++mode) {
                         final String desc = "input mode #"+mode+", doc:\n"+doc;
                         InvalidFormatException vanilla = _readFail(MAPPER, doc, mode);
-                        InvalidFormatException reference = _readFail(
-                                REFERENCE_MAPPER.readerWithView(RefView.class), doc, mode);
 
                         assertEquals("notAnInt", vanilla.getValue(), "value: "+desc);
                         assertEquals(int.class, vanilla.getTargetType(), "target type: "+desc);
@@ -329,10 +352,15 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
                             assertEquals(expLine, vanilla.getLocation().getLineNr(), "line: "+desc);
                         }
 
-                        assertEquals(reference.getClass(), vanilla.getClass(), desc);
-                        assertEquals(reference.getOriginalMessage(), vanilla.getOriginalMessage(), desc);
-                        assertEquals(reference.getPathReference(), vanilla.getPathReference(), desc);
-                        _assertSameLocation(reference.getLocation(), vanilla.getLocation(), desc);
+                        // Compare with both view loop and plain non-vanilla loop
+                        for (ObjectReader ref : List.of(REFERENCE_MAPPER.readerWithView(RefView.class),
+                                PLAIN_LOOP_MAPPER.reader())) {
+                            InvalidFormatException reference = _readFail(ref, doc, mode);
+                            assertEquals(reference.getClass(), vanilla.getClass(), desc);
+                            assertEquals(reference.getOriginalMessage(), vanilla.getOriginalMessage(), desc);
+                            assertEquals(reference.getPathReference(), vanilla.getPathReference(), desc);
+                            _assertSameLocation(reference.getLocation(), vanilla.getLocation(), desc);
+                        }
                     }
                 }
             }
@@ -387,7 +415,7 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
             MismatchedInputException vanilla = assertThrows(MismatchedInputException.class,
                     () -> _readWithUnexpectedToken(MAPPER, withUnknown));
             MismatchedInputException reference = assertThrows(MismatchedInputException.class,
-                    () -> _readWithUnexpectedToken(REFERENCE_MAPPER, withUnknown));
+                    () -> _readWithUnexpectedToken(PLAIN_LOOP_MAPPER, withUnknown));
             assertEquals(reference.getOriginalMessage(), vanilla.getOriginalMessage(),
                     "withUnknown: "+withUnknown);
         }

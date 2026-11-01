@@ -45,8 +45,9 @@ class PolymorphicMapEntryPOJOTest extends DatabindTestUtil
     @Test
     void polymorphicKeyAndValue() throws Exception {
         Map.Entry<KeyBase, ValueBase> result = MAPPER.readValue(
-                a2q("{'key':{'kind':'key','label':'answer'},"
-                        + "'value':{'kind':'value','number':42}}"), new TypeReference<>() { });
+                """
+                {"key":{"kind":"key","label":"answer"},"value":{"kind":"value","number":42}}
+                """, new TypeReference<>() { });
 
         assertInstanceOf(Key.class, result.getKey());
         assertEquals("answer", result.getKey().label);
@@ -57,7 +58,9 @@ class PolymorphicMapEntryPOJOTest extends DatabindTestUtil
     @Test
     void polymorphicKeyOnly() throws Exception {
         Map.Entry<KeyBase, String> result = MAPPER.readValue(
-                a2q("{'key':{'kind':'key','label':'answer'},'value':'plain'}"),
+                """
+                {"key":{"kind":"key","label":"answer"},"value":"plain"}
+                """,
                 new TypeReference<>() { });
 
         assertInstanceOf(Key.class, result.getKey());
@@ -68,7 +71,9 @@ class PolymorphicMapEntryPOJOTest extends DatabindTestUtil
     @Test
     void polymorphicValueOnly() throws Exception {
         Map.Entry<String, ValueBase> result = MAPPER.readValue(
-                a2q("{'key':'plain','value':{'kind':'value','number':42}}"),
+                """
+                {"key":"plain","value":{"kind":"value","number":42}}
+                """,
                 new TypeReference<>() { });
 
         assertEquals("plain", result.getKey());
@@ -79,8 +84,9 @@ class PolymorphicMapEntryPOJOTest extends DatabindTestUtil
     @Test
     void propertyLevelPOJOShape() throws Exception {
         Holder result = newJsonMapper().readValue(
-                a2q("{'entry':{'key':{'kind':'key','label':'answer'},"
-                        + "'value':{'kind':'value','number':42}}}"), Holder.class);
+                """
+                {"entry":{"key":{"kind":"key","label":"answer"},"value":{"kind":"value","number":42}}}
+                """, Holder.class);
 
         assertInstanceOf(Key.class, result.entry.getKey());
         assertEquals("answer", result.entry.getKey().label);
@@ -91,7 +97,9 @@ class PolymorphicMapEntryPOJOTest extends DatabindTestUtil
     @Test
     void naturalShapeStillSupportsPolymorphicValues() throws Exception {
         Map.Entry<String, ValueBase> result = newJsonMapper().readValue(
-                a2q("{'answer':{'kind':'value','number':42}}"), new TypeReference<>() { });
+                """
+                {"answer":{"kind":"value","number":42}}
+                """, new TypeReference<>() { });
 
         assertEquals("answer", result.getKey());
         assertInstanceOf(Value.class, result.getValue());

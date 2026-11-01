@@ -3,7 +3,10 @@ package tools.jackson.databind.deser.builder;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
@@ -117,6 +120,42 @@ public class BuilderErrorHandlingTest extends DatabindTestUtil
 
             public AliasedValue build() {
                 return new AliasedValue(value);
+            }
+        }
+    }
+
+    // [databind#6219]: extra array elements must be reported the same way
+    // with vanilla and non-vanilla processing
+    @JsonDeserialize(builder = ArrayValueXY.Builder.class)
+    @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+    static class ArrayValueXY
+    {
+        final int x, y;
+
+        ArrayValueXY(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        @JsonPropertyOrder({ "x", "y" })
+        @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+        static class Builder {
+            int x, y;
+
+            @JsonView(Object.class)
+            public Builder withX(int v) {
+                x = v;
+                return this;
+            }
+
+            @JsonView(Object.class)
+            public Builder withY(int v) {
+                y = v;
+                return this;
+            }
+
+            public ArrayValueXY build() {
+                return new ArrayValueXY(x, y);
             }
         }
     }
@@ -240,5 +279,24 @@ public class BuilderErrorHandlingTest extends DatabindTestUtil
         InvalidFormatException e = assertThrows(InvalidFormatException.class,
                 () -> MAPPER.readValue(json, AliasedValue.class));
         assertEquals("alt", e.getPath().get(0).getPropertyName());
+    }
+
+    // [databind#6219]
+    @Test
+    void extraArrayElementsReportedSameWithAndWithoutView() throws Exception
+    {
+        final String json = "[1,2,3]";
+        ObjectReader r = MAPPER.readerFor(ArrayValueXY.class)
+                .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        // Vanilla processing (no active view)
+        MismatchedInputException vanilla = assertThrows(MismatchedInputException.class,
+                () -> r.readValue(json));
+        // Non-vanilla processing (active view)
+        MismatchedInputException nonVanilla = assertThrows(MismatchedInputException.class,
+                () -> r.withView(Object.class).readValue(json));
+
+        verifyException(vanilla, "expected `JsonToken.END_ARRAY`");
+        verifyException(vanilla, "expected at most 2 properties");
+        assertEquals(nonVanilla.getOriginalMessage(), vanilla.getOriginalMessage());
     }
 }

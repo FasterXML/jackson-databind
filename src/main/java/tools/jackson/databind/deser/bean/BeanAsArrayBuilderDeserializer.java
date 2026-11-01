@@ -161,10 +161,10 @@ public class BeanAsArrayBuilderDeserializer
         // 09-Nov-2016, tatu: Should call `handleUnknownProperty()` in Context, but it'd give
         //   non-optimal exception message so...
         if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
-            ctxt.reportInputMismatch(handledType(),
+            ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
                     "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                     propCount);
-            // fall through
+            // will never reach here as exception has been thrown
         }
         // otherwise, skip until end
         while (p.nextToken() != JsonToken.END_ARRAY) {

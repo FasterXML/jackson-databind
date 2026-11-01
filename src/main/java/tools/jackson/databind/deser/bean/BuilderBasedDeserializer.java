@@ -769,7 +769,7 @@ public class BuilderBasedDeserializer
             }
         }
         tokens.writeEndObject();
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens, hasUnwrappedContent);
+        return _unwrappedPropertyHandler.processUnwrappedForBuilder(p, ctxt, bean, tokens, hasUnwrappedContent);
     }
 
     protected Object deserializeWithUnwrapped(JsonParser p,
@@ -821,7 +821,7 @@ public class BuilderBasedDeserializer
             _anySetter.deserializeAndSet(p, ctxt, builder, propName);
         }
         tokens.writeEndObject();
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
+        return _unwrappedPropertyHandler.processUnwrappedForBuilder(p, ctxt, builder, tokens, hasUnwrappedContent);
     }
 
     @SuppressWarnings("resource")
@@ -922,7 +922,7 @@ public class BuilderBasedDeserializer
             return wrapInstantiationProblem(ctxt, e);
 
         }
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
+        return _unwrappedPropertyHandler.processUnwrappedForBuilder(p, ctxt, builder, tokens, hasUnwrappedContent);
     }
 
     /*

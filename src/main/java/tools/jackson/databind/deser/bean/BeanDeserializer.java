@@ -382,11 +382,6 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
-                // [databind#5966] Honor @JsonIgnoreProperties on creator parameters
-                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
-                    continue;
-                }
                 // Override the pre-populated value
                 buffer.assignParameter(creatorProp,
                         _deserializeWithErrorWrapping(p, ctxt, creatorProp));
@@ -424,8 +419,7 @@ public class BeanDeserializer
                                 _anySetter.deserialize(p, ctxt));
                     } else {
                         */
-                    buffer.bufferAnyParameterProperty(_anySetter, propName,
-                            _anySetter.deserialize(p, ctxt));
+                    buffer.bufferAnyParameterProperty(_anySetter, propName, p, ctxt);
                     //}
                 } catch (Exception e) {
                     throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
@@ -760,13 +754,6 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
-                // [databind#4629] Need to check for ignored properties for Creator properties since
-                // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
-                // so if we don't check for ignore first, the ignore configuration will be bypassed.
-                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
-                    continue;
-                }
                 // Last creator property to set?
                 // [databind#4690] cannot quit early as optimization any more
                 // if (buffer.assignParameter(creatorProp, value)) { ... build ... }
@@ -842,9 +829,9 @@ public class BeanDeserializer
                     if (_anySetter.isFieldType() ||
                             // [databind#4639] 2.18.2: Also should account for setter type :-/
                             _anySetter.isSetterType()) {
-                        buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                        buffer.bufferAnyProperty(_anySetter, propName, p, ctxt);
                     } else {
-                        buffer.bufferAnyParameterProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                        buffer.bufferAnyParameterProperty(_anySetter, propName, p, ctxt);
                     }
                 } catch (Exception e) {
                     throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
@@ -1260,13 +1247,6 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
-                // [databind#4629] Need to check for ignored properties for Creator properties since
-                // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
-                // so if we don't check for ignore first, the ignore configuration will be bypassed.
-                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
-                    continue;
-                }
                 // Last creator property to set?
                 // [databind#4690] cannot quit early as optimization any more
                 // if (buffer.assignParameter(creatorProp, value)) { ... build ... }
@@ -1316,8 +1296,7 @@ public class BeanDeserializer
                 tokens.writeName(propName);
                 tokens.append(b2);
                 try {
-                    buffer.bufferAnyProperty(_anySetter, propName,
-                            _anySetter.deserialize(b2.asParserOnFirstToken(ctxt), ctxt));
+                    buffer.bufferAnyProperty(_anySetter, propName, b2.asParserOnFirstToken(ctxt), ctxt);
                 } catch (Exception e) {
                     throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                 }
@@ -1479,14 +1458,6 @@ public class BeanDeserializer
                     p.skipChildren();
                     continue;
                 }
-                // [databind#6145] Need to check for ignored properties for Creator properties since
-                // Records (and POJOs with @JsonCreator) will have a valid 'creatorProp',
-                // so if we don't check for ignore first, the ignore configuration will be bypassed.
-                if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                    handleIgnoredProperty(p, ctxt, handledType(), propName);
-                    continue;
-                }
-
                 // first: let's check to see if this might be part of value with external type id:
                 // 11-Sep-2015, tatu: Important; do NOT pass buffer as last arg, but null,
                 //   since it is not the bean
@@ -1518,6 +1489,12 @@ public class BeanDeserializer
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
             }
+            // [databind#6243]: Creator property not found above is one to ignore; must not
+            // be passed to external type id handling (but other ignored names, like type id, are)
+            if (creator.hasCreatorProperty(propName)) {
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
+                continue;
+            }
             // external type id (or property that depends on it)?
             if (ext.handlePropertyValue(p, ctxt, propName, null)) {
                 continue;
@@ -1529,8 +1506,7 @@ public class BeanDeserializer
             }
             // "any property"?
             if (_anySetter != null) {
-                buffer.bufferAnyProperty(_anySetter, propName,
-                        _anySetter.deserialize(p, ctxt));
+                buffer.bufferAnyProperty(_anySetter, propName, p, ctxt);
                 continue;
             }
             // Unknown: let's call handler method
@@ -1596,6 +1572,12 @@ public class BeanDeserializer
 
         public void setBean(Object bean) {
             _bean = bean;
+            // [databind#6325]: `null` bean means creator returned `null` ([databind#4938]):
+            // there is no bean to apply the reference to, so discard instead of failing
+            if (bean == null) {
+                _resolvedValue = null;
+                return;
+            }
             // [databind#3030]: Apply deferred forward reference resolution
             if (_resolvedValue != null) {
                 _prop.set(_context, _bean, _resolvedValue);

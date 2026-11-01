@@ -431,4 +431,132 @@ public class EnumMapDeserializationTest
 
         assertTrue(dst.getMap().isEmpty());
     }
+
+    /*
+    /**********************************************************************
+    /* Test methods: `@JsonIgnoreProperties`, `@JsonIncludeProperties`
+    /**********************************************************************
+     */
+
+    // [databind#6252]
+    static class IgnoralsWrapper {
+        @JsonIgnoreProperties({"RULES"})
+        public EnumMap<TestEnum,String> enumMap;
+
+        // plain `Map` with Enum keys is upgraded to `EnumMap` (see [databind#1883])
+        @JsonIgnoreProperties({"RULES"})
+        public Map<TestEnum,String> map;
+
+        @JsonIncludeProperties({"OK"})
+        public EnumMap<TestEnum,String> included;
+
+        @JsonIgnoreProperties({"RULES"})
+        public FromPropertiesEnumMap fromProps;
+    }
+
+    // [databind#6252]
+    @JsonIgnoreProperties({"RULES"})
+    static class IgnoringEnumMap extends EnumMap<TestEnum,String> {
+        public IgnoringEnumMap() { super(TestEnum.class); }
+    }
+
+    // [databind#6252]: property-level ignorals were not applied to `EnumMap`s
+    @Test
+    public void ignorePropertiesOnEnumMapProperty() throws Exception
+    {
+        IgnoralsWrapper result = MAPPER.readValue("""
+                {
+                  "enumMap": {"JACKSON":"a", "RULES":"b", "OK":"c"},
+                  "map": {"JACKSON":"a", "RULES":"b", "OK":"c"},
+                  "included": {"JACKSON":"a", "RULES":"b", "OK":"c"},
+                  "fromProps": {"a":13, "RULES":"b", "b":-731, "OK":"c"}
+                }
+                """, IgnoralsWrapper.class);
+        assertEquals(Map.of(TestEnum.JACKSON, "a", TestEnum.OK, "c"), result.enumMap);
+        assertEquals(EnumMap.class, result.map.getClass());
+        assertEquals(Map.of(TestEnum.JACKSON, "a", TestEnum.OK, "c"), result.map);
+        assertEquals(Map.of(TestEnum.OK, "c"), result.included);
+        assertEquals(13, result.fromProps.a0);
+        assertEquals(-731, result.fromProps.b0);
+        assertEquals(Map.of(TestEnum.OK, "c"), result.fromProps);
+    }
+
+    // [databind#6252]: nor were class-level ones
+    @Test
+    public void ignorePropertiesOnEnumMapSubClass() throws Exception
+    {
+        IgnoringEnumMap result = MAPPER.readValue("""
+                {"JACKSON":"a", "RULES":"b", "OK":"c"}
+                """, IgnoringEnumMap.class);
+        assertEquals(Map.of(TestEnum.JACKSON, "a", TestEnum.OK, "c"), result);
+    }
+
+    // [databind#6252]: ignored name does not need to be a valid Enum name
+    @Test
+    public void ignoreNonEnumNameOnEnumMap() throws Exception
+    {
+        IgnoralsNonEnumWrapper result = MAPPER.readValue("""
+                {
+                  "enumMap": {"JACKSON":"a", "comment":{"x":[1]}, "OK":"c"},
+                  "fromProps": {"a":13, "comment":[true], "b":-731, "OK":"c"}
+                }
+                """, IgnoralsNonEnumWrapper.class);
+        assertEquals(Map.of(TestEnum.JACKSON, "a", TestEnum.OK, "c"), result.enumMap);
+        assertEquals(13, result.fromProps.a0);
+        assertEquals(Map.of(TestEnum.OK, "c"), result.fromProps);
+    }
+
+    static class IgnoralsNonEnumWrapper {
+        @JsonIgnoreProperties({"comment"})
+        public EnumMap<TestEnum,String> enumMap;
+
+        @JsonIgnoreProperties({"comment"})
+        public FromPropertiesEnumMap fromProps;
+    }
+
+    // [databind#6252]: config override for `Map.class`
+    @Test
+    public void ignorePropertiesOnEnumMapViaConfigOverride() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Map.class,
+                        o -> o.setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties("RULES")))
+                .build();
+        Map<TestEnum,String> result = mapper.readValue(
+                "{\"JACKSON\":\"a\", \"RULES\":\"b\", \"OK\":\"c\"}",
+                new TypeReference<EnumMap<TestEnum,String>>() { });
+        assertEquals(Map.of(TestEnum.JACKSON, "a", TestEnum.OK, "c"), result);
+    }
+
+    // [databind#6252]
+    @JsonIncludeProperties({"OK"})
+    static class IncludingEnumMap extends EnumMap<TestEnum,String> {
+        public IncludingEnumMap() { super(TestEnum.class); }
+    }
+
+    // [databind#6252]: class-level inclusions
+    @Test
+    public void includePropertiesOnEnumMapSubClass() throws Exception
+    {
+        IncludingEnumMap result = MAPPER.readValue("""
+                {"JACKSON":"a", "RULES":"b", "OK":"c"}
+                """, IncludingEnumMap.class);
+        assertEquals(Map.of(TestEnum.OK, "c"), result);
+    }
+
+    // [databind#6252]
+    static class MergedIgnoralsWrapper {
+        @JsonIgnoreProperties({"JACKSON"})
+        public IgnoringEnumMap map;
+    }
+
+    // [databind#6252]: class-level and property-level ignorals are combined
+    @Test
+    public void mergeClassAndPropertyIgnoralsOnEnumMap() throws Exception
+    {
+        MergedIgnoralsWrapper result = MAPPER.readValue("""
+                {"map": {"JACKSON":"a", "RULES":"b", "OK":"c"}}
+                """, MergedIgnoralsWrapper.class);
+        assertEquals(Map.of(TestEnum.OK, "c"), result.map);
+    }
 }

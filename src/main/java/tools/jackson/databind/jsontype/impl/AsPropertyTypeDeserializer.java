@@ -146,6 +146,11 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             p.nextToken(); // to skip past String value
         }
         // deserializer should take care of closing END_OBJECT as well
+        if (tb != null) {
+            final JsonParser bufferedParser = p;
+            return ctxt.withParser(bufferedParser,
+                    () -> deser.deserialize(bufferedParser, ctxt));
+        }
         return deser.deserialize(p, ctxt);
     }
 
@@ -169,8 +174,9 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             }
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                    String str = p.getString().trim();
-                    if (str.isEmpty()) {
+                    String str = p.getString();
+                    // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                    if ((str != null) && str.trim().isEmpty()) {
                         return null;
                     }
                 }
@@ -191,9 +197,12 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         }
         if (tb != null) {
             tb.writeEndObject();
-            p = tb.asParser(ctxt, p);
+            final JsonParser bufferedParser = tb.asParser(ctxt, p);
             // must move to point to the first token:
-            p.nextToken();
+            bufferedParser.nextToken();
+            final ValueDeserializer<Object> defaultDeserializer = deser;
+            return ctxt.withParser(bufferedParser,
+                    () -> defaultDeserializer.deserialize(bufferedParser, ctxt));
         }
         return deser.deserialize(p, ctxt);
     }

@@ -386,7 +386,8 @@ public class ObjectArrayDeserializer
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 String textValue = p.getString();
                 // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
-                if (textValue.isEmpty()) {
+                // (and textValue may be null for some parsers, like Ion for corrupt content)
+                if ((textValue != null) && textValue.isEmpty()) {
                     final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
                             CoercionInputShape.EmptyString);
                     if (act != CoercionAction.Fail) {
@@ -452,7 +453,8 @@ public class ObjectArrayDeserializer
                 if (p.hasToken(JsonToken.VALUE_STRING)) {
                     String textValue = p.getString();
                     // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
-                    if (textValue.isEmpty()) {
+                    // (and textValue may be null for some parsers, like Ion for corrupt content)
+                    if ((textValue != null) && textValue.isEmpty()) {
                         final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
                                 CoercionInputShape.EmptyString);
                         if (act != CoercionAction.Fail) {
@@ -562,16 +564,17 @@ public class ObjectArrayDeserializer
          * @since 3.2
          */
         void replaceResolvedItem(ArrayReferring forRef, Object oldItem, Object newItem) {
-            if (_array == null) {
-                return;
-            }
             // Only the slot of `forRef` itself: if the same id was forward-referenced
             // more than once, each reference gets a call of its own. Scanning all
             // slots instead would make rebinding N references take O(N^2) time.
             final int index = forRef._index;
             final Object slot = _accumulator.get(index);
             if (slot == forRef || slot == oldItem) {
-                _array[index] = newItem;
+                // Since 3.2.4, [databind#6225]: rebinding may happen before
+                // buildArray(), so update the accumulator even without an array.
+                if (_array != null) {
+                    _array[index] = newItem;
+                }
                 _accumulator.set(index, newItem);
             }
         }
@@ -585,7 +588,10 @@ public class ObjectArrayDeserializer
             }
             for (int i = 0; i < size; i++) {
                 Object value = _accumulator.get(i);
-                if (!(value instanceof ArrayReferring)) {
+                // Slot may still hold a not-yet-rebound Builder (see
+                // resolveForwardReference()); skip it to avoid ArrayStoreException.
+                if (!(value instanceof ArrayReferring)
+                        && (_untyped || value == null || _elementType.isInstance(value))) {
                     _array[i] = value;
                 }
             }

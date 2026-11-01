@@ -268,6 +268,10 @@ public class BeanDeserializer
         if (p.isExpectedStartObjectToken()) {
             propName = p.nextName();
             if (propName == null) {
+                // [databind#6357]: only END_OBJECT means there is nothing to update
+                if (!p.hasToken(JsonToken.END_OBJECT)) {
+                    return _handleUnexpectedWithin(p, ctxt, bean);
+                }
                 return bean;
             }
         } else if (p.hasTokenId(JsonTokenId.ID_PROPERTY_NAME)) {
@@ -357,6 +361,10 @@ public class BeanDeserializer
         if (p.isExpectedStartObjectToken()) {
             propName = p.nextName();
             if (propName == null) {
+                // [databind#6357]: only END_OBJECT means Object is empty
+                if (!p.hasToken(JsonToken.END_OBJECT)) {
+                    return _handleUnexpectedWithin(p, ctxt, existingRecord);
+                }
                 // Empty object: just build from pre-populated values
                 return _buildRecordFromBuffer(ctxt, creator, buffer);
             }
@@ -434,6 +442,10 @@ public class BeanDeserializer
             handleUnknownVanilla(p, ctxt, existingRecord, propName);
         } while ((propName = p.nextName()) != null);
 
+        // [databind#6357]: loop also ends on unexpected token
+        if (!p.hasToken(JsonToken.END_OBJECT)) {
+            return _handleUnexpectedWithin(p, ctxt, existingRecord);
+        }
         return _buildRecordFromBuffer(ctxt, creator, buffer);
     }
 
@@ -667,7 +679,10 @@ public class BeanDeserializer
             injectValues(ctxt, bean);
         }
         if (!p.hasTokenId(JsonTokenId.ID_PROPERTY_NAME)) {
-            // should we check what exactly it is... ?
+            // [databind#6357]: only END_OBJECT means Object is empty
+            if (!p.hasToken(JsonToken.END_OBJECT)) {
+                return _handleUnexpectedWithin(p, ctxt, bean);
+            }
             return bean;
         }
         // [databind#631]: Assign current value, to be accessible by custom serializers
@@ -863,6 +878,12 @@ public class BeanDeserializer
             }
             unknown.writeName(propName);
             unknown.copyCurrentStructure(p);
+        }
+
+        // [databind#6357]: loop also ends on unexpected token; bean only to be
+        // built after actual END_OBJECT
+        if (t != JsonToken.END_OBJECT) {
+            return _handleUnexpectedWithin(p, ctxt, null);
         }
 
         // We hit END_OBJECT, so:
@@ -1332,6 +1353,12 @@ public class BeanDeserializer
             }
         }
 
+        // [databind#6357]: loop also ends on unexpected token; must not finalize
+        // buffered properties
+        if (t != JsonToken.END_OBJECT) {
+            return _handleUnexpectedWithin(p, ctxt, null);
+        }
+
         tokens.writeEndObject();
 
         // We could still have some not-yet-set creator properties that are unwrapped.
@@ -1542,6 +1569,10 @@ public class BeanDeserializer
             // Unknown: let's call handler method
             handleUnknownProperty(p, ctxt, _valueClass, propName);
         }
+        // [databind#6357]: loop also ends on unexpected token
+        if (!p.hasToken(JsonToken.END_OBJECT)) {
+            return _handleUnexpectedWithin(p, ctxt, null);
+        }
         // We hit END_OBJECT; resolve the pieces:
         try {
             return ext.complete(p, ctxt, buffer, creator);
@@ -1573,14 +1604,16 @@ public class BeanDeserializer
 
     /**
      * Method called if an unexpected token (other then {@code JsonToken.PROPERTY_NAME})
-     * is found after POJO has been instantiated and partially bound.
+     * is found after POJO has been instantiated and partially bound; or,
+     * with Creator-based construction, before instantiation
+     * (in which case {@code bean} is {@code null}).
      *
      * @since 3.0
      */
     protected Object _handleUnexpectedWithin(JsonParser p,
             DeserializationContext ctxt, Object bean) throws JacksonException
     {
-        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        return _reportUnexpectedWithinObject(p, ctxt);
     }
 
     static class BeanReferring extends Referring

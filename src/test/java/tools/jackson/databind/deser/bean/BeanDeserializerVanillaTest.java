@@ -377,7 +377,6 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
         return "{" + String.join(",", props) + "}";
     }
 
-    // Read using all 3 JSON parser implementations: byte-, char- and DataInput-backed
     // [databind#6357]: token that is neither name nor END_OBJECT where a name is
     // expected (not possible with JSON, but with other sources) must be reported
     // same as with non-vanilla processing, also after an unknown property
@@ -416,6 +415,7 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
         }
     }
 
+    // Read using all 3 JSON parser implementations: byte-, char- and DataInput-backed
     private List<Wide> _readAllWays(String doc) throws Exception {
         return List.of(MAPPER.readValue(utf8Bytes(doc), Wide.class),
                 MAPPER.readValue(doc, Wide.class),

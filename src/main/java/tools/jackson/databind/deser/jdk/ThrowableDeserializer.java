@@ -134,6 +134,13 @@ public class ThrowableDeserializer
         _stdPropNames = stdPropNames;
     }
 
+    protected ThrowableDeserializer(ThrowableDeserializer src, Boolean failOnUnknownProperties) {
+        super(src);
+        _stdPropNames = src._stdPropNames;
+        _failOnUnknownProperties = failOnUnknownProperties;
+        _propertyFailOnUnknownProperties = failOnUnknownProperties;
+    }
+
     /**
      * @deprecated Since 3.3 use variant that takes {@link BeanDescription.Supplier}:
      *    without it standard {@link Throwable} property names cannot be resolved
@@ -266,6 +273,11 @@ public class ThrowableDeserializer
     }
 
     @Override
+    public ThrowableDeserializer withPropertyFailOnUnknownProperties(Boolean failOnUnknown) {
+        return new ThrowableDeserializer(this, failOnUnknown);
+    }
+
+    @Override
     public ValueDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
             NameTransformer transformer)
     {
@@ -284,8 +296,10 @@ public class ThrowableDeserializer
             pbCreator = pbCreator.renameAll(ctxt, transformer);
         }
         // and handle direct unwrapping as well:
-        return new ThrowableDeserializer(this, uwHandler, pbCreator,
+        ThrowableDeserializer unwrapped = new ThrowableDeserializer(this, uwHandler, pbCreator,
                 _beanProperties.renameAll(ctxt, transformer), true, _stdPropNames);
+        unwrapped._ignoreAllUnknownForUnwrapped = true;
+        return unwrapped;
     }
 
     /*

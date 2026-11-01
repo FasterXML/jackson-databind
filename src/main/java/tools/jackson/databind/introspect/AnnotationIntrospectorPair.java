@@ -591,6 +591,12 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public Boolean findFailOnUnknownProperties(MapperConfig<?> config, Annotated a) {
+        Boolean result = _primary.findFailOnUnknownProperties(config, a);
+        return (result == null) ? _secondary.findFailOnUnknownProperties(config, a) : result;
+    }
+
+    @Override
     public Object findKeyDeserializer(MapperConfig<?> config, Annotated a) {
         Object r = _primary.findKeyDeserializer(config, a);
         if (_isExplicitClassOrOb(r, KeyDeserializer.None.class)) {

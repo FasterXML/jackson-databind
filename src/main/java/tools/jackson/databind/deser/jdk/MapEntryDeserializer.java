@@ -125,7 +125,18 @@ public class MapEntryDeserializer
     protected static POJOWrappedDeserializer constructAsPOJO(DeserializationContext ctxt,
             JavaType entryType)
     {
-        return new POJOWrappedDeserializer(entryType);
+        JavaType keyType = entryType.containedTypeOrUnknown(0);
+        JavaType valueType = entryType.containedTypeOrUnknown(1);
+        TypeDeserializer keyTypeDeser = (TypeDeserializer) keyType.getTypeHandler();
+        if (keyTypeDeser == null) {
+            keyTypeDeser = ctxt.findTypeDeserializer(keyType);
+        }
+        TypeDeserializer valueTypeDeser = (TypeDeserializer) valueType.getTypeHandler();
+        if (valueTypeDeser == null) {
+            valueTypeDeser = ctxt.findTypeDeserializer(valueType);
+        }
+        return new POJOWrappedDeserializer(entryType)
+                .withResolved(null, keyTypeDeser, null, valueTypeDeser);
     }
 
     /**
@@ -355,8 +366,8 @@ public class MapEntryDeserializer
         }
     
         protected POJOWrappedDeserializer(POJOWrappedDeserializer src,
-                ValueDeserializer<Object> keyDeser, TypeDeserializer valueTypeDeser,
-                ValueDeserializer<Object> valueDeser, TypeDeserializer keyTypeDeser)
+                ValueDeserializer<Object> keyDeser, TypeDeserializer keyTypeDeser,
+                ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser)
         {
             super(src);
             _keyDeserializer = keyDeser;

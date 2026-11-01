@@ -432,7 +432,7 @@ public class MapEntryDeserializer
 
             ValueDeserializer<?> vd = _valueDeserializer;
             vd = findConvertingContentDeserializer(ctxt, property, vd);
-            JavaType valueType = _valueType.containedType(1);
+            JavaType valueType = _valueType.containedTypeOrUnknown(1);
             if (vd == null) {
                 vd = ctxt.findContextualValueDeserializer(valueType, property);
             } else { // if directly assigned, probably not yet contextual, so:

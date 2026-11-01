@@ -169,6 +169,11 @@ Versions: 3.x (for earlier see VERSION-2.x)
   `ACCEPT_CASE_INSENSITIVE_PROPERTIES`), not canonical name, in deserialization
   error paths
  (fix by @cowtowncoder, w/ Claude code)
+#6365: `JsonMapper.builder().filterProvider(...).build()` throws `NullPointerException`
+  when a `SimpleFilterProvider` has a `null` filter (`addFilter()` with `null` filter
+  now removes the binding)
+ (reported by @Marti2203)
+ (fix by @wozhenbang2004)
 
 3.2.5 (not yet released)
 

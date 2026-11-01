@@ -7,15 +7,18 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.util.JsonParserDelegate;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.DeserializationContextExt;
 import tools.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.MockDataInput;
+import tools.jackson.databind.util.TokenBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -306,6 +309,44 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
     }
 
     // Read using all 3 JSON parser implementations: byte-, char- and DataInput-backed
+    // [databind#6357]: token that is neither name nor END_OBJECT where a name is
+    // expected (not possible with JSON, but with other sources) must be reported
+    // same as with non-vanilla processing, also after an unknown property
+    @Test
+    void unexpectedTokenWithinObjectReported() throws Exception
+    {
+        for (boolean withUnknown : new boolean[] { false, true }) {
+            MismatchedInputException vanilla = assertThrows(MismatchedInputException.class,
+                    () -> _readWithUnexpectedToken(MAPPER, withUnknown));
+            MismatchedInputException reference = assertThrows(MismatchedInputException.class,
+                    () -> _readWithUnexpectedToken(REFERENCE_MAPPER, withUnknown));
+            assertEquals(reference.getOriginalMessage(), vanilla.getOriginalMessage(),
+                    "withUnknown: "+withUnknown);
+        }
+    }
+
+    // {"x":1, ["z":2,] 3, "y":5}: a bare number where a name belongs
+    private Point _readWithUnexpectedToken(ObjectMapper mapper, boolean withUnknown)
+    {
+        TokenBuffer tb = TokenBuffer.forGeneration();
+        tb.writeStartObject();
+        tb.writeName("x");
+        tb.writeNumber(1);
+        if (withUnknown) {
+            tb.writeName("z");
+            tb.writeNumber(2);
+        }
+        tb.writeNumber(3);
+        tb.writeName("y");
+        tb.writeNumber(5);
+        tb.writeEndObject();
+        try (JsonParser p = tb.asParser(ObjectReadContext.empty())) {
+            return mapper.readerFor(Point.class)
+                    .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue(p);
+        }
+    }
+
     private List<Wide> _readAllWays(String doc) throws Exception {
         return List.of(MAPPER.readValue(utf8Bytes(doc), Wide.class),
                 MAPPER.readValue(doc, Wide.class),

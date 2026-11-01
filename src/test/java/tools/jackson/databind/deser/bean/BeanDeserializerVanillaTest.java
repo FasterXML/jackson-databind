@@ -4,8 +4,7 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
@@ -41,6 +40,12 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
         DeserializationContextExt deserializationContext() {
             return _deserializationContext();
         }
+
+        DeserializationContextExt deserializationContext(Class<?> activeView) {
+            return _deserializationContexts.createContext(
+                    deserializationConfig().withView(activeView),
+                    null, _injectableValues);
+        }
     }
 
     static class Point {
@@ -60,9 +65,12 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
         public String i;
     }
 
-    // Mix-in that forces non-vanilla processing via Object Id handling
-    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
-    static abstract class NonVanillaMixIn {
+    static class RefView { }
+
+    // Mix-in that puts all properties in `RefView`: reading with that view
+    // active forces non-vanilla (but otherwise standard) processing
+    @JsonView(RefView.class)
+    static abstract class RefViewMixIn {
     }
 
     // Parser delegate that overrides `nextNameMatch()` (and `currentNameMatch()`)
@@ -140,12 +148,19 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
                     .findRootValueDeserializer(DEFAULT_MAPPER.constructType(type));
             assertInstanceOf(BeanDeserializer.class, deser);
             BeanDeserializer beanDeser = (BeanDeserializer) deser;
-            assertTrue(beanDeser._vanillaProcessing,
-                    "Should use vanilla processing with 3.x defaults for "+type.getSimpleName());
             assertTrue(beanDeser.hasViews(),
                     "View processing must remain available when DEFAULT_VIEW_INCLUSION is off");
+            // Not "fully vanilla" (external subclasses rely on this), but
+            // vanilla when no view is active
+            assertFalse(beanDeser._vanillaProcessing);
+            assertTrue(beanDeser._useVanillaProcessing(DEFAULT_MAPPER.deserializationContext()),
+                    "Should use vanilla processing with 3.x defaults for "+type.getSimpleName());
+            assertFalse(beanDeser._useVanillaProcessing(DEFAULT_MAPPER.deserializationContext(Object.class)),
+                    "Should NOT use vanilla processing with active view for "+type.getSimpleName());
         }
-        Point p = DEFAULT_MAPPER.readValue("{\"x\":1,\"y\":2}", Point.class);
+        Point p = DEFAULT_MAPPER.readValue("""
+                {"x":1,"y":2}
+                """, Point.class);
         assertEquals(1, p.x);
         assertEquals(2, p.y);
     }
@@ -155,7 +170,9 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
     {
         Point p = DEFAULT_MAPPER.readerWithView(Object.class)
                 .forType(Point.class)
-                .readValue("{\"x\":1,\"y\":2}");
+                .readValue("""
+                {"x":1,"y":2}
+                """);
         assertEquals(0, p.x);
         assertEquals(0, p.y);
     }
@@ -253,11 +270,12 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
             "e": { "x": 1, "y": "notAnInt" }
             """.strip();
 
-    // Default settings now use vanilla processing (see [databind#6219]); force
-    // non-vanilla via Object Id handling so error reporting can be compared.
+    // Default settings use vanilla processing when no view is active (see
+    // [databind#6219]); force standard non-vanilla processing by reading with
+    // an active view that includes all properties.
     private final AccessibleMapper REFERENCE_MAPPER = new AccessibleMapper(jsonMapperBuilder()
-            .addMixIn(Wide.class, NonVanillaMixIn.class)
-            .addMixIn(Point.class, NonVanillaMixIn.class));
+            .addMixIn(Wide.class, RefViewMixIn.class)
+            .addMixIn(Point.class, RefViewMixIn.class));
 
     // Errors within vanilla processing (at every position of unrolled loop, and
     // within continuation after unknown property) must be reported same as with
@@ -266,9 +284,10 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
     void errorsReportedSameAsNonVanilla() throws Exception
     {
         for (Class<?> type : List.of(Wide.class, Point.class)) {
-            ValueDeserializer<Object> deser = REFERENCE_MAPPER.deserializationContext()
+            DeserializationContextExt ctxt = REFERENCE_MAPPER.deserializationContext(RefView.class);
+            ValueDeserializer<Object> deser = ctxt
                     .findRootValueDeserializer(REFERENCE_MAPPER.constructType(type));
-            assertFalse(((BeanDeserializer) deser)._vanillaProcessing,
+            assertFalse(((BeanDeserializer) deser)._useVanillaProcessing(ctxt),
                     "Reference mapper should NOT use vanilla processing for "+type.getSimpleName());
         }
 
@@ -292,7 +311,8 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
                     for (int mode = 0; mode < 3; ++mode) {
                         final String desc = "input mode #"+mode+", doc:\n"+doc;
                         InvalidFormatException vanilla = _readFail(MAPPER, doc, mode);
-                        InvalidFormatException reference = _readFail(REFERENCE_MAPPER, doc, mode);
+                        InvalidFormatException reference = _readFail(
+                                REFERENCE_MAPPER.readerWithView(RefView.class), doc, mode);
 
                         assertEquals("notAnInt", vanilla.getValue(), "value: "+desc);
                         assertEquals(int.class, vanilla.getTargetType(), "target type: "+desc);
@@ -325,11 +345,16 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
     // Read using one of JSON parser implementations, expecting failure:
     // 0 = byte-backed, 1 = char-backed, 2 = DataInput-backed
     private InvalidFormatException _readFail(ObjectMapper mapper, String doc, int mode) {
+        return _readFail(mapper.reader(), doc, mode);
+    }
+
+    private InvalidFormatException _readFail(ObjectReader reader, String doc, int mode) {
+        final ObjectReader r = reader.forType(Wide.class);
         return assertThrows(InvalidFormatException.class, () -> {
             switch (mode) {
-            case 0 -> mapper.readValue(utf8Bytes(doc), Wide.class);
-            case 1 -> mapper.readValue(doc, Wide.class);
-            default -> mapper.readValue(new MockDataInput(doc), Wide.class);
+            case 0 -> r.readValue(utf8Bytes(doc));
+            case 1 -> r.readValue(doc);
+            default -> r.readValue(new MockDataInput(doc));
             }
         });
     }

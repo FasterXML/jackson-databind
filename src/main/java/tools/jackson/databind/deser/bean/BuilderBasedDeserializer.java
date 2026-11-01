@@ -776,8 +776,15 @@ public class BuilderBasedDeserializer
             DeserializationContext ctxt, Object builder, TokenBuffer tokens)
         throws JacksonException
     {
+        return deserializeWithUnwrapped(p, ctxt, builder, tokens, false);
+    }
+
+    protected Object deserializeWithUnwrapped(JsonParser p,
+            DeserializationContext ctxt, Object builder, TokenBuffer tokens,
+            boolean hasUnwrappedContent)
+        throws JacksonException
+    {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        boolean hasUnwrappedContent = false;
 
         for (int ix = p.currentNameMatch(_propertyNameMatcher); ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) { // common case
@@ -873,7 +880,7 @@ public class BuilderBasedDeserializer
                     if (builder.getClass() != _beanType.getRawClass()) {
                         return handlePolymorphic(p, ctxt, builder, tokens);
                     }
-                    return deserializeWithUnwrapped(p, ctxt, builder, tokens);
+                    return deserializeWithUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
                 }
                 continue;
             }

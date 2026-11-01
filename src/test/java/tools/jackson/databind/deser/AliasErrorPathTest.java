@@ -45,6 +45,18 @@ public class AliasErrorPathTest extends DatabindTestUtil
         }
     }
 
+    static class CreatorWithAliasedProperty {
+        @JsonAlias("alt")
+        public int value;
+
+        final int id;
+
+        @JsonCreator
+        CreatorWithAliasedProperty(@JsonProperty("id") int id) {
+            this.id = id;
+        }
+    }
+
     record AliasedRecord(@JsonAlias("alt") int value) { }
 
     @JsonDeserialize(builder = AliasedBuilderValue.Builder.class)
@@ -116,6 +128,26 @@ public class AliasErrorPathTest extends DatabindTestUtil
     void creatorProperty() throws Exception
     {
         _verifyPath(MAPPER.readerFor(AliasedCreatorBean.class), BAD_ALIASED, "alt");
+    }
+
+    // Non-creator property seen before creator is complete, so value gets buffered
+    @Test
+    void propertyBufferedForCreator() throws Exception
+    {
+        _verifyPath(MAPPER.readerFor(CreatorWithAliasedProperty.class), """
+                {"alt":"notAnInt","id":1}
+                """, "alt");
+    }
+
+    @Test
+    void caseInsensitiveMatch() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+                .build();
+        _verifyPath(mapper.readerFor(AliasedBean.class), """
+                {"VALUE":"notAnInt"}
+                """, "VALUE");
     }
 
     @Test

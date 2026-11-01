@@ -20,6 +20,7 @@ class ImmutableBuilderWithUnwrappedTest extends DatabindTestUtil
     static class InternalView extends PublicView { }
 
     static class Point {
+        @JsonView(PublicView.class)
         public int x;
     }
 
@@ -164,6 +165,11 @@ class ImmutableBuilderWithUnwrappedTest extends DatabindTestUtil
         assertEquals(7, result.id);
         assertNull(result.left);
         assertNull(result.right);
+
+        CreatorValue creatorResult = MAPPER.readValue(a2q("{'id':7}"), CreatorValue.class);
+        assertEquals(7, creatorResult.id);
+        assertNull(creatorResult.left);
+        assertNull(creatorResult.right);
     }
 
     @Test

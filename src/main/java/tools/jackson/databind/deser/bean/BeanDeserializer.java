@@ -295,10 +295,11 @@ public class BeanDeserializer
         while (ix >= 0) {
             p.nextToken();
             SettableBeanProperty prop = _propsByIndex[ix];
+            final String currentName = p.currentName();
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                throw wrapAndThrow(e, bean, prop.getName(), ctxt);
+                throw wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
             }
             ix = p.nextNameMatch(_propNameMatcher);
         }
@@ -384,7 +385,7 @@ public class BeanDeserializer
                 }
                 // Override the pre-populated value
                 buffer.assignParameter(creatorProp,
-                        _deserializeWithErrorWrapping(p, ctxt, creatorProp));
+                        _deserializeWithErrorWrapping(p, ctxt, creatorProp, propName));
                 continue;
             }
             // Regular property? Buffer it
@@ -395,7 +396,7 @@ public class BeanDeserializer
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
                 try {
-                    buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
+                    buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop, propName));
                 } catch (UnresolvedForwardReference reference) {
                     // ignore for Records (unlikely but handle gracefully)
                     p.skipChildren();
@@ -468,10 +469,11 @@ public class BeanDeserializer
         int ix = p.nextNameMatchAndToken(_propNameMatcher);
         while (ix >= 0) {
             SettableBeanProperty prop = _propsByIndex[ix];
+            String currentName = p.currentName();
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, prop.getName(), ctxt);
+                wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
             }
             // Elem #2
             ix = p.nextNameMatchAndToken(_propNameMatcher);
@@ -479,10 +481,11 @@ public class BeanDeserializer
                 break;
             }
             prop = _propsByIndex[ix];
+            currentName = p.currentName();
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, prop.getName(), ctxt);
+                wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
             }
             // Elem #3
             ix = p.nextNameMatchAndToken(_propNameMatcher);
@@ -490,10 +493,11 @@ public class BeanDeserializer
                 break;
             }
             prop = _propsByIndex[ix];
+            currentName = p.currentName();
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, prop.getName(), ctxt);
+                wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
             }
             // Elem #4
             ix = p.nextNameMatchAndToken(_propNameMatcher);
@@ -501,10 +505,11 @@ public class BeanDeserializer
                 break;
             }
             prop = _propsByIndex[ix];
+            currentName = p.currentName();
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, prop.getName(), ctxt);
+                wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
             }
             ix = p.nextNameMatchAndToken(_propNameMatcher);
         }
@@ -537,10 +542,11 @@ public class BeanDeserializer
         while (ix >= 0) { // minor unrolling here (by-2), less likely on critical path
             SettableBeanProperty prop = _propsByIndex[ix];
             p.nextToken();
+            String currentName = p.currentName();
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                throw wrapAndThrow(e, bean, prop.getName(), ctxt);
+                throw wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
             }
 
             // Elem #2
@@ -550,10 +556,11 @@ public class BeanDeserializer
             }
             prop = _propsByIndex[ix];
             p.nextToken();
+            currentName = p.currentName();
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                throw wrapAndThrow(e, bean, prop.getName(), ctxt);
+                throw wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
             }
             ix = p.nextNameMatch(_propNameMatcher);
         }
@@ -576,10 +583,11 @@ public class BeanDeserializer
         while (true) {
             int ix = p.nextNameMatchAndToken(_propNameMatcher);
             if (ix >= 0) { // normal case
+                final String currentName = p.currentName();
                 try {
                     _propsByIndex[ix].deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, _propsByIndex[ix].getName(), ctxt);
+                    wrapAndThrow(e, bean, _failedPropertyName(currentName, _propsByIndex[ix]), ctxt);
                 }
                 continue;
             }
@@ -673,10 +681,11 @@ public class BeanDeserializer
         for (int ix = p.currentNameMatch(_propNameMatcher); ; ix = p.nextNameMatch(_propNameMatcher)) {
             if (ix >= 0) { // normal case
                 p.nextToken();
+                final String currentName = p.currentName();
                 try {
                     _propsByIndex[ix].deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, _propsByIndex[ix].getName(), ctxt);
+                    throw wrapAndThrow(e, bean, _failedPropertyName(currentName, _propsByIndex[ix]), ctxt);
                 }
                 continue;
             }
@@ -759,7 +768,7 @@ public class BeanDeserializer
                 // if (buffer.assignParameter(creatorProp, value)) { ... build ... }
                 try {
                     buffer.assignParameter(creatorProp,
-                            _deserializeWithErrorWrapping(p, ctxt, creatorProp));
+                            _deserializeWithErrorWrapping(p, ctxt, creatorProp, propName));
                 } catch (UnresolvedForwardReference reference) {
                     // [databind#3030]: Handle forward reference in creator property;
                     //   assign null placeholder, resolve after bean construction
@@ -801,7 +810,7 @@ public class BeanDeserializer
                         continue;
                     }
                     try {
-                        buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
+                        buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop, propName));
                     } catch (UnresolvedForwardReference reference) {
                         // 14-Jun-2016, tatu: As per [databind#1261], looks like we need additional
                         //    handling of forward references here. Not exactly sure why existing
@@ -922,14 +931,30 @@ public class BeanDeserializer
         return referring;
     }
 
+    /**
+     * @deprecated Since 3.3 use
+     *   {@link #_deserializeWithErrorWrapping(JsonParser, DeserializationContext, SettableBeanProperty, String)}
+     */
+    @Deprecated // since 3.3
     protected final Object _deserializeWithErrorWrapping(JsonParser p,
             DeserializationContext ctxt, SettableBeanProperty prop)
+        throws DatabindException
+    {
+        return _deserializeWithErrorWrapping(p, ctxt, prop,
+                _failedPropertyName(p.currentName(), prop));
+    }
+
+    /**
+     * @since 3.3
+     */
+    protected final Object _deserializeWithErrorWrapping(JsonParser p,
+            DeserializationContext ctxt, SettableBeanProperty prop, String inputName)
         throws DatabindException
     {
         try {
             return prop.deserialize(p, ctxt);
         } catch (Exception e) {
-            throw wrapAndThrow(e, _beanType.getRawClass(), prop.getName(), ctxt);
+            throw wrapAndThrow(e, _beanType.getRawClass(), inputName, ctxt);
         }
     }
 
@@ -1032,10 +1057,11 @@ public class BeanDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
+                final String currentName = p.currentName();
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -1092,10 +1118,11 @@ public class BeanDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
+                final String currentName = p.currentName();
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -1166,10 +1193,11 @@ public class BeanDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
+                final String currentName = p.currentName();
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -1251,7 +1279,7 @@ public class BeanDeserializer
                 // [databind#4690] cannot quit early as optimization any more
                 // if (buffer.assignParameter(creatorProp, value)) { ... build ... }
                 buffer.assignParameter(creatorProp,
-                        _deserializeWithErrorWrapping(p, ctxt, creatorProp));
+                        _deserializeWithErrorWrapping(p, ctxt, creatorProp, propName));
 
                 continue;
             }
@@ -1264,7 +1292,7 @@ public class BeanDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
-                buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
+                buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop, propName));
                 continue;
             }
             // 29-Nov-2016, tatu: probably should try to avoid sending content
@@ -1387,10 +1415,11 @@ public class BeanDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
+                final String currentName = p.currentName();
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -1466,7 +1495,7 @@ public class BeanDeserializer
                     // [databind#4690] cannot quit early as optimization any more
                     // if (buffer.assignParameter(creatorProp, value)) { ... build ... }
                     buffer.assignParameter(creatorProp,
-                            _deserializeWithErrorWrapping(p, ctxt, creatorProp));
+                            _deserializeWithErrorWrapping(p, ctxt, creatorProp, propName));
                 }
                 continue;
             }

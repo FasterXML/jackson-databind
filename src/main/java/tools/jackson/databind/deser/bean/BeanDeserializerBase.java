@@ -2133,6 +2133,21 @@ ClassUtil.getTypeDescription(ct));
         return subDeser;
     }
 
+    // [databind#6357]: content is an Object, so generic "cannot deserialize from
+    // Number value" style message would be misleading. End-of-input has its own message.
+    final Object _reportUnexpectedWithinObject(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        final JavaType type = getValueType(ctxt);
+        final JsonToken t = p.currentToken();
+        if (t == null) {
+            return ctxt.handleUnexpectedToken(type, p);
+        }
+        return ctxt.handleUnexpectedToken(type, t, p,
+                "Unexpected token (`JsonToken.%s`) within Object value of type %s: expected property name or `JsonToken.END_OBJECT`",
+                t, ClassUtil.getTypeDescription(type));
+    }
+
     /**
      * Helper method for handling unexpected views.
      * <p>
@@ -2162,6 +2177,19 @@ ClassUtil.getTypeDescription(ct));
     /* Helper methods for error reporting
     /**********************************************************************
      */
+
+    /**
+     * Helper method for determining name to report for a property whose value
+     * could not be deserialized: name as found in input, if known; otherwise
+     * logical name of the property. Input name may be unknown since not all
+     * parsers expose it when positioned at a {@code START_OBJECT} or
+     * {@code START_ARRAY} value (Avro backend being one example).
+     *
+     * @since 3.3
+     */
+    protected final String _failedPropertyName(String inputName, SettableBeanProperty prop) {
+        return (inputName == null) ? prop.getName() : inputName;
+    }
 
     /**
      * Method that will modify caught exception (passed in as argument)

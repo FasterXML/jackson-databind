@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.jsontype.NamedType;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * {@link tools.jackson.databind.jsontype.TypeIdResolver} implementation
@@ -82,10 +83,22 @@ public class SimpleNameIdResolver
                 // use non-qualified class name
                 Class<?> cls = t.getType();
                 String id = t.hasName() ? t.getName() : _defaultTypeId(cls);
-                // Resolve unnamed types lazily so inherited @JsonTypeName annotations
-                // are considered, just as they are for types not listed as subtypes.
-                if (forSer && t.hasName()) {
-                    typeToId.put(cls.getName(), id);
+                if (forSer) {
+                    // Do not inherit a registered concrete parent's name: the
+                    // deserializer must still distinguish it from this subtype.
+                    boolean useDefault = t.hasName();
+                    if (!useDefault) {
+                        for (NamedType parent : subtypes) {
+                            if (parent.hasName() && ClassUtil.isConcrete(parent.getType())
+                                    && parent.getType().isAssignableFrom(cls)) {
+                                useDefault = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (useDefault) {
+                        typeToId.put(cls.getName(), id);
+                    }
                 }
                 if (forDeser) {
                     // [databind#1983]: for case-insensitive lookups must canonicalize:

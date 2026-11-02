@@ -169,6 +169,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6357: `BeanDeserializer` and `BuilderBasedDeserializer` silently stop on
   unexpected token within Object
  (fix by @OKAN-SOFTWARE, @cowtowncoder w/ Claude code)
+#6363: `@JsonFormat(shape = ARRAY)` Builder loses property values when not using
+  vanilla processing (e.g. with active View): `deserializeSetAndReturn()` result ignored
+ (fix by @wozhenbang2004)
 #6364: Report property name as found in input (alias or different case with
   `ACCEPT_CASE_INSENSITIVE_PROPERTIES`), not canonical name, in deserialization
   error paths

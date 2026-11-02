@@ -117,7 +117,9 @@ public final class ObjectIdValueProperty
          */
         // note: no null checks (unlike usually); deserializer should fail if one found
         if (p.hasToken(JsonToken.VALUE_NULL)) {
-            return null;
+            // Must return `instance`: callers (Builder-based deserializers) replace
+            // their current instance with the return value
+            return instance;
         }
         Object id = _valueDeserializer.deserialize(p, ctxt);
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);

@@ -181,6 +181,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
   now removes the binding)
  (reported by @Marti2203)
  (fix by @wozhenbang2004)
+#6366: `NullPointerException` deserializing raw `Map.Entry` with a `Shape.POJO`
+  config override
+ (reported by @Marti2203)
+ (fix by @wozhenbang2004)
 
 3.2.5 (not yet released)
 

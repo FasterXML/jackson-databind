@@ -57,9 +57,6 @@ public class MapEntryDeserializer
             TypeDeserializer valueTypeDeser)
     {
         super(type);
-        if (type.containedTypeCount() != 2) { // sanity check
-            throw new IllegalArgumentException("Missing generic type information for "+type);
-        }
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
@@ -178,7 +175,7 @@ public class MapEntryDeserializer
     {
         KeyDeserializer kd = _keyDeserializer;
         if (kd == null) {
-            kd = ctxt.findKeyDeserializer(_containerType.containedType(0), property);
+            kd = ctxt.findKeyDeserializer(_containerType.containedTypeOrUnknown(0), property);
         } else {
             if (kd instanceof ContextualKeyDeserializer ckd) {
                 kd = ckd.createContextual(ctxt, property);
@@ -186,7 +183,7 @@ public class MapEntryDeserializer
         }
         ValueDeserializer<?> vd = _valueDeserializer;
         vd = findConvertingContentDeserializer(ctxt, property, vd);
-        JavaType contentType = _containerType.containedType(1);
+        JavaType contentType = _containerType.containedTypeOrUnknown(1);
         if (vd == null) {
             vd = ctxt.findContextualValueDeserializer(contentType, property);
         } else { // if directly assigned, probably not yet contextual, so:
@@ -224,7 +221,7 @@ public class MapEntryDeserializer
 
     @Override
     public JavaType getContentType() {
-        return _containerType.containedType(1);
+        return _containerType.containedTypeOrUnknown(1);
     }
 
     @Override
@@ -355,8 +352,8 @@ public class MapEntryDeserializer
         }
     
         protected POJOWrappedDeserializer(POJOWrappedDeserializer src,
-                ValueDeserializer<Object> keyDeser, TypeDeserializer valueTypeDeser,
-                ValueDeserializer<Object> valueDeser, TypeDeserializer keyTypeDeser)
+                ValueDeserializer<Object> keyDeser, TypeDeserializer keyTypeDeser,
+                ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser)
         {
             super(src);
             _keyDeserializer = keyDeser;

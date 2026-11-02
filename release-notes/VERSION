@@ -182,7 +182,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (reported by @Marti2203)
  (fix by @wozhenbang2004)
 #6366: `NullPointerException` deserializing raw `Map.Entry` with a `Shape.POJO`
-  config override
+  config override (raw `Map.Entry` now handled as `Map.Entry<Object,Object>` in all shapes)
  (reported by @Marti2203)
  (fix by @wozhenbang2004)
 

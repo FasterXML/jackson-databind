@@ -834,7 +834,7 @@ Martin Mirchev (@Marti2203)
    `NullPointerException` when a `SimpleFilterProvider` has a `null` filter
   [3.3.0]
  * Reported #6366: `NullPointerException` deserializing raw `Map.Entry` with a `Shape.POJO`
-   config override
+   config override (raw `Map.Entry` now handled as `Map.Entry<Object,Object>` in all shapes)
   [3.3.0]
 
 @essiembre
@@ -882,7 +882,7 @@ Kayokoi (@wozhenbang2004)
    `NullPointerException` when a `SimpleFilterProvider` has a `null` filter
   [3.3.0]
  * Fixed #6366: `NullPointerException` deserializing raw `Map.Entry` with a `Shape.POJO`
-   config override
+   config override (raw `Map.Entry` now handled as `Map.Entry<Object,Object>` in all shapes)
   [3.3.0]
 
 Okan Tiktas (@OKAN-SOFTWARE)

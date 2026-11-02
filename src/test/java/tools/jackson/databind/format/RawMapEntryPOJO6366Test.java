@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,6 +17,18 @@ class RawMapEntryPOJO6366Test extends DatabindTestUtil
 {
     @JsonFormat(shape = JsonFormat.Shape.POJO)
     interface AsPOJO { }
+
+    @SuppressWarnings("rawtypes")
+    static class PojoFormatHolder {
+        @JsonFormat(shape = JsonFormat.Shape.POJO)
+        public Map.Entry entry;
+    }
+
+    @SuppressWarnings("rawtypes")
+    static class NaturalFormatHolder {
+        @JsonFormat(shape = JsonFormat.Shape.NATURAL)
+        public Map.Entry entry;
+    }
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .withConfigOverride(Map.Entry.class,
@@ -70,10 +81,35 @@ class RawMapEntryPOJO6366Test extends DatabindTestUtil
     }
 
     @Test
-    void rawEntryInNaturalShapeStillReportsMissingTypeInformation() {
-        assertThrows(InvalidDefinitionException.class,
-                () -> newJsonMapper().readValue("""
+    void rawEntryInNaturalShapeUsesUntypedKeyAndValue() throws Exception {
+        Map.Entry<?, ?> result = newJsonMapper().readValue(
+                """
                 {"answer":42}
-                """, Map.Entry.class));
+                """, Map.Entry.class);
+
+        assertEquals("answer", result.getKey());
+        assertEquals(42, result.getValue());
+    }
+
+    @Test
+    void rawEntryPropertyWithPOJOFormat() throws Exception {
+        PojoFormatHolder result = newJsonMapper().readValue(
+                """
+                {"entry":{"key":"answer","value":42}}
+                """, PojoFormatHolder.class);
+
+        assertEquals("answer", result.entry.getKey());
+        assertEquals(42, result.entry.getValue());
+    }
+
+    @Test
+    void rawEntryPropertyWithNaturalFormatOverridesPOJOConfig() throws Exception {
+        NaturalFormatHolder result = MAPPER.readValue(
+                """
+                {"entry":{"answer":42}}
+                """, NaturalFormatHolder.class);
+
+        assertEquals("answer", result.entry.getKey());
+        assertEquals(42, result.entry.getValue());
     }
 }

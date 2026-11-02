@@ -14,6 +14,8 @@ import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.UnresolvedForwardReference;
 import tools.jackson.databind.deser.impl.*;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
+import tools.jackson.databind.introspect.AnnotatedConstructor;
+import tools.jackson.databind.introspect.AnnotatedParameter;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
@@ -340,14 +342,19 @@ public class BeanDeserializer
         // (JSON cannot overwrite them; see Step 2).
         final Class<?> recordClass = _beanType.getRawClass();
         final RecordComponent[] components = recordClass.getRecordComponents();
+        final boolean isCanonical = _isCanonicalRecordCreator(creator, components);
         for (SettableBeanProperty creatorProp : creator.allPropertiesInOrder()) {
             if (creatorProp == null) {
                 continue;
             }
-            final int creatorIndex = creatorProp.getCreatorIndex();
-            if (creatorIndex >= 0 && creatorIndex < components.length) {
+            // Creator parameter index only lines up with component index for the
+            // canonical constructor; other Creators must be matched by name
+            final RecordComponent component = isCanonical
+                    ? _componentAt(components, creatorProp.getCreatorIndex())
+                    : _componentNamed(components, creatorProp.getName());
+            if (component != null) {
                 try {
-                    Method accessor = components[creatorIndex].getAccessor();
+                    Method accessor = component.getAccessor();
                     Object value = accessor.invoke(existingRecord);
                     buffer.assignParameter(creatorProp, value);
                 } catch (Exception e) {
@@ -447,6 +454,40 @@ public class BeanDeserializer
             return _handleUnexpectedWithin(p, ctxt, existingRecord);
         }
         return _buildRecordFromBuffer(ctxt, creator, buffer);
+    }
+
+    private static boolean _isCanonicalRecordCreator(PropertyBasedCreator creator,
+            RecordComponent[] components)
+    {
+        for (SettableBeanProperty prop : creator.allPropertiesInOrder()) {
+            if (prop != null
+                    && prop.getMember() instanceof AnnotatedParameter param
+                    && param.getOwner() instanceof AnnotatedConstructor ctor) {
+                if (ctor.getParameterCount() != components.length) {
+                    return false;
+                }
+                for (int i = 0; i < components.length; ++i) {
+                    if (!ctor.getRawParameterType(i).equals(components[i].getType())) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static RecordComponent _componentAt(RecordComponent[] components, int index) {
+        return (index >= 0 && index < components.length) ? components[index] : null;
+    }
+
+    private static RecordComponent _componentNamed(RecordComponent[] components, String name) {
+        for (RecordComponent component : components) {
+            if (component.getName().equals(name)) {
+                return component;
+            }
+        }
+        return null;
     }
 
     private Object _buildRecordFromBuffer(DeserializationContext ctxt,

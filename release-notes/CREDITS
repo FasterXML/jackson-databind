@@ -833,6 +833,9 @@ Martin Mirchev (@Marti2203)
  * Reported #6365: `JsonMapper.builder().filterProvider(...).build()` throws
    `NullPointerException` when a `SimpleFilterProvider` has a `null` filter
   [3.3.0]
+ * Reported #6366: `NullPointerException` deserializing raw `Map.Entry` with a `Shape.POJO`
+   config override (raw `Map.Entry` now handled as `Map.Entry<Object,Object>` in all shapes)
+  [3.3.0]
 
 @essiembre
  * Reported #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
@@ -877,6 +880,9 @@ Kayokoi (@wozhenbang2004)
   [3.3.0]
  * Fixed #6365: `JsonMapper.builder().filterProvider(...).build()` throws
    `NullPointerException` when a `SimpleFilterProvider` has a `null` filter
+  [3.3.0]
+ * Fixed #6366: `NullPointerException` deserializing raw `Map.Entry` with a `Shape.POJO`
+   config override (raw `Map.Entry` now handled as `Map.Entry<Object,Object>` in all shapes)
   [3.3.0]
 
 Okan Tiktas (@OKAN-SOFTWARE)

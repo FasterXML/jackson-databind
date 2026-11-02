@@ -185,6 +185,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
   config override (raw `Map.Entry` now handled as `Map.Entry<Object,Object>` in all shapes)
  (reported by @Marti2203)
  (fix by @wozhenbang2004)
+#6376: End of input right after a property name (possible with `TokenBuffer`) reported
+  as `DatabindException` wrapping `NullPointerException`, not `MismatchedInputException`
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.2.5 (not yet released)
 

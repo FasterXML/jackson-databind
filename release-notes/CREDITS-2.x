@@ -2162,3 +2162,11 @@ Anna Breeva (@ab310013)
 @bugada
  * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
   [2.23.0]
+
+Martin Mirchev (@Marti2203)
+ * Reported #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [2.23.0]
+
+@nu11Po1nter1
+ * Fixed #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [2.23.0]

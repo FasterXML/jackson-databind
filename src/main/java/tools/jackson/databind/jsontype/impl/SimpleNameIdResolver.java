@@ -82,7 +82,9 @@ public class SimpleNameIdResolver
                 // use non-qualified class name
                 Class<?> cls = t.getType();
                 String id = t.hasName() ? t.getName() : _defaultTypeId(cls);
-                if (forSer) {
+                // Resolve unnamed types lazily so inherited @JsonTypeName annotations
+                // are considered, just as they are for types not listed as subtypes.
+                if (forSer && t.hasName()) {
                     typeToId.put(cls.getName(), id);
                 }
                 if (forDeser) {

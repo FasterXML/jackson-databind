@@ -1435,7 +1435,7 @@ public class BeanDeserializer
                 JsonToken t = p.nextToken();
                 // [JACKSON-831]: may have property AND be used as external type id:
                 // [databind#1329]: if so, and visible=false, skip setting on bean
-                if (t.isScalarValue()
+                if ((t != null) && t.isScalarValue()
                         && ext.handleTypePropertyValue(p, ctxt, p.currentName(), bean)) {
                     continue;
                 }
@@ -1539,7 +1539,7 @@ public class BeanDeserializer
                 }
                 // [databind#3045]: may have property AND be used as external type id:
                 // [databind#1329]: if so, and visible=false, skip buffering
-                if (t.isScalarValue()
+                if ((t != null) && t.isScalarValue()
                         && ext.handleTypePropertyValue(p, ctxt, propName, null)) {
                     continue;
                 }

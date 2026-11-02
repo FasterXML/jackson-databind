@@ -969,7 +969,7 @@ public class BuilderBasedDeserializer
                 SettableBeanProperty prop = _propertiesByIndex[ix];
                 JsonToken t = p.nextToken();
                 // May have property AND be used as external type id:
-                if (t.isScalarValue()) {
+                if ((t != null) && t.isScalarValue()) {
                     ext.handleTypePropertyValue(p, ctxt, p.currentName(), bean);
                 }
                 if (activeView != null && !prop.visibleInView(activeView)) {

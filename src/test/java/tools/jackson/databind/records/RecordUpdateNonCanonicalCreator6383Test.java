@@ -40,6 +40,23 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
         }
     }
 
+    // Same order as components, but external name differs from component name
+    public record Person(String firstName, int age) {
+        @JsonCreator
+        public static Person of(@JsonProperty("first_name") String firstName,
+                @JsonProperty("age") int age) {
+            return new Person(firstName, age);
+        }
+    }
+
+    // Same order as components, names come from naming strategy
+    public record Member(String firstName, int age) {
+        @JsonCreator
+        public static Member of(String firstName, int age) {
+            return new Member(firstName, age);
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
@@ -64,6 +81,37 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
         Point result = MAPPER.readerForUpdating(new Point(3, "a"))
                 .readValue(a2q("{'x':4}"));
         assertEquals(new Point(4, "a"), result);
+    }
+
+    @Test
+    public void updateWithRenamedPropertyOnSameOrderFactory() throws Exception
+    {
+        Person result = MAPPER.readerForUpdating(new Person("John", 30))
+                .readValue(a2q("{'age':31}"));
+        assertEquals(new Person("John", 31), result);
+    }
+
+    @Test
+    public void updateWithNamingStrategyOnSameOrderFactory() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+                .build();
+        Member result = mapper.readerForUpdating(new Member("John", 30))
+                .readValue(a2q("{'age':31}"));
+        assertEquals(new Member("John", 31), result);
+    }
+
+    // Without parameter names, renamed properties can only be matched by position
+    @Test
+    public void updateWithRenamedPropertyWithoutParameterNames() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.DETECT_PARAMETER_NAMES)
+                .build();
+        Person result = mapper.readerForUpdating(new Person("John", 30))
+                .readValue(a2q("{'age':31}"));
+        assertEquals(new Person("John", 31), result);
     }
 
     @Test

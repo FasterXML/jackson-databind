@@ -353,6 +353,7 @@ public abstract class DatabindContext
      *
      * @since 3.1.8
      */
+    @SuppressWarnings("deprecation") // SubTypeValidator
     private void _validateContainedType(JavaType baseType, String typeId, JavaType declaredType,
             JavaType param, PolymorphicTypeValidator ptv)
     {

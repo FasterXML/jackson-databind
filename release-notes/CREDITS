@@ -755,6 +755,8 @@ Burak KALAYCI (@kalayciburak)
   [3.3.0]
  * Fixed #6198: Make `InvokerHolder` access in `AnnotatedMethod` lazy
   [3.3.0]
+ * Fixed #6219: Vanilla `BeanDeserializer` fast path never used with 3.x defaults
+  [3.3.0]
 
 @laech
  * Reported #6178: `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` does not work
@@ -831,6 +833,12 @@ Martin Mirchev (@Marti2203)
  * Reported #6325: `NullPointerException` when a `@JsonCreator` returns `null` and
    the input has an Object Id forward reference
   [3.3.0]
+ * Reported #6365: `JsonMapper.builder().filterProvider(...).build()` throws
+   `NullPointerException` when a `SimpleFilterProvider` has a `null` filter
+  [3.3.0]
+ * Reported #6366: `NullPointerException` deserializing raw `Map.Entry` with a `Shape.POJO`
+   config override (raw `Map.Entry` now handled as `Map.Entry<Object,Object>` in all shapes)
+  [3.3.0]
 
 @essiembre
  * Reported #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
@@ -868,3 +876,22 @@ Anna Breeva (@ab310013)
 @bugada
  * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
   [3.2.5]
+
+Kayokoi (@wozhenbang2004)
+ * Fixed #6363: `@JsonFormat(shape = ARRAY)` Builder loses property values when not using
+   vanilla processing (e.g. with active View): `deserializeSetAndReturn()` result ignored
+  [3.3.0]
+ * Fixed #6365: `JsonMapper.builder().filterProvider(...).build()` throws
+   `NullPointerException` when a `SimpleFilterProvider` has a `null` filter
+  [3.3.0]
+ * Fixed #6366: `NullPointerException` deserializing raw `Map.Entry` with a `Shape.POJO`
+   config override (raw `Map.Entry` now handled as `Map.Entry<Object,Object>` in all shapes)
+  [3.3.0]
+ * Fixed #6371: Polymorphic key and value types not retained for POJO-shaped `Map.Entry`
+   deserialization
+  [3.3.0]
+
+Okan Tiktas (@OKAN-SOFTWARE)
+ * Fixed #6357: `BeanDeserializer` and `BuilderBasedDeserializer` silently stop on
+   unexpected token within Object
+  [3.3.0]

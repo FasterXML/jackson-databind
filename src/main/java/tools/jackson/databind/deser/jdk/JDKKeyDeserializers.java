@@ -60,6 +60,7 @@ public class JDKKeyDeserializers
         return new JDKKeyDeserializer.DelegatingKD(type.getRawClass(), deser);
     }
 
+    @SuppressWarnings("deprecation") // SubTypeValidator
     public static KeyDeserializer findStringBasedKeyDeserializer(DeserializationContext ctxt,
             JavaType type)
    {

@@ -1233,8 +1233,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             writeName(p.currentName());
             t = p.nextToken();
             // fall-through to copy the associated value
-        } else if (t == null) {
-            // 13-Dec-2023, tatu: For some unexpected EOF cases we may end up here, so:
+        }
+        // 13-Dec-2023, tatu: For some unexpected EOF cases we may end up here, so:
+        // (including input ending right after property name)
+        if (t == null) {
             throw new UnexpectedEndOfInputException(p, null, "Unexpected end-of-input");
         }
 

@@ -19,10 +19,8 @@ import tools.jackson.databind.util.ClassUtil;
  * Basic serializer that can take JSON "Object" structure and
  * construct a {@link java.util.Map.Entry} instance, with typed contents.
  *<p>
- * Note: for untyped content (one indicated by passing Object.class
- * as the type), {@link UntypedObjectDeserializer} is used instead.
- * It can also construct {@link java.util.Map.Entry}s, but not with specific
- * POJO types, only other containers and primitives/wrappers.
+ * Note: key and value types are taken from type parameters; for raw
+ * {@link java.util.Map.Entry} both are handled as {@link java.lang.Object}.
  */
 @JacksonStdImpl
 public class MapEntryDeserializer

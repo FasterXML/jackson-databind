@@ -999,7 +999,7 @@ public class BeanDeserializer
             JsonParser p2 = tb.asParser(ctxt, p);
             p2.nextToken(); // to point to END_OBJECT
             // note: don't have ObjectId to consider at this point, so:
-            Object ob = _vanillaProcessing ? _vanillaDeserialize(p2, ctxt, JsonToken.END_OBJECT)
+            Object ob = _useVanillaProcessing(ctxt) ? _vanillaDeserialize(p2, ctxt, JsonToken.END_OBJECT)
                     : deserializeFromObject(p2, ctxt);
             p2.close();
             tb.close();

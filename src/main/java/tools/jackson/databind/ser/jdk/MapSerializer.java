@@ -249,6 +249,17 @@ public class MapSerializer
         return ser;
     }
 
+    /**
+     * Copy with a different key serializer, retaining other contextual settings.
+     */
+    public MapSerializer withKeySerializer(ValueSerializer<?> keySerializer) {
+        if (_keySerializer == keySerializer) {
+            return this;
+        }
+        return withResolved(_property, keySerializer, _valueSerializer,
+                _ignoredEntries, _includedEntries, _sortKeys);
+    }
+
     @Override
     public MapSerializer withFilterId(Object filterId) {
         if (_filterId == filterId) {

@@ -131,7 +131,6 @@ public class ThrowableDeserializer
         super(baseDeserializer);
         // need to disable this, since we do post-processing
         _vanillaProcessing = false;
-        _vanillaIfNoView = false;
         _stdPropNames = stdPropNames;
     }
 

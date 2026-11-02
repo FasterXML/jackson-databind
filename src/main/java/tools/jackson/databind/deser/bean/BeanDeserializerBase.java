@@ -99,23 +99,16 @@ public abstract class BeanDeserializerBase
     protected boolean _nonStandardCreation;
 
     /**
-     * Flag that indicates that no "special features" whatsoever
-     * are enabled, so the simplest processing is possible.
-     */
-    protected boolean _vanillaProcessing;
-
-    /**
      * Flag that indicates that no "special features" other than possible
      * JSON View handling are enabled, so the simplest processing is
      * possible when no view is active.
-     * Differs from {@link #_vanillaProcessing} only if {@link #_needViewProcesing}
-     * is set; subclasses that disable vanilla processing need to clear both flags.
-     * <p>
-     * See {@link #_useVanillaProcessing} and [databind#6219].
-     *
-     * @since 3.3
+     * Subclasses may clear this flag to disable vanilla processing.
+     *<p>
+     * NOTE: since 3.3 this flag does not take JSON Views into account
+     * ([databind#6219]): callers need to use {@link #_useVanillaProcessing}
+     * instead of checking the flag directly, to honor the active view.
      */
-    protected boolean _vanillaIfNoView;
+    protected boolean _vanillaProcessing;
 
     /*
     /**********************************************************************
@@ -303,12 +296,11 @@ public abstract class BeanDeserializerBase
         _needViewProcesing = hasViews;
         // [databind#6219]: view processing only needed if a view is active,
         // which is checked per-call
-        _vanillaIfNoView = !_nonStandardCreation
+        _vanillaProcessing = !_nonStandardCreation
                 && (_injectables == null)
                 // also, may need to reorder stuff if we expect Object Id:
                 && (_objectIdReader == null)
                 ;
-        _vanillaProcessing = _vanillaIfNoView && !_needViewProcesing;
     }
 
     protected BeanDeserializerBase(BeanDeserializerBase src) {
@@ -341,7 +333,6 @@ public abstract class BeanDeserializerBase
         _serializationShape = src._serializationShape;
 
         _vanillaProcessing = src._vanillaProcessing;
-        _vanillaIfNoView = src._vanillaIfNoView;
 
         _externalTypeIdHandler = src._externalTypeIdHandler;
     }
@@ -381,7 +372,6 @@ public abstract class BeanDeserializerBase
 
         // probably adds a twist, so:
         _vanillaProcessing = false;
-        _vanillaIfNoView = false;
 
         _externalTypeIdHandler = src._externalTypeIdHandler;
     }
@@ -414,7 +404,6 @@ public abstract class BeanDeserializerBase
         if (oir == null) {
             _beanProperties = src._beanProperties;
             _vanillaProcessing = src._vanillaProcessing;
-            _vanillaIfNoView = src._vanillaIfNoView;
         } else {
             // 18-Nov-2012, tatu: May or may not have annotations for id property;
             //   but no easy access. But hard to see id property being optional,
@@ -425,7 +414,6 @@ public abstract class BeanDeserializerBase
                     PropertyMetadata.STD_REQUIRED, this instanceof BuilderBasedDeserializer);
             _beanProperties = src._beanProperties.withProperty(idProp);
             _vanillaProcessing = false;
-            _vanillaIfNoView = false;
         }
 
         _externalTypeIdHandler = src._externalTypeIdHandler;
@@ -460,7 +448,6 @@ public abstract class BeanDeserializerBase
         _serializationShape = src._serializationShape;
 
         _vanillaProcessing = src._vanillaProcessing;
-        _vanillaIfNoView = src._vanillaIfNoView;
         _objectIdReader = src._objectIdReader;
 
         // 01-May-2016, tatu: [databind#1217]: Remove properties from mapping,
@@ -495,7 +482,6 @@ public abstract class BeanDeserializerBase
         _serializationShape = src._serializationShape;
 
         _vanillaProcessing = src._vanillaProcessing;
-        _vanillaIfNoView = src._vanillaIfNoView;
 
         _externalTypeIdHandler = src._externalTypeIdHandler;
     }
@@ -736,7 +722,6 @@ public abstract class BeanDeserializerBase
         }
         // may need to disable vanilla processing, if unwrapped handling was enabled...
         _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
-        _vanillaIfNoView = _vanillaIfNoView && !_nonStandardCreation;
     }
 
     protected void _replaceProperty(BeanPropertyMap props, SettableBeanProperty[] creatorProps,
@@ -1362,7 +1347,7 @@ ClassUtil.getTypeDescription(ct));
      */
     protected final boolean _useVanillaProcessing(DeserializationContext ctxt) {
         return _vanillaProcessing
-                || (_vanillaIfNoView && (ctxt.getActiveView() == null));
+                && (!_needViewProcesing || (ctxt.getActiveView() == null));
     }
 
     @Override

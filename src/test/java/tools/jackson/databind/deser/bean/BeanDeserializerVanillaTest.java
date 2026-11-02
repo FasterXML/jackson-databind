@@ -166,9 +166,7 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
             BeanDeserializer beanDeser = (BeanDeserializer) deser;
             assertTrue(beanDeser.hasViews(),
                     "View processing must remain available when DEFAULT_VIEW_INCLUSION is off");
-            // Not "fully vanilla" (external subclasses rely on this), but
-            // vanilla when no view is active
-            assertFalse(beanDeser._vanillaProcessing);
+            assertTrue(beanDeser._vanillaProcessing);
             assertTrue(beanDeser._useVanillaProcessing(DEFAULT_MAPPER.deserializationContext()),
                     "Should use vanilla processing with 3.x defaults for "+type.getSimpleName());
             assertFalse(beanDeser._useVanillaProcessing(DEFAULT_MAPPER.deserializationContext(Object.class)),

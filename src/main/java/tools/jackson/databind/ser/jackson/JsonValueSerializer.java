@@ -18,6 +18,7 @@ import tools.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import tools.jackson.databind.jsontype.TypeIdResolver;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.BeanSerializer;
+import tools.jackson.databind.ser.jdk.MapSerializer;
 import tools.jackson.databind.ser.std.StdDynamicSerializer;
 import tools.jackson.databind.util.ClassUtil;
 
@@ -175,7 +176,7 @@ public class JsonValueSerializer
                  */
                 // I _think_ this can be considered a primary property...
                 ser = ctxt.findPrimaryPropertySerializer(_valueType, property);
-                ser = _withIgnoreProperties(ser, _ignoredProperties);
+                ser = _withAccessorProperties(ctxt, ser, property);
                 /* 09-Dec-2010, tatu: Turns out we must add special handling for
                  *   cases where "native" (aka "natural") type is being serialized,
                  *   using standard serializer
@@ -190,6 +191,7 @@ public class JsonValueSerializer
         } else {
             // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
             ser = ctxt.handlePrimaryContextualization(ser, property);
+            ser = _withAccessorProperties(ctxt, ser, property);
             return withResolved(property, vts, ser, _forceTypeInformation);
         }
         return this;
@@ -243,7 +245,7 @@ public class JsonValueSerializer
 
     protected ValueSerializer<Object> _findSerializer(SerializationContext ctxt, Object value) {
         final UnaryOperator<ValueSerializer<Object>> serTransformer =
-                valueSer -> _withIgnoreProperties(valueSer, _ignoredProperties);
+                valueSer -> _withAccessorProperties(ctxt, valueSer, _property);
         Class<?> cc = value.getClass();
         if (_valueType.hasGenericTypes()) {
             return _findAndAddDynamic(ctxt,
@@ -251,6 +253,27 @@ public class JsonValueSerializer
                     serTransformer);
         }
         return _findAndAddDynamic(ctxt, cc, serTransformer);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected ValueSerializer<Object> _withAccessorProperties(SerializationContext ctxt,
+            ValueSerializer<?> ser, BeanProperty property) {
+        ser = _withIgnoreProperties(ser, _ignoredProperties);
+        if (ser instanceof MapSerializer mapSer) {
+            AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+            AnnotatedMember member = (property == null) ? null : property.getMember();
+            // An enclosing property's explicit key serializer takes precedence.
+            if ((intr != null) && ((member == null)
+                    || (intr.findKeySerializer(ctxt.getConfig(), member) == null))) {
+                Object definition = intr.findKeySerializer(ctxt.getConfig(), _accessor);
+                if (definition != null) {
+                    ValueSerializer<?> keySer = ctxt.serializerInstance(_accessor, definition);
+                    keySer = ctxt.handleSecondaryContextualization(keySer, property);
+                    ser = mapSer.withKeySerializer(keySer);
+                }
+            }
+        }
+        return (ValueSerializer<Object>) ser;
     }
 
     /**
@@ -292,12 +315,7 @@ public class JsonValueSerializer
         }
         ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            Class<?> cc = value.getClass();
-            if (_valueType.hasGenericTypes()) {
-                ser = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_valueType, cc));
-            } else {
-                ser = _findAndAddDynamic(ctxt, cc);
-            }
+            ser = _findSerializer(ctxt, value);
         }
         // [databind#6206]: simple check for direct cycle through accessor
         //   (if written as null, no type id, same as with actual null value above)

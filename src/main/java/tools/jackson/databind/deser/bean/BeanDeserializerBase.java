@@ -2058,7 +2058,15 @@ ClassUtil.getTypeDescription(ct));
         }
         // Otherwise use default handling (call handler(s); if not
         // handled, throw exception or skip depending on settings)
-        super.handleUnknownProperty(p, ctxt, beanOrClass, propName);
+        try {
+            super.handleUnknownProperty(p, ctxt, beanOrClass, propName);
+        } catch (JacksonException e) {
+            // Already contains the path to the unknown property.
+            throw e;
+        } catch (Exception e) {
+            throw wrapAndThrow(e, (beanOrClass == null) ? handledType() : beanOrClass,
+                    propName, ctxt);
+        }
     }
 
     /**

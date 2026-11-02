@@ -81,4 +81,30 @@ class SealedInheritedTypeName6093Test {
         assertEquals("explicit", simple.readTree(json).get("type").asString());
     }
 
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+    @JsonSubTypes({@JsonSubTypes.Type(Dog.class), @JsonSubTypes.Type(Beagle.class)})
+    abstract static class Animal { }
+
+    @JsonTypeName("dog")
+    static class Dog extends Animal {
+        public String name = "sample";
+    }
+
+    static class Beagle extends Dog { }
+
+    @Test
+    void concreteParentNameDoesNotReplaceListedSubtypeName() {
+        String json = mapper.writerFor(Animal.class).writeValueAsString(new Beagle());
+        assertEquals("SealedInheritedTypeName6093Test$Beagle", mapper.readTree(json).get("type").asString());
+        assertEquals(Beagle.class, mapper.readValue(json, Animal.class).getClass());
+    }
+
+    @Test
+    void simpleConcreteParentNameDoesNotReplaceListedSubtypeName() {
+        ObjectMapper simple = JsonMapper.builder().addMixIn(Animal.class, SimpleNameMixin.class).build();
+        String json = simple.writerFor(Animal.class).writeValueAsString(new Beagle());
+        assertEquals("Beagle", simple.readTree(json).get("type").asString());
+        assertEquals(Beagle.class, simple.readValue(json, Animal.class).getClass());
+    }
 }

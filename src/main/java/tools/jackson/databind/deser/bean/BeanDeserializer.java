@@ -40,11 +40,10 @@ public class BeanDeserializer
 
     /**
      * Record component accessors (indexed by component index), with access
-     * fixed as necessary: lazily resolved on first Record "update".
-     *
-     * @since 3.3
+     * fixed as necessary: lazily resolved on first Record "update"
+     * (once per deserializer instance; not passed to copies).
      */
-    protected volatile transient Method[] _recordAccessors;
+    private volatile transient Method[] _recordAccessors;
 
     /*
     /**********************************************************************
@@ -458,7 +457,8 @@ public class BeanDeserializer
 
     /**
      * Helper method for lazily resolving (and caching) Record component accessors,
-     * fixing access (as allowed by configuration) once instead of on every update.
+     * fixing access (as allowed by configuration) once per deserializer instance
+     * instead of on every update.
      * Possible race between threads is benign: result is the same either way.
      */
     private Method[] _resolveRecordAccessors(DeserializationContext ctxt)

@@ -171,7 +171,10 @@ public class RecordUpdate3079Test extends DatabindTestUtil
                 () -> r.readValue("""
                         {"id":137}
                         """));
-        verifyException(e, "cannot access");
+        // Check Jackson-provided path, not JDK exception message
+        assertEquals(1, e.getPath().size());
+        assertEquals(NonPublicRecord.class, e.getPath().get(0).from());
+        assertEquals("id", e.getPath().get(0).getPropertyName());
     }
 
     // [databind#3079]: update Record via ObjectReader, all properties

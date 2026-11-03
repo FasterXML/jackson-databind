@@ -4,10 +4,12 @@ import java.nio.ByteBuffer;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.ByteBufferBackedOutputStream;
 
+@JacksonStdImpl
 public class ByteBufferDeserializer extends StdScalarDeserializer<ByteBuffer>
 {
     ByteBufferDeserializer() { super(ByteBuffer.class); }

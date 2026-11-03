@@ -35,8 +35,7 @@ public class TokenBufferReadContext extends TokenStreamContext
         _parent = base.getParent();
         _currentName = base.currentName();
         _currentValue = base.currentValue();
-        if (base instanceof JsonReadContext) {
-            JsonReadContext rc = (JsonReadContext) base;
+        if (base instanceof JsonReadContext rc) {
             _startLocation = rc.startLocation(contentRef);
         } else {
             _startLocation = TokenStreamLocation.NA;
@@ -111,8 +110,8 @@ public class TokenBufferReadContext extends TokenStreamContext
         // 30-Apr-2017, tatu: This is bit awkward since part on ancestor stack is of different
         //     type (usually `JsonReadContext`)... and so for unbalanced buffers (with extra
         //     END_OBJECT / END_ARRAY), we may need to create
-        if (_parent instanceof TokenBufferReadContext) {
-            return (TokenBufferReadContext) _parent;
+        if (_parent instanceof TokenBufferReadContext tokenBufferReadContext) {
+            return tokenBufferReadContext;
         }
         if (_parent == null) { // unlikely, but just in case let's support
             return new TokenBufferReadContext();

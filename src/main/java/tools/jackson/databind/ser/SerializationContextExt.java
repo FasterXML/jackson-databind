@@ -71,8 +71,8 @@ public class SerializationContextExt
         }
         ValueSerializer<?> ser;
 
-        if (serDef instanceof ValueSerializer) {
-            ser = (ValueSerializer<?>) serDef;
+        if (serDef instanceof ValueSerializer serializer) {
+            ser = serializer;
         } else {
             // Alas, there's no way to force return type of "either class
             // X or Y" -- need to throw an exception after the fact

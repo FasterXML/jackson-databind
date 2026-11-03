@@ -56,6 +56,12 @@ public class ObjectNode
         return get(ptr.getMatchingProperty());
     }
 
+    @Override // @since 3.1
+    protected JsonNode _removeAt(JsonPointer ptr) {
+        JsonNode n = remove(ptr.getMatchingProperty());
+        return (n == null) ? missingNode() : n;
+    }
+
     @Override
     protected String _valueDesc() {
         return "{...(" + _children.size() + " properties}]";
@@ -138,8 +144,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
 
         JsonNode n = _at(currentPtr);
         // If there's a path, follow it
-        if ((n != null) && (n instanceof BaseJsonNode)) {
-            ObjectNode found = ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
+        if (n instanceof BaseJsonNode baseNode) {
+            ObjectNode found = baseNode._withObject(origPtr, currentPtr.tail(),
                     overwriteMode, preferIndex);
             if (found != null) {
                 return found;
@@ -163,8 +169,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
 
         JsonNode n = _at(currentPtr);
         // If there's a path, follow it
-        if ((n != null) && (n instanceof BaseJsonNode)) {
-            ArrayNode found = ((BaseJsonNode) n)._withArray(origPtr, currentPtr.tail(),
+        if (n instanceof BaseJsonNode baseNode) {
+            ArrayNode found = baseNode._withArray(origPtr, currentPtr.tail(),
                     overwriteMode, preferIndex);
             if (found != null) {
                 return found;
@@ -236,6 +242,16 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     @Override
     public final boolean isObject() {
         return true;
+    }
+
+    @Override
+    public ObjectNode asObject() {
+        return this;
+    }
+
+    @Override
+    public Optional<ObjectNode> asObjectOpt() {
+        return Optional.of(this);
     }
 
     @Override public JsonToken asToken() { return JsonToken.START_OBJECT; }
@@ -328,25 +344,24 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     @Override
     public boolean equals(Comparator<JsonNode> comparator, JsonNode o)
     {
-        if (!(o instanceof ObjectNode)) {
-            return false;
-        }
-        ObjectNode other = (ObjectNode) o;
-        Map<String, JsonNode> m1 = _children;
-        Map<String, JsonNode> m2 = other._children;
+        if (o instanceof ObjectNode other) {
+            Map<String, JsonNode> m1 = _children;
+            Map<String, JsonNode> m2 = other._children;
 
-        final int len = m1.size();
-        if (m2.size() != len) {
-            return false;
-        }
-
-        for (Map.Entry<String, JsonNode> entry : m1.entrySet()) {
-            JsonNode v2 = m2.get(entry.getKey());
-            if ((v2 == null) || !entry.getValue().equals(comparator, v2)) {
+            final int len = m1.size();
+            if (m2.size() != len) {
                 return false;
             }
+
+            for (Map.Entry<String, JsonNode> entry : m1.entrySet()) {
+                JsonNode v2 = m2.get(entry.getKey());
+                if ((v2 == null) || !entry.getValue().equals(comparator, v2)) {
+                    return false;
+                }
+            }
+            return true;
         }
-        return true;
+        return false;
     }
 
     /*
@@ -448,7 +463,6 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
      * Method that can be called to serialize this node and
      * all of its descendants using specified JSON generator.
      */
-    @SuppressWarnings("deprecation")
     @Override
     public void serialize(JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
@@ -480,7 +494,6 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
         g.writeEndObject();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void serializeWithType(JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
@@ -1021,6 +1034,66 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
 
     /*
     /**********************************************************************
+    /* Extended ObjectNode API, mutators, JsonPointer-based
+    /**********************************************************************
+     */
+
+    /**
+     * Method for setting value of a property at specified JSON Pointer location
+     * on this {@code ObjectNode}. Intermediate {@link ObjectNode}s are created
+     * as necessary (following the same logic as {@link #withObject(JsonPointer)}).
+     *<p>
+     * <b>Array index handling:</b> If the last segment appears to be an array index
+     * (non-negative integer like {@code /arr/0}), the method checks if the parent
+     * node already exists and is an {@link ArrayNode}:
+     * <ul>
+     *   <li>If parent is an existing {@link ArrayNode}: sets value at that index
+     *       (the array must already contain enough elements; arrays are NOT expanded)</li>
+     *   <li>Otherwise: treats the numeric segment as a property name (e.g., property "0")</li>
+     * </ul>
+     *<p>
+     * <b>Limitations:</b>
+     * <ul>
+     *   <li>Empty pointer (referring to this node) throws {@link UnsupportedOperationException}</li>
+     *   <li>Arrays are NOT created or expanded automatically</li>
+     * </ul>
+     *
+     * @param ptr {@link JsonPointer} identifying location to set the value at
+     * @param value Value to set at the specified path; {@code null} becomes a {@link NullNode}
+     *
+     * @return This node (to allow chaining)
+     *
+     * @throws UnsupportedOperationException if {@code ptr} is empty (refers to
+     *         this node itself, which cannot be replaced)
+     */
+    public ObjectNode put(JsonPointer ptr, JsonNode value)
+    {
+        if (ptr.matches()) {
+            return _reportUnsupportedOperation(
+"Cannot call `put(JsonPointer, JsonNode)` with empty `JsonPointer`: the context node itself cannot be replaced");
+        }
+        if (value == null) {
+            value = nullNode();
+        }
+        JsonPointer parentPtr = ptr.head();
+        JsonPointer lastSegment = ptr.last();
+
+        if (lastSegment.mayMatchElement()) {
+            int index = lastSegment.getMatchingIndex();
+            if (index >= 0) {
+                JsonNode parent = this.at(parentPtr);
+                if (parent.isArray()) {
+                    ((ArrayNode) parent).set(index, value);
+                    return this;
+                }
+            }
+        }
+        String propName = lastSegment.getMatchingProperty();
+        withObject(parentPtr).set(propName, value);
+        return this;
+    }
+
+    /**********************************************************************
     /* Standard method overrides
     /**********************************************************************
      */
@@ -1030,8 +1103,8 @@ child.getClass().getName(), propName, OverwriteMode.NULLS);
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof ObjectNode) {
-            return _childrenEqual((ObjectNode) o);
+        if (o instanceof ObjectNode objectNode) {
+            return _childrenEqual(objectNode);
         }
         return false;
     }

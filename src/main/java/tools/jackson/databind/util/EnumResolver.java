@@ -142,7 +142,7 @@ public class EnumResolver implements java.io.Serializable
         
         // finally, build
         // from last to first, so that in case of duplicate values, first wins
-        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        HashMap<String, Enum<?>> map = new HashMap<>();
         for (int i = enumConstants.length; --i >= 0; ) {
             Enum<?> enumValue = enumConstants[i];
             String name = names[i];
@@ -248,9 +248,17 @@ public class EnumResolver implements java.io.Serializable
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls);
         final Enum<?> defaultEnum = _enumDefault(config, annotatedClass, enumConstants);
-        
+
+        // introspect
+        // 10-Sep-2026, pjfanning: [databind#6210] Aliases need to be honored here too
+        final String[][] allAliases = new String[enumConstants.length][];
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        if (ai != null) {
+            ai.findEnumAliases(config, annotatedClass, enumConstants, allAliases);
+        }
+
         // build
-        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        HashMap<String, Enum<?>> map = new HashMap<>();
         // from last to first, so that in case of duplicate values, first wins
         for (int i = enumConstants.length; --i >= 0; ) {
             Enum<?> en = enumConstants[i];
@@ -261,6 +269,16 @@ public class EnumResolver implements java.io.Serializable
                 }
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to access @JsonValue of Enum value "+en+": "+e.getMessage());
+            }
+        }
+        // Aliases added after all primary ids (which they must not override),
+        // from first to last so that in case of duplicate aliases, first wins
+        for (int i = 0, len = enumConstants.length; i < len; ++i) {
+            String[] aliases = allAliases[i];
+            if (aliases != null) {
+                for (String alias : aliases) {
+                    map.putIfAbsent(alias, enumConstants[i]);
+                }
             }
         }
         return new EnumResolver(enumCls, enumConstants, map,
@@ -327,11 +345,13 @@ public class EnumResolver implements java.io.Serializable
     }
 
     private final Enum<?> _findEnumIgnoreCase(final String key) {
-        return _enumsById.entrySet().stream()
-                .filter(e -> e.getKey().equalsIgnoreCase(key))
-                .map(e -> e.getValue())
-                .findFirst()
-                .orElseGet(null);
+        // potential hot-spot, do not use streams:
+        for (Map.Entry<String, Enum<?>> entry : _enumsById.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(key)) {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 
     public Enum<?> getEnum(int index) {

@@ -23,10 +23,10 @@ public class TokenBufferSerializer
     public TokenBufferSerializer() { super(TokenBuffer.class); }
 
     @Override
-    public void serialize(TokenBuffer value, JsonGenerator jgen, SerializationContext provider)
+    public void serialize(TokenBuffer value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
-        value.serialize(jgen);
+        value.serialize(g);
     }
 
     /**
@@ -40,8 +40,8 @@ public class TokenBufferSerializer
      * than doing introspection on both serialization and deserialization.
      */
     @Override
-    public final void serializeWithType(TokenBuffer value, JsonGenerator g, SerializationContext ctxt,
-            TypeSerializer typeSer)
+    public final void serializeWithType(TokenBuffer value, JsonGenerator g,
+            SerializationContext ctxt, TypeSerializer typeSer)
         throws JacksonException
     {
         // 28-Jun-2017, tatu: As per javadoc, not sure what to report as likely shape. Could

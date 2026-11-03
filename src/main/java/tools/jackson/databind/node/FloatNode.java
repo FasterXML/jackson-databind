@@ -189,10 +189,10 @@ public class FloatNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof FloatNode) {
+        if (o instanceof FloatNode otherNode) {
             // We must account for NaNs: NaN does not equal NaN, therefore we have
             // to use Float.compare().
-            final float otherValue = ((FloatNode) o)._value;
+            final float otherValue = otherNode._value;
             return Float.compare(_value, otherValue) == 0;
         }
         return false;

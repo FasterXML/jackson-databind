@@ -21,6 +21,7 @@ import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 
@@ -121,10 +122,11 @@ public class DurationDeserTest extends DateTimeTestBase
     public void testDeserializationAsFloatEdgeCase03() throws Exception
     {
         // Duration can't go this low
-        assertThrows(ArithmeticException.class, () -> {
+        DateTimeParseException dpe = assertThrows(DateTimeParseException.class, () -> {
             READER.without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                     .readValue(Long.MIN_VALUE + ".1");
         });
+        assertInstanceOf(ArithmeticException.class, dpe.getCause());
     }
 
     /*
@@ -310,7 +312,7 @@ public class DurationDeserTest extends DateTimeTestBase
                 .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(prefix + "13498.000008374]");
 
-        assertTrue(value instanceof Duration, "The value should be a Duration.");
+        assertInstanceOf(Duration.class, value, "The value should be a Duration.");
         assertEquals(duration, value, "The value is not correct.");
     }
 
@@ -324,7 +326,7 @@ public class DurationDeserTest extends DateTimeTestBase
         TemporalAmount value = mapper.readerFor(TemporalAmount.class)
                 .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(prefix + "13498]");
-        assertTrue(value instanceof Duration, "The value should be a Duration.");
+        assertInstanceOf(Duration.class, value, "The value should be a Duration.");
         assertEquals(Duration.ofSeconds(13498L), value, "The value is not correct.");
     }
 
@@ -339,7 +341,7 @@ public class DurationDeserTest extends DateTimeTestBase
                 .readerFor(TemporalAmount.class)
                 .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(prefix + "13498837]");
-        assertTrue(value instanceof Duration, "The value should be a Duration.");
+        assertInstanceOf(Duration.class, value, "The value should be a Duration.");
         assertEquals(Duration.ofSeconds(13498L, 837000000), value, "The value is not correct.");
     }
 
@@ -353,7 +355,7 @@ public class DurationDeserTest extends DateTimeTestBase
             .build();
         TemporalAmount value = mapper.readerFor(TemporalAmount.class)
                 .readValue(prefix + '"' + duration.toString() + "\"]");
-        assertTrue(value instanceof Duration, "The value should be a Duration.");
+        assertInstanceOf(Duration.class, value, "The value should be a Duration.");
         assertEquals(duration, value, "The value is not correct.");
     }
     

@@ -211,10 +211,16 @@ public class JsonNodeDecimalValueTest
     public void asDecimalFromMiscOther()
     {
         // "null" becomes "0.0"
-        _assertAsDecimal(BigDecimal.ZERO, NODES.nullNode());
+        assertEquals(BigDecimal.ZERO, NODES.nullNode().asDecimal());
 
-        // but "missing" still fails
-        _assertFailAsDecimalForNonNumber(NODES.missingNode());
+        // but also defaulting
+        assertEquals(BD_DEFAULT, NODES.nullNode().asDecimal(BD_DEFAULT));
+        assertFalse(NODES.nullNode().asDecimalOpt().isPresent());
+
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals(BigDecimal.ZERO, NODES.missingNode().asDecimal());
+        assertEquals(BD_DEFAULT, NODES.missingNode().asDecimal(BD_DEFAULT));
+        assertFalse(NODES.missingNode().asDecimalOpt().isPresent());
     }
     
     // // // Shared helper methods
@@ -245,7 +251,7 @@ public class JsonNodeDecimalValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("decimalValue()")
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains("value type not numeric");
 
         // Verify default value handling
@@ -268,7 +274,7 @@ public class JsonNodeDecimalValueTest
     }
 
     private void _assertFailAsDecimalForNonNumber(JsonNode node) {
-        _assertFailAsDecimal(node, "value type not coercible to `BigDecimal`");
+        _assertFailAsDecimal(node, "value type not coercible");
     }
 
     private void _assertFailAsDecimal(JsonNode node, String extraFailMsg) {
@@ -277,7 +283,7 @@ public class JsonNodeDecimalValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("asDecimal()")
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains(extraFailMsg);
 
         // Verify default value handling

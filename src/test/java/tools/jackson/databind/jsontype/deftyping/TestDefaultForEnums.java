@@ -70,7 +70,7 @@ public class TestDefaultForEnums
         bean.timeUnit = TimeUnit.SECONDS;
 
         // First, without type info
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = newJsonMapper();
         String json = m.writeValueAsString(bean);
         TimeUnitBean result = m.readValue(json, TimeUnitBean.class);
         assertEquals(TimeUnit.SECONDS, result.timeUnit);

@@ -15,6 +15,8 @@ public abstract class StdScalarDeserializer<T> extends StdDeserializer<T>
     protected StdScalarDeserializer(Class<?> vc) { super(vc); }
     protected StdScalarDeserializer(JavaType valueType) { super(valueType); }
 
+    // @since 3.1
+    protected StdScalarDeserializer(StdDeserializer<?> src) { super(src); }
     protected StdScalarDeserializer(StdScalarDeserializer<?> src) { super(src); }
 
     /*

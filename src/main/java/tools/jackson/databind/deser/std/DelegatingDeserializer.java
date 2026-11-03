@@ -1,6 +1,7 @@
 package tools.jackson.databind.deser.std;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
@@ -16,7 +17,7 @@ import tools.jackson.databind.util.NameTransformer;
  * Base class that simplifies implementations of {@link ValueDeserializer}s
  * that mostly delegate functionality to another deserializer implementation
  * (possibly forming a chaining of deserializers delegating functionality
- * in some cases)
+ * in some cases).
  */
 public abstract class DelegatingDeserializer
     extends StdDeserializer<Object>
@@ -31,7 +32,7 @@ public abstract class DelegatingDeserializer
 
     public DelegatingDeserializer(ValueDeserializer<?> d)
     {
-        super(d.handledType());
+        super(Objects.requireNonNull(d, "delegatee must not be null").handledType());
         _delegatee = d;
     }
 
@@ -43,6 +44,14 @@ public abstract class DelegatingDeserializer
 
     protected abstract ValueDeserializer<?> newDelegatingInstance(ValueDeserializer<?> newDelegatee);
 
+    // @since 3.1
+    protected final ValueDeserializer<?> _newIfChanged(ValueDeserializer<?> newDelegatee) {
+        if (newDelegatee == _delegatee) {
+            return this;
+        }
+        return newDelegatingInstance(newDelegatee);
+    }
+
     /*
     /**********************************************************************
     /* Overridden methods for contextualization, resolving
@@ -51,9 +60,7 @@ public abstract class DelegatingDeserializer
 
     @Override
     public void resolve(DeserializationContext ctxt) {
-        if (_delegatee != null) {
-            _delegatee.resolve(ctxt);
-        }
+        _delegatee.resolve(ctxt);
     }
 
     @Override
@@ -61,12 +68,8 @@ public abstract class DelegatingDeserializer
             BeanProperty property)
     {
         JavaType vt = ctxt.constructType(_delegatee.handledType());
-        ValueDeserializer<?> del = ctxt.handleSecondaryContextualization(_delegatee,
-                property, vt);
-        if (del == _delegatee) {
-            return this;
-        }
-        return newDelegatingInstance(del);
+        return _newIfChanged(
+                ctxt.handleSecondaryContextualization(_delegatee, property, vt));
     }
 
     @SuppressWarnings("unchecked")
@@ -74,20 +77,12 @@ public abstract class DelegatingDeserializer
     public ValueDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
             NameTransformer unwrapper)
     {
-        ValueDeserializer<?> unwrapping = _delegatee.unwrappingDeserializer(ctxt, unwrapper);
-        if (unwrapping == _delegatee) {
-            return this;
-        }
-        return (ValueDeserializer<Object>) newDelegatingInstance(unwrapping);
+        return (ValueDeserializer<Object>) _newIfChanged(_delegatee.unwrappingDeserializer(ctxt, unwrapper));
     }
 
     @Override
-    public ValueDeserializer<?> replaceDelegatee(ValueDeserializer<?> delegatee)
-    {
-        if (delegatee == _delegatee) {
-            return this;
-        }
-        return newDelegatingInstance(delegatee);
+    public ValueDeserializer<?> replaceDelegatee(ValueDeserializer<?> delegatee) {
+        return _newIfChanged(delegatee);
     }
 
     /*

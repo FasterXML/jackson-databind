@@ -3,9 +3,6 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.JsonNode;
@@ -55,8 +52,28 @@ public class NullNode
     }
 
     @Override
+    public boolean asBoolean(boolean defaultValue) {
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<Boolean> asBooleanOpt() {
+        return Optional.empty();
+    }
+
+    @Override
     protected String _asString() {
         return "";
+    }
+
+    @Override
+    public String asString(String defaultValue) {
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<String> asStringOpt() {
+        return Optional.empty();
     }
 
     // Explicit overrides for all overloads for documentation purposes
@@ -85,16 +102,6 @@ public class NullNode
         return 0;
     }
 
-    @Override
-    public short asShort(short defaultValue) {
-        return 0;
-    }
-
-    @Override
-    public Optional<Short> asShortOpt() {
-        return Optional.of((short) 0);
-    }
-
     // `intValue()` (etc) fine as defaults (fail); but need to override `asInt()`
 
     @Override
@@ -102,44 +109,16 @@ public class NullNode
         return 0;
     }
 
-    @Override
-    public int asInt(int defaultValue) {
-        return 0;
-    }
-
-    @Override
-    public OptionalInt asIntOpt() {
-        return OptionalInt.of(0);
-    }
-
     // `longValue()` (etc) fine as defaults (fail); but need to override `asLong()`
 
     @Override
     public long asLong() { return 0L; }
-
-    @Override
-    public long asLong(long defaultValue) { return 0L; }
-
-    @Override
-    public OptionalLong asLongOpt() {
-        return OptionalLong.of(0L);
-    }
 
     // `bigIntegerValue()` (etc) fine as defaults (fail); but need to override `asBigInteger()`
 
     @Override
     public BigInteger asBigInteger() {
         return BigInteger.ZERO;
-    }
-
-    @Override
-    public BigInteger asBigInteger(BigInteger defaultValue) {
-        return asBigInteger();
-    }
-
-    @Override
-    public Optional<BigInteger> asBigIntegerOpt() {
-        return Optional.of(asBigInteger());
     }
 
     // `floatValue()` (etc) fine as defaults (fail); but need to override `asFloat()`
@@ -149,16 +128,6 @@ public class NullNode
         return 0.0f;
     }
 
-    @Override
-    public float asFloat(float defaultValue) {
-        return asFloat();
-    }
-
-    @Override
-    public Optional<Float> asFloatOpt() {
-        return Optional.of(asFloat());
-    }
-
     // `doubleValue()` (etc) fine as defaults (fail); but need to override `asDouble()`
 
     @Override
@@ -166,31 +135,11 @@ public class NullNode
         return 0.0d;
     }
 
-    @Override
-    public double asDouble(double defaultValue) {
-        return asDouble();
-    }
-
-    @Override
-    public OptionalDouble asDoubleOpt() {
-        return OptionalDouble.of(asDouble());
-    }
-    
     // `decimalValue()` (etc) fine as defaults (fail); but need to override `asDecimal()`
 
     @Override
     public BigDecimal asDecimal() {
         return BigDecimal.ZERO;
-    }
-
-    @Override
-    public BigDecimal asDecimal(BigDecimal defaultValue) {
-        return asDecimal();
-    }
-
-    @Override
-    public Optional<BigDecimal> asDecimalOpt() {
-        return Optional.of(asDecimal());
     }
 
     /*

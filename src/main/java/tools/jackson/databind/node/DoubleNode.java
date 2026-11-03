@@ -75,7 +75,7 @@ public class DoubleNode
         if (Float.isFinite(f)) {
             return f;
         }
-        return _reportFloatCoercionRangeFail("floatValue()");
+        return _reportFloatConversionRangeFail("floatValue()");
     }
 
     @Override
@@ -102,7 +102,7 @@ public class DoubleNode
         if (Float.isFinite(f)) {
             return f;
         }
-        return _reportFloatCoercionRangeFail("asFloat()");
+        return _reportFloatConversionRangeFail("asFloat()");
     }
 
     @Override
@@ -220,10 +220,10 @@ public class DoubleNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof DoubleNode) {
+        if (o instanceof DoubleNode otherNode) {
             // We must account for NaNs: NaN does not equal NaN, therefore we have
             // to use Double.compare().
-            final double otherValue = ((DoubleNode) o)._value;
+            final double otherValue = otherNode._value;
             return Double.compare(_value, otherValue) == 0;
         }
         return false;

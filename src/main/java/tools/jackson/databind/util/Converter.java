@@ -14,7 +14,7 @@ import tools.jackson.databind.type.TypeFactory;
  * @param <IN> Type of values converter takes
  * @param <OUT> Result type from conversion
  *
- * @see tools.jackson.databind.ser.std.StdDelegatingSerializer
+ * @see tools.jackson.databind.ser.std.StdConvertingSerializer
  * @see tools.jackson.databind.deser.std.StdConvertingDeserializer
  */
 public interface Converter<IN,OUT>

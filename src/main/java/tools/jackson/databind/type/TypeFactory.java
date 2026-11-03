@@ -286,18 +286,18 @@ public class TypeFactory
      * default instance is used for determination.
      */
     public static Class<?> rawClass(Type t) {
-        if (t instanceof Class<?>) {
-            return (Class<?>) t;
-        } else if (t instanceof JavaType) {
-            return ((JavaType) t).getRawClass();
-        } else if (t instanceof GenericArrayType) {
-            return Array.newInstance(rawClass(((GenericArrayType) t).getGenericComponentType()), 0).getClass();
-        } else if (t instanceof ParameterizedType) {
-            return rawClass(((ParameterizedType) t).getRawType());
-        } else if (t instanceof TypeVariable<?>) {
-            return rawClass(((TypeVariable<?>) t).getBounds()[0]);
-        } else if (t instanceof WildcardType) {
-            return rawClass(((WildcardType) t).getUpperBounds()[0]);
+        if (t instanceof Class<?> class1) {
+            return class1;
+        } else if (t instanceof JavaType jt) {
+            return jt.getRawClass();
+        } else if (t instanceof GenericArrayType gat) {
+            return Array.newInstance(rawClass(gat.getGenericComponentType()), 0).getClass();
+        } else if (t instanceof ParameterizedType pt) {
+            return rawClass(pt.getRawType());
+        } else if (t instanceof TypeVariable<?> tv) {
+            return rawClass(tv.getBounds()[0]);
+        } else if (t instanceof WildcardType wt) {
+            return rawClass(wt.getUpperBounds()[0]);
         }
         // 11-Oct-2024, tatu: In 2.x used to call `defaultInstance().constructType(t).getRawClass()`
         //   but does not appear necessary.
@@ -352,7 +352,11 @@ public class TypeFactory
         }
         if (loader != null) {
             try {
-                return classForName(className, true, loader);
+                // Resolve only; do NOT initialize the class here. Class names come
+                // from input (Class-valued properties, polymorphic type ids), and a
+                // named class should not have its static initializer run just to
+                // resolve it -- initialization happens if/when it is actually used.
+                return classForName(className, false, loader);
             } catch (Exception e) {
                 prob = ClassUtil.getRootCause(e);
             }
@@ -370,11 +374,13 @@ public class TypeFactory
 
     protected Class<?> classForName(String name, boolean initialize,
             ClassLoader loader) throws ClassNotFoundException {
-        return Class.forName(name, true, loader);
+        return Class.forName(name, initialize, loader);
     }
 
     protected Class<?> classForName(String name) throws ClassNotFoundException {
-        return Class.forName(name);
+        // Match the loader used by `Class.forName(name)` (this class's loader) but
+        // without initializing the resolved class; see `findClass(...)`.
+        return Class.forName(name, false, TypeFactory.class.getClassLoader());
     }
 
     protected Class<?> _findPrimitive(String className)
@@ -597,8 +603,8 @@ public class TypeFactory
     private boolean _verifyAndResolvePlaceholders(JavaType exp, JavaType act)
     {
         // See if we have an actual type placeholder to resolve; if yes, replace
-        if (act instanceof PlaceholderForType) {
-            ((PlaceholderForType) act).actualType(exp);
+        if (act instanceof PlaceholderForType placeholderForType) {
+            placeholderForType.actualType(exp);
             return true;
         }
         // if not, try to verify compatibility. But note that we cannot
@@ -862,8 +868,8 @@ public class TypeFactory
     public CollectionLikeType constructCollectionLikeType(Class<?> collectionClass, JavaType elementType) {
         JavaType type = _fromClass(null, collectionClass,
                 TypeBindings.createIfNeeded(collectionClass, elementType));
-        if (type instanceof CollectionLikeType) {
-            return (CollectionLikeType) type;
+        if (type instanceof CollectionLikeType collectionLikeType) {
+            return collectionLikeType;
         }
         return CollectionLikeType.upgradeFrom(type, elementType);
     }
@@ -948,8 +954,8 @@ public class TypeFactory
         //    a valid use case here
         JavaType type = _fromClass(null, mapClass,
                 TypeBindings.createIfNeeded(mapClass, new JavaType[] { keyType, valueType }));
-        if (type instanceof MapLikeType) {
-            return (MapLikeType) type;
+        if (type instanceof MapLikeType mapLikeType) {
+            return mapLikeType;
         }
         return MapLikeType.upgradeFrom(type, keyType, valueType);
     }
@@ -1269,26 +1275,26 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         JavaType resultType;
 
         // simple class?
-        if (srcType instanceof Class<?>) {
+        if (srcType instanceof Class<?> class1) {
             // Important: remove possible bindings since this is type-erased thingy
-            resultType = _fromClass(context, (Class<?>) srcType, EMPTY_BINDINGS);
+            resultType = _fromClass(context, class1, EMPTY_BINDINGS);
         }
         // But if not, need to start resolving.
-        else if (srcType instanceof ParameterizedType) {
-            resultType = _fromParamType(context, (ParameterizedType) srcType, bindings);
+        else if (srcType instanceof ParameterizedType pt) {
+            resultType = _fromParamType(context, pt, bindings);
         }
-        else if (srcType instanceof JavaType) { // [databind#116]
+        else if (srcType instanceof JavaType jt) { // [databind#116]
             // no need to modify further if we already had JavaType
-            return (JavaType) srcType;
+            return jt;
         }
-        else if (srcType instanceof GenericArrayType) {
-            resultType = _fromArrayType(context, (GenericArrayType) srcType, bindings);
+        else if (srcType instanceof GenericArrayType genericArrayType) {
+            resultType = _fromArrayType(context, genericArrayType, bindings);
         }
-        else if (srcType instanceof TypeVariable<?>) {
-            resultType = _fromVariable(context, (TypeVariable<?>) srcType, bindings);
+        else if (srcType instanceof TypeVariable<?> typeVariable) {
+            resultType = _fromVariable(context, typeVariable, bindings);
         }
-        else if (srcType instanceof WildcardType) {
-            resultType = _fromWildcard(context, (WildcardType) srcType, bindings);
+        else if (srcType instanceof WildcardType wildcardType) {
+            resultType = _fromWildcard(context, wildcardType, bindings);
         } else {
             // sanity check
             throw new IllegalArgumentException("Unrecognized Type: "+((srcType == null) ? "[null]" : srcType.toString()));
@@ -1538,27 +1544,57 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         if (paramCount == 0) {
             newBindings = EMPTY_BINDINGS;
         } else {
+            boolean anyWildcards = false;
+
             JavaType[] pt = new JavaType[paramCount];
             for (int i = 0; i < paramCount; ++i) {
-                pt[i] = _fromAny(context, args[i], parentBindings);
+                if (args[i] instanceof WildcardType wt) {
+                    anyWildcards = true;
+                    // [databind#5285] Resolve wildcards using best available bound:
+                    // use the type variable's declared upper bound when the wildcard
+                    // itself is unbounded and the variable has a non-Object bound.
+                    // Self-referential parameters excluded (handled below, [databind#4118]).
+                    Type effectiveBound = wt.getUpperBounds()[0];
+                    if (effectiveBound == Object.class) {
+                        Type[] lowerBounds = wt.getLowerBounds();
+                        if (lowerBounds == null || lowerBounds.length == 0) {
+                            TypeVariable<? extends Class<?>> typeVar = rawType.getTypeParameters()[i];
+                            if (!_isSelfReferentialTypeParameter(typeVar, rawType)) {
+                                final Type[] varBounds;
+                                synchronized (typeVar) {
+                                    varBounds = typeVar.getBounds();
+                                }
+                                if (varBounds.length > 0 && varBounds[0] != Object.class) {
+                                    effectiveBound = varBounds[0];
+                                }
+                            }
+                        }
+                    }
+                    pt[i] = _fromAny(context, effectiveBound, parentBindings);
+                } else {
+                    pt[i] = _fromAny(context, args[i], parentBindings);
+                }
             }
             newBindings = TypeBindings.create(rawType, pt);
 
-            // [databind#4118] Unbind any wildcards with a less specific upper bound than
-            // declared on the type variable
-
-            // [databind#4147] Regressum Maximum, alas! Need to undo fix due to side effects;
-            // plan is to re-tackle in 2.17
-            /*
-            for (int i = 0; i < paramCount; ++i) {
-                if (args[i] instanceof WildcardType && !pt[i].hasGenericTypes()) {
-                    TypeVariable<? extends Class<?>> typeVariable = rawType.getTypeParameters()[i];
-                    if (pt[i].getRawClass().isAssignableFrom(rawClass(typeVariable))) {
-                        newBindings = newBindings.withoutVariable(typeVariable.getName());
+            // [databind#4118] Unbind wildcards in (direct) self-referential type parameters
+            // to allow deserializers to use the class definition's bounds instead of Object.
+            // [databind#4147] Only unbind for self-referential parameters to avoid
+            // breaking multi-parameter types like Either<L, R> where only some are wildcards.
+            if (anyWildcards) {
+                for (int i = 0; i < paramCount; ++i) {
+                    if (args[i] instanceof WildcardType && !pt[i].hasGenericTypes()) {
+                        TypeVariable<? extends Class<?>> typeVariable = rawType.getTypeParameters()[i];
+    
+                        // Only unbind if this is a (direct) self-referential type parameter
+                        if (_isSelfReferentialTypeParameter(typeVariable, rawType)) {
+                            if (pt[i].getRawClass().isAssignableFrom(rawClass(typeVariable))) {
+                                newBindings = newBindings.withoutVariable(typeVariable.getName());
+                            }
+                        }
                     }
                 }
             }
-            */
         }
         return _fromClass(context, rawType, newBindings);
     }
@@ -1607,5 +1643,77 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
          * For now, we won't try anything more advanced; above is just for future reference.
          */
         return _fromAny(context, type.getUpperBounds()[0], bindings);
+    }
+
+    /**
+     * Helper method to determine if a type parameter is self-referential (directly
+     * or via one level of mutual recursion), meaning its bound ultimately references
+     * the declaring class.
+     *<p>
+     * Direct self-reference: {@code class Foo<T extends Foo<?>>} — T's bound IS Foo.
+     *<p>
+     * Mutual (indirect) self-reference: {@code class A<T extends B<?>>} where
+     * {@code class B<U extends A<?,?>>} — T's bound (B) has a TypeVariable (U)
+     * whose bound refers back to A. This is the case introduced by [databind#5857].
+     *<p>
+     * Detecting these cycles prevents infinite recursion in the wildcard bound
+     * resolution added for [databind#5285] (PR #5639), which was the regression
+     * source for [databind#5857]: that code replaces an unbounded wildcard with the
+     * TypeVariable's declared bound, but did not guard against mutually recursive
+     * bound chains.
+     *<p>
+     * NOTE: only checks one level of indirection (A → B → A). Deeper chains
+     * (A → B → C → A) are not handled and remain theoretically possible but are
+     * extremely rare in practice.
+     *
+     * @param typeVar Type variable to check
+     * @param declaringClass The class that declares this type variable
+     * @return {@code true} if the type variable's bound directly or indirectly
+     *   references the declaring class
+     *
+     * @since 3.1
+     */
+    protected boolean _isSelfReferentialTypeParameter(TypeVariable<?> typeVar, Class<?> declaringClass) {
+        Type[] bounds = typeVar.getBounds();
+        if (bounds == null || bounds.length == 0) {
+            return false;
+        }
+
+        // Check the first bound (typically the important one)
+        Type bound = bounds[0];
+
+        // Direct self-reference: bound is the raw declaring class
+        if (bound == declaringClass) {
+            return true;
+        }
+
+        if (!(bound instanceof ParameterizedType pt)) {
+            return false;
+        }
+
+        // Direct self-reference via parameterized type (e.g. T extends Foo<T>)
+        if (pt.getRawType() == declaringClass) {
+            return true;
+        }
+
+        // [databind#5857] Indirect (mutual) recursion: bound's class itself has
+        // TypeVariables whose bounds reference declaringClass. For example:
+        //   class A<T extends B<?>> and class B<U extends A<?,?>>
+        // T's bound (B) is not A, but B's TypeVariable U has a bound that IS A.
+        // Treating T as self-referential here breaks the infinite recursion cycle
+        // that was introduced by the wildcard-bound resolution in [databind#5285].
+        Class<?> boundClass = (Class<?>) pt.getRawType();
+        for (TypeVariable<?> innerVar : boundClass.getTypeParameters()) {
+            for (Type innerBound : innerVar.getBounds()) {
+                if (innerBound == declaringClass) {
+                    return true;
+                }
+                if (innerBound instanceof ParameterizedType innerPt
+                        && innerPt.getRawType() == declaringClass) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

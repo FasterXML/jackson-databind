@@ -27,8 +27,8 @@ public class JacksonSerializableSerializer
 
     @Override
     public boolean isEmpty(SerializationContext serializers, JacksonSerializable value) {
-        if (value instanceof JacksonSerializable.Base) {
-            return ((JacksonSerializable.Base) value).isEmpty(serializers);
+        if (value instanceof JacksonSerializable.Base base) {
+            return base.isEmpty(serializers);
         }
         return false;
     }

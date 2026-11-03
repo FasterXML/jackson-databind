@@ -22,6 +22,7 @@ import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 import tools.jackson.databind.json.JsonMapper;
@@ -218,6 +219,23 @@ public class LocalDateDeserTest extends DateTimeTestBase
         assertEquals(LocalDate.of(1970, Month.JANUARY, 3), READER.readValue("2"));
 
         assertEquals(LocalDate.of(1970, Month.FEBRUARY, 10), READER.readValue("40"));
+    }
+
+    @Test
+    public void testInvalidEpochDayValueInLenientMode()
+    {
+        // Test with an invalid epoch day value that causes DateTimeException
+        // even in lenient mode (default)
+        try {
+            READER.readValue("-922337203685");
+            fail("Should not pass");
+        } catch (DateTimeParseException e) {
+            // Verify it's a DateTimeParseException, not DateTimeException
+            verifyException(e, "Failed to deserialize");
+            verifyException(e, "java.time.LocalDate");
+            verifyException(e, "-922337203685");
+            verifyException(e, "Invalid value for EpochDay");
+        }
     }
 
     // But with alternate setting, not so
@@ -551,6 +569,27 @@ public class LocalDateDeserTest extends DateTimeTestBase
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize instance of `java.time.LocalDate`");
+        }
+    }
+
+    @Test
+    public void testInvalidEpochDayValue()
+    {
+        // Test with an invalid epoch day value that causes DateTimeException
+        ObjectMapper mapper = newMapperBuilder()
+                .withConfigOverride(LocalDate.class,
+                        o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER_INT)))
+                .build();
+        
+        try {
+            mapper.readValue("-922337203685", LocalDate.class);
+            fail("Should not pass");
+        } catch (DateTimeParseException e) {
+            // Verify it's a DateTimeParseException, not DateTimeException
+            verifyException(e, "Failed to deserialize");
+            verifyException(e, "java.time.LocalDate");
+            verifyException(e, "-922337203685");
+            verifyException(e, "Invalid value for EpochDay");
         }
     }
 

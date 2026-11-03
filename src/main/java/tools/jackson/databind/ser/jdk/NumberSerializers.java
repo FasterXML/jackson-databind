@@ -13,7 +13,6 @@ import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
-import tools.jackson.databind.ser.std.ToStringSerializer;
 
 /**
  * Container class for serializers used for handling standard JDK-provided
@@ -94,7 +93,7 @@ public class NumberSerializers {
                     if (((Class<?>) handledType()) == BigDecimal.class) {
                         return NumberSerializer.bigDecimalAsStringSerializer();
                     }
-                    return ToStringSerializer.instance;
+                    return NumberSerializer.createStringSerializer(prov, format, _isInt);
                 default:
                 }
             }
@@ -118,7 +117,7 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializationContext provider) throws JacksonException {
+                SerializationContext ctxt) throws JacksonException {
             gen.writeNumber((Short) value);
         }
     }
@@ -138,17 +137,17 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializationContext provider) throws JacksonException {
+                SerializationContext ctxt) throws JacksonException {
             gen.writeNumber((Integer) value);
         }
 
         // IMPORTANT: copied from `NonTypedScalarSerializerBase`
         @Override
         public void serializeWithType(Object value, JsonGenerator gen,
-                SerializationContext provider, TypeSerializer typeSer)
+                SerializationContext ctxt, TypeSerializer typeSer)
                 throws JacksonException {
             // no type info, just regular serialization
-            serialize(value, gen, provider);
+            serialize(value, gen, ctxt);
         }
     }
 
@@ -167,7 +166,7 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializationContext provider) throws JacksonException {
+                SerializationContext ctxt) throws JacksonException {
             gen.writeNumber(((Number) value).intValue());
         }
     }
@@ -180,7 +179,7 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializationContext provider) throws JacksonException {
+                SerializationContext ctxt) throws JacksonException {
             gen.writeNumber((Long) value);
         }
     }
@@ -195,7 +194,7 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializationContext provider) throws JacksonException {
+                SerializationContext ctxt) throws JacksonException {
             gen.writeNumber((Float) value);
         }
     }
@@ -215,7 +214,7 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializationContext provider) throws JacksonException
+                SerializationContext ctxt) throws JacksonException
         {
             gen.writeNumber((Double) value);
         }

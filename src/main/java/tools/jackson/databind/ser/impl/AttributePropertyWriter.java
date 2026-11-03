@@ -75,7 +75,9 @@ public class AttributePropertyWriter
      */
 
     @Override
-    protected Object value(Object bean, JsonGenerator jgen, SerializationContext prov) throws Exception {
-        return prov.getAttribute(_attrName);
+    protected Object value(Object bean, JsonGenerator g, SerializationContext ctxt)
+        throws Exception
+    {
+        return ctxt.getAttribute(_attrName);
     }
 }

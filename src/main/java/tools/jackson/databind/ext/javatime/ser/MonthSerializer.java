@@ -25,14 +25,15 @@ public class MonthSerializer
         super(Month.class, formatter);
     }
 
-    private MonthSerializer(MonthSerializer base, DateTimeFormatter dtf, Boolean useTimestamp) {
-        super(base, dtf, useTimestamp, null, null);
+    private MonthSerializer(MonthSerializer base, DateTimeFormatter dtf, Boolean useTimestamp,
+            JsonFormat.Shape shape) {
+        super(base, dtf, useTimestamp, null, shape);
     }
 
     @Override
     protected MonthSerializer withFormat(DateTimeFormatter dtf,
                                             Boolean useTimestamp, JsonFormat.Shape shape) {
-        return new MonthSerializer(this, dtf, useTimestamp);
+        return new MonthSerializer(this, dtf, useTimestamp, shape);
     }
 
     @Override

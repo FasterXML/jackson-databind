@@ -36,7 +36,8 @@ public class JacksonAnnotationIntrospector
     @SuppressWarnings("unchecked")
     private final static Class<? extends Annotation>[] ANNOTATIONS_TO_INFER_SER = (Class<? extends Annotation>[])
             new Class<?>[] {
-        JsonSerialize.class,
+        JsonSerialize.class, // databind-specific
+        JsonSerializeAs.class, // since 2.21 alias (and eventual replacement) for `@JsonSerialize.as`
         JsonView.class,
         JsonFormat.class,
         JsonTypeInfo.class,
@@ -49,14 +50,15 @@ public class JacksonAnnotationIntrospector
     @SuppressWarnings("unchecked")
     private final static Class<? extends Annotation>[] ANNOTATIONS_TO_INFER_DESER = (Class<? extends Annotation>[])
             new Class<?>[] {
-        JsonDeserialize.class,
+        JsonDeserialize.class, // databind-specific
+        JsonDeserializeAs.class, // since 2.21 alias (and eventual replacement) for `@JsonDeserialize.as`
         JsonView.class,
         JsonFormat.class,
         JsonTypeInfo.class,
         JsonUnwrapped.class,
         JsonBackReference.class,
         JsonManagedReference.class,
-        JsonMerge.class // since 2.9
+        JsonMerge.class
     };
 
     // NOTE: To avoid mandatory Module dependency to "java.beans", support for 2
@@ -202,14 +204,19 @@ public class JacksonAnnotationIntrospector
         HashMap<String, String[]> enumToAliasMap = new HashMap<>();
         for (AnnotatedField field : annotatedClass.fields()) {
             JsonAlias alias = field.getAnnotation(JsonAlias.class);
-            if (alias != null) {
+            // [databind#6339]: skip empty `@JsonAlias`
+            if (alias != null && alias.value().length != 0) {
                 enumToAliasMap.putIfAbsent(field.getName(), alias.value());
             }
         }
 
+        // [databind#6339]: only overwrite slots with `@JsonAlias`, to keep aliases
+        // a secondary introspector (of AnnotationIntrospectorPair) has set
         for (int i = 0, end = enumValues.length; i < end; ++i) {
-            Enum<?> enumValue = enumValues[i];
-            aliasList[i] = enumToAliasMap.getOrDefault(enumValue.name(), new String[]{});
+            String[] aliases = enumToAliasMap.get(enumValues[i].name());
+            if (aliases != null) {
+                aliasList[i] = aliases;
+            }
         }
     }
 
@@ -351,8 +358,7 @@ public class JacksonAnnotationIntrospector
         if (!config.isEnabled(MapperFeature.DETECT_PARAMETER_NAMES)) {
             return null;
         }
-        if (m instanceof AnnotatedParameter) {
-            AnnotatedParameter p = (AnnotatedParameter) m;
+        if (m instanceof AnnotatedParameter p) {
             AnnotatedWithParams owner = p.getOwner();
             if (owner instanceof AnnotatedConstructor) {
                 // 15-Sep-2025, tatu: May seem odd but we'll keep access dynamic due
@@ -525,15 +531,14 @@ public class JacksonAnnotationIntrospector
         if (!v.hasId()) {
             Object id;
             // slight complication; for setters, type
-            if (!(m instanceof AnnotatedMethod)) {
-                id = m.getRawType().getName();
-            } else {
-                AnnotatedMethod am = (AnnotatedMethod) m;
+            if (m instanceof AnnotatedMethod am) {
                 if (am.getParameterCount() == 0) { // getter
                     id = m.getRawType().getName();
                 } else { // setter
                     id = am.getRawParameterType(0).getName();
                 }
+            } else {
+                id = m.getRawType().getName();
             }
             v = v.withId(id);
         }
@@ -669,7 +674,7 @@ public class JacksonAnnotationIntrospector
     }
     
     // @since 3.0
-    private List<NamedType> findSubtypesByJsonSubTypesAnnotation(MapperConfig<?> config,
+    protected List<NamedType> findSubtypesByJsonSubTypesAnnotation(MapperConfig<?> config,
             Annotated a, JsonSubTypes t)
     {
         JsonSubTypes.Type[] types = t.value();
@@ -691,7 +696,7 @@ public class JacksonAnnotationIntrospector
     }
 
     // @since 3.0
-    private List<NamedType> findSubtypesByJsonSubTypesAnnotationCheckRepeatedNames(String annotatedTypeName,
+    protected List<NamedType> findSubtypesByJsonSubTypesAnnotationCheckRepeatedNames(String annotatedTypeName,
             JsonSubTypes.Type[] types)
     {
         ArrayList<NamedType> result = new ArrayList<>(types.length);
@@ -720,7 +725,7 @@ public class JacksonAnnotationIntrospector
     }
     
     // @since 3.0
-    private List<NamedType> findSubtypesByPermittedSubclasses(MapperConfig<?> config,
+    protected List<NamedType> findSubtypesByPermittedSubclasses(MapperConfig<?> config,
             Annotated a, Class<?> clazz)
     {
         Class<?>[] subtypes = clazz.getPermittedSubclasses();
@@ -887,10 +892,15 @@ public class JacksonAnnotationIntrospector
         final TypeFactory tf = config.getTypeFactory();
 
         final JsonSerialize jsonSer = _findAnnotation(a, JsonSerialize.class);
+        final JsonSerializeAs jsonSerAs = _findAnnotation(a, JsonSerializeAs.class);
 
         // Ok: start by refining the main type itself; common to all types
 
-        final Class<?> serClass = (jsonSer == null) ? null : _classIfExplicit(jsonSer.as());
+        Class<?> serClass = (jsonSer == null) ? null : _classIfExplicit(jsonSer.as());
+        // 09-Dec-2025, tatu: [databind#5476] Also check @JsonSerializeAs
+        if (serClass == null && jsonSerAs != null) {
+            serClass = _classIfExplicit(jsonSerAs.value());
+        }
         if (serClass != null) {
             if (type.hasRawClass(serClass)) {
                 // 30-Nov-2015, tatu: As per [databind#1023], need to allow forcing of
@@ -925,7 +935,11 @@ public class JacksonAnnotationIntrospector
         // First, key type (for Maps, Map-like types):
         if (type.isMapLikeType()) {
             JavaType keyType = type.getKeyType();
-            final Class<?> keyClass = (jsonSer == null) ? null : _classIfExplicit(jsonSer.keyAs());
+            Class<?> keyClass = (jsonSer == null) ? null : _classIfExplicit(jsonSer.keyAs());
+            // 09-Dec-2025, tatu: [databind#5476] Also check @JsonSerializeAs
+            if (keyClass == null && jsonSerAs != null) {
+                keyClass = _classIfExplicit(jsonSerAs.key());
+            }
             if (keyClass != null) {
                 if (keyType.hasRawClass(keyClass)) {
                     keyType = keyType.withStaticTyping();
@@ -960,7 +974,11 @@ public class JacksonAnnotationIntrospector
         JavaType contentType = type.getContentType();
         if (contentType != null) { // collection[like], map[like], array, reference
             // And then value types for all containers:
-           final Class<?> contentClass = (jsonSer == null) ? null : _classIfExplicit(jsonSer.contentAs());
+           Class<?> contentClass = (jsonSer == null) ? null : _classIfExplicit(jsonSer.contentAs());
+           // 09-Dec-2025, tatu: [databind#5476] Also check @JsonSerializeAs
+           if (contentClass == null && jsonSerAs != null) {
+               contentClass = _classIfExplicit(jsonSerAs.content());
+           }
            if (contentClass != null) {
                if (contentType.hasRawClass(contentClass)) {
                    contentType = contentType.withStaticTyping();
@@ -1011,7 +1029,7 @@ public class JacksonAnnotationIntrospector
         return _findSortAlpha(ann);
     }
 
-    private final Boolean _findSortAlpha(Annotated ann) {
+    protected Boolean _findSortAlpha(Annotated ann) {
         JsonPropertyOrder order = _findAnnotation(ann, JsonPropertyOrder.class);
         // 23-Jun-2015, tatu: as per [databind#840], let's only consider
         //  `true` to have any significance.
@@ -1247,9 +1265,14 @@ public class JacksonAnnotationIntrospector
         final TypeFactory tf = config.getTypeFactory();
 
         final JsonDeserialize jsonDeser = _findAnnotation(a, JsonDeserialize.class);
+        final JsonDeserializeAs jsonDeserAs = _findAnnotation(a, JsonDeserializeAs.class);
 
         // Ok: start by refining the main type itself; common to all types
-        final Class<?> valueClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.as());
+        Class<?> valueClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.as());
+        // 09-Dec-2025, tatu: [databind#5475] Also check @JsonDeserializeAs
+        if (valueClass == null && jsonDeserAs != null) {
+            valueClass = _classIfExplicit(jsonDeserAs.value());
+        }
         if ((valueClass != null) && !type.hasRawClass(valueClass)
                 && !_primitiveAndWrapper(type, valueClass)) {
             try {
@@ -1265,7 +1288,11 @@ public class JacksonAnnotationIntrospector
         // First, key type (for Maps, Map-like types):
         if (type.isMapLikeType()) {
             JavaType keyType = type.getKeyType();
-            final Class<?> keyClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.keyAs());
+            Class<?> keyClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.keyAs());
+            // 09-Dec-2025, tatu: [databind#5475] Also check @JsonDeserializeAs
+            if (keyClass == null && jsonDeserAs != null) {
+                keyClass = _classIfExplicit(jsonDeserAs.keys());
+            }
             if ((keyClass != null)
                     && !_primitiveAndWrapper(keyType, keyClass)) {
                 try {
@@ -1281,7 +1308,11 @@ public class JacksonAnnotationIntrospector
         JavaType contentType = type.getContentType();
         if (contentType != null) { // collection[like], map[like], array, reference
             // And then value types for all containers:
-            final Class<?> contentClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.contentAs());
+            Class<?> contentClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.contentAs());
+            // 09-Dec-2025, tatu: [databind#5475] Also check @JsonDeserializeAs
+            if (contentClass == null && jsonDeserAs != null) {
+                contentClass = _classIfExplicit(jsonDeserAs.content());
+            }
             if ((contentClass != null)
                     && !_primitiveAndWrapper(contentType, contentClass)) {
                 try {
@@ -1323,6 +1354,19 @@ public class JacksonAnnotationIntrospector
     {
         JsonPOJOBuilder ann = _findAnnotation(ac, JsonPOJOBuilder.class);
         return (ann == null) ? null : new JsonPOJOBuilder.Value(ann);
+    }
+
+    @Override
+    public String findBuilderPrefix(MapperConfig<?> config, AnnotatedClass valueClass)
+    {
+        JsonDeserialize ann = _findAnnotation(valueClass, JsonDeserialize.class);
+        if (ann != null) {
+            String prefix = ann.builderPrefix();
+            if (!JsonDeserialize.USE_DEFAULT_PREFIX.equals(prefix)) {
+                return prefix;
+            }
+        }
+        return null;
     }
 
     /*
@@ -1452,7 +1496,7 @@ public class JacksonAnnotationIntrospector
         return PropertyName.construct(localName, namespace);
     }
 
-    private boolean _primitiveAndWrapper(Class<?> baseType, Class<?> refinement)
+    protected boolean _primitiveAndWrapper(Class<?> baseType, Class<?> refinement)
     {
         if (baseType.isPrimitive()) {
             return baseType == ClassUtil.primitiveType(refinement);
@@ -1463,7 +1507,7 @@ public class JacksonAnnotationIntrospector
         return false;
     }
 
-    private boolean _primitiveAndWrapper(JavaType baseType, Class<?> refinement)
+    protected boolean _primitiveAndWrapper(JavaType baseType, Class<?> refinement)
     {
         if (baseType.isPrimitive()) {
             return baseType.hasRawClass(ClassUtil.primitiveType(refinement));
@@ -1475,13 +1519,13 @@ public class JacksonAnnotationIntrospector
     }
 
     // @since 2.12
-    private DatabindException _databindException(String msg) {
+    protected DatabindException _databindException(String msg) {
         // not optimal as we have no parser/generator/context to pass
         return DatabindException.from((JsonParser) null, msg);
     }
 
     // @since 2.12
-    private DatabindException _databindException(Throwable t, String msg) {
+    protected DatabindException _databindException(Throwable t, String msg) {
         // not optimal as we have no parser/generator/context to pass
         return DatabindException.from((JsonParser) null, msg, t);
     }

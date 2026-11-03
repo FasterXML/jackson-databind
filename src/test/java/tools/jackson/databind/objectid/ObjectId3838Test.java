@@ -196,7 +196,12 @@ public class ObjectId3838Test extends DatabindTestUtil
 
             // 2. but works with non-empty JSON object
             ResultGetter nonEmptyObj = (ResultGetter) MAPPER.readValue(a2q(jsonStr), cls);
-            assertEquals("great", nonEmptyObj.result());
+            String result = nonEmptyObj.result();
+            if (!"great".equals(result)) {
+                fail("Class '"+cls.getName()+", json "+jsonStr
+                        +" : should get 'great', got "
+                        +((result == null) ? "null" : String.format("'%s'", result)));
+            }
         }
     }
 }

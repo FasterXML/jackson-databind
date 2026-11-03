@@ -132,7 +132,7 @@ public class NodeContext2049Test extends DatabindTestUtil
                   CollectionLikeType collectionType = ctxt.getTypeFactory().constructCollectionLikeType(propertyType.getRawClass(),
                             contentType);
                   ValueInstantiator instantiator = new ListValueInstantiator();
-                  CollectionDeserializer collDeser = new CollectionDeserializer(collectionType, objectDeserializer, null, instantiator);
+                  CollectionDeserializer collDeser = new CollectionDeserializer(collectionType, objectDeserializer, null, instantiator, null);
                   // Need to make the CollectionDeserializer contextual
                   retValue = collDeser.createContextual(ctxt, property);
              } else {

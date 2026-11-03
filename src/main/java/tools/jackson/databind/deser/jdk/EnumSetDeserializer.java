@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.deser.impl.NullsConstantProvider;
 import tools.jackson.databind.deser.std.StdDeserializer;
@@ -23,6 +24,7 @@ import tools.jackson.databind.util.AccessPattern;
  * to properly deal with recursive definition of "EnumSet&lt;K extends Enum&lt;K&gt;, V&gt;
  */
 @SuppressWarnings("rawtypes")
+@JacksonStdImpl
 public class EnumSetDeserializer
     extends StdDeserializer<EnumSet<?>>
 {
@@ -151,6 +153,8 @@ public class EnumSetDeserializer
         final Boolean unwrapSingle = findFormatFeature(ctxt, property, EnumSet.class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         ValueDeserializer<?> deser = _enumDeserializer;
+        // [databind#5870]: May have a content converter
+        deser = findConvertingContentDeserializer(ctxt, property, deser);
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(_enumType, property);
         } else { // if directly assigned, probably not yet contextual, so:

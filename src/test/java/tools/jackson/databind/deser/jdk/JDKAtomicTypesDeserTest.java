@@ -185,6 +185,23 @@ public class JDKAtomicTypesDeserTest
         assertEquals(12345678901L, value.get());
     }
 
+    // Coerced-from-String / coerced-from-Float paths went through
+    // `_parseLong` + `Long.intValue()`, silently truncating values above
+    // `Integer.MAX_VALUE`.
+    @Test
+    public void testAtomicLongFromStringAboveIntRange() throws Exception
+    {
+        AtomicLong value = MAPPER.readValue("\"9999999999\"", AtomicLong.class);
+        assertEquals(9999999999L, value.get());
+    }
+
+    @Test
+    public void testAtomicLongFromFloatAboveIntRange() throws Exception
+    {
+        AtomicLong value = MAPPER.readValue("12345678901.25", AtomicLong.class);
+        assertEquals(12345678901L, value.get());
+    }
+
     @Test
     public void testAtomicReference() throws Exception
     {
@@ -400,19 +417,30 @@ public class JDKAtomicTypesDeserTest
     {
         AtomicRefBean bean;
 
+        ObjectReader r = MAPPER.readerFor(AtomicRefBean.class);
+        
         // First: null should become empty, non-null reference
-        bean = MAPPER.readValue(a2q("{'atomic':null}"), AtomicRefBean.class);
+        bean = r.readValue(a2q("{'atomic':null}"));
         assertNotNull(bean._atomic);
         assertNull(bean._atomic.get());
 
         // And then absent (missing), via Creator method, should become actual null
-        bean = MAPPER.readValue("{}", AtomicRefBean.class);
+        // 25-Oct-2025, tatu: [databind#53530] Actually, by default should become
+        //   empty ref
+        bean = r.readValue("{}");
+        assertNotNull(bean._atomic);
+        assertNull(bean._atomic.get());
+
+        // 25-Oct-2025, tatu: but can reconfigure to get `null` instead
+        bean = r.with(DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES)
+                .readValue("{}");
         assertNull(bean._atomic);
 
-        // Except that we can override handling to produce empty
+        // Plus can override handling to produce empty
         AtomicRefBeanWithEmpty bean2 = MAPPER.readValue("{}", AtomicRefBeanWithEmpty.class);
         assertNotNull(bean2._atomic);
         assertNull(bean2._atomic.get());
+
     }
 
     // @since 2.14
@@ -429,7 +457,16 @@ public class JDKAtomicTypesDeserTest
         assertTrue(n.isNull());
 
         // And then absent (missing), via Creator method, should become actual null
+        // 25-Oct-2025, tatu: [databind#5350] Not any longer... (by default)
         bean = MAPPER.readValue("{}", AtomicRefWithNodeBean.class);
+        assertNotNull(bean._atomicNode);
+        n = bean._atomicNode.get();
+        assertTrue(n.isNull());
+
+        // but can reconfigure to get `null` instead
+        bean = MAPPER.readerFor(AtomicRefWithNodeBean.class)
+                .with(DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES)
+                .readValue("{}");
         assertNull(bean._atomicNode);
     }
 }

@@ -50,7 +50,7 @@ public class TypedArrayDeserTest
     @Test
     public void testIntList() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = newJsonMapper();
         // uses WRAPPER_OBJECT inclusion
         String JSON = "{\""+TypedListAsWrapper.class.getName()+"\":[4,5, 6]}";
         JavaType type = defaultTypeFactory().constructCollectionType(TypedListAsWrapper.class, Integer.class);
@@ -70,7 +70,7 @@ public class TypedArrayDeserTest
     @Test
     public void testBooleanListAsProp() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = newJsonMapper();
         // tries to use PROPERTY inclusion; but for ARRAYS (and scalars) will become ARRAY_WRAPPER
         String JSON = "[\""+TypedListAsProp.class.getName()+"\",[true, false]]";
         JavaType type = defaultTypeFactory().constructCollectionType(TypedListAsProp.class, Boolean.class);
@@ -84,7 +84,7 @@ public class TypedArrayDeserTest
     @Test
     public void testLongListAsWrapper() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = newJsonMapper();
         // uses OBJECT_ARRAY, works just fine
 
         String JSON = "{\""+TypedListAsWrapper.class.getName()+"\":[1, 3]}";

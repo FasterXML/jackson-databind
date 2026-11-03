@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
 
@@ -20,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static tools.jackson.databind.testutil.DatabindTestUtil.q;
 
 /**
  * Additional `java.util.Date` deserialization tests for cases where `ObjectMapper`
@@ -51,16 +54,6 @@ public class DateDeserializationTZTest
 
         @JsonFormat(pattern="'*'d MMM yyyy HH:mm:ss'*'", locale="FR", timezone="GMT+4")
         java.util.Date pattern_FR_GMT4;
-    }
-
-    static class DateAsStringBean {
-        @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="/yyyy/MM/dd/")
-        public Date date;
-    }
-
-    static class DateAsStringBeanGermany {
-        @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="/yyyy/MM/dd/", locale="fr_FR")
-        public Date date;
     }
 
     private final static ObjectMapper MAPPER;
@@ -359,12 +352,12 @@ public class DateDeserializationTZTest
 
         // Read it to make sure the format specified by the annotation is taken into account
         {
-            DateAsStringBean result = MAPPER.readValue(json, DateAsStringBean.class);
+            DateDeserializationTest.DateAsStringBean result = MAPPER.readValue(json, DateDeserializationTest.DateAsStringBean.class);
             assertNotNull(result);
             assertEquals( expected, result.date );
         }
         {
-            DateAsStringBean result = MAPPER.readerFor(DateAsStringBean.class)
+            DateDeserializationTest.DateAsStringBean result = MAPPER.readerFor(DateDeserializationTest.DateAsStringBean.class)
                     .with(Locale.GERMANY)
                     .readValue(json);
             assertNotNull(result);
@@ -373,7 +366,7 @@ public class DateDeserializationTZTest
 
         // or, via annotations
         {
-            DateAsStringBeanGermany result = MAPPER.readerFor(DateAsStringBeanGermany.class)
+            DateDeserializationTest.DateAsStringBeanGermany result = MAPPER.readerFor(DateDeserializationTest.DateAsStringBeanGermany.class)
                                                    .readValue(json);
             assertNotNull(result);
             assertEquals( expected, result.date );
@@ -503,6 +496,27 @@ public class DateDeserializationTZTest
                 .build();
 
         verify(mapper, "2000-01-02X03:04:05+0300", judate(2000, 1, 2, 3, 4, 5, 00, "GMT+3"));
+    }
+
+    // [databind#1153]
+    @Test
+    public void testWithTimezones1153() throws Exception
+    {
+        ObjectMapper mapper = newJsonMapper();
+        for (String tzStr : new String[] {
+                "UTC", "CET", "America/Los_Angeles", "Australia/Melbourne"
+        }) {
+            TimeZone tz = TimeZone.getTimeZone(tzStr);
+            ObjectReader r = mapper.readerFor(Date.class)
+                    .with(tz);
+
+            String time = "2016-01-01T17:00:00.000Z";
+            long correctTime = 1451667600000L;
+            Date dateAccordingToJackson = r.readValue(q(time));
+
+            assertEquals(correctTime, dateAccordingToJackson.getTime(),
+                "ISO8601 decoding mismatch " + tz);
+        }
     }
 
     /*

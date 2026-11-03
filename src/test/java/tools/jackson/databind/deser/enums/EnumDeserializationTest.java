@@ -288,7 +288,7 @@ public class EnumDeserializationTest
     /**********************************************************
      */
 
-    protected final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testSimple() throws Exception
@@ -316,12 +316,9 @@ public class EnumDeserializationTest
         assertEquals(TestEnum.JACKSON, mapper.readValue(" 0 ", TestEnum.class));
 
         // Then error case: unrecognized value
-        try {
-            /*Object result =*/ mapper.readValue("\"NO-SUCH-VALUE\"", TestEnum.class);
-            fail("Expected an exception for bogus enum value...");
-        } catch (MismatchedInputException jex) {
-            verifyException(jex, "not one of the values accepted for Enum class");
-        }
+        MismatchedInputException jex = assertThrows(MismatchedInputException.class,
+                () -> mapper.readValue("\"NO-SUCH-VALUE\"", TestEnum.class));
+        verifyException(jex, "not one of the values accepted for Enum class");
         p.close();
     }
 
@@ -380,23 +377,17 @@ public class EnumDeserializationTest
         // but can also be changed to errors:
         ObjectReader r = MAPPER.readerFor(TestEnum.class)
                 .with(EnumFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
-        try {
-            value = r.readValue("1");
-            fail("Expected an error");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot deserialize");
-            verifyException(e, "not allowed to deserialize Enum value out of number: disable");
-        }
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> r.readValue("1"));
+        verifyException(e, "Cannot deserialize");
+        verifyException(e, "not allowed to deserialize Enum value out of number: disable");
 
         // and [databind#684]
-        try {
-            value = r.readValue(q("1"));
-            fail("Expected an error");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot deserialize");
-            // 26-Jan-2017, tatu: as per [databind#1505], should fail bit differently
-            verifyException(e, "not one of the values accepted for Enum class");
-        }
+        MismatchedInputException e2 = assertThrows(MismatchedInputException.class,
+                () -> r.readValue(q("1")));
+        verifyException(e2, "Cannot deserialize");
+        // 26-Jan-2017, tatu: as per [databind#1505], should fail bit differently
+        verifyException(e2, "not one of the values accepted for Enum class");
     }
 
     @Test
@@ -462,14 +453,11 @@ public class EnumDeserializationTest
     public void testAllowUnknownEnumValuesForEnumSets() throws Exception
     {
         // 05-Nov-2025, tatu: As per [databind#5203], no longer quietly skippped
-        try {
-            MAPPER.reader(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
-                .forType(new TypeReference<EnumSet<TestEnum>>() { })
-                .readValue("[\"NO-SUCH-VALUE\"]");
-            fail("Expected an exception for bogus enum value-turned null");
-        } catch (InvalidNullException jex) {
-            verifyException(jex, "Invalid `null` value encountered");
-        }
+        InvalidNullException jex = assertThrows(InvalidNullException.class,
+                () -> MAPPER.reader(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                    .forType(new TypeReference<EnumSet<TestEnum>>() { })
+                    .readValue("[\"NO-SUCH-VALUE\"]"));
+        verifyException(jex, "Invalid `null` value encountered");
     }
 
     @Test
@@ -499,13 +487,10 @@ public class EnumDeserializationTest
     public void testDoNotAllowUnknownEnumValuesAsMapKeysWhenReadAsNullDisabled() throws Exception
     {
         assertFalse(MAPPER.isEnabled(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL));
-         try {
-             MAPPER.readValue("{\"map\":{\"NO-SUCH-VALUE\":\"val\"}}", ClassWithEnumMapKey.class);
-             fail("Expected an exception for bogus enum value...");
-         } catch (InvalidFormatException jex) {
-             verifyException(jex, "Cannot deserialize Map key of type `tools.jackson.databind.deser");
-             verifyException(jex, "EnumDeserializationTest$TestEnum`");
-         }
+        InvalidFormatException jex = assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readValue("{\"map\":{\"NO-SUCH-VALUE\":\"val\"}}", ClassWithEnumMapKey.class));
+        verifyException(jex, "Cannot deserialize Map key of type `tools.jackson.databind.deser");
+        verifyException(jex, "EnumDeserializationTest$TestEnum`");
     }
 
     // [databind#141]: allow mapping of empty String into null
@@ -545,14 +530,9 @@ public class EnumDeserializationTest
         final ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();
-        try {
-            Object v = mapper.readValue("[" + q("JACKSON") + "]",
-                    TestEnum.class);
-            fail("Exception was not thrown on deserializing a single array element of type enum; instead got: "+v);
-        } catch (MismatchedInputException exp) {
-            //exception as thrown correctly
-            verifyException(exp, "Cannot deserialize");
-        }
+        MismatchedInputException exp = assertThrows(MismatchedInputException.class,
+                () -> mapper.readValue("[" + q("JACKSON") + "]", TestEnum.class));
+        verifyException(exp, "Cannot deserialize");
     }
 
     // [databind#149]: 'stringified' indexes for enums
@@ -568,18 +548,15 @@ public class EnumDeserializationTest
         assertSame(TestEnum.values()[1], en);
 
         // [databind#1690]: unless prevented
-        try {
-            en = jsonMapperBuilder()
+        MismatchedInputException e3 = assertThrows(MismatchedInputException.class,
+                () -> jsonMapperBuilder()
                     .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
                     .build()
                     .readerFor(TestEnum.class)
-                    .readValue(q("1"));
-            fail("Should not pass");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot deserialize value of type");
-            verifyException(e, "EnumDeserializationTest$TestEnum");
-            verifyException(e, "value looks like quoted Enum index");
-        }
+                    .readValue(q("1")));
+        verifyException(e3, "Cannot deserialize value of type");
+        verifyException(e3, "EnumDeserializationTest$TestEnum");
+        verifyException(e3, "value looks like quoted Enum index");
     }
 
     @Test
@@ -730,13 +707,10 @@ public class EnumDeserializationTest
         final ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new EnumModule())
                 .build();
-        try {
-            mapper.readValue("{\"TWO\": \"dumpling\"}",
-                    new TypeReference<Map<AnEnum, String>>() {});
-            fail("No exception");
-        } catch (MismatchedInputException e) {
-            assertTrue(e.getMessage().contains("Undefined AnEnum"));
-        }
+        MismatchedInputException e4 = assertThrows(MismatchedInputException.class,
+                () -> mapper.readValue("{\"TWO\": \"dumpling\"}",
+                    new TypeReference<Map<AnEnum, String>>() {}));
+        verifyException(e4, "Undefined AnEnum");
     }
 
     // [databind#2164]
@@ -744,25 +718,16 @@ public class EnumDeserializationTest
     public void testWrapExceptions() throws Exception
     {
         // By default, wrap:
-        try {
-            MAPPER.readerFor(TestEnum2164.class)
-                .readValue(q("B"));
-            fail("Should not pass");
-        } catch (ValueInstantiationException e) {
-            verifyException(e, "2164");
-        }
+        ValueInstantiationException vie = assertThrows(ValueInstantiationException.class,
+                () -> MAPPER.readerFor(TestEnum2164.class).readValue(q("B")));
+        verifyException(vie, "2164");
 
         // But can disable:
-        try {
-            MAPPER.readerFor(TestEnum2164.class)
-                .without(DeserializationFeature.WRAP_EXCEPTIONS)
-                .readValue(q("B"));
-            fail("Should not pass");
-        } catch (DatabindException e) {
-            fail("Wrong exception, should not wrap, got: "+e);
-        } catch (IllegalArgumentException e) {
-            verifyException(e, "2164");
-        }
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> MAPPER.readerFor(TestEnum2164.class)
+                    .without(DeserializationFeature.WRAP_EXCEPTIONS)
+                    .readValue(q("B")));
+        verifyException(iae, "2164");
     }
 
     // [databind#2309]
@@ -778,12 +743,10 @@ public class EnumDeserializationTest
     // [databind#2873] -- take case-sensitivity into account for Enum-as-Map-keys too
     @Test
     public void testEnumValuesCaseSensitivity() throws Exception {
-        try {
-            MAPPER.readValue("{\"map\":{\"JACkson\":\"val\"}}", ClassWithEnumMapKey.class);
-        } catch (InvalidFormatException e) {
-            verifyException(e, "Cannot deserialize Map key of type `tools.jackson.databind.deser.");
-            verifyException(e, "EnumDeserializationTest$TestEnum");
-        }
+        InvalidFormatException e5 = assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readValue("{\"map\":{\"JACkson\":\"val\"}}", ClassWithEnumMapKey.class));
+        verifyException(e5, "Cannot deserialize Map key of type `tools.jackson.databind.deser.");
+        verifyException(e5, "EnumDeserializationTest$TestEnum");
     }
 
     // [databind#2873] -- take case-sensitivity into account for Enum-as-Map-keys too

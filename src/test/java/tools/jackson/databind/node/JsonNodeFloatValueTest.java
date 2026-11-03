@@ -234,9 +234,17 @@ public class JsonNodeFloatValueTest
     @Test
     public void asFloatFromMiscOther()
     {
-        // Null node converts to 0.0f; missing fails
-        _assertAsFloat((float) 0, NODES.nullNode());
-        _assertAsFloatFailForNonNumber(NODES.missingNode());
+        // Null node converts to 0.0f
+        assertEquals(0.0f, NODES.nullNode().asFloat());
+
+        // and defaults
+        assertEquals(-9999.5f, NODES.nullNode().asFloat(-9999.5f));
+        assertFalse(NODES.nullNode().asFloatOpt().isPresent());
+
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals(0.0f, NODES.missingNode().asFloat());
+        assertEquals(-9999.5f, NODES.missingNode().asFloat(-9999.5f));
+        assertFalse(NODES.missingNode().asFloatOpt().isPresent());
     }
 
 
@@ -267,7 +275,7 @@ public class JsonNodeFloatValueTest
                 () ->  node.floatValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains("value type not numeric");
 
         assertEquals(-2.25f, node.floatValue(-2.25f));
@@ -296,7 +304,7 @@ public class JsonNodeFloatValueTest
     }
 
     private void _assertAsFloatFailForNonNumber(JsonNode node) {
-        _assertAsFloatFailForNonNumber(node, "value type not numeric");
+        _assertAsFloatFailForNonNumber(node, "value type not coercible");
     }
 
     private void _assertAsFloatFailForNonNumber(JsonNode node, String extraMatch) {
@@ -305,7 +313,7 @@ public class JsonNodeFloatValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
                 .contains("asFloat()")
-                .contains("cannot convert value")
+                .contains("cannot coerce value")
                 .contains(extraMatch);
 
         assertEquals(1.5f, node.asFloat(1.5f));

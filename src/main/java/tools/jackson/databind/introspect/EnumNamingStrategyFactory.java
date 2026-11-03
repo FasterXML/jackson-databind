@@ -29,8 +29,8 @@ public class EnumNamingStrategyFactory
         if (namingDef == null) {
             return defaultNamingStrategy;
         }
-        if (namingDef instanceof EnumNamingStrategy) {
-            return (EnumNamingStrategy) namingDef;
+        if (namingDef instanceof EnumNamingStrategy strategy) {
+            return strategy;
         }
         if (!(namingDef instanceof Class)) {
             throw new IllegalArgumentException(String.format(

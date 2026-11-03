@@ -147,7 +147,9 @@ public class BasicBeanDescription extends BeanDescription
         return new BasicBeanDescription(config, type, ac);
     }
 
-    protected List<BeanPropertyDefinition> _properties() {
+    // [databind#6227]: synchronized to guard lazy initialization in case instance
+    //   is shared across threads; returned List itself is NOT thread-safe
+    protected synchronized List<BeanPropertyDefinition> _properties() {
         if (_properties == null) {
             _properties = _propCollector.getProperties();
         }
@@ -376,11 +378,11 @@ anyField.getName()));
     /**********************************************************************
      */
 
+    // [databind#6227]: synchronized in case instance is shared across threads
     @Override
-    public Class<?>[] findDefaultViews()
+    public synchronized Class<?>[] findDefaultViews()
     {
         if (!_defaultViewsResolved) {
-            _defaultViewsResolved = true;
             Class<?>[] def = _intr.findViews(_config, _classInfo);
             // one more twist: if default inclusion disabled, need to force empty set of views
             if (def == null) {
@@ -388,7 +390,10 @@ anyField.getName()));
                     def = NO_VIEWS;
                 }
             }
+            // 22-Sep-2026: [databind#6227] MUST assign value before flag: otherwise another
+            //    thread may see "resolved" flag set and return not-yet-assigned `null`
             _defaultViews = def;
+            _defaultViewsResolved = true;
         }
         return _defaultViews;
     }

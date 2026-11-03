@@ -9,7 +9,6 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.exc.MismatchedInputException;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,7 +21,7 @@ public class JsonTypeInfoIgnored2968Test extends DatabindTestUtil {
     /**********************************************************
      */
 
-    private static final ObjectMapper MAPPER = JsonMapper.builder().disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
+    private static final ObjectMapper MAPPER = jsonMapperBuilder().disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
 
     @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,

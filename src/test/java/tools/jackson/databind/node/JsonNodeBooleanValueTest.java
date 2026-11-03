@@ -136,13 +136,17 @@ public class JsonNodeBooleanValueTest
     public void asBooleanFromNonNumberMisc()
     {
         // Null ok
-        _assertFalseFromAsBoolean(NODES.nullNode());
+        assertEquals(false, NODES.nullNode().asBoolean());
+        assertEquals(true, NODES.nullNode().asBoolean(true));
+        assertFalse(NODES.nullNode().asBooleanOpt().isPresent());
         // And POJO node with Boolean:
         _assertFalseFromAsBoolean(NODES.pojoNode(Boolean.FALSE));
         _assertTrueFromAsBoolean(NODES.pojoNode(Boolean.TRUE));
 
-        // but missing not
-        _assertFailAsBooleanForNonBoolean(NODES.missingNode());
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals(false, NODES.missingNode().asBoolean());
+        assertEquals(true, NODES.missingNode().asBoolean(true));
+        assertFalse(NODES.missingNode().asBooleanOpt().isPresent());
     }
 
     // // // Helper methods
@@ -190,8 +194,8 @@ public class JsonNodeBooleanValueTest
                 () ->  node.asBoolean(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
-            .contains("cannot convert value")
-            .contains("value type not coercible to `boolean`");
+            .contains("cannot coerce value")
+            .contains("value type not coercible");
 
         // But also check defaulting
         assertFalse(node.asBoolean(false));

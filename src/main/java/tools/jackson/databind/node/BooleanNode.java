@@ -137,9 +137,9 @@ public class BooleanNode
          */
         if (o == this) return true;
         if (o == null) return false;
-        if (!(o instanceof BooleanNode)) {
-            return false;
+        if (o instanceof BooleanNode otherNode) {
+            return (_value == otherNode._value);
         }
-        return (_value == ((BooleanNode) o)._value);
+        return false;
     }
 }

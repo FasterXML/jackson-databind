@@ -80,7 +80,7 @@ public class WrapperObjectWithObjectIdTest extends DatabindTestUtil
         comp.addComputer(new DesktopComputer("computer-2", "Pattaya"));
         comp.addComputer(new LaptopComputer("computer-3", "Apple"));
 
-        final ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
 
         String json = mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(comp);

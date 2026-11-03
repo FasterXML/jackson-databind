@@ -575,8 +575,8 @@ public class StdValueInstantiator
             Throwable t)
     {
         // 05-Nov-2015, tatu: Only avoid wrapping if already a DatabindException
-        if (t instanceof DatabindException) {
-            return (DatabindException) t;
+        if (t instanceof DatabindException databindException) {
+            return databindException;
         }
         return ctxt.instantiationException(getValueClass(), t);
     }

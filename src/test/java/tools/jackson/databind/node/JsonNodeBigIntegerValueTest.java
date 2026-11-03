@@ -188,10 +188,16 @@ public class JsonNodeBigIntegerValueTest
     public void asBigIntegerFromMiscOther()
     {
         // NullNode becomes 0, not fail
-        _assertAsBigInteger(BigInteger.ZERO, NODES.nullNode());
+        assertEquals(BigInteger.ZERO, NODES.nullNode().asBigInteger());
 
-        // But MissingNode still fails
-        _assertAsBigIntegerFailForNonNumber(NODES.missingNode());
+        // and then defaulting
+        assertEquals(BigInteger.valueOf(9999999L), NODES.nullNode().asBigInteger(BigInteger.valueOf(9999999L)));
+        assertFalse(NODES.nullNode().asBigIntegerOpt().isPresent());
+
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals(BigInteger.ZERO, NODES.missingNode().asBigInteger());
+        assertEquals(BigInteger.valueOf(9999999L), NODES.missingNode().asBigInteger(BigInteger.valueOf(9999999L)));
+        assertFalse(NODES.missingNode().asBigIntegerOpt().isPresent());
     }
     
     // // // Shared helper methods
@@ -223,7 +229,7 @@ public class JsonNodeBigIntegerValueTest
                 () ->  node.bigIntegerValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains("value type not numeric");
 
         // Verify default value handling
@@ -261,7 +267,7 @@ public class JsonNodeBigIntegerValueTest
                 () ->  node.asBigInteger(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
-            .contains("cannot convert value");
+            .contains("cannot coerce value");
 
         // Verify default value handling
         assertEquals(BigInteger.ONE, node.asBigInteger(BigInteger.ONE));

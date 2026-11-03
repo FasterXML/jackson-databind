@@ -238,13 +238,27 @@ public final class ClassUtil
 
     /**
      * Helper method for detecting Java14-added {@code Record} types
+     *
+     * @deprecated Since 3.1 Just call {@code Class.isRecord()}
      */
+    @Deprecated
     public static boolean isRecordType(Class<?> cls) {
         return cls.isRecord();
     }
 
     public static boolean isObjectOrPrimitive(Class<?> cls) {
         return (cls == CLS_OBJECT) || cls.isPrimitive();
+    }
+
+    /**
+     * Whether given type is one that all array types are assignable to:
+     * {@code Object}, {@code Serializable} or {@code Cloneable}.
+     *
+     * @since 3.1.8
+     */
+    public static boolean isArraySuperType(Class<?> cls) {
+        return (cls == CLS_OBJECT) || (cls == java.io.Serializable.class)
+                || (cls == Cloneable.class);
     }
 
     public static boolean hasClass(Object inst, Class<?> raw) {
@@ -542,7 +556,7 @@ public final class ClassUtil
         if (str == null) {
             return forNull;
         }
-        return String.format("\"%s\"", str);
+        return "\"" + str + "\"";
     }
 
     /*
@@ -718,8 +732,13 @@ public final class ClassUtil
      */
 
     /**
-     * Helper method used to get default value for wrappers used for primitive types
-     * (0 for Integer etc)
+     * Helper method used to get default values for for primitive types
+     * ({@code 0} for {@code int}, {@code false} for {@code boolean} etc);
+     * or {@code null} for non-primitive types
+     *
+     * @param cls Raw type to check
+     *
+     * @return Default value, if {@code cls} Wrapper type; {@code null} otherwise
      */
     public static Object defaultValue(Class<?> cls)
     {
@@ -747,14 +766,16 @@ public final class ClassUtil
         if (cls == Character.TYPE) {
             return '\0';
         }
-        throw new IllegalArgumentException("Class "+cls.getName()+" is not a primitive type");
+        // NOTE: changed in 3.1 to return `null`, not throw exception
+        return null;
     }
 
     /**
      * Helper method for finding wrapper type for given primitive type (why isn't
      * there one in JDK?).
-     * NOTE: throws {@link IllegalArgumentException} if given type is NOT primitive
-     * type (caller has to check).
+     *<p>
+     * NOTE: as of 3.1, no longer throws {@link IllegalArgumentException} if given type
+     * is NOT primitive, but returns {@code null}.
      */
     public static Class<?> wrapperType(Class<?> primitiveType)
     {
@@ -782,7 +803,8 @@ public final class ClassUtil
         if (primitiveType == Character.TYPE) {
             return Character.class;
         }
-        throw new IllegalArgumentException("Class "+primitiveType.getName()+" is not a primitive type");
+        // NOTE: changed in 3.1 to return `null`, not throw exception
+        return null;
     }
 
     /**

@@ -8,6 +8,7 @@ import tools.jackson.core.Base64Variants;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,7 +32,7 @@ public class StringConversionsTest
         public StringWrapperWithConvert(String v) { value = v; }
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = new JsonMapper();
 
     @Test
     public void testSimple()
@@ -54,7 +55,7 @@ public class StringConversionsTest
     {
         // let's verify our "neat trick" actually works...
         assertArrayEquals(new int[] { 1, 2, 3, 4, -1, 0 },
-                          MAPPER.convertValue("1  2 3    4  -1 0".split("\\s+"), int[].class));
+                MAPPER.convertValue("1  2 3    4  -1 0".split("\\s+"), int[].class));
     }
 
     @Test
@@ -87,14 +88,15 @@ public class StringConversionsTest
     @Test
     public void testLowerCasingSerializer() throws Exception
     {
-        assertEquals("{\"value\":\"abc\"}", MAPPER.writeValueAsString(new StringWrapperWithConvert("ABC")));
+        assertEquals("{\"value\":\"abc\"}",
+                MAPPER.writeValueAsString(new StringWrapperWithConvert("ABC")));
     }
 
     @Test
     public void testLowerCasingDeserializer() throws Exception
     {
-        StringWrapperWithConvert value = MAPPER.readValue("{\"value\":\"XyZ\"}", StringWrapperWithConvert.class);
-        assertNotNull(value);
+        StringWrapperWithConvert value = MAPPER.readValue("{\"value\":\"XyZ\"}",
+                StringWrapperWithConvert.class);
         assertEquals("xyz", value.value);
     }
 }

@@ -24,7 +24,7 @@ import tools.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import tools.jackson.databind.ser.impl.UnsupportedTypeSerializer;
 import tools.jackson.databind.ser.jdk.MapEntryAsPOJOSerializer;
 import tools.jackson.databind.ser.jdk.MapSerializer;
-import tools.jackson.databind.ser.std.StdDelegatingSerializer;
+import tools.jackson.databind.ser.std.StdConvertingSerializer;
 import tools.jackson.databind.ser.std.ToEmptyObjectSerializer;
 import tools.jackson.databind.type.ReferenceType;
 import tools.jackson.databind.util.BeanUtil;
@@ -176,7 +176,7 @@ public class BeanSerializerFactory
             if ((ser == null) && !delegateType.isJavaLangObject()) {
                 ser = _createSerializer2(ctxt, beanDescRef, delegateType, formatOverrides, true);
             }
-            return new StdDelegatingSerializer(conv, delegateType, ser, null);
+            return new StdConvertingSerializer(conv, delegateType, ser, null);
         }
         // No, regular serializer
         return (ValueSerializer<Object>) _createSerializer2(ctxt, beanDescRef, type, formatOverrides, staticTyping);
@@ -324,7 +324,7 @@ public class BeanSerializerFactory
         // First: any detectable (auto-detect, annotations) properties to serialize?
         List<BeanPropertyWriter> props = findBeanProperties(ctxt, beanDescRef, builder);
         if (props == null) {
-            props = new ArrayList<BeanPropertyWriter>();
+            props = new ArrayList<>();
         } else {
             props = removeOverlappingTypeIds(ctxt, beanDescRef, builder, props);
         }
@@ -383,25 +383,36 @@ public class BeanSerializerFactory
             BeanProperty.Std anyProp = new BeanProperty.Std(name, valueType, null,
                     anyGetter, PropertyMetadata.STD_OPTIONAL);
 
-            // Check if there is an accessor exposed for the anyGetter
-            BeanPropertyWriter anyGetterProp = null;
+            // Check if there is an accessor exposed for the anyGetter.
+            final int propCount = props.size();
             int anyGetterIndex = -1;
-            for (int i = 0; i < props.size(); i++) {
-                BeanPropertyWriter prop = props.get(i);
-                // Either any-getter as field...
-                if (Objects.equals(prop.getName(), anyGetter.getName())
-                    // or as method
-                    || Objects.equals(prop.getMember().getMember(), anyGetter.getMember()))
-                {
-                    anyGetterProp = prop;
-                    anyGetterIndex = i;
-                    break;
+
+            // First: by physical accessor (same Getter method or Field)
+            for (int i = 0; i < propCount; i++) {
+                AnnotatedMember propMember = props.get(i).getMember();
+                if (propMember != null) {
+                    if (Objects.equals(propMember.getMember(), anyGetter.getMember())) {
+                        anyGetterIndex = i;
+                        break;
+                    }
                 }
             }
-            if (anyGetterIndex != -1) {
-                // There is prop is already in place, just need to replace it
-                AnyGetterWriter anyGetterWriter = new AnyGetterWriter(anyGetterProp, anyProp, anyGetter, anySer);
-                props.set(anyGetterIndex, anyGetterWriter);
+            // If that doesn't work, try match by logical property name
+            if (anyGetterIndex < 0) {
+                final String anyName = anyGetter.getName();
+                for (int i = 0; i < propCount; i++) {
+                    // 08-Dec-2025, tatu: Alas, we don't know if names are explicit
+                    //   or implicit (could differentiate if we did)
+                    if (Objects.equals(anyName, props.get(i).getName())) {
+                        anyGetterIndex = i;
+                        break;
+                    }
+                }
+            }
+            if (anyGetterIndex >= 0) {
+                BeanPropertyWriter anyGetterProp = props.get(anyGetterIndex);
+                // There is prop already in place, just need to replace it
+                props.set(anyGetterIndex, new AnyGetterWriter(anyGetterProp, anyProp, anyGetter, anySer));
             } else {
                 // Otherwise just add it at the end, but won't be sorted...
                 // This is case where JsonAnyGetter is private/protected,
@@ -577,11 +588,19 @@ ClassUtil.getTypeDescription(beanDescRef.getType()), ClassUtil.name(propName)));
             }
             // suppress writing of back references
             AnnotationIntrospector.ReferenceProperty refType = property.findReferenceType();
-            if (refType != null && refType.isBackReference()) {
-                continue;
+            if (refType != null) {
+                // [databind#5188]: Cannot use managed/back references with Records
+                if (beanDescRef.isRecordType()) {
+                    ctxt.reportBadTypeDefinition(beanDescRef,
+                            "Cannot use `@JsonManagedReference`/`@JsonBackReference` with `java.lang.Record` type (property '%s')",
+                            property.getName());
+                }
+                if (refType.isBackReference()) {
+                    continue;
+                }
             }
-            if (accessor instanceof AnnotatedMethod) {
-                result.add(_constructWriter(ctxt, property, pb, staticTyping, (AnnotatedMethod) accessor));
+            if (accessor instanceof AnnotatedMethod method) {
+                result.add(_constructWriter(ctxt, property, pb, staticTyping, method));
             } else {
                 result.add(_constructWriter(ctxt, property, pb, staticTyping, (AnnotatedField) accessor));
             }

@@ -27,7 +27,7 @@ public class UnresolvedForwardReference extends DatabindException
 
     public UnresolvedForwardReference(JsonParser p, String msg) {
         super(p, msg);
-        _unresolvedIds = new ArrayList<UnresolvedId>();
+        _unresolvedIds = new ArrayList<>();
     }
 
     /*
@@ -55,21 +55,25 @@ public class UnresolvedForwardReference extends DatabindException
     @Override
     public String getMessage()
     {
-        String msg = super.getMessage();
+        String msg = super.getOriginalMessage();
         if (_unresolvedIds == null) {
             return msg;
         }
 
         StringBuilder sb = new StringBuilder(msg);
+        if (!msg.endsWith(" ")) {
+            sb.append(' ');
+        }
+        sb.append('[');
         Iterator<UnresolvedId> iterator = _unresolvedIds.iterator();
         while (iterator.hasNext()) {
             UnresolvedId unresolvedId = iterator.next();
-            sb.append(unresolvedId.toString());
+            sb.append(unresolvedId.descForException());
             if (iterator.hasNext()) {
                 sb.append(", ");
             }
         }
-        sb.append('.');
+        sb.append(']');
         return sb.toString();
     }
 

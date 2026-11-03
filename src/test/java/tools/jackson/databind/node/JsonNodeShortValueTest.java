@@ -281,10 +281,17 @@ public class JsonNodeShortValueTest
     @Test
     public void asIntFromMiscOther()
     {
-        // NullNode -> 0 but "missing" still fails
-        _assertAsShort((short) 0, NODES.nullNode());
+        // NullNode -> 0
+        assertEquals((short) 0, NODES.nullNode().asShort());
 
-        _assertAsShortFailForNonNumber(NODES.missingNode());
+        // and defaulting
+        assertEquals((short) 99, NODES.nullNode().asShort((short) 99));
+        assertFalse(NODES.nullNode().asShortOpt().isPresent());
+
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals((short) 0, NODES.missingNode().asShort());
+        assertEquals((short) 99, NODES.missingNode().asShort((short) 99));
+        assertFalse(NODES.missingNode().asShortOpt().isPresent());
     }
 
 
@@ -331,7 +338,7 @@ public class JsonNodeShortValueTest
                 () ->  node.shortValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains("value type not numeric");
 
         // assert defaulting
@@ -364,7 +371,7 @@ public class JsonNodeShortValueTest
     }
 
     private void _assertAsShortFailForNonNumber(JsonNode node) {
-        _assertAsShortFailForNonNumber(node, "value type not numeric");
+        _assertAsShortFailForNonNumber(node, "value type not coercible");
     }
 
     private void _assertAsShortFailForNonNumber(JsonNode node, String extraFailMsg) {
@@ -373,7 +380,7 @@ public class JsonNodeShortValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
                 .contains("asShort()")
-                .contains("cannot convert value")
+                .contains("cannot coerce value")
                 .contains(extraFailMsg);
 
         // assert defaulting

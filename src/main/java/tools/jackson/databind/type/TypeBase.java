@@ -164,8 +164,8 @@ public abstract class TypeBase
     }
 
     @Override
-    public void serialize(JsonGenerator gen, SerializationContext provider)
-            throws JacksonException
+    public void serialize(JsonGenerator gen, SerializationContext ctxt)
+        throws JacksonException
     {
         gen.writeString(toCanonical());
     }

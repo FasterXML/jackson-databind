@@ -10,6 +10,7 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 
 /**
  * Deserializer for Java 8 temporal {@link MonthDay}s.
@@ -100,7 +101,15 @@ public class MonthDayDeserializer extends JSR310DateTimeDeserializerBase<MonthDa
                 throw ctxt.wrongTokenException(p, handledType(), JsonToken.END_ARRAY,
                         "Expected array to end");
             }
-            return MonthDay.of(month, day);
+            try {
+                return MonthDay.of(month, day);
+            } catch (DateTimeException e) {
+                throw DateTimeParseException.from(p,
+                        String.format("Failed to deserialize %s from array value [%d,%d]: %s",
+                                handledType().getName(), month, day, e.getMessage()),
+                        String.format("[%d,%d]", month, day),
+                        handledType(), e);
+            }
         } else if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
             return (MonthDay) p.getEmbeddedObject();
         }

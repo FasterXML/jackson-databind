@@ -85,10 +85,9 @@ public class TestDefaultForArrays extends DatabindTestUtil
         Object[] result = mapper.readValue(json, Object[].class);
         assertEquals(1, result.length);
         Object ob = result[0];
-        assertTrue(ob instanceof JsonNode);
+        assertInstanceOf(JsonNode.class, ob);
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     public void testNodeInEmptyArray() throws Exception
     {
@@ -114,7 +113,7 @@ public class TestDefaultForArrays extends DatabindTestUtil
 
         assertEquals(1, result.length);
         Object elem = result[0];
-        assertTrue(elem instanceof ObjectNode);
+        assertInstanceOf(ObjectNode.class, elem);
         assertEquals(0, ((ObjectNode) elem).size());
     }
 
@@ -171,12 +170,12 @@ public class TestDefaultForArrays extends DatabindTestUtil
     {
         Object o = mapper.readValue(json, type);
         assertNotNull(o);
-        assertTrue(o instanceof Object[]);
+        assertInstanceOf(Object[].class, o);
         Object[] main = (Object[]) o;
         assertEquals(1, main.length);
         Object element = main[0];
         assertNotNull(element);
-        assertTrue(element instanceof Object[]);
+        assertInstanceOf(Object[].class, element);
         assertEquals(0, ((Object[]) element).length);
     }
 }

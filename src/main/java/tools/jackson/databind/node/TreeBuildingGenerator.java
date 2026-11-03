@@ -10,6 +10,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.JsonNodeFeature;
 import tools.jackson.databind.util.RawValue;
 
 /**
@@ -46,6 +47,14 @@ public class TreeBuildingGenerator
      */
     protected final int _streamWriteFeatures;
 
+    /**
+     * Whether to strip trailing zeroes from {@link BigDecimal} values
+     * when building tree nodes.
+     *
+     * @since 3.1.1
+     */
+    protected final boolean _cfgStripTrailingBigDecimalZeroes;
+
     /*
     /**********************************************************************
     /* Output state
@@ -62,18 +71,29 @@ public class TreeBuildingGenerator
     /**********************************************************************
      */
 
-    TreeBuildingGenerator(ObjectWriteContext owCtxt, JsonNodeFactory nodeFactory)
+    /**
+     * @since 3.1.1
+     */
+    TreeBuildingGenerator(ObjectWriteContext owCtxt, JsonNodeFactory nodeFactory,
+            boolean stripTrailingBigDecimalZeroes)
     {
         _objectWriteContext = owCtxt;
         _nodeFactory = nodeFactory;
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
+        _cfgStripTrailingBigDecimalZeroes = stripTrailingBigDecimalZeroes;
         _rootWriteContext = new RootContext(nodeFactory);
         _tokenWriteContext = _rootWriteContext;
     }
 
+    @Deprecated // @since 3.1.1
+    TreeBuildingGenerator(ObjectWriteContext owCtxt, JsonNodeFactory nodeFactory) {
+        this(owCtxt, nodeFactory, false);
+    }
+
     public static TreeBuildingGenerator forSerialization(SerializationContext ctxt,
             JsonNodeFactory nodeFactory) {
-        return new TreeBuildingGenerator(ctxt, nodeFactory);
+        return new TreeBuildingGenerator(ctxt, nodeFactory,
+                (ctxt != null) && ctxt.isEnabled(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES));
     }
 
     public JsonNode treeBuilt() {
@@ -203,7 +223,7 @@ public class TreeBuildingGenerator
     @Override
     public JsonGenerator writeEndArray() {
         if (!_tokenWriteContext.inArray()) {
-            _reportError("Current context not Array but "+_tokenWriteContext.typeDesc());
+           throw _constructWriteException("Current context not Array but "+_tokenWriteContext.typeDesc());
         }
         _tokenWriteContext = _tokenWriteContext.getParent();
         return this;
@@ -229,7 +249,7 @@ public class TreeBuildingGenerator
     @Override
     public JsonGenerator writeEndObject() {
         if (!_tokenWriteContext.inObject()) {
-            _reportError("Current context not Object but "+_tokenWriteContext.typeDesc());
+            throw _constructWriteException("Current context not Object but "+_tokenWriteContext.typeDesc());
         }
         _tokenWriteContext = _tokenWriteContext.getParent();
         return this;
@@ -388,10 +408,30 @@ public class TreeBuildingGenerator
         if (v == null) {
             writeNull();
         } else {
+            // [databind#5819]: apply `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES`?
+            if (_cfgStripTrailingBigDecimalZeroes) {
+                v = _normalize(v);
+            }
             _tokenWriteContext.writeNumber(_nodeFactory.numberNode(v));
         }
         return this;
     }
+
+    /**
+     * Helper method to strip trailing zeros from a {@link BigDecimal}, used to
+     * implement {@link JsonNodeFeature#STRIP_TRAILING_BIGDECIMAL_ZEROES}.
+     *
+     * @since 3.1.1
+     */
+    protected BigDecimal _normalize(BigDecimal v) {
+        // 21-Mar-2026, tatu: wrt [dataformats-binary#264] barfs on a specific value...
+        //   Must skip normalization in that particular case
+        try {
+            return v.stripTrailingZeros();
+        } catch (ArithmeticException e) {
+            return v;
+        }
+    }    
 
     @Override
     public JsonGenerator writeNumber(BigInteger v) {
@@ -405,7 +445,9 @@ public class TreeBuildingGenerator
 
     @Override
     public JsonGenerator writeNumber(String encodedValue) {
-        return writeString(encodedValue);
+        // 23-Dec-2025, tatu: [databind#5528] Should fail
+        throw _constructWriteException("`%s` does not support `writeNumber(String)`, must write Numbers as typed",
+                getClass().getName());
     }
 
     @Override
@@ -451,8 +493,8 @@ public class TreeBuildingGenerator
         if (node == null) {
             return writeNull();
         }
-        if (node instanceof JsonNode) {
-            _tokenWriteContext.writeNode((JsonNode) node);
+        if (node instanceof JsonNode jsonNode) {
+            _tokenWriteContext.writeNode(jsonNode);
         } else {
             _tokenWriteContext.writePOJO(node);
         }
@@ -471,8 +513,7 @@ public class TreeBuildingGenerator
         // 12-Jan-2021, tatu: Should we try to preserve the variant? Depends a
         //   lot on whether this during read (no need to retain probably) or
         //   write (probably important)
-        byte[] copy = Arrays.copyOfRange(data, offset, offset + len);
-        return writePOJO(copy);
+        return writePOJO(Arrays.copyOfRange(data, offset, offset + len));
     }
 
     /**

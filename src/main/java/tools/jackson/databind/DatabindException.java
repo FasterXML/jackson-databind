@@ -98,8 +98,8 @@ public class DatabindException
 
         // Copied from JacksonException.wrapWithPath()
         JacksonException jme;
-        if (src instanceof JacksonException) {
-            jme = (JacksonException) src;
+        if (src instanceof JacksonException je) {
+            jme = je;
         } else {
             // [databind#2128]: try to avoid duplication
             String msg = _exceptionMessage(src);
@@ -120,8 +120,8 @@ public class DatabindException
 
         // Copied from JacksonException.wrapWithPath()
         JacksonException jme;
-        if (src instanceof JacksonException) {
-            jme = (JacksonException) src;
+        if (src instanceof JacksonException je) {
+            jme = je;
         } else {
             String msg = _exceptionMessage(src);
             if (msg == null || msg.isEmpty()) {

@@ -1,0 +1,722 @@
+package tools.jackson.databind.deser.filter;
+
+import java.util.Map;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.Nulls;
+
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.*;
+import tools.jackson.databind.deser.DeserializationProblemHandler;
+import tools.jackson.databind.deser.ValueInstantiator;
+import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.exc.InvalidTypeIdException;
+import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.exc.ValueInstantiationException;
+import tools.jackson.databind.jsontype.TypeIdResolver;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
+/**
+ * Tests to exercise handler methods of {@link DeserializationProblemHandler}.
+ */
+public class DeserializationProblemHandlerTest
+{
+    /*
+    /**********************************************************
+    /* Test handler types
+    /**********************************************************
+     */
+
+    // [databind#6300]: handler that substitutes `null` for any unexpected token
+    static class NullForUnexpectedTokenHandler
+        extends DeserializationProblemHandler
+    {
+        @Override
+        public Object handleUnexpectedToken(DeserializationContext ctxt,
+                JavaType targetType, JsonToken t, JsonParser p,
+                String failureMsg)
+        {
+            return null;
+        }
+    }
+
+    static class NullForWeirdValueHandler
+        extends DeserializationProblemHandler
+    {
+        @Override
+        public Object handleWeirdNumberValue(DeserializationContext ctxt,
+                Class<?> targetType, Number valueToConvert, String failureMsg) {
+            return null;
+        }
+
+        @Override
+        public Object handleWeirdStringValue(DeserializationContext ctxt,
+                Class<?> targetType, String valueToConvert, String failureMsg) {
+            return null;
+        }
+    }
+
+    static class WeirdKeyHandler
+        extends DeserializationProblemHandler
+    {
+        protected final Object key;
+
+        public WeirdKeyHandler(Object key0) {
+            key = key0;
+        }
+
+        @Override
+        public Object handleWeirdKey(DeserializationContext ctxt,
+                Class<?> rawKeyType, String keyValue,
+                String failureMsg)
+        {
+            return key;
+        }
+    }
+
+    static class WeirdNumberHandler
+        extends DeserializationProblemHandler
+    {
+        protected final Object value;
+
+        public WeirdNumberHandler(Object v0) {
+            value = v0;
+        }
+
+        @Override
+        public Object handleWeirdNumberValue(DeserializationContext ctxt,
+                Class<?> targetType, Number n,
+                String failureMsg)
+        {
+            return value;
+        }
+    }
+
+    static class WeirdStringHandler
+        extends DeserializationProblemHandler
+    {
+        protected final Object value;
+
+        public WeirdStringHandler(Object v0) {
+            value = v0;
+        }
+
+        @Override
+        public Object handleWeirdStringValue(DeserializationContext ctxt,
+                Class<?> targetType, String v,
+                String failureMsg)
+        {
+            return value;
+        }
+    }
+
+    static class InstantiationProblemHandler
+        extends DeserializationProblemHandler
+    {
+        protected final Object value;
+
+        public InstantiationProblemHandler(Object v0) {
+            value = v0;
+        }
+
+        @Override
+        public Object handleInstantiationProblem(DeserializationContext ctxt,
+                Class<?> instClass, Object argument, Throwable t)
+        {
+            if (!(t instanceof ValueInstantiationException)) {
+                throw new IllegalArgumentException("Should have gotten `ValueInstantiationException`, instead got: "+t);
+            }
+            return value;
+        }
+    }
+
+    static class MissingInstantiationHandler
+        extends DeserializationProblemHandler
+    {
+        protected final Object value;
+
+        public MissingInstantiationHandler(Object v0) {
+            value = v0;
+        }
+
+        @Override
+        public Object handleMissingInstantiator(DeserializationContext ctxt,
+                Class<?> instClass, ValueInstantiator inst, JsonParser p, String msg)
+        {
+            p.skipChildren();
+            return value;
+        }
+    }
+
+    static class WeirdTokenHandler
+        extends DeserializationProblemHandler
+    {
+        protected final Object value;
+
+        public WeirdTokenHandler(Object v) {
+            value = v;
+        }
+
+        @Override
+        public Object handleUnexpectedToken(DeserializationContext ctxt,
+                JavaType targetType, JsonToken t, JsonParser p,
+                String failureMsg)
+        {
+            p.skipChildren();
+            return value;
+        }
+    }
+
+    static class UnknownTypeIdHandler
+        extends DeserializationProblemHandler
+    {
+        protected final Class<?> raw;
+
+        public UnknownTypeIdHandler(Class<?> r) { raw = r; }
+
+        @Override
+        public JavaType handleUnknownTypeId(DeserializationContext ctxt,
+                JavaType baseType, String subTypeId, TypeIdResolver idResolver,
+                String failureMsg)
+        {
+            return ctxt.constructType(raw);
+        }
+    }
+
+    static class MissingTypeIdHandler
+        extends DeserializationProblemHandler
+    {
+        protected final Class<?> raw;
+
+        public MissingTypeIdHandler(Class<?> r) { raw = r; }
+
+        @Override
+        public JavaType handleMissingTypeId(DeserializationContext ctxt,
+                JavaType baseType, TypeIdResolver idResolver,
+                String failureMsg)
+        {
+            return ctxt.constructType(raw);
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Other helper types
+    /**********************************************************
+     */
+
+    static class IntPrimitiveBean {
+        public int x = 42;
+    }
+
+    static class IntKeyMapWrapper {
+        public Map<Integer,String> stuff;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+    static class Base { }
+    static class BaseImpl extends Base {
+        public int a;
+    }
+
+    static class BaseWrapper {
+        public Base value;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "clazz")
+    static class Base2 { }
+    static class Base2Impl extends Base2 {
+        public int a;
+    }
+
+    static class Base2Wrapper {
+        public Base2 value;
+    }
+
+    enum SingleValuedEnum {
+        A;
+    }
+
+    static class BustedCtor {
+        public final static BustedCtor INST = new BustedCtor(true);
+
+        public BustedCtor() {
+            throw new RuntimeException("Fail! (to be caught by handler)");
+        }
+        private BustedCtor(boolean b) { }
+    }
+
+    static class NoDefaultCtor {
+        public int value;
+
+        public NoDefaultCtor(int v) { value = v; }
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    @Test
+    public void testWeirdKeyHandling() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addHandler(new WeirdKeyHandler(7))
+            .build();
+        IntKeyMapWrapper w = mapper.readValue("{\"stuff\":{\"foo\":\"abc\"}}",
+                IntKeyMapWrapper.class);
+        Map<Integer,String> map = w.stuff;
+        assertEquals(1, map.size());
+        assertEquals("abc", map.values().iterator().next());
+        assertEquals(Integer.valueOf(7), map.keySet().iterator().next());
+    }
+
+    @Test
+    public void testWeirdNumberHandling() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addHandler(new WeirdNumberHandler(SingleValuedEnum.A))
+            .build();
+        SingleValuedEnum result = mapper.readValue("3", SingleValuedEnum.class);
+        assertEquals(SingleValuedEnum.A, result);
+
+        mapper = jsonMapperBuilder()
+                .addHandler(new WeirdNumberHandler("foo"))
+                .build();
+        try {
+            mapper.readValue("3", SingleValuedEnum.class);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "returned value of type `java.lang.String`");
+        }
+    }
+
+    @Test
+    public void testWeirdStringHandling() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addHandler(new WeirdStringHandler(SingleValuedEnum.A))
+            .build();
+        SingleValuedEnum result = mapper.readValue("\"B\"", SingleValuedEnum.class);
+        assertEquals(SingleValuedEnum.A, result);
+
+        // also, write [databind#1629] try this
+        mapper = jsonMapperBuilder()
+                .addHandler(new WeirdStringHandler(null))
+                .build();
+        UUID result2 = mapper.readValue(q("not a uuid!"), UUID.class);
+        assertNull(result2);
+
+        mapper = jsonMapperBuilder()
+                .addHandler(new WeirdStringHandler("foo"))
+                .build();
+        try {
+            mapper.readValue(q("not a uuid!"), UUID.class);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "returned value of type `java.lang.String`");
+        }
+    }
+
+    // [databind#3784]: Base64 decoding
+    @Test
+    public void testWeirdStringForBase64() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new WeirdStringHandler(new byte[0]))
+                .build();
+        byte[] binary = mapper.readValue(q("foobar"), byte[].class);
+        assertNotNull(binary);
+        assertEquals(0, binary.length);
+
+        JsonNode tree = mapper.readTree(q("foobar"));
+        binary = mapper.treeToValue(tree, byte[].class);
+        assertNotNull(binary);
+        assertEquals(0, binary.length);
+    }
+
+    @Test
+    public void testInvalidTypeId() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addHandler(new UnknownTypeIdHandler(BaseImpl.class))
+            .build();
+        BaseWrapper w = mapper.readValue("{\"value\":{\"type\":\"foo\",\"a\":4}}",
+                BaseWrapper.class);
+        assertNotNull(w);
+        assertEquals(BaseImpl.class, w.value.getClass());
+
+        mapper = jsonMapperBuilder()
+                .addHandler(new UnknownTypeIdHandler(String.class))
+                .build();
+        try {
+            mapper.readValue("{\"value\":{\"type\":\"foo\",\"a\":4}}",
+                    BaseWrapper.class);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "into non-subtype: `java.lang.String`");
+        }
+    }
+
+    @Test
+    public void testInvalidClassAsId() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addHandler(new UnknownTypeIdHandler(Base2Impl.class))
+            .build();
+        Base2Wrapper w = mapper.readValue("{\"value\":{\"clazz\":\"com.fizz\",\"a\":4}}",
+                Base2Wrapper.class);
+        assertNotNull(w);
+        assertEquals(Base2Impl.class, w.value.getClass());
+    }
+
+    // 2.9: missing type id, distinct from unknown
+
+    @Test
+    public void testMissingTypeId() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addHandler(new MissingTypeIdHandler(BaseImpl.class))
+            .build();
+        BaseWrapper w = mapper.readValue("{\"value\":{\"a\":4}}",
+                BaseWrapper.class);
+        assertNotNull(w);
+        assertEquals(BaseImpl.class, w.value.getClass());
+
+        mapper = jsonMapperBuilder()
+                .addHandler(new MissingTypeIdHandler(String.class))
+                .build();
+        try {
+            mapper.readValue("{\"value\":{\"a\":4}}",
+                    BaseWrapper.class);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "into non-subtype: `java.lang.String`");
+        }
+    }
+
+    @Test
+    public void testMissingClassAsId() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addHandler(new MissingTypeIdHandler(Base2Impl.class))
+            .build();
+        Base2Wrapper w = mapper.readValue("{\"value\":{\"a\":4}}",
+                Base2Wrapper.class);
+        assertNotNull(w);
+        assertEquals(Base2Impl.class, w.value.getClass());
+    }
+
+    // verify that by default we get special exception type
+    @Test
+    public void testInvalidTypeIdFail() throws Exception
+    {
+        try {
+            MAPPER.readValue("{\"value\":{\"type\":\"foo\",\"a\":4}}",
+                BaseWrapper.class);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "Could not resolve type id 'foo'");
+            assertEquals(Base.class, e.getBaseType().getRawClass());
+            assertEquals("foo", e.getTypeId());
+        }
+    }
+
+    @Test
+    public void testInstantiationExceptionHandling() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addHandler(new InstantiationProblemHandler(BustedCtor.INST))
+            .build();
+        BustedCtor w = mapper.readValue("{ }", BustedCtor.class);
+        assertNotNull(w);
+
+        // and then broken handling
+        mapper = jsonMapperBuilder()
+                .addHandler(new InstantiationProblemHandler("foo"))
+                .build();
+        try {
+            mapper.readValue("{ }", BustedCtor.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "returned value of type `java.lang.String`");
+        }
+    }
+
+    @Test
+    public void testMissingInstantiatorHandling() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+            // 14-Jan-2025, tatu: Need to disable trailing tokens (for 3.0)
+            //   for this to work (handler not consuming all tokens as it should
+            //   but no time to fully fix right now)
+            .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+            .addHandler(new MissingInstantiationHandler(new NoDefaultCtor(13)))
+            .build();
+        NoDefaultCtor w = mapper.readValue("{ \"x\" : true }", NoDefaultCtor.class);
+        assertNotNull(w);
+        assertEquals(13, w.value);
+
+        // And then broken case
+        mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .addHandler(new MissingInstantiationHandler("foo"))
+                .build();
+        try {
+            mapper.readValue("{ \"x\" : true }", NoDefaultCtor.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "returned value of type `java.lang.String`");
+        }
+    }
+
+    @Test
+    public void testUnexpectedTokenHandling() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addHandler(new WeirdTokenHandler(Integer.valueOf(13)))
+            .build();
+        Integer v = mapper.readValue("true", Integer.class);
+        assertEquals(Integer.valueOf(13), v);
+
+        mapper = jsonMapperBuilder()
+                .addHandler(new WeirdTokenHandler("foo"))
+                .build();
+        try{
+            mapper.readValue("true", Integer.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "returned value of type `java.lang.String`");
+        }
+    }
+
+    // [databind#6300]: handler `null` is treated like a JSON null element
+    // (not a NullPointerException)
+    @Test
+    public void nullFromHandlerForUnwrappedByteArray() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        assertArrayEquals(new byte[] { 0 }, mapper.readValue("true", byte[].class));
+        // ... and with FAIL_ON_NULL_FOR_PRIMITIVES a mismatch is reported
+        ObjectMapper strict = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> strict.readValue("true", byte[].class));
+        verifyException(e, "Cannot coerce `null` returned by `DeserializationProblemHandler`"
+                +" for token `JsonToken.VALUE_TRUE`");
+    }
+
+    static class CharPrimitiveBean {
+        public char c = 'x';
+    }
+
+    // scalar primitive `char`: `null` from handler must not reach the setter
+    @Test
+    public void nullFromHandlerForCharPrimitive() throws Exception
+    {
+        final String JSON = a2q("{'c':true}");
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        assertEquals('\0', mapper.readValue(JSON, CharPrimitiveBean.class).c);
+        ObjectMapper strict = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> strict.readValue(JSON, CharPrimitiveBean.class));
+        verifyException(e, "Cannot coerce `null` returned by `DeserializationProblemHandler`");
+    }
+
+    // `null` from handler for out-of-range int / multi-char String
+    @Test
+    public void nullFromWeirdValueHandlerForCharPrimitive() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new NullForWeirdValueHandler())
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        assertEquals('\0', mapper.readValue(a2q("{'c':70000}"), CharPrimitiveBean.class).c);
+        assertEquals('\0', mapper.readValue(a2q("{'c':'ab'}"), CharPrimitiveBean.class).c);
+        assertEquals(Character.valueOf('\0'), mapper.readValue("\"ab\"", Character.TYPE));
+        // wrapper type is allowed to be `null`
+        assertNull(mapper.readValue("\"ab\"", Character.class));
+        assertNull(mapper.readValue("70000", Character.class));
+
+        ObjectMapper strict = jsonMapperBuilder()
+                .addHandler(new NullForWeirdValueHandler())
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        assertThrows(MismatchedInputException.class,
+                () -> strict.readValue(a2q("{'c':70000}"), CharPrimitiveBean.class));
+        assertThrows(MismatchedInputException.class,
+                () -> strict.readValue("\"ab\"", Character.TYPE));
+        assertNull(strict.readValue("\"ab\"", Character.class));
+    }
+
+    // `char` root value and wrapper `Character` with unexpected token
+    @Test
+    public void nullFromHandlerForCharRoot() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        assertEquals(Character.valueOf('\0'), mapper.readValue("true", Character.TYPE));
+        assertNull(mapper.readValue("true", Character.class));
+    }
+
+    static class CharArrayBean {
+        @JsonSetter(contentNulls = Nulls.SKIP)
+        public char[] values;
+    }
+
+    // `contentNulls=SKIP` is honored for `char[]` elements
+    @Test
+    public void contentNullsSkipForCharArray() throws Exception
+    {
+        CharArrayBean bean = jsonMapperBuilder().build()
+                .readValue(a2q("{'values':['a',null,'b']}"), CharArrayBean.class);
+        assertArrayEquals(new char[] { 'a', 'b' }, bean.values);
+    }
+
+    // `null` from `handleWeirdStringValue` for primitives: default value, or
+    // mismatch with FAIL_ON_NULL_FOR_PRIMITIVES
+    @Test
+    public void nullFromWeirdStringHandlerForPrimitives() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new NullForWeirdValueHandler())
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        ObjectMapper strict = jsonMapperBuilder()
+                .addHandler(new NullForWeirdValueHandler())
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        // "999" overflows byte/short; "abc" is not valid for any
+        assertEquals(Byte.valueOf((byte) 0), mapper.readValue("\"abc\"", Byte.TYPE));
+        assertEquals(Short.valueOf((short) 0), mapper.readValue("\"999999\"", Short.TYPE));
+        assertEquals(Integer.valueOf(0), mapper.readValue("\"abc\"", Integer.TYPE));
+        assertEquals(Long.valueOf(0L), mapper.readValue("\"abc\"", Long.TYPE));
+        assertEquals(Float.valueOf(0f), mapper.readValue("\"abc\"", Float.TYPE));
+        assertEquals(Double.valueOf(0.0), mapper.readValue("\"abc\"", Double.TYPE));
+        assertEquals(Boolean.FALSE, mapper.readValue("\"abc\"", Boolean.TYPE));
+        assertArrayEquals(new byte[] { 1, 0 }, mapper.readValue("[1,\"abc\"]", byte[].class));
+        assertArrayEquals(new short[] { 1, 0 }, mapper.readValue("[1,\"abc\"]", short[].class));
+
+        for (Class<?> type : new Class<?>[] { Byte.TYPE, Short.TYPE, Integer.TYPE,
+                Long.TYPE, Float.TYPE, Double.TYPE, Boolean.TYPE, byte[].class, short[].class }) {
+            final String json = type.isArray() ? "[\"abc\"]" : "\"abc\"";
+            MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                    () -> strict.readValue(json, type), type.getName());
+            verifyException(e, "Cannot coerce `null` returned by `DeserializationProblemHandler`");
+        }
+    }
+
+    @Test
+    public void nullFromHandlerForCharArrayElement() throws Exception
+    {
+        final String JSON = a2q("['a',true,'b']");
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        assertArrayEquals(new char[] { 'a', '\0', 'b' },
+                mapper.readValue(JSON, char[].class));
+        // ... and with FAIL_ON_NULL_FOR_PRIMITIVES a mismatch is reported
+        ObjectMapper strict = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> strict.readValue(JSON, char[].class));
+        verifyException(e, "Cannot coerce `null` returned by `DeserializationProblemHandler`"
+                +" for token `JsonToken.VALUE_TRUE`");
+    }
+
+    // [databind#6300]: `Character` (only valid non-null value for `char` element)
+    // is accepted, not cast to `CharSequence`
+    @Test
+    public void characterFromHandlerForCharArrayElement() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new WeirdTokenHandler(Character.valueOf('x')))
+                .build();
+        assertArrayEquals(new char[] { 'a', 'x', 'b' },
+                mapper.readValue(a2q("['a',true,'b']"), char[].class));
+    }
+
+    // [databind#6300]: same for other primitive arrays, scalar elements and
+    // single-value unwrapping, all going through `StdDeserializer._parseXxxPrimitive()`
+    @Test
+    public void nullFromHandlerForOtherPrimitiveArrays() throws Exception
+    {
+        final String JSON = "[1,true,2]";
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        assertArrayEquals(new byte[] { 1, 0, 2 }, mapper.readValue(JSON, byte[].class));
+        assertArrayEquals(new short[] { 1, 0, 2 }, mapper.readValue(JSON, short[].class));
+        assertArrayEquals(new int[] { 1, 0, 2 }, mapper.readValue(JSON, int[].class));
+        assertArrayEquals(new long[] { 1, 0, 2 }, mapper.readValue(JSON, long[].class));
+        assertArrayEquals(new float[] { 1, 0, 2 }, mapper.readValue(JSON, float[].class));
+        assertArrayEquals(new double[] { 1, 0, 2 }, mapper.readValue(JSON, double[].class));
+        // `boolean` accepts ints but not floats
+        assertArrayEquals(new boolean[] { true, false, true },
+                mapper.readValue("[true,1.5,true]", boolean[].class));
+
+        // single value unwrapped
+        assertArrayEquals(new int[] { 0 }, mapper.readValue("true", int[].class));
+        assertArrayEquals(new boolean[] { false }, mapper.readValue("1.5", boolean[].class));
+
+        ObjectMapper strict = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        for (Class<?> type : new Class<?>[] { short[].class, int[].class, long[].class,
+                float[].class, double[].class }) {
+            MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                    () -> strict.readValue(JSON, type));
+            verifyException(e, "Cannot coerce `null` returned by `DeserializationProblemHandler`"
+                    +" for token `JsonToken.VALUE_TRUE`");
+        }
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> strict.readValue("[1.5]", boolean[].class));
+        verifyException(e, "Cannot coerce `null` returned by `DeserializationProblemHandler`"
+                +" for token `JsonToken.VALUE_NUMBER_FLOAT`");
+    }
+
+    // [databind#6300]: and for primitive (non-array) properties
+    @Test
+    public void nullFromHandlerForPrimitiveProperty() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new NullForUnexpectedTokenHandler())
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        IntPrimitiveBean bean = mapper.readValue(a2q("{'x':true}"), IntPrimitiveBean.class);
+        assertEquals(0, bean.x);
+    }
+}

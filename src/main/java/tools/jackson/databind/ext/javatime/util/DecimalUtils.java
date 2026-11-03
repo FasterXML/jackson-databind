@@ -78,9 +78,22 @@ public final class DecimalUtils
     /**
      * Factory method for constructing {@link BigDecimal} out of second, nano-second
      * components.
+     * 
+     * @param seconds Seconds component
+     * @param nanoseconds Nanoseconds component  
+     * @return BigDecimal representation
+     * @throws ArithmeticException if the calculation overflows or produces invalid results
      */
     public static BigDecimal toBigDecimal(long seconds, int nanoseconds)
     {
+        // [modules-java8#359] For negative seconds with positive nanos (times before epoch),
+        // we need to compute the proper decimal value: seconds + (nanos / 1_000_000_000)
+        // Example: Instant{epochSecond=-1, nano=999000000} represents -0.001 seconds
+        if (seconds < 0 && nanoseconds > 0) {
+            return BigDecimal.valueOf(seconds)
+                .add(BigDecimal.valueOf(nanoseconds).scaleByPowerOfTen(-9));
+        }
+
         if (nanoseconds == 0L) {
             // 14-Mar-2015, tatu: Let's retain one zero to avoid interpretation
             //    as integral number
@@ -97,6 +110,12 @@ public final class DecimalUtils
      * values, passing them to the given converter.   The implementation avoids latency issues present
      * on some JRE releases.
      *
+     * @param <T> The return type of the converter function
+     * @param seconds The decimal seconds value to extract components from
+     * @param convert Function to convert the extracted seconds and nanoseconds into result type
+     * @param negativeAdjustment Whether to adjust negative nanoseconds
+     * @return The result of applying the converter function
+     * @throws ArithmeticException if the calculation overflows or produces invalid results
      * @since 2.19
      */
     public static <T> T extractSecondsAndNanos(BigDecimal seconds,

@@ -9,6 +9,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.deser.SettableAnyProperty;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.ValueInstantiator;
+import tools.jackson.databind.deser.impl.ManagedReferenceProperty;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
 import tools.jackson.databind.util.NameTransformer;
 
@@ -54,6 +55,14 @@ public final class PropertyBasedCreator
      */
     protected final BitSet _injectablePropIndexes;
 
+    /**
+     * Flag indicating whether any creator properties are ManagedReferenceProperty instances,
+     * used to optimize deserialization by skipping back-reference injection when not needed.
+     *
+     * @since 3.1
+     */
+    protected final boolean _hasManagedReferenceProperties;
+
     /*
     /**********************************************************************
     /* Construction, initialization
@@ -93,6 +102,7 @@ public final class PropertyBasedCreator
         _propertyCount = len;
         _propertiesInOrder = new SettableBeanProperty[len];
         BitSet injectablePropIndexes = null;
+        boolean hasManagedRef = false;
 
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = creatorProps[i];
@@ -107,9 +117,14 @@ public final class PropertyBasedCreator
                 }
                 injectablePropIndexes.set(i);
             }
+
+            // [databind#1516]: detect whether any ManagedReferenceProperty exists
+            // so we can avoid iterating over all properties when none are present
+            hasManagedRef |= prop instanceof ManagedReferenceProperty;
         }
 
         _injectablePropIndexes = injectablePropIndexes;
+        _hasManagedReferenceProperties = hasManagedRef;
     }
 
     protected PropertyBasedCreator(PropertyBasedCreator base,
@@ -121,6 +136,7 @@ public final class PropertyBasedCreator
         _injectablePropIndexes = base._injectablePropIndexes;
         _propertyLookup = propertyLookup;
         _propertiesInOrder = allProperties;
+        _hasManagedReferenceProperties = base._hasManagedReferenceProperties;
     }
 
     /**
@@ -180,6 +196,7 @@ public final class PropertyBasedCreator
      *
      * @since 2.19
      */
+    @SuppressWarnings("unchecked")
     public PropertyBasedCreator renameAll(DeserializationContext ctxt,
             NameTransformer transformer)
     {
@@ -188,7 +205,8 @@ public final class PropertyBasedCreator
         }
 
         final int len = _propertiesInOrder.length;
-        HashMap<String, SettableBeanProperty> newLookup = new HashMap<>(_propertyLookup);
+        // clone() retains type of lookup (and with it, case-insensitivity)
+        HashMap<String, SettableBeanProperty> newLookup = (HashMap<String, SettableBeanProperty>) _propertyLookup.clone();
         List<SettableBeanProperty> newProps = new ArrayList<>(len);
 
         for (SettableBeanProperty prop : _propertiesInOrder) {
@@ -236,6 +254,13 @@ public final class PropertyBasedCreator
             }
         }
         return null;
+    }
+
+    /**
+     * @since 3.1
+     */
+    public boolean hasManagedReferenceProperties() {
+        return _hasManagedReferenceProperties;
     }
 
     /*
@@ -320,6 +345,16 @@ public final class PropertyBasedCreator
         public SettableBeanProperty put(String key, SettableBeanProperty value) {
             key = key.toLowerCase(_locale);
             return super.put(key, value);
+        }
+
+        @Override
+        public boolean containsKey(Object key0) {
+            return super.containsKey(((String) key0).toLowerCase(_locale));
+        }
+
+        @Override
+        public SettableBeanProperty remove(Object key0) {
+            return super.remove(((String) key0).toLowerCase(_locale));
         }
     }
 }

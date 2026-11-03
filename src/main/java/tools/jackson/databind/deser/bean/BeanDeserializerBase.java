@@ -139,7 +139,7 @@ public abstract class BeanDeserializerBase
     protected final Set<String> _ignorableProps;
 
     /**
-     * Keep track of the the properties that needs to be specifically included.
+     * Keep track of the properties that need to be specifically included.
      */
     protected final Set<String> _includableProps;
 
@@ -551,7 +551,7 @@ public abstract class BeanDeserializerBase
                         unwrapped = new UnwrappedPropertyHandler();
                     }
 
-                    if (prop instanceof CreatorProperty) {
+                    if (prop.isCreatorProperty()) {
                         unwrapped.addCreatorProperty(prop);
                     } else {
                         unwrapped.addProperty(prop);
@@ -635,9 +635,12 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
             _nonStandardCreation = true;
         }
 
-        _unwrappedPropertyHandler = unwrapped;
         if (unwrapped != null) { // we consider this non-standard, to offline handling
             _nonStandardCreation = true;
+            // [databind#650]: Initialize unwrapped property names for hasUnwrappedProperty()
+            _unwrappedPropertyHandler = unwrapped.initializeUnwrappedPropertyNames();
+        } else {
+            _unwrappedPropertyHandler = null;
         }
         // may need to disable vanilla processing, if unwrapped handling was enabled...
         _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
@@ -863,7 +866,10 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
             // 16-May-2016, tatu: How about per-property case-insensitivity?
             Boolean B = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
             if (B != null) {
-                BeanPropertyMap propsOrig = _beanProperties;
+                // [databind#5962]: must rebuild from the (possibly filtered) contextual
+                // BeanPropertyMap so that per-property @JsonIgnoreProperties exclusions
+                // applied by _handleByNameInclusion() above are preserved.
+                BeanPropertyMap propsOrig = contextual._beanProperties;
                 BeanPropertyMap props = propsOrig.withCaseInsensitivity(B.booleanValue());
                 if (props != propsOrig) {
                     contextual = contextual.withBeanProperties(props);
@@ -875,6 +881,17 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
             shape = _serializationShape;
         }
         if (shape == JsonFormat.Shape.ARRAY) {
+            // [databind#4277]: Detect incompatible combination of ARRAY shape with EXTERNAL_PROPERTY
+            if (contextual._externalTypeIdHandler != null) {
+                return (BeanDeserializerBase) ctxt.reportBadDefinition(_beanType,
+                    """
+Cannot use `@JsonFormat(shape=JsonFormat.Shape.ARRAY)` with `@JsonTypeInfo(include=JsonTypeInfo.As.EXTERNAL_PROPERTY)` for type %s: `EXTERNAL_PROPERTY` requires object-style JSON with named properties, but `ARRAY` shape uses positional JSON arrays.
+Working alternatives:
+1. Use `@JsonTypeInfo(include=JsonTypeInfo.As.PROPERTY)` - type ID inside value object
+2. Use `@JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_ARRAY)` - wrap value with type
+3. Implement a custom deserializer for protocol-specific requirements
+                    """.formatted(ClassUtil.getTypeDescription(_beanType)));
+            }
             contextual = contextual.asArrayDeserializer();
         }
         return contextual;
@@ -934,9 +951,28 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
         ValueDeserializer<?> valueDeser = prop.getValueDeserializer();
         SettableBeanProperty backProp = valueDeser.findBackReference(refName);
         if (backProp == null) {
-            return ctxt.reportBadDefinition(_beanType, String.format(
+            // [databind#3304]: Provide more informative error message when the property
+            // is a container type with abstract/interface content type -- common case is
+            // when @JsonBackReference only exists on a subtype, not on the declared
+            // (abstract/interface) element type
+            JavaType propType = prop.getType();
+            String msg;
+            JavaType ct;
+            if (propType.isContainerType()
+                    && (ct = propType.getContentType()) != null
+                    && ct.isAbstract()) {
+                msg = String.format(
+"Cannot handle managed/back reference %s: no back reference property found from type %s"
++" (content type %s is abstract: `@JsonBackReference` must be defined on the abstract"
++" type or interface, not just on its subtypes)",
+ClassUtil.name(refName), ClassUtil.getTypeDescription(propType),
+ClassUtil.getTypeDescription(ct));
+            } else {
+                msg = String.format(
 "Cannot handle managed/back reference %s: no back reference property found from type %s",
-ClassUtil.name(refName), ClassUtil.getTypeDescription(prop.getType())));
+ClassUtil.name(refName), ClassUtil.getTypeDescription(propType));
+            }
+            return ctxt.reportBadDefinition(_beanType, msg);
         }
         // also: verify that type is compatible
         JavaType referredType = _beanType;
@@ -997,8 +1033,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
          */
         ValueDeserializer<Object> deser = prop.getValueDeserializer();
         // ideally wouldn't rely on it being BeanDeserializerBase; but for now it'll have to do
-        if (deser instanceof BeanDeserializerBase) {
-            BeanDeserializerBase bd = (BeanDeserializerBase) deser;
+        if (deser instanceof BeanDeserializerBase bd) {
             ValueInstantiator vi = bd.getValueInstantiator();
             if (!vi.canCreateUsingDefault()) { // no default constructor
                 Class<?> valueClass = prop.getType().getRawClass();
@@ -1133,12 +1168,44 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return _objectIdReader;
     }
 
+    /**
+     * Accessor for checking if the POJO handled by this deserializer has given
+     *    physical property (regular or unwrapped, not including
+     *    "any properties".
+     *
+     * @param propertyName Property to check
+     *
+     * @return True if the POJO handled by this deserializer has given
+     *    physical property (regular or unwrapped); not including
+     *    "any properties"
+     */
     public boolean hasProperty(String propertyName) {
-        return _beanProperties.findDefinition(propertyName) != null;
+        // normal properties
+        if (_beanProperties.findDefinition(propertyName) != null) {
+            return true;
+        }
+        // 19-Dec-2025: [databind#650] Check unwrapped properties too.
+        if (_unwrappedPropertyHandler != null) {
+            if (_unwrappedPropertyHandler.hasUnwrappedProperty(propertyName)) {
+                return true;
+            }
+        }
+        // 19-Dec-2025: [databind#650] but should "any-setter" be considered too?
+        // if (_anySetter != null) {
+        //     return true;
+        // }
+        return false;
     }
 
     public boolean hasViews() {
         return _needViewProcesing;
+    }
+
+    /**
+     * @since 3.1
+     */
+    public boolean hasAnySetter() {
+        return _anySetter != null;
     }
 
     /**
@@ -1150,7 +1217,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
 
     @Override
     public Collection<Object> getKnownPropertyNames() {
-        ArrayList<Object> names = new ArrayList<Object>();
+        ArrayList<Object> names = new ArrayList<>();
         for (SettableBeanProperty prop : _beanProperties) {
             names.add(prop.getName());
         }
@@ -1163,6 +1230,26 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         }
         */
         return names;
+    }
+
+    /**
+     * Method to collect all property names including nested unwrapped properties
+     *
+     * @param names (not null) Set to add property names to; for both regular
+     *   and "any" properties.
+     *
+     * @since 3.1
+     */
+    public void collectAllPropertyNamesTo(Set<String> names) {
+        for (SettableBeanProperty prop : _beanProperties) {
+            names.add(prop.getName());
+        }
+        // [databind#5911]: also include alias names so outer bean can route
+        // @JsonAlias-matched properties into this unwrapped deserializer.
+        _beanProperties.collectAliasNames(names);
+        if (_unwrappedPropertyHandler != null) {
+            _unwrappedPropertyHandler.collectUnwrappedPropertyNamesTo(names);
+        }
     }
 
     @Override
@@ -1203,7 +1290,6 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
 
     public SettableBeanProperty findProperty(PropertyName propertyName)
     {
-        // TODO: start matching full name?
         return findProperty(propertyName.getSimpleName());
     }
 
@@ -1211,6 +1297,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * Accessor for finding the property with given name, if POJO
      * has one. Name used is the external name, i.e. name used
      * in external data representation (JSON).
+     *<p>
+     * NOTE: does NOT match "unwrapped" properties POJO contains (if any).
      */
     protected SettableBeanProperty findProperty(String propertyName)
     {
@@ -1333,6 +1421,10 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         // also: may need to set a property value as well
         SettableBeanProperty idProp = _objectIdReader.idProperty;
         if (idProp != null) {
+            // [databind#4729] Records/Creators do not have setters, skip
+            if (idProp.isCreatorProperty()) {
+                return pojo;
+            }
             return idProp.setAndReturn(ctxt, pojo, id);
         }
         return pojo;
@@ -1350,12 +1442,12 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             Object rawId, ValueDeserializer<Object> idDeser) throws JacksonException
     {
         TokenBuffer buf = ctxt.bufferForInputBuffering(p);
-        if (rawId instanceof String) {
-            buf.writeString((String) rawId);
-        } else if (rawId instanceof Long) {
-            buf.writeNumber(((Long) rawId).longValue());
-        } else if (rawId instanceof Integer) {
-            buf.writeNumber(((Integer) rawId).intValue());
+        if (rawId instanceof String rString) {
+            buf.writeString(rString);
+        } else if (rawId instanceof Long rLong) {
+            buf.writeNumber(rLong.longValue());
+        } else if (rawId instanceof Integer rInt) {
+            buf.writeNumber(rInt.intValue());
         } else {
             // should we worry about UUIDs? They should be fine, right?
             // 07-Aug-2014, tatu: Maybe, but not necessarily; had issues with
@@ -1718,6 +1810,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         }
         if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
             handleIgnoredProperty(p, ctxt, beanOrClass, propName);
+            return;
         }
         // Otherwise use default handling (call handler(s); if not
         // handled, throw exception or skip depending on settings)
@@ -1814,6 +1907,30 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             _subDeserializers.put(classKey, subDeser);
         }
         return subDeser;
+    }
+
+    /**
+     * Helper method for handling unexpected views.
+     * <p>
+     * When a property is not in the active view it should be skipped silently unless
+     * {@link DeserializationFeature#FAIL_ON_UNEXPECTED_VIEW_PROPERTIES} is enabled.
+     * <p>
+     * [databind#437, databind#6077]: Fields in other views should be considered unknown properties.
+     *
+     * @since 3.2.1
+     */
+    protected void handleUnexpectedView(JsonParser p, DeserializationContext ctxt,
+            SettableBeanProperty property, Class<?> activeView)
+        throws JacksonException
+    {
+        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)) {
+            ctxt.reportInputMismatch(handledType(),
+                    "Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'" +
+                            " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
+                    ClassUtil.nameOf(handledType()), property.getName(), activeView.getName());
+        }
+
+        p.skipChildren();
     }
 
     /*

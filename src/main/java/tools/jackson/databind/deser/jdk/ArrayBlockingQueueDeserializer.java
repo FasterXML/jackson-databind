@@ -6,8 +6,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.deser.ValueInstantiator;
+import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -15,6 +17,7 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
  * default constructor AND because it has size limit used for constructing
  * underlying storage automatically.
  */
+@JacksonStdImpl
 public class ArrayBlockingQueueDeserializer
     extends CollectionDeserializer
 {
@@ -24,24 +27,29 @@ public class ArrayBlockingQueueDeserializer
     /**********************************************************************
      */
 
-     public ArrayBlockingQueueDeserializer(JavaType containerType,
+    // @since 3.1
+    public ArrayBlockingQueueDeserializer(JavaType containerType,
             ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
-            ValueInstantiator valueInstantiator)
+            ValueInstantiator valueInstantiator,
+            AnnotatedClass classInfo)
     {
-        super(containerType, valueDeser, valueTypeDeser, valueInstantiator);
+        super(containerType, valueDeser, valueTypeDeser, valueInstantiator, classInfo);
     }
 
     /**
      * Constructor used when creating contextualized instances.
+     *
+     * @since 3.1
      */
      protected ArrayBlockingQueueDeserializer(JavaType containerType,
             ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
             ValueInstantiator valueInstantiator,
             ValueDeserializer<Object> delegateDeser,
-            NullValueProvider nuller, Boolean unwrapSingle)
+            NullValueProvider nuller, Boolean unwrapSingle,
+            AnnotatedClass classInfo)
     {
         super(containerType, valueDeser, valueTypeDeser, valueInstantiator, delegateDeser,
-                nuller, unwrapSingle);
+                nuller, unwrapSingle, classInfo);
     }
 
     /**
@@ -64,7 +72,8 @@ public class ArrayBlockingQueueDeserializer
         return new ArrayBlockingQueueDeserializer(_containerType,
                 (ValueDeserializer<Object>) vd, vtd,
                 _valueInstantiator, (ValueDeserializer<Object>) dd,
-                nuller, unwrapSingle);
+                nuller, unwrapSingle,
+                _classInfo);
     }
 
     /*

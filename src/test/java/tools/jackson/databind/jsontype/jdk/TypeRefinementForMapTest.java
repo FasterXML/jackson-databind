@@ -114,7 +114,7 @@ public class TypeRefinementForMapTest extends DatabindTestUtil
         String json = a2q(
 "{'id':'"+ID1+"','items':[{'id':'"+ID2+"','property':'value'}]}");
 
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = newJsonMapper();
         Data data = m.readValue(json, Data.class);
 
         assertEquals(ID1, data.id);

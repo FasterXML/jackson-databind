@@ -115,11 +115,13 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Constructor used when creating a new instance (compared to
      * that of creating fluent copies)
+     *
+     * @since 3.1 (added 'view' parameter)
      */
     protected MapperConfigBase(MapperBuilder<?,?> b, long mapperFeatures,
             TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
             ConfigOverrides configOverrides, ContextAttributes defaultAttrs,
-            RootNameLookup rootNames)
+            RootNameLookup rootNames, Class<?> view)
     {
         super(b.baseSettings(), mapperFeatures);
 
@@ -130,7 +132,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _mixIns = mixins;
         _rootNames = rootNames;
         _rootName = null;
-        _view = null;
+        _view = view;
         _attributes = defaultAttrs;
         _configOverrides = configOverrides;
         _datatypeFeatures = b.datatypeFeatures();
@@ -568,6 +570,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return def.withOverrides(v);
     }
 
+    @Override // @since 3.1
+    public JsonFormat.Value getDefaultFormat() {
+        return _configOverrides.getDefaultFormat();
+    }
+
     @Override
     public final JsonFormat.Value getDefaultPropertyFormat(Class<?> type) {
         return _configOverrides.findFormatDefaults(type);
@@ -622,7 +629,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
         if (ClassUtil.isJDKClass(baseType)) {
             vc = VisibilityChecker.allPublicInstance();
-        } else if (ClassUtil.isRecordType(baseType)) {
+        } else if (baseType.isRecord()) {
             // 15-Jan-2023, tatu: [databind#3724] Records require slightly different defaults
             vc = _configOverrides.getDefaultRecordVisibility();
         } else {

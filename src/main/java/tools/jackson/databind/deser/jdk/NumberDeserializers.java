@@ -159,14 +159,15 @@ public class NumberDeserializers
             return AccessPattern.CONSTANT;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public final T getNullValue(DeserializationContext ctxt) {
             // 01-Mar-2017, tatu: Alas, not all paths lead to `_coerceNull()`, as `SettableBeanProperty`
             //    short-circuits `null` handling. Hence need this check as well.
             if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-                ctxt.reportInputMismatch(this,
-                        "Cannot map `null` into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
-                        ClassUtil.classNameOf(handledType()));
+                return (T) ctxt.handleNullForPrimitives(handledType(), ctxt.getParser(), this,
+"Cannot map `null` into type %s (set `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to 'false' to allow)",
+                                ClassUtil.nameOf(handledType()));
             }
             return _nullValue;
         }
@@ -261,6 +262,17 @@ public class NumberDeserializers
             return _parseByte(p, ctxt);
         }
 
+
+        /**
+         * @since 3.1
+         */
+        @Override
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+        {
+            return RadixDeserializerFactory.createRadixStringDeserializer(this,
+                    findFormatOverrides(ctxt, property, handledType()));
+        }
+
         protected Byte _parseByte(JsonParser p, DeserializationContext ctxt)
                 throws JacksonException
         {
@@ -269,6 +281,10 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
                 text = p.getString();
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                if (text == null) {
+                    return (Byte) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                }
                 break;
             case JsonTokenId.ID_NUMBER_FLOAT:
                 final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
@@ -281,7 +297,7 @@ public class NumberDeserializers
                 // 11-Oct-2025, tatu: [databind#5240] Cumbersome as there is no
                 //  `getValueAsByte()` that'd avoid checks. So need to work around.
                 int i = p.getValueAsInt();
-                if (_shortOverflow(i)) {
+                if (_byteOverflow(i)) {
                     // Let's trigger overflow handling
                     return p.getByteValue();
                 }
@@ -346,6 +362,17 @@ public class NumberDeserializers
             super(cls, LogicalType.Integer, nvl, (short)0);
         }
 
+        /**
+         * @since 3.1
+         */
+        @Override
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+                BeanProperty property)
+        {
+            return RadixDeserializerFactory.createRadixStringDeserializer(this,
+                    findFormatOverrides(ctxt, property, handledType()));
+        }
+
         @Override
         public Short deserialize(JsonParser p, DeserializationContext ctxt)
             throws JacksonException
@@ -366,6 +393,10 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
                 text = p.getString();
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                if (text == null) {
+                    return (Short) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                }
                 break;
             case JsonTokenId.ID_NUMBER_FLOAT:
                 final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
@@ -443,10 +474,29 @@ public class NumberDeserializers
                     LogicalType.Integer, nvl, '\0');
         }
 
+        // Problem handler may return `null`, which is not acceptable for primitive `char`
+        private Character _handlerResult(DeserializationContext ctxt, Character c, JsonToken t)
+            throws JacksonException
+        {
+            if (c == null && _primitive) {
+                _verifyNullForPrimitive(ctxt, t);
+                return Character.valueOf('\0');
+            }
+            return c;
+        }
+
+        private Character _handleUnexpectedToken(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
+        {
+            final JsonToken t = p.currentToken();
+            return _handlerResult(ctxt, (Character) ctxt.handleUnexpectedToken(getValueType(ctxt), p), t);
+        }
+
         @Override
         public Character deserialize(JsonParser p, DeserializationContext ctxt)
             throws JacksonException
         {
+            final JsonToken tok = p.currentToken();
             String text;
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING:
@@ -454,6 +504,14 @@ public class NumberDeserializers
                 //   have canonical shape in JSON, and String in particular does not need
                 //   coercion -- as long as it has length of 1.
                 text = p.getString();
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text:
+                // handled like JSON null (as is the case for `char[]` elements)
+                if (text == null) {
+                    if (_primitive) {
+                        _verifyNullForPrimitive(ctxt, p, null);
+                    }
+                    return (Character) getNullValue(ctxt);
+                }
                 break;
             case JsonTokenId.ID_NUMBER_INT: // ok iff Unicode value
                 CoercionAction act = ctxt.findCoercionAction(logicalType(), _valueClass, CoercionInputShape.Integer);
@@ -472,15 +530,16 @@ public class NumberDeserializers
                 if (value >= 0 && value <= 0xFFFF) {
                     return Character.valueOf((char) value);
                 }
-                return (Character) ctxt.handleWeirdNumberValue(handledType(), value,
-                        "value outside valid Character range (0x0000 - 0xFFFF)");
+                return _handlerResult(ctxt, (Character) ctxt.handleWeirdNumberValue(handledType(), value,
+                        "value outside valid Character range (0x0000 - 0xFFFF)"), tok);
             case JsonTokenId.ID_NULL:
                 if (_primitive) {
-                    _verifyNullForPrimitive(ctxt);
+                    char c = (char) _verifyNullForPrimitive(ctxt, p, '\0');
+                    return c;
                 }
                 return (Character) getNullValue(ctxt);
             case JsonTokenId.ID_START_ARRAY:
-                return _deserializeFromArray(p, ctxt);
+                return _handlerResult(ctxt, _deserializeFromArray(p, ctxt), tok);
             // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
             case JsonTokenId.ID_START_OBJECT:
                 text = ctxt.extractScalarFromObject(p, this, _valueClass);
@@ -490,7 +549,7 @@ public class NumberDeserializers
                 }
                 // fall through
             default:
-                return (Character) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                return _handleUnexpectedToken(p, ctxt);
             }
 
             if (text.length() == 1) {
@@ -507,8 +566,8 @@ public class NumberDeserializers
             if (_checkTextualNull(ctxt, text)) {
                 return (Character) getNullValue(ctxt);
             }
-            return (Character) ctxt.handleWeirdStringValue(handledType(), text,
-                    "Expected either Integer value code or 1-character String");
+            return _handlerResult(ctxt, (Character) ctxt.handleWeirdStringValue(handledType(), text,
+                    "Expected either Integer value code or 1-character String"), tok);
         }
     }
 
@@ -525,6 +584,17 @@ public class NumberDeserializers
 
         @Override
         public boolean isCachable() { return true; }
+
+        /**
+         * @since 3.1
+         */
+        @Override
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+                BeanProperty property)
+        {
+            return RadixDeserializerFactory.createRadixStringDeserializer(this,
+                    findFormatOverrides(ctxt, property, handledType()));
+        }
 
         @Override
         public Integer deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
@@ -567,8 +637,21 @@ public class NumberDeserializers
         @Override
         public boolean isCachable() { return true; }
 
+        /**
+         * @since 3.1
+         */
         @Override
-        public Long deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+                BeanProperty property)
+        {
+            return RadixDeserializerFactory.createRadixStringDeserializer(this,
+                    findFormatOverrides(ctxt, property, handledType()));
+        }
+
+        @Override
+        public Long deserialize(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
+        {
             if (p.isExpectedNumberIntToken()) {
                 return p.getLongValue();
             }
@@ -591,7 +674,8 @@ public class NumberDeserializers
         }
 
         @Override
-        public Float deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
+        public Float deserialize(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
         {
             if (p.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
                 return p.getFloatValue();
@@ -609,6 +693,10 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING:
                 text = p.getString();
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                if (text == null) {
+                    return (Float) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                }
                 break;
             case JsonTokenId.ID_NULL: // null fine for non-primitive
                 return (Float) getNullValue(ctxt);
@@ -712,6 +800,10 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING:
                 text = p.getString();
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                if (text == null) {
+                    return (Double) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                }
                 break;
             case JsonTokenId.ID_NULL: // null fine for non-primitive
                 return (Double) getNullValue(ctxt);
@@ -807,6 +899,10 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING:
                 text = p.getString();
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                if (text == null) {
+                    return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                }
                 break;
             case JsonTokenId.ID_NUMBER_INT:
                 if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
@@ -937,6 +1033,17 @@ public class NumberDeserializers
             return LogicalType.Integer;
         }
 
+        /**
+         * @since 3.1
+         */
+        @Override
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+                BeanProperty property)
+        {
+            return RadixDeserializerFactory.createRadixStringDeserializer(this,
+                    findFormatOverrides(ctxt, property, handledType()));
+        }
+
         @Override
         public BigInteger deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
@@ -948,6 +1055,10 @@ public class NumberDeserializers
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
                 text = p.getString();
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                if (text == null) {
+                    return (BigInteger) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                }
                 break;
             case JsonTokenId.ID_NUMBER_FLOAT:
                 final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
@@ -1035,6 +1146,10 @@ public class NumberDeserializers
                 return p.getDecimalValue();
             case JsonTokenId.ID_STRING:
                 text = p.getString();
+                // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+                if (text == null) {
+                    return (BigDecimal) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                }
                 break;
             case JsonTokenId.ID_START_ARRAY:
                 return _deserializeFromArray(p, ctxt);

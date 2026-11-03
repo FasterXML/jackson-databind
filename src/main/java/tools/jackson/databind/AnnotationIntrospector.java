@@ -963,6 +963,10 @@ public abstract class AnnotationIntrospector
      * in addition to primary names that were introspected earlier, related to {@link #findEnumValues}.
      * These aliases should be returned in {@code String[][] aliases} passed in as argument. 
      * The {@code aliases.length} is expected to match the number of {@code Enum} values.
+     *<p>
+     * Implementations should only assign entries for values they have aliases for,
+     * leaving other entries as they are: with {@link tools.jackson.databind.introspect.AnnotationIntrospectorPair}
+     * the same array is first passed to the secondary, then to the primary introspector.
      *
      * @param config The configuration of the mapper
      * @param annotatedClass The annotated class of the enumeration type
@@ -1131,6 +1135,24 @@ public abstract class AnnotationIntrospector
      * @param ac Annotated class to introspect
      */
     public JsonPOJOBuilder.Value findPOJOBuilderConfig(MapperConfig<?> config, AnnotatedClass ac) {
+        return null;
+    }
+
+    /**
+     * Method for finding the builder prefix specified on the value class
+     * via {@code @JsonDeserialize(builderPrefix=...)}. This provides an
+     * alternative way to configure the prefix used by Builder "with-methods"
+     * without having to annotate the Builder class itself with {@code @JsonPOJOBuilder}.
+     *
+     * @param config Effective mapper configuration in use
+     * @param valueClass The value class (not Builder class!) to check for the annotation
+     *
+     * @return Builder prefix if explicitly specified; {@code null} to use default behavior
+     *   (check {@code @JsonPOJOBuilder} on builder class, or use global default)
+     *
+     * @since 3.1
+     */
+    public String findBuilderPrefix(MapperConfig<?> config, AnnotatedClass valueClass) {
         return null;
     }
 

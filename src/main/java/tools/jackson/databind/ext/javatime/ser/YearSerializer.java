@@ -49,13 +49,19 @@ public class YearSerializer extends JSR310FormattedSerializerBase<Year>
 
     protected YearSerializer(YearSerializer base, DateTimeFormatter dtf,
             Boolean useTimestamp) {
-        super(base, dtf, useTimestamp, null, null);
+        this(base, dtf, useTimestamp, null);
+    }
+
+    // @since 3.1.8
+    protected YearSerializer(YearSerializer base, DateTimeFormatter dtf,
+            Boolean useTimestamp, JsonFormat.Shape shape) {
+        super(base, dtf, useTimestamp, null, shape);
     }
 
     @Override
     protected YearSerializer withFormat(DateTimeFormatter dtf,
             Boolean useTimestamp, JsonFormat.Shape shape) {
-        return new YearSerializer(this, dtf, useTimestamp);
+        return new YearSerializer(this, dtf, useTimestamp, shape);
     }
 
     // Need to ensure Year still defaults to numeric ("timestamp") regardless

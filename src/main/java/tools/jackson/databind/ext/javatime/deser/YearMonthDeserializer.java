@@ -26,6 +26,7 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.core.JsonToken;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 
 /**
  * Deserializer for Java 8 temporal {@link YearMonth}s.
@@ -120,7 +121,15 @@ public class YearMonthDeserializer extends JSR310DateTimeDeserializerBase<YearMo
                 throw ctxt.wrongTokenException(p, handledType(), JsonToken.END_ARRAY,
                         "Expected array to end");
             }
-            return YearMonth.of(year, month);
+            try {
+                return YearMonth.of(year, month);
+            } catch (DateTimeException e) {
+                throw DateTimeParseException.from(p,
+                        String.format("Failed to deserialize %s from array value [%d,%d]: %s",
+                                handledType().getName(), year, month, e.getMessage()),
+                        String.format("[%d,%d]", year, month),
+                        handledType(), e);
+            }
         } else if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
             return (YearMonth) p.getEmbeddedObject();
         }

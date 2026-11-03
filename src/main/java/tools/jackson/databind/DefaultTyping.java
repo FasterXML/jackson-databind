@@ -48,6 +48,14 @@ public enum DefaultTyping {
      * Enables default typing for non-final types as {@link #NON_FINAL},
      * but also includes Enums.
      */
-    NON_FINAL_AND_ENUMS
+    NON_FINAL_AND_ENUMS,
+
+    /**
+     * Enables default typing for non-final types as {@link #NON_FINAL},
+     * but also includes Java Records.
+     *
+     * @since 3.1
+     */
+    NON_FINAL_AND_RECORDS
     ;
 }

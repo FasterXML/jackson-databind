@@ -38,8 +38,8 @@ public class IgnoredPropertyException
             Collection<Object> propertyIds)
     {
         Class<?> ref;
-        if (fromObjectOrClass instanceof Class<?>) {
-            ref = (Class<?>) fromObjectOrClass;
+        if (fromObjectOrClass instanceof Class<?> class1) {
+            ref = class1;
         } else { // also acts as null check:
             ref = fromObjectOrClass.getClass();
         }

@@ -92,7 +92,7 @@ public final class DeserializationConfig
             AbstractTypeResolver[] atrs)
     {
         super(b, mapperFeatures, tf, classIntr, mixins, str, configOverrides,
-                defaultAttrs, rootNames);
+                defaultAttrs, rootNames, b.defaultDeserializationView());
         _deserFeatures = deserFeatures;
         _streamReadFeatures = streamReadFeatures;
         _formatReadFeatures = formatReadFeatures;

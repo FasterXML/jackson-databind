@@ -213,9 +213,10 @@ public abstract class PrimitiveArrayDeserializers<T>
         //   single-element wrapping of a String value
         // Let's still call _deserializeFromString() for empty strings no matter what,
         // and for all values if wrapping not enabled
+        // [databind#3349]: for non-empty strings, delegate to handleUnexpectedToken
         if (p.hasToken(JsonToken.VALUE_STRING)) {
             if (!canWrap || _isBlank(p.getString())) {
-                return _deserializeFromString(p, ctxt);
+                return _deserializeFromStringForContainer(p, ctxt);
             }
         }
         if (canWrap) {
@@ -247,8 +248,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         @Override
         protected PrimitiveArrayDeserializers<?> withResolved(NullValueProvider nuller,
                 Boolean unwrapSingle) {
-            // 11-Dec-2015, tatu: Not sure how re-wrapping would work; omit
-            return this;
+            return new CharDeser(this, nuller, unwrapSingle);
         }
 
         @Override
@@ -282,11 +282,16 @@ public abstract class PrimitiveArrayDeserializers<T>
                             _nuller.getNullValue(ctxt);
                             continue;
                         }
-                        _verifyNullForPrimitive(ctxt);
-                        str = "\0";
+                        str = null;
                     } else {
-                        CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
-                        str = cs.toString();
+                        // Handler may only return `Character` (or `null`) for `Character.TYPE`
+                        Object ob = ctxt.handleUnexpectedToken(ctxt.constructType(Character.TYPE), p);
+                        str = (ob == null) ? null : ob.toString();
+                    }
+                    // JSON null, or `null` substituted by a problem handler
+                    if (str == null) {
+                        _verifyNullForPrimitive(ctxt, t);
+                        str = "\0";
                     }
                     if (str.length() != 1) {
                         ctxt.reportInputMismatch(this,
@@ -300,15 +305,15 @@ public abstract class PrimitiveArrayDeserializers<T>
             if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
                 Object ob = p.getEmbeddedObject();
                 if (ob == null) return null;
-                if (ob instanceof char[]) {
-                    return (char[]) ob;
+                if (ob instanceof char[] charArray) {
+                    return charArray;
                 }
-                if (ob instanceof String) {
-                    return ((String) ob).toCharArray();
+                if (ob instanceof String string) {
+                    return string.toCharArray();
                 }
                 // 04-Feb-2011, tatu: byte[] can be converted; assuming base64 is wanted
-                if (ob instanceof byte[]) {
-                    return Base64Variants.getDefaultVariant().encode((byte[]) ob, false).toCharArray();
+                if (ob instanceof byte[] byteArray) {
+                    return Base64Variants.getDefaultVariant().encode(byteArray, false).toCharArray();
                 }
                 // not recognized, just fall through
             }
@@ -382,8 +387,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                             _nuller.getNullValue(ctxt);
                             continue;
                         }
-                        _verifyNullForPrimitive(ctxt);
-                        value = false;
+                        value = (boolean) _verifyNullForPrimitive(ctxt, p, false);
                     } else {
                         value = _parseBooleanPrimitive(p, ctxt);
                     }
@@ -473,8 +477,8 @@ public abstract class PrimitiveArrayDeserializers<T>
             if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
                 Object ob = p.getEmbeddedObject();
                 if (ob == null) return null;
-                if (ob instanceof byte[]) {
-                    return (byte[]) ob;
+                if (ob instanceof byte[] byteArray) {
+                    return byteArray;
                 }
             }
             if (!p.isExpectedStartArrayToken()) {
@@ -497,8 +501,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                                 _nuller.getNullValue(ctxt);
                                 continue;
                             }
-                            _verifyNullForPrimitive(ctxt);
-                            value = (byte) 0;
+                            value = (byte) _verifyNullForPrimitive(ctxt, p, (byte) 0);
                         } else {
                             value = _parseBytePrimitive(p, ctxt);
                         }
@@ -520,23 +523,12 @@ public abstract class PrimitiveArrayDeserializers<T>
         protected byte[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws JacksonException
         {
-            byte value;
-            JsonToken t = p.currentToken();
-            if (t == JsonToken.VALUE_NUMBER_INT) {
-                value = p.getByteValue(); // note: may throw due to overflow
-            } else {
-                // should probably accept nulls as 'false'
-                if (t == JsonToken.VALUE_NULL) {
-                    if (_nuller != null) {
-                        _nuller.getNullValue(ctxt);
-                        return (byte[]) getEmptyValue(ctxt);
-                    }
-                    _verifyNullForPrimitive(ctxt);
-                    return null;
-                }
-                Number n = (Number) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
-                value = n.byteValue();
+            if (_nuller != null && p.hasToken(JsonToken.VALUE_NULL)) {
+                _nuller.getNullValue(ctxt);
+                return (byte[]) getEmptyValue(ctxt);
             }
+            // Handles `null` (including one from a problem handler) and coercions
+            final byte value = _parseBytePrimitive(p, ctxt);
             return new byte[] { value };
         }
 
@@ -589,8 +581,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                             _nuller.getNullValue(ctxt);
                             continue;
                         }
-                        _verifyNullForPrimitive(ctxt);
-                        value = (short) 0;
+                        value = (short) _verifyNullForPrimitive(ctxt, p, (short) 0);
                     } else {
                         value = _parseShortPrimitive(p, ctxt);
                     }
@@ -666,8 +657,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                             _nuller.getNullValue(ctxt);
                             continue;
                         }
-                        _verifyNullForPrimitive(ctxt);
-                        value = 0;
+                        value = (int) _verifyNullForPrimitive(ctxt, p, 0);
                     } else {
                         value = _parseIntPrimitive(p, ctxt);
                     }
@@ -743,8 +733,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                             _nuller.getNullValue(ctxt);
                             continue;
                         }
-                        _verifyNullForPrimitive(ctxt);
-                        value = 0L;
+                        value = (long) _verifyNullForPrimitive(ctxt, p, 0L);
                     } else {
                         value = _parseLongPrimitive(p, ctxt);
                     }
@@ -875,8 +864,8 @@ public abstract class PrimitiveArrayDeserializers<T>
             } else if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
                 // Typical for binary formats
                 Object ob = p.getEmbeddedObject();
-                if (ob instanceof byte[]) {
-                    packed = (byte[]) ob;
+                if (ob instanceof byte[] byteArray) {
+                    packed = byteArray;
                 } else if (ob == null || (ob instanceof float[])) {
                     return (float[]) ob;
                 }
@@ -1005,8 +994,8 @@ public abstract class PrimitiveArrayDeserializers<T>
             } else if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
                 // Typical for binary formats
                 Object ob = p.getEmbeddedObject();
-                if (ob instanceof byte[]) {
-                    packed = (byte[]) ob;
+                if (ob instanceof byte[] byteArray) {
+                    packed = byteArray;
                 } else if (ob == null || (ob instanceof double[])) {
                     return (double[]) ob;
                 }

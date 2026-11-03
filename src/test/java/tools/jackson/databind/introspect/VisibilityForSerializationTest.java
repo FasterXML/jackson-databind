@@ -88,7 +88,7 @@ public class VisibilityForSerializationTest
     public void testGlobalAutoDetection() throws IOException
     {
         // First: auto-detection enabled (default):
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = newJsonMapper();
         Map<String,Object> result = writeAndMap(m, new GetterClass());
         assertEquals(2, result.size());
         assertEquals(Integer.valueOf(-2), result.get("x"));
@@ -109,7 +109,7 @@ public class VisibilityForSerializationTest
     public void testPerClassAutoDetection() throws IOException
     {
         // First: class-level auto-detection disabling
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = newJsonMapper();
         Map<String,Object> result = writeAndMap(m, new DisabledGetterClass());
         assertEquals(1, result.size());
         assertTrue(result.containsKey("x"));
@@ -154,8 +154,7 @@ public class VisibilityForSerializationTest
 
         BeanDescription desc = ObjectMapperTestAccess.beanDescriptionForSer(mapper, TCls.class);
         List<BeanPropertyDefinition> props = desc.findProperties();
-        if (props.size() != 1) {
-            fail("Should find 1 property, not "+props.size()+"; properties = "+props);
-        }
+        assertEquals(1, props.size(),
+                "Should find 1 property; properties = "+props);
     }
 }

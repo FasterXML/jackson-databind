@@ -9,8 +9,7 @@ import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests to verify working of customizable {@PolymorphicTypeValidator},
@@ -344,24 +343,18 @@ public class ValidatePolymSubTypeTest extends DatabindTestUtil
     }
 
     private void _verifyBadValue(ObjectMapper mapper, String json, Class<?> type) throws Exception {
-        try {
-            mapper.readValue(json, type);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id");
-            verifyException(e, "`PolymorphicTypeValidator`");
-            verifyException(e, "denied resolution");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json, type));
+        verifyException(e, "Could not resolve type id");
+        verifyException(e, "`PolymorphicTypeValidator`");
+        verifyException(e, "denied resolution");
     }
 
     private void _verifyMehValue(ObjectMapper mapper, String json, Class<?> type) throws Exception {
-        try {
-            mapper.readValue(json, type);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id");
-            verifyException(e, "`PolymorphicTypeValidator`");
-            verifyException(e, "denied resolution");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json, type));
+        verifyException(e, "Could not resolve type id");
+        verifyException(e, "`PolymorphicTypeValidator`");
+        verifyException(e, "denied resolution");
     }
 }

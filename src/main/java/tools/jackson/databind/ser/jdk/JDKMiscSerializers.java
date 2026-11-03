@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.*;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.ser.BasicSerializerFactory;
 import tools.jackson.databind.ser.jackson.TokenBufferSerializer;
@@ -15,7 +16,7 @@ import tools.jackson.databind.ser.std.ToStringSerializer;
 import tools.jackson.databind.util.TokenBuffer;
 
 /**
- * Class that providers access to serializers user for non-structured JDK types that
+ * Class that ctxts access to serializers user for non-structured JDK types that
  * are serializer as scalars; some using basic {@link ToStringSerializer},
  * others explicit serializers.
  */
@@ -59,13 +60,14 @@ public class JDKMiscSerializers
     /**********************************************************************
      */
 
+    @JacksonStdImpl
     public static class AtomicBooleanSerializer
         extends StdScalarSerializer<AtomicBoolean>
     {
         public AtomicBooleanSerializer() { super(AtomicBoolean.class, false); }
 
         @Override
-        public void serialize(AtomicBoolean value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
+        public void serialize(AtomicBoolean value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
             gen.writeBoolean(value.get());
         }
 
@@ -75,13 +77,14 @@ public class JDKMiscSerializers
         }
     }
 
+    @JacksonStdImpl
     public static class AtomicIntegerSerializer
         extends StdScalarSerializer<AtomicInteger>
     {
         public AtomicIntegerSerializer() { super(AtomicInteger.class, false); }
 
         @Override
-        public void serialize(AtomicInteger value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
+        public void serialize(AtomicInteger value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
             gen.writeNumber(value.get());
         }
 
@@ -92,13 +95,16 @@ public class JDKMiscSerializers
         }
     }
 
+    @JacksonStdImpl
     public static class AtomicLongSerializer
         extends StdScalarSerializer<AtomicLong>
     {
         public AtomicLongSerializer() { super(AtomicLong.class, false); }
 
         @Override
-        public void serialize(AtomicLong value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
+        public void serialize(AtomicLong value, JsonGenerator gen, SerializationContext ctxt)
+            throws JacksonException
+        {
             gen.writeNumber(value.get());
         }
 
@@ -118,6 +124,7 @@ public class JDKMiscSerializers
     /**
      * @since 3.0
      */
+    @JacksonStdImpl
     public static class ByteArrayOutputStreamSerializer
         extends StdScalarSerializer<ByteArrayOutputStream>
     {
@@ -125,7 +132,8 @@ public class JDKMiscSerializers
 
         @Override
         public void serialize(ByteArrayOutputStream value, JsonGenerator gen,
-                SerializationContext ctxt) throws JacksonException {
+                SerializationContext ctxt) throws JacksonException
+        {
             gen.writeBinary(value.toByteArray());
         }
 

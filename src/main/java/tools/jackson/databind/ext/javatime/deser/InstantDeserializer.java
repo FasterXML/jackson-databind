@@ -19,6 +19,7 @@ package tools.jackson.databind.ext.javatime.deser;
 import java.math.BigDecimal;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.Objects;
@@ -35,6 +36,7 @@ import tools.jackson.core.io.NumberInput;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
 
 /**
@@ -163,6 +165,7 @@ public class InstantDeserializer<T extends Temporal>
         _readTimestampsAsNanosOverride = base._readTimestampsAsNanosOverride;
     }
 
+    /*
     @SuppressWarnings("unchecked")
     protected InstantDeserializer(InstantDeserializer<T> base, Boolean adjustToContextTimezoneOverride)
     {
@@ -175,6 +178,7 @@ public class InstantDeserializer<T extends Temporal>
         _adjustToContextTZOverride = adjustToContextTimezoneOverride;
         _readTimestampsAsNanosOverride = base._readTimestampsAsNanosOverride;
     }
+    */
 
     @SuppressWarnings("unchecked")
     protected InstantDeserializer(InstantDeserializer<T> base, DateTimeFormatter f, Boolean leniency)
@@ -206,37 +210,27 @@ public class InstantDeserializer<T extends Temporal>
         _readTimestampsAsNanosOverride = readTimestampsAsNanosOverride;
     }
 
-    /*
-    @SuppressWarnings("unchecked")
-    protected InstantDeserializer(InstantDeserializer<T> base,
-            DatatypeFeatures features)
-    {
-        super((Class<T>) base.handledType(), base._formatter);
-        parsedToValue = base.parsedToValue;
-        fromMilliseconds = base.fromMilliseconds;
-        fromNanoseconds = base.fromNanoseconds;
-        adjust = base.adjust;
-        replaceZeroOffsetAsZ = base.replaceZeroOffsetAsZ;
-        _adjustToContextTZOverride = base._adjustToContextTZOverride;
-        _readTimestampsAsNanosOverride = base._readTimestampsAsNanosOverride;
-    }
-    */
-
+    /**
+     * NOTE: {@code public} since 2.21 / 3.1
+     */
     @Override
-    protected InstantDeserializer<T> withDateFormat(DateTimeFormatter dtf) {
+    public InstantDeserializer<T> withDateFormat(DateTimeFormatter dtf) {
         if (dtf == _formatter) {
             return this;
         }
         return new InstantDeserializer<>(this, dtf);
     }
 
+    /**
+     * NOTE: {@code public} since 2.21 / 3.1
+     */
     @Override
-    protected InstantDeserializer<T> withLeniency(Boolean leniency) {
+    public InstantDeserializer<T> withLeniency(Boolean leniency) {
         return new InstantDeserializer<>(this, _formatter, leniency);
     }
 
     @SuppressWarnings("unchecked")
-    @Override // @since 2.12.1
+    @Override
     protected JSR310DateTimeDeserializerBase<?> _withFormatOverrides(DeserializationContext ctxt,
             BeanProperty property, JsonFormat.Value formatOverrides)
     {
@@ -261,32 +255,61 @@ public class InstantDeserializer<T extends Temporal>
     {
         //NOTE: Timestamps contain no timezone info, and are always in configured TZ. Only
         //string values have to be adjusted to the configured TZ.
+        T result;
         switch (p.currentTokenId())
         {
             case JsonTokenId.ID_NUMBER_FLOAT:
-                return _fromDecimal(ctxt, p.getDecimalValue());
+                result = _fromDecimal(ctxt, p.getDecimalValue());
+                break;
             case JsonTokenId.ID_NUMBER_INT:
-                return _fromLong(ctxt, p.getLongValue());
+                result = _fromLong(ctxt, p.getLongValue());
+                break;
             case JsonTokenId.ID_STRING:
-                return _fromString(p, ctxt, p.getString());
+                result = _fromString(p, ctxt, p.getString());
+                break;
             case JsonTokenId.ID_EMBEDDED_OBJECT:
                 // 20-Apr-2016, tatu: Related to [databind#1208], can try supporting embedded
                 //    values quite easily
-                return (T) p.getEmbeddedObject();
+                result = (T) p.getEmbeddedObject();
+                break;
 
             case JsonTokenId.ID_START_ARRAY:
-                return _deserializeFromArray(p, ctxt);
+                result = _deserializeFromArray(p, ctxt);
+                break;
             // 30-Sep-2020, tatu: New! "Scalar from Object" (mostly for XML)
             case JsonTokenId.ID_START_OBJECT:
                 final String str = ctxt.extractScalarFromObject(p, this, handledType());
                 // 17-May-2025, tatu: [databind#4656] need to check for `null`
                 if (str != null) {
-                    return _fromString(p, ctxt, str);
+                    result = _fromString(p, ctxt, str);
+                    break;
                 }
                 // fall through
+            default:
+                result = _handleUnexpectedToken(ctxt, p, JsonToken.VALUE_STRING,
+                        JsonToken.VALUE_NUMBER_INT, JsonToken.VALUE_NUMBER_FLOAT);
         }
-        return _handleUnexpectedToken(ctxt, p, JsonToken.VALUE_STRING,
-                JsonToken.VALUE_NUMBER_INT, JsonToken.VALUE_NUMBER_FLOAT);
+
+        // Apply millisecond truncation if enabled
+        if (result != null && ctxt.isEnabled(DateTimeFeature.TRUNCATE_TO_MSECS_ON_READ)) {
+            result = _truncateToMillis(result);
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected T _truncateToMillis(T value) {
+        // Handle concrete types that support truncation
+        if (value instanceof java.time.Instant inst) {
+            return (T) inst.truncatedTo(ChronoUnit.MILLIS);
+        } else if (value instanceof java.time.OffsetDateTime odt) {
+            return (T) odt.truncatedTo(ChronoUnit.MILLIS);
+        } else if (value instanceof java.time.ZonedDateTime zdt) {
+            return (T) zdt.truncatedTo(ChronoUnit.MILLIS);
+        }
+        // Return as-is if type doesn't support truncation
+        return value;
     }
 
     protected boolean shouldAdjustToContextTimezone(DeserializationContext context) {
@@ -343,9 +366,11 @@ public class InstantDeserializer<T extends Temporal>
             if (dots >= 0) { // negative if not simple number
                 try {
                     if (dots == 0) {
+                        _validateTimestampLength(ctxt, string);
                         return _fromLong(ctxt, NumberInput.parseLong(string));
                     }
                     if (dots == 1) {
+                        _validateTimestampLength(ctxt, string);
                         return _fromDecimal(ctxt, NumberInput.parseBigDecimal(string, false));
                     }
                 } catch (NumberFormatException e) {
@@ -382,22 +407,37 @@ public class InstantDeserializer<T extends Temporal>
 
     protected T _fromLong(DeserializationContext context, long timestamp)
     {
-        if(shouldReadTimestampsAsNanoseconds(context)){
-            return fromNanoseconds.apply(new FromDecimalArguments(
-                    timestamp, 0, this.getZone(context)
-            ));
+        try {
+            if(shouldReadTimestampsAsNanoseconds(context)){
+                return fromNanoseconds.apply(new FromDecimalArguments(
+                        timestamp, 0, this.getZone(context)
+                ));
+            }
+            return fromMilliseconds.apply(new FromIntegerArguments(
+                    timestamp, this.getZone(context)));
+        } catch (DateTimeException e) {
+            throw DateTimeParseException.from(context.getParser(),
+                    String.format("Failed to deserialize %s from timestamp value %d: %s",
+                            handledType().getName(), timestamp, e.getMessage()),
+                    String.valueOf(timestamp), handledType(), e);
         }
-        return fromMilliseconds.apply(new FromIntegerArguments(
-                timestamp, this.getZone(context)));
     }
 
     protected T _fromDecimal(DeserializationContext context, BigDecimal value)
     {
-        FromDecimalArguments args =
-            DecimalUtils.extractSecondsAndNanos(value, (s, ns) -> new FromDecimalArguments(s, ns, getZone(context)),
-                    // [modules-java8#337] since 2.19, only Instant needs negative adjustment
-                    true);
-        return fromNanoseconds.apply(args);
+        try {
+            FromDecimalArguments args =
+                DecimalUtils.extractSecondsAndNanos(value, (s, ns) -> new FromDecimalArguments(s, ns, getZone(context)),
+                        // [modules-java8#359] since 2.21, Instant.ofEpochSecond() correctly handles
+                        // negative nanoseconds, so no adjustment needed
+                        false);
+            return fromNanoseconds.apply(args);
+        } catch (DateTimeException | ArithmeticException e) {
+            throw DateTimeParseException.from(context.getParser(),
+                    String.format("Failed to deserialize %s from decimal value %s: %s",
+                            handledType().getName(), value, e.getMessage()),
+                    value.toString(), handledType(), e);
+        }
     }
 
     private ZoneId getZone(DeserializationContext context)

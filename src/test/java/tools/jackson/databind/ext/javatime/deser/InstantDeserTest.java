@@ -13,12 +13,15 @@ import org.junit.jupiter.api.Timeout;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 import tools.jackson.databind.ext.javatime.DateTimeTestBase;
 import tools.jackson.databind.ext.javatime.MockObjectConfiguration;
 import tools.jackson.databind.ext.javatime.util.DecimalUtils;
@@ -142,7 +145,7 @@ public class InstantDeserTest extends DateTimeTestBase
     {
         // Instant can't go this low
         String input = Instant.MIN.getEpochSecond() + ".1";
-        assertThrows(DateTimeException.class, () -> READER.readValue(input));
+        assertThrows(DateTimeParseException.class, () -> READER.readValue(input));
     }
 
     /*
@@ -155,7 +158,7 @@ public class InstantDeserTest extends DateTimeTestBase
     {
         // 1ns beyond the upper-bound of Instant.
         String input = (Instant.MAX.getEpochSecond() + 1) + ".0";
-        assertThrows(DateTimeException.class, () -> READER.readValue(input));
+        assertThrows(DateTimeParseException.class, () -> READER.readValue(input));
     }
 
     @Test
@@ -163,7 +166,7 @@ public class InstantDeserTest extends DateTimeTestBase
     {
         // 1ns beyond the lower-bound of Instant.
         String input = (Instant.MIN.getEpochSecond() - 1) + ".0";
-        assertThrows(DateTimeException.class, () -> READER.readValue(input));
+        assertThrows(DateTimeParseException.class, () -> READER.readValue(input));
     }
 
     @Test
@@ -324,6 +327,25 @@ public class InstantDeserTest extends DateTimeTestBase
         assertEquals(expected.value, actual.value);
     }
 
+    @Test
+    public void testInvalidEpochSecondValue() throws Exception
+    {
+        // Test with an invalid epoch second value that causes DateTimeException
+        // Use a value beyond Instant.MAX
+        long invalidValue = Long.MAX_VALUE;
+        
+        try {
+            READER.readValue(String.valueOf(invalidValue));
+            fail("Should not pass");
+        } catch (DateTimeParseException e) {
+            // Verify it's a DateTimeParseException, not DateTimeException
+            verifyException(e, "Failed to deserialize");
+            verifyException(e, "java.time.Instant");
+            verifyException(e, String.valueOf(invalidValue));
+            verifyException(e, "Instant exceeds minimum or maximum instant");
+        }
+    }
+
     /*
     /**********************************************************************
     /* Basic deserialization from String (ISO-8601 timestamps)
@@ -371,7 +393,7 @@ public class InstantDeserTest extends DateTimeTestBase
         Temporal value = m.readValue(
                 "[\"" + Instant.class.getName() + "\",123456789.183917322]", Temporal.class
                 );
-        assertTrue(value instanceof Instant, "The value should be an Instant.");
+        assertInstanceOf(Instant.class, value, "The value should be an Instant.");
         assertEquals(date, value);
     }
 
@@ -386,7 +408,7 @@ public class InstantDeserTest extends DateTimeTestBase
         Temporal value = m.readValue(
                 "[\"" + Instant.class.getName() + "\",123456789]", Temporal.class
                 );
-        assertTrue(value instanceof Instant, "The value should be an Instant.");
+        assertInstanceOf(Instant.class, value, "The value should be an Instant.");
         assertEquals(date, value);
     }
 
@@ -402,7 +424,7 @@ public class InstantDeserTest extends DateTimeTestBase
                 "[\"" + Instant.class.getName() + "\",123456789422]", Temporal.class
                 );
 
-        assertTrue(value instanceof Instant, "The value should be an Instant.");
+        assertInstanceOf(Instant.class, value, "The value should be an Instant.");
         assertEquals(date, value);
     }
 
@@ -416,7 +438,7 @@ public class InstantDeserTest extends DateTimeTestBase
         Temporal value = m.readValue(
                 "[\"" + Instant.class.getName() + "\",\"" + FORMATTER.format(date) + "\"]", Temporal.class
                 );
-        assertTrue(value instanceof Instant, "The value should be an Instant.");
+        assertInstanceOf(Instant.class, value, "The value should be an Instant.");
         assertEquals(date, value);
     }
 
@@ -649,5 +671,41 @@ public class InstantDeserTest extends DateTimeTestBase
 
         assertTrue(matcher.find(), "Matcher finds +0100 as an colonless offset");
         assertEquals(matcher.group(), "+0100", "Matcher groups +0100 as an colonless offset");
+    }
+
+    // [databind#6133]: StreamReadConstraints should limit numeric string lengths
+    // parsed via _fromString to prevent excessive BigDecimal construction.
+    // NOTE: values MUST be quoted -- unquoted ones are Number tokens, limits for
+    // which are enforced by the streaming parser and not by this deserializer.
+    @Test
+    public void testNumericStringRespectsStreamReadConstraints() throws Exception
+    {
+        final int MAX_ALLOWED_LEN = StreamReadConstraints.DEFAULT_MAX_NUM_LEN;
+
+        // Normal epoch seconds as integer should work
+        assertNotNull(MAPPER.readValue(q("1234567890"), Instant.class));
+
+        // Normal epoch seconds with decimal should work
+        assertNotNull(MAPPER.readValue(q("1234567890.123456789"), Instant.class));
+
+        // A very long integer string (exceeding default 1000-digit limit) should fail
+        String longInt = "1".repeat(MAX_ALLOWED_LEN + 1);
+        try {
+            MAPPER.readValue(q(longInt), Instant.class);
+            fail("Should not pass with excessively long integer string");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "Date/time value length");
+            verifyException(e, "exceeds the maximum allowed");
+        }
+
+        // A very long decimal string (exceeding default 1000-char limit) should fail
+        String longDecimal = "1234." + "9".repeat(MAX_ALLOWED_LEN);
+        try {
+            MAPPER.readValue(q(longDecimal), Instant.class);
+            fail("Should not pass with excessively long decimal string");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "Date/time value length");
+            verifyException(e, "exceeds the maximum allowed");
+        }
     }
 }

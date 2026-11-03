@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,41 +57,40 @@ public class EnumNumberFormatShape3580PojoTest
         public int value() {return this.value;}
     }
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     @Test
     public void testEnumNumberIntFormatShape3580() throws Exception
     {
-        ObjectMapper mapper = JsonMapper.builder().build();
 
         // Serialize
-        assertEquals("{\"state\":17}", mapper.writeValueAsString(new Pojo3580(PojoStateInt3580.OFF))); //
-        assertEquals("{\"state\":31}", mapper.writeValueAsString(new Pojo3580(PojoStateInt3580.ON))); //
-        assertEquals("{\"state\":99}", mapper.writeValueAsString(new Pojo3580(PojoStateInt3580.UNKNOWN))); //
+        assertEquals("{\"state\":17}", MAPPER.writeValueAsString(new Pojo3580(PojoStateInt3580.OFF)));
+        assertEquals("{\"state\":31}", MAPPER.writeValueAsString(new Pojo3580(PojoStateInt3580.ON)));
+        assertEquals("{\"state\":99}", MAPPER.writeValueAsString(new Pojo3580(PojoStateInt3580.UNKNOWN)));
 
         // Pass Deserialize
-        assertEquals(PojoStateInt3580.OFF, mapper.readValue("{\"state\":17}", Pojo3580.class).state); // Pojo[state=OFF]
-        assertEquals(PojoStateInt3580.ON, mapper.readValue("{\"state\":31}", Pojo3580.class).state); // Pojo[state=OFF]
-        assertEquals(PojoStateInt3580.UNKNOWN, mapper.readValue("{\"state\":99}", Pojo3580.class).state); // Pojo[state=OFF]
+        assertEquals(PojoStateInt3580.OFF, MAPPER.readValue("{\"state\":17}", Pojo3580.class).state);
+        assertEquals(PojoStateInt3580.ON, MAPPER.readValue("{\"state\":31}", Pojo3580.class).state);
+        assertEquals(PojoStateInt3580.UNKNOWN, MAPPER.readValue("{\"state\":99}", Pojo3580.class).state);
 
         // Fail : Try to use ordinal number
-        assertThrows(InvalidFormatException.class, () -> mapper.readValue("{\"state\":0}", Pojo3580.class));
+        assertThrows(InvalidFormatException.class, () -> MAPPER.readValue("{\"state\":0}", Pojo3580.class));
     }
 
     @Test
     public void testEnumNumberFormatShape3580() throws Exception
     {
-        ObjectMapper mapper = JsonMapper.builder().build();
-
         // Serialize
-        assertEquals("{\"state\":17}", mapper.writeValueAsString(new PojoNum3580(PojoStateNum3580.OFF))); //
-        assertEquals("{\"state\":31}", mapper.writeValueAsString(new PojoNum3580(PojoStateNum3580.ON))); //
-        assertEquals("{\"state\":99}", mapper.writeValueAsString(new PojoNum3580(PojoStateNum3580.UNKNOWN))); //
+        assertEquals("{\"state\":17}", MAPPER.writeValueAsString(new PojoNum3580(PojoStateNum3580.OFF)));
+        assertEquals("{\"state\":31}", MAPPER.writeValueAsString(new PojoNum3580(PojoStateNum3580.ON)));
+        assertEquals("{\"state\":99}", MAPPER.writeValueAsString(new PojoNum3580(PojoStateNum3580.UNKNOWN)));
 
         // Pass Deserialize
-        assertEquals(PojoStateNum3580.OFF, mapper.readValue("{\"state\":17}", PojoNum3580.class).state); // Pojo[state=OFF]
-        assertEquals(PojoStateNum3580.ON, mapper.readValue("{\"state\":31}", PojoNum3580.class).state); // Pojo[state=OFF]
-        assertEquals(PojoStateNum3580.UNKNOWN, mapper.readValue("{\"state\":99}", PojoNum3580.class).state); // Pojo[state=OFF]
+        assertEquals(PojoStateNum3580.OFF, MAPPER.readValue("{\"state\":17}", PojoNum3580.class).state);
+        assertEquals(PojoStateNum3580.ON, MAPPER.readValue("{\"state\":31}", PojoNum3580.class).state);
+        assertEquals(PojoStateNum3580.UNKNOWN, MAPPER.readValue("{\"state\":99}", PojoNum3580.class).state);
 
         // Fail : Try to use ordinal number
-        assertThrows(MismatchedInputException.class, () -> mapper.readValue("{\"state\":0}", PojoStateNum3580.class));
+        assertThrows(MismatchedInputException.class, () -> MAPPER.readValue("{\"state\":0}", PojoStateNum3580.class));
     }
 }

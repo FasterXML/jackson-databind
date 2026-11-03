@@ -1,5 +1,7 @@
 package tools.jackson.databind.jsontype.vld;
 
+import java.util.regex.Pattern;
+
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
@@ -56,31 +58,31 @@ public class BasicPTVWithArraysTest extends DatabindTestUtil
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(Good2534.class)
                 .build();
-        ObjectMapper mapper = jsonMapperBuilder()
+        final ObjectMapper mapper1 = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
                 .build();
 
-        final String json = mapper.writeValueAsString(new ObjectWrapper(new Base2534[] { new Good2534(42) }));
+        final String json = mapper1.writeValueAsString(new ObjectWrapper(new Base2534[] { new Good2534(42) }));
 
         // First test blocked case:
-        try {
-            mapper.readValue(json, ObjectWrapper.class);
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id '[Ltools.jackson.");
-            verifyException(e, "as a subtype of");
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper1.readValue(json, ObjectWrapper.class));
+        verifyException(e, "Could not resolve type id '[Ltools.jackson.");
+        verifyException(e, "as a subtype of");
 
         // and then accepted:
-        ptv = BasicPolymorphicTypeValidator.builder()
+        PolymorphicTypeValidator ptv2 = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubTypeIsArray() // key addition
+                // [CVE-2026-110879]: abstract element type must be allowed too (but
+                // only exactly it, not its subtypes)
+                .allowIfSubType(Pattern.compile(Pattern.quote(Base2534.class.getName())))
                 .allowIfSubType(Good2534.class)
                 .build();
-        mapper = jsonMapperBuilder()
-                .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
+        final ObjectMapper mapper2 = jsonMapperBuilder()
+                .activateDefaultTyping(ptv2, DefaultTyping.NON_FINAL)
                 .build();
 
-        ObjectWrapper w = mapper.readValue(json, ObjectWrapper.class);
+        ObjectWrapper w = mapper2.readValue(json, ObjectWrapper.class);
         assertNotNull(w);
         assertNotNull(w.value);
         assertEquals(Base2534[].class, w.value.getClass());
@@ -89,14 +91,36 @@ public class BasicPTVWithArraysTest extends DatabindTestUtil
         assertEquals(42, arrayOut[0].x);
 
         // but ensure array-acceptance does NOT allow non-validated element types!
-        final String badJson = mapper.writeValueAsString(new ObjectWrapper(new Base2534[] { new Bad2534(13) }));
+        final String badJson = mapper2.writeValueAsString(new ObjectWrapper(new Base2534[] { new Bad2534(13) }));
+        InvalidTypeIdException e2 = assertThrows(InvalidTypeIdException.class,
+                () -> mapper2.readValue(badJson, ObjectWrapper.class));
+        verifyException(e2, "Could not resolve type id 'tools.jackson.");
+        verifyException(e2, "$Bad2534");
+        verifyException(e2, "as a subtype of");
+    }
+
+    // [CVE-2026-110879]: `Number` is not abstract-like wrt gadgets: accepted
+    // without allow-listing (elements are scalars or have type ids of their own)
+    @Test
+    public void testNumberArrayAccepted() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubTypeIsArray()
+                        .build(), DefaultTyping.NON_FINAL)
+                .build();
+        final Number[] input = new Number[] { 1, 2.5 };
+        ObjectWrapper w = mapper.readValue(mapper.writeValueAsString(new ObjectWrapper(input)),
+                ObjectWrapper.class);
+        assertEquals(Number[].class, w.value.getClass());
+        assertArrayEquals(input, (Number[]) w.value);
+
+        // but not other abstract element types
+        final String json = mapper.writeValueAsString(new ObjectWrapper(new Base2534[0]));
         try {
-            mapper.readValue(badJson, ObjectWrapper.class);
+            mapper.readValue(json, ObjectWrapper.class);
             fail("Should not pass");
         } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'tools.jackson.");
-            verifyException(e, "$Bad2534");
-            verifyException(e, "as a subtype of");
+            verifyException(e, "$Base2534");
         }
     }
 }

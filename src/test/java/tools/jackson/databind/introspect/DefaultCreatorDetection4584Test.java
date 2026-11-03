@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -267,7 +266,7 @@ public class DefaultCreatorDetection4584Test extends DatabindTestUtil
     }
 
     private ObjectMapper mapperWith(AnnotationIntrospector intr) {
-        return JsonMapper.builder()
+        return jsonMapperBuilder()
                 .annotationIntrospector(intr)
                 .build();
     }

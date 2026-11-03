@@ -27,6 +27,7 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.StreamReadCapability;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 
 /**
  * Deserializer for Java 8 temporal {@link Year}s.
@@ -90,14 +91,14 @@ public class YearDeserializer extends JSR310DateTimeDeserializerBase<Year>
             return (Year) p.getEmbeddedObject();
         }
         // 30-Sep-2020, tatu: New! "Scalar from Object" (mostly for XML)
-        if (t == JsonToken.START_OBJECT) {
+        if (p.isExpectedStartObjectToken()) {
             final String str = ctxt.extractScalarFromObject(p, this, handledType());
             // 17-May-2025, tatu: [databind#4656] need to check for `null`
             if (str != null) {
                 return _fromString(p, ctxt, str);
             }
             // fall through
-        } else if (p.hasToken(JsonToken.START_ARRAY)){
+        } else if (p.isExpectedStartArrayToken()){
             return _deserializeFromArray(p, ctxt);
         }
         return _handleUnexpectedToken(ctxt, p, JsonToken.VALUE_STRING, JsonToken.VALUE_NUMBER_INT);
@@ -117,7 +118,16 @@ public class YearDeserializer extends JSR310DateTimeDeserializerBase<Year>
         // 30-Sep-2020: Should allow use of "Timestamp as String" for XML/CSV
         if (ctxt.isEnabled(StreamReadCapability.UNTYPED_SCALARS)
                 && _isValidTimestampString(string)) {
-            return _fromNumber(ctxt, NumberInput.parseInt(string));
+            // 07-Aug-2026, tatu: `_isValidTimestampString()` only verifies value
+            //    fits in 64-bit `long` but `Year` needs 32-bit `int`: let values
+            //    out of `int` range fall through to regular textual parsing so
+            //    failure is reported as `DateTimeException` and not as
+            //    (unchecked, non-Jackson) `NumberFormatException`
+            try {
+                return _fromNumber(ctxt, NumberInput.parseInt(string));
+            } catch (NumberFormatException e) {
+                // fall through
+            }
         }
         try {
             if (_formatter == null) {
@@ -129,7 +139,16 @@ public class YearDeserializer extends JSR310DateTimeDeserializerBase<Year>
         }
     }
 
-    protected Year _fromNumber(DeserializationContext ctxt, int value) {
-        return Year.of(value);
+    protected Year _fromNumber(DeserializationContext ctxt, int value)
+        throws JacksonException
+    {
+        try {
+            return Year.of(value);
+        } catch (DateTimeException e) {
+            throw DateTimeParseException.from(ctxt.getParser(),
+                    String.format("Failed to deserialize %s from number %d: %s",
+                            Year.class.getName(), value, e.getMessage()),
+                    String.valueOf(value), Year.class, e);
+        }
     }
 }

@@ -61,12 +61,12 @@ public abstract class NumericFPNode extends NumericNode
     public final short shortValue() {
         if (!inShortRange()) {
             if (isNaN()) {
-                _reportIntCoercionNaNFail("shortValue()");
+                _reportIntConversionNaNFail("shortValue()");
             }
-            return _reportShortCoercionRangeFail("shortValue()");
+            return _reportShortConversionRangeFail("shortValue()");
         }
         if (hasFractionalPart()) {
-            _reportShortCoercionFractionFail("shortValue()");
+            _reportShortConversionFractionFail("shortValue()");
         }
         return _asShortValueUnchecked();
     }
@@ -91,9 +91,9 @@ public abstract class NumericFPNode extends NumericNode
     public short asShort() {
         if (!inShortRange()) {
             if (isNaN()) {
-                _reportIntCoercionNaNFail("asShort()");
+                _reportIntConversionNaNFail("asShort()");
             }
-            return _reportShortCoercionRangeFail("asShort()");
+            return _reportShortConversionRangeFail("asShort()");
         }
         return _asShortValueUnchecked();
     }
@@ -118,12 +118,12 @@ public abstract class NumericFPNode extends NumericNode
     public final int intValue() {
         if (!inIntRange()) {
             if (isNaN()) {
-                _reportIntCoercionNaNFail("intValue()");
+                _reportIntConversionNaNFail("intValue()");
             }
-            return _reportIntCoercionRangeFail("intValue()");
+            return _reportIntConversionRangeFail("intValue()");
         }
         if (hasFractionalPart()) {
-            _reportIntCoercionFractionFail("intValue()");
+            _reportIntConversionFractionFail("intValue()");
         }
         return _asIntValueUnchecked();
     }
@@ -148,9 +148,9 @@ public abstract class NumericFPNode extends NumericNode
     public int asInt() {
         if (!inIntRange()) {
             if (isNaN()) {
-                _reportIntCoercionNaNFail("asInt()");
+                _reportIntConversionNaNFail("asInt()");
             }
-            return _reportIntCoercionRangeFail("asInt()");
+            return _reportIntConversionRangeFail("asInt()");
         }
         return _asIntValueUnchecked();
     }
@@ -175,12 +175,12 @@ public abstract class NumericFPNode extends NumericNode
     public final long longValue() {
         if (!inLongRange()) {
             if (isNaN()) {
-                _reportLongCoercionNaNFail("longValue()");
+                _reportLongConversionNaNFail("longValue()");
             }
-            return _reportLongCoercionRangeFail("longValue()");
+            return _reportLongConversionRangeFail("longValue()");
         }
         if (hasFractionalPart()) {
-            _reportLongCoercionFractionFail("longValue()");
+            _reportLongConversionFractionFail("longValue()");
         }
         return _asLongValueUnchecked();
     }
@@ -205,9 +205,9 @@ public abstract class NumericFPNode extends NumericNode
     public final long asLong() {
         if (!inLongRange()) {
             if (isNaN()) {
-                _reportLongCoercionNaNFail("asLong()");
+                _reportLongConversionNaNFail("asLong()");
             }
-            return _reportLongCoercionRangeFail("asLong()");
+            return _reportLongConversionRangeFail("asLong()");
         }
         return _asLongValueUnchecked();
     }
@@ -231,17 +231,17 @@ public abstract class NumericFPNode extends NumericNode
     @Override
     public final BigInteger bigIntegerValue() {
         if (isNaN()) {
-            _reportBigIntegerCoercionNaNFail("bigIntegerValue()");
+            _reportBigIntegerConversionNaNFail("bigIntegerValue()");
         }
         if (hasFractionalPart()) {
-            _reportBigIntegerCoercionFractionFail("bigIntegerValue()");
+            _reportBigIntegerConversionFractionFail("bigIntegerValue()");
         }
         return _asBigIntegerValueUnchecked();
     }
 
     @Override
     public final BigInteger bigIntegerValue(BigInteger defaultValue) {
-        if (isNaN() || hasFractionalPart()) {
+        if (isNaN() || hasFractionalPart() || !_bigIntegerScaleInRange()) {
             return defaultValue;
         }
         return _asBigIntegerValueUnchecked();
@@ -249,7 +249,7 @@ public abstract class NumericFPNode extends NumericNode
 
     @Override
     public final Optional<BigInteger> bigIntegerValueOpt() {
-        if (isNaN() || hasFractionalPart()) {
+        if (isNaN() || hasFractionalPart() || !_bigIntegerScaleInRange()) {
             return Optional.empty();
         }
         return Optional.of(_asBigIntegerValueUnchecked());
@@ -258,14 +258,14 @@ public abstract class NumericFPNode extends NumericNode
     @Override
     public final BigInteger asBigInteger() {
         if (isNaN()) {
-            _reportBigIntegerCoercionNaNFail("asBigInteger()");
+            _reportBigIntegerConversionNaNFail("asBigInteger()");
         }
         return _asBigIntegerValueUnchecked();
     }
 
     @Override
     public final BigInteger asBigInteger(BigInteger defaultValue) {
-        if (isNaN()) {
+        if (isNaN() || !_bigIntegerScaleInRange()) {
             return defaultValue;
         }
         return _asBigIntegerValueUnchecked();
@@ -273,7 +273,7 @@ public abstract class NumericFPNode extends NumericNode
 
     @Override
     public final Optional<BigInteger> asBigIntegerOpt() {
-        if (isNaN()) {
+        if (isNaN() || !_bigIntegerScaleInRange()) {
             return Optional.empty();
         }
         return Optional.of(_asBigIntegerValueUnchecked());
@@ -284,7 +284,7 @@ public abstract class NumericFPNode extends NumericNode
     @Override
     public BigDecimal decimalValue() {
         if (isNaN()) {
-            _reportBigDecimalCoercionNaNFail("decimalValue()");
+            _reportBigDecimalConversionNaNFail("decimalValue()");
         }
         return _asDecimalValueUnchecked();
     }
@@ -308,7 +308,7 @@ public abstract class NumericFPNode extends NumericNode
     @Override
     public BigDecimal asDecimal() {
         if (isNaN()) {
-            _reportBigDecimalCoercionNaNFail("asDecimal()");
+            _reportBigDecimalConversionNaNFail("asDecimal()");
         }
         return _asDecimalValueUnchecked();
     }
@@ -341,6 +341,21 @@ public abstract class NumericFPNode extends NumericNode
      * must ensure validity prior to calling
      */
     protected abstract BigInteger _asBigIntegerValueUnchecked();
+
+    /**
+     * Method for sub-classes in this package to override if conversion to
+     * {@link BigInteger} may be rejected due to excessive {@code BigDecimal}
+     * scale magnitude ([databind#6214]): called by non-throwing accessors,
+     * which need to return default/empty value instead of failing.
+     * Only {@link DecimalNode} can exceed the limit; for other types
+     * conversion is always within limits.
+     *<p>
+     * NOTE: deliberately package-private, to avoid adding a new extension
+     * point to public API.
+     *
+     * @since 3.1.7
+     */
+    boolean _bigIntegerScaleInRange() { return true; }
 
     // NOTE: we do not need these ones (not enough commonality):
     //protected abstract float _asFloatValueUnchecked();

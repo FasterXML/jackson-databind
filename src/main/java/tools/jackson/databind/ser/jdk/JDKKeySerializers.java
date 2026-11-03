@@ -5,6 +5,7 @@ import java.util.Date;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -119,6 +120,7 @@ public abstract class JDKKeySerializers
      * {@link java.util.Date} and {@link java.util.Calendar} key serializers,
      * as well as alternative configuration of Enum key serializers.
      */
+    @JacksonStdImpl
     public static class Default extends StdSerializer<Object> {
         final static int TYPE_DATE = 1;
         final static int TYPE_CALENDAR = 2;
@@ -137,15 +139,15 @@ public abstract class JDKKeySerializers
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializationContext provider)
+        public void serialize(Object value, JsonGenerator g, SerializationContext ctxt)
             throws JacksonException
         {
             switch (_typeId) {
             case TYPE_DATE:
-                provider.defaultSerializeDateKey((Date)value, g);
+                ctxt.defaultSerializeDateKey((Date)value, g);
                 break;
             case TYPE_CALENDAR:
-                provider.defaultSerializeDateKey(((Calendar) value).getTimeInMillis(), g);
+                ctxt.defaultSerializeDateKey(((Calendar) value).getTimeInMillis(), g);
                 break;
             case TYPE_CLASS:
                 g.writeName(((Class<?>)value).getName());
@@ -154,12 +156,12 @@ public abstract class JDKKeySerializers
                 {
                     String key;
 
-                    if (provider.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
+                    if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
                         key = value.toString();
                     } else {
                         Enum<?> e = (Enum<?>) value;
                         // 14-Sep-2019, tatu: [databind#2129] Use this specific feature
-                        if (provider.isEnabled(EnumFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
+                        if (ctxt.isEnabled(EnumFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
                             key = String.valueOf(e.ordinal());
                         } else {
                             key = e.name();
@@ -174,7 +176,7 @@ public abstract class JDKKeySerializers
                 break;
             case TYPE_BYTE_ARRAY:
                 {
-                    String encoded = provider.getConfig().getBase64Variant().encode((byte[]) value);
+                    String encoded = ctxt.getConfig().getBase64Variant().encode((byte[]) value);
                     g.writeName(encoded);
                 }
                 break;
@@ -189,6 +191,7 @@ public abstract class JDKKeySerializers
      * Key serializer used when key type is not known statically, and actual key
      * serializer needs to be dynamically located.
      */
+    @JacksonStdImpl
     public static class Dynamic extends StdSerializer<Object>
     {
         // Important: MUST be transient, to allow serialization of key serializer itself
@@ -206,16 +209,16 @@ public abstract class JDKKeySerializers
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializationContext provider)
+        public void serialize(Object value, JsonGenerator g, SerializationContext ctxt)
             throws JacksonException
         {
             Class<?> cls = value.getClass();
             PropertySerializerMap m = _dynamicSerializers;
             ValueSerializer<Object> ser = m.serializerFor(cls);
             if (ser == null) {
-                ser = _findAndAddDynamic(m, cls, provider);
+                ser = _findAndAddDynamic(m, cls, ctxt);
             }
-            ser.serialize(value, g, provider);
+            ser.serialize(value, g, ctxt);
         }
 
         @Override
@@ -224,7 +227,7 @@ public abstract class JDKKeySerializers
         }
 
         protected ValueSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-                Class<?> type, SerializationContext provider)
+                Class<?> type, SerializationContext ctxt)
         {
             // 27-Jun-2017, tatu: [databind#1679] Need to avoid StackOverflowError...
             if (type == Object.class) {
@@ -235,7 +238,7 @@ public abstract class JDKKeySerializers
             }
             PropertySerializerMap.SerializerAndMapResult result =
                     // null -> for now we won't keep ref or pass BeanProperty; could change
-                    map.findAndAddKeySerializer(type, provider, null);
+                    map.findAndAddKeySerializer(type, ctxt, null);
             // did we get a new map of serializers? If so, start using it
             if (map != result.map) {
                 _dynamicSerializers = result.map;
@@ -247,12 +250,13 @@ public abstract class JDKKeySerializers
     /**
      * Simple and fast key serializer when keys are Strings.
      */
+    @JacksonStdImpl
     public static class StringKeySerializer extends StdSerializer<Object>
     {
         public StringKeySerializer() { super(String.class); }
 
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializationContext provider)
+        public void serialize(Object value, JsonGenerator g, SerializationContext ctxt)
             throws JacksonException
         {
             g.writeName((String) value);
@@ -262,6 +266,7 @@ public abstract class JDKKeySerializers
     /**
      * Specialized instance to use for Enum keys, as per [databind#1322]
      */
+    @JacksonStdImpl
     public static class EnumKeySerializer extends StdSerializer<Object>
     {
         protected final EnumValuesToWrite _valuesToWrite;
@@ -284,15 +289,14 @@ public abstract class JDKKeySerializers
         {
             final Enum<?> en = (Enum<?>) value;
 
-            // 26-Nov-2025, tatu: Should probably start with "using index" setting
-            //    (may change in 3.1?)
-            if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
-                g.writeName(_valuesToWrite.fromToString(ctxt.getConfig(), en)); 
-            } else if (ctxt.isEnabled(EnumFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
-                // 14-Sep-2019, tatu: [databind#2129] Use this specific feature
+            // 26-Nov-2025, tatu: In 3.0 order was opposite (TO_STRING first,
+            //    then INDEX); changed in 3.1
+            if (ctxt.isEnabled(EnumFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
                 g.writeName(String.valueOf(en.ordinal()));
+            } else if (ctxt.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING)) {
+                g.writeName(_valuesToWrite.enumValueFromToString(ctxt.getConfig(), en));
             } else {
-                g.writeName(_valuesToWrite.fromName(ctxt.getConfig(), en)); 
+                g.writeName(_valuesToWrite.enumValueFromName(ctxt.getConfig(), en));
             }
         }
     }

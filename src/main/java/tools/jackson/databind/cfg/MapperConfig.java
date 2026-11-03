@@ -386,6 +386,17 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         return result;
     }
 
+
+    /**
+     * Accessor for global default format settings to apply for serialization and
+     * deserialization.
+     * The format obtained from this accessor should have the lowest precedence,
+     * overridable by per-type and/or per-property format overrides.
+     *
+     * @since 3.1
+     */
+    public abstract JsonFormat.Value getDefaultFormat();
+
     /**
      * Accessor for default format settings to use for serialization (and, to a degree
      * deserialization), considering baseline settings and per-type defaults

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.databind.*;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.module.SimpleSerializers;
-import tools.jackson.databind.ser.std.StdDelegatingSerializer;
+import tools.jackson.databind.ser.std.StdConvertingSerializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.StdConverter;
 
@@ -41,7 +41,7 @@ public class MapConversion4878Test extends DatabindTestUtil
                 JavaType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides) {
             Class<?> rawClass = type.getRawClass();
             if (MapWrapper4878.class.isAssignableFrom(rawClass)) {
-                return new StdDelegatingSerializer(new WrapperConverter4878());
+                return new StdConvertingSerializer(new WrapperConverter4878());
             }
             return super.findSerializer(config, type, beanDescRef, formatOverrides);
         }

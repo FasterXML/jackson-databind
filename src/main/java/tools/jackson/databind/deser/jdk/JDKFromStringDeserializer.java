@@ -10,12 +10,13 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 import tools.jackson.core.*;
 import tools.jackson.core.util.VersionUtil;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.std.FromStringDeserializer;
-import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.ClassUtil;
 
@@ -51,6 +52,7 @@ import tools.jackson.databind.util.ClassUtil;
  *  </li>
  * </ul>
  */
+@JacksonStdImpl
 public class JDKFromStringDeserializer
     extends FromStringDeserializer<Object>
 {
@@ -117,7 +119,7 @@ public class JDKFromStringDeserializer
         } else if (rawType == URI.class) {
             kind = STD_URI;
         } else if (rawType == Path.class) {
-            kind = STD_PATH;
+            return new NioPathDeserializer();
         } else if (rawType == Class.class) {
             kind = STD_CLASS;
         } else if (rawType == JavaType.class) {
@@ -166,8 +168,11 @@ public class JDKFromStringDeserializer
         case STD_URI:
             return URI.create(value);
         case STD_PATH:
-            // 06-Sep-2018, tatu: Offlined due to additions in [databind#2120]
-            return NioPathHelper.deserialize(ctxt, value);
+            // 06-Sep-2018, tatu: Off-lined due to additions in [databind#2120]
+            // 05-Aug-2026, tatu: Only for backwards-compatibility; `Path` values are
+            //    now handled by `NioPathDeserializer` (see [databind#6129])
+            return NioPathDeserializer.deserialize(ctxt, value,
+                    NioPathDeserializer.DEFAULT_ALLOWED_SCHEMES);
         case STD_CLASS:
             try {
                 return ctxt.findClass(value);
@@ -199,30 +204,41 @@ public class JDKFromStringDeserializer
         case STD_TIME_ZONE:
             return TimeZone.getTimeZone(value);
         case STD_INET_ADDRESS:
+            // 05-Jul-2026, tatu: [databind#6058] Prevent DNS lookup: only accept valid IP address literals
+            if (!InetAddressValidator.isInetAddress(value)) {
+                return ctxt.handleWeirdStringValue(_valueClass, value,
+                        "Not a valid IP address string literal");
+            }
             return InetAddress.getByName(value);
         case STD_INET_SOCKET_ADDRESS:
             if (value.startsWith("[")) {
                 // bracketed IPv6 (with port number)
 
-                int i = value.lastIndexOf(']');
+                int i = value.indexOf(']');
                 if (i == -1) {
-                    throw new InvalidFormatException(ctxt.getParser(),
-                            "Bracketed IPv6 address must contain closing bracket",
-                            value, InetSocketAddress.class);
+                    return ctxt.handleWeirdStringValue(_valueClass, value,
+                            "Bracketed IPv6 address must contain closing bracket");
                 }
 
-                int j = value.indexOf(':', i);
-                int port = j > -1 ? Integer.parseInt(value.substring(j + 1)) : 0;
-                return new InetSocketAddress(value.substring(0, i + 1), port);
+                // closing bracket must be followed by nothing or by ":port"
+                int port = 0;
+                if (i + 1 < value.length()) {
+                    if (value.charAt(i + 1) != ':') {
+                        return ctxt.handleWeirdStringValue(_valueClass, value,
+                                "Bracketed IPv6 address must be followed by nothing or ':' and port number");
+                    }
+                    port = Integer.parseInt(value.substring(i + 2));
+                }
+                return _inetSocketAddress(value.substring(0, i + 1), port);
             }
             int ix = value.indexOf(':');
             if (ix >= 0 && value.indexOf(':', ix + 1) < 0) {
                 // host:port
                 int port = Integer.parseInt(value.substring(ix+1));
-                return new InetSocketAddress(value.substring(0, ix), port);
+                return _inetSocketAddress(value.substring(0, ix), port);
             }
             // host or unbracketed IPv6, without port number
-            return new InetSocketAddress(value, 0);
+            return _inetSocketAddress(value, 0);
         }
         VersionUtil.throwInternal();
         return null;
@@ -292,6 +308,12 @@ public class JDKFromStringDeserializer
         return new Locale(first, rest.substring(0, ix), rest.substring(ix+1));
     }
 
+    protected InetSocketAddress _inetSocketAddress(String host, int port) {
+        // 05-May-2026, tatu: [databind#5951] Prevent DNS lookup:
+        return InetSocketAddress.createUnresolved(host, port);
+    }
+
+    @JacksonStdImpl
     static class StringBuilderDeserializer extends JDKFromStringDeserializer
     {
         public StringBuilderDeserializer() { super(StringBuilder.class, -1); }
@@ -318,6 +340,7 @@ public class JDKFromStringDeserializer
         }
     }
 
+    @JacksonStdImpl
     static class StringBufferDeserializer extends JDKFromStringDeserializer
     {
         public StringBufferDeserializer() { super(StringBuffer.class, -1); }
@@ -344,29 +367,68 @@ public class JDKFromStringDeserializer
         }
     }
 
-    private static class NioPathHelper {
-        private static final boolean areWindowsFilePathsSupported;
-        static {
-            boolean isWindowsRootFound = false;
-            for (File file : File.listRoots()) {
-                String path = file.getPath();
-                if (path.length() >= 2 && Character.isLetter(path.charAt(0)) && path.charAt(1) == ':') {
-                    isWindowsRootFound = true;
-                    break;
-                }
+    /**
+     * Deserializer for {@link Path} values: separate implementation (and, unlike
+     * other implementations here, {@code public}) to allow construction with a
+     * custom set of allowed URI schemes (see [databind#6129]).
+     *
+     * @since 3.1.6
+     */
+    @JacksonStdImpl
+    public static class NioPathDeserializer extends JDKFromStringDeserializer
+    {
+        /**
+         * URI schemes accepted unless overridden: only "file", scheme of the
+         * default {@link java.nio.file.FileSystem}.
+         */
+        public final static Collection<String> DEFAULT_ALLOWED_SCHEMES = Collections.singletonList("file");
+
+        /**
+         * URI schemes accepted by this instance; values with no scheme at all are
+         * always accepted (and read as local file system paths).
+         */
+        protected final Collection<String> _allowedSchemes;
+
+        public NioPathDeserializer() { this(DEFAULT_ALLOWED_SCHEMES); }
+
+        /**
+         * Constructor for specifying URI schemes to accept: matching is done
+         * case-insensitively, same as by {@code java.nio.file.Paths.get(URI)}.
+         *<p>
+         * NOTE: for allowed schemes that have no provider installed for the system
+         * class loader, look up is also attempted using this thread's context class
+         * loader (see [databind#2120]); this is never done for schemes that are not
+         * allowed.
+         *
+         * @param allowedSchemes URI schemes to accept; must not be {@code null}
+         *   (but may be empty to only accept scheme-less values)
+         */
+        public NioPathDeserializer(Collection<String> allowedSchemes) {
+            super(Path.class, -1);
+            if (allowedSchemes == null) {
+                throw new IllegalArgumentException("Argument `allowedSchemes` must not be null");
             }
-            areWindowsFilePathsSupported = isWindowsRootFound;
+            _allowedSchemes = allowedSchemes;
         }
 
-        public static Path deserialize(DeserializationContext ctxt, String value) throws JacksonException {
-            // If someone gives us an input with no : at all, treat as local path, instead of failing
-            // with invalid URI.
-            if (value.indexOf(':') < 0) {
+        @Override
+        public Object _deserialize(String value, DeserializationContext ctxt) throws JacksonException {
+            return deserialize(ctxt, value, _allowedSchemes);
+        }
+
+        public static Path deserialize(DeserializationContext ctxt, String value,
+                Collection<String> allowedSchemes) throws JacksonException {
+            // If someone gives us an input with no : at all, treat as local path,
+            // instead of failing with invalid URI.
+
+            int colonIx = value.indexOf(':');
+            if (colonIx < 0) {
                 return Paths.get(value);
             }
 
-            if (areWindowsFilePathsSupported) {
-                if (value.length() >= 2 && Character.isLetter(value.charAt(0)) && value.charAt(1) == ':') {
+            // Does it look Windows driver prefix (like "C:")?
+            if ((colonIx == 1) && Character.isLetter(value.charAt(0))) {
+                if (NioPathWindowsChecker.isWindows()) {
                     return Paths.get(value);
                 }
             }
@@ -377,24 +439,82 @@ public class JDKFromStringDeserializer
             } catch (URISyntaxException e) {
                 return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
             }
+            // 05-Aug-2026, tatu: [databind#6129] Only accept allowed schemes (by
+            //    default just "file"), or no scheme at all; reject jar:, http:, s3:
+            //    and others, to avoid use of arbitrary `FileSystemProvider`s
+            final String scheme = uri.getScheme();
+            if (scheme != null && !_isSchemeAllowed(allowedSchemes, scheme)) {
+                return (Path) ctxt.handleWeirdStringValue(Path.class, value,
+                        "scheme '%s' not allowed for Path deserialization (allowed: %s)",
+                        scheme, _allowedSchemesDesc(allowedSchemes));
+            }
             try {
                 return Paths.get(uri);
             } catch (FileSystemNotFoundException cause) {
+                // Only reached for schemes that are allowed: retry look up using this
+                // thread's context class loader, not system class loader that is used
+                // by `Paths.get()` (see [databind#2120])
                 try {
-                    final String scheme = uri.getScheme();
-                    // We want to use the current thread's context class loader, not system class loader that is used in Paths.get():
                     for (FileSystemProvider provider : ServiceLoader.load(FileSystemProvider.class)) {
                         if (provider.getScheme().equalsIgnoreCase(scheme)) {
                             return provider.getPath(uri);
                         }
                     }
                     return (Path) ctxt.handleInstantiationProblem(Path.class, value, cause);
-                } catch (Exception e) {
+                } catch (ServiceConfigurationError | Exception e) {
+                    // NOTE: `ServiceConfigurationError` is an `Error`, not `Exception`:
+                    // thrown f.ex if module does not declare `uses` for provider
                     e.addSuppressed(cause);
                     return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
                 }
             } catch (Exception e) {
                 return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
+            }
+        }
+
+        /**
+         * Helper method for checking whether given non-{@code null} URI scheme is one
+         * of allowed ones; comparison is case-insensitive, as per URI specification
+         * (and as done by {@code java.nio.file.Paths.get(URI)}).
+         */
+        private static boolean _isSchemeAllowed(Collection<String> allowedSchemes, String scheme) {
+            // Common case of exact (usually lower-case) match first:
+            if (allowedSchemes.contains(scheme)) {
+                return true;
+            }
+            // and if no match, scan case-insensitively
+            for (String allowed : allowedSchemes) {
+                if (scheme.equalsIgnoreCase(allowed)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * Helper method for constructing description of allowed schemes for
+         * inclusion in exception message, like {@code ["file", "jar", "https"]}.
+         */
+        private static String _allowedSchemesDesc(Collection<String> allowedSchemes) {
+            return allowedSchemes.stream()
+                    .map(scheme -> "\"" + scheme + "\"")
+                    .collect(Collectors.joining(", ", "[", "]"));
+        }
+
+        // @since 3.1
+        private static class NioPathWindowsChecker {
+            private static final boolean _isWindows;
+            static {
+                boolean isWindows = false;
+
+                try {
+                    isWindows = System.getProperty("os.name").startsWith("Windows");
+                } catch (Exception e) { }
+                _isWindows = isWindows;
+            }
+
+            public static boolean isWindows() {
+                return _isWindows;
             }
         }
     }

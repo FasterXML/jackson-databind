@@ -12,6 +12,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 // For [databind#2816] / [databind#3473]
 public class DeepNestingUntypedDeserTest
@@ -34,13 +35,13 @@ public class DeepNestingUntypedDeserTest
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
         Object ob = MAPPER.readValue(doc, Object.class);
-        assertTrue(ob instanceof List<?>);
+        assertInstanceOf(List.class, ob);
 
         // ... but also work with Java array
         ob = MAPPER.readerFor(Object.class)
                 .with(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)
                 .readValue(doc);
-        assertTrue(ob instanceof Object[]);
+        assertInstanceOf(Object[].class, ob);
     }
 
     @Test
@@ -48,7 +49,7 @@ public class DeepNestingUntypedDeserTest
     {
         final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
         Object ob = MAPPER.readValue(doc, Object.class);
-        assertTrue(ob instanceof Map<?, ?>);
+        assertInstanceOf(Map.class, ob);
     }
 
     private String _nestedDoc(int nesting, String open, String close) {

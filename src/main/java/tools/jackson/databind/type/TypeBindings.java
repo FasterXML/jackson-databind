@@ -241,8 +241,7 @@ public class TypeBindings
         for (int i = 0, len = _names.length; i < len; ++i) {
             if (name.equals(_names[i])) {
                 JavaType t = _types[i];
-                if (t instanceof ResolvedRecursiveType) {
-                    ResolvedRecursiveType rrt = (ResolvedRecursiveType) t;
+                if (t instanceof ResolvedRecursiveType rrt) {
                     JavaType t2 = rrt.getSelfReferencedType();
                     if (t2 != null) {
                         t = t2;

@@ -42,6 +42,15 @@ import tools.jackson.databind.util.Converter;
 @com.fasterxml.jackson.annotation.JacksonAnnotation
 public @interface JsonDeserialize
 {
+    /**
+     * Marker value used as default for {@link #builderPrefix} to indicate
+     * that default handling should be used (check for {@link JsonPOJOBuilder}
+     * annotation on builder class, or use default prefix of "with").
+     *
+     * @since 3.1
+     */
+    public static final String USE_DEFAULT_PREFIX = "\u0000";
+
     // // // Annotations for explicitly specifying deserialize/builder
 
     /**
@@ -88,7 +97,23 @@ public @interface JsonDeserialize
      */
     public Class<?> builder() default Void.class;
 
-    // // // Annotations for specifying intermediate Converters (2.2+)
+    /**
+     * Optional property for specifying the prefix used for builder
+     * "with" methods when using {@link #builder()}. When set to a non-default value
+     * (something other than {@link #USE_DEFAULT_PREFIX}), this overrides any
+     * {@link JsonPOJOBuilder#withPrefix()} annotation on the builder class itself.
+     * Can be set to empty string ({@code ""}) for no prefix (common with Lombok-generated
+     * builders).
+     *<p>
+     * Defaults to {@link #USE_DEFAULT_PREFIX} which means the prefix is determined
+     * by checking {@link JsonPOJOBuilder} annotation on the builder class, or using
+     * the global default ("with").
+     *
+     * @since 3.1
+     */
+    public String builderPrefix() default USE_DEFAULT_PREFIX;
+
+    // // // Annotations for specifying intermediate Converters
 
     /**
      * Which helper object (if any) is to be used to convert from Jackson-bound
@@ -97,17 +122,13 @@ public @interface JsonDeserialize
      * for two-step deserialization; Jackson binds data into suitable intermediate
      * type (like Tree representation), and converter then builds actual property
      * type.
-     *
-     * @since 2.2
      */
     @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
     public Class<? extends Converter> converter() default Converter.None.class;
 
     /**
-     * Similar to {@link #converter}, but used for values of structures types
+     * Similar to {@link #converter}, but used for values of structured types
      * (List, arrays, Maps).
-     *
-     * @since 2.2
      */
     @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
     public Class<? extends Converter> contentConverter() default Converter.None.class;

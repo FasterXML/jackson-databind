@@ -49,9 +49,9 @@ public abstract class PropertySerializerMap
      * and construct new map instance if warranted, and return both.
      */
     public final SerializerAndMapResult findAndAddPrimarySerializer(JavaType type,
-            SerializationContext provider, BeanProperty property)
+            SerializationContext ctxt, BeanProperty property)
     {
-        ValueSerializer<Object> serializer = provider.findPrimaryPropertySerializer(type, property);
+        ValueSerializer<Object> serializer = ctxt.findPrimaryPropertySerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
 
@@ -62,33 +62,33 @@ public abstract class PropertySerializerMap
      * and construct new map instance if warranted, and return both.
      */
     public final SerializerAndMapResult findAndAddSecondarySerializer(Class<?> type,
-            SerializationContext provider, BeanProperty property)
+            SerializationContext ctxt, BeanProperty property)
     {
-        ValueSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
+        ValueSerializer<Object> serializer = ctxt.findContentValueSerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type, serializer));
     }
 
     public final SerializerAndMapResult findAndAddSecondarySerializer(JavaType type,
-            SerializationContext provider, BeanProperty property)
+            SerializationContext ctxt, BeanProperty property)
     {
-        ValueSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
+        ValueSerializer<Object> serializer = ctxt.findContentValueSerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
 
     public final SerializerAndMapResult findAndAddSecondarySerializer(Class<?> type,
-            SerializationContext provider, BeanProperty property,
+            SerializationContext ctxt, BeanProperty property,
             UnaryOperator<ValueSerializer<Object>> serTransformer)
     {
-        ValueSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
+        ValueSerializer<Object> serializer = ctxt.findContentValueSerializer(type, property);
         serializer = serTransformer.apply(serializer);
         return new SerializerAndMapResult(serializer, newWith(type, serializer));
     }
 
     public final SerializerAndMapResult findAndAddSecondarySerializer(JavaType type,
-            SerializationContext provider, BeanProperty property,
+            SerializationContext ctxt, BeanProperty property,
             UnaryOperator<ValueSerializer<Object>> serTransformer)
     {
-        ValueSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
+        ValueSerializer<Object> serializer = ctxt.findContentValueSerializer(type, property);
         serializer = serTransformer.apply(serializer);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
@@ -101,16 +101,16 @@ public abstract class PropertySerializerMap
      * and construct new map instance if warranted, and return both.
      */
     public final SerializerAndMapResult findAndAddRootValueSerializer(Class<?> type,
-            SerializationContext provider)
+            SerializationContext ctxt)
     {
-        ValueSerializer<Object> serializer = provider.findTypedValueSerializer(type, false);
+        ValueSerializer<Object> serializer = ctxt.findTypedValueSerializer(type, false);
         return new SerializerAndMapResult(serializer, newWith(type, serializer));
     }
 
     public final SerializerAndMapResult findAndAddRootValueSerializer(JavaType type,
-            SerializationContext provider)
+            SerializationContext ctxt)
     {
-        ValueSerializer<Object> serializer = provider.findTypedValueSerializer(type, false);
+        ValueSerializer<Object> serializer = ctxt.findTypedValueSerializer(type, false);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
 
@@ -121,9 +121,9 @@ public abstract class PropertySerializerMap
      * and construct new map instance if warranted, and return both.
      */
     public final SerializerAndMapResult findAndAddKeySerializer(Class<?> type,
-            SerializationContext provider, BeanProperty property)
+            SerializationContext ctxt, BeanProperty property)
     {
-        ValueSerializer<Object> serializer = provider.findKeySerializer(type, property);
+        ValueSerializer<Object> serializer = ctxt.findKeySerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type, serializer));
     }
 
@@ -206,11 +206,6 @@ public abstract class PropertySerializerMap
 
         protected Empty(boolean resetWhenFull) {
             super(resetWhenFull);
-        }
-
-        // @since 3.0
-        public static Empty emptyFor(PropertySerializerMap src) {
-            return (src._resetWhenFull) ? FOR_ROOT_VALUES : FOR_PROPERTIES;
         }
 
         @Override

@@ -31,11 +31,11 @@ public class ViewsWithSchemaTest extends DatabindTestUtil
 
     static class ListingVisitor extends JsonFormatVisitorWrapper.Base
     {
-        public final List<String> names = new ArrayList<String>();
+        public final List<String> names = new ArrayList<>();
 
         @Override
         public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
-            return new JsonObjectFormatVisitor.Base() {
+            return new JsonObjectFormatVisitor.Base(getContext()) {
                 @Override
                 public void optionalProperty(BeanProperty writer) {
                     names.add(writer.getName());

@@ -113,7 +113,7 @@ public abstract class NumericNode
      * Convenience method for checking whether this node is a {@code NumericFPNode}
      * that contains non-zero fractional part (as opposed to only integer part).
      * Always returns false for integral {@link NumericNode}s (that is,
-     * {@ode NumericIntNode}s).
+     * {@code NumericIntNode}s).
      */
     public abstract boolean hasFractionalPart();
 

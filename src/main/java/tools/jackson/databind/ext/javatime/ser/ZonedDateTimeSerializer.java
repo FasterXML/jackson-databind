@@ -2,6 +2,7 @@ package tools.jackson.databind.ext.javatime.ser;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -72,6 +73,10 @@ public class ZonedDateTimeSerializer extends InstantSerializerBase<ZonedDateTime
             if ((_formatter != null) && (_shape == JsonFormat.Shape.STRING)) {
                 ; // use default handling
             } else if (shouldWriteWithZoneId(ctxt)) {
+                // Apply millisecond truncation if enabled
+                if (ctxt.isEnabled(DateTimeFeature.TRUNCATE_TO_MSECS_ON_WRITE)) {
+                    value = value.truncatedTo(ChronoUnit.MILLIS);
+                }
                 // write with zone
                 g.writeString(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(value));
                 return;

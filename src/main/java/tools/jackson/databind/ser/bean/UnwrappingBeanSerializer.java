@@ -121,51 +121,51 @@ public class UnwrappingBeanSerializer
      * {@link BeanPropertyWriter} instances.
      */
     @Override
-    public final void serialize(Object bean, JsonGenerator gen, SerializationContext provider) throws JacksonException
+    public final void serialize(Object bean, JsonGenerator gen, SerializationContext ctxt) throws JacksonException
     {
         if (_objectIdWriter != null) {
-            _serializeWithObjectId(bean, gen, provider, false);
+            _serializeWithObjectId(bean, gen, ctxt, false);
             return;
         }
         // Because we do not write start-object need to call this explicitly:
         // (although... is that a problem, overwriting it now?)
         gen.assignCurrentValue(bean); // [databind#631]
         if (_propertyFilterId != null) {
-            _serializePropertiesFiltered(bean, gen, provider, _propertyFilterId);
+            _serializePropertiesFiltered(bean, gen, ctxt, _propertyFilterId);
             return;
         }
         BeanPropertyWriter[] fProps = _filteredProps;
-        if ((fProps != null) && (provider.getActiveView() != null)) {
-            _serializePropertiesMaybeView(bean, gen, provider, fProps);
+        if ((fProps != null) && (ctxt.getActiveView() != null)) {
+            _serializePropertiesMaybeView(bean, gen, ctxt, fProps);
             return;
         }
-        _serializePropertiesNoView(bean, gen, provider, _props);
+        _serializePropertiesNoView(bean, gen, ctxt, _props);
     }
 
     @Override
-    public void serializeWithType(Object bean, JsonGenerator gen, SerializationContext provider,
+    public void serializeWithType(Object bean, JsonGenerator gen, SerializationContext ctxt,
     		TypeSerializer typeSer) throws JacksonException
     {
-        if (provider.isEnabled(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)) {
-            provider.reportBadDefinition(handledType(),
+        if (ctxt.isEnabled(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)) {
+            ctxt.reportBadDefinition(handledType(),
                     "Unwrapped property requires use of type information: cannot serialize without disabling `SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS`");
         }
         if (_objectIdWriter != null) {
-            _serializeWithObjectId(bean, gen, provider, typeSer);
+            _serializeWithObjectId(bean, gen, ctxt, typeSer);
             return;
         }
         // Because we do not write start-object need to call this explicitly:
         gen.assignCurrentValue(bean);
         if (_propertyFilterId != null) {
-            _serializePropertiesFiltered(bean, gen, provider, _propertyFilterId);
+            _serializePropertiesFiltered(bean, gen, ctxt, _propertyFilterId);
             return;
         }
         BeanPropertyWriter[] fProps = _filteredProps;
-        if ((fProps != null) && (provider.getActiveView() != null)) {
-            _serializePropertiesMaybeView(bean, gen, provider, fProps);
+        if ((fProps != null) && (ctxt.getActiveView() != null)) {
+            _serializePropertiesMaybeView(bean, gen, ctxt, fProps);
             return;
         }
-        _serializePropertiesNoView(bean, gen, provider, _props);
+        _serializePropertiesNoView(bean, gen, ctxt, _props);
     }
 
     /*

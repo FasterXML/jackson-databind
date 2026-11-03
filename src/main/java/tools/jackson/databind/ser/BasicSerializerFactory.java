@@ -438,7 +438,7 @@ public abstract class BasicSerializerFactory
             return ser;
         }
         JavaType delegateType = conv.getOutputType(ctxt.getTypeFactory());
-        return new StdDelegatingSerializer(conv, delegateType, ser, null);
+        return new StdConvertingSerializer(conv, delegateType, ser, null);
     }
 
     protected Converter<Object,Object> findConverter(SerializationContext ctxt,
@@ -487,8 +487,8 @@ public abstract class BasicSerializerFactory
              *  But we do need to check class annotations.
              */
             ValueSerializer<Object> keySerializer = _findKeySerializer(ctxt, beanDescRef.getClassInfo());
-            if (mlt instanceof MapType) {
-                return buildMapSerializer(ctxt, (MapType) mlt,
+            if (mlt instanceof MapType mapType) {
+                return buildMapSerializer(ctxt, mapType,
                         beanDescRef, formatOverrides, staticTyping,
                         keySerializer, elementTypeSerializer, elementValueSerializer);
             }
@@ -517,8 +517,8 @@ public abstract class BasicSerializerFactory
         }
         if (type.isCollectionLikeType()) {
             CollectionLikeType clt = (CollectionLikeType) type;
-            if (clt instanceof CollectionType) {
-                return buildCollectionSerializer(ctxt, (CollectionType) clt,
+            if (clt instanceof CollectionType collectionType) {
+                return buildCollectionSerializer(ctxt, collectionType,
                         beanDescRef, formatOverrides, staticTyping,
                         elementTypeSerializer, elementValueSerializer);
             }
@@ -748,7 +748,7 @@ public abstract class BasicSerializerFactory
 
         switch (incl) {
         case NON_DEFAULT:
-            valueToSuppress = BeanUtil.getDefaultValue(contentType);
+            valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, contentType);
             if (valueToSuppress != null) {
                 if (valueToSuppress.getClass().isArray()) {
                     valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
@@ -808,7 +808,7 @@ public abstract class BasicSerializerFactory
 
         switch (incl) {
         case NON_DEFAULT:
-            valueToSuppress = BeanUtil.getDefaultValue(contentType);
+            valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, contentType);
             if (valueToSuppress != null) {
                 if (valueToSuppress.getClass().isArray()) {
                     valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
@@ -997,7 +997,7 @@ public abstract class BasicSerializerFactory
             suppressNulls = true;
             switch (incl) {
             case NON_DEFAULT:
-                valueToSuppress = BeanUtil.getDefaultValue(contentType);
+                valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, contentType);
                 if (valueToSuppress != null) {
                     if (valueToSuppress.getClass().isArray()) {
                         valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);

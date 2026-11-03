@@ -193,8 +193,8 @@ public class TokenBuffer
         _hasNativeTypeIds = p.canReadTypeId();
         _hasNativeObjectIds = p.canReadObjectId();
         _mayHaveNativeIds = _hasNativeTypeIds || _hasNativeObjectIds;
-        if (ctxt instanceof DeserializationContext) {
-            _forceBigDecimal = ((DeserializationContext) ctxt).isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+        if (ctxt instanceof DeserializationContext deserializationContext) {
+            _forceBigDecimal = deserializationContext.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
         } else {
             _forceBigDecimal = false;
         }
@@ -470,8 +470,8 @@ public class TokenBuffer
             {
                 // 13-Dec-2010, tatu: Maybe we should start using different type tokens to reduce casting?
                 Object ob = segment.get(ptr);
-                if (ob instanceof SerializableString) {
-                    gen.writeName((SerializableString) ob);
+                if (ob instanceof SerializableString str) {
+                    gen.writeName(str);
                 } else {
                     gen.writeName((String) ob);
                 }
@@ -480,8 +480,8 @@ public class TokenBuffer
             case VALUE_STRING:
                 {
                     Object ob = segment.get(ptr);
-                    if (ob instanceof SerializableString) {
-                        gen.writeString((SerializableString) ob);
+                    if (ob instanceof SerializableString str) {
+                        gen.writeString(str);
                     } else {
                         gen.writeString((String) ob);
                     }
@@ -490,14 +490,17 @@ public class TokenBuffer
             case VALUE_NUMBER_INT:
                 {
                     Object n = segment.get(ptr);
-                    if (n instanceof Integer) {
-                        gen.writeNumber((Integer) n);
-                    } else if (n instanceof BigInteger) {
-                        gen.writeNumber((BigInteger) n);
-                    } else if (n instanceof Long) {
-                        gen.writeNumber((Long) n);
-                    } else if (n instanceof Short) {
-                        gen.writeNumber((Short) n);
+                    if (n instanceof Integer i) {
+                        gen.writeNumber(i);
+                    } else if (n instanceof BigInteger bi) {
+                        gen.writeNumber(bi);
+                    } else if (n instanceof Long l) {
+                        gen.writeNumber(l);
+                    } else if (n instanceof Short s) {
+                        gen.writeNumber(s);
+                    } else if (n instanceof String str) {
+                        // [databind#5706]
+                        gen.writeNumber(str); 
                     } else {
                         gen.writeNumber(((Number) n).intValue());
                     }
@@ -506,16 +509,16 @@ public class TokenBuffer
             case VALUE_NUMBER_FLOAT:
                 {
                     Object n = segment.get(ptr);
-                    if (n instanceof Double) {
-                        gen.writeNumber((Double) n);
-                    } else if (n instanceof BigDecimal) {
-                        gen.writeNumber((BigDecimal) n);
-                    } else if (n instanceof Float) {
-                        gen.writeNumber((Float) n);
+                    if (n instanceof Double d) {
+                        gen.writeNumber(d);
+                    } else if (n instanceof BigDecimal bd) {
+                        gen.writeNumber(bd);
+                    } else if (n instanceof Float f) {
+                        gen.writeNumber(f);
                     } else if (n == null) {
                         gen.writeNull();
-                    } else if (n instanceof String) {
-                        gen.writeNumber((String) n);
+                    } else if (n instanceof String str) {
+                        gen.writeNumber(str);
                     } else {
                         throw new StreamWriteException(gen, String.format(
                                 "Unrecognized value type for VALUE_NUMBER_FLOAT: %s, cannot serialize",
@@ -538,8 +541,8 @@ public class TokenBuffer
                     // 01-Sep-2016, tatu: as per [databind#1361], should use `writeEmbeddedObject()`;
                     //    however, may need to consider alternatives for some well-known types
                     //    first
-                    if (value instanceof RawValue) {
-                        ((RawValue) value).serialize(gen);
+                    if (value instanceof RawValue rawValue) {
+                        rawValue.serialize(gen);
                     } else if (value instanceof JacksonSerializable) {
                         gen.writePOJO(value);
                     } else {
@@ -1511,6 +1514,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         protected final boolean _hasNativeIds;
 
+        // @since 3.1.1
+        protected final boolean _forceBigDecimal;
+
         /*
         /******************************************************************
         /* Parsing state
@@ -1562,6 +1568,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _hasNativeTypeIds = hasNativeTypeIds;
             _hasNativeObjectIds = hasNativeObjectIds;
             _hasNativeIds = (hasNativeTypeIds || hasNativeObjectIds);
+            _forceBigDecimal = _source._forceBigDecimal;
         }
 
         public void setLocation(TokenStreamLocation l) {
@@ -1662,7 +1669,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             // Property name? Need to update context
             if (_currToken == JsonToken.PROPERTY_NAME) {
                 Object ob = _currentObject();
-                String name = (ob instanceof String) ? ((String) ob) : ob.toString();
+                String name = (ob instanceof String string) ? string : ob.toString();
                 _parsingContext.setCurrentName(name);
             } else if (_currToken == JsonToken.START_OBJECT) {
                 _parsingContext = _parsingContext.createChildObjectContext();
@@ -1691,7 +1698,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 _segmentPtr = ptr;
                 _updateToken(JsonToken.PROPERTY_NAME);
                 Object ob = _segment.get(ptr); // inlined _currentObject();
-                String name = (ob instanceof String) ? ((String) ob) : ob.toString();
+                String name = (ob instanceof String string) ? string : ob.toString();
                 _parsingContext.setCurrentName(name);
                 return name;
             }
@@ -1756,8 +1763,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (_currToken == JsonToken.VALUE_STRING
                     || _currToken == JsonToken.PROPERTY_NAME) {
                 Object ob = _currentObject();
-                if (ob instanceof String) {
-                    return (String) ob;
+                if (ob instanceof String string) {
+                    return string;
                 }
                 return ClassUtil.nullOrToString(ob);
             }
@@ -1805,11 +1812,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             // can only occur for floating-point numbers
             if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
                 Object value = _currentObject();
-                if (value instanceof Double) {
-                    return NumberOutput.notFinite((Double) value);
+                if (value instanceof Double d) {
+                    return NumberOutput.notFinite(d);
                 }
-                if (value instanceof Float) {
-                    return NumberOutput.notFinite((Float) value);
+                if (value instanceof Float f) {
+                    return NumberOutput.notFinite(f);
                 }
             }
             return false;
@@ -1819,10 +1826,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public BigInteger getBigIntegerValue()
         {
             Number n = _numberValue(NR_BIGINT, true);
-            if (n instanceof BigInteger) {
-                return (BigInteger) n;
-            } else if (n instanceof BigDecimal) {
-                final BigDecimal bd = (BigDecimal) n;
+            if (n instanceof BigInteger bi) {
+                return bi;
+            } else if (n instanceof BigDecimal bd) {
                 streamReadConstraints().validateBigIntegerScale(bd.scale());
                 return bd.toBigInteger();
             }
@@ -1834,14 +1840,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public BigDecimal getDecimalValue()
         {
             Number n = _numberValue(NR_BIGDECIMAL, true);
-            if (n instanceof BigDecimal) {
-                return (BigDecimal) n;
+            if (n instanceof BigDecimal bd) {
+                return bd;
             } else if (n instanceof Integer) {
                 return BigDecimal.valueOf(n.intValue());
             } else if (n instanceof Long) {
                 return BigDecimal.valueOf(n.longValue());
-            } else if (n instanceof BigInteger) {
-                return new BigDecimal((BigInteger) n);
+            } else if (n instanceof BigInteger bi) {
+                return new BigDecimal(bi);
             }
             // float or double
             return BigDecimal.valueOf(n.doubleValue());
@@ -1884,8 +1890,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 return null;
             }
             final Object value = _currentObject();
-            if (value instanceof Number) {
-                Number n = (Number) value;
+            if (value instanceof Number n) {
                 if (n instanceof Integer) return NumberType.INT;
                 if (n instanceof Long) return NumberType.LONG;
                 if (n instanceof Double) return NumberType.DOUBLE;
@@ -1894,8 +1899,17 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 if (n instanceof Float) return NumberType.FLOAT;
                 if (n instanceof Short) return NumberType.INT;       // should be SHORT
             } else if (value instanceof String) {
-                return (_currToken == JsonToken.VALUE_NUMBER_FLOAT)
-                        ? NumberType.BIG_DECIMAL : NumberType.BIG_INTEGER;
+                // Deferred number stored as String: report default type that
+                // _numberValue() would produce (without preferBigNumbers).
+                // For integers, only big values are deferred (see _copyBufferValue)
+                // so BIG_INTEGER is appropriate; for floats, default parsing
+                // produces Double (not BigDecimal) -- see [databind#3524]
+                // But: [databind#5786] must respect _forceBigDecimal setting
+                if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
+                    return _forceBigDecimal
+                            ? NumberType.BIG_DECIMAL : NumberType.DOUBLE;
+                }
+                return NumberType.BIG_INTEGER;
             }
             return null;
         }
@@ -1908,13 +1922,22 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 if (n instanceof Double) return NumberTypeFP.DOUBLE64;
                 if (n instanceof BigDecimal) return NumberTypeFP.BIG_DECIMAL;
                 if (n instanceof Float) return NumberTypeFP.FLOAT32;
+                // 11-Feb-2026, tatu: If deferred, type specifically not known,
+                //    caller to decide (unlike with `getNumberType()` that has
+                //    no "unknown" option).
+                // But: [databind#5786] must respect _forceBigDecimal setting
+                if (n instanceof String) {
+                    return _forceBigDecimal
+                            ? NumberTypeFP.BIG_DECIMAL : NumberTypeFP.DOUBLE64;
+                }
             }
             return NumberTypeFP.UNKNOWN;
         }
 
         @Override
         public final Number getNumberValue() {
-            return _numberValue(-1, false);
+            // [databind#5786]: respect _forceBigDecimal for deferred float values
+            return _numberValue(-1, _forceBigDecimal);
         }
 
         @Override
@@ -1932,18 +1955,17 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 throw _constructNotNumericType(_currToken, targetNumType);
             }
             Object value = _currentObject();
-            if (value instanceof Number) {
-                return (Number) value;
+            if (value instanceof Number nr) {
+                return nr;
             }
             // Difficult to really support numbers-as-Strings; but let's try.
             // NOTE: no access to DeserializationConfig, unfortunately, so cannot
             // try to determine Double/BigDecimal preference...
 
             // 12-Jan-2021, tatu: Is this really needed, and for what? CSV, XML?
-            if (value instanceof String) {
-                String str = (String) value;
-                final int len = str.length();
+            if (value instanceof String str) {
                 if (_currToken == JsonToken.VALUE_NUMBER_INT) {
+                    final int len = str.length();
                     // 08-Dec-2023, tatu: Note -- deferred numbers' validity (wrt input token)
                     //    has been verified by underlying `JsonParser`: no need to check again
                     if (preferBigNumbers
@@ -1995,8 +2017,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 }
                 return result;
             }
-            if (n instanceof BigInteger) {
-                BigInteger big = (BigInteger) n;
+            if (n instanceof BigInteger big) {
                 if (BI_MIN_INT.compareTo(big) > 0
                         || BI_MAX_INT.compareTo(big) < 0) {
                     _reportOverflowInt();
@@ -2008,8 +2029,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                     _reportOverflowInt();
                 }
                 return (int) d;
-            } else if (n instanceof BigDecimal) {
-                BigDecimal big = (BigDecimal) n;
+            } else if (n instanceof BigDecimal big) {
                 if (BD_MIN_INT.compareTo(big) > 0
                     || BD_MAX_INT.compareTo(big) < 0) {
                     _reportOverflowInt();
@@ -2022,8 +2042,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         protected long _convertNumberToLong(Number n) throws InputCoercionException
         {
-            if (n instanceof BigInteger) {
-                BigInteger big = (BigInteger) n;
+            if (n instanceof BigInteger big) {
                 if (BI_MIN_LONG.compareTo(big) > 0
                         || BI_MAX_LONG.compareTo(big) < 0) {
                     _reportOverflowLong();
@@ -2035,8 +2054,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                     _reportOverflowLong();
                 }
                 return (long) d;
-            } else if (n instanceof BigDecimal) {
-                BigDecimal big = (BigDecimal) n;
+            } else if (n instanceof BigDecimal big) {
                 if (BD_MIN_LONG.compareTo(big) > 0
                     || BD_MAX_LONG.compareTo(big) < 0) {
                     _reportOverflowLong();
@@ -2070,8 +2088,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (_currToken == JsonToken.VALUE_EMBEDDED_OBJECT) {
                 // Embedded byte array would work nicely...
                 Object ob = _currentObject();
-                if (ob instanceof byte[]) {
-                    return (byte[]) ob;
+                if (ob instanceof byte[] byteArray) {
+                    return byteArray;
                 }
                 // fall through to error case
             }

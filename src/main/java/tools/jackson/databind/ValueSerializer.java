@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
@@ -178,7 +179,8 @@ public abstract class ValueSerializer<T>
      *  </li>
      * <li>Return {@code null} to indicate that this serializer instance is not suitable for
      *    handling format variation, but does not know how to construct new serializer: caller
-     *    will typically then call {@link tools.jackson.databind.ser.SerializerFactory} with overrides to construct new serializer
+     *    will typically then call {@link tools.jackson.databind.ser.SerializerFactory}
+     *    with overrides to construct new serializer
      *  </li>
      *</ul>
      * One example of second approach is the case where {@link com.fasterxml.jackson.annotation.JsonFormat.Shape#STRING} indicates String
@@ -234,7 +236,7 @@ public abstract class ValueSerializer<T>
      *<pre>
      *  // note: method to call depends on whether this type is serialized as JSON scalar, object or Array!
      *  typeSer.writeTypePrefixForScalar(value, gen);
-     *  serialize(value, gen, provider);
+     *  serialize(value, gen, ctxt);
      *  typeSer.writeTypeSuffixForScalar(value, gen);
      *</pre>
      * and implementations for type serialized as JSON Arrays or Objects would differ slightly,
@@ -252,13 +254,20 @@ public abstract class ValueSerializer<T>
             TypeSerializer typeSer)
         throws JacksonException
     {
+        // 07-Dec-2025, tatu: [databind#1654] Check for "no-op" type serializer
+        //   indirectly
+        if (typeSer.getTypeInclusion() == As.NOTHING) {
+            serialize(value, gen, ctxt);
+            return;
+        }
+
         Class<?> clz = handledType();
         if (clz == null) {
             clz = value.getClass();
         }
         ctxt.reportBadDefinition(clz, String.format(
-                "Type id handling not implemented for type %s (by serializer of type %s)",
-                clz.getName(), getClass().getName()));
+"Type id handling (method `serializeWithType()`) not implemented for type %s (by serializer of type %s)",
+                ClassUtil.nameOf(clz), ClassUtil.nameOf(getClass())));
     }
 
     /*

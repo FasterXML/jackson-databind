@@ -115,8 +115,8 @@ public abstract class DateBasedDeserializer<T>
                     // otherwise need to clone,
                     df = (DateFormat) df.clone();
                     df.setLenient(lenient);
-                    if (df instanceof SimpleDateFormat) {
-                        ((SimpleDateFormat) df).toPattern();
+                    if (df instanceof SimpleDateFormat sdf) {
+                        sdf.toPattern();
                     }
                 }
                 if (pattern == null) {
@@ -133,7 +133,8 @@ public abstract class DateBasedDeserializer<T>
         throws JacksonException
     {
         if (_customFormat != null) {
-            if (p.hasToken(JsonToken.VALUE_STRING)) {
+            // No text (VALUE_STRING with corrupt content, e.g. Ion): let base class handle it
+            if (p.hasToken(JsonToken.VALUE_STRING) && (p.getString() != null)) {
                 String str = p.getString().trim();
                 if (str.isEmpty()) {
                     final CoercionAction act = _checkFromStringCoercion(ctxt, str);

@@ -95,8 +95,7 @@ public abstract class DateTimeSerializerBase<T>
 
         DateFormat df0 = serializers.getConfig().getDateFormat();
         // Jackson's own `StdDateFormat` is quite easy to deal with...
-        if (df0 instanceof StdDateFormat) {
-            StdDateFormat std = (StdDateFormat) df0;
+        if (df0 instanceof StdDateFormat std) {
             if (format.hasLocale()) {
                 std = std.withLocale(format.getLocale());
             }

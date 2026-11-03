@@ -60,9 +60,19 @@ public class ArrayNode
         return get(ptr.getMatchingIndex());
     }
 
+    @Override // @since 3.1
+    protected JsonNode _removeAt(JsonPointer ptr) {
+        JsonNode n = remove(ptr.getMatchingIndex());
+        return (n == null) ? missingNode() : n;
+    }
+
     @Override
     protected String _valueDesc() {
-        return "[...(" + _children.size() + " elements)]";
+        int size = _children.size();
+        if (size == 0) {
+            return "[ ]";
+        }
+        return "[...(" + size + " elements)]";
     }
     
     // note: co-variant to allow caller-side type safety
@@ -93,8 +103,8 @@ public class ArrayNode
         }
         JsonNode n = _at(currentPtr);
         // If there's a path, follow it
-        if ((n != null) && (n instanceof BaseJsonNode)) {
-            ObjectNode found = ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
+        if (n instanceof BaseJsonNode baseNode) {
+            ObjectNode found = baseNode._withObject(origPtr, currentPtr.tail(),
                     overwriteMode, preferIndex);
             if (found != null) {
                 return found;
@@ -116,8 +126,8 @@ public class ArrayNode
         }
         JsonNode n = _at(currentPtr);
         // If there's a path, follow it
-        if ((n != null) && (n instanceof BaseJsonNode)) {
-            ArrayNode found = ((BaseJsonNode) n)._withArray(origPtr, currentPtr.tail(),
+        if (n instanceof BaseJsonNode baseNode) {
+            ArrayNode found = baseNode._withArray(origPtr, currentPtr.tail(),
                     overwriteMode, preferIndex);
             if (found != null) {
                 return found;
@@ -225,6 +235,16 @@ public class ArrayNode
         return true;
     }
 
+    @Override
+    public ArrayNode asArray() {
+        return this;
+    }
+
+    @Override
+    public Optional<ArrayNode> asArrayOpt() {
+        return Optional.of(this);
+    }
+
     @Override public JsonToken asToken() { return JsonToken.START_ARRAY; }
 
     @Override
@@ -296,22 +316,21 @@ public class ArrayNode
     @Override
     public boolean equals(Comparator<JsonNode> comparator, JsonNode o)
     {
-        if (!(o instanceof ArrayNode)) {
-            return false;
-        }
-        ArrayNode other = (ArrayNode) o;
-        final int len = _children.size();
-        if (other.size() != len) {
-            return false;
-        }
-        List<JsonNode> l1 = _children;
-        List<JsonNode> l2 = other._children;
-        for (int i = 0; i < len; ++i) {
-            if (!l1.get(i).equals(comparator, l2.get(i))) {
+        if (o instanceof ArrayNode other) {
+            final int len = _children.size();
+            if (other.size() != len) {
                 return false;
             }
+            List<JsonNode> l1 = _children;
+            List<JsonNode> l2 = other._children;
+            for (int i = 0; i < len; ++i) {
+                if (!l1.get(i).equals(comparator, l2.get(i))) {
+                    return false;
+                }
+            }
+            return true;
         }
-        return true;
+        return false;
     }
 
     /*
@@ -417,7 +436,7 @@ public class ArrayNode
      *
      * @return This node after adding/replacing property value (to allow chaining)
      *
-     * @throws IndexOutOfBoundsException If Array does not have specified element
+     * @throws JsonNodeException If Array does not have specified element
      *  (that is, index is outside valid range of elements in array)
      */
     public ArrayNode set(int index, JsonNode value)
@@ -425,11 +444,7 @@ public class ArrayNode
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
-        if (index < 0 || index >= _children.size()) {
-            throw new IndexOutOfBoundsException("Illegal index "+ index +", array size "+size());
-        }
-        _children.set(index, value);
-        return this;
+        return _set(index, value);
     }
 
     /**
@@ -441,7 +456,7 @@ public class ArrayNode
      *
      * @return Old value of the element, if any; null if no such element existed.
      *
-     * @throws IndexOutOfBoundsException If Array does not have specified element
+     * @throws JsonNodeException If Array does not have specified element
      *  (that is, index is outside valid range of elements in array)
      */
     public JsonNode replace(int index, JsonNode value)
@@ -450,8 +465,10 @@ public class ArrayNode
             value = nullNode();
         }
         if (index < 0 || index >= _children.size()) {
-            throw new IndexOutOfBoundsException("Illegal index "+ index +", array size "+size());
+            throw JsonNodeException.from(this,
+                    "Illegal index %d, array size %d", index, size());
         }
+        // NOTE: cannot call `_set()` since it returns `this`, NOT old value
         return _children.set(index, value);
     }
 
@@ -1163,8 +1180,8 @@ public class ArrayNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof ArrayNode) {
-            return _children.equals(((ArrayNode) o)._children);
+        if (o instanceof ArrayNode arrayNode) {
+            return _children.equals(arrayNode._children);
         }
         return false;
     }

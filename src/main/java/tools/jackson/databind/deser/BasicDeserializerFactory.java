@@ -24,6 +24,7 @@ import tools.jackson.databind.ext.jdk8.OptionalIntDeserializer;
 import tools.jackson.databind.ext.jdk8.OptionalLongDeserializer;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.jsontype.impl.NoOpTypeDeserializer;
 import tools.jackson.databind.type.*;
 import tools.jackson.databind.util.*;
 
@@ -277,8 +278,8 @@ public abstract class BasicDeserializerFactory
 
         ValueInstantiator inst;
 
-        if (instDef instanceof ValueInstantiator) {
-            return (ValueInstantiator) instDef;
+        if (instDef instanceof ValueInstantiator valueInstantiator) {
+            return valueInstantiator;
         }
         if (!(instDef instanceof Class)) {
             throw new IllegalStateException("AnnotationIntrospector returned key deserializer definition of type "
@@ -602,6 +603,13 @@ public abstract class BasicDeserializerFactory
         SettableBeanProperty prop = CreatorProperty.construct(name, type, property.getWrapperName(),
                 typeDeser, beanDescRef.getClassAnnotations(), param, index, injectable,
                 metadata);
+        // [databind#1516]: Handle @JsonManagedReference for creator properties
+        if (intr != null) {
+            AnnotationIntrospector.ReferenceProperty ref = intr.findReferenceType(config, param);
+            if (ref != null && ref.isManagedReference()) {
+                prop.setManagedReferenceName(ref.getName());
+            }
+        }
         ValueDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, param);
         if (deser == null) {
             deser = (ValueDeserializer<?>) type.getValueHandler();
@@ -714,17 +722,14 @@ public abstract class BasicDeserializerFactory
             ArrayType type, BeanDescription.Supplier beanDescRef)
     {
         final DeserializationConfig config = ctxt.getConfig();
-        JavaType elemType = type.getContentType();
+        final JavaType elemType = type.getContentType();
 
         // Very first thing: is deserializer hard-coded for elements?
         @SuppressWarnings("unchecked")
-        ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) elemType.getValueHandler();
+        final ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) elemType.getValueHandler();
         // Then optional type info: if type has been resolved, we may already know type deserializer:
-        TypeDeserializer elemTypeDeser = (TypeDeserializer) elemType.getTypeHandler();
-        // but if not, may still be possible to find:
-        if (elemTypeDeser == null) {
-            elemTypeDeser = ctxt.findTypeDeserializer(elemType);
-        }
+        final TypeDeserializer elemTypeDeser = _findContentTypeDeserializer(ctxt, elemType);
+
         // 23-Nov-2010, tatu: Custom array deserializer?
         ValueDeserializer<?>  deser = _findCustomArrayDeserializer(type,
                 config, beanDescRef, elemTypeDeser, contentDeser);
@@ -760,17 +765,11 @@ public abstract class BasicDeserializerFactory
     public ValueDeserializer<?> createCollectionDeserializer(DeserializationContext ctxt,
             CollectionType type, BeanDescription.Supplier beanDescRef)
     {
-        JavaType contentType = type.getContentType();
-        // Very first thing: is deserializer hard-coded for elements?
-        ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
+        final JavaType contentType = type.getContentType();
+        final ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
+        final TypeDeserializer contentTypeDeser = _findContentTypeDeserializer(ctxt, contentType);
         final DeserializationConfig config = ctxt.getConfig();
 
-        // Then optional type info: if type has been resolved, we may already know type deserializer:
-        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
-        // but if not, may still be possible to find:
-        if (contentTypeDeser == null) {
-            contentTypeDeser = ctxt.findTypeDeserializer(contentType);
-        }
         // 23-Nov-2010, tatu: Custom deserializer?
         ValueDeserializer<?> deser = _findCustomCollectionDeserializer(type,
                 config, beanDescRef, contentTypeDeser, contentDeser);
@@ -812,7 +811,8 @@ public abstract class BasicDeserializerFactory
                 if (!inst.canCreateUsingDefault()) {
                     // [databind#161]: No default constructor for ArrayBlockingQueue...
                     if (type.hasRawClass(ArrayBlockingQueue.class)) {
-                        return new ArrayBlockingQueueDeserializer(type, contentDeser, contentTypeDeser, inst);
+                        return new ArrayBlockingQueueDeserializer(type,
+                                contentDeser, contentTypeDeser, inst, beanDescRef.getClassInfo());
                     }
                     // 10-Jan-2017, tatu: `java.util.Collections` types need help:
                     deser = JavaUtilCollectionsDeserializers.findForCollection(ctxt, type);
@@ -823,9 +823,11 @@ public abstract class BasicDeserializerFactory
                 // Can use more optimal deserializer if content type is String, so:
                 if (contentType.hasRawClass(String.class)) {
                     // no value type deserializer because Strings are one of natural/native types:
-                    deser = new StringCollectionDeserializer(type, contentDeser, inst);
+                    deser = StringCollectionDeserializer.create(type, beanDescRef,
+                            contentDeser, inst);
                 } else {
-                    deser = new CollectionDeserializer(type, contentDeser, contentTypeDeser, inst);
+                    deser = CollectionDeserializer.create(type, beanDescRef,
+                            contentDeser, contentTypeDeser, inst);
                 }
             }
         }
@@ -853,18 +855,13 @@ public abstract class BasicDeserializerFactory
     public ValueDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
             CollectionLikeType type, BeanDescription.Supplier beanDescRef)
     {
-        JavaType contentType = type.getContentType();
+        final JavaType contentType = type.getContentType();
         // Very first thing: is deserializer hard-coded for elements?
         @SuppressWarnings("unchecked")
         ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
         final DeserializationConfig config = ctxt.getConfig();
+        final TypeDeserializer contentTypeDeser = _findContentTypeDeserializer(ctxt, contentType);
 
-        // Then optional type info: if type has been resolved, we may already know type deserializer:
-        TypeDeserializer contentTypeDeser = (TypeDeserializer)contentType.getTypeHandler();
-        // but if not, may still be possible to find:
-        if (contentTypeDeser == null) {
-            contentTypeDeser = ctxt.findTypeDeserializer(contentType);
-        }
         ValueDeserializer<?> deser = _findCustomCollectionLikeDeserializer(type, config, beanDescRef,
                 contentTypeDeser, contentDeser);
         if (deser != null) {
@@ -889,8 +886,8 @@ public abstract class BasicDeserializerFactory
             MapType type, BeanDescription.Supplier beanDescRef)
     {
         final DeserializationConfig config = ctxt.getConfig();
-        JavaType keyType = type.getKeyType();
-        JavaType contentType = type.getContentType();
+        final JavaType keyType = type.getKeyType();
+        final JavaType contentType = type.getContentType();
 
         // First: is there annotation-specified deserializer for values?
         @SuppressWarnings("unchecked")
@@ -899,11 +896,7 @@ public abstract class BasicDeserializerFactory
         // Ok: need a key deserializer (null indicates 'default' here)
         KeyDeserializer keyDes = (KeyDeserializer) keyType.getValueHandler();
         // Then optional type info; either attached to type, or resolved separately:
-        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
-        // but if not, may still be possible to find:
-        if (contentTypeDeser == null) {
-            contentTypeDeser = ctxt.findTypeDeserializer(contentType);
-        }
+        final TypeDeserializer contentTypeDeser = _findContentTypeDeserializer(ctxt, contentType);
 
         // 23-Nov-2010, tatu: Custom deserializer?
         ValueDeserializer<?> deser = _findCustomMapDeserializer(type, config, beanDescRef,
@@ -931,8 +924,16 @@ public abstract class BasicDeserializerFactory
                 if (!keyType.isEnumImplType()) {
                     throw new IllegalArgumentException("Cannot construct EnumMap; generic (key) type not available");
                 }
+                _assignCreatorViews(ctxt, beanDescRef, inst);
+                // [databind#6252]: class-level and config-override ignorals/inclusions, same as with `MapDeserializer`
+                JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Map.class,
+                        beanDescRef.getClassInfo());
+                JsonIncludeProperties.Value inclusions = config.getDefaultPropertyInclusions(Map.class,
+                        beanDescRef.getClassInfo());
                 deser = new EnumMapDeserializer(type, inst, null,
-                        contentDeser, contentTypeDeser, null);
+                        contentDeser, contentTypeDeser, null,
+                        (ignorals == null) ? null : ignorals.findIgnoredForDeserialization(),
+                        (inclusions == null) ? null : inclusions.getIncluded());
             }
 
             // Otherwise, generic handler works ok.
@@ -966,6 +967,7 @@ public abstract class BasicDeserializerFactory
                 }
                 if (deser == null) {
                     ValueInstantiator inst = findValueInstantiator(ctxt, beanDescRef);
+                    _assignCreatorViews(ctxt, beanDescRef, inst);
                     // 01-May-2016, tatu: Which base type to use here gets tricky, since
                     //   most often it ought to be `Map` or `EnumMap`, but due to abstract
                     //   mapping it will more likely be concrete type like `HashMap`.
@@ -1007,8 +1009,8 @@ public abstract class BasicDeserializerFactory
     public ValueDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
             MapLikeType type, BeanDescription.Supplier beanDescRef)
     {
-        JavaType keyType = type.getKeyType();
-        JavaType contentType = type.getContentType();
+        final JavaType keyType = type.getKeyType();
+        final JavaType contentType = type.getContentType();
         final DeserializationConfig config = ctxt.getConfig();
 
         // First: is there annotation-specified deserializer for values?
@@ -1023,11 +1025,7 @@ public abstract class BasicDeserializerFactory
         }
         */
         // Then optional type info; either attached to type, or resolve separately:
-        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
-        // but if not, may still be possible to find:
-        if (contentTypeDeser == null) {
-            contentTypeDeser = ctxt.findTypeDeserializer(contentType);
-        }
+        final TypeDeserializer contentTypeDeser = _findContentTypeDeserializer(ctxt, contentType);
         ValueDeserializer<?> deser = _findCustomMapLikeDeserializer(type, config,
                 beanDescRef, keyDes, contentTypeDeser, contentDeser);
         if (deser != null) {
@@ -1086,6 +1084,10 @@ public abstract class BasicDeserializerFactory
 "Invalid `@JsonCreator` annotated Enum factory method [%s]: needs to return compatible type",
 factory.toString()));
                     }
+                    // [databind#6261]: need to pass views of creator parameters, if any
+                    if (creatorProps != null) {
+                        _assignCreatorViews(ctxt, beanDescRef, creatorProps);
+                    }
                     deser = EnumDeserializer.deserializerForCreator(
                         config, enumClass, factory, valueInstantiator, creatorProps,
                         constructEnumResolver(ctxt, enumClass, beanDescRef));
@@ -1111,6 +1113,45 @@ factory.toString()));
             }
         }
         return deser;
+    }
+
+    /**
+     * Helper method for assigning views (if any) of properties-based Creator
+     * parameters of Enum, Map and EnumMap types, so that they are honored same as
+     * with POJO creator properties.
+     * Parameters without explicit {@code @JsonView} use default views of the type,
+     * which (as with POJOs) is an empty set if {@code MapperFeature.DEFAULT_VIEW_INCLUSION}
+     * is disabled and type has no {@code @JsonView}.
+     */
+    private void _assignCreatorViews(DeserializationContext ctxt,
+            BeanDescription.Supplier beanDescRef, ValueInstantiator inst)
+    {
+        if ((inst != null) && inst.canCreateFromObjectWith()) {
+            _assignCreatorViews(ctxt, beanDescRef, inst.getFromObjectArguments(ctxt.getConfig()));
+        }
+    }
+
+    private void _assignCreatorViews(DeserializationContext ctxt,
+            BeanDescription.Supplier beanDescRef, SettableBeanProperty[] creatorProps)
+    {
+        final DeserializationConfig config = ctxt.getConfig();
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        final Class<?>[] defaultViews = beanDescRef.get().findDefaultViews();
+        for (SettableBeanProperty prop : creatorProps) {
+            Class<?>[] views = null;
+            AnnotatedMember member = prop.getMember();
+            if (member != null) {
+                views = intr.findViews(config, member);
+            }
+            if (views == null) {
+                views = defaultViews;
+            }
+            // Unlike with POJOs, only set if we have something: avoids clearing views
+            // that may have already been assigned (for example by a module)
+            if (views != null) {
+                prop.setViews(views);
+            }
+        }
     }
 
     @Override
@@ -1139,11 +1180,7 @@ factory.toString()));
         @SuppressWarnings("unchecked")
         ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
         final DeserializationConfig config = ctxt.getConfig();
-        // Then optional type info: if type has been resolved, we may already know type deserializer:
-        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
-        if (contentTypeDeser == null) { // or if not, may be able to find:
-            contentTypeDeser = ctxt.findTypeDeserializer(contentType);
-        }
+        final TypeDeserializer contentTypeDeser = _findContentTypeDeserializer(ctxt, contentType);
         ValueDeserializer<?> deser = _findCustomReferenceDeserializer(type, config, beanDescRef,
                 contentTypeDeser, contentDeser);
 
@@ -1360,13 +1397,20 @@ factory.toString()));
                     || (valueType == Boolean.class)
                     || (valueType == EnumMap.class)
                     || (valueType == AtomicReference.class)
+                    || (valueType == OptionalInt.class)
+                    || (valueType == OptionalLong.class)
+                    || (valueType == OptionalDouble.class)
                     ) {
                 return true;
             }
             if (JDKDateDeserializers.hasDeserializerFor(valueType)) {
                 return true;
             }
-        } else if (clsName.startsWith("com.fasterxml.")) {
+            // `java.sql.Date` and `java.sql.Timestamp`
+            if (OptionalHandlerFactory.instance.hasDeserializerFor(valueType)) {
+                return true;
+            }
+        } else if (clsName.startsWith("tools.jackson.")) {
             return JsonNode.class.isAssignableFrom(valueType)
                    || (valueType == TokenBuffer.class);
         } else {
@@ -1418,17 +1462,10 @@ factory.toString()));
             return createCollectionDeserializer(ctxt, ct, beanDescRef);
         }
         if (rawType == CLASS_MAP_ENTRY) {
-            // 28-Apr-2015, tatu: TypeFactory does it all for us already so
-            JavaType kt = type.containedTypeOrUnknown(0);
-            JavaType vt = type.containedTypeOrUnknown(1);
-            TypeDeserializer vts = (TypeDeserializer) vt.getTypeHandler();
-            if (vts == null) {
-                vts = ctxt.findTypeDeserializer(vt);
-            }
-            @SuppressWarnings("unchecked")
-            ValueDeserializer<Object> valueDeser = (ValueDeserializer<Object>) vt.getValueHandler();
-            KeyDeserializer keyDes = (KeyDeserializer) kt.getValueHandler();
-            return new MapEntryDeserializer(type, keyDes, valueDeser, vts);
+            // [databind#1419]: Check if we should deserialize as POJO instead
+            JsonFormat.Value format = beanDescRef.findExpectedFormat(Map.Entry.class);
+            return MapEntryDeserializer.construct(ctxt, type,
+                    (format.getShape() == JsonFormat.Shape.POJO));
         }
         String clsName = rawType.getName();
         if (rawType.isPrimitive() || clsName.startsWith("java.")) {
@@ -1738,6 +1775,24 @@ factory.toString()));
         return false;
     }
 
+    // @since 3.1
+    protected TypeDeserializer _findContentTypeDeserializer(DeserializationContext ctxt,
+            JavaType contentType)
+    {
+        // Then optional type info: if type has been resolved, we may already know type deserializer:
+        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
+        // [databind#1654]: @JsonTypeInfo(use = Id.NONE) should not apply type deserializer
+        // when custom content deserializer is specified via @JsonDeserialize(contentUsing = ...)
+        if (contentTypeDeser instanceof NoOpTypeDeserializer) {
+            return null;
+        }
+        if (contentTypeDeser == null) {
+            // but if not, may still be possible to find:
+            contentTypeDeser = ctxt.findTypeDeserializer(contentType);
+        }
+        return contentTypeDeser;
+    }
+    
     /*
     /**********************************************************************
     /* Helper classes

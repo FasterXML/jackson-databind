@@ -132,19 +132,19 @@ public class DefaultCacheProvider
          * Maximum Size of the {@link LookupCache} instance created by {@link #forDeserializerCache(DeserializationConfig)}.
          * Corresponds to {@link DefaultCacheProvider#_maxDeserializerCacheSize}.
          */
-        private int _maxDeserializerCacheSize;
+        private int _maxDeserializerCacheSize = DeserializerCache.DEFAULT_MAX_CACHE_SIZE;
 
         /**
          * Maximum Size of the {@link LookupCache} instance created by {@link #forSerializerCache(SerializationConfig)}
          * Corresponds to {@link DefaultCacheProvider#_maxSerializerCacheSize}.
          */
-        private int _maxSerializerCacheSize;
+        private int _maxSerializerCacheSize = SerializerCache.DEFAULT_MAX_CACHE_SIZE;
 
         /**
          * Maximum Size of the {@link LookupCache} instance created by {@link #forTypeFactory()}.
          * Corresponds to {@link DefaultCacheProvider#_maxTypeFactoryCacheSize}.
          */
-        private int _maxTypeFactoryCacheSize;
+        private int _maxTypeFactoryCacheSize = TypeFactory.DEFAULT_MAX_CACHE_SIZE;
 
         Builder() { }
 

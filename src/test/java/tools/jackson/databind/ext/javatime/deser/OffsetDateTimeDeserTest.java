@@ -506,7 +506,7 @@ public class OffsetDateTimeDeserTest
                 "[\"" + OffsetDateTime.class.getName() + "\",123456789.183917322]", Temporal.class
                 );
 
-        assertTrue(value instanceof OffsetDateTime, "The value should be an OffsetDateTime.");
+        assertInstanceOf(OffsetDateTime.class, value, "The value should be an OffsetDateTime.");
         assertIsEqual(date, (OffsetDateTime) value);
         assertEquals(ZoneOffset.UTC, ((OffsetDateTime) value).getOffset(), "The time zone is not correct.");
     }
@@ -522,7 +522,7 @@ public class OffsetDateTimeDeserTest
                 "[\"" + OffsetDateTime.class.getName() + "\",123456789.183917322]", Temporal.class
                 );
 
-        assertTrue(value instanceof OffsetDateTime, "The value should be an OffsetDateTime.");
+        assertInstanceOf(OffsetDateTime.class, value, "The value should be an OffsetDateTime.");
         assertIsEqual(date, (OffsetDateTime) value);
         assertEquals(getDefaultOffset(date), ((OffsetDateTime) value).getOffset(), "The time zone is not correct.");
     }
@@ -538,7 +538,7 @@ public class OffsetDateTimeDeserTest
                 .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(
                 "[\"" + OffsetDateTime.class.getName() + "\",123456789]");
-        assertTrue(value instanceof OffsetDateTime, "The value should be an OffsetDateTime.");
+        assertInstanceOf(OffsetDateTime.class, value, "The value should be an OffsetDateTime.");
         assertIsEqual(date, (OffsetDateTime) value);
         assertEquals(ZoneOffset.UTC, ((OffsetDateTime) value).getOffset(), "The time zone is not correct.");
     }
@@ -554,7 +554,7 @@ public class OffsetDateTimeDeserTest
                 .with(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(
                 "[\"" + OffsetDateTime.class.getName() + "\",123456789]");
-        assertTrue(value instanceof OffsetDateTime, "The value should be an OffsetDateTime.");
+        assertInstanceOf(OffsetDateTime.class, value, "The value should be an OffsetDateTime.");
         assertIsEqual(date, (OffsetDateTime) value);
         assertEquals(getDefaultOffset(date), ((OffsetDateTime) value).getOffset(), "The time zone is not correct.");
     }
@@ -570,7 +570,7 @@ public class OffsetDateTimeDeserTest
                 .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(
                 "[\"" + OffsetDateTime.class.getName() + "\",123456789422]");
-        assertTrue(value instanceof OffsetDateTime, "The value should be an OffsetDateTime.");
+        assertInstanceOf(OffsetDateTime.class, value, "The value should be an OffsetDateTime.");
         assertIsEqual(date, (OffsetDateTime) value);
         assertEquals(ZoneOffset.UTC, ((OffsetDateTime) value).getOffset(), "The time zone is not correct.");
     }
@@ -586,7 +586,7 @@ public class OffsetDateTimeDeserTest
                 .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue(
                 "[\"" + OffsetDateTime.class.getName() + "\",123456789422]");
-        assertTrue(value instanceof OffsetDateTime, "The value should be an OffsetDateTime.");
+        assertInstanceOf(OffsetDateTime.class, value, "The value should be an OffsetDateTime.");
         assertIsEqual(date, (OffsetDateTime) value);
         assertEquals(getDefaultOffset(date), ((OffsetDateTime) value).getOffset(), "The time zone is not correct.");
     }
@@ -602,7 +602,7 @@ public class OffsetDateTimeDeserTest
                 .with(DateTimeFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
                 .readValue(
                 "[\"" + OffsetDateTime.class.getName() + "\",\"" + FORMATTER.format(date) + "\"]");
-        assertTrue(value instanceof OffsetDateTime, "The value should be an OffsetDateTime.");
+        assertInstanceOf(OffsetDateTime.class, value, "The value should be an OffsetDateTime.");
         assertIsEqual(date, (OffsetDateTime) value);
         assertEquals(ZoneOffset.UTC, ((OffsetDateTime) value).getOffset(), "The time zone is not correct.");
     }
@@ -618,7 +618,7 @@ public class OffsetDateTimeDeserTest
                 .with(DateTimeFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
                 .readValue(
                 "[\"" + OffsetDateTime.class.getName() + "\",\"" + FORMATTER.format(date) + "\"]");
-        assertTrue(value instanceof OffsetDateTime, "The value should be an OffsetDateTime.");
+        assertInstanceOf(OffsetDateTime.class, value, "The value should be an OffsetDateTime.");
         assertIsEqual(date, (OffsetDateTime) value);
         assertEquals(getDefaultOffset(date), ((OffsetDateTime) value).getOffset(), "The time zone is not correct.");
     }
@@ -636,7 +636,7 @@ public class OffsetDateTimeDeserTest
                 .readValue(
                 "[\"" + OffsetDateTime.class.getName() + "\",\"" + FORMATTER.format(date) + "\"]");
 
-        assertTrue(value instanceof OffsetDateTime, "The value should be an OffsetDateTime.");
+        assertInstanceOf(OffsetDateTime.class, value, "The value should be an OffsetDateTime.");
         OffsetDateTime cast = (OffsetDateTime) value;
         assertIsEqual(date, cast);
         assertEquals(getOffset(cast, Z3), cast.getOffset(), "The time zone is not correct.");
@@ -727,7 +727,7 @@ public class OffsetDateTimeDeserTest
                 "[\"" + OffsetDateTime.class.getName() + "\",\"" + FORMATTER.format(date) + "\"]", Temporal.class
         );
 
-        assertTrue(value instanceof OffsetDateTime, "The value should be an OffsetDateTime.");
+        assertInstanceOf(OffsetDateTime.class, value, "The value should be an OffsetDateTime.");
         OffsetDateTime actualValue = (OffsetDateTime) value;
         assertIsEqual(date, actualValue);
         assertEquals(date.getOffset(),actualValue.getOffset());

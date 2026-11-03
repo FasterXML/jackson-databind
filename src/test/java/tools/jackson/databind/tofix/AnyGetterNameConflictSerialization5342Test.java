@@ -16,7 +16,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-// [databind#5342] JsonAnyGetter method serialization can override JsonProperty serialization on serialized name conflict
+// [databind#5342] JsonAnyGetter method serialization can override JsonProperty
+// serialization on serialized name conflict
+//
+// No plans to fix: left in place for now
 public class AnyGetterNameConflictSerialization5342Test
     extends DatabindTestUtil
 {
@@ -62,7 +65,6 @@ public class AnyGetterNameConflictSerialization5342Test
         hidden.put("fizz", "buzz");
         pojo.hidden(hidden);
 
-
         String JSON = MAPPER.writeValueAsString(pojo);
         // was in 2.18 : {"foo":"bar","additionalProperties": {"fizz":"buzz"}}
         // now in 2.19 : {"foo":"bar"}... need FIX!
@@ -78,5 +80,4 @@ public class AnyGetterNameConflictSerialization5342Test
         assertNotNull(actual.hidden());
         assertEquals(1, actual.hidden().size());
     }
-
 }

@@ -6,9 +6,11 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.type.LogicalType;
 
+@JacksonStdImpl
 public class AtomicBooleanDeserializer extends StdScalarDeserializer<AtomicBoolean>
 {
     public AtomicBooleanDeserializer() { super(AtomicBoolean.class); }

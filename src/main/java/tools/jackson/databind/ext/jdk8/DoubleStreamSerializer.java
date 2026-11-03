@@ -5,6 +5,7 @@ import java.util.stream.DoubleStream;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
@@ -14,6 +15,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
  * so we need to define each in a specific class
  * </p>
  */
+@JacksonStdImpl
 public class DoubleStreamSerializer extends StdSerializer<DoubleStream>
 {
     /**
@@ -36,7 +38,7 @@ public class DoubleStreamSerializer extends StdSerializer<DoubleStream>
             });
             g.writeEndArray();
         } catch (Exception e) {
-            // For most regular serializers we won't both handling but streams are typically
+            // For most regular serializers we won't bother handling but streams are typically
             // root values so
             wrapAndThrow(ctxt, e, stream, g.streamWriteContext().getCurrentIndex());
         }

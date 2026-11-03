@@ -32,6 +32,18 @@ public class Base64DecodingTest
         _testInvalidBase64(MAPPER, BASE64_HELLO+"!!");
     }
 
+    @Test
+    public void testBase64ViaWrapperByteArray() throws Exception
+    {
+        Byte[] b = MAPPER.readValue(q(BASE64_HELLO), Byte[].class);
+        assertEquals(HELLO_BYTES.length, b.length);
+        for (int i = 0; i < b.length; ++i) {
+            if (b[i].byteValue() != HELLO_BYTES[i]) {
+                fail("Wrong byte at #"+i);
+            }
+        }
+    }
+    
     private void _testInvalidBase64(ObjectMapper mapper, String value) throws Exception
     {
         // First, use data-binding
@@ -53,7 +65,7 @@ public class Base64DecodingTest
             /*byte[] b =*/ nodeValue.binaryValue();
             fail("Should not pass");
         } catch (JsonNodeException e) {
-            verifyException(e, "method `binaryValue()` cannot convert value");
+            verifyException(e, "method `binaryValue()` cannot coerce value");
             verifyException(e, "Illegal character '!'");
         }
     }

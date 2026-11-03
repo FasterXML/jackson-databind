@@ -169,10 +169,8 @@ public final class ArrayBuilders
                     Object value1 = Array.get(defaultValue, i);
                     Object value2 = Array.get(other, i);
                     if (value1 == value2) continue;
-                    if (value1 != null) {
-                        if (!value1.equals(value2)) {
-                            return false;
-                        }
+                    if (value1 == null || !value1.equals(value2)) {
+                        return false;
                     }
                 }
                 return true;

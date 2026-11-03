@@ -140,9 +140,9 @@ public class UnrolledBeanAsArraySerializer
     }
 
     @Override
-    public void resolve(SerializationContext provider)
+    public void resolve(SerializationContext ctxt)
     {
-        super.resolve(provider);
+        super.resolve(ctxt);
         _calcUnrolled();
     }
 
@@ -171,12 +171,12 @@ public class UnrolledBeanAsArraySerializer
      * {@link BeanPropertyWriter} instances.
      */
     @Override
-    public final void serialize(Object bean, JsonGenerator gen, SerializationContext provider)
+    public final void serialize(Object bean, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
-        if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
-                && hasSingleElement(provider)) {
-            serializeNonFiltered(bean, gen, provider);
+        if (ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
+                && hasSingleElement(ctxt)) {
+            serializeNonFiltered(bean, gen, ctxt);
             return;
         }
         // note: it is assumed here that limitations (type id, object id,
@@ -185,7 +185,7 @@ public class UnrolledBeanAsArraySerializer
 
         gen.writeStartArray(bean, _props.length);
         // NOTE: instances NOT constructed if view-processing available
-        serializeNonFiltered(bean, gen, provider);
+        serializeNonFiltered(bean, gen, ctxt);
         gen.writeEndArray();
     }
 
@@ -195,12 +195,12 @@ public class UnrolledBeanAsArraySerializer
     /**********************************************************************
      */
 
-    private boolean hasSingleElement(SerializationContext provider) {
+    private boolean hasSingleElement(SerializationContext ctxt) {
         return _props.length == 1;
     }
 
     protected final void serializeNonFiltered(Object bean, JsonGenerator gen,
-            SerializationContext provider)
+            SerializationContext ctxt)
         throws JacksonException
     {
         BeanPropertyWriter prop = null;
@@ -209,28 +209,28 @@ public class UnrolledBeanAsArraySerializer
             default:
             //case 6:
                 prop = _prop1;
-                prop.serializeAsElement(bean, gen, provider);
+                prop.serializeAsElement(bean, gen, ctxt);
                 // fall through
             case 5:
                 prop = _prop2;
-                prop.serializeAsElement(bean, gen, provider);
+                prop.serializeAsElement(bean, gen, ctxt);
             case 4:
                 prop = _prop3;
-                prop.serializeAsElement(bean, gen, provider);
+                prop.serializeAsElement(bean, gen, ctxt);
             case 3:
                 prop = _prop4;
-                prop.serializeAsElement(bean, gen, provider);
+                prop.serializeAsElement(bean, gen, ctxt);
             case 2:
                 prop = _prop5;
-                prop.serializeAsElement(bean, gen, provider);
+                prop.serializeAsElement(bean, gen, ctxt);
             case 1:
                 prop = _prop6;
-                prop.serializeAsElement(bean, gen, provider);
+                prop.serializeAsElement(bean, gen, ctxt);
             case 0:
             }
             // NOTE: any getters cannot be supported either
         } catch (Exception e) {
-            wrapAndThrow(provider, e, bean, prop.getName());
+            wrapAndThrow(ctxt, e, bean, prop.getName());
         } catch (StackOverflowError e) {
             throw DatabindException.from(gen, "Infinite recursion (StackOverflowError)", e)
                 .prependPath(bean, prop.getName());

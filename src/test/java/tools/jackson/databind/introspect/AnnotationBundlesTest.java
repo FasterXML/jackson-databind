@@ -117,7 +117,7 @@ public class AnnotationBundlesTest extends DatabindTestUtil
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testKeepAnnotationBundle() throws Exception

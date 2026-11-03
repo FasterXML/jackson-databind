@@ -13,6 +13,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * Unit test proving that below issue is fixed.
@@ -57,11 +58,11 @@ public class BigDecimalForFloatDisabled3133Test
         // case 1 : type first
         String ordering1 = a2q("{'type': 'MAP','map': { 'doubleValue': 0.1 }}");
         TestMapContainer3133 model1 = mapper.readValue(ordering1, TestMapContainer3133.class);
-        assertTrue(model1.getMap().get("doubleValue") instanceof Double);
+        assertInstanceOf(Double.class, model1.getMap().get("doubleValue"));
 
         // case 2 : value first
         String ordering2 = a2q("{'map': { 'doubleValue': 0.1 }, 'type': 'MAP'}");
         TestMapContainer3133 model2 = mapper.readValue(ordering2, TestMapContainer3133.class);
-        assertTrue(model2.getMap().get("doubleValue") instanceof Double);
+        assertInstanceOf(Double.class, model2.getMap().get("doubleValue"));
     }
 }

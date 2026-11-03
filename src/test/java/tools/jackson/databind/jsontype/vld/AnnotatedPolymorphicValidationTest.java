@@ -8,12 +8,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
-import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.jsontype.DefaultBaseTypeLimitingValidator;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Unit tests for verifying that "unsafe" base type(s) for polymorphic deserialization
@@ -34,6 +34,14 @@ public class AnnotatedPolymorphicValidationTest
         public java.io.Serializable value;
 
         protected WrappedPolymorphicUntypedSer() { }
+    }
+
+    // [databind#6156]
+    static class WrappedPolymorphicComparable {
+        @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS)
+        public Comparable<?> value;
+
+        protected WrappedPolymorphicComparable() { }
     }
 
     static class NumbersAreOkValidator extends DefaultBaseTypeLimitingValidator
@@ -57,6 +65,34 @@ public class AnnotatedPolymorphicValidationTest
         }
     }
 
+    // [databind#6156]
+    static class ComparablesAreOkValidator extends DefaultBaseTypeLimitingValidator
+    {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected boolean isUnsafeBaseType(DatabindContext ctxt, JavaType baseType)
+        {
+            // only override handling for `Comparable`
+            if (baseType.hasRawClass(Comparable.class)) {
+                return false;
+            }
+            return super.isUnsafeBaseType(ctxt, baseType);
+        }
+
+        @Override
+        protected boolean isSafeSubType(DatabindContext ctxt,
+                JavaType baseType, JavaType subType)
+        {
+            // ... but only allow a small set of known-safe subtypes: relaxing the
+            // base type check alone would leave all "gadget" types accessible
+            if (baseType.hasRawClass(Comparable.class)) {
+                return subType.hasRawClass(java.io.File.class);
+            }
+            return super.isSafeSubType(ctxt, baseType, subType);
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -70,16 +106,13 @@ public class AnnotatedPolymorphicValidationTest
     {
         final String JSON = a2q("{'value':10}");
         // by default, we should NOT be allowed to deserialize due to unsafe base type
-        try {
-            /*w =*/ MAPPER.readValue(JSON, WrappedPolymorphicUntyped.class);
-            fail("Should not pass");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "Configured");
-            verifyException(e, "all subtypes of base type");
-        }
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> MAPPER.readValue(JSON, WrappedPolymorphicUntyped.class));
+        verifyException(e, "Configured");
+        verifyException(e, "all subtypes of base type");
 
         // but may with proper validator
-        ObjectMapper customMapper = JsonMapper.builder()
+        ObjectMapper customMapper = jsonMapperBuilder()
                 .polymorphicTypeValidator(new NumbersAreOkValidator())
                 .build();
 
@@ -88,14 +121,39 @@ public class AnnotatedPolymorphicValidationTest
 
         // but yet again, it is not opening up all types (just as an example)
 
-        try {
-            customMapper.readValue(JSON, WrappedPolymorphicUntypedSer.class);
-            fail("Should not pass");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "Configured");
-            verifyException(e, "all subtypes of base type");
-            verifyException(e, "java.io.Serializable");
-        }
+        InvalidDefinitionException e2 = assertThrows(InvalidDefinitionException.class,
+                () -> customMapper.readValue(JSON, WrappedPolymorphicUntypedSer.class));
+        verifyException(e2, "Configured");
+        verifyException(e2, "all subtypes of base type");
+        verifyException(e2, "java.io.Serializable");
 
+    }
+
+    // [databind#6156]: `Comparable` is too wide a base type to allow
+    @Test
+    public void testPolymorphicWithComparableBaseType() throws IOException
+    {
+        final String JSON = a2q("{'value':['java.io.File','/tmp/stuff']}");
+
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> MAPPER.readValue(JSON, WrappedPolymorphicComparable.class));
+        verifyException(e, "Configured");
+        verifyException(e, "all subtypes of base type");
+        verifyException(e, "java.lang.Comparable");
+
+        // but may be allowed with custom validator that overrides base type check
+        ObjectMapper customMapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(new ComparablesAreOkValidator())
+                .build();
+        WrappedPolymorphicComparable w = customMapper.readValue(JSON,
+                WrappedPolymorphicComparable.class);
+        assertEquals(new java.io.File("/tmp/stuff"), w.value);
+
+        // ... but that validator still only allows the subtypes it knows to be safe
+        InvalidTypeIdException e2 = assertThrows(InvalidTypeIdException.class,
+                () -> customMapper.readValue(a2q("{'value':['java.lang.String','stuff']}"),
+                        WrappedPolymorphicComparable.class));
+        verifyException(e2, "Could not resolve type id 'java.lang.String'");
+        verifyException(e2, "denied resolution");
     }
 }

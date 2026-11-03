@@ -20,6 +20,7 @@ public class SchemaVisitorTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // for [datatype-jdk8#25]
+    @Test
     public void testOptionalInteger() throws Exception
     {
         final AtomicReference<Object> result = new AtomicReference<>();

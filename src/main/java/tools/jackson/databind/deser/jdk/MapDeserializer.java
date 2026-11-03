@@ -91,7 +91,6 @@ public class MapDeserializer
      */
     protected IgnorePropertiesUtil.Checker _inclusionChecker;
 
-
     /**
      * Flag used to check, whether the {@link tools.jackson.core.StreamReadCapability#DUPLICATE_PROPERTIES}
      * can be applied, because the Map has declared value type of {@code java.lang.Object}.
@@ -291,8 +290,8 @@ public class MapDeserializer
         if (keyDeser == null) {
             keyDeser = ctxt.findKeyDeserializer(_containerType.getKeyType(), property);
         } else {
-            if (keyDeser instanceof ContextualKeyDeserializer) {
-                keyDeser = ((ContextualKeyDeserializer) keyDeser).createContextual(ctxt, property);
+            if (keyDeser instanceof ContextualKeyDeserializer ckd) {
+                keyDeser = ckd.createContextual(ctxt, property);
             }
         }
 
@@ -318,34 +317,14 @@ public class MapDeserializer
             AnnotatedMember member = property.getMember();
             if (member != null) {
                 final DeserializationConfig config = ctxt.getConfig();
-                JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(ctxt.getConfig(), member);
+                JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, member);
                 if (ignorals != null) {
-                    Set<String> ignoresToAdd = ignorals.findIgnoredForDeserialization();
-                    if (!ignoresToAdd.isEmpty()) {
-                        if (ignored == null) {
-                            ignored = new HashSet<>(ignoresToAdd);
-                        } else {
-                            ignored = new HashSet<String>(ignored);
-                            ignored.addAll(ignoresToAdd);
-                        }
-                    }
+                    ignored = IgnorePropertiesUtil.combineNamesToIgnore(ignored,
+                            ignorals.findIgnoredForDeserialization());
                 }
                 JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, member);
                 if (inclusions != null) {
-                    Set<String> includedToAdd = inclusions.getIncluded();
-                    if (includedToAdd != null) {
-                        Set<String> newIncluded = new HashSet<>();
-                        if (included == null) {
-                            newIncluded = new HashSet<>(includedToAdd);
-                        } else {
-                            for (String str : includedToAdd) {
-                                if (included.contains(str)) {
-                                    newIncluded.add(str);
-                                }
-                            }
-                        }
-                        included = newIncluded;
-                    }
+                    included = IgnorePropertiesUtil.combineNamesToInclude(included, inclusions.getIncluded());
                 }
             }
         }
@@ -430,7 +409,7 @@ public class MapDeserializer
             return _readAndBind(p, ctxt, result);
         case JsonTokenId.ID_STRING:
             // (empty) String may be ok however; or single-String-arg ctor
-            return _deserializeFromString(p, ctxt);
+            return _deserializeFromStringForContainer(p, ctxt);
         case JsonTokenId.ID_START_ARRAY:
             // Empty array, or single-value wrapped in array?
             return _deserializeFromArray(p, ctxt);
@@ -502,18 +481,25 @@ public class MapDeserializer
         } else {
             JsonToken t = p.currentToken();
             if (t != JsonToken.PROPERTY_NAME) {
-                if (t == JsonToken.END_OBJECT) {
-                    return result;
-                }
-                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
+                _checkIsEndObject(ctxt, t);
+                return result;
             }
             keyStr = p.currentName();
         }
+
+        // [databind#3188] Cache capability once outside the loop
+        final boolean skipNullKeys = (_keyDeserializer instanceof NullKeySkippable nks)
+                && nks.skipNullKeys(ctxt);
 
         for (; keyStr != null; keyStr = p.nextName()) {
             Object key = _keyDeserializer.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
+            // [databind#3188] Skip entry when key deserializer requests null-key skipping
+            if (skipNullKeys && key == null) {
+                p.skipChildren(); // no-op for scalar tokens; safe to call unconditionally
+                continue;
+            }
             if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
                 p.skipChildren();
                 continue;
@@ -574,11 +560,9 @@ public class MapDeserializer
             key = p.nextName();
         } else {
             JsonToken t = p.currentToken();
-            if (t == JsonToken.END_OBJECT) {
-                return result;
-            }
             if (t != JsonToken.PROPERTY_NAME) {
-                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
+                _checkIsEndObject(ctxt, t);
+                return result;
             }
             key = p.currentName();
         }
@@ -635,6 +619,7 @@ public class MapDeserializer
         final PropertyBasedCreator creator = _propertyBasedCreator;
         // null -> no ObjectIdReader for Maps (yet?)
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
+        final Class<?> activeView = ctxt.getActiveView();
 
         String key;
         if (p.isExpectedStartObjectToken()) {
@@ -645,6 +630,10 @@ public class MapDeserializer
             key = null;
         }
 
+        // [databind#3188] Cache capability once outside the loop
+        final boolean skipNullKeys = (_keyDeserializer instanceof NullKeySkippable nks)
+                && nks.skipNullKeys(ctxt);
+
         for (; key != null; key = p.nextName()) {
             JsonToken t = p.nextToken(); // to get to value
             if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(key)) {
@@ -654,6 +643,11 @@ public class MapDeserializer
             // creator property?
             SettableBeanProperty prop = creator.findCreatorProperty(key);
             if (prop != null) {
+                // [databind#6261]: honor active view, same as for POJO creator properties
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // Last property to set?
                 if (buffer.assignParameter(prop, prop.deserialize(p, ctxt))) {
                     p.nextToken(); // from value to END_OBJECT or PROPERTY_NAME
@@ -669,6 +663,11 @@ public class MapDeserializer
             }
             // other property? needs buffering
             Object actualKey = _keyDeserializer.deserializeKey(key, ctxt);
+            // [databind#3188] Skip entry when key deserializer requests null-key skipping
+            if (skipNullKeys && actualKey == null) {
+                p.skipChildren(); // no-op for scalar tokens; safe to call unconditionally
+                continue;
+            }
             Object value;
 
             try {
@@ -724,19 +723,26 @@ public class MapDeserializer
             keyStr = p.nextName();
         } else {
             JsonToken t = p.currentToken();
-            if (t == JsonToken.END_OBJECT) {
-                return;
-            }
             if (t != JsonToken.PROPERTY_NAME) {
-                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
+                _checkIsEndObject(ctxt, t);
+                return;
             }
             keyStr = p.currentName();
         }
+
+        // [databind#3188] Cache capability once outside the loop
+        final boolean skipNullKeys = (_keyDeserializer instanceof NullKeySkippable nks)
+                && nks.skipNullKeys(ctxt);
 
         for (; keyStr != null; keyStr = p.nextName()) {
             Object key = _keyDeserializer.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
+            // [databind#3188] Skip entry when key deserializer requests null-key skipping
+            if (skipNullKeys && key == null) {
+                p.skipChildren(); // no-op for scalar tokens; safe to call unconditionally
+                continue;
+            }
             if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
                 p.skipChildren();
                 continue;
@@ -798,11 +804,9 @@ public class MapDeserializer
             key = p.nextName();
         } else {
             JsonToken t = p.currentToken();
-            if (t == JsonToken.END_OBJECT) {
-                return;
-            }
             if (t != JsonToken.PROPERTY_NAME) {
-                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
+                _checkIsEndObject(ctxt, t);
+                return;
             }
             key = p.currentName();
         }
@@ -856,7 +860,6 @@ public class MapDeserializer
      * If _valueTypeDeserializer is null, use _valueDeserializer.deserialize; if non-null,
      * use _valueDeserializer.deserializeWithType to deserialize value.
      * This method only performs deserialization and does not consider _skipNullValues, _nullProvider, etc.
-     * @since 2.19.2
      */
     protected Object _deserializeNoNullChecks(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
@@ -867,9 +870,6 @@ public class MapDeserializer
         return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
     }
 
-    /**
-     * @since 2.14
-     */
     @SuppressWarnings("unchecked")
     protected void _squashDups(final DeserializationContext ctxt,
             final Map<Object, Object> result,
@@ -894,6 +894,13 @@ public class MapDeserializer
     /**********************************************************************
      */
 
+    // @since 3.1
+    protected void _checkIsEndObject(DeserializationContext ctxt, JsonToken t) {
+        if (t != JsonToken.END_OBJECT) {
+            ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
+        }
+    }
+
     private void handleUnresolvedReference(DeserializationContext ctxt,
             MapReferringAccumulator accumulator,
             Object key, UnresolvedForwardReference reference)
@@ -910,10 +917,30 @@ public class MapDeserializer
     private final static class MapReferringAccumulator {
         private final Class<?> _valueType;
         private final Map<Object,Object> _result;
+
         /**
-         * A list of {@link MapReferring} to maintain ordering.
+         * Entries read at or after the first still unresolved reference, in encounter
+         * order: {@link Map.Entry}s for plain entries, and {@link MapReferring}s for
+         * references (resolved or not). Entries are moved to the result map from the front
+         * (starting at {@link #_pendingStart}) once no unresolved reference precedes them:
+         * this retains ordering while moving each entry just once -- instead of merging
+         * buffers of resolved references into preceding ones, which takes O(N^2) time when
+         * references resolve in reverse order (see [databind#6204]).
          */
-        private final List<MapReferring> _accumulator = new ArrayList<MapReferring>();
+        private final List<Object> _pending = new ArrayList<>();
+
+        /**
+         * Index of the first entry in {@link #_pending} not yet moved to the result.
+         */
+        private int _pendingStart;
+
+        /**
+         * Lookup from unresolved id to the -- usually single -- {@link MapReferring}s with
+         * that id, in encounter order. Without this, resolution would need to scan all
+         * pending references to find the matching one, which makes resolving N references
+         * take O(N^2) time (see [databind#6204]).
+         */
+        private final Map<Object, Deque<MapReferring>> _unresolvedById = new HashMap<>();
 
         public MapReferringAccumulator(Class<?> valueType, Map<Object, Object> result) {
             _valueType = valueType;
@@ -922,55 +949,78 @@ public class MapDeserializer
 
         public void put(Object key, Object value)
         {
-            if (_accumulator.isEmpty()) {
+            if (_pendingStart == _pending.size()) {
                 _result.put(key, value);
             } else {
-                MapReferring ref = _accumulator.get(_accumulator.size() - 1);
-                ref.next.put(key, value);
+                _pending.add(new AbstractMap.SimpleEntry<Object, Object>(key, value));
             }
         }
 
         public Referring handleUnresolvedReference(UnresolvedForwardReference reference, Object key)
         {
             MapReferring id = new MapReferring(this, reference, _valueType, key);
-            _accumulator.add(id);
+            _pending.add(id);
+            // Ids are usable as hash keys: `ObjectIdResolver`s already rely on that
+            Deque<MapReferring> refs = _unresolvedById.get(reference.getUnresolvedId());
+            if (refs == null) {
+                refs = new ArrayDeque<MapReferring>(2);
+                _unresolvedById.put(reference.getUnresolvedId(), refs);
+            }
+            refs.add(id);
             return id;
         }
 
         public void resolveForwardReference(DeserializationContext ctxt, Object id, Object value)
             throws JacksonException
         {
-            Iterator<MapReferring> iterator = _accumulator.iterator();
-            // Resolve ordering after resolution of an id. This means either:
-            // 1- adding to the result map in case of the first unresolved id.
-            // 2- merge the content of the resolved id with its previous unresolved id.
-            Map<Object,Object> previous = _result;
-            while (iterator.hasNext()) {
-                MapReferring ref = iterator.next();
-                if (ref.hasId(id)) {
-                    iterator.remove();
-                    previous.put(ref.key, value);
-                    previous.putAll(ref.next);
-                    return;
-                }
-                previous = ref.next;
+            Deque<MapReferring> refs = _unresolvedById.get(id);
+            if (refs == null) {
+                throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
+                        + "] that wasn't previously seen as unresolved.");
             }
+            MapReferring ref = refs.removeFirst();
+            if (refs.isEmpty()) {
+                _unresolvedById.remove(id);
+            }
+            ref.resolve(value);
 
-            throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
-                    + "] that wasn't previously seen as unresolved.");
+            // Move entries no longer preceded by an unresolved reference to the result
+            final int end = _pending.size();
+            int i = _pendingStart;
+            for (; i < end; ++i) {
+                Object pending = _pending.get(i);
+                if (pending instanceof MapReferring) {
+                    MapReferring pendingRef = (MapReferring) pending;
+                    if (!pendingRef.isResolved()) {
+                        break;
+                    }
+                    _result.put(pendingRef.key, pendingRef.resolvedValue());
+                } else {
+                    Map.Entry<?,?> entry = (Map.Entry<?,?>) pending;
+                    _result.put(entry.getKey(), entry.getValue());
+                }
+                _pending.set(i, null);
+            }
+            if (i == end) {
+                _pending.clear();
+                _pendingStart = 0;
+            } else {
+                _pendingStart = i;
+            }
         }
     }
 
     /**
-     * Helper class to maintain processing order of value.
-     * The resolved object associated with {@link #key} comes before the values in
-     * {@link #next}.
+     * Placeholder for a Map value that is a forward reference, to maintain processing
+     * order of entries: holds the resolved value, once the reference has been resolved.
      */
     static class MapReferring extends Referring {
         private final MapReferringAccumulator _parent;
 
-        public final Map<Object, Object> next = new LinkedHashMap<Object, Object>();
         public final Object key;
+
+        private boolean _resolved;
+        private Object _value;
 
         MapReferring(MapReferringAccumulator parent, UnresolvedForwardReference ref,
                 Class<?> valueType, Object key)
@@ -979,6 +1029,15 @@ public class MapDeserializer
             _parent = parent;
             this.key = key;
         }
+
+        void resolve(Object value) {
+            _value = value;
+            _resolved = true;
+        }
+
+        boolean isResolved() { return _resolved; }
+
+        Object resolvedValue() { return _value; }
 
         @Override
         public void handleResolvedForwardReference(DeserializationContext ctxt, Object id, Object value)

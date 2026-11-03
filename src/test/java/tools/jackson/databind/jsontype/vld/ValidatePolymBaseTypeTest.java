@@ -9,8 +9,7 @@ import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests to verify working of customizable {@PolymorphicTypeValidator},
@@ -116,14 +115,11 @@ public class ValidatePolymBaseTypeTest extends DatabindTestUtil
     public void testAnnotedBad() throws Exception {
         final String json = MAPPER_ANNOTATED.writeValueAsString(new AnnotatedBadWrapper());
         // should fail
-        try {
-            MAPPER_ANNOTATED.readValue(json, AnnotatedBadWrapper.class);
-            fail("Should not pass");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "Configured `PolymorphicTypeValidator`");
-            verifyException(e, "denied resolution of");
-            verifyException(e, "all subtypes of base type");
-        }
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> MAPPER_ANNOTATED.readValue(json, AnnotatedBadWrapper.class));
+        verifyException(e, "Configured `PolymorphicTypeValidator`");
+        verifyException(e, "denied resolution of");
+        verifyException(e, "all subtypes of base type");
     }
 
     /*
@@ -143,13 +139,10 @@ public class ValidatePolymBaseTypeTest extends DatabindTestUtil
     public void testDefaultBad() throws Exception {
         final String json = MAPPER_DEF_TYPING.writeValueAsString(new DefTypeBadWrapper());
         // should fail
-        try {
-            MAPPER_DEF_TYPING.readValue(json, DefTypeBadWrapper.class);
-            fail("Should not pass");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "Configured `PolymorphicTypeValidator`");
-            verifyException(e, "denied resolution of");
-            verifyException(e, "all subtypes of base type");
-        }
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> MAPPER_DEF_TYPING.readValue(json, DefTypeBadWrapper.class));
+        verifyException(e, "Configured `PolymorphicTypeValidator`");
+        verifyException(e, "denied resolution of");
+        verifyException(e, "all subtypes of base type");
     }
 }

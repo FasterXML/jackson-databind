@@ -8,7 +8,6 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.deser.CreatorProperty;
 import tools.jackson.databind.deser.ReadableObjectId;
 import tools.jackson.databind.deser.SettableAnyProperty;
 import tools.jackson.databind.deser.SettableBeanProperty;
@@ -370,7 +369,7 @@ public class PropertyValueBuffer
                 SettableBeanProperty idProp = _objectIdReader.idProperty;
                 if (idProp != null) {
                     // [databind#5328] Records/Creators do not have setters, skip
-                    if (idProp instanceof CreatorProperty) {
+                    if (idProp.isCreatorProperty()) {
                         return bean;
                     }
                     return idProp.setAndReturn(ctxt, bean, _idValue);

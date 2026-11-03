@@ -168,14 +168,14 @@ public class BeanAsArraySerializer
      * {@link BeanPropertyWriter} instances.
      */
     @Override
-    public final void serialize(Object bean, JsonGenerator gen, SerializationContext provider)
+    public final void serialize(Object bean, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
-        final boolean filtered = (_filteredProps != null && provider.getActiveView() != null);
-        if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
-                && hasSingleElement(provider)) {
-            if (filtered) serializeFiltered(bean, gen, provider);
-            else serializeNonFiltered(bean, gen, provider);
+        final boolean filtered = (_filteredProps != null && ctxt.getActiveView() != null);
+        if (ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
+                && hasSingleElement(ctxt)) {
+            if (filtered) serializeFiltered(bean, gen, ctxt);
+            else serializeNonFiltered(bean, gen, ctxt);
             return;
         }
         // note: it is assumed here that limitations (type id, object id,
@@ -183,8 +183,8 @@ public class BeanAsArraySerializer
         // is trivial.
 
         gen.writeStartArray(bean, _props.length);
-        if (filtered) serializeFiltered(bean, gen, provider);
-        else serializeNonFiltered(bean, gen, provider);
+        if (filtered) serializeFiltered(bean, gen, ctxt);
+        else serializeNonFiltered(bean, gen, ctxt);
         gen.writeEndArray();
     }
 
@@ -194,12 +194,12 @@ public class BeanAsArraySerializer
     /**********************************************************************
      */
 
-    private boolean hasSingleElement(SerializationContext provider) {
+    private boolean hasSingleElement(SerializationContext ctxt) {
         return _props.length == 1;
     }
 
     protected final void serializeNonFiltered(Object bean, JsonGenerator gen,
-            SerializationContext provider)
+            SerializationContext ctxt)
         throws JacksonException
     {
         final BeanPropertyWriter[] props = _props;
@@ -211,13 +211,13 @@ public class BeanAsArraySerializer
             if (left > 3) {
                 do {
                     prop = props[i];
-                    prop.serializeAsElement(bean, gen, provider);
+                    prop.serializeAsElement(bean, gen, ctxt);
                     prop = props[i+1];
-                    prop.serializeAsElement(bean, gen, provider);
+                    prop.serializeAsElement(bean, gen, ctxt);
                     prop = props[i+2];
-                    prop.serializeAsElement(bean, gen, provider);
+                    prop.serializeAsElement(bean, gen, ctxt);
                     prop = props[i+3];
-                    prop.serializeAsElement(bean, gen, provider);
+                    prop.serializeAsElement(bean, gen, ctxt);
                     left -= 4;
                     i += 4;
                 } while (left > 3);
@@ -225,27 +225,27 @@ public class BeanAsArraySerializer
             switch (left) {
             case 3:
                 prop = props[i++];
-                prop.serializeAsElement(bean, gen, provider);
+                prop.serializeAsElement(bean, gen, ctxt);
             case 2:
                 prop = props[i++];
-                prop.serializeAsElement(bean, gen, provider);
+                prop.serializeAsElement(bean, gen, ctxt);
             case 1:
                 prop = props[i++];
-                prop.serializeAsElement(bean, gen, provider);
+                prop.serializeAsElement(bean, gen, ctxt);
             }
             // NOTE: any getters cannot be supported either
             //if (_anyGetterWriter != null) {
-            //    _anyGetterWriter.getAndSerialize(bean, gen, provider);
+            //    _anyGetterWriter.getAndSerialize(bean, gen, ctxt);
             //}
         } catch (Exception e) {
-            wrapAndThrow(provider, e, bean, prop.getName());
+            wrapAndThrow(ctxt, e, bean, prop.getName());
         } catch (StackOverflowError e) {
             throw DatabindException.from(gen, "Infinite recursion (StackOverflowError)", e)
                 .prependPath(bean, prop.getName());
         }
     }
 
-    protected final void serializeFiltered(Object bean, JsonGenerator gen, SerializationContext provider)
+    protected final void serializeFiltered(Object bean, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         final BeanPropertyWriter[] props = _filteredProps;
@@ -260,28 +260,28 @@ public class BeanAsArraySerializer
                     if (prop == null) { // can have nulls in filtered list; but if so, MUST write placeholders
                         gen.writeNull();
                     } else {
-                        prop.serializeAsElement(bean, gen, provider);
+                        prop.serializeAsElement(bean, gen, ctxt);
                     }
 
                     prop = props[i+1];
                     if (prop == null) {
                         gen.writeNull();
                     } else {
-                        prop.serializeAsElement(bean, gen, provider);
+                        prop.serializeAsElement(bean, gen, ctxt);
                     }
 
                     prop = props[i+2];
                     if (prop == null) {
                         gen.writeNull();
                     } else {
-                        prop.serializeAsElement(bean, gen, provider);
+                        prop.serializeAsElement(bean, gen, ctxt);
                     }
 
                     prop = props[i+3];
                     if (prop == null) {
                         gen.writeNull();
                     } else {
-                        prop.serializeAsElement(bean, gen, provider);
+                        prop.serializeAsElement(bean, gen, ctxt);
                     }
 
                     left -= 4;
@@ -294,25 +294,25 @@ public class BeanAsArraySerializer
                 if (prop == null) {
                     gen.writeNull();
                 } else {
-                    prop.serializeAsElement(bean, gen, provider);
+                    prop.serializeAsElement(bean, gen, ctxt);
                 }
             case 2:
                 prop = props[i++];
                 if (prop == null) {
                     gen.writeNull();
                 } else {
-                    prop.serializeAsElement(bean, gen, provider);
+                    prop.serializeAsElement(bean, gen, ctxt);
                 }
             case 1:
                 prop = props[i++];
                 if (prop == null) {
                     gen.writeNull();
                 } else {
-                    prop.serializeAsElement(bean, gen, provider);
+                    prop.serializeAsElement(bean, gen, ctxt);
                 }
             }
         } catch (Exception e) {
-            wrapAndThrow(provider, e, bean, prop.getName());
+            wrapAndThrow(ctxt, e, bean, prop.getName());
         } catch (StackOverflowError e) {
             throw DatabindException.from(gen, "Infinite recursion (StackOverflowError)", e)
                 .prependPath(bean, prop.getName());

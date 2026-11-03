@@ -60,7 +60,7 @@ public class ZoneOffsetDeserTest extends DateTimeTestBase
             .addMixIn(ZoneId.class, MockObjectConfiguration.class)
             .build();
         ZoneId value = mapper.readValue("[\"" + ZoneOffset.class.getName() + "\",\"+0415\"]", ZoneId.class);
-        assertTrue(value instanceof ZoneOffset);
+        assertInstanceOf(ZoneOffset.class, value);
         assertEquals(ZoneOffset.of("+0415"), value);
     }
 
@@ -71,7 +71,7 @@ public class ZoneOffsetDeserTest extends DateTimeTestBase
             .addMixIn(ZoneId.class, MockObjectConfiguration.class)
             .build();
         ZoneId value = mapper.readValue("[\"" + ZoneOffset.class.getName() + "\",\"+0415\"]", ZoneId.class);
-        assertTrue(value instanceof ZoneOffset, "The value should be a ZoneOffset.");
+        assertInstanceOf(ZoneOffset.class, value, "The value should be a ZoneOffset.");
         assertEquals(ZoneOffset.of("+0415"), value, "The value is not correct.");
     }
 

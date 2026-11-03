@@ -11,6 +11,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MergePolymorphicTest
@@ -43,7 +44,7 @@ public class MergePolymorphicTest
     @Test
     public void testPolymorphicNewObject() throws Exception {
         Root root = MAPPER.readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm child A\" }}", Root.class);
-        assertTrue(root.child instanceof ChildA);
+        assertInstanceOf(ChildA.class, root.child);
         assertEquals("I'm child A", ((ChildA) root.child).name);
     }
 
@@ -51,7 +52,7 @@ public class MergePolymorphicTest
     public void testPolymorphicFromNullToNewObject() throws Exception {
         Root root = new Root();
         MAPPER.readerForUpdating(root).readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm the new name\" }}");
-        assertTrue(root.child instanceof ChildA);
+        assertInstanceOf(ChildA.class, root.child);
         assertEquals("I'm the new name", ((ChildA) root.child).name);
     }
 
@@ -72,7 +73,7 @@ public class MergePolymorphicTest
         childA.name = "I'm child A";
         root.child = childA;
         MAPPER.readerForUpdating(root).readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm the new name\" }}");
-        assertTrue(root.child instanceof ChildA);
+        assertInstanceOf(ChildA.class, root.child);
         assertEquals("I'm the new name", ((ChildA) root.child).name);
     }
 
@@ -84,7 +85,7 @@ public class MergePolymorphicTest
         root.child = childA;
         MAPPER.readerForUpdating(root).readValue("{\"child\": { \"@type\": \"ChildB\", \"code\": \"I'm the code\" }}");
         // The polymorphic type can't be changed
-        assertTrue(root.child instanceof ChildA);
+        assertInstanceOf(ChildA.class, root.child);
         assertEquals("I'm child A", ((ChildA) root.child).name);
     }
 

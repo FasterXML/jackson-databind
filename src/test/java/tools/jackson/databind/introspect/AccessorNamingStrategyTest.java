@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -113,7 +112,7 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
     /********************************************************
      */
 
-    private final ObjectMapper ACCNAMING2800_MAPPER = JsonMapper.builder()
+    private final ObjectMapper ACCNAMING2800_MAPPER = jsonMapperBuilder()
             .accessorNaming(new AccNaming2800Provider())
             .build();
 
@@ -156,7 +155,7 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
     @Test
     public void testBaseAccessorNaming() throws Exception
     {
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .accessorNaming(new BaseNamingProvider())
                 .build();
         assertEquals(a2q("{'x':72}"),
@@ -173,14 +172,14 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
     public void testBaseAccessorCustomGetter() throws Exception
     {
         // First: without customizations, see "y"
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .accessorNaming(new DefaultAccessorNamingStrategy.Provider())
                 .build();
         assertEquals(a2q("{'y':5}"),
                 mapper.writeValueAsString(new GetterBean2800_XZ()));
 
         // But with configurable prefixes will find alternatives, do mangling too:
-        mapper = JsonMapper.builder()
+        mapper = jsonMapperBuilder()
                 .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
                         .withGetterPrefix("Get")
                         .withIsGetterPrefix("Is")
@@ -193,7 +192,7 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
     @Test
     public void testBaseAccessorCustomSetter() throws Exception
     {
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
                         .withSetterPrefix("Put")
                 )
@@ -224,7 +223,7 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
 
         // First: let's configure with "anything goes" (2.x default):
         // also if explicitly configured as default:
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
                         .withFirstCharAcceptance(true, true))
                 .build();
@@ -232,7 +231,7 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
                 mapper.writeValueAsString(input));
 
         // But we can vary it
-        mapper = JsonMapper.builder()
+        mapper = jsonMapperBuilder()
                 .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
                         // lower-case = ok; non-letter = not ok
                         .withFirstCharAcceptance(true, false))
@@ -240,7 +239,7 @@ public class AccessorNamingStrategyTest extends DatabindTestUtil
         assertEquals(a2q("{'land':true,'value':31337}"),
                 mapper.writeValueAsString(input));
 
-        mapper = JsonMapper.builder()
+        mapper = jsonMapperBuilder()
                 .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
                         // lower-case = not ok; non-letter = ok
                         .withFirstCharAcceptance(false, true))

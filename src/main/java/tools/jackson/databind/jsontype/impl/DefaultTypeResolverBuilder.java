@@ -157,6 +157,15 @@ public class DefaultTypeResolverBuilder
                     // [databind#3569] Allow use of default typing for Enums
                     || t.isEnumType();
 
+        case NON_FINAL_AND_RECORDS: // since 3.1
+            t = _unwrapArrayType(t);
+            // ReferenceType like Optional also requires similar handling:
+            t = _unwrapReferenceType(t);
+            // [databind#88] Should not apply to JSON tree models:
+            return (!t.isFinal() && !TreeNode.class.isAssignableFrom(t.getRawClass()))
+                   // [databind#5223] Allow use of default typing for Records
+                   || t.isRecordType();
+
         default:
         case JAVA_LANG_OBJECT:
             return t.isJavaLangObject();

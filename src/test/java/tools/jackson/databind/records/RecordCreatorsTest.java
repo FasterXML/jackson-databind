@@ -1,5 +1,7 @@
 package tools.jackson.databind.records;
 
+import java.util.*;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -41,6 +43,50 @@ public class RecordCreatorsTest extends DatabindTestUtil
         }
 
         public String accessValueForTest() { return value; }
+    }
+
+    // [databind#4452]
+    public record PlainTestObject(
+            @JsonProperty("strField") String testFieldName,
+            @JsonProperty("intField") Integer testOtherField
+    ) { }
+
+    public record CreatorTestObject(
+            String testFieldName,
+            Integer testOtherField
+    ) {
+        @JsonCreator
+        public CreatorTestObject(
+                @JsonProperty("strField") String testFieldName,
+                @JsonProperty("someOtherIntField") Integer testOtherIntField,
+                @JsonProperty("intField") Integer testOtherField)
+        {
+            this(testFieldName, testOtherField + testOtherIntField);
+        }
+    }
+
+    // [databind#4724]
+    public record Something(String value) {
+        public Something {
+            if (value == null || value.isEmpty()) {
+                throw new IllegalArgumentException("Value cannot be null or empty");
+            }
+        }
+
+        // should be considered Delegating due to @JsonValue later on
+        @JsonCreator
+        public static Something of(String value) {
+            if (value.isEmpty()) {
+                return null;
+            }
+            return new Something(value);
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return value;
+        }
     }
 
     private final ObjectMapper MAPPER = jsonMapperBuilder().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
@@ -86,5 +132,41 @@ public class RecordCreatorsTest extends DatabindTestUtil
         assertEquals("del:foobar", value.accessValueForTest());
 
         assertEquals(q("val:del:foobar"), MAPPER.writeValueAsString(value));
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, @JsonProperty on @JsonCreator [databind#4452]
+    /**********************************************************************
+     */
+
+    // [databind#4452]
+    @Test
+    public void testCreatorSerializationWithJsonProperty4452Plain() throws Exception
+    {
+        String result = MAPPER.writeValueAsString(new PlainTestObject("test", 1));
+        assertEquals(a2q("{'strField':'test','intField':1}"), result);
+    }
+
+    @Test
+    public void testCreatorSerializationWithJsonProperty4452WithCreator() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new CreatorTestObject("test", 2, 1));
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> asMap = (Map<String, Object>) MAPPER.readValue(json, Map.class);
+        assertEquals(new HashSet<>(Arrays.asList("intField", "strField")), asMap.keySet());
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, @JsonCreator with @JsonValue [databind#4724]
+    /**********************************************************************
+     */
+
+    // [databind#4724]
+    @Test
+    void testDeserializeWithCreatorAndJsonValue4724() throws Exception {
+        newJsonMapper().readValue("\"\"", Something.class);
     }
 }

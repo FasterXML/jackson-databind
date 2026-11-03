@@ -51,7 +51,6 @@ public class JsonCreatorNoArgs4777Test extends DatabindTestUtil
     }
 
     // For [databind#4777]
-    @SuppressWarnings("serial")
     @Test
     public void testCreatorDetection4777() throws Exception {
         SimpleModule sm = new SimpleModule() {

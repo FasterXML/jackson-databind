@@ -137,6 +137,25 @@ public class SerializationOrderTest
         public int getC() { return c; }
     }
 
+    // For [databind#5918]
+    static class BeanForGH5918 {
+        private String notes;
+        private String firstName;
+        private String lastName;
+
+        @JsonCreator
+        public BeanForGH5918(@JsonProperty("lastName") String lastName,
+                @JsonProperty("firstName") String firstName) {
+            this.firstName = firstName;
+            this.lastName = lastName;
+        }
+
+        public String getNotes() { return notes; }
+        public void setNotes(String notes) { this.notes = notes; }
+        public String getFirstName() { return firstName; }
+        public String getLastName() { return lastName; }
+    }
+
     /*
     /*********************************************
     /* Unit tests
@@ -245,5 +264,22 @@ public class SerializationOrderTest
 
         assertEquals(a2q("{'a':2,'b':0,'c':1}"),
                 STRICT_ALPHA_MAPPER.writeValueAsString(new BeanForStrictOrdering(1, 2)));
+    }
+
+    // [databind#5918]: disabling SORT_CREATOR_PROPERTIES_FIRST should work
+    //   even when SORT_PROPERTIES_ALPHABETICALLY is also disabled
+    @Test
+    public void testCreatorPropsNotFirstWhenBothSortingDisabled() throws Exception
+    {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .disable(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST)
+                .build();
+        BeanForGH5918 person = new BeanForGH5918("last", "first");
+        person.setNotes("notes");
+        String json = mapper.writeValueAsString(person);
+        // Creator properties (lastName, firstName) should NOT be forced first
+        assertEquals(a2q("{'notes':'notes','firstName':'first','lastName':'last'}"),
+                json);
     }
 }

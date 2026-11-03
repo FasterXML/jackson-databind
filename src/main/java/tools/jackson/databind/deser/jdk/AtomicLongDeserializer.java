@@ -5,9 +5,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.type.LogicalType;
 
+@JacksonStdImpl
 public class AtomicLongDeserializer extends StdScalarDeserializer<AtomicLong>
 {
     public AtomicLongDeserializer() { super(AtomicLong.class); }
@@ -30,6 +32,6 @@ public class AtomicLongDeserializer extends StdScalarDeserializer<AtomicLong>
         // 12-Jun-2020, tatu: May look convoluted, but need to work correctly with
         //   CoercionConfig
         Long L = _parseLong(p, ctxt, AtomicLong.class);
-        return (L == null) ? null : new AtomicLong(L.intValue());
+        return (L == null) ? null : new AtomicLong(L.longValue());
     }
 }

@@ -218,30 +218,6 @@ public class AnnotationIntrospectorPair
         return b;
     }
 
-    /*
-    @Override
-    public TypeResolverBuilder<?> findPropertyTypeResolver(MapperConfig<?> config,
-            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo)
-    {
-        TypeResolverBuilder<?> b = _primary.findPropertyTypeResolver(config, ann, baseType, typeInfo);
-        if (b == null) {
-            b = _secondary.findPropertyTypeResolver(config, ann, baseType, typeInfo);
-        }
-        return b;
-    }
-
-    @Override
-    public TypeResolverBuilder<?> findPropertyContentTypeResolver(MapperConfig<?> config,
-            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo)
-    {
-        TypeResolverBuilder<?> b = _primary.findPropertyContentTypeResolver(config, ann, baseType, typeInfo);
-        if (b == null) {
-            b = _secondary.findPropertyContentTypeResolver(config, ann, baseType, typeInfo);
-        }
-        return b;
-    }
-    */
-
     @Override
     public List<NamedType> findSubtypes(MapperConfig<?> config, Annotated a)
     {
@@ -660,6 +636,12 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public String findBuilderPrefix(MapperConfig<?> config, AnnotatedClass valueClass) {
+        String result = _primary.findBuilderPrefix(config, valueClass);
+        return (result == null) ? _secondary.findBuilderPrefix(config, valueClass) : result;
+    }
+
+    @Override
     public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
         JsonCreator.Mode mode = _primary.findCreatorAnnotation(config, a);
         return (mode == null) ? _secondary.findCreatorAnnotation(config, a) : mode;
@@ -724,8 +706,8 @@ public class AnnotationIntrospectorPair
         if ((maybeCls == null) || (maybeCls == implicit)) {
             return false;
         }
-        if (maybeCls instanceof Class<?>) {
-            return !ClassUtil.isBogusClass((Class<?>) maybeCls);
+        if (maybeCls instanceof Class<?> class1) {
+            return !ClassUtil.isBogusClass(class1);
         }
         return true;
     }
@@ -734,7 +716,7 @@ public class AnnotationIntrospectorPair
         if ((maybeCls == null) || (maybeCls == implicit)) {
             return null;
         }
-        if ((maybeCls instanceof Class<?>) && ClassUtil.isBogusClass((Class<?>) maybeCls)) {
+        if (maybeCls instanceof Class<?> class1 && ClassUtil.isBogusClass(class1)) {
             return null;
         }
         return maybeCls;

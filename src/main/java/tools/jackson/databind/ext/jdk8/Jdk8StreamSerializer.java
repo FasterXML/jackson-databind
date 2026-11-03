@@ -5,12 +5,14 @@ import java.util.stream.Stream;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * Common typed stream serializer
  *
  */
+@JacksonStdImpl
 public class Jdk8StreamSerializer extends StdSerializer<Stream<?>>
 {
     /**

@@ -88,7 +88,7 @@ public final class SerializationConfig
             FilterProvider filterProvider)
     {
         super(b, mapperFeatures, tf, classIntr, mixins, str, configOverrides,
-                defaultAttrs, rootNames);
+                defaultAttrs, rootNames, b.defaultSerializationView());
         _serFeatures = serFeatures;
         _filterProvider = filterProvider;
         _streamWriteFeatures = streamWriteFeatures;
@@ -474,8 +474,8 @@ public final class SerializationConfig
 
     public PrettyPrinter constructDefaultPrettyPrinter() {
         PrettyPrinter pp = _defaultPrettyPrinter;
-        if (pp instanceof Instantiatable<?>) {
-            pp = (PrettyPrinter) ((Instantiatable<?>) pp).createInstance();
+        if (pp instanceof Instantiatable<?> pInstantiatable) {
+            pp = (PrettyPrinter) pInstantiatable.createInstance();
         }
         return pp;
     }

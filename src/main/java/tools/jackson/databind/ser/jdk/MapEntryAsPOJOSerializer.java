@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
@@ -15,6 +16,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
  *<p>
  * TODO: does not fully handle contextualization, type resolution and so on.
  */
+@JacksonStdImpl
 public class MapEntryAsPOJOSerializer extends StdSerializer<Map.Entry<?,?>>
 {
     protected MapEntryAsPOJOSerializer(JavaType type) {

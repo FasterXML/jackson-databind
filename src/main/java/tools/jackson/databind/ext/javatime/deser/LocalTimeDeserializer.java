@@ -19,6 +19,7 @@ package tools.jackson.databind.ext.javatime.deser;
 import java.time.DateTimeException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -30,6 +31,7 @@ import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.ext.javatime.DateTimeParseException;
 
 /**
  * Deserializer for Java 8 temporal {@link LocalTime}s.
@@ -103,17 +105,20 @@ public class LocalTimeDeserializer extends JSR310DateTimeDeserializerBase<LocalT
     @Override
     public LocalTime deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
+        LocalTime result;
+
         if (p.hasToken(JsonToken.VALUE_STRING)) {
-            return _fromString(p, ctxt, p.getString());
+            result = _fromString(p, ctxt, p.getString());
         }
         // 30-Sep-2020, tatu: New! "Scalar from Object" (mostly for XML)
-        if (p.isExpectedStartObjectToken()) {
+        else if (p.isExpectedStartObjectToken()) {
             final String str = ctxt.extractScalarFromObject(p, this, handledType());
             // 17-May-2025, tatu: [databind#4656] need to check for `null`
             if (str != null) {
-                return _fromString(p, ctxt, str);
+                result = _fromString(p, ctxt, str);
+            } else {
+                result = _handleUnexpectedToken(ctxt, p, "Expected array or string.");
             }
-            // fall through
         } else if (p.isExpectedStartArrayToken()) {
             JsonToken t = p.nextToken();
             if (t == JsonToken.END_ARRAY) {
@@ -125,46 +130,62 @@ public class LocalTimeDeserializer extends JSR310DateTimeDeserializerBase<LocalT
                 if (p.nextToken() != JsonToken.END_ARRAY) {
                     handleMissingEndArrayForSingle(p, ctxt);
                 }
-                return parsed;            
+                // Already truncated if need be by `deserialize()`
+                return parsed;
             }
             if (t == JsonToken.VALUE_NUMBER_INT) {
                 int hour = p.getIntValue();
-    
+
                 p.nextToken();
                 int minute = p.getIntValue();
-                LocalTime result;
-    
+
                 t = p.nextToken();
-                if (t == JsonToken.END_ARRAY) {
-                    result = LocalTime.of(hour, minute);
-                } else {
-                    int second = p.getIntValue();
-                    t = p.nextToken();
+                try {
                     if (t == JsonToken.END_ARRAY) {
-                        result = LocalTime.of(hour, minute, second);
+                        result = LocalTime.of(hour, minute);
                     } else {
-                        int partialSecond = p.getIntValue();
-                        if(partialSecond < 1_000 && !shouldReadTimestampsAsNanoseconds(ctxt))
-                            partialSecond *= 1_000_000; // value is milliseconds, convert it to nanoseconds
+                        int second = p.getIntValue();
                         t = p.nextToken();
-                        if (t != JsonToken.END_ARRAY) {
-                            throw ctxt.wrongTokenException(p, handledType(), JsonToken.END_ARRAY,
-                                    "Expected array to end");
+                        if (t == JsonToken.END_ARRAY) {
+                            result = LocalTime.of(hour, minute, second);
+                        } else {
+                            int partialSecond = p.getIntValue();
+                            if(partialSecond < 1_000 && !shouldReadTimestampsAsNanoseconds(ctxt))
+                                partialSecond *= 1_000_000; // value is milliseconds, convert it to nanoseconds
+                            t = p.nextToken();
+                            if (t != JsonToken.END_ARRAY) {
+                                throw ctxt.wrongTokenException(p, handledType(), JsonToken.END_ARRAY,
+                                        "Expected array to end");
+                            }
+                            result = LocalTime.of(hour, minute, second, partialSecond);
                         }
-                        result = LocalTime.of(hour, minute, second, partialSecond);
                     }
+                } catch (DateTimeException | ArithmeticException e) {
+                    throw DateTimeParseException.from(p,
+                            String.format("Failed to deserialize %s from array value [%d,%d,...]: %s",
+                                    handledType().getName(), hour, minute, e.getMessage()),
+                            String.format("[%d,%d,...]", hour, minute),
+                            handledType(), e);
                 }
-                return result;
+            } else {
+                result = ctxt.reportInputMismatch(handledType(),
+                        "Unexpected token (%s) within Array, expected VALUE_NUMBER_INT",
+                        t);
             }
-            ctxt.reportInputMismatch(handledType(),
-                    "Unexpected token (%s) within Array, expected VALUE_NUMBER_INT",
-                    t);
         } else if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
-            return (LocalTime) p.getEmbeddedObject();
+            result = (LocalTime) p.getEmbeddedObject();
         } else if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
-            _throwNoNumericTimestampNeedTimeZone(p, ctxt);
+            return _throwNoNumericTimestampNeedTimeZone(p, ctxt);
+        } else {
+            result = _handleUnexpectedToken(ctxt, p, "Expected array or string.");
         }
-        return _handleUnexpectedToken(ctxt, p, "Expected array or string.");
+
+        // Apply millisecond truncation if enabled
+        if (result != null && ctxt.isEnabled(DateTimeFeature.TRUNCATE_TO_MSECS_ON_READ)) {
+            result = result.truncatedTo(ChronoUnit.MILLIS);
+        }
+
+        return result;
     }
 
     protected boolean shouldReadTimestampsAsNanoseconds(DeserializationContext context) {

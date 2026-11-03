@@ -240,7 +240,7 @@ public class LocalTimeDeserTest extends DateTimeTestBase
                 .readValue("[\"" + LocalTime.class.getName() + "\",[22,31,5,829837]]");
 
         assertNotNull(value, "The value should not be null.");
-        assertTrue(value instanceof LocalTime, "The value should be a LocalTime.");
+        assertInstanceOf(LocalTime.class, value, "The value should be a LocalTime.");
         assertEquals(time, value, "The value is not correct.");
     }
 
@@ -255,7 +255,7 @@ public class LocalTimeDeserTest extends DateTimeTestBase
         Temporal value = mapper.readerFor(Temporal.class)
                 .without(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
                 .readValue("[\"" + LocalTime.class.getName() + "\",[22,31,5,422]]");
-        assertTrue(value instanceof LocalTime, "The value should be a LocalTime.");
+        assertInstanceOf(LocalTime.class, value, "The value should be a LocalTime.");
         assertEquals(time, value, "The value is not correct.");
     }
 
@@ -269,7 +269,7 @@ public class LocalTimeDeserTest extends DateTimeTestBase
         Temporal value = mapper.readValue(
                 "[\"" + LocalTime.class.getName() + "\",\"" + time.toString() + "\"]", Temporal.class
                 );
-        assertTrue(value instanceof LocalTime, "The value should be a LocalTime.");
+        assertInstanceOf(LocalTime.class, value, "The value should be a LocalTime.");
         assertEquals(time, value, "The value is not correct.");
     }
 

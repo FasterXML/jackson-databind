@@ -220,8 +220,8 @@ public class ShortNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o instanceof ShortNode) {
-            return ((ShortNode) o)._value == _value;
+        if (o instanceof ShortNode other) {
+            return other._value == _value;
         }
         return false;
     }

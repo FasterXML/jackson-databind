@@ -13,6 +13,7 @@ import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.deser.ReadableObjectId.Referring;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
+import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.ClassUtil;
@@ -53,6 +54,14 @@ public class CollectionDeserializer
      */
     protected final ValueDeserializer<Object> _delegateDeserializer;
 
+    /**
+     * Annotations defined on the actual Collection class; retained to avoid
+     * re-introspection overhead during {@link #createContextual} calls.
+     *
+     * @since 3.1
+     */
+    protected transient final AnnotatedClass _classInfo;
+
     // NOTE: no PropertyBasedCreator, as JSON Arrays have no properties
 
     /*
@@ -64,27 +73,43 @@ public class CollectionDeserializer
     /**
      * Constructor for context-free instances, where we do not yet know
      * which property is using this deserializer.
+     *
+     * @since 3.1
      */
+    public CollectionDeserializer(JavaType collectionType,
+            ValueDeserializer<Object> valueDeser,
+            TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator,
+            AnnotatedClass classInfo)
+    {
+        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator,
+                null, null, null, classInfo);
+    }
+
+    @Deprecated // since 3.1
     public CollectionDeserializer(JavaType collectionType,
             ValueDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator)
     {
-        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator, null, null, null);
+        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator,
+                null, null, null, null);
     }
 
     /**
      * Constructor used when creating contextualized instances.
+     *
+     * @since 3.1
      */
     protected CollectionDeserializer(JavaType collectionType,
             ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
             ValueInstantiator valueInstantiator, ValueDeserializer<Object> delegateDeser,
-            NullValueProvider nuller, Boolean unwrapSingle)
+            NullValueProvider nuller, Boolean unwrapSingle, AnnotatedClass classInfo)
     {
         super(collectionType, nuller, unwrapSingle);
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
         _valueInstantiator = valueInstantiator;
         _delegateDeserializer = delegateDeser;
+        _classInfo = classInfo;
     }
 
     /**
@@ -98,6 +123,22 @@ public class CollectionDeserializer
         _valueTypeDeserializer = src._valueTypeDeserializer;
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
+        _classInfo = src._classInfo;
+    }
+
+    /**
+     * Factory method called by {@code BasicDeserializerFactory} to create
+     * an instance
+     *
+     * @since 3.1
+     */
+    public static CollectionDeserializer create(JavaType collectionType,
+            BeanDescription.Supplier beanDescRef,
+            ValueDeserializer<Object> valueDeser,
+            TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator)
+    {
+        return new CollectionDeserializer(collectionType, valueDeser, valueTypeDeser,
+                valueInstantiator, beanDescRef.getClassInfo());
     }
 
     /**
@@ -111,7 +152,7 @@ public class CollectionDeserializer
         return new CollectionDeserializer(_containerType,
                 (ValueDeserializer<Object>) vd, vtd,
                 _valueInstantiator, (ValueDeserializer<Object>) dd,
-                nuller, unwrapSingle);
+                nuller, unwrapSingle, _classInfo);
     }
 
     // Important: do NOT cache if polymorphic values
@@ -137,8 +178,7 @@ public class CollectionDeserializer
 
     /**
      * Method called to finalize setup of this deserializer,
-     * when it is known for which property deserializer is needed
-     * for.
+     * when it is known for which property deserializer is needed for.
      */
     @Override
     public CollectionDeserializer createContextual(DeserializationContext ctxt,
@@ -171,6 +211,7 @@ _containerType,
         // 11-Dec-2015, tatu: Should we pass basic `Collection.class`, or more refined? Mostly
         //   comes down to "List vs Collection" I suppose... for now, pass Collection
         Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
+                _classInfo,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         // also, often value deserializer is resolved here:
         ValueDeserializer<?> valueDeser = _valueDeserializer;
@@ -243,7 +284,7 @@ _containerType,
         if (p.hasToken(JsonToken.VALUE_STRING)) {
             return _deserializeFromString(p, ctxt, p.getString());
         }
-        return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
+        return _handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }
 
     @SuppressWarnings("unchecked")
@@ -262,7 +303,7 @@ _containerType,
         if (p.isExpectedStartArrayToken()) {
             return _deserializeFromArray(p, ctxt, result);
         }
-        return handleNonArray(p, ctxt, result);
+        return _handleNonArray(p, ctxt, result);
     }
 
     @Override
@@ -285,6 +326,11 @@ _containerType,
         throws JacksonException
     {
         final Class<?> rawTargetType = handledType();
+
+        // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+        if (value == null) {
+            return (Collection<Object>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        }
 
         // 05-Nov-2020, ckozak: As per [jackson-databind#2922] string values may be handled
         // using handleNonArray, however empty strings may result in a null or empty collection
@@ -318,7 +364,7 @@ _containerType,
             // note: `CoercionAction.Fail` falls through because we may need to allow
             // `ACCEPT_SINGLE_VALUE_AS_ARRAY` handling later on
         }
-        return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
+        return _handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }
 
     /**
@@ -383,8 +429,8 @@ _containerType,
      * array, depending on configuration.
      */
     @SuppressWarnings("unchecked")
-    protected final Collection<Object> handleNonArray(JsonParser p, DeserializationContext ctxt,
-            Collection<Object> result)
+    protected final Collection<Object> _handleNonArray(JsonParser p,
+            DeserializationContext ctxt, Collection<Object> result)
         throws JacksonException
     {
         // Implicit arrays from single values?
@@ -395,6 +441,11 @@ _containerType,
             return (Collection<Object>) ctxt.handleUnexpectedToken(_containerType, p);
         }
         JsonToken t = p.currentToken();
+
+        // 03-Jan-2026: [databind#5537] Support Object Id for implicit Collections too
+        if (_valueDeserializer.getObjectIdReader(ctxt) != null) {
+            return _wrapSingleWithObjectId(p, ctxt, result);
+        }
 
         Object value;
 
@@ -425,19 +476,19 @@ _containerType,
             }
             // note: pass Object.class, not Object[].class, as we need element type for error info
             throw DatabindException.wrapWithPath(ctxt, e,
-                    new JacksonException.Reference(Object.class, result.size()));
+                    new JacksonException.Reference(_containerType.getContentType().getRawClass(), result.size()));
         }
         result.add(value);
         return result;
     }
 
-    protected Collection<Object> _deserializeWithObjectId(JsonParser p, DeserializationContext ctxt,
-            Collection<Object> result)
+    protected Collection<Object> _deserializeWithObjectId(JsonParser p,
+            DeserializationContext ctxt, Collection<Object> result)
         throws JacksonException
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!p.isExpectedStartArrayToken()) {
-            return handleNonArray(p, ctxt, result);
+            return _handleNonArray(p, ctxt, result);
         }
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.assignCurrentValue(result);
@@ -481,13 +532,54 @@ _containerType,
         return result;
     }
 
+    // @since 2.20.2
+    // Copied from `_deserializeWithObjectId()` above
+    protected Collection<Object> _wrapSingleWithObjectId(JsonParser p,
+            DeserializationContext ctxt, Collection<Object> result)
+        throws JacksonException
+    {
+        final CollectionReferringAccumulator referringAccumulator =
+                new CollectionReferringAccumulator(getContentType().getRawClass(), result);
+
+        try {
+            Object value;
+            if (p.hasToken(JsonToken.VALUE_NULL)) {
+                if (_skipNullValues) {
+                    return result;
+                }
+                value = null;
+            } else {
+                value = _deserializeNoNullChecks(p, ctxt);
+            }
+
+            if (value == null) {
+                value = _nullProvider.getNullValue(ctxt);
+                if (value == null) {
+                    _tryToAddNull(p, ctxt, result);
+                    return result;
+                }
+            }
+            referringAccumulator.add(value);
+        } catch (UnresolvedForwardReference reference) {
+            Referring ref = referringAccumulator.handleUnresolvedReference(reference);
+            reference.getRoid().appendReferring(ref);
+        } catch (Exception e) {
+            if (!ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)) {
+                ClassUtil.throwIfRTE(e);
+            }
+            throw DatabindException.wrapWithPath(ctxt, e,
+                    new JacksonException.Reference(result, result.size()));
+        }
+        return result;
+    }
+
     /**
      * Deserialize the content of the collection.
      * If _valueTypeDeserializer is null, use _valueDeserializer.deserialize; if non-null,
      * use _valueDeserializer.deserializeWithType to deserialize value.
      * This method only performs deserialization and does not consider _skipNullValues, _nullProvider, etc.
      */
-    protected Object _deserializeNoNullChecks(JsonParser p,DeserializationContext ctxt)
+    protected Object _deserializeNoNullChecks(JsonParser p, DeserializationContext ctxt)
     {
         if (_valueTypeDeserializer == null) {
             return _valueDeserializer.deserialize(p, ctxt);
@@ -515,7 +607,7 @@ _containerType,
                     "`java.util.Collection` of type %s does not accept `null` values",
                     ClassUtil.getTypeDescription(getValueType(ctxt)));
         }
-    }    
+    }
     /**
      * Helper class for dealing with Object Id references for values contained in
      * collections being deserialized.
@@ -525,9 +617,28 @@ _containerType,
         private final Collection<Object> _result;
 
         /**
-         * A list of {@link CollectionReferring} to maintain ordering.
+         * Values read at or after the first still unresolved reference, in encounter
+         * order: plain values, and {@link CollectionReferring}s for references (resolved
+         * or not). Values are moved to the result collection from the front (starting at
+         * {@link #_pendingStart}) once no unresolved reference precedes them: this retains
+         * ordering while moving each value just once -- instead of merging buffers of
+         * resolved references into preceding ones, which takes O(N^2) time when
+         * references resolve in reverse order (see [databind#6204]).
          */
-        private List<CollectionReferring> _accumulator = new ArrayList<>();
+        private final List<Object> _pending = new ArrayList<>();
+
+        /**
+         * Index of the first entry in {@link #_pending} not yet moved to the result.
+         */
+        private int _pendingStart;
+
+        /**
+         * Lookup from unresolved id to the -- usually single -- {@link CollectionReferring}s
+         * with that id, in encounter order. Without this, resolution would need to scan
+         * all pending references to find the matching one, which makes resolving N
+         * references take O(N^2) time (see [databind#6204]).
+         */
+        private final Map<Object, Deque<CollectionReferring>> _unresolvedById = new HashMap<>();
 
         public CollectionReferringAccumulator(Class<?> elementType, Collection<Object> result) {
             _elementType = elementType;
@@ -536,52 +647,73 @@ _containerType,
 
         public void add(Object value)
         {
-            if (_accumulator.isEmpty()) {
+            if (_pendingStart == _pending.size()) {
                 _result.add(value);
             } else {
-                CollectionReferring ref = _accumulator.get(_accumulator.size() - 1);
-                ref.next.add(value);
+                _pending.add(value);
             }
         }
 
         public Referring handleUnresolvedReference(UnresolvedForwardReference reference)
         {
             CollectionReferring id = new CollectionReferring(this, reference, _elementType);
-            _accumulator.add(id);
+            _pending.add(id);
+            // Ids are usable as hash keys: `ObjectIdResolver`s already rely on that
+            Deque<CollectionReferring> refs = _unresolvedById.get(reference.getUnresolvedId());
+            if (refs == null) {
+                refs = new ArrayDeque<>(2);
+                _unresolvedById.put(reference.getUnresolvedId(), refs);
+            }
+            refs.add(id);
             return id;
         }
 
         public void resolveForwardReference(DeserializationContext ctxt, Object id, Object value) throws JacksonException
         {
-            Iterator<CollectionReferring> iterator = _accumulator.iterator();
-            // Resolve ordering after resolution of an id. This mean either:
-            // 1- adding to the result collection in case of the first unresolved id.
-            // 2- merge the content of the resolved id with its previous unresolved id.
-            Collection<Object> previous = _result;
-            while (iterator.hasNext()) {
-                CollectionReferring ref = iterator.next();
-                if (ref.hasId(id)) {
-                    iterator.remove();
-                    previous.add(value);
-                    previous.addAll(ref.next);
-                    return;
-                }
-                previous = ref.next;
+            Deque<CollectionReferring> refs = _unresolvedById.get(id);
+            if (refs == null) {
+                throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
+                        + "] that wasn't previously seen as unresolved.");
             }
+            CollectionReferring ref = refs.removeFirst();
+            if (refs.isEmpty()) {
+                _unresolvedById.remove(id);
+            }
+            ref.resolve(value);
 
-            throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
-                    + "] that wasn't previously seen as unresolved.");
+            // Move values no longer preceded by an unresolved reference to the result
+            final int end = _pending.size();
+            int i = _pendingStart;
+            for (; i < end; ++i) {
+                Object pending = _pending.get(i);
+                if (pending instanceof CollectionReferring) {
+                    CollectionReferring pendingRef = (CollectionReferring) pending;
+                    if (!pendingRef.isResolved()) {
+                        break;
+                    }
+                    pending = pendingRef.resolvedValue();
+                }
+                _result.add(pending);
+                _pending.set(i, null);
+            }
+            if (i == end) {
+                _pending.clear();
+                _pendingStart = 0;
+            } else {
+                _pendingStart = i;
+            }
         }
     }
 
     /**
-     * Helper class to maintain processing order of value. The resolved
-     * object associated with {@code #id} parameter from {@link #handleResolvedForwardReference(Object, Object)} 
-     * comes before the values in {@link #next}.
+     * Placeholder for a value that is a forward reference, to maintain processing order
+     * of values: holds the resolved value, once the reference has been resolved.
      */
     private final static class CollectionReferring extends Referring {
         private final CollectionReferringAccumulator _parent;
-        public final List<Object> next = new ArrayList<>();
+
+        private boolean _resolved;
+        private Object _value;
 
         CollectionReferring(CollectionReferringAccumulator parent,
                 UnresolvedForwardReference reference, Class<?> contentType)
@@ -590,9 +722,19 @@ _containerType,
             _parent = parent;
         }
 
+        void resolve(Object value) {
+            _value = value;
+            _resolved = true;
+        }
+
+        boolean isResolved() { return _resolved; }
+
+        Object resolvedValue() { return _value; }
+
         @Override
         public void handleResolvedForwardReference(DeserializationContext ctxt, Object id, Object value) throws JacksonException {
             _parent.resolveForwardReference(ctxt, id, value);
         }
     }
+
 }

@@ -57,8 +57,8 @@ public class RawValue
     @Override
     public void serialize(JsonGenerator gen, SerializationContext serializers) throws JacksonException
     {
-        if (_value instanceof JacksonSerializable) {
-            ((JacksonSerializable) _value).serialize(gen, serializers);
+        if (_value instanceof JacksonSerializable jacksonSerializable) {
+            jacksonSerializable.serialize(gen, serializers);
         } else {
             _serialize(gen);
         }
@@ -68,8 +68,8 @@ public class RawValue
     public void serializeWithType(JsonGenerator gen, SerializationContext serializers,
             TypeSerializer typeSer) throws JacksonException
     {
-        if (_value instanceof JacksonSerializable) {
-            ((JacksonSerializable) _value).serializeWithType(gen, serializers, typeSer);
+        if (_value instanceof JacksonSerializable jacksonSerializable) {
+            jacksonSerializable.serializeWithType(gen, serializers, typeSer);
         } else if (_value instanceof SerializableString) {
             /* Since these are not really to be deserialized (with or without type info),
              * just re-route as regular write, which will create one... hopefully it works
@@ -90,8 +90,8 @@ public class RawValue
 
     protected void _serialize(JsonGenerator gen) throws JacksonException
     {
-        if (_value instanceof SerializableString) {
-            gen.writeRawValue((SerializableString) _value);
+        if (_value instanceof SerializableString serializableString) {
+            gen.writeRawValue(serializableString);
         } else {
             gen.writeRawValue(String.valueOf(_value));
         }
@@ -100,13 +100,13 @@ public class RawValue
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof RawValue)) return false;
-        RawValue other = (RawValue) o;
-
-        if (_value == other._value) {
-            return true;
+        if (o instanceof RawValue other) {
+            if (_value == other._value) {
+                return true;
+            }
+            return (_value != null) && _value.equals(other._value);
         }
-        return (_value != null) && _value.equals(other._value);
+        return false;
     }
 
     @Override

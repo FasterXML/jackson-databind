@@ -36,15 +36,15 @@ public class BaseTypeAsDefaultTest extends DatabindTestUtil
     /**********************************************************
      */
 
-    protected ObjectMapper MAPPER_WITH_BASE =  jsonMapperBuilder()
+    private final ObjectMapper MAPPER_WITH_BASE =  jsonMapperBuilder()
                 .enable(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL)
                 .build();
 
-    protected ObjectMapper MAPPER_WITHOUT_BASE = jsonMapperBuilder()
+    private final ObjectMapper MAPPER_WITHOUT_BASE = jsonMapperBuilder()
             .disable(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL)
             .build();
 
-    protected ObjectMapper MAPPER_WITHOUT_BASE_OR_SUBTYPE_ID = jsonMapperBuilder()
+    private final ObjectMapper MAPPER_WITHOUT_BASE_OR_SUBTYPE_ID = jsonMapperBuilder()
             .disable(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL)
             .disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES)
             .build();
@@ -63,24 +63,18 @@ public class BaseTypeAsDefaultTest extends DatabindTestUtil
 
     @Test
     public void testNegativeForParent() throws Exception {
-        try {
-            /*Object o =*/ MAPPER_WITHOUT_BASE.readerFor(Parent.class).readValue("{}");
-            fail("Should not pass");
-        } catch (InvalidTypeIdException e) {
-            assertTrue(e.getMessage().contains("missing type id property '@class'"));
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> MAPPER_WITHOUT_BASE.readerFor(Parent.class).readValue("{}"));
+        verifyException(e, "missing type id property '@class'");
     }
 
     // 12-Mar-2023, tatu: As per [databind#2968] this should work like so, but
     //   alas fix for 2.x not directly portable to 3.0 so need to comment out
     @Test
     public void testNegativeForChild() throws Exception {
-        try {
-            /*Object o =*/ MAPPER_WITHOUT_BASE.readerFor(Child.class).readValue("{}");
-            fail("Should not pass");
-        } catch (InvalidTypeIdException ex) {
-            assertTrue(ex.getMessage().contains("missing type id property '@class'"));
-        }
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> MAPPER_WITHOUT_BASE.readerFor(Child.class).readValue("{}"));
+        verifyException(e, "missing type id property '@class'");
     }
 
     @Test

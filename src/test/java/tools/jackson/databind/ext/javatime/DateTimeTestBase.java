@@ -26,12 +26,14 @@ public class DateTimeTestBase
     }
 
     protected static MapperBuilder<?,?> newMapperBuilder() {
-        return JsonMapper.builder()
+        return jsonMapperBuilder()
+                .defaultLocale(Locale.ENGLISH)
                 .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES);
     }
 
     protected static MapperBuilder<?,?> newMapperBuilder(TimeZone tz) {
-        return JsonMapper.builder()
+        return jsonMapperBuilder()
+                .defaultLocale(Locale.ENGLISH)
                 .defaultTimeZone(tz)
                 .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES);
     }

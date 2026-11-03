@@ -4,17 +4,16 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.*;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
-import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class DelegatingArrayCreatorsTest
 {
@@ -82,6 +81,14 @@ public class DelegatingArrayCreatorsTest
         private Bag2324<Value2324> bagOfValues;
     }
 
+    // [databind#1392]
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+    abstract static class UnmodifiableSetMixin {
+
+        @JsonCreator
+        public UnmodifiableSetMixin(Set<?> s) {}
+    }
+
     static class MultipleArrayDelegators {
         @JsonCreator(mode=JsonCreator.Mode.DELEGATING)
         MultipleArrayDelegators(List<Integer> a) { }
@@ -132,5 +139,20 @@ public class DelegatingArrayCreatorsTest
             verifyException(e, "Conflicting array-delegate creators");
             verifyException(e, "already had explicitly marked");
         }
+    }
+
+    // [databind#1392]
+    @Test
+    public void testUnmodifiable() throws Exception
+    {
+        Class<?> unmodSetType = Collections.unmodifiableSet(Collections.<String>emptySet()).getClass();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .addMixIn(unmodSetType, UnmodifiableSetMixin.class)
+                .build();
+        final String EXPECTED_JSON = "[\""+unmodSetType.getName()+"\",[]]";
+        Set<?> foo = mapper.readValue(EXPECTED_JSON, Set.class);
+        assertTrue(foo.isEmpty());
     }
 }

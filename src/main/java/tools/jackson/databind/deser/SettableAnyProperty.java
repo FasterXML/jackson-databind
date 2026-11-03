@@ -1,7 +1,6 @@
 package tools.jackson.databind.deser;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -488,7 +487,7 @@ public abstract class SettableAnyProperty
         public int getParameterIndex() { return _parameterIndex; }
 
         @Override
-        public Object createParameterObject() { return new HashMap<>(); }
+        public Object createParameterObject() { return new LinkedHashMap<>(); }
     }
 
     /**

@@ -24,6 +24,7 @@ module tools.jackson.databind
     requires org.mockito;
     requires org.junit.jupiter.api;
     requires org.junit.jupiter.params;
+    requires org.junit.platform.commons;
 
     // Main exports need to switch to "opens" for testing
     opens tools.jackson.databind;
@@ -41,7 +42,6 @@ module tools.jackson.databind
     opens tools.jackson.databind.ext.javatime.key;
     opens tools.jackson.databind.ext.javatime.misc;
     opens tools.jackson.databind.ext.javatime.ser;
-    opens tools.jackson.databind.ext.javatime.tofix;
     opens tools.jackson.databind.ext.javatime.util;
     opens tools.jackson.databind.introspect;
     opens tools.jackson.databind.json;
@@ -83,6 +83,7 @@ module tools.jackson.databind
     opens tools.jackson.databind.format;
     opens tools.jackson.databind.interop;
     opens tools.jackson.databind.jsonschema;
+    opens tools.jackson.databind.jsontype.deduct;
     opens tools.jackson.databind.jsontype.deftyping;
     opens tools.jackson.databind.jsontype.ext;
     opens tools.jackson.databind.jsontype.jdk;
@@ -91,17 +92,20 @@ module tools.jackson.databind
     opens tools.jackson.databind.mixins;
     opens tools.jackson.databind.objectid;
     opens tools.jackson.databind.records;
-    opens tools.jackson.databind.records.tofix;
     opens tools.jackson.databind.ser.dos;
     opens tools.jackson.databind.ser.enums;
     opens tools.jackson.databind.ser.filter;
     opens tools.jackson.databind.seq;
     opens tools.jackson.databind.struct;
     opens tools.jackson.databind.testutil.failure;
+    exports tools.jackson.databind.testutil.failure;
     opens tools.jackson.databind.tofix;
     opens tools.jackson.databind.util.internal;
     opens tools.jackson.databind.views;
 
     // Also needed for some reason
     uses tools.jackson.databind.JacksonModule;
+
+    // [databind#2120], [databind#6129]: `Path` deserialization provider look up
+    uses java.nio.file.spi.FileSystemProvider;
 }

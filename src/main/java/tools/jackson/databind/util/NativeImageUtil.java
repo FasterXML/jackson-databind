@@ -60,7 +60,7 @@ public class NativeImageUtil {
             return false;
         }
         // records list their fields but not other members
-        return (cl.getDeclaredFields().length == 0 || ClassUtil.isRecordType(cl)) &&
+        return (cl.getDeclaredFields().length == 0 || cl.isRecord()) &&
                 cl.getDeclaredMethods().length == 0 &&
                 cl.getDeclaredConstructors().length == 0;
     }

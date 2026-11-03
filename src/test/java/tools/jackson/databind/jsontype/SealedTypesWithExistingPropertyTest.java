@@ -316,7 +316,7 @@ public class SealedTypesWithExistingPropertyTest extends DatabindTestUtil
     public void testSimpleClassAsExistingPropertyDeserializationFruits() throws Exception
     {
         Fruit pinguoDeserialized = MAPPER.readValue(pinguoJson, Fruit.class);
-        assertTrue(pinguoDeserialized instanceof Apple);
+        assertInstanceOf(Apple.class, pinguoDeserialized);
         assertSame(pinguoDeserialized.getClass(), Apple.class);
         assertEquals(pinguo.name, pinguoDeserialized.name);
         assertEquals(pinguo.seedCount, ((Apple) pinguoDeserialized).seedCount);
@@ -324,7 +324,7 @@ public class SealedTypesWithExistingPropertyTest extends DatabindTestUtil
 
         FruitWrapper pinguoWrapperDeserialized = MAPPER.readValue(pinguoWrapperJson, FruitWrapper.class);
         Fruit pinguoExtracted = pinguoWrapperDeserialized.fruit;
-        assertTrue(pinguoExtracted instanceof Apple);
+        assertInstanceOf(Apple.class, pinguoExtracted);
         assertSame(pinguoExtracted.getClass(), Apple.class);
         assertEquals(pinguo.name, pinguoExtracted.name);
         assertEquals(pinguo.seedCount, ((Apple) pinguoExtracted).seedCount);
@@ -383,7 +383,7 @@ public class SealedTypesWithExistingPropertyTest extends DatabindTestUtil
     public void testSimpleClassAsExistingPropertyDeserializationAnimals() throws Exception
     {
         Animal beelzebubDeserialized = MAPPER.readValue(beelzebubJson, Animal.class);
-        assertTrue(beelzebubDeserialized instanceof Cat);
+        assertInstanceOf(Cat.class, beelzebubDeserialized);
         assertSame(beelzebubDeserialized.getClass(), Cat.class);
         assertEquals(beelzebub.name, beelzebubDeserialized.name);
         assertEquals(beelzebub.furColor, ((Cat) beelzebubDeserialized).furColor);
@@ -391,7 +391,7 @@ public class SealedTypesWithExistingPropertyTest extends DatabindTestUtil
 
         AnimalWrapper beelzebubWrapperDeserialized = MAPPER.readValue(beelzebubWrapperJson, AnimalWrapper.class);
         Animal beelzebubExtracted = beelzebubWrapperDeserialized.animal;
-        assertTrue(beelzebubExtracted instanceof Cat);
+        assertInstanceOf(Cat.class, beelzebubExtracted);
         assertSame(beelzebubExtracted.getClass(), Cat.class);
         assertEquals(beelzebub.name, beelzebubExtracted.name);
         assertEquals(beelzebub.furColor, ((Cat) beelzebubExtracted).furColor);
@@ -402,10 +402,10 @@ public class SealedTypesWithExistingPropertyTest extends DatabindTestUtil
         assertNotNull(animalListDeserialized);
         assertTrue(animalListDeserialized.size() == 2);
         Animal cat = MAPPER.convertValue(animalListDeserialized.get(0), Animal.class);
-        assertTrue(cat instanceof Cat);
+        assertInstanceOf(Cat.class, cat);
         assertSame(cat.getClass(), Cat.class);
         Animal dog = MAPPER.convertValue(animalListDeserialized.get(1), Animal.class);
-        assertTrue(dog instanceof Dog);
+        assertInstanceOf(Dog.class, dog);
         assertSame(dog.getClass(), Dog.class);
     }
 
@@ -447,7 +447,7 @@ public class SealedTypesWithExistingPropertyTest extends DatabindTestUtil
     public void testSimpleClassAsExistingPropertyDeserializationCars() throws Exception
     {
         Car camryDeserialized = MAPPER.readValue(camryJson, Camry.class);
-        assertTrue(camryDeserialized instanceof Camry);
+        assertInstanceOf(Camry.class, camryDeserialized);
         assertSame(camryDeserialized.getClass(), Camry.class);
         assertEquals(camry.name, camryDeserialized.name);
         assertEquals(camry.exteriorColor, ((Camry) camryDeserialized).exteriorColor);
@@ -455,7 +455,7 @@ public class SealedTypesWithExistingPropertyTest extends DatabindTestUtil
 
         CarWrapper camryWrapperDeserialized = MAPPER.readValue(camryWrapperJson, CarWrapper.class);
         Car camryExtracted = camryWrapperDeserialized.car;
-        assertTrue(camryExtracted instanceof Camry);
+        assertInstanceOf(Camry.class, camryExtracted);
         assertSame(camryExtracted.getClass(), Camry.class);
         assertEquals(camry.name, camryExtracted.name);
         assertEquals(camry.exteriorColor, ((Camry) camryExtracted).exteriorColor);
@@ -466,11 +466,11 @@ public class SealedTypesWithExistingPropertyTest extends DatabindTestUtil
         assertNotNull(carListDeserialized);
         assertTrue(carListDeserialized.size() == 2);
         Car result = MAPPER.convertValue(carListDeserialized.get(0), Car.class);
-        assertTrue(result instanceof Camry);
+        assertInstanceOf(Camry.class, result);
         assertSame(result.getClass(), Camry.class);
 
         result = MAPPER.convertValue(carListDeserialized.get(1), Car.class);
-        assertTrue(result instanceof Accord);
+        assertInstanceOf(Accord.class, result);
         assertSame(result.getClass(), Accord.class);
     }
 

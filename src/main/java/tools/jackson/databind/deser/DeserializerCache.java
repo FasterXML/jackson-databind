@@ -354,6 +354,13 @@ public final class DeserializerCache
             if (!delegateType.hasRawClass(type.getRawClass())) {
                 beanDescRef = ctxt.lazyIntrospectBeanDescription(delegateType);
             }
+            // [databind#2617]: Need to apply type modifications
+            // (like @JsonDeserialize(as=...)) to the delegate type as well
+            JavaType newDelegateType = modifyTypeByAnnotation(ctxt, beanDescRef.getClassInfo(), delegateType);
+            if (newDelegateType != delegateType) {
+                delegateType = newDelegateType;
+                beanDescRef = ctxt.lazyIntrospectBeanDescription(delegateType);
+            }
             return new StdConvertingDeserializer<Object>(conv, delegateType,
                     _createDeserializer2(ctxt, factory, delegateType, beanDescRef));
         }
@@ -385,8 +392,8 @@ public final class DeserializerCache
                 JsonFormat.Value format = beanDescRef.findExpectedFormat(type.getRawClass());
                 if (format.getShape() != JsonFormat.Shape.POJO) {
                     MapLikeType mlt = (MapLikeType) type;
-                    if (mlt instanceof MapType) {
-                        return factory.createMapDeserializer(ctxt,(MapType) mlt, beanDescRef);
+                    if (mlt instanceof MapType mapType) {
+                        return factory.createMapDeserializer(ctxt, mapType, beanDescRef);
                     }
                     return factory.createMapLikeDeserializer(ctxt, mlt, beanDescRef);
                 }
@@ -398,8 +405,8 @@ public final class DeserializerCache
                 JsonFormat.Value format = beanDescRef.findExpectedFormat(type.getRawClass());
                 if (format.getShape() != JsonFormat.Shape.POJO) {
                     CollectionLikeType clt = (CollectionLikeType) type;
-                    if (clt instanceof CollectionType) {
-                        return factory.createCollectionDeserializer(ctxt, (CollectionType) clt, beanDescRef);
+                    if (clt instanceof CollectionType collectionType) {
+                        return factory.createCollectionDeserializer(ctxt, collectionType, beanDescRef);
                     }
                     return factory.createCollectionLikeDeserializer(ctxt, clt, beanDescRef);
                 }
@@ -505,8 +512,8 @@ public final class DeserializerCache
                 Object cdDef = intr.findContentDeserializer(config, a);
                 if (cdDef != null) {
                     ValueDeserializer<?> cd = null;
-                    if (cdDef instanceof ValueDeserializer<?>) {
-                        cd = (ValueDeserializer<?>) cdDef;
+                    if (cdDef instanceof ValueDeserializer<?> valueDeserializer) {
+                        cd = valueDeserializer;
                     } else {
                         Class<?> cdClass = _verifyAsClass(cdDef, "findContentDeserializer", ValueDeserializer.None.class);
                         if (cdClass != null) {

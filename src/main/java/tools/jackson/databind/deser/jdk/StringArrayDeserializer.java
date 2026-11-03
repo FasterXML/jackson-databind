@@ -287,9 +287,7 @@ public final class StringArrayDeserializer
                     }
                     if (t == JsonToken.VALUE_NULL) {
                         // 03-Feb-2017, tatu: Should we skip null here or not?
-                        if (_skipNullValues) {
-                            return NO_STRINGS;
-                        }
+                        value = null;
                     } else {
                         value = _parseString(p, ctxt, _nullProvider);
                     }
@@ -331,7 +329,8 @@ public final class StringArrayDeserializer
                 if (p.hasToken(JsonToken.VALUE_STRING)) {
                     String textValue = p.getString();
                     // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
-                    if (textValue.isEmpty()) {
+                    // (and textValue may be null for some parsers, like Ion for corrupt content)
+                    if ((textValue != null) && textValue.isEmpty()) {
                         final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
                                 CoercionInputShape.EmptyString);
                         if (act != CoercionAction.Fail) {
@@ -354,7 +353,8 @@ public final class StringArrayDeserializer
             return new String[] { value };
         }
         if (p.hasToken(JsonToken.VALUE_STRING)) {
-            return _deserializeFromString(p, ctxt);
+            // [databind#3349]: for non-empty strings, delegate to handleUnexpectedToken
+            return _deserializeFromStringForContainer(p, ctxt);
         }
         return (String[]) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }

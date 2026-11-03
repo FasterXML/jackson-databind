@@ -419,8 +419,8 @@ public class TreeTraversingParser
     public boolean isNaN() {
         if (!_closed) {
             JsonNode n = currentNode();
-            if (n instanceof NumericNode) {
-                return ((NumericNode) n).isNaN();
+            if (n instanceof NumericNode numericNode) {
+                return numericNode.isNaN();
             }
         }
         return false;
@@ -441,8 +441,8 @@ public class TreeTraversingParser
         if (n != null) {
             // [databind#2096]: although `binaryValue()` works for real binary node
             // and embedded "POJO" node, coercion from `StringNode` may require variant, so:
-            if (n instanceof StringNode) {
-                return ((StringNode) n).getBinaryValue(b64variant);
+            if (n instanceof StringNode stringNode) {
+                return stringNode.getBinaryValue(b64variant);
             }
             return n.binaryValue();
         }

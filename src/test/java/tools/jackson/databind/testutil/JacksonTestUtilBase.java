@@ -101,7 +101,7 @@ public class JacksonTestUtilBase
                 return;
             }
         }
-        fail("Expected an exception with one of substrings ("+Arrays.asList(anyMatches)+"): got one with message \""+msg+"\"");
+        fail("Expected an exception ("+e.getClass().getName()+") with one of substrings ("+Arrays.asList(anyMatches)+"): got one with message \""+msg+"\"");
     }
 
     /**
@@ -151,6 +151,10 @@ public class JacksonTestUtilBase
 
     public String utf8String(ByteArrayOutputStream bytes) {
         return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
+    }
+
+    public static String repeatString(String str, int repeatCount) {
+        return str.repeat(repeatCount);
     }
 
     /*

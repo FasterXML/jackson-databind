@@ -63,6 +63,10 @@ module tools.jackson.databind
     // [databind#2485]: prevent warning for "unused" with self-use
     uses tools.jackson.databind.JacksonModule;
 
+    // [databind#2120], [databind#6129]: `Path` deserialization may look up providers
+    // for allowed schemes using Thread context class loader
+    uses java.nio.file.spi.FileSystemProvider;
+
     provides tools.jackson.databind.ObjectMapper with
         tools.jackson.databind.json.JsonMapper;
 }

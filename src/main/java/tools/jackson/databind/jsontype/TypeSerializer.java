@@ -92,6 +92,10 @@ public abstract class TypeSerializer
         case WRAPPER_OBJECT:
             typeIdDef.include = WritableTypeId.Inclusion.WRAPPER_OBJECT;
             break;
+        case NOTHING:
+            // 07-Dec-2025, tatu: No suitable constant to use. Should add "NOTHING"?
+            typeIdDef.include = null;
+            break;
         default:
             VersionUtil.throwInternal();
         }

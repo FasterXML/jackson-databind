@@ -4,13 +4,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.BaseStream;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class StreamTestBase
 {
-    protected final ObjectMapper objectMapper = new ObjectMapper();
+    protected final JsonMapper objectMapper = new JsonMapper();
 
     /**
      * Throws the supplied checked exception without enforcing checking.

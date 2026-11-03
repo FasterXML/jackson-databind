@@ -100,6 +100,10 @@ public final class ObjectIdValueProperty
         // also: may need to set a property value as well
         SettableBeanProperty idProp = _objectIdReader.idProperty;
         if (idProp != null) {
+            // [databind#4729] Records/Creators do not have setters, skip
+            if (idProp.isCreatorProperty()) {
+                return instance;
+            }
             return idProp.setAndReturn(ctxt, instance, id);
         }
         return instance;
@@ -117,6 +121,10 @@ public final class ObjectIdValueProperty
         if (idProp == null) {
             throw new UnsupportedOperationException(
                     "Should not call set() on ObjectIdProperty that has no SettableBeanProperty");
+        }
+        // [databind#4729] Records/Creators do not have setters, skip
+        if (idProp.isCreatorProperty()) {
+            return instance;
         }
         return idProp.setAndReturn(ctxt, instance, value);
     }

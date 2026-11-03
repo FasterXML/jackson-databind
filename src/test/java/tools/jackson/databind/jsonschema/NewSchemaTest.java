@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import tools.jackson.core.JsonParser.NumberType;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.jsonFormatVisitors.*;
@@ -195,7 +196,7 @@ public class NewSchemaTest extends DatabindTestUtil
 
         @Override
         public JsonMapFormatVisitor expectMapFormat(JavaType type) {
-            return new JsonMapFormatVisitor.Base();
+            return new JsonMapFormatVisitor.Base(getContext());
         }
     }
 
@@ -215,6 +216,9 @@ public class NewSchemaTest extends DatabindTestUtil
     public void testBasicTraversal() throws Exception
     {
         MAPPER.acceptJsonFormatVisitor(POJO.class, new BogusJsonFormatVisitorWrapper());
+        MAPPER.acceptJsonFormatVisitor(new TypeReference<POJO>() { },
+                new BogusJsonFormatVisitorWrapper());
+
         MAPPER.acceptJsonFormatVisitor(POJOWithScalars.class, new BogusJsonFormatVisitorWrapper());
         MAPPER.acceptJsonFormatVisitor(LinkedHashMap.class, new BogusJsonFormatVisitorWrapper());
         MAPPER.acceptJsonFormatVisitor(ArrayList.class, new BogusJsonFormatVisitorWrapper());
@@ -228,7 +232,7 @@ public class NewSchemaTest extends DatabindTestUtil
     @Test
     public void testSimpleEnum() throws Exception
     {
-        final Set<String> values = new TreeSet<String>();
+        final Set<String> values = new TreeSet<>();
         ObjectWriter w = MAPPER.writer(EnumFeature.WRITE_ENUMS_USING_TO_STRING);
 
         w.acceptJsonFormatVisitor(TestEnum.class, new JsonFormatVisitorWrapper.Base() {
@@ -247,7 +251,7 @@ public class NewSchemaTest extends DatabindTestUtil
         });
 
         assertEquals(3, values.size());
-        TreeSet<String> exp = new TreeSet<String>(Arrays.asList(
+        TreeSet<String> exp = new TreeSet<>(Arrays.asList(
                         "ToString:A",
                         "ToString:B",
                         "ToString:C"

@@ -95,32 +95,71 @@ public enum DateTimeFeature implements DatatypeFeature
     READ_DATE_TIMESTAMPS_AS_NANOSECONDS(true),
 
     /**
+     * Feature that determines whether time values with nanosecond precision
+     * should have their nanoseconds truncated to milliseconds <b>after</b> deserialization,
+     * before returning the value to the caller.
+     * <p>
+     * When enabled, all {@code java.time} types with nanosecond precision
+     * ({@link java.time.Instant}, {@link java.time.LocalDateTime}, {@link java.time.LocalTime},
+     * {@link java.time.OffsetDateTime}, {@link java.time.OffsetTime}, {@link java.time.ZonedDateTime},
+     * {@link java.time.Duration}) will have nanoseconds beyond millisecond precision cleared
+     * (nanoseconds 0-999,999,999 will become 0-999,000,000 in multiples of 1,000,000).
+     * <p>
+     * This feature works independently of {@link #READ_DATE_TIMESTAMPS_AS_NANOSECONDS}
+     * and affects all deserialization paths (numeric timestamps AND textual ISO-8601 strings).
+     * <p>
+     * Feature is disabled by default to preserve full nanosecond precision.
+     *
+     * @since 3.1
+     */
+    TRUNCATE_TO_MSECS_ON_READ(false),
+
+    /**
+     * Feature that determines whether time values with nanosecond precision
+     * should have their nanoseconds truncated to milliseconds <b>before</b> serialization.
+     * <p>
+     * When enabled, all {@code java.time} types with nanosecond precision
+     * ({@link java.time.Instant}, {@link java.time.LocalDateTime}, {@link java.time.LocalTime},
+     * {@link java.time.OffsetDateTime}, {@link java.time.OffsetTime}, {@link java.time.ZonedDateTime},
+     * {@link java.time.Duration}) will have nanoseconds beyond millisecond precision cleared
+     * before serialization (nanoseconds 0-999,999,999 will become 0-999,000,000 in multiples of 1,000,000).
+     * <p>
+     * This feature works independently of {@link #WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}
+     * and affects all serialization paths (numeric timestamps AND textual ISO-8601 strings).
+     * <p>
+     * Feature is disabled by default to preserve full nanosecond precision.
+     *
+     * @since 3.1
+     */
+    TRUNCATE_TO_MSECS_ON_WRITE(false),
+
+    /**
      * Feature that determines whether the {@link java.util.TimeZone} of the
      * {@link tools.jackson.databind.DeserializationContext} is used
      * when leniently deserializing {@link java.time.LocalDate} or
      * {@link java.time.LocalDateTime} from the UTC/ISO instant format.
      * <p>
      * Default setting is disabled, for backwards-compatibility with
-     * Jackson 2.18.
+     * Jackson 2.x.
      */
     USE_TIME_ZONE_FOR_LENIENT_DATE_PARSING(false),
 
     /**
      * Feature that determines whether Date (and date/time) values
      * (and Date-based things like {@link java.util.Calendar}s) are to be
-     * serialized as numeric time stamps (true; the default),
-     * or as something else (usually textual representation).
+     * serialized as numeric time stamps ({@code true}),
+     * or as textual representation ({@code false}).
      * If textual representation is used, the actual format depends on configuration
-     * settings including possible per-property use of {@code @JsonFormat} annotation,
-     * globally configured {@link java.text.DateFormat}.
+     * settings including global defaults and possible per-type and/or per-property
+     * {@code @JsonFormat} annotation overrides.
      *<p>
      * For "classic" JDK date types ({@link java.util.Date}, {@link java.util.Calendar})
      * the default formatting is provided by {@link tools.jackson.databind.util.StdDateFormat},
      * and corresponds to format String of "yyyy-MM-dd'T'HH:mm:ss.SSSX"
      * (see {@link java.text.DateFormat} for details of format Strings).
-     * Whether this feature affects handling of other date-related
-     * types depend on handlers of those types, although ideally they
-     * should use this feature
+     * For Java 8 ({@code java.time.*}) and Joda Date-time textual format
+     * configuration differs, but this feature is still used as global
+     * default when choosing between numeric time stamps and textual representation.
      *<p>
      * Note: whether {@link java.util.Map} keys are serialized as Strings
      * or not is controlled using {@link #WRITE_DATE_KEYS_AS_TIMESTAMPS} instead of
@@ -224,7 +263,37 @@ public enum DateTimeFeature implements DatatypeFeature
      * NOT timestamps.
      */
     WRITE_DURATIONS_AS_TIMESTAMPS(false),
-    
+
+    /**
+     * Feature that controls how <b>zero timezone offset</b> ({@code offset == 0})
+     * is serialized: as "Z" (disabled) or as numeric offset
+     * "+00:00" or "+0000" (enabled).
+     *<p>
+     * NOTE: the name "UTC" is historical; this feature applies to <b>all timezones
+     * where the actual offset is zero</b> at serialization time (e.g., "UTC", "GMT",
+     * "Europe/London" in winter), regardless of the timezone ID.
+     *<p>
+     * This feature only controls zero-offset formatting when using "classic" JDK date
+     * types ({@link java.util.Date}, {@link java.util.Calendar}) and with
+     * {@link tools.jackson.databind.util.StdDateFormat} (the default).
+     * For Java 8 ({@code java.time.*}) and Joda date/time types, formatting is
+     * controlled by {@code DateTimeFormatter} configuration and this feature
+     * has no effect.
+     * Custom {@link java.text.DateFormat} instances are also not modified.
+     *<p>
+     * NOTE: when enabled, this feature overrides any {@code StdDateFormat}
+     * configuration set via
+     * {@link tools.jackson.databind.util.StdDateFormat#withZeroOffsetAsZ(boolean)}.
+     *<p>
+     * When enabled, the colon format ("+00:00" vs "+0000") is controlled by
+     * {@link tools.jackson.databind.util.StdDateFormat#withColonInTimeZone(boolean)}.
+     *<p>
+     * Feature is disabled by default to maintain Jackson 3.x standard behavior ("Z");
+     * it is usually enabled to achieve behavior similar to Jackson 2.x.
+     *
+     * @since 3.1
+     */
+    WRITE_UTC_AS_OFFSET(false),
     ;
 
     private final static int FEATURE_INDEX = DatatypeFeatures.FEATURE_INDEX_DATETIME;
@@ -243,8 +312,10 @@ public enum DateTimeFeature implements DatatypeFeature
 
     @Override
     public boolean enabledByDefault() { return _enabledByDefault; }
+
     @Override
     public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
+
     @Override
     public int getMask() { return _mask; }
 

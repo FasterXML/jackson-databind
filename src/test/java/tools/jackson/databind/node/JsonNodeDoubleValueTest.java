@@ -232,10 +232,17 @@ public class JsonNodeDoubleValueTest
     @Test
     public void asDoubleFromMiscOther()
     {
-        // Null node converts to 0.0d; missing fails
-        _assertAsDouble((double) 0, NODES.nullNode());
+        // Null node converts to 0.0d
+        assertEquals(0.0d, NODES.nullNode().asDouble());
 
-        _assertAsDoubleFailForNonNumber(NODES.missingNode());
+        // and defaults
+        assertEquals(-9999.5, NODES.nullNode().asDouble(-9999.5));
+        assertFalse(NODES.nullNode().asDoubleOpt().isPresent());
+
+        // [databind#5583]: as of 3.1, MissingNode behaves like NullNode
+        assertEquals(0.0d, NODES.missingNode().asDouble());
+        assertEquals(-9999.5, NODES.missingNode().asDouble(-9999.5));
+        assertFalse(NODES.missingNode().asDoubleOpt().isPresent());
     }
 
     // // // Shared helper methods
@@ -265,7 +272,7 @@ public class JsonNodeDoubleValueTest
                 () ->  node.doubleValue(),
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains("value type not numeric");
 
         assertEquals(1.5d, node.doubleValue(1.5d));
@@ -294,7 +301,7 @@ public class JsonNodeDoubleValueTest
     }
 
     private void _assertAsDoubleFailForNonNumber(JsonNode node) {
-        _assertAsDoubleFailForNonNumber(node, "value type not numeric");
+        _assertAsDoubleFailForNonNumber(node, "value type not coercible");
     }
 
     private void _assertAsDoubleFailForNonNumber(JsonNode node, String extraMatch) {
@@ -303,7 +310,7 @@ public class JsonNodeDoubleValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("asDouble()")
-            .contains("cannot convert value")
+            .contains("cannot coerce value")
             .contains(extraMatch);
 
         assertEquals(1.5d, node.asDouble(1.5d));

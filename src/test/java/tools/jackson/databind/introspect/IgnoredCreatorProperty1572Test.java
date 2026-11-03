@@ -1,5 +1,7 @@
 package tools.jackson.databind.introspect;
 
+import java.beans.ConstructorProperties;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
@@ -39,10 +41,9 @@ public class IgnoredCreatorProperty1572Test extends DatabindTestUtil
 
         @Override
         public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember member) {
-            if (member instanceof AnnotatedParameter) {
+            if (member instanceof AnnotatedParameter param) {
                 // A placeholder for legitimate property name detection
                 // such as what the JDK8 module provides
-                AnnotatedParameter param = (AnnotatedParameter) member;
                 switch (param.getIndex()) {
                 case 0:
                     return "innerTest";
@@ -52,6 +53,18 @@ public class IgnoredCreatorProperty1572Test extends DatabindTestUtil
                 }
             }
             return null;
+        }
+    }
+
+    // [databind#2001]
+    static public class Foo2001 {
+        @JsonIgnore
+        public String query;
+
+        @JsonCreator
+        @ConstructorProperties("rawQuery")
+        public Foo2001(@JsonProperty("query") String rawQuery) {
+            query = rawQuery;
         }
     }
 
@@ -76,5 +89,12 @@ public class IgnoredCreatorProperty1572Test extends DatabindTestUtil
         assertNotNull(result);
         assertNotNull(result.innerTest);
         assertEquals("otherStr", result.innerTest.otherStr);
+    }
+
+    // [databind#2001]
+    @Test
+    public void testIgnoredFieldPresentInPropertyCreator() throws Exception {
+        Foo2001 deserialized = newJsonMapper().readValue("{\"query\": \"bar\"}", Foo2001.class);
+        assertEquals("bar", deserialized.query);
     }
 }

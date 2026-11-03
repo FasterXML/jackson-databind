@@ -44,6 +44,7 @@ Project: jackson-databind
 #6339: Enum aliases from an appended `AnnotationIntrospector` are discarded:
   `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
  (reported, fixed by @Marti2203)
+#6399: `NullSerializer` should not be annotated with `@JacksonStdImpl`
 
 2.22.5 (not yet released)
 

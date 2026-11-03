@@ -11,47 +11,35 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.exc.MismatchedInputException;
-import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class BuilderArrayExtraValues6374Test
+class BuilderArrayExtraValues6374Test extends DatabindTestUtil
 {
+    private static final String OBJECT_EXTRA = """
+            {"z":[3]}""";
+
+    static class View { }
+
     @JsonDeserialize(builder = Value.Builder.class)
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
-    static class Value {
-        final int x, y;
-
-        Value(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
+    record Value(int x, int y) {
         @JsonPropertyOrder({ "x", "y" })
         @JsonFormat(shape = JsonFormat.Shape.ARRAY)
         static class Builder {
             private int x, y;
 
+            @JsonView(View.class)
             public Builder withX(int v) { x = v; return this; }
+            @JsonView(View.class)
             public Builder withY(int v) { y = v; return this; }
             public Value build() { return new Value(x, y); }
         }
     }
 
-    static class View { }
-
-    abstract static class ViewedBuilder {
-        @JsonView(View.class)
-        public abstract Value.Builder withX(int v);
-        @JsonView(View.class)
-        public abstract Value.Builder withY(int v);
-    }
-
     @JsonIgnoreProperties(ignoreUnknown = true)
     abstract static class IgnoringBuilder { }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    abstract static class IgnoringViewedBuilder extends ViewedBuilder { }
 
     static class Wrapper {
         @JsonView(View.class)
@@ -60,54 +48,39 @@ class BuilderArrayExtraValues6374Test
         public int after;
     }
 
-    private ObjectMapper mapper(boolean view, boolean ignoreByAnnotation) {
-        JsonMapper.Builder builder = JsonMapper.builder()
-                .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS,
-                        DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        if (ignoreByAnnotation) {
-            builder.addMixIn(Value.Builder.class,
-                    view ? IgnoringViewedBuilder.class : IgnoringBuilder.class);
-        } else if (view) {
-            builder.addMixIn(Value.Builder.class, ViewedBuilder.class);
-        }
-        return builder.build();
-    }
+    private final ObjectMapper MAPPER = newJsonMapper();
 
-    private ObjectReader reader(boolean view, boolean ignoreByAnnotation) {
-        ObjectReader reader = mapper(view, ignoreByAnnotation).reader();
-        return view ? reader.withView(View.class) : reader;
+    private final ObjectMapper IGNORING_MAPPER = jsonMapperBuilder()
+            .addMixIn(Value.Builder.class, IgnoringBuilder.class)
+            .build();
+
+    // Without active View, vanilla processing is used; with one, non-vanilla
+    private ObjectReader reader(ObjectMapper mapper, boolean view) {
+        return view ? mapper.readerWithView(View.class) : mapper.reader();
     }
 
     @ParameterizedTest
     @ValueSource(booleans = { false, true })
     void skipsExtraValuesAtRoot(boolean view) {
-        ObjectReader reader = reader(view, false).forType(Value.class)
-                .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        for (String extra : new String[] { "[3]", "[]", "{\"z\":[3]}", "{}", "3", "3,[4]" }) {
-            Value value = reader.readValue("[1,2," + extra + "]");
-            assertEquals(1, value.x);
-            assertEquals(2, value.y);
+        ObjectReader reader = reader(MAPPER, view).forType(Value.class);
+        for (String extra : new String[] { "[3]", "[]", OBJECT_EXTRA, "{}", "3", "3,[4]" }) {
+            assertEquals(new Value(1, 2), reader.readValue("[1,2," + extra + "]"));
         }
     }
 
     @ParameterizedTest
     @ValueSource(booleans = { false, true })
     void leavesParserAtEndOfNestedValue(boolean view) {
-        ObjectReader reader = reader(view, false)
-                .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        for (String extra : new String[] { "[3]", "{\"z\":[3]}" }) {
+        ObjectReader reader = reader(MAPPER, view);
+        for (String extra : new String[] { "[3]", OBJECT_EXTRA }) {
             List<Value> values = reader.forType(new TypeReference<List<Value>>() { })
                     .readValue("[[1,2," + extra + "],[4,5]]");
-            assertEquals(2, values.size());
-            assertEquals(1, values.get(0).x);
-            assertEquals(2, values.get(0).y);
-            assertEquals(4, values.get(1).x);
-            assertEquals(5, values.get(1).y);
+            assertEquals(List.of(new Value(1, 2), new Value(4, 5)), values);
 
             Wrapper wrapper = reader.forType(Wrapper.class)
-                    .readValue("{\"value\":[1,2," + extra + "],\"after\":7}");
-            assertEquals(1, wrapper.value.x);
-            assertEquals(2, wrapper.value.y);
+                    .readValue("""
+                            {"value":[1,2,%s],"after":7}""".formatted(extra));
+            assertEquals(new Value(1, 2), wrapper.value);
             assertEquals(7, wrapper.after);
         }
     }
@@ -115,15 +88,20 @@ class BuilderArrayExtraValues6374Test
     @ParameterizedTest
     @ValueSource(booleans = { false, true })
     void honorsIgnoreUnknownAnnotation(boolean view) {
-        Value value = reader(view, true).forType(Value.class).readValue("[1,2,[3]]");
-        assertEquals(1, value.x);
-        assertEquals(2, value.y);
+        ObjectReader reader = reader(IGNORING_MAPPER, view)
+                .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .forType(Value.class);
+        assertEquals(new Value(1, 2), reader.readValue("[1,2,[3]]"));
     }
 
     @ParameterizedTest
     @ValueSource(booleans = { false, true })
     void stillRejectsExtraValuesWhenStrict(boolean view) {
-        ObjectReader reader = reader(view, false).forType(Value.class);
-        assertThrows(MismatchedInputException.class, () -> reader.readValue("[1,2,[3]]"));
+        ObjectReader reader = reader(MAPPER, view)
+                .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .forType(Value.class);
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> reader.readValue("[1,2,[3]]"));
+        verifyException(e, "expected at most 2 properties");
     }
 }

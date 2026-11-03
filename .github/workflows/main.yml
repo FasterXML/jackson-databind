@@ -48,11 +48,11 @@ jobs:
         java-version: ${{ matrix.java_version }}
         cache: 'maven'
         server-id: central-snapshots
-        server-username: CI_DEPLOY_USERNAME
-        server-password: CI_DEPLOY_PASSWORD
+        server-username-env-var: CI_DEPLOY_USERNAME
+        server-password-env-var: CI_DEPLOY_PASSWORD
         # See https://github.com/actions/setup-java/blob/v2/docs/advanced-usage.md#Publishing-using-Apache-Maven
         # gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Value of the GPG private key to import
-        # gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
+        # gpg-passphrase-env-var: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
     - name: Build
       run: ./mvnw -B -ff -ntp verify
     - name: Extract project Maven version

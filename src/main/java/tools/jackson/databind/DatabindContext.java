@@ -238,7 +238,14 @@ public abstract class DatabindContext
         if (!baseType.isTypeOrSuperTypeOf(cls)) {
             return _throwNotASubtype(baseType, subClass);
         }
-        final JavaType subType = getTypeFactory().constructSpecializedType(baseType, cls);
+        final JavaType subType;
+        try {
+            subType = getTypeFactory().constructSpecializedType(baseType, cls);
+        } catch (IllegalArgumentException e) { // [databind#6401]: incompatible type bindings
+            throw invalidTypeIdException(baseType, subClass, "problem: (%s) %s".formatted(
+                    e.getClass().getName(),
+                    ClassUtil.exceptionMessage(e)));
+        }
         // May skip check if type was allowed by subclass name already
         if (vld == Validity.INDETERMINATE) {
             vld = ptv.validateSubType(this, baseType, subType);
@@ -266,7 +273,14 @@ public abstract class DatabindContext
         if (vld == Validity.DENIED) {
             return _throwSubtypeNameNotAllowed(baseType, subClass, ptv);
         }
-        JavaType subType = getTypeFactory().constructFromCanonical(subClass);
+        final JavaType subType;
+        try {
+            subType = getTypeFactory().constructFromCanonical(subClass);
+        } catch (IllegalArgumentException e) { // [databind#6401]: malformed generic type id
+            throw invalidTypeIdException(baseType, subClass, "problem: (%s) %s".formatted(
+                    e.getClass().getName(),
+                    ClassUtil.exceptionMessage(e)));
+        }
         if (!subType.isTypeOrSubTypeOf(baseType.getRawClass())) {
             return _throwNotASubtype(baseType, subClass);
         }

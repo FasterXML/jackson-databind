@@ -121,6 +121,33 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
         }
     }
 
+    // Creator parameter with no Record component: no existing value to retain
+    public record Temp(double celsius) {
+        @JsonCreator
+        public Temp(@JsonProperty("celsius") Double celsius,
+                @JsonProperty("fahrenheit") Double fahrenheit) {
+            this((celsius != null) ? celsius : (fahrenheit - 32.0) / 1.8);
+        }
+    }
+
+    // Parameter of wider primitive type than component
+    public record Wide(int count, String name) {
+        @JsonCreator
+        public static Wide of(@JsonProperty("name") String name,
+                @JsonProperty("count") long count) {
+            return new Wide((int) count, name);
+        }
+    }
+
+    // Parameter of narrower primitive type than component: cannot be passed
+    public record Narrow(long count, String name) {
+        @JsonCreator
+        public static Narrow of(@JsonProperty("name") String name,
+                @JsonProperty("count") int count) {
+            return new Narrow(count, name);
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     private final ObjectMapper NO_PARAM_NAMES_MAPPER = jsonMapperBuilder()
@@ -314,5 +341,40 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
                         {"id":"2","nick":"z"}
                         """);
         assertEquals(new Opt("2", Optional.of("z")), result);
+    }
+
+    @Test
+    public void updateWithCreatorPropertyWithoutComponent() throws Exception
+    {
+        Temp result = MAPPER.readerForUpdating(new Temp(1.0))
+                .readValue("""
+                        {"celsius":5}
+                        """);
+        assertEquals(new Temp(5.0), result);
+
+        // and with no input at all, existing value is kept
+        result = MAPPER.readerForUpdating(new Temp(1.0)).readValue("{}");
+        assertEquals(new Temp(1.0), result);
+    }
+
+    @Test
+    public void updateWithWiderPrimitiveParameter() throws Exception
+    {
+        Wide result = MAPPER.readerForUpdating(new Wide(7, "a"))
+                .readValue("""
+                        {"name":"b"}
+                        """);
+        assertEquals(new Wide(7, "b"), result);
+    }
+
+    @Test
+    public void updateFailsForNarrowerPrimitiveParameter() throws Exception
+    {
+        ObjectReader r = MAPPER.readerForUpdating(new Narrow(7L, "a"));
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> r.readValue("""
+                        {"name":"b"}
+                        """));
+        verifyException(e, "Cannot update Record", "'count'");
     }
 }

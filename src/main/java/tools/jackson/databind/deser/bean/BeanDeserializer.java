@@ -48,6 +48,14 @@ public class BeanDeserializer
      */
     private volatile transient Method[] _recordComponentAccessors;
 
+    /**
+     * Lazily resolved: whether all Record components are linked to Creator
+     * parameters (only used with {@link #_recordAccessors})
+     *
+     * @since 3.3
+     */
+    private volatile transient Boolean _allRecordComponentsLinked;
+
     /*
     /**********************************************************************
     /* Life-cycle, constructors
@@ -477,11 +485,72 @@ public class BeanDeserializer
         if (value == null) {
             return true;
         }
-        Class<?> raw = prop.getType().getRawClass();
+        final Class<?> raw = prop.getType().getRawClass();
         if (raw.isPrimitive()) {
-            raw = ClassUtil.wrapperType(raw);
+            // reflection unboxes and widens (like `int` component for `long` parameter)
+            final Class<?> valueType = ClassUtil.primitiveType(value.getClass());
+            return (valueType != null) && _isWideningOrIdentity(valueType, raw);
         }
         return raw.isInstance(value);
+    }
+
+    // Primitive conversions allowed by JLS 5.1.1 (identity) and 5.1.2 (widening)
+    private static boolean _isWideningOrIdentity(Class<?> from, Class<?> to) {
+        if (from == to) {
+            return true;
+        }
+        if (from == Byte.TYPE) {
+            return (to == Short.TYPE) || (to == Integer.TYPE) || (to == Long.TYPE)
+                    || (to == Float.TYPE) || (to == Double.TYPE);
+        }
+        if ((from == Short.TYPE) || (from == Character.TYPE)) {
+            return (to == Integer.TYPE) || (to == Long.TYPE)
+                    || (to == Float.TYPE) || (to == Double.TYPE);
+        }
+        if (from == Integer.TYPE) {
+            return (to == Long.TYPE) || (to == Float.TYPE) || (to == Double.TYPE);
+        }
+        if (from == Long.TYPE) {
+            return (to == Float.TYPE) || (to == Double.TYPE);
+        }
+        if (from == Float.TYPE) {
+            return (to == Double.TYPE);
+        }
+        return false;
+    }
+
+    /**
+     * Whether every Record component is linked to some Creator parameter: if so,
+     * a Creator parameter with no linked accessor has no existing value to retain.
+     * Possible race between threads is benign: result is the same either way.
+     */
+    private boolean _allRecordComponentsLinked() {
+        Boolean all = _allRecordComponentsLinked;
+        if (all == null) {
+            all = Boolean.TRUE;
+            final RecordComponent[] components = _beanType.getRawClass().getRecordComponents();
+            if (components == null) {
+                all = Boolean.FALSE;
+            } else {
+                for (RecordComponent component : components) {
+                    if (!_isLinkedRecordComponent(component)) {
+                        all = Boolean.FALSE;
+                        break;
+                    }
+                }
+            }
+            _allRecordComponentsLinked = all;
+        }
+        return all.booleanValue();
+    }
+
+    private boolean _isLinkedRecordComponent(RecordComponent component) {
+        for (AnnotatedMethod accessor : _recordAccessors) {
+            if ((accessor != null) && accessor.getAnnotated().equals(component.getAccessor())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -528,13 +597,19 @@ public class BeanDeserializer
     {
         // [databind#6383]: a Creator property that could not be pre-populated (no
         // linked accessor, or value of incompatible type) would lose its value:
-        // fail instead, unless the input provided a value for it
-        if (_recordAccessors != null) {
+        // fail instead, unless the input provided a value for it. A property with no
+        // linked accessor is fine if all components are linked to other properties.
+        final AnnotatedMethod[] linkedAccessors = _recordAccessors;
+        if (linkedAccessors != null) {
             for (SettableBeanProperty creatorProp : creator.allPropertiesInOrder()) {
-                if (creatorProp == null || creatorProp.getInjectableValueId() != null) {
+                if (creatorProp == null || creatorProp.getInjectableValueId() != null
+                        || buffer.hasParameter(creatorProp)) {
                     continue;
                 }
-                if (!buffer.hasParameter(creatorProp)) {
+                final int ix = creatorProp.getCreatorIndex();
+                final boolean linked = (ix >= 0) && (ix < linkedAccessors.length)
+                        && (linkedAccessors[ix] != null);
+                if (linked || !_allRecordComponentsLinked()) {
                     return ctxt.reportBadDefinition(_beanType, String.format(
 "Cannot update Record %s: no Record accessor of compatible type linked to Creator property %s, and input has no value for it",
                             ClassUtil.nameOf(_beanType.getRawClass()),

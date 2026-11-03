@@ -12,6 +12,7 @@ import tools.jackson.databind.AnnotationIntrospector;
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.AnnotatedClassResolver;
@@ -130,6 +131,10 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                     || !parentType.isAssignableFrom(subtype) || !parentType.isSealed()) {
                 continue;
             }
+            Class<?>[] permitted = parentType.getPermittedSubclasses();
+            if (permitted.length != 1 || permitted[0] != subtype) {
+                continue;
+            }
             String id = parent.getName();
             boolean ambiguous = subtypes.stream().anyMatch(other -> {
                 Class<?> otherType = other.getType();
@@ -137,28 +142,19 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                     return false;
                 }
                 String otherId = other.hasName() ? other.getName() : defaultTypeId.apply(otherType);
-                if (caseInsensitive ? id.equalsIgnoreCase(otherId) : id.equals(otherId)) {
-                    return true;
-                }
-                return !other.hasName() && ClassUtil.isConcrete(otherType)
-                        && parentType.isAssignableFrom(otherType);
+                return caseInsensitive ? id.equalsIgnoreCase(otherId) : id.equals(otherId);
             });
             if (ambiguous) {
                 continue;
             }
-            Class<?>[] permitted = parentType.getPermittedSubclasses();
-            boolean solePermittedLeaf = permitted.length == 1 && permitted[0] == subtype;
             AnnotatedClass parentInfo = AnnotatedClassResolver.resolve(config,
                     config.constructType(parentType), config);
             for (AnnotatedMethod factory : parentInfo.getFactoryMethods()) {
                 Class<?> returnType = factory.getRawReturnType();
-                if ((!solePermittedLeaf && returnType != subtype)
-                        || !parentType.isAssignableFrom(returnType)
-                        || !returnType.isAssignableFrom(subtype)) {
+                if (!parentType.isAssignableFrom(returnType) || !returnType.isAssignableFrom(subtype)) {
                     continue;
                 }
-                JsonCreator.Mode mode = intr.findCreatorAnnotation(config, factory);
-                if (mode != null && mode != JsonCreator.Mode.DISABLED) {
+                if (_hasNamedCreatorParameters(config, intr, factory)) {
                     AnnotatedClass subtypeInfo = AnnotatedClassResolver.resolve(config,
                             config.constructType(subtype), config);
                     if (id.equals(intr.findTypeName(config, subtypeInfo))) {
@@ -169,6 +165,22 @@ public class TypeNameIdResolver extends TypeIdResolverBase
             }
         }
         return null;
+    }
+
+    private static boolean _hasNamedCreatorParameters(MapperConfig<?> config,
+            AnnotationIntrospector intr, AnnotatedMethod factory) {
+        JsonCreator.Mode mode = intr.findCreatorAnnotation(config, factory);
+        if ((mode != JsonCreator.Mode.DEFAULT && mode != JsonCreator.Mode.PROPERTIES)
+                || factory.getParameterCount() == 0) {
+            return false;
+        }
+        for (int i = 0; i < factory.getParameterCount(); ++i) {
+            PropertyName name = intr.findNameForDeserialization(config, factory.getParameter(i));
+            if (name == null || !name.hasSimpleName()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

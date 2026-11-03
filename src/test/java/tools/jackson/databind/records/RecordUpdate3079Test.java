@@ -18,6 +18,8 @@ public class RecordUpdate3079Test extends DatabindTestUtil
 {
     public record IdNameRecord(int id, String name) { }
 
+    record NonPublicRecord(int id, String name) { }
+
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record IgnoreAllRecord(int id) { }
 
@@ -122,6 +124,57 @@ public class RecordUpdate3079Test extends DatabindTestUtil
         assertEquals(137, result.id());
         assertEquals("Bob", result.name());
         assertNotSame(orig, result);
+    }
+
+    // [databind#6385]: a public accessor on a non-public record still needs access
+    @Test
+    public void readerForUpdatingNonPublicRecord() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .disable(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS)
+                .build();
+        NonPublicRecord original = new NonPublicRecord(123, "Bob");
+        NonPublicRecord updated = mapper.readerForUpdating(original)
+                .readValue("""
+                        {"id":137}
+                        """);
+        assertEquals(new NonPublicRecord(137, "Bob"), updated);
+
+        // and second update to use cached (access-fixed) accessors
+        updated = mapper.readerForUpdating(updated)
+                .readValue("""
+                        {"name":"Bill"}
+                        """);
+        assertEquals(new NonPublicRecord(137, "Bill"), updated);
+    }
+
+    // [databind#6385]: same with default settings
+    @Test
+    public void readerForUpdatingNonPublicRecordDefaults() throws Exception
+    {
+        NonPublicRecord updated = MAPPER.readerForUpdating(new NonPublicRecord(123, "Bob"))
+                .readValue("""
+                        {"name":"Bill"}
+                        """);
+        assertEquals(new NonPublicRecord(123, "Bill"), updated);
+    }
+
+    // [databind#6385]: access can not be fixed if overrides not allowed at all
+    @Test
+    public void readerForUpdatingNonPublicRecordNoAccessOverride() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)
+                .build();
+        ObjectReader r = mapper.readerForUpdating(new NonPublicRecord(123, "Bob"));
+        DatabindException e = assertThrows(DatabindException.class,
+                () -> r.readValue("""
+                        {"id":137}
+                        """));
+        // Check Jackson-provided path, not JDK exception message
+        assertEquals(1, e.getPath().size());
+        assertEquals(NonPublicRecord.class, e.getPath().get(0).from());
+        assertEquals("id", e.getPath().get(0).getPropertyName());
     }
 
     // [databind#3079]: update Record via ObjectReader, all properties

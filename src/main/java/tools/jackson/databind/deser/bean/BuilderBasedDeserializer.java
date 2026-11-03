@@ -265,7 +265,7 @@ public class BuilderBasedDeserializer
     {
         // common case first:
         if (p.isExpectedStartObjectToken()) {
-            if (_vanillaProcessing) {
+            if (_useVanillaProcessing(ctxt)) {
                 return finishBuild(ctxt, _vanillaDeserialize(p, ctxt));
             }
             p.nextToken();
@@ -583,7 +583,7 @@ public class BuilderBasedDeserializer
             }
             TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
             tokens.writeStartObject();
-            return deserializeWithUnwrapped(p, ctxt, builder, tokens);
+            return deserializeWithUnwrapped(p, ctxt, builder, tokens, false);
         }
         if (_externalTypeIdHandler != null) {
             return deserializeWithExternalTypeId(p, ctxt, builder);
@@ -779,15 +779,33 @@ public class BuilderBasedDeserializer
             }
         }
         tokens.writeEndObject();
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens, hasUnwrappedContent);
+        return _unwrappedPropertyHandler.processUnwrappedForBuilder(p, ctxt, bean, tokens, hasUnwrappedContent);
     }
 
+    /**
+     * @deprecated Since 3.3 use
+     *    {@link #deserializeWithUnwrapped(JsonParser, DeserializationContext, Object, TokenBuffer, boolean)}
+     */
+    @Deprecated // since 3.3
     protected Object deserializeWithUnwrapped(JsonParser p,
             DeserializationContext ctxt, Object builder, TokenBuffer tokens)
         throws JacksonException
     {
+        return deserializeWithUnwrapped(p, ctxt, builder, tokens, false);
+    }
+
+    /**
+     * @param hasUnwrappedContent Whether {@code tokens} already contains unwrapped
+     *    content (buffered before the Creator completed)
+     *
+     * @since 3.3
+     */
+    protected Object deserializeWithUnwrapped(JsonParser p,
+            DeserializationContext ctxt, Object builder, TokenBuffer tokens,
+            boolean hasUnwrappedContent)
+        throws JacksonException
+    {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        boolean hasUnwrappedContent = false;
 
         for (int ix = p.currentNameMatch(_propertyNameMatcher); ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) { // common case
@@ -832,7 +850,7 @@ public class BuilderBasedDeserializer
             _anySetter.deserializeAndSet(p, ctxt, builder, propName);
         }
         tokens.writeEndObject();
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
+        return _unwrappedPropertyHandler.processUnwrappedForBuilder(p, ctxt, builder, tokens, hasUnwrappedContent);
     }
 
     @SuppressWarnings("resource")
@@ -884,7 +902,7 @@ public class BuilderBasedDeserializer
                     if (builder.getClass() != _beanType.getRawClass()) {
                         return handlePolymorphic(p, ctxt, builder, tokens);
                     }
-                    return deserializeWithUnwrapped(p, ctxt, builder, tokens);
+                    return deserializeWithUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
                 }
                 continue;
             }
@@ -939,7 +957,7 @@ public class BuilderBasedDeserializer
             return wrapInstantiationProblem(ctxt, e);
 
         }
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
+        return _unwrappedPropertyHandler.processUnwrappedForBuilder(p, ctxt, builder, tokens, hasUnwrappedContent);
     }
 
     /*
@@ -969,7 +987,7 @@ public class BuilderBasedDeserializer
                 SettableBeanProperty prop = _propertiesByIndex[ix];
                 JsonToken t = p.nextToken();
                 // May have property AND be used as external type id:
-                if (t.isScalarValue()) {
+                if ((t != null) && t.isScalarValue()) {
                     ext.handleTypePropertyValue(p, ctxt, p.currentName(), bean);
                 }
                 if (activeView != null && !prop.visibleInView(activeView)) {

@@ -33,7 +33,7 @@ public class TypeResolverProviderDeprecated5844Test extends DatabindTestUtil
         MapperConfig<?> config = JsonMapper.shared().serializationConfig();
         JavaType baseType = defaultTypeFactory().constructType(Object.class);
         JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.NAME,
-                JsonTypeInfo.As.PROPERTY, null, null, false, null);
+                JsonTypeInfo.As.PROPERTY, null, null, false, null, null);
 
         // Before fix: StackOverflowError due to self-recursion
         assertNotNull(new DelegatingProvider().callDeprecated(config, typeInfo, baseType));

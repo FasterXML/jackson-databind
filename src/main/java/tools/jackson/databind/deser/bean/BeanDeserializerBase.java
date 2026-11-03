@@ -99,8 +99,14 @@ public abstract class BeanDeserializerBase
     protected boolean _nonStandardCreation;
 
     /**
-     * Flag that indicates that no "special features" whatsoever
-     * are enabled, so the simplest processing is possible.
+     * Flag that indicates that no "special features" other than possible
+     * JSON View handling are enabled, so the simplest processing is
+     * possible when no view is active.
+     * Subclasses may clear this flag to disable vanilla processing.
+     *<p>
+     * NOTE: since 3.3 this flag does not take JSON Views into account
+     * ([databind#6219]): callers need to use {@link #_useVanillaProcessing}
+     * instead of checking the flag directly, to honor the active view.
      */
     protected boolean _vanillaProcessing;
 
@@ -288,9 +294,10 @@ public abstract class BeanDeserializerBase
         _serializationShape = beanDescRef.findExpectedFormat(_beanType.getRawClass()).getShape();
 
         _needViewProcesing = hasViews;
+        // [databind#6219]: view processing only needed if a view is active,
+        // which is checked per-call
         _vanillaProcessing = !_nonStandardCreation
                 && (_injectables == null)
-                && !_needViewProcesing
                 // also, may need to reorder stuff if we expect Object Id:
                 && (_objectIdReader == null)
                 ;
@@ -1328,6 +1335,19 @@ ClassUtil.getTypeDescription(ct));
 
     public boolean hasViews() {
         return _needViewProcesing;
+    }
+
+    /**
+     * Whether the vanilla fast path may be used for this call.
+     * View processing is required only when a view is actually active,
+     * so the fast path is also valid for beans with views if no view is active.
+     * See [databind#6219].
+     *
+     * @since 3.3
+     */
+    protected final boolean _useVanillaProcessing(DeserializationContext ctxt) {
+        return _vanillaProcessing
+                && (!_needViewProcesing || (ctxt.getActiveView() == null));
     }
 
     @Override

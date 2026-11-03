@@ -265,7 +265,7 @@ public class BuilderBasedDeserializer
     {
         // common case first:
         if (p.isExpectedStartObjectToken()) {
-            if (_vanillaProcessing) {
+            if (_useVanillaProcessing(ctxt)) {
                 return finishBuild(ctxt, _vanillaDeserialize(p, ctxt));
             }
             p.nextToken();
@@ -349,11 +349,12 @@ public class BuilderBasedDeserializer
             int ix = p.nextNameMatch(_propertyNameMatcher);
             if (ix >= 0) {
                 p.nextToken();
-                SettableBeanProperty prop = _propertiesByIndex[ix];
+                // Report name as found in input (may be alias), same as `deserializeFromObject()`
+                final String currentName = p.currentName();
                 try {
-                    builder = prop.deserializeSetAndReturn(p, ctxt, builder);
+                    builder = _propertiesByIndex[ix].deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, builder, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, builder, _failedPropertyName(currentName, _propertiesByIndex[ix]), ctxt);
                 }
                 continue;
             }
@@ -412,7 +413,7 @@ public class BuilderBasedDeserializer
                 try {
                     bean = _propertiesByIndex[ix].deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, currentName, ctxt);
+                    throw wrapAndThrow(e, bean, _failedPropertyName(currentName, _propertiesByIndex[ix]), ctxt);
                 }
                 continue;
             }
@@ -546,6 +547,12 @@ public class BuilderBasedDeserializer
             unknown.copyCurrentStructure(p);
         }
 
+        // [databind#6357]: loop also ends on unexpected token; builder only to be
+        // constructed after actual END_OBJECT
+        if (t != JsonToken.END_OBJECT) {
+            return _handleUnexpectedWithin(p, ctxt, null);
+        }
+
         // We hit END_OBJECT, so:
         Object builder;
         try {
@@ -593,10 +600,11 @@ public class BuilderBasedDeserializer
             if (ix >= 0) {
                 p.nextToken();
                 SettableBeanProperty prop = _propertiesByIndex[ix];
+                final String currentName = p.currentName();
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, builder, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, builder, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -670,10 +678,11 @@ public class BuilderBasedDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
+                final String currentName = p.currentName();
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -728,10 +737,11 @@ public class BuilderBasedDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
+                final String currentName = p.currentName();
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -788,10 +798,11 @@ public class BuilderBasedDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
+                final String currentName = p.currentName();
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    wrapAndThrow(e, builder, prop.getName(), ctxt);
+                    wrapAndThrow(e, builder, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -913,6 +924,12 @@ public class BuilderBasedDeserializer
             }
             buffer.bufferAnyProperty(_anySetter, propName, p, ctxt);
         }
+        // [databind#6357]: loop also ends on unexpected token; must not finalize
+        // buffered properties
+        if (t != JsonToken.END_OBJECT) {
+            return _handleUnexpectedWithin(p, ctxt, null);
+        }
+
         tokens.writeEndObject();
 
         // We hit END_OBJECT, so:
@@ -953,17 +970,18 @@ public class BuilderBasedDeserializer
                 SettableBeanProperty prop = _propertiesByIndex[ix];
                 JsonToken t = p.nextToken();
                 // May have property AND be used as external type id:
-                if (t.isScalarValue()) {
+                if ((t != null) && t.isScalarValue()) {
                     ext.handleTypePropertyValue(p, ctxt, p.currentName(), bean);
                 }
                 if (activeView != null && !prop.visibleInView(activeView)) {
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
+                final String currentName = p.currentName();
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -1021,13 +1039,15 @@ public class BuilderBasedDeserializer
 
     /**
      * Method called if an unexpected token (other then <code>FIELD_NAME</code>)
-     * is found after POJO has been instantiated and partially bound.
+     * is found after POJO has been instantiated and partially bound; or,
+     * with Creator-based construction, before instantiation
+     * (in which case {@code beanOrBuilder} is {@code null}).
      *
      * @since 3.0
      */
     protected Object _handleUnexpectedWithin(JsonParser p,
             DeserializationContext ctxt, Object beanOrBuilder) throws JacksonException
     {
-        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        return _reportUnexpectedWithinObject(p, ctxt);
     }
 }

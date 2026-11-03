@@ -176,7 +176,8 @@ public class JsonValueSerializer
                  */
                 // I _think_ this can be considered a primary property...
                 ser = ctxt.findPrimaryPropertySerializer(_valueType, property);
-                ser = _withAccessorProperties(ctxt, ser, property);
+                ser = _withAccessorKeySerializer(ctxt,
+                        _withIgnoreProperties(ser, _ignoredProperties), property);
                 /* 09-Dec-2010, tatu: Turns out we must add special handling for
                  *   cases where "native" (aka "natural") type is being serialized,
                  *   using standard serializer
@@ -191,7 +192,7 @@ public class JsonValueSerializer
         } else {
             // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
             ser = ctxt.handlePrimaryContextualization(ser, property);
-            ser = _withAccessorProperties(ctxt, ser, property);
+            ser = _withAccessorKeySerializer(ctxt, ser, property);
             return withResolved(property, vts, ser, _forceTypeInformation);
         }
         return this;
@@ -244,8 +245,12 @@ public class JsonValueSerializer
     }
 
     protected ValueSerializer<Object> _findSerializer(SerializationContext ctxt, Object value) {
-        final UnaryOperator<ValueSerializer<Object>> serTransformer =
-                valueSer -> _withAccessorProperties(ctxt, valueSer, _property);
+        return _findSerializer(ctxt, value, valueSer -> _withAccessorKeySerializer(ctxt,
+                _withIgnoreProperties(valueSer, _ignoredProperties), _property));
+    }
+
+    private ValueSerializer<Object> _findSerializer(SerializationContext ctxt, Object value,
+            UnaryOperator<ValueSerializer<Object>> serTransformer) {
         Class<?> cc = value.getClass();
         if (_valueType.hasGenericTypes()) {
             return _findAndAddDynamic(ctxt,
@@ -256,9 +261,8 @@ public class JsonValueSerializer
     }
 
     @SuppressWarnings("unchecked")
-    protected ValueSerializer<Object> _withAccessorProperties(SerializationContext ctxt,
+    private ValueSerializer<Object> _withAccessorKeySerializer(SerializationContext ctxt,
             ValueSerializer<?> ser, BeanProperty property) {
-        ser = _withIgnoreProperties(ser, _ignoredProperties);
         if (ser instanceof MapSerializer mapSer) {
             AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
             AnnotatedMember member = (property == null) ? null : property.getMember();
@@ -315,7 +319,8 @@ public class JsonValueSerializer
         }
         ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            ser = _findSerializer(ctxt, value);
+            ser = _findSerializer(ctxt, value,
+                    valueSer -> _withAccessorKeySerializer(ctxt, valueSer, _property));
         }
         // [databind#6206]: simple check for direct cycle through accessor
         //   (if written as null, no type id, same as with actual null value above)

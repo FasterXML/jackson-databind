@@ -6,6 +6,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ser.jdk.BooleanSerializer;
+import tools.jackson.databind.ser.std.NullSerializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.ClassUtil;
 
@@ -89,5 +90,13 @@ public class JDKHandlersStdImplTest
         Class<?> cls = Class.forName(BooleanSerializer.class.getName()+"$AsNumber");
         assertFalse(ClassUtil.isJacksonStdImpl(cls),
                 "BooleanSerializer.AsNumber must not be @JacksonStdImpl (see databind#6342)");
+    }
+
+    // [databind#6399]: `NullSerializer` is a fallback, not the default serializer
+    // for any type, so must NOT be marked as standard implementation either
+    @Test
+    public void nullSerializerNotMarkedAsStdImpl() throws Exception {
+        assertFalse(ClassUtil.isJacksonStdImpl(NullSerializer.class),
+                "NullSerializer must not be @JacksonStdImpl (see databind#6399)");
     }
 }

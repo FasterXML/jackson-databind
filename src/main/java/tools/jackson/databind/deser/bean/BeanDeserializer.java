@@ -348,7 +348,7 @@ public class BeanDeserializer
             if (creatorIndex >= 0 && creatorIndex < components.length) {
                 try {
                     Method accessor = components[creatorIndex].getAccessor();
-                    if (ctxt.canOverrideAccessModifiers() && !accessor.canAccess(existingRecord)) {
+                    if (ctxt.canOverrideAccessModifiers()) {
                         ClassUtil.checkAndFixAccess(accessor,
                                 ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                     }

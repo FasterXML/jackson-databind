@@ -49,7 +49,7 @@ public class JsonInclude4464Test {
 
     @Test
     public void test86() throws IOException {
-        ObjectMapper mapper = JsonMapper.builder().serializationInclusion(JsonInclude.Include.NON_DEFAULT).build();
+        ObjectMapper mapper = JsonMapper.builder().defaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_DEFAULT, JsonInclude.Include.NON_DEFAULT)).build();
         String json = mapper.writeValueAsString(new Foo());
         assertEquals("{}", json);
     }

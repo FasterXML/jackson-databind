@@ -147,7 +147,7 @@ public class ViewSerialization2Test extends DatabindTestUtil
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .configure( SerializationFeature.FAIL_ON_EMPTY_BEANS, false )
-                .serializationInclusion(JsonInclude.Include.NON_NULL )
+                .defaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_NULL, JsonInclude.Include.NON_NULL))
                 .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false )
                 .build();
         return mapper;

@@ -187,7 +187,12 @@ public abstract class DatabindContext
             // 17-Aug-2017, tatu: As per [databind#1735] need to ensure assignment
             //    compatibility -- needed later anyway, and not doing so may open
             //    security issues.
-            JavaType t = getTypeFactory().constructFromCanonical(subClassName);
+            final JavaType t;
+            try {
+                t = getTypeFactory().constructFromCanonical(subClassName);
+            } catch (IllegalArgumentException e) { // [databind#6401]: malformed generic type id
+                throw _invalidTypeIdProblem(baseType, subClassName, e);
+            }
             if (t.isTypeOrSubTypeOf(baseType.getRawClass())) {
                 return t;
             }
@@ -198,12 +203,14 @@ public abstract class DatabindContext
             } catch (ClassNotFoundException e) { // let caller handle this problem
                 return null;
             } catch (Exception e) {
-                throw invalidTypeIdException(baseType, subClassName, "problem: (%s) %s".formatted(
-                        e.getClass().getName(),
-                        ClassUtil.exceptionMessage(e)));
+                throw _invalidTypeIdProblem(baseType, subClassName, e);
             }
             if (baseType.isTypeOrSuperTypeOf(cls)) {
-                return getTypeFactory().constructSpecializedType(baseType, cls);
+                try {
+                    return getTypeFactory().constructSpecializedType(baseType, cls);
+                } catch (IllegalArgumentException e) { // [databind#6401]: incompatible type bindings
+                    throw _invalidTypeIdProblem(baseType, subClassName, e);
+                }
             }
         }
         throw invalidTypeIdException(baseType, subClassName, "Not a subtype");
@@ -231,9 +238,7 @@ public abstract class DatabindContext
         } catch (ClassNotFoundException e) { // let caller handle this problem
             return null;
         } catch (Exception e) {
-            throw invalidTypeIdException(baseType, subClass, "problem: (%s) %s".formatted(
-                    e.getClass().getName(),
-                    ClassUtil.exceptionMessage(e)));
+            throw _invalidTypeIdProblem(baseType, subClass, e);
         }
         if (!baseType.isTypeOrSuperTypeOf(cls)) {
             return _throwNotASubtype(baseType, subClass);
@@ -242,9 +247,7 @@ public abstract class DatabindContext
         try {
             subType = getTypeFactory().constructSpecializedType(baseType, cls);
         } catch (IllegalArgumentException e) { // [databind#6401]: incompatible type bindings
-            throw invalidTypeIdException(baseType, subClass, "problem: (%s) %s".formatted(
-                    e.getClass().getName(),
-                    ClassUtil.exceptionMessage(e)));
+            throw _invalidTypeIdProblem(baseType, subClass, e);
         }
         // May skip check if type was allowed by subclass name already
         if (vld == Validity.INDETERMINATE) {
@@ -277,9 +280,7 @@ public abstract class DatabindContext
         try {
             subType = getTypeFactory().constructFromCanonical(subClass);
         } catch (IllegalArgumentException e) { // [databind#6401]: malformed generic type id
-            throw invalidTypeIdException(baseType, subClass, "problem: (%s) %s".formatted(
-                    e.getClass().getName(),
-                    ClassUtil.exceptionMessage(e)));
+            throw _invalidTypeIdProblem(baseType, subClass, e);
         }
         if (!subType.isTypeOrSubTypeOf(baseType.getRawClass())) {
             return _throwNotASubtype(baseType, subClass);
@@ -489,6 +490,19 @@ public abstract class DatabindContext
 
     protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws DatabindException {
         throw invalidTypeIdException(baseType, subType, "Not a subtype");
+    }
+
+    /**
+     * Helper for constructing exception to throw when resolution of type id
+     * fails due to given (unexpected) exception.
+     *
+     * @since 3.3
+     */
+    private DatabindException _invalidTypeIdProblem(JavaType baseType, String typeId,
+            Exception e) {
+        return invalidTypeIdException(baseType, typeId, "problem: (%s) %s".formatted(
+                e.getClass().getName(),
+                ClassUtil.exceptionMessage(e)));
     }
 
     protected <T> T _throwSubtypeNameNotAllowed(JavaType baseType, String subType,

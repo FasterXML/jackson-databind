@@ -17,6 +17,7 @@ import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.AnnotatedClassResolver;
 import tools.jackson.databind.introspect.AnnotatedMethod;
+import tools.jackson.databind.introspect.BeanPropertyDefinition;
 import tools.jackson.databind.jsontype.NamedType;
 import tools.jackson.databind.util.ClassUtil;
 
@@ -147,6 +148,18 @@ public class TypeNameIdResolver extends TypeIdResolverBase
             if (ambiguous) {
                 continue;
             }
+            JavaType subtypeType = config.constructType(subtype);
+            AnnotatedClass subtypeInfo = AnnotatedClassResolver.resolve(config, subtypeType, config);
+            if (!id.equals(intr.findTypeName(config, subtypeInfo))) {
+                continue;
+            }
+            Map<String, JavaType> serializedProperties = new HashMap<>();
+            for (BeanPropertyDefinition prop : config.classIntrospectorInstance()
+                    .introspectForSerialization(subtypeType, subtypeInfo).findProperties()) {
+                if (prop.couldSerialize()) {
+                    serializedProperties.put(prop.getName(), prop.getPrimaryType());
+                }
+            }
             AnnotatedClass parentInfo = AnnotatedClassResolver.resolve(config,
                     config.constructType(parentType), config);
             for (AnnotatedMethod factory : parentInfo.getFactoryMethods()) {
@@ -154,29 +167,27 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                 if (!parentType.isAssignableFrom(returnType) || !returnType.isAssignableFrom(subtype)) {
                     continue;
                 }
-                if (_hasNamedCreatorParameters(config, intr, factory)) {
-                    AnnotatedClass subtypeInfo = AnnotatedClassResolver.resolve(config,
-                            config.constructType(subtype), config);
-                    if (id.equals(intr.findTypeName(config, subtypeInfo))) {
-                        return id;
-                    }
-                    break;
+                if (_matchesSerializedProperties(config, intr, factory, serializedProperties)) {
+                    return id;
                 }
             }
         }
         return null;
     }
 
-    private static boolean _hasNamedCreatorParameters(MapperConfig<?> config,
-            AnnotationIntrospector intr, AnnotatedMethod factory) {
+    private static boolean _matchesSerializedProperties(MapperConfig<?> config,
+            AnnotationIntrospector intr, AnnotatedMethod factory, Map<String, JavaType> properties) {
         JsonCreator.Mode mode = intr.findCreatorAnnotation(config, factory);
+        int parameterCount = factory.getParameterCount();
         if ((mode != JsonCreator.Mode.DEFAULT && mode != JsonCreator.Mode.PROPERTIES)
-                || factory.getParameterCount() == 0) {
+                || parameterCount == 0 || parameterCount != properties.size()) {
             return false;
         }
-        for (int i = 0; i < factory.getParameterCount(); ++i) {
+        Set<String> matched = new HashSet<>();
+        for (int i = 0; i < parameterCount; ++i) {
             PropertyName name = intr.findNameForDeserialization(config, factory.getParameter(i));
-            if (name == null || !name.hasSimpleName()) {
+            if (name == null || !name.hasSimpleName() || !matched.add(name.getSimpleName())
+                    || !factory.getParameterType(i).equals(properties.get(name.getSimpleName()))) {
                 return false;
             }
         }

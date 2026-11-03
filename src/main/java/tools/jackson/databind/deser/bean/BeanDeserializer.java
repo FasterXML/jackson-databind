@@ -347,7 +347,7 @@ public class BeanDeserializer
         // components marked ignorable so their original values are retained
         // (JSON cannot overwrite them; see Step 2).
         final Class<?> recordClass = _beanType.getRawClass();
-        final Method[] accessors = _recordAccessors(ctxt);
+        final Method[] accessors = _resolveRecordAccessors(ctxt);
         for (SettableBeanProperty creatorProp : creator.allPropertiesInOrder()) {
             if (creatorProp == null) {
                 continue;
@@ -461,18 +461,30 @@ public class BeanDeserializer
      * fixing access (as allowed by configuration) once instead of on every update.
      * Possible race between threads is benign: result is the same either way.
      */
-    private Method[] _recordAccessors(DeserializationContext ctxt)
+    private Method[] _resolveRecordAccessors(DeserializationContext ctxt)
+        throws JacksonException
     {
         Method[] accessors = _recordAccessors;
         if (accessors == null) {
-            final RecordComponent[] components = _beanType.getRawClass().getRecordComponents();
+            final Class<?> recordClass = _beanType.getRawClass();
+            final RecordComponent[] components = recordClass.getRecordComponents();
+            if (components == null) {
+                // no reflective access on native image (or not a Record)
+                return ctxt.reportBadDefinition(_beanType,
+                        "Cannot update Record value: no Record components accessible for type "
+                        +ClassUtil.getTypeDescription(_beanType));
+            }
             final boolean fixAccess = ctxt.canOverrideAccessModifiers();
             final boolean forceAccess = ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
             accessors = new Method[components.length];
             for (int i = 0; i < components.length; ++i) {
                 Method accessor = components[i].getAccessor();
                 if (fixAccess) {
-                    ClassUtil.checkAndFixAccess(accessor, forceAccess);
+                    try {
+                        ClassUtil.checkAndFixAccess(accessor, forceAccess);
+                    } catch (IllegalArgumentException e) {
+                        throw wrapAndThrow(e, recordClass, components[i].getName(), ctxt);
+                    }
                 }
                 accessors[i] = accessor;
             }

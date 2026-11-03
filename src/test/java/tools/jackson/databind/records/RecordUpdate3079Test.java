@@ -128,20 +128,50 @@ public class RecordUpdate3079Test extends DatabindTestUtil
 
     // [databind#6385]: a public accessor on a non-public record still needs access
     @Test
-    public void testReaderForUpdatingNonPublicRecord() throws Exception
+    public void readerForUpdatingNonPublicRecord() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .disable(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS)
                 .build();
         NonPublicRecord original = new NonPublicRecord(123, "Bob");
         NonPublicRecord updated = mapper.readerForUpdating(original)
-                .readValue(a2q("{'id':137}"));
+                .readValue("""
+                        {"id":137}
+                        """);
         assertEquals(new NonPublicRecord(137, "Bob"), updated);
 
         // and second update to use cached (access-fixed) accessors
         updated = mapper.readerForUpdating(updated)
-                .readValue(a2q("{'name':'Bill'}"));
+                .readValue("""
+                        {"name":"Bill"}
+                        """);
         assertEquals(new NonPublicRecord(137, "Bill"), updated);
+    }
+
+    // [databind#6385]: same with default settings
+    @Test
+    public void readerForUpdatingNonPublicRecordDefaults() throws Exception
+    {
+        NonPublicRecord updated = MAPPER.readerForUpdating(new NonPublicRecord(123, "Bob"))
+                .readValue("""
+                        {"name":"Bill"}
+                        """);
+        assertEquals(new NonPublicRecord(123, "Bill"), updated);
+    }
+
+    // [databind#6385]: access can not be fixed if overrides not allowed at all
+    @Test
+    public void readerForUpdatingNonPublicRecordNoAccessOverride() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)
+                .build();
+        ObjectReader r = mapper.readerForUpdating(new NonPublicRecord(123, "Bob"));
+        DatabindException e = assertThrows(DatabindException.class,
+                () -> r.readValue("""
+                        {"id":137}
+                        """));
+        verifyException(e, "cannot access");
     }
 
     // [databind#3079]: update Record via ObjectReader, all properties

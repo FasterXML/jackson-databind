@@ -15,11 +15,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SealedInheritedTypeName6093Test {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-    @JsonSubTypes(@JsonSubTypes.Type(Action.class))
-    sealed interface Settings permits Action { }
+    @JsonSubTypes({@JsonSubTypes.Type(Action.class), @JsonSubTypes.Type(ExplicitAction.class)})
+    sealed interface Settings permits Action, ExplicitAction { }
 
     @JsonTypeName("action")
-    sealed interface Action extends Settings permits OpenWindow, ExplicitAction {
+    sealed interface Action extends Settings permits OpenWindow {
         @JsonProperty("actionName")
         String actionName();
 
@@ -32,7 +32,7 @@ class SealedInheritedTypeName6093Test {
     record OpenWindow(String actionName) implements Action { }
 
     @JsonTypeName("explicit")
-    record ExplicitAction(String actionName) implements Action { }
+    record ExplicitAction(String actionName) implements Settings { }
 
     record Document(Settings settings) { }
 
@@ -109,6 +109,53 @@ class SealedInheritedTypeName6093Test {
 
     record SecondLeaf(int value) implements SiblingParent { }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+    sealed interface MixedRoot permits MixedParent { }
+
+    @JsonTypeName("mixed")
+    sealed interface MixedParent extends MixedRoot permits UnnamedLeaf, NamedLeaf {
+        @JsonCreator
+        static MixedParent create(@JsonProperty("value") int value) {
+            return new NamedLeaf(value);
+        }
+    }
+
+    record UnnamedLeaf(int value) implements MixedParent { }
+
+    @JsonTypeName("named")
+    record NamedLeaf(int value) implements MixedParent { }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+    sealed interface CollisionRoot permits CollisionParent, CollisionSibling { }
+
+    @JsonTypeName("SealedInheritedTypeName6093Test$CollisionSibling")
+    sealed interface CollisionParent extends CollisionRoot permits CollisionLeaf {
+        @JsonCreator
+        static CollisionParent create(@JsonProperty("value") int value) {
+            return new CollisionLeaf(value);
+        }
+    }
+
+    @JsonTypeName("CollisionSibling")
+    abstract static class SimpleCollisionNameMixin { }
+
+    record CollisionLeaf(int value) implements CollisionParent { }
+
+    record CollisionSibling(int value) implements CollisionRoot { }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+    sealed interface DelegatingRoot permits DelegatingParent { }
+
+    @JsonTypeName("delegating")
+    sealed interface DelegatingParent extends DelegatingRoot permits DelegatingLeaf {
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        static DelegatingLeaf create(String value) {
+            return new DelegatingLeaf(Integer.parseInt(value));
+        }
+    }
+
+    record DelegatingLeaf(int value) implements DelegatingParent { }
+
     @Test
     void inheritedNameDoesNotReplaceDistinctLeafIds() {
         assertLeafRoundTrip(mapper, NoFactoryRoot.class, new NoFactoryLeaf(1),
@@ -117,6 +164,13 @@ class SealedInheritedTypeName6093Test {
                 "SealedInheritedTypeName6093Test$FirstLeaf");
         assertLeafRoundTrip(mapper, SiblingRoot.class, new SecondLeaf(3),
                 "SealedInheritedTypeName6093Test$SecondLeaf");
+        assertLeafRoundTrip(mapper, MixedRoot.class, new UnnamedLeaf(4),
+                "SealedInheritedTypeName6093Test$UnnamedLeaf");
+        assertLeafRoundTrip(mapper, MixedRoot.class, new NamedLeaf(5), "named");
+        assertLeafRoundTrip(mapper, CollisionRoot.class, new CollisionLeaf(6),
+                "SealedInheritedTypeName6093Test$CollisionLeaf");
+        assertLeafRoundTrip(mapper, DelegatingRoot.class, new DelegatingLeaf(7),
+                "SealedInheritedTypeName6093Test$DelegatingLeaf");
     }
 
     @Test
@@ -124,10 +178,18 @@ class SealedInheritedTypeName6093Test {
         ObjectMapper simple = JsonMapper.builder()
                 .addMixIn(NoFactoryRoot.class, SimpleNameMixin.class)
                 .addMixIn(SiblingRoot.class, SimpleNameMixin.class)
+                .addMixIn(MixedRoot.class, SimpleNameMixin.class)
+                .addMixIn(CollisionRoot.class, SimpleNameMixin.class)
+                .addMixIn(CollisionParent.class, SimpleCollisionNameMixin.class)
+                .addMixIn(DelegatingRoot.class, SimpleNameMixin.class)
                 .build();
         assertLeafRoundTrip(simple, NoFactoryRoot.class, new NoFactoryLeaf(1), "NoFactoryLeaf");
         assertLeafRoundTrip(simple, SiblingRoot.class, new FirstLeaf(2), "FirstLeaf");
         assertLeafRoundTrip(simple, SiblingRoot.class, new SecondLeaf(3), "SecondLeaf");
+        assertLeafRoundTrip(simple, MixedRoot.class, new UnnamedLeaf(4), "UnnamedLeaf");
+        assertLeafRoundTrip(simple, MixedRoot.class, new NamedLeaf(5), "named");
+        assertLeafRoundTrip(simple, CollisionRoot.class, new CollisionLeaf(6), "CollisionLeaf");
+        assertLeafRoundTrip(simple, DelegatingRoot.class, new DelegatingLeaf(7), "DelegatingLeaf");
     }
 
     private void assertLeafRoundTrip(ObjectMapper jsonMapper, Class<?> root, Object leaf, String id) {

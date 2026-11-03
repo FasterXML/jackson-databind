@@ -583,7 +583,7 @@ public class BuilderBasedDeserializer
             }
             TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
             tokens.writeStartObject();
-            return deserializeWithUnwrapped(p, ctxt, builder, tokens);
+            return deserializeWithUnwrapped(p, ctxt, builder, tokens, false);
         }
         if (_externalTypeIdHandler != null) {
             return deserializeWithExternalTypeId(p, ctxt, builder);
@@ -782,13 +782,30 @@ public class BuilderBasedDeserializer
         return _unwrappedPropertyHandler.processUnwrappedForBuilder(p, ctxt, bean, tokens, hasUnwrappedContent);
     }
 
+    /**
+     * @deprecated Since 3.3 use
+     *    {@link #deserializeWithUnwrapped(JsonParser, DeserializationContext, Object, TokenBuffer, boolean)}
+     */
+    @Deprecated // since 3.3
     protected Object deserializeWithUnwrapped(JsonParser p,
             DeserializationContext ctxt, Object builder, TokenBuffer tokens)
         throws JacksonException
     {
+        return deserializeWithUnwrapped(p, ctxt, builder, tokens, false);
+    }
+
+    /**
+     * @param hasUnwrappedContent Whether {@code tokens} already contains unwrapped
+     *    content (buffered before the Creator completed)
+     *
+     * @since 3.3
+     */
+    protected Object deserializeWithUnwrapped(JsonParser p,
+            DeserializationContext ctxt, Object builder, TokenBuffer tokens,
+            boolean hasUnwrappedContent)
+        throws JacksonException
+    {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        // Unwrapped properties may already be buffered before the creator completes.
-        boolean hasUnwrappedContent = tokens.streamWriteContext().getEntryCount() > 0;
 
         for (int ix = p.currentNameMatch(_propertyNameMatcher); ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) { // common case
@@ -885,7 +902,7 @@ public class BuilderBasedDeserializer
                     if (builder.getClass() != _beanType.getRawClass()) {
                         return handlePolymorphic(p, ctxt, builder, tokens);
                     }
-                    return deserializeWithUnwrapped(p, ctxt, builder, tokens);
+                    return deserializeWithUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
                 }
                 continue;
             }

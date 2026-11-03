@@ -292,6 +292,10 @@ public class StdConvertingSerializer
         // 17-Apr-2018, tatu: Basically inline `_findAndAddDynamic(...)`
         // 17-Apr-2018, tatu: difficult to know if these are primary or secondary serializers...
         Class<?> cc = value.getClass();
+        ValueSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
+        if (serializer != null) {
+            return serializer;
+        }
         PropertySerializerMap.SerializerAndMapResult result = _dynamicValueSerializers.findAndAddSecondarySerializer(cc,
                 ctxt, _property);
         if (_dynamicValueSerializers != result.map) {

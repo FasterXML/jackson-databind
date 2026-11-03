@@ -98,7 +98,7 @@ public abstract class StdSerializer<T>
 
     /**
      * Default implementation specifies no format. This behavior is usually
-     * overriden by custom serializers.
+     * overridden by custom serializers.
      */
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)

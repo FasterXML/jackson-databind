@@ -39,6 +39,15 @@ public class BeanDeserializer
      */
     protected volatile transient NameTransformer _currentlyTransforming;
 
+    /**
+     * Record component accessors (indexed by component index), with access
+     * fixed as necessary: lazily resolved on first Record "update"
+     * (once per deserializer instance; not passed to copies).
+     *
+     * @since 3.3
+     */
+    private volatile transient Method[] _recordComponentAccessors;
+
     /*
     /**********************************************************************
     /* Life-cycle, constructors
@@ -344,8 +353,8 @@ public class BeanDeserializer
         // this deserializer was built
         final Class<?> recordClass = _beanType.getRawClass();
         final AnnotatedMethod[] linkedAccessors = _recordAccessors;
-        final RecordComponent[] components = (linkedAccessors == null)
-                ? recordClass.getRecordComponents() : null;
+        final Method[] componentAccessors = (linkedAccessors == null)
+                ? _resolveRecordComponentAccessors(ctxt) : null;
         for (SettableBeanProperty creatorProp : creator.allPropertiesInOrder()) {
             if (creatorProp == null) {
                 continue;
@@ -353,9 +362,9 @@ public class BeanDeserializer
             final int creatorIndex = creatorProp.getCreatorIndex();
             try {
                 if (linkedAccessors == null) {
-                    if (creatorIndex >= 0 && creatorIndex < components.length) {
-                        Method accessor = components[creatorIndex].getAccessor();
-                        buffer.assignParameter(creatorProp, accessor.invoke(existingRecord));
+                    if (creatorIndex >= 0 && creatorIndex < componentAccessors.length) {
+                        buffer.assignParameter(creatorProp,
+                                componentAccessors[creatorIndex].invoke(existingRecord));
                     }
                 } else if (creatorIndex >= 0 && creatorIndex < linkedAccessors.length
                         && linkedAccessors[creatorIndex] != null) {
@@ -473,6 +482,44 @@ public class BeanDeserializer
             raw = ClassUtil.wrapperType(raw);
         }
         return raw.isInstance(value);
+    }
+
+    /**
+     * Helper method for lazily resolving (and caching) Record component accessors,
+     * fixing access (as allowed by configuration) once per deserializer instance
+     * instead of on every update.
+     * Possible race between threads is benign: result is the same either way.
+     */
+    private Method[] _resolveRecordComponentAccessors(DeserializationContext ctxt)
+        throws JacksonException
+    {
+        Method[] accessors = _recordComponentAccessors;
+        if (accessors == null) {
+            final Class<?> recordClass = _beanType.getRawClass();
+            final RecordComponent[] components = recordClass.getRecordComponents();
+            if (components == null) {
+                // no reflective access on native image (or not a Record)
+                return ctxt.reportBadDefinition(_beanType,
+                        "Cannot update Record value: no Record components accessible for type "
+                        +ClassUtil.getTypeDescription(_beanType));
+            }
+            final boolean fixAccess = ctxt.canOverrideAccessModifiers();
+            final boolean forceAccess = ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
+            accessors = new Method[components.length];
+            for (int i = 0; i < components.length; ++i) {
+                Method accessor = components[i].getAccessor();
+                if (fixAccess) {
+                    try {
+                        ClassUtil.checkAndFixAccess(accessor, forceAccess);
+                    } catch (IllegalArgumentException e) {
+                        throw wrapAndThrow(e, recordClass, components[i].getName(), ctxt);
+                    }
+                }
+                accessors[i] = accessor;
+            }
+            _recordComponentAccessors = accessors;
+        }
+        return accessors;
     }
 
     private Object _buildRecordFromBuffer(DeserializationContext ctxt,

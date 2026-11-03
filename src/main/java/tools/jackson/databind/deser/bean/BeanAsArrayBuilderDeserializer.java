@@ -167,9 +167,9 @@ public class BeanAsArrayBuilderDeserializer
             // will never reach here as exception has been thrown
         }
         // otherwise, skip until end
-        while (p.nextToken() != JsonToken.END_ARRAY) {
+        do {
             p.skipChildren();
-        }
+        } while (p.nextToken() != JsonToken.END_ARRAY);
         return finishBuild(ctxt, builder);
     }
 
@@ -248,9 +248,9 @@ public class BeanAsArrayBuilderDeserializer
             // will never reach here as exception has been thrown
         }
         // otherwise, skip until end
-        while (p.nextToken() != JsonToken.END_ARRAY) {
+        do {
             p.skipChildren();
-        }
+        } while (p.nextToken() != JsonToken.END_ARRAY);
         return builder;
     }
 

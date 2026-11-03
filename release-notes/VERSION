@@ -52,6 +52,9 @@ No changes since 3.1
 #6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
   `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
  (reported, fixed by @Marti2203)
+#6380: `StdConvertingSerializer` re-resolves serializer for dynamic converter output
+  types instead of reusing cached one
+ (fix by @wozhenbang2004)
 
 3.1.8 (17-Oct-2026)
 

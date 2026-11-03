@@ -263,21 +263,30 @@ public class JsonValueSerializer
     @SuppressWarnings("unchecked")
     private ValueSerializer<Object> _withAccessorKeySerializer(SerializationContext ctxt,
             ValueSerializer<?> ser, BeanProperty property) {
-        if (ser instanceof MapSerializer mapSer) {
+        // Leave module-provided Map serializers in control of their own keys.
+        if (ser != null && ser.getClass() == MapSerializer.class) {
+            MapSerializer mapSer = (MapSerializer) ser;
             AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
             AnnotatedMember member = (property == null) ? null : property.getMember();
             // An enclosing property's explicit key serializer takes precedence.
             if ((intr != null) && ((member == null)
-                    || (intr.findKeySerializer(ctxt.getConfig(), member) == null))) {
+                    || !_isKeySerializerDefinition(intr.findKeySerializer(ctxt.getConfig(), member)))) {
                 Object definition = intr.findKeySerializer(ctxt.getConfig(), _accessor);
-                if (definition != null) {
+                if (_isKeySerializerDefinition(definition)) {
                     ValueSerializer<?> keySer = ctxt.serializerInstance(_accessor, definition);
                     keySer = ctxt.handleSecondaryContextualization(keySer, property);
-                    ser = mapSer.withKeySerializer(keySer);
+                    if (keySer != null) {
+                        ser = mapSer.withKeySerializer(keySer);
+                    }
                 }
             }
         }
         return (ValueSerializer<Object>) ser;
+    }
+
+    private static boolean _isKeySerializerDefinition(Object definition) {
+        return definition != null && (!(definition instanceof Class<?> cls)
+                || (cls != ValueSerializer.None.class && !ClassUtil.isBogusClass(cls)));
     }
 
     /**

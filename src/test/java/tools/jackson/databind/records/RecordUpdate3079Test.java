@@ -18,6 +18,8 @@ public class RecordUpdate3079Test extends DatabindTestUtil
 {
     public record IdNameRecord(int id, String name) { }
 
+    record NonPublicRecord(int id, String name) { }
+
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record IgnoreAllRecord(int id) { }
 
@@ -122,6 +124,19 @@ public class RecordUpdate3079Test extends DatabindTestUtil
         assertEquals(137, result.id());
         assertEquals("Bob", result.name());
         assertNotSame(orig, result);
+    }
+
+    // [databind#6385]: a public accessor on a non-public record still needs access
+    @Test
+    public void testReaderForUpdatingNonPublicRecord() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .disable(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS)
+                .build();
+        NonPublicRecord original = new NonPublicRecord(123, "Bob");
+        NonPublicRecord updated = mapper.readerForUpdating(original)
+                .readValue(a2q("{'id':137}"));
+        assertEquals(new NonPublicRecord(137, "Bob"), updated);
     }
 
     // [databind#3079]: update Record via ObjectReader, all properties

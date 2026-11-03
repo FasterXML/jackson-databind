@@ -289,16 +289,17 @@ public class StdConvertingSerializer
      */
     protected ValueSerializer<Object> _findSerializer(Object value, SerializationContext ctxt)
     {
-        // 17-Apr-2018, tatu: Basically inline `_findAndAddDynamic(...)`
+        // 17-Apr-2018, tatu: Basically inline cache lookup, `_findAndAddDynamic(...)`
         // 17-Apr-2018, tatu: difficult to know if these are primary or secondary serializers...
         Class<?> cc = value.getClass();
-        ValueSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
+        final PropertySerializerMap map = _dynamicValueSerializers;
+        ValueSerializer<Object> serializer = map.serializerFor(cc);
         if (serializer != null) {
             return serializer;
         }
-        PropertySerializerMap.SerializerAndMapResult result = _dynamicValueSerializers.findAndAddSecondarySerializer(cc,
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(cc,
                 ctxt, _property);
-        if (_dynamicValueSerializers != result.map) {
+        if (map != result.map) {
             _dynamicValueSerializers = result.map;
         }
         return result.serializer;

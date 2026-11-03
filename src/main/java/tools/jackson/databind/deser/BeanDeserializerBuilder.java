@@ -121,6 +121,14 @@ public class BeanDeserializerBuilder
      */
     protected JsonPOJOBuilder.Value _builderConfig;
 
+    /**
+     * For Record types with a non-canonical Creator: Record accessors linked
+     * to Creator parameters, by Creator index.
+     *
+     * @since 3.3
+     */
+    protected AnnotatedMethod[] _recordAccessors;
+
     /*
     /**********************************************************************
     /* Life-cycle: construction
@@ -161,6 +169,7 @@ public class BeanDeserializerBuilder
 
         _buildMethod = src._buildMethod;
         _builderConfig = src._builderConfig;
+        _recordAccessors = src._recordAccessors;
     }
 
     private static HashMap<String, SettableBeanProperty> _copy(HashMap<String, SettableBeanProperty> src) {
@@ -293,6 +302,13 @@ public class BeanDeserializerBuilder
         addProperty(prop);
     }
 
+    /**
+     * @since 3.3
+     */
+    public void setRecordAccessors(AnnotatedMethod[] accessors) {
+        _recordAccessors = accessors;
+    }
+
     public void setAnySetter(SettableAnyProperty s)
     {
         if (_anySetter != null && s != null) {
@@ -355,6 +371,13 @@ public class BeanDeserializerBuilder
 
     public SettableAnyProperty getAnySetter() {
         return _anySetter;
+    }
+
+    /**
+     * @since 3.3
+     */
+    public AnnotatedMethod[] getRecordAccessors() {
+        return _recordAccessors;
     }
 
     public ValueInstantiator getValueInstantiator() {

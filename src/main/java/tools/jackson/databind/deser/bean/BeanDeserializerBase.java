@@ -162,6 +162,17 @@ public abstract class BeanDeserializerBase
     protected final boolean _needViewProcesing;
 
     /**
+     * For Record types with a non-canonical property-based Creator: Record
+     * accessor linked to each Creator parameter (by Creator index), used to
+     * pre-populate parameters on update; entry is {@code null} if no compatible
+     * accessor could be linked. {@code null} for the canonical constructor
+     * (and non-Record types), for which Creator index matches component index.
+     *
+     * @since 3.3
+     */
+    protected final AnnotatedMethod[] _recordAccessors;
+
+    /**
      * We may also have one or more back reference fields (usually
      * zero or one).
      */
@@ -294,6 +305,7 @@ public abstract class BeanDeserializerBase
         _serializationShape = beanDescRef.findExpectedFormat(_beanType.getRawClass()).getShape();
 
         _needViewProcesing = hasViews;
+        _recordAccessors = builder.getRecordAccessors();
         // [databind#6219]: view processing only needed if a view is active,
         // which is checked per-call
         _vanillaProcessing = !_nonStandardCreation
@@ -330,6 +342,7 @@ public abstract class BeanDeserializerBase
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
+        _recordAccessors = src._recordAccessors;
         _serializationShape = src._serializationShape;
 
         _vanillaProcessing = src._vanillaProcessing;
@@ -368,6 +381,7 @@ public abstract class BeanDeserializerBase
         _beanProperties = renamedProperties;
 
         _needViewProcesing = src._needViewProcesing;
+        _recordAccessors = src._recordAccessors;
         _serializationShape = src._serializationShape;
 
         // probably adds a twist, so:
@@ -396,6 +410,7 @@ public abstract class BeanDeserializerBase
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
+        _recordAccessors = src._recordAccessors;
         _serializationShape = src._serializationShape;
 
         // then actual changes:
@@ -445,6 +460,7 @@ public abstract class BeanDeserializerBase
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
+        _recordAccessors = src._recordAccessors;
         _serializationShape = src._serializationShape;
 
         _vanillaProcessing = src._vanillaProcessing;
@@ -479,6 +495,7 @@ public abstract class BeanDeserializerBase
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
+        _recordAccessors = src._recordAccessors;
         _serializationShape = src._serializationShape;
 
         _vanillaProcessing = src._vanillaProcessing;

@@ -901,3 +901,8 @@ Okan Tiktas (@OKAN-SOFTWARE)
  * Fixed #6357: `BeanDeserializer` and `BuilderBasedDeserializer` silently stop on
    unexpected token within Object
   [3.3.0]
+
+Shin seongsu (@shinseongsu)
+ * Reported, fixed #6383: Record update with `readerForUpdating()` passes existing values
+   to wrong parameters for non-canonical `@JsonCreator`
+  [3.3.0]

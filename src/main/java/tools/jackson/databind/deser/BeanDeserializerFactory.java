@@ -1,6 +1,7 @@
 package tools.jackson.databind.deser;
 
 import java.io.Serial;
+import java.lang.reflect.RecordComponent;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -583,6 +584,10 @@ public class BeanDeserializerFactory
                 ? valueInstantiator.getFromObjectArguments(ctxt.getConfig())
                 : null;
         final boolean hasCreatorProps = (creatorProps != null);
+        // [databind#6383]: link Record accessors for "update" of non-canonical Creators
+        if (hasCreatorProps && beanDesc.isRecordType()) {
+            builder.setRecordAccessors(_findRecordAccessors(ctxt, beanDesc, valueInstantiator));
+        }
 
         // Class-level ignorals (annotation + config overrides): pre-computed during
         // property collection. Surface the direction-specific name set so we can
@@ -725,6 +730,94 @@ public class BeanDeserializerFactory
                 builder.addProperty(prop);
             }
         }
+    }
+
+    /**
+     * Helper method for linking each parameter of a non-canonical Record Creator
+     * to the Record accessor of the same logical property, for use when updating
+     * an existing Record: Creator index only matches component index for the
+     * canonical constructor. Accessors are linked through property introspection
+     * (not by position), and only if the accessor type is assignable to the
+     * parameter type.
+     *
+     * @return Accessors indexed by Creator index (entries {@code null} if not linked);
+     *    or {@code null} if Creator is the canonical constructor (or not known)
+     *
+     * @since 3.3
+     */
+    protected AnnotatedMethod[] _findRecordAccessors(DeserializationContext ctxt,
+            BeanDescription beanDesc, ValueInstantiator valueInstantiator)
+    {
+        final AnnotatedWithParams creator = valueInstantiator.getWithArgsCreator();
+        if (creator == null || _isCanonicalRecordConstructor(beanDesc.getBeanClass(), creator)) {
+            return null;
+        }
+        final AnnotatedMethod[] accessors = new AnnotatedMethod[creator.getParameterCount()];
+        for (BeanPropertyDefinition propDef : beanDesc.findProperties()) {
+            final AnnotatedParameter param = propDef.getConstructorParameter();
+            if ((param != null) && (param.getIndex() < accessors.length)
+                    && creator.getAnnotated().equals(param.getOwner().getAnnotated())) {
+                _linkRecordAccessor(ctxt, accessors, param, propDef.getGetter());
+            }
+        }
+        // Ignored properties (like `@JsonIgnore` on a component) are not included above,
+        // but their existing values still need to be retained: link these by the same name
+        // property introspection uses (implicit parameter name, if any; else explicit)
+        final RecordComponent[] components = beanDesc.getBeanClass().getRecordComponents();
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        for (int i = 0; (components != null) && (i < accessors.length); ++i) {
+            if (accessors[i] != null) {
+                continue;
+            }
+            final AnnotatedParameter param = creator.getParameter(i);
+            String name = intr.findImplicitPropertyName(ctxt.getConfig(), param);
+            if (name == null || name.isEmpty()) {
+                PropertyName explName = intr.findNameForDeserialization(ctxt.getConfig(), param);
+                name = (explName == null) ? null : explName.getSimpleName();
+            }
+            if (name == null || !beanDesc.getIgnoredPropertyNames().contains(name)) {
+                continue;
+            }
+            for (RecordComponent component : components) {
+                if (component.getName().equals(name)) {
+                    _linkRecordAccessor(ctxt, accessors, param,
+                            beanDesc.getClassInfo().findMethod(name, null));
+                    break;
+                }
+            }
+        }
+        return accessors;
+    }
+
+    private static void _linkRecordAccessor(DeserializationContext ctxt,
+            AnnotatedMethod[] accessors, AnnotatedParameter param, AnnotatedMethod getter)
+    {
+        if ((getter != null)
+                && _boxed(param.getRawType()).isAssignableFrom(_boxed(getter.getRawType()))) {
+            if (ctxt.canOverrideAccessModifiers()) {
+                getter.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            }
+            accessors[param.getIndex()] = getter;
+        }
+    }
+
+    private static boolean _isCanonicalRecordConstructor(Class<?> recordType,
+            AnnotatedWithParams creator)
+    {
+        if (creator instanceof AnnotatedConstructor ctor) {
+            final RecordComponent[] components = recordType.getRecordComponents();
+            // No components info (native image?): cannot tell, keep index-based handling
+            return (components == null)
+                    || Arrays.equals(ctor.getAnnotated().getParameterTypes(),
+                            Arrays.stream(components)
+                                .map(RecordComponent::getType)
+                                .toArray(Class<?>[]::new));
+        }
+        return false;
+    }
+
+    private static Class<?> _boxed(Class<?> type) {
+        return type.isPrimitive() ? ClassUtil.wrapperType(type) : type;
     }
 
     // since 2.18

@@ -1,11 +1,15 @@
 package tools.jackson.databind.records;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,13 +61,46 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
         }
     }
 
+    // Renamed and reversed: can only be linked with parameter names
+    public record SurGiven(String first, String last) {
+        @JsonCreator
+        public static SurGiven of(@JsonProperty("sur") String last,
+                @JsonProperty("given") String first) {
+            return new SurGiven(first, last);
+        }
+    }
+
+    // Creator adapts parameter type: accessor type not assignable to parameter
+    public record Opt(String id, Optional<String> nick) {
+        @JsonCreator
+        public static Opt of(@JsonProperty("id") String id,
+                @JsonProperty("nick") String nick) {
+            return new Opt(id, Optional.ofNullable(nick));
+        }
+    }
+
+    // Ignored component must keep its existing value
+    public record Secret(String id, @JsonIgnore String secret) {
+        @JsonCreator
+        public static Secret of(@JsonProperty("secret") String secret,
+                @JsonProperty("id") String id) {
+            return new Secret(id, secret);
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
+
+    private final ObjectMapper NO_PARAM_NAMES_MAPPER = jsonMapperBuilder()
+            .disable(MapperFeature.DETECT_PARAMETER_NAMES)
+            .build();
 
     @Test
     public void updateWithReorderedFactoryOfSameTypes() throws Exception
     {
         FullName result = MAPPER.readerForUpdating(new FullName("John", "Smith"))
-                .readValue(a2q("{'first':'Jane'}"));
+                .readValue("""
+                        {"first":"Jane"}
+                        """);
         assertEquals(new FullName("Jane", "Smith"), result);
     }
 
@@ -71,7 +108,9 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
     public void updateWithReorderedFactoryOfDifferentTypes() throws Exception
     {
         IdName result = MAPPER.readerForUpdating(new IdName(1, "a"))
-                .readValue(a2q("{'name':'b'}"));
+                .readValue("""
+                        {"name":"b"}
+                        """);
         assertEquals(new IdName(1, "b"), result);
     }
 
@@ -79,7 +118,9 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
     public void updateWithReorderedConstructor() throws Exception
     {
         Point result = MAPPER.readerForUpdating(new Point(3, "a"))
-                .readValue(a2q("{'x':4}"));
+                .readValue("""
+                        {"x":4}
+                        """);
         assertEquals(new Point(4, "a"), result);
     }
 
@@ -87,7 +128,9 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
     public void updateWithRenamedPropertyOnSameOrderFactory() throws Exception
     {
         Person result = MAPPER.readerForUpdating(new Person("John", 30))
-                .readValue(a2q("{'age':31}"));
+                .readValue("""
+                        {"age":31}
+                        """);
         assertEquals(new Person("John", 31), result);
     }
 
@@ -98,20 +141,20 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
                 .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
                 .build();
         Member result = mapper.readerForUpdating(new Member("John", 30))
-                .readValue(a2q("{'age':31}"));
+                .readValue("""
+                        {"age":31}
+                        """);
         assertEquals(new Member("John", 31), result);
     }
 
-    // Without parameter names, renamed properties can only be matched by position
     @Test
-    public void updateWithRenamedPropertyWithoutParameterNames() throws Exception
+    public void updateWithRenamedAndReorderedFactory() throws Exception
     {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .disable(MapperFeature.DETECT_PARAMETER_NAMES)
-                .build();
-        Person result = mapper.readerForUpdating(new Person("John", 30))
-                .readValue(a2q("{'age':31}"));
-        assertEquals(new Person("John", 31), result);
+        SurGiven result = MAPPER.readerForUpdating(new SurGiven("John", "Smith"))
+                .readValue("""
+                        {"given":"Jane"}
+                        """);
+        assertEquals(new SurGiven("Jane", "Smith"), result);
     }
 
     @Test
@@ -120,5 +163,67 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
         FullName result = MAPPER.readerForUpdating(new FullName("John", "Smith"))
                 .readValue("{}");
         assertEquals(new FullName("John", "Smith"), result);
+    }
+
+    @Test
+    public void updateKeepsIgnoredComponent() throws Exception
+    {
+        Secret result = MAPPER.readerForUpdating(new Secret("1", "s"))
+                .readValue("""
+                        {"id":"2","secret":"x"}
+                        """);
+        assertEquals(new Secret("2", "s"), result);
+    }
+
+    // Without parameter names, renamed Creator properties cannot be linked to
+    // Record accessors: must fail instead of using (possibly wrong) position
+    @Test
+    public void updateFailsForUnlinkedRenamedAndReorderedFactory() throws Exception
+    {
+        ObjectReader r = NO_PARAM_NAMES_MAPPER.readerForUpdating(new SurGiven("John", "Smith"));
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> r.readValue("""
+                        {"given":"Jane"}
+                        """));
+        verifyException(e, "Cannot update Record", "'sur'");
+    }
+
+    @Test
+    public void updateFailsForUnlinkedRenamedSameOrderFactory() throws Exception
+    {
+        ObjectReader r = NO_PARAM_NAMES_MAPPER.readerForUpdating(new Person("John", 30));
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> r.readValue("""
+                        {"age":31}
+                        """));
+        verifyException(e, "Cannot update Record", "'first_name'");
+    }
+
+    // ... but if input has values for unlinked properties, update works
+    @Test
+    public void updateWithUnlinkedPropertiesInInput() throws Exception
+    {
+        SurGiven result = NO_PARAM_NAMES_MAPPER.readerForUpdating(new SurGiven("John", "Smith"))
+                .readValue("""
+                        {"given":"Jane","sur":"Doe"}
+                        """);
+        assertEquals(new SurGiven("Jane", "Doe"), result);
+    }
+
+    @Test
+    public void updateFailsForIncompatibleAccessorType() throws Exception
+    {
+        ObjectReader r = MAPPER.readerForUpdating(new Opt("1", Optional.of("x")));
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> r.readValue("""
+                        {"id":"2"}
+                        """));
+        verifyException(e, "Cannot update Record", "'nick'");
+
+        Opt result = MAPPER.readerForUpdating(new Opt("1", Optional.of("x")))
+                .readValue("""
+                        {"id":"2","nick":"z"}
+                        """);
+        assertEquals(new Opt("2", Optional.of("z")), result);
     }
 }

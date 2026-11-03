@@ -14,9 +14,7 @@ import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.UnresolvedForwardReference;
 import tools.jackson.databind.deser.impl.*;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
-import tools.jackson.databind.introspect.AnnotatedConstructor;
-import tools.jackson.databind.introspect.AnnotatedParameter;
-import tools.jackson.databind.introspect.AnnotatedWithParams;
+import tools.jackson.databind.introspect.AnnotatedMethod;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
@@ -341,28 +339,31 @@ public class BeanDeserializer
         // Step 1: Pre-populate buffer from existing Record values, including
         // components marked ignorable so their original values are retained
         // (JSON cannot overwrite them; see Step 2).
+        // [databind#6383]: Creator index only matches component index for the
+        // canonical constructor; for other Creators use accessors linked when
+        // this deserializer was built
         final Class<?> recordClass = _beanType.getRawClass();
-        final RecordComponent[] components = recordClass.getRecordComponents();
-        final AnnotatedWithParams creatorMember = _findCreatorMember(creator);
-        final boolean sameTypesInOrder = _hasComponentTypesInOrder(creatorMember, components);
-        final boolean isCanonical = sameTypesInOrder
-                && (creatorMember instanceof AnnotatedConstructor);
+        final AnnotatedMethod[] linkedAccessors = _recordAccessors;
+        final RecordComponent[] components = (linkedAccessors == null)
+                ? recordClass.getRecordComponents() : null;
         for (SettableBeanProperty creatorProp : creator.allPropertiesInOrder()) {
             if (creatorProp == null) {
                 continue;
             }
-            final RecordComponent component = isCanonical
-                    ? _componentAt(components, creatorProp.getCreatorIndex())
-                    : _findComponentForNonCanonical(ctxt, creatorProp, components,
-                            sameTypesInOrder);
-            if (component != null) {
-                try {
-                    Method accessor = component.getAccessor();
-                    Object value = accessor.invoke(existingRecord);
-                    buffer.assignParameter(creatorProp, value);
-                } catch (Exception e) {
-                    throw wrapAndThrow(e, recordClass, creatorProp.getName(), ctxt);
+            final int creatorIndex = creatorProp.getCreatorIndex();
+            try {
+                if (linkedAccessors == null) {
+                    if (creatorIndex >= 0 && creatorIndex < components.length) {
+                        Method accessor = components[creatorIndex].getAccessor();
+                        buffer.assignParameter(creatorProp, accessor.invoke(existingRecord));
+                    }
+                } else if (creatorIndex >= 0 && creatorIndex < linkedAccessors.length
+                        && linkedAccessors[creatorIndex] != null) {
+                    buffer.assignParameter(creatorProp,
+                            linkedAccessors[creatorIndex].callOn(existingRecord));
                 }
+            } catch (Exception e) {
+                throw wrapAndThrow(e, recordClass, creatorProp.getName(), ctxt);
             }
         }
 
@@ -459,76 +460,28 @@ public class BeanDeserializer
         return _buildRecordFromBuffer(ctxt, creator, buffer);
     }
 
-    private static AnnotatedWithParams _findCreatorMember(PropertyBasedCreator creator)
-    {
-        for (SettableBeanProperty prop : creator.allPropertiesInOrder()) {
-            if (prop != null && prop.getMember() instanceof AnnotatedParameter param) {
-                return param.getOwner();
-            }
-        }
-        return null;
-    }
-
-    private static boolean _hasComponentTypesInOrder(AnnotatedWithParams creatorMember,
-            RecordComponent[] components)
-    {
-        if (creatorMember == null || creatorMember.getParameterCount() != components.length) {
-            return false;
-        }
-        for (int i = 0; i < components.length; ++i) {
-            if (!creatorMember.getRawParameterType(i).equals(components[i].getType())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Creator parameter index only lines up with component index for the canonical
-     * constructor, so other Creators are matched by name first: implicit (declared)
-     * parameter name, then property name. Renamed properties without parameter names
-     * can only be matched by position, which is used if parameter types are in the
-     * same order as component types.
-     */
-    private static RecordComponent _findComponentForNonCanonical(DeserializationContext ctxt,
-            SettableBeanProperty creatorProp, RecordComponent[] components,
-            boolean sameTypesInOrder)
-    {
-        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr != null && creatorProp.getMember() instanceof AnnotatedParameter param) {
-            RecordComponent component = _componentNamed(components,
-                    intr.findImplicitPropertyName(ctxt.getConfig(), param));
-            if (component != null) {
-                return component;
-            }
-        }
-        RecordComponent component = _componentNamed(components, creatorProp.getName());
-        if (component != null) {
-            return component;
-        }
-        return sameTypesInOrder ? _componentAt(components, creatorProp.getCreatorIndex()) : null;
-    }
-
-    private static RecordComponent _componentAt(RecordComponent[] components, int index) {
-        return (index >= 0 && index < components.length) ? components[index] : null;
-    }
-
-    private static RecordComponent _componentNamed(RecordComponent[] components, String name) {
-        if (name == null) {
-            return null;
-        }
-        for (RecordComponent component : components) {
-            if (component.getName().equals(name)) {
-                return component;
-            }
-        }
-        return null;
-    }
-
     private Object _buildRecordFromBuffer(DeserializationContext ctxt,
             PropertyBasedCreator creator, PropertyValueBuffer buffer)
         throws JacksonException
     {
+        // [databind#6383]: a Creator property with no linked accessor could not be
+        // pre-populated; fail instead of silently losing its value, unless the
+        // input provided a value for it
+        if (_recordAccessors != null) {
+            for (SettableBeanProperty creatorProp : creator.allPropertiesInOrder()) {
+                if (creatorProp == null || creatorProp.getInjectableValueId() != null) {
+                    continue;
+                }
+                final int ix = creatorProp.getCreatorIndex();
+                if ((ix >= _recordAccessors.length || _recordAccessors[ix] == null)
+                        && !buffer.hasParameter(creatorProp)) {
+                    return ctxt.reportBadDefinition(_beanType, String.format(
+"Cannot update Record %s: no Record accessor of compatible type linked to Creator property %s, and input has no value for it",
+                            ClassUtil.nameOf(_beanType.getRawClass()),
+                            ClassUtil.name(creatorProp.getName())));
+                }
+            }
+        }
         try {
             return creator.build(ctxt, buffer);
         } catch (Exception e) {

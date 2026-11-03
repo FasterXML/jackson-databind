@@ -137,6 +137,11 @@ public class RecordUpdate3079Test extends DatabindTestUtil
         NonPublicRecord updated = mapper.readerForUpdating(original)
                 .readValue(a2q("{'id':137}"));
         assertEquals(new NonPublicRecord(137, "Bob"), updated);
+
+        // and second update to use cached (access-fixed) accessors
+        updated = mapper.readerForUpdating(updated)
+                .readValue(a2q("{'name':'Bill'}"));
+        assertEquals(new NonPublicRecord(137, "Bill"), updated);
     }
 
     // [databind#3079]: update Record via ObjectReader, all properties

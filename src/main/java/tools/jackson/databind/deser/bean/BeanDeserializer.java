@@ -38,6 +38,14 @@ public class BeanDeserializer
      */
     protected volatile transient NameTransformer _currentlyTransforming;
 
+    /**
+     * Record component accessors (indexed by component index), with access
+     * fixed as necessary: lazily resolved on first Record "update".
+     *
+     * @since 3.3
+     */
+    protected volatile transient Method[] _recordAccessors;
+
     /*
     /**********************************************************************
     /* Life-cycle, constructors
@@ -339,20 +347,15 @@ public class BeanDeserializer
         // components marked ignorable so their original values are retained
         // (JSON cannot overwrite them; see Step 2).
         final Class<?> recordClass = _beanType.getRawClass();
-        final RecordComponent[] components = recordClass.getRecordComponents();
+        final Method[] accessors = _recordAccessors(ctxt);
         for (SettableBeanProperty creatorProp : creator.allPropertiesInOrder()) {
             if (creatorProp == null) {
                 continue;
             }
             final int creatorIndex = creatorProp.getCreatorIndex();
-            if (creatorIndex >= 0 && creatorIndex < components.length) {
+            if (creatorIndex >= 0 && creatorIndex < accessors.length) {
                 try {
-                    Method accessor = components[creatorIndex].getAccessor();
-                    if (ctxt.canOverrideAccessModifiers()) {
-                        ClassUtil.checkAndFixAccess(accessor,
-                                ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-                    }
-                    Object value = accessor.invoke(existingRecord);
+                    Object value = accessors[creatorIndex].invoke(existingRecord);
                     buffer.assignParameter(creatorProp, value);
                 } catch (Exception e) {
                     throw wrapAndThrow(e, recordClass, creatorProp.getName(), ctxt);
@@ -451,6 +454,31 @@ public class BeanDeserializer
             return _handleUnexpectedWithin(p, ctxt, existingRecord);
         }
         return _buildRecordFromBuffer(ctxt, creator, buffer);
+    }
+
+    /**
+     * Helper method for lazily resolving (and caching) Record component accessors,
+     * fixing access (as allowed by configuration) once instead of on every update.
+     * Possible race between threads is benign: result is the same either way.
+     */
+    private Method[] _recordAccessors(DeserializationContext ctxt)
+    {
+        Method[] accessors = _recordAccessors;
+        if (accessors == null) {
+            final RecordComponent[] components = _beanType.getRawClass().getRecordComponents();
+            final boolean fixAccess = ctxt.canOverrideAccessModifiers();
+            final boolean forceAccess = ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
+            accessors = new Method[components.length];
+            for (int i = 0; i < components.length; ++i) {
+                Method accessor = components[i].getAccessor();
+                if (fixAccess) {
+                    ClassUtil.checkAndFixAccess(accessor, forceAccess);
+                }
+                accessors[i] = accessor;
+            }
+            _recordAccessors = accessors;
+        }
+        return accessors;
     }
 
     private Object _buildRecordFromBuffer(DeserializationContext ctxt,

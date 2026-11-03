@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.jsontype.NamedType;
-import tools.jackson.databind.util.ClassUtil;
 
 /**
  * {@link tools.jackson.databind.jsontype.TypeIdResolver} implementation
@@ -84,21 +83,9 @@ public class SimpleNameIdResolver
                 Class<?> cls = t.getType();
                 String id = t.hasName() ? t.getName() : _defaultTypeId(cls);
                 if (forSer) {
-                    // Do not inherit a registered concrete parent's name: the
-                    // deserializer must still distinguish it from this subtype.
-                    boolean useDefault = t.hasName();
-                    if (!useDefault) {
-                        for (NamedType parent : subtypes) {
-                            if (parent.hasName() && ClassUtil.isConcrete(parent.getType())
-                                    && parent.getType().isAssignableFrom(cls)) {
-                                useDefault = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (useDefault) {
-                        typeToId.put(cls.getName(), id);
-                    }
+                    String creatorId = t.hasName() ? null
+                            : TypeNameIdResolver._findSealedCreatorId(config, cls, subtypes, caseInsensitive);
+                    typeToId.put(cls.getName(), (creatorId == null) ? id : creatorId);
                 }
                 if (forDeser) {
                     // [databind#1983]: for case-insensitive lookups must canonicalize:

@@ -12,6 +12,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.Annotated;
+import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -103,7 +106,31 @@ class JsonValueMapKey3119Test extends DatabindTestUtil
         public String hidden = "kept";
     }
 
+    static class MarkerValue {
+        @JsonValue
+        public Map<String, Integer> markerValue() {
+            return Map.of("a", 1);
+        }
+    }
+
     private final ObjectMapper mapper = newJsonMapper();
+
+    @Test
+    void keySerializerMarkerRetainsDefaultAndDoesNotOverrideAccessor() {
+        ObjectMapper withMarkers = JsonMapper.builder()
+                .annotationIntrospector(new JacksonAnnotationIntrospector() {
+                    @Override
+                    public Object findKeySerializer(MapperConfig<?> config, Annotated annotated) {
+                        if ("markerValue".equals(annotated.getName())
+                                || "wrapped".equals(annotated.getName())) {
+                            return ValueSerializer.None.class;
+                        }
+                        return super.findKeySerializer(config, annotated);
+                    }
+                }).build();
+        assertEquals("{\"a\":1}", withMarkers.writeValueAsString(new MarkerValue()));
+        assertEquals("{\"wrapped\":{\"key-a\":1}}", withMarkers.writeValueAsString(new Holder()));
+    }
 
     @Test
     void typedMapUsesAccessorKeySerializer() {

@@ -167,8 +167,9 @@ public class BeanAsArrayBuilderDeserializer
             // will never reach here as exception has been thrown
         }
         // otherwise, skip until end
-        while (p.nextToken() != JsonToken.END_ARRAY) {
-            if (p.nextToken() == null) {
+        JsonToken t;
+        while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+            if (t == null) {
                 throw ctxt.mismatchedInputException(this, JsonToken.END_ARRAY,
                         "Unexpected end-of-input in array");
             }
@@ -252,8 +253,9 @@ public class BeanAsArrayBuilderDeserializer
             // will never reach here as exception has been thrown
         }
         // otherwise, skip until end
-        while (p.nextToken() != JsonToken.END_ARRAY) {
-            if (p.nextToken() == null) {
+        JsonToken t;
+        while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+            if (t == null) {
                 throw ctxt.mismatchedInputException(this, JsonToken.END_ARRAY,
                         "Unexpected end-of-input in array");
             }

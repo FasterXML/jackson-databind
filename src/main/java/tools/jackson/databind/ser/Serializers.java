@@ -14,6 +14,18 @@ import tools.jackson.databind.type.*;
  * does not support handling of the type. In latter case, further calls can be made
  * for other providers; in former case returned serializer is used for handling of
  * instances of specified type.
+ *<p>
+ * For collection, collection-like, map and map-like types, Jackson consults
+ * these module callbacks before falling back to annotation-based serializers
+ * such as {@code @JsonValue}. To let a {@code @JsonValue} accessor take
+ * precedence, return {@code null} from the applicable callback when
+ * {@code beanDescRef.get().findJsonValueAccessor() != null}.
+ *<p>
+ * The collection and map callbacks also precede the built-in check for
+ * {@link JsonFormat.Shape#POJO}. To honor an explicit POJO shape, a module
+ * can return {@code null} when the effective format requests it. Implementations
+ * extending {@link Serializers.Base} can use its {@code calculateEffectiveFormat}
+ * helper to combine the type settings and property-level overrides.
  */
 public interface Serializers
 {

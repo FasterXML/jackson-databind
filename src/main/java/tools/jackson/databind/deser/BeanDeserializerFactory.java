@@ -737,8 +737,8 @@ public class BeanDeserializerFactory
      * to the Record accessor of the same logical property, for use when updating
      * an existing Record: Creator index only matches component index for the
      * canonical constructor. Accessors are linked through property introspection
-     * (not by position), and only if the accessor type is assignable to the
-     * parameter type.
+     * (not by position); whether the value fits the parameter type is checked when
+     * updating, against the actual value (Creator may adapt types).
      *
      * @return Accessors indexed by Creator index (entries {@code null} if not linked);
      *    or {@code null} if Creator is the canonical constructor (or not known)
@@ -793,8 +793,7 @@ public class BeanDeserializerFactory
     private static void _linkRecordAccessor(DeserializationContext ctxt,
             AnnotatedMethod[] accessors, AnnotatedParameter param, AnnotatedMethod getter)
     {
-        if ((getter != null)
-                && _boxed(param.getRawType()).isAssignableFrom(_boxed(getter.getRawType()))) {
+        if (getter != null) {
             if (ctxt.canOverrideAccessModifiers()) {
                 getter.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
@@ -815,10 +814,6 @@ public class BeanDeserializerFactory
                                 .toArray(Class<?>[]::new));
         }
         return false;
-    }
-
-    private static Class<?> _boxed(Class<?> type) {
-        return type.isPrimitive() ? ClassUtil.wrapperType(type) : type;
     }
 
     // since 2.18

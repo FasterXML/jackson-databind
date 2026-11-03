@@ -359,8 +359,12 @@ public class BeanDeserializer
                     }
                 } else if (creatorIndex >= 0 && creatorIndex < linkedAccessors.length
                         && linkedAccessors[creatorIndex] != null) {
-                    buffer.assignParameter(creatorProp,
-                            linkedAccessors[creatorIndex].callOn(existingRecord));
+                    final Object value = linkedAccessors[creatorIndex].callOn(existingRecord);
+                    // Creator may take a different type than the component (like
+                    // `String` for `Optional<String>`): only pass values that fit
+                    if (_fitsCreatorProperty(creatorProp, value)) {
+                        buffer.assignParameter(creatorProp, value);
+                    }
                 }
             } catch (Exception e) {
                 throw wrapAndThrow(e, recordClass, creatorProp.getName(), ctxt);
@@ -460,21 +464,30 @@ public class BeanDeserializer
         return _buildRecordFromBuffer(ctxt, creator, buffer);
     }
 
+    private static boolean _fitsCreatorProperty(SettableBeanProperty prop, Object value) {
+        if (value == null) {
+            return true;
+        }
+        Class<?> raw = prop.getType().getRawClass();
+        if (raw.isPrimitive()) {
+            raw = ClassUtil.wrapperType(raw);
+        }
+        return raw.isInstance(value);
+    }
+
     private Object _buildRecordFromBuffer(DeserializationContext ctxt,
             PropertyBasedCreator creator, PropertyValueBuffer buffer)
         throws JacksonException
     {
-        // [databind#6383]: a Creator property with no linked accessor could not be
-        // pre-populated; fail instead of silently losing its value, unless the
-        // input provided a value for it
+        // [databind#6383]: a Creator property that could not be pre-populated (no
+        // linked accessor, or value of incompatible type) would lose its value:
+        // fail instead, unless the input provided a value for it
         if (_recordAccessors != null) {
             for (SettableBeanProperty creatorProp : creator.allPropertiesInOrder()) {
                 if (creatorProp == null || creatorProp.getInjectableValueId() != null) {
                     continue;
                 }
-                final int ix = creatorProp.getCreatorIndex();
-                if ((ix >= _recordAccessors.length || _recordAccessors[ix] == null)
-                        && !buffer.hasParameter(creatorProp)) {
+                if (!buffer.hasParameter(creatorProp)) {
                     return ctxt.reportBadDefinition(_beanType, String.format(
 "Cannot update Record %s: no Record accessor of compatible type linked to Creator property %s, and input has no value for it",
                             ClassUtil.nameOf(_beanType.getRawClass()),

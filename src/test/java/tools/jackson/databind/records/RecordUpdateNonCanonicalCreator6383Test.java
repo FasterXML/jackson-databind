@@ -1,5 +1,7 @@
 package tools.jackson.databind.records;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -10,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -97,6 +100,24 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
         public static Account of(@JsonProperty("password") String password,
                 @JsonProperty("id") String id) {
             return new Account(id, password);
+        }
+    }
+
+    // Generic component: accessor type (`Object`) differs from parameter type
+    public record Box<T>(T value, String tag) {
+        @JsonCreator
+        public static Box<String> of(@JsonProperty("tag") String tag,
+                @JsonProperty("value") String value) {
+            return new Box<>(value, tag);
+        }
+    }
+
+    // Parameter type narrower than component type
+    public record Items(List<String> items, String tag) {
+        @JsonCreator
+        public static Items of(@JsonProperty("tag") String tag,
+                @JsonProperty("items") ArrayList<String> items) {
+            return new Items(items, tag);
         }
     }
 
@@ -195,6 +216,36 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
                         {"id":"2"}
                         """);
         assertEquals(new Account("2", "pw"), result);
+    }
+
+    // Type check uses the actual value, not the declared accessor type
+    @Test
+    public void updateWithGenericComponent() throws Exception
+    {
+        Box<String> result = MAPPER.readerForUpdating(new Box<>("v", "t"))
+                .forType(new TypeReference<Box<String>>() { })
+                .readValue("""
+                        {"tag":"u"}
+                        """);
+        assertEquals(new Box<>("v", "u"), result);
+    }
+
+    @Test
+    public void updateWithNarrowerParameterType() throws Exception
+    {
+        Items result = MAPPER.readerForUpdating(new Items(new ArrayList<>(List.of("a")), "t"))
+                .readValue("""
+                        {"tag":"u"}
+                        """);
+        assertEquals(new Items(List.of("a"), "u"), result);
+
+        // but value of other type cannot be passed
+        ObjectReader r = MAPPER.readerForUpdating(new Items(List.of("a"), "t"));
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> r.readValue("""
+                        {"tag":"u"}
+                        """));
+        verifyException(e, "Cannot update Record", "'items'");
     }
 
     // Getters not visible: accessors are still linked by component name

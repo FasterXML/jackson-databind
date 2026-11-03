@@ -409,6 +409,25 @@ public class UnwrappedBasicTest extends DatabindTestUtil
         public CamelPrefixInner inner;
     }
 
+    static class CaseField {
+        public String myName;
+    }
+
+    static class CaseFieldPrefixed {
+        @JsonUnwrapped(prefix = "inner-")
+        public CaseField inner;
+    }
+
+    static class CaseFieldPlain {
+        @JsonUnwrapped
+        public CaseField inner;
+    }
+
+    static class CaseCreatorPlain {
+        @JsonUnwrapped
+        public CamelPrefixInner inner;
+    }
+
     // Creator-only (no fallback setter or field)
     static class CamelPrefixInner {
         private final String _myName;
@@ -1234,5 +1253,47 @@ public class UnwrappedBasicTest extends DatabindTestUtil
                 {"inner-myName":"a"}
                 """, CamelPrefixOuter.class);
         assertEquals("a", result.inner.myName());
+    }
+
+    // [databind#6247]: unwrapped names must follow ACCEPT_CASE_INSENSITIVE_PROPERTIES
+    @Test
+    public void unwrapFieldPropertiesMatchCaseInsensitively() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+                .build();
+
+        CaseFieldPrefixed upper = mapper.readValue("""
+                {"INNER-MYNAME":"b"}
+                """, CaseFieldPrefixed.class);
+        assertEquals("b", upper.inner.myName);
+
+        CaseFieldPrefixed mixed = mapper.readValue("""
+                {"inner-MYNAME":"c"}
+                """, CaseFieldPrefixed.class);
+        assertEquals("c", mixed.inner.myName);
+
+        CaseFieldPlain plain = mapper.readValue("""
+                {"MYNAME":"d"}
+                """, CaseFieldPlain.class);
+        assertEquals("d", plain.inner.myName);
+    }
+
+    @Test
+    public void unwrapCreatorPropertiesMatchCaseInsensitively() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+                .build();
+
+        CamelPrefixOuter prefixed = mapper.readValue("""
+                {"INNER-MYNAME":"b"}
+                """, CamelPrefixOuter.class);
+        assertEquals("b", prefixed.inner.myName());
+
+        CaseCreatorPlain plain = mapper.readValue("""
+                {"MYNAME":"d"}
+                """, CaseCreatorPlain.class);
+        assertEquals("d", plain.inner.myName());
     }
 }

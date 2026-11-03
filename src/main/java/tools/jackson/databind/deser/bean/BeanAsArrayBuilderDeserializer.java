@@ -168,6 +168,10 @@ public class BeanAsArrayBuilderDeserializer
         }
         // otherwise, skip until end
         while (p.nextToken() != JsonToken.END_ARRAY) {
+            if (p.nextToken() == null) {
+                throw ctxt.mismatchedInputException(this, JsonToken.END_ARRAY,
+                        "Unexpected end-of-input in array");
+            }
             p.skipChildren();
         }
         return finishBuild(ctxt, builder);
@@ -249,6 +253,10 @@ public class BeanAsArrayBuilderDeserializer
         }
         // otherwise, skip until end
         while (p.nextToken() != JsonToken.END_ARRAY) {
+            if (p.nextToken() == null) {
+                throw ctxt.mismatchedInputException(this, JsonToken.END_ARRAY,
+                        "Unexpected end-of-input in array");
+            }
             p.skipChildren();
         }
         return builder;
@@ -277,7 +285,15 @@ public class BeanAsArrayBuilderDeserializer
         int i = 0;
         Object builder = null;
 
-        for (; p.nextToken() != JsonToken.END_ARRAY; ++i) {
+        for (; ; ++i) {
+            JsonToken next = p.nextToken();
+            if (next == null) {
+                throw ctxt.mismatchedInputException(this, JsonToken.END_ARRAY,
+                        "Unexpected end-of-input in array");
+            }
+            if (next == JsonToken.END_ARRAY) {
+                break;
+            }
             SettableBeanProperty prop = (i < propCount) ? props[i] : null;
             if (prop == null) { // we get null if there are extra elements; maybe otherwise too?
                 // [databind#6043]: extra JSON Array elements past property count must

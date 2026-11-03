@@ -155,6 +155,24 @@ public class UnwrappedPropertyHandler
     public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
             Object bean, TokenBuffer buffered, boolean hasUnwrappedContent)
     {
+        return _processUnwrapped(ctxt, bean, buffered, hasUnwrappedContent, false);
+    }
+
+    /**
+     * Processes unwrapped builder properties, retaining the instance returned by
+     * each builder method.
+     *
+     * @since 3.3
+     */
+    public Object processUnwrappedForBuilder(JsonParser originalParser, DeserializationContext ctxt,
+            Object builder, TokenBuffer buffered, boolean hasUnwrappedContent)
+    {
+        return _processUnwrapped(ctxt, builder, buffered, hasUnwrappedContent, true);
+    }
+
+    private Object _processUnwrapped(DeserializationContext ctxt,
+            Object bean, TokenBuffer buffered, boolean hasUnwrappedContent, boolean builderBased)
+    {
         if (hasUnwrappedContent
                 || _unwrappedPropertyNames.isEmpty()
                 // [databind#1709]: Skip deserialization if no unwrapped content.
@@ -167,7 +185,11 @@ public class UnwrappedPropertyHandler
                     continue;
                 }
                 try (JsonParser p = buffered.asParserOnFirstToken(ctxt)) {
-                    prop.deserializeAndSet(p, ctxt, bean);
+                    if (builderBased) {
+                        bean = prop.deserializeSetAndReturn(p, ctxt, bean);
+                    } else {
+                        prop.deserializeAndSet(p, ctxt, bean);
+                    }
                 }
             }
         }

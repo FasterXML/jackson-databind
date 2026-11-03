@@ -623,10 +623,10 @@ public abstract class BasicDeserializerFactory
     }
 
     /**
-     * Helper method copied from {@code POJOPropertyBuilder} since that won't be
-     * applied to creator parameters.
+     * Helper method copied from {@code POJOPropertyBuilder} for synthetic
+     * properties that do not go through regular property collection.
      */
-    private PropertyMetadata _getSetterInfo(MapperConfig<?> config,
+    final PropertyMetadata _getSetterInfo(MapperConfig<?> config,
             BeanProperty prop, PropertyMetadata metadata)
     {
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
@@ -635,8 +635,8 @@ public abstract class BasicDeserializerFactory
         Nulls valueNulls = null;
         Nulls contentNulls = null;
 
-        // NOTE: compared to `POJOPropertyBuilder`, we only have access to creator
-        // parameter, not other accessors, so code bit simpler
+        // NOTE: compared to `POJOPropertyBuilder`, synthetic properties only
+        // have the primary member, not other accessors, so code bit simpler
         AnnotatedMember prim = prop.getMember();
 
         if (prim != null) {
@@ -1081,8 +1081,8 @@ public abstract class BasicDeserializerFactory
                     // usually should be class, but may be just plain Enum<?> (for Enum.valueOf()?)
                     if (!returnType.isAssignableFrom(enumClass)) {
                         ctxt.reportBadDefinition(type, String.format(
-"Invalid `@JsonCreator` annotated Enum factory method [%s]: needs to return compatible type",
-factory.toString()));
+                                "Invalid `@JsonCreator` annotated Enum factory method [%s]: needs to return compatible type",
+                                factory.toString()));
                     }
                     // [databind#6261]: need to pass views of creator parameters, if any
                     if (creatorProps != null) {
@@ -1696,8 +1696,18 @@ factory.toString()));
             return type;
         }
 
-        // First things first: see if we can find annotations on declared
-        // type
+        // First: type-override annotations on the member (`@JsonDeserialize(as/keyAs/contentAs)`),
+        // so that the handlers found below are built for the type actually being deserialized.
+        // A type deserializer built for the declared type before refinement would keep its base
+        // type: `Map<Object,String>` with `keyAs=Integer.class` under Default Typing would then
+        // resolve `HashMap<Object,String>` from the type id and read `String` keys.
+        // But whether type ids are expected at all is decided by the declared type, as on
+        // serialization: narrowing `Object` or an abstract type to a concrete one must not
+        // drop type deserializer (Default Typing may not apply to the concrete type)
+        final JavaType declaredType = type;
+        type = intr.refineDeserializationType(ctxt.getConfig(), member, type);
+
+        // Then: see if we can find handler annotations for the (refined) type
 
         if (type.isMapLikeType()) {
             JavaType keyType = type.getKeyType();
@@ -1717,23 +1727,29 @@ factory.toString()));
             if (cd != null) {
                 type = type.withContentValueHandler(cd);
             }
-            TypeDeserializer contentTypeDeser = ctxt.findPropertyContentTypeDeserializer(type,
-                    (AnnotatedMember) member);
-            if (contentTypeDeser != null) {
-                type = type.withContentTypeHandler(contentTypeDeser);
+            if (declaredType.hasContentType()) {
+                TypeDeserializer contentTypeDeser = ctxt.findPropertyContentTypeDeserializer(declaredType, member);
+                if ((contentTypeDeser != null) && (type != declaredType)) {
+                    TypeDeserializer refined = ctxt.findPropertyContentTypeDeserializer(type, member);
+                    if (refined != null) {
+                        contentTypeDeser = refined;
+                    }
+                }
+                if (contentTypeDeser != null) {
+                    type = type.withContentTypeHandler(contentTypeDeser);
+                }
             }
         }
-        TypeDeserializer valueTypeDeser = ctxt.findPropertyTypeDeserializer(type, (AnnotatedMember) member);
+        TypeDeserializer valueTypeDeser = ctxt.findPropertyTypeDeserializer(declaredType, member);
+        if ((valueTypeDeser != null) && (type != declaredType)) {
+            TypeDeserializer refined = ctxt.findPropertyTypeDeserializer(type, member);
+            if (refined != null) {
+                valueTypeDeser = refined;
+            }
+        }
         if (valueTypeDeser != null) {
             type = type.withTypeHandler(valueTypeDeser);
         }
-
-        // Second part: find actual type-override annotations on member, if any
-
-        // 18-Jun-2016, tatu: Should we re-do checks for annotations on refined
-        //   subtypes as well? Code pre-2.8 did not do this, but if we get bug
-        //   reports may need to consider
-        type = intr.refineDeserializationType(ctxt.getConfig(), member, type);
         return type;
     }
 

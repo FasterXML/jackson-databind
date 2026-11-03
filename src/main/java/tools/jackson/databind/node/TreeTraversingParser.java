@@ -57,11 +57,91 @@ public class TreeTraversingParser
 
     public TreeTraversingParser(JsonNode n) { this(n, ObjectReadContext.empty()); }
 
-    public TreeTraversingParser(JsonNode n, ObjectReadContext readContext)
+    public TreeTraversingParser(JsonNode n, ObjectReadContext readContext) {
+        this(n, readContext, (TokenStreamContext) null);
+    }
+
+    /**
+     * Constructor that allows attaching a parent {@link TokenStreamContext} (for
+     * example, the context of the parser that produced the tree being traversed)
+     * to the root of the traversal. This lets code that relies on the parent
+     * hierarchy &mdash; such as {@link TokenStreamContext#pathAsPointer()} or
+     * {@code currentValue()} lookups &mdash; observe the full path/context rather
+     * than one that starts fresh at the traversed subtree.
+     *
+     * @param n Tree to traverse
+     * @param readContext Read context to use
+     * @param parentContext Parent context to attach to the root of traversal;
+     *    {@code null} if none (in which case traversal starts at a fresh root,
+     *    same as other constructors)
+     *
+     * @since 3.3
+     */
+    public TreeTraversingParser(JsonNode n, ObjectReadContext readContext,
+            TokenStreamContext parentContext)
     {
-        super(readContext);
+        this(n, readContext, parentContext, readContext.streamReadConstraints());
+    }
+
+    /**
+     * Constructor for cases where {@link StreamReadConstraints} to apply come
+     * from a source other than the {@link ObjectReadContext} given: typically
+     * a format backend that parses its input into a tree and then exposes it
+     * through this parser (like TOML backend), and needs constraints of its
+     * {@link TokenStreamFactory} applied, the same way streaming parsers apply
+     * constraints of their {@code IOContext} regardless of read context.
+     *
+     * @param n Tree to traverse
+     * @param readContext Read context to use
+     * @param constraints Constraints to apply (both for {@link #streamReadConstraints()}
+     *    and for token count validation); must not be {@code null}. Passing
+     *    {@code readContext.streamReadConstraints()} is equivalent to using
+     *    {@link #TreeTraversingParser(JsonNode, ObjectReadContext)}
+     *
+     * @since 3.3
+     */
+    public TreeTraversingParser(JsonNode n, ObjectReadContext readContext,
+            StreamReadConstraints constraints)
+    {
+        this(n, readContext, null, constraints);
+    }
+
+    /**
+     * Constructor that combines {@link #TreeTraversingParser(JsonNode, ObjectReadContext, TokenStreamContext)}
+     * and {@link #TreeTraversingParser(JsonNode, ObjectReadContext, StreamReadConstraints)}.
+     * As with the latter, {@code constraints} must not be {@code null}.
+     *
+     * @since 3.3
+     */
+    public TreeTraversingParser(JsonNode n, ObjectReadContext readContext,
+            TokenStreamContext parentContext, StreamReadConstraints constraints)
+    {
+        super(readContext, constraints);
         _source = n;
-        _nodeCursor = new NodeCursor.RootCursor(n, null);
+        _nodeCursor = new NodeCursor.RootCursor(n, parentContext);
+    }
+
+    /**
+     * Method that allows explicitly specifying the parent parse context to
+     * associate with the root of the traversed tree; counterpart to
+     * {@code TokenBuffer.overrideParentContext(...)}. Usually the parent context
+     * is given at construction time (see
+     * {@link #TreeTraversingParser(JsonNode, ObjectReadContext, TokenStreamContext)}),
+     * but this method is provided for cases where it is only available after
+     * construction.
+     *<p>
+     * NOTE: must be called before traversal begins (that is, before the first
+     * {@link #nextToken()} call), as it resets the traversal cursor to the root.
+     *
+     * @param parentContext Parent context to attach (may be {@code null})
+     *
+     * @return This parser, to allow call chaining
+     *
+     * @since 3.3
+     */
+    public TreeTraversingParser overrideParentContext(TokenStreamContext parentContext) {
+        _nodeCursor = new NodeCursor.RootCursor(_source, parentContext);
+        return this;
     }
 
     @Override
@@ -128,7 +208,7 @@ public class TreeTraversingParser
             break;
         case END_OBJECT:
         case END_ARRAY:
-            _nodeCursor = _nodeCursor.getParent();
+            _nodeCursor = _nodeCursor.parentCursor();
         default:
         }
         return _currToken;
@@ -141,10 +221,10 @@ public class TreeTraversingParser
     public JsonParser skipChildren()
     {
         if (_currToken == JsonToken.START_OBJECT) {
-            _nodeCursor = _nodeCursor.getParent();
+            _nodeCursor = _nodeCursor.parentCursor();
             _updateToken(JsonToken.END_OBJECT);
         } else if (_currToken == JsonToken.START_ARRAY) {
-            _nodeCursor = _nodeCursor.getParent();
+            _nodeCursor = _nodeCursor.parentCursor();
             _updateToken(JsonToken.END_ARRAY);
         }
         return this;
@@ -164,7 +244,7 @@ public class TreeTraversingParser
     @Override public String currentName() {
         NodeCursor crsr = _nodeCursor;
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
-            crsr = crsr.getParent();
+            crsr = crsr.parentCursor();
         }
         return (crsr == null) ? null : crsr.currentName();
     }
@@ -300,8 +380,7 @@ public class TreeTraversingParser
         if (!node.canConvertToShort()) {
             String desc = _longIntegerDesc(node.asString());
             if (!node.canConvertToExactIntegral()) {
-                throw _constructInputCoercion(String.format(
-"Numeric value (%s) of `%s` has fractional part; cannot convert to `short`",
+                throw _constructInputCoercion("Numeric value (%s) of `%s` has fractional part; cannot convert to `short`".formatted(
                         desc, node.getClass().getSimpleName()),
                     node.asToken(), Integer.TYPE);
             }
@@ -317,11 +396,10 @@ public class TreeTraversingParser
         if (!node.canConvertToInt()) {
             // [databind#5309] Misleading exception message for DoubleNode to `int` value conversion
             if (!node.canConvertToExactIntegral()) {
-                throw _constructInputCoercion(String.format(
-"Numeric value (%s) of `%s` has fractional part; cannot convert to `int`",
-                            _longIntegerDesc(node.asString()),
-                            node.getClass().getSimpleName()
-                        ),
+                throw _constructInputCoercion("Numeric value (%s) of `%s` has fractional part; cannot convert to `int`".formatted(
+                        _longIntegerDesc(node.asString()),
+                        node.getClass().getSimpleName()
+                ),
                         node.asToken(), Integer.TYPE);
             }
             // otherwise assume range overflow
@@ -358,11 +436,10 @@ public class TreeTraversingParser
         if (!node.canConvertToLong()) {
             // [databind#5309] Misleading exception message for DoubleNode to `long` value conversion
             if (!node.canConvertToExactIntegral()) {
-                throw _constructInputCoercion(String.format(
-"Numeric value (%s) of `%s` has fractional part; cannot convert to `long`",
-                            _longIntegerDesc(node.asString()),
-                            node.getClass().getSimpleName()
-                        ),
+                throw _constructInputCoercion("Numeric value (%s) of `%s` has fractional part; cannot convert to `long`".formatted(
+                        _longIntegerDesc(node.asString()),
+                        node.getClass().getSimpleName()
+                ),
                         node.asToken(), Long.TYPE);
             }
             // otherwise assume range overflow

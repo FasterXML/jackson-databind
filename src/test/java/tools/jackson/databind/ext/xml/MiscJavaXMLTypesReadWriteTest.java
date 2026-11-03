@@ -1,10 +1,14 @@
 package tools.jackson.databind.ext.xml;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.exc.StreamConstraintsException;
@@ -146,6 +150,39 @@ public class MiscJavaXMLTypesReadWriteTest
         assertEquals("prefix", qn.getPrefix());
     }
 
+    // Explicit JSON `null` for optional 'namespaceURI' / 'prefix' means "not defined",
+    // not a failure (unlike other non-STRING values)
+    @Test
+    public void qnameDeserFromObjectWithNulls() throws Exception
+    {
+        QName qn = MAPPER.readValue(a2q("{'localPart':'tag','namespaceURI':null}"), QName.class);
+        assertEquals("", qn.getNamespaceURI());
+        assertEquals("tag", qn.getLocalPart());
+        assertEquals("", qn.getPrefix());
+
+        qn = MAPPER.readValue(a2q("{'localPart':'tag','namespaceURI':'http://abc','prefix':null}"),
+                QName.class);
+        assertEquals("http://abc", qn.getNamespaceURI());
+        assertEquals("tag", qn.getLocalPart());
+        assertEquals("", qn.getPrefix());
+
+        // and empty Strings similarly remain valid
+        qn = MAPPER.readValue(a2q("{'localPart':'tag','namespaceURI':'','prefix':''}"), QName.class);
+        assertEquals("", qn.getNamespaceURI());
+        assertEquals("tag", qn.getLocalPart());
+        assertEquals("", qn.getPrefix());
+    }
+
+    // 'prefix' is retained even if 'namespaceURI' not defined
+    @Test
+    public void qnameDeserFromObjectWithPrefixOnly() throws Exception
+    {
+        QName qn = MAPPER.readValue(a2q("{'localPart':'tag','prefix':'p'}"), QName.class);
+        assertEquals("", qn.getNamespaceURI());
+        assertEquals("tag", qn.getLocalPart());
+        assertEquals("p", qn.getPrefix());
+    }
+
     @Test
     public void testQNameDeserFail() throws Exception
     {
@@ -162,6 +199,30 @@ public class MiscJavaXMLTypesReadWriteTest
         } catch (MismatchedInputException e) {
             verifyException(e, "Object value property 'localPart'");
             verifyException(e, "must be of type STRING, not NUMBER");
+        }
+
+        // Symmetric to localPart: namespaceURI / prefix must also reject non-STRING
+        try {
+            MAPPER.readValue(a2q("{'localPart':'tag','namespaceURI':123}"), QName.class);
+            fail("Should not pass for non-STRING namespaceURI");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "namespaceURI");
+            verifyException(e, "must be of type STRING");
+        }
+        try {
+            MAPPER.readValue(a2q("{'localPart':'tag','namespaceURI':'http://abc','prefix':true}"), QName.class);
+            fail("Should not pass for non-STRING prefix");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "prefix");
+            verifyException(e, "must be of type STRING");
+        }
+        // ... and 'prefix' is validated even when unusable due to missing 'namespaceURI'
+        try {
+            MAPPER.readValue(a2q("{'localPart':'tag','prefix':123}"), QName.class);
+            fail("Should not pass for non-STRING prefix");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "prefix");
+            verifyException(e, "must be of type STRING");
         }
     }
 
@@ -204,6 +265,72 @@ public class MiscJavaXMLTypesReadWriteTest
             fail("Expected a `XMLGregorianCalendar`, got: "+result.getClass());
         }
         assertEquals(cal, result);
+    }
+
+    // [databind#6175] Object-shaped QName must round-trip when polymorphic type
+    // id is written as a property (type deserializer consumes START_OBJECT).
+    @Test
+    public void qnameObjectFormWithAsPropertyTyping() throws Exception
+    {
+        QName original = new QName("http://namespace", "test", "p");
+        ObjectMapper mapper = mapperWithQNameObjectTyping(JsonTypeInfo.As.PROPERTY);
+
+        Map<String, Object> value = new LinkedHashMap<>();
+        value.put("qname", original);
+
+        String json = mapper.writeValueAsString(value);
+        QName back = (QName) mapper.readValue(json, Map.class).get("qname");
+        assertQNameEquals(original, back);
+    }
+
+    // WRAPPER_ARRAY / WRAPPER_OBJECT leave START_OBJECT for the QName deserializer
+    @Test
+    public void qnameObjectFormWithWrapperTyping() throws Exception
+    {
+        QName original = new QName("http://namespace", "test", "p");
+        for (JsonTypeInfo.As inclusion : new JsonTypeInfo.As[] {
+                JsonTypeInfo.As.WRAPPER_ARRAY, JsonTypeInfo.As.WRAPPER_OBJECT }) {
+            ObjectMapper mapper = mapperWithQNameObjectTyping(inclusion);
+            Map<String, Object> value = new LinkedHashMap<>();
+            value.put("qname", original);
+            QName back = (QName) mapper.readValue(mapper.writeValueAsString(value), Map.class)
+                    .get("qname");
+            assertQNameEquals(original, back);
+        }
+    }
+
+    // [databind#6175] Type id as the only property leaves parser on END_OBJECT:
+    // should still report the missing 'localPart', not an unexpected-token failure
+    @Test
+    public void qnameObjectFormWithOnlyTypeIdProperty() throws Exception
+    {
+        ObjectMapper mapper = mapperWithQNameObjectTyping(JsonTypeInfo.As.PROPERTY);
+        String json = """
+                {"@class":"java.util.LinkedHashMap",
+                 "qname":{"@class":"javax.xml.namespace.QName"}}
+                """;
+        try {
+            mapper.readValue(json, Map.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "missing required property 'localPart'");
+        }
+    }
+
+    private ObjectMapper mapperWithQNameObjectTyping(JsonTypeInfo.As inclusion) {
+        return jsonMapperBuilder()
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL, inclusion)
+                .withConfigOverride(QName.class,
+                        cfg -> cfg.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.OBJECT)))
+                .build();
+    }
+
+    // QName.equals() ignores prefix
+    private static void assertQNameEquals(QName expected, QName actual) {
+        assertEquals(expected.getLocalPart(), actual.getLocalPart());
+        assertEquals(expected.getNamespaceURI(), actual.getNamespaceURI());
+        assertEquals(expected.getPrefix(), actual.getPrefix());
     }
 
     /*

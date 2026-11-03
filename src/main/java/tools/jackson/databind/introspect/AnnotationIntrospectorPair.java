@@ -1,5 +1,6 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +34,7 @@ public class AnnotationIntrospectorPair
     extends AnnotationIntrospector
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected final AnnotationIntrospector _primary, _secondary;
@@ -199,6 +201,16 @@ public class AnnotationIntrospectorPair
         return v;
     }
 
+    @Override // @since 3.2
+    public JavaType findPolymorphicBaseType(MapperConfig<?> config,
+            AnnotatedClass ac, JsonTypeInfo.Value typeInfo, JavaType assumedBaseType) {
+        JavaType t = _primary.findPolymorphicBaseType(config, ac, typeInfo, assumedBaseType);
+        if (t == null) {
+            t = _secondary.findPolymorphicBaseType(config, ac, typeInfo, assumedBaseType);
+        }
+        return t;
+    }
+
     @Override
     public Object findTypeResolverBuilder(MapperConfig<?> config,
             Annotated ann) {
@@ -363,6 +375,16 @@ public class AnnotationIntrospectorPair
         Class<?>[] result = _primary.findViews(config, a);
         if (result == null) {
             result = _secondary.findViews(config, a);
+        }
+        return result;
+    }
+
+    @Override
+    public Class<?> findApplyView(MapperConfig<?> config, Annotated a)
+    {
+        Class<?> result = _primary.findApplyView(config, a);
+        if (result == null) {
+            result = _secondary.findApplyView(config, a);
         }
         return result;
     }

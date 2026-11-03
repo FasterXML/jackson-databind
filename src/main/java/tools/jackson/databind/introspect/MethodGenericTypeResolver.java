@@ -136,12 +136,11 @@ final class MethodGenericTypeResolver
 
     /* Returns the TypeVariable if it can be extracted, otherwise null. */
     private static TypeVariable<?> maybeGetTypeVariable(Type type) {
-        if (type instanceof TypeVariable) {
-            return (TypeVariable<?>) type;
+        if (type instanceof TypeVariable<?> variable) {
+            return variable;
         }
         // Extract simple type variables from wildcards matching '? extends T'
-        if (type instanceof WildcardType) {
-            WildcardType wildcardType = (WildcardType) type;
+        if (type instanceof WildcardType wildcardType) {
             // Exclude any form of '? super T'
             if (wildcardType.getLowerBounds().length != 0) {
                 return null;
@@ -156,12 +155,11 @@ final class MethodGenericTypeResolver
 
     /* Returns the TypeVariable if it can be extracted, otherwise null. */
     private static ParameterizedType maybeGetParameterizedType(Type type) {
-        if (type instanceof ParameterizedType) {
-            return (ParameterizedType) type;
+        if (type instanceof ParameterizedType parameterizedType) {
+            return parameterizedType;
         }
         // Extract simple type variables from wildcards matching '? extends T'
-        if (type instanceof WildcardType) {
-            WildcardType wildcardType = (WildcardType) type;
+        if (type instanceof WildcardType wildcardType) {
             // Exclude any form of '? super T'
             if (wildcardType.getLowerBounds().length != 0) {
                 return null;

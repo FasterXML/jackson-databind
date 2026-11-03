@@ -227,4 +227,33 @@ public class MapMergeTest
         resultList = (List<?>) resultMap.get("list");
         assertEquals(Arrays.asList("x", "y"), resultList);
     }
+
+    // [databind#3205]: ConfigOverrides for merging not applied for items inside containers
+    static class MapWithListValues3205 {
+        public Map<String, List<Integer>> data;
+
+        public MapWithListValues3205() {
+            data = new LinkedHashMap<>();
+            data.put("nums", new ArrayList<>(Arrays.asList(1, 2, 3)));
+        }
+    }
+
+    @Test
+    public void testDisabledContentMergeByType() throws Exception
+    {
+        // Map itself should merge (entries added/updated), but List values should NOT merge (replace)
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Map.class,
+                        o -> o.setMergeable(true))
+                .withConfigOverride(List.class,
+                        o -> o.setMergeable(false))
+                .build();
+
+        MapWithListValues3205 input = new MapWithListValues3205();
+        MapWithListValues3205 result = mapper.readerForUpdating(input)
+                .readValue(a2q("{'data':{'nums':[4,5,6]}}"));
+
+        // List should be replaced, not appended
+        assertEquals(Arrays.asList(4, 5, 6), result.data.get("nums"));
+    }
 }

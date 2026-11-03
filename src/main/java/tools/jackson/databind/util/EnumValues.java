@@ -1,5 +1,6 @@
 package tools.jackson.databind.util;
 
+import java.io.Serial;
 import java.util.*;
 
 import tools.jackson.core.SerializableString;
@@ -18,6 +19,7 @@ import tools.jackson.databind.introspect.AnnotatedClass;
 public final class EnumValues
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1;
 
     private final Class<Enum<?>> _enumClass;
@@ -152,7 +154,7 @@ public final class EnumValues
         // [databind#4788] Since 2.18.2 : EnumFeature.WRITE_ENUMS_TO_LOWERCASE should not
         //                 override @JsonProperty values
         if (toLowerCase) {
-            return otherName.toLowerCase();
+            return otherName.toLowerCase(Locale.ROOT);
         }
         return otherName;
     }

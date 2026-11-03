@@ -10,12 +10,14 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.deser.*;
+import tools.jackson.databind.deser.ReadableObjectId.Referring;
 import tools.jackson.databind.deser.bean.PropertyBasedCreator;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 
 /**
@@ -191,7 +193,7 @@ public class EnumMapDeserializer
                 JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
                     ctxt.reportBadDefinition(_containerType, String.format(
-"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
+                            "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
                             _containerType,
                             _valueInstantiator.getClass().getName()));
                 }
@@ -204,7 +206,7 @@ public class EnumMapDeserializer
                 JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
                     ctxt.reportBadDefinition(_containerType, String.format(
-"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
+                            "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
                             _containerType,
                             _valueInstantiator.getClass().getName()));
                 }
@@ -362,6 +364,16 @@ public class EnumMapDeserializer
             }
             keyStr = p.currentName();
         }
+        if (keyStr == null) {
+            return result;
+        }
+
+        // Need to resolve ObjectIds (forward refs)?
+        final MapDeserializer.MapReferringAccumulator referringAccumulator =
+            (_valueDeserializer.getObjectIdReader(ctxt) == null)
+                    ? null
+                    : new MapDeserializer.MapReferringAccumulator(
+                            _containerType.getContentType().getRawClass(), result);
 
         for (; keyStr != null; keyStr = p.nextName()) {
             // Check ignorals first: ignored name need not be a valid Enum name
@@ -377,7 +389,7 @@ public class EnumMapDeserializer
                 if (!ctxt.isEnabled(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
                     return (EnumMap<?,?>) ctxt.handleWeirdStringValue(_enumClass, keyStr,
                             "value not one of declared Enum instance names for %s",
-                            _containerType.getKeyType());
+                            ClassUtil.getTypeDescription(_containerType.getKeyType()));
                 }
                 // 24-Mar-2012, tatu: Null won't work as a key anyway, so let's
                 //  just skip the entry then. But we must skip the value as well, if so.
@@ -406,10 +418,16 @@ public class EnumMapDeserializer
                         continue;
                     }
                 }
+                if (referringAccumulator == null) {
+                    result.put(key, value);
+                } else {
+                    referringAccumulator.put(key, value);
+                }
+            } catch (UnresolvedForwardReference reference) {
+                _handleUnresolvedReference(ctxt, referringAccumulator, key, reference);
             } catch (Exception e) {
                 return wrapAndThrow(ctxt, e, result, keyStr);
             }
-            result.put(key, value);
         }
         return result;
     }
@@ -440,7 +458,7 @@ public class EnumMapDeserializer
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         // null -> no ObjectIdReader for EnumMaps
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null, false);
         final Class<?> activeView = ctxt.getActiveView();
 
         String keyName;
@@ -542,5 +560,18 @@ public class EnumMapDeserializer
             return _valueDeserializer.deserialize(p, ctxt);
         }
         return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+    }
+
+    private void _handleUnresolvedReference(DeserializationContext ctxt,
+            MapDeserializer.MapReferringAccumulator accumulator,
+            Object key, UnresolvedForwardReference reference)
+        throws JacksonException
+    {
+        if (accumulator == null) {
+            ctxt.reportInputMismatch(this,
+                    "Unresolved forward reference but no identity info: "+reference);
+        }
+        Referring referring = accumulator.handleUnresolvedReference(reference, key);
+        reference.getRoid().appendReferring(referring);
     }
 }

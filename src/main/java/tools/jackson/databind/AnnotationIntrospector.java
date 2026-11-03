@@ -145,6 +145,23 @@ public abstract class AnnotationIntrospector
          * @return Null if no indicator found; {@code True} or {@code False} otherwise
          */
         public Boolean isOutputAsCData(MapperConfig<?> config, Annotated ann);
+
+        /**
+         * Method for finding the fully-qualified inner element name specified via
+         * {@code @JacksonXmlProperty} (or similar) on a property accessor.
+         * Used to recover the inner element name for wrapped collections when
+         * the property name has been set to the wrapper name.
+         *
+         * @param config Configuration settings in effect
+         * @param ann Annotated entity to introspect
+         *
+         * @return Inner element name if explicitly specified; null otherwise.
+         *
+         * @since 3.2
+         */
+        default PropertyName findXmlPropertyInnerName(MapperConfig<?> config, Annotated ann) {
+            return null;
+        }
     }
 
     /*
@@ -434,6 +451,29 @@ public abstract class AnnotationIntrospector
     }
 
     /**
+     * Method called to figure out true base type to use for polymorphic serialization
+     * (usually NOT needed on deserialization side), instead of "assumed" base type
+     * which may be from runtime type and "too specific" (sub-type) due to way
+     * serialization type handling works (value and type serializers constructed
+     * for concrete implementation type, not actual base type that declares polymorphic
+     * handling).
+     *
+     * @param config Effective mapper configuration in use
+     * @param ac Class for which type info was resolved
+     * @param typeInfo Polymorphic type info introspected (usually via {@link #findPolymorphicTypeInfo})
+     * @param assumedBaseType Base type assumed before calling this method (and used
+     *    unless we can detect true base type)
+     *
+     * @return True polymorphic base type if detected; {@code null} if not.
+     *
+     * @since 3.2
+     */
+    public JavaType findPolymorphicBaseType(MapperConfig<?> config,
+            AnnotatedClass ac, JsonTypeInfo.Value typeInfo, JavaType assumedBaseType) {
+        return null;
+    }
+
+    /**
      * @param config Effective mapper configuration in use
      * @param ann Annotated entity to introspect
      *
@@ -564,12 +604,32 @@ public abstract class AnnotationIntrospector
      * {@link AnnotatedClass}
      *
      * @param config Effective mapper configuration in use
-     * @param a Annotated property (represented by a method, field or ctor parameter)
+     * @param a Annotated property (represented by a method, field or constructor parameter)
      *
      * @return Array of views (represented by classes) that the property is included in;
      *    if null, always included (same as returning array containing <code>Object.class</code>)
      */
     public Class<?>[] findViews(MapperConfig<?> config, Annotated a) { return null; }
+
+    /**
+     * Method for checking if annotated property (represented by a field or
+     * getter/setter method) has definition for view that shall be applied to
+     * property value (and its child properties) when processing.
+     * If {@code null} is returned, no view definition exists and property is processed with
+     * the current active view if any;
+     * otherwise it will use that view to process the property and its subtree.
+     * NOTE: special value of {@link com.fasterxml.jackson.annotation.JsonApplyView.NONE}
+     * can be used to indicate "disable View processing for property".
+     *
+     * @param config Effective mapper configuration in use
+     * @param a Annotated property (represented by a method, field or constructor parameter)
+     *
+     * @return view (represented by class) that the property will be processed with;
+     *    if null, processing will use the current view if any
+     *
+     * @since 3.2
+     */
+    public Class<?> findApplyView(MapperConfig<?> config, Annotated a) { return null; }
 
     /**
      * Method for finding format annotations for property or class.

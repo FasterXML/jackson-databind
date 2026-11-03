@@ -53,7 +53,7 @@ public class FactoryCreatorTypeBinding2894Test
 
         @Override
         public boolean equals(Object o) {
-            return (o instanceof Value) && ((Value) o).x == x;
+            return (o instanceof Value v) && v.x == x;
         }
 
         @Override

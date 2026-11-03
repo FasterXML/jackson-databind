@@ -1,5 +1,6 @@
 package tools.jackson.databind.type;
 
+import java.io.Serial;
 import java.lang.reflect.TypeVariable;
 import java.util.*;
 
@@ -14,6 +15,7 @@ public abstract class TypeBase
     extends JavaType
     implements JacksonSerializable
 {
+    @Serial
     private static final long serialVersionUID = 1;
 
     private final static TypeBindings NO_BINDINGS = TypeBindings.emptyBindings();

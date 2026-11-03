@@ -28,8 +28,7 @@ public class PropertyBuilder
      * we may need to know the default value of the bean, to know if property value
      * equals default one.
      *<p>
-     * NOTE: only used if enclosing class defines NON_DEFAULT, but NOT if it is the
-     * global default OR per-property override.
+     * NOTE: only used if {@link #_useRealPropertyDefaults} is enabled.
      */
     protected Object _defaultBean;
 
@@ -43,7 +42,9 @@ public class PropertyBuilder
 
     /**
      * Marker flag used to indicate that "real" default values are to be used
-     * for properties, as per per-type value inclusion of type <code>NON_DEFAULT</code>
+     * for properties: either due to per-type value inclusion of type <code>NON_DEFAULT</code>,
+     * or global default <code>NON_DEFAULT</code> with
+     * {@link MapperFeature#USE_REAL_INCLUDE_NON_DEFAULT} enabled.
      */
     protected final boolean _useRealPropertyDefaults;
 
@@ -67,7 +68,14 @@ public class PropertyBuilder
                         JsonInclude.Value.empty()));
         _defaultInclusion = JsonInclude.Value.merge(config.getDefaultPropertyInclusion(),
                 inclPerType);
-        _useRealPropertyDefaults = inclPerType.getValueInclusion() == JsonInclude.Include.NON_DEFAULT;
+        // [databind#1757]: Use "real" property defaults (from default bean instance)
+        //  when NON_DEFAULT is set per-type (b), or when set as global default (a)
+        //  AND MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT is enabled. This ensures round-trip
+        //  consistency: values that match the no-arg constructor defaults are suppressed
+        //  during serialization and restored by the constructor during deserialization.
+        _useRealPropertyDefaults = (inclPerType.getValueInclusion() == JsonInclude.Include.NON_DEFAULT)
+                || ((_defaultInclusion.getValueInclusion() == JsonInclude.Include.NON_DEFAULT)
+                        && config.isEnabled(MapperFeature.USE_REAL_INCLUDE_NON_DEFAULT));
         _annotationIntrospector = _config.getAnnotationIntrospector();
     }
 
@@ -94,7 +102,7 @@ public class PropertyBuilder
         // do we have annotation that forces type to use (to declared type or its super type)?
         JavaType serializationType;
         try {
-            serializationType = findSerializationType(am, defaultUseStaticTyping, declaredType);
+            serializationType = findSerializationType(ctxt, am, defaultUseStaticTyping, declaredType);
         } catch (DatabindException e) {
             if (propDef == null) {
                 return ctxt.reportBadDefinition(declaredType, ClassUtil.exceptionMessage(e));
@@ -153,17 +161,17 @@ public class PropertyBuilder
         switch (inclusion) {
         case NON_DEFAULT:
             // 11-Nov-2015, tatu: This is tricky because semantics differ between cases,
-            //    so that if enclosing class has this, we may need to access values of property,
-            //    whereas for global defaults OR per-property overrides, we have more
-            //    static definition. Sigh.
-            // First: case of class/type specifying it; try to find POJO property defaults
-            Object defaultBean;
+            //    so that if enclosing class has this (or global default does, with
+            //    USE_REAL_INCLUDE_NON_DEFAULT), we may need to access values of property,
+            //    whereas otherwise we have more static definition. Sigh.
+            // First: case of "real" defaults; try to find POJO property defaults
+            final Object defaultBean = _useRealPropertyDefaults ? getDefaultBean() : null;
 
             // 16-Oct-2016, tatu: Note: if we cannot for some reason create "default instance",
             //    revert logic to the case of general/per-property handling, so both
             //    type-default AND null are to be excluded.
             //    (as per [databind#1417]
-            if (_useRealPropertyDefaults && (defaultBean = getDefaultBean()) != null) {
+            if (defaultBean != null) {
                 // 07-Sep-2016, tatu: may also need to front-load access forcing now
                 if (ctxt.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
                     am.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -173,6 +181,9 @@ public class PropertyBuilder
                 } catch (Exception e) {
                     _throwWrapped(e, propDef.getName(), defaultBean);
                 }
+                // [databind#6275], [databind#6317]: Null is not suppressed here when the
+                //  compared default is non-null (same for per-type and global, including
+                //  per-property NON_DEFAULT); a null real default is handled below.
             } else {
                 valueToSuppress = BeanUtil.propertyDefaultValue(ctxt, actualType);
                 suppressNulls = true;
@@ -181,7 +192,9 @@ public class PropertyBuilder
                 suppressNulls = true;
                 // [databind#4471] Different behavior when Include.NON_DEFAULT
                 //   setting is used on POJO vs global setting, as per documentation.
-                if (!_useRealPropertyDefaults) {
+                // [databind#6319] Only when real defaults not used (including case where
+                //   default bean could not be created, see [databind#1417])
+                if (defaultBean == null) {
                     // [databind#4464] NON_DEFAULT does not work with NON_EMPTY for custom serializer
                     // [databind#5312] But for Record types, default value for reference-type
                     //   properties is always null; no need to fall back to MARKER_FOR_EMPTY
@@ -230,13 +243,15 @@ public class PropertyBuilder
         if (views == null) {
             views = _beanDesc.findDefaultViews();
         }
+        Class<?> applyView = propDef.findApplyView();
+
         // [databind#1649]: Pass the computed inclusion value (which includes
         // contextual annotations) so BeanPropertyWriter can use it directly
         // instead of re-computing in findPropertyInclusion()
         BeanPropertyWriter bpw = _constructPropertyWriter(propDef,
                 am, _beanDesc.getClassAnnotations(), declaredType,
                 ser, typeSer, serializationType, suppressNulls, valueToSuppress, views,
-                inclV);
+                inclV, applyView);
 
         // How about custom null serializer?
         Object serDef = _annotationIntrospector.findNullSerializer(_config, am);
@@ -246,6 +261,13 @@ public class PropertyBuilder
         // And then, handling of unwrapping
         NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(_config, am);
         if (unwrapper != null) {
+            // [databind#1298]: @JsonUnwrapped incompatible with @JsonIdentityInfo
+            //    on the unwrapped property type
+            if (_annotationIntrospector.findObjectIdInfo(_config,
+                    ctxt.introspectClassAnnotations(declaredType)) != null) {
+                ctxt.reportBadPropertyDefinition(_beanDesc, propDef,
+                        "cannot use `@JsonUnwrapped` on property with type that has `@JsonIdentityInfo`");
+            }
             bpw = bpw.unwrappingWriter(unwrapper);
         }
         return bpw;
@@ -262,12 +284,12 @@ public class PropertyBuilder
             JavaType declaredType,
             ValueSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             boolean suppressNulls, Object suppressableValue,
-            Class<?>[] includeInViews, JsonInclude.Value inclusion)
+            Class<?>[] includeInViews, JsonInclude.Value inclusion, Class<?> applyView)
     {
         return new BeanPropertyWriter(propDef,
                 member, contextAnnotations, declaredType,
                 ser, typeSer, serType, suppressNulls, suppressableValue, includeInViews,
-                inclusion);
+                inclusion, applyView);
     }
 
     /*
@@ -282,7 +304,8 @@ public class PropertyBuilder
      * declared type (if static typing for serialization is enabled).
      * If neither can be used (no annotations, dynamic typing), returns null.
      */
-    protected JavaType findSerializationType(Annotated a, boolean useStaticTyping, JavaType declaredType)
+    protected JavaType findSerializationType(SerializationContext ctxt,
+            Annotated a, boolean useStaticTyping, JavaType declaredType)
     {
         JavaType secondary = _annotationIntrospector.refineSerializationType(_config, a, declaredType);
 
@@ -313,9 +336,19 @@ public class PropertyBuilder
             declaredType = secondary;
         }
         // If using static typing, declared type is known to be the type...
+        // First: check property-level (member) annotation
         JsonSerialize.Typing typing = _annotationIntrospector.findSerializationTyping(_config, a);
         if ((typing != null) && (typing != JsonSerialize.Typing.DEFAULT_TYPING)) {
             useStaticTyping = (typing == JsonSerialize.Typing.STATIC);
+        }
+        // [databind#1515]: if still static, check declared type's class-level annotation;
+        //   allows @JsonSerialize(typing=DYNAMIC) on class to override global USE_STATIC_TYPING
+        else if (useStaticTyping) {
+            JsonSerialize.Typing classTyping = _annotationIntrospector.findSerializationTyping(
+                    _config, ctxt.introspectClassAnnotations(declaredType));
+            if (classTyping == JsonSerialize.Typing.DYNAMIC) {
+                useStaticTyping = false;
+            }
         }
         if (useStaticTyping) {
             // 11-Oct-2015, tatu: Make sure JavaType also "knows" static-ness...

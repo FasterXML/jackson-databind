@@ -8,6 +8,7 @@ import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.impl.PropertySerializerMap;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.Converter;
+import tools.jackson.databind.util.NameTransformer;
 
 /**
  * Serializer implementation where given Java type is first converted
@@ -138,6 +139,34 @@ public class StdConvertingSerializer
             return this;
         }
         return withDelegate(_converter, delegateType, delSer, property);
+    }
+
+    /**
+     * Overridden to support [databind#6017]: if the value the {@link Converter}
+     * produces is serialized using an unwrapping serializer (for example a POJO
+     * combined with {@code @JsonUnwrapped}), this serializer should likewise
+     * become unwrapping by delegating to an unwrapping variant of the delegate
+     * serializer.
+     *
+     * @since 3.2
+     */
+    @Override
+    public ValueSerializer<Object> unwrappingSerializer(NameTransformer unwrapper)
+    {
+        if (_delegateSerializer == null) {
+            return this;
+        }
+        ValueSerializer<?> unwrapping = _delegateSerializer.unwrappingSerializer(unwrapper);
+        if (unwrapping == _delegateSerializer) {
+            return this;
+        }
+        return withDelegate(_converter, _delegateType, unwrapping, _property);
+    }
+
+    // @since 3.2
+    @Override
+    public boolean isUnwrappingSerializer() {
+        return (_delegateSerializer != null) && _delegateSerializer.isUnwrappingSerializer();
     }
 
     /*

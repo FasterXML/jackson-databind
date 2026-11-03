@@ -111,12 +111,14 @@ public class BuilderCreatorSubtype4742Test
     public void testDeser4742() throws Exception
     {
         final Animals animals = MAPPER.readValue(
-                "{\n" +
-                        "  \"animals\": [\n" +
-                        "    {\"kind\": \"bird\", \"properties\": {\"color\": \"yellow\"}},\n" +
-                        "    {\"kind\": \"mammal\", \"properties\": {\"num_teeth\": 2}}\n" +
-                        "  ]\n" +
-                        "}", Animals.class);
+                """
+                {
+                  "animals": [
+                    {"kind": "bird", "properties": {"color": "yellow"}},
+                    {"kind": "mammal", "properties": {"num_teeth": 2}}
+                  ]
+                }
+                """, Animals.class);
 
         assertEquals(2, animals.animals.size());
         assertInstanceOf(BirdProperties.class, animals.animals.get(0).properties);

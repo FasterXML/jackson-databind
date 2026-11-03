@@ -70,6 +70,10 @@ class BuilderArrayExtraValues6374Test
         } else if (view) {
             builder.addMixIn(Value.Builder.class, ViewedBuilder.class);
         }
+        // Without active Views, enable default inclusion to use vanilla processing path
+        if (!view) {
+            builder.enable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        }
         return builder.build();
     }
 

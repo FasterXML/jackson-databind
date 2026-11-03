@@ -27,12 +27,12 @@ public class JsonPointerRemoval1981Test extends DatabindTestUtil
         JsonNode removed = root.remove(JsonPointer.compile("/b"));
         assertEquals(2, removed.asInt());
 
-        assertEquals(MAPPER.readTree(a2q("""
+        assertEquals(MAPPER.readTree("""
                 {
                    "a": 1,
                    "c": 3
                 }
-                """)), root);
+                """), root);
     }
 
     @Test

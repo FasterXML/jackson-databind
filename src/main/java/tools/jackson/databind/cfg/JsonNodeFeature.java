@@ -93,6 +93,22 @@ public enum JsonNodeFeature implements DatatypeFeature
      * depends on more general {@code DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS}).
      */
     USE_BIG_DECIMAL_FOR_FLOATS(false),
+
+    /**
+     * Feature that determines what value is used for absent {@link tools.jackson.databind.JsonNode}
+     * valued properties: if enabled, {@link tools.jackson.databind.node.MissingNode} will be used;
+     * if disabled (default), Java {@code null} is used.
+     *<p>
+     * This is relevant when deserializing POJO properties of type {@code JsonNode}
+     * (or its subtypes) where the JSON input does not contain a matching property.
+     * By default, such missing values are represented as Java {@code null}, but enabling
+     * this feature will instead use {@code MissingNode.getInstance()}.
+     *<p>
+     * Default value: {@code false}
+     *
+     * @since 3.2
+     */
+    MAP_ABSENT_TO_MISSING(false),
     ;
 
     private final static int FEATURE_INDEX = DatatypeFeatures.FEATURE_INDEX_JSON_NODE;

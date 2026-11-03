@@ -43,6 +43,14 @@ public class MonthDeserializerTest extends DateTimeTestBase
         public Month value;
     }
 
+    record Estimate(
+            @JsonFormat(with = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES)
+            Month month) { }
+
+    record StrictEstimate(
+            @JsonFormat(without = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES)
+            Month month) { }
+
     @ParameterizedTest
     @EnumSource(Month.class)
     public void testDeserializationAsString01_oneBased(Month expectedMonth) throws Exception
@@ -94,13 +102,13 @@ public class MonthDeserializerTest extends DateTimeTestBase
     static void assertError(Executable codeToRun, Class<? extends Throwable> expectedException, String expectedMessage) {
         try {
             codeToRun.execute();
-            fail(String.format("Expecting %s, but nothing was thrown!", expectedException.getName()));
+            fail("Expecting %s, but nothing was thrown!".formatted(expectedException.getName()));
         } catch (Throwable actualException) {
             if (!expectedException.isInstance(actualException)) {
-                fail(String.format("Expecting exception of type %s, but %s was thrown instead", expectedException.getName(), actualException.getClass().getName()));
+                fail("Expecting exception of type %s, but %s was thrown instead".formatted(expectedException.getName(), actualException.getClass().getName()));
             }
             if (actualException.getMessage() == null || !actualException.getMessage().contains(expectedMessage)) {
-                fail(String.format("Expecting exception with message containing: '%s', but the actual error message was:'%s'", expectedMessage, actualException.getMessage()));
+                fail("Expecting exception with message containing: '%s', but the actual error message was:'%s'".formatted(expectedMessage, actualException.getMessage()));
             }
         }
     }
@@ -522,6 +530,69 @@ public class MonthDeserializerTest extends DateTimeTestBase
         WrapperWithFullMonthFormat result = MAPPER.readValue(
                 "{\"value\":\"January\"}", WrapperWithFullMonthFormat.class);
         assertEquals(Month.JANUARY, result.value);
+    }
+
+    // [databind#6178]
+    @ParameterizedTest
+    @ValueSource(strings = {"JANUARY", "January", "january"})
+    public void testDeserializationWithCaseInsensitiveValues(String input) throws Exception
+    {
+        Estimate result = MAPPER.readValue("{\"month\":\"" + input + "\"}", Estimate.class);
+        assertEquals(Month.JANUARY, result.month());
+    }
+
+    // [databind#6178]
+    @Test
+    public void testDeserializationWithGlobalCaseInsensitiveValues() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES)
+                .build();
+
+        assertEquals(Month.JANUARY, mapper.readValue("\"january\"", Month.class));
+    }
+
+    // [databind#6178]
+    @Test
+    public void testDeserializationWithCaseInsensitiveValuesDisabledForProperty() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES)
+                .build();
+
+        assertThrows(InvalidFormatException.class,
+                () -> mapper.readValue("{\"month\":\"January\"}", StrictEstimate.class));
+    }
+
+    // [databind#6178]: `Month` is an `Enum` so Enum-specific setting applies too
+    @Test
+    public void testDeserializationWithGlobalCaseInsensitiveEnums() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .build();
+
+        assertEquals(Month.JANUARY, mapper.readValue("\"january\"", Month.class));
+    }
+
+    // [databind#6178]
+    @Test
+    public void testDeserializationWithCaseInsensitiveEnumsDisabledForProperty() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .build();
+
+        assertThrows(InvalidFormatException.class,
+                () -> mapper.readValue("{\"month\":\"January\"}", StrictEstimate.class));
+    }
+
+    // [databind#6178]: neither global setting enabled -> still strict
+    @Test
+    public void testDeserializationCaseSensitiveByDefault() throws Exception
+    {
+        assertThrows(InvalidFormatException.class,
+                () -> MAPPER.readValue("\"January\"", Month.class));
     }
 
     /*

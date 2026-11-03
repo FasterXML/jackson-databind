@@ -12,14 +12,17 @@ import tools.jackson.databind.jsontype.TypeIdResolver;
  */
 public class AsArrayTypeSerializer extends TypeSerializerBase
 {
-    public AsArrayTypeSerializer(TypeIdResolver idRes, BeanProperty property) {
-        super(idRes, property);
+    /** @since 3.2 */
+    public AsArrayTypeSerializer(TypeIdResolver idRes, BeanProperty property,
+            Class<?> skipTypeIdFor) {
+        super(idRes, property, skipTypeIdFor);
     }
 
     @Override
     public AsArrayTypeSerializer forProperty(SerializationContext ctxt,
             BeanProperty prop) {
-        return (_property == prop) ? this : new AsArrayTypeSerializer(_idResolver, prop);
+        return (_property == prop) ? this :
+            new AsArrayTypeSerializer(_idResolver, prop, _skipTypeIdFor);
     }
 
     @Override

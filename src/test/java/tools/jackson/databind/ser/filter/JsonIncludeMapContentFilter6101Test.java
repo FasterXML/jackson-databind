@@ -67,7 +67,8 @@ public class JsonIncludeMapContentFilter6101Test extends DatabindTestUtil
     @Test
     public void mapKeepsSurvivingEntries() throws Exception {
         Bean bean = new Bean().add("a", "foo").add("b", "keep");
-        assertEquals("{\"stuff\":{\"b\":\"keep\"}}",
+        assertEquals("""
+                {"stuff":{"b":"keep"}}""",
                 MAPPER.writeValueAsString(bean));
     }
 
@@ -87,7 +88,8 @@ public class JsonIncludeMapContentFilter6101Test extends DatabindTestUtil
     @Test
     public void dynamicValueMapKeepsSurvivingEntries() throws Exception {
         DynBean bean = new DynBean().add("a", "foo").add("b", "keep");
-        assertEquals("{\"stuff\":{\"b\":\"keep\"}}",
+        assertEquals("""
+                {"stuff":{"b":"keep"}}""",
                 MAPPER.writeValueAsString(bean));
     }
 }

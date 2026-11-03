@@ -1,5 +1,6 @@
 package tools.jackson.databind.jsontype.impl;
 
+import java.io.Serial;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,6 +24,7 @@ public class SimpleNameIdResolver
     extends TypeIdResolverBase
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**
@@ -88,7 +90,7 @@ public class SimpleNameIdResolver
                 if (forDeser) {
                     // [databind#1983]: for case-insensitive lookups must canonicalize:
                     if (caseInsensitive) {
-                        id = id.toLowerCase();
+                        id = id.toLowerCase(Locale.ROOT);
                     }
                     // One more problem; sometimes we have same name for multiple types;
                     // if so, use most specific
@@ -171,7 +173,7 @@ public class SimpleNameIdResolver
     protected JavaType _typeFromId(String id) {
         // [databind#1983]: for case-insensitive lookups must canonicalize:
         if (_caseInsensitive) {
-            id = id.toLowerCase();
+            id = id.toLowerCase(Locale.ROOT);
         }
         return _idToType.get(id);
     }

@@ -50,6 +50,42 @@ public enum DateTimeFeature implements DatatypeFeature
     ALWAYS_ALLOW_STRINGIFIED_DATE_TIMESTAMPS(false),
 
     /**
+     * Feature that determines whether sub-second digits are always written when
+     * serializing {@link java.time.Instant}, {@link java.time.OffsetDateTime},
+     * {@link java.time.ZonedDateTime} and {@link java.time.LocalDateTime} as
+     * ISO-8601 Strings using the default format.
+     *<p>
+     * When disabled (the default), the JDK-provided ISO formatters are used and
+     * a zero sub-second value is omitted altogether -- {@code 2017-09-14T04:28:48Z}
+     * -- which means that output width varies with the value, breaking systems
+     * that expect fixed-precision timestamps (or that sort timestamps as text).
+     *<p>
+     * When enabled, at least 3 (millisecond) sub-second digits are always written,
+     * zero-padded if necessary -- {@code 2017-09-14T04:28:48.000Z}. Higher precision
+     * is preserved: up to 9 digits are written, as many as needed to avoid losing
+     * information (but with no trailing zeroes beyond the 3 digit minimum, so
+     * {@code 123400000} nanoseconds is written as {@code .1234}).
+     *<p>
+     * Only affects the default format: an explicit {@code DateTimeFormatter} or
+     * a {@link com.fasterxml.jackson.annotation.JsonFormat} pattern takes precedence,
+     * as does writing values as numeric timestamps.
+     *<p>
+     * NOTE: only applies to Date/Time values, and NOT to Date/Time values used as
+     * {@link java.util.Map} keys: keys are written by separate key serializers that
+     * are not affected by this setting.
+     *<p>
+     * Note, too, that the very extremes of the {@link java.time.Instant} range
+     * (notably {@link java.time.Instant#MIN} and {@link java.time.Instant#MAX}, which
+     * fall outside the range of {@link java.time.LocalDate}) cannot be written with
+     * Date/Time fields at all, and retain default handling regardless of this setting.
+     *<p>
+     * Default setting is disabled, for backwards compatibility.
+     *
+     * @since 3.3
+     */
+    ALWAYS_WRITE_SUBSECOND_DIGITS(false),
+
+    /**
      * Feature that determines whether {@link java.time.ZoneId} is normalized
      * (via call to {@code java.time.ZoneId#normalized()}) when deserializing
      * types like {@link java.time.ZonedDateTime}.
@@ -66,6 +102,11 @@ public enum DateTimeFeature implements DatatypeFeature
      * but as {@code 0} when disabled.
      * Conversely JSON Number {@code 1} would be deserialized as {@code Month.JANUARY}
      * when enabled, but as {@code Month.FEBRUARY} when disabled.
+     *<p>
+     * Note that this feature only affects numeric representation: if String shape is
+     * specified (with {@code @JsonFormat(shape = JsonFormat.Shape.STRING)} or config override),
+     * {@link java.time.Month} is serialized as Enum name (like {@code "JANUARY"}) regardless
+     * of this setting.
      *<p>
      * Default setting is {@code true}, meaning that Month is serialized using one-based index
      * and deserialized expecting one-based index.
@@ -85,6 +126,14 @@ public enum DateTimeFeature implements DatatypeFeature
      *<p>
      * If disabled, standard millisecond timestamps are assumed.
      * This is the counterpart to {@link DateTimeFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}.
+     *<p>
+     * This is the global default: it may be overridden per-type or per-property with
+     * {@code @JsonFormat} (or config override), either by explicit
+     * {@code JsonFormat.Feature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS}, or
+     * (if no such feature is specified) by explicit numeric shape:
+     * {@code JsonFormat.Shape.NUMBER_INT} means timestamps are read as milliseconds,
+     * {@code JsonFormat.Shape.NUMBER_FLOAT} that they are read as nanoseconds
+     * (since 3.3).
      *<p>
      * Feature used to be one of {@link tools.jackson.databind.DeserializationFeature}s
      * in Jackson 2.x but was moved here in 3.0.
@@ -196,6 +245,14 @@ public enum DateTimeFeature implements DatatypeFeature
      *<p>
      * If disabled, standard millisecond timestamps are assumed.
      * This is the counterpart to {@link DateTimeFeature#READ_DATE_TIMESTAMPS_AS_NANOSECONDS}.
+     *<p>
+     * This is the global default: it may be overridden per-type or per-property with
+     * {@code @JsonFormat} (or config override), either by explicit
+     * {@code JsonFormat.Feature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}, or
+     * (if no such feature is specified) by explicit numeric shape:
+     * {@code JsonFormat.Shape.NUMBER_INT} means timestamps are written as milliseconds,
+     * {@code JsonFormat.Shape.NUMBER_FLOAT} that they are written as nanoseconds
+     * (since 3.3).
      *<p>
      * Feature used to be one of {@link tools.jackson.databind.SerializationFeature}s
      * in Jackson 2.x but was moved here in 3.0.

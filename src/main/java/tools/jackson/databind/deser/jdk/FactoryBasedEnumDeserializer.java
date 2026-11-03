@@ -148,7 +148,7 @@ class FactoryBasedEnumDeserializer
                     return ctxt.reportInputMismatch(targetType,
                         "Input mismatch reading Enum %s: properties-based `@JsonCreator` (%s) expects Object Value, got %s (`JsonToken.%s`)",
                         ClassUtil.getTypeDescription(targetType), _factory,
-                        JsonToken.valueDescFor(t), t.name());
+                        JsonToken.valueDescFor(t), t);
                 }
             }
             // 12-Oct-2021, tatu: We really should only get here if and when String
@@ -178,7 +178,7 @@ class FactoryBasedEnumDeserializer
                 return ctxt.reportInputMismatch(targetType,
                     "Input mismatch reading Enum %s: properties-based `@JsonCreator` (%s) expects String Value, got %s (`JsonToken.%s`)",
                     ClassUtil.getTypeDescription(targetType), _factory,
-                    JsonToken.valueDescFor(t), t.name());
+                    JsonToken.valueDescFor(t), t);
             } else {
                 value = p.getValueAsString();
             }
@@ -233,7 +233,7 @@ class FactoryBasedEnumDeserializer
     protected Object deserializeEnumUsingPropertyBased(final JsonParser p, final DeserializationContext ctxt,
     		final PropertyBasedCreator creator) throws JacksonException
     {
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null, false);
         final Class<?> activeView = ctxt.getActiveView();
 
         JsonToken t = p.currentToken();

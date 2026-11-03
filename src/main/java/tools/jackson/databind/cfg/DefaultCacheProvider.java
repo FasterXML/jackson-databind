@@ -1,5 +1,7 @@
 package tools.jackson.databind.cfg;
 
+import java.io.Serial;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.DeserializerCache;
 import tools.jackson.databind.ser.SerializerCache;
@@ -17,6 +19,7 @@ import tools.jackson.databind.util.TypeKey;
 public class DefaultCacheProvider
     implements CacheProvider
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final static DefaultCacheProvider DEFAULT

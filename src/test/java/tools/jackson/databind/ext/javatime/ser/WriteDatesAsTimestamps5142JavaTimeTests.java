@@ -148,12 +148,12 @@ public class WriteDatesAsTimestamps5142JavaTimeTests
         assertEquals(
                 withString,
                 WITH_TIMESTAMP_MAPPER.writerFor(clazz).writeValueAsString(value),
-                String.format("withTimestampMapper : Expected %s, got %s", withString, value)
+                "withTimestampMapper : Expected %s, got %s".formatted(withString, value)
         );
         assertEquals(
                 withoutString,
                 WITHOUT_TIMESTAMP_MAPPER.writerFor(clazz).writeValueAsString(value),
-                String.format("withoutTimestampMapper : Expected %s, got %s", withoutString, value)
+                "withoutTimestampMapper : Expected %s, got %s".formatted(withoutString, value)
         );
     }
 

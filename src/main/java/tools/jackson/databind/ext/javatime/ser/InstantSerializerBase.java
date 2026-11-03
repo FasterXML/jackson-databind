@@ -134,9 +134,53 @@ public abstract class InstantSerializerBase<T extends Temporal>
         return JsonToken.VALUE_STRING;
     }
 
+    /**
+     * Accessor for the default formatter this serializer was constructed with: used
+     * when no explicit {@link #_formatter} is defined. May be {@code null} (meaning
+     * default {@code toString()} handling), and may be caller-provided (see
+     * {@link ZonedDateTimeSerializer#ZonedDateTimeSerializer(DateTimeFormatter)}),
+     * in which case it must not be overridden by settings like
+     * {@link DateTimeFeature#ALWAYS_WRITE_SUBSECOND_DIGITS}.
+     *
+     * @since 3.3
+     */
+    protected DateTimeFormatter _defaultFormat() {
+        return defaultFormat;
+    }
+
+    /**
+     * Overridden by subclasses to supply a formatter equivalent to the standard
+     * built-in default that always writes at least millisecond-precision sub-second
+     * digits, for use with {@link DateTimeFeature#ALWAYS_WRITE_SUBSECOND_DIGITS}.
+     *<p>
+     * Implementations MUST return {@code null} unless given {@code defaultFormat} is
+     * the standard built-in default of the subclass: some subclasses (notably
+     * {@link ZonedDateTimeSerializer}) allow caller-provided default formatters, and
+     * those must not be overridden by the feature. Implementations should also return
+     * {@code null} for values the replacement cannot express, so that default handling
+     * is retained instead of failing. Returning {@code null} (which the base
+     * implementation always does) means the feature has no effect.
+     *
+     * @param value Value being serialized
+     * @param defaultFormat Default formatter that would be used if the feature was
+     *   not enabled (possibly {@code null})
+     *
+     * @since 3.3
+     */
+    protected DateTimeFormatter _alwaysWriteSubSecondDigitsFormatter(T value,
+            DateTimeFormatter defaultFormat) {
+        return null;
+    }
+
     protected String formatValue(T value, SerializationContext ctxt)
     {
         DateTimeFormatter formatter = (_formatter == null) ? defaultFormat :_formatter;
+        if ((_formatter == null) && ctxt.isEnabled(DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS)) {
+            DateTimeFormatter subSecondFormatter = _alwaysWriteSubSecondDigitsFormatter(value, defaultFormat);
+            if (subSecondFormatter != null) {
+                formatter = subSecondFormatter;
+            }
+        }
         if (formatter != null) {
             if (formatter.getZone() == null) { // timezone set if annotated on property
                 // If the user specified to use the context TimeZone explicitly, and the formatter provided doesn't contain a TZ

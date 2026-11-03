@@ -316,11 +316,8 @@ public class ObjectArrayDeserializer
                 }
                 acc.add(value);
             } catch (UnresolvedForwardReference reference) {
-                if (acc == null) {
-                    throw reference;
-                }
-                ArrayReferring referring = new ArrayReferring(reference, _elementClass, acc);
-                reference.getRoid().appendReferring(referring);
+                Referring ref = acc.handleUnresolvedReference(reference);
+                reference.getRoid().appendReferring(ref);
             } catch (Exception e) {
                 throw DatabindException.wrapWithPath(ctxt, e,
                         // 22-Nov-2025, tatu: Not ideal but has to do
@@ -430,9 +427,8 @@ public class ObjectArrayDeserializer
             // in future
             if (value != null && !_elementClass.isInstance(value)) {
                 throw DatabindException.from(p,
-                        String.format(
-"Internal error: deserialized value of type %s not assignable to expected array element type %s",
-ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
+                        "Internal error: deserialized value of type %s not assignable to expected array element type %s".formatted(
+                                ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
             }
             result = (Object[]) Array.newInstance(_elementClass, 1);
         }
@@ -487,8 +483,8 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
             }
             acc.add(value);
         } catch (UnresolvedForwardReference reference) {
-            ArrayReferring referring = new ArrayReferring(reference, _elementClass, acc);
-            reference.getRoid().appendReferring(referring);
+            Referring ref = acc.handleUnresolvedReference(reference);
+            reference.getRoid().appendReferring(ref);
         }
         return acc.buildArray();
     }
@@ -513,7 +509,6 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
         private final boolean _untyped;
         private final Class<?> _elementType;
         private final List<Object> _accumulator = new ArrayList<>();
-
         private Object[] _array;
 
         ObjectArrayReferringAccumulator(boolean untyped, Class<?> elementType) {
@@ -525,6 +520,65 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
             _accumulator.add(value);
         }
 
+        Referring handleUnresolvedReference(UnresolvedForwardReference reference) {
+            ArrayReferring ref = new ArrayReferring(this, reference, _elementType,
+                    _accumulator.size());
+            _accumulator.add(ref);
+            return ref;
+        }
+
+        // [databind#6205]: slot is passed by the reference itself, as scanning
+        // for it would make resolving N references take O(N^2) time
+        void resolveForwardReference(int index, Object value) {
+            if (_array != null) {
+                // [databind#5946]: if `value` is a transient delegate (Builder
+                // or @JsonCreator(DELEGATING) intermediate) whose runtime type
+                // isn't assignable to the typed array's component, writing
+                // would throw `ArrayStoreException`. Defer: leave the
+                // ArrayReferring in place; `replaceResolvedItem` will write
+                // the final value once `updateObjectId` fires the rebind.
+                if (_untyped || value == null || _elementType.isInstance(value)) {
+                    _array[index] = value;
+                    _accumulator.set(index, value);
+                }
+            } else {
+                _accumulator.set(index, value);
+            }
+        }
+
+        /**
+         * Replace a resolved item after Builder→built (or delegate→bean) rebind.
+         * Handles two cases:
+         * <ul>
+         *  <li>Slot was deferred (still holds the {@code forRef} ArrayReferring
+         *      because {@code oldItem} wasn't assignable to the array's
+         *      component type): write {@code newItem} into the array now.</li>
+         *  <li>Slot holds {@code oldItem} (delegate was assignable and was
+         *      stored): swap to {@code newItem}.</li>
+         * </ul>
+         * Added with [databind#5946] (follow-up to [databind#5909]).
+         *
+         * @param oldItem Item to replace (Builder)
+         * @param newItem Item to replace {@code oldItem} with (Built value)
+         *
+         * @since 3.2
+         */
+        void replaceResolvedItem(ArrayReferring forRef, Object oldItem, Object newItem) {
+            // Only the slot of `forRef` itself: if the same id was forward-referenced
+            // more than once, each reference gets a call of its own. Scanning all
+            // slots instead would make rebinding N references take O(N^2) time.
+            final int index = forRef._index;
+            final Object slot = _accumulator.get(index);
+            if (slot == forRef || slot == oldItem) {
+                // Since 3.2.4, [databind#6225]: rebinding may happen before
+                // buildArray(), so update the accumulator even without an array.
+                if (_array != null) {
+                    _array[index] = newItem;
+                }
+                _accumulator.set(index, newItem);
+            }
+        }
+
         Object[] buildArray() {
             final int size = _accumulator.size();
             if (_untyped) {
@@ -534,7 +588,10 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
             }
             for (int i = 0; i < size; i++) {
                 Object value = _accumulator.get(i);
-                if (!(value instanceof ArrayReferring)) {
+                // Slot may still hold a not-yet-rebound Builder (see
+                // resolveForwardReference()); skip it to avoid ArrayStoreException.
+                if (!(value instanceof ArrayReferring)
+                        && (_untyped || value == null || _elementType.isInstance(value))) {
                     _array[i] = value;
                 }
             }
@@ -552,25 +609,22 @@ ClassUtil.classNameOf(value), ClassUtil.nameOf(_elementClass)));
          */
         private final int _index;
 
-        ArrayReferring(UnresolvedForwardReference ref,
-                Class<?> type,
-                ObjectArrayReferringAccumulator acc) {
+        ArrayReferring(ObjectArrayReferringAccumulator parent,
+                UnresolvedForwardReference ref, Class<?> type, int index) {
             super(ref, type);
-            _parent = acc;
-            _index = acc._accumulator.size();
-            _parent._accumulator.add(this);
+            _parent = parent;
+            _index = index;
         }
 
         @Override
         public void handleResolvedForwardReference(DeserializationContext ctxt,
-                Object id, Object value) throws JacksonException {
-            // May be resolved by a later element of the same array, while it is still
-            // being read: if so, replace the placeholder for `buildArray()` to copy
-            if (_parent._array == null) {
-                _parent._accumulator.set(_index, value);
-            } else {
-                _parent._array[_index] = value;
-            }
+                Object id, Object value) {
+            _parent.resolveForwardReference(_index, value);
+        }
+
+        @Override
+        public void handleItemRebind(Object oldItem, Object newItem) {
+            _parent.replaceResolvedItem(this, oldItem, newItem);
         }
     }
 }

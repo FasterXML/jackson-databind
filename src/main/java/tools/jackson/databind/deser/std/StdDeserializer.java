@@ -28,6 +28,7 @@ import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.Converter;
+import tools.jackson.databind.util.NumberUtil;
 
 /**
  * Base class for common deserializers. Contains shared
@@ -1489,7 +1490,9 @@ public abstract class StdDeserializer<T>
         // allow coercions for other scalar types
         // 17-Jan-2018, tatu: Related to [databind#1853] avoid FIELD_NAME by ensuring it's
         //   "real" scalar
-        if (p.currentToken().isScalarValue()) {
+        // Also: no token at all if input ended (possible with `TokenBuffer`)
+        final JsonToken t = p.currentToken();
+        if ((t != null) && t.isScalarValue()) {
             String text = p.getValueAsString();
             if (text != null) {
                 return text;
@@ -1852,7 +1855,7 @@ inputDesc, _coercedTypeDesc(targetType));
         } else {
             return;
         }
-        String strDesc = str.isEmpty() ? "empty String (\"\")" : String.format("String \"%s\"", str);
+        String strDesc = str.isEmpty() ? "empty String (\"\")" : "String \"%s\"".formatted(str);
         _reportFailedNullCoerce(ctxt, enable, feat, strDesc);
     }
 
@@ -1982,35 +1985,11 @@ inputDesc, _coercedTypeDesc(targetType));
      * Helper method to check whether given text refers to what looks like a clean simple
      * integer number, consisting of optional sign followed by a sequence of digits.
      *<p>
-     * Note that definition is quite loose as leading zeroes are allowed, in addition
-     * to plus sign (not just minus).
+     * Since 3.2 calls {@link NumberUtil#isValidJDKIntNumber(String)}
      */
-    protected final boolean _isIntNumber(String text)
+    protected boolean _isIntNumber(String text)
     {
-        final int len = text.length();
-        if (len > 0) {
-            char c = text.charAt(0);
-            // skip leading sign (plus not allowed for strict JSON numbers but...)
-            int i;
-
-            if (c == '-' || c == '+') {
-                if (len == 1) {
-                    return false;
-                }
-                i = 1;
-            } else {
-                i = 0;
-            }
-            // We will allow leading
-            for (; i < len; ++i) {
-                int ch = text.charAt(i);
-                if (ch > '9' || ch < '0') {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
+        return NumberUtil.isValidJDKIntNumber(text);
     }
 
     /*
@@ -2218,13 +2197,16 @@ inputDesc, _coercedTypeDesc(targetType));
             // Let's first do some sanity checking...
             // NOTE: although we could use `ValueInstantiator.Gettable` in general,
             // let's not since that would prevent being able to use custom impls:
-            if (valueDeser instanceof BeanDeserializerBase) {
-                BeanDeserializerBase bd = (BeanDeserializerBase) valueDeser;
+            if (valueDeser instanceof BeanDeserializerBase bd) {
                 ValueInstantiator vi = bd.getValueInstantiator();
                 if (!vi.canCreateUsingDefault()) {
-                    final JavaType type = (prop == null) ? bd.getValueType() : prop.getType();
-                    return ctxt.reportBadDefinition(type,
-                            String.format("Cannot create empty instance of %s, no default Creator", type));
+                    // [databind#2572]: also allow property-based creators (will be
+                    //   called with null/empty args via createUsingDefaultOrWithoutArguments)
+                    if (!vi.canCreateFromObjectWith()) {
+                        final JavaType type = (prop == null) ? bd.getValueType() : prop.getType();
+                        return ctxt.reportBadDefinition(type,
+                                "Cannot create empty instance of %s, no default or Properties-based Creator".formatted(type));
+                    }
                 }
             }
             // Second: can with pre-fetch value?
@@ -2317,10 +2299,9 @@ handledType().getName());
      */
     protected Object handleNestedArrayForSingle(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
-        String msg = String.format(
-"Cannot deserialize value of type %s out of %s token: nested Arrays not allowed with %s",
-            ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
-            "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
+        String msg = "Cannot deserialize value of type %s out of %s token: nested Arrays not allowed with %s".formatted(
+                ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
+                "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
 
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p, msg);
     }

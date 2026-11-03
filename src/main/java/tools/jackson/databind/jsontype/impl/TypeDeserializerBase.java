@@ -67,17 +67,14 @@ public abstract class TypeDeserializerBase
      */
     protected final Map<String,ValueDeserializer<Object>> _deserializers;
 
-    protected ValueDeserializer<Object> _defaultImplDeserializer;
+    protected volatile ValueDeserializer<Object> _defaultImplDeserializer;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
-    /**
-     * @since 2.8
-     */
     protected TypeDeserializerBase(JavaType baseType, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl)
     {
@@ -107,9 +104,9 @@ public abstract class TypeDeserializerBase
     public abstract TypeDeserializer forProperty(BeanProperty prop);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -140,6 +137,11 @@ public abstract class TypeDeserializerBase
         return _baseType;
     }
 
+    /**
+     * @since 3.2
+     */
+    public boolean isTypeIdVisible() { return _typeIdVisible; }
+
     @Override
     public String toString()
     {
@@ -152,9 +154,9 @@ public abstract class TypeDeserializerBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods for sub-classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final ValueDeserializer<Object> _findDeserializer(DeserializationContext ctxt,
@@ -272,6 +274,24 @@ public abstract class TypeDeserializerBase
     }
 
     /**
+     * Fast-path override: resolve subtype deserializer from the type id via the
+     * existing lookup cache and invoke it directly on the value, avoiding the
+     * synthetic {@code WRAPPER_ARRAY} encoding used by the default implementation
+     * on {@link TypeDeserializer}. Keeps {@link JsonParser#streamReadContext()}
+     * clean for custom {@link ValueDeserializer}s examining parsing state.
+     *
+     * @since 3.2 (fix for [databind#2747])
+     */
+    @Override
+    public Object deserializeTypedWithKnownTypeId(JsonParser p, DeserializationContext ctxt,
+            String typeId)
+        throws JacksonException
+    {
+        ValueDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
+        return ctxt.withParser(p, () -> deser.deserialize(p, ctxt));
+    }
+
+    /**
      * Helper method called when {@link JsonParser} indicates that it can use
      * so-called native type ids, and such type id has been found.
      */
@@ -315,7 +335,7 @@ public abstract class TypeDeserializerBase
             extraDesc = "known type ids = " + extraDesc;
         }
         if (_property != null) {
-            extraDesc = String.format("%s (for POJO property '%s')", extraDesc,
+            extraDesc = "%s (for POJO property '%s')".formatted(extraDesc,
                     _property.getName());
         }
         return ctxt.handleUnknownTypeId(_baseType, typeId, _idResolver, extraDesc);

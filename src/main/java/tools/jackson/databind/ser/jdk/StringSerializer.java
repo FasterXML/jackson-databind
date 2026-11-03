@@ -29,19 +29,19 @@ public final class StringSerializer
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializationContext provider)
+    public void serialize(Object value, JsonGenerator f, SerializationContext ctxt)
         throws JacksonException
     {
-        gen.writeString((String) value);
+        f.writeString((String) value);
     }
 
     @Override
-    public final void serializeWithType(Object value, JsonGenerator gen, SerializationContext provider,
+    public final void serializeWithType(Object value, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
         // no type info, just regular serialization
-        gen.writeString((String) value);
+        g.writeString((String) value);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package tools.jackson.databind.ser.std;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.impl.PropertySerializerMap;
 
@@ -142,6 +144,23 @@ public abstract class StdContainerSerializer<T>
      * addition type information is to be embedded.
      */
     protected abstract StdContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts);
+
+    /**
+     * Helper method for [databind#1515]: check if property overrides
+     * typing to DYNAMIC, allowing override of global {@code USE_STATIC_TYPING}.
+     *
+     * @since 3.2
+     */
+    protected boolean _hasDynamicTypingOverride(SerializationContext ctxt, BeanProperty property) {
+        if (property != null) {
+            AnnotatedMember m = property.getMember();
+            if (m != null) {
+                return ctxt.getAnnotationIntrospector()
+                        .findSerializationTyping(ctxt.getConfig(), m) == JsonSerialize.Typing.DYNAMIC;
+            }
+        }
+        return false;
+    }
 
     /**
      * @since 3.0

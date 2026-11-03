@@ -176,7 +176,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     static class House831 {
         protected String petType;
 
-        @JsonTypeInfo(use = Id.NAME, include = As.EXTERNAL_PROPERTY, property = "petType")
+        @JsonTypeInfo(use = Id.NAME, include = As.EXTERNAL_PROPERTY, property = "petType", visible = true)
         @JsonSubTypes({@JsonSubTypes.Type(name = "dog", value = Dog.class)})
         public Pet pet;
 
@@ -280,7 +280,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
             return value;
         }
 
-        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type", visible = true)
         @JsonSubTypes({ @JsonSubTypes.Type(name = "BIG_DECIMAL", value = BigDecimal.class) })
         @JsonSetter(value = "objectValue")
         private void setValue(Object value) {
@@ -435,8 +435,11 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     @Test
     public void testIssue831() throws Exception
     {
-        final String JSON = "{ \"petType\": \"dog\",\n"
-                +"\"pet\": { \"name\": \"Pluto\" }\n}";
+        final String JSON = """
+                { "petType": "dog",
+                "pet": { "name": "Pluto" }
+                }
+                """;
         House831 result = MAPPER.readValue(JSON, House831.class);
         assertNotNull(result);
         assertNotNull(result.pet);
@@ -564,8 +567,8 @@ public class ExternalTypeIdTest extends DatabindTestUtil
 
         assertEquals(w.typeEnum, w2.typeEnum);
         assertTrue(w.value.equals(w2.value),
-            String.format("Expected %s = %s; got back %s = %s",
-                w.value.getClass().getSimpleName(), w.value.toString(), w2.value.getClass().getSimpleName(), w2.value.toString()));
+                "Expected %s = %s; got back %s = %s".formatted(
+                        w.value.getClass().getSimpleName(), w.value.toString(), w2.value.getClass().getSimpleName(), w2.value.toString()));
     }
 
     @Test
@@ -584,7 +587,7 @@ public class ExternalTypeIdTest extends DatabindTestUtil
 
         assertEquals(w.typeEnum, w2.typeEnum);
         assertTrue(w.value.equals(w2.value),
-            String.format("Expected %s = %s; got back %s = %s",
+                "Expected %s = %s; got back %s = %s".formatted(
                         w.value.getClass().getSimpleName(), w.value.toString(), w2.value.getClass().getSimpleName(), w2.value.toString()));
     }
 
@@ -758,13 +761,13 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     }
 
     static class Container291 {
-        @JsonTypeInfo(use = Id.NAME, property = "type", include = As.EXTERNAL_PROPERTY)
+        @JsonTypeInfo(use = Id.NAME, property = "type", include = As.EXTERNAL_PROPERTY, visible = true)
         @JsonSubTypes({
                 @JsonSubTypes.Type(value = A291.class, name = "1"),
                 @JsonSubTypes.Type(value = B291.class, name = "2")})
         public F1_291 field1;
 
-        @JsonTypeInfo(use = Id.NAME, property = "type", include = As.EXTERNAL_PROPERTY)
+        @JsonTypeInfo(use = Id.NAME, property = "type", include = As.EXTERNAL_PROPERTY, visible = true)
         @JsonSubTypes({
                 @JsonSubTypes.Type(value = C291.class, name = "1"),
                 @JsonSubTypes.Type(value = D291.class, name = "2")})
@@ -843,29 +846,29 @@ public class ExternalTypeIdTest extends DatabindTestUtil
     public void testMultipleValuesSingleExtId291() throws Exception
     {
         // first with ext-id before values
-        _testMultipleValuesSingleExtId291(
-"{'type' : '1',\n"
-+"'field1' : { 'a' : 'AAA' },\n"
-+"'field2' : { 'c' : 'CCC' }\n"
-+"}"
-);
+        _testMultipleValuesSingleExtId291("""
+                {'type' : '1',
+                'field1' : { 'a' : 'AAA' },
+                'field2' : { 'c' : 'CCC' }
+                }
+                """);
 
         // then after
-        _testMultipleValuesSingleExtId291(
-"{\n"
-+"'field1' : { 'a' : 'AAA' },\n"
-+"'field2' : { 'c' : 'CCC' },\n"
-+"'type' : '1'\n"
-+"}"
-);
+        _testMultipleValuesSingleExtId291("""
+                {
+                'field1' : { 'a' : 'AAA' },
+                'field2' : { 'c' : 'CCC' },
+                'type' : '1'
+                }
+                """);
         // and then in-between
-        _testMultipleValuesSingleExtId291(
-"{\n"
-+"'field1' : { 'a' : 'AAA' },\n"
-+"'type' : '1',\n"
-+"'field2' : { 'c' : 'CCC' }\n"
-+"}"
-);
+        _testMultipleValuesSingleExtId291("""
+                {
+                'field1' : { 'a' : 'AAA' },
+                'type' : '1',
+                'field2' : { 'c' : 'CCC' }
+                }
+                """);
     }
 
     private void _testMultipleValuesSingleExtId291(String json) throws Exception

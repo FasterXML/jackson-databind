@@ -1,5 +1,6 @@
 package tools.jackson.databind.ser.std;
 
+import java.io.Serial;
 import java.util.*;
 
 import tools.jackson.core.util.Snapshottable;
@@ -15,6 +16,7 @@ public class SimpleFilterProvider
     extends FilterProvider
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**
@@ -105,17 +107,20 @@ public class SimpleFilterProvider
      * Note that there can always only be one filter associated with a single {@code id} parameter, meaning
      * a new filter with the same {@code id} will always override the previously added filter.
      * <p>
-     * WARNING: Binding {@code id} or {@code filter} with {@code null} value will not
-     * be validated within this method, but during serialization of target class annotated
-     * with {@link com.fasterxml.jackson.annotation.JsonFilter}.
+     * Passing {@code null} as the filter removes any existing binding for
+     * the given {@code id}.
      *
      * @param id The id to associate the filter with.
-     * @param filter The filter to add;
+     * @param filter The filter to add, or {@code null} to remove the binding
      *
      * @return This provider instance, for call-chaining
      */
     public SimpleFilterProvider addFilter(String id, PropertyFilter filter) {
-        _filtersById.put(id, filter);
+        if (filter == null) {
+            _filtersById.remove(id);
+        } else {
+            _filtersById.put(id, filter);
+        }
         return this;
     }
 
@@ -127,17 +132,20 @@ public class SimpleFilterProvider
      * a new filter with the same {@code id} will always override the previously added filter.
      *
      * <p>
-     * WARNING: Binding {@code id} or {@code filter} with {@code null} value will not
-     * be validated within this method, but during serialization of target class annotated
-     * with {@link com.fasterxml.jackson.annotation.JsonFilter}.
+     * Passing {@code null} as the filter removes any existing binding for
+     * the given {@code id}.
      *
      * @param id The id to associate the filter with.
-     * @param filter The filter to add;
+     * @param filter The filter to add, or {@code null} to remove the binding
      *
      * @return This provider instance, for call-chaining
      */
     public SimpleFilterProvider addFilter(String id, SimpleBeanPropertyFilter filter) {
-        _filtersById.put(id, filter);
+        if (filter == null) {
+            _filtersById.remove(id);
+        } else {
+            _filtersById.put(id, filter);
+        }
         return this;
     }
 

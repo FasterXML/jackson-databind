@@ -20,12 +20,23 @@ public final class WritableObjectId
 
     /**
      * Marker to denote whether Object Id value has been written as part of an Object,
-     * to be referencible. Remains false when forward-reference is written.
+     * to be referenceable. Remains false when forward-reference is written.
      */
     protected boolean idWritten = false;
 
     public WritableObjectId(ObjectIdGenerator<?> g) {
         this.generator = g;
+    }
+
+    /**
+     * Check whether a back-reference can be written for this object id.
+     * Returns {@code true} if the id has been previously declared (or
+     * {@code alwaysAsId} is set) and a reference can be written.
+     *
+     * @since 3.2
+     */
+    public boolean canWriteAsReference(JsonGenerator g, SerializationContext ctxt, ObjectIdWriter w) {
+        return (id != null) && (idWritten || w.alwaysAsId);
     }
 
     /**
@@ -35,7 +46,7 @@ public final class WritableObjectId
     public boolean writeAsReference(JsonGenerator g, SerializationContext ctxt, ObjectIdWriter w)
         throws JacksonException
     {
-        if ((id != null) && (idWritten || w.alwaysAsId)) {
+        if (canWriteAsReference(g, ctxt, w)) {
             // 03-Aug-2013, tatu: Prefer Native Object Ids if available
             if (g.canWriteObjectId()) {
                 g.writeObjectRef(String.valueOf(id));

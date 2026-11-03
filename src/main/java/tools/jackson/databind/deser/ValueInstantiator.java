@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -440,6 +441,7 @@ public abstract class ValueInstantiator
     public static class Delegating extends ValueInstantiator
         implements java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         protected final ValueInstantiator _delegate;

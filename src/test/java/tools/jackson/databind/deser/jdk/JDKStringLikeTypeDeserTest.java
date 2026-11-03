@@ -3,8 +3,8 @@ package tools.jackson.databind.deser.jdk;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Currency;
-import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
@@ -43,10 +43,9 @@ public class JDKStringLikeTypeDeserTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testCharset() throws Exception
+    public void testCharset()
     {
-        Charset UTF8 = Charset.forName("UTF-8");
-        assertSame(UTF8, MAPPER.readValue(q("UTF-8"), Charset.class));
+        assertSame(StandardCharsets.UTF_8, MAPPER.readValue(q("UTF-8"), Charset.class));
     }
 
     @Test
@@ -264,34 +263,6 @@ public class JDKStringLikeTypeDeserTest
     }
 
     @Test
-    public void testPattern() throws Exception
-    {
-        Pattern exp = Pattern.compile("abc:\\s?(\\d+)");
-        // Ok: easiest way is to just serialize first; problem
-        // is the backslash
-        String json = MAPPER.writeValueAsString(exp);
-        Pattern result = MAPPER.readValue(json, Pattern.class);
-        assertEquals(exp.pattern(), result.pattern());
-
-        // [databind#3290]: actually need to retain at least trailing space
-        // (and since we do that, just retain all...)
-        exp = Pattern.compile("^WIN\\ ");
-        json = MAPPER.writeValueAsString(exp);
-        result = MAPPER.readValue(json, Pattern.class);
-        assertEquals(exp.pattern(), result.pattern());
-
-        // [databind#3598]: should also handle invalid pattern serialization
-        // somewhat gracefully
-        try {
-            MAPPER.readValue(q("[abc"), Pattern.class);
-            fail("Should not pass");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "Cannot deserialize value of type `java.util.regex.Pattern` from String \"[abc\"");
-            verifyException(e, "Invalid pattern, problem");
-        }
-    }
-
-    @Test
     public void testStringBuilder() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(StringBuilder.class);
@@ -352,6 +323,7 @@ public class JDKStringLikeTypeDeserTest
         buf.close();
     }
 
+    @Test
     public void testURLInvalid() throws Exception
     {
         // and finally, invalid URL should be handled appropriately too

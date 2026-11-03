@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.EnumFeature;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
@@ -113,6 +114,30 @@ public class ObjectIdWithPolymorphicTest extends DatabindTestUtil
 
         void add(T t) { myList.add(t); }
         int size() { return myList.size(); }
+    }
+
+    // // // [databind#1551]: Polymorphic types (abstract classes) with property-based ObjectId
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY,
+            property = "@class")
+    static abstract class Vehicle {
+        public String vehicleId;
+    }
+
+    static class Car extends Vehicle {
+        public int numberOfDoors;
+    }
+
+    static class VehicleOwnerViaProp {
+        @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "vehicleId")
+        @JsonIdentityReference(alwaysAsId = false)
+        public Vehicle ownedVehicle;
+    }
+
+    static class VehicleOwnerBroken {
+        @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "bogus")
+        @JsonIdentityReference(alwaysAsId = false)
+        public Vehicle ownedVehicle;
     }
 
     // // // [TestObjectId / databind#(no issue)]: ObjectId + JsonTypeInfo combination
@@ -233,5 +258,66 @@ public class ObjectIdWithPolymorphicTest extends DatabindTestUtil
         Foo second = (Foo) first.next;
         assertNotNull(second.ref);
         assertSame(first, second.ref);
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests, abstract class with property-based ObjectId [databind#1551]
+    /**********************************************************
+     */
+
+    @Test
+    public void testWithAbstractUsingProp1551() throws Exception
+    {
+        Car c = new Car();
+        c.vehicleId = "123";
+        c.numberOfDoors = 2;
+        VehicleOwnerViaProp v1 = new VehicleOwnerViaProp();
+        v1.ownedVehicle = c;
+        VehicleOwnerViaProp v2 = new VehicleOwnerViaProp();
+        v2.ownedVehicle = c;
+
+        ObjectMapper mapper = newJsonMapper();
+        String serialized = mapper.writer()
+                .writeValueAsString(new VehicleOwnerViaProp[] { v1, v2 });
+
+        VehicleOwnerViaProp[] deserialized = mapper.readValue(serialized, VehicleOwnerViaProp[].class);
+        assertEquals(2, deserialized.length);
+        assertSame(deserialized[0].ownedVehicle, deserialized[1].ownedVehicle);
+    }
+
+    @Test
+    public void testFailingAbstractUsingProp1551() throws Exception
+    {
+        Car c = new Car();
+        c.vehicleId = "123";
+        c.numberOfDoors = 2;
+        VehicleOwnerBroken v1 = new VehicleOwnerBroken();
+        v1.ownedVehicle = c;
+        VehicleOwnerBroken v2 = new VehicleOwnerBroken();
+        v2.ownedVehicle = c;
+
+        ObjectMapper mapper = newJsonMapper();
+        try {
+            mapper.writer()
+                .writeValueAsString(new VehicleOwnerBroken[] { v1, v2 });
+        } catch (InvalidDefinitionException e) {
+            assertEquals(Car.class, e.getType().getRawClass());
+            verifyException(e, "Invalid Object Id definition");
+            verifyException(e, "cannot find property with name 'bogus'");
+        }
+
+        final String JSON = a2q(
+"[{'ownedVehicle':{'@class':'com.fasterxml.jackson.failing.PolymorphicWithObjectId1551Test$Car','vehicleId':'123',"
++"'numberOfDoors':2}},{'ownedVehicle':'123'}]"
+                );
+        try {
+            mapper.readValue(JSON, VehicleOwnerBroken[].class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            assertEquals(Vehicle.class, e.getType().getRawClass());
+            verifyException(e, "Invalid Object Id definition");
+            verifyException(e, "cannot find property with name 'bogus'");
+        }
     }
 }

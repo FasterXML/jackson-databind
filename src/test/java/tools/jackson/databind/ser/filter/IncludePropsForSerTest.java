@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.OptBoolean;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -87,6 +89,31 @@ public class IncludePropsForSerTest extends DatabindTestUtil
             value.put("a", 1);
             value.put("b", 2);
         }
+    }
+
+    // [databind#3083]: @JsonIncludeProperties with order=true defines serialization order
+    @JsonIncludeProperties(value = {"c", "a", "b"}, order = OptBoolean.TRUE)
+    static class IncludeWithOrder {
+        public int a = 1;
+        public int b = 2;
+        public int c = 3;
+    }
+
+    // [databind#3083]: @JsonPropertyOrder should take precedence over @JsonIncludeProperties order
+    @JsonPropertyOrder({"b", "a", "c"})
+    @JsonIncludeProperties(value = {"c", "a", "b"}, order = OptBoolean.TRUE)
+    static class IncludeWithOrderAndPropertyOrder {
+        public int a = 1;
+        public int b = 2;
+        public int c = 3;
+    }
+
+    // [databind#3083]: order=FALSE should NOT use value() as property order
+    @JsonIncludeProperties(value = {"c", "a", "b"}, order = OptBoolean.FALSE)
+    static class IncludeWithOrderFalse {
+        public int a = 1;
+        public int b = 2;
+        public int c = 3;
     }
 
     // for [databind#1060]
@@ -194,5 +221,32 @@ public class IncludePropsForSerTest extends DatabindTestUtil
     public void testIgnoreWithInclude() throws Exception
     {
         assertEquals("{\"value\":{\"x\":1}}", MAPPER.writeValueAsString(new WrapperWithPropIgnore()));
+    }
+
+    // [databind#3083]
+    @Test
+    public void testIncludePropertiesOrder() throws Exception
+    {
+        // Order should follow @JsonIncludeProperties value array: c, a, b
+        assertEquals(a2q("{'c':3,'a':1,'b':2}"),
+                MAPPER.writeValueAsString(new IncludeWithOrder()));
+    }
+
+    // [databind#3083]
+    @Test
+    public void testJsonPropertyOrderTakesPrecedence() throws Exception
+    {
+        // @JsonPropertyOrder should win over @JsonIncludeProperties order: b, a, c
+        assertEquals(a2q("{'b':2,'a':1,'c':3}"),
+                MAPPER.writeValueAsString(new IncludeWithOrderAndPropertyOrder()));
+    }
+
+    // [databind#3083]
+    @Test
+    public void testIncludePropertiesOrderFalse() throws Exception
+    {
+        // order=FALSE should NOT impose ordering from value(); default order used
+        assertEquals(a2q("{'a':1,'b':2,'c':3}"),
+                MAPPER.writeValueAsString(new IncludeWithOrderFalse()));
     }
 }

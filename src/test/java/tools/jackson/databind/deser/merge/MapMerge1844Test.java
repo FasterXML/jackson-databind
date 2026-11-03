@@ -49,18 +49,22 @@ public class MapMerge1844Test
                 .build();
 
         final String f1 = a2q(
-"{ 'key1' : {\n"
-+"  '1': 1, '2': 2, '3': 3\n"
-+"}, 'key2': {\n"
-+"  '1': 1, '2': 2, '3': 3\n"
-+"} }"
+"""
+{ 'key1' : {
+  '1': 1, '2': 2, '3': 3
+}, 'key2': {
+  '1': 1, '2': 2, '3': 3
+} }
+"""
 );
         final String f2 = a2q(
-"{ 'key1' : {\n"
-+"  '1': 2, '2': 3, '4': 5\n"
-+"}, 'key2': {\n"
-+"  '1': 2, '2': 3, '4': 5\n"
-+"} }"
+"""
+{ 'key1' : {
+  '1': 2, '2': 3, '4': 5
+}, 'key2': {
+  '1': 2, '2': 3, '4': 5
+} }
+"""
 );
         TestMap1844 testMap = mapper.readerFor(TestMap1844.class).readValue(f1);
         testMap = mapper.readerForUpdating(testMap).readValue(f2);

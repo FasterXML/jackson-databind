@@ -1,5 +1,7 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -12,6 +14,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 public class VisibilityChecker
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1;
 
     /**
@@ -65,7 +68,10 @@ public class VisibilityChecker
      * levels as indicated by given annotation instance
      *
      * @param ann Annotations to use for determining minimum visibility levels
+     *
+     * @deprecated Should use {@link #construct(JsonAutoDetect.Value)} instead.
      */
+    @Deprecated // @since 3.2
     public VisibilityChecker(JsonAutoDetect ann)
     {
         // let's combine checks for enabled/disabled, with minimum level checks:
@@ -365,9 +371,19 @@ public class VisibilityChecker
 
     @Override
     public String toString() {
-        return String.format("[Visibility: field=%s,getter=%s,isGetter=%s,setter=%s,creator=%s,scalarConstructor=%s]",
+        return "[Visibility: field=%s,getter=%s,isGetter=%s,setter=%s,creator=%s,scalarConstructor=%s]".formatted(
                 _fieldMinLevel, _getterMinLevel, _isGetterMinLevel, _setterMinLevel,
                 _creatorMinLevel, _scalarConstructorMinLevel);
+    }
+
+    @Override
+    public int hashCode() {
+        return _fieldMinLevel.ordinal()
+                + (_getterMinLevel.ordinal() << 1)
+                + (_isGetterMinLevel.ordinal() << 2)
+                + (_setterMinLevel.ordinal() << 3)
+                + (_creatorMinLevel.ordinal() << 4)
+                + (_scalarConstructorMinLevel.ordinal() << 5);
     }
 
     @Override
@@ -381,8 +397,7 @@ public class VisibilityChecker
                     &&  _creatorMinLevel== other._creatorMinLevel
                     &&  _scalarConstructorMinLevel == other._scalarConstructorMinLevel
                     ;
-        } else {
-            return false;
         }
+        return false;
     }
 }

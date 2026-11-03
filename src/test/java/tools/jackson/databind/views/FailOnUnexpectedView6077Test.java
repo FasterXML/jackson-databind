@@ -47,8 +47,9 @@ import static org.junit.jupiter.api.Assertions.fail;
  *  <li>{@link ExternalTypeIdCreator} -- both arms of
  *      {@code BeanDeserializer.deserializeUsingPropertyBasedWithExternalTypeId};</li>
  *  <li>{@link BuilderExternalTypeId} -- {@code BuilderBasedDeserializer.deserializeWithExternalTypeId};</li>
- *  <li>{@link BeanAsArraySetter} / {@link BeanAsArrayCreator} -- the positional loops of
- *      {@code BeanAsArrayDeserializer} ({@code @JsonFormat(shape = ARRAY)});</li>
+ *  <li>{@link BeanAsArraySetter} / {@link BeanAsArrayCreator} / {@link BeanAsArrayUpdate} -- the
+ *      positional loops of {@code BeanAsArrayDeserializer} ({@code @JsonFormat(shape = ARRAY)}),
+ *      on the create, property-based-creator, and update-existing-value paths respectively;</li>
  *  <li>{@link BeanAsArrayBuilderSetter} / {@link BeanAsArrayBuilderCreator} -- ditto for
  *      {@code BeanAsArrayBuilderDeserializer}.</li>
  *</ul>
@@ -778,6 +779,63 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
         }
     }
 
+    /** {@code BeanAsArrayDeserializer.deserialize(JsonParser, DeserializationContext, Object)} --
+     *  the "update existing value" positional loop ({@code readerForUpdating} /
+     *  {@code withValueToUpdate}). This path bound every element unconditionally, so a view-hidden
+     *  position overwrote its original value even under a restricting view. */
+    @Nested
+    class BeanAsArrayUpdate
+    {
+        @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+        @JsonPropertyOrder({ "name", "role" })
+        static class User {
+            @JsonView(Public.class)
+            public String name;
+            @JsonView(Admin.class)
+            public String role;
+
+            public User() { }
+            public User(String name, String role) {
+                this.name = name;
+                this.role = role;
+            }
+        }
+
+        static final String JSON = """
+                ["mallory","admin"]
+                """;
+
+        @Test
+        void adminViewOverwritesRole() throws Exception {
+            User updated = FAIL_ON.readerWithView(Admin.class)
+                    .forType(User.class)
+                    .withValueToUpdate(new User("alice", "user"))
+                    .readValue(JSON);
+            assertEquals("mallory", updated.name);
+            assertEquals("admin", updated.role);
+        }
+
+        @Test
+        void hiddenRoleUpdateRejectedWhenEnabled() throws Exception {
+            expectRejected(FAIL_ON.readerWithView(Public.class)
+                            .forType(User.class)
+                            .withValueToUpdate(new User("alice", "user")),
+                    JSON);
+        }
+
+        @Test
+        void hiddenRoleUpdateSkippedWhenDisabled() throws Exception {
+            User updated = FAIL_OFF.readerWithView(Public.class)
+                    .forType(User.class)
+                    .withValueToUpdate(new User("alice", "user"))
+                    .readValue(JSON);
+            // name is visible under Public view -> updated
+            assertEquals("mallory", updated.name);
+            // role is Admin-only -> left untouched under the Public view
+            assertEquals("user", updated.role);
+        }
+    }
+
     /** {@code BeanAsArrayBuilderDeserializer.deserializeFromArray} -- non-creator builder loop. */
     @Nested
     class BeanAsArrayBuilderSetter
@@ -900,8 +958,11 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
     @Nested
     class InjectionOnlyCreatorParam
     {
-        // NOTE: 3.1 lacks [databind#5966] (injection-only handling on Record update path),
-        // so the "visible injection-only" case from 3.2 is not included here.
+        public record VisibleInject(
+                @JsonView(Public.class) String name,
+                @JacksonInject(value = "role", useInput = OptBoolean.FALSE)
+                @JsonView(Public.class) String role) {
+        }
 
         public record HiddenInject(
                 @JsonView(Public.class) String name,
@@ -914,6 +975,19 @@ public class FailOnUnexpectedView6077Test extends DatabindTestUtil
         static final String JSON = """
                 {"role":"HACKED"}
                 """;
+
+        // Injection-only but visible in the active view: input is discarded (never an error),
+        // even with the feature on.
+        @Test
+        void visibleInjectionOnlySkipsSilentlyWhenEnabled() throws Exception {
+            VisibleInject updated = FAIL_ON.readerWithView(Public.class)
+                    .forType(VisibleInject.class)
+                    .with(INJECTED)
+                    .withValueToUpdate(new VisibleInject("alice", "user"))
+                    .readValue(JSON);
+            assertEquals("alice", updated.name());
+            assertEquals("injected", updated.role());
+        }
 
         // Injection-only AND hidden by the active view: the view check wins and reports.
         @Test

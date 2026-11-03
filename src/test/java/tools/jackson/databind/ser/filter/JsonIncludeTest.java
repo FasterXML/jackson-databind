@@ -168,6 +168,9 @@ public class JsonIncludeTest
     static class NonEmptyCalendar extends NonEmpty<Calendar> {
         public NonEmptyCalendar(Calendar v) { super(v); }
     }
+    static class NonEmptyUUID extends NonEmpty<UUID> {
+        public NonEmptyUUID(UUID v) { super(v); }
+    }
 
     static class NonDefault<T> {
         @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -181,6 +184,9 @@ public class JsonIncludeTest
     }
     static class NonDefaultCalendar extends NonDefault<Calendar> {
         public NonDefaultCalendar(Calendar v) { super(v); }
+    }
+    static class NonDefaultUUID extends NonDefault<UUID> {
+        public NonDefaultUUID(UUID v) { super(v); }
     }
 
     // [databind#1327]
@@ -508,5 +514,25 @@ public class JsonIncludeTest
                 writerWith.writeValueAsString(new NonEmptyCalendar(input)));
         assertEquals("{}",
                 writerWith.writeValueAsString(new NonDefaultCalendar(input)));
+    }
+
+    // [databind#3573]
+    @Test
+    public void testInclusionOfUUID() throws Exception
+    {
+        final UUID nullUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        final UUID nonNullUUID = UUID.fromString("540a88d1-e2d8-4fb1-9396-9212280d0a7f");
+
+        // "null UUID" considered Empty
+        assertEquals(a2q("{'value':'"+nonNullUUID+"'}"),
+                MAPPER.writeValueAsString(new NonEmptyUUID(nonNullUUID)));
+        assertEquals("{}",
+                MAPPER.writeValueAsString(new NonEmptyUUID(nullUUID)));
+
+        // and thereby should be considered "Default" value
+        assertEquals(a2q("{'value':'"+nonNullUUID+"'}"),
+                MAPPER.writeValueAsString(new NonDefaultUUID(nonNullUUID)));
+        assertEquals("{}",
+                MAPPER.writeValueAsString(new NonDefaultUUID(nullUUID)));
     }
 }

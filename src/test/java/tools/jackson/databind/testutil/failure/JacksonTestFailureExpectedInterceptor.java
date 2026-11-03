@@ -26,17 +26,17 @@ public class JacksonTestFailureExpectedInterceptor
             // do-nothing, we do expect an exception
             return;
         }
-        handleUnexpectePassingTest(invocationContext);
+        handleUnexpectedPassingTest(invocationContext);
     }
 
-    private void handleUnexpectePassingTest(ReflectiveInvocationContext<Method> invocationContext) {
+    private void handleUnexpectedPassingTest(ReflectiveInvocationContext<Method> invocationContext) {
         // Collect information we need
         Object targetClass = invocationContext.getTargetClass();
         Object testMethod = invocationContext.getExecutable().getName();
         //List<Object> arguments = invocationContext.getArguments();
 
         // Create message
-        String message = String.format("Test method %s.%s() passed, but should have failed", targetClass, testMethod);
+        String message = "Test method %s.%s() passed, but should have failed".formatted(targetClass, testMethod);
 
         // throw exception
         throw new JacksonTestShouldFailException(message);

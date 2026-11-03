@@ -89,14 +89,13 @@ public class NodeContext2049Test extends DatabindTestUtil
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
              Object retValue = super.deserialize(p, ctxt);
-             if (retValue instanceof HasParent) {
-                  HasParent obj = (HasParent) retValue;
+             if (retValue instanceof HasParent obj) {
                   Parent parent = null;
                   TokenStreamContext parsingContext = p.streamReadContext();
                   while (parent == null && parsingContext != null) {
                        Object currentValue = parsingContext.currentValue();
-                       if (currentValue != null && currentValue instanceof Parent) {
-                            parent = (Parent) currentValue;
+                       if (currentValue != null && currentValue instanceof Parent parent1) {
+                            parent = parent1;
                        }
                        parsingContext = parsingContext.getParent();
                   }
@@ -170,19 +169,21 @@ public class NodeContext2049Test extends DatabindTestUtil
          })
         .build();
 
-    final static String JSON = "{\n" +
-            "     \"children\": [\n" +
-            "          {\n" +
-            "               \"property\": \"value1\"\n" +
-            "          },\n" +
-            "          {\n" +
-            "               \"property\": \"value2\"\n" +
-            "          }\n" +
-            "     ],\n" +
-            "     \"singleChild\": {\n" +
-            "          \"property\": \"value3\"\n" +
-            "     }\n" +
-            "}";
+    final static String JSON = """
+            {
+                 "children": [
+                      {
+                           "property": "value1"
+                      },
+                      {
+                           "property": "value2"
+                      }
+                 ],
+                 "singleChild": {
+                      "property": "value3"
+                 }
+            }
+            """;
 
     @Test
     public void testReadNoBuffering() throws Exception {

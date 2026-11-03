@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.*;
 
+import tools.jackson.core.util.InternCache;
 import tools.jackson.databind.cfg.DatatypeFeature;
 import tools.jackson.databind.cfg.DatatypeFeatures;
 import tools.jackson.databind.cfg.HandlerInstantiator;
@@ -197,8 +198,7 @@ public abstract class DatabindContext
             } catch (ClassNotFoundException e) { // let caller handle this problem
                 return null;
             } catch (Exception e) {
-                throw invalidTypeIdException(baseType, subClassName, String.format(
-                        "problem: (%s) %s",
+                throw invalidTypeIdException(baseType, subClassName, "problem: (%s) %s".formatted(
                         e.getClass().getName(),
                         ClassUtil.exceptionMessage(e)));
             }
@@ -231,8 +231,7 @@ public abstract class DatabindContext
         } catch (ClassNotFoundException e) { // let caller handle this problem
             return null;
         } catch (Exception e) {
-            throw invalidTypeIdException(baseType, subClass, String.format(
-                    "problem: (%s) %s",
+            throw invalidTypeIdException(baseType, subClass, "problem: (%s) %s".formatted(
                     e.getClass().getName(),
                     ClassUtil.exceptionMessage(e)));
         }
@@ -354,6 +353,7 @@ public abstract class DatabindContext
      *
      * @since 3.1.8
      */
+    @SuppressWarnings("deprecation") // SubTypeValidator
     private void _validateContainedType(JavaType baseType, String typeId, JavaType declaredType,
             JavaType param, PolymorphicTypeValidator ptv)
     {
@@ -637,6 +637,25 @@ public abstract class DatabindContext
 
     /*
     /**********************************************************************
+    /* Misc helper methods
+    /**********************************************************************
+     */
+
+    /**
+     * Helper method for applying default canonicalization method (currently
+     * {@code String.intern()}) for String, returning canonical instance.
+     *
+     * @since 3.2
+     */
+    public String canonicalizeString(String str) {
+        if (str == null) {
+            return str;
+        }
+        return InternCache.instance.intern(str);
+    }
+
+    /*
+    /**********************************************************************
     /* Error reporting
     /**********************************************************************
      */
@@ -673,7 +692,7 @@ public abstract class DatabindContext
 
     protected final String _format(String msg, Object... msgArgs) {
         if (msgArgs.length > 0) {
-            return String.format(msg, msgArgs);
+            return msg.formatted(msgArgs);
         }
         return msg;
     }

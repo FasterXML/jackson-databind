@@ -60,7 +60,7 @@ public class DeepJsonNodeSerTest
         jsonString.append("{");
 
         for (int i=0; i < nesting; i++) {
-          jsonString.append(String.format("\"abc%s\": {", i));
+          jsonString.append("\"abc%s\": {".formatted(i));
         }
 
         for (int i=0; i < nesting; i++) {

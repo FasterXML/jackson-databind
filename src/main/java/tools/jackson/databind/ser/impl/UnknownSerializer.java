@@ -47,11 +47,15 @@ public class UnknownSerializer
         final Class<?> cl = value.getClass();
         if (NativeImageUtil.needsReflectionConfiguration(cl)) {
             prov.reportBadDefinition(handledType(), String.format(
-                    "No serializer found for class %s and no properties discovered to create BeanSerializer (to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS). This appears to be a native image, in which case you may need to configure reflection for the class that is to be serialized",
+                    "No serializer found for class %s and no properties discovered to create BeanSerializer"
+                    + " (to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS)."
+                    + " This appears to be a native image, in which case you may need to configure reflection"
+                    + " for the class that is to be serialized",
                     cl.getName()));
         } else {
             prov.reportBadDefinition(handledType(), String.format(
-                    "No serializer found for class %s and no properties discovered to create BeanSerializer (to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS)",
+                    "No serializer found for class %s and no properties discovered to create BeanSerializer"
+                    + " (to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS)",
                     cl.getName()));
         }
     }

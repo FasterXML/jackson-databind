@@ -141,6 +141,65 @@ public class VisibilityForSerializationTest
         assertFalse(result.containsKey("ok"));
     }
 
+    // [databind#5727]
+    @Test
+    public void testVisibilityCheckerHashCode() {
+        VisibilityChecker defaultInstance = VisibilityChecker.defaultInstance();
+        VisibilityChecker allPublic = VisibilityChecker.allPublicInstance();
+
+        // Same content should produce same hashCode
+        VisibilityChecker another = new VisibilityChecker(
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY
+        );
+        assertEquals(allPublic.hashCode(), another.hashCode());
+
+        // Different content should (generally) produce different hashCode
+        assertNotEquals(defaultInstance.hashCode(), allPublic.hashCode());
+    }
+
+    // [databind#5727]
+    @Test
+    public void testVisibilityCheckerEquals() {
+        VisibilityChecker defaultInstance = VisibilityChecker.defaultInstance();
+        VisibilityChecker allPublic = VisibilityChecker.allPublicInstance();
+
+        // Identity
+        assertEquals(defaultInstance, defaultInstance);
+
+        // Same content
+        VisibilityChecker another = new VisibilityChecker(
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY,
+                Visibility.PUBLIC_ONLY
+        );
+        assertEquals(allPublic, another);
+        // Same, mostly
+        assertEquals(allPublic, allPublic.withFieldVisibility(Visibility.DEFAULT));
+        assertEquals(allPublic, allPublic.withGetterVisibility(Visibility.DEFAULT));
+        assertEquals(allPublic, allPublic.withIsGetterVisibility(Visibility.DEFAULT));
+        assertNotEquals(allPublic, allPublic.withSetterVisibility(Visibility.DEFAULT));
+        assertEquals(allPublic, allPublic.withCreatorVisibility(Visibility.DEFAULT));
+
+        // Different content
+        assertNotEquals(defaultInstance, allPublic);
+        assertNotEquals(allPublic, allPublic.withFieldVisibility(Visibility.PROTECTED_AND_PUBLIC));
+        assertNotEquals(allPublic, allPublic.withGetterVisibility(Visibility.PROTECTED_AND_PUBLIC));
+        assertNotEquals(allPublic, allPublic.withIsGetterVisibility(Visibility.PROTECTED_AND_PUBLIC));
+        assertNotEquals(allPublic, allPublic.withSetterVisibility(Visibility.PROTECTED_AND_PUBLIC));
+        assertNotEquals(allPublic, allPublic.withCreatorVisibility(Visibility.PROTECTED_AND_PUBLIC));
+
+        // Not equal to non-VisibilityChecker
+        assertNotEquals(defaultInstance, "not a VisibilityChecker");
+    }
+
     @Test
     public void testVisibilityFeatures() throws Exception
     {
@@ -156,5 +215,28 @@ public class VisibilityForSerializationTest
         List<BeanPropertyDefinition> props = desc.findProperties();
         assertEquals(1, props.size(),
                 "Should find 1 property; properties = "+props);
+    }
+
+    @Test
+    public void testVisibilityCheckerMisc() {
+        VisibilityChecker vc = new VisibilityChecker(Visibility.DEFAULT);
+        assertEquals(VisibilityChecker.defaultInstance(), vc);
+
+        // With all set to `Visibility.DEFAULT`, same as defaultInstance
+        assertEquals(VisibilityChecker.defaultInstance(),
+                vc.with(Visibility.DEFAULT));
+
+        // with NONE, returns checker as-is
+        assertEquals(vc, vc.withVisibility(PropertyAccessor.NONE, Visibility.ANY));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testVisibilityCheckerDeprecated() {
+        JsonAutoDetect ad = EnabledGetterClass.class.getAnnotation(JsonAutoDetect.class);
+        assertNotNull(ad);
+        VisibilityChecker vc = new VisibilityChecker(ad);
+        assertEquals(Visibility.NONE, vc._isGetterMinLevel);
+        assertEquals(Visibility.DEFAULT, vc._getterMinLevel);
     }
 }

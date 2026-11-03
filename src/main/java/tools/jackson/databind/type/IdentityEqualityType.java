@@ -1,5 +1,7 @@
 package tools.jackson.databind.type;
 
+import java.io.Serial;
+
 import tools.jackson.databind.JavaType;
 
 /**
@@ -7,6 +9,7 @@ import tools.jackson.databind.JavaType;
  */
 abstract class IdentityEqualityType extends TypeBase
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected IdentityEqualityType(Class<?> raw,

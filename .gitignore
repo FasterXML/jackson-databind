@@ -8,6 +8,10 @@ syntax: glob
 *.old
 .DS_Store
 
+# Emacs temp files (autosave: #file#, lock: .#file)
+\#*\#
+.\#*
+
 # building
 /target
 .mvn/wrapper/maven-wrapper.jar

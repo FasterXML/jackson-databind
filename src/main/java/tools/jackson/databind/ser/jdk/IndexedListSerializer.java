@@ -66,7 +66,16 @@ public final class IndexedListSerializer
 
     @Override
     public boolean isEmpty(SerializationContext prov, Object value) {
-        return ((List<?>)value).isEmpty();
+        List<?> list = (List<?>) value;
+        if (list.isEmpty()) {
+            return true;
+        }
+        // [databind#6065]: with content @JsonInclude applied to containers,
+        // a list whose every element is suppressed is considered empty
+        if (_needToCheckFiltering(prov)) {
+            return _allElementsSuppressed(prov, list.iterator());
+        }
+        return false;
     }
 
     @Override

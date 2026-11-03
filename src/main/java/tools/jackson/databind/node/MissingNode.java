@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
@@ -25,6 +26,7 @@ import tools.jackson.databind.jsontype.TypeSerializer;
 public final class MissingNode
     extends BaseJsonNode // NOTE! Does NOT extend `ValueNode` unlike in 2.x
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     private final static MissingNode instance = new MissingNode();
@@ -32,6 +34,7 @@ public final class MissingNode
     protected MissingNode() { }
 
     // To support JDK serialization, recovery of Singleton instance
+    @Serial
     protected Object readResolve() {
         return instance;
     }

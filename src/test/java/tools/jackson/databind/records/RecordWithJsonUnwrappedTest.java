@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
@@ -34,7 +36,21 @@ public class RecordWithJsonUnwrappedTest extends DatabindTestUtil
         public int c;
     }
 
+    // [databind#5716]
+    record Name5716(String first, String last) { }
+    record Row5716(long time, @JsonUnwrapped Name5716 name, double score) { }
+
+    // [databind#3178]
+    record Location3178(int x, int y) { }
+    record Inner3178(String name, Location3178 location) { }
+    record WithPrefix3178(@JsonUnwrapped(prefix = "_") Inner3178 unwrapped) { }
+
     private final ObjectMapper MAPPER = newJsonMapper();
+
+    private final ObjectMapper MAPPER_5716 = JsonMapper.builder()
+            .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+            .enable(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST)
+            .build();
 
     /*
     /**********************************************************************
@@ -104,5 +120,42 @@ public class RecordWithJsonUnwrappedTest extends DatabindTestUtil
         BarRecordFail5115 output = MAPPER.readValue(json, BarRecordFail5115.class);
 
         assertEquals(input, output);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, declaration order [databind#5716]
+    /**********************************************************************
+     */
+
+    // [databind#5716] @JsonUnwrapped record properties should stay at declaration position
+    @Test
+    void unwrappedRecordShouldKeepDeclarationOrder() throws Exception
+    {
+        Row5716 input = new Row5716(1L, new Name5716("a", "b"), 2.5d);
+
+        String json = MAPPER_5716.writeValueAsString(input);
+
+        assertEquals(a2q("{'time':1,'first':'a','last':'b','score':2.5}"), json);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, prefix [databind#3178]
+    /**********************************************************************
+     */
+
+    // [databind#3178]: records variant — exercises PropertyBasedCreator rename path
+    @Test
+    public void testPrefixedUnwrappingWithRecord() throws Exception {
+        WithPrefix3178 source = new WithPrefix3178(new Inner3178("Bubba", new Location3178(2, 3)));
+        String json = MAPPER.writeValueAsString(source);
+        assertEquals("{\"_name\":\"Bubba\",\"_location\":{\"x\":2,\"y\":3}}", json);
+        WithPrefix3178 bean = MAPPER.readValue(json, WithPrefix3178.class);
+        assertNotNull(bean.unwrapped());
+        assertNotNull(bean.unwrapped().location());
+        assertEquals(source.unwrapped().name(), bean.unwrapped().name());
+        assertEquals(source.unwrapped().location().x(), bean.unwrapped().location().x());
+        assertEquals(source.unwrapped().location().y(), bean.unwrapped().location().y());
     }
 }

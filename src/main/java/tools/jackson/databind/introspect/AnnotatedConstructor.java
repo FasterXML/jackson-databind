@@ -11,17 +11,34 @@ import java.util.Objects;
 
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.util.ClassUtil;
-import tools.jackson.databind.util.internal.UnreflectHandleSupplier;
 
 import static java.lang.invoke.MethodType.methodType;
 
 public final class AnnotatedConstructor
     extends AnnotatedWithParams
 {
+    // Invocation types for the arity-specific handles; constant so no per-use lookup
+    private static final MethodType INVOKER_NULLARY_TYPE = methodType(Object.class);
+    private static final MethodType INVOKER_UNARY_TYPE = methodType(Object.class, Object.class);
+
     protected final Constructor<?> _constructor;
-    private final InvokerHolder _invokerNullary = new InvokerHolder(methodType(Object.class));
-    private final InvokerHolder _invokerUnary = new InvokerHolder(methodType(Object.class, Object.class));
-    private final InvokerHolder _invokerFixedArity = new InvokerHolder(null);
+
+    /**
+     * Lazily resolved invocation handles, one per arity we support;
+     * {@code volatile} so a racy first use is safely published (duplicate
+     * resolution is harmless, handles are equivalent).
+     */
+    protected volatile MethodHandle _invokerNullary;
+    protected volatile MethodHandle _invokerUnary;
+    protected volatile MethodHandle _invokerFixedArity;
+
+    // // Simple lazy-caching:
+
+    /**
+     * Lazily resolved raw parameter types; {@code volatile} to ensure safe
+     * publication of the array contents (racy re-resolution is harmless).
+     */
+    protected volatile Class<?>[] _paramClasses;
 
     /*
     /**********************************************************************
@@ -80,7 +97,11 @@ public final class AnnotatedConstructor
     @Override
     public Class<?> getRawParameterType(int index)
     {
-        Class<?>[] types = _constructor.getParameterTypes();
+        Class<?>[] types = _paramClasses;
+        if (types == null) {
+            types = _constructor.getParameterTypes();
+            _paramClasses = types;
+        }
         return (index >= types.length) ? null : types[index];
     }
 
@@ -101,7 +122,7 @@ public final class AnnotatedConstructor
     @Override
     public final Object call() throws Exception {
         try {
-            return _invokerNullary.get().invokeExact();
+            return _invokerNullaryHandle().invokeExact();
         } catch (Throwable e) {
             throw ClassUtil.sneakyThrow(e);
         }
@@ -110,7 +131,7 @@ public final class AnnotatedConstructor
     @Override
     public final Object call(Object[] args) throws Exception {
         try {
-            return _invokerFixedArity.get().invokeWithArguments(args);
+            return _invokerFixedArityHandle().invokeWithArguments(args);
         } catch (Throwable e) {
             throw ClassUtil.sneakyThrow(e);
         }
@@ -119,10 +140,45 @@ public final class AnnotatedConstructor
     @Override
     public final Object call1(Object arg) throws Exception {
         try {
-            return _invokerUnary.get().invokeExact(arg);
+            return _invokerUnaryHandle().invokeExact(arg);
         } catch (Throwable e) {
             throw ClassUtil.sneakyThrow(e);
         }
+    }
+
+    private MethodHandle _invokerNullaryHandle() throws IllegalAccessException {
+        MethodHandle h = _invokerNullary;
+        if (h == null) {
+            h = _unreflect().asType(INVOKER_NULLARY_TYPE);
+            _invokerNullary = h;
+        }
+        return h;
+    }
+
+    private MethodHandle _invokerUnaryHandle() throws IllegalAccessException {
+        MethodHandle h = _invokerUnary;
+        if (h == null) {
+            h = _unreflect().asType(INVOKER_UNARY_TYPE);
+            _invokerUnary = h;
+        }
+        return h;
+    }
+
+    private MethodHandle _invokerFixedArityHandle() throws IllegalAccessException {
+        MethodHandle h = _invokerFixedArity;
+        if (h == null) {
+            h = _unreflect().asFixedArity();
+            _invokerFixedArity = h;
+        }
+        return h;
+    }
+
+    /**
+     * Note: caller is expected to have called {@code ClassUtil.checkAndFixAccess()}
+     * already; access checks are suppressed for an accessible {@link Constructor}.
+     */
+    private MethodHandle _unreflect() throws IllegalAccessException {
+        return MethodHandles.lookup().unreflectConstructor(_constructor);
     }
 
     /*
@@ -162,7 +218,7 @@ public final class AnnotatedConstructor
     @Override
     public String toString() {
         final int argCount = _constructor.getParameterCount();
-        return String.format("[constructor for %s (%d arg%s), annotations: %s",
+        return "[constructor for %s (%d arg%s), annotations: %s".formatted(
                 ClassUtil.nameOf(_constructor.getDeclaringClass()), argCount,
                 (argCount == 1) ? "" : "s", _annotations);
     }
@@ -181,18 +237,5 @@ public final class AnnotatedConstructor
         }
         AnnotatedConstructor other = (AnnotatedConstructor) o;
         return Objects.equals(_constructor, other._constructor);
-    }
-
-    class InvokerHolder extends UnreflectHandleSupplier {
-        private static final long serialVersionUID = 1L;
-
-        InvokerHolder(MethodType asType) {
-            super(asType);
-        }
-
-        @Override
-        protected MethodHandle unreflect() throws IllegalAccessException {
-            return MethodHandles.lookup().unreflectConstructor(_constructor);
-        }
     }
 }

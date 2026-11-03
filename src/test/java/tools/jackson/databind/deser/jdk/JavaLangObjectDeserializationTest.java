@@ -519,10 +519,9 @@ public class JavaLangObjectDeserializationTest
         assertEquals(Map.of("a", 1, "b", false),
                 r.readValue(a2q("{'a':0, 'b': false, 'a': 1}")));
 
-        Object ob = r.readValue(a2q("""
-                { 'a': 1, 'b': true, 'c': 0.25, 'a': 'abc', 'a':2, 'b': 3 }
-                """
-              ));
+        Object ob = r.readValue("""
+                { "a": 1, "b": true, "c": 0.25, "a": "abc", "a":2, "b": 3 }
+                """);
         assertEquals(Map.of("a", 2, "b", 3, "c", 0.25), ob);
     }
 

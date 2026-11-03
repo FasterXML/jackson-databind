@@ -21,7 +21,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUti
      */
     static class Box {
         public String type;
-        @JsonTypeInfo(use = Id.NAME, include = As.EXTERNAL_PROPERTY, property = "type")
+        @JsonTypeInfo(use = Id.NAME, include = As.EXTERNAL_PROPERTY, property = "type", visible = true)
         public Fruit fruit;
 
         public Box() {

@@ -60,7 +60,7 @@ public class EnumNumberFormatShape3580PojoTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testEnumNumberIntFormatShape3580() throws Exception
+    void enumNumberIntFormatShape3580() throws Exception
     {
 
         // Serialize
@@ -78,7 +78,7 @@ public class EnumNumberFormatShape3580PojoTest
     }
 
     @Test
-    public void testEnumNumberFormatShape3580() throws Exception
+    void enumNumberFormatShape3580() throws Exception
     {
         // Serialize
         assertEquals("{\"state\":17}", MAPPER.writeValueAsString(new PojoNum3580(PojoStateNum3580.OFF)));

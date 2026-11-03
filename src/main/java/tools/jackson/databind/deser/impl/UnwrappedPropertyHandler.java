@@ -8,7 +8,6 @@ import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.SettableBeanProperty;
-import tools.jackson.databind.deser.bean.BeanDeserializerBase;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.TokenBuffer;
@@ -262,35 +261,15 @@ public class UnwrappedPropertyHandler
         if (deser == null) {
             return false;
         }
-        BeanDeserializerBase bd = _findBeanDeser(deser);
-        if (bd == null) {
-            // [databind#6001]: not a (delegating) bean deserializer -- typically a
-            //   custom unwrapping deserializer capturing arbitrary fields. It is
-            //   "opaque" (declares no property names), so we cannot tell which
-            //   properties are unwrapped and must accept all (pre-#650 behavior).
-            return true;
-        }
-        if (bd.hasAnySetter()) {
+        if (deser.hasAnySetter()) {
             return true;
         }
         // [databind#6001]: collect into a temp set so we can tell whether this
         //   deserializer contributed any names of its own; if not, it is "opaque"
         //   (typically a custom unwrapping deserializer capturing arbitrary fields).
         Set<String> propNames = new HashSet<>();
-        bd.collectAllPropertyNamesTo(propNames);
+        deser.collectAllPropertyNamesTo(propNames);
         names.addAll(propNames);
         return propNames.isEmpty();
-    }
-
-    // @since 3.1
-    private BeanDeserializerBase _findBeanDeser(ValueDeserializer<?> deser) {
-        if (deser instanceof BeanDeserializerBase bd) {
-            return bd;
-        }
-        // [databind#5728] handle delegating case
-        if (deser.getDelegatee() instanceof BeanDeserializerBase bd) {
-            return bd;
-        }
-        return null;
     }
 }

@@ -1,5 +1,7 @@
 package tools.jackson.databind.ser.filter;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
@@ -97,11 +99,13 @@ public class CustomNullSerializationTest
 
     private final ObjectMapper MAPPER = objectMapper();
 
+    @Test
     public void testSimple() throws Exception
     {
         assertEquals("null", MAPPER.writeValueAsString(null));
     }
 
+    @Test
     public void testOverriddenDefaultValueNulls() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -111,6 +115,7 @@ public class CustomNullSerializationTest
         assertEquals("\"foobar\"", m.writeValueAsString(null));
     }
 
+    @Test
     public void testCustomNulls() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -120,6 +125,7 @@ public class CustomNullSerializationTest
         assertEquals("{\"type\":null}", m.writeValueAsString(new Bean2()));
     }
 
+    @Test
     public void testCustomNullForTrees() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
@@ -137,6 +143,7 @@ public class CustomNullSerializationTest
         assertEquals("{\"a\":\"foobar\"}", m.writeValueAsString(root));
     }
 
+    @Test
     public void testNullSerializerForProperty() throws Exception
     {
         assertEquals("{\"a\":\"foobar\"}", MAPPER.writeValueAsString(new BeanWithNullProps()));

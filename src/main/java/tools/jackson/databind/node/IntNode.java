@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import tools.jackson.databind.SerializationContext;
 public class IntNode
     extends NumericIntNode
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     // // // Let's cache small set of common value

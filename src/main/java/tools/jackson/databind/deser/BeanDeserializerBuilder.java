@@ -400,7 +400,8 @@ public class BeanDeserializerBuilder
             //   but no easy access. But hard to see id property being optional,
             //   so let's consider required at this point.
             props = _addIdProp(_properties,
-                    new ObjectIdValueProperty(_objectIdReader, PropertyMetadata.STD_REQUIRED));
+                    new ObjectIdValueProperty(_objectIdReader,
+                            PropertyMetadata.STD_REQUIRED, false));
         }
         return new BeanDeserializer(this,
                 _beanDescRef, _constructPropMap(props), _backRefProperties, _ignorableProps, _ignoreAllUnknown, _includableProps,
@@ -427,9 +428,9 @@ public class BeanDeserializerBuilder
             // as per [databind#777], allow empty name
             if (!expBuildMethodName.isEmpty()) {
                 _context.reportBadDefinition(_beanDescRef.getType(),
-                        String.format("Builder class %s does not have build method (name: '%s')",
-                        ClassUtil.getTypeDescription(_beanDescRef.getType()),
-                        expBuildMethodName));
+                        "Builder class %s does not have build method (name: '%s')".formatted(
+                                ClassUtil.getTypeDescription(_beanDescRef.getType()),
+                                expBuildMethodName));
             }
         } else {
             // also: type of the method must be compatible
@@ -439,10 +440,10 @@ public class BeanDeserializerBuilder
                     && !rawBuildType.isAssignableFrom(rawValueType)
                     && !rawValueType.isAssignableFrom(rawBuildType)) {
                 _context.reportBadDefinition(_beanDescRef.getType(),
-                        String.format("Build method `%s` has wrong return type (%s), not compatible with POJO type (%s)",
-                        _buildMethod.getFullName(),
-                        ClassUtil.getClassDescription(rawBuildType),
-                        ClassUtil.getTypeDescription(valueType)));
+                        "Build method `%s` has wrong return type (%s), not compatible with POJO type (%s)".formatted(
+                                _buildMethod.getFullName(),
+                                ClassUtil.getClassDescription(rawBuildType),
+                                ClassUtil.getTypeDescription(valueType)));
             }
         }
         _fixAccess(_properties.values());
@@ -451,8 +452,11 @@ public class BeanDeserializerBuilder
         if (_objectIdReader != null) {
             // May or may not have annotations for id property; but no easy access.
             // But hard to see id property being optional, so let's consider required at this point.
+            // [databind#5909]: builder-based deser will rebind id'd instance from
+            // Builder to built object via finishBuild's updateObjectId — flag it.
             props = _addIdProp(_properties,
-                    new ObjectIdValueProperty(_objectIdReader, PropertyMetadata.STD_REQUIRED));
+                    new ObjectIdValueProperty(_objectIdReader,
+                            PropertyMetadata.STD_REQUIRED, true));
         } else {
             props = _properties.values();
         }
@@ -607,6 +611,16 @@ public class BeanDeserializerBuilder
             List<PropertyName> aliases = prop.findAliases(_config);
             if ((aliases == null) || aliases.isEmpty()) {
                 continue;
+            }
+            // [databind#6243]: a Creator property is not found by an alias that is a name
+            //   to ignore, the same as its Creator does not resolve that name
+            if (prop.isCreatorProperty()) {
+                aliases = aliases.stream()
+                        .filter(alias -> !hasIgnorable(alias.getSimpleName()))
+                        .toList();
+                if (aliases.isEmpty()) {
+                    continue;
+                }
             }
             if (result == null) {
                 result = new PropertyName[props.size()][];

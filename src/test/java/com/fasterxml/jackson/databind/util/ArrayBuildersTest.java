@@ -86,6 +86,20 @@ public class ArrayBuildersTest extends DatabindTestUtil
         assertFalse(comp.equals(new int[] { 3, 4, 5, 6 }));
     }
 
+    // [databind#6295]
+    @Test
+    public void testArrayComparatorWithNulls()
+    {
+        Object comp = ArrayBuilders.getArrayComparator(new String[] { null });
+        assertTrue(comp.equals(new String[] { null }));
+        assertFalse(comp.equals(new String[] { "x" }));
+
+        comp = ArrayBuilders.getArrayComparator(new String[] { "a", null });
+        assertTrue(comp.equals(new String[] { "a", null }));
+        assertFalse(comp.equals(new String[] { "a", "x" }));
+        assertFalse(comp.equals(new String[] { null, null }));
+    }
+
     @Test
     public void testArraySet()
     {

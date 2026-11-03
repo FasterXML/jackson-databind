@@ -108,11 +108,23 @@ public class NullStringValueDeserTest extends DatabindTestUtil
                 Byte.TYPE, Byte.class, Short.TYPE, Short.class,
                 Integer.TYPE, Integer.class, Long.TYPE, Long.class,
                 Float.TYPE, Float.class, Double.TYPE, Double.class,
-                Character.TYPE, Character.class, Number.class,
+                Number.class,
                 BigInteger.class, BigDecimal.class
         }) {
             _verifyFails(MAPPER, type);
         }
+    }
+
+    // `char` / `Character` with null text is handled like a JSON null
+    @Test
+    public void nullStringAsCharacter() throws Exception {
+        assertEquals(Character.valueOf('\0'), _read(MAPPER, MAPPER.constructType(Character.TYPE), "'abc'"));
+        assertNull(_read(MAPPER, MAPPER.constructType(Character.class), "'abc'"));
+        ObjectMapper strict = jsonMapperBuilder()
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        _verifyFails(strict, Character.TYPE);
+        assertNull(_read(strict, strict.constructType(Character.class), "'abc'"));
     }
 
     @Test
@@ -140,9 +152,15 @@ public class NullStringValueDeserTest extends DatabindTestUtil
 
     // Arrays
 
+    // `char[]` element with null text is handled like a JSON null element
     @Test
     public void nullStringAsCharArrayElement() throws Exception {
-        _verifyFails(MAPPER, MAPPER.constructType(char[].class), "['a','b']");
+        assertArrayEquals(new char[] { '\0', '\0' },
+                (char[]) _read(MAPPER, MAPPER.constructType(char[].class), "['a','b']"));
+        ObjectMapper strict = jsonMapperBuilder()
+                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        _verifyFails(strict, strict.constructType(char[].class), "['a','b']");
     }
 
     @Test

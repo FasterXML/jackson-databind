@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.StreamReadCapability;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -65,6 +66,28 @@ public class UntypedObjectWithDupsTest extends DatabindTestUtil
                 _readWriteDupDoc(DOC, StringStringMap.class));
     }
 
+    // [databind#6296]: with a custom key deserializer the non-vanilla deserializer
+    // is used; duplicates of a later key must be merged under that key, not the first one
+    @Test
+    public void docWithDupsAsUntypedWithKeyDeserializer() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addKeyDeserializer(Object.class, new KeyDeserializer() {
+                            @Override
+                            public Object deserializeKey(String key, DeserializationContext ctxt) {
+                                return key;
+                            }
+                        }))
+                .build();
+        // First duplicate on the second key
+        assertEquals(a2q("{'a':[1,2],'b':[3,5],'c':4}"),
+                _readWriteDupDoc(mapper, a2q("{'a':1,'a':2,'b':3,'c':4,'b':5}"), Object.class));
+        // First duplicate on a later key; then another key duplicated three times
+        assertEquals(a2q("{'a':1,'b':[2,5,6],'c':[3,4]}"),
+                _readWriteDupDoc(mapper, a2q("{'a':1,'b':2,'c':3,'c':4,'b':5,'b':6}"), Object.class));
+    }
+
     /*
     ///////////////////////////////////////////////////////////////////////
     // Helper methods
@@ -101,12 +124,17 @@ public class UntypedObjectWithDupsTest extends DatabindTestUtil
 
     private String _readWriteDupDoc(String doc, Class<?> cls) throws Exception
     {
+        return _readWriteDupDoc(JSON_MAPPER, doc, cls);
+    }
+
+    private String _readWriteDupDoc(ObjectMapper mapper, String doc, Class<?> cls) throws Exception
+    {
         // This is where need some trickery
         Object value;
-        try (JsonParser p = new WithDupsParser(JSON_MAPPER.createParser(doc))) {
-            value = JSON_MAPPER.readValue(p, cls);
+        try (JsonParser p = new WithDupsParser(mapper.createParser(doc))) {
+            value = mapper.readValue(p, cls);
         }
-        return JSON_MAPPER.writeValueAsString(value);
+        return mapper.writeValueAsString(value);
     }
 
     /**

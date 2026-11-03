@@ -1843,6 +1843,25 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     /**
+     * Helper method for handling properties that are not visible in the
+     * currently active view.
+     *
+     * @since 2.23
+     */
+    protected void handleUnexpectedView(JsonParser p, DeserializationContext ctxt,
+            SettableBeanProperty prop, Class<?> activeView)
+        throws IOException
+    {
+        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)) {
+            ctxt.reportInputMismatch(handledType(),
+                    "Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'"
+                    + " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
+                    ClassUtil.nameOf(handledType()), prop.getName(), activeView.getName());
+        }
+        p.skipChildren();
+    }
+
+    /**
      * Method called in cases where we may have polymorphic deserialization
      * case: that is, type of Creator-constructed bean is not the type
      * of deserializer itself. It should be a sub-class or implementation

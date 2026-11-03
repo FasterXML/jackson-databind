@@ -44,6 +44,12 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
  * abstract base class, {@link PolymorphicTypeValidator.Base} which contains helper methods
  * and default implementations for returning {@link Validity#INDETERMINATE} for validation
  * methods (to allow only overriding relevant methods implementation cares about)
+ *<p>
+ * NOTE: Most users should use {@link BasicPolymorphicTypeValidator} as the implementation,
+ * rather than implementing a custom validator (by extending this class or
+ * {@link PolymorphicTypeValidator.Base}).
+ *
+ * @see BasicPolymorphicTypeValidator
  *
  * @since 2.10
  */

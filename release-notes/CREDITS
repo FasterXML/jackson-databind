@@ -890,6 +890,9 @@ Kayokoi (@wozhenbang2004)
  * Fixed #6374: `@JsonFormat(shape = ARRAY)` Builder: structured first extra array element
    not skipped correctly, leaves parser misaligned
   [3.3.0]
+ * Fixed #6375: Wrap non-Jackson exceptions from `BeanDeserializerBase.handleUnknownProperty()`
+   (e.g. thrown by `DeserializationProblemHandler`) to include bean and property path
+  [3.3.0]
 
 Okan Tiktas (@OKAN-SOFTWARE)
  * Fixed #6357: `BeanDeserializer` and `BuilderBasedDeserializer` silently stop on

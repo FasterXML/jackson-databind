@@ -191,6 +191,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6374: `@JsonFormat(shape = ARRAY)` Builder: structured first extra array element
   not skipped correctly, leaves parser misaligned
  (fix by @wozhenbang2004)
+#6375: Wrap non-Jackson exceptions from `BeanDeserializerBase.handleUnknownProperty()`
+  (e.g. thrown by `DeserializationProblemHandler`) to include bean and property path
+ (fix by @wozhenbang2004)
 #6376: End of input right after a property name (possible with `TokenBuffer`) reported
   as `DatabindException` wrapping `NullPointerException`, not `MismatchedInputException`
  (fix by @cowtowncoder, w/ Claude code)

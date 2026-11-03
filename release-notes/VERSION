@@ -188,6 +188,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6371: Polymorphic key and value types not retained for POJO-shaped `Map.Entry`
   deserialization
  (fix by @wozhenbang2004)
+#6374: `@JsonFormat(shape = ARRAY)` Builder: structured first extra array element
+  not skipped correctly, leaves parser misaligned
+ (fix by @wozhenbang2004)
 #6376: End of input right after a property name (possible with `TokenBuffer`) reported
   as `DatabindException` wrapping `NullPointerException`, not `MismatchedInputException`
  (fix by @cowtowncoder, w/ Claude code)

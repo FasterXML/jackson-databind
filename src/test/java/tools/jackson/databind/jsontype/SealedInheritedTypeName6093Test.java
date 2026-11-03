@@ -156,6 +156,19 @@ class SealedInheritedTypeName6093Test {
 
     record DelegatingLeaf(int value) implements DelegatingParent { }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+    sealed interface DifferentShapeRoot permits DifferentShapeParent { }
+
+    @JsonTypeName("differentShape")
+    sealed interface DifferentShapeParent extends DifferentShapeRoot permits DifferentShapeLeaf {
+        @JsonCreator
+        static DifferentShapeLeaf create(@JsonProperty("text") String text) {
+            return new DifferentShapeLeaf(Integer.parseInt(text));
+        }
+    }
+
+    record DifferentShapeLeaf(int value) implements DifferentShapeParent { }
+
     @Test
     void inheritedNameDoesNotReplaceDistinctLeafIds() {
         assertLeafRoundTrip(mapper, NoFactoryRoot.class, new NoFactoryLeaf(1),
@@ -171,6 +184,8 @@ class SealedInheritedTypeName6093Test {
                 "SealedInheritedTypeName6093Test$CollisionLeaf");
         assertLeafRoundTrip(mapper, DelegatingRoot.class, new DelegatingLeaf(7),
                 "SealedInheritedTypeName6093Test$DelegatingLeaf");
+        assertLeafRoundTrip(mapper, DifferentShapeRoot.class, new DifferentShapeLeaf(8),
+                "SealedInheritedTypeName6093Test$DifferentShapeLeaf");
     }
 
     @Test
@@ -182,6 +197,7 @@ class SealedInheritedTypeName6093Test {
                 .addMixIn(CollisionRoot.class, SimpleNameMixin.class)
                 .addMixIn(CollisionParent.class, SimpleCollisionNameMixin.class)
                 .addMixIn(DelegatingRoot.class, SimpleNameMixin.class)
+                .addMixIn(DifferentShapeRoot.class, SimpleNameMixin.class)
                 .build();
         assertLeafRoundTrip(simple, NoFactoryRoot.class, new NoFactoryLeaf(1), "NoFactoryLeaf");
         assertLeafRoundTrip(simple, SiblingRoot.class, new FirstLeaf(2), "FirstLeaf");
@@ -190,6 +206,7 @@ class SealedInheritedTypeName6093Test {
         assertLeafRoundTrip(simple, MixedRoot.class, new NamedLeaf(5), "named");
         assertLeafRoundTrip(simple, CollisionRoot.class, new CollisionLeaf(6), "CollisionLeaf");
         assertLeafRoundTrip(simple, DelegatingRoot.class, new DelegatingLeaf(7), "DelegatingLeaf");
+        assertLeafRoundTrip(simple, DifferentShapeRoot.class, new DifferentShapeLeaf(8), "DifferentShapeLeaf");
     }
 
     private void assertLeafRoundTrip(ObjectMapper jsonMapper, Class<?> root, Object leaf, String id) {

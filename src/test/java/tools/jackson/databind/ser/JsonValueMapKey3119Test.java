@@ -4,6 +4,9 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import tools.jackson.core.JsonGenerator;
@@ -82,7 +85,37 @@ class JsonValueMapKey3119Test extends DatabindTestUtil
         public GetterValue wrapped = new GetterValue();
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    @JsonTypeName("typedMap")
+    static class TypedGetterValue extends GetterValue { }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    @JsonTypeName("typedBean")
+    static class TypedBeanValue {
+        @JsonValue
+        @JsonIgnoreProperties("hidden")
+        public Object value() {
+            return new Payload();
+        }
+    }
+
+    static class Payload {
+        public String hidden = "kept";
+    }
+
     private final ObjectMapper mapper = newJsonMapper();
+
+    @Test
+    void typedMapUsesAccessorKeySerializer() {
+        assertEquals("{\"typedMap\":{\"key-a\":1}}",
+                mapper.writeValueAsString(new TypedGetterValue()));
+    }
+
+    @Test
+    void typedBeanRetainsExistingFieldOutput() {
+        JsonNode json = mapper.readTree(mapper.writeValueAsString(new TypedBeanValue()));
+        assertEquals("kept", json.path("typedBean").path("hidden").asString());
+    }
 
     @Test
     void getterKeySerializer() {

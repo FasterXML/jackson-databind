@@ -760,9 +760,10 @@ public class BeanDeserializerFactory
                 _linkRecordAccessor(ctxt, accessors, param, propDef.getGetter());
             }
         }
-        // Ignored properties (like `@JsonIgnore` on a component) are not included above,
-        // but their existing values still need to be retained: link these by the same name
-        // property introspection uses (implicit parameter name, if any; else explicit)
+        // Some properties have no getter for deserialization (ignored, `WRITE_ONLY`,
+        // getter not visible) or are not included above at all, but their existing values
+        // still need to be retained: link these to the Record component of the same name
+        // that property introspection would use (implicit parameter name, if any; else explicit)
         final RecordComponent[] components = beanDesc.getBeanClass().getRecordComponents();
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         for (int i = 0; (components != null) && (i < accessors.length); ++i) {
@@ -775,7 +776,7 @@ public class BeanDeserializerFactory
                 PropertyName explName = intr.findNameForDeserialization(ctxt.getConfig(), param);
                 name = (explName == null) ? null : explName.getSimpleName();
             }
-            if (name == null || !beanDesc.getIgnoredPropertyNames().contains(name)) {
+            if (name == null) {
                 continue;
             }
             for (RecordComponent component : components) {

@@ -4,9 +4,11 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
@@ -85,6 +87,16 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
         public static Secret of(@JsonProperty("secret") String secret,
                 @JsonProperty("id") String id) {
             return new Secret(id, secret);
+        }
+    }
+
+    // WRITE_ONLY component has no getter for deserialization: must keep its value
+    public record Account(String id,
+            @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) String password) {
+        @JsonCreator
+        public static Account of(@JsonProperty("password") String password,
+                @JsonProperty("id") String id) {
+            return new Account(id, password);
         }
     }
 
@@ -173,6 +185,32 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
                         {"id":"2","secret":"x"}
                         """);
         assertEquals(new Secret("2", "s"), result);
+    }
+
+    @Test
+    public void updateKeepsWriteOnlyComponent() throws Exception
+    {
+        Account result = MAPPER.readerForUpdating(new Account("1", "pw"))
+                .readValue("""
+                        {"id":"2"}
+                        """);
+        assertEquals(new Account("2", "pw"), result);
+    }
+
+    // Getters not visible: accessors are still linked by component name
+    @Test
+    public void updateWithGettersNotVisible() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultVisibility(vc -> vc
+                        .withVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE)
+                        .withVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE))
+                .build();
+        FullName result = mapper.readerForUpdating(new FullName("John", "Smith"))
+                .readValue("""
+                        {"first":"Jane"}
+                        """);
+        assertEquals(new FullName("Jane", "Smith"), result);
     }
 
     // Without parameter names, renamed Creator properties cannot be linked to

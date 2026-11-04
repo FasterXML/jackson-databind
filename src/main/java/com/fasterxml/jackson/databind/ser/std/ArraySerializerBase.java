@@ -134,8 +134,19 @@ public abstract class ArraySerializerBase<T>
                 typeSer.typeId(value, JsonToken.START_ARRAY));
         // [databind#631]: Assign current value, to be accessible by custom serializers
         g.assignCurrentValue(value);
-        serializeContents(value, g, provider);
+        serializeContentsWithType(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
+    }
+
+    /**
+     * Hook for serializers that need different contents when the container's
+     * runtime type id has already been emitted. Defaults to the regular path.
+     *
+     * @since 2.23
+     */
+    protected void serializeContentsWithType(T value, JsonGenerator gen, SerializerProvider provider)
+            throws IOException {
+        serializeContents(value, gen, provider);
     }
 
     protected abstract void serializeContents(T value, JsonGenerator jgen, SerializerProvider provider)

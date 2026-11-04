@@ -17,6 +17,9 @@ Project: jackson-databind
  (fix by @kimsanhaa)
 #6261: Support `@JsonView` on properties-based Creator parameters of Enum, Map and EnumMap types
  (fix by @pjfanning, w/ Claude code)
+#6290: Default typing fails to round-trip `Base[]` holding final-subtype arrays
+ (reported by @cowtowncoder)
+ (fix by @zsewasdsdsd)
 #6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
   array contains `null`
  (reported, fixed by @Marti2203)

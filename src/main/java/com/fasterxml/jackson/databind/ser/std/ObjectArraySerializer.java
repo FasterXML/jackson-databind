@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -214,6 +215,26 @@ public class ObjectArraySerializer
         gen.writeEndArray();
     }
 
+    /**
+     * [databind#6290]: Only omit redundant element type ids if the array's
+     * runtime type is already present in the output. A plain serialize() call
+     * must preserve property-level element type ids.
+     */
+    @Override
+    protected void serializeContentsWithType(Object[] value, JsonGenerator gen, SerializerProvider provider)
+            throws IOException
+    {
+        if ((_valueTypeSerializer != null) && _skipRuntimeArrayElementTypeIds(value, provider)) {
+            if (_elementSerializer != null) {
+                serializeContentsUsing(value, gen, provider, _elementSerializer, true);
+            } else {
+                serializeTypedContents(value, gen, provider, true);
+            }
+        } else {
+            serializeContents(value, gen, provider);
+        }
+    }
+
     @Override
     public void serializeContents(Object[] value, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
@@ -259,6 +280,12 @@ public class ObjectArraySerializer
     public void serializeContentsUsing(Object[] value, JsonGenerator jgen, SerializerProvider provider,
             JsonSerializer<Object> ser) throws IOException
     {
+        serializeContentsUsing(value, jgen, provider, ser, false);
+    }
+
+    private void serializeContentsUsing(Object[] value, JsonGenerator jgen, SerializerProvider provider,
+            JsonSerializer<Object> ser, boolean skipElementTypeIds) throws IOException
+    {
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
 
@@ -271,7 +298,7 @@ public class ObjectArraySerializer
                     provider.defaultSerializeNull(jgen);
                     continue;
                 }
-                if (typeSer == null) {
+                if (typeSer == null || skipElementTypeIds) {
                     ser.serialize(elem, jgen, provider);
                 } else {
                     ser.serializeWithType(elem, jgen, provider, typeSer);
@@ -283,6 +310,12 @@ public class ObjectArraySerializer
     }
 
     public void serializeTypedContents(Object[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    {
+        serializeTypedContents(value, jgen, provider, false);
+    }
+
+    private void serializeTypedContents(Object[] value, JsonGenerator jgen, SerializerProvider provider,
+            boolean skipElementTypeIds) throws IOException
     {
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
@@ -301,11 +334,31 @@ public class ObjectArraySerializer
                 if (serializer == null) {
                     serializer = _findAndAddDynamic(serializers, cc, provider);
                 }
-                serializer.serializeWithType(elem, jgen, provider, typeSer);
+                if (skipElementTypeIds) {
+                    serializer.serialize(elem, jgen, provider);
+                } else {
+                    serializer.serializeWithType(elem, jgen, provider, typeSer);
+                }
             }
         } catch (Exception e) {
             wrapAndThrow(provider, e, elem, i);
         }
+    }
+
+    /**
+     * A runtime array of final elements is deserialized using its final
+     * component type, which does not expect default-typing element ids.
+     */
+    private boolean _skipRuntimeArrayElementTypeIds(Object[] value, SerializerProvider provider)
+            throws JsonMappingException
+    {
+        Class<?> componentType = value.getClass().getComponentType();
+        return componentType != _elementType.getRawClass()
+                // Nested array typing (#3194) is a separate case: preserve its
+                // existing per-element ids rather than changing the JSON shape.
+                && !componentType.isArray()
+                && Modifier.isFinal(componentType.getModifiers())
+                && provider.findTypeSerializer(provider.constructType(componentType)) == null;
     }
 
     @Override

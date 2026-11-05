@@ -74,6 +74,11 @@ public abstract class PropertyValue
         {
             _property.set(ctxt, bean, value);
         }
+
+        Object assignAndReturn(DeserializationContext ctxt, Object builder) throws JacksonException
+        {
+            return _property.setAndReturn(ctxt, builder, value);
+        }
     }
 
     /**

@@ -449,7 +449,11 @@ public final class PropertyBasedCreator
 
             // Anything buffered?
             for (PropertyValue pv = buffer.buffered(); pv != null; pv = pv.next) {
-                pv.assign(ctxt, bean);
+                if (buffer._mayRebind && pv instanceof PropertyValue.Regular regular) {
+                    bean = regular.assignAndReturn(ctxt, bean);
+                } else {
+                    pv.assign(ctxt, bean);
+                }
             }
         }
         return bean;

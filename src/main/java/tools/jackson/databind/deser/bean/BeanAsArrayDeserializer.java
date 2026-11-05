@@ -236,15 +236,7 @@ public class BeanAsArrayDeserializer
                 // never gets here
             }
             // otherwise, skip until end
-            JsonToken t;
-            do {
-                p.skipChildren();
-                t = p.nextToken();
-                if (t == null) {
-                    ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
-                            "Unexpected end-of-input in array");
-                }
-            } while (t != JsonToken.END_ARRAY);
+            _skipToEndArray(p, ctxt);
         }
         return bean;
     }
@@ -303,15 +295,7 @@ public class BeanAsArrayDeserializer
             // never gets here
         }
         // otherwise, skip until end
-        JsonToken t;
-        do {
-            p.skipChildren();
-            t = p.nextToken();
-            if (t == null) {
-                ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
-                        "Unexpected end-of-input in array");
-            }
-        } while (t != JsonToken.END_ARRAY);
+        _skipToEndArray(p, ctxt);
         return bean;
     }
 
@@ -382,15 +366,7 @@ public class BeanAsArrayDeserializer
             // will never reach here as exception has been thrown
         }
         // otherwise, skip until end
-        JsonToken t;
-        do {
-            p.skipChildren();
-            t = p.nextToken();
-            if (t == null) {
-                ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
-                        "Unexpected end-of-input in array");
-            }
-        } while (t != JsonToken.END_ARRAY);
+        _skipToEndArray(p, ctxt);
         return bean;
     }
 
@@ -415,15 +391,7 @@ public class BeanAsArrayDeserializer
         Object bean = null;
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
-        for (; ; ++i) {
-            JsonToken next = p.nextToken();
-            if (next == null) {
-                ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
-                        "Unexpected end-of-input in array");
-            }
-            if (next == JsonToken.END_ARRAY) {
-                break;
-            }
+        for (; !_nextIsEndArray(p, ctxt); ++i) {
             SettableBeanProperty prop = (i < propCount) ? props[i] : null;
             if (prop == null) { // we get null if there are extra elements; maybe otherwise too?
                 // [databind#6043]: extra JSON Array elements past property count must

@@ -1,8 +1,10 @@
 package tools.jackson.databind.deser.bean;
 
 import java.time.Duration;
+import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -33,208 +35,62 @@ class ArrayDeser6394EofTest extends DatabindTestUtil
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
     @JsonPropertyOrder({ "x" })
     static class Pojo {
-        public int x;
-    }
-
-    @JsonFormat(shape = JsonFormat.Shape.ARRAY)
-    @JsonPropertyOrder({ "x" })
-    static class PojoWithView {
         @JsonView(ActiveView.class)
         public int x;
     }
 
-    @JsonFormat(shape = JsonFormat.Shape.ARRAY)
-    @JsonPropertyOrder({ "x" })
-    static class PojoWithCreator {
-        final int x;
-
+    static class CreatorPojo extends Pojo {
         @JsonCreator
-        PojoWithCreator(@JsonProperty("x") int x) {
+        CreatorPojo(@JsonProperty("x") int x) {
             this.x = x;
         }
     }
 
-    static class Value {
-        final int x;
-
-        Value(int x) {
-            this.x = x;
-        }
-    }
-
-    @JsonDeserialize(builder = ValueBuilder.class)
-    static class BuiltValue extends Value {
-        BuiltValue(int x) {
-            super(x);
-        }
-    }
-
-    @JsonFormat(shape = JsonFormat.Shape.ARRAY)
-    @JsonPropertyOrder({ "x" })
-    static class ValueBuilder {
-        private int x;
-
-        public ValueBuilder withX(int v) {
-            x = v;
+    // Value types acting as their own Builders, to avoid separate Builder classes
+    @JsonDeserialize(builder = BuiltPojo.class)
+    static class BuiltPojo extends Pojo {
+        public BuiltPojo build() {
             return this;
         }
-
-        public BuiltValue build() {
-            return new BuiltValue(x);
-        }
     }
 
-    @JsonDeserialize(builder = ViewValueBuilder.class)
-    static class BuiltViewValue extends Value {
-        BuiltViewValue(int x) {
+    @JsonDeserialize(builder = BuiltCreatorPojo.class)
+    static class BuiltCreatorPojo extends CreatorPojo {
+        @JsonCreator
+        BuiltCreatorPojo(@JsonProperty("x") int x) {
             super(x);
         }
-    }
 
-    @JsonFormat(shape = JsonFormat.Shape.ARRAY)
-    @JsonPropertyOrder({ "x" })
-    static class ViewValueBuilder {
-        private int x;
-
-        @JsonView(ActiveView.class)
-        public ViewValueBuilder withX(int v) {
-            x = v;
+        public BuiltCreatorPojo build() {
             return this;
         }
-
-        public BuiltViewValue build() {
-            return new BuiltViewValue(x);
-        }
     }
 
-    @JsonDeserialize(builder = CreatorValueBuilder.class)
-    static class BuiltCreatorValue extends Value {
-        BuiltCreatorValue(int x) {
-            super(x);
-        }
-    }
-
-    @JsonFormat(shape = JsonFormat.Shape.ARRAY)
-    @JsonPropertyOrder({ "x" })
-    static class CreatorValueBuilder {
-        private final int x;
-
-        @JsonCreator
-        CreatorValueBuilder(@JsonProperty("x") int x) {
-            this.x = x;
-        }
-
-        public BuiltCreatorValue build() {
-            return new BuiltCreatorValue(x);
-        }
-    }
-
-    private final ObjectMapper MAPPER = jsonMapperBuilder()
+    private static final ObjectMapper MAPPER = jsonMapperBuilder()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
 
-    /*
-    /**********************************************************************
-    /* Test methods: unterminated input must fail, not hang
-    /**********************************************************************
-     */
-
-    @Test
-    void pojoVanillaEof() throws Exception {
-        _assertFailsOnEof(MAPPER.readerFor(Pojo.class));
+    // One reader per code path: an active view prevents "vanilla" processing
+    static Stream<ObjectReader> readers() {
+        return Stream.of(
+                MAPPER.readerFor(Pojo.class),
+                MAPPER.readerFor(Pojo.class).withView(ActiveView.class),
+                MAPPER.readerForUpdating(new Pojo()),
+                MAPPER.readerFor(CreatorPojo.class),
+                MAPPER.readerFor(BuiltPojo.class),
+                MAPPER.readerFor(BuiltPojo.class).withView(ActiveView.class),
+                MAPPER.readerFor(BuiltCreatorPojo.class));
     }
 
-    @Test
-    void pojoNonVanillaEof() throws Exception {
-        _assertFailsOnEof(MAPPER.readerFor(PojoWithView.class).withView(ActiveView.class));
-    }
-
-    @Test
-    void pojoUpdateEof() throws Exception {
-        _assertFailsOnEof(MAPPER.readerForUpdating(new Pojo()));
-    }
-
-    @Test
-    void pojoPropertyBasedEof() throws Exception {
-        _assertFailsOnEof(MAPPER.readerFor(PojoWithCreator.class));
-    }
-
-    @Test
-    void builderVanillaEof() throws Exception {
-        _assertFailsOnEof(MAPPER.readerFor(BuiltValue.class));
-    }
-
-    @Test
-    void builderNonVanillaEof() throws Exception {
-        _assertFailsOnEof(MAPPER.readerFor(BuiltViewValue.class).withView(ActiveView.class));
-    }
-
-    @Test
-    void builderPropertyBasedEof() throws Exception {
-        _assertFailsOnEof(MAPPER.readerFor(BuiltCreatorValue.class));
-    }
-
-    /*
-    /**********************************************************************
-    /* Test methods: terminated input with extra values still works
-    /**********************************************************************
-     */
-
-    @Test
-    void pojoSkipsExtraValues() throws Exception {
-        assertEquals(1, MAPPER.readValue("[1,2,3]", Pojo.class).x);
-        assertEquals(1, MAPPER.readValue("""
-                [1,{"a":[1,2]},3]
-                """, Pojo.class).x);
-    }
-
-    @Test
-    void pojoPropertyBasedSkipsExtraValues() throws Exception {
-        assertEquals(1, MAPPER.readValue("[1,2,3]", PojoWithCreator.class).x);
-        assertEquals(1, MAPPER.readValue("""
-                [1,{"a":[1,2]},3]
-                """, PojoWithCreator.class).x);
-    }
-
-    @Test
-    void builderSkipsExtraValues() throws Exception {
-        assertEquals(1, MAPPER.readValue("[1,2,3]", BuiltValue.class).x);
-        assertEquals(1, MAPPER.readValue("""
-                [1,{"a":[1,2]},3]
-                """, BuiltValue.class).x);
-    }
-
-    @Test
-    void builderNonVanillaSkipsExtraValues() throws Exception {
-        BuiltViewValue value = MAPPER.readerFor(BuiltViewValue.class)
-                .withView(ActiveView.class)
-                .readValue("""
-                [1,{"a":[1,2]},3]
-                """);
-        assertEquals(1, value.x);
-    }
-
-    /*
-    /**********************************************************************
-    /* Helper methods
-    /**********************************************************************
-     */
-
-    private void _assertFailsOnEof(ObjectReader r) throws Exception {
-        _assertFailsOnEof(r, false);
-        _assertFailsOnEof(r, true);
-    }
-
-    private void _assertFailsOnEof(ObjectReader r, boolean structuredExtra) throws Exception {
+    @ParameterizedTest
+    @MethodSource("readers")
+    void unterminatedArrayFails(ObjectReader r) throws Exception {
         try (TokenBuffer tb = TokenBuffer.forGeneration()) {
             tb.writeStartArray();
             tb.writeNumber(1);
-            if (structuredExtra) {
-                tb.writeStartObject();
-                tb.writeEndObject();
-            } else {
-                tb.writeNumber(2);
-            }
+            tb.writeStartObject();
+            tb.writeEndObject();
+            tb.writeNumber(2);
             // no END_ARRAY: the bug scenario
 
             try (JsonParser p = tb.asParser()) {
@@ -245,5 +101,14 @@ class ArrayDeser6394EofTest extends DatabindTestUtil
                 verifyException(e, "Unexpected end-of-input in array");
             }
         }
+    }
+
+    @ParameterizedTest
+    @MethodSource("readers")
+    void extraValuesSkipped(ObjectReader r) throws Exception {
+        Pojo result = r.readValue("""
+                [1,{"a":[1,2]},3]
+                """);
+        assertEquals(1, result.x);
     }
 }

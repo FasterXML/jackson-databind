@@ -117,6 +117,9 @@ public class BeanAsArrayBuilderDeserializer
     protected final Object finishBuild(DeserializationContext ctxt, Object builder)
         throws JacksonException
     {
+        if (builder == null) {
+            return null;
+        }
         try {
             return _buildMethod.getMember().invoke(builder, (Object[]) null);
         } catch (Exception e) {
@@ -130,8 +133,7 @@ public class BeanAsArrayBuilderDeserializer
     {
         // Let's delegate just in case we got a JSON Object (could error out, alternatively?)
         if (!p.isExpectedStartArrayToken()) {
-            Object builder = _deserializeFromNonArray(p, ctxt);
-            return (builder == null) ? null : finishBuild(ctxt, builder);
+            return finishBuild(ctxt, _deserializeFromNonArray(p, ctxt));
         }
         if (!_useVanillaProcessing(ctxt)) {
             return finishBuild(ctxt, _deserializeNonVanilla(p, ctxt));

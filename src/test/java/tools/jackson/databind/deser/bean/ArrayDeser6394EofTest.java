@@ -98,7 +98,7 @@ class ArrayDeser6394EofTest extends DatabindTestUtil
                 MismatchedInputException e = assertTimeoutPreemptively(Duration.ofSeconds(10),
                         () -> assertThrows(MismatchedInputException.class,
                                 () -> r.readValue(p)));
-                verifyException(e, "Unexpected end-of-input in array");
+                assertEquals("Unexpected end-of-input in array", e.getOriginalMessage());
             }
         }
     }

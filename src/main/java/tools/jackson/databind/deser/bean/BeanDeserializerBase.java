@@ -2206,8 +2206,7 @@ ClassUtil.getTypeDescription(ct));
         final JsonToken t = p.nextToken();
         // [databind#6394]: must not keep looping on end-of-input
         if (t == null) {
-            ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
-                    "Unexpected end-of-input in array");
+            ctxt.reportInputMismatch(this, "Unexpected end-of-input in array");
         }
         return t == JsonToken.END_ARRAY;
     }

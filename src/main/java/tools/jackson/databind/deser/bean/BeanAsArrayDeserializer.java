@@ -241,7 +241,7 @@ public class BeanAsArrayDeserializer
                 p.skipChildren();
                 t = p.nextToken();
                 if (t == null) {
-                    throw ctxt.mismatchedInputException(this, JsonToken.END_ARRAY,
+                    ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
                             "Unexpected end-of-input in array");
                 }
             } while (t != JsonToken.END_ARRAY);
@@ -308,7 +308,7 @@ public class BeanAsArrayDeserializer
             p.skipChildren();
             t = p.nextToken();
             if (t == null) {
-                throw ctxt.mismatchedInputException(this, JsonToken.END_ARRAY,
+                ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
                         "Unexpected end-of-input in array");
             }
         } while (t != JsonToken.END_ARRAY);
@@ -387,7 +387,7 @@ public class BeanAsArrayDeserializer
             p.skipChildren();
             t = p.nextToken();
             if (t == null) {
-                throw ctxt.mismatchedInputException(this, JsonToken.END_ARRAY,
+                ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
                         "Unexpected end-of-input in array");
             }
         } while (t != JsonToken.END_ARRAY);

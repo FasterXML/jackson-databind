@@ -904,3 +904,8 @@ Okan Tiktas (@OKAN-SOFTWARE)
  * Fixed #6357: `BeanDeserializer` and `BuilderBasedDeserializer` silently stop on
    unexpected token within Object
   [3.3.0]
+
+Sahas Prakash Nagar (@Sahas2711)
+ * Fixed #6394: `@JsonFormat(shape = ARRAY)` deserialization hangs when input ends before
+   `END_ARRAY` while skipping extra values
+  [3.3.0]

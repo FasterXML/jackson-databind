@@ -497,3 +497,7 @@ Anna Breeva (@ab310013)
 @bugada
  * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
   [3.1.9]
+
+Kayokoi (@wozhenbang2004)
+ * Fixed #3119: Honor `@JsonSerialize(keyUsing = ...)` on `@JsonValue` map accessors
+  [3.1.9]

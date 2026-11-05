@@ -78,7 +78,9 @@ class ImmutableBuilderWithCreator6397Test
                         o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.ARRAY)))
                 .build();
 
-        assertEquals(new Value(5, 6, 7, 8), mapper.readValue("[5,6,7,8]", Value.class));
+        assertEquals(new Value(5, 6, 7, 8), mapper.readValue("""
+                [5,6,7,8]
+                """, Value.class));
     }
 
     @Test

@@ -1071,7 +1071,12 @@ Working alternatives:
         // prevents infinite recursion on self-referencing types.
         if (contextual != this && !_propertiesContextualized) {
             _propertiesContextualized = true;
-            contextual._contextualizeProperties(ctxt);
+            // [databind#6359]: copy may share `_beanProperties` with this deserializer
+            // (`withIgnoreAllUnknown()`, `asArrayDeserializer()`): if so, must not
+            // modify shared map; properties get resolved by our own `resolve()`
+            if (contextual._beanProperties != _beanProperties) {
+                contextual._contextualizeProperties(ctxt);
+            }
         }
         // [databind#6359]: if still being resolved, copy needs to be updated later
         if (contextual != this && _resolving) {

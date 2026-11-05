@@ -1,6 +1,7 @@
 package tools.jackson.databind.objectid;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,9 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#6359]: self-referencing type with property-level `@JsonIdentityInfo`:
-// nested value must get the same property settings as the root value
+// nested value must get the same property settings as the root value.
+// Same applies to other per-property contextual copies (ignorals etc), with
+// or without Object Id
 public class ObjectIdSelfReferenceResolve6359Test extends DatabindTestUtil
 {
     @JsonPropertyOrder({"id", "next", "z"})
@@ -157,6 +160,86 @@ public class ObjectIdSelfReferenceResolve6359Test extends DatabindTestUtil
         public UnwrappedNode next;
         @JsonUnwrapped
         public UnwrappedValue value;
+    }
+
+    // Both Properties- and Delegating Creator
+    @JsonPropertyOrder({"id", "next", "z"})
+    static class DelegatingNode {
+        public int id;
+        @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+        public DelegatingNode next;
+        public String z;
+
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        DelegatingNode(@JsonProperty("id") int id) { this.id = id; }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        static DelegatingNode of(List<String> values) {
+            DelegatingNode node = new DelegatingNode(-1);
+            node.z = values.get(0);
+            return node;
+        }
+    }
+
+    static class Animal { }
+
+    static class Dog extends Animal {
+        public String name;
+    }
+
+    @JsonPropertyOrder({"id", "next", "type", "pet"})
+    static class ExternalTypeIdNode {
+        public int id;
+        @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+        public ExternalTypeIdNode next;
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+                property = "type")
+        @JsonSubTypes(@JsonSubTypes.Type(value = Dog.class, name = "dog"))
+        public Animal pet;
+    }
+
+    @JsonPropertyOrder({"next", "z"})
+    static class IntSequenceNode {
+        @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
+        public IntSequenceNode next;
+        @JsonSetter(nulls = Nulls.FAIL)
+        public String z;
+    }
+
+    // No Object Id: copies for per-property settings only
+
+    @JsonPropertyOrder({"next", "x", "z"})
+    static class NoIdIgnoralNode {
+        @JsonIgnoreProperties({"x"})
+        public NoIdIgnoralNode next;
+        public String x;
+        @JsonSetter(nulls = Nulls.FAIL)
+        public String z;
+    }
+
+    @JsonPropertyOrder({"next", "z"})
+    static class NoIdCaseInsensitiveNode {
+        @JsonFormat(with = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+        public NoIdCaseInsensitiveNode next;
+        @JsonSetter(nulls = Nulls.FAIL)
+        public String z;
+    }
+
+    // Copies sharing `BeanPropertyMap` with the original deserializer
+    @JsonPropertyOrder({"next", "z"})
+    static class IgnoreUnknownNode {
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        public IgnoreUnknownNode next;
+        @JsonSetter(nulls = Nulls.FAIL)
+        public String z;
+    }
+
+    @JsonPropertyOrder({"next", "z"})
+    static class PropertyArrayNode {
+        @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+        public PropertyArrayNode next;
+        @JsonSetter(nulls = Nulls.FAIL)
+        public String z;
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -307,5 +390,90 @@ public class ObjectIdSelfReferenceResolve6359Test extends DatabindTestUtil
         assertNotNull(node.next.value);
         assertEquals("y", node.next.value.a);
         assertEquals("z", node.next.value.b);
+    }
+
+    @Test
+    void delegatingCreatorInNestedValue() throws Exception
+    {
+        DelegatingNode node = MAPPER.readValue("""
+                {"id":1,"next":["b"]}
+                """, DelegatingNode.class);
+        assertEquals(1, node.id);
+        assertEquals("b", node.next.z);
+    }
+
+    @Test
+    void externalTypeIdInNestedValue() throws Exception
+    {
+        ExternalTypeIdNode node = MAPPER.readValue("""
+                {"id":1,"type":"dog","pet":{"name":"a"},"next":{"id":2,"type":"dog","pet":{"name":"b"}}}
+                """, ExternalTypeIdNode.class);
+        assertEquals("a", ((Dog) node.pet).name);
+        assertEquals(2, node.next.id);
+        assertEquals(Dog.class, node.next.pet.getClass());
+        assertEquals("b", ((Dog) node.next.pet).name);
+    }
+
+    @Test
+    void intSequenceIdNullsFailInNestedValue() throws Exception
+    {
+        assertThrows(InvalidNullException.class,
+                () -> MAPPER.readValue("""
+                        {"next":{"@id":1,"z":null}}
+                        """, IntSequenceNode.class));
+    }
+
+    @Test
+    void ignoralsWithoutObjectIdInNestedValue() throws Exception
+    {
+        assertThrows(InvalidNullException.class,
+                () -> MAPPER.readValue("""
+                        {"next":{"x":"q","z":null}}
+                        """, NoIdIgnoralNode.class));
+        NoIdIgnoralNode node = MAPPER.readValue("""
+                {"next":{"x":"q","z":"b"},"x":"p"}
+                """, NoIdIgnoralNode.class);
+        assertEquals("p", node.x);
+        assertNull(node.next.x);
+        assertEquals("b", node.next.z);
+    }
+
+    @Test
+    void caseInsensitiveWithoutObjectIdInNestedValue() throws Exception
+    {
+        assertThrows(InvalidNullException.class,
+                () -> MAPPER.readValue("""
+                        {"next":{"Z":null}}
+                        """, NoIdCaseInsensitiveNode.class));
+    }
+
+    // Used to fail with `NoSuchElementException` ("No entry 'next' found")
+    @Test
+    void ignoreUnknownInNestedValue() throws Exception
+    {
+        IgnoreUnknownNode node = MAPPER.readValue("""
+                {"next":{"q":1,"z":"b"},"z":"a"}
+                """, IgnoreUnknownNode.class);
+        assertEquals("a", node.z);
+        assertEquals("b", node.next.z);
+        assertThrows(InvalidNullException.class,
+                () -> MAPPER.readValue("""
+                        {"next":{"q":1,"z":null}}
+                        """, IgnoreUnknownNode.class));
+    }
+
+    // Used to fail with `NoSuchElementException` ("No entry 'next' found")
+    @Test
+    void propertyArrayShapeInNestedValue() throws Exception
+    {
+        PropertyArrayNode node = MAPPER.readValue("""
+                {"next":[null,"b"],"z":"a"}
+                """, PropertyArrayNode.class);
+        assertEquals("a", node.z);
+        assertEquals("b", node.next.z);
+        assertThrows(InvalidNullException.class,
+                () -> MAPPER.readValue("""
+                        {"next":[null,null]}
+                        """, PropertyArrayNode.class));
     }
 }

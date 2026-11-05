@@ -43,6 +43,17 @@ class ArrayDeser6394EofTest extends DatabindTestUtil
         public int x;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder({ "x" })
+    static class PojoWithCreator {
+        final int x;
+
+        @JsonCreator
+        PojoWithCreator(@JsonProperty("x") int x) {
+            this.x = x;
+        }
+    }
+
     static class Value {
         final int x;
 
@@ -144,6 +155,11 @@ class ArrayDeser6394EofTest extends DatabindTestUtil
     }
 
     @Test
+    void pojoPropertyBasedEof() throws Exception {
+        _assertFailsOnEof(MAPPER.readerFor(PojoWithCreator.class));
+    }
+
+    @Test
     void builderVanillaEof() throws Exception {
         _assertFailsOnEof(MAPPER.readerFor(BuiltValue.class));
     }
@@ -170,6 +186,14 @@ class ArrayDeser6394EofTest extends DatabindTestUtil
         assertEquals(1, MAPPER.readValue("""
                 [1,{"a":[1,2]},3]
                 """, Pojo.class).x);
+    }
+
+    @Test
+    void pojoPropertyBasedSkipsExtraValues() throws Exception {
+        assertEquals(1, MAPPER.readValue("[1,2,3]", PojoWithCreator.class).x);
+        assertEquals(1, MAPPER.readValue("""
+                [1,{"a":[1,2]},3]
+                """, PojoWithCreator.class).x);
     }
 
     @Test

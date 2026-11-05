@@ -415,7 +415,15 @@ public class BeanAsArrayDeserializer
         Object bean = null;
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
-        for (; p.nextToken() != JsonToken.END_ARRAY; ++i) {
+        for (; ; ++i) {
+            JsonToken next = p.nextToken();
+            if (next == null) {
+                ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
+                        "Unexpected end-of-input in array");
+            }
+            if (next == JsonToken.END_ARRAY) {
+                break;
+            }
             SettableBeanProperty prop = (i < propCount) ? props[i] : null;
             if (prop == null) { // we get null if there are extra elements; maybe otherwise too?
                 // [databind#6043]: extra JSON Array elements past property count must

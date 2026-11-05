@@ -130,7 +130,8 @@ public class BeanAsArrayBuilderDeserializer
     {
         // Let's delegate just in case we got a JSON Object (could error out, alternatively?)
         if (!p.isExpectedStartArrayToken()) {
-            return finishBuild(ctxt, _deserializeFromNonArray(p, ctxt));
+            Object builder = _deserializeFromNonArray(p, ctxt);
+            return (builder == null) ? null : finishBuild(ctxt, builder);
         }
         if (!_useVanillaProcessing(ctxt)) {
             return finishBuild(ctxt, _deserializeNonVanilla(p, ctxt));

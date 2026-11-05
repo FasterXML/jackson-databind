@@ -497,3 +497,8 @@ Anna Breeva (@ab310013)
 @bugada
  * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
   [3.1.9]
+
+Kayokoi (@wozhenbang2004)
+ * Fixed #6093: Honor inherited `@JsonTypeName` on discovered sealed subtypes
+   when resolving serialization type IDs
+  [3.1.9]

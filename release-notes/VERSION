@@ -15,6 +15,9 @@ No changes since 3.1
   (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
  (reported by João G)
  (fix by João G and @cowtowncoder, w/ Claude code)
+#6093: Honor inherited `@JsonTypeName` on discovered sealed subtypes
+  when resolving serialization type IDs
+ (fix by @wozhenbang2004)
 #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
  (reported by @bugada)
  (fix by @pjfanning, w/ Claude code)

@@ -7,8 +7,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -180,6 +183,27 @@ public class BuilderErrorHandlingTest extends DatabindTestUtil
             // should report Builder class, not value here, right?
             verifyException(e, "$SimpleBuilderXY");
         }
+    }
+
+    // [databind#6398]
+    @Test
+    void unexpectedObjectHandlerCanReturnNullForArrayBuilder() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new DeserializationProblemHandler() {
+                    @Override
+                    public Object handleUnexpectedToken(DeserializationContext ctxt,
+                            JavaType targetType, JsonToken token, JsonParser p, String failureMsg) {
+                        if (token == JsonToken.START_OBJECT) {
+                            p.skipChildren();
+                            return null;
+                        }
+                        return NOT_HANDLED;
+                    }
+                })
+                .build();
+
+        assertNull(mapper.readValue(a2q("{'x':1,'y':2}"), ArrayValueXY.class));
     }
 
     // [databind#2938]

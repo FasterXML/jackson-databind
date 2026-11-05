@@ -200,6 +200,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6385: Record update with `readerForUpdating()` fails for non-public Record:
   accessor not made accessible
  (fix by @wozhenbang2004, @cowtowncoder w/ Claude code)
+#6394: `@JsonFormat(shape = ARRAY)` deserialization hangs when input ends before
+  `END_ARRAY` while skipping extra values
+ (fix by @Sahas2711, @cowtowncoder w/ Claude code)
 #6399: `NullSerializer` should not be annotated with `@JacksonStdImpl`
 #6401: Raw `IllegalArgumentException` escapes polymorphic type-id resolution
  (reported by @AmirWilayah)

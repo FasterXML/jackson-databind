@@ -29,7 +29,7 @@ public class EnumDeserDupName4409Test extends DatabindTestUtil
         RGB,
         // Will become "rgba"
         RGBa,
-        // Will become "rgba" as well unless overriden, so:
+        // Will become "rgba" as well unless overridden, so:
         @JsonProperty("RGBA")
         RGBA
     }

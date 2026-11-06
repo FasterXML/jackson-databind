@@ -3,6 +3,7 @@ package tools.jackson.databind;
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Value;
@@ -136,6 +137,34 @@ public interface BeanProperty extends FullyNamed
      * but also considers global default settings for inclusion
      */
     public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType);
+
+    /**
+     * Names excluded by this property's annotations during serialization, after applying
+     * settings such as {@code JsonIgnoreProperties.allowGetters}.
+     *
+     * @return Ignored names, possibly empty; callers must not modify the returned set
+     * @since 3.3
+     */
+    public default Set<String> findIgnoredForSerialization(MapperConfig<?> config) {
+        AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        AnnotatedMember member = getMember();
+        return (intr == null || member == null) ? Collections.emptySet()
+                : intr.findPropertyIgnoralByName(config, member).findIgnoredForSerialization();
+    }
+
+    /**
+     * Names allowed by this property's annotations during serialization.
+     *
+     * @return Included names, {@code null} for no restriction, or an empty set to exclude all;
+     *     callers must not modify the returned set
+     * @since 3.3
+     */
+    public default Set<String> findIncludedForSerialization(MapperConfig<?> config) {
+        AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        AnnotatedMember member = getMember();
+        return (intr == null || member == null) ? null
+                : intr.findPropertyInclusionByName(config, member).getIncluded();
+    }
 
     /**
      * Method for accessing set of possible alternate names that are accepted

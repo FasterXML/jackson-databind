@@ -26,6 +26,7 @@ import tools.jackson.databind.ser.BeanPropertyWriter;
 import tools.jackson.databind.ser.BeanSerializer;
 import tools.jackson.databind.ser.std.StdDynamicSerializer;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.IgnorePropertiesUtil;
 
 /**
  * Serializer class that can serialize Object that have a
@@ -360,6 +361,20 @@ public class JsonValueSerializer
                 v = v.withOverrides(_enclosing.findPropertyInclusion(config, baseType));
             }
             return v;
+        }
+
+        @Override
+        public Set<String> findIgnoredForSerialization(MapperConfig<?> config) {
+            Set<String> ignored = super.findIgnoredForSerialization(config);
+            return (_enclosing == null) ? ignored : IgnorePropertiesUtil.combineNamesToIgnore(
+                    ignored, _enclosing.findIgnoredForSerialization(config));
+        }
+
+        @Override
+        public Set<String> findIncludedForSerialization(MapperConfig<?> config) {
+            Set<String> included = super.findIncludedForSerialization(config);
+            return (_enclosing == null) ? included : IgnorePropertiesUtil.combineNamesToInclude(
+                    included, _enclosing.findIncludedForSerialization(config));
         }
 
         @Override

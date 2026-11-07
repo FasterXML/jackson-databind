@@ -169,6 +169,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6357: `BeanDeserializer` and `BuilderBasedDeserializer` silently stop on
   unexpected token within Object
  (fix by @OKAN-SOFTWARE, @cowtowncoder w/ Claude code)
+#6359: Self-referencing type with property-level `@JsonIdentityInfo`: nested value
+  misses settings applied later in `resolve()`
+ (reported by @cowtowncoder)
+ (fix by @havefunatcode)
 #6363: `@JsonFormat(shape = ARRAY)` Builder loses property values when not using
   vanilla processing (e.g. with active View): `deserializeSetAndReturn()` result ignored
  (fix by @wozhenbang2004)

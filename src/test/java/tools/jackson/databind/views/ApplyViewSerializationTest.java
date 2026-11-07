@@ -1,15 +1,21 @@
 package tools.jackson.databind.views;
 
 import java.io.StringWriter;
+import java.util.Collections;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonApplyView;
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
+import tools.jackson.databind.ser.std.SimpleFilterProvider;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -60,6 +66,41 @@ public class ApplyViewSerializationTest extends DatabindTestUtil
         @JsonView(ViewA.class)
         @JsonApplyView(ViewB.class)
         public Bean2 bean2WithApplyViewB = new Bean2();
+    }
+
+    // [databind#5745]: @JsonApplyView on an @JsonUnwrapped property, which is
+    // serialized by UnwrappingBeanPropertyWriter instead of BeanPropertyWriter
+    static class UnwrappedBean {
+        @JsonView(ViewA.class)
+        @JsonApplyView(ViewB.class)
+        @JsonUnwrapped
+        public Bean bean = new Bean();
+    }
+
+    static class UnwrappedNoneBean {
+        @JsonView(ViewA.class)
+        @JsonApplyView(JsonApplyView.NONE.class)
+        @JsonUnwrapped
+        public Bean bean = new Bean();
+    }
+
+    // [databind#5745]: @JsonApplyView on an @JsonAnyGetter accessor, which is
+    // serialized by AnyGetterWriter
+    static class AnyGetterBean {
+        @JsonApplyView(ViewB.class)
+        @JsonAnyGetter
+        public Map<String, Bean> extra() {
+            return Collections.singletonMap("bean", new Bean());
+        }
+    }
+
+    @JsonFilter("anyFilter")
+    static class FilteredAnyGetterBean {
+        @JsonApplyView(ViewB.class)
+        @JsonAnyGetter
+        public Map<String, Bean> extra() {
+            return Collections.singletonMap("bean", new Bean());
+        }
     }
 
     // Used to verify that an inner @JsonApplyView overrides an outer one:
@@ -188,6 +229,69 @@ public class ApplyViewSerializationTest extends DatabindTestUtil
         assertEquals("1", deepWithApplyNone.get("a"));
         assertEquals("2", deepWithApplyNone.get("aa"));
         assertEquals("3", deepWithApplyNone.get("b"));
+    }
+
+    // [databind#5745]: @JsonApplyView was silently ignored for @JsonUnwrapped
+    // properties (UnwrappingBeanPropertyWriter), so ViewA-only properties of the
+    // unwrapped Bean leaked although ViewB was applied
+    @Test
+    public void jsonApplyViewOnUnwrapped() {
+        StringWriter sw = new StringWriter();
+        MAPPER.writerWithView(ViewA.class).writeValue(sw, new UnwrappedBean());
+
+        Map<?,?> map = MAPPER.readValue(sw.toString(), Map.class);
+        // Bean serialized under ViewB: "aa" and "b" visible, "a" (ViewA-only) not
+        assertEquals(2, map.size());
+        assertFalse(map.containsKey("a"));
+        assertEquals("2", map.get("aa"));
+        assertEquals("3", map.get("b"));
+    }
+
+    @Test
+    public void jsonApplyViewNoneOnUnwrapped() {
+        StringWriter sw = new StringWriter();
+        MAPPER.writerWithView(ViewA.class).writeValue(sw, new UnwrappedNoneBean());
+
+        Map<?,?> map = MAPPER.readValue(sw.toString(), Map.class);
+        // NONE disables view processing for the unwrapped Bean: all 3 properties
+        assertEquals(3, map.size());
+        assertEquals("1", map.get("a"));
+        assertEquals("2", map.get("aa"));
+        assertEquals("3", map.get("b"));
+    }
+
+    // [databind#5745]: @JsonApplyView was silently ignored for @JsonAnyGetter
+    // accessors (AnyGetterWriter), on both the plain and the filtered path
+    @Test
+    public void jsonApplyViewOnAnyGetter() {
+        StringWriter sw = new StringWriter();
+        MAPPER.writerWithView(ViewA.class).writeValue(sw, new AnyGetterBean());
+
+        Map<?,?> map = MAPPER.readValue(sw.toString(), Map.class);
+        assertEquals(1, map.size());
+        Map<?,?> beanMap = (Map<?,?>) map.get("bean");
+        // entry value serialized under ViewB: "aa" and "b" visible, "a" not
+        assertEquals(2, beanMap.size());
+        assertFalse(beanMap.containsKey("a"));
+        assertEquals("2", beanMap.get("aa"));
+        assertEquals("3", beanMap.get("b"));
+    }
+
+    @Test
+    public void jsonApplyViewOnFilteredAnyGetter() {
+        StringWriter sw = new StringWriter();
+        MAPPER.writer(new SimpleFilterProvider()
+                        .addFilter("anyFilter", SimpleBeanPropertyFilter.serializeAll()))
+                .withView(ViewA.class)
+                .writeValue(sw, new FilteredAnyGetterBean());
+
+        Map<?,?> map = MAPPER.readValue(sw.toString(), Map.class);
+        assertEquals(1, map.size());
+        Map<?,?> beanMap = (Map<?,?>) map.get("bean");
+        assertEquals(2, beanMap.size());
+        assertFalse(beanMap.containsKey("a"));
+        assertEquals("2", beanMap.get("aa"));
+        assertEquals("3", beanMap.get("b"));
     }
 
     // Same scenario as testJsonApplyView but with DEFAULT_VIEW_INCLUSION disabled

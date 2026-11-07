@@ -250,13 +250,16 @@ public class MapSerializer
     }
 
     /**
-     * Copy with a different key serializer, retaining other contextual settings.
+     * Copy with different key and content serializers, retaining other contextual settings.
+     *
+     * @since 3.3
      */
-    public MapSerializer withKeySerializer(ValueSerializer<?> keySerializer) {
-        if (_keySerializer == keySerializer) {
+    public MapSerializer withSerializers(ValueSerializer<?> keySerializer,
+            ValueSerializer<?> valueSerializer) {
+        if (_keySerializer == keySerializer && _valueSerializer == valueSerializer) {
             return this;
         }
-        return withResolved(_property, keySerializer, _valueSerializer,
+        return withResolved(_property, keySerializer, valueSerializer,
                 _ignoredEntries, _includedEntries, _sortKeys);
     }
 

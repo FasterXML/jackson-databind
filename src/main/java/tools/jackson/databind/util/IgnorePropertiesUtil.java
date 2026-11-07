@@ -1,9 +1,6 @@
 package tools.jackson.databind.util;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @since 2.12
@@ -28,6 +25,40 @@ public class IgnorePropertiesUtil
 
         // NOTE: conflict between both, JsonIncludeProperties will take priority.
         return !toInclude.contains(value) || toIgnore.contains(value);
+    }
+
+    /**
+     * Variant of {@link #shouldIgnore} that matches given name case-insensitively
+     * (using same lower-casing as case-insensitive property name matching), for names
+     * from input that did not match any property.
+     *
+     * @since 3.3
+     */
+    public static boolean shouldIgnoreCaseInsensitive(String name,
+            Collection<String> toIgnore, Collection<String> toInclude, Locale locale)
+    {
+        if (toIgnore == null && toInclude == null) {
+            return false;
+        }
+        final String lcName = name.toLowerCase(locale);
+        if ((toInclude != null) && !_containsCaseInsensitive(toInclude, name, lcName, locale)) {
+            return true;
+        }
+        return (toIgnore != null) && _containsCaseInsensitive(toIgnore, name, lcName, locale);
+    }
+
+    private static boolean _containsCaseInsensitive(Collection<String> names,
+            String name, String lcName, Locale locale)
+    {
+        if (names.contains(name)) {
+            return true;
+        }
+        for (String n : names) {
+            if (lcName.equals(n.toLowerCase(locale))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

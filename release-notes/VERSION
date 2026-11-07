@@ -213,6 +213,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6401: Raw `IllegalArgumentException` escapes polymorphic type-id resolution
  (reported by @AmirWilayah)
  (fix by @cowtowncoder, w/ Claude code)
+#6410: Object Ids should NOT be affected by JSON Views or `@JsonFilter`
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.2.5 (not yet released)
 

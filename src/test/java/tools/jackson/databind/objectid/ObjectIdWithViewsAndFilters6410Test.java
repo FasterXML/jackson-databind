@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
@@ -85,6 +87,104 @@ public class ObjectIdWithViewsAndFilters6410Test extends DatabindTestUtil
         @JsonView(Public.class)
         @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
         public T second;
+    }
+
+    // Creator + Object Id + View on id, with `@JsonUnwrapped` (different code path)
+    static class Name {
+        @JsonView(Public.class) public String first, last;
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    static class UnwrappedCreatorAccount {
+        @JsonView(Internal.class) public final int id;
+        @JsonView(Public.class) @JsonUnwrapped public Name name;
+
+        @JsonCreator
+        UnwrappedCreatorAccount(@JsonProperty("id") int id) { this.id = id; }
+    }
+
+    // Creator + Object Id + View on id, with External Type Id (different code path)
+    static class Payload {
+        @JsonView(Public.class) public int value;
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    static class ExtTypeCreatorAccount {
+        @JsonView(Internal.class) public final int id;
+
+        @JsonView(Public.class)
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+                property = "type")
+        @JsonSubTypes(@JsonSubTypes.Type(value = Payload.class, name = "payload"))
+        public Object payload;
+
+        @JsonCreator
+        ExtTypeCreatorAccount(@JsonProperty("id") int id) { this.id = id; }
+    }
+
+    // Builder with Creator + Object Id + View on id
+    @JsonDeserialize(builder = BuiltAccount.Builder.class)
+    static class BuiltAccount {
+        final int id;
+        final String email;
+
+        BuiltAccount(int id, String email) {
+            this.id = id;
+            this.email = email;
+        }
+
+        @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+        @JsonPOJOBuilder(withPrefix = "")
+        static class Builder {
+            final int id;
+            String email;
+
+            @JsonCreator
+            Builder(@JsonView(Internal.class) @JsonProperty("id") int id) { this.id = id; }
+
+            @JsonView(Public.class)
+            public Builder email(String email) { this.email = email; return this; }
+
+            public BuiltAccount build() { return new BuiltAccount(id, email); }
+        }
+    }
+
+    // Builder with Creator + Object Id + View on id, with `@JsonUnwrapped`
+    @JsonDeserialize(builder = BuiltUnwrappedAccount.Builder.class)
+    static class BuiltUnwrappedAccount {
+        final int id;
+        final Name name;
+
+        BuiltUnwrappedAccount(int id, Name name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+        @JsonPOJOBuilder(withPrefix = "")
+        static class Builder {
+            final int id;
+            Name name;
+
+            @JsonCreator
+            Builder(@JsonView(Internal.class) @JsonProperty("id") int id) { this.id = id; }
+
+            @JsonView(Public.class)
+            @JsonUnwrapped
+            public Builder name(Name name) { this.name = name; return this; }
+
+            public BuiltUnwrappedAccount build() { return new BuiltUnwrappedAccount(id, name); }
+        }
+    }
+
+    // View and Filter both excluding id
+    @JsonFilter("idFilter")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonPropertyOrder({ "id", "email", "secret" })
+    static class ViewAndFilterAccount {
+        @JsonView(Internal.class) public int id;
+        @JsonView(Public.class) public String email;
+        @JsonView(Public.class) public String secret;
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -199,6 +299,22 @@ public class ObjectIdWithViewsAndFilters6410Test extends DatabindTestUtil
     }
 
     @Test
+    void writeIdExcludedByViewAndFilter() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .filterProvider(new SimpleFilterProvider().addFilter("idFilter",
+                        SimpleBeanPropertyFilter.serializeAllExcept("id", "secret")))
+                .build();
+        ViewAndFilterAccount a = new ViewAndFilterAccount();
+        a.id = 6;
+        a.email = "vf@x";
+        a.secret = "shh";
+        assertEquals("""
+                {"id":6,"email":"vf@x"}""",
+                mapper.writerWithView(Public.class).writeValueAsString(a));
+    }
+
+    @Test
     void schemaIdExcludedByFilter() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -264,5 +380,56 @@ public class ObjectIdWithViewsAndFilters6410Test extends DatabindTestUtil
             assertEquals("c@x", a.email);
             assertSame(a, a.other);
         }
+    }
+
+    @Test
+    void readUnwrappedCreatorIdExcludedByView() throws Exception
+    {
+        UnwrappedCreatorAccount a = _publicReader(UnwrappedCreatorAccount.class)
+                .readValue("""
+                {"id":9,"first":"Bob","last":"Burger"}""");
+        assertEquals(9, a.id);
+        assertNotNull(a.name);
+        assertEquals("Bob", a.name.first);
+        assertEquals("Burger", a.name.last);
+    }
+
+    @Test
+    void readExternalTypeIdCreatorIdExcludedByView() throws Exception
+    {
+        ExtTypeCreatorAccount a = _publicReader(ExtTypeCreatorAccount.class)
+                .readValue("""
+                {"id":10,"type":"payload","payload":{"value":42}}""");
+        assertEquals(10, a.id);
+        assertInstanceOf(Payload.class, a.payload);
+        assertEquals(42, ((Payload) a.payload).value);
+    }
+
+    @Test
+    void readBuilderCreatorIdExcludedByView() throws Exception
+    {
+        BuiltAccount a = _publicReader(BuiltAccount.class)
+                .readValue("""
+                {"id":11,"email":"b@x"}""");
+        assertEquals(11, a.id);
+        assertEquals("b@x", a.email);
+    }
+
+    @Test
+    void readBuilderUnwrappedCreatorIdExcludedByView() throws Exception
+    {
+        BuiltUnwrappedAccount a = _publicReader(BuiltUnwrappedAccount.class)
+                .readValue("""
+                {"id":12,"first":"Bob","last":"Burger"}""");
+        assertEquals(12, a.id);
+        assertNotNull(a.name);
+        assertEquals("Bob", a.name.first);
+        assertEquals("Burger", a.name.last);
+    }
+
+    private ObjectReader _publicReader(Class<?> type) {
+        return MAPPER.readerWithView(Public.class)
+                .with(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)
+                .forType(type);
     }
 }

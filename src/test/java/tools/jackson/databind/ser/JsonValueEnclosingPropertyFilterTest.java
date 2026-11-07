@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.Annotated;
 import tools.jackson.databind.introspect.AnnotatedField;
@@ -235,6 +236,10 @@ class JsonValueEnclosingPropertyFilterTest extends DatabindTestUtil
         }
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_ARRAY)
+    @JsonTypeName("wrapped")
+    static class TypedRootMixin { }
+
     static class TypedIgnoreHolder {
         @JsonIgnoreProperties("keep")
         public TypedValue value = new TypedValue(new Payload());
@@ -309,6 +314,17 @@ class JsonValueEnclosingPropertyFilterTest extends DatabindTestUtil
         _assertJson("""
                 {"keep":1}
                 """, new AccessorInclude(payload));
+    }
+
+    @ParameterizedTest
+    @MethodSource("payloads")
+    void preservesRootAccessorFiltersWithTypeInfo(Object payload) {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(AccessorIgnore.class, TypedRootMixin.class)
+                .addMixIn(AccessorInclude.class, TypedRootMixin.class)
+                .build();
+        _assertTypedRootFilter(mapper, new AccessorIgnore(payload));
+        _assertTypedRootFilter(mapper, new AccessorInclude(payload));
     }
 
     @ParameterizedTest
@@ -476,6 +492,15 @@ class JsonValueEnclosingPropertyFilterTest extends DatabindTestUtil
         include.value = null;
         _assertJson(expected, ignore);
         _assertJson(expected, include);
+    }
+
+    private void _assertTypedRootFilter(ObjectMapper mapper, Object input) {
+        ObjectWriter writer = mapper.writerFor(input.getClass());
+        String expected = """
+                ["wrapped",{"keep":1}]
+                """;
+        assertEquals(mapper.readTree(expected), mapper.readTree(writer.writeValueAsString(input)));
+        assertEquals(mapper.readTree(expected), mapper.readTree(writer.writeValueAsString(input)));
     }
 
     private void _assertJson(String expected, Object input) {

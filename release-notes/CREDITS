@@ -875,6 +875,9 @@ Anna Breeva (@ab310013)
   [3.2.5]
 
 Kayokoi (@wozhenbang2004)
+ * Fixed #3119: Honor enclosing-property key and content serializers for `@JsonValue`
+   map accessors
+  [3.3.0]
  * Fixed #6363: `@JsonFormat(shape = ARRAY)` Builder loses property values when not using
    vanilla processing (e.g. with active View): `deserializeSetAndReturn()` result ignored
   [3.3.0]

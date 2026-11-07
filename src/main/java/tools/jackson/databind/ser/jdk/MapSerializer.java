@@ -249,6 +249,20 @@ public class MapSerializer
         return ser;
     }
 
+    /**
+     * Copy with different key and content serializers, retaining other contextual settings.
+     *
+     * @since 3.3
+     */
+    public MapSerializer withSerializers(ValueSerializer<?> keySerializer,
+            ValueSerializer<?> valueSerializer) {
+        if (_keySerializer == keySerializer && _valueSerializer == valueSerializer) {
+            return this;
+        }
+        return withResolved(_property, keySerializer, valueSerializer,
+                _ignoredEntries, _includedEntries, _sortKeys);
+    }
+
     @Override
     public MapSerializer withFilterId(Object filterId) {
         if (_filterId == filterId) {

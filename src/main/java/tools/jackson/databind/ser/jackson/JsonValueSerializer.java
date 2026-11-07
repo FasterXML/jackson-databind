@@ -475,10 +475,15 @@ public class JsonValueSerializer
         if (valueSer == null) {
             valueSer = mapSer.getContentSerializer();
         } else {
-            // Keep an accessor's content conversion before the overriding serializer.
-            Object convDef = intr.findSerializationContentConverter(ctxt.getConfig(), _accessor);
+            // Prefer the override's converter, falling back to the accessor's conversion.
+            AnnotatedMember converterMember = member;
+            Object convDef = intr.findSerializationContentConverter(ctxt.getConfig(), converterMember);
+            if (convDef == null) {
+                converterMember = _accessor;
+                convDef = intr.findSerializationContentConverter(ctxt.getConfig(), converterMember);
+            }
             if (convDef != null) {
-                Converter<Object, Object> conv = ctxt.converterInstance(_accessor, convDef);
+                Converter<Object, Object> conv = ctxt.converterInstance(converterMember, convDef);
                 valueSer = new StdConvertingSerializer(conv,
                         conv.getOutputType(ctxt.getTypeFactory()), valueSer, property);
             }

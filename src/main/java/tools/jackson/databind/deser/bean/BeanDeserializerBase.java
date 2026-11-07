@@ -2192,6 +2192,39 @@ ClassUtil.getTypeDescription(ct));
         p.skipChildren();
     }
 
+    /**
+     * Helper method for POJO-as-Array deserializers that advances to the next token,
+     * failing on end-of-input.
+     *
+     * @return True if the next token is {@code END_ARRAY}; false for any other token
+     *
+     * @since 3.3
+     */
+    protected final boolean _nextIsEndArray(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        final JsonToken t = p.nextToken();
+        // [databind#6394]: must not keep looping on end-of-input
+        if (t == null) {
+            ctxt.reportInputMismatch(this, "Unexpected end-of-input in array");
+        }
+        return t == JsonToken.END_ARRAY;
+    }
+
+    /**
+     * Helper method for POJO-as-Array deserializers that skips the current value, and any
+     * values after it, up to the closing {@code END_ARRAY}.
+     *
+     * @since 3.3
+     */
+    protected final void _skipToEndArray(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        do {
+            p.skipChildren();
+        } while (!_nextIsEndArray(p, ctxt));
+    }
+
     /*
     /**********************************************************************
     /* Helper methods for error reporting

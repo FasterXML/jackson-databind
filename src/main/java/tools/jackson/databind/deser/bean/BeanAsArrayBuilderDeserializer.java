@@ -117,6 +117,9 @@ public class BeanAsArrayBuilderDeserializer
     protected final Object finishBuild(DeserializationContext ctxt, Object builder)
         throws JacksonException
     {
+        if (builder == null) {
+            return null;
+        }
         try {
             return _buildMethod.getMember().invoke(builder, (Object[]) null);
         } catch (Exception e) {
@@ -167,9 +170,7 @@ public class BeanAsArrayBuilderDeserializer
             // will never reach here as exception has been thrown
         }
         // otherwise, skip until end
-        do {
-            p.skipChildren();
-        } while (p.nextToken() != JsonToken.END_ARRAY);
+        _skipToEndArray(p, ctxt);
         return finishBuild(ctxt, builder);
     }
 
@@ -248,9 +249,7 @@ public class BeanAsArrayBuilderDeserializer
             // will never reach here as exception has been thrown
         }
         // otherwise, skip until end
-        do {
-            p.skipChildren();
-        } while (p.nextToken() != JsonToken.END_ARRAY);
+        _skipToEndArray(p, ctxt);
         return builder;
     }
 
@@ -277,7 +276,7 @@ public class BeanAsArrayBuilderDeserializer
         int i = 0;
         Object builder = null;
 
-        for (; p.nextToken() != JsonToken.END_ARRAY; ++i) {
+        for (; !_nextIsEndArray(p, ctxt); ++i) {
             SettableBeanProperty prop = (i < propCount) ? props[i] : null;
             if (prop == null) { // we get null if there are extra elements; maybe otherwise too?
                 // [databind#6043]: extra JSON Array elements past property count must

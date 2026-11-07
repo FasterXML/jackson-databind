@@ -11,6 +11,7 @@ import tools.jackson.databind.deser.bean.PropertyBasedCreator;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.jsontype.impl.TypeDeserializerBase;
+import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.TokenBuffer;
 import tools.jackson.databind.util.TokenBufferReadContext;
 
@@ -70,6 +71,72 @@ public class ExternalTypeHandler
      */
     public ExternalTypeHandler start() {
         return new ExternalTypeHandler(this);
+    }
+
+    /**
+     * Method for constructing a handler that leaves out value properties excluded
+     * by by-name inclusion ({@code @JsonIgnoreProperties}, {@code @JsonIncludeProperties}):
+     * since external-typed properties are only known to this handler (and not to
+     * {@link BeanPropertyMap}), their values could otherwise still be bound through it.
+     * Neither values nor external type ids (nor aliases) of excluded properties are
+     * handled by the resulting handler.
+     *
+     * @return This handler if nothing is excluded; otherwise a new handler
+     *
+     * @since 3.3
+     */
+    public ExternalTypeHandler withoutProperties(Set<String> toIgnore, Set<String> toInclude)
+    {
+        final int len = _properties.length;
+        final int[] newIndexes = new int[len];
+        int count = 0;
+        for (int i = 0; i < len; ++i) {
+            final String name = _properties[i].getProperty().getName();
+            newIndexes[i] = IgnorePropertiesUtil.shouldIgnore(name, toIgnore, toInclude)
+                    ? -1 : count++;
+        }
+        if (count == len) {
+            return this;
+        }
+        final ExtTypedProperty[] props = new ExtTypedProperty[count];
+        for (int i = 0; i < len; ++i) {
+            if (newIndexes[i] >= 0) {
+                props[newIndexes[i]] = _properties[i];
+            }
+        }
+        final Map<String, Object> nameToIndex = new HashMap<>();
+        for (Map.Entry<String, Object> entry : _nameToPropertyIndex.entrySet()) {
+            final Object ob = entry.getValue();
+            if (ob instanceof List<?>) {
+                for (Object index : (List<?>) ob) {
+                    _addPropertyIndex(nameToIndex, entry.getKey(), newIndexes[(Integer) index]);
+                }
+            } else {
+                _addPropertyIndex(nameToIndex, entry.getKey(), newIndexes[(Integer) ob]);
+            }
+        }
+        return new ExternalTypeHandler(_beanType, props, nameToIndex, null, null);
+    }
+
+    private static void _addPropertyIndex(Map<String, Object> nameToIndex,
+            String name, int index)
+    {
+        if (index < 0) { // excluded property
+            return;
+        }
+        Object ob = nameToIndex.get(name);
+        if (ob == null) {
+            nameToIndex.put(name, index);
+        } else if (ob instanceof List<?>) {
+            @SuppressWarnings("unchecked")
+            List<Object> list = (List<Object>) ob;
+            list.add(index);
+        } else {
+            List<Object> list = new LinkedList<>();
+            list.add(ob);
+            list.add(index);
+            nameToIndex.put(name, list);
+        }
     }
 
     /**
@@ -522,19 +589,7 @@ public class ExternalTypeHandler
         }
 
         private void _addPropertyIndex(String name, Integer index) {
-            Object ob = _nameToPropertyIndex.get(name);
-            if (ob == null) {
-                _nameToPropertyIndex.put(name, index);
-            } else if (ob instanceof List<?>) {
-                @SuppressWarnings("unchecked")
-                List<Object> list = (List<Object>) ob;
-                list.add(index);
-            } else {
-                List<Object> list = new LinkedList<>();
-                list.add(ob);
-                list.add(index);
-                _nameToPropertyIndex.put(name, list);
-            }
+            ExternalTypeHandler._addPropertyIndex(_nameToPropertyIndex, name, index);
         }
 
         /**

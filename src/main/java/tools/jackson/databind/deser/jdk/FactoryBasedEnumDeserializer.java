@@ -242,12 +242,14 @@ class FactoryBasedEnumDeserializer
             p.nextToken(); // to point to value
 
             final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
-            if (buffer.readIdProperty(propName) && creatorProp == null) {
+            // [databind#6410]: Object Id is metadata, not affected by Views
+            final boolean isIdProp = buffer.readIdProperty(propName);
+            if (isIdProp && creatorProp == null) {
                 continue;
             }
             if (creatorProp != null) {
                 // [databind#6261]: honor active view, same as for POJO creator properties
-                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
+                if ((activeView != null) && !isIdProp && !creatorProp.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;
                 }

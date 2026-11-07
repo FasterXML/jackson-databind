@@ -475,11 +475,13 @@ public class BuilderBasedDeserializer
             // creator property?
             final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             // Object Id property?
-            if (buffer.readIdProperty(propName) && creatorProp == null) {
+            // [databind#6410]: Object Id is metadata, not affected by Views
+            final boolean isIdProp = buffer.readIdProperty(propName);
+            if (isIdProp && creatorProp == null) {
                 continue;
             }
             if (creatorProp != null) {
-                if (activeView != null && !creatorProp.visibleInView(activeView)) {
+                if ((activeView != null) && !isIdProp && !creatorProp.visibleInView(activeView)) {
                     handleUnexpectedView(p, ctxt, creatorProp, activeView);
                     continue;
                 }
@@ -874,12 +876,14 @@ public class BuilderBasedDeserializer
             // creator property?
             final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             // Object Id property?
-            if (buffer.readIdProperty(propName) && creatorProp == null) {
+            // [databind#6410]: Object Id is metadata, not affected by Views
+            final boolean isIdProp = buffer.readIdProperty(propName);
+            if (isIdProp && creatorProp == null) {
                 continue;
             }
             if (creatorProp != null) {
                 // [databind#5971]: must honor active view here too
-                if (activeView != null && !creatorProp.visibleInView(activeView)) {
+                if ((activeView != null) && !isIdProp && !creatorProp.visibleInView(activeView)) {
                     handleUnexpectedView(p, ctxt, creatorProp, activeView);
                     continue;
                 }

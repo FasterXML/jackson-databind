@@ -35,6 +35,9 @@ No changes since 3.2
 #6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
   deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
   `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6332: Regression from 3.0 to 3.1: `@JsonUnwrapped` drops/rejects the type id
+  property of a polymorphic unwrapped value
+ (reported, fixed by @2is10)
 #6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)` for creator
   properties: existing value is overwritten with `null`
  (reported, fixed by @Marti2203)

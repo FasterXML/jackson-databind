@@ -1,11 +1,15 @@
 package tools.jackson.databind.deser.filter;
 
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
@@ -68,6 +72,22 @@ class UnknownPropertyException6375Test
     @Test
     void wrapsBuilderFailure() {
         assertWrapped(mapper.readerFor(BuiltBean.class), "{\"unknown\":1}", Builder.class);
+    }
+
+    // Not just beans: any deserializer calling `handleUnknownProperty()`
+    @Test
+    void wrapsPOJOShapedMapEntryFailure() {
+        ObjectMapper pojoEntries = JsonMapper.builder().addHandler(handler)
+                .withConfigOverride(Map.Entry.class,
+                        o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.POJO)))
+                .build();
+        DatabindException exception = assertThrows(DatabindException.class,
+                () -> pojoEntries.readValue("""
+                        {"key":"a","unknown":1}
+                        """, new TypeReference<Map.Entry<String, String>>() { }));
+        assertSame(failure, exception.getCause());
+        assertEquals(1, exception.getPath().size());
+        assertEquals("unknown", exception.getPath().get(0).getPropertyName());
     }
 
     @Test

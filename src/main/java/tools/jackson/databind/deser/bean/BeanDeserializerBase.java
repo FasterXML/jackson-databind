@@ -2058,21 +2058,7 @@ ClassUtil.getTypeDescription(ct));
         }
         // Otherwise use default handling (call handler(s); if not
         // handled, throw exception or skip depending on settings)
-        try {
-            super.handleUnknownProperty(p, ctxt, beanOrClass, propName);
-        } catch (JacksonException e) {
-            // Include the unknown property unless the handler already added it.
-            Object bean = (beanOrClass == null) ? handledType() : beanOrClass;
-            List<JacksonException.Reference> path = e.getPath();
-            if (path.isEmpty() || (path.get(0).from() != bean)
-                    || !Objects.equals(path.get(0).getPropertyName(), propName)) {
-                e.prependPath(bean, propName);
-            }
-            throw e;
-        } catch (Exception e) {
-            throw wrapAndThrow(e, (beanOrClass == null) ? handledType() : beanOrClass,
-                    propName, ctxt);
-        }
+        super.handleUnknownProperty(p, ctxt, beanOrClass, propName);
     }
 
     /**

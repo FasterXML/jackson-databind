@@ -1,10 +1,10 @@
 package tools.jackson.databind.ser.jackson;
 
 import java.lang.annotation.Annotation;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -25,6 +25,9 @@ import tools.jackson.databind.jsontype.TypeIdResolver;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.BeanPropertyWriter;
 import tools.jackson.databind.ser.BeanSerializer;
+import tools.jackson.databind.ser.UnrolledBeanSerializer;
+import tools.jackson.databind.ser.impl.PropertySerializerMap;
+import tools.jackson.databind.ser.jdk.MapSerializer;
 import tools.jackson.databind.ser.std.StdDynamicSerializer;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
@@ -570,15 +573,87 @@ public class JsonValueSerializer
     }
 
     protected ValueSerializer<Object> _findSerializer(SerializationContext ctxt, Object value) {
-        final UnaryOperator<ValueSerializer<Object>> serTransformer =
-                valueSer -> _withIgnoreProperties(valueSer, _ignoredProperties);
-        Class<?> cc = value.getClass();
-        if (_valueType.hasGenericTypes()) {
-            return _findAndAddDynamic(ctxt,
-                    ctxt.constructSpecializedType(_valueType, cc),
-                    serTransformer);
+        return _findSerializer(ctxt, value, true);
+    }
+
+    private ValueSerializer<Object> _findSerializer(SerializationContext ctxt, Object value,
+            boolean applyIgnored)
+    {
+        Class<?> rawType = value.getClass();
+        SerializationConfig config = ctxt.getConfig();
+        boolean cacheable = _isStandardImplementation()
+                && _isStandardIntrospector(ctxt.getAnnotationIntrospector())
+                && _hasStandardProperty(_property) && !ctxt.hasPerCallAttributes();
+        if (!cacheable) {
+            if (_valueType.hasGenericTypes()) {
+                JavaType type = ctxt.constructSpecializedType(_valueType, rawType);
+                return applyIgnored ? _findAndAddDynamic(ctxt, type,
+                        ser -> _withIgnoreProperties(ser, _ignoredProperties))
+                        : _findAndAddDynamic(ctxt, type);
+            }
+            return applyIgnored ? _findAndAddDynamic(ctxt, rawType,
+                    ser -> _withIgnoreProperties(ser, _ignoredProperties))
+                    : _findAndAddDynamic(ctxt, rawType);
         }
-        return _findAndAddDynamic(ctxt, cc, serTransformer);
+        PropertySerializerMap serializers = PropertySerializerMap.emptyForProperties();
+        if ((_dynamicValueSerializers instanceof ScopedSerializers scoped)
+                && (scoped._config.get() == config) && (scoped._applyIgnored == applyIgnored)) {
+            ValueSerializer<Object> cached = scoped.serializerFor(rawType);
+            if (cached != null) {
+                return cached;
+            }
+            serializers = scoped._serializers;
+        }
+        ValueSerializer<Object> serializer = _valueType.hasGenericTypes()
+                ? ctxt.findContentValueSerializer(
+                        ctxt.constructSpecializedType(_valueType, rawType), _property)
+                : ctxt.findContentValueSerializer(rawType, _property);
+        if (applyIgnored) {
+            serializer = _withIgnoreProperties(serializer, _ignoredProperties);
+        }
+        if ((serializer.getClass() == BeanSerializer.class)
+                || (serializer.getClass() == UnrolledBeanSerializer.class)
+                || (serializer.getClass() == MapSerializer.class)
+                || ((serializer instanceof JsonValueSerializer jsonValue)
+                        && jsonValue._isStandardImplementation())) {
+            _dynamicValueSerializers = new ScopedSerializers(config, applyIgnored,
+                    serializers.newWith(rawType, serializer));
+        } else {
+            _dynamicValueSerializers = serializers.newWith(rawType, serializer);
+        }
+        return serializer;
+    }
+
+    private static boolean _hasStandardProperty(BeanProperty property) {
+        if (property instanceof ResolvedJsonValueProperty) {
+            return true;
+        }
+        return (property != null) && (property.getClass() == JsonValueProperty.class)
+                && _hasStandardProperty(((JsonValueProperty) property)._enclosing);
+    }
+
+    private static final class ScopedSerializers extends PropertySerializerMap {
+        private final WeakReference<SerializationConfig> _config;
+        private final boolean _applyIgnored;
+        private final PropertySerializerMap _serializers;
+
+        ScopedSerializers(SerializationConfig config, boolean applyIgnored,
+                PropertySerializerMap serializers) {
+            super(false);
+            _config = new WeakReference<>(config);
+            _applyIgnored = applyIgnored;
+            _serializers = serializers;
+        }
+
+        @Override
+        public ValueSerializer<Object> serializerFor(Class<?> type) {
+            return _serializers.serializerFor(type);
+        }
+
+        @Override
+        public PropertySerializerMap newWith(Class<?> type, ValueSerializer<Object> serializer) {
+            return _serializers.newWith(type, serializer);
+        }
     }
 
     /**
@@ -638,12 +713,7 @@ public class JsonValueSerializer
         }
         ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            Class<?> cc = value.getClass();
-            if (_valueType.hasGenericTypes()) {
-                ser = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_valueType, cc));
-            } else {
-                ser = _findAndAddDynamic(ctxt, cc);
-            }
+            ser = _findSerializer(ctxt, value, false);
         }
         // [databind#6206]: simple check for direct cycle through accessor
         //   (if written as null, no type id, same as with actual null value above)

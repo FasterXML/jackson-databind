@@ -487,6 +487,15 @@ public abstract class SerializationContext
         return _attributes.getAttribute(key);
     }
 
+    /**
+     * Whether attributes have been changed for this serialization call.
+     *
+     * @since 3.3
+     */
+    public boolean hasPerCallAttributes() {
+        return _attributes != _config.getAttributes();
+    }
+
     @Override
     public SerializationContext setAttribute(Object key, Object value)
     {

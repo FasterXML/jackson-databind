@@ -5,6 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.ReadableObjectId.Referring;
@@ -19,6 +22,7 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.IgnorePropertiesUtil;
 
 /**
  * Class that represents a "wildcard" set method which can be used
@@ -69,6 +73,18 @@ public abstract class SettableAnyProperty
      * @since 3.3
      */
     protected final boolean _failOnNulls;
+
+    /**
+     * Property-level {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties}
+     * rules declared on the any-setter itself, to apply to the JSON property names it
+     * accepts; {@code null} when no rules apply. A {@code Map}-valued regular property
+     * gets the same treatment from its {@code MapDeserializer} during contextualization,
+     * but an any-setter is fed entry by entry and never goes through one, so the check
+     * is captured here instead. Assigned by {@link #resolve}.
+     *
+     * @since 3.3
+     */
+    protected IgnorePropertiesUtil.Checker _inclusionChecker;
 
     /*
     /**********************************************************************
@@ -181,6 +197,28 @@ public abstract class SettableAnyProperty
         return this;
     }
 
+    /**
+     * Method called during deserializer resolution to pick up
+     * {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties} declared on the
+     * any-setter itself, so that names they exclude are not passed in.
+     *
+     * @since 3.3
+     */
+    public void resolve(DeserializationContext ctxt) {
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr == null) {
+            return;
+        }
+        final DeserializationConfig config = ctxt.getConfig();
+        // Mirrors annotation handling in `MapDeserializer.createContextual()`, minus its
+        // merge with pre-set ignored/included names (an any-setter has none); keep in sync
+        JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, _setter);
+        JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, _setter);
+        _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(
+                (ignorals == null) ? null : ignorals.findIgnoredForDeserialization(),
+                (inclusions == null) ? null : inclusions.getIncluded());
+    }
+
     public void fixAccess(DeserializationConfig config) {
         _setter.fixAccess(
                 config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -236,6 +274,18 @@ public abstract class SettableAnyProperty
     }
 
     /**
+     * Method called before deserializing value of property {@code propName} to check
+     * whether this any-setter accepts the name at all: {@code false} for names excluded
+     * by {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties} declared on the
+     * any-setter, whose values are to be skipped instead of being passed in.
+     *
+     * @since 3.3
+     */
+    public boolean isIncluded(String propName) {
+        return (_inclusionChecker == null) || !_inclusionChecker.shouldIgnore(propName);
+    }
+
+    /**
      * Accessor for parameterIndex.
      * @return -1 if not a parameterized setter, otherwise index of parameter
      *
@@ -281,6 +331,10 @@ public abstract class SettableAnyProperty
         throws JacksonException
     {
         try {
+            if (!isIncluded(propName)) {
+                p.skipChildren();
+                return;
+            }
             if (skipOrFailOnNull(p, ctxt, propName)) {
                 return;
             }
@@ -544,6 +598,10 @@ public abstract class SettableAnyProperty
                 Object instance, String propName)
             throws JacksonException
         {
+            if (!isIncluded(propName)) {
+                p.skipChildren();
+                return;
+            }
             if (skipOrFailOnNull(p, ctxt, propName)) {
                 return;
             }

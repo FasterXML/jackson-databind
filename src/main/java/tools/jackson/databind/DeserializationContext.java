@@ -1387,21 +1387,16 @@ public abstract class DeserializationContext
         throws JacksonException
     {
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
-        while (h != null) {
-            final boolean handled;
-            try {
-                handled = h.value().handleUnknownProperty(this, p, deser, instanceOrClass, propName);
-            } catch (JacksonException e) {
-                // Leave handler-thrown Jackson exceptions as they are
-                throw e;
-            } catch (RuntimeException e) {
-                throw _wrapUnknownPropertyProblem(e, instanceOrClass, propName);
+        try {
+            while (h != null) {
+                // Can bail out if it's handled
+                if (h.value().handleUnknownProperty(this, p, deser, instanceOrClass, propName)) {
+                    return true;
+                }
+                h = h.next();
             }
-            // Can bail out if it's handled
-            if (handled) {
-                return true;
-            }
-            h = h.next();
+        } catch (Exception e) {
+            throw _wrapUnknownPropertyProblem(p, e, instanceOrClass, propName);
         }
         // Nope, not handled. Potentially that's a problem...
         if (!isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
@@ -1419,14 +1414,22 @@ public abstract class DeserializationContext
     // [databind#6375]: Wrap non-Jackson exceptions thrown by
     // `DeserializationProblemHandler.handleUnknownProperty()` to include path to
     // unknown property (unless `DeserializationFeature.WRAP_EXCEPTIONS` is disabled)
-    private RuntimeException _wrapUnknownPropertyProblem(RuntimeException e,
+    private DatabindException _wrapUnknownPropertyProblem(JsonParser p, Exception e,
             Object instanceOrClass, String propName)
     {
+        // Leave handler-thrown Jackson exceptions as they are
+        ClassUtil.throwIfJacksonE(e);
         if (!isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)) {
-            return e;
+            ClassUtil.throwIfRTE(e);
         }
-        return DatabindException.wrapWithPath(this, e,
-                new JacksonException.Reference(instanceOrClass, propName));
+        String msg = ClassUtil.exceptionMessage(e);
+        if (msg == null || msg.isEmpty()) {
+            msg = "(was "+e.getClass().getName()+")";
+        }
+        // Like above, use caller-supplied parser for location
+        DatabindException de = new DatabindException(p, msg, p.currentLocation(), e);
+        de.prependPath(instanceOrClass, propName);
+        return de;
     }
 
     /**

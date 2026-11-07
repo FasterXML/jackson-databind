@@ -206,6 +206,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6394: `@JsonFormat(shape = ARRAY)` deserialization hangs when input ends before
   `END_ARRAY` while skipping extra values
  (fix by @Sahas2711, @cowtowncoder w/ Claude code)
+#6397: Immutable property-based builders lose properties buffered before creator invocation
+ (fix by @wozhenbang2004)
 #6398: `@JsonFormat(shape = ARRAY)` builder deserialization throws when a
   `DeserializationProblemHandler` recovers with `null`
  (fix by @wozhenbang2004)

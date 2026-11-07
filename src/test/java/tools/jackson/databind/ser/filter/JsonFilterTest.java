@@ -10,6 +10,8 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.TokenStreamContext;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.ser.FilterProvider;
 import tools.jackson.databind.ser.PropertyWriter;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
@@ -188,6 +190,28 @@ public class JsonFilterTest extends DatabindTestUtil
                 .filterProvider(fp)
                 .build();
         assertEquals("{\"a\":\"a\",\"b\":\"b\"}", mapper.writeValueAsString(new Bean()));
+    }
+
+    // Schema generation should handle missing (allowed) filter same as serialization
+    @Test
+    void missingFilterWithSchema() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .filterProvider(new SimpleFilterProvider().setFailOnUnknownId(false))
+                .build();
+        final List<String> names = new ArrayList<>();
+        mapper.acceptJsonFormatVisitor(Bean.class, new JsonFormatVisitorWrapper.Base() {
+            @Override
+            public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
+                return new JsonObjectFormatVisitor.Base(getContext()) {
+                    @Override
+                    public void optionalProperty(BeanProperty prop) {
+                        names.add(prop.getName());
+                    }
+                };
+            }
+        });
+        assertEquals(List.of("a", "b"), names);
     }
 
     @Test

@@ -1081,9 +1081,11 @@ public abstract class BeanSerializerBase
             return;
         }
         final SerializationContext ctxt = visitor.getContext();
-        if (_propertyFilterId != null) {
-            PropertyFilter filter = findPropertyFilter(visitor.getContext(),
-                    _propertyFilterId, null);
+        // Filter provider may return `null` for unknown filter id (if configured
+        // to allow that): if so, handle same as no filter (like serialization does)
+        final PropertyFilter filter = (_propertyFilterId == null) ? null
+                : findPropertyFilter(ctxt, _propertyFilterId, null);
+        if (filter != null) {
             // [databind#6410]: Object Id property is metadata, not to be filtered
             final BeanPropertyWriter idProp = PropertyBasedObjectIdGenerator.findIdProperty(_objectIdWriter);
             for (int i = 0, end = _props.length; i < end; ++i) {

@@ -5,7 +5,6 @@ import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
@@ -15,8 +14,11 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * Used as the default "null serializer" (which is used for serializing
  * null object references unless overridden), as well as for some
  * more exotic types (java.lang.Void).
+ *<p>
+ * NOTE: not annotated with {@code @JacksonStdImpl} (since 2.23): it is a
+ * fallback rather than the default serializer for any type, and optimization
+ * modules (Afterburner, Blackbird) would otherwise consider it replaceable.
  */
-@JacksonStdImpl
 @SuppressWarnings("serial")
 public class NullSerializer
     extends StdSerializer<Object>

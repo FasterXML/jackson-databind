@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -137,5 +138,16 @@ public class NullSerializationTest
     public void testNullSerializerForProperty() throws Exception
     {
         assertEquals("{\"a\":\"foobar\"}", MAPPER.writeValueAsString(new BeanWithNullProps()));
+    }
+
+    // [databind#6399]: `NullSerializer` is a fallback, not the default serializer
+    // for any type, so must NOT be marked as standard implementation (optimization
+    // modules like Afterburner and Blackbird consider std impls replaceable)
+    @Test
+    public void testNullSerializerNotMarkedAsStdImpl() throws Exception
+    {
+        assertFalse(ClassUtil.isJacksonStdImpl(
+                com.fasterxml.jackson.databind.ser.std.NullSerializer.class),
+                "NullSerializer must not be @JacksonStdImpl (see databind#6399)");
     }
 }

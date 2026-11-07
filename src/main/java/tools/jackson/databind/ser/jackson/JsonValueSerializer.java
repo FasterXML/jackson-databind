@@ -25,8 +25,10 @@ import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.BeanPropertyWriter;
 import tools.jackson.databind.ser.BeanSerializer;
 import tools.jackson.databind.ser.jdk.MapSerializer;
+import tools.jackson.databind.ser.std.StdConvertingSerializer;
 import tools.jackson.databind.ser.std.StdDynamicSerializer;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.Converter;
 
 /**
  * Serializer class that can serialize Object that have a
@@ -470,8 +472,18 @@ public class JsonValueSerializer
         MapSerializer mapSer = (MapSerializer) ser;
         keySer = (keySer == null) ? mapSer.getKeySerializer()
                 : ctxt.handleSecondaryContextualization(keySer, property);
-        valueSer = (valueSer == null) ? mapSer.getContentSerializer()
-                : ctxt.handleSecondaryContextualization(valueSer, property);
+        if (valueSer == null) {
+            valueSer = mapSer.getContentSerializer();
+        } else {
+            // Keep an accessor's content conversion before the overriding serializer.
+            Object convDef = intr.findSerializationContentConverter(ctxt.getConfig(), _accessor);
+            if (convDef != null) {
+                Converter<Object, Object> conv = ctxt.converterInstance(_accessor, convDef);
+                valueSer = new StdConvertingSerializer(conv,
+                        conv.getOutputType(ctxt.getTypeFactory()), valueSer, property);
+            }
+            valueSer = ctxt.handleSecondaryContextualization(valueSer, property);
+        }
         ser = mapSer.withSerializers(keySer, valueSer);
         return (ValueSerializer<Object>) ser;
     }

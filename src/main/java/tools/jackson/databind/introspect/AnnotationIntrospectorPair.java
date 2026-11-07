@@ -87,6 +87,18 @@ public class AnnotationIntrospectorPair
         return _primary.isAnnotationBundle(ann) || _secondary.isAnnotationBundle(ann);
     }
 
+    @Override
+    public Annotation tryMergeClassAnnotation(Annotation existing, Annotation newValue) {
+        Annotation merged = _primary.tryMergeClassAnnotation(existing, newValue);
+        if (merged != null) {
+            return merged;
+        }
+
+        // [databind#1037]: only support Jackson annotations
+        // return _secondary.tryMergeClassAnnotation(existing, newValue);
+        return null;
+    }
+
     /*
     /**********************************************************************
     /* General class annotations

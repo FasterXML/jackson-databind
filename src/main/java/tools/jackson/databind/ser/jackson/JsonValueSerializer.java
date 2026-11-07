@@ -451,7 +451,8 @@ public class JsonValueSerializer
     private ValueSerializer<Object> _withEnclosingMapSerializers(SerializationContext ctxt,
             ValueSerializer<?> ser, BeanProperty property) {
         // Keep module-provided Map serializers in control of their own keys and contents.
-        if (ser == null || ser.getClass() != MapSerializer.class) {
+        if (ser == null || ser.getClass() != MapSerializer.class
+                || property == null || !property.getType().hasRawClass(handledType())) {
             return (ValueSerializer<Object>) ser;
         }
         AnnotatedMember member = (property == null) ? null : property.getMember();

@@ -1,15 +1,25 @@
 package tools.jackson.databind.jsontype.impl;
 
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import tools.jackson.databind.AnnotationIntrospector;
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.AnnotatedClass;
+import tools.jackson.databind.introspect.AnnotatedClassResolver;
+import tools.jackson.databind.introspect.AnnotatedMethod;
+import tools.jackson.databind.introspect.BeanPropertyDefinition;
 import tools.jackson.databind.jsontype.NamedType;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * {@link tools.jackson.databind.jsontype.TypeIdResolver} implementation
@@ -80,7 +90,10 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                 Class<?> cls = t.getType();
                 String id = t.hasName() ? t.getName() : _defaultTypeId(cls);
                 if (forSer) {
-                    typeToId.put(cls.getName(), id);
+                    String creatorId = t.hasName() ? null
+                            : _findSealedCreatorId(config, cls, subtypes, caseInsensitive,
+                                    TypeNameIdResolver::_defaultTypeId);
+                    typeToId.put(cls.getName(), (creatorId == null) ? id : creatorId);
                 }
                 if (forDeser) {
                     // [databind#1983]: for case-insensitive lookups must canonicalize:
@@ -100,6 +113,85 @@ public class TypeNameIdResolver extends TypeIdResolverBase
             }
         }
         return new TypeNameIdResolver(baseType, typeToId, idToType, caseInsensitive);
+    }
+
+    // A sealed parent can serve as a named factory for an otherwise unnamed leaf.
+    // Keep distinct default IDs when the parent cannot create the leaf, or when
+    // sharing its ID would collapse multiple unnamed concrete subtypes.
+    static String _findSealedCreatorId(MapperConfig<?> config, Class<?> subtype,
+            Collection<NamedType> subtypes, boolean caseInsensitive,
+            Function<Class<?>, String> defaultTypeId) {
+        if (!config.isAnnotationProcessingEnabled() || !ClassUtil.isConcrete(subtype)
+                || !Modifier.isFinal(subtype.getModifiers())) {
+            return null;
+        }
+        AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        for (NamedType parent : subtypes) {
+            Class<?> parentType = parent.getType();
+            if (!parent.hasName() || ClassUtil.isConcrete(parentType)
+                    || !parentType.isAssignableFrom(subtype) || !parentType.isSealed()) {
+                continue;
+            }
+            Class<?>[] permitted = parentType.getPermittedSubclasses();
+            if (permitted.length != 1 || permitted[0] != subtype) {
+                continue;
+            }
+            String id = parent.getName();
+            boolean ambiguous = subtypes.stream().anyMatch(other -> {
+                Class<?> otherType = other.getType();
+                if (otherType == parentType || otherType == subtype) {
+                    return false;
+                }
+                String otherId = other.hasName() ? other.getName() : defaultTypeId.apply(otherType);
+                return caseInsensitive ? id.equalsIgnoreCase(otherId) : id.equals(otherId);
+            });
+            if (ambiguous) {
+                continue;
+            }
+            JavaType subtypeType = config.constructType(subtype);
+            AnnotatedClass subtypeInfo = AnnotatedClassResolver.resolve(config, subtypeType, config);
+            if (!id.equals(intr.findTypeName(config, subtypeInfo))) {
+                continue;
+            }
+            Map<String, JavaType> serializedProperties = new HashMap<>();
+            for (BeanPropertyDefinition prop : config.classIntrospectorInstance()
+                    .introspectForSerialization(subtypeType, subtypeInfo).findProperties()) {
+                if (prop.couldSerialize()) {
+                    serializedProperties.put(prop.getName(), prop.getPrimaryType());
+                }
+            }
+            AnnotatedClass parentInfo = AnnotatedClassResolver.resolve(config,
+                    config.constructType(parentType), config);
+            for (AnnotatedMethod factory : parentInfo.getFactoryMethods()) {
+                Class<?> returnType = factory.getRawReturnType();
+                if (!parentType.isAssignableFrom(returnType) || !returnType.isAssignableFrom(subtype)) {
+                    continue;
+                }
+                if (_matchesSerializedProperties(config, intr, factory, serializedProperties)) {
+                    return id;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static boolean _matchesSerializedProperties(MapperConfig<?> config,
+            AnnotationIntrospector intr, AnnotatedMethod factory, Map<String, JavaType> properties) {
+        JsonCreator.Mode mode = intr.findCreatorAnnotation(config, factory);
+        int parameterCount = factory.getParameterCount();
+        if ((mode != JsonCreator.Mode.DEFAULT && mode != JsonCreator.Mode.PROPERTIES)
+                || parameterCount == 0 || parameterCount != properties.size()) {
+            return false;
+        }
+        Set<String> matched = new HashSet<>();
+        for (int i = 0; i < parameterCount; ++i) {
+            PropertyName name = intr.findNameForDeserialization(config, factory.getParameter(i));
+            if (name == null || !name.hasSimpleName() || !matched.add(name.getSimpleName())
+                    || !factory.getParameterType(i).equals(properties.get(name.getSimpleName()))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

@@ -83,7 +83,10 @@ public class SimpleNameIdResolver
                 Class<?> cls = t.getType();
                 String id = t.hasName() ? t.getName() : _defaultTypeId(cls);
                 if (forSer) {
-                    typeToId.put(cls.getName(), id);
+                    String creatorId = t.hasName() ? null
+                            : TypeNameIdResolver._findSealedCreatorId(config, cls, subtypes, caseInsensitive,
+                                    SimpleNameIdResolver::_defaultTypeId);
+                    typeToId.put(cls.getName(), (creatorId == null) ? id : creatorId);
                 }
                 if (forDeser) {
                     // [databind#1983]: for case-insensitive lookups must canonicalize:

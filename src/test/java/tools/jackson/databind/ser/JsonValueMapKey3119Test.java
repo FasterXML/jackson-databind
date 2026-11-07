@@ -139,9 +139,11 @@ class JsonValueMapKey3119Test extends DatabindTestUtil
     }
 
     @Test
-    void typedBeanRetainsExistingFieldOutput() {
-        JsonNode json = mapper.readTree(mapper.writeValueAsString(new TypedBeanValue()));
-        assertEquals("kept", json.path("typedBean").path("hidden").asString());
+    void typedBeanHonorsAccessorIgnoredProperties() {
+        // In 3.x, [databind#4762] contextualizes against the accessor, so its
+        // @JsonIgnoreProperties applies to typed serialization as well.
+        assertEquals("{\"typedBean\":{}}",
+                mapper.writeValueAsString(new TypedBeanValue()));
     }
 
     @Test

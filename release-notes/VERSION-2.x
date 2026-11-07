@@ -10,6 +10,9 @@ Project: jackson-databind
   (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
  (reported by João G)
  (fix by João G, @cowtowncoder; backport by @Dongnyoung)
+#6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+ (reported by @bugada)
+ (fix by @pjfanning, w/ Claude code)
 #6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
  (fix by @kimsanhaa)
 #6261: Support `@JsonView` on properties-based Creator parameters of Enum, Map and EnumMap types
@@ -32,6 +35,15 @@ Project: jackson-databind
 #6315: Map key deserializers should apply same type checks as bean deserializers
  (reported by @ab310013)
  (fix by @pjfanning)
+#6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
+  deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
+  `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)` for creator
+  properties: existing value is overwritten with `null`
+ (reported, fixed by @Marti2203)
+#6339: Enum aliases from an appended `AnnotationIntrospector` are discarded:
+  `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
+ (reported, fixed by @Marti2203)
 
 2.22.5 (not yet released)
 
@@ -131,6 +143,9 @@ Project: jackson-databind
 #6315: Map key deserializers should apply same type checks as bean deserializers
  (reported by @ab310013)
  (fix by @pjfanning)
+#6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
+  deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
+  `FilteredRowSetImpl`, `JoinRowSetImpl`)
 
 2.21.8 (17-Oct-2026)
 

@@ -15,6 +15,9 @@ No changes since 3.1
   (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
  (reported by João G)
  (fix by João G and @cowtowncoder, w/ Claude code)
+#6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+ (reported by @bugada)
+ (fix by @pjfanning, w/ Claude code)
 #6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
   array contains `null`
  (reported, fixed by @Marti2203)
@@ -36,6 +39,12 @@ No changes since 3.1
 #6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
   deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
   `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)` for creator
+  properties: existing value is overwritten with `null`
+ (reported, fixed by @Marti2203)
+#6339: Enum aliases from an appended `AnnotationIntrospector` are discarded:
+  `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
+ (reported, fixed by @Marti2203)
 #6342: `@JsonFormat(shape = NUMBER)` on primitive `boolean` getter written as `true`/`false`
   with Blackbird / Afterburner (regression via #6111)
  (reported by @palprat)

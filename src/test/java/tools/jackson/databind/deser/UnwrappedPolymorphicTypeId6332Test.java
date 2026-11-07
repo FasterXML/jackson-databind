@@ -11,7 +11,12 @@ import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonPOJOBuilder;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // [databind#6332]: `@JsonUnwrapped` value of a polymorphic type with a property-based
@@ -106,6 +111,30 @@ class UnwrappedPolymorphicTypeId6332Test extends DatabindTestUtil
         public String note;
     }
 
+    // Builder-based parent
+    @JsonDeserialize(builder = BuiltDog.Builder.class)
+    static class BuiltDog {
+        final Dog dog;
+        final String note;
+
+        BuiltDog(Dog dog, String note) {
+            this.dog = dog;
+            this.note = note;
+        }
+
+        @JsonPOJOBuilder(withPrefix = "with")
+        static class Builder {
+            Dog dog;
+            String note;
+
+            @JsonUnwrapped
+            public Builder withDog(Dog d) { dog = d; return this; }
+            public Builder withNote(String n) { note = n; return this; }
+
+            public BuiltDog build() { return new BuiltDog(dog, note); }
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     private final ObjectMapper STRICT_MAPPER = jsonMapperBuilder()
@@ -197,5 +226,43 @@ class UnwrappedPolymorphicTypeId6332Test extends DatabindTestUtil
                         {"type":"DOG","name":"Rex","note":"hi","bogus":1}
                         """, NewDog.class));
         assertEquals("bogus", e.getPropertyName());
+    }
+
+    @Test
+    void builderBasedParent() throws Exception
+    {
+        for (ObjectMapper mapper : new ObjectMapper[] { MAPPER, STRICT_MAPPER }) {
+            BuiltDog result = mapper.readValue(DOG_JSON, BuiltDog.class);
+            assertEquals("Rex", result.dog.name);
+            assertEquals("hi", result.note);
+        }
+        UnrecognizedPropertyException e = assertThrows(UnrecognizedPropertyException.class,
+                () -> STRICT_MAPPER.readValue("""
+                        {"type":"DOG","name":"Rex","note":"hi","bogus":1}
+                        """, BuiltDog.class));
+        assertEquals("bogus", e.getPropertyName());
+    }
+
+    // Type id alone counts as unwrapped content: value is constructed, not left `null`
+    @Test
+    void typeIdOnlyWithNullForEmptyUnwrapped() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.USE_NULL_FOR_EMPTY_UNWRAPPED)
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
+        NewDogFields result = mapper.readValue("""
+                {"type":"DOG","note":"hi"}
+                """, NewDogFields.class);
+        assertNotNull(result.dog);
+        assertNull(result.dog.name);
+        assertEquals("hi", result.note);
+
+        // but with no unwrapped content at all, value stays `null`
+        result = mapper.readValue("""
+                {"note":"hi"}
+                """, NewDogFields.class);
+        assertNull(result.dog);
+        assertEquals("hi", result.note);
     }
 }

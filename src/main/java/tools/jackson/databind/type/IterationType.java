@@ -125,7 +125,11 @@ public class IterationType extends SimpleType
     @Override
     public JavaType refine(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces) {
-        return new IterationType(rawType, _bindings,
+        // Keep legacy content bindings for ownerless types, but do not carry
+        // a supertype's enclosing scope into an unrelated subtype.
+        TypeBindings refinedBindings = (_bindings.getOwnerType() != null
+                || (bindings != null && bindings.getOwnerType() != null)) ? bindings : _bindings;
+        return new IterationType(rawType, refinedBindings,
                 superClass, superInterfaces, _iteratedType,
                 _valueHandler, _typeHandler, _asStatic);
     }
@@ -133,6 +137,9 @@ public class IterationType extends SimpleType
     @Override
     protected String buildCanonicalName()
     {
+        if (_bindings.getOwnerType() != null) {
+            return _buildOwnerCanonicalName();
+        }
         StringBuilder sb = new StringBuilder();
         sb.append(_class.getName());
         if ((_iteratedType != null) && _hasNTypeParameters(1)) {
@@ -172,6 +179,9 @@ public class IterationType extends SimpleType
     @Override
     public StringBuilder getGenericSignature(StringBuilder sb)
     {
+        if (_bindings.getOwnerType() != null) {
+            return _getOwnerGenericSignature(sb);
+        }
         _classSignature(_class, sb, false);
         sb.append('<');
         sb = _iteratedType.getGenericSignature(sb);

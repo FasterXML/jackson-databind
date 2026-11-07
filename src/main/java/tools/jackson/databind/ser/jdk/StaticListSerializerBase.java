@@ -199,7 +199,26 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
 
     @Override
     public boolean isEmpty(SerializationContext provider, T value) {
-        return (value == null) || (value.isEmpty());
+        if ((value == null) || value.isEmpty()) {
+            return true;
+        }
+        // [databind#6065]: with content @JsonInclude applied to containers,
+        // a collection whose every element is suppressed is considered empty
+        if (_needToCheckFiltering(provider)) {
+            for (Object elem : value) {
+                if (elem == null) {
+                    if (!_suppressNulls) {
+                        return false;
+                    }
+                // Elements are "natural" types (Strings), never have content serializer
+                // (see `createContextual()`), so pass `null`, same as `serializeContents()`
+                } else if (_shouldSerializeElement(elem, null, provider)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -224,6 +243,18 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     @Override
     public abstract void serializeWithType(T value, JsonGenerator g,
             SerializationContext ctxt, TypeSerializer typeSer) throws JacksonException;
+
+    /**
+     * Helper method for checking whether content filtering (from {@code @JsonInclude})
+     * needs to be applied at all: only when a suppression mechanism is configured
+     * <i>and</i> {@link SerializationFeature#APPLY_JSON_INCLUDE_FOR_CONTAINERS} is enabled.
+     *
+     * @since 3.2.1
+     */
+    protected final boolean _needToCheckFiltering(SerializationContext ctxt) {
+        return ((_suppressableValue != null) || _suppressNulls)
+                && ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS);
+    }
 
     /**
      * Common utility method for checking if an element should be filtered/suppressed

@@ -86,6 +86,13 @@ public class BeanPropertyMap
         _caseInsensitive = caseInsensitive;
         _aliasDefs = aliasDefs;
         _propsInOrder = props.toArray(new SettableBeanProperty[0]);
+        // [databind#6324]: alias definitions must be aligned with properties
+        // (see also [databind#5884]); verify here so mismatch fails fast
+        if ((aliasDefs != null) && (aliasDefs.length != _propsInOrder.length)) {
+            throw new IllegalArgumentException(String.format(
+                    "Internal error: alias definitions (%d) not aligned with properties (%d)",
+                    aliasDefs.length, _propsInOrder.length));
+        }
         // Former `assignIndexes`
         // order is arbitrary, but stable:
         if (assignIndexes) {
@@ -137,18 +144,23 @@ public class BeanPropertyMap
     /**
      * Fluent copy method that creates a new instance that is a copy
      * of this instance except for one additional property that is
-     * passed as the argument.
+     * passed as the argument: if a property with the same name exists,
+     * it is replaced (at the same position), otherwise new property is appended.
      * Note that method does not modify this instance but constructs
      * and returns a new one.
      */
     public BeanPropertyMap withProperty(SettableBeanProperty newProp)
     {
-        // First: maybe just replace in place?
+        // First: maybe just replace existing entry?
+        // [databind#6352]: must not modify `this` (may be shared by
+        // non-contextual deserializer), so replace in a copy
         final String key = newProp.getName();
         for (int i = 0, end = _propsInOrder.length; i < end; ++i) {
             if (_propsInOrder[i].getName().equals(key)) {
-                _propsInOrder[i] = newProp;
-                return this;
+                ArrayList<SettableBeanProperty> newProps = new ArrayList<>(Arrays.asList(_propsInOrder));
+                newProps.set(i, newProp);
+                return new BeanPropertyMap(newProps, _aliasDefs,
+                        _locale, _caseInsensitive, false);
             }
         }
 
@@ -156,12 +168,21 @@ public class BeanPropertyMap
         ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(Arrays.asList(_propsInOrder));
         newProps.add(newProp);
         // !!! TODO: assign index for the last entry?
-        return new BeanPropertyMap(newProps, _aliasDefs, _locale, _caseInsensitive, false);
+        // [databind#6324]: Must also keep `_aliasDefs` aligned with `_propsInOrder`;
+        // newly appended property has no aliases (yet)
+        PropertyName[][] newAliases = (_aliasDefs == null) ? null
+                : Arrays.copyOf(_aliasDefs, _aliasDefs.length + 1);
+        return new BeanPropertyMap(newProps, newAliases, _locale, _caseInsensitive, false);
     }
 
     /**
-     * Mutant factory method for constructing a map where all entries use given
-     * prefix
+     * Mutant factory method for constructing a map where property <i>names</i>
+     * are transformed using the given {@link NameTransformer}.
+     *<p>
+     * NOTE: transformer is applied to property names only; value deserializers
+     * are left untouched. Non-unwrapped nested values deserialize from their
+     * own JSON object (not a flattened one), so propagating a prefix/suffix
+     * into their property names would be incorrect (see [databind#3178]).
      */
     public BeanPropertyMap renameAll(DeserializationContext ctxt,
             NameTransformer transformer)
@@ -171,11 +192,20 @@ public class BeanPropertyMap
         }
         // Try to retain insertion ordering as well
         final int len = _propsInOrder.length;
-        ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(_propsInOrder.length);
+        ArrayList<SettableBeanProperty> newProps = new ArrayList<>(_propsInOrder.length);
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty orig = _propsInOrder[i];
-            SettableBeanProperty prop = orig.unwrapped(ctxt, transformer);
-            newProps.add(prop);
+            if (orig == null) {
+                newProps.add(null);
+                continue;
+            }
+            String oldName = orig.getName();
+            String newName = transformer.transform(oldName);
+            if (oldName.equals(newName)) {
+                newProps.add(orig);
+                continue;
+            }
+            newProps.add(orig.withSimpleName(ctxt.canonicalizeString(newName)));
         }
         // 26-Feb-2017, tatu: Probably SHOULD handle renaming wrt Aliases?
         // NOTE: do NOT try reassigning indexes of properties; number doesn't change
@@ -223,7 +253,7 @@ public class BeanPropertyMap
                 if (!IgnorePropertiesUtil.shouldIgnore(prop.getName(), toExclude, toInclude)) {
                     newProps.add(prop);
                     if (newAliasList != null) {
-                        newAliasList.add(_aliasDefs[i]);
+                        newAliasList.add(_keptAliases(prop, _aliasDefs[i], toExclude, toInclude));
                     }
                 }
             }
@@ -234,6 +264,24 @@ public class BeanPropertyMap
         // 17-Nov-2017, tatu: do NOT try to change indexes since this could lead to discrepancies
         //    (unless we actually copy property instances)
         return new BeanPropertyMap(newProps, newAliases, _locale, _caseInsensitive, false);
+    }
+
+    /**
+     * Aliases of {@code prop} to keep when filtering by name: a Creator property is not
+     * found by an alias that is a name to ignore, the same as its Creator does not resolve
+     * that name ([databind#6243]).
+     */
+    private static PropertyName[] _keptAliases(SettableBeanProperty prop, PropertyName[] aliases,
+            Collection<String> toExclude, Collection<String> toInclude)
+    {
+        if ((aliases == null) || !prop.isCreatorProperty()) {
+            return aliases;
+        }
+        PropertyName[] kept = Arrays.stream(aliases)
+                .filter(alias -> !IgnorePropertiesUtil.shouldIgnore(alias.getSimpleName(),
+                        toExclude, toInclude))
+                .toArray(PropertyName[]::new);
+        return (kept.length == 0) ? null : kept;
     }
 
     /**
@@ -431,11 +479,11 @@ public class BeanPropertyMap
             if (count++ > 0) {
                 sb.append(", ");
             }
-            sb.append(String.format("%s(%s)", prop.getName(), prop.getType()));
+            sb.append("%s(%s)".formatted(prop.getName(), prop.getType()));
         }
         sb.append(']');
         if (_aliasDefs != null) {
-            sb.append(String.format("(aliases: %s)", _aliasDefs.length));
+            sb.append("(aliases: %s)".formatted(_aliasDefs.length));
         }
         return sb.toString();
     }

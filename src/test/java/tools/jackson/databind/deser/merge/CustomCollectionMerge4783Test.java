@@ -128,8 +128,7 @@ public class CustomCollectionMerge4783Test
             MAPPER.readValue("{\"values\":[\"x\"]}", NonMergeCustomStringList.class);
             fail("Should not pass");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, String.format(
-                    "Cannot construct instance of `%s` (no Creators",
+            verifyException(e, "Cannot construct instance of `%s` (no Creators".formatted(
                     MyListCustom.class.getName()));
         }
     }
@@ -141,8 +140,7 @@ public class CustomCollectionMerge4783Test
             MAPPER.readValue("[]", MyAbstractStringList.class);
             fail("Should not pass");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, String.format(
-                    "Cannot construct instance of `%s` (no Creators",
+            verifyException(e, "Cannot construct instance of `%s` (no Creators".formatted(
                     MyAbstractStringList.class.getName()));
         }
     }

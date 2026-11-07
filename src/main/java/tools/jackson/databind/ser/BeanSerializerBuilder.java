@@ -207,8 +207,8 @@ public class BeanSerializerBuilder
         if (_filteredProperties != null) {
             if (_filteredProperties.length != _properties.size()) { // lgtm [java/dereferenced-value-may-be-null]
                 throw new IllegalStateException(String.format(
-"Mismatch between `properties` size (%d), `filteredProperties` (%s): should have as many (or `null` for latter)",
-_properties.size(), _filteredProperties.length));
+                        "Mismatch between `properties` size (%d), `filteredProperties` (%s): should have as many (or `null` for latter)",
+                        _properties.size(), _filteredProperties.length));
             }
         }
         ValueSerializer<?> ser = UnrolledBeanSerializer.tryConstruct(

@@ -42,11 +42,21 @@ public class UnwrappedWithDelegatingDeser5728Test extends DatabindTestUtil
 
     @SuppressWarnings("serial")
     static class WrappingModifier extends ValueDeserializerModifier {
+        final int levels;
+
+        public WrappingModifier(int levels) {
+            this.levels = levels;
+        }
+
         @Override
         public ValueDeserializer<?> modifyDeserializer(DeserializationConfig config,
                 BeanDescription.Supplier beanDescRef, ValueDeserializer<?> deserializer) {
             if (deserializer instanceof BeanDeserializerBase) {
-                return new WrappingDeserializer(deserializer);
+                WrappingDeserializer wrapped = new WrappingDeserializer(deserializer);
+                for (int i = 1; i < levels; i++) {
+                    wrapped = new WrappingDeserializer(wrapped);
+                }
+                return new WrappingDeserializer(wrapped);
             }
             return deserializer;
         }
@@ -54,16 +64,27 @@ public class UnwrappedWithDelegatingDeser5728Test extends DatabindTestUtil
 
     private final ObjectMapper UNWRAP_MAPPER = JsonMapper.builder()
             .addModule(new SimpleModule()
-                .setDeserializerModifier(new WrappingModifier()))
-            .build();
-    
+                    .setDeserializerModifier(new WrappingModifier(1))).build();
+
     // Verify that @JsonUnwrapped works when the inner type's deserializer
     // is wrapped with a DelegatingDeserializer
     @Test
-    public void testUnwrappedWithDelegatingDeserializer() throws Exception
-    {
+    public void testUnwrappedWithDelegatingDeserializer() throws Exception {
         String json = a2q("{'p1':'value1','p2':'value2'}");
         Outer5728 result = UNWRAP_MAPPER.readValue(json, Outer5728.class);
+        assertNotNull(result.inner, "Unwrapped inner object should not be null");
+        assertEquals("value1", result.inner.p1);
+        assertEquals("value2", result.inner.p2);
+    }
+
+    // Verify that @JsonUnwrapped works when the inner type's deserializer
+    // is wrapped multiple times with a DelegatingDeserializer
+    @Test
+    public void testUnwrappedWithMultipleLevelsOfDelegatingDeserializer() throws Exception {
+        String json = a2q("{'p1':'value1','p2':'value2'}");
+        Outer5728 result = JsonMapper.builder()
+                .addModule(new SimpleModule().setDeserializerModifier(new WrappingModifier(10))).build()
+                .readValue(json, Outer5728.class);
         assertNotNull(result.inner, "Unwrapped inner object should not be null");
         assertEquals("value1", result.inner.p1);
         assertEquals("value2", result.inner.p2);
@@ -72,8 +93,7 @@ public class UnwrappedWithDelegatingDeser5728Test extends DatabindTestUtil
     // Same test but with FAIL_ON_UNKNOWN_PROPERTIES enabled — this is
     // where the issue manifests as an UnrecognizedPropertyException
     @Test
-    public void testUnwrappedWithDelegatingDeserializerAndFailOnUnknown() throws Exception
-    {
+    public void testUnwrappedWithDelegatingDeserializerAndFailOnUnknown() throws Exception {
         ObjectReader r = UNWRAP_MAPPER.readerFor(Outer5728.class)
                 .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         String json = a2q("{'p1':'value1','p2':'value2'}");

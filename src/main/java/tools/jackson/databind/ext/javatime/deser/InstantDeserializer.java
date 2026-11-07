@@ -238,8 +238,7 @@ public class InstantDeserializer<T extends Temporal>
                 property, formatOverrides);
         Boolean adjustToContextTZOverride = formatOverrides.getFeature(
             JsonFormat.Feature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
-        Boolean readTimestampsAsNanosOverride = formatOverrides.getFeature(
-            JsonFormat.Feature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+        Boolean readTimestampsAsNanosOverride = _findReadTimestampsAsNanosOverride(formatOverrides);
         if (!Objects.equals(adjustToContextTZOverride, deser._adjustToContextTZOverride)
             || !Objects.equals(readTimestampsAsNanosOverride, deser._readTimestampsAsNanosOverride)) {
             return new InstantDeserializer<>(deser, deser._isLenient, deser._formatter,
@@ -417,7 +416,7 @@ public class InstantDeserializer<T extends Temporal>
                     timestamp, this.getZone(context)));
         } catch (DateTimeException e) {
             throw DateTimeParseException.from(context.getParser(),
-                    String.format("Failed to deserialize %s from timestamp value %d: %s",
+                    "Failed to deserialize %s from timestamp value %d: %s".formatted(
                             handledType().getName(), timestamp, e.getMessage()),
                     String.valueOf(timestamp), handledType(), e);
         }
@@ -434,7 +433,7 @@ public class InstantDeserializer<T extends Temporal>
             return fromNanoseconds.apply(args);
         } catch (DateTimeException | ArithmeticException e) {
             throw DateTimeParseException.from(context.getParser(),
-                    String.format("Failed to deserialize %s from decimal value %s: %s",
+                    "Failed to deserialize %s from decimal value %s: %s".formatted(
                             handledType().getName(), value, e.getMessage()),
                     value.toString(), handledType(), e);
         }

@@ -228,8 +228,8 @@ public class CollectingErrorsTest extends DatabindTestUtil
                     final int index = i;
                     executor.submit(() -> {
                         try {
-                            String json = String.format("{\"name\":\"User%d\",\"age\":\"invalid%d\"}",
-                                index, index);
+                            String json = "{\"name\":\"User%d\",\"age\":\"invalid%d\"}".formatted(
+                                    index, index);
                             reader.readValueCollectingProblems(json);
                             unexpectedErrors.add(new AssertionError("Should have thrown DeferredBindingException"));
                         } catch (DeferredBindingException e) {

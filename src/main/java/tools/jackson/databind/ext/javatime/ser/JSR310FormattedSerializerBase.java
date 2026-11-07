@@ -19,6 +19,7 @@ package tools.jackson.databind.ext.javatime.ser;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
@@ -119,7 +120,7 @@ abstract class JSR310FormattedSerializerBase<T>
                 dtf = _useDateTimeFormatter(ctxt, format);
             }
             JSR310FormattedSerializerBase<?> ser = this;
-            if ((shape != _shape) || (useTimestamp != _useTimestamp) || (dtf != _formatter)) {
+            if ((shape != _shape) || !Objects.equals(useTimestamp, _useTimestamp) || (dtf != _formatter)) {
                 ser = ser.withFormat(dtf, useTimestamp, shape);
             }
             Boolean writeZoneId = format.getFeature(JsonFormat.Feature.WRITE_DATES_WITH_ZONE_ID);

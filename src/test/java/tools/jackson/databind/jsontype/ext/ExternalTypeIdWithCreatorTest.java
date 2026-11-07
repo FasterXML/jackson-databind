@@ -227,11 +227,10 @@ public class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
 
         @Override
         public JavaType typeFromId(DatabindContext context, String id) {
-             switch (id) {
-             case "track":
-                 return context.constructSpecializedType(superType, MyData3045.class);
-             }
-             throw new IllegalArgumentException("No type with id '"+id+"'");
+            if (id.equals("track")) {
+                return context.constructSpecializedType(superType, MyData3045.class);
+            }
+            throw new IllegalArgumentException("No type with id '"+id+"'");
         }
 
         @Override
@@ -270,7 +269,7 @@ public class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
        }
 
        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
-               property = "type")
+               property = "type", visible = true)
        @JsonTypeIdResolver(ChildBaseByParentTypeResolver3045.class)
        public void setData(Object data) {
            this.data = data;

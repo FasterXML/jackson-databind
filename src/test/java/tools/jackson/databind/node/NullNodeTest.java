@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class NullNodeTest extends NodeTestBase
 {
-    final static class CovarianceBean {
+    public final static class CovarianceBean {
         ObjectNode _object;
         ArrayNode _array;
 
@@ -20,12 +20,12 @@ public class NullNodeTest extends NodeTestBase
     }
 
     @SuppressWarnings("serial")
-    static class MyNull extends NullNode { }
+    public static class MyNull extends NullNode { }
 
     private final ObjectMapper MAPPER = sharedMapper();
 
     @Test
-    public void testBasicsWithNullNode() throws Exception
+    void testBasicsWithNullNode() throws Exception
     {
         // Let's use something that doesn't add much beyond JsonNode base
         NullNode n = NullNode.instance;
@@ -68,7 +68,7 @@ public class NullNodeTest extends NodeTestBase
     }
 
     @Test
-    public void testNullHandling() throws Exception
+    void testNullHandling() throws Exception
     {
         // First, a stand-alone null
         JsonNode n = MAPPER.readTree("null");
@@ -92,7 +92,7 @@ public class NullNodeTest extends NodeTestBase
     }
 
     @Test
-    public void testNullSerialization() throws Exception
+    void testNullSerialization() throws Exception
     {
         StringWriter sw = new StringWriter();
         MAPPER.writeValue(sw, NullNode.instance);
@@ -100,7 +100,7 @@ public class NullNodeTest extends NodeTestBase
     }
 
     @Test
-    public void testNullHandlingCovariance() throws Exception
+    void testNullHandlingCovariance() throws Exception
     {
         String JSON = "{\"object\" : null, \"array\" : null }";
         CovarianceBean bean = MAPPER.readValue(JSON, CovarianceBean.class);
@@ -114,7 +114,7 @@ public class NullNodeTest extends NodeTestBase
 
     @SuppressWarnings("unlikely-arg-type")
     @Test
-    public void testNullEquality() throws Exception
+    void testNullEquality() throws Exception
     {
         JsonNode n = MAPPER.nullNode();
         assertTrue(n.isNull());

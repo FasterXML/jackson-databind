@@ -447,4 +447,58 @@ public class JsonNodeConversionsTest extends DatabindTestUtil
         assertNull(r.treeToValue(MAPPER.nullNode(), Object.class));
         assertNull(r.treeToValue(MAPPER.missingNode(), Object.class));
     }
+
+    // [databind#6059]: `byte[]` should convert to `BinaryNode`, not `POJONode`
+    @Test
+    public void byteArrayToTree6059() {
+        final byte[] bytes = { 1, 2, 3 };
+        JsonNode node = MAPPER.valueToTree(bytes);
+
+        // Must be a `BinaryNode` (not `POJONode`, as it was prior to fix)...
+        assertInstanceOf(BinaryNode.class, node);
+        assertTrue(node.isBinary());
+        // ... with contents preserved...
+        assertArrayEquals(bytes, node.binaryValue());
+
+        // ... and, the actual regression reported, equal to a node built
+        // from a separate-but-equal array (`BinaryNode` compares by content,
+        // `POJONode` only by identity):
+        JsonNode node2 = MAPPER.valueToTree(new byte[] { 1, 2, 3 });
+        assertEquals(node, node2);
+
+        // Empty array, too (from the original report):
+        assertEquals(MAPPER.valueToTree(new byte[0]),
+                MAPPER.valueToTree(new byte[0]));
+    }
+
+    // [databind#6059]: also when `byte[]` is nested within Object/Array contexts
+    @Test
+    public void nestedByteArrayToTree6059() {
+        final byte[] bytes = { 4, 5, 6 };
+
+        // As a value within an Object (Map):
+        JsonNode objNode = MAPPER.valueToTree(Collections.singletonMap("b", bytes));
+        JsonNode objBinary = objNode.get("b");
+        assertInstanceOf(BinaryNode.class, objBinary);
+        assertArrayEquals(bytes, objBinary.binaryValue());
+
+        // As an element within an Array (List):
+        JsonNode arrNode = MAPPER.valueToTree(Collections.singletonList(bytes));
+        JsonNode arrBinary = arrNode.get(0);
+        assertInstanceOf(BinaryNode.class, arrBinary);
+        assertArrayEquals(bytes, arrBinary.binaryValue());
+    }
+
+    // [databind#6059]: also when `byte[]` reaches the tree via `TokenBuffer`
+    // replay (`writeEmbeddedObject()` path), not just the direct `writeBinary()`
+    @Test
+    public void byteArrayViaTokenBufferToTree6059() {
+        final byte[] bytes = { 7, 8, 9 };
+        TokenBuffer buf = TokenBuffer.forGeneration();
+        buf.writeBinary(bytes);
+
+        JsonNode node = MAPPER.valueToTree(buf);
+        assertInstanceOf(BinaryNode.class, node);
+        assertArrayEquals(bytes, node.binaryValue());
+    }
 }

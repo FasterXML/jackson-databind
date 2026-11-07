@@ -1,5 +1,6 @@
 package tools.jackson.databind.jsontype.impl;
 
+import java.io.Serial;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,6 +21,7 @@ import tools.jackson.databind.jsontype.NamedType;
 public class TypeNameIdResolver extends TypeIdResolverBase
     implements java.io.Serializable // @since 2.16.2
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**
@@ -85,7 +87,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                 if (forDeser) {
                     // [databind#1983]: for case-insensitive lookups must canonicalize:
                     if (caseInsensitive) {
-                        id = id.toLowerCase();
+                        id = id.toLowerCase(Locale.ROOT);
                     }
                     // One more problem; sometimes we have same name for multiple types;
                     // if so, use most specific
@@ -168,7 +170,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     protected JavaType _typeFromId(String id) {
         // [databind#1983]: for case-insensitive lookups must canonicalize:
         if (_caseInsensitive) {
-            id = id.toLowerCase();
+            id = id.toLowerCase(Locale.ROOT);
         }
         // Now: if no type is found, should we try to locate it by
         // some other means? (specifically, if in same package as base type,

@@ -1233,8 +1233,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             writeName(p.currentName());
             t = p.nextToken();
             // fall-through to copy the associated value
-        } else if (t == null) {
-            // 13-Dec-2023, tatu: For some unexpected EOF cases we may end up here, so:
+        }
+        // 13-Dec-2023, tatu: For some unexpected EOF cases we may end up here, so:
+        // (including input ending right after property name)
+        if (t == null) {
             throw new UnexpectedEndOfInputException(p, null, "Unexpected end-of-input");
         }
 
@@ -1504,8 +1506,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /******************************************************************
          */
 
-        protected StreamReadConstraints _streamReadConstraints;
-
         protected final TokenBuffer _source;
 
         protected final boolean _hasNativeTypeIds;
@@ -1559,11 +1559,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             // 25-Jun-2022, tatu: This should pass stream read features as
             //    per [databind#3528]) but for now at very least should get
             //    sane defaults
-            super(readCtxt);
+            super(readCtxt, streamReadConstraints);
             _source = source;
             _segment = firstSeg;
             _segmentPtr = -1; // not yet read
-            _streamReadConstraints = streamReadConstraints;
             _parsingContext = TokenBufferReadContext.createRootContext(parentContext);
             _hasNativeTypeIds = hasNativeTypeIds;
             _hasNativeObjectIds = hasNativeObjectIds;
@@ -1598,11 +1597,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         @Override
         public TokenBuffer streamReadInputSource() {
             return _source;
-        }
-
-        @Override
-        public StreamReadConstraints streamReadConstraints() {
-            return _streamReadConstraints;
         }
 
         /*

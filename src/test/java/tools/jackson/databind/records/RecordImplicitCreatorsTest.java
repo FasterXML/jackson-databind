@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.ConstructorDetector;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -74,6 +75,20 @@ public class RecordImplicitCreatorsTest extends DatabindTestUtil
 
         public RecordWithAltSingleValueConstructor(int id) {
             this(id, "SingleValueConstructor");
+        }
+    }
+
+    record RecordWithMultiValueCanonAndSingleValueAltConstructor(int id, String name) {
+
+        public RecordWithMultiValueCanonAndSingleValueAltConstructor(int id) {
+            this(id, "AltConstructor");
+        }
+    }
+
+    record RecordWithSingleValueCanonAndMultiValueAltConstructor(String name) {
+
+        public RecordWithSingleValueCanonAndMultiValueAltConstructor(String name, String email) {
+            this("AltConstructor");
         }
     }
 
@@ -340,5 +355,61 @@ public class RecordImplicitCreatorsTest extends DatabindTestUtil
                 RecordWithNonCanonicalConstructor.class);
 
         assertEquals(new RecordWithNonCanonicalConstructor(123, null, "bob@example.com"), value);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, ConstructorDetector.USE_PROPERTIES_BASED with single-value
+    /**********************************************************************
+     */
+
+    @Test
+    public void testDeserializeMultipleConstructors_UsingMultiValueCanonicalConstructor() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .constructorDetector(ConstructorDetector.USE_PROPERTIES_BASED)
+                .build();
+        RecordWithMultiValueCanonAndSingleValueAltConstructor value = mapper.readValue(
+                a2q("{'id':123,'name':'Bob'}"),
+                RecordWithMultiValueCanonAndSingleValueAltConstructor.class);
+
+        assertEquals(new RecordWithMultiValueCanonAndSingleValueAltConstructor(123, "Bob"), value);
+    }
+
+    @Test
+    public void testDeserializeMultipleConstructors_WillIgnoreSingleValueAltConstructor() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .constructorDetector(ConstructorDetector.USE_PROPERTIES_BASED)
+                .build();
+        RecordWithMultiValueCanonAndSingleValueAltConstructor value = mapper.readValue(
+                a2q("{'id':123}"),
+                RecordWithMultiValueCanonAndSingleValueAltConstructor.class);
+
+        assertEquals(new RecordWithMultiValueCanonAndSingleValueAltConstructor(123, null), value);
+    }
+
+    @Test
+    public void testDeserializeMultipleConstructors_UsingSingleValueCanonicalConstructor() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .constructorDetector(ConstructorDetector.USE_PROPERTIES_BASED)
+                .build();
+        RecordWithSingleValueCanonAndMultiValueAltConstructor value = mapper.readValue(
+                a2q("{'name':'Bob'}"),
+                RecordWithSingleValueCanonAndMultiValueAltConstructor.class);
+
+        assertEquals(new RecordWithSingleValueCanonAndMultiValueAltConstructor("Bob"), value);
+    }
+
+    @Test
+    public void testDeserializeMultipleConstructors_WillIgnoreMultiValueAltConstructor() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .constructorDetector(ConstructorDetector.USE_PROPERTIES_BASED)
+                .build();
+        try {
+            mapper.readValue(a2q("{'name':'Bob','email':'bob@email.com'}"), RecordWithSingleValueCanonAndMultiValueAltConstructor.class);
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized");
+            verifyException(e, "\"email\"");
+            verifyException(e, "RecordWithSingleValueCanonAndMultiValueAltConstructor");
+        }
     }
 }

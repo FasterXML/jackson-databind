@@ -173,9 +173,9 @@ public class JsonNodeBasicTest extends NodeTestBase
                 if (o1.equals(o2)) {
                     return 0;
                 }
-                if ((o1 instanceof NumericNode) && (o2 instanceof NumericNode)) {
-                    int d1 = ((NumericNode) o1).numberValue().intValue();
-                    int d2 = ((NumericNode) o2).numberValue().intValue();
+                if ((o1 instanceof NumericNode node) && (o2 instanceof NumericNode node1)) {
+                    int d1 = node.numberValue().intValue();
+                    int d2 = node1.numberValue().intValue();
                     if (d1 == d2) { // strictly equals because it's integral value
                         return 0;
                     }

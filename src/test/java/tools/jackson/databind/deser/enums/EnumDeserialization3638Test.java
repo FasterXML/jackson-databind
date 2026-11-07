@@ -19,19 +19,19 @@ public class EnumDeserialization3638Test
     /**********************************************************
      */
 
-    static enum Member
+    public enum Member
     {
         FIRST_MEMBER,
         SECOND_MEMBER;
     }
 
-    static class SensitiveBean
+    public static class SensitiveBean
     {
         @JsonFormat(without = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
         public Member enumValue;
     }
 
-    static class InsensitiveBean
+    public static class InsensitiveBean
     {
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
         public Member enumValue;
@@ -46,7 +46,7 @@ public class EnumDeserialization3638Test
      */
 
     @Test
-    public void testCaseSensitive() throws Exception {
+    void testCaseSensitive() throws Exception {
         String json = a2q("{'enumValue':'1'}");
 
         SensitiveBean sensitiveBean = MAPPER.readValue(json, SensitiveBean.class);
@@ -56,7 +56,7 @@ public class EnumDeserialization3638Test
 
 
     @Test
-    public void testCaseInsensitive() throws Exception {
+    void testCaseInsensitive() throws Exception {
         String json = a2q("{'enumValue':'1'}");
 
         InsensitiveBean insensitiveBean = MAPPER.readValue(json, InsensitiveBean.class);

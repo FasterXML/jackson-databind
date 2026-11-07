@@ -42,9 +42,18 @@ abstract class NodeCursor
     /**********************************************************************
      */
 
-    // note: co-variant return type
     @Override
-    public final NodeCursor getParent() { return _parent; }
+    public TokenStreamContext getParent() { return _parent; }
+
+    /**
+     * Internal accessor used for tree traversal navigation: returns the parent
+     * cursor <i>within the traversed tree</i> ({@code null} for the root cursor).
+     * Unlike {@link #getParent()} this never exposes an externally-attached parent
+     * context (see {@link RootCursor}).
+     *
+     * @since 3.3
+     */
+    public final NodeCursor parentCursor() { return _parent; }
 
     @Override
     public final String currentName() {
@@ -110,10 +119,26 @@ abstract class NodeCursor
 
         protected boolean _done = false;
 
-        public RootCursor(JsonNode n, NodeCursor p) {
-            super(TokenStreamContext.TYPE_ROOT, p);
+        /**
+         * Optional, externally-attached parent context (e.g. the context of the
+         * parser that produced the tree being traversed); {@code null} if none.
+         * Exposed via {@link #getParent()} so that callers relying on parent
+         * hierarchy (such as {@code pathAsPointer()}) see the full path. Kept
+         * separate from the (cursor) {@code _parent} chain used for navigation,
+         * which is always {@code null} for the root.
+         *
+         * @since 3.3
+         */
+        protected final TokenStreamContext _parentContext;
+
+        public RootCursor(JsonNode n, TokenStreamContext parentContext) {
+            super(TokenStreamContext.TYPE_ROOT, null);
             _node = n;
+            _parentContext = parentContext;
         }
+
+        @Override
+        public TokenStreamContext getParent() { return _parentContext; }
 
         @Override
         public void overrideCurrentName(String name) {

@@ -1,5 +1,7 @@
 package tools.jackson.databind.exc;
 
+import java.io.Serial;
+
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.JavaType;
 
@@ -9,6 +11,7 @@ import tools.jackson.databind.JavaType;
 public class InvalidTypeIdException
     extends MismatchedInputException
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**

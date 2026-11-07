@@ -1,6 +1,7 @@
 package tools.jackson.databind;
 
 import java.io.*;
+import java.io.Serial;
 import java.nio.file.Path;
 import java.text.*;
 import java.util.Locale;
@@ -8,13 +9,13 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import tools.jackson.core.*;
-import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.io.SegmentedStringWriter;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.util.*;
 import tools.jackson.databind.cfg.ContextAttributes;
 import tools.jackson.databind.cfg.DatatypeFeature;
+import tools.jackson.databind.cfg.GeneratorInitializer;
 import tools.jackson.databind.cfg.GeneratorSettings;
 import tools.jackson.databind.cfg.SerializationContexts;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -213,14 +214,29 @@ public class ObjectWriter
     /**
      * Overridable factory method called by {@link #writeValues(OutputStream)}
      * method (and its various overrides), and initializes it as necessary.
+     * <p>
+     * When {@code managedInput} is {@code true}, {@code gen} was created by us and
+     * owns the output target: {@code gen} still needs
+     * {@link #_initializeGenerator} applied, and if that -- or writing the leading
+     * {@code START_ARRAY} in {@link SequenceWriter#init} -- fails, {@code gen} must
+     * be closed since nothing else would ever do so.
      */
     @SuppressWarnings("resource")
     protected final SequenceWriter _newSequenceWriter(SerializationContextExt ctxt,
             boolean wrapInArray, JsonGenerator gen, boolean managedInput)
         throws JacksonException
     {
-        return new SequenceWriter(ctxt, gen, managedInput, _prefetch)
-            .init(wrapInArray);
+        if (!managedInput) {
+            return new SequenceWriter(ctxt, gen, false, _prefetch)
+                .init(wrapInArray);
+        }
+        try {
+            return new SequenceWriter(ctxt, _initializeGenerator(gen), true, _prefetch)
+                .init(wrapInArray);
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, e);
+            return null; // never gets here
+        }
     }
 
     /*
@@ -553,6 +569,17 @@ public class ObjectWriter
         return _new(_generatorSettings.withRootValueSeparator(sep), _prefetch);
     }
 
+    /**
+     * Fluent factory method for constructing a new instance with specified
+     * {@link GeneratorInitializer} to call on newly
+     * constructed {@link JsonGenerator}s before use.
+     *
+     * @since 3.2
+     */
+    public ObjectWriter with(GeneratorInitializer init) {
+        return _new(this, _config.withGeneratorInitializer(init));
+    }
+
     /*
     /**********************************************************************
     /* Public API: constructing Generator that are properly linked to `ObjectWriteContext`
@@ -569,7 +596,8 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(OutputStream target) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializationContext(), target);
+        return _initializeManagedGenerator(
+                _generatorFactory.createGenerator(_serializationContext(), target));
     }
 
     /**
@@ -582,7 +610,8 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(OutputStream target, JsonEncoding enc) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializationContext(), target, enc);
+        return _initializeManagedGenerator(
+                _generatorFactory.createGenerator(_serializationContext(), target, enc));
     }
 
     /**
@@ -595,7 +624,8 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(Writer target) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializationContext(), target);
+        return _initializeManagedGenerator(
+                _generatorFactory.createGenerator(_serializationContext(), target));
     }
 
     /**
@@ -608,7 +638,8 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(File target, JsonEncoding enc) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializationContext(), target, enc);
+        return _initializeManagedGenerator(
+                _generatorFactory.createGenerator(_serializationContext(), target, enc));
     }
 
     /**
@@ -621,7 +652,8 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(Path target, JsonEncoding enc) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializationContext(), target, enc);
+        return _initializeManagedGenerator(
+                _generatorFactory.createGenerator(_serializationContext(), target, enc));
     }
 
     /**
@@ -634,7 +666,8 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(DataOutput target) {
         _assertNotNull("target", target);
-        return _generatorFactory.createGenerator(_serializationContext(), target);
+        return _initializeManagedGenerator(
+                _generatorFactory.createGenerator(_serializationContext(), target));
     }
 
     /*
@@ -959,9 +992,8 @@ public class ObjectWriter
     {
         _assertNotNull("g", g);
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
-                && (value instanceof AutoCloseable))
+                && (value instanceof AutoCloseable toClose))
         {
-            AutoCloseable toClose = (AutoCloseable) value;
             try {
                 _prefetch.serialize(g, value, _serializationContext());
                 if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
@@ -973,10 +1005,9 @@ public class ObjectWriter
             }
             try {
                 toClose.close();
-            } catch (IOException e) {
-                throw JacksonIOException.construct(e, g);
             } catch (Exception e) {
-                ClassUtil.closeOnFailAndThrowAsJacksonE(g, e);
+                // 07-Sep-2026, tatu: Note that caller-owned Generator must NOT be closed here
+                throw ClassUtil.closeFailureAsJacksonE(g, toClose, e);
             }
         } else {
             _prefetch.serialize(g, value, _serializationContext());
@@ -1120,9 +1151,17 @@ public class ObjectWriter
     protected final void _configAndWriteValue(SerializationContextExt ctxt,
             JsonGenerator gen, Object value) throws JacksonException
     {
+        try {
+            _initializeGenerator(gen);
+        } catch (Exception e) {
+            // 07-Sep-2026, pjfanning: `GeneratorInitializer` is caller-provided and
+            //   may fail; generator owns the output target so it must not leak
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, e);
+            return;
+        }
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
-                && (value instanceof AutoCloseable)) {
-            _writeCloseable(gen, value);
+                && (value instanceof AutoCloseable toClose)) {
+            _writeCloseable(gen, toClose);
             return;
         }
         try {
@@ -1135,20 +1174,24 @@ public class ObjectWriter
     }
 
     /**
-     * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
+     * Helper method used when value to serialize is {@link AutoCloseable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _writeCloseable(JsonGenerator gen, Object value)
+    private final void _writeCloseable(JsonGenerator gen, AutoCloseable value)
         throws JacksonException
     {
-        AutoCloseable toClose = (AutoCloseable) value;
         try {
             _prefetch.serialize(gen, value, _serializationContext());
-            AutoCloseable tmpToClose = toClose;
-            toClose = null;
-            tmpToClose.close();
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, toClose, e);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, value, e);
+            return;
+        }
+        try {
+            value.close();
+        } catch (Exception e) {
+            // Generator is ours to close, but `close()` failure still needs wrapping
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen,
+                    ClassUtil.closeFailureAsJacksonE(gen, value, e));
             return;
         }
         gen.close();
@@ -1263,6 +1306,34 @@ public class ObjectWriter
         }
     }
 
+    /**
+     * Helper method that applies configured {@link GeneratorInitializer},
+     * if any, to the given generator and returns it.
+     *
+     * @since 3.2
+     */
+    protected JsonGenerator _initializeGenerator(JsonGenerator gen) {
+        GeneratorInitializer init = _config.getGeneratorInitializer();
+        if (init != null) {
+            init.initialize(_config, gen);
+        }
+        return gen;
+    }
+
+    /**
+     * Variant of {@link #_initializeGenerator} for the case where {@code gen}
+     * owns the output target: {@link GeneratorInitializer} is caller-provided
+     * and may fail, and if it does the generator must not leak.
+     */
+    protected JsonGenerator _initializeManagedGenerator(JsonGenerator gen) {
+        try {
+            return _initializeGenerator(gen);
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, e);
+            return null; // never gets here
+        }
+    }
+
     protected final void _assertNotNull(String paramName, Object src) {
         if (src == null){
             throw new IllegalArgumentException("argument \"" + paramName + "\" is null");
@@ -1283,6 +1354,7 @@ public class ObjectWriter
     public final static class Prefetch
         implements java.io.Serializable
     {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         public final static Prefetch empty = new Prefetch(null, null, null);

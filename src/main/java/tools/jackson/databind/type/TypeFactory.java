@@ -1,5 +1,6 @@
 package tools.jackson.databind.type;
 
+import java.io.Serial;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -65,6 +66,7 @@ public class TypeFactory
     implements Snapshottable<TypeFactory>,
         java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     /**
@@ -455,7 +457,7 @@ public class TypeFactory
                 break;
             }
             if (!rawBase.isAssignableFrom(subclass)) {
-                throw new IllegalArgumentException(String.format("Class %s not subtype of %s",
+                throw new IllegalArgumentException("Class %s not subtype of %s".formatted(
                         ClassUtil.nameOf(subclass), ClassUtil.getTypeDescription(baseType)
                 ));
             }
@@ -507,10 +509,49 @@ public class TypeFactory
 
         } while (false);
 
+        // [databind#6220]: key/content type of base type may have been refined (like with
+        //   `@JsonDeserialize(keyAs/contentAs)`) without changing its type bindings, which
+        //   resolution above (other than short-cuts) is based on: retain such refinements
+        newType = _retainRefinedKeyAndContent(baseType, newType);
+
         // 25-Sep-2016, tatu: As per [databind#1384] also need to ensure handlers get
         //   copied as well
         newType = newType.withHandlersFrom(baseType);
         return newType;
+    }
+
+    private JavaType _retainRefinedKeyAndContent(JavaType baseType, JavaType newType)
+    {
+        // Only between same kinds of types (Map-like, Collection-like, reference)
+        if ((baseType.isMapLikeType() != newType.isMapLikeType())
+                || (baseType.isCollectionLikeType() != newType.isCollectionLikeType())
+                || (baseType.isReferenceType() != newType.isReferenceType())) {
+            return newType;
+        }
+        if (newType.isMapLikeType()) {
+            JavaType keyType = _refinedOrNull(baseType.getKeyType(), newType.getKeyType());
+            if (keyType != null) {
+                newType = ((MapLikeType) newType).withKeyType(keyType);
+            }
+        }
+        JavaType contentType = _refinedOrNull(baseType.getContentType(), newType.getContentType());
+        if (contentType != null) {
+            newType = newType.withContentType(contentType);
+        }
+        return newType;
+    }
+
+    // Returns `baseType` if it is a strict subtype of `resolved`; `null` otherwise
+    private JavaType _refinedOrNull(JavaType baseType, JavaType resolved)
+    {
+        if ((baseType == null) || (resolved == null)) {
+            return null;
+        }
+        final Class<?> baseRaw = baseType.getRawClass();
+        if (resolved.hasRawClass(baseRaw) || !resolved.getRawClass().isAssignableFrom(baseRaw)) {
+            return null;
+        }
+        return baseType;
     }
 
     private TypeBindings _bindingsForSubtype(JavaType baseType, int typeParamCount,
@@ -527,8 +568,8 @@ public class TypeFactory
         JavaType baseWithPlaceholders = tmpSub.findSuperType(baseType.getRawClass());
         if (baseWithPlaceholders == null) { // should be found but...
             throw new IllegalArgumentException(String.format(
-                    "Internal error: unable to locate supertype (%s) from resolved subtype %s", baseType.getRawClass().getName(),
-                    subclass.getName()));
+                    "Internal error: unable to locate supertype (%s) from resolved subtype %s",
+                    baseType.getRawClass().getName(), subclass.getName()));
         }
         // and traverse type hierarchies to both verify and to resolve placeholders
         String error = _resolveTypePlaceholders(baseType, baseWithPlaceholders);
@@ -593,8 +634,8 @@ public class TypeFactory
                         continue;
                     }
                 }
-                return String.format("Type parameter #%d/%d differs; cannot specialize %s with %s",
-                        (i+1), expCount, exp.toCanonical(), act.toCanonical());
+                return "Type parameter #%d/%d differs; cannot specialize %s with %s".formatted(
+                        (i + 1), expCount, exp.toCanonical(), act.toCanonical());
             }
         }
         return null;
@@ -642,12 +683,10 @@ public class TypeFactory
         if (superType == null) {
             // Most likely, caller did not verify sub/super-type relationship
             if (!superClass.isAssignableFrom(rawBase)) {
-                throw new IllegalArgumentException(String.format(
-                        "Class %s not a super-type of %s", superClass.getName(), baseType));
+                throw new IllegalArgumentException("Class %s not a super-type of %s".formatted(superClass.getName(), baseType));
             }
             // 01-Nov-2015, tatu: Should never happen, but ch
-            throw new IllegalArgumentException(String.format(
-                    "Internal error: class %s not included as super-type for %s",
+            throw new IllegalArgumentException("Internal error: class %s not included as super-type for %s".formatted(
                     superClass.getName(), baseType));
         }
         return superType;
@@ -1143,9 +1182,8 @@ public class TypeFactory
                 vt = typeParams.get(1);
                 break;
             default:
-                throw new IllegalArgumentException(String.format(
-"Strange Map type %s with %d type parameter%s (%s), cannot resolve",
-ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
+                throw new IllegalArgumentException("Strange Map type %s with %d type parameter%s (%s), cannot resolve".formatted(
+                        ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             }
         }
         return MapType.construct(rawClass, bindings, superClass, superInterfaces, kt, vt);
@@ -1317,8 +1355,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         for (TypeModifier mod : _modifiers) {
             JavaType t = mod.modifyType(resultType, srcType, b, this);
             if (t == null) {
-                throw new IllegalStateException(String.format(
-                        "TypeModifier %s (of type %s) return null for type %s",
+                throw new IllegalStateException("TypeModifier %s (of type %s) return null for type %s".formatted(
                         mod, mod.getClass().getName(), resultType));
             }
             resultType = t;

@@ -635,6 +635,125 @@ public class CustomSerializersTest extends DatabindTestUtil
         }
     }
 
+    // [databind#4385]
+
+    static class Value4385 {
+        public String value;
+
+        public Value4385(String value) {
+            this.value = value;
+        }
+    }
+
+    @JsonPropertyOrder({"selected", "annotatedOther", "plainOther"})
+    static class TargetBean4385 {
+        @JsonSerialize(using = AnnotationValueSerializer4385.class,
+                nullsUsing = AnnotationNullSerializer4385.class)
+        public Value4385 selected;
+
+        @JsonSerialize(using = AnnotationValueSerializer4385.class)
+        public Value4385 annotatedOther;
+
+        public Value4385 plainOther;
+
+        public TargetBean4385(Value4385 selected) {
+            this.selected = selected;
+            annotatedOther = new Value4385("annotated");
+            plainOther = new Value4385("plain");
+        }
+    }
+
+    static class OtherBean4385 {
+        public Value4385 value = new Value4385("other");
+    }
+
+    static class AnnotationValueSerializer4385 extends StdSerializer<Value4385> {
+        private static final long serialVersionUID = 1L;
+
+        public AnnotationValueSerializer4385() {
+            super(Value4385.class);
+        }
+
+        @Override
+        public void serialize(Value4385 value, JsonGenerator gen, SerializationContext ctxt) {
+            gen.writeString("annotation:" + value.value);
+        }
+    }
+
+    static class ModifierValueSerializer4385 extends StdSerializer<Object> {
+        private static final long serialVersionUID = 1L;
+
+        public ModifierValueSerializer4385() {
+            super(Object.class);
+        }
+
+        @Override
+        public void serialize(Object value, JsonGenerator gen, SerializationContext ctxt) {
+            Value4385 typedValue = (Value4385) value;
+            gen.writeString("modifier:" + typedValue.value);
+        }
+    }
+
+    static class GlobalValueSerializer4385 extends StdSerializer<Value4385> {
+        private static final long serialVersionUID = 1L;
+
+        public GlobalValueSerializer4385() {
+            super(Value4385.class);
+        }
+
+        @Override
+        public void serialize(Value4385 value, JsonGenerator gen, SerializationContext ctxt) {
+            gen.writeString("global:" + value.value);
+        }
+    }
+
+    static class AnnotationNullSerializer4385 extends StdSerializer<Object> {
+        private static final long serialVersionUID = 1L;
+
+        public AnnotationNullSerializer4385() {
+            super(Object.class);
+        }
+
+        @Override
+        public void serialize(Object value, JsonGenerator gen, SerializationContext ctxt) {
+            gen.writeString("annotation-null");
+        }
+    }
+
+    static class PropertySerializerModifier4385 extends ValueSerializerModifier {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
+                BeanDescription.Supplier beanDesc, List<BeanPropertyWriter> beanProperties) {
+            if (beanDesc.getBeanClass() == TargetBean4385.class) {
+                for (BeanPropertyWriter property : beanProperties) {
+                    if ("selected".equals(property.getName())) {
+                        property.assignSerializer(new ModifierValueSerializer4385());
+                    }
+                }
+            }
+            return beanProperties;
+        }
+    }
+
+    static class NullingPropertySerializerModifier4385 extends ValueSerializerModifier {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
+                BeanDescription.Supplier beanDesc, List<BeanPropertyWriter> beanProperties) {
+            if (beanDesc.getBeanClass() == TargetBean4385.class) {
+                for (BeanPropertyWriter property : beanProperties) {
+                    if ("selected".equals(property.getName())) {
+                        property.assignSerializer(null);
+                    }
+                }
+            }
+            return beanProperties;
+        }
+    }
+
     /*
     /**********************************************************************
     /* Test methods, custom serializers
@@ -1028,5 +1147,48 @@ public class CustomSerializersTest extends DatabindTestUtil
         User5414 user = new User5414("John", "123456");
         String userJson = mapper.writeValueAsString(user);
         assertEquals("{\"name\":\"John\"}", userJson);
+    }
+
+    // [databind#4385]
+    @Test
+    public void propertySerializerReplacedByModifier4385()
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addSerializer(Value4385.class, new GlobalValueSerializer4385())
+                        .setSerializerModifier(new PropertySerializerModifier4385()))
+                .build();
+        assertEquals("""
+                {"selected":"modifier:selected","annotatedOther":"annotation:annotated","plainOther":"global:plain"}""",
+                mapper.writeValueAsString(new TargetBean4385(new Value4385("selected"))));
+        assertEquals("""
+                {"value":"global:other"}""",
+                mapper.writeValueAsString(new OtherBean4385()));
+    }
+
+    // [databind#4385]
+    @Test
+    public void propertyNullSerializerNotReplacedByModifier4385()
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addSerializer(Value4385.class, new GlobalValueSerializer4385())
+                        .setSerializerModifier(new PropertySerializerModifier4385()))
+                .build();
+        assertEquals("""
+                {"selected":"annotation-null","annotatedOther":"annotation:annotated","plainOther":"global:plain"}""",
+                mapper.writeValueAsString(new TargetBean4385(null)));
+    }
+
+    // [databind#4385]
+    @Test
+    public void propertySerializerNullAssignmentRejected4385()
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule()
+                        .setSerializerModifier(new NullingPropertySerializerModifier4385()))
+                .build();
+        assertThrows(IllegalStateException.class,
+                () -> mapper.writeValueAsString(new TargetBean4385(new Value4385("selected"))));
     }
 }

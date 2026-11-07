@@ -28,6 +28,24 @@ public abstract class DeserializationContextExt
     private List<ObjectIdResolver> _objectIdResolvers;
 
     /**
+     * Identity-based set tracking container objects (typically builders) that have
+     * unresolved forward Object Id references registered against them.
+     * Populated by {@link #addPendingForwardRef} and checked by
+     * {@link #hasPendingForwardRefsFor} in O(1) time, avoiding costly scans.
+     *
+     * @since 3.2
+     */
+    private Set<Object> _buildersWithForwardRefs;
+
+    /**
+     * Lookup from items bound to Object Ids that may later be rebound (Builders,
+     * delegates) to their Object Id entries: lets {@link #updateObjectId} find the
+     * entry directly, as scanning all Object Ids would make reading N such values
+     * take O(N^2) time.
+     */
+    private transient IdentityHashMap<Object, ReadableObjectId> _rebindableItems;
+
+    /**
      * Constructor that will pass specified deserializer factory and
      * cache: cache may be null (in which case default implementation
      * will be used), factory cannot be null
@@ -115,6 +133,74 @@ public abstract class DeserializationContextExt
      */
     protected ReadableObjectId createReadableObjectId(IdKey key) {
         return new ReadableObjectId(key);
+    }
+
+    // @since 3.2
+    @Override
+    public void updateObjectId(Object delegate, Object newItem) throws JacksonException
+    {
+        if (_rebindableItems != null) {
+            ReadableObjectId roid = _rebindableItems.remove(delegate);
+            if ((roid != null) && roid.tryReplaceBoundItem(delegate, newItem)) {
+                roid.notifyReferringsOfRebind(delegate, newItem);
+                return;
+            }
+        }
+        // Not registered as rebindable (should be rare): need to scan all Object Ids
+        if (_objectIds != null) {
+            for (ReadableObjectId roid : _objectIds.values()) {
+                if (roid.tryReplaceBoundItem(delegate, newItem)) {
+                    // [databind#5909]: forward refs already resolved to the
+                    // delegate (e.g. Builder) need to be swapped to newItem too.
+                    roid.notifyReferringsOfRebind(delegate, newItem);
+                    return;
+                }
+            }
+        }
+        // If we get here, no ObjectId entry was bound to the delegate. This indicates
+        // a problem: caller expected to rebind Object Id from delegate/builder to the
+        // final object, but no matching entry was found.
+        reportBadDefinition(constructType(newItem.getClass()), String.format(
+                "Failed to update Object Id: no ObjectId entry found bound to delegate of type `%s`"
+                + " (target type `%s`)",
+                ClassUtil.classNameOf(delegate), ClassUtil.classNameOf(newItem)));
+    }
+
+    /**
+     * Method called by {@link ReadableObjectId#bindItem} to register an item that may
+     * later be rebound by {@link #updateObjectId}.
+     *
+     * @since 3.2.3
+     */
+    void registerRebindableItem(Object item, ReadableObjectId roid) {
+        if (_rebindableItems == null) {
+            _rebindableItems = new IdentityHashMap<>();
+        }
+        // Should there be multiple entries bound to the same item, keep the first one
+        _rebindableItems.putIfAbsent(item, roid);
+    }
+
+    // @since 3.2
+    @Override
+    public void addPendingForwardRef(Object container) {
+        if (_buildersWithForwardRefs == null) {
+            _buildersWithForwardRefs = Collections.newSetFromMap(new IdentityHashMap<>());
+        }
+        _buildersWithForwardRefs.add(container);
+    }
+
+    // @since 3.2
+    @Override
+    public void removePendingForwardRef(Object container) {
+        if (_buildersWithForwardRefs != null) {
+            _buildersWithForwardRefs.remove(container);
+        }
+    }
+
+    // @since 3.2
+    @Override
+    public boolean hasPendingForwardRefsFor(Object builder) {
+        return (_buildersWithForwardRefs != null) && _buildersWithForwardRefs.contains(builder);
     }
 
     @Override

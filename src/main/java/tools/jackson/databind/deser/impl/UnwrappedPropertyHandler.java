@@ -2,14 +2,16 @@ package tools.jackson.databind.deser.impl;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.SettableBeanProperty;
-import tools.jackson.databind.deser.bean.BeanDeserializerBase;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
+import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.TokenBuffer;
 
@@ -156,6 +158,24 @@ public class UnwrappedPropertyHandler
     public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
             Object bean, TokenBuffer buffered, boolean hasUnwrappedContent)
     {
+        return _processUnwrapped(ctxt, bean, buffered, hasUnwrappedContent, false);
+    }
+
+    /**
+     * Processes unwrapped builder properties, retaining the instance returned by
+     * each builder method.
+     *
+     * @since 3.3
+     */
+    public Object processUnwrappedForBuilder(JsonParser originalParser, DeserializationContext ctxt,
+            Object builder, TokenBuffer buffered, boolean hasUnwrappedContent)
+    {
+        return _processUnwrapped(ctxt, builder, buffered, hasUnwrappedContent, true);
+    }
+
+    private Object _processUnwrapped(DeserializationContext ctxt,
+            Object bean, TokenBuffer buffered, boolean hasUnwrappedContent, boolean builderBased)
+    {
         if (hasUnwrappedContent
                 || _unwrappedPropertyNames.isEmpty()
                 // [databind#1709]: Skip deserialization if no unwrapped content.
@@ -168,7 +188,11 @@ public class UnwrappedPropertyHandler
                     continue;
                 }
                 try (JsonParser p = buffered.asParserOnFirstToken(ctxt)) {
-                    prop.deserializeAndSet(p, ctxt, bean);
+                    if (builderBased) {
+                        bean = prop.deserializeSetAndReturn(p, ctxt, bean);
+                    } else {
+                        prop.deserializeAndSet(p, ctxt, bean);
+                    }
                 }
             }
         }
@@ -262,35 +286,23 @@ public class UnwrappedPropertyHandler
         if (deser == null) {
             return false;
         }
-        BeanDeserializerBase bd = _findBeanDeser(deser);
-        if (bd == null) {
-            // [databind#6001]: not a (delegating) bean deserializer -- typically a
-            //   custom unwrapping deserializer capturing arbitrary fields. It is
-            //   "opaque" (declares no property names), so we cannot tell which
-            //   properties are unwrapped and must accept all (pre-#650 behavior).
-            return true;
-        }
-        if (bd.hasAnySetter()) {
+        if (deser.hasAnySetter()) {
             return true;
         }
         // [databind#6001]: collect into a temp set so we can tell whether this
         //   deserializer contributed any names of its own; if not, it is "opaque"
         //   (typically a custom unwrapping deserializer capturing arbitrary fields).
         Set<String> propNames = new HashSet<>();
-        bd.collectAllPropertyNamesTo(propNames);
+        deser.collectAllPropertyNamesTo(propNames);
         names.addAll(propNames);
+        // [databind#6332]: polymorphic unwrapped value also needs its type id property
+        TypeDeserializer typeDeser = prop.getValueTypeDeserializer();
+        if (typeDeser != null) {
+            JsonTypeInfo.As incl = typeDeser.getTypeInclusion();
+            if (incl == JsonTypeInfo.As.PROPERTY || incl == JsonTypeInfo.As.EXISTING_PROPERTY) {
+                names.add(typeDeser.getPropertyName());
+            }
+        }
         return propNames.isEmpty();
-    }
-
-    // @since 3.1
-    private BeanDeserializerBase _findBeanDeser(ValueDeserializer<?> deser) {
-        if (deser instanceof BeanDeserializerBase bd) {
-            return bd;
-        }
-        // [databind#5728] handle delegating case
-        if (deser.getDelegatee() instanceof BeanDeserializerBase bd) {
-            return bd;
-        }
-        return null;
     }
 }

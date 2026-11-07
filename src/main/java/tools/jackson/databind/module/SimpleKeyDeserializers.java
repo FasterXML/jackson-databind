@@ -1,5 +1,6 @@
 package tools.jackson.databind.module;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +22,7 @@ import tools.jackson.databind.type.ClassKey;
 public class SimpleKeyDeserializers
     implements KeyDeserializers, java.io.Serializable // since 2.1
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected HashMap<ClassKey,KeyDeserializer> _classMappings = null;

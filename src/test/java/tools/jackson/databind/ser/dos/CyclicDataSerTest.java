@@ -59,7 +59,7 @@ public class CyclicDataSerTest
             writeAndMap(MAPPER, list);
             fail("expected DatabindException");
         } catch (StreamConstraintsException e) {
-            String exceptionPrefix = String.format("Document nesting depth (%d) exceeds the maximum allowed",
+            String exceptionPrefix = "Document nesting depth (%d) exceeds the maximum allowed".formatted(
                     StreamWriteConstraints.DEFAULT_MAX_DEPTH + 1);
             assertTrue(e.getMessage().startsWith(exceptionPrefix),
                 "DatabindException message is as expected?");

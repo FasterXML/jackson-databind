@@ -1,5 +1,6 @@
 package tools.jackson.databind.jsontype.impl;
 
+import java.io.Serial;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -19,6 +20,7 @@ public class ClassNameIdResolver
     extends TypeIdResolverBase
     implements java.io.Serializable // @since 2.16.2
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final static String JAVA_UTIL_PKG = "java.util.";

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonKey;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -12,6 +13,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Tests for {@link JsonKey} annotation with Java Records.
@@ -33,6 +35,16 @@ public class RecordMapKeyAnnotationsTest extends DatabindTestUtil
 
     // [databind#5559]
     record SimpleKeyRecord(@JsonKey String id) { }
+
+    // [databind#3063]
+    record GetLocations3063(@JsonValue Map<String, String> nameToLocation)
+    {
+        @JsonCreator
+        public GetLocations3063(Map<String, String> nameToLocation)
+        {
+            this.nameToLocation = nameToLocation;
+        }
+    }
 
     /*
     /**********************************************************************
@@ -76,5 +88,15 @@ public class RecordMapKeyAnnotationsTest extends DatabindTestUtil
         Map<SimpleKeyRecord, String> map = Collections.singletonMap(keyRecord, "myValue");
         String actual = MAPPER.writeValueAsString(map);
         assertEquals("{\"myKey\":\"myValue\"}", actual);
+    }
+
+    // [databind#3063]: @JsonValue Map serialization on record
+    @Test
+    public void testRecordWithJsonValue3063() throws Exception
+    {
+        Map<String, String> locations = Collections.singletonMap("a", "locationA");
+        String json = MAPPER.writeValueAsString(new GetLocations3063(locations));
+
+        assertNotNull(json);
     }
 }

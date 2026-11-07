@@ -424,10 +424,12 @@ public class ExternalTypeCustomResolver1288Test extends DatabindTestUtil
     {
         // given
         final String asJson1 = a2q(
-"{'form_of_payment':'INDIVIDUAL_CREDIT_CARD', 'payment_details':{'card_holder_first_name':'John',\n"
-+"'card_holder_last_name':'Doe',  'number':'XXXXXXXXXXXXXXXX', 'expiry_date':'MM/YY',\n"
-+ "'csc':666,'address':'10 boulevard de Sebastopol','zip_code':'75001','city':'Paris',\n"
-+"'province':'Ile-de-France','country_code':'FR','description':'John Doe personal credit card'}}"
+"""
+{'form_of_payment':'INDIVIDUAL_CREDIT_CARD', 'payment_details':{'card_holder_first_name':'John',
+'card_holder_last_name':'Doe',  'number':'XXXXXXXXXXXXXXXX', 'expiry_date':'MM/YY',
+'csc':666,'address':'10 boulevard de Sebastopol','zip_code':'75001','city':'Paris',
+'province':'Ile-de-France','country_code':'FR','description':'John Doe personal credit card'}}
+"""
         );
         ClassesWithoutBuilder.PaymentMean ob1 = MAPPER.readValue(asJson1, ClassesWithoutBuilder.PaymentMean.class);
         assertNotNull(ob1);
@@ -438,10 +440,12 @@ public class ExternalTypeCustomResolver1288Test extends DatabindTestUtil
     public void testExternalWithCustomResolverAndBuilder() throws Exception
     {
         final String asJson2 = a2q(
-"{'form_of_payment':'INSTRUMENTED_CREDIT_CARD',\n"
-+"'payment_details':{\n"
-+"'payment_instrument_id':'00000000-0000-0000-0000-000000000000',\n"
-+" 'name':'Mr John Doe encrypted credit card'}}"
+"""
+{'form_of_payment':'INSTRUMENTED_CREDIT_CARD',
+'payment_details':{
+'payment_instrument_id':'00000000-0000-0000-0000-000000000000',
+ 'name':'Mr John Doe encrypted credit card'}}
+"""
         );
         ClassesWithBuilder.PaymentMean ob2 = MAPPER.readValue(asJson2, ClassesWithBuilder.PaymentMean.class);
         assertNotNull(ob2);

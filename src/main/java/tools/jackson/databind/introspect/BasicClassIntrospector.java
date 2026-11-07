@@ -1,5 +1,6 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,7 @@ public class BasicClassIntrospector
     extends ClassIntrospector
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     private final static Class<?> CLS_OBJECT = Object.class;

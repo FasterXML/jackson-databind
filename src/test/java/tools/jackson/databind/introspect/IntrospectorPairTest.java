@@ -180,6 +180,12 @@ public class IntrospectorPairTest extends DatabindTestUtil
         }
 
         @Override
+        public JavaType findPolymorphicBaseType(MapperConfig<?> config,
+                AnnotatedClass ac, JsonTypeInfo.Value typeInfo, JavaType assumedBaseType) {
+            return (JavaType) values.get("findPolymorphicBaseType");
+        }
+
+        @Override
         public Object findTypeResolverBuilder(MapperConfig<?> config, Annotated ann) {
             return values.get("findTypeResolverBuilder");
         }
@@ -224,6 +230,11 @@ public class IntrospectorPairTest extends DatabindTestUtil
         @Override
         public JsonSerialize.Typing findSerializationTyping(MapperConfig<?> config, Annotated a) {
             return (JsonSerialize.Typing) values.get("findSerializationTyping");
+        }
+
+        @Override
+        public Class<?> findApplyView(MapperConfig<?> config, Annotated a) {
+            return (Class<?>) values.get("findApplyView");
         }
 
         /*
@@ -660,6 +671,33 @@ public class IntrospectorPairTest extends DatabindTestUtil
                 new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2).findSerializationTyping(null, null));
     }
 
+    // [databind#5754]
+    @Test
+    public void testFindApplyView() throws Exception
+    {
+        // Using arbitrary Class objects as stand-ins for View classes
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findApplyView", Integer.class);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("findApplyView", String.class);
+
+        // Both null -> null
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
+                .findApplyView(null, null));
+
+        // Primary takes precedence
+        assertEquals(Integer.class,
+                new AnnotationIntrospectorPair(intr1, intr2).findApplyView(null, null));
+        assertEquals(String.class,
+                new AnnotationIntrospectorPair(intr2, intr1).findApplyView(null, null));
+
+        // If primary returns null, secondary is used
+        assertEquals(Integer.class,
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr1).findApplyView(null, null));
+        assertEquals(String.class,
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2).findApplyView(null, null));
+    }
+
     @Test
     public void testHasAsValue() throws Exception
     {
@@ -870,6 +908,38 @@ public class IntrospectorPairTest extends DatabindTestUtil
         // When primary returns null, secondary should be used
         assertEquals("resolver2",
                 new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2).findTypeResolverBuilder(null, null));
+    }
+
+    @Test
+    public void testFindPolymorphicBaseType() {
+        ObjectMapper mapper = newJsonMapper();
+        JavaType stringType = mapper.constructType(String.class);
+        JavaType intType = mapper.constructType(Integer.class);
+
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findPolymorphicBaseType", stringType);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("findPolymorphicBaseType", intType);
+
+        // Both null -> null
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
+                .findPolymorphicBaseType(null, null, null, null));
+
+        // Primary wins when both return non-null
+        assertSame(stringType,
+                new AnnotationIntrospectorPair(intr1, intr2)
+                        .findPolymorphicBaseType(null, null, null, null));
+        assertSame(intType,
+                new AnnotationIntrospectorPair(intr2, intr1)
+                        .findPolymorphicBaseType(null, null, null, null));
+
+        // Falls back to secondary when primary returns null
+        assertSame(intType,
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2)
+                        .findPolymorphicBaseType(null, null, null, null));
+        assertSame(stringType,
+                new AnnotationIntrospectorPair(intr1, NO_ANNOTATIONS)
+                        .findPolymorphicBaseType(null, null, null, null));
     }
 
     @Test

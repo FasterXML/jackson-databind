@@ -4,7 +4,9 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -89,6 +91,62 @@ public class RecordCreatorsTest extends DatabindTestUtil
         }
     }
 
+    // [databind#3938]
+    private final static String ERROR_3938_PREFIX = "Non-null 'options' not allowed for ";
+
+    interface NoOptionsCommand3938 {
+        @JsonProperty("options")
+        default void setOptions(JsonNode value) {
+          if (value.isNull()) {
+             return;
+          }
+          throw new IllegalArgumentException(ERROR_3938_PREFIX+getClass().getName());
+        }
+    }
+
+    public record Command3938(int id, String filter) implements NoOptionsCommand3938 { }
+
+    // [databind#562]
+    record RecordWithAnySetterCtor562(int id,
+            Map<String, Integer> additionalProperties) {
+        @JsonCreator
+        public RecordWithAnySetterCtor562(@JsonProperty("regular") int id,
+                @JsonAnySetter Map<String, Integer> additionalProperties
+        ) {
+            this.id = id;
+            this.additionalProperties = additionalProperties;
+        }
+    }
+
+    // [databind#3439]
+    record TestRecord3439(
+            @JsonProperty String field,
+            @JsonAnySetter Map<String, Object> anySetter
+        ) {}
+
+    // [databind#5952]
+    record UserRecordWithAnySetter5952(
+            String name,
+            @JsonIgnore String sensitiveField,
+            @JsonAnySetter Map<String, Object> extras
+    ) {}
+
+    // [databind#5923]
+    public record Inner5923(@JsonProperty(required = true, value = "innerValue") boolean innerValue) {}
+
+    // [databind#5923]
+    public record Outer5923(Inner5923 bools) {
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        public static Outer5923 fromJson(@JsonProperty(required = true, value = "renamed") boolean booleanValue) {
+            return new Outer5923(new Inner5923(booleanValue));
+        }
+
+        @JsonValue
+        public Map<String, Boolean> toJson() {
+            return Map.of("renamed", bools.innerValue());
+        }
+    }
+
     private final ObjectMapper MAPPER = jsonMapperBuilder().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
     /*
@@ -168,5 +226,125 @@ public class RecordCreatorsTest extends DatabindTestUtil
     @Test
     void testDeserializeWithCreatorAndJsonValue4724() throws Exception {
         newJsonMapper().readValue("\"\"", Something.class);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, failing setter from interface [databind#3938]
+    /**********************************************************************
+     */
+
+    // [databind#3938]: Should detect and use setters too
+    @Test
+    public void testFailingSetter3938() throws Exception
+    {
+        final ObjectMapper mapper = newJsonMapper();
+        final ObjectReader R = mapper.readerFor(Command3938.class);
+
+        // First, missing value and `null` are fine, as long as we have all fields
+        assertNotNull(R.readValue(a2q("{'id':1, 'filter':'abc'}")));
+        assertNotNull(R.readValue(a2q("{'id':2, 'filter':'abc', 'options':null}")));
+
+        // But then failure for non-empty Array (f.ex)
+        try {
+            R.readValue(a2q("{'id':2,'options':[123]}}"));
+            fail("Should not pass");
+        } catch (DatabindException e) {
+            verifyException(e, ERROR_3938_PREFIX);
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, @JsonAnySetter on creator [databind#562, #3439, #5952]
+    /**********************************************************************
+     */
+
+    // [databind#562]: Allow @JsonAnySetter on Creator constructors
+    @Test
+    public void testRecordWithAnySetterCtor() throws Exception
+    {
+        final ObjectMapper mapper = newJsonMapper();
+        // First, only regular property mapped
+        RecordWithAnySetterCtor562 result = mapper.readValue(a2q("{'regular':13}"),
+                RecordWithAnySetterCtor562.class);
+        assertEquals(13, result.id);
+        assertEquals(0, result.additionalProperties.size());
+
+        // Then with unknown properties
+        result = mapper.readValue(a2q("{'regular':13, 'unknown':99, 'extra':-1}"),
+                RecordWithAnySetterCtor562.class);
+        assertEquals(13, result.id);
+        assertEquals(Integer.valueOf(99), result.additionalProperties.get("unknown"));
+        assertEquals(Integer.valueOf(-1), result.additionalProperties.get("extra"));
+        assertEquals(2, result.additionalProperties.size());
+    }
+
+    // [databind#3439] Java Record @JsonAnySetter value is null after deserialization
+    @Test
+    public void testJsonAnySetterOnRecord() throws Exception {
+        final ObjectMapper mapper = newJsonMapper();
+        String json = """
+            {
+                "field": "value",
+                "unmapped1": "value1",
+                "unmapped2": "value2"
+            }
+            """;
+
+        TestRecord3439 result = mapper.readValue(json, TestRecord3439.class);
+
+        assertEquals("value", result.field());
+        assertEquals(Map.of("unmapped1", "value1", "unmapped2", "value2"),
+                result.anySetter());
+    }
+
+    // [databind#5952]: per-property @JsonIgnore on a record component must block
+    // routing to the any-setter
+    @Test
+    public void testJsonIgnoreOnRecordComponentNotPassedToAnySetter5952() throws Exception {
+        final ObjectMapper mapper = newJsonMapper();
+        UserRecordWithAnySetter5952 u = mapper.readValue(
+                a2q("{'name':'alice','sensitiveField':'secret','other':'val'}"),
+                UserRecordWithAnySetter5952.class);
+        assertEquals("alice", u.name());
+        assertEquals(Map.of("other", "val"), u.extras());
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, @JsonCreator(PROPERTIES) + @JsonValue [databind#5923]
+    /**********************************************************************
+     */
+
+    // [databind#5923]
+    @Test
+    public void testDeserialization5923True() throws Exception {
+        Outer5923 bw = MAPPER.readValue("{ \"renamed\": true }", Outer5923.class);
+        assertEquals(true, bw.bools.innerValue);
+    }
+
+    // [databind#5923]
+    @Test
+    public void testDeserialization5923False() throws Exception {
+        Outer5923 bw = MAPPER.readValue("{ \"renamed\": false }", Outer5923.class);
+        assertEquals(false, bw.bools.innerValue);
+    }
+
+    // [databind#5923]
+    @Test
+    public void testSerialization5923ViaJsonValue() throws Exception {
+        assertEquals("{\"renamed\":true}",
+                MAPPER.writeValueAsString(new Outer5923(new Inner5923(true))));
+        assertEquals("{\"renamed\":false}",
+                MAPPER.writeValueAsString(new Outer5923(new Inner5923(false))));
+    }
+
+    // [databind#5923]
+    @Test
+    public void testRoundTrip5923() throws Exception {
+        Outer5923 original = new Outer5923(new Inner5923(true));
+        Outer5923 roundTripped = MAPPER.readValue(MAPPER.writeValueAsString(original), Outer5923.class);
+        assertEquals(original.bools.innerValue, roundTripped.bools.innerValue);
     }
 }

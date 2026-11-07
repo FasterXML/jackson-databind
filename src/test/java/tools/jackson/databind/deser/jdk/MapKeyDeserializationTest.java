@@ -8,6 +8,7 @@ import java.util.Objects;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import tools.jackson.core.Base64Variants;
@@ -93,14 +94,14 @@ public class MapKeyDeserializationTest
 
         @Override
         public boolean equals(Object o) {
-            return o instanceof DummyDto2158 && ((DummyDto2158) o).value.equals(value);
+            return o instanceof DummyDto2158 dd && dd.value.equals(value);
         }
 
         @Override
         public int hashCode() { return Objects.hash(value); }
 
         @Override
-        public String toString() { return String.format("DummyDto{value=%s}", value); }
+        public String toString() { return "DummyDto{value=%s}".formatted(value); }
     }
 
     private static final TypeReference<Map<DummyDto2158, Integer>> MAP_TYPE_2158 =
@@ -154,6 +155,19 @@ public class MapKeyDeserializationTest
         @JsonCreator
         private Key3143Ctor(String v) {
             value = v;
+        }
+    }
+
+    // [databind#3947]
+    record Key3947(String value) {
+        @JsonCreator
+        public static Key3947 fromValue(String value) {
+            return new Key3947("delegating:" + value);
+        }
+
+        @JsonCreator
+        public static Key3947 fromWrapped(@JsonProperty("value") String value) {
+            return new Key3947("properties:" + value);
         }
     }
 
@@ -334,5 +348,17 @@ public class MapKeyDeserializationTest
             verifyException(e, "Multiple");
             verifyException(e, "Creator factory methods");
         }
+    }
+
+    // [databind#3947]
+    @Test
+    public void keyWithDelegatingAndPropertiesFactories3947() throws Exception
+    {
+        Map<Key3947,Integer> map = MAPPER.readValue("""
+                {"foo":3}""",
+                new TypeReference<Map<Key3947,Integer>>() { });
+
+        assertEquals(1, map.size());
+        assertEquals("delegating:foo", map.keySet().iterator().next().value());
     }
 }

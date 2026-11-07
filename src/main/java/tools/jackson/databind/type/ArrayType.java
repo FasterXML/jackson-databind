@@ -1,5 +1,6 @@
 package tools.jackson.databind.type;
 
+import java.io.Serial;
 import java.lang.reflect.Array;
 
 import tools.jackson.databind.JavaType;
@@ -12,6 +13,7 @@ import tools.jackson.databind.JavaType;
 public final class ArrayType
     extends TypeBase
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

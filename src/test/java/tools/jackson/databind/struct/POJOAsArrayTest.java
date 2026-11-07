@@ -256,6 +256,10 @@ public class POJOAsArrayTest extends DatabindTestUtil
         public int getY() { return y; }
     }
 
+    // [databind#6043]
+    @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+    record XYZParams(int x, int y, int z) { }
+
     @JsonFormat(shape=JsonFormat.Shape.ARRAY)
     @JsonPropertyOrder({"a","b","x","y"})
     static class CreatorAsArrayShuffled
@@ -931,7 +935,7 @@ public class POJOAsArrayTest extends DatabindTestUtil
                     .readValue(json);
             fail("should not pass with extra element");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Unexpected JSON values");
+            verifyException(e, "Unexpected JSON value(s)");
         }
 
         // but actually fine if skip-unknown set
@@ -955,8 +959,7 @@ public class POJOAsArrayTest extends DatabindTestUtil
                     .readValue(json);
             fail("should not pass with extra element");
         } catch (MismatchedInputException e) {
-            // Looks like we get either "Unexpected JSON values" or "Unexpected JSON value(s)"
-            verifyException(e, "Unexpected JSON value");
+            verifyException(e, "Unexpected JSON value(s)");
         }
 
         // but actually fine if skip-unknown set
@@ -967,5 +970,55 @@ public class POJOAsArrayTest extends DatabindTestUtil
         // note: +1 for both so
         assertEquals(v._x, 2);
         assertEquals(v._y, 3);
+    }
+
+    // [databind#6043]: creator-based (e.g. record) POJOs-as-Array must also honor
+    // FAIL_ON_UNKNOWN_PROPERTIES when the JSON Array has more elements than properties
+    @Test
+    public void testCreatorUnknownExtraProp() throws Exception
+    {
+        String json = "[1, 2, 3, 4]";
+        try {
+            MAPPER.readerFor(XYZParams.class)
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue(json);
+            fail("should not pass with extra element");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Unexpected JSON value(s)");
+        }
+
+        // but actually fine if skip-unknown set
+        XYZParams v = MAPPER.readerFor(XYZParams.class)
+                .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .readValue(json);
+        assertNotNull(v);
+        assertEquals(1, v.x());
+        assertEquals(2, v.y());
+        assertEquals(3, v.z());
+    }
+
+    // [databind#6043]: builder-based POJOs-as-Array using a property-based creator
+    // must honor FAIL_ON_UNKNOWN_PROPERTIES too, matching the non-builder sibling
+    @Test
+    public void testBuilderCreatorUnknownExtraProp() throws Exception
+    {
+        String json = "[1, 2, 3, 4]";
+        try {
+            MAPPER.readerFor(CreatorValue.class)
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue(json);
+            fail("should not pass with extra element");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Unexpected JSON value(s)");
+        }
+
+        // but actually fine if skip-unknown set
+        CreatorValue v = MAPPER.readerFor(CreatorValue.class)
+                .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .readValue(json);
+        assertNotNull(v);
+        assertEquals(1, v.a);
+        assertEquals(2, v.b);
+        assertEquals(3, v.c);
     }
 }

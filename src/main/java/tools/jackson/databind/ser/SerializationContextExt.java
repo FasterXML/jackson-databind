@@ -117,6 +117,10 @@ public class SerializationContextExt
         return filter;
     }
 
+    // 08-Sep-2026, tatu: `filter.equals(null)` below is the documented `@JsonInclude`
+    //    value-filter protocol -- filter is asked whether it would filter out `null` --
+    //    and not an accidental `null` comparison
+    @SuppressWarnings("EqualsNull")
     @Override
     public boolean includeFilterSuppressNulls(Object filter)
     {
@@ -128,9 +132,8 @@ public class SerializationContextExt
         try {
             return filter.equals(null);
         } catch (Exception e) {
-            String msg = String.format(
-"Problem determining whether filter of type '%s' should filter out `null` values: (%s) %s",
-filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(e));
+            String msg = "Problem determining whether filter of type '%s' should filter out `null` values: (%s) %s".formatted(
+                    filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(e));
             reportBadDefinition(filter.getClass(), msg, e);
             return false; // never gets here
         }

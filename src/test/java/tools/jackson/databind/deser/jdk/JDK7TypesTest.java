@@ -1,7 +1,6 @@
 package tools.jackson.databind.deser.jdk;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,7 +24,7 @@ public class JDK7TypesTest extends DatabindTestUtil
     @Test
     public void testPathRoundTrip() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        Path input = Paths.get(isWindows() ? "c:/tmp" : "/tmp", "foo.txt");
+        Path input = Path.of(isWindows() ? "c:/tmp" : "/tmp", "foo.txt");
         String json = mapper.writeValueAsString(input);
         assertNotNull(json);
 
@@ -62,12 +61,12 @@ public class JDK7TypesTest extends DatabindTestUtil
         }
     }
 
-    // [databind#6129]: scheme matching case-insensitive, as by `Paths.get(URI)` itself
+    // [databind#6129]: scheme matching case-insensitive, as by `Path.of(URI)` itself
     @Test
     public void testAllowedSchemeCaseInsensitive() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        final Path input = Paths.get(isWindows() ? "c:/tmp" : "/tmp", "foo.txt");
+        final Path input = Path.of(isWindows() ? "c:/tmp" : "/tmp", "foo.txt");
         // Construct "file:" URI the portable way, then vary case of the scheme
         final String uriStr = input.toUri().toString();
 
@@ -83,7 +82,7 @@ public class JDK7TypesTest extends DatabindTestUtil
     @Test
     public void testCustomAllowedSchemes() throws Exception
     {
-        final Path input = Paths.get(isWindows() ? "c:/tmp" : "/tmp", "foo.txt");
+        final Path input = Path.of(isWindows() ? "c:/tmp" : "/tmp", "foo.txt");
         final String fileUri = input.toUri().toString();
 
         // Case-insensitive both ways: allow-list entry in upper case, input in lower
@@ -164,7 +163,7 @@ public class JDK7TypesTest extends DatabindTestUtil
             .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                     DefaultTyping.NON_FINAL)
             .build();
-        Path input = Paths.get(isWindows() ? "c:/tmp" : "/tmp", "foo.txt");
+        Path input = Path.of(isWindows() ? "c:/tmp" : "/tmp", "foo.txt");
 
         String json = mapper.writeValueAsString(new Object[]{input});
 

@@ -12,10 +12,14 @@ import tools.jackson.databind.JavaType;
  * Helper class used to encapsulate rules that determine subtypes that
  * are invalid to use, even with default typing, mostly due to security
  * concerns.
- * Used by <code>BeanDeserializerFactory</code>
+ * Used by {@code BeanDeserializerFactory}.
+ *<p>
+ * HAS NOT BEEN UPDATED OR MAINTAINED SINCE JACKSON 2.10.
  *
  * @since 2.8.11
+ * @deprecated Since 3.2 (un-maintained since 2.10)
  */
+@Deprecated
 public class SubTypeValidator
 {
     protected final static String PREFIX_SPRING = "org.springframework.";

@@ -21,18 +21,18 @@ public class JsonTypeInfoCaseInsensitive1983Test extends DatabindTestUtil
             @JsonSubTypes.Type(value = Equal.class, name = "eq"),
             @JsonSubTypes.Type(value = NotEqual.class, name = "notEq"),
     })
-    static abstract class Filter {
+    public static abstract class Filter {
     }
 
-    static class Equal extends Filter { }
+    public static class Equal extends Filter { }
 
-    static class NotEqual extends Filter { }
+    public static class NotEqual extends Filter { }
 
     // verify failures when exact matching required:
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    public void testReadMixedCaseSubclass() throws Exception
+    void readMixedCaseSubclass() throws Exception
     {
         final String serialised = "{\"Operation\":\"NoTeQ\"}";
 
@@ -51,7 +51,7 @@ public class JsonTypeInfoCaseInsensitive1983Test extends DatabindTestUtil
     }
 
     @Test
-    public void testReadMixedCasePropertyName() throws Exception
+    void readMixedCasePropertyName() throws Exception
     {
         final String serialised = "{\"oPeRaTioN\":\"notEq\"}";
         // first: mismatch with property name unless case-sensitivity disabled:

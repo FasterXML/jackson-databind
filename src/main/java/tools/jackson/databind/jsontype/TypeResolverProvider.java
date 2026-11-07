@@ -1,8 +1,9 @@
 package tools.jackson.databind.jsontype;
 
+import java.io.Serial;
 import java.util.Collection;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
@@ -12,6 +13,7 @@ import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsontype.impl.NoOpTypeDeserializer;
 import tools.jackson.databind.jsontype.impl.NoOpTypeSerializer;
 import tools.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * Abstraction used for allowing construction and registration of custom
@@ -26,6 +28,7 @@ import tools.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 public class TypeResolverProvider
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     protected final static StdTypeResolverBuilder NO_RESOLVER = StdTypeResolverBuilder.noTypeInfoBuilder();
@@ -200,7 +203,13 @@ public class TypeResolverProvider
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
                 config, accessor, contentType);
-        return b.buildTypeSerializer(ctxt, contentType, subtypes);
+        TypeSerializer contentTypeSer = b.buildTypeSerializer(ctxt, contentType, subtypes);
+        // [databind#1127]: `EXTERNAL_PROPERTY` cannot work as content type-id mechanism
+        if ((contentTypeSer != null)
+                && contentTypeSer.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
+            return _reportExternalPropertyOnContainer(ctxt, containerType);
+        }
+        return contentTypeSer;
     }
 
     public TypeDeserializer findPropertyContentTypeDeserializer(DeserializationContext ctxt,
@@ -231,7 +240,13 @@ public class TypeResolverProvider
                 b = b.withDefaultImpl(defaultType.getRawClass());
             }
         }
-        return b.buildTypeDeserializer(ctxt, contentType, subtypes);
+        TypeDeserializer contentTypeDeser = b.buildTypeDeserializer(ctxt, contentType, subtypes);
+        // [databind#1127]: `EXTERNAL_PROPERTY` cannot work as content type-id mechanism
+        if ((contentTypeDeser != null)
+                && contentTypeDeser.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
+            return _reportExternalPropertyOnContainer(ctxt, containerType);
+        }
+        return contentTypeDeser;
     }
 
     /*
@@ -239,6 +254,23 @@ public class TypeResolverProvider
     /* Helper methods
     /**********************************************************************
      */
+
+    /**
+     * Helper for [databind#1127]: `EXTERNAL_PROPERTY` cannot work as a <i>content</i>
+     * type-id mechanism (for Collection/array/Map/reference content) since there is no
+     * place to attach the external type-id sibling property when the value is a JSON
+     * Array (or wrapped reference). Reports eagerly with a clear message instead of a
+     * confusing low-level error during serialization/deserialization.
+     */
+    protected <T> T _reportExternalPropertyOnContainer(DatabindContext ctxt, JavaType containerType) {
+        return ctxt.reportBadDefinition(containerType, String.format(
+                """
+Cannot use `@JsonTypeInfo(include=JsonTypeInfo.As.EXTERNAL_PROPERTY)` on container-typed property (%s): \
+`EXTERNAL_PROPERTY` only works for scalar (non-container) bean properties. \
+Use one of the other inclusion mechanisms (such as `As.PROPERTY` or `As.WRAPPER_ARRAY`) instead\
+""",
+                ClassUtil.getTypeDescription(containerType)));
+    }
 
     protected TypeResolverBuilder<?> _findTypeResolver(MapperConfig<?> config,
             Annotated ann, JavaType baseType)
@@ -269,16 +301,24 @@ public class TypeResolverProvider
             if (typeInfo.getIdType() == JsonTypeInfo.Id.NONE) {
                 return NO_RESOLVER;
             }
+
+            JavaType detectedBaseType;
             // 13-Aug-2011, tatu: One complication; external id
             //   only works for properties; so if declared for a Class, we will need
             //   to map it to "PROPERTY" instead of "EXTERNAL_PROPERTY"
-            if (ann instanceof AnnotatedClass) {
+            if (ann instanceof AnnotatedClass annotatedClass) {
                 JsonTypeInfo.As inclusion = typeInfo.getInclusionType();
                 if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
                     typeInfo = typeInfo.withInclusionType(JsonTypeInfo.As.PROPERTY);
                 }
+
+                detectedBaseType = ai.findPolymorphicBaseType(config, annotatedClass, typeInfo, baseType);
+            } else {
+            	// when method/field annotated, declared type MUST be intended base type
+            	detectedBaseType = null;
             }
-            b = _constructStdTypeResolverBuilder(config, typeInfo, baseType);
+
+            b = _constructStdTypeResolverBuilder(config, typeInfo, baseType, detectedBaseType);
         }
         // Does it define a custom type id resolver?
         Object customIdResolverOb = ai.findTypeIdResolver(config, ann);
@@ -296,8 +336,20 @@ public class TypeResolverProvider
         return b;
     }
 
+    /**
+     * @since 3.2
+     */
+    protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
+            JsonTypeInfo.Value typeInfo, JavaType baseType, JavaType detectedBaseType) {
+        return new StdTypeResolverBuilder(typeInfo, detectedBaseType);
+    }
+
+    // 27-Mar-2026, tatu: NOTE: overridden by `jackson-dataformat-xml`, careful
+    // with signature changes
+    //
+    @Deprecated(since = "3.2")
     protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
             JsonTypeInfo.Value typeInfo, JavaType baseType) {
-        return new StdTypeResolverBuilder(typeInfo);
+        return _constructStdTypeResolverBuilder(config, typeInfo, baseType, null);
     }
 }

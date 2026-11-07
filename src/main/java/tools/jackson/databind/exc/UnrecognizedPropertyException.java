@@ -1,5 +1,6 @@
 package tools.jackson.databind.exc;
 
+import java.io.Serial;
 import java.util.*;
 
 import tools.jackson.core.TokenStreamLocation;
@@ -14,6 +15,7 @@ import tools.jackson.core.JsonParser;
 public class UnrecognizedPropertyException
     extends PropertyBindingException
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public UnrecognizedPropertyException(JsonParser p, String msg, TokenStreamLocation loc,
@@ -45,7 +47,7 @@ public class UnrecognizedPropertyException
         }
         // 06-May-2020, tatu: 2.x said "Unrecognized field" but we call them "properties"
         //    everywhere else so...
-        String msg = String.format("Unrecognized property \"%s\" (class %s), not marked as ignorable",
+        String msg = "Unrecognized property \"%s\" (class %s), not marked as ignorable".formatted(
                 propertyName, ref.getName());
         UnrecognizedPropertyException e = new UnrecognizedPropertyException(p, msg,
                 p.currentLocation(), ref, propertyName, propertyIds);

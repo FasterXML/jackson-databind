@@ -1,11 +1,14 @@
 package tools.jackson.databind.exc;
 
+import java.io.Serial;
+
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.JsonNode;
 
 public class JsonNodeException
     extends DatabindException
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     protected final JsonNode _node;
@@ -22,7 +25,7 @@ public class JsonNodeException
     public static JsonNodeException from(JsonNode node,
             String message, Object... args) {
         return new JsonNodeException(node,
-                String.format(message, args));
+                message.formatted(args));
     }
 
     public JsonNode getNode() {

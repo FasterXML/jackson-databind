@@ -28,9 +28,11 @@ public class ReadTreesTest extends DatabindTestUtil
     public void testReadTreeSequence() throws Exception
     {
         final String INPUT = a2q(
-                "{\"id\":1, \"value\":137 }\n" +
-                "{\"id\":2, \"value\":256 }\n" +
-                "{\"id\":3, \"value\":-89 }");
+                """
+                {"id":1, "value":137 }
+                {"id":2, "value":256 }
+                {"id":3, "value":-89 }
+                """);
         try (MappingIterator<JsonNode> it = MAPPER.readerFor(JsonNode.class)
                 .readValues(INPUT)) {
             assertTrue(it.hasNextValue());
@@ -69,9 +71,11 @@ public class ReadTreesTest extends DatabindTestUtil
     public void testReadPOJOHandleFail() throws Exception
     {
         final String INPUT = a2q(
-                "{\"id\":1, \"value\":137 }\n" +
-                "{\"id\":2, \"value\":\"foobar\" }\n" +
-                "{\"id\":3, \"value\":-89 }");
+                """
+                {"id":1, "value":137 }
+                {"id":2, "value":"foobar" }
+                {"id":3, "value":-89 }
+                """);
 
         try (MappingIterator<IdValue> it = MAPPER.readerFor(IdValue.class)
                 .readValues(INPUT)) {

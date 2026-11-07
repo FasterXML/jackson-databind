@@ -18,9 +18,11 @@ public class RequiredAccessorTest
 
     public RequiredAccessorTest() throws Exception {
         TEST_OBJECT = MAPPER.readTree(a2q(
- "{ 'data' : { 'primary' : 15, 'vector' : [ 'yes', false ], 'nullable' : null  },\n"
-+"  'array' : [ true,   {\"messsage\":'hello', 'value' : 42, 'misc' : [1, 2] }, null, 0.25 ]\n"
-+"}"
+ """
+{ 'data' : { 'primary' : 15, 'vector' : [ 'yes', false ], 'nullable' : null  },
+  'array' : [ true,   {"messsage":'hello', 'value' : 42, 'misc' : [1, 2] }, null, 0.25 ]
+}
+"""
         ));
         TEST_ARRAY = MAPPER.readTree(a2q(
  "[ true, { 'data' : { 'primary' : 15, 'vector' : [ 'yes', false ]  } }, 0.25, 'last' ]"

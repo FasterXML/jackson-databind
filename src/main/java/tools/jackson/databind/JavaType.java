@@ -1,5 +1,6 @@
 package tools.jackson.databind;
 
+import java.io.Serial;
 import java.lang.reflect.Modifier;
 import java.util.List;
 
@@ -20,6 +21,7 @@ public abstract class JavaType
     implements java.io.Serializable,
         java.lang.reflect.Type
 {
+    @Serial
     private static final long serialVersionUID = 1;
 
     /**
@@ -443,7 +445,7 @@ public abstract class JavaType
     public abstract List<JavaType> getInterfaces();
 
     /**
-     * Method that may be used to find paramaterization this type has for
+     * Method that may be used to find parameterization this type has for
      * given type-erased generic target type.
      */
     public abstract JavaType[] findTypeParameters(Class<?> expType);

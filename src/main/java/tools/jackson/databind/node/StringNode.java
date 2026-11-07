@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
@@ -20,6 +21,7 @@ import tools.jackson.databind.exc.JsonNodeException;
 public class StringNode
     extends ValueNode
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     final static StringNode EMPTY_STRING_NODE = new StringNode("");

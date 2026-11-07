@@ -82,8 +82,8 @@ public class ImmutablesTypeSerializationTest
         @Override
         public boolean equals(Object another) {
             if (this == another) return true;
-            return another instanceof ImmutableAccount
-                    && equalTo((ImmutableAccount) another);
+            return another instanceof ImmutableAccount ia
+                    && equalTo(ia);
         }
 
         private boolean equalTo(ImmutableAccount another) {
@@ -205,8 +205,8 @@ public class ImmutablesTypeSerializationTest
         @Override
         public boolean equals(Object another) {
             if (this == another) return true;
-            return another instanceof ImmutableKey<?>
-                    && equalTo((ImmutableKey<?>) another);
+            return another instanceof ImmutableKey<?> ik
+                    && equalTo(ik);
         }
 
         private boolean equalTo(ImmutableKey<?> another) {
@@ -313,8 +313,8 @@ public class ImmutablesTypeSerializationTest
         @Override
         public boolean equals(Object another) {
             if (this == another) return true;
-            return another instanceof ImmutableEntry<?, ?>
-                    && equalTo((ImmutableEntry<?, ?>) another);
+            return another instanceof ImmutableEntry<?, ?> ie
+                    && equalTo(ie);
         }
 
         private boolean equalTo(ImmutableEntry<?, ?> another) {

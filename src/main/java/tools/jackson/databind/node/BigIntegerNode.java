@@ -1,5 +1,6 @@
 package tools.jackson.databind.node;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
@@ -17,6 +18,7 @@ import tools.jackson.databind.SerializationContext;
 public class BigIntegerNode
     extends NumericIntNode
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     final protected BigInteger _value;

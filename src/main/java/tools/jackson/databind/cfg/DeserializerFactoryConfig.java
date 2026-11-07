@@ -1,5 +1,7 @@
 package tools.jackson.databind.cfg;
 
+import java.io.Serial;
+
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.deser.bean.BeanDeserializer;
 import tools.jackson.databind.deser.jdk.JDKKeyDeserializers;
@@ -12,6 +14,7 @@ import tools.jackson.databind.util.ArrayIterator;
 public class DeserializerFactoryConfig
     implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 3L;
 
     protected final static Deserializers[] NO_DESERIALIZERS = new Deserializers[0];

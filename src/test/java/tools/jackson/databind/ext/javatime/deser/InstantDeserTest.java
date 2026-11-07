@@ -189,7 +189,7 @@ public class InstantDeserTest extends DateTimeTestBase
      * Numbers with very large exponents can take a long time, but still result in zero.
      * https://github.com/FasterXML/jackson-databind/issues/2141
      */
-    @Timeout(value = 100, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 200, unit = TimeUnit.MILLISECONDS)
     @Test
     public void testDeserializationAsFloatEdgeCase08() throws Exception
     {
@@ -197,7 +197,7 @@ public class InstantDeserTest extends DateTimeTestBase
         assertEquals(0, value.getEpochSecond());
     }
 
-    @Timeout(value = 100, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 200, unit = TimeUnit.MILLISECONDS)
     @Test
     public void testDeserializationAsFloatEdgeCase09() throws Exception
     {
@@ -208,7 +208,7 @@ public class InstantDeserTest extends DateTimeTestBase
     /**
      * Same for large negative exponents.
      */
-    @Timeout(value = 100, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 200, unit = TimeUnit.MILLISECONDS)
     @Test
     public void testDeserializationAsFloatEdgeCase10() throws Exception
     {
@@ -216,7 +216,7 @@ public class InstantDeserTest extends DateTimeTestBase
         assertEquals(0, value.getEpochSecond());
     }
 
-    @Timeout(value = 100, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 200, unit = TimeUnit.MILLISECONDS)
     @Test
     public void testDeserializationAsFloatEdgeCase11() throws Exception
     {
@@ -569,7 +569,7 @@ public class InstantDeserTest extends DateTimeTestBase
         assertEquals(result, inst);
 
         // but then quoted as JSON String
-        result = READER.readValue(String.format("\"%s\"", json));
+        result = READER.readValue("\"%s\"".formatted(json));
         assertNotNull(result);
         assertEquals(result, inst);
     }

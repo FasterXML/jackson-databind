@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,6 +55,11 @@ public class RecordWithJsonIdentityTest extends DatabindTestUtil
             this.name = name;
         }
     }
+
+    // [databind#5188]
+    record Child5188(@JsonBackReference Parent5188 parent) {}
+
+    record Parent5188(@JsonManagedReference List<Child5188> children) {}
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -136,5 +142,41 @@ public class RecordWithJsonIdentityTest extends DatabindTestUtil
         assertEquals(input.allThings.size(), result.allThings.size());
         assertEquals(input.selected.id, result.selected.id);
         assertEquals(input.selected.name, result.selected.name);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, @JsonManagedReference/@JsonBackReference cannot work [databind#5188]
+    /**********************************************************************
+     */
+
+    // [databind#5188] JsonManagedReference/JsonBackReference exception for records (cannot work)
+    @Test
+    public void testRecordDeserializationFail5188() throws Exception
+    {
+        try {
+            MAPPER.readValue("{\"children\":[{}]}", Parent5188.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "Cannot add back-reference to a `java.lang.Record` type");
+            verifyException(e, "Invalid type definition for ");
+            verifyException(e, "(property 'parent')");
+        }
+    }
+
+    // [databind#5188]: serialization also fails for records with managed/back references
+    @Test
+    public void testRecordSerializationFail5188() throws Exception
+    {
+        Parent5188 parent = new Parent5188(List.of(new Child5188(null)));
+
+        try {
+            MAPPER.writeValueAsString(parent);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "Cannot use `@JsonManagedReference`/`@JsonBackReference`");
+            verifyException(e, "java.lang.Record");
+            verifyException(e, "(property 'children')");
+        }
     }
 }

@@ -200,7 +200,7 @@ public class ObjectId3838Test extends DatabindTestUtil
             if (!"great".equals(result)) {
                 fail("Class '"+cls.getName()+", json "+jsonStr
                         +" : should get 'great', got "
-                        +((result == null) ? "null" : String.format("'%s'", result)));
+                        +((result == null) ? "null" : "'%s'".formatted(result)));
             }
         }
     }

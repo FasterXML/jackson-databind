@@ -262,13 +262,13 @@ public class ObjectMapperTest extends DatabindTestUtil
     {
         DataInput input = new MockDataInput("{\"a\":1, \"b\":[1, 2, 3]}");
         Map<String,Object> map = (Map<String,Object>) MAPPER.readValue(input, Map.class);
-        assertEquals(Integer.valueOf(1), map.get("a"));
+        assertEquals(1, map.get("a"));
 
         input = new MockDataInput("{\"a\":1, \"b\": [1, true]}");
         // and via ObjectReader
         map = MAPPER.readerFor(Map.class)
                 .readValue(input);
-        assertEquals(Integer.valueOf(1), map.get("a"));
+        assertEquals(1, map.get("a"));
 
         input = new MockDataInput("{\"a\":1, \"b\": [\"abc\"]}");
         JsonNode n = MAPPER.readerFor(Map.class)
@@ -399,30 +399,30 @@ public class ObjectMapperTest extends DatabindTestUtil
     @Test
     public void test_createParser_InputStream() throws Exception
     {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
+        InputStream inputStream = new ByteArrayInputStream(utf8Bytes("\"value\""));
         JsonParser jsonParser =  MAPPER.createParser(inputStream);
 
-        assertEquals(jsonParser.nextStringValue(), "value");
+        assertEquals("value", jsonParser.nextStringValue());
     }
 
     @Test
     public void test_createParser_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(path, "\"value\"");
         JsonParser jsonParser = MAPPER.createParser(path.toFile());
 
-        assertEquals(jsonParser.nextStringValue(), "value");
+        assertEquals("value", jsonParser.nextStringValue());
     }
 
     @Test
     public void test_createParser_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(path, "\"value\"");
         JsonParser jsonParser = MAPPER.createParser(path);
 
-        assertEquals(jsonParser.nextStringValue(), "value");
+        assertEquals("value", jsonParser.nextStringValue());
     }
 
     @Test
@@ -431,16 +431,16 @@ public class ObjectMapperTest extends DatabindTestUtil
         Reader reader = new StringReader("\"value\"");
         JsonParser jsonParser = MAPPER.createParser(reader);
 
-        assertEquals(jsonParser.nextStringValue(), "value");
+        assertEquals("value", jsonParser.nextStringValue());
     }
 
     @Test
     public void test_createParser_ByteArray() throws Exception
     {
-        byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = utf8Bytes("\"value\"");
         JsonParser jsonParser = MAPPER.createParser(bytes);
 
-        assertEquals(jsonParser.nextStringValue(), "value");
+        assertEquals("value", jsonParser.nextStringValue());
     }
 
     @Test
@@ -449,7 +449,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         String string = "\"value\"";
         JsonParser jsonParser = MAPPER.createParser(string);
 
-        assertEquals(jsonParser.nextStringValue(), "value");
+        assertEquals("value", jsonParser.nextStringValue());
     }
 
     @Test
@@ -458,7 +458,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         char[] chars = "\"value\"".toCharArray();
         JsonParser jsonParser = MAPPER.createParser(chars);
 
-        assertEquals(jsonParser.nextStringValue(), "value");
+        assertEquals("value", jsonParser.nextStringValue());
     }
 
     @Test
@@ -466,7 +466,7 @@ public class ObjectMapperTest extends DatabindTestUtil
     {
         DataInput dataInput = new MockDataInput("\"value\"");
         try (JsonParser jsonParser = MAPPER.createParser(dataInput)) {
-            assertEquals(jsonParser.nextStringValue(), "value");
+            assertEquals("value", jsonParser.nextStringValue());
         }
     }
 
@@ -495,7 +495,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         jsonGenerator.writeString("value");
         jsonGenerator.close();
 
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals("\"value\"", outputStream.toString(StandardCharsets.UTF_8));
 
         // the stream has not been closed by close
         outputStream.write(1);
@@ -510,7 +510,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         jsonGenerator.writeString("value");
         jsonGenerator.close();
 
-        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals("\"value\"", utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -522,7 +522,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         jsonGenerator.writeString("value");
         jsonGenerator.close();
 
-        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals("\"value\"", utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -534,7 +534,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         jsonGenerator.writeString("value");
         jsonGenerator.close();
 
-        assertEquals(writer.toString(), "\"value\"");
+        assertEquals("\"value\"", writer.toString());
 
         // the writer has not been closed by close
         writer.append('1');
@@ -550,7 +550,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         jsonGenerator.writeString("value");
         jsonGenerator.close();
 
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals("\"value\"", outputStream.toString(StandardCharsets.UTF_8));
 
         // the data output has not been closed by close
         dataOutput.write(1);
@@ -571,30 +571,30 @@ public class ObjectMapperTest extends DatabindTestUtil
     @Test
     public void test_readTree_InputStream() throws Exception
     {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
+        InputStream inputStream = new ByteArrayInputStream(utf8Bytes("\"value\""));
         JsonNode jsonNode =  MAPPER.readTree(inputStream);
 
-        assertEquals(jsonNode.stringValue(), "value");
+        assertEquals("value", jsonNode.stringValue());
     }
 
     @Test
     public void test_readTree_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(path, "\"value\"");
         JsonNode jsonNode = MAPPER.readTree(path.toFile());
 
-        assertEquals(jsonNode.stringValue(), "value");
+        assertEquals("value", jsonNode.stringValue());
     }
 
     @Test
     public void test_readTree_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(path, "\"value\"");
         JsonNode jsonNode = MAPPER.readTree(path);
 
-        assertEquals(jsonNode.stringValue(), "value");
+        assertEquals("value", jsonNode.stringValue());
     }
 
     @Test
@@ -603,22 +603,22 @@ public class ObjectMapperTest extends DatabindTestUtil
         Reader reader = new StringReader("\"value\"");
         JsonNode jsonNode = MAPPER.readTree(reader);
 
-        assertEquals(jsonNode.stringValue(), "value");
+        assertEquals("value", jsonNode.stringValue());
     }
 
     @Test
     public void test_readTree_ByteArray() throws Exception
     {
         // with offset and length
-        byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = utf8Bytes("\"value\"");
         JsonNode jsonNode1 = MAPPER.readTree(bytes);
 
-        assertEquals(jsonNode1.stringValue(), "value");
+        assertEquals("value", jsonNode1.stringValue());
 
         // without offset and length
         JsonNode jsonNode2 = MAPPER.readTree(bytes, 0, bytes.length);
 
-        assertEquals(jsonNode2.stringValue(), "value");
+        assertEquals("value", jsonNode2.stringValue());
     }
 
     @Test
@@ -627,7 +627,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         String string = "\"value\"";
         JsonNode jsonNode = MAPPER.readTree(string);
 
-        assertEquals(jsonNode.stringValue(), "value");
+        assertEquals("value", jsonNode.stringValue());
     }
 
     @Test
@@ -646,43 +646,43 @@ public class ObjectMapperTest extends DatabindTestUtil
     @Test
     public void test_readValue_InputStream() throws Exception
     {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
+        InputStream inputStream = new ByteArrayInputStream(utf8Bytes("\"value\""));
         String result1 = MAPPER.readValue(inputStream, String.class);
-        assertEquals(result1, "value");
+        assertEquals("value", result1);
 
         inputStream.reset();
         String result2 = MAPPER.readValue(inputStream, MAPPER.constructType(String.class));
-        assertEquals(result2, "value");
+        assertEquals("value", result2);
 
         inputStream.reset();
         String result3 = MAPPER.readValue(inputStream, new TypeReference<String>() {});
-        assertEquals(result3, "value");
+        assertEquals("value", result3);
     }
 
     @Test
     public void test_readValue_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(path, "\"value\"");
         String result1 = MAPPER.readValue(path.toFile(), String.class);
-        assertEquals(result1, "value");
+        assertEquals("value", result1);
         String result2 = MAPPER.readValue(path.toFile(), MAPPER.constructType(String.class));
-        assertEquals(result2, "value");
+        assertEquals("value", result2);
         String result3 = MAPPER.readValue(path.toFile(), new TypeReference<String>() {});
-        assertEquals(result3, "value");
+        assertEquals("value", result3);
     }
 
     @Test
     public void test_readValue_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(path, "\"value\"");
         String result1 = MAPPER.readValue(path, String.class);
-        assertEquals(result1, "value");
+        assertEquals("value", result1);
         String result2 = MAPPER.readValue(path, MAPPER.constructType(String.class));
-        assertEquals(result2, "value");
+        assertEquals("value", result2);
         String result3 = MAPPER.readValue(path, new TypeReference<String>() {});
-        assertEquals(result3, "value");
+        assertEquals("value", result3);
     }
 
     @Test
@@ -690,33 +690,33 @@ public class ObjectMapperTest extends DatabindTestUtil
     {
         Reader reader1 = new StringReader("\"value\"");
         String result1 = MAPPER.readValue(reader1, String.class);
-        assertEquals(result1, "value");
+        assertEquals("value", result1);
 
         Reader reader2 = new StringReader("\"value\"");
         String result2 = MAPPER.readValue(reader2, MAPPER.constructType(String.class));
-        assertEquals(result2, "value");
+        assertEquals("value", result2);
 
         Reader reader3 = new StringReader("\"value\"");
         String result3 = MAPPER.readValue(reader3, new TypeReference<String>() {});
-        assertEquals(result3, "value");
+        assertEquals("value", result3);
     }
 
     @Test
     public void test_readValue_ByteArray() throws Exception
     {
-        byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = utf8Bytes("\"value\"");
         String result1 = MAPPER.readValue(bytes, String.class);
-        assertEquals(result1, "value");
+        assertEquals("value", result1);
         String result2 = MAPPER.readValue(bytes, MAPPER.constructType(String.class));
-        assertEquals(result2, "value");
+        assertEquals("value", result2);
         String result3 = MAPPER.readValue(bytes, new TypeReference<String>() {});
-        assertEquals(result3, "value");
+        assertEquals("value", result3);
         String result4 = MAPPER.readValue(bytes, 0, bytes.length, String.class);
-        assertEquals(result4, "value");
+        assertEquals("value", result4);
         String result5 = MAPPER.readValue(bytes, 0, bytes.length, SimpleType.constructUnsafe(String.class));
-        assertEquals(result5, "value");
+        assertEquals("value", result5);
         String result6 = MAPPER.readValue(bytes, 0, bytes.length, new TypeReference<String>() {});
-        assertEquals(result6, "value");
+        assertEquals("value", result6);
     }
 
     @Test
@@ -724,11 +724,11 @@ public class ObjectMapperTest extends DatabindTestUtil
     {
         String string = "\"value\"";
         String result1 = MAPPER.readValue(string, String.class);
-        assertEquals(result1, "value");
+        assertEquals("value", result1);
         String result2 = MAPPER.readValue(string, MAPPER.constructType(String.class));
-        assertEquals(result2, "value");
+        assertEquals("value", result2);
         String result3 = MAPPER.readValue(string, new TypeReference<String>() {});
-        assertEquals(result3, "value");
+        assertEquals("value", result3);
     }
 
     @Test
@@ -737,15 +737,15 @@ public class ObjectMapperTest extends DatabindTestUtil
         byte[] inputBytes = utf8Bytes("\"value\"");
         DataInput dataInput1 = new MockDataInput(inputBytes);
         String result1 = MAPPER.readValue(dataInput1, String.class);
-        assertEquals(result1, "value");
+        assertEquals("value", result1);
 
         DataInput dataInput2 = new MockDataInput(inputBytes);
         String result2 = MAPPER.readValue(dataInput2, MAPPER.constructType(String.class));
-        assertEquals(result2, "value");
+        assertEquals("value", result2);
 
         DataInput dataInput3 = new MockDataInput(inputBytes);
         String result3 = MAPPER.readValue(dataInput3, new TypeReference<String>() {});
-        assertEquals(result3, "value");
+        assertEquals("value", result3);
     }
 
     @Test
@@ -810,7 +810,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         MAPPER.writeValue(outputStream, "value");
 
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals("\"value\"", outputStream.toString(StandardCharsets.UTF_8));
 
         // the stream has not been closed by close
         outputStream.write(1);
@@ -822,7 +822,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         Path path = Files.createTempFile("", "");
         MAPPER.writeValue(path.toFile(), "value");
 
-        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals("\"value\"", utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -831,7 +831,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         Path path = Files.createTempFile("", "");
         MAPPER.writeValue(path, "value");
 
-        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals("\"value\"", utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -853,7 +853,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         DataOutput dataOutput = new DataOutputStream(outputStream);
         MAPPER.writeValue(dataOutput, "value");
 
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals("\"value\"", outputStream.toString(StandardCharsets.UTF_8));
 
         // the data output has not been closed by close
         dataOutput.write(1);
@@ -866,7 +866,7 @@ public class ObjectMapperTest extends DatabindTestUtil
         JsonGenerator jsonGenerator = MAPPER.createGenerator(outputStream);
         MAPPER.writeValue(jsonGenerator, "value");
 
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals("\"value\"", outputStream.toString(StandardCharsets.UTF_8));
 
         // the output stream has not been closed by close
         outputStream.write(1);
@@ -903,7 +903,7 @@ public class ObjectMapperTest extends DatabindTestUtil
             Path jsonFile = zipFs.getPath("/test.json");
             mapper.writeValue(jsonFile, "value");
 
-            String serialized = new String(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
+            String serialized = Files.readString(jsonFile);
             assertEquals(serialized, "\"value\"");
 
             String result = mapper.readValue(jsonFile, String.class);

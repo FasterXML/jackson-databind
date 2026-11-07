@@ -117,6 +117,9 @@ public class BeanAsArrayBuilderDeserializer
     protected final Object finishBuild(DeserializationContext ctxt, Object builder)
         throws JacksonException
     {
+        if (builder == null) {
+            return null;
+        }
         try {
             return _buildMethod.getMember().invoke(builder, (Object[]) null);
         } catch (Exception e) {
@@ -132,7 +135,7 @@ public class BeanAsArrayBuilderDeserializer
         if (!p.isExpectedStartArrayToken()) {
             return finishBuild(ctxt, _deserializeFromNonArray(p, ctxt));
         }
-        if (!_vanillaProcessing) {
+        if (!_useVanillaProcessing(ctxt)) {
             return finishBuild(ctxt, _deserializeNonVanilla(p, ctxt));
         }
         Object builder = _valueInstantiator.createUsingDefault(ctxt);
@@ -161,15 +164,13 @@ public class BeanAsArrayBuilderDeserializer
         // 09-Nov-2016, tatu: Should call `handleUnknownProperty()` in Context, but it'd give
         //   non-optimal exception message so...
         if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
-            ctxt.reportInputMismatch(handledType(),
-                    "Unexpected JSON values; expected at most %d properties (in JSON Array)",
+            ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
+                    "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                     propCount);
-            // fall through
+            // will never reach here as exception has been thrown
         }
         // otherwise, skip until end
-        while (p.nextToken() != JsonToken.END_ARRAY) {
-            p.skipChildren();
-        }
+        _skipToEndArray(p, ctxt);
         return finishBuild(ctxt, builder);
     }
 
@@ -227,7 +228,7 @@ public class BeanAsArrayBuilderDeserializer
             if (prop != null) { // normal case
                 if (activeView == null || prop.visibleInView(activeView)) {
                     try {
-                        prop.deserializeSetAndReturn(p, ctxt, builder);
+                        builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                     } catch (Exception e) {
                         throw wrapAndThrow(e, builder, prop.getName(), ctxt);
                     }
@@ -248,9 +249,7 @@ public class BeanAsArrayBuilderDeserializer
             // will never reach here as exception has been thrown
         }
         // otherwise, skip until end
-        while (p.nextToken() != JsonToken.END_ARRAY) {
-            p.skipChildren();
-        }
+        _skipToEndArray(p, ctxt);
         return builder;
     }
 
@@ -268,7 +267,8 @@ public class BeanAsArrayBuilderDeserializer
         throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        // [databind#5909]: builder will be rebuilt via finishBuild
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, true);
 
         final SettableBeanProperty[] props = _orderedProperties;
         final int propCount = props.length;
@@ -276,9 +276,21 @@ public class BeanAsArrayBuilderDeserializer
         int i = 0;
         Object builder = null;
 
-        for (; p.nextToken() != JsonToken.END_ARRAY; ++i) {
+        for (; !_nextIsEndArray(p, ctxt); ++i) {
             SettableBeanProperty prop = (i < propCount) ? props[i] : null;
             if (prop == null) { // we get null if there are extra elements; maybe otherwise too?
+                // [databind#6043]: extra JSON Array elements past property count must
+                // honor FAIL_ON_UNKNOWN_PROPERTIES, same as the non-creator path above.
+                // Only genuinely-extra elements (past property count) count as "unknown":
+                // in-bounds null slots (e.g. from renamed/unwrapped properties) are skipped,
+                // matching the non-creator path's position-based check.
+                if (i >= propCount
+                        && !_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+                    ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
+                            "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
+                            propCount);
+                    // never gets here
+                }
                 p.skipChildren();
                 continue;
             }
@@ -325,7 +337,7 @@ public class BeanAsArrayBuilderDeserializer
                          *   but make explicitly non-supported for now.
                          */
                         return ctxt.reportBadDefinition(_beanType, String.format(
-"Cannot support implicit polymorphic deserialization for POJOs-as-Arrays style: nominal type %s, actual type %s",
+                                "Cannot support implicit polymorphic deserialization for POJOs-as-Arrays style: nominal type %s, actual type %s",
                                 ClassUtil.getTypeDescription(_beanType),
                                 builder.getClass().getName()));
                     }

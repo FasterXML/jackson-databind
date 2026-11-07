@@ -2,6 +2,8 @@ package tools.jackson.databind.objectid;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.concurrent.ArrayBlockingQueue;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -55,6 +57,14 @@ public class ObjectIdInObjectArray5413Test extends DatabindTestUtil
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     public static final record Point(int id, int x, int y) {
+    }
+
+    static class ArrayCompany {
+        public Employee[] employees;
+    }
+
+    static class ArrayBlockingQueueCompany {
+        public ArrayBlockingQueue<Employee> employees;
     }
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
@@ -132,13 +142,8 @@ public class ObjectIdInObjectArray5413Test extends DatabindTestUtil
         assertSame(result.second[0], result.first[2]);
     }
 
-    static class ArrayCompany {
-        public Employee[] employees;
-    }
-
-    // Moved from "tofix/ObjectIdDeserializationFailTest"
     @Test
-    public void testForwardReferenceInArray() {
+    public void testForwardReferenceInArray() throws Exception {
         String json = "{\"employees\":["
                 + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
                 + "2,"
@@ -148,11 +153,30 @@ public class ObjectIdInObjectArray5413Test extends DatabindTestUtil
         assertEquals(3, company.employees.length);
         Employee firstEmployee = company.employees[0];
         Employee secondEmployee = company.employees[1];
+        _assertEmployees(firstEmployee, secondEmployee);
+        assertSame(secondEmployee, company.employees[2]);
+    }
+
+    // Do a specific test for ArrayBlockingQueue since it has its own deser.
+    @Test
+    public void testForwardReferenceInQueue() throws Exception {
+        String json = "{\"employees\":["
+                + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
+                + "2,"
+                + "{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
+                + "]}";
+        ArrayBlockingQueueCompany company = MAPPER.readValue(json, ArrayBlockingQueueCompany.class);
+        assertEquals(3, company.employees.size());
+        Employee firstEmployee = company.employees.take();
+        Employee secondEmployee = company.employees.take();
+        _assertEmployees(firstEmployee, secondEmployee);
+    }
+
+    private void _assertEmployees(Employee firstEmployee, Employee secondEmployee) {
         assertEquals(1, firstEmployee.id);
         assertEquals(2, secondEmployee.id);
         assertEquals(1, firstEmployee.reports.size());
         assertSame(secondEmployee, firstEmployee.reports.get(0));
         assertSame(firstEmployee, secondEmployee.manager);
-        assertSame(secondEmployee, company.employees[2]);
     }
 }

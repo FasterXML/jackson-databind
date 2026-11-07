@@ -166,7 +166,8 @@ public class ObjectArraySerializer
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
             if (_elementType != null) {
-                if (_staticTyping && !_elementType.isJavaLangObject()) {
+                if (_staticTyping && !_elementType.isJavaLangObject()
+                        && !_hasDynamicTypingOverride(ctxt, property)) {
                     ser = ctxt.findContentValueSerializer(_elementType, property);
                 }
             }
@@ -240,7 +241,15 @@ public class ObjectArraySerializer
 
     @Override
     public boolean isEmpty(SerializationContext prov, Object[] value) {
-        return value.length == 0;
+        if (value.length == 0) {
+            return true;
+        }
+        // [databind#6065]: with content @JsonInclude applied to containers,
+        // an array whose every element is suppressed is considered empty
+        if (_needToCheckFiltering(prov)) {
+            return _allElementsSuppressed(prov, value);
+        }
+        return false;
     }
 
     @Override
@@ -329,6 +338,10 @@ public class ObjectArraySerializer
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
         final boolean filtered = _needToCheckFiltering(ctxt);
+        // [databind#3194]: only need per-element type id check when elements
+        // are themselves arrays (nested array case like Object[][])
+        final TypeIdCheck typeIdCheck = ((typeSer != null) && _elementType.isArrayType())
+                ? new TypeIdCheck() : null;
 
         int i = 0;
         Object elem = null;
@@ -348,6 +361,11 @@ public class ObjectArraySerializer
                 }
                 if (typeSer == null) {
                     ser.serialize(elem, g, ctxt);
+                // [databind#3194]: for nested array elements, skip type id if runtime
+                // array type unwraps to final component (e.g. String[] -> String is final)
+                } else if ((typeIdCheck != null)
+                        && !typeIdCheck.needsTypeId(ctxt, elem.getClass())) {
+                    ser.serialize(elem, g, ctxt);
                 } else {
                     ser.serializeWithType(elem, g, ctxt, typeSer);
                 }
@@ -363,6 +381,10 @@ public class ObjectArraySerializer
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
         final boolean filtered = _needToCheckFiltering(ctxt);
+        // [databind#3194]: only need per-element type id check when elements
+        // are themselves arrays (nested array case like Object[][])
+        final TypeIdCheck typeIdCheck = _elementType.isArrayType()
+                ? new TypeIdCheck() : null;
         int i = 0;
         Object elem = null;
         try {
@@ -384,10 +406,48 @@ public class ObjectArraySerializer
                 if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                     continue;
                 }
-                serializer.serializeWithType(elem, g, ctxt, typeSer);
+                // [databind#3194]: for nested array elements, skip type id if runtime
+                // array type unwraps to final component (e.g. String[] -> String is final)
+                if ((typeIdCheck != null)
+                        && !typeIdCheck.needsTypeId(ctxt, cc)) {
+                    serializer.serialize(elem, g, ctxt);
+                } else {
+                    serializer.serializeWithType(elem, g, ctxt, typeSer);
+                }
             }
         } catch (Exception e) {
             wrapAndThrow(ctxt, e, elem, i);
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper class for type id checking
+    /**********************************************************************
+     */
+
+    /**
+     * One-entry cache for checking whether the runtime array element type
+     * requires a type id. In practice elements of a typed array are almost
+     * always the same type, so this avoids repeated {@code findTypeSerializer}
+     * lookups.
+     *<p>
+     * See [databind#3194] for details.
+     *
+     * @since 3.1
+     */
+    protected static final class TypeIdCheck {
+        private Class<?> _cachedClass;
+        private boolean _cachedResult;
+
+        public boolean needsTypeId(SerializationContext ctxt, Class<?> runtimeType) {
+            if (runtimeType == _cachedClass) {
+                return _cachedResult;
+            }
+            _cachedClass = runtimeType;
+            _cachedResult = ctxt.findTypeSerializer(
+                    ctxt.constructType(runtimeType)) != null;
+            return _cachedResult;
         }
     }
 
@@ -426,6 +486,49 @@ public class ObjectArraySerializer
             return true;
         }
         return !_suppressableValue.equals(elem);
+    }
+
+    /**
+     * Helper method for content-aware emptiness checks (used by {@link #isEmpty}):
+     * when content {@code @JsonInclude} is applied to containers, an array is
+     * considered empty if every one of its elements would be suppressed during
+     * serialization (so the array would render as an empty array). Callers should
+     * only invoke this when {@link #_needToCheckFiltering} returns true.
+     *
+     * @since 3.2.1
+     */
+    protected boolean _allElementsSuppressed(SerializationContext ctxt, Object[] value)
+    {
+        for (Object elem : value) {
+            if (elem == null) {
+                if (_suppressNulls) {
+                    continue;
+                }
+                return false;
+            }
+            // Only the "empty" check needs an element serializer; other suppression
+            // mechanisms compare the element directly, so avoid resolving one
+            ValueSerializer<Object> serializer = null;
+            if (_suppressableValue == MARKER_FOR_EMPTY) {
+                serializer = _elementSerializer;
+                if (serializer == null) {
+                    Class<?> cc = elem.getClass();
+                    serializer = _dynamicValueSerializers.serializerFor(cc);
+                    if (serializer == null) {
+                        if (_elementType.hasGenericTypes()) {
+                            serializer = _findAndAddDynamic(ctxt,
+                                    ctxt.constructSpecializedType(_elementType, cc));
+                        } else {
+                            serializer = _findAndAddDynamic(ctxt, cc);
+                        }
+                    }
+                }
+            }
+            if (_shouldSerializeElement(ctxt, elem, serializer)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

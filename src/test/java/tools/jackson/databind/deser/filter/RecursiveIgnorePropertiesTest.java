@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.filter;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,32 @@ public class RecursiveIgnorePropertiesTest
         public Person personZ;
     }
 
+    // for [databind#1755]
+    static class JackBase1755 {
+        public String id;
+    }
+
+    static class JackExt extends JackBase1755 {
+        public BigDecimal quantity;
+        public String ignoreMe;
+
+        @JsonIgnoreProperties({"ignoreMe"})
+        public List<JackExt> linked;
+
+        public List<KeyValue> metadata;
+    }
+
+    static class KeyValue {
+        public String key;
+        public String value;
+    }
+
+    // for [databind#4417]
+    static class Item4417 {
+        @JsonIgnoreProperties({ "whatever" })
+        public List<Item4417> items;
+    }
+
     static class Persons {
         public String name;
 
@@ -44,9 +72,11 @@ public class RecursiveIgnorePropertiesTest
     @Test
     public void testRecursiveForDeser() throws Exception
     {
-        String st = a2q("{ 'name': 'admin',\n"
-                + "    'person_z': { 'name': 'wyatt' }"
-                + "}");
+        String st = """
+                { "name": "admin",
+                    "person_z": { "name": "wyatt" }\
+                }
+                """;
         Person result = MAPPER.readValue(st, Person.class);
         assertEquals("admin", result.name);
         assertNotNull(result.personZ);
@@ -56,9 +86,11 @@ public class RecursiveIgnorePropertiesTest
     @Test
     public void testRecursiveWithCollectionDeser() throws Exception
     {
-        String st = a2q("{ 'name': 'admin',\n"
-                + "    'person_z': [ { 'name': 'Foor' }, { 'name' : 'Bar' } ]"
-                + "}");
+        String st = """
+                { "name": "admin",
+                    "person_z": [ { "name": "Foor" }, { "name" : "Bar" } ]\
+                }
+                """;
         Persons result = MAPPER.readValue(st, Persons.class);
         assertEquals("admin", result.name);
         assertNotNull(result.personZ);
@@ -77,5 +109,48 @@ public class RecursiveIgnorePropertiesTest
 
         String json = MAPPER.writeValueAsString(input);
         assertNotNull(json);
+    }
+
+    // for [databind#1755]
+    @Test
+    public void testRecursiveIgnore1755() throws Exception
+    {
+        final String JSON = """
+                {
+                "id": "1",
+                "quantity": 5,
+                "ignoreMe": "yzx",
+                "metadata": [
+                           {
+                              "key": "position",
+                              "value": "2"
+                          }
+                       ],
+                "linked": [
+                     {
+                         "id": "1",
+                         "quantity": 5,
+                         "ignoreMe": "yzx",
+                         "metadata": [
+                          {
+                              "key": "position",
+                             "value": "2"
+                         }
+                     ]
+                   }
+                  ]
+                }
+                """;
+        JackExt value = MAPPER.readValue(JSON, JackExt.class);
+        assertNotNull(value);
+    }
+
+    // for [databind#4417]
+    @Test
+    public void testRecursiveIgnore4417() throws Exception
+    {
+        Item4417 result = MAPPER.readValue(a2q("{'items': [{'items': []}]}"),
+                Item4417.class);
+        assertEquals(1, result.items.size(), 1);
     }
 }

@@ -1,5 +1,6 @@
 package tools.jackson.databind.introspect;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ public class MixInHandler
     implements MixInResolver,
         java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

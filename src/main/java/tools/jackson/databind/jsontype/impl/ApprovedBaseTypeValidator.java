@@ -1,5 +1,6 @@
 package tools.jackson.databind.jsontype.impl;
 
+import java.io.Serial;
 import java.util.Objects;
 
 import tools.jackson.databind.DatabindContext;
@@ -20,6 +21,7 @@ import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 public final class ApprovedBaseTypeValidator
     extends PolymorphicTypeValidator.Base
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final PolymorphicTypeValidator _typeParameterValidator;

@@ -93,8 +93,7 @@ public class LocalTimeDeserializer extends JSR310DateTimeDeserializerBase<LocalT
     {
         LocalTimeDeserializer deser = (LocalTimeDeserializer)
             super._withFormatOverrides(ctxt, property, formatOverrides);
-        Boolean readTimestampsAsNanosOverride = formatOverrides.getFeature(
-            JsonFormat.Feature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+        Boolean readTimestampsAsNanosOverride = _findReadTimestampsAsNanosOverride(formatOverrides);
         if (!Objects.equals(readTimestampsAsNanosOverride, deser._readTimestampsAsNanosOverride)) {
             return new LocalTimeDeserializer(deser, deser._isLenient, deser._formatter,
                 deser._shape, readTimestampsAsNanosOverride);
@@ -162,9 +161,9 @@ public class LocalTimeDeserializer extends JSR310DateTimeDeserializerBase<LocalT
                     }
                 } catch (DateTimeException | ArithmeticException e) {
                     throw DateTimeParseException.from(p,
-                            String.format("Failed to deserialize %s from array value [%d,%d,...]: %s",
+                            "Failed to deserialize %s from array value [%d,%d,...]: %s".formatted(
                                     handledType().getName(), hour, minute, e.getMessage()),
-                            String.format("[%d,%d,...]", hour, minute),
+                            "[%d,%d,...]".formatted(hour, minute),
                             handledType(), e);
                 }
             } else {

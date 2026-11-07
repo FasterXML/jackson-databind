@@ -5,11 +5,8 @@ import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import tools.jackson.core.*;
@@ -63,6 +60,11 @@ public class JDKFromStringDeserializer
     public final static int STD_CLASS = 5;
     public final static int STD_JAVA_TYPE = 6;
     public final static int STD_CURRENCY = 7;
+    /**
+     * @deprecated Since 3.3: no longer used, {@link java.util.regex.Pattern} values
+     *   are handled by {@link PatternDeserializer}
+     */
+    @Deprecated // since 3.3
     public final static int STD_PATTERN = 8;
     public final static int STD_LOCALE = 9;
     public final static int STD_CHARSET = 10;
@@ -79,7 +81,6 @@ public class JDKFromStringDeserializer
             Class.class,
             JavaType.class,
             Currency.class,
-            Pattern.class,
             Locale.class,
             Charset.class,
             TimeZone.class,
@@ -126,8 +127,6 @@ public class JDKFromStringDeserializer
             kind = STD_JAVA_TYPE;
         } else if (rawType == Currency.class) {
             kind = STD_CURRENCY;
-        } else if (rawType == Pattern.class) {
-            kind = STD_PATTERN;
         } else if (rawType == Locale.class) {
             kind = STD_LOCALE;
         } else if (rawType == Charset.class) {
@@ -190,13 +189,6 @@ public class JDKFromStringDeserializer
                 return ctxt.handleWeirdStringValue(_valueClass, value,
                         "Unrecognized currency");
             }
-        case STD_PATTERN:
-            try {
-                return Pattern.compile(value);
-            } catch (PatternSyntaxException e) {
-                return ctxt.handleWeirdStringValue(_valueClass, value,
-                        "Invalid Pattern, problem: "+e.getDescription());
-            }
         case STD_LOCALE:
             return _deserializeLocale(value, ctxt);
         case STD_CHARSET:
@@ -245,12 +237,6 @@ public class JDKFromStringDeserializer
     }
 
     @Override
-    protected boolean _shouldTrim() {
-        // 04-Dec-2021, tatu: [databind#3299] Do not trim (trailing) white space:
-        return (_kind != STD_PATTERN);
-    }
-
-    @Override
     public Object getEmptyValue(DeserializationContext ctxt)
     {
         switch (_kind) {
@@ -291,6 +277,10 @@ public class JDKFromStringDeserializer
         // manually
         int ix = _firstHyphenOrUnderscore(fullValue);
         if (ix < 0) { // single argument
+            // [databind#6273]: must NOT use `Locale.Builder.setLanguageTag()` here:
+            //   it rejects values that are not valid BCP-47 tags (including "",
+            //   which must map to `Locale.ROOT`) and throws `IllformedLocaleException`
+            //   (not an `IllegalArgumentException`)
             return new Locale(fullValue);
         }
         // But also of interest: "_" signals "old" serialization, simpleish;
@@ -393,7 +383,7 @@ public class JDKFromStringDeserializer
 
         /**
          * Constructor for specifying URI schemes to accept: matching is done
-         * case-insensitively, same as by {@code java.nio.file.Paths.get(URI)}.
+         * case-insensitively, same as by {@code java.nio.file.Path.of(URI)}.
          *<p>
          * NOTE: for allowed schemes that have no provider installed for the system
          * class loader, look up is also attempted using this thread's context class
@@ -423,13 +413,13 @@ public class JDKFromStringDeserializer
 
             int colonIx = value.indexOf(':');
             if (colonIx < 0) {
-                return Paths.get(value);
+                return Path.of(value);
             }
 
             // Does it look Windows driver prefix (like "C:")?
             if ((colonIx == 1) && Character.isLetter(value.charAt(0))) {
                 if (NioPathWindowsChecker.isWindows()) {
-                    return Paths.get(value);
+                    return Path.of(value);
                 }
             }
 
@@ -449,11 +439,11 @@ public class JDKFromStringDeserializer
                         scheme, _allowedSchemesDesc(allowedSchemes));
             }
             try {
-                return Paths.get(uri);
+                return Path.of(uri);
             } catch (FileSystemNotFoundException cause) {
                 // Only reached for schemes that are allowed: retry look up using this
                 // thread's context class loader, not system class loader that is used
-                // by `Paths.get()` (see [databind#2120])
+                // by `Path.of()` (see [databind#2120])
                 try {
                     for (FileSystemProvider provider : ServiceLoader.load(FileSystemProvider.class)) {
                         if (provider.getScheme().equalsIgnoreCase(scheme)) {
@@ -475,7 +465,7 @@ public class JDKFromStringDeserializer
         /**
          * Helper method for checking whether given non-{@code null} URI scheme is one
          * of allowed ones; comparison is case-insensitive, as per URI specification
-         * (and as done by {@code java.nio.file.Paths.get(URI)}).
+         * (and as done by {@code java.nio.file.Path.of(URI)}).
          */
         private static boolean _isSchemeAllowed(Collection<String> allowedSchemes, String scheme) {
             // Common case of exact (usually lower-case) match first:

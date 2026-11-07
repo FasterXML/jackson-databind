@@ -2,6 +2,7 @@ package tools.jackson.databind.deser.jackson;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.JsonNodeFeature;
 import tools.jackson.databind.node.*;
 
 /**
@@ -64,9 +65,16 @@ public class JsonNodeDeserializer
     /**
      * Overridden variant to ensure that absent values are NOT coerced into
      * {@code NullNode}s, unlike incoming {@code null} values.
+     * Will return {@code MissingNode} if
+     * {@link JsonNodeFeature#MAP_ABSENT_TO_MISSING} is enabled;
+     * Java {@code null} otherwise.
      */
     @Override // since 2.13
     public Object getAbsentValue(DeserializationContext ctxt) {
+        // [databind#5861] Optionally map absent to MissingNode
+        if (ctxt.isEnabled(JsonNodeFeature.MAP_ABSENT_TO_MISSING)) {
+            return ctxt.getNodeFactory().missingNode();
+        }
         return null;
     }
 

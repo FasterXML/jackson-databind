@@ -1,5 +1,6 @@
 package tools.jackson.databind.type;
 
+import java.io.Serial;
 import java.util.Objects;
 
 import tools.jackson.databind.JavaType;
@@ -12,6 +13,7 @@ import tools.jackson.databind.JavaType;
  */
 public class ReferenceType extends SimpleType
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected final JavaType _referencedType;

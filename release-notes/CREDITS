@@ -681,6 +681,9 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Fixed #6255: `@JsonIgnoreProperties`/`@JsonIncludeProperties` not honored for
    `ObjectNode`/`JsonNode`-valued `@JsonAnyGetter` entries
   [3.3.0]
+ * Fixed #6284: `@JsonIgnoreType` not honored for Creator properties (including Record
+   components)
+  [3.3.0]
 
 @waydeshi
  * Reported #6127: Add `StreamReadConstraints` number len constraint to

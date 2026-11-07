@@ -778,15 +778,15 @@ public class BeanDeserializerFactory
             if (IgnorePropertiesUtil.shouldIgnore(name, ignored, included)) {
                 continue;
             }
-            if (!property.hasConstructorParameter()) { // never skip constructor params
-                Class<?> rawPropertyType = property.getRawPrimaryType();
-                // Some types are declared as ignorable as well
-                if ((rawPropertyType != null)
-                        && isIgnorableType(ctxt, property, rawPropertyType, ignoredTypes)) {
-                    // important: make ignorable, to avoid errors if value is actually seen
-                    builder.addIgnorable(name);
-                    continue;
-                }
+            Class<?> rawPropertyType = property.getRawPrimaryType();
+            // Some types are declared as ignorable as well
+            // (including Creator properties: registering name as ignorable gets Creator
+            // property marked as such, see `BeanDeserializerBase.resolve()`)
+            if ((rawPropertyType != null)
+                    && isIgnorableType(ctxt, property, rawPropertyType, ignoredTypes)) {
+                // important: make ignorable, to avoid errors if value is actually seen
+                builder.addIgnorable(name);
+                continue;
             }
             result.add(property);
         }

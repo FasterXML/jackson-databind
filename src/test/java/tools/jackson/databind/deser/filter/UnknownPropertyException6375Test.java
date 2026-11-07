@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
@@ -19,6 +18,8 @@ import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+// [databind#6375]: non-Jackson exceptions from `DeserializationProblemHandler.handleUnknownProperty()`
+// should be wrapped with path to the unknown property; Jackson exceptions left as-is
 class UnknownPropertyException6375Test
 {
     static class Bean {
@@ -38,175 +39,56 @@ class UnknownPropertyException6375Test
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class IgnoringBean { }
 
+    private static final String JSON = """
+            {"unknown":1}
+            """;
+
+    private static final String RECORD_JSON = """
+            {"value":1,"unknown":2}
+            """;
+
     private final IllegalStateException failure = new IllegalStateException("handler failure");
 
-    private final DeserializationProblemHandler handler = new DeserializationProblemHandler() {
-        @Override
-        public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p,
-                ValueDeserializer<?> deser, Object beanOrClass, String propName) {
-            throw failure;
-        }
-    };
-
-    private final ObjectMapper mapper = JsonMapper.builder().addHandler(handler).build();
+    private final ObjectMapper mapper = mapperBuilder(failure)
+            .withConfigOverride(Map.Entry.class,
+                    o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.POJO)))
+            .build();
 
     @Test
-    void wrapsVanillaBeanFailure() {
-        assertWrapped(mapper.readerFor(Bean.class), "{\"unknown\":1}", Bean.class);
-    }
-
-    @Test
-    void wrapsActiveViewFailure() {
-        ObjectMapper withView = JsonMapper.builder().addHandler(handler)
-                .enable(MapperFeature.DEFAULT_VIEW_INCLUSION).build();
-        assertWrapped(withView.readerFor(Bean.class).withView(Bean.class),
-                "{\"unknown\":1}", Bean.class);
-    }
-
-    @Test
-    void wrapsRecordFailure() {
-        assertWrapped(mapper.readerFor(RecordBean.class),
-                "{\"value\":1,\"unknown\":2}", RecordBean.class);
-    }
-
-    @Test
-    void wrapsBuilderFailure() {
-        assertWrapped(mapper.readerFor(BuiltBean.class), "{\"unknown\":1}", Builder.class);
-    }
-
-    // Not just beans: any deserializer calling `handleUnknownProperty()`
-    @Test
-    void wrapsPOJOShapedMapEntryFailure() {
-        ObjectMapper pojoEntries = JsonMapper.builder().addHandler(handler)
-                .withConfigOverride(Map.Entry.class,
-                        o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.POJO)))
-                .build();
-        DatabindException exception = assertThrows(DatabindException.class,
-                () -> pojoEntries.readValue("""
-                        {"key":"a","unknown":1}
-                        """, new TypeReference<Map.Entry<String, String>>() { }));
-        assertSame(failure, exception.getCause());
-        assertEquals(1, exception.getPath().size());
-        assertEquals("unknown", exception.getPath().get(0).getPropertyName());
+    void wrapsNonJacksonFailure() {
+        assertWrapped(mapper.readerFor(Bean.class), JSON, Bean.class);
+        assertWrapped(mapper.readerFor(Bean.class).withView(Bean.class), JSON, Bean.class);
+        assertWrapped(mapper.readerFor(RecordBean.class), RECORD_JSON, RecordBean.class);
+        assertWrapped(mapper.readerFor(BuiltBean.class), JSON, Builder.class);
+        // Not just beans: any deserializer calling `handleUnknownProperty()`
+        assertWrapped(mapper.readerFor(new TypeReference<Map.Entry<String, String>>() { }),
+                """
+                {"key":"a","unknown":1}
+                """, null);
     }
 
     @Test
     void disabledWrappingPreservesOriginalException() {
-        ObjectMapper unwrapped = JsonMapper.builder().addHandler(handler)
+        ObjectMapper unwrapped = mapperBuilder(failure)
                 .disable(DeserializationFeature.WRAP_EXCEPTIONS).build();
-        for (Class<?> type : new Class<?>[] { Bean.class, RecordBean.class, BuiltBean.class }) {
-            String json = (type == RecordBean.class)
-                    ? "{\"value\":1,\"unknown\":2}" : "{\"unknown\":1}";
-            assertSame(failure, assertThrows(IllegalStateException.class,
-                    () -> unwrapped.readValue(json, type)));
-        }
+        assertSame(failure, assertThrows(IllegalStateException.class,
+                () -> unwrapped.readValue(JSON, Bean.class)));
+        assertSame(failure, assertThrows(IllegalStateException.class,
+                () -> unwrapped.readValue(RECORD_JSON, RecordBean.class)));
+        assertSame(failure, assertThrows(IllegalStateException.class,
+                () -> unwrapped.readValue(JSON, BuiltBean.class)));
     }
 
     @Test
-    void jacksonExceptionIsNotWrappedAgain() {
-        UnrecognizedPropertyException[] original = new UnrecognizedPropertyException[1];
-        ObjectMapper jacksonFailure = JsonMapper.builder()
-                .addHandler(new DeserializationProblemHandler() {
-                    @Override
-                    public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p,
-                            ValueDeserializer<?> deser, Object beanOrClass, String propName) {
-                        original[0] = UnrecognizedPropertyException.from(p, beanOrClass, propName, null);
-                        throw original[0];
-                    }
-                }).build();
-        UnrecognizedPropertyException exception = assertThrows(UnrecognizedPropertyException.class,
-                () -> jacksonFailure.readValue("{\"unknown\":1}", Bean.class));
-        assertSame(original[0], exception);
-        assertEquals(1, exception.getPath().size());
-    }
-
-    @Test
-    void jacksonExceptionWithoutPathGetsUnknownPropertyPath() {
+    void jacksonExceptionIsNotModified() {
         for (boolean wrap : new boolean[] { true, false }) {
-            DatabindException[] original = new DatabindException[1];
-            Object[] bean = new Object[1];
-            ObjectMapper jacksonFailure = JsonMapper.builder()
-                    .configure(DeserializationFeature.WRAP_EXCEPTIONS, wrap)
-                    .addHandler(new DeserializationProblemHandler() {
-                        @Override
-                        public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p,
-                                ValueDeserializer<?> deser, Object beanOrClass, String propName) {
-                            bean[0] = beanOrClass;
-                            original[0] = DatabindException.from(p, "handler failure");
-                            throw original[0];
-                        }
-                    }).build();
-            DatabindException exception = assertThrows(DatabindException.class,
-                    () -> jacksonFailure.readValue("{\"unknown\":1}", Bean.class));
-            assertSame(original[0], exception);
-            assertEquals(1, exception.getPath().size());
-            assertSame(bean[0], exception.getPath().get(0).from());
-            assertEquals("unknown", exception.getPath().get(0).getPropertyName());
+            DatabindException original = DatabindException.from((JsonParser) null, "handler failure");
+            ObjectMapper jacksonFailure = mapperBuilder(original)
+                    .configure(DeserializationFeature.WRAP_EXCEPTIONS, wrap).build();
+            assertSame(original, assertThrows(DatabindException.class,
+                    () -> jacksonFailure.readValue(JSON, Bean.class)));
+            assertEquals(0, original.getPath().size());
         }
-    }
-
-    @Test
-    void inputMismatchGetsUnknownPropertyPath() {
-        ObjectMapper jacksonFailure = JsonMapper.builder()
-                .addHandler(new DeserializationProblemHandler() {
-                    @Override
-                    public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p,
-                            ValueDeserializer<?> deser, Object beanOrClass, String propName) {
-                        return ctxt.reportInputMismatch(Bean.class, "handler failure");
-                    }
-                }).build();
-        DatabindException exception = assertThrows(DatabindException.class,
-                () -> jacksonFailure.readValue("{\"unknown\":1}", Bean.class));
-        assertEquals(1, exception.getPath().size());
-        assertEquals("unknown", exception.getPath().get(0).getPropertyName());
-        assertInstanceOf(Bean.class, exception.getPath().get(0).from());
-    }
-
-    @Test
-    void nestedReadFailureGetsUnknownPropertyPrefix() {
-        JacksonException[] original = new JacksonException[1];
-        ObjectMapper jacksonFailure = JsonMapper.builder()
-                .addHandler(new DeserializationProblemHandler() {
-                    @Override
-                    public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p,
-                            ValueDeserializer<?> deser, Object beanOrClass, String propName) {
-                        try {
-                            ctxt.readValue(p, Bean.class);
-                        } catch (JacksonException e) {
-                            original[0] = e;
-                            throw e;
-                        }
-                        return true;
-                    }
-                }).build();
-        DatabindException exception = assertThrows(DatabindException.class,
-                () -> jacksonFailure.readValue("{\"unknown\":{\"value\":\"invalid\"}}", Bean.class));
-        assertSame(original[0], exception);
-        assertEquals(2, exception.getPath().size());
-        assertEquals("unknown", exception.getPath().get(0).getPropertyName());
-        assertEquals("value", exception.getPath().get(1).getPropertyName());
-    }
-
-    @Test
-    void existingUnknownPropertyPrefixIsNotDuplicated() {
-        DatabindException[] original = new DatabindException[1];
-        ObjectMapper jacksonFailure = JsonMapper.builder()
-                .addHandler(new DeserializationProblemHandler() {
-                    @Override
-                    public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p,
-                            ValueDeserializer<?> deser, Object beanOrClass, String propName) {
-                        original[0] = DatabindException.from(p, "handler failure");
-                        original[0].prependPath(Bean.class, "value");
-                        original[0].prependPath(beanOrClass, propName);
-                        throw original[0];
-                    }
-                }).build();
-        DatabindException exception = assertThrows(DatabindException.class,
-                () -> jacksonFailure.readValue("{\"unknown\":1}", Bean.class));
-        assertSame(original[0], exception);
-        assertEquals(2, exception.getPath().size());
-        assertEquals("unknown", exception.getPath().get(0).getPropertyName());
-        assertEquals("value", exception.getPath().get(1).getPropertyName());
     }
 
     @Test
@@ -214,14 +96,26 @@ class UnknownPropertyException6375Test
         ObjectMapper strict = JsonMapper.builder()
                 .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
         UnrecognizedPropertyException exception = assertThrows(UnrecognizedPropertyException.class,
-                () -> strict.readValue("{\"unknown\":1}", Bean.class));
+                () -> strict.readValue(JSON, Bean.class));
         assertEquals(1, exception.getPath().size());
         assertEquals("unknown", exception.getPath().get(0).getPropertyName());
     }
 
     @Test
     void ignoredUnknownPropertyDoesNotCallHandler() {
-        assertNotNull(mapper.readValue("{\"unknown\":{\"nested\":1}}", IgnoringBean.class));
+        assertNotNull(mapper.readValue("""
+                {"unknown":{"nested":1}}
+                """, IgnoringBean.class));
+    }
+
+    private static JsonMapper.Builder mapperBuilder(RuntimeException toThrow) {
+        return JsonMapper.builder().addHandler(new DeserializationProblemHandler() {
+            @Override
+            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p,
+                    ValueDeserializer<?> deser, Object beanOrClass, String propName) {
+                throw toThrow;
+            }
+        });
     }
 
     private void assertWrapped(ObjectReader reader, String json, Class<?> beanType) {
@@ -230,6 +124,8 @@ class UnknownPropertyException6375Test
         assertSame(failure, exception.getCause());
         assertEquals(1, exception.getPath().size());
         assertEquals("unknown", exception.getPath().get(0).getPropertyName());
-        assertTrue(exception.getPath().get(0).toString().startsWith(beanType.getName()));
+        if (beanType != null) {
+            assertTrue(exception.getPath().get(0).toString().startsWith(beanType.getName()));
+        }
     }
 }

@@ -1391,6 +1391,9 @@ public abstract class DeserializationContext
             final boolean handled;
             try {
                 handled = h.value().handleUnknownProperty(this, p, deser, instanceOrClass, propName);
+            } catch (JacksonException e) {
+                // Leave handler-thrown Jackson exceptions as they are
+                throw e;
             } catch (RuntimeException e) {
                 throw _wrapUnknownPropertyProblem(e, instanceOrClass, propName);
             }
@@ -1413,20 +1416,13 @@ public abstract class DeserializationContext
         throw UnrecognizedPropertyException.from(p, instanceOrClass, propName, propIds);
     }
 
-    // [databind#6375]: Include path to unknown property in exceptions thrown by
-    // `DeserializationProblemHandler.handleUnknownProperty()`; wrap non-Jackson ones
-    // (unless `DeserializationFeature.WRAP_EXCEPTIONS` is disabled)
+    // [databind#6375]: Wrap non-Jackson exceptions thrown by
+    // `DeserializationProblemHandler.handleUnknownProperty()` to include path to
+    // unknown property (unless `DeserializationFeature.WRAP_EXCEPTIONS` is disabled)
     private RuntimeException _wrapUnknownPropertyProblem(RuntimeException e,
             Object instanceOrClass, String propName)
     {
-        if (e instanceof JacksonException je) {
-            // Handler may have already included the unknown property itself
-            List<JacksonException.Reference> path = je.getPath();
-            if (!path.isEmpty() && (path.get(0).from() == instanceOrClass)
-                    && Objects.equals(path.get(0).getPropertyName(), propName)) {
-                return je;
-            }
-        } else if (!isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)) {
+        if (!isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)) {
             return e;
         }
         return DatabindException.wrapWithPath(this, e,

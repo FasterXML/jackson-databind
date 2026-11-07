@@ -263,6 +263,10 @@ public class ObjectArraySerializer
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
+                if (UnwrappedContainerSerializerHelper.writeEmptyArrayIfSuppressed(value, g,
+                        _needToCheckFiltering(ctxt), () -> _isEmptySingleton(ctxt, value[0]))) {
+                    return;
+                }
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -270,6 +274,29 @@ public class ObjectArraySerializer
         g.writeStartArray(value, len);
         serializeContents(value, g, ctxt);
         g.writeEndArray();
+    }
+
+    private boolean _isEmptySingleton(SerializationContext ctxt, Object elem) {
+        try {
+            if (elem == null) {
+                return _suppressNulls;
+            }
+            ValueSerializer<Object> serializer = _elementSerializer;
+            if (serializer == null) {
+                Class<?> cc = elem.getClass();
+                serializer = _dynamicValueSerializers.serializerFor(cc);
+                if (serializer == null) {
+                    // The typed contents path resolves the runtime class directly.
+                    serializer = ((_valueTypeSerializer == null) && _elementType.hasGenericTypes())
+                            ? _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_elementType, cc))
+                            : _findAndAddDynamic(ctxt, cc);
+                }
+            }
+            return !_shouldSerializeElement(ctxt, elem, serializer);
+        } catch (Exception e) {
+            wrapAndThrow(ctxt, e, elem, 0);
+            return false;
+        }
     }
 
     @Override

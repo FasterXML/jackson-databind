@@ -85,6 +85,12 @@ public class StringCollectionSerializer
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
+                if (UnwrappedContainerSerializerHelper.writeEmptyArrayIfSuppressed(value, g,
+                        ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
+                                && ((_suppressableValue != null) || _suppressNulls),
+                        () -> _isEmptySingleton(ctxt, value))) {
+                    return;
+                }
                 if (ctxt.isEnabled(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
                     && ((_suppressableValue != null) || _suppressNulls)
                 ) {
@@ -104,6 +110,16 @@ public class StringCollectionSerializer
             serializeContents(value, g, ctxt);
         }
         g.writeEndArray();
+    }
+
+    private boolean _isEmptySingleton(SerializationContext ctxt, Collection<String> value) {
+        try {
+            String elem = value.iterator().next();
+            return (elem == null) ? _suppressNulls : !_shouldSerializeElement(elem, null, ctxt);
+        } catch (Exception e) {
+            wrapAndThrow(ctxt, e, value, 0);
+            return false;
+        }
     }
 
     @Override

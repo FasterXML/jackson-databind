@@ -83,6 +83,10 @@ public final class IndexedStringListSerializer
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
+                if (UnwrappedContainerSerializerHelper.writeEmptyArrayIfSuppressed(value, g,
+                        _needToCheckFiltering(ctxt), () -> _isEmptySingleton(ctxt, value))) {
+                    return;
+                }
                 if (_needToCheckFiltering(ctxt)) {
                     serializeContentsFiltered(value, g, ctxt, 1);
 
@@ -99,6 +103,16 @@ public final class IndexedStringListSerializer
             serializeContentsNonFiltered(value, g, ctxt, len);
         }
         g.writeEndArray();
+    }
+
+    private boolean _isEmptySingleton(SerializationContext ctxt, List<String> value) {
+        try {
+            String elem = value.get(0);
+            return (elem == null) ? _suppressNulls : !_shouldSerializeElement(elem, null, ctxt);
+        } catch (Exception e) {
+            wrapAndThrow(ctxt, e, value, 0);
+            return false;
+        }
     }
 
     @Override

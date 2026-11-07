@@ -117,6 +117,9 @@ public class BeanAsArrayBuilderDeserializer
     protected final Object finishBuild(DeserializationContext ctxt, Object builder)
         throws JacksonException
     {
+        if (builder == null) {
+            return null;
+        }
         try {
             return _buildMethod.getMember().invoke(builder, (Object[]) null);
         } catch (Exception e) {

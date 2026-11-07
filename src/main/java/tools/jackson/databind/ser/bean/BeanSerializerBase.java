@@ -257,6 +257,17 @@ public abstract class BeanSerializerBase
         return result;
     }
 
+    // Helper for [databind#2759] / [databind#6410]: copy with Object Id property moved
+    // first; and as plain (not View-filtered) writer
+    private static BeanPropertyWriter[] _withIdPropFirst(BeanPropertyWriter[] props,
+            int idIndex, BeanPropertyWriter idProp)
+    {
+        final BeanPropertyWriter[] result = Arrays.copyOf(props, props.length);
+        System.arraycopy(result, 0, result, 1, idIndex);
+        result[0] = idProp;
+        return result;
+    }
+
     /*
     /**********************************************************************
     /* Post-construction processing: resolvable, contextual
@@ -605,22 +616,10 @@ public abstract class BeanSerializerBase
         // [databind#6410]: and Object Id property must not be filtered by View
         if (idPropOrigIndex >= 0) { // note: must shuffle both regular properties and filtered
             final BeanPropertyWriter idProp = _props[idPropOrigIndex];
-            final boolean viewFiltered = (_filteredProps != null)
-                    && (_filteredProps[idPropOrigIndex] != idProp);
-            if ((idPropOrigIndex > 0) || viewFiltered) {
-                final BeanPropertyWriter[] newProps = Arrays.copyOf(_props, _props.length);
-                System.arraycopy(newProps, 0, newProps, 1, idPropOrigIndex);
-                newProps[0] = idProp;
-                final BeanPropertyWriter[] newFiltered;
-                if (_filteredProps == null) {
-                    newFiltered = null;
-                } else {
-                    newFiltered = Arrays.copyOf(_filteredProps, _filteredProps.length);
-                    System.arraycopy(newFiltered, 0, newFiltered, 1, idPropOrigIndex);
-                    newFiltered[0] = idProp;
-                }
-                contextual = contextual.withProperties(newProps, newFiltered);
-            }
+            contextual = contextual.withProperties(
+                    _withIdPropFirst(_props, idPropOrigIndex, idProp),
+                    (_filteredProps == null) ? null
+                            : _withIdPropFirst(_filteredProps, idPropOrigIndex, idProp));
         }
 
         if (oiw != null) {

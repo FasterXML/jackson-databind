@@ -1,6 +1,7 @@
 package tools.jackson.databind.objectid;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +12,7 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
+import tools.jackson.databind.ser.PropertyFilter;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
 import tools.jackson.databind.ser.std.SimpleFilterProvider;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -59,10 +61,10 @@ public class ObjectIdWithViewsAndFilters6410Test extends DatabindTestUtil
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonPropertyOrder({ "id", "email", "secret", "other" })
     static class FilteredAccount {
-        public int id;
-        public String email;
-        public String secret;
-        public FilteredAccount other;
+        @JsonView(Internal.class) public int id;
+        @JsonView(Public.class) public String email;
+        @JsonView(Public.class) public String secret;
+        @JsonView(Public.class) public FilteredAccount other;
     }
 
     // No class-level Object Id: defined via property-level annotation
@@ -177,17 +179,10 @@ public class ObjectIdWithViewsAndFilters6410Test extends DatabindTestUtil
         }
     }
 
-    // View and Filter both excluding id
-    @JsonFilter("idFilter")
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-    @JsonPropertyOrder({ "id", "email", "secret" })
-    static class ViewAndFilterAccount {
-        @JsonView(Internal.class) public int id;
-        @JsonView(Public.class) public String email;
-        @JsonView(Public.class) public String secret;
-    }
-
     private final ObjectMapper MAPPER = newJsonMapper();
+
+    private final ObjectMapper EXCLUDE_ID_MAPPER =
+            filterMapper(SimpleBeanPropertyFilter.serializeAllExcept("id", "secret"));
 
     /*
     /**********************************************************************
@@ -271,66 +266,47 @@ public class ObjectIdWithViewsAndFilters6410Test extends DatabindTestUtil
     @Test
     void writeIdExcludedByFilter() throws Exception
     {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .filterProvider(new SimpleFilterProvider().addFilter("idFilter",
-                        SimpleBeanPropertyFilter.serializeAllExcept("id", "secret")))
-                .build();
         FilteredAccount a = new FilteredAccount();
         a.id = 5;
         a.email = "f@x";
         a.secret = "shh";
         a.other = a;
 
-        final String json = mapper.writeValueAsString(a);
+        final String json = EXCLUDE_ID_MAPPER.writeValueAsString(a);
         assertEquals("""
                 {"id":5,"email":"f@x","other":5}""", json);
-        FilteredAccount result = mapper.readValue(json, FilteredAccount.class);
+        FilteredAccount result = EXCLUDE_ID_MAPPER.readValue(json, FilteredAccount.class);
         assertEquals(5, result.id);
         assertNull(result.secret);
         assertSame(result, result.other);
 
         // and same with "include only" filter not listing id
-        mapper = jsonMapperBuilder()
-                .filterProvider(new SimpleFilterProvider().addFilter("idFilter",
-                        SimpleBeanPropertyFilter.filterOutAllExcept("email")))
-                .build();
         assertEquals("""
-                {"id":5,"email":"f@x"}""", mapper.writeValueAsString(a));
+                {"id":5,"email":"f@x"}""",
+                filterMapper(SimpleBeanPropertyFilter.filterOutAllExcept("email"))
+                        .writeValueAsString(a));
     }
 
     @Test
     void writeIdExcludedByViewAndFilter() throws Exception
     {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .filterProvider(new SimpleFilterProvider().addFilter("idFilter",
-                        SimpleBeanPropertyFilter.serializeAllExcept("id", "secret")))
-                .build();
-        ViewAndFilterAccount a = new ViewAndFilterAccount();
+        FilteredAccount a = new FilteredAccount();
         a.id = 6;
         a.email = "vf@x";
         a.secret = "shh";
         assertEquals("""
-                {"id":6,"email":"vf@x"}""",
-                mapper.writerWithView(Public.class).writeValueAsString(a));
+                {"id":6,"email":"vf@x","other":null}""",
+                EXCLUDE_ID_MAPPER.writerWithView(Public.class).writeValueAsString(a));
     }
 
     @Test
     void schemaIdExcludedByFilter() throws Exception
     {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .filterProvider(new SimpleFilterProvider().addFilter("idFilter",
-                        SimpleBeanPropertyFilter.serializeAllExcept("id", "secret")))
-                .build();
         final List<String> names = new ArrayList<>();
-        mapper.acceptJsonFormatVisitor(FilteredAccount.class, new JsonFormatVisitorWrapper.Base() {
+        EXCLUDE_ID_MAPPER.acceptJsonFormatVisitor(FilteredAccount.class, new JsonFormatVisitorWrapper.Base() {
             @Override
             public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
                 return new JsonObjectFormatVisitor.Base(getContext()) {
-                    @Override
-                    public void property(BeanProperty prop) {
-                        names.add(prop.getName());
-                    }
-
                     @Override
                     public void optionalProperty(BeanProperty prop) {
                         names.add(prop.getName());
@@ -338,7 +314,7 @@ public class ObjectIdWithViewsAndFilters6410Test extends DatabindTestUtil
                 };
             }
         });
-        assertEquals(Arrays.asList("id", "email", "other"), names);
+        assertEquals(List.of("id", "email", "other"), names);
     }
 
     /*
@@ -350,12 +326,8 @@ public class ObjectIdWithViewsAndFilters6410Test extends DatabindTestUtil
     @Test
     void readIdExcludedByView() throws Exception
     {
-        final String json = """
-                {"id":7,"email":"r@x","other":7}""";
-        ObjectReader r = MAPPER.readerWithView(Public.class)
-                .with(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)
-                .forType(Account.class);
-        Account a = r.readValue(json);
+        Account a = _publicReader(Account.class).readValue("""
+                {"id":7,"email":"r@x","other":7}""");
         assertEquals(7, a.id);
         assertEquals("r@x", a.email);
         assertSame(a, a.other);
@@ -368,13 +340,9 @@ public class ObjectIdWithViewsAndFilters6410Test extends DatabindTestUtil
                 {"id":8,"email":"c@x","other":8}""";
         // Previously id was not passed to Creator (or failed, with
         // `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES`), although Object Id was bound
-        for (boolean failOnUnexpected : new boolean[] { false, true }) {
-            ObjectReader r = MAPPER.readerWithView(Public.class)
-                    .with(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)
-                    .forType(CreatorAccount.class);
-            if (!failOnUnexpected) {
-                r = r.without(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES);
-            }
+        final ObjectReader strict = _publicReader(CreatorAccount.class);
+        for (ObjectReader r : List.of(strict,
+                strict.without(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES))) {
             CreatorAccount a = r.readValue(json);
             assertEquals(8, a.id);
             assertEquals("c@x", a.email);
@@ -389,7 +357,6 @@ public class ObjectIdWithViewsAndFilters6410Test extends DatabindTestUtil
                 .readValue("""
                 {"id":9,"first":"Bob","last":"Burger"}""");
         assertEquals(9, a.id);
-        assertNotNull(a.name);
         assertEquals("Bob", a.name.first);
         assertEquals("Burger", a.name.last);
     }
@@ -401,8 +368,7 @@ public class ObjectIdWithViewsAndFilters6410Test extends DatabindTestUtil
                 .readValue("""
                 {"id":10,"type":"payload","payload":{"value":42}}""");
         assertEquals(10, a.id);
-        assertInstanceOf(Payload.class, a.payload);
-        assertEquals(42, ((Payload) a.payload).value);
+        assertEquals(42, assertInstanceOf(Payload.class, a.payload).value);
     }
 
     @Test
@@ -422,9 +388,14 @@ public class ObjectIdWithViewsAndFilters6410Test extends DatabindTestUtil
                 .readValue("""
                 {"id":12,"first":"Bob","last":"Burger"}""");
         assertEquals(12, a.id);
-        assertNotNull(a.name);
         assertEquals("Bob", a.name.first);
         assertEquals("Burger", a.name.last);
+    }
+
+    private static ObjectMapper filterMapper(PropertyFilter filter) {
+        return jsonMapperBuilder()
+                .filterProvider(new SimpleFilterProvider().addFilter("idFilter", filter))
+                .build();
     }
 
     private ObjectReader _publicReader(Class<?> type) {

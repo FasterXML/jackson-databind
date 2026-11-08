@@ -33,6 +33,9 @@ No changes since 3.1
 #6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
   values (including primitive array elements)
  (reported, fixed by @Marti2203)
+#6309: NPE serializing an Enum whose `toString()` returns `null` (3.x regression from 2.x)
+ (reported by @Marti2203)
+ (fix by @cowtowncoder, w/ Claude code)
 #6315: Map key deserializers should apply same type checks as bean deserializers
  (reported by @ab310013)
  (fix by @pjfanning)

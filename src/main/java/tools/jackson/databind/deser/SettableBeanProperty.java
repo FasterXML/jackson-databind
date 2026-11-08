@@ -3,9 +3,12 @@ package tools.jackson.databind.deser;
 import java.lang.annotation.Annotation;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.core.*;
 import tools.jackson.core.util.InternCache;
@@ -440,6 +443,45 @@ public abstract class SettableBeanProperty
     }
 
     public TypeDeserializer getValueTypeDeserializer() { return _valueTypeDeserializer; }
+
+    /**
+     * Collects known input property names of this property's value deserializer,
+     * including a property-based polymorphic type id, into the supplied set.
+     * If the value deserializer has an any-setter, returns {@code true}
+     * without adding names. A missing value deserializer returns {@code false}.
+     *
+     * @param names Non-null set to which known names are added
+     *
+     * @return Whether the value may accept arbitrary property names (has an
+     *   any-setter or does not expose any known property names)
+     *
+     * @since 3.3
+     */
+    public boolean collectValuePropertyNamesTo(Set<String> names)
+    {
+        ValueDeserializer<?> deser = getValueDeserializer();
+        if (deser == null) {
+            return false;
+        }
+        if (deser.hasAnySetter()) {
+            return true;
+        }
+        // [databind#6001]: collect into a temp set so we can tell whether this
+        //   deserializer contributed any names of its own; if not, it is "opaque"
+        //   (typically a custom unwrapping deserializer capturing arbitrary fields).
+        Set<String> propNames = new HashSet<>();
+        deser.collectAllPropertyNamesTo(propNames);
+        names.addAll(propNames);
+        // [databind#6332]: polymorphic unwrapped value also needs its type id property
+        TypeDeserializer typeDeser = getValueTypeDeserializer();
+        if (typeDeser != null) {
+            JsonTypeInfo.As incl = typeDeser.getTypeInclusion();
+            if (incl == JsonTypeInfo.As.PROPERTY || incl == JsonTypeInfo.As.EXISTING_PROPERTY) {
+                names.add(typeDeser.getPropertyName());
+            }
+        }
+        return propNames.isEmpty();
+    }
 
     public NullValueProvider getNullValueProvider() { return _nullProvider; }
 

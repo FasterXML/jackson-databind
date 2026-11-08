@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.23.0 (not yet released)
+2.23.0 (07-Nov-2026)
 
 #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
   (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
@@ -44,6 +44,7 @@ Project: jackson-databind
 #6339: Enum aliases from an appended `AnnotationIntrospector` are discarded:
   `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
  (reported, fixed by @Marti2203)
+#6399: `NullSerializer` should not be annotated with `@JacksonStdImpl`
 
 2.22.5 (not yet released)
 

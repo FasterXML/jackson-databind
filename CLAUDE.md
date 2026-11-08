@@ -37,15 +37,20 @@ older than `2.18` (`2.17`, `2.16`) still received merges as recently as Jun 2026
 
 **Rules:**
 
-1. **Land a fix on the oldest branch it applies to**, not on the newest. A bug present
-   since 2.18 gets fixed on `2.18`. A fix for new-in-2.x behavior goes on `2.x`.
+1. **Land a fix on the oldest branch it applies to *and* is allowed on**, not on the newest:
+   - **Regular bug fixes** go no further back than `2.x` (at the time of writing,
+     2.24.x; check `pom.xml`), even when the bug is present in older versions.
+   - **Only critical bug fixes** (such as security fixes) may go to the `2.18` and `2.21`
+     patch branches. A critical bug present since 2.18 gets fixed on `2.18`.
+   - A fix for new-in-2.x behavior goes on `2.x`.
 2. **Fixes are merged forward** along the chain (`git merge 2.20` while on `2.21`, etc.).
    Never cherry-pick or re-apply the same fix independently onto two branches — that
    creates conflicts on every subsequent merge-forward.
 3. Which branch is "oldest applicable" depends on which branches are still open for
    maintenance; older ones are closed over time. Check recent commits on a branch before
    targeting it, and when in doubt, ask.
-4. Security fixes are commonly backported further down the chain than ordinary bug fixes.
+4. Security fixes are commonly backported further down the chain than ordinary bug fixes
+   (see rule 1 for which branches accept them).
 
 ## Build and Test Commands
 

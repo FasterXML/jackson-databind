@@ -480,7 +480,19 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default.
      */
-    EAGER_DESERIALIZER_FETCH(true)
+    EAGER_DESERIALIZER_FETCH(true),
+
+    /**
+     * Feature that, when enabled, causes location information to be
+     * automatically cleared from {@link JacksonException} instances thrown
+     * during deserialization, preventing potentially sensitive input data
+     * from appearing in exception messages and logs.
+     *<p>
+     * Feature is disabled by default.
+     *
+     * @since 3.2
+     */
+    EXCLUDE_LOCATION_IN_EXCEPTIONS(false)
 
     ;
 

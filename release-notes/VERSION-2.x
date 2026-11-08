@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.24.0 (not yet released)
+
+#6309: Serializing an Enum whose `toString()` returns `null` as a Map key fails
+  with `WRITE_ENUMS_USING_TO_STRING`
+ (reported, fixed by @Marti2203)
+
 2.23.0 (07-Nov-2026)
 
 #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties

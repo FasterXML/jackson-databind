@@ -717,6 +717,9 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)`
    for creator properties: existing value is overwritten with `null`
   [3.2.5]
+ * Reported #6309: NPE serializing an Enum whose `toString()` returns `null`
+   (3.x regression from 2.x)
+  [3.1.9]
 
 Anna Breeva (@ab310013)
  * Reported #6315: Map key deserializers should apply same type checks as bean

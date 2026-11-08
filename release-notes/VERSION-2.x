@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.23.0 (not yet released)
+2.23.0 (07-Nov-2026)
 
 #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
   (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)

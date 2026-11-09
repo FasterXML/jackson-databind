@@ -641,10 +641,27 @@ public abstract class SettableBeanProperty
     /**********************************************************************
      */
 
+    /**
+     * Method called to wrap or re-throw an exception thrown when trying to set
+     * {@code value} for this property.
+     *<p>
+     * Setters are called using {@link java.lang.invoke.MethodHandle}s: unlike with
+     * reflection, exceptions thrown by the setter itself are not wrapped in
+     * {@link InvocationTargetException}, and an actual mismatch between {@code value}
+     * and the property type results in {@link ClassCastException} (or
+     * {@link NullPointerException} for {@code null} passed to a primitive), not
+     * {@link IllegalArgumentException}. Such mismatches are reported with expected and
+     * actual type; {@link IllegalArgumentException} thrown by the setter is wrapped
+     * with its own message (see [databind#6303]).
+     *
+     * @param p Parser to use for location information, if any
+     * @param e Exception to re-throw or wrap
+     * @param value Value that was to be set for this property
+     */
     protected void _throwAsJacksonE(JsonParser p, Throwable e, Object value)
         throws JacksonException
     {
-        if (e instanceof IllegalArgumentException) {
+        if (_isValueTypeMismatch(e, value, getType())) {
             String actType = ClassUtil.classNameOf(value);
             StringBuilder msg = new StringBuilder("Problem deserializing property '")
                     .append(getName())
@@ -661,7 +678,44 @@ public abstract class SettableBeanProperty
             }
             throw DatabindException.from(p, msg.toString(), e);
         }
+        // [databind#6303]: thrown by the setter itself, wrap with its own message
+        if (e instanceof IllegalArgumentException) {
+            throw DatabindException.from(p, _exceptionMessageOrPlaceholder(e), e);
+        }
         _throwAsJacksonE(p, e);
+    }
+
+    /**
+     * Helper method for checking whether given exception, thrown when passing
+     * {@code value} to a setter (or field) of given type, indicates a mismatch
+     * between the value and that type, as opposed to being thrown by the setter.
+     */
+    static boolean _isValueTypeMismatch(Throwable e, Object value, JavaType type)
+    {
+        if (type == null) {
+            return false;
+        }
+        final Class<?> raw = type.getRawClass();
+        if (e instanceof NullPointerException) {
+            // `null` cannot be passed to a primitive
+            return (value == null) && raw.isPrimitive();
+        }
+        if (e instanceof ClassCastException) {
+            // non-null value not assignable to (wrapper of) property type
+            Class<?> target = raw.isPrimitive() ? ClassUtil.wrapperType(raw) : raw;
+            return (value != null) && !target.isInstance(value);
+        }
+        return false;
+    }
+
+    // Same placeholder as with `DatabindException.wrapWithPath()`
+    static String _exceptionMessageOrPlaceholder(Throwable e)
+    {
+        String msg = ClassUtil.exceptionMessage(e);
+        if (msg == null || msg.isEmpty()) {
+            msg = "(was "+e.getClass().getName()+")";
+        }
+        return msg;
     }
 
     protected void _throwAsJacksonE(JsonParser p, Throwable e) throws JacksonException

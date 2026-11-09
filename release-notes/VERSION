@@ -5,6 +5,12 @@ Versions: 3.x (for earlier see VERSION-2.x)
 === Releases ===
 ------------------------------------------------------------------------
 
+3.4.0 (not yet released)
+
+#6303: `IllegalArgumentException` thrown by a setter is reported as a type mismatch
+  ("Problem deserializing property ... expected type ... actual type")
+ (reported, fixed by @caiocv18)
+
 3.3.1 (not yet released)
 
 #6309: NPE serializing an Enum whose `toString()` returns `null` (3.x regression from 2.x)

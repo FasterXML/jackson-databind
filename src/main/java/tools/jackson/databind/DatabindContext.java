@@ -23,7 +23,6 @@ import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
 import tools.jackson.databind.jsontype.impl.ApprovedBaseTypeValidator;
 import tools.jackson.databind.jsontype.impl.SubTypeValidator;
-import tools.jackson.databind.type.ArrayType;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.Converter;
@@ -43,9 +42,6 @@ public abstract class DatabindContext
      * data.
      */
     private final static int MAX_ERROR_STR_LEN = 500;
-
-    // [CVE-2026-110879]: for checking whether validator approves all array types
-    private final static JavaType OBJECT_ARRAY_TYPE = ArrayType.construct(TypeFactory.unknownType(), null);
 
     /*
     /**********************************************************************
@@ -191,7 +187,12 @@ public abstract class DatabindContext
             // 17-Aug-2017, tatu: As per [databind#1735] need to ensure assignment
             //    compatibility -- needed later anyway, and not doing so may open
             //    security issues.
-            JavaType t = getTypeFactory().constructFromCanonical(subClassName);
+            final JavaType t;
+            try {
+                t = getTypeFactory().constructFromCanonical(subClassName);
+            } catch (IllegalArgumentException e) { // [databind#6401]: malformed generic type id
+                throw _invalidTypeIdProblem(baseType, subClassName, e);
+            }
             if (t.isTypeOrSubTypeOf(baseType.getRawClass())) {
                 return t;
             }
@@ -202,12 +203,14 @@ public abstract class DatabindContext
             } catch (ClassNotFoundException e) { // let caller handle this problem
                 return null;
             } catch (Exception e) {
-                throw invalidTypeIdException(baseType, subClassName, "problem: (%s) %s".formatted(
-                        e.getClass().getName(),
-                        ClassUtil.exceptionMessage(e)));
+                throw _invalidTypeIdProblem(baseType, subClassName, e);
             }
             if (baseType.isTypeOrSuperTypeOf(cls)) {
-                return getTypeFactory().constructSpecializedType(baseType, cls);
+                try {
+                    return getTypeFactory().constructSpecializedType(baseType, cls);
+                } catch (IllegalArgumentException e) { // [databind#6401]: incompatible type bindings
+                    throw _invalidTypeIdProblem(baseType, subClassName, e);
+                }
             }
         }
         throw invalidTypeIdException(baseType, subClassName, "Not a subtype");
@@ -235,14 +238,17 @@ public abstract class DatabindContext
         } catch (ClassNotFoundException e) { // let caller handle this problem
             return null;
         } catch (Exception e) {
-            throw invalidTypeIdException(baseType, subClass, "problem: (%s) %s".formatted(
-                    e.getClass().getName(),
-                    ClassUtil.exceptionMessage(e)));
+            throw _invalidTypeIdProblem(baseType, subClass, e);
         }
         if (!baseType.isTypeOrSuperTypeOf(cls)) {
             return _throwNotASubtype(baseType, subClass);
         }
-        final JavaType subType = getTypeFactory().constructSpecializedType(baseType, cls);
+        final JavaType subType;
+        try {
+            subType = getTypeFactory().constructSpecializedType(baseType, cls);
+        } catch (IllegalArgumentException e) { // [databind#6401]: incompatible type bindings
+            throw _invalidTypeIdProblem(baseType, subClass, e);
+        }
         // May skip check if type was allowed by subclass name already
         if (vld == Validity.INDETERMINATE) {
             vld = ptv.validateSubType(this, baseType, subType);
@@ -253,7 +259,8 @@ public abstract class DatabindContext
         // [CVE-2026-110879]: element type of an array type id is attacker-selected
         // as well and needs validation like type parameters of generic type ids
         // (approval of array type, by base type or by sub-type, does not extend to it)
-        if (subType.isArrayType()) {
+        if (subType.isArrayType()
+                && !_configuredValidator(ptv).isArrayTypeAllowedExplicitly(this, baseType, subType)) {
             _validateArrayElementType(baseType, subClass, baseType, subType, ptv);
         }
         return subType;
@@ -269,7 +276,12 @@ public abstract class DatabindContext
         if (vld == Validity.DENIED) {
             return _throwSubtypeNameNotAllowed(baseType, subClass, ptv);
         }
-        JavaType subType = getTypeFactory().constructFromCanonical(subClass);
+        final JavaType subType;
+        try {
+            subType = getTypeFactory().constructFromCanonical(subClass);
+        } catch (IllegalArgumentException e) { // [databind#6401]: malformed generic type id
+            throw _invalidTypeIdProblem(baseType, subClass, e);
+        }
         if (!subType.isTypeOrSubTypeOf(baseType.getRawClass())) {
             return _throwNotASubtype(baseType, subClass);
         }
@@ -356,6 +368,7 @@ public abstract class DatabindContext
      *
      * @since 3.1.8
      */
+    @SuppressWarnings("deprecation") // SubTypeValidator
     private void _validateContainedType(JavaType baseType, String typeId, JavaType declaredType,
             JavaType param, PolymorphicTypeValidator ptv)
     {
@@ -370,10 +383,11 @@ public abstract class DatabindContext
                 vldBaseType = baseType;
                 vld = Validity.INDETERMINATE;
             } else if ((ptv instanceof ApprovedBaseTypeValidator)
-                    && (declaredType != null) && !declaredType.isJavaLangObject()
+                    && (declaredType != null) && !ClassUtil.isArraySuperType(declaredType.getRawClass())
                     && param.isTypeOrSubTypeOf(declaredType.getRawClass())) {
                 // Approval of base type (declared array type) covers subtypes of its
-                // element type (except for `Object[]`, which would cover everything)
+                // element type (except for `Object[]`, `Serializable[]` and
+                // `Cloneable[]`, which would cover everything)
                 vldr = ptv;
                 vldBaseType = declaredType;
                 vld = Validity.ALLOWED;
@@ -419,9 +433,11 @@ public abstract class DatabindContext
     /**
      * Helper for validating element type of an array type: like other contained types
      * (including abstract types: they may still be deserializable, via
-     * {@code @JsonDeserialize(as=...)} or factory methods), unless the configured
-     * validator specifically approves the array type itself (see
-     * {@link #_isSpecificallyApprovedArrayType}).
+     * {@code @JsonDeserialize(as=...)} or factory methods). Approval of the array
+     * type does not by itself cover the element type: only the validator can say
+     * it does (see {@link PolymorphicTypeValidator#isArrayTypeAllowedExplicitly},
+     * checked by the caller for array types named by type id). Inner dimensions
+     * and array type parameters always get here.
      *
      * @param declaredType Declared type of the array, if any ({@code null} if none)
      *
@@ -431,29 +447,8 @@ public abstract class DatabindContext
             JavaType declaredType, JavaType arrayType,
             PolymorphicTypeValidator ptv)
     {
-        if (_isSpecificallyApprovedArrayType(declaredType, arrayType, ptv)) {
-            return;
-        }
         _validateContainedType(baseType, typeId, _declaredContentType(declaredType),
                 arrayType.getContentType(), ptv);
-    }
-
-    /**
-     * Helper for checking whether configured validator approves given array type
-     * specifically (like {@code allowIfSubType(Bar[].class)} does for {@code Bar[]}),
-     * in which case approval covers its element type too. Approval that also covers
-     * {@code Object[]} (like with {@code allowIfSubType(Serializable.class)}, which
-     * matches all array types) does not count, nor does approval of base type.
-     *
-     * @since 3.1.8
-     */
-    private boolean _isSpecificallyApprovedArrayType(JavaType declaredType,
-            JavaType arrayType, PolymorphicTypeValidator ptv)
-    {
-        final PolymorphicTypeValidator vldr = _configuredValidator(ptv);
-        final JavaType vldBaseType = (declaredType == null) ? TypeFactory.unknownType() : declaredType;
-        return _isApprovedSubType(vldr, vldBaseType, arrayType)
-                && !_isApprovedSubType(vldr, TypeFactory.unknownType(), OBJECT_ARRAY_TYPE);
     }
 
     private boolean _isApprovedSubType(PolymorphicTypeValidator vldr,
@@ -495,6 +490,19 @@ public abstract class DatabindContext
 
     protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws DatabindException {
         throw invalidTypeIdException(baseType, subType, "Not a subtype");
+    }
+
+    /**
+     * Helper for constructing exception to throw when resolution of type id
+     * fails due to given (unexpected) exception.
+     *
+     * @since 3.3
+     */
+    private DatabindException _invalidTypeIdProblem(JavaType baseType, String typeId,
+            Exception e) {
+        return invalidTypeIdException(baseType, typeId, "problem: (%s) %s".formatted(
+                e.getClass().getName(),
+                ClassUtil.exceptionMessage(e)));
     }
 
     protected <T> T _throwSubtypeNameNotAllowed(JavaType baseType, String subType,

@@ -1397,13 +1397,20 @@ public abstract class BasicDeserializerFactory
                     || (valueType == Boolean.class)
                     || (valueType == EnumMap.class)
                     || (valueType == AtomicReference.class)
+                    || (valueType == OptionalInt.class)
+                    || (valueType == OptionalLong.class)
+                    || (valueType == OptionalDouble.class)
                     ) {
                 return true;
             }
             if (JDKDateDeserializers.hasDeserializerFor(valueType)) {
                 return true;
             }
-        } else if (clsName.startsWith("com.fasterxml.")) {
+            // `java.sql.Date` and `java.sql.Timestamp`
+            if (OptionalHandlerFactory.instance.hasDeserializerFor(valueType)) {
+                return true;
+            }
+        } else if (clsName.startsWith("tools.jackson.")) {
             return JsonNode.class.isAssignableFrom(valueType)
                    || (valueType == TokenBuffer.class);
         } else {

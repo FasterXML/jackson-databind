@@ -507,4 +507,102 @@ public class ObjectIdSerializationTest extends DatabindTestUtil
             verifyException(e, "cannot find property with name 'id'");
         }
     }
+
+    // Object id property with a `null` value, referenced always as id
+    @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+    static class ItemWithNullableId {
+        public Long id;
+        public String name = "item";
+    }
+
+    static class ItemReference {
+        @JsonIdentityReference(alwaysAsId=true)
+        public ItemWithNullableId item;
+    }
+
+    @Test
+    public void nullObjectIdWrittenAsId() throws Exception
+    {
+        ItemReference ref = new ItemReference();
+        ref.item = new ItemWithNullableId();
+        // id not yet assigned: write `null` instead of failing
+        assertEquals(a2q("{'item':null}"), MAPPER.writeValueAsString(ref));
+
+        ref.item.id = 5L;
+        assertEquals(a2q("{'item':5}"), MAPPER.writeValueAsString(ref));
+    }
+
+    // Same, but for polymorphic value (via `serializeWithType()`)
+    @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS)
+    @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+    static class PolymorphicItemWithNullableId {
+        public Long id;
+        public String name = "item";
+    }
+
+    static class PolymorphicItemReference {
+        @JsonIdentityReference(alwaysAsId=true)
+        public PolymorphicItemWithNullableId item;
+    }
+
+    @Test
+    public void nullObjectIdWrittenAsIdPolymorphic() throws Exception
+    {
+        PolymorphicItemReference ref = new PolymorphicItemReference();
+        ref.item = new PolymorphicItemWithNullableId();
+        assertEquals(a2q("{'item':null}"), MAPPER.writeValueAsString(ref));
+
+        ref.item.id = 5L;
+        assertEquals(a2q("{'item':5}"), MAPPER.writeValueAsString(ref));
+    }
+
+    // Custom generator that does not assign an id (written as separate id field)
+    static class NullLongIdGenerator extends ObjectIdGenerator<Long> {
+        private static final long serialVersionUID = 1L;
+
+        protected final Class<?> _scope;
+
+        public NullLongIdGenerator() { this(Object.class); }
+        public NullLongIdGenerator(Class<?> scope) { _scope = scope; }
+
+        @Override
+        public Class<?> getScope() { return _scope; }
+
+        @Override
+        public boolean canUseFor(ObjectIdGenerator<?> gen) {
+            return (gen.getClass() == getClass()) && (gen.getScope() == _scope);
+        }
+
+        @Override
+        public ObjectIdGenerator<Long> forScope(Class<?> scope) {
+            return (_scope == scope) ? this : new NullLongIdGenerator(scope);
+        }
+
+        @Override
+        public ObjectIdGenerator<Long> newForSerialization(Object context) {
+            return this;
+        }
+
+        @Override
+        public IdKey key(Object key) {
+            return (key == null) ? null : new IdKey(getClass(), _scope, key);
+        }
+
+        @Override
+        public Long generateId(Object forPojo) {
+            return null;
+        }
+    }
+
+    @JsonIdentityInfo(generator=NullLongIdGenerator.class, property="@id")
+    static class ItemWithGeneratedNullId {
+        public String name = "item";
+    }
+
+    @Test
+    public void nullObjectIdWrittenAsField() throws Exception
+    {
+        assertEquals(a2q("{'@id':null,'name':'item'}"),
+                MAPPER.writeValueAsString(new ItemWithGeneratedNullId()));
+    }
 }

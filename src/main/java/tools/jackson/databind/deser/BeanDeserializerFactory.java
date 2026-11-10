@@ -425,6 +425,9 @@ public class BeanDeserializerFactory
                         ClassUtil.getTypeDescription(beanDescRef.getType()),
                         ClassUtil.name(propName)));
             }
+            // [databind#6410]: Object Id is metadata, not affected by Views
+            // (matters for Creator properties; others are replaced by `ObjectIdValueProperty`)
+            idProp.setViews(null);
             idType = idProp.getType();
             gen = new PropertyBasedObjectIdGenerator(objectIdInfo.getScope());
         } else {

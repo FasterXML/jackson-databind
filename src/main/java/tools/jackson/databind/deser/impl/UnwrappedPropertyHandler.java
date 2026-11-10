@@ -2,6 +2,8 @@ package tools.jackson.databind.deser.impl;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
@@ -9,6 +11,7 @@ import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
+import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.TokenBuffer;
 
@@ -155,6 +158,24 @@ public class UnwrappedPropertyHandler
     public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
             Object bean, TokenBuffer buffered, boolean hasUnwrappedContent)
     {
+        return _processUnwrapped(ctxt, bean, buffered, hasUnwrappedContent, false);
+    }
+
+    /**
+     * Processes unwrapped builder properties, retaining the instance returned by
+     * each builder method.
+     *
+     * @since 3.3
+     */
+    public Object processUnwrappedForBuilder(JsonParser originalParser, DeserializationContext ctxt,
+            Object builder, TokenBuffer buffered, boolean hasUnwrappedContent)
+    {
+        return _processUnwrapped(ctxt, builder, buffered, hasUnwrappedContent, true);
+    }
+
+    private Object _processUnwrapped(DeserializationContext ctxt,
+            Object bean, TokenBuffer buffered, boolean hasUnwrappedContent, boolean builderBased)
+    {
         if (hasUnwrappedContent
                 || _unwrappedPropertyNames.isEmpty()
                 // [databind#1709]: Skip deserialization if no unwrapped content.
@@ -167,7 +188,11 @@ public class UnwrappedPropertyHandler
                     continue;
                 }
                 try (JsonParser p = buffered.asParserOnFirstToken(ctxt)) {
-                    prop.deserializeAndSet(p, ctxt, bean);
+                    if (builderBased) {
+                        bean = prop.deserializeSetAndReturn(p, ctxt, bean);
+                    } else {
+                        prop.deserializeAndSet(p, ctxt, bean);
+                    }
                 }
             }
         }
@@ -270,6 +295,14 @@ public class UnwrappedPropertyHandler
         Set<String> propNames = new HashSet<>();
         deser.collectAllPropertyNamesTo(propNames);
         names.addAll(propNames);
+        // [databind#6332]: polymorphic unwrapped value also needs its type id property
+        TypeDeserializer typeDeser = prop.getValueTypeDeserializer();
+        if (typeDeser != null) {
+            JsonTypeInfo.As incl = typeDeser.getTypeInclusion();
+            if (incl == JsonTypeInfo.As.PROPERTY || incl == JsonTypeInfo.As.EXISTING_PROPERTY) {
+                names.add(typeDeser.getPropertyName());
+            }
+        }
         return propNames.isEmpty();
     }
 }

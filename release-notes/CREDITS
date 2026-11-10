@@ -902,9 +902,6 @@ Kayokoi (@wozhenbang2004)
  * Fixed #6385: Record update with `readerForUpdating()` fails for non-public Record:
    accessor not made accessible
   [3.3.0]
- * Fixed #6397: Immutable property-based builders lose properties buffered before
-   creator invocation
-  [3.3.0]
  * Fixed #6398: `@JsonFormat(shape = ARRAY)` builder deserialization throws when a
    `DeserializationProblemHandler` recovers with `null`
   [3.3.0]

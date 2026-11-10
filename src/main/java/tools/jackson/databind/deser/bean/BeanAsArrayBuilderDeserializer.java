@@ -326,7 +326,7 @@ public class BeanAsArrayBuilderDeserializer
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
                     try {
-                        builder = creator.build(ctxt, buffer);
+                        builder = creator.build(ctxt, buffer, true);
                     } catch (Exception e) {
                         throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                     }
@@ -351,7 +351,7 @@ public class BeanAsArrayBuilderDeserializer
         // In case we didn't quite get all the creator properties, we may have to do this:
         if (builder == null) {
             try {
-                builder = creator.build(ctxt, buffer);
+                builder = creator.build(ctxt, buffer, true);
             } catch (Exception e) {
                 return wrapInstantiationProblem(ctxt, e);
             }

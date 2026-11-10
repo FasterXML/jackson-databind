@@ -494,7 +494,7 @@ public class BuilderBasedDeserializer
                     p.nextToken(); // to move to following PROPERTY_NAME/END_OBJECT
                     Object builder;
                     try {
-                        builder = creator.build(ctxt, buffer);
+                        builder = creator.build(ctxt, buffer, true);
                     } catch (Exception e) {
                         throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                     }
@@ -556,7 +556,7 @@ public class BuilderBasedDeserializer
         // We hit END_OBJECT, so:
         Object builder;
         try {
-            builder = creator.build(ctxt, buffer);
+            builder = creator.build(ctxt, buffer, true);
         } catch (Exception e) {
             builder = wrapInstantiationProblem(ctxt, e);
         }
@@ -895,7 +895,7 @@ public class BuilderBasedDeserializer
                     t = p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object builder = null;
                     try {
-                        builder = creator.build(ctxt, buffer);
+                        builder = creator.build(ctxt, buffer, true);
                     } catch (Exception e) {
                         throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                     }
@@ -952,7 +952,7 @@ public class BuilderBasedDeserializer
         // We hit END_OBJECT, so:
         Object builder = null;
         try {
-            builder = creator.build(ctxt, buffer);
+            builder = creator.build(ctxt, buffer, true);
         } catch (Exception e) {
             return wrapInstantiationProblem(ctxt, e);
 

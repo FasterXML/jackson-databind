@@ -318,7 +318,9 @@ public abstract class StdKeySerializers
                 throws IOException
         {
             if (serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
-                g.writeFieldName(value.toString());
+                // [databind#6309]: coerce null into "" as EnumValues does
+                String key = value.toString();
+                g.writeFieldName((key == null) ? "" : key);
                 return;
             }
             Enum<?> en = (Enum<?>) value;

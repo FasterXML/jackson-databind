@@ -4,7 +4,13 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.23.0 (not yet released)
+2.24.0 (not yet released)
+
+#6309: Serializing an Enum whose `toString()` returns `null` as a Map key fails
+  with `WRITE_ENUMS_USING_TO_STRING`
+ (reported, fixed by @Marti2203)
+
+2.23.0 (07-Nov-2026)
 
 #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
   (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
@@ -54,6 +60,9 @@ Project: jackson-databind
 #6315: Map key deserializers should apply same type checks as bean deserializers
  (reported by @ab310013)
  (fix by @pjfanning)
+#6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
+  deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
+  `FilteredRowSetImpl`, `JoinRowSetImpl`)
 
 2.22.4 (17-Oct-2026)
 

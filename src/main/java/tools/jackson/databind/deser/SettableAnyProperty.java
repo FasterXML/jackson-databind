@@ -19,6 +19,7 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.ViewMatcher;
 
 /**
  * Class that represents a "wildcard" set method which can be used
@@ -69,6 +70,14 @@ public abstract class SettableAnyProperty
      * @since 3.3
      */
     protected final boolean _failOnNulls;
+
+    /**
+     * Matcher for views (if any) this "any" property is visible in;
+     * {@code null} if no explicit views specified.
+     *
+     * @since 3.3
+     */
+    protected ViewMatcher _viewMatcher;
 
     /*
     /**********************************************************************
@@ -168,6 +177,24 @@ public abstract class SettableAnyProperty
     public abstract SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser);
 
     /**
+     * @since 3.3
+     */
+    public void setViews(Class<?>[] views) {
+        _viewMatcher = (views == null) ? null : ViewMatcher.construct(views);
+    }
+
+    /**
+     * Helper method for copying view information from original instance
+     * when constructing a new, modified instance.
+     *
+     * @since 3.3
+     */
+    protected SettableAnyProperty _withViewsFrom(SettableAnyProperty src) {
+        _viewMatcher = src._viewMatcher;
+        return this;
+    }
+
+    /**
      * Fluent factory for creating instance that uses specified {@link NullValueProvider}
      * for handling explicit JSON {@code null} values.
      *<p>
@@ -234,6 +261,18 @@ public abstract class SettableAnyProperty
         }
         return false;
     }
+
+    /**
+     * @since 3.3
+     */
+    public boolean visibleInView(Class<?> activeView) {
+        return (_viewMatcher == null) || _viewMatcher.isVisibleForView(activeView);
+    }
+
+    /**
+     * @since 3.3
+     */
+    public boolean hasViews() { return _viewMatcher != null; }
 
     /**
      * Accessor for parameterIndex.
@@ -433,13 +472,15 @@ public abstract class SettableAnyProperty
         @Override
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
             return new MethodAnyProperty(_property, _setter, _type,
-                    _keyDeserializer, deser, _valueTypeDeserializer, _nullProvider);
+                    _keyDeserializer, deser, _valueTypeDeserializer, _nullProvider)
+                    ._withViewsFrom(this);
         }
 
         @Override
         public SettableAnyProperty withNullProvider(NullValueProvider nullProvider) {
             return new MethodAnyProperty(_property, _setter, _type,
-                    _keyDeserializer, _valueDeserializer, _valueTypeDeserializer, nullProvider);
+                    _keyDeserializer, _valueDeserializer, _valueTypeDeserializer, nullProvider)
+                    ._withViewsFrom(this);
         }
     }
 
@@ -475,14 +516,16 @@ public abstract class SettableAnyProperty
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
             return new MapFieldAnyProperty(_property, _setter, _type,
                     _keyDeserializer, deser, _valueTypeDeserializer,
-                    _valueInstantiator, _nullProvider);
+                    _valueInstantiator, _nullProvider)
+                    ._withViewsFrom(this);
         }
 
         @Override
         public SettableAnyProperty withNullProvider(NullValueProvider nullProvider) {
             return new MapFieldAnyProperty(_property, _setter, _type,
                     _keyDeserializer, _valueDeserializer, _valueTypeDeserializer,
-                    _valueInstantiator, nullProvider);
+                    _valueInstantiator, nullProvider)
+                    ._withViewsFrom(this);
         }
 
         @SuppressWarnings("unchecked")
@@ -585,7 +628,8 @@ public abstract class SettableAnyProperty
         @Override
         public SettableAnyProperty withNullProvider(NullValueProvider nullProvider) {
             return new JsonNodeFieldAnyProperty(_property, _setter, _type,
-                    _valueDeserializer, _nodeFactory, nullProvider);
+                    _valueDeserializer, _nodeFactory, nullProvider)
+                    ._withViewsFrom(this);
         }
     }
 
@@ -621,14 +665,16 @@ public abstract class SettableAnyProperty
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser)
         {
             return new MapParameterAnyProperty(_property, _setter, _type, _keyDeserializer, deser,
-                    _valueTypeDeserializer, _valueInstantiator, _parameterIndex, _nullProvider);
+                    _valueTypeDeserializer, _valueInstantiator, _parameterIndex, _nullProvider)
+                    ._withViewsFrom(this);
         }
 
         @Override
         public SettableAnyProperty withNullProvider(NullValueProvider nullProvider)
         {
             return new MapParameterAnyProperty(_property, _setter, _type, _keyDeserializer, _valueDeserializer,
-                    _valueTypeDeserializer, _valueInstantiator, _parameterIndex, nullProvider);
+                    _valueTypeDeserializer, _valueInstantiator, _parameterIndex, nullProvider)
+                    ._withViewsFrom(this);
         }
 
         @SuppressWarnings("unchecked")
@@ -688,7 +734,8 @@ public abstract class SettableAnyProperty
         @Override
         public SettableAnyProperty withNullProvider(NullValueProvider nullProvider) {
             return new JsonNodeParameterAnyProperty(_property, _setter, _type,
-                    _valueDeserializer, _nodeFactory, _parameterIndex, nullProvider);
+                    _valueDeserializer, _nodeFactory, _parameterIndex, nullProvider)
+                    ._withViewsFrom(this);
         }
 
         @Override

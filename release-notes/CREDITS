@@ -905,6 +905,9 @@ Kayokoi (@wozhenbang2004)
  * Fixed #6398: `@JsonFormat(shape = ARRAY)` builder deserialization throws when a
    `DeserializationProblemHandler` recovers with `null`
   [3.3.0]
+ * Contributed #6413: Consolidate "effective input names" for `@JsonUnwrapped` properties
+   (include polymorphic type id) instead of special-casing in `UnwrappedPropertyHandler`
+  [3.4.0]
 
 Okan Tiktas (@OKAN-SOFTWARE)
  * Fixed #6357: `BeanDeserializer` and `BuilderBasedDeserializer` silently stop on

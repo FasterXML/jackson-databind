@@ -699,9 +699,16 @@ public class BeanSerializerFactory
         final int propCount = props.size();
         int viewsFound = 0;
         BeanPropertyWriter[] filtered = new BeanPropertyWriter[propCount];
+        // [databind#6410]: Object Id property is metadata, not affected by Views
+        final BeanPropertyWriter idProp = PropertyBasedObjectIdGenerator.findIdProperty(
+                builder.getObjectIdWriter());
         // Simple: view information is stored within individual writers, need to combine:
         for (int i = 0; i < propCount; ++i) {
             BeanPropertyWriter bpw = props.get(i);
+            if (bpw == idProp) {
+                filtered[i] = bpw;
+                continue;
+            }
             Class<?>[] views = bpw.getViews();
             if (views == null
                     // [databind#2311]: sometimes we add empty array

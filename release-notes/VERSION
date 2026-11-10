@@ -5,7 +5,13 @@ Versions: 3.x (for earlier see VERSION-2.x)
 === Releases ===
 ------------------------------------------------------------------------
 
-3.3.0 (not yet released)
+3.3.1 (not yet released)
+
+#6309: NPE serializing an Enum whose `toString()` returns `null` (3.x regression from 2.x)
+ (reported by @Marti2203)
+ (fix by @cowtowncoder, w/ Claude code)
+
+3.3.0 (07-Nov-2026)
 
 #1127: `@JsonTypeInfo` with `EXTERNAL_PROPERTY` does not handle arrays of
   polymorphic types: now fails eagerly with clear `InvalidDefinitionException`
@@ -194,13 +200,27 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6374: `@JsonFormat(shape = ARRAY)` Builder: structured first extra array element
   not skipped correctly, leaves parser misaligned
  (fix by @wozhenbang2004)
+#6375: Wrap non-Jackson exceptions thrown by
+  `DeserializationProblemHandler.handleUnknownProperty()` to include bean and property path
+ (fix by @wozhenbang2004)
 #6376: End of input right after a property name (possible with `TokenBuffer`) reported
   as `DatabindException` wrapping `NullPointerException`, not `MismatchedInputException`
  (fix by @cowtowncoder, w/ Claude code)
 #6385: Record update with `readerForUpdating()` fails for non-public Record:
   accessor not made accessible
  (fix by @wozhenbang2004, @cowtowncoder w/ Claude code)
+#6394: `@JsonFormat(shape = ARRAY)` deserialization hangs when input ends before
+  `END_ARRAY` while skipping extra values
+ (fix by @Sahas2711, @cowtowncoder w/ Claude code)
+#6398: `@JsonFormat(shape = ARRAY)` builder deserialization throws when a
+  `DeserializationProblemHandler` recovers with `null`
+ (fix by @wozhenbang2004)
 #6399: `NullSerializer` should not be annotated with `@JacksonStdImpl`
+#6401: Raw `IllegalArgumentException` escapes polymorphic type-id resolution
+ (reported by @AmirWilayah)
+ (fix by @cowtowncoder, w/ Claude code)
+#6410: Object Ids should NOT be affected by JSON Views or `@JsonFilter`
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.2.5 (not yet released)
 
@@ -228,6 +248,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
   deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
   `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6332: Regression from 3.0 to 3.1: `@JsonUnwrapped` drops/rejects the type id
+  property of a polymorphic unwrapped value
+ (reported, fixed by @2is10)
 #6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)` for creator
   properties: existing value is overwritten with `null`
  (reported, fixed by @Marti2203)
@@ -636,12 +659,18 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
   values (including primitive array elements)
  (reported, fixed by @Marti2203)
+#6309: NPE serializing an Enum whose `toString()` returns `null` (3.x regression from 2.x)
+ (reported by @Marti2203)
+ (fix by @cowtowncoder, w/ Claude code)
 #6315: Map key deserializers should apply same type checks as bean deserializers
  (reported by @ab310013)
  (fix by @pjfanning)
 #6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
   deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
   `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6332: Regression from 3.0 to 3.1: `@JsonUnwrapped` drops/rejects the type id
+  property of a polymorphic unwrapped value
+ (reported, fixed by @2is10)
 #6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)` for creator
   properties: existing value is overwritten with `null`
  (reported, fixed by @Marti2203)

@@ -836,6 +836,9 @@ Martin Mirchev (@Marti2203)
  * Reported #6366: `NullPointerException` deserializing raw `Map.Entry` with a `Shape.POJO`
    config override (raw `Map.Entry` now handled as `Map.Entry<Object,Object>` in all shapes)
   [3.3.0]
+ * Reported #6309: NPE serializing an Enum whose `toString()` returns `null`
+   (3.x regression from 2.x)
+  [3.3.1]
 
 @essiembre
  * Reported #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
@@ -893,11 +896,22 @@ Kayokoi (@wozhenbang2004)
  * Fixed #6374: `@JsonFormat(shape = ARRAY)` Builder: structured first extra array element
    not skipped correctly, leaves parser misaligned
   [3.3.0]
+ * Fixed #6375: Wrap non-Jackson exceptions thrown by
+   `DeserializationProblemHandler.handleUnknownProperty()` to include bean and property path
+  [3.3.0]
  * Fixed #6385: Record update with `readerForUpdating()` fails for non-public Record:
    accessor not made accessible
+  [3.3.0]
+ * Fixed #6398: `@JsonFormat(shape = ARRAY)` builder deserialization throws when a
+   `DeserializationProblemHandler` recovers with `null`
   [3.3.0]
 
 Okan Tiktas (@OKAN-SOFTWARE)
  * Fixed #6357: `BeanDeserializer` and `BuilderBasedDeserializer` silently stop on
    unexpected token within Object
+  [3.3.0]
+
+Sahas Prakash Nagar (@Sahas2711)
+ * Fixed #6394: `@JsonFormat(shape = ARRAY)` deserialization hangs when input ends before
+   `END_ARRAY` while skipping extra values
   [3.3.0]

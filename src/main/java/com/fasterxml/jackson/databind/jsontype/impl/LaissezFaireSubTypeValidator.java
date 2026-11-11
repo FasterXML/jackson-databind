@@ -21,6 +21,13 @@ public final class LaissezFaireSubTypeValidator
 
     public final static LaissezFaireSubTypeValidator instance = new LaissezFaireSubTypeValidator();
 
+    // Retain singleton-ness across JDK serialization, since identity of
+    // default instance matters for `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES`
+    // (@since 2.18.13)
+    protected Object readResolve() {
+        return instance;
+    }
+
     @Override
     public Validity validateBaseType(MapperConfig<?> ctxt, JavaType baseType) {
         return Validity.INDETERMINATE;

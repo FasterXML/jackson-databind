@@ -3,9 +3,12 @@ package tools.jackson.databind.deser;
 import java.lang.annotation.Annotation;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.core.*;
 import tools.jackson.core.util.InternCache;
@@ -441,6 +444,52 @@ public abstract class SettableBeanProperty
 
     public TypeDeserializer getValueTypeDeserializer() { return _valueTypeDeserializer; }
 
+    /**
+     * Collects known input property names of this property's value deserializer,
+     * including a property-based polymorphic type id, into the supplied set.
+     * Return value and side effects depend on the value deserializer:
+     *<ul>
+     * <li>Missing: no names are added; returns {@code false}.</li>
+     * <li>Has an any-setter: no names are added; returns {@code true}.</li>
+     * <li>Exposes no property names of its own ("opaque"): the type id name,
+     *   if any, is still added; returns {@code true}.</li>
+     * <li>Otherwise: its property names (and type id name, if any) are added;
+     *   returns {@code false}.</li>
+     *</ul>
+     *
+     * @param names Non-null set to which known names are added
+     *
+     * @return Whether the value may accept arbitrary property names (has an
+     *   any-setter or does not expose any property names of its own)
+     *
+     * @since 3.4
+     */
+    public boolean collectValuePropertyNamesTo(Set<String> names)
+    {
+        ValueDeserializer<?> deser = getValueDeserializer();
+        if (deser == null) {
+            return false;
+        }
+        if (deser.hasAnySetter()) {
+            return true;
+        }
+        // [databind#6001]: collect into a temp set so we can tell whether this
+        //   deserializer contributed any names of its own; if not, it is "opaque"
+        //   (typically a custom unwrapping deserializer capturing arbitrary fields).
+        Set<String> propNames = new HashSet<>();
+        deser.collectAllPropertyNamesTo(propNames);
+        names.addAll(propNames);
+        // [databind#6332]: polymorphic unwrapped value also needs its type id property
+        TypeDeserializer typeDeser = getValueTypeDeserializer();
+        if (typeDeser != null) {
+            JsonTypeInfo.As incl = typeDeser.getTypeInclusion();
+            if (incl == JsonTypeInfo.As.PROPERTY || incl == JsonTypeInfo.As.EXISTING_PROPERTY) {
+                names.add(typeDeser.getPropertyName());
+            }
+        }
+        return propNames.isEmpty();
+    }
+
     public NullValueProvider getNullValueProvider() { return _nullProvider; }
 
     public boolean visibleInView(Class<?> activeView) {
@@ -641,27 +690,87 @@ public abstract class SettableBeanProperty
     /**********************************************************************
      */
 
+    /**
+     * Method called to wrap or re-throw an exception thrown when trying to set
+     * {@code value} for this property.
+     *
+     * @param p Parser to use for location information, if any
+     * @param e Exception to re-throw or wrap
+     * @param value Value that was to be set for this property
+     */
     protected void _throwAsJacksonE(JsonParser p, Throwable e, Object value)
         throws JacksonException
     {
-        if (e instanceof IllegalArgumentException) {
-            String actType = ClassUtil.classNameOf(value);
-            StringBuilder msg = new StringBuilder("Problem deserializing property '")
-                    .append(getName())
-                    .append("' (expected type: ")
-                    .append(getType())
-                    .append("; actual type: ")
-                    .append(actType).append(")");
-            String origMsg = ClassUtil.exceptionMessage(e);
-            if (origMsg != null) {
-                msg.append(", problem: ")
-                    .append(origMsg);
-            } else {
-                msg.append(" (no error message provided)");
-            }
-            throw DatabindException.from(p, msg.toString(), e);
-        }
+        _wrapSetterProblem(p, e, value, getType(), "property '"+getName()+"'");
         _throwAsJacksonE(p, e);
+    }
+
+    /**
+     * Helper method for wrapping an exception thrown when trying to set {@code value}
+     * of given type (see [databind#6303]). Setters are called using
+     * {@link java.lang.invoke.MethodHandle}s: unlike with reflection, exceptions thrown
+     * by the setter itself are not wrapped in {@link InvocationTargetException}, and
+     * a {@code value} that does not match the type fails (with {@link ClassCastException},
+     * or {@link NullPointerException} for {@code null} passed to a primitive) before
+     * the setter is called. So:
+     *<ul>
+     * <li>If {@code value} does not match the type, failure is reported with expected
+     *   and actual type (unless {@link DeserializationFeature#WRAP_EXCEPTIONS} is disabled)
+     *  </li>
+     * <li>Otherwise {@link IllegalArgumentException} was thrown by the setter, and is
+     *   wrapped with its own message, prefixed with property description (as path is
+     *   not always added by caller)
+     *  </li>
+     *</ul>
+     * Returns normally if exception is not wrapped.
+     *
+     * @since 3.4
+     */
+    static void _wrapSetterProblem(JsonParser p, Throwable e, Object value,
+            JavaType type, String propDesc)
+        throws JacksonException
+    {
+        ClassUtil.throwIfError(e);
+        ClassUtil.throwIfJacksonE(e);
+        final String origMsg = ClassUtil.exceptionMessage(e);
+        final String msg;
+        if (_isValueTypeMismatch(value, type)) {
+            if (!_wrapExceptions(p)) {
+                return;
+            }
+            msg = "Problem setting %s (expected type: %s; actual type: %s)%s".formatted(
+                    propDesc, type, ClassUtil.classNameOf(value),
+                    (origMsg == null) ? " (no error message provided)" : ", problem: "+origMsg);
+        } else if (e instanceof IllegalArgumentException) {
+            // Same placeholder as with `DatabindException.wrapWithPath()`
+            msg = "Problem setting %s: %s".formatted(propDesc,
+                    (origMsg == null || origMsg.isEmpty()) ? "(was "+e.getClass().getName()+")" : origMsg);
+        } else {
+            return;
+        }
+        throw DatabindException.from(p, msg, e);
+    }
+
+    // Whether `value` cannot be passed to a setter (or field) of given type
+    private static boolean _isValueTypeMismatch(Object value, JavaType type)
+    {
+        if (type == null) {
+            return false;
+        }
+        final Class<?> raw = type.getRawClass();
+        if (value == null) {
+            return raw.isPrimitive();
+        }
+        return !(raw.isPrimitive() ? ClassUtil.wrapperType(raw) : raw).isInstance(value);
+    }
+
+    // Whether `WRAP_EXCEPTIONS` is enabled (default setting if no context available)
+    private static boolean _wrapExceptions(JsonParser p)
+    {
+        if ((p != null) && (p.objectReadContext() instanceof DeserializationContext ctxt)) {
+            return ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
+        }
+        return DeserializationFeature.WRAP_EXCEPTIONS.enabledByDefault();
     }
 
     protected void _throwAsJacksonE(JsonParser p, Throwable e) throws JacksonException

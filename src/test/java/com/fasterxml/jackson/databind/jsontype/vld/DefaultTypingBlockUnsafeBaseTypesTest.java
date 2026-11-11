@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests to verify that {@link MapperFeature#BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES}
  * applies to Default Typing using the default validator, regardless of
- * how it was enabled ([GHSA-x6mh-m44j-q5vw]).
+ * how it was enabled ([databind#6422]).
  */
 @SuppressWarnings("deprecation")
 public class DefaultTypingBlockUnsafeBaseTypesTest

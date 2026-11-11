@@ -318,7 +318,7 @@ public class ObjectMapper
          */
         @Override // since 2.10
         public PolymorphicTypeValidator subTypeValidator(MapperConfig<?> config) {
-            // [GHSA-x6mh-m44j-q5vw]: must honor BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES
+            // [databind#6422]: must honor BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES
             //   for Default Typing too (as with annotation-based polymorphic handling)
             return config.limitUnsafeBaseTypes(_subtypeValidator);
         }

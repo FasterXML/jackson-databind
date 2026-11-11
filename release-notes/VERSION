@@ -7,6 +7,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.4.0 (not yet released)
 
+#6303: `IllegalArgumentException` thrown by a setter is reported as a type mismatch
+  ("Problem deserializing property ... expected type ... actual type")
+ (reported, fixed by @caiocv18)
 #6413: Consolidate "effective input names" for `@JsonUnwrapped` properties
   (include polymorphic type id) instead of special-casing in `UnwrappedPropertyHandler`
  (fix by @wozhenbang2004)

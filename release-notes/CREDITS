@@ -918,3 +918,8 @@ Sahas Prakash Nagar (@Sahas2711)
  * Fixed #6394: `@JsonFormat(shape = ARRAY)` deserialization hangs when input ends before
    `END_ARRAY` while skipping extra values
   [3.3.0]
+
+Caio Vinicius (@caiocv18)
+ * Reported, fixed #6303: `IllegalArgumentException` thrown by a setter is reported
+   as a type mismatch
+  [3.4.0]

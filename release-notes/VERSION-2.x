@@ -384,6 +384,14 @@ No changes since 2.19.2
 #6315: Map key deserializers should apply same type checks as bean deserializers
  (reported by @ab310013)
  (fix by @pjfanning)
+#6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
+  deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
+  `FilteredRowSetImpl`, `JoinRowSetImpl`)
+ (fix by @cowtowncoder)
+#6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to legacy
+  `ObjectMapper.enableDefaultTyping()`
+ (reported by @abdessattar23)
+ (fix by @cowtowncoder, w/ Claude code)
 
 2.18.12 (17-Oct-2026)
 

@@ -99,8 +99,14 @@ public abstract class BeanDeserializerBase
     protected boolean _nonStandardCreation;
 
     /**
-     * Flag that indicates that no "special features" whatsoever
-     * are enabled, so the simplest processing is possible.
+     * Flag that indicates that no "special features" other than possible
+     * JSON View handling are enabled, so the simplest processing is
+     * possible when no view is active.
+     * Subclasses may clear this flag to disable vanilla processing.
+     *<p>
+     * NOTE: since 3.3 this flag does not take JSON Views into account
+     * ([databind#6219]): callers need to use {@link #_useVanillaProcessing}
+     * instead of checking the flag directly, to honor the active view.
      */
     protected boolean _vanillaProcessing;
 
@@ -288,9 +294,10 @@ public abstract class BeanDeserializerBase
         _serializationShape = beanDescRef.findExpectedFormat(_beanType.getRawClass()).getShape();
 
         _needViewProcesing = hasViews;
+        // [databind#6219]: view processing only needed if a view is active,
+        // which is checked per-call
         _vanillaProcessing = !_nonStandardCreation
                 && (_injectables == null)
-                && !_needViewProcesing
                 // also, may need to reorder stuff if we expect Object Id:
                 && (_objectIdReader == null)
                 ;
@@ -1331,6 +1338,19 @@ ClassUtil.getTypeDescription(ct));
         return _needViewProcesing;
     }
 
+    /**
+     * Whether the vanilla fast path may be used for this call.
+     * View processing is required only when a view is actually active,
+     * so the fast path is also valid for beans with views if no view is active.
+     * See [databind#6219].
+     *
+     * @since 3.3
+     */
+    protected final boolean _useVanillaProcessing(DeserializationContext ctxt) {
+        return _vanillaProcessing
+                && (!_needViewProcesing || (ctxt.getActiveView() == null));
+    }
+
     @Override
     public boolean hasAnySetter() {
         return _anySetter != null;
@@ -2134,6 +2154,21 @@ ClassUtil.getTypeDescription(ct));
         return subDeser;
     }
 
+    // [databind#6357]: content is an Object, so generic "cannot deserialize from
+    // Number value" style message would be misleading. End-of-input has its own message.
+    final Object _reportUnexpectedWithinObject(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        final JavaType type = getValueType(ctxt);
+        final JsonToken t = p.currentToken();
+        if (t == null) {
+            return ctxt.handleUnexpectedToken(type, p);
+        }
+        return ctxt.handleUnexpectedToken(type, t, p,
+                "Unexpected token (`JsonToken.%s`) within Object value of type %s: expected property name or `JsonToken.END_OBJECT`",
+                t, ClassUtil.getTypeDescription(type));
+    }
+
     /**
      * Helper method for handling unexpected views.
      * <p>
@@ -2158,11 +2193,57 @@ ClassUtil.getTypeDescription(ct));
         p.skipChildren();
     }
 
+    /**
+     * Helper method for POJO-as-Array deserializers that advances to the next token,
+     * failing on end-of-input.
+     *
+     * @return True if the next token is {@code END_ARRAY}; false for any other token
+     *
+     * @since 3.3
+     */
+    protected final boolean _nextIsEndArray(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        final JsonToken t = p.nextToken();
+        // [databind#6394]: must not keep looping on end-of-input
+        if (t == null) {
+            ctxt.reportInputMismatch(this, "Unexpected end-of-input in array");
+        }
+        return t == JsonToken.END_ARRAY;
+    }
+
+    /**
+     * Helper method for POJO-as-Array deserializers that skips the current value, and any
+     * values after it, up to the closing {@code END_ARRAY}.
+     *
+     * @since 3.3
+     */
+    protected final void _skipToEndArray(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        do {
+            p.skipChildren();
+        } while (!_nextIsEndArray(p, ctxt));
+    }
+
     /*
     /**********************************************************************
     /* Helper methods for error reporting
     /**********************************************************************
      */
+
+    /**
+     * Helper method for determining name to report for a property whose value
+     * could not be deserialized: name as found in input, if known; otherwise
+     * logical name of the property. Input name may be unknown since not all
+     * parsers expose it when positioned at a {@code START_OBJECT} or
+     * {@code START_ARRAY} value (Avro backend being one example).
+     *
+     * @since 3.3
+     */
+    protected final String _failedPropertyName(String inputName, SettableBeanProperty prop) {
+        return (inputName == null) ? prop.getName() : inputName;
+    }
 
     /**
      * Method that will modify caught exception (passed in as argument)

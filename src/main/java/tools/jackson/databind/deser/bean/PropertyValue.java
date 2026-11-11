@@ -38,6 +38,21 @@ public abstract class PropertyValue
     public abstract void assign(DeserializationContext ctxt, Object bean) throws JacksonException;
 
     /**
+     * Variant of {@link #assign} that returns the instance to use for further
+     * assignments: for (possibly immutable) Builders this is the value
+     * returned by the setter ("with"-method), which may differ from
+     * the instance passed in.
+     * Default implementation calls {@link #assign} and returns {@code bean}.
+     *
+     * @since 3.4
+     */
+    public Object assignAndReturn(DeserializationContext ctxt, Object bean) throws JacksonException
+    {
+        assign(ctxt, bean);
+        return bean;
+    }
+
+    /**
      * Method called to assign stored value of this property to specified
      * parameter object.
      */
@@ -73,6 +88,12 @@ public abstract class PropertyValue
         public void assign(DeserializationContext ctxt, Object bean) throws JacksonException
         {
             _property.set(ctxt, bean, value);
+        }
+
+        @Override
+        public Object assignAndReturn(DeserializationContext ctxt, Object bean) throws JacksonException
+        {
+            return _property.setAndReturn(ctxt, bean, value);
         }
     }
 

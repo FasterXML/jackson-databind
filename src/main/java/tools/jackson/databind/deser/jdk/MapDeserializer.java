@@ -679,6 +679,7 @@ public class MapDeserializer
         final PropertyBasedCreator creator = _propertyBasedCreator;
         // null -> no ObjectIdReader for Maps (yet?)
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null, false);
+        final Class<?> activeView = ctxt.getActiveView();
 
         String key;
         if (p.isExpectedStartObjectToken()) {
@@ -702,6 +703,11 @@ public class MapDeserializer
             // creator property?
             SettableBeanProperty prop = creator.findCreatorProperty(key);
             if (prop != null) {
+                // [databind#6261]: honor active view, same as for POJO creator properties
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // Last property to set?
                 if (buffer.assignParameter(prop, prop.deserialize(p, ctxt))) {
                     p.nextToken(); // from value to END_OBJECT or PROPERTY_NAME

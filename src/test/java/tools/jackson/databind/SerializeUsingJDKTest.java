@@ -122,6 +122,7 @@ public class SerializeUsingJDKTest
         assertNotNull(result2);
     }
 
+    @Test
     public void testObjectMapper() throws Exception
     {
         final String EXP_JSON = "{\"x\":2,\"y\":3}";

@@ -288,22 +288,10 @@ public abstract class SettableAnyProperty
 
     /**
      * Method called before deserializing value of property {@code propName} to check
-     * whether this any-setter accepts the name at all: {@code false} for names excluded
-     * by {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties} declared on the
-     * any-setter, whose values are to be skipped instead of being passed in.
-     *
-     * @since 3.4
-     */
-    public boolean isIncluded(String propName) {
-        return (_inclusionChecker == null) || !_inclusionChecker.shouldIgnore(propName);
-    }
-
-    /**
-     * Method called before deserializing value of property {@code propName} to check
      * whether the value is to be skipped instead of being passed in: either because
-     * the name is not accepted (see {@link #isIncluded}), in which case the value is
-     * skipped here, or because it is an explicit {@code null} to skip
-     * (see {@link #skipOrFailOnNull}).
+     * the name is excluded by {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties}
+     * declared on the any-setter, in which case the value is skipped here, or because
+     * it is an explicit {@code null} to skip (see {@link #skipOrFailOnNull}).
      *
      * @return {@code true} if the value is to be skipped (and has been consumed);
      *    {@code false} if it is to be deserialized and passed in
@@ -313,7 +301,7 @@ public abstract class SettableAnyProperty
     public boolean skipValue(JsonParser p, DeserializationContext ctxt, String propName)
         throws JacksonException
     {
-        if (!isIncluded(propName)) {
+        if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(propName)) {
             p.skipChildren();
             return true;
         }

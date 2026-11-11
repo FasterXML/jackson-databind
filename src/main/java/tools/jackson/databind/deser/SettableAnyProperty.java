@@ -338,10 +338,10 @@ public abstract class SettableAnyProperty
     protected void _throwAsIOE(DeserializationContext ctxt, Throwable t, Object propName, Object value)
         throws JacksonException
     {
-        // [databind#6303]: actual type mismatch is indicated by CCE or NPE, not IAE
+        // [databind#6303]: value not matching type fails before setter is called
         // (see `SettableBeanProperty._throwAsJacksonE()`); re-thrown as-is
         // if `WRAP_EXCEPTIONS` is disabled
-        if (SettableBeanProperty._isValueTypeMismatch(t, value, _type)
+        if (SettableBeanProperty._isValueTypeMismatch(value, _type)
                 && ((ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS))) {
             String actType = ClassUtil.classNameOf(value);
             StringBuilder msg = new StringBuilder("Problem deserializing \"any-property\" '").append(propName);
@@ -356,9 +356,11 @@ public abstract class SettableAnyProperty
             throw DatabindException.from(ctxt, msg.toString(), t);
         }
         // [databind#6303]: thrown by the setter itself, wrap with its own message
+        // (and property name, as path is not always added by caller)
         if (t instanceof IllegalArgumentException) {
-            throw DatabindException.from(ctxt,
-                    SettableBeanProperty._exceptionMessageOrPlaceholder(t), t);
+            throw DatabindException.from(ctxt, "Problem setting \"any-property\" '"+propName
+                    +"' of class "+getClassName()+": "
+                    +SettableBeanProperty._exceptionMessageOrPlaceholder(t), t);
         }
         ClassUtil.throwIfJacksonE(t);
         ClassUtil.throwIfRTE(t);

@@ -15,27 +15,25 @@ import tools.jackson.databind.json.JsonMapper;
 import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#6303]: `IllegalArgumentException` thrown by a setter should be wrapped with
-// its own message, not reported as a type mismatch; actual type mismatches (which with
-// `MethodHandle`s surface as `ClassCastException`, or `NullPointerException` for `null`
-// passed to a primitive) should be reported with the expected type
+// its own message, not reported as a type mismatch; actual type mismatches should be
+// reported with the expected type
 class SetterExceptionMessage6303Test
 {
-    static final IllegalArgumentException INVALID_ZIP = new IllegalArgumentException("invalid zip");
-
-    static class ZipBean {
-        public void setZip(String zip) { throw INVALID_ZIP; }
+    // Throws exception indicated by value
+    static class ThrowingBean {
+        public void setValue(String value) {
+            throw switch (value) {
+                case "iae" -> new IllegalArgumentException("invalid");
+                case "iae-no-msg" -> new IllegalArgumentException();
+                case "ise" -> new IllegalStateException("bad state");
+                case "npe" -> new NullPointerException("npe from setter");
+                default -> new ClassCastException("cce from setter");
+            };
+        }
     }
 
     static class IntBean {
-        public void setN(int n) { throw new IllegalArgumentException("negative"); }
-    }
-
-    static class NoMessageBean {
-        public void setZip(String zip) { throw new IllegalArgumentException(); }
-    }
-
-    static class StateBean {
-        public void setZip(String zip) { throw new IllegalStateException("bad state"); }
+        public void setValue(int value) { throw new IllegalArgumentException("invalid"); }
     }
 
     // Property set after Creator call, from buffered value
@@ -43,37 +41,35 @@ class SetterExceptionMessage6303Test
         @JsonCreator
         CreatorBean(@JsonProperty("id") String id) { }
 
-        public void setZip(String zip) { throw INVALID_ZIP; }
+        public void setValue(String value) { throw new IllegalArgumentException("invalid"); }
     }
 
-    @JsonDeserialize(builder = ZipBuilder.class)
+    @JsonDeserialize(builder = ThrowingBuilder.class)
     static class BuiltBean { }
 
     @JsonPOJOBuilder
-    static class ZipBuilder {
-        public ZipBuilder withZip(String zip) { throw INVALID_ZIP; }
+    static class ThrowingBuilder {
+        public ThrowingBuilder withValue(String value) { throw new IllegalArgumentException("invalid"); }
 
         public BuiltBean build() { return new BuiltBean(); }
     }
 
     static class AnySetterBean {
         @JsonAnySetter
-        public void set(String key, String value) { throw INVALID_ZIP; }
+        public void set(String key, String value) { throw new IllegalArgumentException("invalid"); }
     }
 
-    // Returns `String` regardless of the property type
+    // Any-property set after Creator call, from buffered value
+    static class CreatorAnySetterBean extends AnySetterBean {
+        @JsonCreator
+        CreatorAnySetterBean(@JsonProperty("id") String id) { }
+    }
+
+    // Returns `String` (or `null` for `null`) regardless of the property type
     static class StringDeserializer extends ValueDeserializer<Object> {
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt) {
             return p.getString();
-        }
-    }
-
-    // Returns `null` (and does not override `getNullValue()`)
-    static class NullDeserializer extends ValueDeserializer<Object> {
-        @Override
-        public Object deserialize(JsonParser p, DeserializationContext ctxt) {
-            return null;
         }
     }
 
@@ -88,30 +84,9 @@ class SetterExceptionMessage6303Test
     }
 
     static class PrimitiveSetterBean {
-        @JsonDeserialize(using = NullDeserializer.class)
+        @JsonDeserialize(using = StringDeserializer.class)
         public void setValue(int value) { }
     }
-
-    // NPE and CCE thrown by the setter itself, for a value of the expected type
-    static class NpeBean {
-        public void setValue(String value) { throw new NullPointerException("npe from setter"); }
-    }
-
-    static class CceBean {
-        public void setValue(Object value) { throw new ClassCastException("cce from setter"); }
-    }
-
-    private static final String ZIP_JSON = """
-            {"zip":"x"}
-            """;
-
-    private static final String VALUE_JSON = """
-            {"value":"x"}
-            """;
-
-    private static final String PRIMITIVE_JSON = """
-            {"value":1}
-            """;
 
     private final ObjectMapper MAPPER = JsonMapper.builder().build();
 
@@ -120,105 +95,81 @@ class SetterExceptionMessage6303Test
             .build();
 
     @Test
-    void setterIllegalArgumentKeepsOwnMessage() {
-        DatabindException e = _assertOwnMessage(MAPPER, ZIP_JSON, ZipBean.class,
-                "invalid zip");
-        assertSame(INVALID_ZIP, e.getCause());
-        assertEquals("zip", e.getPath().get(0).getPropertyName());
-    }
+    void illegalArgumentFromSetter() {
+        DatabindException e = _assertMessage(MAPPER, "iae", ThrowingBean.class,
+                "Problem setting property 'value': invalid");
+        assertInstanceOf(IllegalArgumentException.class, e.getCause());
+        assertEquals("value", e.getPath().get(0).getPropertyName());
 
-    @Test
-    void illegalArgumentKeepsOwnMessageForOtherSetterPaths() {
-        _assertOwnMessage(MAPPER, """
-                {"zip":"x","id":"1"}
-                """, CreatorBean.class, "invalid zip");
-        _assertOwnMessage(MAPPER, ZIP_JSON, BuiltBean.class, "invalid zip");
-        _assertOwnMessage(MAPPER, ZIP_JSON, AnySetterBean.class, "invalid zip");
-    }
-
-    @Test
-    void primitiveSetterIllegalArgumentKeepsOwnMessage() {
-        _assertOwnMessage(MAPPER, """
-                {"n":1}
-                """, IntBean.class, "negative");
-    }
-
-    @Test
-    void illegalArgumentWithoutMessage() {
-        _assertOwnMessage(MAPPER, ZIP_JSON, NoMessageBean.class,
-                "(was java.lang.IllegalArgumentException)");
-    }
-
-    // `IllegalArgumentException` is wrapped even if `WRAP_EXCEPTIONS` is disabled
-    // (as before); other exceptions from the setter are not
-    @Test
-    void illegalArgumentWithWrappingDisabled() {
-        DatabindException e = _assertOwnMessage(NO_WRAP_MAPPER, ZIP_JSON, ZipBean.class,
-                "invalid zip");
-        assertSame(INVALID_ZIP, e.getCause());
-        IllegalStateException ise = assertThrows(IllegalStateException.class,
-                () -> NO_WRAP_MAPPER.readValue(ZIP_JSON, StateBean.class));
-        assertEquals("bad state", ise.getMessage());
-    }
-
-    @Test
-    void classCastMismatchReportsTargetType() {
-        for (Class<?> type : new Class<?>[] { IntegerSetterBean.class, IntegerFieldBean.class }) {
-            DatabindException e = assertThrows(DatabindException.class,
-                    () -> MAPPER.readValue(VALUE_JSON, type));
-            String msg = e.getOriginalMessage();
-            assertTrue(msg.startsWith("Problem deserializing property 'value' (expected type: "), msg);
-            assertTrue(msg.contains("java.lang.Integer"), msg);
-            assertTrue(msg.contains("actual type: `java.lang.String`"), msg);
-            assertInstanceOf(ClassCastException.class, e.getCause());
+        _assertMessage(MAPPER, "iae-no-msg", ThrowingBean.class,
+                "Problem setting property 'value': (was java.lang.IllegalArgumentException)");
+        _assertMessage(MAPPER, 1, IntBean.class,
+                "Problem setting property 'value': invalid");
+        // Property name must be in message as path is not added for all of these
+        _assertMessage(MAPPER, "x", CreatorBean.class,
+                "Problem setting property 'value': invalid");
+        _assertMessage(MAPPER, "x", BuiltBean.class,
+                "Problem setting property 'value': invalid");
+        for (Class<?> type : new Class<?>[] { AnySetterBean.class, CreatorAnySetterBean.class }) {
+            _assertMessage(MAPPER, "x", type, "Problem setting \"any-property\" 'value' of class `"
+                    +AnySetterBean.class.getName()+"`: invalid");
         }
-    }
-
-    // ... but not wrapped if `WRAP_EXCEPTIONS` is disabled
-    @Test
-    void classCastMismatchWithWrappingDisabled() {
-        for (Class<?> type : new Class<?>[] { IntegerSetterBean.class, IntegerFieldBean.class }) {
-            assertThrows(ClassCastException.class,
-                    () -> NO_WRAP_MAPPER.readValue(VALUE_JSON, type));
-        }
-    }
-
-    @Test
-    void nullForPrimitiveReportsTargetType() {
-        DatabindException e = assertThrows(DatabindException.class,
-                () -> MAPPER.readValue(PRIMITIVE_JSON, PrimitiveSetterBean.class));
-        String msg = e.getOriginalMessage();
-        assertTrue(msg.startsWith("Problem deserializing property 'value' (expected type: "), msg);
-        assertTrue(msg.contains("class int"), msg);
-        assertTrue(msg.contains("actual type: [null]"), msg);
-        assertInstanceOf(NullPointerException.class, e.getCause());
-    }
-
-    // ... but not wrapped if `WRAP_EXCEPTIONS` is disabled
-    @Test
-    void nullForPrimitiveWithWrappingDisabled() {
-        assertThrows(NullPointerException.class,
-                () -> NO_WRAP_MAPPER.readValue(PRIMITIVE_JSON, PrimitiveSetterBean.class));
     }
 
     // NPE and CCE thrown by the setter itself are not type mismatches
     @Test
-    void setterNpeAndCceNotReportedAsMismatch() {
-        _assertOwnMessage(MAPPER, VALUE_JSON, NpeBean.class, "npe from setter");
-        _assertOwnMessage(MAPPER, VALUE_JSON, CceBean.class, "cce from setter");
-        assertThrows(NullPointerException.class,
-                () -> NO_WRAP_MAPPER.readValue(VALUE_JSON, NpeBean.class));
-        assertThrows(ClassCastException.class,
-                () -> NO_WRAP_MAPPER.readValue(VALUE_JSON, CceBean.class));
+    void npeAndCceFromSetter() {
+        _assertMessage(MAPPER, "npe", ThrowingBean.class, "npe from setter");
+        _assertMessage(MAPPER, "cce", ThrowingBean.class, "cce from setter");
     }
 
-    private DatabindException _assertOwnMessage(ObjectMapper mapper, String json,
+    @Test
+    void typeMismatch() {
+        for (Class<?> type : new Class<?>[] { IntegerSetterBean.class, IntegerFieldBean.class }) {
+            _assertMismatch("x", type, ClassCastException.class,
+                    "(expected type: [simple type, class java.lang.Integer]; actual type: `java.lang.String`)");
+        }
+        _assertMismatch(null, PrimitiveSetterBean.class, NullPointerException.class,
+                "(expected type: [simple type, class int]; actual type: [null])");
+    }
+
+    // `IllegalArgumentException` is wrapped even if `WRAP_EXCEPTIONS` is disabled
+    // (as before); other exceptions, including type mismatches, are not
+    @Test
+    void wrappingDisabled() {
+        _assertMessage(NO_WRAP_MAPPER, "iae", ThrowingBean.class,
+                "Problem setting property 'value': invalid");
+        assertThrows(IllegalStateException.class, () -> _read(NO_WRAP_MAPPER, "ise", ThrowingBean.class));
+        assertThrows(NullPointerException.class, () -> _read(NO_WRAP_MAPPER, "npe", ThrowingBean.class));
+        assertThrows(ClassCastException.class, () -> _read(NO_WRAP_MAPPER, "cce", ThrowingBean.class));
+        assertThrows(ClassCastException.class, () -> _read(NO_WRAP_MAPPER, "x", IntegerSetterBean.class));
+        assertThrows(ClassCastException.class, () -> _read(NO_WRAP_MAPPER, "x", IntegerFieldBean.class));
+        assertThrows(NullPointerException.class, () -> _read(NO_WRAP_MAPPER, null, PrimitiveSetterBean.class));
+    }
+
+    private Object _read(ObjectMapper mapper, Object value, Class<?> type) {
+        String json = (value instanceof String) ? "\"" + value + "\"" : String.valueOf(value);
+        // "id" after "value" so that value is buffered for Creator-based types
+        return mapper.readValue("{\"value\":" + json + ",\"id\":\"1\"}", type);
+    }
+
+    // Message ends with JDK-provided "problem: ..." so only check start
+    private void _assertMismatch(Object value, Class<?> type,
+            Class<? extends Throwable> causeType, String expTypes)
+    {
+        DatabindException e = assertThrows(DatabindException.class,
+                () -> _read(MAPPER, value, type));
+        String msg = e.getOriginalMessage();
+        assertTrue(msg.startsWith("Problem deserializing property 'value' " + expTypes), msg);
+        assertInstanceOf(causeType, e.getCause());
+    }
+
+    private DatabindException _assertMessage(ObjectMapper mapper, Object value,
             Class<?> type, String expMsg)
     {
         DatabindException e = assertThrows(DatabindException.class,
-                () -> mapper.readValue(json, type));
+                () -> _read(mapper, value, type));
         assertEquals(expMsg, e.getOriginalMessage());
-        assertFalse(e.getMessage().contains("expected type"), e.getMessage());
         return e;
     }
 }

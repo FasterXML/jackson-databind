@@ -696,13 +696,19 @@ public abstract class SettableBeanProperty
      *<p>
      * Setters are called using {@link java.lang.invoke.MethodHandle}s: unlike with
      * reflection, exceptions thrown by the setter itself are not wrapped in
-     * {@link InvocationTargetException}, and an actual mismatch between {@code value}
-     * and the property type results in {@link ClassCastException} (or
-     * {@link NullPointerException} for {@code null} passed to a primitive), not
-     * {@link IllegalArgumentException}. Such mismatches are reported with expected and
-     * actual type (unless {@link DeserializationFeature#WRAP_EXCEPTIONS} is disabled,
-     * in which case they are re-thrown as-is); {@link IllegalArgumentException} thrown
-     * by the setter is wrapped with its own message (see [databind#6303]).
+     * {@link InvocationTargetException}, and a {@code value} that does not match
+     * the property type fails (with {@link ClassCastException}, or
+     * {@link NullPointerException} for {@code null} passed to a primitive) before
+     * the setter is called. So:
+     *<ul>
+     * <li>If {@code value} does not match the property type, failure is reported
+     *   with expected and actual type (unless {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   is disabled, in which case exception is re-thrown as-is)
+     *  </li>
+     * <li>Otherwise {@link IllegalArgumentException} was thrown by the setter, and is
+     *   wrapped with its own message, prefixed with property name (see [databind#6303])
+     *  </li>
+     *</ul>
      *
      * @param p Parser to use for location information, if any
      * @param e Exception to re-throw or wrap
@@ -711,7 +717,9 @@ public abstract class SettableBeanProperty
     protected void _throwAsJacksonE(JsonParser p, Throwable e, Object value)
         throws JacksonException
     {
-        if (_isValueTypeMismatch(e, value, getType()) && _wrapExceptions(p)) {
+        ClassUtil.throwIfError(e);
+        ClassUtil.throwIfJacksonE(e);
+        if (_isValueTypeMismatch(value, getType()) && _wrapExceptions(p)) {
             String actType = ClassUtil.classNameOf(value);
             StringBuilder msg = new StringBuilder("Problem deserializing property '")
                     .append(getName())
@@ -729,36 +737,41 @@ public abstract class SettableBeanProperty
             throw DatabindException.from(p, msg.toString(), e);
         }
         // [databind#6303]: thrown by the setter itself, wrap with its own message
+        // (and property name, as path is not always added by caller)
         if (e instanceof IllegalArgumentException) {
-            throw DatabindException.from(p, _exceptionMessageOrPlaceholder(e), e);
+            throw DatabindException.from(p, "Problem setting property '"+getName()+"': "
+                    +_exceptionMessageOrPlaceholder(e), e);
         }
         _throwAsJacksonE(p, e);
     }
 
     /**
-     * Helper method for checking whether given exception, thrown when passing
-     * {@code value} to a setter (or field) of given type, indicates a mismatch
-     * between the value and that type, as opposed to being thrown by the setter.
+     * Helper method for checking whether {@code value} could not be passed to
+     * a setter (or field) of given type: if so, any exception thrown when trying
+     * to set it is due to this mismatch and not thrown by the setter.
+     *
+     * @since 3.4
      */
-    static boolean _isValueTypeMismatch(Throwable e, Object value, JavaType type)
+    static boolean _isValueTypeMismatch(Object value, JavaType type)
     {
         if (type == null) {
             return false;
         }
         final Class<?> raw = type.getRawClass();
-        if (e instanceof NullPointerException) {
+        if (value == null) {
             // `null` cannot be passed to a primitive
-            return (value == null) && raw.isPrimitive();
+            return raw.isPrimitive();
         }
-        if (e instanceof ClassCastException) {
-            // non-null value not assignable to (wrapper of) property type
-            Class<?> target = raw.isPrimitive() ? ClassUtil.wrapperType(raw) : raw;
-            return (value != null) && !target.isInstance(value);
-        }
-        return false;
+        Class<?> target = raw.isPrimitive() ? ClassUtil.wrapperType(raw) : raw;
+        return !target.isInstance(value);
     }
 
-    // Whether `DeserializationFeature.WRAP_EXCEPTIONS` is enabled (default if unknown)
+    /**
+     * Helper method for checking whether {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     * is enabled (default setting if no {@link DeserializationContext} available).
+     *
+     * @since 3.4
+     */
     private static boolean _wrapExceptions(JsonParser p)
     {
         if ((p != null) && (p.objectReadContext() instanceof DeserializationContext ctxt)) {
@@ -767,7 +780,12 @@ public abstract class SettableBeanProperty
         return DeserializationFeature.WRAP_EXCEPTIONS.enabledByDefault();
     }
 
-    // Same placeholder as with `DatabindException.wrapWithPath()`
+    /**
+     * Helper method for getting message of given exception, or placeholder
+     * (same as used by {@code DatabindException.wrapWithPath()}) if none.
+     *
+     * @since 3.4
+     */
     static String _exceptionMessageOrPlaceholder(Throwable e)
     {
         String msg = ClassUtil.exceptionMessage(e);

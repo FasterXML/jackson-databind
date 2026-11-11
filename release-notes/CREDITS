@@ -681,6 +681,9 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Fixed #6255: `@JsonIgnoreProperties`/`@JsonIncludeProperties` not honored for
    `ObjectNode`/`JsonNode`-valued `@JsonAnyGetter` entries
   [3.3.0]
+ * Fixed #6312: `@JsonIgnoreProperties`/`@JsonIncludeProperties` not honored for
+   properties with external type id (`As.EXTERNAL_PROPERTY`)
+  [3.4.0]
 
 @waydeshi
  * Reported #6127: Add `StreamReadConstraints` number len constraint to

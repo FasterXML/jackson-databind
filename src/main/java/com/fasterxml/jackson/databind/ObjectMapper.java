@@ -313,18 +313,14 @@ public class ObjectMapper
          * {@link DefaultBaseTypeLimitingValidator} is used instead.
          * Feature is checked here (and not when default typing is enabled) so that
          * it applies regardless of how Default Typing was enabled (including the
-         * legacy {@code ObjectMapper.enableDefaultTyping()} methods), and of the
-         * order in which configuration changes were made.
+         * legacy {@code ObjectMapper.enableDefaultTyping()} methods), and of whether
+         * feature was enabled before or after Default Typing.
          */
         @Override // since 2.10
         public PolymorphicTypeValidator subTypeValidator(MapperConfig<?> config) {
             // [GHSA-x6mh-m44j-q5vw]: must honor BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES
             //   for Default Typing too (as with annotation-based polymorphic handling)
-            if ((_subtypeValidator == LaissezFaireSubTypeValidator.instance)
-                    && config.isEnabled(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)) {
-                return new DefaultBaseTypeLimitingValidator();
-            }
-            return _subtypeValidator;
+            return config.limitUnsafeBaseTypes(_subtypeValidator);
         }
 
         @Override

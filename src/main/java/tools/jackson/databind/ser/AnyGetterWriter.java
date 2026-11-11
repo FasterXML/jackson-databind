@@ -70,7 +70,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
         // Built regardless of `_anySerializer`: a custom `@JsonSerialize` on a node-valued
         // any-getter leaves it non-null, but node entries are still written directly
         _inclusionChecker = IgnorePropertiesUtil.buildCheckerFor(ctxt.getConfig(),
-                (_property == null) ? null : _property.getMember(), true);
+                _anyGetter, true);
         // [databind#3604]: _anySerializer may be null for ObjectNode/JsonNode any-getters
         if (_anySerializer == null) {
             return;

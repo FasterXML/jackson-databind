@@ -55,11 +55,12 @@ public class IgnorePropertiesUtil
     }
 
     /**
-     * Factory method for creating and return a {@link Checker} instance, if (and only if)
-     * one needed, for {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties}
+     * Factory method for creating and returning a {@link Checker} instance, if (and only if)
+     * one is needed, for {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties}
      * declared on given member. Used where there are no pre-configured names to merge
-     * with (any-getters, any-setters); otherwise mirrors handling by
-     * {@code MapSerializer.createContextual()} / {@code MapDeserializer.createContextual()}.
+     * with (any-getters, any-setters); applies the same rules as
+     * {@code MapSerializer.createContextual()} / {@code MapDeserializer.createContextual()}
+     * do for {@code Map}-valued properties, so changes to one should be reflected in the other.
      *
      * @param config Configuration to use for annotation introspection
      * @param member Annotated member (accessor or mutator) to check; may be {@code null}

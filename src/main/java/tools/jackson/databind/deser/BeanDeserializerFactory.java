@@ -756,21 +756,14 @@ public class BeanDeserializerFactory
 
     // [databind#6264]: apply `@JsonIgnoreProperties` / `@JsonIncludeProperties` declared
     // on the any-setter itself to the property names it accepts.
-    // Mirrors annotation handling in `MapDeserializer.createContextual()`, minus its
-    // merge with pre-set ignored/included names (an any-setter has none); keep in sync
     private SettableAnyProperty _withAnySetterInclusion(DeserializationContext ctxt,
             AnnotatedMember mutator, SettableAnyProperty anySetter)
     {
-        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if ((anySetter == null) || (intr == null)) {
-            return anySetter;
+        if (anySetter == null) {
+            return null;
         }
-        final DeserializationConfig config = ctxt.getConfig();
-        JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, mutator);
-        JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, mutator);
-        IgnorePropertiesUtil.Checker checker = IgnorePropertiesUtil.buildCheckerIfNeeded(
-                (ignorals == null) ? null : ignorals.findIgnoredForDeserialization(),
-                (inclusions == null) ? null : inclusions.getIncluded());
+        IgnorePropertiesUtil.Checker checker = IgnorePropertiesUtil.buildCheckerFor(
+                ctxt.getConfig(), mutator, false);
         return (checker == null) ? anySetter : anySetter.withInclusionChecker(checker);
     }
 

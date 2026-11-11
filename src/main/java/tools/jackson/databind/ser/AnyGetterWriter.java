@@ -4,7 +4,6 @@ import java.util.Map;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
-import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.node.ObjectNode;
@@ -70,7 +69,8 @@ public class AnyGetterWriter extends BeanPropertyWriter
     {
         // Built regardless of `_anySerializer`: a custom `@JsonSerialize` on a node-valued
         // any-getter leaves it non-null, but node entries are still written directly
-        _inclusionChecker = _buildInclusionChecker(ctxt);
+        _inclusionChecker = IgnorePropertiesUtil.buildCheckerFor(ctxt.getConfig(),
+                _anyGetter, true);
         // [databind#3604]: _anySerializer may be null for ObjectNode/JsonNode any-getters
         if (_anySerializer == null) {
             return;
@@ -81,22 +81,6 @@ public class AnyGetterWriter extends BeanPropertyWriter
         if (ser instanceof MapSerializer mapSer) {
             _mapSerializer = mapSer;
         }
-    }
-
-    private IgnorePropertiesUtil.Checker _buildInclusionChecker(SerializationContext ctxt)
-    {
-        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        final AnnotatedMember member = (_property == null) ? null : _property.getMember();
-        if (member == null) {
-            return null;
-        }
-        final MapperConfig<?> config = ctxt.getConfig();
-        // Mirrors annotation handling in `MapSerializer.createContextual()`, minus its merge
-        // with pre-set ignored/included names (none exist for any-getters); keep in sync.
-        // (empty "ignored" set is handled by `buildCheckerIfNeeded()`)
-        return IgnorePropertiesUtil.buildCheckerIfNeeded(
-                intr.findPropertyIgnoralByName(config, member).findIgnoredForSerialization(),
-                intr.findPropertyInclusionByName(config, member).getIncluded());
     }
 
     private boolean _isIgnored(String name) {

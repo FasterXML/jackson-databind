@@ -3,9 +3,12 @@ package tools.jackson.databind.deser;
 import java.lang.annotation.Annotation;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.core.*;
 import tools.jackson.core.util.InternCache;
@@ -440,6 +443,52 @@ public abstract class SettableBeanProperty
     }
 
     public TypeDeserializer getValueTypeDeserializer() { return _valueTypeDeserializer; }
+
+    /**
+     * Collects known input property names of this property's value deserializer,
+     * including a property-based polymorphic type id, into the supplied set.
+     * Return value and side effects depend on the value deserializer:
+     *<ul>
+     * <li>Missing: no names are added; returns {@code false}.</li>
+     * <li>Has an any-setter: no names are added; returns {@code true}.</li>
+     * <li>Exposes no property names of its own ("opaque"): the type id name,
+     *   if any, is still added; returns {@code true}.</li>
+     * <li>Otherwise: its property names (and type id name, if any) are added;
+     *   returns {@code false}.</li>
+     *</ul>
+     *
+     * @param names Non-null set to which known names are added
+     *
+     * @return Whether the value may accept arbitrary property names (has an
+     *   any-setter or does not expose any property names of its own)
+     *
+     * @since 3.4
+     */
+    public boolean collectValuePropertyNamesTo(Set<String> names)
+    {
+        ValueDeserializer<?> deser = getValueDeserializer();
+        if (deser == null) {
+            return false;
+        }
+        if (deser.hasAnySetter()) {
+            return true;
+        }
+        // [databind#6001]: collect into a temp set so we can tell whether this
+        //   deserializer contributed any names of its own; if not, it is "opaque"
+        //   (typically a custom unwrapping deserializer capturing arbitrary fields).
+        Set<String> propNames = new HashSet<>();
+        deser.collectAllPropertyNamesTo(propNames);
+        names.addAll(propNames);
+        // [databind#6332]: polymorphic unwrapped value also needs its type id property
+        TypeDeserializer typeDeser = getValueTypeDeserializer();
+        if (typeDeser != null) {
+            JsonTypeInfo.As incl = typeDeser.getTypeInclusion();
+            if (incl == JsonTypeInfo.As.PROPERTY || incl == JsonTypeInfo.As.EXISTING_PROPERTY) {
+                names.add(typeDeser.getPropertyName());
+            }
+        }
+        return propNames.isEmpty();
+    }
 
     public NullValueProvider getNullValueProvider() { return _nullProvider; }
 

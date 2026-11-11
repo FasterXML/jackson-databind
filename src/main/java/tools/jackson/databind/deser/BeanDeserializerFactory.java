@@ -739,17 +739,39 @@ public class BeanDeserializerFactory
             for (SettableBeanProperty prop : creatorProps) {
                 AnnotatedMember member = prop.getMember();
                 if (member != null && Boolean.TRUE.equals(ctxt.getAnnotationIntrospector().hasAnySetter(ctxt.getConfig(), member))) {
-                    return constructAnySetter(ctxt, beanDescRef, member);
+                    return _withAnySetterInclusion(ctxt, member,
+                            constructAnySetter(ctxt, beanDescRef, member));
                 }
             }
         }
         // else find the regular method/field level any-setter
         AnnotatedMember anySetter = beanDescRef.get().findAnySetterAccessor();
         if (anySetter != null) {
-            return constructAnySetter(ctxt, beanDescRef, anySetter);
+            return _withAnySetterInclusion(ctxt, anySetter,
+                    constructAnySetter(ctxt, beanDescRef, anySetter));
         }
         // not found, that's fine, too
         return null;
+    }
+
+    // [databind#6264]: apply `@JsonIgnoreProperties` / `@JsonIncludeProperties` declared
+    // on the any-setter itself to the property names it accepts.
+    // Mirrors annotation handling in `MapDeserializer.createContextual()`, minus its
+    // merge with pre-set ignored/included names (an any-setter has none); keep in sync
+    private SettableAnyProperty _withAnySetterInclusion(DeserializationContext ctxt,
+            AnnotatedMember mutator, SettableAnyProperty anySetter)
+    {
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if ((anySetter == null) || (intr == null)) {
+            return anySetter;
+        }
+        final DeserializationConfig config = ctxt.getConfig();
+        JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, mutator);
+        JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, mutator);
+        IgnorePropertiesUtil.Checker checker = IgnorePropertiesUtil.buildCheckerIfNeeded(
+                (ignorals == null) ? null : ignorals.findIgnoredForDeserialization(),
+                (inclusions == null) ? null : inclusions.getIncluded());
+        return (checker == null) ? anySetter : anySetter.withInclusionChecker(checker);
     }
 
     private boolean _isSetterlessType(Class<?> rawType) {

@@ -1957,5 +1957,5 @@ Anna Breeva (@ab310013)
 
 Mohammed Abdessetar Elyagoubi (@abdessattar23)
  * Reported #6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to
-   legacy `ObjectMapper.enableDefaultTyping()` [GHSA-x6mh-m44j-q5vw]
+   legacy `ObjectMapper.enableDefaultTyping()`
   (2.18.13)

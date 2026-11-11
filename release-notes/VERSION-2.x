@@ -12,6 +12,10 @@ Project: jackson-databind
 #6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
   deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
   `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to legacy
+  `ObjectMapper.enableDefaultTyping()`
+ (reported by @abdessattar23)
+ (fix by @cowtowncoder, w/ Claude code)
 
 2.21.8 (17-Oct-2026)
 

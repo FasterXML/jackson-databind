@@ -2165,3 +2165,8 @@ Anna Breeva (@ab310013)
 @bugada
  * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
   [2.23.0]
+
+Mohammed Abdessetar Elyagoubi (@abdessattar23)
+ * Reported #6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to
+   legacy `ObjectMapper.enableDefaultTyping()`
+  (2.18.13)

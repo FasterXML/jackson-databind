@@ -82,7 +82,7 @@ public abstract class SettableAnyProperty
      * but an any-setter is fed entry by entry and never goes through one, so the check
      * is captured here instead. Assigned by {@link #resolve}.
      *
-     * @since 3.3
+     * @since 3.4
      */
     protected IgnorePropertiesUtil.Checker _inclusionChecker;
 
@@ -202,7 +202,7 @@ public abstract class SettableAnyProperty
      * {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties} declared on the
      * any-setter itself, so that names they exclude are not passed in.
      *
-     * @since 3.3
+     * @since 3.4
      */
     public void resolve(DeserializationContext ctxt) {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
@@ -279,7 +279,7 @@ public abstract class SettableAnyProperty
      * by {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties} declared on the
      * any-setter, whose values are to be skipped instead of being passed in.
      *
-     * @since 3.3
+     * @since 3.4
      */
     public boolean isIncluded(String propName) {
         return (_inclusionChecker == null) || !_inclusionChecker.shouldIgnore(propName);

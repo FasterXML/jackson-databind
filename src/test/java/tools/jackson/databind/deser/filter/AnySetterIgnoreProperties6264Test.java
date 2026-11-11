@@ -1,10 +1,15 @@
 package tools.jackson.databind.deser.filter;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -63,6 +68,29 @@ public class AnySetterIgnoreProperties6264Test extends DatabindTestUtil
         }
     }
 
+    // `@JsonIgnoreProperties` cannot target PARAMETER directly, but can be bundled
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
+    @JacksonAnnotationsInside
+    @JsonIgnoreProperties("secret")
+    @interface IgnoreSecret { }
+
+    // Any-setter as Creator parameter: buffered via
+    // `PropertyValueBuffer.bufferAnyParameterProperty()`
+    static class CreatorParamBean {
+        final int a;
+        final Map<String, Object> other;
+
+        @JsonCreator
+        CreatorParamBean(@JsonProperty("a") int a,
+                @JsonAnySetter @IgnoreSecret Map<String, Object> other) {
+            this.a = a;
+            this.other = other;
+        }
+    }
+
+    record AnySetterRecord(int a,
+            @JsonAnySetter @JsonIgnoreProperties("secret") Map<String, Object> other) { }
 
     static class IncludeBean {
         public int a;
@@ -101,7 +129,9 @@ public class AnySetterIgnoreProperties6264Test extends DatabindTestUtil
     @Test
     public void ignoralOnObjectNodeField() throws Exception {
         NodeFieldBean bean = MAPPER.readValue(DOC, NodeFieldBean.class);
-        assertEquals(MAPPER.readTree("{\"a\":1, \"ok\":2}"), bean.other);
+        assertEquals(MAPPER.readTree("""
+                {"a":1, "ok":2}
+                """), bean.other);
     }
 
     @Test
@@ -109,6 +139,20 @@ public class AnySetterIgnoreProperties6264Test extends DatabindTestUtil
         CreatorFieldBean bean = MAPPER.readValue(DOC, CreatorFieldBean.class);
         assertEquals(1, bean.a);
         assertEquals(Map.of("ok", 2), bean.other);
+    }
+
+    @Test
+    public void ignoralOnCreatorParameter() throws Exception {
+        CreatorParamBean bean = MAPPER.readValue(DOC, CreatorParamBean.class);
+        assertEquals(1, bean.a);
+        assertEquals(Map.of("ok", 2), bean.other);
+    }
+
+    @Test
+    public void ignoralOnRecordComponent() throws Exception {
+        AnySetterRecord rec = MAPPER.readValue(DOC, AnySetterRecord.class);
+        assertEquals(1, rec.a());
+        assertEquals(Map.of("ok", 2), rec.other());
     }
 
     @Test

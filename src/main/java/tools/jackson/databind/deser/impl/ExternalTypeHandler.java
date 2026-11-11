@@ -81,9 +81,10 @@ public class ExternalTypeHandler
      * Neither values nor external type ids (nor aliases) of excluded properties are
      * handled by the resulting handler.
      *
-     * @return This handler if nothing is excluded; otherwise a new handler
+     * @return This handler if nothing is excluded; {@code null} if everything is
+     *    excluded; otherwise a new handler
      *
-     * @since 3.3
+     * @since 3.4
      */
     public ExternalTypeHandler withoutProperties(Set<String> toIgnore, Set<String> toInclude)
     {
@@ -97,6 +98,9 @@ public class ExternalTypeHandler
         }
         if (count == len) {
             return this;
+        }
+        if (count == 0) { // no external-typed properties left, no handler needed
+            return null;
         }
         final ExtTypedProperty[] props = new ExtTypedProperty[count];
         for (int i = 0; i < len; ++i) {

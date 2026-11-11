@@ -83,6 +83,12 @@ class SetterExceptionMessage6303Test
         public Integer value;
     }
 
+    static class IntegerAnySetterBean {
+        @JsonAnySetter
+        @JsonDeserialize(contentUsing = StringDeserializer.class)
+        public void set(String key, Integer value) { }
+    }
+
     static class PrimitiveSetterBean {
         @JsonDeserialize(using = StringDeserializer.class)
         public void setValue(int value) { }
@@ -126,11 +132,14 @@ class SetterExceptionMessage6303Test
     @Test
     void typeMismatch() {
         for (Class<?> type : new Class<?>[] { IntegerSetterBean.class, IntegerFieldBean.class }) {
-            _assertMismatch("x", type, ClassCastException.class,
-                    "(expected type: [simple type, class java.lang.Integer]; actual type: `java.lang.String`)");
+            _assertMismatch("x", type, ClassCastException.class, "property 'value'"
+                    +" (expected type: [simple type, class java.lang.Integer]; actual type: `java.lang.String`)");
         }
-        _assertMismatch(null, PrimitiveSetterBean.class, NullPointerException.class,
-                "(expected type: [simple type, class int]; actual type: [null])");
+        _assertMismatch("x", IntegerAnySetterBean.class, ClassCastException.class,
+                "\"any-property\" 'value' of class `"+IntegerAnySetterBean.class.getName()
+                +"` (expected type: [simple type, class java.lang.Integer]; actual type: `java.lang.String`)");
+        _assertMismatch(null, PrimitiveSetterBean.class, NullPointerException.class, "property 'value'"
+                +" (expected type: [simple type, class int]; actual type: [null])");
     }
 
     // `IllegalArgumentException` is wrapped even if `WRAP_EXCEPTIONS` is disabled
@@ -144,6 +153,7 @@ class SetterExceptionMessage6303Test
         assertThrows(ClassCastException.class, () -> _read(NO_WRAP_MAPPER, "cce", ThrowingBean.class));
         assertThrows(ClassCastException.class, () -> _read(NO_WRAP_MAPPER, "x", IntegerSetterBean.class));
         assertThrows(ClassCastException.class, () -> _read(NO_WRAP_MAPPER, "x", IntegerFieldBean.class));
+        assertThrows(ClassCastException.class, () -> _read(NO_WRAP_MAPPER, "x", IntegerAnySetterBean.class));
         assertThrows(NullPointerException.class, () -> _read(NO_WRAP_MAPPER, null, PrimitiveSetterBean.class));
     }
 
@@ -155,12 +165,12 @@ class SetterExceptionMessage6303Test
 
     // Message ends with JDK-provided "problem: ..." so only check start
     private void _assertMismatch(Object value, Class<?> type,
-            Class<? extends Throwable> causeType, String expTypes)
+            Class<? extends Throwable> causeType, String expPrefix)
     {
         DatabindException e = assertThrows(DatabindException.class,
                 () -> _read(MAPPER, value, type));
         String msg = e.getOriginalMessage();
-        assertTrue(msg.startsWith("Problem deserializing property 'value' " + expTypes), msg);
+        assertTrue(msg.startsWith("Problem setting " + expPrefix), msg);
         assertInstanceOf(causeType, e.getCause());
     }
 

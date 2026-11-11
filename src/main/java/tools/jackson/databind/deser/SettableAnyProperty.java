@@ -338,30 +338,9 @@ public abstract class SettableAnyProperty
     protected void _throwAsIOE(DeserializationContext ctxt, Throwable t, Object propName, Object value)
         throws JacksonException
     {
-        // [databind#6303]: value not matching type fails before setter is called
-        // (see `SettableBeanProperty._throwAsJacksonE()`); re-thrown as-is
-        // if `WRAP_EXCEPTIONS` is disabled
-        if (SettableBeanProperty._isValueTypeMismatch(value, _type)
-                && ((ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS))) {
-            String actType = ClassUtil.classNameOf(value);
-            StringBuilder msg = new StringBuilder("Problem deserializing \"any-property\" '").append(propName);
-            msg.append("' of class "+getClassName()+" (expected type: ").append(_type);
-            msg.append("; actual type: ").append(actType).append(")");
-            String origMsg = ClassUtil.exceptionMessage(t);
-            if (origMsg != null) {
-                msg.append(", problem: ").append(origMsg);
-            } else {
-                msg.append(" (no error message provided)");
-            }
-            throw DatabindException.from(ctxt, msg.toString(), t);
-        }
-        // [databind#6303]: thrown by the setter itself, wrap with its own message
-        // (and property name, as path is not always added by caller)
-        if (t instanceof IllegalArgumentException) {
-            throw DatabindException.from(ctxt, "Problem setting \"any-property\" '"+propName
-                    +"' of class "+getClassName()+": "
-                    +SettableBeanProperty._exceptionMessageOrPlaceholder(t), t);
-        }
+        // [databind#6303]: wrap type mismatch, `IllegalArgumentException` from setter
+        SettableBeanProperty._wrapSetterProblem(ctxt.getParser(), t, value, _type,
+                "\"any-property\" '"+propName+"' of class "+getClassName());
         ClassUtil.throwIfJacksonE(t);
         ClassUtil.throwIfRTE(t);
         // let's wrap the innermost problem

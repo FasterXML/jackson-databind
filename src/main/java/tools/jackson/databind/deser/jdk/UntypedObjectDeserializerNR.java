@@ -341,17 +341,28 @@ final class UntypedObjectDeserializerNR
     {
         JsonParser.NumberTypeFP nt = p.getNumberTypeFP();
         if (nt == JsonParser.NumberTypeFP.BIG_DECIMAL) {
-            return p.getDecimalValue();
+            return _getDecimalValue(p, ctxt);
         }
         if (!p.isNaN()) {
             if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                return p.getDecimalValue();
+                return _getDecimalValue(p, ctxt);
             }
         }
         if (nt == JsonParser.NumberTypeFP.FLOAT32) {
             return p.getFloatValue();
         }
         return p.getDoubleValue();
+    }
+
+    private Object _getDecimalValue(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        try {
+            return p.getDecimalValue();
+        } catch (IllegalArgumentException e) {
+            return ctxt.handleWeirdNumberValue(Number.class, null,
+                    "Number value exceeds BigDecimal limits: %s", e.getMessage());
+        }
     }
 
     /*

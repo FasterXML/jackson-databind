@@ -447,15 +447,22 @@ public abstract class SettableBeanProperty
     /**
      * Collects known input property names of this property's value deserializer,
      * including a property-based polymorphic type id, into the supplied set.
-     * If the value deserializer has an any-setter, returns {@code true}
-     * without adding names. A missing value deserializer returns {@code false}.
+     * Return value and side effects depend on the value deserializer:
+     *<ul>
+     * <li>Missing: no names are added; returns {@code false}.</li>
+     * <li>Has an any-setter: no names are added; returns {@code true}.</li>
+     * <li>Exposes no property names of its own ("opaque"): the type id name,
+     *   if any, is still added; returns {@code true}.</li>
+     * <li>Otherwise: its property names (and type id name, if any) are added;
+     *   returns {@code false}.</li>
+     *</ul>
      *
      * @param names Non-null set to which known names are added
      *
      * @return Whether the value may accept arbitrary property names (has an
-     *   any-setter or does not expose any known property names)
+     *   any-setter or does not expose any property names of its own)
      *
-     * @since 3.3
+     * @since 3.4
      */
     public boolean collectValuePropertyNamesTo(Set<String> names)
     {

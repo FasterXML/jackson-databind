@@ -339,8 +339,10 @@ public abstract class SettableAnyProperty
         throws JacksonException
     {
         // [databind#6303]: actual type mismatch is indicated by CCE or NPE, not IAE
-        // (see `SettableBeanProperty._throwAsJacksonE()`)
-        if (SettableBeanProperty._isValueTypeMismatch(t, value, _type)) {
+        // (see `SettableBeanProperty._throwAsJacksonE()`); re-thrown as-is
+        // if `WRAP_EXCEPTIONS` is disabled
+        if (SettableBeanProperty._isValueTypeMismatch(t, value, _type)
+                && ((ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS))) {
             String actType = ClassUtil.classNameOf(value);
             StringBuilder msg = new StringBuilder("Problem deserializing \"any-property\" '").append(propName);
             msg.append("' of class "+getClassName()+" (expected type: ").append(_type);

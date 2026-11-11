@@ -109,6 +109,10 @@ class SetterExceptionMessage6303Test
             {"value":"x"}
             """;
 
+    private static final String PRIMITIVE_JSON = """
+            {"value":1}
+            """;
+
     private final ObjectMapper MAPPER = JsonMapper.builder().build();
 
     private final ObjectMapper NO_WRAP_MAPPER = JsonMapper.builder()
@@ -159,32 +163,42 @@ class SetterExceptionMessage6303Test
 
     @Test
     void classCastMismatchReportsTargetType() {
-        for (ObjectMapper mapper : new ObjectMapper[] { MAPPER, NO_WRAP_MAPPER }) {
-            for (Class<?> type : new Class<?>[] { IntegerSetterBean.class, IntegerFieldBean.class }) {
-                DatabindException e = assertThrows(DatabindException.class,
-                        () -> mapper.readValue(VALUE_JSON, type));
-                String msg = e.getOriginalMessage();
-                assertTrue(msg.startsWith("Problem deserializing property 'value' (expected type: "), msg);
-                assertTrue(msg.contains("java.lang.Integer"), msg);
-                assertTrue(msg.contains("actual type: `java.lang.String`"), msg);
-                assertInstanceOf(ClassCastException.class, e.getCause());
-            }
+        for (Class<?> type : new Class<?>[] { IntegerSetterBean.class, IntegerFieldBean.class }) {
+            DatabindException e = assertThrows(DatabindException.class,
+                    () -> MAPPER.readValue(VALUE_JSON, type));
+            String msg = e.getOriginalMessage();
+            assertTrue(msg.startsWith("Problem deserializing property 'value' (expected type: "), msg);
+            assertTrue(msg.contains("java.lang.Integer"), msg);
+            assertTrue(msg.contains("actual type: `java.lang.String`"), msg);
+            assertInstanceOf(ClassCastException.class, e.getCause());
+        }
+    }
+
+    // ... but not wrapped if `WRAP_EXCEPTIONS` is disabled
+    @Test
+    void classCastMismatchWithWrappingDisabled() {
+        for (Class<?> type : new Class<?>[] { IntegerSetterBean.class, IntegerFieldBean.class }) {
+            assertThrows(ClassCastException.class,
+                    () -> NO_WRAP_MAPPER.readValue(VALUE_JSON, type));
         }
     }
 
     @Test
     void nullForPrimitiveReportsTargetType() {
-        for (ObjectMapper mapper : new ObjectMapper[] { MAPPER, NO_WRAP_MAPPER }) {
-            DatabindException e = assertThrows(DatabindException.class,
-                    () -> mapper.readValue("""
-                            {"value":1}
-                            """, PrimitiveSetterBean.class));
-            String msg = e.getOriginalMessage();
-            assertTrue(msg.startsWith("Problem deserializing property 'value' (expected type: "), msg);
-            assertTrue(msg.contains("class int"), msg);
-            assertTrue(msg.contains("actual type: [null]"), msg);
-            assertInstanceOf(NullPointerException.class, e.getCause());
-        }
+        DatabindException e = assertThrows(DatabindException.class,
+                () -> MAPPER.readValue(PRIMITIVE_JSON, PrimitiveSetterBean.class));
+        String msg = e.getOriginalMessage();
+        assertTrue(msg.startsWith("Problem deserializing property 'value' (expected type: "), msg);
+        assertTrue(msg.contains("class int"), msg);
+        assertTrue(msg.contains("actual type: [null]"), msg);
+        assertInstanceOf(NullPointerException.class, e.getCause());
+    }
+
+    // ... but not wrapped if `WRAP_EXCEPTIONS` is disabled
+    @Test
+    void nullForPrimitiveWithWrappingDisabled() {
+        assertThrows(NullPointerException.class,
+                () -> NO_WRAP_MAPPER.readValue(PRIMITIVE_JSON, PrimitiveSetterBean.class));
     }
 
     // NPE and CCE thrown by the setter itself are not type mismatches

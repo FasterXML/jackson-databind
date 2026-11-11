@@ -700,8 +700,9 @@ public abstract class SettableBeanProperty
      * and the property type results in {@link ClassCastException} (or
      * {@link NullPointerException} for {@code null} passed to a primitive), not
      * {@link IllegalArgumentException}. Such mismatches are reported with expected and
-     * actual type; {@link IllegalArgumentException} thrown by the setter is wrapped
-     * with its own message (see [databind#6303]).
+     * actual type (unless {@link DeserializationFeature#WRAP_EXCEPTIONS} is disabled,
+     * in which case they are re-thrown as-is); {@link IllegalArgumentException} thrown
+     * by the setter is wrapped with its own message (see [databind#6303]).
      *
      * @param p Parser to use for location information, if any
      * @param e Exception to re-throw or wrap
@@ -710,7 +711,7 @@ public abstract class SettableBeanProperty
     protected void _throwAsJacksonE(JsonParser p, Throwable e, Object value)
         throws JacksonException
     {
-        if (_isValueTypeMismatch(e, value, getType())) {
+        if (_isValueTypeMismatch(e, value, getType()) && _wrapExceptions(p)) {
             String actType = ClassUtil.classNameOf(value);
             StringBuilder msg = new StringBuilder("Problem deserializing property '")
                     .append(getName())
@@ -755,6 +756,15 @@ public abstract class SettableBeanProperty
             return (value != null) && !target.isInstance(value);
         }
         return false;
+    }
+
+    // Whether `DeserializationFeature.WRAP_EXCEPTIONS` is enabled (default if unknown)
+    private static boolean _wrapExceptions(JsonParser p)
+    {
+        if ((p != null) && (p.objectReadContext() instanceof DeserializationContext ctxt)) {
+            return ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
+        }
+        return DeserializationFeature.WRAP_EXCEPTIONS.enabledByDefault();
     }
 
     // Same placeholder as with `DatabindException.wrapWithPath()`

@@ -12,9 +12,11 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.DefaultBaseTypeLimitingValidator;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -136,6 +138,24 @@ public class AnnotatedPolymorphicValidationTest
             verifyException(e, "Configured");
             verifyException(e, "all subtypes of base type");
             verifyException(e, "java.io.Serializable");
+        }
+    }
+
+    // Blocking must survive JDK serialization of the mapper (default validator
+    // identity must be retained)
+    @Test
+    public void testUnsafeBaseTypeAfterJdkSerialization() throws IOException
+    {
+        assertSame(LaissezFaireSubTypeValidator.instance,
+                jdkDeserialize(jdkSerialize(LaissezFaireSubTypeValidator.instance)));
+
+        ObjectMapper mapper = jdkDeserialize(jdkSerialize(MAPPER));
+        try {
+            mapper.readValue(a2q("{'value':['java.io.File','/tmp/stuff']}"),
+                    WrappedPolymorphicUntyped.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "all subtypes of base type");
         }
     }
 

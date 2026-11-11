@@ -317,15 +317,36 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * @since 2.10
      */
     public PolymorphicTypeValidator getPolymorphicTypeValidator() {
-        PolymorphicTypeValidator ptv = _base.getPolymorphicTypeValidator();
+        return limitUnsafeBaseTypes(_base.getPolymorphicTypeValidator());
+    }
+
+    /**
+     * Helper method that will replace given {@link PolymorphicTypeValidator} with
+     * {@link DefaultBaseTypeLimitingValidator} if (and only if) it is the default
+     * lax {@link LaissezFaireSubTypeValidator} and
+     * {@link MapperFeature#BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES} is enabled;
+     * otherwise returns validator as-is.
+     * Used both for annotation-based polymorphic handling and for Default Typing.
+     *
+     * @param ptv Validator configured
+     *
+     * @return Validator to actually use
+     *
+     * @since 2.18.13
+     */
+    public final PolymorphicTypeValidator limitUnsafeBaseTypes(PolymorphicTypeValidator ptv) {
         // [databind#2587]: allow stricter default settings:
-        if (ptv == LaissezFaireSubTypeValidator.instance) {
-            if (isEnabled(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)) {
-                ptv = new DefaultBaseTypeLimitingValidator();
-            }
+        // (note: `instanceof` instead of identity check, to also cover JDK-deserialized copies)
+        if ((ptv instanceof LaissezFaireSubTypeValidator)
+                && isEnabled(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)) {
+            return DEFAULT_BASE_TYPE_LIMITING_VALIDATOR;
         }
         return ptv;
     }
+
+    // Stateless, so may share a single instance
+    private final static PolymorphicTypeValidator DEFAULT_BASE_TYPE_LIMITING_VALIDATOR
+        = new DefaultBaseTypeLimitingValidator();
 
     public final TypeFactory getTypeFactory() {
         return _base.getTypeFactory();

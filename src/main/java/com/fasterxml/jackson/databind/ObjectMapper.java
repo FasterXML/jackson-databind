@@ -307,9 +307,21 @@ public class ObjectMapper
             return new DefaultTypeResolverBuilder(this, defaultImpl);
         }
 
+        /**
+         * Accessor for {@link PolymorphicTypeValidator} to use: usually one passed
+         * on construction; but if that is the default lax {@link LaissezFaireSubTypeValidator},
+         * and {@link MapperFeature#BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES} is enabled,
+         * {@link DefaultBaseTypeLimitingValidator} is used instead.
+         * Feature is checked here (and not when default typing is enabled) so that
+         * it applies regardless of how Default Typing was enabled (including the
+         * legacy {@code ObjectMapper.enableDefaultTyping()} methods), and of whether
+         * feature was enabled before or after Default Typing.
+         */
         @Override // since 2.10
         public PolymorphicTypeValidator subTypeValidator(MapperConfig<?> config) {
-            return _subtypeValidator;
+            // [databind#6422]: must honor BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES
+            //   for Default Typing too (as with annotation-based polymorphic handling)
+            return config.limitUnsafeBaseTypes(_subtypeValidator);
         }
 
         @Override

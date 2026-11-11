@@ -286,6 +286,28 @@ public abstract class SettableAnyProperty
     }
 
     /**
+     * Method called before deserializing value of property {@code propName} to check
+     * whether the value is to be skipped instead of being passed in: either because
+     * the name is not accepted (see {@link #isIncluded}), in which case the value is
+     * skipped here, or because it is an explicit {@code null} to skip
+     * (see {@link #skipOrFailOnNull}).
+     *
+     * @return {@code true} if the value is to be skipped (and has been consumed);
+     *    {@code false} if it is to be deserialized and passed in
+     *
+     * @since 3.4
+     */
+    public boolean skipValue(JsonParser p, DeserializationContext ctxt, String propName)
+        throws JacksonException
+    {
+        if (!isIncluded(propName)) {
+            p.skipChildren();
+            return true;
+        }
+        return skipOrFailOnNull(p, ctxt, propName);
+    }
+
+    /**
      * Accessor for parameterIndex.
      * @return -1 if not a parameterized setter, otherwise index of parameter
      *
@@ -331,11 +353,7 @@ public abstract class SettableAnyProperty
         throws JacksonException
     {
         try {
-            if (!isIncluded(propName)) {
-                p.skipChildren();
-                return;
-            }
-            if (skipOrFailOnNull(p, ctxt, propName)) {
+            if (skipValue(p, ctxt, propName)) {
                 return;
             }
             Object key = (_keyDeserializer == null) ? propName
@@ -588,11 +606,7 @@ public abstract class SettableAnyProperty
                 Object instance, String propName)
             throws JacksonException
         {
-            if (!isIncluded(propName)) {
-                p.skipChildren();
-                return;
-            }
-            if (skipOrFailOnNull(p, ctxt, propName)) {
+            if (skipValue(p, ctxt, propName)) {
                 return;
             }
             setProperty(instance, propName, (JsonNode) deserialize(p, ctxt));

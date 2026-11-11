@@ -5,9 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonIncludeProperties;
-
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.ReadableObjectId.Referring;
@@ -80,7 +77,8 @@ public abstract class SettableAnyProperty
      * accepts; {@code null} when no rules apply. A {@code Map}-valued regular property
      * gets the same treatment from its {@code MapDeserializer} during contextualization,
      * but an any-setter is fed entry by entry and never goes through one, so the check
-     * is captured here instead. Assigned by {@link #createContextual}.
+     * is captured here instead. Assigned by {@code BeanDeserializerFactory}
+     * (via {@link #withInclusionChecker}) when constructing the any-setter.
      *
      * @since 3.4
      */
@@ -232,32 +230,6 @@ public abstract class SettableAnyProperty
      */
     protected SettableAnyProperty withInclusionChecker(IgnorePropertiesUtil.Checker inclusionChecker) {
         return this;
-    }
-
-    /**
-     * Method called during deserializer resolution to pick up
-     * {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties} declared on the
-     * any-setter itself, so that names they exclude are not passed in.
-     *
-     * @return Instance to use: {@code this} if no inclusion rules apply,
-     *    otherwise a new instance with the rules
-     *
-     * @since 3.4
-     */
-    public SettableAnyProperty createContextual(DeserializationContext ctxt) {
-        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr == null) {
-            return this;
-        }
-        final DeserializationConfig config = ctxt.getConfig();
-        // Mirrors annotation handling in `MapDeserializer.createContextual()`, minus its
-        // merge with pre-set ignored/included names (an any-setter has none); keep in sync
-        JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, _setter);
-        JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, _setter);
-        IgnorePropertiesUtil.Checker checker = IgnorePropertiesUtil.buildCheckerIfNeeded(
-                (ignorals == null) ? null : ignorals.findIgnoredForDeserialization(),
-                (inclusions == null) ? null : inclusions.getIncluded());
-        return (checker == null) ? this : withInclusionChecker(checker);
     }
 
     public void fixAccess(DeserializationConfig config) {

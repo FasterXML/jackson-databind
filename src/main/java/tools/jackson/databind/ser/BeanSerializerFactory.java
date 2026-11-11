@@ -390,6 +390,11 @@ public class BeanSerializerFactory
             PropertyName name = PropertyName.construct(anyGetter.getName());
             BeanProperty.Std anyProp = new BeanProperty.Std(name, valueType, null,
                     anyGetter, PropertyMetadata.STD_OPTIONAL);
+            // Built for all any-getters, not just `JsonNode`-typed ones: values are checked
+            // for `ObjectNode` at runtime (also with a custom `@JsonSerialize`), and
+            // their entries are written directly, applying these rules
+            final IgnorePropertiesUtil.Checker anyChecker = IgnorePropertiesUtil.buildCheckerFor(
+                    config, anyGetter, true);
 
             // Check if there is an accessor exposed for the anyGetter.
             final int propCount = props.size();
@@ -420,7 +425,8 @@ public class BeanSerializerFactory
             if (anyGetterIndex >= 0) {
                 BeanPropertyWriter anyGetterProp = props.get(anyGetterIndex);
                 // There is prop already in place, just need to replace it
-                props.set(anyGetterIndex, new AnyGetterWriter(anyGetterProp, anyProp, anyGetter, anySer));
+                props.set(anyGetterIndex, new AnyGetterWriter(anyGetterProp, anyProp, anyGetter, anySer,
+                        anyChecker));
             } else {
                 // Otherwise just add it at the end, but won't be sorted...
                 // This is case where JsonAnyGetter is private/protected,
@@ -428,7 +434,8 @@ public class BeanSerializerFactory
                 BeanPropertyWriter anyPropWriter = _constructWriter(ctxt,
                         anyGetterPropDef, new PropertyBuilder(config, beanDescRef.get()),
                         staticTyping, anyGetter);
-                props.add(new AnyGetterWriter(anyPropWriter, anyProp, anyGetter, anySer));
+                props.add(new AnyGetterWriter(anyPropWriter, anyProp, anyGetter, anySer,
+                        anyChecker));
             }
         }
         // Next: need to gather view information, if any:

@@ -4,6 +4,13 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.23.1 (not yet released)
+
+#6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to legacy
+  `ObjectMapper.enableDefaultTyping()`
+ (reported by @abdessattar23)
+ (fix by @cowtowncoder, w/ Claude code)
+
 2.23.0 (07-Nov-2026)
 
 #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties

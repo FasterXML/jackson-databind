@@ -2,8 +2,6 @@ package tools.jackson.databind.deser.impl;
 
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import tools.jackson.core.*;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
@@ -11,7 +9,6 @@ import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
-import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.TokenBuffer;
 
@@ -259,50 +256,15 @@ public class UnwrappedPropertyHandler
             Set<String> names) {
         boolean acceptsAll = false;
         for (SettableBeanProperty prop : properties) {
-            acceptsAll |= _collectDeserializerPropertyNames(prop, names);
-        }
-        for (SettableBeanProperty prop : creatorProperties) {
-            acceptsAll |= _collectDeserializerPropertyNames(prop, names);
-        }
-        return acceptsAll;
-    }
-
-    /**
-     * Helper method to collect property names from a property's deserializer.
-     *
-     * @return {@code true} if the deserializer has an "any setter" or is "opaque"
-     *    (declares no property names), in which case all otherwise-unrecognized
-     *    properties must be routed to it (pre-#650 behavior).
-     *
-     * @since 3.1
-     */
-    private boolean _collectDeserializerPropertyNames(SettableBeanProperty prop,
-            Set<String> names)
-    {
-        if (prop == null) {
-            return false;
-        }
-        ValueDeserializer<?> deser = prop.getValueDeserializer();
-        if (deser == null) {
-            return false;
-        }
-        if (deser.hasAnySetter()) {
-            return true;
-        }
-        // [databind#6001]: collect into a temp set so we can tell whether this
-        //   deserializer contributed any names of its own; if not, it is "opaque"
-        //   (typically a custom unwrapping deserializer capturing arbitrary fields).
-        Set<String> propNames = new HashSet<>();
-        deser.collectAllPropertyNamesTo(propNames);
-        names.addAll(propNames);
-        // [databind#6332]: polymorphic unwrapped value also needs its type id property
-        TypeDeserializer typeDeser = prop.getValueTypeDeserializer();
-        if (typeDeser != null) {
-            JsonTypeInfo.As incl = typeDeser.getTypeInclusion();
-            if (incl == JsonTypeInfo.As.PROPERTY || incl == JsonTypeInfo.As.EXISTING_PROPERTY) {
-                names.add(typeDeser.getPropertyName());
+            if (prop != null) {
+                acceptsAll |= prop.collectValuePropertyNamesTo(names);
             }
         }
-        return propNames.isEmpty();
+        for (SettableBeanProperty prop : creatorProperties) {
+            if (prop != null) {
+                acceptsAll |= prop.collectValuePropertyNamesTo(names);
+            }
+        }
+        return acceptsAll;
     }
 }

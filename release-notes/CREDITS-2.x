@@ -1954,3 +1954,8 @@ Anna Breeva (@ab310013)
  * Reported #6315: Map key deserializers should apply same type checks as bean
    deserializers
   (2.18.13)
+
+Mohammed Abdessetar Elyagoubi (@abdessattar23)
+ * Reported #6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to
+   legacy `ObjectMapper.enableDefaultTyping()`
+  (2.18.13)

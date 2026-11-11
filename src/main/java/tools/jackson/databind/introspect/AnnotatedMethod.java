@@ -257,7 +257,9 @@ public final class AnnotatedMethod
 
         @Override
         protected MethodHandle unreflect() throws IllegalAccessException {
-            return MethodHandles.lookup().unreflect(_method);
+            return MethodHandles.lookup().unreflect(_method)
+                    // [databind#6426] Varargs handles would re-collect the array argument
+                    .asFixedArity();
         }
     }
 }

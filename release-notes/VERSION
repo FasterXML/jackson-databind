@@ -58,6 +58,9 @@ No changes since 3.1
 #6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
   `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
  (reported, fixed by @Marti2203)
+#6426: Varargs delegating `@JsonCreator` fails with "Cannot cast [Ljava.lang.String;
+  to java.lang.String" (3.x regression)
+ (reported, fixed by @2is10)
 
 3.1.8 (17-Oct-2026)
 

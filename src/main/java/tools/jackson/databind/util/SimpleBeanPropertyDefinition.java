@@ -163,6 +163,17 @@ public class SimpleBeanPropertyDefinition
                 : _config.getAnnotationIntrospector().findViews(_config, _member);
     }
 
+    @Override // since 3.4 ([databind#5745]: expose `@JsonApplyView`, same as `findViews()`)
+    public Class<?> findApplyView() {
+        if (_member != null) {
+            final AnnotationIntrospector intr = _config.getAnnotationIntrospector();
+            if (intr != null) {
+                return intr.findApplyView(_config, _member);
+            }
+        }
+        return null;
+    }
+
     // hmmh. what should we claim here?
 
     @Override public boolean isExplicitlyIncluded() { return false; }

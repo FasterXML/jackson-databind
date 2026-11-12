@@ -140,11 +140,13 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
 
         final boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
 
+        List<BitSet> candidates = new LinkedList<>(subtypeFingerprints.keySet());
+
         // If content is already buffered (as is the case for nested polymorphic
         // values, when outer value was buffered), look ahead at property names
         // instead of copying contents into yet another buffer
         {
-            final List<BitSet> lookaheadCandidates = new LinkedList<>(subtypeFingerprints.keySet());
+            final List<BitSet> lookaheadCandidates = candidates;
             TokenBuffer.NameLookahead result = TokenBuffer.lookAheadForPropertyNames(p, name -> {
                 Integer bit = propertyBitIndex.get(ignoreCase ? name.toLowerCase() : name);
                 if (bit != null) {
@@ -155,16 +157,18 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
             });
             if (result == TokenBuffer.NameLookahead.STOPPED) {
                 // No need to rewind: can deserialize directly
-                return _findDeserializer(ctxt, subtypeFingerprints.get(lookaheadCandidates.get(0)))
+                return _findDeserializer(ctxt, subtypeFingerprints.get(candidates.get(0)))
                         .deserialize(p, ctxt);
             }
             if (result == TokenBuffer.NameLookahead.END_OF_OBJECT) {
                 return _deserializeTypedUsingDefaultImpl(p, ctxt, null,
-                        _msgForCannotDeduce(lookaheadCandidates));
+                        _msgForCannotDeduce(candidates));
+            }
+            // Lookahead not possible: need to start over, if it got far enough to prune
+            if (candidates.size() != subtypeFingerprints.size()) {
+                candidates = new LinkedList<>(subtypeFingerprints.keySet());
             }
         }
-
-        List<BitSet> candidates = new LinkedList<>(subtypeFingerprints.keySet());
 
         // Keep track of processed tokens as we must rewind once after deducing
         // the deserializer to use

@@ -487,9 +487,6 @@ public final class DeserializerCache
             Annotated a, JavaType type)
     {
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr == null) {
-            return type;
-        }
         final MapperConfig<?> config = ctxt.getConfig();
 
         // First things first: find explicitly annotated deserializer(s)

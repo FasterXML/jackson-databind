@@ -41,11 +41,9 @@ public class EnumDefinition
         String[] explicitNames = new String[enumConstants.length];
 
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        if (ai != null) {
-            explicitNames = ai.findEnumValues(config, annotatedClass, 
-                    enumConstants, explicitNames);
-        }
-        Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
+        explicitNames = ai.findEnumValues(config, annotatedClass, 
+                enumConstants, explicitNames);
+        Object namingDef = ai.findEnumNamingStrategy(config, annotatedClass);
         EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
             namingDef, config.canOverrideAccessModifiers(), config.getEnumNamingStrategy());
         

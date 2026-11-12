@@ -330,7 +330,7 @@ public abstract class StdSerializer<T>
             ctxt.setAttribute(KEY_CONTENT_CONVERTER_LOCK, conversions);
         }
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (_neitherNull(intr, prop)) {
+        if (prop != null) {
             conversions.put(prop, Boolean.TRUE);
             try {
                 ValueSerializer<?> ser = _findConvertingContentSerializer(ctxt, intr,

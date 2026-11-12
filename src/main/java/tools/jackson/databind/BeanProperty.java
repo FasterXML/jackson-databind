@@ -224,11 +224,10 @@ public interface BeanProperty extends FullyNamed
         @Override
         public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType) {
             JsonFormat.Value v0 = config.getDefaultPropertyFormat(baseType);
-            AnnotationIntrospector intr = config.getAnnotationIntrospector();
-            if ((intr == null) || (_member == null)) {
+            if (_member == null) {
                 return v0;
             }
-            JsonFormat.Value v = intr.findFormat(config, _member);
+            JsonFormat.Value v = config.getAnnotationIntrospector().findFormat(config, _member);
             if (v == null) {
                 return v0;
             }
@@ -239,9 +238,9 @@ public interface BeanProperty extends FullyNamed
         public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType)
         {
             JsonInclude.Value v0 = config.getDefaultInclusion(baseType, _type.getRawClass());
-            AnnotationIntrospector intr = config.getAnnotationIntrospector();
-            if ((intr != null) && (_member != null)) {
-                JsonInclude.Value v = intr.findPropertyInclusion(config, _member);
+            if (_member != null) {
+                JsonInclude.Value v = config.getAnnotationIntrospector()
+                        .findPropertyInclusion(config, _member);
                 if (v != null) {
                     v0 = v0.withOverrides(v);
                 }

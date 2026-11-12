@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.util;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.*;
@@ -247,6 +248,91 @@ public class TokenBuffer
      */
     public JsonParser asParser() {
         return asParser(_objectCodec);
+    }
+
+    /**
+     * Helper method used by type deserializers (like
+     * {@code AsPropertyTypeDeserializer}) to find a property within buffered
+     * content without copying it: if given parser (possibly wrapped in a
+     * {@link com.fasterxml.jackson.core.util.JsonParserSequence}) reads from a
+     * {@link TokenBuffer} and points to the first property name of an Object
+     * whose contents are all within the buffer, scans the remaining properties
+     * of that Object (without consuming any tokens) for the first property with
+     * given name and a non-null {@code String} value.
+     *
+     * @param p Parser that points to a {@link JsonToken#FIELD_NAME}
+     * @param propName Name of property to look for
+     * @param ignoreCase Whether property name comparison is case-insensitive
+     *
+     * @return Result of lookahead, if lookahead was possible; {@code null} if
+     *    not (in which case caller needs to use some other mechanism)
+     *
+     * @since 2.18.13
+     */
+    public static PropertyLookahead lookAheadForStringProperty(JsonParser p,
+            String propName, boolean ignoreCase)
+    {
+        while (true) {
+            if (p instanceof Parser) {
+                return ((Parser) p)._lookAheadForStringProperty(propName, ignoreCase);
+            }
+            if (p instanceof com.fasterxml.jackson.core.util.JsonParserSequence) {
+                p = ((com.fasterxml.jackson.core.util.JsonParserSequence) p).delegate();
+                continue;
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Result of {@link TokenBuffer#lookAheadForStringProperty}.
+     *
+     * @since 2.18.13
+     */
+    public static final class PropertyLookahead
+    {
+        final static PropertyLookahead NOT_FOUND = new PropertyLookahead(null, null, 0, null, -1);
+
+        private final Parser _parser;
+        private final Segment _segment;
+        private final int _segmentPtr;
+        private final String _value;
+        private final int _index;
+
+        PropertyLookahead(Parser parser, Segment seg, int ptr, String value, int index) {
+            _parser = parser;
+            _segment = seg;
+            _segmentPtr = ptr;
+            _value = value;
+            _index = index;
+        }
+
+        /**
+         * @return Whether matching property was found in the Object
+         */
+        public boolean found() { return _value != null; }
+
+        /**
+         * @return {@code String} value of matching property, if found; {@code null} otherwise
+         */
+        public String value() { return _value; }
+
+        /**
+         * @return Index of the matching property within the Object
+         *   (0 for the first property), if found; -1 otherwise
+         */
+        public int propertyIndex() { return _index; }
+
+        /**
+         * Method to call to have parser skip matching property (its name and value)
+         * when it is reached; this is needed if the property is to be removed
+         * from the token stream.
+         */
+        public void skipWhenReached() {
+            if (_parser != null) {
+                _parser._addSkip(_segment, _segmentPtr);
+            }
+        }
     }
 
     /**
@@ -1531,6 +1617,24 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         protected JsonLocation _location = null;
 
+        /**
+         * Positions of property names (with their String values) to skip when
+         * reached; last entry is the closest one.
+         *
+         * @since 2.18.13
+         */
+        protected Segment[] _skipSegments;
+
+        /**
+         * @since 2.18.13
+         */
+        protected int[] _skipPtrs;
+
+        /**
+         * @since 2.18.13
+         */
+        protected int _skipCount;
+
         /*
         /**********************************************************
         /* Construction, init
@@ -1620,7 +1724,109 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 ptr = 0;
                 seg = (seg == null) ? null : seg.next();
             }
+            // Skip property marked to be skipped, if any (cannot be adjacent to another)
+            if ((_skipCount > 0) && (seg != null)
+                    && (seg == _skipSegments[_skipCount-1]) && (ptr == _skipPtrs[_skipCount-1])) {
+                ptr += 2;
+                if (ptr >= Segment.TOKENS_PER_SEGMENT) {
+                    ptr -= Segment.TOKENS_PER_SEGMENT;
+                    seg = seg.next();
+                }
+            }
             return (seg == null) ? null : seg.type(ptr);
+        }
+
+        /**
+         * Implementation of {@link TokenBuffer#lookAheadForStringProperty}:
+         * scans tokens after the current one (which must be a property name
+         * in an Object) without changing parser state.
+         */
+        PropertyLookahead _lookAheadForStringProperty(String propName, boolean ignoreCase)
+        {
+            if (_closed || (_segment == null) || (_currToken != JsonToken.FIELD_NAME)) {
+                return null;
+            }
+            final Lookahead c = new Lookahead(_segment, _segmentPtr,
+                    (_skipCount > 0) ? _skipSegments[_skipCount-1] : null,
+                    (_skipCount > 0) ? _skipPtrs[_skipCount-1] : -1);
+            int index = 0;
+
+            while (true) {
+                // Pointing to property name at the level of the Object
+                final Segment nameSeg = c.seg;
+                final int namePtr = c.ptr;
+                final String name = ClassUtil.nullOrToString(c.seg.get(c.ptr));
+                JsonToken t = c.next();
+                if (t == null) {
+                    return null;
+                }
+                if (propName.equals(name)
+                        || (ignoreCase && propName.equalsIgnoreCase(name))) {
+                    if (t == JsonToken.VALUE_STRING) {
+                        String value = ClassUtil.nullOrToString(c.seg.get(c.ptr));
+                        if (value != null) {
+                            return new PropertyLookahead(this, nameSeg, namePtr, value, index);
+                        }
+                    } else if (t.isScalarValue() && (t != JsonToken.VALUE_NULL)) {
+                        // Other scalars converted to String by caller; not handled here
+                        return null;
+                    }
+                }
+                if (t.isStructStart() && !c.skipStructure()) {
+                    return null;
+                }
+                // And then see what follows: another property, or end of Object?
+                t = c.next();
+                if (t == JsonToken.END_OBJECT) {
+                    return PropertyLookahead.NOT_FOUND;
+                }
+                if (t != JsonToken.FIELD_NAME) {
+                    return null;
+                }
+                ++index;
+            }
+        }
+
+        void _addSkip(Segment seg, int ptr)
+        {
+            if (_skipSegments == null) {
+                _skipSegments = new Segment[4];
+                _skipPtrs = new int[4];
+            } else if (_skipCount == _skipSegments.length) {
+                _skipSegments = Arrays.copyOf(_skipSegments, _skipCount * 2);
+                _skipPtrs = Arrays.copyOf(_skipPtrs, _skipCount * 2);
+            }
+            _skipSegments[_skipCount] = seg;
+            _skipPtrs[_skipCount] = ptr;
+            ++_skipCount;
+        }
+
+        /**
+         * Helper method called when the current position matches the closest
+         * pending skip: advances past the property name and its (scalar) value.
+         *
+         * @return {@code true} if there is a token to read; {@code false} if
+         *   end of content was reached
+         */
+        private boolean _skipProperty()
+        {
+            --_skipCount;
+            _skipSegments[_skipCount] = null;
+            for (int i = 0; i < 2; ++i) {
+                if (++_segmentPtr >= Segment.TOKENS_PER_SEGMENT) {
+                    _segmentPtr = 0;
+                    _segment = _segment.next();
+                    if (_segment == null) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        private boolean _atSkip() {
+            return (_segment == _skipSegments[_skipCount-1])
+                    && (_segmentPtr == _skipPtrs[_skipCount-1]);
         }
 
         /*
@@ -1656,6 +1862,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                     return null;
                 }
             }
+            while ((_skipCount > 0) && _atSkip()) {
+                if (!_skipProperty()) {
+                    return null;
+                }
+            }
             _updateToken(_segment.type(_segmentPtr));
             // Field name? Need to update context
             if (_currToken == JsonToken.FIELD_NAME) {
@@ -1685,7 +1896,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             }
 
             int ptr = _segmentPtr+1;
-            if ((ptr < Segment.TOKENS_PER_SEGMENT) && (_segment.type(ptr) == JsonToken.FIELD_NAME)) {
+            if ((_skipCount == 0)
+                    && (ptr < Segment.TOKENS_PER_SEGMENT) && (_segment.type(ptr) == JsonToken.FIELD_NAME)) {
                 _segmentPtr = ptr;
                 _updateToken(JsonToken.FIELD_NAME);
                 Object ob = _segment.get(ptr); // inlined _currentObject();
@@ -2159,6 +2371,136 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      * use 16 distinct fields and switch statement (slightly more efficient
      * storage, slightly slower access)
      */
+    /**
+     * Cursor used for looking ahead in buffered content without changing
+     * parser state; also memoizes end positions of large structures (in
+     * {@link Segment}s) so that nested lookaheads need not walk them again:
+     * this keeps the total cost of lookaheads linear to the buffered content.
+     *
+     * @since 2.18.13
+     */
+    private final static class Lookahead
+    {
+        /**
+         * Minimum number of tokens a structure must span for its end position
+         * to be memoized
+         */
+        private final static int MIN_TOKENS_TO_MEMOIZE = 64;
+
+        Segment seg;
+        int ptr;
+        private long count;
+
+        private final Segment _skipSeg;
+        private final int _skipPtr;
+
+        // Stack of open structures: start position and token count at start
+        private Segment[] _startSegs = new Segment[8];
+        private int[] _startPtrs = new int[8];
+        private long[] _startCounts = new long[8];
+
+        Lookahead(Segment seg, int ptr, Segment skipSeg, int skipPtr) {
+            this.seg = seg;
+            this.ptr = ptr;
+            _skipSeg = skipSeg;
+            _skipPtr = skipPtr;
+        }
+
+        /**
+         * @return Next token; {@code null} if end of content (or pending skip) reached
+         */
+        JsonToken next() {
+            if (++ptr >= Segment.TOKENS_PER_SEGMENT) {
+                ptr = 0;
+                if ((seg = seg.next()) == null) {
+                    return null;
+                }
+            }
+            if ((seg == _skipSeg) && (ptr == _skipPtr)) {
+                return null;
+            }
+            ++count;
+            return seg.type(ptr);
+        }
+
+        /**
+         * Skips the structure (Object or Array) whose start marker cursor points to,
+         * leaving cursor at its end marker.
+         *
+         * @return {@code true} if successful; {@code false} if end of content reached
+         */
+        boolean skipStructure() {
+            int depth = 0;
+            while (true) {
+                // At start marker: either jump to known end, or push
+                StructEnd end = seg.structEnd(ptr);
+                if (end != null) {
+                    seg = end.seg;
+                    ptr = end.ptr;
+                    count += end.tokenCount;
+                    if (depth == 0) {
+                        return true;
+                    }
+                } else {
+                    _push(depth++);
+                }
+                // then advance until we either close the structure or find another start
+                while (true) {
+                    JsonToken t = next();
+                    if (t == null) {
+                        return false;
+                    }
+                    if (t.isStructStart()) {
+                        break;
+                    }
+                    if (t.isStructEnd()) {
+                        --depth;
+                        final long tokenCount = count - _startCounts[depth];
+                        if (tokenCount >= MIN_TOKENS_TO_MEMOIZE) {
+                            _startSegs[depth].setStructEnd(_startPtrs[depth],
+                                    new StructEnd(seg, ptr, tokenCount));
+                        }
+                        _startSegs[depth] = null;
+                        if (depth == 0) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void _push(int depth) {
+            if (depth == _startSegs.length) {
+                int newLen = depth * 2;
+                _startSegs = Arrays.copyOf(_startSegs, newLen);
+                _startPtrs = Arrays.copyOf(_startPtrs, newLen);
+                _startCounts = Arrays.copyOf(_startCounts, newLen);
+            }
+            _startSegs[depth] = seg;
+            _startPtrs[depth] = ptr;
+            _startCounts[depth] = count;
+        }
+    }
+
+    /**
+     * Position of the end marker of a structure, along with number of tokens
+     * (after start marker, up to and including end marker) it spans
+     *
+     * @since 2.18.13
+     */
+    private final static class StructEnd
+    {
+        final Segment seg;
+        final int ptr;
+        final long tokenCount;
+
+        StructEnd(Segment seg, int ptr, long tokenCount) {
+            this.seg = seg;
+            this.ptr = ptr;
+            this.tokenCount = tokenCount;
+        }
+    }
+
     protected final static class Segment
     {
         public final static int TOKENS_PER_SEGMENT = 16;
@@ -2197,6 +2539,27 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
          * Lazily constructed Map for storing native type and object ids, if any
          */
         protected TreeMap<Integer,Object> _nativeIds;
+
+        /**
+         * Lazily constructed array of memoized end positions for structures
+         * starting in this segment (only populated by lookahead)
+         *
+         * @since 2.18.13
+         */
+        private StructEnd[] _structEnds;
+
+        StructEnd structEnd(int index) {
+            final StructEnd[] ends = _structEnds;
+            return (ends == null) ? null : ends[index];
+        }
+
+        void setStructEnd(int index, StructEnd end) {
+            StructEnd[] ends = _structEnds;
+            if (ends == null) {
+                _structEnds = ends = new StructEnd[TOKENS_PER_SEGMENT];
+            }
+            ends[index] = end;
+        }
 
         public Segment() { }
 

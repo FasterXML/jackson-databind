@@ -121,9 +121,31 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
              */
             return _deserializeTypedUsingDefaultImpl(p, ctxt, null, _msgForMissingId);
         }
+
+        final boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+
+        // If content is already buffered (as is the case for nested polymorphic
+        // values, when outer value was buffered), look ahead for the type id
+        // instead of copying contents into yet another buffer
+        TokenBuffer.PropertyLookahead lookahead = TokenBuffer.lookAheadForStringProperty(p,
+                _typePropertyName, ignoreCase);
+        if (lookahead != null) {
+            if (!lookahead.found()) {
+                return _deserializeTypedUsingDefaultImpl(p, ctxt, null, _msgForMissingId);
+            }
+            // If type id is the first property, regular handling works without buffering
+            if (lookahead.propertyIndex() > 0) {
+                JsonDeserializer<Object> deser = _findDeserializer(ctxt, lookahead.value());
+                // If type id is visible, leave it in place; otherwise must be skipped
+                if (!_typeIdVisible) {
+                    lookahead.skipWhenReached();
+                }
+                return deser.deserialize(p, ctxt);
+            }
+        }
+
         // Ok, let's try to find the property. But first, need token buffer...
         TokenBuffer tb = null;
-        boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
 
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             final String name = p.currentName();
@@ -211,6 +233,14 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             JavaType t = _strictTypeIdHandling ? _handleMissingTypeId(ctxt, priorFailureMsg): _baseType;
 
             if (t == null) {
+                // If not buffered, need to skip the rest of the Object (if within one)
+                if (tb == null) {
+                    for (JsonToken tok = p.currentToken(); tok == JsonToken.FIELD_NAME;
+                            tok = p.nextToken()) {
+                        p.nextToken();
+                        p.skipChildren();
+                    }
+                }
                 // 09-Mar-2017, tatu: Is this the right thing to do?
                 return null;
             }

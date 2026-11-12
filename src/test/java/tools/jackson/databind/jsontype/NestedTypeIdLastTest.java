@@ -85,13 +85,13 @@ public class NestedTypeIdLastTest extends DatabindTestUtil
         final int depth = 200;
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < depth; i++) {
-            sb.append("{\"children\":[");
+            sb.append("{'children':[");
         }
-        sb.append("{\"value\":42,\"type\":\"leaf\"}");
+        sb.append("{'value':42,'type':'leaf'}");
         for (int i = 0; i < depth; i++) {
-            sb.append("],\"name\":\"n").append(i).append("\",\"type\":\"group\"}");
+            sb.append("],'name':'n").append(i).append("','type':'group'}");
         }
-        Node n = MAPPER.readValue(sb.toString(), Node.class);
+        Node n = MAPPER.readValue(a2q(sb.toString()), Node.class);
         for (int i = depth - 1; i >= 0; i--) {
             Group g = (Group) n;
             assertEquals("n" + i, g.name);

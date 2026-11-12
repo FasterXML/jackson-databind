@@ -1,10 +1,10 @@
 package tools.jackson.databind.ser.jackson;
 
 import java.lang.annotation.Annotation;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -18,14 +18,19 @@ import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.cfg.ConfigOverride;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import tools.jackson.databind.jsontype.TypeIdResolver;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.BeanPropertyWriter;
 import tools.jackson.databind.ser.BeanSerializer;
+import tools.jackson.databind.ser.UnrolledBeanSerializer;
+import tools.jackson.databind.ser.impl.PropertySerializerMap;
+import tools.jackson.databind.ser.jdk.MapSerializer;
 import tools.jackson.databind.ser.std.StdDynamicSerializer;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.IgnorePropertiesUtil;
 
 /**
  * Serializer class that can serialize Object that have a
@@ -135,6 +140,12 @@ public class JsonValueSerializer
             .findPropertyIgnoralByName(config, accessor);
         final Set<String> ignoredProperties = ignorals.findIgnoredForSerialization();
         ser = _withIgnoreProperties(ser, ignoredProperties);
+        if ((ser == null) && (accessor != null)
+                && _isStandardIntrospector(config.getAnnotationIntrospector())) {
+            return new AccessorPropertySerializer(nominalType, valueType, staticTyping,
+                    vts, accessor, ignoredProperties,
+                    new AccessorProperty(accessor, valueType, config));
+        }
         return new JsonValueSerializer(nominalType, valueType, staticTyping,
                 vts, ser, accessor, ignoredProperties);
     }
@@ -216,7 +227,22 @@ public class JsonValueSerializer
             //   that annotations on the accessor (notably `@JsonInclude`/`@JsonFormat`) are
             //   honored. Configuration on the enclosing property still takes precedence
             //   (see `JsonValueProperty`), preserving [databind#2822].
-            BeanProperty valueProp = _accessorProperty(property);
+            BeanProperty valueProp;
+            if ((property == null) && _isStandardImplementation()
+                    && (_accessor != null)) {
+                valueProp = ((this instanceof AccessorPropertySerializer root)
+                        && _isStandardIntrospector(ctxt.getAnnotationIntrospector()))
+                                ? root._accessorProperty
+                                : new AccessorProperty(_accessor, _valueType,
+                                        ctxt.getConfig());
+            } else {
+                valueProp = _accessorProperty(property);
+                if (_isStandardImplementation() && (valueProp != null)
+                        && (valueProp.getClass() == JsonValueProperty.class)) {
+                    valueProp = ((JsonValueProperty) valueProp).withResolvedFilters(
+                            ctxt.getConfig());
+                }
+            }
 
             // Can only assign serializer statically if the declared type is final:
             // if not, we don't really know the actual type until we get the instance.
@@ -303,6 +329,15 @@ public class JsonValueSerializer
         return (v != null) && (v.getValueInclusion() != JsonInclude.Include.USE_DEFAULTS);
     }
 
+    private boolean _isStandardImplementation() {
+        Class<?> type = getClass();
+        return (type == JsonValueSerializer.class) || (type == AccessorPropertySerializer.class);
+    }
+
+    private static boolean _isStandardIntrospector(AnnotationIntrospector intr) {
+        return (intr != null) && (intr.getClass() == JacksonAnnotationIntrospector.class);
+    }
+
     /**
      * Constructs a {@link BeanProperty} used to contextualize the value serializer.
      * Configuration declared on the enclosing property (e.g. {@code @JsonFormat},
@@ -323,7 +358,10 @@ public class JsonValueSerializer
         PropertyName wrapperName = (property == null) ? null : property.getWrapperName();
         PropertyMetadata metadata = (property == null)
                 ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL : property.getMetadata();
-        return new JsonValueProperty(property, name, _valueType, wrapperName, _accessor, metadata);
+        AccessorProperty accessorFilters = (this instanceof AccessorPropertySerializer cached)
+                ? cached._accessorProperty : null;
+        return new JsonValueProperty(property, name, _valueType, wrapperName, _accessor, metadata,
+                accessorFilters);
     }
 
     /**
@@ -336,12 +374,32 @@ public class JsonValueSerializer
     protected static class JsonValueProperty extends BeanProperty.Std
     {
         protected final BeanProperty _enclosing;
+        private final AccessorProperty _accessorFilters;
 
         public JsonValueProperty(BeanProperty enclosing, PropertyName name,
                 JavaType type, PropertyName wrapperName,
                 AnnotatedMember accessor, PropertyMetadata metadata) {
+            this(enclosing, name, type, wrapperName, accessor, metadata, null);
+        }
+
+        private JsonValueProperty(BeanProperty enclosing, PropertyName name,
+                JavaType type, PropertyName wrapperName, AnnotatedMember accessor,
+                PropertyMetadata metadata, AccessorProperty accessorFilters) {
             super(name, type, wrapperName, accessor, metadata);
             _enclosing = enclosing;
+            _accessorFilters = accessorFilters;
+        }
+
+        private JsonValueProperty withResolvedFilters(MapperConfig<?> config) {
+            if ((_enclosing == null) || ((_enclosing.getClass() != BeanPropertyWriter.class)
+                    && (_enclosing.getClass() != BeanProperty.Std.class))) {
+                return this;
+            }
+            AnnotationIntrospector intr = config.getAnnotationIntrospector();
+            if (!_isStandardIntrospector(intr)) {
+                return this;
+            }
+            return new ResolvedJsonValueProperty(this, config, intr);
         }
 
         @Override
@@ -363,6 +421,28 @@ public class JsonValueSerializer
         }
 
         @Override
+        public Set<String> findIgnoredForSerialization(MapperConfig<?> config) {
+            Set<String> ignored = (_accessorFilters == null)
+                    ? super.findIgnoredForSerialization(config)
+                    : _accessorFilters.findIgnoredForSerialization(config);
+            if (_enclosing == null) {
+                return ignored;
+            }
+            Set<String> enclosingIgnored = _enclosing.findIgnoredForSerialization(config);
+            return ignored.isEmpty() && enclosingIgnored != null ? enclosingIgnored
+                    : IgnorePropertiesUtil.combineNamesToIgnore(ignored, enclosingIgnored);
+        }
+
+        @Override
+        public Set<String> findIncludedForSerialization(MapperConfig<?> config) {
+            Set<String> included = (_accessorFilters == null)
+                    ? super.findIncludedForSerialization(config)
+                    : _accessorFilters.findIncludedForSerialization(config);
+            return (_enclosing == null) ? included : IgnorePropertiesUtil.combineNamesToInclude(
+                    included, _enclosing.findIncludedForSerialization(config));
+        }
+
+        @Override
         public <A extends Annotation> A getAnnotation(Class<A> acls) {
             A a = (_enclosing == null) ? null : _enclosing.getAnnotation(acls);
             return (a != null) ? a : super.getAnnotation(acls);
@@ -374,6 +454,75 @@ public class JsonValueSerializer
             // `super` always returns null here (`BeanProperty.Std.getContextAnnotation`), so
             // delegating to `_enclosing` alone loses nothing when it is null.
             return (_enclosing == null) ? null : _enclosing.getContextAnnotation(acls);
+        }
+    }
+
+    @JacksonStdImpl
+    private static final class AccessorPropertySerializer extends JsonValueSerializer
+    {
+        private final AccessorProperty _accessorProperty;
+
+        AccessorPropertySerializer(JavaType nominalType, JavaType valueType, boolean staticTyping,
+                TypeSerializer vts, AnnotatedMember accessor, Set<String> ignoredProperties,
+                AccessorProperty accessorProperty) {
+            super(nominalType, valueType, staticTyping, vts, null, accessor, ignoredProperties);
+            _accessorProperty = accessorProperty;
+        }
+    }
+
+    private static final class AccessorProperty extends BeanProperty.Std
+    {
+        private final Set<String> _ignored;
+        private final Set<String> _included;
+
+        AccessorProperty(AnnotatedMember accessor, JavaType type, MapperConfig<?> config) {
+            super(PropertyName.construct(accessor.getName()), type, null, accessor,
+                    PropertyMetadata.STD_REQUIRED_OR_OPTIONAL);
+            boolean resolve = _isStandardIntrospector(config.getAnnotationIntrospector());
+            _ignored = resolve ? super.findIgnoredForSerialization(config) : null;
+            _included = resolve ? super.findIncludedForSerialization(config) : null;
+        }
+
+        @Override
+        public Set<String> findIgnoredForSerialization(MapperConfig<?> config) {
+            return ((_ignored != null)
+                    && _isStandardIntrospector(config.getAnnotationIntrospector())) ? _ignored
+                            : super.findIgnoredForSerialization(config);
+        }
+
+        @Override
+        public Set<String> findIncludedForSerialization(MapperConfig<?> config) {
+            return ((_ignored != null)
+                    && _isStandardIntrospector(config.getAnnotationIntrospector())) ? _included
+                            : super.findIncludedForSerialization(config);
+        }
+    }
+
+    private static final class ResolvedJsonValueProperty extends JsonValueProperty
+    {
+        private final AnnotationIntrospector _filterIntrospector;
+        private final Set<String> _ignored;
+        private final Set<String> _included;
+
+        ResolvedJsonValueProperty(JsonValueProperty src, MapperConfig<?> config,
+                AnnotationIntrospector intr) {
+            super(src._enclosing, src.getFullName(), src.getType(), src.getWrapperName(),
+                    src.getMember(), src.getMetadata(), src._accessorFilters);
+            _filterIntrospector = intr;
+            _ignored = src.findIgnoredForSerialization(config);
+            _included = src.findIncludedForSerialization(config);
+        }
+
+        @Override
+        public Set<String> findIgnoredForSerialization(MapperConfig<?> config) {
+            return config.getAnnotationIntrospector() == _filterIntrospector ? _ignored
+                    : super.findIgnoredForSerialization(config);
+        }
+
+        @Override
+        public Set<String> findIncludedForSerialization(MapperConfig<?> config) {
+            return config.getAnnotationIntrospector() == _filterIntrospector ? _included
+                    : super.findIncludedForSerialization(config);
         }
     }
 
@@ -424,15 +573,87 @@ public class JsonValueSerializer
     }
 
     protected ValueSerializer<Object> _findSerializer(SerializationContext ctxt, Object value) {
-        final UnaryOperator<ValueSerializer<Object>> serTransformer =
-                valueSer -> _withIgnoreProperties(valueSer, _ignoredProperties);
-        Class<?> cc = value.getClass();
-        if (_valueType.hasGenericTypes()) {
-            return _findAndAddDynamic(ctxt,
-                    ctxt.constructSpecializedType(_valueType, cc),
-                    serTransformer);
+        return _findSerializer(ctxt, value, true);
+    }
+
+    private ValueSerializer<Object> _findSerializer(SerializationContext ctxt, Object value,
+            boolean applyIgnored)
+    {
+        Class<?> rawType = value.getClass();
+        SerializationConfig config = ctxt.getConfig();
+        boolean cacheable = _isStandardImplementation()
+                && _isStandardIntrospector(ctxt.getAnnotationIntrospector())
+                && _hasStandardProperty(_property) && !ctxt.hasPerCallAttributes();
+        if (!cacheable) {
+            if (_valueType.hasGenericTypes()) {
+                JavaType type = ctxt.constructSpecializedType(_valueType, rawType);
+                return applyIgnored ? _findAndAddDynamic(ctxt, type,
+                        ser -> _withIgnoreProperties(ser, _ignoredProperties))
+                        : _findAndAddDynamic(ctxt, type);
+            }
+            return applyIgnored ? _findAndAddDynamic(ctxt, rawType,
+                    ser -> _withIgnoreProperties(ser, _ignoredProperties))
+                    : _findAndAddDynamic(ctxt, rawType);
         }
-        return _findAndAddDynamic(ctxt, cc, serTransformer);
+        PropertySerializerMap serializers = PropertySerializerMap.emptyForProperties();
+        if ((_dynamicValueSerializers instanceof ScopedSerializers scoped)
+                && (scoped._config.get() == config) && (scoped._applyIgnored == applyIgnored)) {
+            ValueSerializer<Object> cached = scoped.serializerFor(rawType);
+            if (cached != null) {
+                return cached;
+            }
+            serializers = scoped._serializers;
+        }
+        ValueSerializer<Object> serializer = _valueType.hasGenericTypes()
+                ? ctxt.findContentValueSerializer(
+                        ctxt.constructSpecializedType(_valueType, rawType), _property)
+                : ctxt.findContentValueSerializer(rawType, _property);
+        if (applyIgnored) {
+            serializer = _withIgnoreProperties(serializer, _ignoredProperties);
+        }
+        if ((serializer.getClass() == BeanSerializer.class)
+                || (serializer.getClass() == UnrolledBeanSerializer.class)
+                || (serializer.getClass() == MapSerializer.class)
+                || ((serializer instanceof JsonValueSerializer jsonValue)
+                        && jsonValue._isStandardImplementation())) {
+            _dynamicValueSerializers = new ScopedSerializers(config, applyIgnored,
+                    serializers.newWith(rawType, serializer));
+        } else {
+            _dynamicValueSerializers = serializers.newWith(rawType, serializer);
+        }
+        return serializer;
+    }
+
+    private static boolean _hasStandardProperty(BeanProperty property) {
+        if (property instanceof ResolvedJsonValueProperty) {
+            return true;
+        }
+        return (property != null) && (property.getClass() == JsonValueProperty.class)
+                && _hasStandardProperty(((JsonValueProperty) property)._enclosing);
+    }
+
+    private static final class ScopedSerializers extends PropertySerializerMap {
+        private final WeakReference<SerializationConfig> _config;
+        private final boolean _applyIgnored;
+        private final PropertySerializerMap _serializers;
+
+        ScopedSerializers(SerializationConfig config, boolean applyIgnored,
+                PropertySerializerMap serializers) {
+            super(false);
+            _config = new WeakReference<>(config);
+            _applyIgnored = applyIgnored;
+            _serializers = serializers;
+        }
+
+        @Override
+        public ValueSerializer<Object> serializerFor(Class<?> type) {
+            return _serializers.serializerFor(type);
+        }
+
+        @Override
+        public PropertySerializerMap newWith(Class<?> type, ValueSerializer<Object> serializer) {
+            return _serializers.newWith(type, serializer);
+        }
     }
 
     /**
@@ -492,12 +713,7 @@ public class JsonValueSerializer
         }
         ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            Class<?> cc = value.getClass();
-            if (_valueType.hasGenericTypes()) {
-                ser = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_valueType, cc));
-            } else {
-                ser = _findAndAddDynamic(ctxt, cc);
-            }
+            ser = _findSerializer(ctxt, value, false);
         }
         // [databind#6206]: simple check for direct cycle through accessor
         //   (if written as null, no type id, same as with actual null value above)

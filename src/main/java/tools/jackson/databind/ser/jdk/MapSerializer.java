@@ -365,7 +365,7 @@ public class MapSerializer
         boolean sortKeys = false;
         // NOTE: any-getters apply same rules via `IgnorePropertiesUtil.buildCheckerFor()`
         if (_neitherNull(propertyAcc, intr)) {
-            Set<String> newIgnored = intr.findPropertyIgnoralByName(config, propertyAcc).findIgnoredForSerialization();
+            Set<String> newIgnored = property.findIgnoredForSerialization(config);
             if (_nonEmpty(newIgnored)) {
                 ignored = (ignored == null) ? new HashSet<String>() : new HashSet<String>(ignored);
                 for (String str : newIgnored) {
@@ -374,7 +374,7 @@ public class MapSerializer
             }
 
             // inclusions
-            Set<String> newIncluded = intr.findPropertyInclusionByName(config, propertyAcc).getIncluded();
+            Set<String> newIncluded = property.findIncludedForSerialization(config);
             if (newIncluded != null) {
                 included = (included == null) ? new HashSet<String>() : new HashSet<String>(included);
                 for (String str : newIncluded) {

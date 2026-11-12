@@ -926,3 +926,8 @@ Caio Vinicius (@caiocv18)
  * Reported, fixed #6303: `IllegalArgumentException` thrown by a setter is reported
    as a type mismatch
   [3.4.0]
+
+@wn1331
+ * Fixed #6395: Reuse dynamically resolved converter serializers within a write
+   call without sharing writer-specific context
+  [3.4.0]

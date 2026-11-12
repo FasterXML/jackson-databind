@@ -935,3 +935,8 @@ Caio Vinicius (@caiocv18)
 @nu11Po1nter1
  * Fixed #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
   [3.3.1]
+
+@wn1331
+ * Fixed #6421: `@JsonUnwrapped` value with an `EXTERNAL_PROPERTY` type id now
+   fails eagerly instead of silently deserializing as `null`
+  [3.4.0]

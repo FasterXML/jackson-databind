@@ -328,12 +328,44 @@ public class TokenBuffer
     public static PropertyLookahead lookAheadForStringProperty(JsonParser p,
             String propName, boolean ignoreCase)
     {
+        Parser tbp = _findBufferParser(p);
+        return (tbp == null) ? null : tbp._lookAheadForStringProperty(propName, ignoreCase, false);
+    }
+
+    /**
+     * Variant of {@link #lookAheadForStringProperty} used when parser points to
+     * a property value (instead of property name) within an Object: the value
+     * is skipped and the remaining properties of the enclosing Object scanned.
+     *
+     * @param p Parser that points to a value of a property
+     * @param propName Name of property to look for
+     * @param ignoreCase Whether property name comparison is case-insensitive
+     *
+     * @return Result of lookahead, if lookahead was possible; {@code null} if
+     *    not (in which case caller needs to use some other mechanism)
+     *
+     * @since 3.1.9
+     */
+    public static PropertyLookahead lookAheadForStringPropertyAfterValue(JsonParser p,
+            String propName, boolean ignoreCase)
+    {
+        Parser tbp = _findBufferParser(p);
+        return (tbp == null) ? null : tbp._lookAheadForStringProperty(propName, ignoreCase, true);
+    }
+
+    private static Parser _findBufferParser(JsonParser p)
+    {
         while (true) {
             if (p instanceof Parser tbp) {
-                return tbp._lookAheadForStringProperty(propName, ignoreCase);
+                return tbp;
             }
+            // Both just pass through tokens of (current) delegate:
             if (p instanceof tools.jackson.core.util.JsonParserSequence seq) {
                 p = seq.delegate();
+                continue;
+            }
+            if (p instanceof tools.jackson.databind.util.internal.SingleValueParser svp) {
+                p = svp.delegate();
                 continue;
             }
             return null;
@@ -1741,14 +1773,33 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
          * scans tokens after the current one (which must be a property name
          * in an Object) without changing parser state.
          */
-        PropertyLookahead _lookAheadForStringProperty(String propName, boolean ignoreCase)
+        PropertyLookahead _lookAheadForStringProperty(String propName, boolean ignoreCase,
+                boolean afterValue)
         {
-            if (_closed || (_segment == null) || (_currToken != JsonToken.PROPERTY_NAME)) {
+            if (_closed || (_segment == null) || (_currToken == null)) {
                 return null;
             }
             final Lookahead c = new Lookahead(_segment, _segmentPtr,
                     (_skipCount > 0) ? _skipSegments[_skipCount-1] : null,
                     (_skipCount > 0) ? _skipPtrs[_skipCount-1] : -1);
+            if (afterValue) {
+                // Must point to a value: skip it, then expect property name or end of Object
+                if ((_currToken == JsonToken.PROPERTY_NAME) || _currToken.isStructEnd()) {
+                    return null;
+                }
+                if (_currToken.isStructStart() && !c.skipStructure()) {
+                    return null;
+                }
+                JsonToken t = c.next();
+                if (t == JsonToken.END_OBJECT) {
+                    return PropertyLookahead.NOT_FOUND;
+                }
+                if (t != JsonToken.PROPERTY_NAME) {
+                    return null;
+                }
+            } else if (_currToken != JsonToken.PROPERTY_NAME) {
+                return null;
+            }
             int index = 0;
 
             while (true) {

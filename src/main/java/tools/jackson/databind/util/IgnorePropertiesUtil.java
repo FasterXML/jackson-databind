@@ -5,6 +5,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+
+import tools.jackson.databind.AnnotationIntrospector;
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.Annotated;
+
 /**
  * @since 2.12
  */
@@ -45,6 +52,42 @@ public class IgnorePropertiesUtil
             return null;
         }
         return Checker.construct(toIgnore, toInclude);
+    }
+
+    /**
+     * Factory method for creating and returning a {@link Checker} instance, if (and only if)
+     * one is needed, for {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties}
+     * declared on given member. Used where there are no pre-configured names to merge
+     * with (any-getters, any-setters); applies the same rules as
+     * {@code MapSerializer.createContextual()} / {@code MapDeserializer.createContextual()}
+     * do for {@code Map}-valued properties, so changes to one should be reflected in the other.
+     *
+     * @param config Configuration to use for annotation introspection
+     * @param member Annotated member (accessor or mutator) to check; may be {@code null}
+     * @param forSerialization Whether names are needed for serialization ({@code true})
+     *    or deserialization ({@code false}): affects handling of
+     *    {@code JsonIgnoreProperties.allowGetters} / {@code allowSetters}
+     *
+     * @return Checker, if validity checks are needed; {@code null} otherwise
+     *
+     * @since 3.4
+     */
+    public static Checker buildCheckerFor(MapperConfig<?> config, Annotated member,
+            boolean forSerialization)
+    {
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        if ((intr == null) || (member == null)) {
+            return null;
+        }
+        JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, member);
+        JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, member);
+        Set<String> toIgnore = null;
+        if (ignorals != null) {
+            toIgnore = forSerialization ? ignorals.findIgnoredForSerialization()
+                    : ignorals.findIgnoredForDeserialization();
+        }
+        return buildCheckerIfNeeded(toIgnore,
+                (inclusions == null) ? null : inclusions.getIncluded());
     }
 
     /**

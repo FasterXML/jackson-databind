@@ -147,6 +147,11 @@ public class EnumValuesToWrite
 
     private String _toStringWithStrategy(MapperConfig<?> config, Enum<?> en) {
         String str = en.toString();
+        // [databind#6309]: as with 2.x (see [databind#4355]), coerce `null`
+        //   into "" for backwards compatibility
+        if (str == null) {
+            str = "";
+        }
         if (_enumNamingStrategy != null) {
             str = _enumNamingStrategy.convertEnumToExternalName(config, _annotatedClass, str);
         }

@@ -69,7 +69,7 @@ public class TokenBufferReadConstraintsTest extends DatabindTestUtil
     void defaultConstraintsAllowSmallBuffer() throws Exception
     {
         // Sanity check: buffer with default constraints must not fail on a tiny doc
-        TokenBuffer buf = new TokenBuffer(false);
+        TokenBuffer buf = TokenBuffer.forGeneration();
         buf.writeStartArray();
         for (int i = 0; i < 8; ++i) {
             buf.writeNumber(i);

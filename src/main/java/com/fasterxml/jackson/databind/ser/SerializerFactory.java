@@ -76,8 +76,8 @@ public abstract class SerializerFactory
      * @param defaultImpl Default key serializer implementation to use, if no custom ones
      *    are found (may be null)
      *
-     * @return Serializer to use, if factory knows it; {@code defaultImpl} if not:
-     *    should NOT return {@code null}
+     * @return Serializer to use, if (and only if) factory has no specific serializer
+     *    for the type; {@code defaultImpl} if not.
      *
      * @since 2.11
      */
@@ -87,6 +87,14 @@ public abstract class SerializerFactory
         return createKeySerializer(prov.getConfig(), type, defaultImpl);
     }
 
+    /**
+     * @return Serializer to use, see
+     *    {@link #createKeySerializer(SerializerProvider, JavaType, JsonSerializer)}
+     *    for details.
+     *
+     * @deprecated Since 2.11 use
+     *    {@link #createKeySerializer(SerializerProvider, JavaType, JsonSerializer)}
+     */
     @Deprecated // since 2.11
     public abstract JsonSerializer<Object> createKeySerializer(SerializationConfig config,
             JavaType type, JsonSerializer<Object> defaultImpl)

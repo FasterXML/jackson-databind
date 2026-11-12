@@ -952,7 +952,9 @@ public abstract class SerializerProvider
         // factory returns `null`
         if (ser == null) {
             return reportBadDefinition(keyType, String.format(
-                    "`SerializerFactory` (%s) returned `null` key serializer for type %s",
+                    "`SerializerFactory` (%s) returned `null` key serializer for type %s"
+                    +" (possibly due to a registered `BeanSerializerModifier.modifyKeySerializer()`"
+                    +" returning `null`)",
                     ClassUtil.classNameOf(_serializerFactory),
                     ClassUtil.getTypeDescription(keyType)));
         }

@@ -10,6 +10,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6264: `@JsonIgnoreProperties` / `@JsonIncludeProperties` not honored on
   `@JsonAnySetter` properties
  (reported, fixed by @aysha-afrah26)
+#6276: `@JsonApplyView` not honored for `@JsonUnwrapped` and `@JsonAnyGetter` properties
+ (reported, fixed by @aysha-afrah26)
 #6303: `IllegalArgumentException` thrown by a setter is reported as a type mismatch
   ("Problem deserializing property ... expected type ... actual type")
  (reported, fixed by @caiocv18)

@@ -358,6 +358,7 @@ public class MapDeserializer
         Set<String> ignored = _ignorableProperties;
         Set<String> included = _includableProperties;
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        // NOTE: any-setters apply same rules via `IgnorePropertiesUtil.buildCheckerFor()`
         if (_neitherNull(intr, property)) {
             AnnotatedMember member = property.getMember();
             if (member != null) {

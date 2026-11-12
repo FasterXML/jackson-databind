@@ -2148,6 +2148,9 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6339: Enum aliases from an appended `AnnotationIntrospector` are
    discarded: `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
   [2.23.0]
+ * Reported, fixed #6309: Serializing an Enum whose `toString()` returns `null` as a Map key
+   fails with `WRITE_ENUMS_USING_TO_STRING`
+  [2.24.0]
 
 DongNyoung Lee (@Dongnyoung)
  * Contributed fix for #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected
@@ -2162,3 +2165,8 @@ Anna Breeva (@ab310013)
 @bugada
  * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
   [2.23.0]
+
+Mohammed Abdessetar Elyagoubi (@abdessattar23)
+ * Reported #6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to
+   legacy `ObjectMapper.enableDefaultTyping()`
+  (2.18.13)

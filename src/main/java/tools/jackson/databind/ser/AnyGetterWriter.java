@@ -4,7 +4,6 @@ import java.util.Map;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
-import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.node.ObjectNode;
@@ -40,14 +39,33 @@ public class AnyGetterWriter extends BeanPropertyWriter
      *
      * @since 3.3
      */
-    protected IgnorePropertiesUtil.Checker _inclusionChecker;
+    protected final IgnorePropertiesUtil.Checker _inclusionChecker;
 
     /**
      * @since 2.19
+     *
+     * @deprecated Since 3.4 use
+     *   {@link #AnyGetterWriter(BeanPropertyWriter, BeanProperty, AnnotatedMember, ValueSerializer, IgnorePropertiesUtil.Checker)}
+     *   instead: this variant applies no {@code @JsonIgnoreProperties} /
+     *   {@code @JsonIncludeProperties} rules to {@code ObjectNode}-valued any-getters
+     */
+    @Deprecated // since 3.4
+    public AnyGetterWriter(BeanPropertyWriter parent, BeanProperty property,
+            AnnotatedMember accessor, ValueSerializer<?> serializer)
+    {
+        this(parent, property, accessor, serializer, null);
+    }
+
+    /**
+     * @param inclusionChecker Property-level inclusion rules for {@code ObjectNode}-valued
+     *    any-getters (see {@link #_inclusionChecker}); {@code null} if none
+     *
+     * @since 3.4
      */
     @SuppressWarnings("unchecked")
     public AnyGetterWriter(BeanPropertyWriter parent, BeanProperty property,
-            AnnotatedMember accessor, ValueSerializer<?> serializer)
+            AnnotatedMember accessor, ValueSerializer<?> serializer,
+            IgnorePropertiesUtil.Checker inclusionChecker)
     {
         super(parent);
         _anyGetter = accessor;
@@ -56,6 +74,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
         if (serializer instanceof MapSerializer mapSer) {
             _mapSerializer = mapSer;
         }
+        _inclusionChecker = inclusionChecker;
     }
 
     @Override
@@ -68,9 +87,6 @@ public class AnyGetterWriter extends BeanPropertyWriter
     @SuppressWarnings("unchecked")
     public void resolve(SerializationContext ctxt)
     {
-        // Built regardless of `_anySerializer`: a custom `@JsonSerialize` on a node-valued
-        // any-getter leaves it non-null, but node entries are still written directly
-        _inclusionChecker = _buildInclusionChecker(ctxt);
         // [databind#3604]: _anySerializer may be null for ObjectNode/JsonNode any-getters
         if (_anySerializer == null) {
             return;
@@ -81,22 +97,6 @@ public class AnyGetterWriter extends BeanPropertyWriter
         if (ser instanceof MapSerializer mapSer) {
             _mapSerializer = mapSer;
         }
-    }
-
-    private IgnorePropertiesUtil.Checker _buildInclusionChecker(SerializationContext ctxt)
-    {
-        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        final AnnotatedMember member = (_property == null) ? null : _property.getMember();
-        if (member == null) {
-            return null;
-        }
-        final MapperConfig<?> config = ctxt.getConfig();
-        // Mirrors annotation handling in `MapSerializer.createContextual()`, minus its merge
-        // with pre-set ignored/included names (none exist for any-getters); keep in sync.
-        // (empty "ignored" set is handled by `buildCheckerIfNeeded()`)
-        return IgnorePropertiesUtil.buildCheckerIfNeeded(
-                intr.findPropertyIgnoralByName(config, member).findIgnoredForSerialization(),
-                intr.findPropertyInclusionByName(config, member).getIncluded());
     }
 
     private boolean _isIgnored(String name) {

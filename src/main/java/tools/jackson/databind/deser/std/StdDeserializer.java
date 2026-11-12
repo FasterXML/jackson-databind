@@ -1490,7 +1490,9 @@ public abstract class StdDeserializer<T>
         // allow coercions for other scalar types
         // 17-Jan-2018, tatu: Related to [databind#1853] avoid FIELD_NAME by ensuring it's
         //   "real" scalar
-        if (p.currentToken().isScalarValue()) {
+        // Also: no token at all if input ended (possible with `TokenBuffer`)
+        final JsonToken t = p.currentToken();
+        if ((t != null) && t.isScalarValue()) {
             String text = p.getValueAsString();
             if (text != null) {
                 return text;

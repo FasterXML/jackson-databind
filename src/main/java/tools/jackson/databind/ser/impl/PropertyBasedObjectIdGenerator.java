@@ -28,6 +28,21 @@ public class PropertyBasedObjectIdGenerator
     }
 
     /**
+     * Helper method for finding the property used as the Object Id by given
+     * {@link ObjectIdWriter}, if any (that is, if it uses a property-based generator).
+     *
+     * @return Object Id property, if any; {@code null} if none
+     *
+     * @since 3.3
+     */
+    public static BeanPropertyWriter findIdProperty(ObjectIdWriter oiw) {
+        if ((oiw != null) && (oiw.generator instanceof PropertyBasedObjectIdGenerator pg)) {
+            return pg._property;
+        }
+        return null;
+    }
+
+    /**
      * We must override this method, to prevent errors when scopes are the same,
      * but underlying class (on which to access property) is different.
      */

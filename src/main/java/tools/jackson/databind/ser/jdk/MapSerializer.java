@@ -363,6 +363,7 @@ public class MapSerializer
         Set<String> ignored = _ignoredEntries;
         Set<String> included = _includedEntries;
         boolean sortKeys = false;
+        // NOTE: any-getters apply same rules via `IgnorePropertiesUtil.buildCheckerFor()`
         if (_neitherNull(propertyAcc, intr)) {
             Set<String> newIgnored = intr.findPropertyIgnoralByName(config, propertyAcc).findIgnoredForSerialization();
             if (_nonEmpty(newIgnored)) {

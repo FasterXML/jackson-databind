@@ -406,6 +406,43 @@ public class TokenBuffer
         STOPPED
     }
 
+    /**
+     * Helper method used to avoid copying already-buffered values that need to be
+     * read later: if given parser (possibly wrapped) reads from a {@link TokenBuffer}
+     * and points to the start of an Object or Array value fully contained in the buffer,
+     * creates a parser for reading that value from the same buffer (without copying),
+     * and skips the value in given parser.
+     *
+     * @param p Parser that points to the start marker of a value
+     *
+     * @return Parser for reading the value, positioned so that its next token is the
+     *    first token of value, if possible; {@code null} if not (in which case given
+     *    parser is not advanced)
+     *
+     * @since 3.1.9
+     */
+    public static JsonParser bufferedValueAsParser(JsonParser p)
+    {
+        JsonToken t = p.currentToken();
+        if ((t == null) || !t.isStructStart()) {
+            return null;
+        }
+        Parser tbp = _findBufferParser(p);
+        if ((tbp == null) || (tbp.currentToken() != t)) {
+            return null;
+        }
+        JsonParser valueParser = tbp._valueAsParser(p);
+        if (valueParser != null) {
+            // Sequences just pass through tokens; skip using current delegate
+            // (to allow skipping without walking through contents)
+            while (p instanceof tools.jackson.core.util.JsonParserSequence seq) {
+                p = seq.delegate();
+            }
+            p.skipChildren();
+        }
+        return valueParser;
+    }
+
     private static Parser _findBufferParser(JsonParser p)
     {
         while (true) {
@@ -1929,6 +1966,52 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                     return NameLookahead.NOT_AVAILABLE;
                 }
             }
+        }
+
+        /**
+         * Implementation of {@link TokenBuffer#bufferedValueAsParser}: creates
+         * parser for reading the value (Object or Array) current token starts,
+         * if it is fully contained in the buffer. Does not change parser state.
+         */
+        JsonParser _valueAsParser(JsonParser src)
+        {
+            if (_closed || (_segment == null)) {
+                return null;
+            }
+            // Ensure value is fully contained (also memoizes its end, if large)
+            final Lookahead c = new Lookahead(_segment, _segmentPtr,
+                    (_skipCount > 0) ? _skipSegments[_skipCount-1] : null,
+                    (_skipCount > 0) ? _skipPtrs[_skipCount-1] : -1);
+            if (!c.skipStructure()) {
+                return null;
+            }
+            Parser p = new Parser(_objectReadContext, _source, _segment,
+                    _hasNativeTypeIds, _hasNativeObjectIds,
+                    _source._parentContext, streamReadConstraints());
+            p._segmentPtr = _segmentPtr - 1;
+            p.setLocation(src.currentTokenLocation());
+            p.nextToken(); // to point to start marker
+            return tools.jackson.databind.util.internal.SingleValueParser.construct(p);
+        }
+
+        // Overridden to use memoized end position of structure, if available
+        @Override
+        public JsonParser skipChildren() throws JacksonException
+        {
+            if (((_currToken == JsonToken.START_OBJECT) || (_currToken == JsonToken.START_ARRAY))
+                    && !_closed && (_segment != null)) {
+                final StructEnd end = _segment.structEnd(_segmentPtr);
+                if (end != null) {
+                    // NOTE: no pending skips can be within structure, as those are only
+                    // registered for properties of enclosing Objects
+                    _segment = end.seg();
+                    _segmentPtr = end.ptr();
+                    _updateToken(_segment.type(_segmentPtr));
+                    _parsingContext = _parsingContext.parentOrCopy();
+                    return this;
+                }
+            }
+            return super.skipChildren();
         }
 
         void _addSkip(Segment seg, int ptr)

@@ -757,6 +757,13 @@ public class BeanDeserializer
                     //    special handling: must defer deserialization until POJO
                     //    is constructed.
                     if (prop.isMerging()) {
+                        // If value is already buffered (nested values), no need to copy
+                        // it: can read it from existing buffer later on
+                        JsonParser bufferedValue = TokenBuffer.bufferedValueAsParser(p);
+                        if (bufferedValue != null) {
+                            buffer.bufferMergingProperty(prop, bufferedValue);
+                            continue;
+                        }
                         TokenBuffer tb = ctxt.bufferForInputBuffering(p);
                         tb.copyCurrentStructure(p);
                         buffer.bufferMergingProperty(prop, tb);

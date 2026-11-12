@@ -93,14 +93,18 @@ public final class SingleValueParser extends JsonParserDelegate
         if (t.isStructStart()) {
             ++_depth;
         } else if (t.isStructEnd()) {
-            if (--_depth == 0) {
-                // Bypassed parsers saw start marker of the value, but not end marker
-                for (SingleValueParser svp : _bypassed) {
-                    --svp._depth;
-                }
-            }
+            _structEnded();
         }
         return t;
+    }
+
+    private void _structEnded() {
+        if (--_depth == 0) {
+            // Bypassed parsers saw start marker of the value, but not end marker
+            for (SingleValueParser svp : _bypassed) {
+                --svp._depth;
+            }
+        }
     }
 
     @Override
@@ -123,20 +127,15 @@ public final class SingleValueParser extends JsonParserDelegate
         if ((t != JsonToken.START_OBJECT) && (t != JsonToken.START_ARRAY)) {
             return this;
         }
-        int open = 1;
-        while (true) {
-            t = nextToken();
-            if (t == null) {
-                return this;
-            }
-            if (t.isStructStart()) {
-                ++open;
-            } else if (t.isStructEnd()) {
-                if (--open == 0) {
-                    return this;
-                }
-            }
+        // Delegate may be able to skip without walking through contents
+        // (and is positioned at start marker we already accounted for)
+        delegate.skipChildren();
+        if (delegate.currentToken() == null) { // unexpected end-of-content
+            _done = true;
+        } else {
+            _structEnded();
         }
+        return this;
     }
 
     @Override

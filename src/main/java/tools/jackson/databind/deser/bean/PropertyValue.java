@@ -176,11 +176,24 @@ public abstract class PropertyValue
             _property = prop;
         }
 
+        /**
+         * Constructor used when value is to be read using given parser,
+         * positioned so that its next token is the first token of value.
+         *
+         * @since 3.1.9
+         */
+        public Merging(PropertyValue next, JsonParser valueParser,
+                       SettableBeanProperty prop)
+        {
+            super(next, valueParser);
+            _property = prop;
+        }
+
         @Override
         public void assign(DeserializationContext ctxt, Object bean)
         {
-            TokenBuffer buffered = (TokenBuffer) value;
-            try (JsonParser p = buffered.asParser()) {
+            try (JsonParser p = (value instanceof JsonParser vp) ? vp
+                    : ((TokenBuffer) value).asParser()) {
                 p.nextToken();
                 // !!! 12-Aug-2025, tatu: We need DeserializationContext...
                 //   but for testing  just pass null for now.

@@ -437,4 +437,18 @@ public class PropertyValueBuffer
     public void bufferMergingProperty(SettableBeanProperty prop, TokenBuffer buffered) {
         _buffered = new PropertyValue.Merging(_buffered, buffered, prop);
     }
+
+    /**
+     * Variant of {@link #bufferMergingProperty(SettableBeanProperty, TokenBuffer)}
+     * used when value is already buffered: given parser reads it from
+     * existing buffer (see {@link TokenBuffer#bufferedValueAsParser}).
+     *
+     * @param valueParser Parser positioned so that its next token is the first
+     *    token of value
+     *
+     * @since 3.1.9
+     */
+    public void bufferMergingProperty(SettableBeanProperty prop, JsonParser valueParser) {
+        _buffered = new PropertyValue.Merging(_buffered, valueParser, prop);
+    }
 }

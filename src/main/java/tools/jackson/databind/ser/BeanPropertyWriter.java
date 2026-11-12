@@ -820,7 +820,6 @@ public class BeanPropertyWriter
         }
     }
 
-    // @since 3.2
     /**
      * Helper method that writes the property value with this writer's type serializer
      * (if any): the part of serialization that runs under the {@code @JsonApplyView}
@@ -828,7 +827,7 @@ public class BeanPropertyWriter
      * {@link #serializeAsProperty} (like {@code UnwrappingBeanPropertyWriter}) can
      * apply the same override.
      *
-     * @since 3.4 (converted from {@code private})
+     * @since 3.2 ({@code protected} since 3.4)
      */
     protected void _serialize(Object value, JsonGenerator g, SerializationContext ctxt,
             ValueSerializer<Object> ser) {

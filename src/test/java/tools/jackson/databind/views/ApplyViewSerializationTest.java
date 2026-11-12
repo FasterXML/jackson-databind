@@ -94,6 +94,16 @@ public class ApplyViewSerializationTest extends DatabindTestUtil
         }
     }
 
+    // Same, but as a visible getter: writer is built from the regular property
+    // (not via `SimpleBeanPropertyDefinition` as for `extra()` above)
+    static class AnyGetterGetterBean {
+        @JsonApplyView(ViewB.class)
+        @JsonAnyGetter
+        public Map<String, Bean> getExtra() {
+            return Collections.singletonMap("bean", new Bean());
+        }
+    }
+
     @JsonFilter("anyFilter")
     static class FilteredAnyGetterBean {
         @JsonApplyView(ViewB.class)
@@ -271,6 +281,20 @@ public class ApplyViewSerializationTest extends DatabindTestUtil
         assertEquals(1, map.size());
         Map<?,?> beanMap = (Map<?,?>) map.get("bean");
         // entry value serialized under ViewB: "aa" and "b" visible, "a" not
+        assertEquals(2, beanMap.size());
+        assertFalse(beanMap.containsKey("a"));
+        assertEquals("2", beanMap.get("aa"));
+        assertEquals("3", beanMap.get("b"));
+    }
+
+    @Test
+    public void jsonApplyViewOnAnyGetterGetter() {
+        StringWriter sw = new StringWriter();
+        MAPPER.writerWithView(ViewA.class).writeValue(sw, new AnyGetterGetterBean());
+
+        Map<?,?> map = MAPPER.readValue(sw.toString(), Map.class);
+        assertEquals(1, map.size());
+        Map<?,?> beanMap = (Map<?,?>) map.get("bean");
         assertEquals(2, beanMap.size());
         assertFalse(beanMap.containsKey("a"));
         assertEquals("2", beanMap.get("aa"));

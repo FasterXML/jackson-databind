@@ -173,7 +173,7 @@ public class SimpleBeanPropertyDefinition
         return null;
     }
 
-    @Override // since 3.3 ([databind#5745]: expose `@JsonApplyView`, same as `findViews()`)
+    @Override // since 3.4 ([databind#5745]: expose `@JsonApplyView`, same as `findViews()`)
     public Class<?> findApplyView() {
         if (_member != null) {
             final AnnotationIntrospector intr = _config.getAnnotationIntrospector();

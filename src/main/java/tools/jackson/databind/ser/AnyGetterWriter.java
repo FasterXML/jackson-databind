@@ -106,62 +106,29 @@ public class AnyGetterWriter extends BeanPropertyWriter
     }
 
     /**
-     * Same as {@link Runnable} but allows checked exceptions, which
-     * {@link PropertyFilter#serializeAsProperty} declares; see {@link #_withApplyView}.
-     *
-     * @since 3.4
-     */
-    private interface ViewScopedSerialization {
-        void serialize() throws Exception;
-    }
-
-    /**
-     * Helper method that runs given serialization with the {@code @JsonApplyView}
+     * Helper method that runs given value serialization with the {@code @JsonApplyView}
      * override (if any) applied to the active view, mirroring
-     * {@code BeanPropertyWriter.serializeAsProperty()}: entries emitted by an
-     * any-getter are properties of the enclosing POJO, so a view override on the
-     * any-getter covers their values the same way.
+     * {@code BeanPropertyWriter.serializeAsProperty()}.
      *
      * @since 3.4
      */
-    private void _withApplyView(SerializationContext ctxt, ViewScopedSerialization action)
-        throws Exception
+    private void _withApplyView(SerializationContext ctxt, Runnable action)
     {
         if (_applyView == null) {
-            action.serialize();
-            return;
-        }
-        // `withActiveView()` takes a `Runnable`, which cannot throw the checked
-        // exceptions that `PropertyFilter.serializeAsProperty()` declares; tunnel those
-        final Exception[] thrown = new Exception[1];
-        ctxt.withActiveView((_applyView != JsonApplyView.NONE.class) ? _applyView : null, () -> {
-            try {
-                action.serialize();
-            } catch (RuntimeException e) {
-                throw e;
-            } catch (Exception e) {
-                thrown[0] = e;
-            }
-        });
-        if (thrown[0] != null) {
-            throw thrown[0];
+            action.run();
+        } else {
+            ctxt.withActiveView((_applyView != JsonApplyView.NONE.class) ? _applyView : null,
+                    action);
         }
     }
 
     public void getAndSerialize(Object bean, JsonGenerator gen, SerializationContext ctxt)
         throws Exception
     {
-        final Object value = _anyGetter.getValue(bean);
+        Object value = _anyGetter.getValue(bean);
         if (value == null) {
             return;
         }
-        // [databind#5745]: honor `@JsonApplyView`, same as `BeanPropertyWriter.serializeAsProperty()`
-        _withApplyView(ctxt, () -> _getAndSerialize(value, gen, ctxt));
-    }
-
-    private void _getAndSerialize(Object value, JsonGenerator gen, SerializationContext ctxt)
-        throws Exception
-    {
         // [databind#3604]: Support ObjectNode/JsonNode for @JsonAnyGetter
         if (value instanceof JsonNode) {
             _serializeObjectNodeEntries(_verifyObjectNode(value, ctxt), gen, ctxt);
@@ -172,11 +139,13 @@ public class AnyGetterWriter extends BeanPropertyWriter
                     _anyGetter.getName(), value.getClass().getName()));
         }
         // 23-Feb-2015, tatu: Nasty, but has to do (for now)
+        // [databind#5745]: honor `@JsonApplyView`, same as `BeanPropertyWriter.serializeAsProperty()`
         if (_mapSerializer != null) {
-            _mapSerializer.serializeWithoutTypeInfo((Map<?,?>) value, gen, ctxt);
+            _withApplyView(ctxt,
+                    () -> _mapSerializer.serializeWithoutTypeInfo((Map<?,?>) value, gen, ctxt));
             return;
         }
-        _anySerializer.serialize(value, gen, ctxt);
+        _withApplyView(ctxt, () -> _anySerializer.serialize(value, gen, ctxt));
     }
 
     @Override
@@ -209,18 +178,10 @@ public class AnyGetterWriter extends BeanPropertyWriter
             PropertyFilter filter)
         throws Exception
     {
-        final Object value = _anyGetter.getValue(bean);
+        Object value = _anyGetter.getValue(bean);
         if (value == null) {
             return;
         }
-        // [databind#5745]: honor `@JsonApplyView`, same as unfiltered path
-        _withApplyView(ctxt, () -> _getAndFilter(value, bean, gen, ctxt, filter));
-    }
-
-    private void _getAndFilter(Object value, Object bean, JsonGenerator gen,
-            SerializationContext ctxt, PropertyFilter filter)
-        throws Exception
-    {
         // [databind#3604]: Support ObjectNode/JsonNode for @JsonAnyGetter
         if (value instanceof JsonNode) {
             _serializeFilteredObjectNodeEntries(_verifyObjectNode(value, ctxt), gen, ctxt,
@@ -232,13 +193,14 @@ public class AnyGetterWriter extends BeanPropertyWriter
                     "Value returned by 'any-getter' (%s()) not java.util.Map but %s".formatted(
                             _anyGetter.getName(), value.getClass().getName()));
         }
+        // [databind#5745]: honor `@JsonApplyView`, same as unfiltered path
         if (_mapSerializer != null) {
-            _mapSerializer.serializeFilteredAnyProperties(ctxt, gen, bean, (Map<?,?>) value,
-                    filter);
+            _withApplyView(ctxt, () -> _mapSerializer.serializeFilteredAnyProperties(ctxt, gen,
+                    bean, (Map<?,?>) value, filter));
             return;
         }
         // ... not sure how custom handler would do it
-        _anySerializer.serialize(value, gen, ctxt);
+        _withApplyView(ctxt, () -> _anySerializer.serialize(value, gen, ctxt));
     }
 
     /**

@@ -1977,6 +1977,11 @@ Aysha Afrah Ziya (@aysha-afrah26)
    deserializers
   (2.18.11)
 
+Mohammed Abdessetar Elyagoubi (@abdessattar23)
+ * Reported #6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to
+   legacy `ObjectMapper.enableDefaultTyping()`
+  (2.18.13)
+
 Liam Feid (@fxshlein)
  * Contributed #1467: Support `@JsonUnwrapped` with `@JsonCreator`
   (2.19.0)

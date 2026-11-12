@@ -10,6 +10,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6309: NPE serializing an Enum whose `toString()` returns `null` (3.x regression from 2.x)
  (reported by @Marti2203)
  (fix by @cowtowncoder, w/ Claude code)
+#6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+ (reported by @Marti2203)
+ (fix by @nu11Po1nter1)
 
 3.3.0 (07-Nov-2026)
 
@@ -665,6 +668,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6315: Map key deserializers should apply same type checks as bean deserializers
  (reported by @ab310013)
  (fix by @pjfanning)
+#6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+ (reported by @Marti2203)
+ (fix by @nu11Po1nter1)
 #6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
   deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
   `FilteredRowSetImpl`, `JoinRowSetImpl`)

@@ -839,6 +839,8 @@ Martin Mirchev (@Marti2203)
  * Reported #6309: NPE serializing an Enum whose `toString()` returns `null`
    (3.x regression from 2.x)
   [3.3.1]
+ * Reported #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [3.3.1]
 
 @essiembre
  * Reported #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
@@ -915,3 +917,7 @@ Sahas Prakash Nagar (@Sahas2711)
  * Fixed #6394: `@JsonFormat(shape = ARRAY)` deserialization hangs when input ends before
    `END_ARRAY` while skipping extra values
   [3.3.0]
+
+@nu11Po1nter1
+ * Fixed #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [3.3.1]

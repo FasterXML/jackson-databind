@@ -739,17 +739,32 @@ public class BeanDeserializerFactory
             for (SettableBeanProperty prop : creatorProps) {
                 AnnotatedMember member = prop.getMember();
                 if (member != null && Boolean.TRUE.equals(ctxt.getAnnotationIntrospector().hasAnySetter(ctxt.getConfig(), member))) {
-                    return constructAnySetter(ctxt, beanDescRef, member);
+                    return _withAnySetterInclusion(ctxt, member,
+                            constructAnySetter(ctxt, beanDescRef, member));
                 }
             }
         }
         // else find the regular method/field level any-setter
         AnnotatedMember anySetter = beanDescRef.get().findAnySetterAccessor();
         if (anySetter != null) {
-            return constructAnySetter(ctxt, beanDescRef, anySetter);
+            return _withAnySetterInclusion(ctxt, anySetter,
+                    constructAnySetter(ctxt, beanDescRef, anySetter));
         }
         // not found, that's fine, too
         return null;
+    }
+
+    // [databind#6264]: apply `@JsonIgnoreProperties` / `@JsonIncludeProperties` declared
+    // on the any-setter itself to the property names it accepts.
+    private SettableAnyProperty _withAnySetterInclusion(DeserializationContext ctxt,
+            AnnotatedMember mutator, SettableAnyProperty anySetter)
+    {
+        if (anySetter == null) {
+            return null;
+        }
+        IgnorePropertiesUtil.Checker checker = IgnorePropertiesUtil.buildCheckerFor(
+                ctxt.getConfig(), mutator, false);
+        return (checker == null) ? anySetter : anySetter.withInclusionChecker(checker);
     }
 
     private boolean _isSetterlessType(Class<?> rawType) {

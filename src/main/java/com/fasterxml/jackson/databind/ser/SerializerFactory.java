@@ -76,8 +76,8 @@ public abstract class SerializerFactory
      * @param defaultImpl Default key serializer implementation to use, if no custom ones
      *    are found (may be null)
      *
-     * @return Serializer to use, if factory knows it; null if not (in which case default
-     *   serializer is to be used)
+     * @return Serializer to use, if factory knows it; {@code defaultImpl} if not:
+     *    should NOT return {@code null}
      *
      * @since 2.11
      */

@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 
 import tools.jackson.core.*;
 import tools.jackson.core.base.ParserMinimalBase;
@@ -351,6 +352,58 @@ public class TokenBuffer
     {
         Parser tbp = _findBufferParser(p);
         return (tbp == null) ? null : tbp._lookAheadForStringProperty(propName, ignoreCase, true);
+    }
+
+    /**
+     * Helper method used by type deserializers (like
+     * {@code AsDeductionTypeDeserializer}) to go through names of properties
+     * within buffered content without copying it: if given parser (possibly
+     * wrapped) reads from a {@link TokenBuffer} and points to the first property
+     * name of an Object whose contents are all within the buffer, passes names of
+     * properties of that Object (starting with the current one) to given handler,
+     * until handler returns {@code true} or end of Object is reached.
+     * No tokens are consumed.
+     *<p>
+     * NOTE: if lookahead turns out not to be possible, handler may have been
+     * called for some of the names before {@link NameLookahead#NOT_AVAILABLE}
+     * is returned.
+     *
+     * @param p Parser that points to a {@link JsonToken#PROPERTY_NAME}
+     * @param nameHandler Handler called with property names; returns {@code true}
+     *    to stop lookahead
+     *
+     * @return Result of lookahead
+     *
+     * @since 3.1.9
+     */
+    public static NameLookahead lookAheadForPropertyNames(JsonParser p,
+            Predicate<String> nameHandler)
+    {
+        Parser tbp = _findBufferParser(p);
+        return (tbp == null) ? NameLookahead.NOT_AVAILABLE
+                : tbp._lookAheadForPropertyNames(nameHandler);
+    }
+
+    /**
+     * Result of {@link TokenBuffer#lookAheadForPropertyNames}.
+     *
+     * @since 3.1.9
+     */
+    public enum NameLookahead {
+        /**
+         * Lookahead was not possible (or could not be completed)
+         */
+        NOT_AVAILABLE,
+
+        /**
+         * Handler was called with names of all properties of the Object
+         */
+        END_OF_OBJECT,
+
+        /**
+         * Handler returned {@code true} to stop lookahead
+         */
+        STOPPED
     }
 
     private static Parser _findBufferParser(JsonParser p)
@@ -1837,6 +1890,44 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                     return null;
                 }
                 ++index;
+            }
+        }
+
+        /**
+         * Implementation of {@link TokenBuffer#lookAheadForPropertyNames}:
+         * scans tokens after the current one (which must be a property name
+         * in an Object) without changing parser state.
+         */
+        NameLookahead _lookAheadForPropertyNames(Predicate<String> nameHandler)
+        {
+            if (_closed || (_segment == null) || (_currToken != JsonToken.PROPERTY_NAME)) {
+                return NameLookahead.NOT_AVAILABLE;
+            }
+            final Lookahead c = new Lookahead(_segment, _segmentPtr,
+                    (_skipCount > 0) ? _skipSegments[_skipCount-1] : null,
+                    (_skipCount > 0) ? _skipPtrs[_skipCount-1] : -1);
+            while (true) {
+                // Pointing to property name at the level of the Object
+                Object ob = c.seg.get(c.ptr);
+                final String name = (ob instanceof String str) ? str : ClassUtil.nullOrToString(ob);
+                if (nameHandler.test(name)) {
+                    return NameLookahead.STOPPED;
+                }
+                JsonToken t = c.next();
+                if (t == null) {
+                    return NameLookahead.NOT_AVAILABLE;
+                }
+                if (t.isStructStart() && !c.skipStructure()) {
+                    return NameLookahead.NOT_AVAILABLE;
+                }
+                // And then see what follows: another property, or end of Object?
+                t = c.next();
+                if (t == JsonToken.END_OBJECT) {
+                    return NameLookahead.END_OF_OBJECT;
+                }
+                if (t != JsonToken.PROPERTY_NAME) {
+                    return NameLookahead.NOT_AVAILABLE;
+                }
             }
         }
 

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,8 +29,9 @@ class NullKeySerializer6326Test extends DatabindTestUtil
     @Test
     void testNullKeySerializer() throws Exception
     {
-        ObjectMapper mapper = newJsonMapper();
-        mapper.setSerializerFactory(new NullKeySerializerFactory());
+        ObjectMapper mapper = JsonMapper.builder()
+                .serializerFactory(new NullKeySerializerFactory())
+                .build();
 
         InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
                 () -> mapper.writeValueAsString(Collections.singletonMap("k", "v")));

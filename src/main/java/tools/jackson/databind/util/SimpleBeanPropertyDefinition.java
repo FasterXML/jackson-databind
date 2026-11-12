@@ -153,24 +153,14 @@ public class SimpleBeanPropertyDefinition
 
     @Override
     public PropertyName getWrapperName() {
-        if (_member != null) {
-            final AnnotationIntrospector intr = _config.getAnnotationIntrospector();
-            if (intr != null) {
-                return intr.findWrapperName(_config, _member);
-            }
-        }
-        return null;
+        return (_member == null) ? null
+                : _config.getAnnotationIntrospector().findWrapperName(_config, _member);
     }
 
     @Override
     public Class<?>[] findViews() {
-        if (_member != null) {
-            final AnnotationIntrospector intr = _config.getAnnotationIntrospector();
-            if (intr != null) {
-                return intr.findViews(_config, _member);
-            }
-        }
-        return null;
+        return (_member == null) ? null
+                : _config.getAnnotationIntrospector().findViews(_config, _member);
     }
 
     // hmmh. what should we claim here?
@@ -211,12 +201,10 @@ public class SimpleBeanPropertyDefinition
     @Override // since 2.17
     public List<PropertyName> findAliases() {
         if (_member != null) {
-            final AnnotationIntrospector intr = _config.getAnnotationIntrospector();
-            if (intr != null) {
-                List<PropertyName> propertyNames = intr.findPropertyAliases(_config, _member);
-                if (propertyNames != null) {
-                    return propertyNames;
-                }
+            List<PropertyName> propertyNames = _config.getAnnotationIntrospector()
+                    .findPropertyAliases(_config, _member);
+            if (propertyNames != null) {
+                return propertyNames;
             }
         }
         return Collections.emptyList();

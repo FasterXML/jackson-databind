@@ -152,7 +152,9 @@ public final class BaseSettings
             CacheProvider cacheProvider, JsonNodeFactory nodeFactory,
             ConstructorDetector ctorDetector)
     {
-        _annotationIntrospector = ai;
+        // `null` means "no annotation introspection": use "nop" instance so that
+        // callers need not check for `null`
+        _annotationIntrospector = (ai == null) ? AnnotationIntrospector.nopInstance() : ai;
         _propertyNamingStrategy = pns;
         _enumNamingStrategy = ens;
         _accessorNaming = accNaming;
@@ -175,6 +177,9 @@ public final class BaseSettings
      */
 
     public BaseSettings withAnnotationIntrospector(AnnotationIntrospector ai) {
+        if (ai == null) {
+            ai = AnnotationIntrospector.nopInstance();
+        }
         if (_annotationIntrospector == ai) {
             return this;
         }

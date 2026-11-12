@@ -622,7 +622,6 @@ public abstract class BasicDeserializerFactory
     final PropertyMetadata _getSetterInfo(MapperConfig<?> config,
             BeanProperty prop, PropertyMetadata metadata)
     {
-        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
 
         boolean needMerge = true;
         Nulls valueNulls = null;
@@ -634,7 +633,8 @@ public abstract class BasicDeserializerFactory
 
         if (prim != null) {
             // Ok, first: does property itself have something to say?
-            JsonSetter.Value propSetterInfo = intr.findSetterInfo(config, prim);
+            JsonSetter.Value propSetterInfo = config.getAnnotationIntrospector()
+                    .findSetterInfo(config, prim);
             if (propSetterInfo != null) {
                 valueNulls = propSetterInfo.nonDefaultValueNulls();
                 contentNulls = propSetterInfo.nonDefaultContentNulls();
@@ -1632,8 +1632,7 @@ public abstract class BasicDeserializerFactory
     protected ValueDeserializer<Object> findDeserializerFromAnnotation(DeserializationContext ctxt,
             Annotated ann)
     {
-        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        Object deserDef = intr.findDeserializer(ctxt.getConfig(), ann);
+        Object deserDef = ctxt.getAnnotationIntrospector().findDeserializer(ctxt.getConfig(), ann);
         if (deserDef != null) {
             return ctxt.deserializerInstance(ann, deserDef);
         }
@@ -1648,8 +1647,8 @@ public abstract class BasicDeserializerFactory
     protected KeyDeserializer findKeyDeserializerFromAnnotation(DeserializationContext ctxt,
             Annotated ann)
     {
-        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        Object deserDef = intr.findKeyDeserializer(ctxt.getConfig(), ann);
+        Object deserDef = ctxt.getAnnotationIntrospector()
+                .findKeyDeserializer(ctxt.getConfig(), ann);
         if (deserDef != null) {
             return ctxt.keyDeserializerInstance(ann, deserDef);
         }
@@ -1659,8 +1658,8 @@ public abstract class BasicDeserializerFactory
     protected ValueDeserializer<Object> findContentDeserializerFromAnnotation(DeserializationContext ctxt,
             Annotated ann)
     {
-        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        Object deserDef = intr.findContentDeserializer(ctxt.getConfig(), ann);
+        Object deserDef = ctxt.getAnnotationIntrospector()
+                .findContentDeserializer(ctxt.getConfig(), ann);
         if (deserDef != null) {
             return ctxt.deserializerInstance(ann, deserDef);
         }

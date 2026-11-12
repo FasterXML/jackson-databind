@@ -474,10 +474,10 @@ public abstract class BeanSerializerBase
     protected ValueSerializer<Object> findConvertingSerializer(SerializationContext ctxt,
             BeanPropertyWriter prop)
     {
-        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         AnnotatedMember m = prop.getMember();
         if (m != null) {
-            Object convDef = intr.findSerializationConverter(ctxt.getConfig(), m);
+            Object convDef = ctxt.getAnnotationIntrospector()
+                    .findSerializationConverter(ctxt.getConfig(), m);
             if (convDef != null) {
                 Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
                 JavaType delegateType = conv.getOutputType(ctxt.getTypeFactory());

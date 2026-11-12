@@ -133,11 +133,11 @@ public class BeanSerializerFactory
         final SerializationConfig config = ctxt.getConfig();
         boolean staticTyping;
         // Next: we may have annotations that further indicate actual type to use (a super type)
-        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         JavaType type;
 
         try {
-            type = intr.refineSerializationType(config, beanDescRef.getClassInfo(), origType);
+            type = config.getAnnotationIntrospector()
+                    .refineSerializationType(config, beanDescRef.getClassInfo(), origType);
         } catch (JacksonException e) {
             return ctxt.reportBadTypeDefinition(beanDescRef, e.getMessage());
         }

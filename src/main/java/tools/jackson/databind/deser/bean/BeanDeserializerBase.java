@@ -802,7 +802,6 @@ public abstract class BeanDeserializerBase
     protected PropertyMetadata _getSetterInfo(DeserializationContext ctxt,
             AnnotatedMember accessor, JavaType type)
     {
-        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         final DeserializationConfig config = ctxt.getConfig();
 
         PropertyMetadata metadata = PropertyMetadata.STD_OPTIONAL;
@@ -813,7 +812,8 @@ public abstract class BeanDeserializerBase
         // NOTE: compared to `POJOPropertyBuilder`, we only have access to creator
         // parameter, not other accessors, so code bit simpler
         // Ok, first: does property itself have something to say?
-        JsonSetter.Value propSetterInfo = intr.findSetterInfo(config, accessor);
+        JsonSetter.Value propSetterInfo = ctxt.getAnnotationIntrospector()
+                .findSetterInfo(config, accessor);
         if (propSetterInfo != null) {
             valueNulls = propSetterInfo.nonDefaultValueNulls();
             contentNulls = propSetterInfo.nonDefaultContentNulls();
@@ -857,8 +857,8 @@ public abstract class BeanDeserializerBase
     protected ValueDeserializer<Object> _findConvertingDeserializer(DeserializationContext ctxt,
             SettableBeanProperty prop)
     {
-        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        Object convDef = intr.findDeserializationConverter(ctxt.getConfig(), prop.getMember());
+        Object convDef = ctxt.getAnnotationIntrospector()
+                .findDeserializationConverter(ctxt.getConfig(), prop.getMember());
         if (convDef != null) {
             Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
             JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());

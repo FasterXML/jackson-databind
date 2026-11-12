@@ -2009,11 +2009,11 @@ inputDesc, _coercedTypeDesc(targetType));
     protected ValueDeserializer<?> findConvertingContentDeserializer(DeserializationContext ctxt,
             BeanProperty prop, ValueDeserializer<?> existingDeserializer)
     {
-        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (prop != null) {
             AnnotatedMember member = prop.getMember();
             if (member != null) {
-                Object convDef = intr.findDeserializationContentConverter(ctxt.getConfig(), member);
+                Object convDef = ctxt.getAnnotationIntrospector()
+                        .findDeserializationContentConverter(ctxt.getConfig(), member);
                 if (convDef != null) {
                     Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
                     JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());

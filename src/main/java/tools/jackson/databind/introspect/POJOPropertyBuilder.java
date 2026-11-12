@@ -1418,7 +1418,10 @@ public class POJOPropertyBuilder
     /**
      * Helper method used for finding annotation values, from accessors
      * relevant to current usage (deserialization, serialization)
+     *
+     * @deprecated Since 3.4: not used by Jackson, will be removed in a future version
      */
+    @Deprecated // since 3.4
     protected <T> T fromMemberAnnotations(WithMember<T> func)
     {
         T result = null;

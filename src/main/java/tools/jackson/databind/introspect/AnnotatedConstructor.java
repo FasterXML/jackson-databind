@@ -192,9 +192,7 @@ public final class AnnotatedConstructor
 
         @Override
         protected MethodHandle unreflect() throws IllegalAccessException {
-            return MethodHandles.lookup().unreflectConstructor(_constructor)
-                    // [databind#6426] Varargs handles would re-collect the array argument
-                    .asFixedArity();
+            return MethodHandles.lookup().unreflectConstructor(_constructor);
         }
     }
 }

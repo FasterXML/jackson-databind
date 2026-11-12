@@ -44,10 +44,11 @@ public abstract class UnreflectHandleSupplier implements Supplier<MethodHandle> 
         if (mh == null) {
             return mh;
         }
-        if (asType == null) {
-            return mh.asFixedArity();
-        }
-        return mh.asType(asType);
+        // [databind#5231], [databind#6426] A varargs member unreflects to a variable-arity
+        // handle, whose `asType()` would collect the (already array-valued) argument
+        // into another array
+        mh = mh.asFixedArity();
+        return (asType == null) ? mh : mh.asType(asType);
     }
 
     protected abstract MethodHandle unreflect() throws IllegalAccessException;

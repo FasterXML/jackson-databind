@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.creators;
 
+import java.util.Arrays;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
@@ -38,8 +40,15 @@ class DelegatingVarargsCreator6426Test extends DatabindTestUtil
         CtorInts(int... values) { this.values = values; }
     }
 
-    // Multi-argument (properties-based or injected) creators already worked;
-    // the rest guard against regressing them
+    static class CtorObjects {
+        final Object[] values;
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        CtorObjects(Object... values) { this.values = values; }
+    }
+
+    // Creators invoked through `call(Object[])` (properties-based, or delegating with an
+    // injected parameter) already worked
     static class PropsStrings {
         final String[] values;
 
@@ -109,6 +118,14 @@ class DelegatingVarargsCreator6426Test extends DatabindTestUtil
     {
         assertArrayEquals(new int[] { 1, 2 },
                 MAPPER.readValue("[1,2]", CtorInts.class).values);
+    }
+
+    // Wrapped the delegate instead of failing, yielding `[[a, 1]]`
+    @Test
+    void objectVarargsDelegatingConstructor() throws Exception
+    {
+        CtorObjects v = MAPPER.readValue(a2q("['a',1]"), CtorObjects.class);
+        assertEquals("[a, 1]", Arrays.deepToString(v.values));
     }
 
     @Test

@@ -153,14 +153,24 @@ public class SimpleBeanPropertyDefinition
 
     @Override
     public PropertyName getWrapperName() {
-        return (_member == null) ? null
-                : _config.getAnnotationIntrospector().findWrapperName(_config, _member);
+        if (_member != null) {
+            final AnnotationIntrospector intr = _config.getAnnotationIntrospector();
+            if (intr != null) {
+                return intr.findWrapperName(_config, _member);
+            }
+        }
+        return null;
     }
 
     @Override
     public Class<?>[] findViews() {
-        return (_member == null) ? null
-                : _config.getAnnotationIntrospector().findViews(_config, _member);
+        if (_member != null) {
+            final AnnotationIntrospector intr = _config.getAnnotationIntrospector();
+            if (intr != null) {
+                return intr.findViews(_config, _member);
+            }
+        }
+        return null;
     }
 
     @Override // since 3.4 ([databind#5745]: expose `@JsonApplyView`, same as `findViews()`)
@@ -212,10 +222,12 @@ public class SimpleBeanPropertyDefinition
     @Override // since 2.17
     public List<PropertyName> findAliases() {
         if (_member != null) {
-            List<PropertyName> propertyNames = _config.getAnnotationIntrospector()
-                    .findPropertyAliases(_config, _member);
-            if (propertyNames != null) {
-                return propertyNames;
+            final AnnotationIntrospector intr = _config.getAnnotationIntrospector();
+            if (intr != null) {
+                List<PropertyName> propertyNames = intr.findPropertyAliases(_config, _member);
+                if (propertyNames != null) {
+                    return propertyNames;
+                }
             }
         }
         return Collections.emptyList();

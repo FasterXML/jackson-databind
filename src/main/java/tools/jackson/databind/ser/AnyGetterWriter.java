@@ -109,7 +109,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
      * Same as {@link Runnable} but allows checked exceptions, which
      * {@link PropertyFilter#serializeAsProperty} declares; see {@link #_withApplyView}.
      *
-     * @since 3.3
+     * @since 3.4
      */
     private interface ViewScopedSerialization {
         void serialize() throws Exception;
@@ -122,7 +122,7 @@ public class AnyGetterWriter extends BeanPropertyWriter
      * any-getter are properties of the enclosing POJO, so a view override on the
      * any-getter covers their values the same way.
      *
-     * @since 3.3
+     * @since 3.4
      */
     private void _withApplyView(SerializationContext ctxt, ViewScopedSerialization action)
         throws Exception

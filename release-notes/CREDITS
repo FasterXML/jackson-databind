@@ -684,6 +684,9 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Reported, fixed #6264: `@JsonIgnoreProperties` / `@JsonIncludeProperties` not honored
    on `@JsonAnySetter` properties
   [3.4.0]
+ * Reported, fixed #6276: `@JsonApplyView` not honored for `@JsonUnwrapped` and
+   `@JsonAnyGetter` properties
+  [3.4.0]
 
 @waydeshi
  * Reported #6127: Add `StreamReadConstraints` number len constraint to

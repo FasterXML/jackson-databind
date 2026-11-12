@@ -828,7 +828,7 @@ public class BeanPropertyWriter
      * {@link #serializeAsProperty} (like {@code UnwrappingBeanPropertyWriter}) can
      * apply the same override.
      *
-     * @since 3.3 (converted from {@code private})
+     * @since 3.4 (converted from {@code private})
      */
     protected void _serialize(Object value, JsonGenerator g, SerializationContext ctxt,
             ValueSerializer<Object> ser) {

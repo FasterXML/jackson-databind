@@ -452,6 +452,9 @@ No changes since 3.2
 #6315: Map key deserializers should apply same type checks as bean deserializers
  (reported by @ab310013)
  (fix by @pjfanning)
+#6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+ (reported by @Marti2203)
+ (fix by @nu11Po1nter1)
 #6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
   deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
   `FilteredRowSetImpl`, `JoinRowSetImpl`)

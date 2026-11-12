@@ -720,6 +720,8 @@ Martin Mirchev (@Marti2203)
  * Reported #6309: NPE serializing an Enum whose `toString()` returns `null`
    (3.x regression from 2.x)
   [3.1.9]
+ * Reported #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [3.1.9]
 
 Anna Breeva (@ab310013)
  * Reported #6315: Map key deserializers should apply same type checks as bean
@@ -734,3 +736,7 @@ Anna Breeva (@ab310013)
 @bugada
  * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
   [3.2.5]
+
+@nu11Po1nter1
+ * Fixed #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [3.1.9]

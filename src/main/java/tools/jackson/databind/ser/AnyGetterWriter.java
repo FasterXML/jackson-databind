@@ -105,23 +105,6 @@ public class AnyGetterWriter extends BeanPropertyWriter
         return (_inclusionChecker != null) && _inclusionChecker.shouldIgnore(name);
     }
 
-    /**
-     * Helper method that runs given value serialization with the {@code @JsonApplyView}
-     * override (if any) applied to the active view, mirroring
-     * {@code BeanPropertyWriter.serializeAsProperty()}.
-     *
-     * @since 3.4
-     */
-    private void _withApplyView(SerializationContext ctxt, Runnable action)
-    {
-        if (_applyView == null) {
-            action.run();
-        } else {
-            ctxt.withActiveView((_applyView != JsonApplyView.NONE.class) ? _applyView : null,
-                    action);
-        }
-    }
-
     public void getAndSerialize(Object bean, JsonGenerator gen, SerializationContext ctxt)
         throws Exception
     {
@@ -138,14 +121,23 @@ public class AnyGetterWriter extends BeanPropertyWriter
             ctxt.reportBadDefinition(_property.getType(), "Value returned by 'any-getter' %s() not java.util.Map but %s".formatted(
                     _anyGetter.getName(), value.getClass().getName()));
         }
-        // 23-Feb-2015, tatu: Nasty, but has to do (for now)
         // [databind#5745]: honor `@JsonApplyView`, same as `BeanPropertyWriter.serializeAsProperty()`
-        if (_mapSerializer != null) {
-            _withApplyView(ctxt,
-                    () -> _mapSerializer.serializeWithoutTypeInfo((Map<?,?>) value, gen, ctxt));
-            return;
+        if (_applyView == null) {
+            _serializeMap(value, gen, ctxt);
+        } else {
+            ctxt.withActiveView((_applyView != JsonApplyView.NONE.class) ? _applyView : null,
+                    () -> _serializeMap(value, gen, ctxt));
         }
-        _withApplyView(ctxt, () -> _anySerializer.serialize(value, gen, ctxt));
+    }
+
+    private void _serializeMap(Object value, JsonGenerator gen, SerializationContext ctxt)
+    {
+        // 23-Feb-2015, tatu: Nasty, but has to do (for now)
+        if (_mapSerializer != null) {
+            _mapSerializer.serializeWithoutTypeInfo((Map<?,?>) value, gen, ctxt);
+        } else {
+            _anySerializer.serialize(value, gen, ctxt);
+        }
     }
 
     @Override
@@ -194,13 +186,24 @@ public class AnyGetterWriter extends BeanPropertyWriter
                             _anyGetter.getName(), value.getClass().getName()));
         }
         // [databind#5745]: honor `@JsonApplyView`, same as unfiltered path
-        if (_mapSerializer != null) {
-            _withApplyView(ctxt, () -> _mapSerializer.serializeFilteredAnyProperties(ctxt, gen,
-                    bean, (Map<?,?>) value, filter));
-            return;
+        if (_applyView == null) {
+            _serializeFilteredMap(value, bean, gen, ctxt, filter);
+        } else {
+            ctxt.withActiveView((_applyView != JsonApplyView.NONE.class) ? _applyView : null,
+                    () -> _serializeFilteredMap(value, bean, gen, ctxt, filter));
         }
-        // ... not sure how custom handler would do it
-        _withApplyView(ctxt, () -> _anySerializer.serialize(value, gen, ctxt));
+    }
+
+    private void _serializeFilteredMap(Object value, Object bean, JsonGenerator gen,
+            SerializationContext ctxt, PropertyFilter filter)
+    {
+        if (_mapSerializer != null) {
+            _mapSerializer.serializeFilteredAnyProperties(ctxt, gen, bean, (Map<?,?>) value,
+                    filter);
+        } else {
+            // ... not sure how custom handler would do it
+            _anySerializer.serialize(value, gen, ctxt);
+        }
     }
 
     /**

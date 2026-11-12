@@ -188,8 +188,13 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * Method for getting {@link AnnotationIntrospector} configured
      * to introspect annotation values used for configuration.
+     * If annotation processing is disabled (see {@link #isAnnotationProcessingEnabled()}),
+     * returns "no-op" introspector ({@link AnnotationIntrospector#nopInstance()}).
      *<p>
-     * Non-final since it is actually overridden by sub-classes (for now?)
+     * Non-final since it is actually overridden by sub-classes (for now?): overrides
+     * must not return {@code null} either, as callers do not check for it.
+     *
+     * @return {@link AnnotationIntrospector} to use; never {@code null}
      */
     public AnnotationIntrospector getAnnotationIntrospector() {
         if (isAnnotationProcessingEnabled()) {

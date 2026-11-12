@@ -813,12 +813,10 @@ public abstract class BeanDeserializerBase
         // NOTE: compared to `POJOPropertyBuilder`, we only have access to creator
         // parameter, not other accessors, so code bit simpler
         // Ok, first: does property itself have something to say?
-        if (intr != null) {
-            JsonSetter.Value setterInfo = intr.findSetterInfo(config, accessor);
-            if (setterInfo != null) {
-                valueNulls = setterInfo.nonDefaultValueNulls();
-                contentNulls = setterInfo.nonDefaultContentNulls();
-            }
+        JsonSetter.Value propSetterInfo = intr.findSetterInfo(config, accessor);
+        if (propSetterInfo != null) {
+            valueNulls = propSetterInfo.nonDefaultValueNulls();
+            contentNulls = propSetterInfo.nonDefaultContentNulls();
         }
         // If not, config override?
         if (needMerge || (valueNulls == null) || (contentNulls == null)) {
@@ -860,16 +858,14 @@ public abstract class BeanDeserializerBase
             SettableBeanProperty prop)
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr != null) {
-            Object convDef = intr.findDeserializationConverter(ctxt.getConfig(), prop.getMember());
-            if (convDef != null) {
-                Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
-                JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
-                // 25-Mar-2017, tatu: should not yet contextualize
+        Object convDef = intr.findDeserializationConverter(ctxt.getConfig(), prop.getMember());
+        if (convDef != null) {
+            Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
+            JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
+            // 25-Mar-2017, tatu: should not yet contextualize
 //                ValueDeserializer<?> deser = ctxt.findContextualValueDeserializer(delegateType, prop);
-                ValueDeserializer<?> deser = ctxt.findNonContextualValueDeserializer(delegateType);
-                return new StdConvertingDeserializer<Object>(conv, delegateType, deser);
-            }
+            ValueDeserializer<?> deser = ctxt.findNonContextualValueDeserializer(delegateType);
+            return new StdConvertingDeserializer<Object>(conv, delegateType, deser);
         }
         return null;
     }
@@ -915,7 +911,7 @@ public abstract class BeanDeserializerBase
         // First: may have an override for Object Id:
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         final DeserializationConfig config = ctxt.getConfig();
-        final AnnotatedMember accessor = _neitherNull(property, intr) ? property.getMember() : null;
+        final AnnotatedMember accessor = (property == null) ? null : property.getMember();
         if (accessor != null) {
             ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(config, accessor);
             if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)

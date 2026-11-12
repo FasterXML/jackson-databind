@@ -256,7 +256,7 @@ public abstract class ReferenceTypeSerializer<T>
         }
         // if neither, maybe explicit annotation?
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if ((intr != null) && (property != null)) {
+        if (property != null) {
             Annotated ann = property.getMember();
             if (ann != null) {
                 JsonSerialize.Typing t = intr.findSerializationTyping(ctxt.getConfig(),

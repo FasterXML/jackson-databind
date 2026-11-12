@@ -155,9 +155,7 @@ public class SimpleBeanPropertyDefinition
     public PropertyName getWrapperName() {
         if (_member != null) {
             final AnnotationIntrospector intr = _config.getAnnotationIntrospector();
-            if (intr != null) {
-                return intr.findWrapperName(_config, _member);
-            }
+            return intr.findWrapperName(_config, _member);
         }
         return null;
     }
@@ -166,9 +164,7 @@ public class SimpleBeanPropertyDefinition
     public Class<?>[] findViews() {
         if (_member != null) {
             final AnnotationIntrospector intr = _config.getAnnotationIntrospector();
-            if (intr != null) {
-                return intr.findViews(_config, _member);
-            }
+            return intr.findViews(_config, _member);
         }
         return null;
     }
@@ -177,9 +173,7 @@ public class SimpleBeanPropertyDefinition
     public Class<?> findApplyView() {
         if (_member != null) {
             final AnnotationIntrospector intr = _config.getAnnotationIntrospector();
-            if (intr != null) {
-                return intr.findApplyView(_config, _member);
-            }
+            return intr.findApplyView(_config, _member);
         }
         return null;
     }
@@ -223,11 +217,9 @@ public class SimpleBeanPropertyDefinition
     public List<PropertyName> findAliases() {
         if (_member != null) {
             final AnnotationIntrospector intr = _config.getAnnotationIntrospector();
-            if (intr != null) {
-                List<PropertyName> propertyNames = intr.findPropertyAliases(_config, _member);
-                if (propertyNames != null) {
-                    return propertyNames;
-                }
+            List<PropertyName> propertyNames = intr.findPropertyAliases(_config, _member);
+            if (propertyNames != null) {
+                return propertyNames;
             }
         }
         return Collections.emptyList();

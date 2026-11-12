@@ -136,14 +136,10 @@ public class BeanSerializerFactory
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         JavaType type;
 
-        if (intr == null) {
-            type = origType;
-        } else {
-            try {
-                type = intr.refineSerializationType(config, beanDescRef.getClassInfo(), origType);
-            } catch (JacksonException e) {
-                return ctxt.reportBadTypeDefinition(beanDescRef, e.getMessage());
-            }
+        try {
+            type = intr.refineSerializationType(config, beanDescRef.getClassInfo(), origType);
+        } catch (JacksonException e) {
+            return ctxt.reportBadTypeDefinition(beanDescRef, e.getMessage());
         }
         if (type == origType) { // no changes, won't force static typing
             staticTyping = false;

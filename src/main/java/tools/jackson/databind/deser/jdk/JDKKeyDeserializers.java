@@ -165,12 +165,10 @@ public class JDKKeyDeserializers
         // have `null` metadata and are delegating by definition
         if (candidate.metadata == JsonCreator.Mode.DEFAULT) {
             final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-            if (intr != null) {
-                // Caller has already verified there is exactly one parameter
-                PropertyName name = intr.findNameForDeserialization(ctxt.getConfig(),
-                        candidate.annotated.getParameter(0));
-                return (name != null) && !name.isEmpty();
-            }
+            // Caller has already verified there is exactly one parameter
+            PropertyName name = intr.findNameForDeserialization(ctxt.getConfig(),
+                    candidate.annotated.getParameter(0));
+            return (name != null) && !name.isEmpty();
         }
         return false;
     }

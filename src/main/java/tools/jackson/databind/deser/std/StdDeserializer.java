@@ -2010,7 +2010,7 @@ inputDesc, _coercedTypeDesc(targetType));
             BeanProperty prop, ValueDeserializer<?> existingDeserializer)
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (_neitherNull(intr, prop)) {
+        if (prop != null) {
             AnnotatedMember member = prop.getMember();
             if (member != null) {
                 Object convDef = intr.findDeserializationContentConverter(ctxt.getConfig(), member);

@@ -475,18 +475,16 @@ public abstract class BeanSerializerBase
             BeanPropertyWriter prop)
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr != null) {
-            AnnotatedMember m = prop.getMember();
-            if (m != null) {
-                Object convDef = intr.findSerializationConverter(ctxt.getConfig(), m);
-                if (convDef != null) {
-                    Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
-                    JavaType delegateType = conv.getOutputType(ctxt.getTypeFactory());
-                    // [databind#731]: Should skip if nominally java.lang.Object
-                    ValueSerializer<?> ser = delegateType.isJavaLangObject() ? null
-                            : ctxt.findPrimaryPropertySerializer(delegateType, prop);
-                    return new StdConvertingSerializer(conv, delegateType, ser, prop);
-                }
+        AnnotatedMember m = prop.getMember();
+        if (m != null) {
+            Object convDef = intr.findSerializationConverter(ctxt.getConfig(), m);
+            if (convDef != null) {
+                Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
+                JavaType delegateType = conv.getOutputType(ctxt.getTypeFactory());
+                // [databind#731]: Should skip if nominally java.lang.Object
+                ValueSerializer<?> ser = delegateType.isJavaLangObject() ? null
+                        : ctxt.findPrimaryPropertySerializer(delegateType, prop);
+                return new StdConvertingSerializer(conv, delegateType, ser, prop);
             }
         }
         return null;
@@ -497,8 +495,8 @@ public abstract class BeanSerializerBase
     public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        final AnnotatedMember accessor = _neitherNull(property, intr)
-                ? property.getMember() : null;
+        final AnnotatedMember accessor = (property == null) ? null
+                : property.getMember();
         final SerializationConfig config = ctxt.getConfig();
 
         // Let's start with one big transmutation: Enums that are annotated

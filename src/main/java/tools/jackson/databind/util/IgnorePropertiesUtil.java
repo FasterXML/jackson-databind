@@ -76,7 +76,7 @@ public class IgnorePropertiesUtil
             boolean forSerialization)
     {
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        if ((intr == null) || (member == null)) {
+        if (member == null) {
             return null;
         }
         JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, member);

@@ -22,7 +22,7 @@ public final class AnnotatedConstructor
     protected final Constructor<?> _constructor;
     private final InvokerHolder _invokerNullary = new InvokerHolder(methodType(Object.class));
     private final InvokerHolder _invokerUnary = new InvokerHolder(methodType(Object.class, Object.class));
-    private final InvokerHolder _invokerFixedArity = new InvokerHolder(null);
+    private final InvokerHolder _invokerWithArgs = new InvokerHolder(null);
 
     /*
     /**********************************************************************
@@ -111,7 +111,7 @@ public final class AnnotatedConstructor
     @Override
     public final Object call(Object[] args) throws Exception {
         try {
-            return _invokerFixedArity.get().invokeWithArguments(args);
+            return _invokerWithArgs.get().invokeWithArguments(args);
         } catch (Throwable e) {
             throw ClassUtil.sneakyThrow(e);
         }

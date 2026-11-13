@@ -45,8 +45,9 @@ public abstract class UnreflectHandleSupplier implements Supplier<MethodHandle> 
             return mh;
         }
         // [databind#5231], [databind#6426] A varargs member unreflects to a variable-arity
-        // handle, whose `asType()` would collect the (already array-valued) argument
-        // into another array
+        // handle, which would collect the (already array-valued) trailing argument into
+        // another array. That applies both to `asType()` below and, when `asType` is
+        // `null`, to callers using `invokeWithArguments()`: so all handles must be fixed-arity
         mh = mh.asFixedArity();
         return (asType == null) ? mh : mh.asType(asType);
     }

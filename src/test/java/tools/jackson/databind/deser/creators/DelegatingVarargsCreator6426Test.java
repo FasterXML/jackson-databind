@@ -101,7 +101,9 @@ class DelegatingVarargsCreator6426Test extends DatabindTestUtil
     void varargsDelegatingConstructor() throws Exception
     {
         assertArrayEquals(new String[] { "a", "b" },
-                MAPPER.readValue(a2q("['a','b']"), CtorStrings.class).values);
+                MAPPER.readValue("""
+                        ["a","b"]
+                        """, CtorStrings.class).values);
         assertArrayEquals(new String[0],
                 MAPPER.readValue("[]", CtorStrings.class).values);
     }
@@ -110,7 +112,9 @@ class DelegatingVarargsCreator6426Test extends DatabindTestUtil
     void varargsDelegatingFactory() throws Exception
     {
         assertArrayEquals(new String[] { "a", "b" },
-                MAPPER.readValue(a2q("['a','b']"), FactoryStrings.class).values);
+                MAPPER.readValue("""
+                        ["a","b"]
+                        """, FactoryStrings.class).values);
     }
 
     @Test
@@ -124,7 +128,9 @@ class DelegatingVarargsCreator6426Test extends DatabindTestUtil
     @Test
     void objectVarargsDelegatingConstructor() throws Exception
     {
-        CtorObjects v = MAPPER.readValue(a2q("['a',1]"), CtorObjects.class);
+        CtorObjects v = MAPPER.readValue("""
+                ["a",1]
+                """, CtorObjects.class);
         assertEquals("[a, 1]", Arrays.deepToString(v.values));
     }
 
@@ -132,14 +138,17 @@ class DelegatingVarargsCreator6426Test extends DatabindTestUtil
     void varargsPropertiesConstructor() throws Exception
     {
         assertArrayEquals(new String[] { "a" },
-                MAPPER.readValue(a2q("{'values':['a']}"), PropsStrings.class).values);
+                MAPPER.readValue("""
+                        {"values":["a"]}
+                        """, PropsStrings.class).values);
     }
 
     @Test
     void varargsAfterOtherPropertiesConstructor() throws Exception
     {
-        PropsCtorTrailingStrings v = MAPPER.readValue(a2q("{'name':'x','tags':['a','b']}"),
-                PropsCtorTrailingStrings.class);
+        PropsCtorTrailingStrings v = MAPPER.readValue("""
+                {"name":"x","tags":["a","b"]}
+                """, PropsCtorTrailingStrings.class);
         assertEquals("x", v.name);
         assertArrayEquals(new String[] { "a", "b" }, v.tags);
     }
@@ -147,8 +156,9 @@ class DelegatingVarargsCreator6426Test extends DatabindTestUtil
     @Test
     void primitiveVarargsAfterOtherPropertiesFactory() throws Exception
     {
-        PropsFactoryTrailingInts v = MAPPER.readValue(a2q("{'n':1,'values':[2,3]}"),
-                PropsFactoryTrailingInts.class);
+        PropsFactoryTrailingInts v = MAPPER.readValue("""
+                {"n":1,"values":[2,3]}
+                """, PropsFactoryTrailingInts.class);
         assertEquals(1, v.n);
         assertArrayEquals(new int[] { 2, 3 }, v.values);
     }
@@ -159,8 +169,9 @@ class DelegatingVarargsCreator6426Test extends DatabindTestUtil
         ObjectMapper mapper = jsonMapperBuilder()
                 .injectableValues(new InjectableValues.Std().addValue("prefix", "p"))
                 .build();
-        InjectedDelegatingStrings v = mapper.readValue(a2q("['a','b']"),
-                InjectedDelegatingStrings.class);
+        InjectedDelegatingStrings v = mapper.readValue("""
+                ["a","b"]
+                """, InjectedDelegatingStrings.class);
         assertEquals("p", v.prefix);
         assertArrayEquals(new String[] { "a", "b" }, v.values);
     }

@@ -684,6 +684,9 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Reported, fixed #6264: `@JsonIgnoreProperties` / `@JsonIncludeProperties` not honored
    on `@JsonAnySetter` properties
   [3.4.0]
+ * Reported, fixed #6276: `@JsonApplyView` not honored for `@JsonUnwrapped` and
+   `@JsonAnyGetter` properties
+  [3.4.0]
  * Fixed #6288: `JsonProperty.Access.WRITE_ONLY` not honored for serialization on
    renamed accessors
   [3.4.0]
@@ -845,6 +848,8 @@ Martin Mirchev (@Marti2203)
  * Reported #6309: NPE serializing an Enum whose `toString()` returns `null`
    (3.x regression from 2.x)
   [3.3.1]
+ * Reported #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [3.3.1]
 
 @essiembre
  * Reported #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
@@ -929,3 +934,7 @@ Caio Vinicius (@caiocv18)
  * Reported, fixed #6303: `IllegalArgumentException` thrown by a setter is reported
    as a type mismatch
   [3.4.0]
+
+@nu11Po1nter1
+ * Fixed #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [3.3.1]

@@ -138,12 +138,41 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
             }
         }
 
+        final boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+
         List<BitSet> candidates = new LinkedList<>(subtypeFingerprints.keySet());
+
+        // If content is already buffered (as is the case for nested polymorphic
+        // values, when outer value was buffered), look ahead at property names
+        // instead of copying contents into yet another buffer
+        {
+            final List<BitSet> lookaheadCandidates = candidates;
+            TokenBuffer.NameLookahead result = TokenBuffer.lookAheadForPropertyNames(p, name -> {
+                Integer bit = propertyBitIndex.get(ignoreCase ? name.toLowerCase() : name);
+                if (bit != null) {
+                    prune(lookaheadCandidates, bit);
+                    return (lookaheadCandidates.size() == 1);
+                }
+                return false;
+            });
+            if (result == TokenBuffer.NameLookahead.STOPPED) {
+                // No need to rewind: can deserialize directly
+                return _findDeserializer(ctxt, subtypeFingerprints.get(candidates.get(0)))
+                        .deserialize(p, ctxt);
+            }
+            if (result == TokenBuffer.NameLookahead.END_OF_OBJECT) {
+                return _deserializeTypedUsingDefaultImpl(p, ctxt, null,
+                        _msgForCannotDeduce(candidates));
+            }
+            // Lookahead not possible: need to start over, if it got far enough to prune
+            if (candidates.size() != subtypeFingerprints.size()) {
+                candidates = new LinkedList<>(subtypeFingerprints.keySet());
+            }
+        }
 
         // Keep track of processed tokens as we must rewind once after deducing
         // the deserializer to use
         final TokenBuffer tb = ctxt.bufferForInputBuffering(p);
-        boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
 
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String name = p.currentName();
@@ -163,8 +192,12 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         }
 
         // We have zero or multiple candidates, deduction has failed
-        String msgToReportIfDefaultImplFailsToo = String.format("Cannot deduce unique subtype of %s (%d candidates match)", ClassUtil.getTypeDescription(_baseType), candidates.size());
-        return _deserializeTypedUsingDefaultImpl(p, ctxt, tb, msgToReportIfDefaultImplFailsToo);
+        return _deserializeTypedUsingDefaultImpl(p, ctxt, tb, _msgForCannotDeduce(candidates));
+    }
+
+    private String _msgForCannotDeduce(List<BitSet> candidates) {
+        return String.format("Cannot deduce unique subtype of %s (%d candidates match)",
+                ClassUtil.getTypeDescription(_baseType), candidates.size());
     }
 
     // Keep only fingerprints containing this property

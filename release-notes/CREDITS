@@ -744,7 +744,7 @@ Anna Breeva (@ab310013)
 Jared Jacobs (@2is10)
  * Reported, fixed #6332: Regression from 3.0 to 3.1: `@JsonUnwrapped` drops/rejects
    the type id property of a polymorphic unwrapped value
-  [3.1.9]
+  [3.2.5]
  * Reported, fixed #6426: Varargs delegating `@JsonCreator` fails with "Cannot cast
    [Ljava.lang.String; to java.lang.String" (3.x regression)
-  [3.1.9]
+  [3.2.5]

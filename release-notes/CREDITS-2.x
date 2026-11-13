@@ -2151,6 +2151,8 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6309: Serializing an Enum whose `toString()` returns `null` as a Map key
    fails with `WRITE_ENUMS_USING_TO_STRING`
   [2.24.0]
+ * Reported #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [2.24.0]
 
 DongNyoung Lee (@Dongnyoung)
  * Contributed fix for #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected
@@ -2170,3 +2172,7 @@ Mohammed Abdessetar Elyagoubi (@abdessattar23)
  * Reported #6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to
    legacy `ObjectMapper.enableDefaultTyping()`
   (2.18.13)
+
+@nu11Po1nter1
+ * Fixed #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [2.24.0]

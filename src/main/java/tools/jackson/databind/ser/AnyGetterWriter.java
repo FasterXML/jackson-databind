@@ -2,6 +2,8 @@ package tools.jackson.databind.ser;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonApplyView;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.AnnotatedMember;
@@ -119,12 +121,23 @@ public class AnyGetterWriter extends BeanPropertyWriter
             ctxt.reportBadDefinition(_property.getType(), "Value returned by 'any-getter' %s() not java.util.Map but %s".formatted(
                     _anyGetter.getName(), value.getClass().getName()));
         }
+        // [databind#5745]: honor `@JsonApplyView`, same as `BeanPropertyWriter.serializeAsProperty()`
+        if (_applyView == null) {
+            _serializeMap(value, gen, ctxt);
+        } else {
+            ctxt.withActiveView((_applyView != JsonApplyView.NONE.class) ? _applyView : null,
+                    () -> _serializeMap(value, gen, ctxt));
+        }
+    }
+
+    private void _serializeMap(Object value, JsonGenerator gen, SerializationContext ctxt)
+    {
         // 23-Feb-2015, tatu: Nasty, but has to do (for now)
         if (_mapSerializer != null) {
             _mapSerializer.serializeWithoutTypeInfo((Map<?,?>) value, gen, ctxt);
-            return;
+        } else {
+            _anySerializer.serialize(value, gen, ctxt);
         }
-        _anySerializer.serialize(value, gen, ctxt);
     }
 
     @Override
@@ -172,13 +185,25 @@ public class AnyGetterWriter extends BeanPropertyWriter
                     "Value returned by 'any-getter' (%s()) not java.util.Map but %s".formatted(
                             _anyGetter.getName(), value.getClass().getName()));
         }
+        // [databind#5745]: honor `@JsonApplyView`, same as unfiltered path
+        if (_applyView == null) {
+            _serializeFilteredMap(value, bean, gen, ctxt, filter);
+        } else {
+            ctxt.withActiveView((_applyView != JsonApplyView.NONE.class) ? _applyView : null,
+                    () -> _serializeFilteredMap(value, bean, gen, ctxt, filter));
+        }
+    }
+
+    private void _serializeFilteredMap(Object value, Object bean, JsonGenerator gen,
+            SerializationContext ctxt, PropertyFilter filter)
+    {
         if (_mapSerializer != null) {
             _mapSerializer.serializeFilteredAnyProperties(ctxt, gen, bean, (Map<?,?>) value,
                     filter);
-            return;
+        } else {
+            // ... not sure how custom handler would do it
+            _anySerializer.serialize(value, gen, ctxt);
         }
-        // ... not sure how custom handler would do it
-        _anySerializer.serialize(value, gen, ctxt);
     }
 
     /**

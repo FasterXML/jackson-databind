@@ -1260,6 +1260,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * may lead to unavailability of core Jackson annotations.
      * If you want to combine handling of multiple introspectors,
      * have a look at {@link tools.jackson.databind.introspect.AnnotationIntrospectorPair}.
+     *<p>
+     * Passing {@code null} disables annotation processing, same as disabling
+     * {@link MapperFeature#USE_ANNOTATIONS}.
      *
      * @see tools.jackson.databind.introspect.AnnotationIntrospectorPair
      */

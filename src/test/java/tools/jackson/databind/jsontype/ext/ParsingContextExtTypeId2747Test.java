@@ -1,4 +1,4 @@
-package tools.jackson.databind.tofix;
+package tools.jackson.databind.jsontype.ext;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,7 +8,6 @@ import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.testutil.DatabindTestUtil;
-import tools.jackson.databind.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -55,7 +54,6 @@ class ParsingContextExtTypeId2747Test extends DatabindTestUtil {
    }
 
    // [databind#2747]
-    @JacksonTestFailureExpected
     @Test
     void locationAccessWithExtTypeId() throws Exception {
         ObjectReader objectReader = newJsonMapper().readerFor(Wrapper.class);
@@ -64,9 +62,8 @@ class ParsingContextExtTypeId2747Test extends DatabindTestUtil {
                 "\"type\":\"location\"," +
                 "\"wrapped\": 1" +
                 "}");
-        // expecting wrapper.wrapped.value == "wrapped" but is "wrapped[1]"
-        // due to way `ExternalTypeHandler` exposes value as if "wrapper-array" was used for
-        // type id, value
+        // When type id precedes value, value is read directly from input (not buffered)
+        // so that location is that of the value
         assertEquals("/wrapped", ((Location) wrapper.wrapped).value);
     }
 }

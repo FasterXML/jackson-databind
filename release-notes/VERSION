@@ -11,6 +11,10 @@ No changes since 3.1
 
 3.1.9 (not yet released)
 
+#2747: `@JsonTypeInfo(include = EXTERNAL_PROPERTY)` exposes bogus array via `JsonStreamContext`
+  during deserialization (when type id precedes value)
+ (reported by @dattia-dev)
+ (fix by @pjfanning, w/ Claude code)
 #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
   (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
  (reported by João G)

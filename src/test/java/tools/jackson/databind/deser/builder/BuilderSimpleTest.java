@@ -482,11 +482,11 @@ public class BuilderSimpleTest
     }
 
     @Test
-    public void testWithAnySetterMapMethod4889() throws Exception
+    public void withAnySetterMapMethod4889() throws Exception
     {
-        final String json = "{\"extra\":3,\"foobar\":[ ],\"x\":1,\"name\":\"bob\"}";
-        ValueClassAnySetterMapMethod value = MAPPER.readValue(json,
-                ValueClassAnySetterMapMethod.class);
+        ValueClassAnySetterMapMethod value = MAPPER.readValue("""
+                {"extra":3,"foobar":[ ],"x":1,"name":"bob"}
+                """, ValueClassAnySetterMapMethod.class);
         assertEquals(1, value.x);
         assertEquals(1, value.anySetterCalls);
         assertNotNull(value.stuff);

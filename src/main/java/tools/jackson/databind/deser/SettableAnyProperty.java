@@ -643,11 +643,26 @@ public abstract class SettableAnyProperty
             _valueInstantiator = inst;
         }
 
+        protected MapMethodAnyProperty(MapMethodAnyProperty src,
+                ValueDeserializer<Object> valueDeser, NullValueProvider nullProvider,
+                IgnorePropertiesUtil.Checker inclusionChecker) {
+            super(src, valueDeser, nullProvider, inclusionChecker);
+            _valueInstantiator = src._valueInstantiator;
+        }
+
         @Override
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
-            return new MapMethodAnyProperty(_property, _setter, _type,
-                    _keyDeserializer, deser, _valueTypeDeserializer,
-                    _valueInstantiator);
+            return new MapMethodAnyProperty(this, deser, _nullProvider, _inclusionChecker);
+        }
+
+        @Override
+        public SettableAnyProperty withNullProvider(NullValueProvider nullProvider) {
+            return new MapMethodAnyProperty(this, _valueDeserializer, nullProvider, _inclusionChecker);
+        }
+
+        @Override
+        protected SettableAnyProperty withInclusionChecker(IgnorePropertiesUtil.Checker inclusionChecker) {
+            return new MapMethodAnyProperty(this, _valueDeserializer, _nullProvider, inclusionChecker);
         }
 
         @SuppressWarnings("unchecked")
@@ -699,8 +714,9 @@ public abstract class SettableAnyProperty
         protected Map<Object,Object> _createMap(DeserializationContext ctxt) throws JacksonException
         {
             if (_valueInstantiator == null) {
+                // NOTE: `_type` is the value type; property type is the Map type
                 throw DatabindException.from(ctxt, "Cannot create an instance of %s for use as \"any-setter\" '%s'".formatted(
-                        ClassUtil.nameOf(_type.getRawClass()), _property.getName()));
+                        ClassUtil.nameOf(_property.getType().getRawClass()), _property.getName()));
             }
             return (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
         }

@@ -34,8 +34,8 @@ public class AtomicIntegerDeserializer extends StdScalarDeserializer<AtomicInteg
         return new AtomicInteger();
     }
 
-    // [databind#6437]: a new instance per call, as "empty" value is mutable
-    // and must not be shared (CONSTANT would let callers cache one instance)
+    // [databind#6437]: "empty" value is mutable, must not be shared
+    // (see StdScalarDeserializer.getEmptyAccessPattern())
     @Override
     public AccessPattern getEmptyAccessPattern() {
         return AccessPattern.DYNAMIC;

@@ -19,12 +19,15 @@ public abstract class BaseScalarOptionalDeserializer<T>
         return _empty;
     }
 
-    // [databind#6437]: empty OptionalInt/Long/Double are non-null constants.
-    // ALWAYS_NULL would claim this provider only ever returns Java null.
-    // NOTE: sub-classes that override `getNullValue()` to return a value that
-    // is not constant (varies per call or depends on context) MUST also
-    // override this method to return `AccessPattern.DYNAMIC`: callers may
-    // cache the value of a CONSTANT provider, or call it with `null` context.
+    /**
+     * Empty {@code OptionalInt}/{@code OptionalLong}/{@code OptionalDouble} are
+     * non-null constants, so {@link AccessPattern#CONSTANT} (not {@code ALWAYS_NULL};
+     * see [databind#6437]).
+     *<p>
+     * NOTE: sub-classes that override {@link #getNullValue} must also override
+     * this method if the value is not constant: see
+     * {@link StdScalarDeserializer#getNullAccessPattern()}.
+     */
     @Override
     public AccessPattern getNullAccessPattern() {
         return AccessPattern.CONSTANT;

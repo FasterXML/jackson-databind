@@ -165,6 +165,11 @@ public class JDKAtomicTypesDeserTest
         public AtomicBoolean b;
     }
 
+    static class AtomicContentAsEmptyBean {
+        @JsonSetter(contentNulls = Nulls.AS_EMPTY)
+        public List<AtomicInteger> values;
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -497,5 +502,17 @@ public class JDKAtomicTypesDeserTest
         assertNotSame(first.i, second.i);
         assertNotSame(first.l, second.l);
         assertNotSame(first.b, second.b);
+    }
+
+    // [databind#6437]: same for content nulls
+    @Test
+    public void atomicContentAsEmptyNotShared() throws Exception
+    {
+        AtomicContentAsEmptyBean bean = MAPPER.readValue("""
+                {"values":[null,null]}
+                """, AtomicContentAsEmptyBean.class);
+        assertEquals(2, bean.values.size());
+        assertEquals(0, bean.values.get(0).get());
+        assertNotSame(bean.values.get(0), bean.values.get(1));
     }
 }

@@ -107,12 +107,15 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
 
     /**
      * Method for determining whether annotation processing is enabled or not
-     * (default settings are typically that it is enabled; must explicitly disable).
+     * (default settings are typically that it is enabled; must explicitly disable,
+     * either by disabling {@link MapperFeature#USE_ANNOTATIONS} or by configuring
+     * {@code null} {@link AnnotationIntrospector}).
      *
      * @return True if annotation processing is enabled; false if not
      */
     public final boolean isAnnotationProcessingEnabled() {
-        return isEnabled(MapperFeature.USE_ANNOTATIONS);
+        return isEnabled(MapperFeature.USE_ANNOTATIONS)
+                && (_base.getAnnotationIntrospector() != null);
     }
 
     /**
@@ -185,11 +188,16 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * Method for getting {@link AnnotationIntrospector} configured
      * to introspect annotation values used for configuration.
+     * If annotation processing is disabled (see {@link #isAnnotationProcessingEnabled()}),
+     * returns "no-op" introspector ({@link AnnotationIntrospector#nopInstance()}).
      *<p>
-     * Non-final since it is actually overridden by sub-classes (for now?)
+     * Non-final since it is actually overridden by sub-classes (for now?): overrides
+     * must not return {@code null} either, as callers do not check for it.
+     *
+     * @return {@link AnnotationIntrospector} to use; never {@code null}
      */
     public AnnotationIntrospector getAnnotationIntrospector() {
-        if (isEnabled(MapperFeature.USE_ANNOTATIONS)) {
+        if (isAnnotationProcessingEnabled()) {
             return _base.getAnnotationIntrospector();
         }
         return NopAnnotationIntrospector.instance;

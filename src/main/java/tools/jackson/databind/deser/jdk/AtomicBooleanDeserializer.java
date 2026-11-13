@@ -9,6 +9,7 @@ import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.util.AccessPattern;
 
 @JacksonStdImpl
 public class AtomicBooleanDeserializer extends StdScalarDeserializer<AtomicBoolean>
@@ -21,6 +22,13 @@ public class AtomicBooleanDeserializer extends StdScalarDeserializer<AtomicBoole
     @Override
     public Object getEmptyValue(DeserializationContext ctxt) {
         return new AtomicBoolean(false);
+    }
+
+    // [databind#6437]: a new instance per call, as "empty" value is mutable
+    // and must not be shared (CONSTANT would let callers cache one instance)
+    @Override
+    public AccessPattern getEmptyAccessPattern() {
+        return AccessPattern.DYNAMIC;
     }
 
     @Override

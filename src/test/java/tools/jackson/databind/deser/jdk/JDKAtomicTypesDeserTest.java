@@ -156,6 +156,15 @@ public class JDKAtomicTypesDeserTest
         }
     }
 
+    static class AtomicScalarsAsEmptyBean {
+        @JsonSetter(nulls = Nulls.AS_EMPTY)
+        public AtomicInteger i;
+        @JsonSetter(nulls = Nulls.AS_EMPTY)
+        public AtomicLong l;
+        @JsonSetter(nulls = Nulls.AS_EMPTY)
+        public AtomicBoolean b;
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -468,5 +477,25 @@ public class JDKAtomicTypesDeserTest
                 .with(DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES)
                 .readValue("{}");
         assertNull(bean._atomicNode);
+    }
+
+    // [databind#6437]: "empty" Atomic values are mutable, so must not be shared
+    @Test
+    public void atomicScalarsAsEmptyNotShared() throws Exception
+    {
+        final String json = """
+                {"i":null,"l":null,"b":null}
+                """;
+        ObjectReader r = MAPPER.readerFor(AtomicScalarsAsEmptyBean.class);
+        AtomicScalarsAsEmptyBean first = r.readValue(json);
+        AtomicScalarsAsEmptyBean second = r.readValue(json);
+
+        assertEquals(0, first.i.get());
+        assertEquals(0L, first.l.get());
+        assertFalse(first.b.get());
+
+        assertNotSame(first.i, second.i);
+        assertNotSame(first.l, second.l);
+        assertNotSame(first.b, second.b);
     }
 }

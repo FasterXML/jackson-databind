@@ -54,9 +54,11 @@ public class OptionalNumbersTest
         }
     }
 
-    record OptionalIntHolder(String s, OptionalInt i) { }
-    record OptionalLongHolder(String s, OptionalLong i) { }
-    record OptionalDoubleHolder(String s, OptionalDouble i) { }
+    interface OptionalHolder { Object i(); }
+
+    record OptionalIntHolder(String s, OptionalInt i) implements OptionalHolder { }
+    record OptionalLongHolder(String s, OptionalLong i) implements OptionalHolder { }
+    record OptionalDoubleHolder(String s, OptionalDouble i) implements OptionalHolder { }
 
     private final ObjectMapper MAPPER = newJsonMapper();
     private final ObjectMapper MAPPER_WITHOUT_COERCION = MAPPER.rebuild()
@@ -382,58 +384,42 @@ public class OptionalNumbersTest
 
     // [databind#6437]: empty OptionalInt/Long/Double are non-null constants
     @Test
-    public void scalarOptionalNullAccessPattern() throws Exception
-    {
-        DeserializationContext ctxt = MAPPER._deserializationContext();
-
-        ValueDeserializer<Object> intDeser = ctxt.findRootValueDeserializer(
-                ctxt.constructType(OptionalInt.class));
-        assertEquals(AccessPattern.CONSTANT, intDeser.getNullAccessPattern());
-        assertEquals(AccessPattern.CONSTANT, intDeser.getEmptyAccessPattern());
-        assertEquals(OptionalInt.empty(), intDeser.getNullValue(ctxt));
-        assertEquals(OptionalInt.empty(), intDeser.getAbsentValue(ctxt));
-        assertEquals(OptionalInt.empty(), intDeser.getEmptyValue(ctxt));
-        assertEquals(OptionalInt.empty(), intDeser.getNullValue(null));
-        assertEquals(OptionalInt.empty(), intDeser.getAbsentValue(null));
-
-        ValueDeserializer<Object> longDeser = ctxt.findRootValueDeserializer(
-                ctxt.constructType(OptionalLong.class));
-        assertEquals(AccessPattern.CONSTANT, longDeser.getNullAccessPattern());
-        assertEquals(AccessPattern.CONSTANT, longDeser.getEmptyAccessPattern());
-        assertEquals(OptionalLong.empty(), longDeser.getNullValue(ctxt));
-        assertEquals(OptionalLong.empty(), longDeser.getAbsentValue(ctxt));
-        assertEquals(OptionalLong.empty(), longDeser.getEmptyValue(ctxt));
-        assertEquals(OptionalLong.empty(), longDeser.getNullValue(null));
-        assertEquals(OptionalLong.empty(), longDeser.getAbsentValue(null));
-
-        ValueDeserializer<Object> doubleDeser = ctxt.findRootValueDeserializer(
-                ctxt.constructType(OptionalDouble.class));
-        assertEquals(AccessPattern.CONSTANT, doubleDeser.getNullAccessPattern());
-        assertEquals(AccessPattern.CONSTANT, doubleDeser.getEmptyAccessPattern());
-        assertEquals(OptionalDouble.empty(), doubleDeser.getNullValue(ctxt));
-        assertEquals(OptionalDouble.empty(), doubleDeser.getAbsentValue(ctxt));
-        assertEquals(OptionalDouble.empty(), doubleDeser.getEmptyValue(ctxt));
-        assertEquals(OptionalDouble.empty(), doubleDeser.getNullValue(null));
-        assertEquals(OptionalDouble.empty(), doubleDeser.getAbsentValue(null));
-
-        assertEquals(OptionalInt.empty(), MAPPER.readValue("null", OptionalInt.class));
-        assertEquals(OptionalLong.empty(), MAPPER.readValue("null", OptionalLong.class));
-        assertEquals(OptionalDouble.empty(), MAPPER.readValue("null", OptionalDouble.class));
-
-        OptionalIntHolder intMissing = MAPPER.readValue(a2q("{'s':'x'}"), OptionalIntHolder.class);
-        assertEquals(OptionalInt.empty(), intMissing.i());
-        OptionalIntHolder intNull = MAPPER.readValue(a2q("{'s':'x','i':null}"), OptionalIntHolder.class);
-        assertEquals(OptionalInt.empty(), intNull.i());
-
-        OptionalLongHolder longMissing = MAPPER.readValue(a2q("{'s':'x'}"), OptionalLongHolder.class);
-        assertEquals(OptionalLong.empty(), longMissing.i());
-        OptionalLongHolder longNull = MAPPER.readValue(a2q("{'s':'x','i':null}"), OptionalLongHolder.class);
-        assertEquals(OptionalLong.empty(), longNull.i());
-
-        OptionalDoubleHolder doubleMissing = MAPPER.readValue(a2q("{'s':'x'}"), OptionalDoubleHolder.class);
-        assertEquals(OptionalDouble.empty(), doubleMissing.i());
-        OptionalDoubleHolder doubleNull = MAPPER.readValue(a2q("{'s':'x','i':null}"), OptionalDoubleHolder.class);
-        assertEquals(OptionalDouble.empty(), doubleNull.i());
+    public void optionalIntNullAccessPattern() throws Exception {
+        _verifyConstantNull(OptionalInt.class, OptionalInt.empty(), OptionalIntHolder.class);
     }
 
+    @Test
+    public void optionalLongNullAccessPattern() throws Exception {
+        _verifyConstantNull(OptionalLong.class, OptionalLong.empty(), OptionalLongHolder.class);
+    }
+
+    @Test
+    public void optionalDoubleNullAccessPattern() throws Exception {
+        _verifyConstantNull(OptionalDouble.class, OptionalDouble.empty(), OptionalDoubleHolder.class);
+    }
+
+    private void _verifyConstantNull(Class<?> type, Object empty,
+            Class<? extends OptionalHolder> holderType) throws Exception
+    {
+        DeserializationContext ctxt = MAPPER._deserializationContext();
+        ValueDeserializer<Object> deser = ctxt.findRootValueDeserializer(
+                ctxt.constructType(type));
+
+        assertEquals(AccessPattern.CONSTANT, deser.getNullAccessPattern());
+        assertEquals(AccessPattern.CONSTANT, deser.getEmptyAccessPattern());
+        assertEquals(empty, deser.getNullValue(ctxt));
+        assertEquals(empty, deser.getAbsentValue(ctxt));
+        assertEquals(empty, deser.getEmptyValue(ctxt));
+        // CONSTANT providers may be called without context
+        assertEquals(empty, deser.getNullValue(null));
+        assertEquals(empty, deser.getAbsentValue(null));
+
+        assertEquals(empty, MAPPER.readValue("null", type));
+        assertEquals(empty, MAPPER.readValue("""
+                {"s":"x"}
+                """, holderType).i());
+        assertEquals(empty, MAPPER.readValue("""
+                {"s":"x","i":null}
+                """, holderType).i());
+    }
 }

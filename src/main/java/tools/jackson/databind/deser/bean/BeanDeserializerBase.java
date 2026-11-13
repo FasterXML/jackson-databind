@@ -213,6 +213,19 @@ public abstract class BeanDeserializerBase
     protected final ObjectIdReader _objectIdReader;
 
     /**
+     * Flag that was used for re-contextualizing properties of contextual copies
+     * created from a partially-resolved deserializer (see [databind#1755]).
+     *
+     * @since 3.2
+     *
+     * @deprecated Since 3.4: no longer used (contextual copies created during
+     *   resolution are updated at the end of {@link #resolve}, see [databind#6359]);
+     *   retained only for backwards compatibility (Blackbird module sets it)
+     */
+    @Deprecated // since 3.4
+    protected volatile boolean _propertiesContextualized;
+
+    /**
      * Re-entry guard for {@link PropertyBasedCreator} construction within
      * {@link #createContextual}: set to {@code true} while
      * {@code PropertyBasedCreator.construct()} is running, to prevent

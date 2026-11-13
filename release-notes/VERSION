@@ -36,12 +36,21 @@ No changes since 3.1
 #6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
   values (including primitive array elements)
  (reported, fixed by @Marti2203)
+#6309: NPE serializing an Enum whose `toString()` returns `null` (3.x regression from 2.x)
+ (reported by @Marti2203)
+ (fix by @cowtowncoder, w/ Claude code)
 #6315: Map key deserializers should apply same type checks as bean deserializers
  (reported by @ab310013)
  (fix by @pjfanning)
+#6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+ (reported by @Marti2203)
+ (fix by @nu11Po1nter1)
 #6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
   deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
   `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6332: Regression from 3.0 to 3.1: `@JsonUnwrapped` drops/rejects the type id
+  property of a polymorphic unwrapped value
+ (reported, fixed by @2is10)
 #6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)` for creator
   properties: existing value is overwritten with `null`
  (reported, fixed by @Marti2203)
@@ -55,6 +64,9 @@ No changes since 3.1
 #6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
   `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
  (reported, fixed by @Marti2203)
+#6426: Varargs delegating `@JsonCreator` fails with "Cannot cast [Ljava.lang.String;
+  to java.lang.String" (3.x regression)
+ (reported, fixed by @2is10)
 
 3.1.8 (17-Oct-2026)
 

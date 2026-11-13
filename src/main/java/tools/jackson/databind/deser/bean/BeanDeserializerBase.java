@@ -243,7 +243,7 @@ public abstract class BeanDeserializerBase
      * during this time (self-referencing types, see [databind#6359]) only
      * see partially resolved state, and need to be updated after resolution.
      *
-     * @since 3.3
+     * @since 3.4
      */
     private transient boolean _resolving;
 
@@ -251,7 +251,7 @@ public abstract class BeanDeserializerBase
      * Contextual copies created while {@link #_resolving} was set; updated
      * (and cleared) at the end of {@link #resolve}.
      *
-     * @since 3.3
+     * @since 3.4
      */
     private transient List<BeanDeserializerBase> _copiesDuringResolve;
 
@@ -758,7 +758,7 @@ public abstract class BeanDeserializerBase
      * that the copy gets properties (and other state) set later in
      * {@link #resolve}.
      *
-     * @since 3.3
+     * @since 3.4
      */
     protected void _updateFromResolved(DeserializationContext ctxt, BeanDeserializerBase src)
     {

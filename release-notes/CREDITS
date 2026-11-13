@@ -935,3 +935,8 @@ Caio Vinicius (@caiocv18)
 @nu11Po1nter1
  * Fixed #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
   [3.3.1]
+
+@havefunatcode
+ * Fixed #6359: Self-referencing type with property-level `@JsonIdentityInfo`: nested value
+   misses settings applied later in `resolve()`
+  [3.4.0]

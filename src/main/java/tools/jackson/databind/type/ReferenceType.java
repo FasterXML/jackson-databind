@@ -141,7 +141,11 @@ public class ReferenceType extends SimpleType
     @Override
     public JavaType refine(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces) {
-        return new ReferenceType(rawType, _bindings,
+        // Preserve legacy anchor bindings unless an enclosing scope must be
+        // replaced by the subtype's own scope (which may itself be absent).
+        TypeBindings refinedBindings = (_bindings.getOwnerType() != null
+                || (bindings != null && bindings.getOwnerType() != null)) ? bindings : _bindings;
+        return new ReferenceType(rawType, refinedBindings,
                 superClass, superInterfaces, _referencedType, _anchorType,
                 _valueHandler, _typeHandler, _asStatic);
     }
@@ -149,6 +153,9 @@ public class ReferenceType extends SimpleType
     @Override
     protected String buildCanonicalName()
     {
+        if (_bindings.getOwnerType() != null) {
+            return _buildOwnerCanonicalName();
+        }
         StringBuilder sb = new StringBuilder();
         sb.append(_class.getName());
         if ((_referencedType != null) && _hasNTypeParameters(1)) {
@@ -193,6 +200,9 @@ public class ReferenceType extends SimpleType
     @Override
     public StringBuilder getGenericSignature(StringBuilder sb)
     {
+        if (_bindings.getOwnerType() != null) {
+            return _getOwnerGenericSignature(sb);
+        }
         _classSignature(_class, sb, false);
         sb.append('<');
         sb = _referencedType.getGenericSignature(sb);
@@ -249,6 +259,6 @@ public class ReferenceType extends SimpleType
         if (other._class != _class) return false;
 
         // Otherwise actually mostly worry about referenced type
-        return _referencedType.equals(other._referencedType);
+        return _referencedType.equals(other._referencedType) && _equalOwnerBindings(other);
     }
 }

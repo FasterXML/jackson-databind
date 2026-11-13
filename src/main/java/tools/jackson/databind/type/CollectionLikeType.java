@@ -168,6 +168,9 @@ public class CollectionLikeType extends TypeBase
 
     @Override
     public StringBuilder getGenericSignature(StringBuilder sb) {
+        if (_bindings.getOwnerType() != null) {
+            return _getOwnerGenericSignature(sb);
+        }
         _classSignature(_class, sb, false);
         sb.append('<');
         _elementType.getGenericSignature(sb);
@@ -177,6 +180,9 @@ public class CollectionLikeType extends TypeBase
 
     @Override
     protected String buildCanonicalName() {
+        if (_bindings.getOwnerType() != null) {
+            return _buildOwnerCanonicalName();
+        }
         StringBuilder sb = new StringBuilder();
         sb.append(_class.getName());
         // 10-Apr-2021, tatu: [databind#3108] Ensure we have at least nominally
@@ -203,7 +209,8 @@ public class CollectionLikeType extends TypeBase
         if (o.getClass() != getClass()) return false;
 
         CollectionLikeType other = (CollectionLikeType) o;
-        return  (_class == other._class) && _elementType.equals(other._elementType);
+        return  (_class == other._class) && _elementType.equals(other._elementType)
+                && _equalOwnerBindings(other);
     }
 
     @Override

@@ -546,7 +546,26 @@ public abstract class BeanDeserializerBase
     @Override
     public void resolve(DeserializationContext ctxt)
     {
+        // [databind#6359]: track contextual copies created during resolution
+        // (for self-referencing types): they need to get fully resolved state as well
+        final List<BeanDeserializerBase> copies;
         _resolving = true;
+        try {
+            _resolveImpl(ctxt);
+        } finally {
+            _resolving = false;
+            copies = _copiesDuringResolve;
+            _copiesDuringResolve = null;
+        }
+        if (copies != null) {
+            for (BeanDeserializerBase copy : copies) {
+                copy._updateFromResolved(ctxt, this);
+            }
+        }
+    }
+
+    private void _resolveImpl(DeserializationContext ctxt)
+    {
         ExternalTypeHandler.Builder extTypes = null;
         // if ValueInstantiator can use "creator" approach, need to resolve it here...
         SettableBeanProperty[] creatorProps;
@@ -740,16 +759,6 @@ public abstract class BeanDeserializerBase
         }
         // may need to disable vanilla processing, if unwrapped handling was enabled...
         _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
-
-        // [databind#6359]: contextual copies created during resolution (for
-        // self-referencing types) need to get fully resolved state as well
-        _resolving = false;
-        if (_copiesDuringResolve != null) {
-            for (BeanDeserializerBase copy : _copiesDuringResolve) {
-                copy._updateFromResolved(ctxt, this);
-            }
-            _copiesDuringResolve = null;
-        }
     }
 
     /**
@@ -763,7 +772,12 @@ public abstract class BeanDeserializerBase
     protected void _updateFromResolved(DeserializationContext ctxt, BeanDeserializerBase src)
     {
         // Copy may have removed properties (ignorals) or added Object Id property,
-        // so only update ones it has, by name
+        // so only update ones it has, by name.
+        // NOTE: `BeanAsArrayDeserializer` / `BeanAsArrayBuilderDeserializer` hold
+        // `_orderedProperties` which is the very same array as `getPrimaryProperties()`
+        // of the shared map: `replace()` updates it in place, so array-shaped copies
+        // see the changes. But `remove()` would NOT be visible to them (nor would
+        // any change if `getPrimaryProperties()` returned a copy).
         for (SettableBeanProperty prop : _beanProperties.getPrimaryProperties().clone()) {
             if (prop instanceof ObjectIdValueProperty) {
                 continue;

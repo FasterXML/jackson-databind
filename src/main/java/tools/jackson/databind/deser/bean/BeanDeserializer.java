@@ -195,6 +195,18 @@ public class BeanDeserializer
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
+        // [databind#4889]: single-Map any-setter gets called once all properties are read
+        return _finishAnySetter(ctxt, _deserializeBean(p, ctxt));
+    }
+
+    /**
+     * Actual implementation of {@link #deserialize(JsonParser, DeserializationContext)},
+     * not including final any-setter handling.
+     *
+     * @since 3.4
+     */
+    protected Object _deserializeBean(JsonParser p, DeserializationContext ctxt) throws JacksonException
+    {
         // common case first
         if (p.isExpectedStartObjectToken()) {
             if (_useVanillaProcessing(ctxt)) {
@@ -255,6 +267,18 @@ public class BeanDeserializer
      */
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt, Object bean) throws JacksonException
+    {
+        // [databind#4889]: single-Map any-setter gets called once all properties are read
+        return _finishAnySetter(ctxt, _deserializeInto(p, ctxt, bean));
+    }
+
+    /**
+     * Actual implementation of {@link #deserialize(JsonParser, DeserializationContext, Object)},
+     * not including final any-setter handling.
+     *
+     * @since 3.4
+     */
+    protected Object _deserializeInto(JsonParser p, DeserializationContext ctxt, Object bean) throws JacksonException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.assignCurrentValue(bean);
@@ -323,7 +347,7 @@ public class BeanDeserializer
             }
             return _handleUnexpectedWithin(p, ctxt, bean);
         }
-        return _finishAnySetter(ctxt, bean);
+        return bean;
     }
 
     /**
@@ -650,7 +674,7 @@ public class BeanDeserializer
                 continue;
             }
             if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
-                return _finishAnySetter(ctxt, bean);
+                return bean;
             }
             if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 // [databind#6357]: report same as other loops, do not quietly stop
@@ -761,7 +785,7 @@ public class BeanDeserializer
                 continue;
             }
             if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
-                return _finishAnySetter(ctxt, bean);
+                return bean;
             }
             if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 return _handleUnexpectedWithin(p, ctxt, bean);
@@ -1150,7 +1174,7 @@ public class BeanDeserializer
                 handleUnknownVanilla(p, ctxt, bean, p.currentName());
                 continue;
             }
-            return _finishAnySetter(ctxt, bean);
+            return bean;
         }
     }
 
@@ -1244,7 +1268,6 @@ public class BeanDeserializer
             }
         }
         tokens.writeEndObject();
-        _finishAnySetter(ctxt, bean);
         _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens, hasUnwrappedContent);
         return bean;
     }
@@ -1310,7 +1333,6 @@ public class BeanDeserializer
             }
         }
         tokens.writeEndObject();
-        bean = _finishAnySetter(ctxt, bean);
         _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens, hasUnwrappedContent);
         return bean;
     }
@@ -1538,7 +1560,6 @@ public class BeanDeserializer
             handleUnknownProperty(p, ctxt, bean, p.currentName());
         }
         // and when we get this far, let's try finalizing the deal:
-        bean = _finishAnySetter(ctxt, bean);
         return ext.complete(p, ctxt, bean);
     }
 

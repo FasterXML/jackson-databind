@@ -192,6 +192,23 @@ public class AnySetterTest extends DatabindTestUtil
 
     static class View4889 { }
 
+    static class AnySetterMapMethodException4889 extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        public Map<String, Object> other;
+        public int anySetterCalls;
+
+        public AnySetterMapMethodException4889(String msg) {
+            super(msg);
+        }
+
+        @JsonAnySetter
+        public void setOther(Map<String, Object> other) {
+            ++anySetterCalls;
+            this.other = other;
+        }
+    }
+
     static class RegularMapSetter4889 {
         public Map<String, String> other;
 
@@ -606,6 +623,29 @@ public class AnySetterTest extends DatabindTestUtil
         assertEquals("Joe", result.value.name);
         assertEquals(1, result.anySetterCalls);
         assertEquals(Collections.singletonMap("extra", 3), result.other);
+    }
+
+    @Test
+    public void testJsonAnySetterOnMapMethodForUpdate4889() throws Exception {
+        JsonAnySetterOnMapMethod4889 bean = new JsonAnySetterOnMapMethod4889();
+        JsonAnySetterOnMapMethod4889 result = MAPPER.readerForUpdating(bean)
+                .readValue("""
+                        {"name":"Joe","id":2,"city":"New Jersey"}
+                        """);
+        assertSame(bean, result);
+        assertEquals(2, result.id);
+        assertEquals(1, result.anySetterCalls);
+        assertEquals(Map.of("name", "Joe", "city", "New Jersey"), result.other);
+    }
+
+    @Test
+    public void testJsonAnySetterOnMapMethodForThrowable4889() throws Exception {
+        AnySetterMapMethodException4889 result = MAPPER.readValue("""
+                {"message":"boom","code":42}
+                """, AnySetterMapMethodException4889.class);
+        assertEquals("boom", result.getMessage());
+        assertEquals(1, result.anySetterCalls);
+        assertEquals(Collections.singletonMap("code", 42), result.other);
     }
 
     @Test

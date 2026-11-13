@@ -38,15 +38,6 @@ public abstract class PropertyValue
     public abstract void assign(DeserializationContext ctxt, Object bean) throws JacksonException;
 
     /**
-     * Method called after buffered property values have been assigned, to complete
-     * any deferred any-setter processing.
-     *
-     * @since 3.4
-     */
-    public void finishAnySetter(DeserializationContext ctxt, Object bean)
-        throws JacksonException { }
-
-    /**
      * Variant of {@link #assign} that returns the instance to use for further
      * assignments: for (possibly immutable) Builders this is the value
      * returned by the setter ("with"-method), which may differ from
@@ -131,13 +122,6 @@ public abstract class PropertyValue
         public void assign(DeserializationContext ctxt, Object bean) throws JacksonException
         {
             _property.set(ctxt, bean, _propertyName, value);
-        }
-
-        @Override
-        public void finishAnySetter(DeserializationContext ctxt, Object bean)
-            throws JacksonException
-        {
-            _property.finishAnySetter(ctxt, bean);
         }
     }
 

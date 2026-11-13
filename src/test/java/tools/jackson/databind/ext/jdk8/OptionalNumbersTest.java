@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.util.AccessPattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,6 +53,12 @@ public class OptionalNumbersTest
             value = v;
         }
     }
+
+    interface OptionalHolder { Object i(); }
+
+    record OptionalIntHolder(String s, OptionalInt i) implements OptionalHolder { }
+    record OptionalLongHolder(String s, OptionalLong i) implements OptionalHolder { }
+    record OptionalDoubleHolder(String s, OptionalDouble i) implements OptionalHolder { }
 
     private final ObjectMapper MAPPER = newJsonMapper();
     private final ObjectMapper MAPPER_WITHOUT_COERCION = MAPPER.rebuild()
@@ -369,4 +376,50 @@ public class OptionalNumbersTest
         }
     }
 
+    /*
+    /**********************************************************
+    /* Test methods, null access pattern (databind#6437)
+    /**********************************************************
+     */
+
+    // [databind#6437]: empty OptionalInt/Long/Double are non-null constants
+    @Test
+    public void optionalIntNullAccessPattern() throws Exception {
+        _verifyConstantNull(OptionalInt.class, OptionalInt.empty(), OptionalIntHolder.class);
+    }
+
+    @Test
+    public void optionalLongNullAccessPattern() throws Exception {
+        _verifyConstantNull(OptionalLong.class, OptionalLong.empty(), OptionalLongHolder.class);
+    }
+
+    @Test
+    public void optionalDoubleNullAccessPattern() throws Exception {
+        _verifyConstantNull(OptionalDouble.class, OptionalDouble.empty(), OptionalDoubleHolder.class);
+    }
+
+    private void _verifyConstantNull(Class<?> type, Object empty,
+            Class<? extends OptionalHolder> holderType) throws Exception
+    {
+        DeserializationContext ctxt = MAPPER._deserializationContext();
+        ValueDeserializer<Object> deser = ctxt.findRootValueDeserializer(
+                ctxt.constructType(type));
+
+        assertEquals(AccessPattern.CONSTANT, deser.getNullAccessPattern());
+        assertEquals(AccessPattern.CONSTANT, deser.getEmptyAccessPattern());
+        assertEquals(empty, deser.getNullValue(ctxt));
+        assertEquals(empty, deser.getAbsentValue(ctxt));
+        assertEquals(empty, deser.getEmptyValue(ctxt));
+        // CONSTANT providers may be called without context
+        assertEquals(empty, deser.getNullValue(null));
+        assertEquals(empty, deser.getAbsentValue(null));
+
+        assertEquals(empty, MAPPER.readValue("null", type));
+        assertEquals(empty, MAPPER.readValue("""
+                {"s":"x"}
+                """, holderType).i());
+        assertEquals(empty, MAPPER.readValue("""
+                {"s":"x","i":null}
+                """, holderType).i());
+    }
 }

@@ -83,6 +83,10 @@ public class IterableSerializer
                 ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                 || (_unwrapSingle == Boolean.TRUE)) {
             if (hasSingleElement(value)) {
+                if (UnwrappedContainerSerializerHelper.writeEmptyArrayIfSuppressed(value, g,
+                        _needToCheckFiltering(ctxt), () -> _isEmptySingleton(ctxt, value))) {
+                    return;
+                }
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -90,6 +94,28 @@ public class IterableSerializer
         g.writeStartArray(value);
         serializeContents(value, g, ctxt);
         g.writeEndArray();
+    }
+
+    private boolean _isEmptySingleton(SerializationContext ctxt, Iterable<?> value) {
+        Iterator<?> it = value.iterator();
+        if (!it.hasNext()) {
+            return true;
+        }
+        Object elem = it.next();
+        if (elem == null) {
+            return _suppressNulls;
+        }
+        ValueSerializer<Object> serializer = _elementSerializer;
+        if (serializer == null) {
+            Class<?> cc = elem.getClass();
+            serializer = _dynamicValueSerializers.serializerFor(cc);
+            if (serializer == null) {
+                serializer = _elementType.hasGenericTypes()
+                        ? _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_elementType, cc))
+                        : _findAndAddDynamic(ctxt, cc);
+            }
+        }
+        return !_shouldSerializeElement(ctxt, elem, serializer);
     }
 
     @Override

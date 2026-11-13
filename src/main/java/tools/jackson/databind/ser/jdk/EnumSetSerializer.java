@@ -66,6 +66,10 @@ public class EnumSetSerializer
             if (((_unwrapSingle == null)
                     && ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
+                if (UnwrappedContainerSerializerHelper.writeEmptyArrayIfSuppressed(value, g,
+                        _needToCheckFiltering(ctxt), () -> _isEmptySingleton(ctxt, value, g))) {
+                    return;
+                }
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -73,6 +77,17 @@ public class EnumSetSerializer
         g.writeStartArray(value, len);
         serializeContents(value, g, ctxt);
         g.writeEndArray();
+    }
+
+    private boolean _isEmptySingleton(SerializationContext ctxt,
+            EnumSet<? extends Enum<?>> value, JsonGenerator g) {
+        g.assignCurrentValue(value);
+        Enum<?> elem = value.iterator().next();
+        ValueSerializer<Object> serializer = _elementSerializer;
+        if (serializer == null) {
+            serializer = _findAndAddDynamic(ctxt, elem.getDeclaringClass());
+        }
+        return !_shouldSerializeElement(ctxt, elem, serializer);
     }
 
     @Override

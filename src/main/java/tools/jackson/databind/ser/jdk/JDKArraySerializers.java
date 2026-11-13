@@ -163,6 +163,11 @@ public class JDKArraySerializers
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+                if (UnwrappedContainerSerializerHelper.writeEmptyArrayIfSuppressed(value, g,
+                        _needToCheckFiltering(ctxt),
+                        () -> !_shouldSerializeElement(ctxt, Boolean.valueOf(value[0])))) {
+                    return;
+                }
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -239,6 +244,11 @@ public class JDKArraySerializers
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+                if (UnwrappedContainerSerializerHelper.writeEmptyArrayIfSuppressed(value, g,
+                        _needToCheckFiltering(ctxt),
+                        () -> !_shouldSerializeElement(ctxt, Short.valueOf(value[0])))) {
+                    return;
+                }
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -391,6 +401,11 @@ public class JDKArraySerializers
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+                if (UnwrappedContainerSerializerHelper.writeEmptyArrayIfSuppressed(value, g,
+                        _needToCheckFiltering(ctxt),
+                        () -> !_shouldSerializeElement(ctxt, Integer.valueOf(value[0])))) {
+                    return;
+                }
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -473,6 +488,11 @@ public class JDKArraySerializers
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+                if (UnwrappedContainerSerializerHelper.writeEmptyArrayIfSuppressed(value, g,
+                        _needToCheckFiltering(ctxt),
+                        () -> !_shouldSerializeElement(ctxt, Long.valueOf(value[0])))) {
+                    return;
+                }
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -573,6 +593,11 @@ public class JDKArraySerializers
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+                if (UnwrappedContainerSerializerHelper.writeEmptyArrayIfSuppressed(value, g,
+                        _needToCheckFiltering(ctxt),
+                        () -> !_shouldSerializeElement(ctxt, Float.valueOf(value[0])))) {
+                    return;
+                }
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -676,6 +701,11 @@ public class JDKArraySerializers
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+                if (UnwrappedContainerSerializerHelper.writeEmptyArrayIfSuppressed(value, g,
+                        _needToCheckFiltering(ctxt),
+                        () -> !_shouldSerializeElement(ctxt, Double.valueOf(value[0])))) {
+                    return;
+                }
                 serializeContents(value, g, ctxt);
                 return;
             }

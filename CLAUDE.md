@@ -199,22 +199,22 @@ This ensures known-failing tests don't break the build, while automatically dete
 ## Branch Strategy
 
 Active 3.x lines (three roles):
-- `3.x` - **Development branch** (a.k.a. mainline / integration branch): ongoing work toward the next minor (3.3.0-SNAPSHOT). Exactly one.
-- `3.2` - **Latest release branch**: the latest released minor (3.2.x), the line users are steered toward. Exactly one per major.
-- `3.1` - **Maintenance branches**: older released minors still getting fixes. Zero or more.
+- `3.x` - **Development branch** (a.k.a. mainline / integration branch): ongoing work toward the next minor (3.4.0-SNAPSHOT). Exactly one.
+- `3.3` - **Latest release branch**: the latest released minor (3.3.x), the line users are steered toward. Exactly one per major.
+- `3.2`, `3.1` - **Maintenance branches**: older released minors still getting fixes. Zero or more.
 
 `3.0` is **closed**: it gets no PRs and no merges.
 
-The asymmetry: one development branch, one latest-release branch, and zero-or-more maintenance branches behind it. As releases progress a branch ages down — when 3.3 ships, `3.2` becomes a maintenance branch and `3.3` becomes the latest release branch.
+The asymmetry: one development branch, one latest-release branch, and zero-or-more maintenance branches behind it. As releases progress a branch ages down — when 3.4 ships, `3.3` becomes a maintenance branch and `3.4` becomes the latest release branch.
 
-Fixes are **merged forward**: they land on the oldest affected line that the backport policy below allows and are merged up one step at a time toward `3.x` (e.g. `Merge branch '3.1' into 3.2`, then `Merge branch '3.2' into 3.x`).
+Fixes are **merged forward**: they land on the oldest affected line that the backport policy below allows and are merged up one step at a time toward `3.x` (e.g. `Merge branch '3.1' into 3.2`, then `Merge branch '3.2' into 3.3`, then `Merge branch '3.3' into 3.x`).
 
 **Long-Term Support (LTS)** is an orthogonal designation, *not* reflected in branch names: a released line marked LTS keeps getting fixes well past the point a normal maintenance branch would be retired. Current LTS lines: `3.1`, `2.21`, `2.18`. A branch's LTS status is independent of its role above — `3.1` kept its LTS status after aging down from latest release branch to maintenance branch.
 
 Legacy 2.x lines:
-- `2.x` - Development branch, next minor 2.x version (2.23.0-SNAPSHOT)
-- `2.22` - Latest release branch of 2.x
-- `2.21`, `2.18` - Maintenance branches (both LTS)
+- `2.x` - Development branch, next minor 2.x version (2.24.0-SNAPSHOT)
+- `2.23` - Latest release branch of 2.x
+- `2.22`, `2.21`, `2.18` - Maintenance branches (`2.21` and `2.18` are LTS)
 
 ### Backport Policy
 
@@ -225,11 +225,11 @@ Which changes each line accepts as a direct target:
 - `2.x` - Select safe correctness corrections (in addition to fixes merged forward from older lines). These must also go in `3.1`, since `2.x` merges forward into it
 - `3.x` - Everything else: this is the default target, and such changes go against `3.x` only
 
-`3.2` and `2.22` are not direct targets: they only get fixes merged through them.
+`3.2`, `3.3`, `2.22` and `2.23` are not direct targets: they only get fixes merged through them.
 
 ## Maven Configuration
 
-- Parent POM: `tools.jackson:jackson-base`, version-locked to the project version, which tracks the branch (`3.1.6-SNAPSHOT` on `3.1`, `3.3.0-SNAPSHOT` on `3.x`, ...)
+- Parent POM: `tools.jackson:jackson-base`, version-locked to the project version, which tracks the branch (`3.1.9-SNAPSHOT` on `3.1`, `3.4.0-SNAPSHOT` on `3.x`, ...)
 - Generated file: `PackageVersion.java`, into `tools.jackson.databind.cfg` (via maven-replacer-plugin)
 - Special profiles:
   - `java21` - Enables JDK 21+ test sources (`src/test-jdk21/java/`); auto-activated by `<jdk>[21,)</jdk>`

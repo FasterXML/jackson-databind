@@ -65,6 +65,8 @@ public class JsonValueSerializer
 
     protected final Set<String> _ignoredProperties;
 
+    private final Object _unfilteredCacheKey;
+
     /**
      * Flag set when the value inclusion configured for the {@code @JsonValue} type
      * (via config override "include as property") does not exclude "empty" values,
@@ -100,6 +102,8 @@ public class JsonValueSerializer
         _accessor = accessor;
         _forceTypeInformation = true; // gets reconsidered when we are contextualized
         _ignoredProperties = ignoredProperties;
+        _unfilteredCacheKey = (ignoredProperties == null || ignoredProperties.isEmpty())
+                ? this : new Object();
         _emptyCheckDisabled = false;
     }
 
@@ -122,6 +126,7 @@ public class JsonValueSerializer
         _staticTyping = src._staticTyping;
         _forceTypeInformation = forceTypeInfo;
         _ignoredProperties = src._ignoredProperties;
+        _unfilteredCacheKey = (src._unfilteredCacheKey == src) ? this : new Object();
         _emptyCheckDisabled = emptyCheckDisabled;
     }
 
@@ -242,7 +247,7 @@ public class JsonValueSerializer
             }
             // [databind#2822]: better hold on to "property", regardless. For the non-final
             //   value type the serializer is resolved dynamically at write time via
-            //   `_property` in `StdDynamicSerializer#_findAndAddDynamic`.
+            //   the contextual property saved here.
             return withResolved(valueProp, vts, ser, _forceTypeInformation)
                     .withEmptyCheckDisabled(emptyCheckDisabled);
         }
@@ -424,15 +429,33 @@ public class JsonValueSerializer
     }
 
     protected ValueSerializer<Object> _findSerializer(SerializationContext ctxt, Object value) {
-        final UnaryOperator<ValueSerializer<Object>> serTransformer =
-                valueSer -> _withIgnoreProperties(valueSer, _ignoredProperties);
-        Class<?> cc = value.getClass();
-        if (_valueType.hasGenericTypes()) {
-            return _findAndAddDynamic(ctxt,
-                    ctxt.constructSpecializedType(_valueType, cc),
-                    serTransformer);
+        return _findDynamicSerializer(ctxt, value.getClass(), true);
+    }
+
+    private ValueSerializer<Object> _findDynamicSerializer(SerializationContext ctxt,
+            Class<?> rawType, boolean applyIgnored)
+    {
+        // Subclasses may rely on the protected dynamic serializer map.
+        if (getClass() != JsonValueSerializer.class) {
+            UnaryOperator<ValueSerializer<Object>> transform = applyIgnored
+                    ? ser -> _withIgnoreProperties(ser, _ignoredProperties) : UnaryOperator.identity();
+            if (_valueType.hasGenericTypes()) {
+                return _findAndAddDynamic(ctxt,
+                        ctxt.constructSpecializedType(_valueType, rawType), transform);
+            }
+            return _findAndAddDynamic(ctxt, rawType, transform);
         }
-        return _findAndAddDynamic(ctxt, cc, serTransformer);
+        // The typed path historically omits the ignore transformation. It can share
+        // the plain cache only when there is no transformation to apply.
+        Object cacheKey = applyIgnored ? this : _unfilteredCacheKey;
+        return ctxt.resolveContextualDelegate(cacheKey, rawType, () -> {
+            ValueSerializer<Object> serializer = _valueType.hasGenericTypes()
+                    ? ctxt.findContentValueSerializer(
+                            ctxt.constructSpecializedType(_valueType, rawType), _property)
+                    : ctxt.findContentValueSerializer(rawType, _property);
+            return applyIgnored
+                    ? _withIgnoreProperties(serializer, _ignoredProperties) : serializer;
+        });
     }
 
     /**
@@ -492,12 +515,7 @@ public class JsonValueSerializer
         }
         ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            Class<?> cc = value.getClass();
-            if (_valueType.hasGenericTypes()) {
-                ser = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_valueType, cc));
-            } else {
-                ser = _findAndAddDynamic(ctxt, cc);
-            }
+            ser = _findDynamicSerializer(ctxt, value.getClass(), false);
         }
         // [databind#6206]: simple check for direct cycle through accessor
         //   (if written as null, no type id, same as with actual null value above)

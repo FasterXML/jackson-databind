@@ -2,9 +2,12 @@ package tools.jackson.databind;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.IdentityHashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.TimeZone;
+import java.util.function.Supplier;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -29,6 +32,7 @@ import tools.jackson.databind.introspect.BeanPropertyDefinition;
 import tools.jackson.databind.introspect.ClassIntrospector;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.*;
+import tools.jackson.databind.ser.impl.PropertySerializerMap;
 import tools.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
 import tools.jackson.databind.ser.impl.TypeWrappedSerializer;
 import tools.jackson.databind.ser.impl.UnknownSerializer;
@@ -177,6 +181,10 @@ public abstract class SerializationContext
      */
     protected ContextAttributes _attributes;
 
+    private static final int MAX_CONTEXTUAL_SERIALIZER_GROUPS = 16;
+
+    private Map<Object, PropertySerializerMap> _contextualSerializers;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -252,10 +260,12 @@ public abstract class SerializationContext
     {
         final Class<?> currentView = _activeView;
         _activeView = viewToApply;
+        _contextualSerializers = null;
         try {
             callback.run();
         } finally {
             _activeView = currentView;
+            _contextualSerializers = null;
         }
     }
 
@@ -491,7 +501,42 @@ public abstract class SerializationContext
     public SerializationContext setAttribute(Object key, Object value)
     {
         _attributes = _attributes.withPerCallAttribute(key, value);
+        _contextualSerializers = null;
         return this;
+    }
+
+    /**
+     * Internal helper for reusing contextual delegates during the current write.
+     * The cache key identifies a serializer and its contextualization path.
+     *
+     * @since 3.4
+     */
+    public final ValueSerializer<Object> resolveContextualDelegate(Object cacheKey,
+            Class<?> rawType, Supplier<ValueSerializer<Object>> resolve)
+    {
+        if (_contextualSerializers == null) {
+            _contextualSerializers = new IdentityHashMap<>();
+        }
+        Map<Object, PropertySerializerMap> cache = _contextualSerializers;
+        PropertySerializerMap serializers = cache.get(cacheKey);
+        if (serializers != null) {
+            ValueSerializer<Object> cached = serializers.serializerFor(rawType);
+            if (cached != null) {
+                return cached;
+            }
+        }
+        ValueSerializer<Object> serializer = resolve.get();
+        // Resolution can change context state or recursively add to the cache.
+        if (cache == _contextualSerializers) {
+            serializers = cache.get(cacheKey);
+            if (serializers == null && cache.size() < MAX_CONTEXTUAL_SERIALIZER_GROUPS) {
+                serializers = PropertySerializerMap.emptyForProperties();
+            }
+            if (serializers != null && serializers.serializerFor(rawType) == null) {
+                cache.put(cacheKey, serializers.newWith(rawType, serializer));
+            }
+        }
+        return serializer;
     }
 
     /*
@@ -1484,6 +1529,7 @@ public abstract class SerializationContext
     protected void _assignGenerator(JsonGenerator g) {
         _generator = g;
         _writeCapabilities = (g == null) ? null : g.streamWriteCapabilities();
+        _contextualSerializers = null;
     }
 
     protected final DateFormat _dateFormat()

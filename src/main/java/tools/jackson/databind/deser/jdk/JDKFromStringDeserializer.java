@@ -17,6 +17,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.std.FromStringDeserializer;
 import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.databind.util.ClassUtil;
 
 /**
@@ -327,6 +328,11 @@ public class JDKFromStringDeserializer
         @Override
         public Object getEmptyValue(DeserializationContext ctxt) { return new StringBuilder(); }
 
+        // [databind#6437]: "empty" value is mutable, must not be shared
+        // (see StdScalarDeserializer.getEmptyAccessPattern())
+        @Override
+        public AccessPattern getEmptyAccessPattern() { return AccessPattern.DYNAMIC; }
+
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
@@ -353,6 +359,11 @@ public class JDKFromStringDeserializer
 
         @Override
         public Object getEmptyValue(DeserializationContext ctxt) { return new StringBuffer(); }
+
+        // [databind#6437]: "empty" value is mutable, must not be shared
+        // (see StdScalarDeserializer.getEmptyAccessPattern())
+        @Override
+        public AccessPattern getEmptyAccessPattern() { return AccessPattern.DYNAMIC; }
 
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException

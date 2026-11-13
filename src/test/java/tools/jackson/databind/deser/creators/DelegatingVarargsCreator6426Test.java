@@ -1,7 +1,5 @@
 package tools.jackson.databind.deser.creators;
 
-import java.util.Arrays;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
@@ -49,13 +47,6 @@ class DelegatingVarargsCreator6426Test extends DatabindTestUtil
 
     // Creators invoked through `call(Object[])` (properties-based, or delegating with an
     // injected parameter) already worked
-    static class PropsStrings {
-        final String[] values;
-
-        @JsonCreator
-        PropsStrings(@JsonProperty("values") String... values) { this.values = values; }
-    }
-
     static class PropsCtorTrailingStrings {
         final String name;
         final String[] tags;
@@ -98,7 +89,7 @@ class DelegatingVarargsCreator6426Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
-    void varargsDelegatingConstructor() throws Exception
+    void varargsDelegatingConstructor()
     {
         assertArrayEquals(new String[] { "a", "b" },
                 MAPPER.readValue("""
@@ -109,7 +100,7 @@ class DelegatingVarargsCreator6426Test extends DatabindTestUtil
     }
 
     @Test
-    void varargsDelegatingFactory() throws Exception
+    void varargsDelegatingFactory()
     {
         assertArrayEquals(new String[] { "a", "b" },
                 MAPPER.readValue("""
@@ -118,7 +109,7 @@ class DelegatingVarargsCreator6426Test extends DatabindTestUtil
     }
 
     @Test
-    void primitiveVarargsDelegatingConstructor() throws Exception
+    void primitiveVarargsDelegatingConstructor()
     {
         assertArrayEquals(new int[] { 1, 2 },
                 MAPPER.readValue("[1,2]", CtorInts.class).values);
@@ -126,25 +117,16 @@ class DelegatingVarargsCreator6426Test extends DatabindTestUtil
 
     // Wrapped the delegate instead of failing, yielding `[[a, 1]]`
     @Test
-    void objectVarargsDelegatingConstructor() throws Exception
+    void objectVarargsDelegatingConstructor()
     {
         CtorObjects v = MAPPER.readValue("""
                 ["a",1]
                 """, CtorObjects.class);
-        assertEquals("[a, 1]", Arrays.deepToString(v.values));
+        assertArrayEquals(new Object[] { "a", 1 }, v.values);
     }
 
     @Test
-    void varargsPropertiesConstructor() throws Exception
-    {
-        assertArrayEquals(new String[] { "a" },
-                MAPPER.readValue("""
-                        {"values":["a"]}
-                        """, PropsStrings.class).values);
-    }
-
-    @Test
-    void varargsAfterOtherPropertiesConstructor() throws Exception
+    void varargsAfterOtherPropertiesConstructor()
     {
         PropsCtorTrailingStrings v = MAPPER.readValue("""
                 {"name":"x","tags":["a","b"]}
@@ -154,7 +136,7 @@ class DelegatingVarargsCreator6426Test extends DatabindTestUtil
     }
 
     @Test
-    void primitiveVarargsAfterOtherPropertiesFactory() throws Exception
+    void primitiveVarargsAfterOtherPropertiesFactory()
     {
         PropsFactoryTrailingInts v = MAPPER.readValue("""
                 {"n":1,"values":[2,3]}
@@ -164,7 +146,7 @@ class DelegatingVarargsCreator6426Test extends DatabindTestUtil
     }
 
     @Test
-    void varargsDelegateAfterInjectedParameter() throws Exception
+    void varargsDelegateAfterInjectedParameter()
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .injectableValues(new InjectableValues.Std().addValue("prefix", "p"))

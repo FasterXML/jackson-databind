@@ -2,6 +2,7 @@ package tools.jackson.databind.records;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -161,6 +162,14 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
                 .readValue("""
                         {"first":"Jane"}
                         """);
+        assertEquals(new FullName("Jane", "Smith"), result);
+    }
+
+    @Test
+    public void updateValueWithReorderedFactory() throws Exception
+    {
+        FullName result = MAPPER.updateValue(new FullName("John", "Smith"),
+                Map.of("first", "Jane"));
         assertEquals(new FullName("Jane", "Smith"), result);
     }
 

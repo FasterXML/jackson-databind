@@ -257,6 +257,17 @@ public abstract class BeanSerializerBase
         return result;
     }
 
+    // Helper for [databind#2759] / [databind#6410]: copy with Object Id property moved
+    // first; and as plain (not View-filtered) writer
+    private static BeanPropertyWriter[] _withIdPropFirst(BeanPropertyWriter[] props,
+            int idIndex, BeanPropertyWriter idProp)
+    {
+        final BeanPropertyWriter[] result = Arrays.copyOf(props, props.length);
+        System.arraycopy(result, 0, result, 1, idIndex);
+        result[0] = idProp;
+        return result;
+    }
+
     /*
     /**********************************************************************
     /* Post-construction processing: resolvable, contextual
@@ -463,19 +474,17 @@ public abstract class BeanSerializerBase
     protected ValueSerializer<Object> findConvertingSerializer(SerializationContext ctxt,
             BeanPropertyWriter prop)
     {
-        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr != null) {
-            AnnotatedMember m = prop.getMember();
-            if (m != null) {
-                Object convDef = intr.findSerializationConverter(ctxt.getConfig(), m);
-                if (convDef != null) {
-                    Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
-                    JavaType delegateType = conv.getOutputType(ctxt.getTypeFactory());
-                    // [databind#731]: Should skip if nominally java.lang.Object
-                    ValueSerializer<?> ser = delegateType.isJavaLangObject() ? null
-                            : ctxt.findPrimaryPropertySerializer(delegateType, prop);
-                    return new StdConvertingSerializer(conv, delegateType, ser, prop);
-                }
+        AnnotatedMember m = prop.getMember();
+        if (m != null) {
+            Object convDef = ctxt.getAnnotationIntrospector()
+                    .findSerializationConverter(ctxt.getConfig(), m);
+            if (convDef != null) {
+                Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
+                JavaType delegateType = conv.getOutputType(ctxt.getTypeFactory());
+                // [databind#731]: Should skip if nominally java.lang.Object
+                ValueSerializer<?> ser = delegateType.isJavaLangObject() ? null
+                        : ctxt.findPrimaryPropertySerializer(delegateType, prop);
+                return new StdConvertingSerializer(conv, delegateType, ser, prop);
             }
         }
         return null;
@@ -486,8 +495,8 @@ public abstract class BeanSerializerBase
     public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        final AnnotatedMember accessor = _neitherNull(property, intr)
-                ? property.getMember() : null;
+        final AnnotatedMember accessor = (property == null) ? null
+                : property.getMember();
         final SerializationConfig config = ctxt.getConfig();
 
         // Let's start with one big transmutation: Enums that are annotated
@@ -534,7 +543,7 @@ public abstract class BeanSerializerBase
 
         // 16-Jun-2020, tatu: [databind#2759] means we need to handle reordering
         //    at a later point
-        int idPropOrigIndex = 0;
+        int idPropOrigIndex = -1;
         Set<String> ignoredProps = null;
         Set<String> includedProps = null;
         Object newFilterId = null;
@@ -602,21 +611,13 @@ public abstract class BeanSerializerBase
         BeanSerializerBase contextual = this;
 
         // 16-Jun-2020, tatu: [databind#2759] must make copies, then reorder
-        if (idPropOrigIndex > 0) { // note: must shuffle both regular properties and filtered
-            final BeanPropertyWriter[] newProps = Arrays.copyOf(_props, _props.length);
-            BeanPropertyWriter bpw = newProps[idPropOrigIndex];
-            System.arraycopy(newProps, 0, newProps, 1, idPropOrigIndex);
-            newProps[0] = bpw;
-            final BeanPropertyWriter[] newFiltered;
-            if (_filteredProps == null) {
-                newFiltered = null;
-            } else {
-                newFiltered = Arrays.copyOf(_filteredProps, _filteredProps.length);
-                bpw = newFiltered[idPropOrigIndex];
-                System.arraycopy(newFiltered, 0, newFiltered, 1, idPropOrigIndex);
-                newFiltered[0] = bpw;
-            }
-            contextual = contextual.withProperties(newProps, newFiltered);
+        // [databind#6410]: and Object Id property must not be filtered by View
+        if (idPropOrigIndex >= 0) { // note: must shuffle both regular properties and filtered
+            final BeanPropertyWriter idProp = _props[idPropOrigIndex];
+            contextual = contextual.withProperties(
+                    _withIdPropFirst(_props, idPropOrigIndex, idProp),
+                    (_filteredProps == null) ? null
+                            : _withIdPropFirst(_filteredProps, idPropOrigIndex, idProp));
         }
 
         if (oiw != null) {
@@ -1019,11 +1020,17 @@ public abstract class BeanSerializerBase
             }
         }
 
+        // [databind#6410]: Object Id property is metadata, not to be filtered
+        final BeanPropertyWriter idProp = PropertyBasedObjectIdGenerator.findIdProperty(_objectIdWriter);
         int i = 0;
         try {
             for (final int len = props.length; i < len; ++i) {
                 BeanPropertyWriter prop = props[i];
                 if (prop != null) { // can have nulls in filtered list
+                    if (prop == idProp) {
+                        prop.serializeAsProperty(bean, g, ctxt);
+                        continue;
+                    }
                     // [databind#6136]: let the writer route filtering; most defer to
                     // the filter by name, but e.g. an any-getter unpacks its entries
                     // so each is filtered individually, and view-based writers apply
@@ -1072,11 +1079,20 @@ public abstract class BeanSerializerBase
             return;
         }
         final SerializationContext ctxt = visitor.getContext();
-        if (_propertyFilterId != null) {
-            PropertyFilter filter = findPropertyFilter(visitor.getContext(),
-                    _propertyFilterId, null);
+        // Filter provider may return `null` for unknown filter id (if configured
+        // to allow that): if so, handle same as no filter (like serialization does)
+        final PropertyFilter filter = (_propertyFilterId == null) ? null
+                : findPropertyFilter(ctxt, _propertyFilterId, null);
+        if (filter != null) {
+            // [databind#6410]: Object Id property is metadata, not to be filtered
+            final BeanPropertyWriter idProp = PropertyBasedObjectIdGenerator.findIdProperty(_objectIdWriter);
             for (int i = 0, end = _props.length; i < end; ++i) {
-                filter.depositSchemaProperty(_props[i], objectVisitor, ctxt);
+                final BeanPropertyWriter prop = _props[i];
+                if (prop == idProp) {
+                    prop.depositSchemaProperty(objectVisitor, ctxt);
+                } else {
+                    filter.depositSchemaProperty(prop, objectVisitor, ctxt);
+                }
             }
         } else {
             Class<?> view = ((_filteredProps == null) || (ctxt == null))

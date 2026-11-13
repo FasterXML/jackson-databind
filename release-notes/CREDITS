@@ -681,6 +681,12 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Fixed #6255: `@JsonIgnoreProperties`/`@JsonIncludeProperties` not honored for
    `ObjectNode`/`JsonNode`-valued `@JsonAnyGetter` entries
   [3.3.0]
+ * Reported, fixed #6264: `@JsonIgnoreProperties` / `@JsonIncludeProperties` not honored
+   on `@JsonAnySetter` properties
+  [3.4.0]
+ * Reported, fixed #6276: `@JsonApplyView` not honored for `@JsonUnwrapped` and
+   `@JsonAnyGetter` properties
+  [3.4.0]
  * Fixed #6284: `@JsonIgnoreType` not honored for Creator properties (including Record
    components)
   [3.3.0]
@@ -839,6 +845,11 @@ Martin Mirchev (@Marti2203)
  * Reported #6366: `NullPointerException` deserializing raw `Map.Entry` with a `Shape.POJO`
    config override (raw `Map.Entry` now handled as `Map.Entry<Object,Object>` in all shapes)
   [3.3.0]
+ * Reported #6309: NPE serializing an Enum whose `toString()` returns `null`
+   (3.x regression from 2.x)
+  [3.3.1]
+ * Reported #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [3.3.1]
 
 @essiembre
  * Reported #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
@@ -890,8 +901,40 @@ Kayokoi (@wozhenbang2004)
  * Fixed #6371: Polymorphic key and value types not retained for POJO-shaped `Map.Entry`
    deserialization
   [3.3.0]
+ * Fixed #6372: Immutable Builder loses `@JsonUnwrapped` property values: result of
+   "with"-method ignored by `UnwrappedPropertyHandler`
+  [3.3.0]
+ * Fixed #6374: `@JsonFormat(shape = ARRAY)` Builder: structured first extra array element
+   not skipped correctly, leaves parser misaligned
+  [3.3.0]
+ * Fixed #6375: Wrap non-Jackson exceptions thrown by
+   `DeserializationProblemHandler.handleUnknownProperty()` to include bean and property path
+  [3.3.0]
+ * Fixed #6385: Record update with `readerForUpdating()` fails for non-public Record:
+   accessor not made accessible
+  [3.3.0]
+ * Fixed #6398: `@JsonFormat(shape = ARRAY)` builder deserialization throws when a
+   `DeserializationProblemHandler` recovers with `null`
+  [3.3.0]
+ * Contributed #6413: Consolidate "effective input names" for `@JsonUnwrapped` properties
+   (include polymorphic type id) instead of special-casing in `UnwrappedPropertyHandler`
+  [3.4.0]
 
 Okan Tiktas (@OKAN-SOFTWARE)
  * Fixed #6357: `BeanDeserializer` and `BuilderBasedDeserializer` silently stop on
    unexpected token within Object
   [3.3.0]
+
+Sahas Prakash Nagar (@Sahas2711)
+ * Fixed #6394: `@JsonFormat(shape = ARRAY)` deserialization hangs when input ends before
+   `END_ARRAY` while skipping extra values
+  [3.3.0]
+
+Caio Vinicius (@caiocv18)
+ * Reported, fixed #6303: `IllegalArgumentException` thrown by a setter is reported
+   as a type mismatch
+  [3.4.0]
+
+@nu11Po1nter1
+ * Fixed #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [3.3.1]

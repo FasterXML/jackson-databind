@@ -494,7 +494,7 @@ public class BuilderBasedDeserializer
                     p.nextToken(); // to move to following PROPERTY_NAME/END_OBJECT
                     Object builder;
                     try {
-                        builder = creator.build(ctxt, buffer);
+                        builder = creator.build(ctxt, buffer, true);
                     } catch (Exception e) {
                         throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                     }
@@ -556,7 +556,7 @@ public class BuilderBasedDeserializer
         // We hit END_OBJECT, so:
         Object builder;
         try {
-            builder = creator.build(ctxt, buffer);
+            builder = creator.build(ctxt, buffer, true);
         } catch (Exception e) {
             builder = wrapInstantiationProblem(ctxt, e);
         }
@@ -583,7 +583,7 @@ public class BuilderBasedDeserializer
             }
             TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
             tokens.writeStartObject();
-            return deserializeWithUnwrapped(p, ctxt, builder, tokens);
+            return deserializeWithUnwrapped(p, ctxt, builder, tokens, false);
         }
         if (_externalTypeIdHandler != null) {
             return deserializeWithExternalTypeId(p, ctxt, builder);
@@ -779,15 +779,33 @@ public class BuilderBasedDeserializer
             }
         }
         tokens.writeEndObject();
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens, hasUnwrappedContent);
+        return _unwrappedPropertyHandler.processUnwrappedForBuilder(p, ctxt, bean, tokens, hasUnwrappedContent);
     }
 
+    /**
+     * @deprecated Since 3.3 use
+     *    {@link #deserializeWithUnwrapped(JsonParser, DeserializationContext, Object, TokenBuffer, boolean)}
+     */
+    @Deprecated // since 3.3
     protected Object deserializeWithUnwrapped(JsonParser p,
             DeserializationContext ctxt, Object builder, TokenBuffer tokens)
         throws JacksonException
     {
+        return deserializeWithUnwrapped(p, ctxt, builder, tokens, false);
+    }
+
+    /**
+     * @param hasUnwrappedContent Whether {@code tokens} already contains unwrapped
+     *    content (buffered before the Creator completed)
+     *
+     * @since 3.3
+     */
+    protected Object deserializeWithUnwrapped(JsonParser p,
+            DeserializationContext ctxt, Object builder, TokenBuffer tokens,
+            boolean hasUnwrappedContent)
+        throws JacksonException
+    {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        boolean hasUnwrappedContent = false;
 
         for (int ix = p.currentNameMatch(_propertyNameMatcher); ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) { // common case
@@ -832,7 +850,7 @@ public class BuilderBasedDeserializer
             _anySetter.deserializeAndSet(p, ctxt, builder, propName);
         }
         tokens.writeEndObject();
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
+        return _unwrappedPropertyHandler.processUnwrappedForBuilder(p, ctxt, builder, tokens, hasUnwrappedContent);
     }
 
     @SuppressWarnings("resource")
@@ -877,14 +895,14 @@ public class BuilderBasedDeserializer
                     t = p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object builder = null;
                     try {
-                        builder = creator.build(ctxt, buffer);
+                        builder = creator.build(ctxt, buffer, true);
                     } catch (Exception e) {
                         throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                     }
                     if (builder.getClass() != _beanType.getRawClass()) {
                         return handlePolymorphic(p, ctxt, builder, tokens);
                     }
-                    return deserializeWithUnwrapped(p, ctxt, builder, tokens);
+                    return deserializeWithUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
                 }
                 continue;
             }
@@ -934,12 +952,12 @@ public class BuilderBasedDeserializer
         // We hit END_OBJECT, so:
         Object builder = null;
         try {
-            builder = creator.build(ctxt, buffer);
+            builder = creator.build(ctxt, buffer, true);
         } catch (Exception e) {
             return wrapInstantiationProblem(ctxt, e);
 
         }
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
+        return _unwrappedPropertyHandler.processUnwrappedForBuilder(p, ctxt, builder, tokens, hasUnwrappedContent);
     }
 
     /*

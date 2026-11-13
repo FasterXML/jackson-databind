@@ -117,6 +117,9 @@ public class BeanAsArrayBuilderDeserializer
     protected final Object finishBuild(DeserializationContext ctxt, Object builder)
         throws JacksonException
     {
+        if (builder == null) {
+            return null;
+        }
         try {
             return _buildMethod.getMember().invoke(builder, (Object[]) null);
         } catch (Exception e) {
@@ -167,9 +170,7 @@ public class BeanAsArrayBuilderDeserializer
             // will never reach here as exception has been thrown
         }
         // otherwise, skip until end
-        while (p.nextToken() != JsonToken.END_ARRAY) {
-            p.skipChildren();
-        }
+        _skipToEndArray(p, ctxt);
         return finishBuild(ctxt, builder);
     }
 
@@ -248,9 +249,7 @@ public class BeanAsArrayBuilderDeserializer
             // will never reach here as exception has been thrown
         }
         // otherwise, skip until end
-        while (p.nextToken() != JsonToken.END_ARRAY) {
-            p.skipChildren();
-        }
+        _skipToEndArray(p, ctxt);
         return builder;
     }
 
@@ -277,7 +276,7 @@ public class BeanAsArrayBuilderDeserializer
         int i = 0;
         Object builder = null;
 
-        for (; p.nextToken() != JsonToken.END_ARRAY; ++i) {
+        for (; !_nextIsEndArray(p, ctxt); ++i) {
             SettableBeanProperty prop = (i < propCount) ? props[i] : null;
             if (prop == null) { // we get null if there are extra elements; maybe otherwise too?
                 // [databind#6043]: extra JSON Array elements past property count must
@@ -327,7 +326,7 @@ public class BeanAsArrayBuilderDeserializer
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
                     try {
-                        builder = creator.build(ctxt, buffer);
+                        builder = creator.build(ctxt, buffer, true);
                     } catch (Exception e) {
                         throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                     }
@@ -352,7 +351,7 @@ public class BeanAsArrayBuilderDeserializer
         // In case we didn't quite get all the creator properties, we may have to do this:
         if (builder == null) {
             try {
-                builder = creator.build(ctxt, buffer);
+                builder = creator.build(ctxt, buffer, true);
             } catch (Exception e) {
                 return wrapInstantiationProblem(ctxt, e);
             }

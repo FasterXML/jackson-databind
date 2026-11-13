@@ -12,6 +12,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (reported, fixed by @aysha-afrah26)
 #6276: `@JsonApplyView` not honored for `@JsonUnwrapped` and `@JsonAnyGetter` properties
  (reported, fixed by @aysha-afrah26)
+#6290: Default typing: `FinalSub[]` value of `Base[]` property written with
+  element type ids that fail to deserialize
+ (fix by @cowtowncoder, w/ Claude code)
 #6303: `IllegalArgumentException` thrown by a setter is reported as a type mismatch
   ("Problem deserializing property ... expected type ... actual type")
  (reported, fixed by @caiocv18)

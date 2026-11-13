@@ -282,6 +282,28 @@ public class ObjectArraySerializer
     }
 
     @Override
+    public void serializeWithType(Object[] value, JsonGenerator g, SerializationContext ctxt,
+            TypeSerializer typeSer)
+        throws JacksonException
+    {
+        // [databind#6290]: Type id written for the array is that of its runtime type,
+        // and deserializer uses element type of that to decide whether elements have
+        // type ids. So if runtime element type differs from declared one and does not
+        // need type ids (like a final subtype), must not write them either
+        if (_valueTypeSerializer != null) {
+            final Class<?> runtimeElemType = value.getClass().getComponentType();
+            if ((runtimeElemType != _elementType.getRawClass())
+                    && (ctxt.findTypeSerializer(ctxt.constructType(runtimeElemType)) == null)) {
+                _withResolved(_property, null, _elementSerializer, _unwrapSingle,
+                        _suppressableValue, _suppressNulls)
+                    .serializeWithType(value, g, ctxt, typeSer);
+                return;
+            }
+        }
+        super.serializeWithType(value, g, ctxt, typeSer);
+    }
+
+    @Override
     public void serializeContents(Object[] value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {

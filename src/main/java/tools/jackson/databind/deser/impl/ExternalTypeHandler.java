@@ -3,6 +3,7 @@ package tools.jackson.databind.deser.impl;
 import java.util.*;
 
 import tools.jackson.core.*;
+import tools.jackson.core.util.JsonParserSequence;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.SettableBeanProperty;
@@ -11,6 +12,7 @@ import tools.jackson.databind.deser.bean.PropertyBasedCreator;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.TokenBuffer;
+import tools.jackson.databind.util.internal.SingleValueParser;
 
 /**
  * Helper class that is used to flatten JSON structure when using
@@ -35,6 +37,23 @@ public class ExternalTypeHandler
 
     private final String[] _typeIds;
     private final TokenBuffer[] _tokens;
+
+    /**
+     * Values deserialized without buffering, for properties of POJOs
+     * created using property-based creator (or for which type id was found
+     * by looking ahead); lazily created.
+     *
+     * @since 3.1.9
+     */
+    private Object[] _values;
+
+    /**
+     * Flags for properties whose values have been deserialized
+     * (see {@link #_values}); lazily created.
+     *
+     * @since 3.1.9
+     */
+    private boolean[] _resolved;
 
     protected ExternalTypeHandler(JavaType beanType,
             ExtTypedProperty[] properties,
@@ -110,6 +129,10 @@ public class ExternalTypeHandler
         if (!prop.hasTypePropertyName(propName)) { // when could/should this ever happen?
             return false;
         }
+        // Value already deserialized using this type id (found by looking ahead)?
+        if (_isResolved(index)) {
+            return true;
+        }
         // note: CANNOT skip child values (should always be String anyway)
         // [databind#6055]: do not eagerly bind if value property is filtered by active
         // view; let complete() skip it instead
@@ -173,6 +196,11 @@ public class ExternalTypeHandler
         ExtTypedProperty prop = _properties[index];
         boolean canDeserialize;
         if (prop.hasTypePropertyName(propName)) {
+            // Value already deserialized using this type id (found by looking ahead)?
+            if (_isResolved(index)) {
+                p.skipChildren();
+                return true;
+            }
             // 19-Feb-2021, tatu: as per [databind#3008], don't use "getText()"
             //    since that'll coerce null value into String "null"...
             _typeIds[index] = p.getValueAsString();
@@ -180,6 +208,11 @@ public class ExternalTypeHandler
             canDeserialize = (bean != null) && (_tokens[index] != null)
                     && !_isFilteredByView(ctxt, index);
         } else {
+            // If type id is known (or can be found from buffered content), no need
+            // to buffer value: can deserialize it directly
+            if (_deserializeWithoutBuffering(p, ctxt, bean, index)) {
+                return true;
+            }
             @SuppressWarnings("resource")
             TokenBuffer tokens = ctxt.bufferAsCopyOfValue(p);
             _tokens[index] = tokens;
@@ -210,6 +243,99 @@ public class ExternalTypeHandler
                 && !_properties[index].getProperty().visibleInView(activeView);
     }
 
+    private boolean _isResolved(int index) {
+        return (_resolved != null) && _resolved[index];
+    }
+
+    /**
+     * Helper method called when encountering value of an externally typed
+     * property: if type id is already known, or can be found by looking ahead
+     * in buffered content, value is deserialized directly, without buffering
+     * (which would otherwise be repeated for each level of nested values).
+     *
+     * @return {@code true} if value was deserialized; {@code false} if it
+     *    needs to be buffered
+     */
+    private boolean _deserializeWithoutBuffering(JsonParser p, DeserializationContext ctxt,
+            Object bean, int index)
+        throws JacksonException
+    {
+        if (_isResolved(index) || _isFilteredByView(ctxt, index)) {
+            return false;
+        }
+        final ExtTypedProperty extProp = _properties[index];
+        String typeId = _typeIds[index];
+        boolean lookedAhead = false;
+        if (typeId == null) {
+            TokenBuffer.PropertyLookahead lookahead = TokenBuffer.lookAheadForStringPropertyAfterValue(p,
+                    extProp.getTypePropertyName(), false);
+            if ((lookahead == null) || !lookahead.found()) {
+                return false;
+            }
+            typeId = lookahead.value();
+            lookedAhead = true;
+        }
+        final SettableBeanProperty prop = extProp.getProperty();
+        if (bean != null) {
+            if (p.hasToken(JsonToken.VALUE_NULL)) {
+                prop.set(ctxt, bean, null);
+            } else {
+                prop.deserializeAndSet(_withTypeId(ctxt, p, SingleValueParser.construct(p), typeId),
+                        ctxt, bean);
+            }
+            // As with buffered values: clear stored data, to avoid deserializing+setting twice
+            _typeIds[index] = null;
+            // But if type id is yet to be encountered, must ignore it
+            if (lookedAhead) {
+                _markResolved(index, null);
+            }
+        } else {
+            Object value = p.hasToken(JsonToken.VALUE_NULL) ? null
+                    : prop.deserialize(_withTypeId(ctxt, p, SingleValueParser.construct(p), typeId), ctxt);
+            // type id is needed when completing (as possible creator property)
+            _typeIds[index] = typeId;
+            _markResolved(index, value);
+        }
+        return true;
+    }
+
+    private void _markResolved(int index, Object value) {
+        if (_resolved == null) {
+            _resolved = new boolean[_properties.length];
+            _values = new Object[_properties.length];
+        }
+        _resolved[index] = true;
+        _values[index] = value;
+    }
+
+    /**
+     * Helper method for constructing parser that exposes given value with
+     * its type id, using "wrapper-array" style ({@code [typeId, value]}),
+     * without copying contents of value.
+     *
+     * @param valueParser Parser for value, positioned so that its next token is
+     *    the first token of value
+     *
+     * @return Parser pointing to the {@code START_ARRAY} of wrapper array
+     */
+    @SuppressWarnings("resource")
+    private static JsonParser _withTypeId(DeserializationContext ctxt, JsonParser p,
+            JsonParser valueParser, String typeId)
+        throws JacksonException
+    {
+        TokenBuffer prefix = ctxt.bufferForInputBuffering(p);
+        prefix.writeStartArray();
+        prefix.writeString(typeId);
+        TokenBuffer suffix = ctxt.bufferForInputBuffering(p);
+        suffix.writeEndArray();
+        JsonParser mp = JsonParserSequence.createFlattened(false,
+                JsonParserSequence.createFlattened(false, prefix.asParser(ctxt, p), valueParser),
+                suffix.asParser(ctxt, p));
+        // needs to point to START_ARRAY
+        mp.nextToken();
+        return mp;
+    }
+
     /**
      * Method called after JSON Object closes, and has to ensure that all external
      * type ids have been handled.
@@ -226,6 +352,10 @@ public class ExternalTypeHandler
             // JsonView, skip it entirely -- both any buffered value and the external
             // type id -- instead of trying to bind it (or reporting it as missing).
             if ((activeView != null) && !extProp.getProperty().visibleInView(activeView)) {
+                continue;
+            }
+            // Already deserialized (and assigned)?
+            if (_isResolved(i)) {
                 continue;
             }
             if (typeId == null) {
@@ -298,7 +428,10 @@ public class ExternalTypeHandler
             if ((activeView != null) && !extProp.getProperty().visibleInView(activeView)) {
                 continue;
             }
-            if (typeId == null) {
+            if (_isResolved(i)) {
+                // Already deserialized without buffering
+                values[i] = _values[i];
+            } else if (typeId == null) {
                 // let's allow missing both type and property (may already have been set, too)
                 TokenBuffer tb = _tokens[i];
                 if ((tb == null)
@@ -336,7 +469,9 @@ public class ExternalTypeHandler
                 }
             }
 
-            if (_tokens[i] != null) {
+            if (_isResolved(i)) {
+                ; // already handled
+            } else if (_tokens[i] != null) {
                 values[i] = _deserialize(p, ctxt, i, typeId);
             } else {
                 if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)) {
@@ -389,21 +524,13 @@ public class ExternalTypeHandler
     protected final Object _deserialize(JsonParser p, DeserializationContext ctxt,
             int index, String typeId) throws JacksonException
     {
-        JsonParser p2 = _tokens[index].asParser(ctxt, p);
-        JsonToken t = p2.nextToken();
+        final TokenBuffer tokens = _tokens[index];
         // 29-Sep-2015, tatu: As per [databind#942], nulls need special support
-        if (t == JsonToken.VALUE_NULL) {
+        if (tokens.firstToken() == JsonToken.VALUE_NULL) {
             return null;
         }
-        TokenBuffer merged = ctxt.bufferForInputBuffering(p);
-        merged.writeStartArray();
-        merged.writeString(typeId);
-        merged.copyCurrentStructure(p2);
-        merged.writeEndArray();
-
-        // needs to point to START_OBJECT (or whatever first token is)
-        JsonParser mp = merged.asParser(ctxt, p);
-        mp.nextToken();
+        // Avoid copying buffered value; just combine with type id
+        JsonParser mp = _withTypeId(ctxt, p, tokens.asParser(ctxt, p), typeId);
         return _properties[index].getProperty().deserialize(mp, ctxt);
     }
 
@@ -435,22 +562,14 @@ public class ExternalTypeHandler
 
         // Ok: time to mix type id, value; and we will actually use "wrapper-array"
         // style to ensure we can handle all kinds of JSON constructs.
-        JsonParser p2 = _tokens[index].asParser(ctxt, p);
-        JsonToken t = p2.nextToken();
+        final TokenBuffer tokens = _tokens[index];
         // 29-Sep-2015, tatu: As per [databind#942], nulls need special support
-        if (t == JsonToken.VALUE_NULL) {
+        if (tokens.firstToken() == JsonToken.VALUE_NULL) {
             _properties[index].getProperty().set(ctxt, bean, null);
             return;
         }
-        TokenBuffer merged = ctxt.bufferForInputBuffering(p);
-        merged.writeStartArray();
-        merged.writeString(typeId);
-
-        merged.copyCurrentStructure(p2);
-        merged.writeEndArray();
-        // needs to point to START_OBJECT (or whatever first token is)
-        JsonParser mp = merged.asParser(ctxt, p);
-        mp.nextToken();
+        // Avoid copying buffered value; just combine with type id
+        JsonParser mp = _withTypeId(ctxt, p, tokens.asParser(ctxt, p), typeId);
         _properties[index].getProperty().deserializeAndSet(mp, ctxt, bean);
     }
 

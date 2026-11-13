@@ -687,6 +687,9 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Reported, fixed #6276: `@JsonApplyView` not honored for `@JsonUnwrapped` and
    `@JsonAnyGetter` properties
   [3.4.0]
+ * Fixed #6288: `JsonProperty.Access.WRITE_ONLY` not honored for serialization on
+   renamed accessors
+  [3.4.0]
 
 @waydeshi
  * Reported #6127: Add `StreamReadConstraints` number len constraint to

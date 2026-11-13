@@ -551,7 +551,14 @@ public abstract class BeanDeserializerBase
         }
     }
 
-    private void _resolveImpl(DeserializationContext ctxt)
+    /**
+     * Method called by {@link #resolve} to do actual resolution of this
+     * deserializer; separated to allow tracking of contextual copies
+     * created during resolution (see [databind#6359]).
+     *
+     * @since 3.4
+     */
+    protected void _resolveImpl(DeserializationContext ctxt)
     {
         ExternalTypeHandler.Builder extTypes = null;
         // if ValueInstantiator can use "creator" approach, need to resolve it here...

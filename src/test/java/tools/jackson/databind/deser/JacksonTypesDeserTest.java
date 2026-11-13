@@ -131,6 +131,7 @@ public class JacksonTypesDeserTest
     // 10k does it, 5k not, but use bit higher values just in case
     private final static int RECURSION_2398 = 25000;
 
+    @Test
     public void testJavaTypeDeser() throws Exception
     {
         TypeFactory tf = defaultTypeFactory();

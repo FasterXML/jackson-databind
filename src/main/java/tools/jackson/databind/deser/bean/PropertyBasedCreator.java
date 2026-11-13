@@ -437,7 +437,31 @@ public final class PropertyBasedCreator
                 _injectablePropIndexes, mayRebind);
     }
 
+    /**
+     * Method called to construct the instance and assign buffered properties;
+     * equivalent to {@code build(ctxt, buffer, false)}.
+     * Builder-based deserializers should instead call
+     * {@link #build(DeserializationContext, PropertyValueBuffer, boolean)}
+     * with {@code true}.
+     */
     public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer)
+        throws JacksonException
+    {
+        return build(ctxt, buffer, false);
+    }
+
+    /**
+     * Method called to construct the instance and assign buffered properties.
+     *
+     * @param useSetterReturn Whether the value returned by the setter of a
+     *    buffered property replaces the instance for subsequent assignments
+     *    (and as the return value): needed for immutable Builders whose
+     *    "with"-methods return a new instance ([databind#6397]).
+     *
+     * @since 3.4
+     */
+    public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer,
+            boolean useSetterReturn)
         throws JacksonException
     {
         Object bean = _valueInstantiator.createFromObjectWith(ctxt,
@@ -449,7 +473,11 @@ public final class PropertyBasedCreator
 
             // Anything buffered?
             for (PropertyValue pv = buffer.buffered(); pv != null; pv = pv.next) {
-                pv.assign(ctxt, bean);
+                if (useSetterReturn) {
+                    bean = pv.assignAndReturn(ctxt, bean);
+                } else {
+                    pv.assign(ctxt, bean);
+                }
             }
             for (PropertyValue pv = buffer.buffered(); pv != null; pv = pv.next) {
                 pv.finishAnySetter(ctxt, bean);

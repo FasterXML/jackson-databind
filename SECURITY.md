@@ -1,6 +1,6 @@
 # Security Policy
 
-Last Updated: 2026-05-26
+Last Updated: 2026-10-11
 
 ## Supported Versions
 
@@ -8,14 +8,7 @@ Current status of open branches, with new releases, can be found from [Jackson R
 
 ## Reporting a Vulnerability
 
-The recommended mechanism for reporting possible security vulnerabilities follows so-called "Coordinated Vulnerability Disclosure" (see [definition of CVD](https://certcc.github.io/CERT-Guide-to-CVD/tutorials/response_process/) for general idea).
-The first step is to file a [Tidelift security contact](https://tidelift.com/security): Tidelift will route all reports via their system to maintainers of relevant package(s), and start the process that will evaluate concern and issue possible fixes, send update notices and so on.
-Note that you do not need to be a Tidelift subscriber to file a security contact.
-
-Alternatively you may also report possible vulnerabilities to `info` at fasterxml dot com
-mailing address. Note that filing an issue to go with report is fine, but if you do that please
-DO NOT include details of security problem in the issue but only in email contact.
-This is important to give us time to provide a patch, if necessary, for the problem.
+The main [jackson/Security and quality](https://github.com/FasterXML/jackson/security) page explains full Jackson Security Policy: usually you should just click ["Report a vulnerability"](../../security/advisories/new) you can see on the upper right corner of this page to report the vulnerability if it is related to code in this repository.
 
 ## Verifying Artifact signatures
 

@@ -13,6 +13,7 @@ import tools.jackson.databind.introspect.AnnotatedAndMetadata;
 import tools.jackson.databind.introspect.AnnotatedConstructor;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedMethod;
+import tools.jackson.databind.jsontype.impl.SubTypeValidator;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.EnumResolver;
 
@@ -59,6 +60,7 @@ public class JDKKeyDeserializers
         return new JDKKeyDeserializer.DelegatingKD(type.getRawClass(), deser);
     }
 
+    @SuppressWarnings("deprecation") // SubTypeValidator
     public static KeyDeserializer findStringBasedKeyDeserializer(DeserializationContext ctxt,
             JavaType type)
    {
@@ -72,6 +74,13 @@ public class JDKKeyDeserializers
         //   4. Implicit Factory method with name of "valueOf()" (primary) or
         //      "fromString()" (secondary). Likewise, no visibility check as of yet.
 
+        // Never construct String-based key deserializers for known "gadget" types
+        // (checked here so that all callers are covered, not just deserializer factory)
+        if (SubTypeValidator.instance().isIllegalType(type.getRawClass())) {
+            return ctxt.reportBadDefinition(type, String.format(
+                    "Illegal type (%s) to deserialize as Map key: prevented for security reasons",
+                    type.getRawClass().getName()));
+        }
         // We don't need full deserialization information, just need to know creators.
         final BeanDescription beanDesc = ctxt.introspectBeanDescriptionForCreation(type);
         // Ok, so: can we find T(String) constructor?
@@ -155,13 +164,11 @@ public class JDKKeyDeserializers
         // handled by caller, and non-annotated candidates (`valueOf()`/`fromString()`)
         // have `null` metadata and are delegating by definition
         if (candidate.metadata == JsonCreator.Mode.DEFAULT) {
-            final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-            if (intr != null) {
-                // Caller has already verified there is exactly one parameter
-                PropertyName name = intr.findNameForDeserialization(ctxt.getConfig(),
-                        candidate.annotated.getParameter(0));
-                return (name != null) && !name.isEmpty();
-            }
+            // Caller has already verified there is exactly one parameter
+            PropertyName name = ctxt.getAnnotationIntrospector()
+                    .findNameForDeserialization(ctxt.getConfig(),
+                            candidate.annotated.getParameter(0));
+            return (name != null) && !name.isEmpty();
         }
         return false;
     }

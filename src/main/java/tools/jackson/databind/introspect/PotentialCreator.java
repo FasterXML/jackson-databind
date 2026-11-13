@@ -192,7 +192,7 @@ public class PotentialCreator
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         for (int i = 0, end = _implicitParamNames.length; i < end; ++i) {
             if (!hasNameFor(i)) {
-                if (intr == null || intr.findInjectableValue(config, _creator.getParameter(i)) == null) {
+                if (intr.findInjectableValue(config, _creator.getParameter(i)) == null) {
                     return false;
                 }
             }

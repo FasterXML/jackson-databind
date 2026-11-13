@@ -20,6 +20,7 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.IgnorePropertiesUtil;
 
 /**
  * Class that represents a "wildcard" set method which can be used
@@ -71,6 +72,19 @@ public abstract class SettableAnyProperty
      */
     protected final boolean _failOnNulls;
 
+    /**
+     * Property-level {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties}
+     * rules declared on the any-setter itself, to apply to the JSON property names it
+     * accepts; {@code null} when no rules apply. A {@code Map}-valued regular property
+     * gets the same treatment from its {@code MapDeserializer} during contextualization,
+     * but an any-setter is fed entry by entry and never goes through one, so the check
+     * is captured here instead. Assigned by {@code BeanDeserializerFactory}
+     * (via {@link #withInclusionChecker}) when constructing the any-setter.
+     *
+     * @since 3.4
+     */
+    protected final IgnorePropertiesUtil.Checker _inclusionChecker;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -102,6 +116,29 @@ public abstract class SettableAnyProperty
         _nullProvider = nullProvider;
         _skipNulls = NullsConstantProvider.isSkipper(nullProvider);
         _failOnNulls = (nullProvider instanceof NullsFailProvider);
+        _inclusionChecker = null;
+    }
+
+    /**
+     * Copy-constructor used by fluent factories.
+     *
+     * @since 3.4
+     */
+    protected SettableAnyProperty(SettableAnyProperty src,
+            ValueDeserializer<Object> valueDeser, NullValueProvider nullProvider,
+            IgnorePropertiesUtil.Checker inclusionChecker)
+    {
+        _property = src._property;
+        _setter = src._setter;
+        _type = src._type;
+        _valueDeserializer = valueDeser;
+        _valueTypeDeserializer = src._valueTypeDeserializer;
+        _keyDeserializer = src._keyDeserializer;
+        _setterIsField = src._setterIsField;
+        _nullProvider = nullProvider;
+        _skipNulls = NullsConstantProvider.isSkipper(nullProvider);
+        _failOnNulls = (nullProvider instanceof NullsFailProvider);
+        _inclusionChecker = inclusionChecker;
     }
 
     public static SettableAnyProperty constructForMethod(DeserializationContext ctxt,
@@ -198,6 +235,20 @@ public abstract class SettableAnyProperty
         return this;
     }
 
+    /**
+     * Fluent factory for creating instance that uses specified inclusion checker
+     * (see {@link #_inclusionChecker}).
+     *<p>
+     * Default implementation returns {@code this} (that is, ignores inclusion
+     * rules) for backwards-compatibility with custom sub-classes; all
+     * standard implementations override it.
+     *
+     * @since 3.4
+     */
+    protected SettableAnyProperty withInclusionChecker(IgnorePropertiesUtil.Checker inclusionChecker) {
+        return this;
+    }
+
     public void fixAccess(DeserializationConfig config) {
         _setter.fixAccess(
                 config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -253,6 +304,28 @@ public abstract class SettableAnyProperty
     }
 
     /**
+     * Method called before deserializing value of property {@code propName} to check
+     * whether the value is to be skipped instead of being passed in: either because
+     * the name is excluded by {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties}
+     * declared on the any-setter, in which case the value is skipped here, or because
+     * it is an explicit {@code null} to skip (see {@link #skipOrFailOnNull}).
+     *
+     * @return {@code true} if the value is to be skipped (and has been consumed);
+     *    {@code false} if it is to be deserialized and passed in
+     *
+     * @since 3.4
+     */
+    public boolean skipValue(JsonParser p, DeserializationContext ctxt, String propName)
+        throws JacksonException
+    {
+        if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(propName)) {
+            p.skipChildren();
+            return true;
+        }
+        return skipOrFailOnNull(p, ctxt, propName);
+    }
+
+    /**
      * Accessor for parameterIndex.
      * @return -1 if not a parameterized setter, otherwise index of parameter
      *
@@ -288,7 +361,7 @@ public abstract class SettableAnyProperty
      * Default implementation does nothing; map-method any-setters override it to
      * invoke the annotated method with the collected entries.
      *
-     * @since 3.3
+     * @since 3.4
      */
     public void finishAnySetter(DeserializationContext ctxt, Object instance)
         throws JacksonException { }
@@ -308,7 +381,7 @@ public abstract class SettableAnyProperty
         throws JacksonException
     {
         try {
-            if (skipOrFailOnNull(p, ctxt, propName)) {
+            if (skipValue(p, ctxt, propName)) {
                 return;
             }
             Object key = (_keyDeserializer == null) ? propName
@@ -365,19 +438,9 @@ public abstract class SettableAnyProperty
     protected void _throwAsIOE(DeserializationContext ctxt, Throwable t, Object propName, Object value)
         throws JacksonException
     {
-        if (t instanceof IllegalArgumentException) {
-            String actType = ClassUtil.classNameOf(value);
-            StringBuilder msg = new StringBuilder("Problem deserializing \"any-property\" '").append(propName);
-            msg.append("' of class "+getClassName()+" (expected type: ").append(_type);
-            msg.append("; actual type: ").append(actType).append(")");
-            String origMsg = ClassUtil.exceptionMessage(t);
-            if (origMsg != null) {
-                msg.append(", problem: ").append(origMsg);
-            } else {
-                msg.append(" (no error message provided)");
-            }
-            throw DatabindException.from(ctxt, msg.toString(), t);
-        }
+        // [databind#6303]: wrap type mismatch, `IllegalArgumentException` from setter
+        SettableBeanProperty._wrapSetterProblem(ctxt.getParser(), t, value, _type,
+                "\"any-property\" '"+propName+"' of class "+getClassName());
         ClassUtil.throwIfJacksonE(t);
         ClassUtil.throwIfRTE(t);
         // let's wrap the innermost problem
@@ -449,6 +512,15 @@ public abstract class SettableAnyProperty
                     keyDeser, valueDeser, typeDeser, nullProvider);
         }
 
+        /**
+         * @since 3.4
+         */
+        protected MethodAnyProperty(MethodAnyProperty src,
+                ValueDeserializer<Object> valueDeser, NullValueProvider nullProvider,
+                IgnorePropertiesUtil.Checker inclusionChecker) {
+            super(src, valueDeser, nullProvider, inclusionChecker);
+        }
+
         @Override
         protected void _set(DeserializationContext ctxt, Object instance, Object propName, Object value)
             throws Exception
@@ -459,14 +531,17 @@ public abstract class SettableAnyProperty
 
         @Override
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
-            return new MethodAnyProperty(_property, _setter, _type,
-                    _keyDeserializer, deser, _valueTypeDeserializer, _nullProvider);
+            return new MethodAnyProperty(this, deser, _nullProvider, _inclusionChecker);
         }
 
         @Override
         public SettableAnyProperty withNullProvider(NullValueProvider nullProvider) {
-            return new MethodAnyProperty(_property, _setter, _type,
-                    _keyDeserializer, _valueDeserializer, _valueTypeDeserializer, nullProvider);
+            return new MethodAnyProperty(this, _valueDeserializer, nullProvider, _inclusionChecker);
+        }
+
+        @Override
+        protected SettableAnyProperty withInclusionChecker(IgnorePropertiesUtil.Checker inclusionChecker) {
+            return new MethodAnyProperty(this, _valueDeserializer, _nullProvider, inclusionChecker);
         }
     }
 
@@ -498,18 +573,29 @@ public abstract class SettableAnyProperty
             _valueInstantiator = inst;
         }
 
+        /**
+         * @since 3.4
+         */
+        protected MapFieldAnyProperty(MapFieldAnyProperty src,
+                ValueDeserializer<Object> valueDeser, NullValueProvider nullProvider,
+                IgnorePropertiesUtil.Checker inclusionChecker) {
+            super(src, valueDeser, nullProvider, inclusionChecker);
+            _valueInstantiator = src._valueInstantiator;
+        }
+
         @Override
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
-            return new MapFieldAnyProperty(_property, _setter, _type,
-                    _keyDeserializer, deser, _valueTypeDeserializer,
-                    _valueInstantiator, _nullProvider);
+            return new MapFieldAnyProperty(this, deser, _nullProvider, _inclusionChecker);
         }
 
         @Override
         public SettableAnyProperty withNullProvider(NullValueProvider nullProvider) {
-            return new MapFieldAnyProperty(_property, _setter, _type,
-                    _keyDeserializer, _valueDeserializer, _valueTypeDeserializer,
-                    _valueInstantiator, nullProvider);
+            return new MapFieldAnyProperty(this, _valueDeserializer, nullProvider, _inclusionChecker);
+        }
+
+        @Override
+        protected SettableAnyProperty withInclusionChecker(IgnorePropertiesUtil.Checker inclusionChecker) {
+            return new MapFieldAnyProperty(this, _valueDeserializer, _nullProvider, inclusionChecker);
         }
 
         @SuppressWarnings("unchecked")
@@ -642,13 +728,22 @@ public abstract class SettableAnyProperty
             _nodeFactory = nodeFactory;
         }
 
+        /**
+         * @since 3.4
+         */
+        protected JsonNodeFieldAnyProperty(JsonNodeFieldAnyProperty src,
+                NullValueProvider nullProvider, IgnorePropertiesUtil.Checker inclusionChecker) {
+            super(src, src._valueDeserializer, nullProvider, inclusionChecker);
+            _nodeFactory = src._nodeFactory;
+        }
+
         // Let's override since this is much simpler with JsonNodes
         @Override
         public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
                 Object instance, String propName)
             throws JacksonException
         {
-            if (skipOrFailOnNull(p, ctxt, propName)) {
+            if (skipValue(p, ctxt, propName)) {
                 return;
             }
             setProperty(instance, propName, (JsonNode) deserialize(p, ctxt));
@@ -688,8 +783,12 @@ public abstract class SettableAnyProperty
 
         @Override
         public SettableAnyProperty withNullProvider(NullValueProvider nullProvider) {
-            return new JsonNodeFieldAnyProperty(_property, _setter, _type,
-                    _valueDeserializer, _nodeFactory, nullProvider);
+            return new JsonNodeFieldAnyProperty(this, nullProvider, _inclusionChecker);
+        }
+
+        @Override
+        protected SettableAnyProperty withInclusionChecker(IgnorePropertiesUtil.Checker inclusionChecker) {
+            return new JsonNodeFieldAnyProperty(this, _nullProvider, inclusionChecker);
         }
     }
 
@@ -721,18 +820,34 @@ public abstract class SettableAnyProperty
             _parameterIndex = parameterIndex;
         }
 
+        /**
+         * @since 3.4
+         */
+        protected MapParameterAnyProperty(MapParameterAnyProperty src,
+                ValueDeserializer<Object> valueDeser, NullValueProvider nullProvider,
+                IgnorePropertiesUtil.Checker inclusionChecker)
+        {
+            super(src, valueDeser, nullProvider, inclusionChecker);
+            _valueInstantiator = src._valueInstantiator;
+            _parameterIndex = src._parameterIndex;
+        }
+
         @Override
         public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser)
         {
-            return new MapParameterAnyProperty(_property, _setter, _type, _keyDeserializer, deser,
-                    _valueTypeDeserializer, _valueInstantiator, _parameterIndex, _nullProvider);
+            return new MapParameterAnyProperty(this, deser, _nullProvider, _inclusionChecker);
         }
 
         @Override
         public SettableAnyProperty withNullProvider(NullValueProvider nullProvider)
         {
-            return new MapParameterAnyProperty(_property, _setter, _type, _keyDeserializer, _valueDeserializer,
-                    _valueTypeDeserializer, _valueInstantiator, _parameterIndex, nullProvider);
+            return new MapParameterAnyProperty(this, _valueDeserializer, nullProvider, _inclusionChecker);
+        }
+
+        @Override
+        protected SettableAnyProperty withInclusionChecker(IgnorePropertiesUtil.Checker inclusionChecker)
+        {
+            return new MapParameterAnyProperty(this, _valueDeserializer, _nullProvider, inclusionChecker);
         }
 
         @SuppressWarnings("unchecked")
@@ -776,6 +891,17 @@ public abstract class SettableAnyProperty
             _parameterIndex = parameterIndex;
         }
 
+        /**
+         * @since 3.4
+         */
+        protected JsonNodeParameterAnyProperty(JsonNodeParameterAnyProperty src,
+                NullValueProvider nullProvider, IgnorePropertiesUtil.Checker inclusionChecker)
+        {
+            super(src, src._valueDeserializer, nullProvider, inclusionChecker);
+            _nodeFactory = src._nodeFactory;
+            _parameterIndex = src._parameterIndex;
+        }
+
         @Override
         protected void _set(DeserializationContext ctxt, Object instance, Object propName, Object value)
             throws Exception
@@ -791,8 +917,12 @@ public abstract class SettableAnyProperty
 
         @Override
         public SettableAnyProperty withNullProvider(NullValueProvider nullProvider) {
-            return new JsonNodeParameterAnyProperty(_property, _setter, _type,
-                    _valueDeserializer, _nodeFactory, _parameterIndex, nullProvider);
+            return new JsonNodeParameterAnyProperty(this, nullProvider, _inclusionChecker);
+        }
+
+        @Override
+        protected SettableAnyProperty withInclusionChecker(IgnorePropertiesUtil.Checker inclusionChecker) {
+            return new JsonNodeParameterAnyProperty(this, _nullProvider, inclusionChecker);
         }
 
         @Override

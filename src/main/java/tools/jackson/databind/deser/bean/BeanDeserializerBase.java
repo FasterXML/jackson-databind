@@ -454,7 +454,17 @@ public abstract class BeanDeserializerBase
         //    to avoid them being deserialized
         _beanProperties = src._beanProperties.withoutProperties(ignorableProps, includableProps);
 
-        _externalTypeIdHandler = src._externalTypeIdHandler;
+        // ... and same for external-typed properties, only known to the handler
+        _externalTypeIdHandler = (src._externalTypeIdHandler == null) ? null
+                : src._externalTypeIdHandler.withoutProperties(ignorableProps, includableProps);
+        // [databind#6312]: if all external-typed properties were excluded, they no
+        //   longer force non-standard creation (other reasons same as in main constructor)
+        if ((src._externalTypeIdHandler != null) && (_externalTypeIdHandler == null)) {
+            _nonStandardCreation = (_unwrappedPropertyHandler != null)
+                    || _valueInstantiator.canCreateUsingDelegate()
+                    || _valueInstantiator.canCreateFromObjectWith()
+                    || !_valueInstantiator.canCreateUsingDefault();
+        }
     }
 
     protected BeanDeserializerBase(BeanDeserializerBase src, BeanPropertyMap beanProps)

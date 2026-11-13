@@ -56,10 +56,12 @@ public abstract class DatabindContext
     public abstract MapperConfig<?> getConfig();
 
     /**
-     * Convenience method for accessing serialization view in use (if any); equivalent to:
+     * Convenience method for accessing {@link AnnotationIntrospector} in use; equivalent to:
      *<pre>
      *   getConfig().getAnnotationIntrospector();
      *</pre>
+     *
+     * @return {@link AnnotationIntrospector} to use; never {@code null}
      */
     public abstract AnnotationIntrospector getAnnotationIntrospector();
 

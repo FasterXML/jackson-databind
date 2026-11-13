@@ -2,13 +2,18 @@ package tools.jackson.databind.deser.builder;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.deser.DeserializationProblemHandler;
+import tools.jackson.databind.deser.ValueInstantiator;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -132,6 +137,27 @@ public class BuilderErrorHandlingTest extends DatabindTestUtil
         }
     }
 
+    @JsonDeserialize(builder = ArrayValueWithoutCreator.Builder.class)
+    @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+    static class ArrayValueWithoutCreator
+    {
+        @JsonPropertyOrder({ "x" })
+        @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+        static class Builder
+        {
+            @JsonCreator(mode = JsonCreator.Mode.DISABLED)
+            public Builder(int a, int b) { }
+
+            public Builder withX(int v) {
+                return this;
+            }
+
+            public ArrayValueWithoutCreator build() {
+                return new ArrayValueWithoutCreator();
+            }
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -180,6 +206,51 @@ public class BuilderErrorHandlingTest extends DatabindTestUtil
             // should report Builder class, not value here, right?
             verifyException(e, "$SimpleBuilderXY");
         }
+    }
+
+    // [databind#6398]
+    @Test
+    void unexpectedObjectHandlerCanReturnNullForArrayBuilder() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new DeserializationProblemHandler() {
+                    @Override
+                    public Object handleUnexpectedToken(DeserializationContext ctxt,
+                            JavaType targetType, JsonToken token, JsonParser p, String failureMsg) {
+                        if (token == JsonToken.START_OBJECT) {
+                            p.skipChildren();
+                            return null;
+                        }
+                        return NOT_HANDLED;
+                    }
+                })
+                .build();
+
+        assertNull(mapper.readValue("""
+                {"x":1,"y":2}
+                """, ArrayValueXY.class));
+    }
+
+    // [databind#6398]
+    @Test
+    void missingInstantiatorHandlerCanReturnNullForArrayBuilder() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addHandler(new DeserializationProblemHandler() {
+                    @Override
+                    public Object handleMissingInstantiator(DeserializationContext ctxt,
+                            Class<?> instClass, ValueInstantiator valueInsta,
+                            JsonParser p, String msg) {
+                        assertSame(ArrayValueWithoutCreator.Builder.class, instClass);
+                        p.skipChildren();
+                        return null;
+                    }
+                })
+                .build();
+
+        assertNull(mapper.readValue("""
+                [1,2]
+                """, ArrayValueWithoutCreator.class));
     }
 
     // [databind#2938]

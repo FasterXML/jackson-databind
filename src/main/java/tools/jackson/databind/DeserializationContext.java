@@ -1387,12 +1387,16 @@ public abstract class DeserializationContext
         throws JacksonException
     {
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
-        while (h != null) {
-            // Can bail out if it's handled
-            if (h.value().handleUnknownProperty(this, p, deser, instanceOrClass, propName)) {
-                return true;
+        try {
+            while (h != null) {
+                // Can bail out if it's handled
+                if (h.value().handleUnknownProperty(this, p, deser, instanceOrClass, propName)) {
+                    return true;
+                }
+                h = h.next();
             }
-            h = h.next();
+        } catch (Exception e) {
+            throw _wrapUnknownPropertyProblem(p, e, instanceOrClass, propName);
         }
         // Nope, not handled. Potentially that's a problem...
         if (!isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
@@ -1405,6 +1409,27 @@ public abstract class DeserializationContext
         //   parser during polymorphic deserialization) rather than the top-level
         //   `_parser`, so the reported location reflects the actual offending token.
         throw UnrecognizedPropertyException.from(p, instanceOrClass, propName, propIds);
+    }
+
+    // [databind#6375]: Wrap non-Jackson exceptions thrown by
+    // `DeserializationProblemHandler.handleUnknownProperty()` to include path to
+    // unknown property (unless `DeserializationFeature.WRAP_EXCEPTIONS` is disabled)
+    private DatabindException _wrapUnknownPropertyProblem(JsonParser p, Exception e,
+            Object instanceOrClass, String propName)
+    {
+        // Leave handler-thrown Jackson exceptions as they are
+        ClassUtil.throwIfJacksonE(e);
+        if (!isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)) {
+            ClassUtil.throwIfRTE(e);
+        }
+        String msg = ClassUtil.exceptionMessage(e);
+        if (msg == null || msg.isEmpty()) {
+            msg = "(was "+e.getClass().getName()+")";
+        }
+        // Like above, use caller-supplied parser for location
+        DatabindException de = new DatabindException(p, msg, p.currentLocation(), e);
+        de.prependPath(instanceOrClass, propName);
+        return de;
     }
 
     /**

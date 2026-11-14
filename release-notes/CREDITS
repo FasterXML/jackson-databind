@@ -949,3 +949,8 @@ Jared Jacobs (@2is10)
  * Reported, fixed #6426: Varargs delegating `@JsonCreator` fails with "Cannot cast
    [Ljava.lang.String; to java.lang.String" (3.x regression)
   [3.3.1]
+
+@wn1331
+ * Fixed #6421: `@JsonUnwrapped` value with an `EXTERNAL_PROPERTY` type id now
+   fails eagerly instead of silently deserializing as `null`
+  [3.4.0]

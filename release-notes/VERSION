@@ -488,6 +488,10 @@ No changes since 3.2
   `AccessPattern.ALWAYS_NULL` but return an empty Optional
  (reported by @stevenschlansker)
  (fix by @mvanhorn)
+#6443: JDK deserialization of a `JsonNode` with a negative length prefix throws
+  `NegativeArraySizeException` instead of an `IOException`; corrupt content now
+  also fails with an `IOException` (`InvalidObjectException`), not `IllegalArgumentException`
+ (reported, fixed by @Marti2203)
 
 3.1.8 (17-Oct-2026)
 

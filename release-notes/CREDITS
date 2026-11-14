@@ -38,7 +38,7 @@ Steven Schlansker (@stevenschlansker)
   [3.3.0]
  * Reported #6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
    `AccessPattern.ALWAYS_NULL` but return an empty Optional
-  [3.4.0]
+  [3.3.1]
 
 Michael Dillon (@michaelcdillon)
  * Requested #2593: StackTraceElement w/ >= Java 9 doesn't deserialize properly
@@ -862,7 +862,7 @@ Matt Van Horn (@mvanhorn)
   [3.3.0]
  * Fixed #6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
    `AccessPattern.ALWAYS_NULL` but return an empty Optional
-  [3.4.0]
+  [3.3.1]
 
 @LSwiatek
  * Reported #5380: `@JsonValue` ignores property inclusion config override of the value type

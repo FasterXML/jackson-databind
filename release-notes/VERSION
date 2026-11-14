@@ -21,10 +21,6 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6430: `MapperBuilder.annotationIntrospector(null)` causes NPE on (de)serialization:
   now treated as "no annotation introspection"
  (fix by @cowtowncoder, w/ Claude code)
-#6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
-  `AccessPattern.ALWAYS_NULL` but return an empty Optional
- (reported by @stevenschlansker)
- (fix by @mvanhorn)
 
 3.3.1 (not yet released)
 
@@ -37,6 +33,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6426: Varargs delegating `@JsonCreator` fails with "Cannot cast [Ljava.lang.String;
   to java.lang.String" (3.x regression)
  (reported, fixed by @2is10)
+#6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+  `AccessPattern.ALWAYS_NULL` but return an empty Optional
+ (reported by @stevenschlansker)
+ (fix by @mvanhorn)
 
 3.3.0 (07-Nov-2026)
 
@@ -296,6 +296,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6426: Varargs delegating `@JsonCreator` fails with "Cannot cast [Ljava.lang.String;
   to java.lang.String" (3.x regression)
  (reported, fixed by @2is10)
+#6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+  `AccessPattern.ALWAYS_NULL` but return an empty Optional
+ (reported by @stevenschlansker)
+ (fix by @mvanhorn)
 
 3.2.4 (18-Oct-2026)
 
@@ -722,6 +726,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6426: Varargs delegating `@JsonCreator` fails with "Cannot cast [Ljava.lang.String;
   to java.lang.String" (3.x regression)
  (reported, fixed by @2is10)
+#6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+  `AccessPattern.ALWAYS_NULL` but return an empty Optional
+ (reported by @stevenschlansker)
+ (fix by @mvanhorn)
 
 3.1.8 (17-Oct-2026)
 

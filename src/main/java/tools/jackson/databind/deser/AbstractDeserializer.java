@@ -105,7 +105,7 @@ public class AbstractDeserializer
             BeanProperty property)
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (property != null && intr != null) {
+        if (property != null) {
             final AnnotatedMember accessor = property.getMember();
             if (accessor != null) {
                 ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(ctxt.getConfig(), accessor);

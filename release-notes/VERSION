@@ -10,6 +10,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6264: `@JsonIgnoreProperties` / `@JsonIncludeProperties` not honored on
   `@JsonAnySetter` properties
  (reported, fixed by @aysha-afrah26)
+#6276: `@JsonApplyView` not honored for `@JsonUnwrapped` and `@JsonAnyGetter` properties
+ (reported, fixed by @aysha-afrah26)
 #6303: `IllegalArgumentException` thrown by a setter is reported as a type mismatch
   ("Problem deserializing property ... expected type ... actual type")
  (reported, fixed by @caiocv18)
@@ -19,12 +21,25 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6413: Consolidate "effective input names" for `@JsonUnwrapped` properties
   (include polymorphic type id) instead of special-casing in `UnwrappedPropertyHandler`
  (fix by @wozhenbang2004)
+#6430: `MapperBuilder.annotationIntrospector(null)` causes NPE on (de)serialization:
+  now treated as "no annotation introspection"
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.3.1 (not yet released)
 
 #6309: NPE serializing an Enum whose `toString()` returns `null` (3.x regression from 2.x)
  (reported by @Marti2203)
  (fix by @cowtowncoder, w/ Claude code)
+#6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+ (reported by @Marti2203)
+ (fix by @nu11Po1nter1)
+#6426: Varargs delegating `@JsonCreator` fails with "Cannot cast [Ljava.lang.String;
+  to java.lang.String" (3.x regression)
+ (reported, fixed by @2is10)
+#6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+  `AccessPattern.ALWAYS_NULL` but return an empty Optional
+ (reported by @stevenschlansker)
+ (fix by @mvanhorn)
 
 3.3.0 (07-Nov-2026)
 
@@ -35,6 +50,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #1803: `TreeTraversingParser` should allow passing of parent context
  (fix by @cowtowncoder, w/ Claude code)
+#3119: Map Key interface not serialized with both type serializer or keyUsing
+ (reported by @lorthirk)
 #3182: Add `StringCanonicalizingConverter` for opt-in canonicalization
   ("de-duplication") of low-cardinality `String` values
  (requested by Fabian L)
@@ -279,6 +296,13 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
   `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
  (reported, fixed by @Marti2203)
+#6426: Varargs delegating `@JsonCreator` fails with "Cannot cast [Ljava.lang.String;
+  to java.lang.String" (3.x regression)
+ (reported, fixed by @2is10)
+#6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+  `AccessPattern.ALWAYS_NULL` but return an empty Optional
+ (reported by @stevenschlansker)
+ (fix by @mvanhorn)
 
 3.2.4 (18-Oct-2026)
 
@@ -680,6 +704,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6315: Map key deserializers should apply same type checks as bean deserializers
  (reported by @ab310013)
  (fix by @pjfanning)
+#6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+ (reported by @Marti2203)
+ (fix by @nu11Po1nter1)
 #6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
   deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
   `FilteredRowSetImpl`, `JoinRowSetImpl`)
@@ -699,6 +726,13 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
   `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
  (reported, fixed by @Marti2203)
+#6426: Varargs delegating `@JsonCreator` fails with "Cannot cast [Ljava.lang.String;
+  to java.lang.String" (3.x regression)
+ (reported, fixed by @2is10)
+#6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+  `AccessPattern.ALWAYS_NULL` but return an empty Optional
+ (reported by @stevenschlansker)
+ (fix by @mvanhorn)
 
 3.1.8 (17-Oct-2026)
 

@@ -91,7 +91,7 @@ public class POJOPropertyBuilder
             boolean forSerialization, PropertyName internalName, PropertyName name)
     {
         _config = config;
-        _annotationIntrospector = ai;
+        _annotationIntrospector = (ai == null) ? AnnotationIntrospector.nopInstance() : ai;
         _internalName = internalName;
         _name = name;
         _forSerialization = forSerialization;
@@ -282,21 +282,19 @@ public class POJOPropertyBuilder
 
         if (primary != null) {
             // Ok, first: does property itself have something to say?
-            if (_annotationIntrospector != null) {
-                if (acc != null) {
-                    Boolean b = _annotationIntrospector.findMergeInfo(_config, primary);
-                    if (b != null) {
-                        needMerge = false;
-                        if (b.booleanValue()) {
-                            metadata = metadata.withMergeInfo(PropertyMetadata.MergeInfo.createForPropertyOverride(acc));
-                        }
+            if (acc != null) {
+                Boolean b = _annotationIntrospector.findMergeInfo(_config, primary);
+                if (b != null) {
+                    needMerge = false;
+                    if (b.booleanValue()) {
+                        metadata = metadata.withMergeInfo(PropertyMetadata.MergeInfo.createForPropertyOverride(acc));
                     }
                 }
-                JsonSetter.Value setterInfo = _annotationIntrospector.findSetterInfo(_config, primary);
-                if (setterInfo != null) {
-                    valueNulls = setterInfo.nonDefaultValueNulls();
-                    contentNulls = setterInfo.nonDefaultContentNulls();
-                }
+            }
+            JsonSetter.Value setterInfo = _annotationIntrospector.findSetterInfo(_config, primary);
+            if (setterInfo != null) {
+                valueNulls = setterInfo.nonDefaultValueNulls();
+                contentNulls = setterInfo.nonDefaultContentNulls();
             }
             // If not, config override?
             // 25-Oct-2016, tatu: Either this, or type of accessor...
@@ -628,8 +626,7 @@ public class POJOPropertyBuilder
             return currM;
         }
         // 11-Dec-2015, tatu: As per [databind#1033] allow pluggable conflict resolution
-        return (_annotationIntrospector == null) ? null
-                : _annotationIntrospector.resolveSetterConflict(_config, currM, nextM);
+        return _annotationIntrospector.resolveSetterConflict(_config, currM, nextM);
     }
 
     @Override
@@ -1421,26 +1418,27 @@ public class POJOPropertyBuilder
     /**
      * Helper method used for finding annotation values, from accessors
      * relevant to current usage (deserialization, serialization)
+     *
+     * @deprecated Since 3.4: not used by Jackson, will be removed in a future version
      */
+    @Deprecated // since 3.4
     protected <T> T fromMemberAnnotations(WithMember<T> func)
     {
         T result = null;
-        if (_annotationIntrospector != null) {
-            if (_forSerialization) {
-                if (_getters != null) {
-                    result = func.withMember(_getters.value);
-                }
-            } else {
-                if (_ctorParameters != null) {
-                    result = func.withMember(_ctorParameters.value);
-                }
-                if (result == null && _setters != null) {
-                    result = func.withMember(_setters.value);
-                }
+        if (_forSerialization) {
+            if (_getters != null) {
+                result = func.withMember(_getters.value);
             }
-            if (result == null && _fields != null) {
-                result = func.withMember(_fields.value);
+        } else {
+            if (_ctorParameters != null) {
+                result = func.withMember(_ctorParameters.value);
             }
+            if (result == null && _setters != null) {
+                result = func.withMember(_setters.value);
+            }
+        }
+        if (result == null && _fields != null) {
+            result = func.withMember(_fields.value);
         }
         return result;
     }

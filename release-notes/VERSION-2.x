@@ -9,6 +9,9 @@ Project: jackson-databind
 #6309: Serializing an Enum whose `toString()` returns `null` as a Map key fails
   with `WRITE_ENUMS_USING_TO_STRING`
  (reported, fixed by @Marti2203)
+#6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+ (reported by @Marti2203)
+ (fix by @nu11Po1nter1)
 
 2.23.1 (not yet released)
 

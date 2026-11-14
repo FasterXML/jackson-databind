@@ -36,6 +36,9 @@ Steven Schlansker (@stevenschlansker)
  * Contributed #6193: Use `JsonParser.nextNameMatchAndToken()` in the vanilla
    `BeanDeserializer` loops
   [3.3.0]
+ * Reported #6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+   `AccessPattern.ALWAYS_NULL` but return an empty Optional
+  [3.3.1]
 
 Michael Dillon (@michaelcdillon)
  * Requested #2593: StackTraceElement w/ >= Java 9 doesn't deserialize properly
@@ -684,6 +687,9 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Reported, fixed #6264: `@JsonIgnoreProperties` / `@JsonIncludeProperties` not honored
    on `@JsonAnySetter` properties
   [3.4.0]
+ * Reported, fixed #6276: `@JsonApplyView` not honored for `@JsonUnwrapped` and
+   `@JsonAnyGetter` properties
+  [3.4.0]
 
 @waydeshi
  * Reported #6127: Add `StreamReadConstraints` number len constraint to
@@ -842,6 +848,8 @@ Martin Mirchev (@Marti2203)
  * Reported #6309: NPE serializing an Enum whose `toString()` returns `null`
    (3.x regression from 2.x)
   [3.3.1]
+ * Reported #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [3.3.1]
 
 @essiembre
  * Reported #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
@@ -852,6 +860,9 @@ Matt Van Horn (@mvanhorn)
  * Fixed #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
    writes a `null` over a non-null default, so the `null` can't round-trip
   [3.3.0]
+ * Fixed #6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+   `AccessPattern.ALWAYS_NULL` but return an empty Optional
+  [3.3.1]
 
 @LSwiatek
  * Reported #5380: `@JsonValue` ignores property inclusion config override of the value type
@@ -926,6 +937,18 @@ Caio Vinicius (@caiocv18)
  * Reported, fixed #6303: `IllegalArgumentException` thrown by a setter is reported
    as a type mismatch
   [3.4.0]
+
+@nu11Po1nter1
+ * Fixed #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [3.3.1]
+
+Jared Jacobs (@2is10)
+ * Reported, fixed #6332: Regression from 3.0 to 3.1: `@JsonUnwrapped` drops/rejects
+   the type id property of a polymorphic unwrapped value
+  [3.2.5]
+ * Reported, fixed #6426: Varargs delegating `@JsonCreator` fails with "Cannot cast
+   [Ljava.lang.String; to java.lang.String" (3.x regression)
+  [3.3.1]
 
 @wn1331
  * Fixed #6395: Reuse dynamically resolved converter serializers within a write

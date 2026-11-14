@@ -237,7 +237,7 @@ public class MapKeySerializationTest extends DatabindTestUtil
             .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             .disable(SerializationFeature.WRITE_NULL_MAP_VALUES)
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+            .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY)
             ;
 
         Map<ABC,BAR<?>> stuff = new HashMap<ABC,BAR<?>>();

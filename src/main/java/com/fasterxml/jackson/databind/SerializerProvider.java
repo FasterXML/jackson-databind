@@ -948,6 +948,16 @@ public abstract class SerializerProvider
         throws JsonMappingException
     {
         JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(this, keyType, _keySerializer);
+        // [databind#6326]: fail with a clear message instead of NPE if a (custom)
+        // factory returns `null`
+        if (ser == null) {
+            return reportBadDefinition(keyType, String.format(
+                    "`SerializerFactory` (%s) returned `null` key serializer for type %s"
+                    +" (possibly due to a registered `BeanSerializerModifier.modifyKeySerializer()`"
+                    +" returning `null`)",
+                    ClassUtil.classNameOf(_serializerFactory),
+                    ClassUtil.getTypeDescription(keyType)));
+        }
         // 25-Feb-2011, tatu: As per [JACKSON-519], need to ensure contextuality works here, too
         return _handleContextualResolvable(ser, property);
     }

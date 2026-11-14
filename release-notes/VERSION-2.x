@@ -13,7 +13,8 @@ Project: jackson-databind
  (reported by @Marti2203)
  (fix by @nu11Po1nter1)
 #6443: JDK deserialization of a `JsonNode` with a negative length prefix throws
-  `NegativeArraySizeException` instead of an `IOException`
+  `NegativeArraySizeException` instead of an `IOException`; corrupt content now
+  also fails with an `IOException` (`InvalidObjectException`), not `IllegalArgumentException`
  (reported, fixed by @Marti2203)
 
 2.23.1 (not yet released)

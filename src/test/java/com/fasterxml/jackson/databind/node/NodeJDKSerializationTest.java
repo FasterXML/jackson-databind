@@ -112,6 +112,21 @@ public class NodeJDKSerializationTest extends DatabindTestUtil
         assertInstanceOf(StreamCorruptedException.class, e.getCause());
     }
 
+    // [databind#6443]: corrupt (unparseable) content must also fail with an IOException
+    @Test
+    public void testCorruptContent() throws Exception
+    {
+        byte[] ser = jdkSerialize(MAPPER.createObjectNode().put("a", 1));
+        byte[] json = "{\"a\":1}".getBytes("UTF-8");
+        int idx = _indexOf(ser, json);
+        // Replace ':' with 'x', keeping the length unchanged: `{"a"x1}`
+        ser[idx + 4] = (byte) 'x';
+        UncheckedIOException e = assertThrows(UncheckedIOException.class,
+                () -> jdkDeserialize(ser));
+        assertInstanceOf(InvalidObjectException.class, e.getCause());
+        assertInstanceOf(IOException.class, e.getCause().getCause());
+    }
+
     /*
     /**********************************************************
     /* Helper methods

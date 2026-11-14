@@ -125,8 +125,9 @@ public abstract class ArraySerializerBase<T>
         gen.writeEndArray();
     }
 
+    // 13-Nov-2026, tatu: no longer `final` in 2.24
     @Override
-    public final void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer)
         throws IOException
     {
@@ -134,19 +135,8 @@ public abstract class ArraySerializerBase<T>
                 typeSer.typeId(value, JsonToken.START_ARRAY));
         // [databind#631]: Assign current value, to be accessible by custom serializers
         g.assignCurrentValue(value);
-        serializeContentsWithType(value, g, provider);
+        serializeContents(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
-    }
-
-    /**
-     * Hook for serializers that need different contents when the container's
-     * runtime type id has already been emitted. Defaults to the regular path.
-     *
-     * @since 2.23
-     */
-    protected void serializeContentsWithType(T value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
-        serializeContents(value, gen, provider);
     }
 
     protected abstract void serializeContents(T value, JsonGenerator jgen, SerializerProvider provider)

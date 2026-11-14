@@ -4,7 +4,26 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.23.0 (not yet released)
+2.24.0 (not yet released)
+
+#6290: Default typing fails to round-trip `Base[]` holding final-subtype arrays
+ (reported by @cowtowncoder)
+ (fix by @zsewasdsdsd)
+#6309: Serializing an Enum whose `toString()` returns `null` as a Map key fails
+  with `WRITE_ENUMS_USING_TO_STRING`
+ (reported, fixed by @Marti2203)
+#6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+ (reported by @Marti2203)
+ (fix by @nu11Po1nter1)
+
+2.23.1 (not yet released)
+
+#6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to legacy
+  `ObjectMapper.enableDefaultTyping()`
+ (reported by @abdessattar23)
+ (fix by @cowtowncoder, w/ Claude code)
+
+2.23.0 (07-Nov-2026)
 
 #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
   (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
@@ -17,9 +36,6 @@ Project: jackson-databind
  (fix by @kimsanhaa)
 #6261: Support `@JsonView` on properties-based Creator parameters of Enum, Map and EnumMap types
  (fix by @pjfanning, w/ Claude code)
-#6290: Default typing fails to round-trip `Base[]` holding final-subtype arrays
- (reported by @cowtowncoder)
- (fix by @zsewasdsdsd)
 #6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
   array contains `null`
  (reported, fixed by @Marti2203)
@@ -47,12 +63,16 @@ Project: jackson-databind
 #6339: Enum aliases from an appended `AnnotationIntrospector` are discarded:
   `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
  (reported, fixed by @Marti2203)
+#6399: `NullSerializer` should not be annotated with `@JacksonStdImpl`
 
 2.22.5 (not yet released)
 
 #6315: Map key deserializers should apply same type checks as bean deserializers
  (reported by @ab310013)
  (fix by @pjfanning)
+#6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
+  deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
+  `FilteredRowSetImpl`, `JoinRowSetImpl`)
 
 2.22.4 (17-Oct-2026)
 
@@ -149,6 +169,10 @@ Project: jackson-databind
 #6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
   deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
   `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to legacy
+  `ObjectMapper.enableDefaultTyping()`
+ (reported by @abdessattar23)
+ (fix by @cowtowncoder, w/ Claude code)
 
 2.21.8 (17-Oct-2026)
 
@@ -521,6 +545,14 @@ No changes since 2.19.2
 #6315: Map key deserializers should apply same type checks as bean deserializers
  (reported by @ab310013)
  (fix by @pjfanning)
+#6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
+  deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
+  `FilteredRowSetImpl`, `JoinRowSetImpl`)
+ (fix by @cowtowncoder)
+#6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to legacy
+  `ObjectMapper.enableDefaultTyping()`
+ (reported by @abdessattar23)
+ (fix by @cowtowncoder, w/ Claude code)
 
 2.18.12 (17-Oct-2026)
 

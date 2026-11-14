@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.node;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.StreamCorruptedException;
 
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 
@@ -54,6 +55,9 @@ class NodeSerialization implements java.io.Serializable,
     }
 
     private byte[] _read(ObjectInput in, int expLen) throws IOException {
+        if (expLen < 0) {
+            throw new StreamCorruptedException("Invalid `JsonNode` content length: "+expLen);
+        }
         // Common case, just read directly
         if (expLen <= LONGEST_EAGER_ALLOC) {
             byte[] result = new byte[expLen];

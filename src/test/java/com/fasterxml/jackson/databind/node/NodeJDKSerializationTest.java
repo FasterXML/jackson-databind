@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class NodeJDKSerializationTest extends DatabindTestUtil
 {
@@ -96,6 +98,20 @@ public class NodeJDKSerializationTest extends DatabindTestUtil
         testNodeRoundtrip(MAPPER.getNodeFactory().numberNode(-12345678901234L));
     }
 
+    // [databind#6443]: negative length prefix must fail with an IOException
+    @Test
+    public void testNegativeContentLength() throws Exception
+    {
+        byte[] ser = jdkSerialize(MAPPER.createObjectNode().put("a", 1));
+        byte[] json = "{\"a\":1}".getBytes("UTF-8");
+        int idx = _indexOf(ser, json);
+        // 4-byte length written by NodeSerialization.writeExternal() precedes the JSON
+        ser[idx - 4] = ser[idx - 3] = ser[idx - 2] = ser[idx - 1] = (byte) 0xFF;
+        UncheckedIOException e = assertThrows(UncheckedIOException.class,
+                () -> jdkDeserialize(ser));
+        assertInstanceOf(StreamCorruptedException.class, e.getCause());
+    }
+
     /*
     /**********************************************************
     /* Helper methods
@@ -107,5 +123,17 @@ public class NodeJDKSerializationTest extends DatabindTestUtil
         byte[] ser = jdkSerialize(input);
         JsonNode result = jdkDeserialize(ser);
         assertEquals(input, result);
+    }
+
+    private static int _indexOf(byte[] b, byte[] sub)
+    {
+        outer:
+        for (int i = 0; i + sub.length <= b.length; i++) {
+            for (int j = 0; j < sub.length; j++) {
+                if (b[i + j] != sub[j]) continue outer;
+            }
+            return i;
+        }
+        throw new IllegalStateException("Content not found");
     }
 }

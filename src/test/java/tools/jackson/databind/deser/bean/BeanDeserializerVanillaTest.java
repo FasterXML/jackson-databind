@@ -4,26 +4,34 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.util.JsonParserDelegate;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.DeserializationContextExt;
 import tools.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.MockDataInput;
+import tools.jackson.databind.util.TokenBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for the "vanilla" fast path of {@link BeanDeserializer} (which uses
- * {@code JsonParser.nextNameMatchAndToken()}). Note that this path is only
- * used if {@link MapperFeature#DEFAULT_VIEW_INCLUSION} is enabled
- * (it is disabled by default in 3.x).
+ * {@code JsonParser.nextNameMatchAndToken()}).
+ * <p>
+ * The 3.x default disables {@link MapperFeature#DEFAULT_VIEW_INCLUSION}, which
+ * still requires view processing when a view is active. The fast path is used
+ * when no view is active (see [databind#6219]).
  */
 public class BeanDeserializerVanillaTest extends DatabindTestUtil
 {
@@ -35,6 +43,12 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
 
         DeserializationContextExt deserializationContext() {
             return _deserializationContext();
+        }
+
+        DeserializationContextExt deserializationContext(Class<?> activeView) {
+            return _deserializationContexts.createContext(
+                    deserializationConfig().withView(activeView),
+                    null, _injectableValues);
         }
     }
 
@@ -53,6 +67,26 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
         public int[] g;
         public Map<String, Object> h;
         public String i;
+    }
+
+    static class RefView { }
+
+    // Mix-in that puts all properties in `RefView`: reading with that view
+    // active forces non-vanilla (but otherwise standard) processing
+    @JsonView(RefView.class)
+    static abstract class RefViewMixIn {
+    }
+
+    // Mix-ins that add an injectable: forces non-vanilla processing with
+    // no active view, that is, standard loop of `deserializeFromObject()`
+    static abstract class WideInjectMixIn {
+        @JacksonInject("str")
+        public String a;
+    }
+
+    static abstract class PointInjectMixIn {
+        @JacksonInject("int")
+        public int x;
     }
 
     // Parser delegate that overrides `nextNameMatch()` (and `currentNameMatch()`)
@@ -105,6 +139,10 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
     private final AccessibleMapper MAPPER = new AccessibleMapper(jsonMapperBuilder()
             .enable(MapperFeature.DEFAULT_VIEW_INCLUSION));
 
+    // 3.x default: DEFAULT_VIEW_INCLUSION disabled. Vanilla still applies when
+    // no view is active ([databind#6219]).
+    private final AccessibleMapper DEFAULT_MAPPER = new AccessibleMapper(jsonMapperBuilder());
+
     // Sanity check: verify tests actually exercise vanilla processing
     @Test
     void vanillaProcessingUsed() throws Exception
@@ -116,6 +154,41 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
             assertTrue(((BeanDeserializer) deser)._vanillaProcessing,
                     "Should use vanilla processing for "+type.getSimpleName());
         }
+    }
+
+    @Test
+    void vanillaProcessingUsedWithDefaultSettings() throws Exception
+    {
+        for (Class<?> type : List.of(Wide.class, Point.class)) {
+            ValueDeserializer<Object> deser = DEFAULT_MAPPER.deserializationContext()
+                    .findRootValueDeserializer(DEFAULT_MAPPER.constructType(type));
+            assertInstanceOf(BeanDeserializer.class, deser);
+            BeanDeserializer beanDeser = (BeanDeserializer) deser;
+            assertTrue(beanDeser.hasViews(),
+                    "View processing must remain available when DEFAULT_VIEW_INCLUSION is off");
+            assertTrue(beanDeser._vanillaProcessing);
+            assertTrue(beanDeser._useVanillaProcessing(DEFAULT_MAPPER.deserializationContext()),
+                    "Should use vanilla processing with 3.x defaults for "+type.getSimpleName());
+            assertFalse(beanDeser._useVanillaProcessing(DEFAULT_MAPPER.deserializationContext(Object.class)),
+                    "Should NOT use vanilla processing with active view for "+type.getSimpleName());
+        }
+        Point p = DEFAULT_MAPPER.readValue("""
+                {"x":1,"y":2}
+                """, Point.class);
+        assertEquals(1, p.x);
+        assertEquals(2, p.y);
+    }
+
+    @Test
+    void unannotatedPropertiesSkippedWhenViewActive() throws Exception
+    {
+        Point p = DEFAULT_MAPPER.readerWithView(Object.class)
+                .forType(Point.class)
+                .readValue("""
+                {"x":1,"y":2}
+                """);
+        assertEquals(0, p.x);
+        assertEquals(0, p.y);
     }
 
     @Test
@@ -211,9 +284,19 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
             "e": { "x": 1, "y": "notAnInt" }
             """.strip();
 
-    // Default settings: vanilla processing NOT used (see [databind#6219]; if that
-    // changes, need some other way to get non-vanilla processing for reference)
-    private final AccessibleMapper REFERENCE_MAPPER = new AccessibleMapper(jsonMapperBuilder());
+    // Default settings use vanilla processing when no view is active (see
+    // [databind#6219]); force standard non-vanilla processing by reading with
+    // an active view that includes all properties.
+    private final AccessibleMapper REFERENCE_MAPPER = new AccessibleMapper(jsonMapperBuilder()
+            .addMixIn(Wide.class, RefViewMixIn.class)
+            .addMixIn(Point.class, RefViewMixIn.class));
+
+    private final AccessibleMapper PLAIN_LOOP_MAPPER = new AccessibleMapper(jsonMapperBuilder()
+            .addMixIn(Wide.class, WideInjectMixIn.class)
+            .addMixIn(Point.class, PointInjectMixIn.class)
+            .injectableValues(new InjectableValues.Std()
+                    .addValue("str", "injected")
+                    .addValue("int", 0)));
 
     // Errors within vanilla processing (at every position of unrolled loop, and
     // within continuation after unknown property) must be reported same as with
@@ -222,10 +305,16 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
     void errorsReportedSameAsNonVanilla() throws Exception
     {
         for (Class<?> type : List.of(Wide.class, Point.class)) {
-            ValueDeserializer<Object> deser = REFERENCE_MAPPER.deserializationContext()
+            DeserializationContextExt ctxt = REFERENCE_MAPPER.deserializationContext(RefView.class);
+            ValueDeserializer<Object> deser = ctxt
                     .findRootValueDeserializer(REFERENCE_MAPPER.constructType(type));
-            assertFalse(((BeanDeserializer) deser)._vanillaProcessing,
+            assertFalse(((BeanDeserializer) deser)._useVanillaProcessing(ctxt),
                     "Reference mapper should NOT use vanilla processing for "+type.getSimpleName());
+
+            ctxt = PLAIN_LOOP_MAPPER.deserializationContext();
+            deser = ctxt.findRootValueDeserializer(PLAIN_LOOP_MAPPER.constructType(type));
+            assertFalse(((BeanDeserializer) deser)._useVanillaProcessing(ctxt),
+                    "Plain-loop mapper should NOT use vanilla processing for "+type.getSimpleName());
         }
 
         final int count = _knownProps().size();
@@ -248,7 +337,6 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
                     for (int mode = 0; mode < 3; ++mode) {
                         final String desc = "input mode #"+mode+", doc:\n"+doc;
                         InvalidFormatException vanilla = _readFail(MAPPER, doc, mode);
-                        InvalidFormatException reference = _readFail(REFERENCE_MAPPER, doc, mode);
 
                         assertEquals("notAnInt", vanilla.getValue(), "value: "+desc);
                         assertEquals(int.class, vanilla.getTargetType(), "target type: "+desc);
@@ -262,10 +350,15 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
                             assertEquals(expLine, vanilla.getLocation().getLineNr(), "line: "+desc);
                         }
 
-                        assertEquals(reference.getClass(), vanilla.getClass(), desc);
-                        assertEquals(reference.getOriginalMessage(), vanilla.getOriginalMessage(), desc);
-                        assertEquals(reference.getPathReference(), vanilla.getPathReference(), desc);
-                        _assertSameLocation(reference.getLocation(), vanilla.getLocation(), desc);
+                        // Compare with both view loop and plain non-vanilla loop
+                        for (ObjectReader ref : List.of(REFERENCE_MAPPER.readerWithView(RefView.class),
+                                PLAIN_LOOP_MAPPER.reader())) {
+                            InvalidFormatException reference = _readFail(ref, doc, mode);
+                            assertEquals(reference.getClass(), vanilla.getClass(), desc);
+                            assertEquals(reference.getOriginalMessage(), vanilla.getOriginalMessage(), desc);
+                            assertEquals(reference.getPathReference(), vanilla.getPathReference(), desc);
+                            _assertSameLocation(reference.getLocation(), vanilla.getLocation(), desc);
+                        }
                     }
                 }
             }
@@ -281,11 +374,16 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
     // Read using one of JSON parser implementations, expecting failure:
     // 0 = byte-backed, 1 = char-backed, 2 = DataInput-backed
     private InvalidFormatException _readFail(ObjectMapper mapper, String doc, int mode) {
+        return _readFail(mapper.reader(), doc, mode);
+    }
+
+    private InvalidFormatException _readFail(ObjectReader reader, String doc, int mode) {
+        final ObjectReader r = reader.forType(Wide.class);
         return assertThrows(InvalidFormatException.class, () -> {
             switch (mode) {
-            case 0 -> mapper.readValue(utf8Bytes(doc), Wide.class);
-            case 1 -> mapper.readValue(doc, Wide.class);
-            default -> mapper.readValue(new MockDataInput(doc), Wide.class);
+            case 0 -> r.readValue(utf8Bytes(doc));
+            case 1 -> r.readValue(doc);
+            default -> r.readValue(new MockDataInput(doc));
             }
         });
     }
@@ -303,6 +401,44 @@ public class BeanDeserializerVanillaTest extends DatabindTestUtil
 
     private String _object(List<String> props) {
         return "{" + String.join(",", props) + "}";
+    }
+
+    // [databind#6357]: token that is neither name nor END_OBJECT where a name is
+    // expected (not possible with JSON, but with other sources) must be reported
+    // same as with non-vanilla processing, also after an unknown property
+    @Test
+    void unexpectedTokenWithinObjectReported() throws Exception
+    {
+        for (boolean withUnknown : new boolean[] { false, true }) {
+            MismatchedInputException vanilla = assertThrows(MismatchedInputException.class,
+                    () -> _readWithUnexpectedToken(MAPPER, withUnknown));
+            MismatchedInputException reference = assertThrows(MismatchedInputException.class,
+                    () -> _readWithUnexpectedToken(PLAIN_LOOP_MAPPER, withUnknown));
+            assertEquals(reference.getOriginalMessage(), vanilla.getOriginalMessage(),
+                    "withUnknown: "+withUnknown);
+        }
+    }
+
+    // {"x":1, ["z":2,] 3, "y":5}: a bare number where a name belongs
+    private Point _readWithUnexpectedToken(ObjectMapper mapper, boolean withUnknown)
+    {
+        TokenBuffer tb = TokenBuffer.forGeneration();
+        tb.writeStartObject();
+        tb.writeName("x");
+        tb.writeNumber(1);
+        if (withUnknown) {
+            tb.writeName("z");
+            tb.writeNumber(2);
+        }
+        tb.writeNumber(3);
+        tb.writeName("y");
+        tb.writeNumber(5);
+        tb.writeEndObject();
+        try (JsonParser p = tb.asParser(ObjectReadContext.empty())) {
+            return mapper.readerFor(Point.class)
+                    .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue(p);
+        }
     }
 
     // Read using all 3 JSON parser implementations: byte-, char- and DataInput-backed

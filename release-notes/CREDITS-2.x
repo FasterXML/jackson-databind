@@ -2142,6 +2142,17 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)`
    to an object whose id is `null`
   [2.23.0]
+ * Reported, fixed #6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)`
+   for creator properties: existing value is overwritten with `null`
+  [2.23.0]
+ * Reported, fixed #6339: Enum aliases from an appended `AnnotationIntrospector` are
+   discarded: `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
+  [2.23.0]
+ * Reported, fixed #6309: Serializing an Enum whose `toString()` returns `null` as a Map key
+   fails with `WRITE_ENUMS_USING_TO_STRING`
+  [2.24.0]
+ * Reported #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [2.24.0]
 
 DongNyoung Lee (@Dongnyoung)
  * Contributed fix for #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected
@@ -2152,3 +2163,16 @@ Anna Breeva (@ab310013)
  * Reported #6315: Map key deserializers should apply same type checks as bean
    deserializers
   (2.18.13)
+
+@bugada
+ * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+  [2.23.0]
+
+Mohammed Abdessetar Elyagoubi (@abdessattar23)
+ * Reported #6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to
+   legacy `ObjectMapper.enableDefaultTyping()`
+  (2.18.13)
+
+@nu11Po1nter1
+ * Fixed #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [2.24.0]

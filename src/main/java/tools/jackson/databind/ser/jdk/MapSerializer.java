@@ -331,7 +331,7 @@ public class MapSerializer
         final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
 
         // First: if we have a property, may have property-annotation overrides
-        if (_neitherNull(propertyAcc, intr)) {
+        if (propertyAcc != null) {
             keySer = ctxt.serializerInstance(propertyAcc,
                     intr.findKeySerializer(config, propertyAcc));
             ser = ctxt.serializerInstance(propertyAcc,
@@ -363,7 +363,8 @@ public class MapSerializer
         Set<String> ignored = _ignoredEntries;
         Set<String> included = _includedEntries;
         boolean sortKeys = false;
-        if (_neitherNull(propertyAcc, intr)) {
+        // NOTE: any-getters apply same rules via `IgnorePropertiesUtil.buildCheckerFor()`
+        if (propertyAcc != null) {
             Set<String> newIgnored = intr.findPropertyIgnoralByName(config, propertyAcc).findIgnoredForSerialization();
             if (_nonEmpty(newIgnored)) {
                 ignored = (ignored == null) ? new HashSet<String>() : new HashSet<String>(ignored);

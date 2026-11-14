@@ -491,6 +491,9 @@ Martin Mirchev (@Marti2203)
   [3.1.9]
  * Reported #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
   [3.1.9]
+ * Reported, fixed #6443: JDK deserialization of a `JsonNode` with a negative length prefix
+   throws `NegativeArraySizeException` instead of an `IOException`
+  [3.1.9]
 
 Anna Breeva (@ab310013)
  * Reported #6315: Map key deserializers should apply same type checks as bean

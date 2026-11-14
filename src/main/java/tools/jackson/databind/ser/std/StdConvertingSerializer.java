@@ -50,6 +50,15 @@ public class StdConvertingSerializer
      */
     protected PropertySerializerMap _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
 
+    /**
+     * Key used for storing dynamic serializers in per-call context attributes.
+     * Context-local storage avoids sharing contextualized serializers between
+     * ObjectWriters, mappers or concurrent serialization calls.
+     *
+     * @since 3.4
+     */
+    private final Object _dynamicValueSerializersKey = new Object();
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -292,10 +301,19 @@ public class StdConvertingSerializer
         // 17-Apr-2018, tatu: Basically inline `_findAndAddDynamic(...)`
         // 17-Apr-2018, tatu: difficult to know if these are primary or secondary serializers...
         Class<?> cc = value.getClass();
-        PropertySerializerMap.SerializerAndMapResult result = _dynamicValueSerializers.findAndAddSecondarySerializer(cc,
+        PropertySerializerMap serializers = (PropertySerializerMap) ctxt.getAttribute(
+                _dynamicValueSerializersKey);
+        if (serializers == null) {
+            serializers = _dynamicValueSerializers;
+        }
+        ValueSerializer<Object> serializer = serializers.serializerFor(cc);
+        if (serializer != null) {
+            return serializer;
+        }
+        PropertySerializerMap.SerializerAndMapResult result = serializers.findAndAddSecondarySerializer(cc,
                 ctxt, _property);
-        if (_dynamicValueSerializers != result.map) {
-            _dynamicValueSerializers = result.map;
+        if (serializers != result.map) {
+            ctxt.setAttribute(_dynamicValueSerializersKey, result.map);
         }
         return result.serializer;
     }

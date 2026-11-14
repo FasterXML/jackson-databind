@@ -949,3 +949,8 @@ Jared Jacobs (@2is10)
  * Reported, fixed #6426: Varargs delegating `@JsonCreator` fails with "Cannot cast
    [Ljava.lang.String; to java.lang.String" (3.x regression)
   [3.3.1]
+
+@wn1331
+ * Fixed #6395: Reuse dynamically resolved converter serializers within a write
+   call without sharing writer-specific context
+  [3.4.0]

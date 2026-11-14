@@ -1,8 +1,11 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
+import java.io.InvalidObjectException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.ObjectStreamException;
+import java.io.StreamCorruptedException;
 
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 
@@ -25,11 +28,16 @@ class NodeSerialization implements java.io.Serializable,
 
     public NodeSerialization(byte[] b) { json = b; }
 
-    protected Object readResolve() {
+    protected Object readResolve() throws ObjectStreamException {
         try {
             return InternalNodeMapper.bytesToNode(json);
         } catch (IOException e) {
-            throw new IllegalArgumentException("Failed to JDK deserialize `JsonNode` value: "+e.getMessage(), e);
+            // [databind#6443]: corrupt content must fail with an IOException, not
+            // an unchecked exception
+            InvalidObjectException ex = new InvalidObjectException(
+                    "Failed to JDK deserialize `JsonNode` value: "+e.getMessage());
+            ex.initCause(e); // no (String, Throwable) constructor until JDK 19
+            throw ex;
         }
     }
 
@@ -54,6 +62,9 @@ class NodeSerialization implements java.io.Serializable,
     }
 
     private byte[] _read(ObjectInput in, int expLen) throws IOException {
+        if (expLen < 0) {
+            throw new StreamCorruptedException("Invalid `JsonNode` content length: "+expLen);
+        }
         // Common case, just read directly
         if (expLen <= LONGEST_EAGER_ALLOC) {
             byte[] result = new byte[expLen];

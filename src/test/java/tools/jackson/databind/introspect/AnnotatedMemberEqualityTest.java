@@ -86,7 +86,7 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
 
         assertNull(constructor._invokerNullary);
         assertNull(constructor._invokerUnary);
-        assertNull(constructor._invokerFixedArity);
+        assertNull(constructor._invokerWithArgs);
     }
 
     // [databind#6187]
@@ -102,13 +102,13 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
         assertEquals("x", created.getValue());
         assertNull(constructor._invokerNullary);
         assertNull(constructor._invokerUnary);
-        assertNotNull(constructor._invokerFixedArity);
+        assertNotNull(constructor._invokerWithArgs);
 
         SomeBean viaCall1 = (SomeBean) constructor.call1("y");
         assertEquals("y", viaCall1.getValue());
         assertNull(constructor._invokerNullary);
         assertNotNull(constructor._invokerUnary);
-        assertNotNull(constructor._invokerFixedArity);
+        assertNotNull(constructor._invokerWithArgs);
     }
 
     // [databind#6187]
@@ -126,7 +126,7 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
         assertEquals(NoArgBean.class, created.getClass());
         assertNotNull(constructor._invokerNullary);
         assertNull(constructor._invokerUnary);
-        assertNull(constructor._invokerFixedArity);
+        assertNull(constructor._invokerWithArgs);
     }
 
     // [databind#6198]
@@ -141,7 +141,7 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
 
         assertNull(getter._invokerNullary);
         assertNull(getter._invokerUnary);
-        assertNull(getter._invokerFixedArity);
+        assertNull(getter._invokerWithArgs);
     }
 
     // [databind#6198]
@@ -157,12 +157,12 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
         assertEquals("x", getter.callOn(bean));
         assertNull(getter._invokerNullary);
         assertNotNull(getter._invokerUnary);
-        assertNull(getter._invokerFixedArity);
+        assertNull(getter._invokerWithArgs);
     }
 
     // [databind#6198]
     @Test
-    public void annotatedMethodCallOnWithBuildsOnlyFixedArityInvoker() throws Exception {
+    public void annotatedMethodCallOnWithBuildsOnlyWithArgsInvoker() throws Exception {
         DeserializationConfig context = MAPPER.deserializationConfig();
         JavaType beanType = MAPPER.constructType(SomeBean.class);
 
@@ -174,7 +174,7 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
         assertEquals("new", bean.getValue());
         assertNull(setter._invokerNullary);
         assertNull(setter._invokerUnary);
-        assertNotNull(setter._invokerFixedArity);
+        assertNotNull(setter._invokerWithArgs);
     }
 
     // [databind#6198]
@@ -197,7 +197,7 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
         assertEquals(FactoryBean.class, created.getClass());
         assertNotNull(factory._invokerNullary);
         assertNull(factory._invokerUnary);
-        assertNull(factory._invokerFixedArity);
+        assertNull(factory._invokerWithArgs);
     }
 
     // [databind#3187]

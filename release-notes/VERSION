@@ -34,6 +34,13 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
  (reported by @Marti2203)
  (fix by @nu11Po1nter1)
+#6426: Varargs delegating `@JsonCreator` fails with "Cannot cast [Ljava.lang.String;
+  to java.lang.String" (3.x regression)
+ (reported, fixed by @2is10)
+#6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+  `AccessPattern.ALWAYS_NULL` but return an empty Optional
+ (reported by @stevenschlansker)
+ (fix by @mvanhorn)
 
 3.3.0 (07-Nov-2026)
 
@@ -44,6 +51,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #1803: `TreeTraversingParser` should allow passing of parent context
  (fix by @cowtowncoder, w/ Claude code)
+#3119: Map Key interface not serialized with both type serializer or keyUsing
+ (reported by @lorthirk)
 #3182: Add `StringCanonicalizingConverter` for opt-in canonicalization
   ("de-duplication") of low-cardinality `String` values
  (requested by Fabian L)
@@ -288,6 +297,13 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
   `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
  (reported, fixed by @Marti2203)
+#6426: Varargs delegating `@JsonCreator` fails with "Cannot cast [Ljava.lang.String;
+  to java.lang.String" (3.x regression)
+ (reported, fixed by @2is10)
+#6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+  `AccessPattern.ALWAYS_NULL` but return an empty Optional
+ (reported by @stevenschlansker)
+ (fix by @mvanhorn)
 
 3.2.4 (18-Oct-2026)
 
@@ -711,6 +727,13 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
   `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
  (reported, fixed by @Marti2203)
+#6426: Varargs delegating `@JsonCreator` fails with "Cannot cast [Ljava.lang.String;
+  to java.lang.String" (3.x regression)
+ (reported, fixed by @2is10)
+#6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+  `AccessPattern.ALWAYS_NULL` but return an empty Optional
+ (reported by @stevenschlansker)
+ (fix by @mvanhorn)
 
 3.1.8 (17-Oct-2026)
 

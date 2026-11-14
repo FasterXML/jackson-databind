@@ -844,6 +844,9 @@ Martin Mirchev (@Marti2203)
   [3.3.1]
  * Reported #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
   [3.3.1]
+ * Reported, fixed #6443: JDK deserialization of a `JsonNode` with a negative length prefix
+   throws `NegativeArraySizeException` instead of an `IOException`
+  [3.3.1]
 
 @essiembre
  * Reported #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer

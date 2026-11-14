@@ -36,6 +36,9 @@ Steven Schlansker (@stevenschlansker)
  * Contributed #6193: Use `JsonParser.nextNameMatchAndToken()` in the vanilla
    `BeanDeserializer` loops
   [3.3.0]
+ * Reported #6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+   `AccessPattern.ALWAYS_NULL` but return an empty Optional
+  [3.3.1]
 
 Michael Dillon (@michaelcdillon)
  * Requested #2593: StackTraceElement w/ >= Java 9 doesn't deserialize properly
@@ -851,6 +854,9 @@ Matt Van Horn (@mvanhorn)
  * Fixed #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
    writes a `null` over a non-null default, so the `null` can't round-trip
   [3.3.0]
+ * Fixed #6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+   `AccessPattern.ALWAYS_NULL` but return an empty Optional
+  [3.3.1]
 
 @LSwiatek
  * Reported #5380: `@JsonValue` ignores property inclusion config override of the value type

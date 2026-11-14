@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.core.*;
+import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.introspect.AnnotatedMember;
@@ -46,6 +47,14 @@ public class ObjectArraySerializer
      * Value serializer to use, if it can be statically determined.
      */
     protected ValueSerializer<Object> _elementSerializer;
+
+    /**
+     * Lazily constructed serializer to use for arrays whose runtime element type
+     * differs from the declared one (see [databind#6290]).
+     *
+     * @since 3.4
+     */
+    private transient volatile RuntimeElementSerializer _runtimeElementSerializer;
 
     /*
     /**********************************************************************
@@ -287,20 +296,44 @@ public class ObjectArraySerializer
         throws JacksonException
     {
         // [databind#6290]: Type id written for the array is that of its runtime type,
-        // and deserializer uses element type of that to decide whether elements have
-        // type ids. So if runtime element type differs from declared one and does not
-        // need type ids (like a final subtype), must not write them either
-        if (_valueTypeSerializer != null) {
-            final Class<?> runtimeElemType = value.getClass().getComponentType();
-            if ((runtimeElemType != _elementType.getRawClass())
-                    && (ctxt.findTypeSerializer(ctxt.constructType(runtimeElemType)) == null)) {
-                _withResolved(_property, null, _elementSerializer, _unwrapSingle,
-                        _suppressableValue, _suppressNulls)
-                    .serializeWithType(value, g, ctxt, typeSer);
-                return;
-            }
+        // and deserializer uses element type of that to decide how element type ids
+        // are handled (if at all). So if runtime element type differs from the declared
+        // one, need to use type serializer for runtime element type
+        ObjectArraySerializer contentSer = this;
+        final Class<?> runtimeElemType = value.getClass().getComponentType();
+        if (runtimeElemType != _elementType.getRawClass()) {
+            contentSer = _forRuntimeElementType(ctxt, runtimeElemType);
         }
-        super.serializeWithType(value, g, ctxt, typeSer);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
+                typeSer.typeId(value, JsonToken.START_ARRAY));
+        g.assignCurrentValue(value);
+        contentSer.serializeContents(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
+    }
+
+    /**
+     * Helper method for finding serializer to use for contents of an array
+     * whose runtime element type differs from the declared one: differs
+     * from this serializer only by its element type serializer.
+     *
+     * @since 3.4
+     */
+    protected ObjectArraySerializer _forRuntimeElementType(SerializationContext ctxt,
+            Class<?> runtimeElemType)
+    {
+        // One-entry cache since runtime type typically same for all values
+        RuntimeElementSerializer cached = _runtimeElementSerializer;
+        if ((cached != null) && (cached.elementType == runtimeElemType)) {
+            return cached.serializer;
+        }
+        TypeSerializer vts = ctxt.findTypeSerializer(ctxt.constructType(runtimeElemType));
+        if (vts != null) {
+            vts = vts.forProperty(ctxt, _property);
+        }
+        ObjectArraySerializer ser = _withResolved(_property, vts, _elementSerializer,
+                _unwrapSingle, _suppressableValue, _suppressNulls);
+        _runtimeElementSerializer = new RuntimeElementSerializer(runtimeElemType, ser);
+        return ser;
     }
 
     @Override
@@ -360,11 +393,6 @@ public class ObjectArraySerializer
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
         final boolean filtered = _needToCheckFiltering(ctxt);
-        // [databind#3194]: only need per-element type id check when elements
-        // are themselves arrays (nested array case like Object[][])
-        final TypeIdCheck typeIdCheck = ((typeSer != null) && _elementType.isArrayType())
-                ? new TypeIdCheck() : null;
-
         int i = 0;
         Object elem = null;
         try {
@@ -383,11 +411,6 @@ public class ObjectArraySerializer
                 }
                 if (typeSer == null) {
                     ser.serialize(elem, g, ctxt);
-                // [databind#3194]: for nested array elements, skip type id if runtime
-                // array type unwraps to final component (e.g. String[] -> String is final)
-                } else if ((typeIdCheck != null)
-                        && !typeIdCheck.needsTypeId(ctxt, elem.getClass())) {
-                    ser.serialize(elem, g, ctxt);
                 } else {
                     ser.serializeWithType(elem, g, ctxt, typeSer);
                 }
@@ -403,10 +426,6 @@ public class ObjectArraySerializer
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
         final boolean filtered = _needToCheckFiltering(ctxt);
-        // [databind#3194]: only need per-element type id check when elements
-        // are themselves arrays (nested array case like Object[][])
-        final TypeIdCheck typeIdCheck = _elementType.isArrayType()
-                ? new TypeIdCheck() : null;
         int i = 0;
         Object elem = null;
         try {
@@ -428,19 +447,15 @@ public class ObjectArraySerializer
                 if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                     continue;
                 }
-                // [databind#3194]: for nested array elements, skip type id if runtime
-                // array type unwraps to final component (e.g. String[] -> String is final)
-                if ((typeIdCheck != null)
-                        && !typeIdCheck.needsTypeId(ctxt, cc)) {
-                    serializer.serialize(elem, g, ctxt);
-                } else {
-                    serializer.serializeWithType(elem, g, ctxt, typeSer);
-                }
+                serializer.serializeWithType(elem, g, ctxt, typeSer);
             }
         } catch (Exception e) {
             wrapAndThrow(ctxt, e, elem, i);
         }
     }
+
+    private record RuntimeElementSerializer(Class<?> elementType,
+            ObjectArraySerializer serializer) { }
 
     /*
     /**********************************************************************
@@ -457,7 +472,11 @@ public class ObjectArraySerializer
      * See [databind#3194] for details.
      *
      * @since 3.1
+     *
+     * @deprecated Since 3.4 no longer used: element type ids are determined by the
+     *    runtime element type of the array (see [databind#6290])
      */
+    @Deprecated // since 3.4
     protected static final class TypeIdCheck {
         private Class<?> _cachedClass;
         private boolean _cachedResult;

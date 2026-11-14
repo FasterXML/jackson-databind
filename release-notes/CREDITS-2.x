@@ -2178,5 +2178,6 @@ Mohammed Abdessetar Elyagoubi (@abdessattar23)
   [2.24.0]
 
 zsewasdsdsd (@zsewasdsdsd)
- * Fixed #6290: Default typing round-trip for final-subtype arrays
+ * Fixed #6290: Default typing: `FinalSub[]` value of `Base[]` property written with element type ids
+   that fail to deserialize
   [2.24.0]

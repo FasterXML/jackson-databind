@@ -6,7 +6,8 @@ Project: jackson-databind
 
 2.24.0 (not yet released)
 
-#6290: Default typing fails to round-trip `Base[]` holding final-subtype arrays
+#6290: Default typing: `FinalSub[]` value of `Base[]` property written with element type ids
+  that fail to deserialize
  (reported by @cowtowncoder)
  (fix by @zsewasdsdsd)
 #6309: Serializing an Enum whose `toString()` returns `null` as a Map key fails

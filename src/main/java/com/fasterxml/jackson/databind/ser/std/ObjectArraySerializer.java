@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
@@ -53,6 +54,13 @@ public class ObjectArraySerializer
      * runtime type to serializer is handled using this object
      */
     protected PropertySerializerMap _dynamicSerializers;
+
+    /**
+     * [databind#6290]: cached decision on how to serialize elements of a runtime
+     * array of final component type (more specific than {@link #_elementType}).
+     * Immutable holder, so racy (re)assignment is safe.
+     */
+    private transient FinalComponentInfo _finalComponentInfo;
 
     /*
     /**********************************************************
@@ -228,43 +236,91 @@ public class ObjectArraySerializer
             TypeSerializer typeSer)
         throws IOException
     {
-        final Class<?> componentType = value.getClass().getComponentType();
-        if ((_valueTypeSerializer == null)
-                || (componentType == _elementType.getRawClass())
-                // Nested array typing (#3194) is a separate case; leave as-is
-                || componentType.isArray()
-                || !Modifier.isFinal(componentType.getModifiers())
-                // Or if final type would still be written with type id
-                || (provider.findTypeSerializer(provider.constructType(componentType)) != null)) {
+        final JsonSerializer<Object> ser = _finalComponentSerializer(value, provider, typeSer);
+        if (ser == null) {
             super.serializeWithType(value, g, provider, typeSer);
             return;
         }
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
         g.assignCurrentValue(value);
-        // All non-null elements are of exact final `componentType`
-        JsonSerializer<Object> ser = _elementSerializer;
-        if (ser == null) {
-            ser = _dynamicSerializers.serializerFor(componentType);
-            if (ser == null) {
-                ser = _findAndAddDynamic(_dynamicSerializers, componentType, provider);
-            }
-        }
-        int i = 0;
-        Object elem = null;
-        try {
-            for (final int len = value.length; i < len; ++i) {
-                elem = value[i];
-                if (elem == null) {
-                    provider.defaultSerializeNull(g);
-                } else {
-                    ser.serialize(elem, g, provider);
-                }
-            }
-        } catch (Exception e) {
-            wrapAndThrow(provider, e, elem, i);
-        }
+        _serializeContentsUsing(value, g, provider, ser, null);
         typeSer.writeTypeSuffix(g, typeIdDef);
+    }
+
+    /**
+     * Helper method for [databind#6290]: returns serializer to use for elements
+     * (without element type ids), if runtime array is of a final component type
+     * more specific than declared element type; or {@code null} if regular
+     * typed serialization is to be used.
+     */
+    private JsonSerializer<Object> _finalComponentSerializer(Object[] value,
+            SerializerProvider provider, TypeSerializer typeSer)
+        throws JsonMappingException
+    {
+        if (_valueTypeSerializer == null) {
+            return null;
+        }
+        final Class<?> componentType = value.getClass().getComponentType();
+        if (componentType == _elementType.getRawClass()) {
+            return null;
+        }
+        // Array type id must resolve back to the runtime array type for
+        // element type ids to be redundant: only true for class-based ids
+        final TypeIdResolver idRes = typeSer.getTypeIdResolver();
+        if (idRes == null) {
+            return null;
+        }
+        switch (idRes.getMechanism()) {
+        case CLASS:
+        case MINIMAL_CLASS:
+            break;
+        default:
+            return null;
+        }
+        FinalComponentInfo info = _finalComponentInfo;
+        if ((info == null) || (info.componentType != componentType)) {
+            info = new FinalComponentInfo(componentType,
+                    _resolveFinalComponentSerializer(componentType, provider));
+            _finalComponentInfo = info;
+        }
+        return info.serializer;
+    }
+
+    private JsonSerializer<Object> _resolveFinalComponentSerializer(Class<?> componentType,
+            SerializerProvider provider)
+        throws JsonMappingException
+    {
+        // Nested array typing (#3194) is a separate case; leave as-is
+        if (componentType.isArray()
+                || !Modifier.isFinal(componentType.getModifiers())
+                // Or if final type would still be written with type id
+                || (provider.findTypeSerializer(provider.constructType(componentType)) != null)) {
+            return null;
+        }
+        if (_elementSerializer != null) {
+            return _elementSerializer;
+        }
+        // All non-null elements are of exact (final) `componentType`
+        JsonSerializer<Object> ser = _dynamicSerializers.serializerFor(componentType);
+        if (ser == null) {
+            ser = _findAndAddDynamic(_dynamicSerializers, componentType, provider);
+        }
+        return ser;
+    }
+
+    /**
+     * Single-entry cache of result of {@link #_resolveFinalComponentSerializer}
+     * for the most recently seen runtime component type.
+     */
+    private final static class FinalComponentInfo {
+        final Class<?> componentType;
+        final JsonSerializer<Object> serializer;
+
+        FinalComponentInfo(Class<?> componentType, JsonSerializer<Object> serializer) {
+            this.componentType = componentType;
+            this.serializer = serializer;
+        }
     }
 
     @Override
@@ -312,9 +368,13 @@ public class ObjectArraySerializer
     public void serializeContentsUsing(Object[] value, JsonGenerator jgen, SerializerProvider provider,
             JsonSerializer<Object> ser) throws IOException
     {
-        final int len = value.length;
-        final TypeSerializer typeSer = _valueTypeSerializer;
+        _serializeContentsUsing(value, jgen, provider, ser, _valueTypeSerializer);
+    }
 
+    private void _serializeContentsUsing(Object[] value, JsonGenerator jgen, SerializerProvider provider,
+            JsonSerializer<Object> ser, TypeSerializer typeSer) throws IOException
+    {
+        final int len = value.length;
         int i = 0;
         Object elem = null;
         try {

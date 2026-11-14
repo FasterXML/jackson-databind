@@ -63,6 +63,47 @@ class FinalArraySubtypeDefaultTyping6290Test extends DatabindTestUtil
     }
 
     @Test
+    void finalRuntimeArrayWithNullElementsRoundTrip() throws Exception {
+        ObjectMapper mapper = mapper();
+        Wrapper input = new Wrapper();
+        input.values = new FinalSub[] { null, new FinalSub(), null };
+
+        String json = mapper.writeValueAsString(input);
+        Wrapper result = mapper.readValue(json, Wrapper.class);
+
+        assertEquals(FinalSub[].class, result.values.getClass());
+        assertEquals(3, result.values.length);
+        assertNull(result.values[0]);
+        assertEquals(1, result.values[1].x);
+        assertNull(result.values[2]);
+    }
+
+    // With EVERYTHING, final types get type ids too, so element type ids
+    // must still be written (and read) for the runtime array
+    @SuppressWarnings("deprecation")
+    @Test
+    void finalRuntimeArrayElementsKeepIdsWithEverythingTyping() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(Base[].class)
+                        .allowIfBaseType(Base.class)
+                        .allowIfSubType(Wrapper.class)
+                        .build(), DefaultTyping.EVERYTHING)
+                .build();
+        Wrapper input = new Wrapper();
+        input.values = new FinalSub[] { new FinalSub() };
+
+        String json = mapper.writeValueAsString(input);
+        // array id plus element id
+        assertTrue(json.indexOf(FinalSub.class.getName())
+                != json.lastIndexOf(FinalSub.class.getName()), json);
+        Wrapper result = mapper.readValue(json, Wrapper.class);
+
+        assertEquals(FinalSub[].class, result.values.getClass());
+        assertEquals(1, result.values[0].x);
+    }
+
+    @Test
     void polymorphicElementsInsideBaseArrayRetainTypeIds() throws Exception {
         ObjectMapper mapper = mapper();
         Wrapper input = new Wrapper();

@@ -125,8 +125,9 @@ public abstract class ArraySerializerBase<T>
         gen.writeEndArray();
     }
 
+    // 13-Nov-2026, tatu: no longer `final` in 2.24
     @Override
-    public final void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer)
         throws IOException
     {

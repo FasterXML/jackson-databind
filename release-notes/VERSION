@@ -18,6 +18,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6413: Consolidate "effective input names" for `@JsonUnwrapped` properties
   (include polymorphic type id) instead of special-casing in `UnwrappedPropertyHandler`
  (fix by @wozhenbang2004)
+#6421: `@JsonUnwrapped` value with an `EXTERNAL_PROPERTY` type id silently
+  deserialized as `null` (or failed with a misleading unknown-property error):
+  now fails eagerly with a clear `InvalidDefinitionException`
+ (fix by @wn1331)
 #6430: `MapperBuilder.annotationIntrospector(null)` causes NPE on (de)serialization:
   now treated as "no annotation introspection"
  (fix by @cowtowncoder, w/ Claude code)

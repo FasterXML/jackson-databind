@@ -145,9 +145,14 @@ public class TypeResolverProvider
     {
         TypeResolverBuilder<?> b = null;
         final DeserializationConfig config = ctxt.getConfig();
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean unwrapped = ai.findUnwrappingNameTransformer(config, accessor) != null;
         // As per definition of @JsonTypeInfo, check for annotation only for non-container types
         if (!baseType.isContainerType() && !baseType.isReferenceType()) {
             b = _findTypeResolver(config, accessor, baseType);
+            if (unwrapped) {
+                _verifyNoExternalTypeIdWithUnwrapped(ctxt, baseType, accessor);
+            }
         } else {
             // [databind#1391]: For container/reference types, only check for @JsonTypeInfo(Id.NONE)
             // to allow disabling of default typing (other type info settings apply to content)
@@ -159,7 +164,11 @@ public class TypeResolverProvider
         }
         // No annotation on property? Then base it on actual type (and further, default typing if need be)
         if (b == null) {
-            return findTypeDeserializer(ctxt, baseType, ctxt.introspectClassAnnotations(baseType));
+            AnnotatedClass classInfo = ctxt.introspectClassAnnotations(baseType);
+            if (unwrapped) {
+                _verifyNoExternalTypeIdWithUnwrapped(ctxt, baseType, classInfo);
+            }
+            return findTypeDeserializer(ctxt, baseType, classInfo);
         }
         // [databind#1654]: Explicit `@JsonTypeInfo(Id.NONE)` should block class-level type info
         if (b == NO_RESOLVER) {
@@ -270,6 +279,23 @@ Cannot use `@JsonTypeInfo(include=JsonTypeInfo.As.EXTERNAL_PROPERTY)` on contain
 Use one of the other inclusion mechanisms (such as `As.PROPERTY` or `As.WRAPPER_ARRAY`) instead\
 """,
                 ClassUtil.getTypeDescription(containerType)));
+    }
+
+    /**
+     * Helper for [databind#6421]: an external type id cannot be associated with an
+     * unwrapped value because there is no containing property for the external id.
+     */
+    protected void _verifyNoExternalTypeIdWithUnwrapped(DeserializationContext ctxt,
+            JavaType baseType, Annotated annotated) {
+        JsonTypeInfo.Value typeInfo = ctxt.getAnnotationIntrospector()
+                .findPolymorphicTypeInfo(ctxt.getConfig(), annotated);
+        if ((typeInfo != null)
+                && typeInfo.getInclusionType() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
+            ctxt.reportBadDefinition(baseType, String.format(
+                    "Cannot (yet) use @JsonUnwrapped with "
+                    + "@JsonTypeInfo(As.EXTERNAL_PROPERTY) on value type %s",
+                    ClassUtil.getTypeDescription(baseType)));
+        }
     }
 
     protected TypeResolverBuilder<?> _findTypeResolver(MapperConfig<?> config,

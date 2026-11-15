@@ -298,7 +298,6 @@ public class StdConvertingSerializer
         if (ser != null) {
             return ser;
         }
-        // 17-Apr-2018, tatu: Basically inline `_findAndAddDynamic(...)`
         // 17-Apr-2018, tatu: difficult to know if these are primary or secondary serializers...
         PropertySerializerMap.SerializerAndMapResult result = _dynamicValueSerializers.findAndAddSecondarySerializer(cc,
                 ctxt, _property);

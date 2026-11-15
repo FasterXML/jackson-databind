@@ -8,6 +8,7 @@ import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.AnnotatedConstructor;
+import tools.jackson.databind.introspect.AnnotatedWithParams;
 import tools.jackson.databind.introspect.PotentialCreator;
 
 /**
@@ -46,15 +47,9 @@ public class RecordUtil
             }
         }
 
-        main_loop:
         for (PotentialCreator ctor : constructors) {
-            if (ctor.paramCount() != argCount) {
+            if (!isCanonicalConstructor(components, ctor.creator())) {
                 continue;
-            }
-            for (int i = 0; i < argCount; ++i) {
-                if (!ctor.creator().getRawParameterType(i).equals(components[i].getType())) {
-                    continue main_loop;
-                }
             }
             // Found it! One more thing; get implicit Record field names:
             final PropertyName[] implicits = new PropertyName[argCount];
@@ -66,5 +61,27 @@ public class RecordUtil
 
         throw new IllegalArgumentException("Failed to find the canonical Record constructor of type "
                         +ClassUtil.getTypeDescription(recordClass.getType()));
+    }
+
+    /**
+     * Helper method for checking whether given Creator is the canonical constructor
+     * of Record type with given components: constructor with the same parameter
+     * types, in the same order.
+     *
+     * @since 3.4
+     */
+    public static boolean isCanonicalConstructor(RecordComponent[] components,
+            AnnotatedWithParams creator)
+    {
+        if (!(creator instanceof AnnotatedConstructor)
+                || (creator.getParameterCount() != components.length)) {
+            return false;
+        }
+        for (int i = 0; i < components.length; ++i) {
+            if (!creator.getRawParameterType(i).equals(components[i].getType())) {
+                return false;
+            }
+        }
+        return true;
     }
 }

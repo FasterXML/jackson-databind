@@ -21,6 +21,7 @@ import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.util.BeanUtil;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
+import tools.jackson.databind.util.RecordUtil;
 import tools.jackson.databind.util.SimpleBeanPropertyDefinition;
 
 /**
@@ -758,7 +759,7 @@ public class BeanDeserializerFactory
         final AnnotatedWithParams creator = valueInstantiator.getWithArgsCreator();
         final Method[] accessors;
         // Creator not known: assume canonical constructor
-        if (creator == null || _isCanonicalRecordConstructor(components, creator)) {
+        if (creator == null || RecordUtil.isCanonicalConstructor(components, creator)) {
             accessors = Arrays.stream(components)
                     .map(RecordComponent::getAccessor)
                     .toArray(Method[]::new);
@@ -822,18 +823,6 @@ public class BeanDeserializerFactory
             }
         }
         return null;
-    }
-
-    private static boolean _isCanonicalRecordConstructor(RecordComponent[] components,
-            AnnotatedWithParams creator)
-    {
-        if (creator instanceof AnnotatedConstructor ctor) {
-            return Arrays.equals(ctor.getAnnotated().getParameterTypes(),
-                    Arrays.stream(components)
-                        .map(RecordComponent::getType)
-                        .toArray(Class<?>[]::new));
-        }
-        return false;
     }
 
     // since 2.18

@@ -952,3 +952,8 @@ Jared Jacobs (@2is10)
  * Reported, fixed #6426: Varargs delegating `@JsonCreator` fails with "Cannot cast
    [Ljava.lang.String; to java.lang.String" (3.x regression)
   [3.3.1]
+
+Mateusz Hubert Stefaniak (@EmhyrVarEmreis)
+ * Reported #6164: `@JsonCreator` on Enum with single `int` parameter fails with
+   `ClassCastException` if parameter name matches a getter
+  [3.4.0]

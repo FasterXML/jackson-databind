@@ -1490,7 +1490,9 @@ public abstract class StdDeserializer<T>
         // allow coercions for other scalar types
         // 17-Jan-2018, tatu: Related to [databind#1853] avoid FIELD_NAME by ensuring it's
         //   "real" scalar
-        if (p.currentToken().isScalarValue()) {
+        // Also: no token at all if input ended (possible with `TokenBuffer`)
+        final JsonToken t = p.currentToken();
+        if ((t != null) && t.isScalarValue()) {
             String text = p.getValueAsString();
             if (text != null) {
                 return text;
@@ -2007,11 +2009,11 @@ inputDesc, _coercedTypeDesc(targetType));
     protected ValueDeserializer<?> findConvertingContentDeserializer(DeserializationContext ctxt,
             BeanProperty prop, ValueDeserializer<?> existingDeserializer)
     {
-        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (_neitherNull(intr, prop)) {
+        if (prop != null) {
             AnnotatedMember member = prop.getMember();
             if (member != null) {
-                Object convDef = intr.findDeserializationContentConverter(ctxt.getConfig(), member);
+                Object convDef = ctxt.getAnnotationIntrospector()
+                        .findDeserializationContentConverter(ctxt.getConfig(), member);
                 if (convDef != null) {
                     Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
                     JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());

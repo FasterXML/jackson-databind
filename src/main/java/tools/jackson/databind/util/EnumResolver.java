@@ -178,10 +178,8 @@ public class EnumResolver implements java.io.Serializable
         // introspect
         final String[] names = new String[enumConstants.length];
         final String[][] allAliases = new String[enumConstants.length][];
-        if (ai != null) {
-            ai.findEnumValues(config, annotatedClass, enumConstants, names);
-            ai.findEnumAliases(config, annotatedClass, enumConstants, allAliases);
-        }
+        ai.findEnumValues(config, annotatedClass, enumConstants, names);
+        ai.findEnumAliases(config, annotatedClass, enumConstants, allAliases);
         
         // finally, build
         // from last to first, so that in case of duplicate values, first wins
@@ -248,10 +246,8 @@ public class EnumResolver implements java.io.Serializable
         final String[] names = new String[enumConstants.length];
         final String[][] allAliases = new String[enumConstants.length][];
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        if (ai != null) {
-            ai.findEnumValues(config, annotatedClass, enumConstants, names);
-            ai.findEnumAliases(config, annotatedClass, enumConstants, allAliases);
-        }
+        ai.findEnumValues(config, annotatedClass, enumConstants, names);
+        ai.findEnumAliases(config, annotatedClass, enumConstants, allAliases);
 
         // finally build
         // from last to first, so that in case of duplicate values, first wins
@@ -296,10 +292,8 @@ public class EnumResolver implements java.io.Serializable
         // introspect
         // 10-Sep-2026, pjfanning: [databind#6210] Aliases need to be honored here too
         final String[][] allAliases = new String[enumConstants.length][];
-        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        if (ai != null) {
-            ai.findEnumAliases(config, annotatedClass, enumConstants, allAliases);
-        }
+        config.getAnnotationIntrospector()
+                .findEnumAliases(config, annotatedClass, enumConstants, allAliases);
 
         // build
         HashMap<String, Enum<?>> map = new HashMap<>();
@@ -356,8 +350,8 @@ public class EnumResolver implements java.io.Serializable
      */
     protected static Enum<?> _enumDefault(MapperConfig<?> config,
             AnnotatedClass annotatedClass, Enum<?>[] enums) {
-        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        return (intr != null) ? intr.findDefaultEnumValue(config, annotatedClass, enums) : null;
+        return config.getAnnotationIntrospector()
+                .findDefaultEnumValue(config, annotatedClass, enums);
     }
 
     protected static boolean _isIntType(Class<?> erasedType) {

@@ -235,19 +235,17 @@ public class CreatorCollector
         //   type refinement(s) [databind#2016].
         JavaType baseType = creator.getParameterType(ix);
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        if (intr != null) {
-            AnnotatedParameter delegate = creator.getParameter(ix);
+        AnnotatedParameter delegate = creator.getParameter(ix);
 
-            // First: custom deserializer(s):
-            Object deserDef = intr.findDeserializer(config, delegate);
-            if (deserDef != null) {
-                ValueDeserializer<Object> deser = ctxt.deserializerInstance(delegate, deserDef);
-                baseType = baseType.withValueHandler(deser);
-            } else {
-                // Second: type refinement(s), if no explicit deserializer was located
-                baseType = intr.refineDeserializationType(config,
-                        delegate, baseType);
-            }
+        // First: custom deserializer(s):
+        Object deserDef = intr.findDeserializer(config, delegate);
+        if (deserDef != null) {
+            ValueDeserializer<Object> deser = ctxt.deserializerInstance(delegate, deserDef);
+            baseType = baseType.withValueHandler(deser);
+        } else {
+            // Second: type refinement(s), if no explicit deserializer was located
+            baseType = intr.refineDeserializationType(config,
+                    delegate, baseType);
         }
         return baseType;
     }

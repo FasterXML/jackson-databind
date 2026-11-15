@@ -155,6 +155,24 @@ public class UnwrappedPropertyHandler
     public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
             Object bean, TokenBuffer buffered, boolean hasUnwrappedContent)
     {
+        return _processUnwrapped(ctxt, bean, buffered, hasUnwrappedContent, false);
+    }
+
+    /**
+     * Processes unwrapped builder properties, retaining the instance returned by
+     * each builder method.
+     *
+     * @since 3.3
+     */
+    public Object processUnwrappedForBuilder(JsonParser originalParser, DeserializationContext ctxt,
+            Object builder, TokenBuffer buffered, boolean hasUnwrappedContent)
+    {
+        return _processUnwrapped(ctxt, builder, buffered, hasUnwrappedContent, true);
+    }
+
+    private Object _processUnwrapped(DeserializationContext ctxt,
+            Object bean, TokenBuffer buffered, boolean hasUnwrappedContent, boolean builderBased)
+    {
         if (hasUnwrappedContent
                 || _unwrappedPropertyNames.isEmpty()
                 // [databind#1709]: Skip deserialization if no unwrapped content.
@@ -167,7 +185,11 @@ public class UnwrappedPropertyHandler
                     continue;
                 }
                 try (JsonParser p = buffered.asParserOnFirstToken(ctxt)) {
-                    prop.deserializeAndSet(p, ctxt, bean);
+                    if (builderBased) {
+                        bean = prop.deserializeSetAndReturn(p, ctxt, bean);
+                    } else {
+                        prop.deserializeAndSet(p, ctxt, bean);
+                    }
                 }
             }
         }
@@ -234,42 +256,15 @@ public class UnwrappedPropertyHandler
             Set<String> names) {
         boolean acceptsAll = false;
         for (SettableBeanProperty prop : properties) {
-            acceptsAll |= _collectDeserializerPropertyNames(prop, names);
+            if (prop != null) {
+                acceptsAll |= prop.collectValuePropertyNamesTo(names);
+            }
         }
         for (SettableBeanProperty prop : creatorProperties) {
-            acceptsAll |= _collectDeserializerPropertyNames(prop, names);
+            if (prop != null) {
+                acceptsAll |= prop.collectValuePropertyNamesTo(names);
+            }
         }
         return acceptsAll;
-    }
-
-    /**
-     * Helper method to collect property names from a property's deserializer.
-     *
-     * @return {@code true} if the deserializer has an "any setter" or is "opaque"
-     *    (declares no property names), in which case all otherwise-unrecognized
-     *    properties must be routed to it (pre-#650 behavior).
-     *
-     * @since 3.1
-     */
-    private boolean _collectDeserializerPropertyNames(SettableBeanProperty prop,
-            Set<String> names)
-    {
-        if (prop == null) {
-            return false;
-        }
-        ValueDeserializer<?> deser = prop.getValueDeserializer();
-        if (deser == null) {
-            return false;
-        }
-        if (deser.hasAnySetter()) {
-            return true;
-        }
-        // [databind#6001]: collect into a temp set so we can tell whether this
-        //   deserializer contributed any names of its own; if not, it is "opaque"
-        //   (typically a custom unwrapping deserializer capturing arbitrary fields).
-        Set<String> propNames = new HashSet<>();
-        deser.collectAllPropertyNamesTo(propNames);
-        names.addAll(propNames);
-        return propNames.isEmpty();
     }
 }

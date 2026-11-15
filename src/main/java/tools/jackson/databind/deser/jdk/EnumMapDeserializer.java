@@ -250,7 +250,7 @@ public class EnumMapDeserializer
         Set<String> ignored = _ignorableProperties;
         Set<String> included = _includableProperties;
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (_neitherNull(intr, property)) {
+        if (property != null) {
             AnnotatedMember member = property.getMember();
             if (member != null) {
                 final DeserializationConfig config = ctxt.getConfig();

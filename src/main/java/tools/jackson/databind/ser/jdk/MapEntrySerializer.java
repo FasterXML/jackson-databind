@@ -145,7 +145,7 @@ public class MapEntrySerializer
         final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
 
         // First: if we have a property, may have property-annotation overrides
-        if (_neitherNull(propertyAcc, intr)) {
+        if (propertyAcc != null) {
             keySer = ctxt.serializerInstance(propertyAcc,
                     intr.findKeySerializer(ctxt.getConfig(), propertyAcc));
             ser = ctxt.serializerInstance(propertyAcc,

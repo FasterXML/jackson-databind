@@ -103,7 +103,7 @@ public class DynamicSerializerCaching6449Test extends DatabindTestUtil
         }
     }
 
-    private final List<Supplier<Object>> HOLDERS = List.of(
+    private static final List<Supplier<Object>> HOLDERS = List.of(
             ListHolder::new, CollectionHolder::new, ArrayHolder::new,
             IterableHolder::new, IteratorHolder::new, MapHolder::new,
             MapEntryHolder::new);

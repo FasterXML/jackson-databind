@@ -1038,7 +1038,7 @@ public class MapSerializer
             v2.keyFormat(_keySerializer, _keyType);
             ValueSerializer<?> valueSer = _valueSerializer;
             if (valueSer == null) {
-                valueSer = _findAndAddDynamic(visitor.getContext(), _valueType);
+                valueSer = _findCachedOrAddDynamic(visitor.getContext(), _valueType, _valueType.getRawClass());
             }
             v2.valueFormat(valueSer, _valueType);
         }

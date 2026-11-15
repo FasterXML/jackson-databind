@@ -7,6 +7,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.4.0 (not yet released)
 
+#6164: `@JsonCreator` on Enum with single `int` parameter fails with
+  `ClassCastException` if parameter name matches a getter
+ (reported by @EmhyrVarEmreis)
+ (fix by @cowtowncoder, w/ Claude code)
 #6264: `@JsonIgnoreProperties` / `@JsonIncludeProperties` not honored on
   `@JsonAnySetter` properties
  (reported, fixed by @aysha-afrah26)

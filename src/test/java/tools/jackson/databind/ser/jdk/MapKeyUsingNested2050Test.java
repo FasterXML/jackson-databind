@@ -26,11 +26,12 @@ import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class MapKeyUsingNested2050Test
+class MapKeyUsingNested2050Test extends DatabindTestUtil
 {
     record ObjectKey(int id, String name) {
         @Override
@@ -243,32 +244,33 @@ class MapKeyUsingNested2050Test
         }
     }
 
+    private final JsonMapper MAPPER = newJsonMapper();
+
     @Test
     void scalarValue() {
         assertEquals("""
                 {"attributes":{"1: First":1}}""",
-                JsonMapper.builder().build().writeValueAsString(new Envelope(1)));
+                MAPPER.writeValueAsString(new Envelope(1)));
     }
 
     @Test
     void nestedMapUsesItsOwnKeySerializer() {
         assertEquals("""
                 {"attributes":{"1: First":{"key":"value"}}}""",
-                JsonMapper.builder().build().writeValueAsString(new Envelope(Map.of("key", "value"))));
+                MAPPER.writeValueAsString(new Envelope(Map.of("key", "value"))));
     }
 
     @Test
     void sameKeyTypeDoesNotReusePropertySerializer() {
         assertEquals("""
                 {"attributes":{"1: First":{"default-2":2}}}""",
-                JsonMapper.builder().build().writeValueAsString(
-                        new Envelope(Map.of(new ObjectKey(2, "Second"), 2))));
+                MAPPER.writeValueAsString(new Envelope(Map.of(new ObjectKey(2, "Second"), 2))));
     }
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     void typedNestedMap(boolean staticTyping) {
-        JsonMapper mapper = JsonMapper.builder()
+        JsonMapper mapper = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, staticTyping)
                 .build();
         assertEquals("""
@@ -280,129 +282,126 @@ class MapKeyUsingNested2050Test
     void threeMapLevels() {
         assertEquals("""
                 {"attributes":{"1: First":{"second":{"third":3}}}}""",
-                JsonMapper.builder().build().writeValueAsString(
-                        new Envelope(Map.of("second", Map.of("third", 3)))));
+                MAPPER.writeValueAsString(new Envelope(Map.of("second", Map.of("third", 3)))));
     }
 
     @Test
     void mapInsideList() {
         assertEquals("""
                 {"attributes":{"1: First":[{"key":"value"}]}}""",
-                JsonMapper.builder().build().writeValueAsString(
-                        new Envelope(List.of(Map.of("key", "value")))));
+                MAPPER.writeValueAsString(new Envelope(List.of(Map.of("key", "value")))));
     }
 
     @Test
     void mapInsideOptional() {
         assertEquals("""
                 {"attributes":{"1: First":{"key":"value"}}}""",
-                JsonMapper.builder().build().writeValueAsString(
-                        new Envelope(Optional.of(Map.of("key", "value")))));
+                MAPPER.writeValueAsString(new Envelope(Optional.of(Map.of("key", "value")))));
     }
 
     @Test
     void propertyAnnotationAppliesThroughOptional() {
         assertEquals("""
                 {"attributes":{"1: First":1}}""",
-                JsonMapper.builder().build().writeValueAsString(new OptionalEnvelope()));
+                MAPPER.writeValueAsString(new OptionalEnvelope()));
     }
 
     @Test
     void propertyAnnotationAppliesThroughConverter() {
         assertEquals("""
                 {"attributes":{"1: First":1}}""",
-                JsonMapper.builder().build().writeValueAsString(new ConvertedEnvelope()));
+                MAPPER.writeValueAsString(new ConvertedEnvelope()));
     }
 
     @Test
     void mapProducedByContentConverter() {
         assertEquals("""
                 {"attributes":{"1: First":{"key":"value"}}}""",
-                JsonMapper.builder().build().writeValueAsString(new ConvertedContentEnvelope()));
+                MAPPER.writeValueAsString(new ConvertedContentEnvelope()));
     }
 
     @Test
     void optionalContentConverterIsNotAppliedToMapValues() {
         assertEquals("""
                 {"attributes":{"custom-key":3}}""",
-                JsonMapper.builder().build().writeValueAsString(new OptionalConvertedContent()));
+                MAPPER.writeValueAsString(new OptionalConvertedContent()));
     }
 
     @Test
     void listContentConverterIsNotAppliedToMapValues() {
         assertEquals("""
                 {"attributes":[{"custom-key":3}]}""",
-                JsonMapper.builder().build().writeValueAsString(new ListConvertedContent()));
+                MAPPER.writeValueAsString(new ListConvertedContent()));
     }
 
     @Test
     void referenceContentConverterIsNotAppliedToMapValues() {
         assertEquals("""
                 {"attributes":{"custom-key":3}}""",
-                JsonMapper.builder().build().writeValueAsString(new ReferenceConvertedContent()));
+                MAPPER.writeValueAsString(new ReferenceConvertedContent()));
     }
 
     @Test
     void explicitContentSerializerIsRetained() {
         assertEquals("""
                 {"attributes":{"1: First":"value-1"}}""",
-                JsonMapper.builder().build().writeValueAsString(new CustomContentEnvelope()));
+                MAPPER.writeValueAsString(new CustomContentEnvelope()));
     }
 
     @Test
     void nestedBeanUsesItsOwnPropertyAnnotation() {
         assertEquals("""
                 {"attributes":{"1: First":{"attributes":{"1: First":1}}}}""",
-                JsonMapper.builder().build().writeValueAsString(new Envelope(new Envelope(1))));
+                MAPPER.writeValueAsString(new Envelope(new Envelope(1))));
     }
 
     @Test
     void nestedMapKeepsClassAnnotation() {
         assertEquals("""
                 {"attributes":{"1: First":{"custom-key":1}}}""",
-                JsonMapper.builder().build().writeValueAsString(new Envelope(new AnnotatedMap())));
+                MAPPER.writeValueAsString(new Envelope(new AnnotatedMap())));
     }
 
     @Test
     void retainsOtherPropertyMetadata() {
         assertEquals("""
                 {"attributes":{"custom-key":{"a":1,"b":2}}}""",
-                JsonMapper.builder().build().writeValueAsString(new SortedEnvelope()));
+                MAPPER.writeValueAsString(new SortedEnvelope()));
     }
 
     @Test
     void retainsContentInclusion() {
         assertEquals("""
                 {"attributes":{"custom-present":3}}""",
-                JsonMapper.builder().build().writeValueAsString(new NonNullEnvelope()));
+                MAPPER.writeValueAsString(new NonNullEnvelope()));
     }
 
     @Test
     void sameDeclaredKeyTypeDoesNotReusePropertySerializer() {
         assertEquals("""
                 {"attributes":{"custom-outer":{"inner":3}}}""",
-                JsonMapper.builder().build().writeValueAsString(new SameKeyTypedEnvelope()));
+                MAPPER.writeValueAsString(new SameKeyTypedEnvelope()));
     }
 
     @Test
     void propertyAnnotationAppliesToObjectTypedMap() {
         assertEquals("""
                 {"attributes":{"custom-outer":{"inner":3}}}""",
-                JsonMapper.builder().build().writeValueAsString(new ObjectTypedEnvelope()));
+                MAPPER.writeValueAsString(new ObjectTypedEnvelope()));
     }
 
     @Test
     void anyGetterMapDoesNotPropagateKeySerializer() {
         assertEquals("""
                 {"custom-outer":{"inner":3}}""",
-                JsonMapper.builder().build().writeValueAsString(new AnyGetterEnvelope()));
+                MAPPER.writeValueAsString(new AnyGetterEnvelope()));
     }
 
     @Test
     void contentSerializerRetainsPropertyAndClassAnnotations() {
         assertEquals("""
                 {"attributes":{"custom-key":"attributes:field:class:3"}}""",
-                JsonMapper.builder().build().writeValueAsString(new ContextualEnvelope()));
+                MAPPER.writeValueAsString(new ContextualEnvelope()));
     }
 
     @Test
@@ -411,13 +410,13 @@ class MapKeyUsingNested2050Test
         module.addKeySerializer(String.class, new ModuleKeySerializer());
         assertEquals("""
                 {"attributes":{"custom-outer":{"module-inner":3}}}""",
-                JsonMapper.builder().addModule(module).build().writeValueAsString(new SameKeyTypedEnvelope()));
+                jsonMapperBuilder().addModule(module).build().writeValueAsString(new SameKeyTypedEnvelope()));
     }
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     void independentPropertyAndRootCaches(boolean warmPlainFirst) {
-        JsonMapper mapper = JsonMapper.builder().build();
+        JsonMapper mapper = newJsonMapper();
         Map<String, String> nested = Map.of("key", "value");
         PlainEnvelope plain = new PlainEnvelope(nested);
         Envelope annotated = new Envelope(nested);

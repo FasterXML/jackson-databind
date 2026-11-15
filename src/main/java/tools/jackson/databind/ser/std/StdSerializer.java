@@ -350,7 +350,7 @@ public abstract class StdSerializer<T>
      * the specified property. Property views must check the original instance
      * because the recursion guard uses identity comparison.
      *
-     * @since 3.3
+     * @since 3.4
      */
     protected boolean _isContentConverterActive(SerializationContext ctxt, BeanProperty property)
     {

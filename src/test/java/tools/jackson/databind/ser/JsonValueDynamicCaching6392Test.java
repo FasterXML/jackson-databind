@@ -32,6 +32,10 @@ public class JsonValueDynamicCaching6392Test extends DatabindTestUtil
         @JsonValue public Object val() { return o; }
     }
 
+    static class GenericV {
+        @JsonValue public Collection<A> val() { return List.of(new A()); }
+    }
+
     static class Wrapper {
         @JsonInclude(JsonInclude.Include.NON_EMPTY)
         public V value;
@@ -130,8 +134,19 @@ public class JsonValueDynamicCaching6392Test extends DatabindTestUtil
         assertEquals(Map.of("A", 1), counts);
     }
 
-    // Typed and untyped access share the cache: verify `@JsonIgnoreProperties`
-    // of accessor still applies for typed access
+    // Generic value type: resolved (specialized) Collection serializer reused,
+    // so its element serializer is only resolved once too
+    @Test
+    public void dynamicSerializerResolvedOnceForGenericType() throws Exception
+    {
+        assertEquals("""
+                [["A"],["A"],["A"]]""",
+                MAPPER.writeValueAsString(List.of(new GenericV(), new GenericV(), new GenericV())));
+        assertEquals(Map.of("A", 1), counts);
+    }
+
+    // Typed access now uses same lookup as untyped: verify `@JsonIgnoreProperties`
+    // of accessor still applies, for both initial and cached access
     @Test
     public void ignoredPropertiesAppliedWithTypeInfo() throws Exception
     {

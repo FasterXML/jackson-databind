@@ -4,6 +4,8 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
@@ -18,10 +20,28 @@ public class EnumSetSerializerCaching6447Test extends DatabindTestUtil
 {
     enum ABC { A, B, C }
 
-    static class CountingSerializer extends StdScalarSerializer<ABC> {
+    // Enum with constant-specific body: `getClass()` differs from `getDeclaringClass()`
+    enum WithBody {
+        X { @Override public String toString() { return "x"; } },
+        Y
+    }
+
+    static class NonEmptyHolder {
+        @JsonInclude(value = JsonInclude.Include.NON_EMPTY, content = JsonInclude.Include.NON_EMPTY)
+        public Object values;
+
+        NonEmptyHolder(EnumSet<?> v) { values = v; }
+    }
+
+    static class NonEmptyWildcardHolder {
+        @JsonInclude(value = JsonInclude.Include.NON_EMPTY, content = JsonInclude.Include.NON_EMPTY)
+        public EnumSet<?> values = EnumSet.of(ABC.A, ABC.B);
+    }
+
+    static class CountingSerializer<E extends Enum<E>> extends StdScalarSerializer<E> {
         int contextualizations;
 
-        CountingSerializer() { super(ABC.class); }
+        CountingSerializer(Class<E> type) { super(type); }
 
         @Override
         public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty p) {
@@ -30,15 +50,20 @@ public class EnumSetSerializerCaching6447Test extends DatabindTestUtil
         }
 
         @Override
-        public void serialize(ABC v, JsonGenerator g, SerializationContext ctxt) {
+        public void serialize(E v, JsonGenerator g, SerializationContext ctxt) {
             g.writeString(v.name());
         }
     }
 
-    private final CountingSerializer COUNTER = new CountingSerializer();
+    private final CountingSerializer<ABC> COUNTER = new CountingSerializer<>(ABC.class);
+
+    private final CountingSerializer<WithBody> BODY_COUNTER = new CountingSerializer<>(WithBody.class);
 
     private final ObjectMapper MAPPER = JsonMapper.builder()
-            .addModule(new SimpleModule().addSerializer(ABC.class, COUNTER))
+            .addModule(new SimpleModule()
+                    .addSerializer(ABC.class, COUNTER)
+                    .addSerializer(WithBody.class, BODY_COUNTER))
+            .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
             .build();
 
     // NOTE: no test for `EnumSet` valued properties: for those `BeanPropertyWriter`
@@ -66,5 +91,27 @@ public class EnumSetSerializerCaching6447Test extends DatabindTestUtil
                     MAPPER.writeValueAsString(EnumSet.of(ABC.A, ABC.C)));
         }
         assertEquals(1, COUNTER.contextualizations);
+    }
+
+    // Used to fail with NPE: element type not known for content inclusion check
+    @Test
+    public void contentInclusionWithUnknownElementType() throws Exception
+    {
+        assertEquals("""
+                {"values":["A","B"]}""",
+                MAPPER.writeValueAsString(new NonEmptyWildcardHolder()));
+    }
+
+    // `isEmpty()` and `serializeContents()` should share resolved serializer,
+    // also for Enums with constant-specific bodies
+    @Test
+    public void enumSerializerSharedWithEmptyCheck() throws Exception
+    {
+        assertEquals("""
+                [{"values":["X","Y"]},{"values":["X"]}]""",
+                MAPPER.writeValueAsString(List.of(
+                        new NonEmptyHolder(EnumSet.of(WithBody.X, WithBody.Y)),
+                        new NonEmptyHolder(EnumSet.of(WithBody.X)))));
+        assertEquals(1, BODY_COUNTER.contextualizations);
     }
 }

@@ -15,7 +15,9 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -146,6 +148,25 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
         public static Narrow of(@JsonProperty("name") String name,
                 @JsonProperty("count") int count) {
             return new Narrow(count, name);
+        }
+    }
+
+    // Primitive parameter for nullable component: existing `null` handled like `null` input
+    public record NullableCount(Integer count, String name) {
+        @JsonCreator
+        public static NullableCount of(@JsonProperty("name") String name,
+                @JsonProperty("count") int count) {
+            return new NullableCount(count, name);
+        }
+    }
+
+    // Parameter with refined deserialization type: existing value only needs to
+    // fit the declared parameter type
+    public record Tags(List<String> tags, String name) {
+        @JsonCreator
+        public static Tags of(@JsonProperty("name") String name,
+                @JsonProperty("tags") @JsonDeserialize(as = ArrayList.class) List<String> tags) {
+            return new Tags(tags, name);
         }
     }
 
@@ -385,5 +406,35 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
                         {"name":"b"}
                         """));
         verifyException(e, "Cannot update Record", "'count'");
+    }
+
+    @Test
+    public void updateWithNullForPrimitiveParameter() throws Exception
+    {
+        // same as `null` in input: fails by default (nulls not allowed for primitives)
+        ObjectReader r = MAPPER.readerForUpdating(new NullableCount(null, "a"));
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> r.readValue("""
+                        {"name":"b"}
+                        """));
+        verifyException(e, "Cannot map `null` into type `int`");
+
+        // ... but becomes default value if nulls are allowed for primitives
+        NullableCount result = MAPPER.readerForUpdating(new NullableCount(null, "a"))
+                .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .readValue("""
+                        {"name":"b"}
+                        """);
+        assertEquals(new NullableCount(0, "b"), result);
+    }
+
+    @Test
+    public void updateWithRefinedParameterType() throws Exception
+    {
+        Tags result = MAPPER.readerForUpdating(new Tags(List.of("x"), "a"))
+                .readValue("""
+                        {"name":"b"}
+                        """);
+        assertEquals(new Tags(List.of("x"), "b"), result);
     }
 }

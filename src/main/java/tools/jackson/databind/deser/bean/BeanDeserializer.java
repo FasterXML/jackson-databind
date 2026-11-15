@@ -14,6 +14,7 @@ import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.UnresolvedForwardReference;
 import tools.jackson.databind.deser.impl.*;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
+import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedMethod;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
@@ -376,7 +377,11 @@ public class BeanDeserializer
                     }
                 } else if (creatorIndex >= 0 && creatorIndex < linkedAccessors.length
                         && linkedAccessors[creatorIndex] != null) {
-                    final Object value = linkedAccessors[creatorIndex].callOn(existingRecord);
+                    Object value = linkedAccessors[creatorIndex].callOn(existingRecord);
+                    // Existing `null` for primitive parameter: handle like `null` in input
+                    if ((value == null) && _declaredRawType(creatorProp).isPrimitive()) {
+                        value = creatorProp.getNullValueProvider().getNullValue(ctxt);
+                    }
                     // Creator may take a different type than the component (like
                     // `String` for `Optional<String>`): only pass values that fit
                     if (_fitsCreatorProperty(creatorProp, value)) {
@@ -482,16 +487,23 @@ public class BeanDeserializer
     }
 
     private static boolean _fitsCreatorProperty(SettableBeanProperty prop, Object value) {
+        final Class<?> raw = _declaredRawType(prop);
         if (value == null) {
-            return true;
+            return !raw.isPrimitive();
         }
-        final Class<?> raw = prop.getType().getRawClass();
         if (raw.isPrimitive()) {
             // reflection unboxes and widens (like `int` component for `long` parameter)
             final Class<?> valueType = ClassUtil.primitiveType(value.getClass());
             return (valueType != null) && _isWideningOrIdentity(valueType, raw);
         }
         return raw.isInstance(value);
+    }
+
+    // Declared type of Creator parameter: property type may be refined (like with
+    // `@JsonDeserialize(as=...)`), but Creator accepts any value of declared type
+    private static Class<?> _declaredRawType(SettableBeanProperty prop) {
+        final AnnotatedMember member = prop.getMember();
+        return (member == null) ? prop.getType().getRawClass() : member.getRawType();
     }
 
     // Primitive conversions allowed by JLS 5.1.1 (identity) and 5.1.2 (widening)

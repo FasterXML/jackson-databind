@@ -185,7 +185,7 @@ public class RecursiveTypeTest extends DatabindTestUtil
     {
         Tree1658<String> t = new Tree1658<String>(Arrays.asList("hello", "world"));
         final TypeResolverBuilder<?> typer = new StdTypeResolverBuilder(JsonTypeInfo.Id.CLASS,
-                JsonTypeInfo.As.PROPERTY, null);
+                JsonTypeInfo.As.PROPERTY, null, null);
         ObjectMapper mapper = jsonMapperBuilder()
                 .setDefaultTyping(typer)
                 .build();

@@ -54,7 +54,19 @@ public class EnumSetSerializer
         // [databind#6065]: with content @JsonInclude applied to containers,
         // an EnumSet whose every element is suppressed is considered empty
         if (_needToCheckFiltering(prov)) {
-            return _allElementsSuppressed(prov, value.iterator());
+            // [databind#6447]: cannot use `_allElementsSuppressed()` as element
+            // type may not be known (null); and need to share serializer lookup
+            // with `serializeContents()`
+            ValueSerializer<Object> enumSer = _elementSerializer;
+            for (Enum<?> en : value) {
+                if (enumSer == null) {
+                    enumSer = _findCachedOrAddDynamic(prov, en.getDeclaringClass());
+                }
+                if (_shouldSerializeElement(prov, en, enumSer)) {
+                    return false;
+                }
+            }
+            return true;
         }
         return false;
     }
@@ -97,7 +109,7 @@ public class EnumSetSerializer
             if (enumSer == null) {
                 // 12-Jan-2010, tatu: Since enums cannot be polymorphic, let's
                 //   not bother with typed serializer variant here
-                enumSer = _findAndAddDynamic(ctxt, en.getDeclaringClass());
+                enumSer = _findCachedOrAddDynamic(ctxt, en.getDeclaringClass());
             }
             // [databind#5369] Support @JsonInclude in Collection
             if (needsFiltering && !_shouldSerializeElement(ctxt, en, enumSer)) {

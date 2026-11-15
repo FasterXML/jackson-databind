@@ -916,6 +916,16 @@ public abstract class SerializationContext
         // 16-Mar-2018, tatu: Used to have "default key serializer" in 2.x; dropped to let/make
         //    custom code use Module interface or similar to provide key serializers
         ValueSerializer<Object> ser = _serializerFactory.createKeySerializer(this, keyType);
+        // [databind#6326]: fail with a clear message instead of NPE if a (custom)
+        // factory returns `null`
+        if (ser == null) {
+            return reportBadDefinition(keyType, String.format(
+                    "`SerializerFactory` (%s) returned `null` key serializer for type %s"
+                    +" (possibly due to a registered `ValueSerializerModifier.modifyKeySerializer()`"
+                    +" returning `null`)",
+                    ClassUtil.classNameOf(_serializerFactory),
+                    ClassUtil.getTypeDescription(keyType)));
+        }
         // _handleContextualResolvable(ser, property):
         ser.resolve(this);
         return handleSecondaryContextualization(ser, property);

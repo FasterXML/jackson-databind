@@ -424,9 +424,14 @@ public class JsonValueSerializer
     }
 
     protected ValueSerializer<Object> _findSerializer(SerializationContext ctxt, Object value) {
+        final Class<?> cc = value.getClass();
+        // [databind#6392]: must check for already resolved serializer first
+        ValueSerializer<Object> ser = _dynamicValueSerializers.serializerFor(cc);
+        if (ser != null) {
+            return ser;
+        }
         final UnaryOperator<ValueSerializer<Object>> serTransformer =
                 valueSer -> _withIgnoreProperties(valueSer, _ignoredProperties);
-        Class<?> cc = value.getClass();
         if (_valueType.hasGenericTypes()) {
             return _findAndAddDynamic(ctxt,
                     ctxt.constructSpecializedType(_valueType, cc),
@@ -492,12 +497,8 @@ public class JsonValueSerializer
         }
         ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            Class<?> cc = value.getClass();
-            if (_valueType.hasGenericTypes()) {
-                ser = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_valueType, cc));
-            } else {
-                ser = _findAndAddDynamic(ctxt, cc);
-            }
+            // [databind#6392]: same lookup as `serialize()`, as cache is shared
+            ser = _findSerializer(ctxt, value);
         }
         // [databind#6206]: simple check for direct cycle through accessor
         //   (if written as null, no type id, same as with actual null value above)

@@ -753,25 +753,42 @@ public class BeanDeserializerFactory
         if (components == null) {
             return;
         }
-        final boolean fixAccess = ctxt.canOverrideAccessModifiers();
-        final boolean forceAccess = ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
         final AnnotatedWithParams creator = valueInstantiator.getWithArgsCreator();
+        final Method[] accessors;
         // Creator not known: assume canonical constructor
         if (creator == null || _isCanonicalRecordConstructor(components, creator)) {
-            final Method[] accessors = new Method[components.length];
-            for (int i = 0; i < components.length; ++i) {
-                accessors[i] = _fixAccess(components[i].getAccessor(), fixAccess, forceAccess);
-            }
-            builder.setRecordAccessors(accessors, true);
-            return;
+            accessors = Arrays.stream(components)
+                    .map(RecordComponent::getAccessor)
+                    .toArray(Method[]::new);
+        } else {
+            accessors = _linkRecordAccessors(ctxt, beanDesc, creator, components);
         }
+        if (ctxt.canOverrideAccessModifiers()) {
+            final boolean force = ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
+            for (Method accessor : accessors) {
+                if (accessor != null) {
+                    ClassUtil.checkAndFixAccess(accessor, force);
+                }
+            }
+        }
+        // If all components are linked, a Creator parameter with no linked
+        // accessor has no existing value to retain
+        final boolean allComponentsLinked = Arrays.asList(accessors).containsAll(
+                Arrays.stream(components).map(RecordComponent::getAccessor).toList());
+        builder.setRecordAccessors(accessors, allComponentsLinked);
+    }
+
+    // Link accessors to parameters of non-canonical Creator, by property introspection
+    private static Method[] _linkRecordAccessors(DeserializationContext ctxt,
+            BeanDescription beanDesc, AnnotatedWithParams creator, RecordComponent[] components)
+    {
         final Method[] accessors = new Method[creator.getParameterCount()];
         for (BeanPropertyDefinition propDef : beanDesc.findProperties()) {
             final AnnotatedParameter param = propDef.getConstructorParameter();
             final AnnotatedMethod getter = propDef.getGetter();
             if ((param != null) && (getter != null) && (param.getIndex() < accessors.length)
                     && creator.getAnnotated().equals(param.getOwner().getAnnotated())) {
-                accessors[param.getIndex()] = _fixAccess(getter.getAnnotated(), fixAccess, forceAccess);
+                accessors[param.getIndex()] = getter.getAnnotated();
             }
         }
         // Some properties have no getter for deserialization (ignored, `WRITE_ONLY`,
@@ -789,34 +806,14 @@ public class BeanDeserializerFactory
                 PropertyName explName = intr.findNameForDeserialization(ctxt.getConfig(), param);
                 name = (explName == null) ? null : explName.getSimpleName();
             }
-            if (name == null) {
-                continue;
-            }
             for (RecordComponent component : components) {
                 if (component.getName().equals(name)) {
-                    accessors[i] = _fixAccess(component.getAccessor(), fixAccess, forceAccess);
+                    accessors[i] = component.getAccessor();
                     break;
                 }
             }
         }
-        // If all components are linked, a Creator parameter with no linked
-        // accessor has no existing value to retain
-        final List<Method> linked = Arrays.asList(accessors);
-        boolean allComponentsLinked = true;
-        for (RecordComponent component : components) {
-            if (!linked.contains(component.getAccessor())) {
-                allComponentsLinked = false;
-                break;
-            }
-        }
-        builder.setRecordAccessors(accessors, allComponentsLinked);
-    }
-
-    private static Method _fixAccess(Method accessor, boolean fixAccess, boolean forceAccess) {
-        if (fixAccess) {
-            ClassUtil.checkAndFixAccess(accessor, forceAccess);
-        }
-        return accessor;
+        return accessors;
     }
 
     private static boolean _isCanonicalRecordConstructor(RecordComponent[] components,

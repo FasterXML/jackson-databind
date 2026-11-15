@@ -213,16 +213,16 @@ public abstract class BeanDeserializerBase
     protected final ObjectIdReader _objectIdReader;
 
     /**
-     * Flag set after {@code resolve()} has fully contextualized bean properties
-     * (second pass). Used by {@code createContextual()} to determine if
-     * a contextual copy's properties need re-contextualization
-     * (when copying from a partially-resolved deserializer during recursive
-     * type resolution; see [databind#1755]).
-     * Also serves as a recursion guard: set before contextualizing to
-     * prevent infinite recursion on self-referencing types.
+     * Flag that was used for re-contextualizing properties of contextual copies
+     * created from a partially-resolved deserializer (see [databind#1755]).
      *
      * @since 3.2
+     *
+     * @deprecated Since 3.4: no longer used (contextual copies created during
+     *   resolution are updated at the end of {@link #resolve}, see [databind#6359]);
+     *   retained only for backwards compatibility (Blackbird module sets it)
      */
+    @Deprecated // since 3.4
     protected volatile boolean _propertiesContextualized;
 
     /**
@@ -237,6 +237,23 @@ public abstract class BeanDeserializerBase
      * @since 3.2
      */
     private boolean _creatorBeingResolved;
+
+    /**
+     * Flag set while {@link #resolve} is running: contextual copies created
+     * during this time (self-referencing types, see [databind#6359]) only
+     * see partially resolved state, and need to be updated after resolution.
+     *
+     * @since 3.4
+     */
+    private transient boolean _resolving;
+
+    /**
+     * Contextual copies created while {@link #_resolving} was set; updated
+     * (and cleared) at the end of {@link #resolve}.
+     *
+     * @since 3.4
+     */
+    private transient List<BeanDeserializerBase> _copiesDuringResolve;
 
     /*
     /**********************************************************************
@@ -529,6 +546,33 @@ public abstract class BeanDeserializerBase
     @Override
     public void resolve(DeserializationContext ctxt)
     {
+        // [databind#6359]: track contextual copies created during resolution
+        // (for self-referencing types): they need to get fully resolved state as well
+        final List<BeanDeserializerBase> copies;
+        _resolving = true;
+        try {
+            _resolveImpl(ctxt);
+        } finally {
+            _resolving = false;
+            copies = _copiesDuringResolve;
+            _copiesDuringResolve = null;
+        }
+        if (copies != null) {
+            for (BeanDeserializerBase copy : copies) {
+                copy._updateFromResolved(ctxt, this);
+            }
+        }
+    }
+
+    /**
+     * Method called by {@link #resolve} to do actual resolution of this
+     * deserializer; separated to allow tracking of contextual copies
+     * created during resolution (see [databind#6359]).
+     *
+     * @since 3.4
+     */
+    protected void _resolveImpl(DeserializationContext ctxt)
+    {
         ExternalTypeHandler.Builder extTypes = null;
         // if ValueInstantiator can use "creator" approach, need to resolve it here...
         SettableBeanProperty[] creatorProps;
@@ -651,9 +695,6 @@ public abstract class BeanDeserializerBase
                 }
             }
         }
-        // [databind#1755]: mark that bean properties are fully contextualized
-        _propertiesContextualized = true;
-
         // "any setter" may also need to be resolved now
         if (_anySetter != null) {
             if (!_anySetter.hasValueDeserializer()) {
@@ -722,6 +763,47 @@ public abstract class BeanDeserializerBase
         }
         // may need to disable vanilla processing, if unwrapped handling was enabled...
         _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
+    }
+
+    /**
+     * Helper method for [databind#6359]: update a contextual copy that was
+     * created from given deserializer while it was still being resolved, so
+     * that the copy gets properties (and other state) set later in
+     * {@link #resolve}.
+     *
+     * @since 3.4
+     */
+    protected void _updateFromResolved(DeserializationContext ctxt, BeanDeserializerBase src)
+    {
+        // Copy may have removed properties (ignorals) or added Object Id property,
+        // so only update ones it has, by name.
+        // NOTE: `BeanAsArrayDeserializer` / `BeanAsArrayBuilderDeserializer` hold
+        // `_orderedProperties` which is the very same array as `getPrimaryProperties()`
+        // of the shared map: `replace()` updates it in place, so array-shaped copies
+        // see the changes. But `remove()` would NOT be visible to them (nor would
+        // any change if `getPrimaryProperties()` returned a copy).
+        for (SettableBeanProperty prop : _beanProperties.getPrimaryProperties().clone()) {
+            if (prop instanceof ObjectIdValueProperty) {
+                continue;
+            }
+            SettableBeanProperty resolved = src._beanProperties.findDefinition(prop.getName());
+            if (resolved == null) { // removed by resolve() (unwrapped, external type id)
+                _beanProperties.remove(prop);
+            } else if (resolved != prop) {
+                _beanProperties.replace(prop, resolved);
+            }
+        }
+        _anySetter = src._anySetter;
+        _delegateDeserializer = src._delegateDeserializer;
+        _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
+        // [databind#6243]: keep ignorals of the copy for Creator properties too
+        _propertyBasedCreator = (src._propertyBasedCreator == null) ? null
+                : src._propertyBasedCreator.withByNameInclusion(_ignorableProps, _includableProps);
+        _externalTypeIdHandler = src._externalTypeIdHandler;
+        _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _nonStandardCreation = src._nonStandardCreation;
+        _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
+        initNameMatcher(ctxt);
     }
 
     protected void _replaceProperty(BeanPropertyMap props, SettableBeanProperty[] creatorProps,
@@ -994,40 +1076,15 @@ Working alternatives:
             }
             contextual = contextual.asArrayDeserializer();
         }
-        // [databind#1755]: If a contextual copy was created from a partially-resolved
-        // deserializer (happens during recursive type resolution), its property
-        // deserializers may not yet be contextualized (e.g. CollectionDeserializer
-        // without content deserializer). Contextualize them here.
-        // The flag also serves as recursion guard: setting it before contextualizing
-        // prevents infinite recursion on self-referencing types.
-        if (contextual != this && !_propertiesContextualized) {
-            _propertiesContextualized = true;
-            contextual._contextualizeProperties(ctxt);
+        // [databind#6359]: if still being resolved, copy needs to be updated later
+        // (also covers [databind#1755]: copy's property deserializers not yet resolved)
+        if (contextual != this && _resolving) {
+            if (_copiesDuringResolve == null) {
+                _copiesDuringResolve = new ArrayList<>();
+            }
+            _copiesDuringResolve.add(contextual);
         }
         return contextual;
-    }
-
-    /**
-     * Helper method for [databind#1755]: contextualize property deserializers
-     * of a contextual copy that may have been created from a partially-resolved
-     * deserializer during recursive type resolution.
-     *
-     * @since 3.2
-     */
-    protected void _contextualizeProperties(DeserializationContext ctxt)
-    {
-        _propertiesContextualized = true;
-        for (SettableBeanProperty origProp : _beanProperties) {
-            ValueDeserializer<?> deser = origProp.getValueDeserializer();
-            if (deser != null) {
-                ValueDeserializer<?> newDeser = ctxt.handlePrimaryContextualization(
-                        deser, origProp, origProp.getType());
-                if (newDeser != deser) {
-                    SettableBeanProperty newProp = origProp.withValueDeserializer(newDeser);
-                    _beanProperties.replace(origProp, newProp);
-                }
-            }
-        }
     }
 
     protected BeanDeserializerBase _handleByNameInclusion(DeserializationContext ctxt,

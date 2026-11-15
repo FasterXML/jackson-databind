@@ -129,14 +129,7 @@ public class IterableSerializer
                 ValueSerializer<Object> serializer = _elementSerializer;
                 if (serializer == null) {
                     Class<?> cc = elem.getClass();
-                    serializer = _dynamicValueSerializers.serializerFor(cc);
-                    if (serializer == null) {
-                        if (_elementType.hasGenericTypes()) {
-                            serializer = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_elementType, cc));
-                        } else {
-                            serializer = _findAndAddDynamic(ctxt, cc);
-                        }
-                    }
+                    serializer = _findCachedOrAddDynamic(ctxt, _elementType, cc);
                 }
                 // [databind#5369] Support `@JsonInclude` in `Collection`
                 //                Let's do filtering before serialization

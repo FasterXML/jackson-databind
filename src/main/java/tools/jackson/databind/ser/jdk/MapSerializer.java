@@ -1145,15 +1145,6 @@ public class MapSerializer
     private final ValueSerializer<Object> _findSerializer(SerializationContext ctxt,
             Object value)
     {
-        final Class<?> cc = value.getClass();
-        ValueSerializer<Object> valueSer = _dynamicValueSerializers.serializerFor(cc);
-        if (valueSer != null) {
-            return valueSer;
-        }
-        if (_valueType.hasGenericTypes()) {
-            return _findAndAddDynamic(ctxt,
-                    ctxt.constructSpecializedType(_valueType, cc));
-        }
-        return _findAndAddDynamic(ctxt, cc);
+        return _findCachedOrAddDynamic(ctxt, _valueType, value.getClass());
     }
 }

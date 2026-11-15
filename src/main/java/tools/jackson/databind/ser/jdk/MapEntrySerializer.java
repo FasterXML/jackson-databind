@@ -262,11 +262,7 @@ public class MapEntrySerializer
         if (valueSer == null) {
             // Let's not worry about generic types here, actually;
             // unlikely to make any difference, but does add significant overhead
-            Class<?> cc = value.getClass();
-            valueSer = _dynamicValueSerializers.serializerFor(cc);
-            if (valueSer == null) {
-                valueSer = _findAndAddDynamic(ctxt, cc);
-            }
+            valueSer = _findCachedOrAddDynamic(ctxt, value.getClass());
         }
         if (_suppressableValue == MARKER_FOR_EMPTY) {
             return valueSer.isEmpty(ctxt, value);
@@ -327,16 +323,7 @@ public class MapEntrySerializer
         } else {
             valueSer = _valueSerializer;
             if (valueSer == null) {
-                Class<?> cc = valueElem.getClass();
-                valueSer = _dynamicValueSerializers.serializerFor(cc);
-                if (valueSer == null) {
-                    if (_valueType.hasGenericTypes()) {
-                        valueSer = _findAndAddDynamic(ctxt,
-                                ctxt.constructSpecializedType(_valueType, cc));
-                    } else {
-                        valueSer = _findAndAddDynamic(ctxt, cc);
-                    }
-                }
+                valueSer = _findCachedOrAddDynamic(ctxt, _valueType, valueElem.getClass());
             }
             // also may need to skip non-empty values:
             if (_suppressableValue != null) {

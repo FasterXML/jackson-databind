@@ -134,7 +134,10 @@ public class StdConvertingSerializer
         if (delSer != null) {
             delSer = ctxt.handleSecondaryContextualization(delSer, property);
         }
-        if ((delSer == _delegateSerializer)
+        // [databind#6395]: for dynamic case (no delegate serializer) need a new instance
+        //   to avoid sharing `_dynamicValueSerializers` with other contexts (like
+        //   other mappers, if this instance was registered directly)
+        if ((delSer != null) && (delSer == _delegateSerializer)
                 && (delegateType == _delegateType) && (property == _property)) {
             return this;
         }
@@ -289,9 +292,14 @@ public class StdConvertingSerializer
      */
     protected ValueSerializer<Object> _findSerializer(Object value, SerializationContext ctxt)
     {
+        final Class<?> cc = value.getClass();
+        // [databind#6395]: must check for already resolved serializer first
+        ValueSerializer<Object> ser = _dynamicValueSerializers.serializerFor(cc);
+        if (ser != null) {
+            return ser;
+        }
         // 17-Apr-2018, tatu: Basically inline `_findAndAddDynamic(...)`
         // 17-Apr-2018, tatu: difficult to know if these are primary or secondary serializers...
-        Class<?> cc = value.getClass();
         PropertySerializerMap.SerializerAndMapResult result = _dynamicValueSerializers.findAndAddSecondarySerializer(cc,
                 ctxt, _property);
         if (_dynamicValueSerializers != result.map) {

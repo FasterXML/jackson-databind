@@ -25,6 +25,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6392: `JsonValueSerializer` re-resolves serializer for every dynamically typed
   `@JsonValue` result, filling its cache with duplicates
  (fix by @cowtowncoder, w/ Claude code)
+#6395: `StdConvertingSerializer` looks up and contextualizes delegate serializer for
+  every value when converter output type is dynamic
+ (fix by @cowtowncoder, w/ Claude code)
 #6413: Consolidate "effective input names" for `@JsonUnwrapped` properties
   (include polymorphic type id) instead of special-casing in `UnwrappedPropertyHandler`
  (fix by @wozhenbang2004)

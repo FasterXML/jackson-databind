@@ -80,7 +80,7 @@ public class JsonValueSerializer
      * Transformer applied to dynamically resolved value serializers (to apply
      * {@link #_ignoredProperties}); held to avoid allocation on every lookup.
      */
-    private final UnaryOperator<ValueSerializer<Object>> _serTransformer =
+    private final UnaryOperator<ValueSerializer<Object>> _ignoredPropertiesTransformer =
             this::_applyIgnoredProperties;
 
     /*
@@ -432,7 +432,7 @@ public class JsonValueSerializer
 
     protected ValueSerializer<Object> _findSerializer(SerializationContext ctxt, Object value) {
         // [databind#6392]: must check for already resolved serializer first
-        return _findCachedOrAddDynamic(ctxt, _valueType, value.getClass(), _serTransformer);
+        return _findCachedOrAddDynamic(ctxt, _valueType, value.getClass(), _ignoredPropertiesTransformer);
     }
 
     /**

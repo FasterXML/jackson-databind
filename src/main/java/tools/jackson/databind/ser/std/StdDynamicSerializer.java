@@ -96,15 +96,7 @@ public abstract class StdDynamicSerializer<T>
     protected final ValueSerializer<Object> _findCachedOrAddDynamic(SerializationContext ctxt,
             JavaType declaredType, Class<?> runtimeType)
     {
-        ValueSerializer<Object> ser = _dynamicValueSerializers.serializerFor(runtimeType);
-        if (ser == null) {
-            if (declaredType.hasGenericTypes()) {
-                ser = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(declaredType, runtimeType));
-            } else {
-                ser = _findAndAddDynamic(ctxt, runtimeType);
-            }
-        }
-        return ser;
+        return _findCachedOrAddDynamic(ctxt, declaredType, runtimeType, UnaryOperator.identity());
     }
 
     /**

@@ -7,9 +7,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // [databind#6164]: single-arg `@JsonCreator` on Enum whose implicit parameter
 // name matches a getter should not be detected as properties-based
@@ -99,6 +101,17 @@ public class EnumCreatorImplicitName6164Test extends DatabindTestUtil
                 {"dataSetType":5}
                 """, Wrapper6164.class);
         assertEquals(DataSetType6164.FIVE, w.dataSetType);
+    }
+
+    // Since Creator is delegating, JSON Object input is no longer accepted
+    @Test
+    void implicitNameMatchingGetterRejectsObject() throws Exception
+    {
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue("""
+                        {"value":5}
+                        """, DataSetType6164.class));
+        verifyException(e, "Cannot deserialize value of type `int` from Object value");
     }
 
     @Test

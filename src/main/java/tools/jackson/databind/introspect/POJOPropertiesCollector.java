@@ -1029,7 +1029,10 @@ ctor.creator()));
             // One more possibility: implicit name that maps to implied
             // property with at least one visible accessor.
             // [databind#6164]: but not for Enums, unless serialized as Objects:
-            //   their accessors do not imply properties
+            //   their accessors do not imply properties.
+            //   NOTE: only class-level `@JsonFormat` (and config overrides) considered;
+            //   property-level `@JsonFormat(shape = OBJECT)` cannot be detected here,
+            //   so Enums serialized that way need explicit Creator mode or names
             PropertyName paramName = _isEnumAsScalar() ? null : ctor.implicitName(0);
             if (paramName != null) {
                 POJOPropertyBuilder prop = props.get(paramName.getSimpleName());

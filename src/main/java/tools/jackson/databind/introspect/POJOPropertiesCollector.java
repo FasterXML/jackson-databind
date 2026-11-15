@@ -535,10 +535,19 @@ public class POJOPropertiesCollector
         // [databind#3591]: Also collect class-level @JsonIgnoreProperties ignorals
         _collectClassLevelIgnorals();
         // and then remove unneeded accessors (wrt read-only, read-write)
-        _removeUnwantedAccessors(props);
+        // NOTE: for serialization must wait until renaming is done, so that
+        // `WRITE_ONLY` from a renamed accessor (like Creator parameter whose
+        // Java name differs from the property name) applies to the getter too
+        if (!_forSerialization) {
+            _removeUnwantedAccessors(props);
+        }
 
         // Rename remaining properties
         _renameProperties(props);
+
+        if (_forSerialization) {
+            _removeUnwantedAccessors(props);
+        }
 
         // and now add injectables, but taking care to avoid overlapping ones
         // via creator and regular properties

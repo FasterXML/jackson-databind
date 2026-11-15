@@ -311,15 +311,7 @@ public class ObjectArraySerializer
                     continue;
                 }
                 Class<?> cc = elem.getClass();
-                ValueSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
-                if (serializer == null) {
-                    if (_elementType.hasGenericTypes()) {
-                        serializer = _findAndAddDynamic(ctxt,
-                                ctxt.constructSpecializedType(_elementType, cc));
-                    } else {
-                        serializer = _findAndAddDynamic(ctxt, cc);
-                    }
-                }
+                ValueSerializer<Object> serializer = _findCachedOrAddDynamic(ctxt, _elementType, cc);
                 // Check if this element should be suppressed (only in filtered mode)
                 if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                     continue;
@@ -398,10 +390,7 @@ public class ObjectArraySerializer
                     continue;
                 }
                 Class<?> cc = elem.getClass();
-                ValueSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
-                if (serializer == null) {
-                    serializer = _findAndAddDynamic(ctxt, cc);
-                }
+                ValueSerializer<Object> serializer = _findCachedOrAddDynamic(ctxt, cc);
                 // Check if this element should be suppressed (only in filtered mode)
                 if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                     continue;
@@ -513,15 +502,7 @@ public class ObjectArraySerializer
                 serializer = _elementSerializer;
                 if (serializer == null) {
                     Class<?> cc = elem.getClass();
-                    serializer = _dynamicValueSerializers.serializerFor(cc);
-                    if (serializer == null) {
-                        if (_elementType.hasGenericTypes()) {
-                            serializer = _findAndAddDynamic(ctxt,
-                                    ctxt.constructSpecializedType(_elementType, cc));
-                        } else {
-                            serializer = _findAndAddDynamic(ctxt, cc);
-                        }
-                    }
+                    serializer = _findCachedOrAddDynamic(ctxt, _elementType, cc);
                 }
             }
             if (_shouldSerializeElement(ctxt, elem, serializer)) {

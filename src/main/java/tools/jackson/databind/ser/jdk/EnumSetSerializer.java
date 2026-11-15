@@ -60,7 +60,7 @@ public class EnumSetSerializer
             ValueSerializer<Object> enumSer = _elementSerializer;
             for (Enum<?> en : value) {
                 if (enumSer == null) {
-                    enumSer = _findEnumSerializer(prov, en);
+                    enumSer = _findCachedOrAddDynamic(prov, en.getDeclaringClass());
                 }
                 if (_shouldSerializeElement(prov, en, enumSer)) {
                     return false;
@@ -109,7 +109,7 @@ public class EnumSetSerializer
             if (enumSer == null) {
                 // 12-Jan-2010, tatu: Since enums cannot be polymorphic, let's
                 //   not bother with typed serializer variant here
-                enumSer = _findEnumSerializer(ctxt, en);
+                enumSer = _findCachedOrAddDynamic(ctxt, en.getDeclaringClass());
             }
             // [databind#5369] Support @JsonInclude in Collection
             if (needsFiltering && !_shouldSerializeElement(ctxt, en, enumSer)) {
@@ -117,17 +117,5 @@ public class EnumSetSerializer
             }
             enumSer.serialize(en, g, ctxt);
         }
-    }
-
-    // @since 3.4
-    private ValueSerializer<Object> _findEnumSerializer(SerializationContext ctxt, Enum<?> en)
-    {
-        // [databind#6447]: must check for already resolved serializer first
-        final Class<?> enumType = en.getDeclaringClass();
-        ValueSerializer<Object> enumSer = _dynamicValueSerializers.serializerFor(enumType);
-        if (enumSer == null) {
-            enumSer = _findAndAddDynamic(ctxt, enumType);
-        }
-        return enumSer;
     }
 }

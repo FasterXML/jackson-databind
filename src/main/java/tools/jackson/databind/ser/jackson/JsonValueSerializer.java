@@ -76,6 +76,13 @@ public class JsonValueSerializer
      */
     protected final boolean _emptyCheckDisabled;
 
+    /**
+     * Transformer applied to dynamically resolved value serializers (to apply
+     * {@link #_ignoredProperties}); held to avoid allocation on every lookup.
+     */
+    private final UnaryOperator<ValueSerializer<Object>> _ignoredPropertiesTransformer =
+            this::_applyIgnoredProperties;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -424,20 +431,8 @@ public class JsonValueSerializer
     }
 
     protected ValueSerializer<Object> _findSerializer(SerializationContext ctxt, Object value) {
-        final Class<?> cc = value.getClass();
         // [databind#6392]: must check for already resolved serializer first
-        ValueSerializer<Object> ser = _dynamicValueSerializers.serializerFor(cc);
-        if (ser != null) {
-            return ser;
-        }
-        final UnaryOperator<ValueSerializer<Object>> serTransformer =
-                valueSer -> _withIgnoreProperties(valueSer, _ignoredProperties);
-        if (_valueType.hasGenericTypes()) {
-            return _findAndAddDynamic(ctxt,
-                    ctxt.constructSpecializedType(_valueType, cc),
-                    serTransformer);
-        }
-        return _findAndAddDynamic(ctxt, cc, serTransformer);
+        return _findCachedOrAddDynamic(ctxt, _valueType, value.getClass(), _ignoredPropertiesTransformer);
     }
 
     /**
@@ -458,6 +453,10 @@ public class JsonValueSerializer
             }
         }
         return (ValueSerializer<Object>) ser;
+    }
+
+    private ValueSerializer<Object> _applyIgnoredProperties(ValueSerializer<Object> ser) {
+        return _withIgnoreProperties(ser, _ignoredProperties);
     }
 
     @Override

@@ -358,15 +358,11 @@ public class BeanDeserializer
                 continue;
             }
             try {
-                final Class<?> paramType = _declaredRawType(creatorProp);
-                Object value = accessors[creatorIndex].invoke(existingRecord);
-                // Existing `null` for primitive parameter: handle like `null` in input
-                if ((value == null) && paramType.isPrimitive()) {
-                    value = creatorProp.getNullValueProvider().getNullValue(ctxt);
-                }
+                final Object value = accessors[creatorIndex].invoke(existingRecord);
                 // Creator may take a different type than the component (like
                 // `String` for `Optional<String>`): only pass values that fit
-                if (_fitsType(paramType, value)) {
+                // (if not, input must have value; checked before building)
+                if (_fitsType(_declaredRawType(creatorProp), value)) {
                     buffer.assignParameter(creatorProp, value);
                 }
             } catch (Exception e) {
@@ -476,6 +472,9 @@ public class BeanDeserializer
             return false;
         }
         final Class<?> valueType = ClassUtil.primitiveType(value.getClass());
+        if (valueType == null) {
+            return false;
+        }
         // `char` widens like `short`, but nothing (other than `char`) widens to `char`
         final int from = WIDENING_ORDER.indexOf((valueType == Character.TYPE) ? Short.TYPE : valueType);
         return (valueType == type) || ((from >= 0) && (WIDENING_ORDER.indexOf(type) > from));

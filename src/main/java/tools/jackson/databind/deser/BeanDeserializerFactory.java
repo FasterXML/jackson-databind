@@ -287,6 +287,11 @@ public class BeanDeserializerFactory
                 deserBuilder = mod.updateBuilder(config, beanDescRef, deserBuilder);
             }
         }
+        // [databind#6383]: link Record accessors to Creator parameters for "update"
+        // (after modifiers, which may change ValueInstantiator)
+        if (type.isRecordType()) {
+            _addRecordAccessors(ctxt, beanDescRef.get(), deserBuilder);
+        }
         ValueDeserializer<?> deserializer;
 
         if (type.isAbstract() && !valueInstantiator.canInstantiate()) {
@@ -588,10 +593,6 @@ public class BeanDeserializerFactory
                 ? valueInstantiator.getFromObjectArguments(ctxt.getConfig())
                 : null;
         final boolean hasCreatorProps = (creatorProps != null);
-        // [databind#6383]: link Record accessors to Creator parameters for "update"
-        if (hasCreatorProps && beanDesc.isRecordType()) {
-            _addRecordAccessors(ctxt, beanDesc, valueInstantiator, builder);
-        }
 
         // Class-level ignorals (annotation + config overrides): pre-computed during
         // property collection. Surface the direction-specific name set so we can
@@ -746,11 +747,12 @@ public class BeanDeserializerFactory
      * Nothing is linked if Record components are not accessible (native image).
      */
     private void _addRecordAccessors(DeserializationContext ctxt,
-            BeanDescription beanDesc, ValueInstantiator valueInstantiator,
-            BeanDeserializerBuilder builder)
+            BeanDescription beanDesc, BeanDeserializerBuilder builder)
     {
+        final ValueInstantiator valueInstantiator = builder.getValueInstantiator();
         final RecordComponent[] components = beanDesc.getBeanClass().getRecordComponents();
-        if (components == null) {
+        if ((components == null) || (valueInstantiator == null)
+                || (valueInstantiator.getFromObjectArguments(ctxt.getConfig()) == null)) {
             return;
         }
         final AnnotatedWithParams creator = valueInstantiator.getWithArgsCreator();
@@ -794,26 +796,32 @@ public class BeanDeserializerFactory
         // Some properties have no getter for deserialization (ignored, `WRITE_ONLY`,
         // getter not visible) or are not included above at all, but their existing values
         // still need to be retained: link these to the Record component of the same name
-        // that property introspection would use (implicit parameter name, if any; else explicit)
+        // as parameter (implicit parameter name; or if no match, explicit)
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         for (int i = 0; i < accessors.length; ++i) {
             if (accessors[i] != null) {
                 continue;
             }
             final AnnotatedParameter param = creator.getParameter(i);
-            String name = intr.findImplicitPropertyName(ctxt.getConfig(), param);
-            if (name == null || name.isEmpty()) {
+            accessors[i] = _findComponentAccessor(components,
+                    intr.findImplicitPropertyName(ctxt.getConfig(), param));
+            if (accessors[i] == null) {
                 PropertyName explName = intr.findNameForDeserialization(ctxt.getConfig(), param);
-                name = (explName == null) ? null : explName.getSimpleName();
-            }
-            for (RecordComponent component : components) {
-                if (component.getName().equals(name)) {
-                    accessors[i] = component.getAccessor();
-                    break;
+                if (explName != null) {
+                    accessors[i] = _findComponentAccessor(components, explName.getSimpleName());
                 }
             }
         }
         return accessors;
+    }
+
+    private static Method _findComponentAccessor(RecordComponent[] components, String name) {
+        for (RecordComponent component : components) {
+            if (component.getName().equals(name)) {
+                return component.getAccessor();
+            }
+        }
+        return null;
     }
 
     private static boolean _isCanonicalRecordConstructor(RecordComponent[] components,

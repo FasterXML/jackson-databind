@@ -17,7 +17,6 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.exc.InvalidDefinitionException;
-import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -167,6 +166,25 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
         public static Tags of(@JsonProperty("name") String name,
                 @JsonProperty("tags") @JsonDeserialize(as = ArrayList.class) List<String> tags) {
             return new Tags(tags, name);
+        }
+    }
+
+    // Primitive parameter for non-numeric component: existing value cannot be passed
+    public record OptCount(String id, Optional<Integer> count) {
+        @JsonCreator
+        public static OptCount of(@JsonProperty("id") String id,
+                @JsonProperty("count") int count) {
+            return new OptCount(id, Optional.of(count));
+        }
+    }
+
+    // `WRITE_ONLY` component with parameter whose implicit name differs from component
+    public record PwAccount(String id,
+            @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) String password) {
+        @JsonCreator
+        public static PwAccount of(@JsonProperty("password") String pw,
+                @JsonProperty("id") String id) {
+            return new PwAccount(id, pw);
         }
     }
 
@@ -412,21 +430,47 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
     @Test
     public void updateWithNullForPrimitiveParameter() throws Exception
     {
-        // same as `null` in input: fails by default (nulls not allowed for primitives)
+        // existing `null` cannot be passed to primitive parameter: fine if input has value...
+        NullableCount result = MAPPER.readerForUpdating(new NullableCount(null, "a"))
+                .readValue("""
+                        {"count":5}
+                        """);
+        assertEquals(new NullableCount(5, "a"), result);
+
+        // ... but fails if not
         ObjectReader r = MAPPER.readerForUpdating(new NullableCount(null, "a"));
-        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
                 () -> r.readValue("""
                         {"name":"b"}
                         """));
-        verifyException(e, "Cannot map `null` into type `int`");
+        verifyException(e, "does not fit type of Creator property 'count'");
+    }
 
-        // ... but becomes default value if nulls are allowed for primitives
-        NullableCount result = MAPPER.readerForUpdating(new NullableCount(null, "a"))
-                .without(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+    @Test
+    public void updateWithNonNumericValueForPrimitiveParameter() throws Exception
+    {
+        OptCount result = MAPPER.readerForUpdating(new OptCount("a", Optional.of(3)))
                 .readValue("""
-                        {"name":"b"}
+                        {"count":5}
                         """);
-        assertEquals(new NullableCount(0, "b"), result);
+        assertEquals(new OptCount("a", Optional.of(5)), result);
+
+        ObjectReader r = MAPPER.readerForUpdating(new OptCount("a", Optional.of(3)));
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> r.readValue("""
+                        {"id":"b"}
+                        """));
+        verifyException(e, "does not fit type of Creator property 'count'");
+    }
+
+    @Test
+    public void updateKeepsWriteOnlyComponentWithDifferentParameterName() throws Exception
+    {
+        PwAccount result = MAPPER.readerForUpdating(new PwAccount("1", "secret"))
+                .readValue("""
+                        {"id":"2"}
+                        """);
+        assertEquals(new PwAccount("2", "secret"), result);
     }
 
     @Test

@@ -97,7 +97,12 @@ public class EnumSetSerializer
             if (enumSer == null) {
                 // 12-Jan-2010, tatu: Since enums cannot be polymorphic, let's
                 //   not bother with typed serializer variant here
-                enumSer = _findAndAddDynamic(ctxt, en.getDeclaringClass());
+                // [databind#6447]: must check for already resolved serializer first
+                final Class<?> enumType = en.getDeclaringClass();
+                enumSer = _dynamicValueSerializers.serializerFor(enumType);
+                if (enumSer == null) {
+                    enumSer = _findAndAddDynamic(ctxt, enumType);
+                }
             }
             // [databind#5369] Support @JsonInclude in Collection
             if (needsFiltering && !_shouldSerializeElement(ctxt, en, enumSer)) {

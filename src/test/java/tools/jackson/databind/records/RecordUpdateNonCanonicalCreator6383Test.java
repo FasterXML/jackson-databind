@@ -302,7 +302,7 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
                 () -> r.readValue("""
                         {"tag":"u"}
                         """));
-        verifyException(e, "Cannot update Record", "'items'");
+        verifyException(e, "does not fit type of Creator property 'items'");
     }
 
     // Getters not visible: accessors are still linked by component name
@@ -331,7 +331,7 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
                 () -> r.readValue("""
                         {"given":"Jane"}
                         """));
-        verifyException(e, "Cannot update Record", "'sur'");
+        verifyException(e, "no Record component linked to Creator property 'sur'");
     }
 
     @Test
@@ -342,7 +342,8 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
                 () -> r.readValue("""
                         {"age":31}
                         """));
-        verifyException(e, "Cannot update Record", "'first_name'");
+        verifyException(e, "no Record component linked to Creator property 'first_name'");
+        verifyException(e, "compile with `-parameters`");
     }
 
     // ... but if input has values for unlinked properties, update works
@@ -364,7 +365,7 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
                 () -> r.readValue("""
                         {"id":"2"}
                         """));
-        verifyException(e, "Cannot update Record", "'nick'");
+        verifyException(e, "does not fit type of Creator property 'nick'");
 
         Opt result = MAPPER.readerForUpdating(new Opt("1", Optional.of("x")))
                 .readValue("""
@@ -405,7 +406,7 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
                 () -> r.readValue("""
                         {"name":"b"}
                         """));
-        verifyException(e, "Cannot update Record", "'count'");
+        verifyException(e, "does not fit type of Creator property 'count'");
     }
 
     @Test

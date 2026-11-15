@@ -2,6 +2,7 @@ package tools.jackson.databind.deser.bean;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -162,15 +163,24 @@ public abstract class BeanDeserializerBase
     protected final boolean _needViewProcesing;
 
     /**
-     * For Record types with a non-canonical property-based Creator: Record
-     * accessor linked to each Creator parameter (by Creator index), used to
-     * pre-populate parameters on update; entry is {@code null} if no compatible
-     * accessor could be linked. {@code null} for the canonical constructor
-     * (and non-Record types), for which Creator index matches component index.
+     * For Record types with a property-based Creator: Record accessor linked
+     * to each Creator parameter (by Creator index), used to pre-populate
+     * parameters on update; entry is {@code null} if no accessor could be linked.
+     * {@code null} for non-Record types (and if Record components are not
+     * accessible).
      *
      * @since 3.4
      */
-    protected final AnnotatedMethod[] _recordAccessors;
+    protected final Method[] _recordAccessors;
+
+    /**
+     * For Record types: whether every Record component is linked to some Creator
+     * parameter (if so, a Creator parameter with no linked accessor has no
+     * existing value to retain on update).
+     *
+     * @since 3.4
+     */
+    protected final boolean _allRecordComponentsLinked;
 
     /**
      * We may also have one or more back reference fields (usually
@@ -306,6 +316,7 @@ public abstract class BeanDeserializerBase
 
         _needViewProcesing = hasViews;
         _recordAccessors = builder.getRecordAccessors();
+        _allRecordComponentsLinked = builder.allRecordComponentsLinked();
         // [databind#6219]: view processing only needed if a view is active,
         // which is checked per-call
         _vanillaProcessing = !_nonStandardCreation
@@ -343,6 +354,7 @@ public abstract class BeanDeserializerBase
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
         _recordAccessors = src._recordAccessors;
+        _allRecordComponentsLinked = src._allRecordComponentsLinked;
         _serializationShape = src._serializationShape;
 
         _vanillaProcessing = src._vanillaProcessing;
@@ -382,6 +394,7 @@ public abstract class BeanDeserializerBase
 
         _needViewProcesing = src._needViewProcesing;
         _recordAccessors = src._recordAccessors;
+        _allRecordComponentsLinked = src._allRecordComponentsLinked;
         _serializationShape = src._serializationShape;
 
         // probably adds a twist, so:
@@ -411,6 +424,7 @@ public abstract class BeanDeserializerBase
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
         _recordAccessors = src._recordAccessors;
+        _allRecordComponentsLinked = src._allRecordComponentsLinked;
         _serializationShape = src._serializationShape;
 
         // then actual changes:
@@ -461,6 +475,7 @@ public abstract class BeanDeserializerBase
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
         _recordAccessors = src._recordAccessors;
+        _allRecordComponentsLinked = src._allRecordComponentsLinked;
         _serializationShape = src._serializationShape;
 
         _vanillaProcessing = src._vanillaProcessing;
@@ -496,6 +511,7 @@ public abstract class BeanDeserializerBase
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
         _recordAccessors = src._recordAccessors;
+        _allRecordComponentsLinked = src._allRecordComponentsLinked;
         _serializationShape = src._serializationShape;
 
         _vanillaProcessing = src._vanillaProcessing;

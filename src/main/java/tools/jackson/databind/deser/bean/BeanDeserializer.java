@@ -1,7 +1,6 @@
 package tools.jackson.databind.deser.bean;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.RecordComponent;
 import java.util.*;
 
 import tools.jackson.core.*;
@@ -15,7 +14,6 @@ import tools.jackson.databind.deser.UnresolvedForwardReference;
 import tools.jackson.databind.deser.impl.*;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.introspect.AnnotatedMember;
-import tools.jackson.databind.introspect.AnnotatedMethod;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
@@ -39,23 +37,6 @@ public class BeanDeserializer
      * (not very clean, alas, but has to do for now)
      */
     protected volatile transient NameTransformer _currentlyTransforming;
-
-    /**
-     * Record component accessors (indexed by component index), with access
-     * fixed as necessary: lazily resolved on first Record "update"
-     * (once per deserializer instance; not passed to copies).
-     *
-     * @since 3.3
-     */
-    private volatile transient Method[] _recordComponentAccessors;
-
-    /**
-     * Lazily resolved: whether all Record components are linked to Creator
-     * parameters (only used with {@link #_recordAccessors})
-     *
-     * @since 3.4
-     */
-    private volatile transient Boolean _allRecordComponentsLinked;
 
     /*
     /**********************************************************************
@@ -358,35 +339,35 @@ public class BeanDeserializer
         // components marked ignorable so their original values are retained
         // (JSON cannot overwrite them; see Step 2).
         // [databind#6383]: Creator index only matches component index for the
-        // canonical constructor; for other Creators use accessors linked when
-        // this deserializer was built
+        // canonical constructor, so use accessors linked when this deserializer was built
         final Class<?> recordClass = _beanType.getRawClass();
-        final AnnotatedMethod[] linkedAccessors = _recordAccessors;
-        final Method[] componentAccessors = (linkedAccessors == null)
-                ? _resolveRecordComponentAccessors(ctxt) : null;
+        final Method[] accessors = _recordAccessors;
+        if (accessors == null) {
+            // no reflective access on native image (or not a Record)
+            return ctxt.reportBadDefinition(_beanType,
+                    "Cannot update Record value: no Record components accessible for type "
+                    +ClassUtil.getTypeDescription(_beanType));
+        }
         for (SettableBeanProperty creatorProp : creator.allPropertiesInOrder()) {
             if (creatorProp == null) {
                 continue;
             }
             final int creatorIndex = creatorProp.getCreatorIndex();
+            if (creatorIndex < 0 || creatorIndex >= accessors.length
+                    || accessors[creatorIndex] == null) {
+                continue;
+            }
             try {
-                if (linkedAccessors == null) {
-                    if (creatorIndex >= 0 && creatorIndex < componentAccessors.length) {
-                        buffer.assignParameter(creatorProp,
-                                componentAccessors[creatorIndex].invoke(existingRecord));
-                    }
-                } else if (creatorIndex >= 0 && creatorIndex < linkedAccessors.length
-                        && linkedAccessors[creatorIndex] != null) {
-                    Object value = linkedAccessors[creatorIndex].callOn(existingRecord);
-                    // Existing `null` for primitive parameter: handle like `null` in input
-                    if ((value == null) && _declaredRawType(creatorProp).isPrimitive()) {
-                        value = creatorProp.getNullValueProvider().getNullValue(ctxt);
-                    }
-                    // Creator may take a different type than the component (like
-                    // `String` for `Optional<String>`): only pass values that fit
-                    if (_fitsCreatorProperty(creatorProp, value)) {
-                        buffer.assignParameter(creatorProp, value);
-                    }
+                final Class<?> paramType = _declaredRawType(creatorProp);
+                Object value = accessors[creatorIndex].invoke(existingRecord);
+                // Existing `null` for primitive parameter: handle like `null` in input
+                if ((value == null) && paramType.isPrimitive()) {
+                    value = creatorProp.getNullValueProvider().getNullValue(ctxt);
+                }
+                // Creator may take a different type than the component (like
+                // `String` for `Optional<String>`): only pass values that fit
+                if (_fitsType(paramType, value)) {
+                    buffer.assignParameter(creatorProp, value);
                 }
             } catch (Exception e) {
                 throw wrapAndThrow(e, recordClass, creatorProp.getName(), ctxt);
@@ -486,121 +467,29 @@ public class BeanDeserializer
         return _buildRecordFromBuffer(ctxt, creator, buffer);
     }
 
-    private static boolean _fitsCreatorProperty(SettableBeanProperty prop, Object value) {
-        final Class<?> raw = _declaredRawType(prop);
+    private static boolean _fitsType(Class<?> type, Object value) {
+        if (!type.isPrimitive()) {
+            return (value == null) || type.isInstance(value);
+        }
+        // reflection unboxes and widens (like `int` component for `long` parameter)
         if (value == null) {
-            return !raw.isPrimitive();
+            return false;
         }
-        if (raw.isPrimitive()) {
-            // reflection unboxes and widens (like `int` component for `long` parameter)
-            final Class<?> valueType = ClassUtil.primitiveType(value.getClass());
-            return (valueType != null) && _isWideningOrIdentity(valueType, raw);
-        }
-        return raw.isInstance(value);
+        final Class<?> valueType = ClassUtil.primitiveType(value.getClass());
+        // `char` widens like `short`, but nothing (other than `char`) widens to `char`
+        final int from = WIDENING_ORDER.indexOf((valueType == Character.TYPE) ? Short.TYPE : valueType);
+        return (valueType == type) || ((from >= 0) && (WIDENING_ORDER.indexOf(type) > from));
     }
+
+    // Primitive widening conversions (JLS 5.1.2): any type to any later one
+    private static final List<Class<?>> WIDENING_ORDER = List.of(Byte.TYPE, Short.TYPE,
+            Integer.TYPE, Long.TYPE, Float.TYPE, Double.TYPE);
 
     // Declared type of Creator parameter: property type may be refined (like with
     // `@JsonDeserialize(as=...)`), but Creator accepts any value of declared type
     private static Class<?> _declaredRawType(SettableBeanProperty prop) {
         final AnnotatedMember member = prop.getMember();
         return (member == null) ? prop.getType().getRawClass() : member.getRawType();
-    }
-
-    // Primitive conversions allowed by JLS 5.1.1 (identity) and 5.1.2 (widening)
-    private static boolean _isWideningOrIdentity(Class<?> from, Class<?> to) {
-        if (from == to) {
-            return true;
-        }
-        if (from == Byte.TYPE) {
-            return (to == Short.TYPE) || (to == Integer.TYPE) || (to == Long.TYPE)
-                    || (to == Float.TYPE) || (to == Double.TYPE);
-        }
-        if ((from == Short.TYPE) || (from == Character.TYPE)) {
-            return (to == Integer.TYPE) || (to == Long.TYPE)
-                    || (to == Float.TYPE) || (to == Double.TYPE);
-        }
-        if (from == Integer.TYPE) {
-            return (to == Long.TYPE) || (to == Float.TYPE) || (to == Double.TYPE);
-        }
-        if (from == Long.TYPE) {
-            return (to == Float.TYPE) || (to == Double.TYPE);
-        }
-        if (from == Float.TYPE) {
-            return (to == Double.TYPE);
-        }
-        return false;
-    }
-
-    /**
-     * Whether every Record component is linked to some Creator parameter: if so,
-     * a Creator parameter with no linked accessor has no existing value to retain.
-     * Possible race between threads is benign: result is the same either way.
-     */
-    private boolean _allRecordComponentsLinked() {
-        Boolean all = _allRecordComponentsLinked;
-        if (all == null) {
-            all = Boolean.TRUE;
-            final RecordComponent[] components = _beanType.getRawClass().getRecordComponents();
-            if (components == null) {
-                all = Boolean.FALSE;
-            } else {
-                for (RecordComponent component : components) {
-                    if (!_isLinkedRecordComponent(component)) {
-                        all = Boolean.FALSE;
-                        break;
-                    }
-                }
-            }
-            _allRecordComponentsLinked = all;
-        }
-        return all.booleanValue();
-    }
-
-    private boolean _isLinkedRecordComponent(RecordComponent component) {
-        for (AnnotatedMethod accessor : _recordAccessors) {
-            if ((accessor != null) && accessor.getAnnotated().equals(component.getAccessor())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Helper method for lazily resolving (and caching) Record component accessors,
-     * fixing access (as allowed by configuration) once per deserializer instance
-     * instead of on every update.
-     * Possible race between threads is benign: result is the same either way.
-     */
-    private Method[] _resolveRecordComponentAccessors(DeserializationContext ctxt)
-        throws JacksonException
-    {
-        Method[] accessors = _recordComponentAccessors;
-        if (accessors == null) {
-            final Class<?> recordClass = _beanType.getRawClass();
-            final RecordComponent[] components = recordClass.getRecordComponents();
-            if (components == null) {
-                // no reflective access on native image (or not a Record)
-                return ctxt.reportBadDefinition(_beanType,
-                        "Cannot update Record value: no Record components accessible for type "
-                        +ClassUtil.getTypeDescription(_beanType));
-            }
-            final boolean fixAccess = ctxt.canOverrideAccessModifiers();
-            final boolean forceAccess = ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
-            accessors = new Method[components.length];
-            for (int i = 0; i < components.length; ++i) {
-                Method accessor = components[i].getAccessor();
-                if (fixAccess) {
-                    try {
-                        ClassUtil.checkAndFixAccess(accessor, forceAccess);
-                    } catch (IllegalArgumentException e) {
-                        throw wrapAndThrow(e, recordClass, components[i].getName(), ctxt);
-                    }
-                }
-                accessors[i] = accessor;
-            }
-            _recordComponentAccessors = accessors;
-        }
-        return accessors;
     }
 
     private Object _buildRecordFromBuffer(DeserializationContext ctxt,
@@ -611,22 +500,28 @@ public class BeanDeserializer
         // linked accessor, or value of incompatible type) would lose its value:
         // fail instead, unless the input provided a value for it. A property with no
         // linked accessor is fine if all components are linked to other properties.
-        final AnnotatedMethod[] linkedAccessors = _recordAccessors;
-        if (linkedAccessors != null) {
-            for (SettableBeanProperty creatorProp : creator.allPropertiesInOrder()) {
-                if (creatorProp == null || creatorProp.getInjectableValueId() != null
-                        || buffer.hasParameter(creatorProp)) {
-                    continue;
-                }
-                final int ix = creatorProp.getCreatorIndex();
-                final boolean linked = (ix >= 0) && (ix < linkedAccessors.length)
-                        && (linkedAccessors[ix] != null);
-                if (linked || !_allRecordComponentsLinked()) {
-                    return ctxt.reportBadDefinition(_beanType, String.format(
-"Cannot update Record %s: no Record accessor of compatible type linked to Creator property %s, and input has no value for it",
-                            ClassUtil.nameOf(_beanType.getRawClass()),
-                            ClassUtil.name(creatorProp.getName())));
-                }
+        final Method[] accessors = _recordAccessors;
+        for (SettableBeanProperty creatorProp : creator.allPropertiesInOrder()) {
+            if (creatorProp == null || creatorProp.getInjectableValueId() != null
+                    || buffer.hasParameter(creatorProp)) {
+                continue;
+            }
+            final int ix = creatorProp.getCreatorIndex();
+            final Method accessor = (ix >= 0 && ix < accessors.length) ? accessors[ix] : null;
+            if (accessor != null) {
+                return ctxt.reportBadDefinition(_beanType, String.format(
+"Cannot update Record %s: value of Record component %s (%s) does not fit type of Creator property %s (%s), and input has no value for it",
+                        ClassUtil.nameOf(_beanType.getRawClass()),
+                        ClassUtil.name(accessor.getName()),
+                        ClassUtil.nameOf(accessor.getReturnType()),
+                        ClassUtil.name(creatorProp.getName()),
+                        ClassUtil.nameOf(_declaredRawType(creatorProp))));
+            }
+            if (!_allRecordComponentsLinked) {
+                return ctxt.reportBadDefinition(_beanType, String.format(
+"Cannot update Record %s: no Record component linked to Creator property %s, and input has no value for it (if parameter name is not available, compile with `-parameters` or add matching `@JsonProperty` to Record component)",
+                        ClassUtil.nameOf(_beanType.getRawClass()),
+                        ClassUtil.name(creatorProp.getName())));
             }
         }
         try {

@@ -746,7 +746,7 @@ public class BeanDeserializerFactory
      * @return Accessors indexed by Creator index (entries {@code null} if not linked);
      *    or {@code null} if Creator is the canonical constructor (or not known)
      *
-     * @since 3.3
+     * @since 3.4
      */
     protected AnnotatedMethod[] _findRecordAccessors(DeserializationContext ctxt,
             BeanDescription beanDesc, ValueInstantiator valueInstantiator)

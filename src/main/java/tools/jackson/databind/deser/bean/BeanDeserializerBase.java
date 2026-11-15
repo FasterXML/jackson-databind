@@ -168,7 +168,7 @@ public abstract class BeanDeserializerBase
      * accessor could be linked. {@code null} for the canonical constructor
      * (and non-Record types), for which Creator index matches component index.
      *
-     * @since 3.3
+     * @since 3.4
      */
     protected final AnnotatedMethod[] _recordAccessors;
 

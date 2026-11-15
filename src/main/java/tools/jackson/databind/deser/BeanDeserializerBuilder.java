@@ -125,7 +125,7 @@ public class BeanDeserializerBuilder
      * For Record types with a non-canonical Creator: Record accessors linked
      * to Creator parameters, by Creator index.
      *
-     * @since 3.3
+     * @since 3.4
      */
     protected AnnotatedMethod[] _recordAccessors;
 
@@ -303,7 +303,7 @@ public class BeanDeserializerBuilder
     }
 
     /**
-     * @since 3.3
+     * @since 3.4
      */
     public void setRecordAccessors(AnnotatedMethod[] accessors) {
         _recordAccessors = accessors;
@@ -374,7 +374,7 @@ public class BeanDeserializerBuilder
     }
 
     /**
-     * @since 3.3
+     * @since 3.4
      */
     public AnnotatedMethod[] getRecordAccessors() {
         return _recordAccessors;

@@ -52,7 +52,7 @@ public class BeanDeserializer
      * Lazily resolved: whether all Record components are linked to Creator
      * parameters (only used with {@link #_recordAccessors})
      *
-     * @since 3.3
+     * @since 3.4
      */
     private volatile transient Boolean _allRecordComponentsLinked;
 

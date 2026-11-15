@@ -931,11 +931,6 @@ Okan Tiktas (@OKAN-SOFTWARE)
    unexpected token within Object
   [3.3.0]
 
-Shin seongsu (@shinseongsu)
- * Reported, fixed #6383: Record update with `readerForUpdating()` passes existing values
-   to wrong parameters for non-canonical `@JsonCreator`
-  [3.3.0]
-
 Sahas Prakash Nagar (@Sahas2711)
  * Fixed #6394: `@JsonFormat(shape = ARRAY)` deserialization hangs when input ends before
    `END_ARRAY` while skipping extra values
@@ -961,4 +956,9 @@ Jared Jacobs (@2is10)
 Mateusz Hubert Stefaniak (@EmhyrVarEmreis)
  * Reported #6164: `@JsonCreator` on Enum with single `int` parameter fails with
    `ClassCastException` if parameter name matches a getter
+  [3.4.0]
+
+Shin seongsu (@shinseongsu)
+ * Reported, fixed #6383: Record update with `readerForUpdating()` passes existing values
+   to wrong parameters for non-canonical `@JsonCreator`
   [3.4.0]

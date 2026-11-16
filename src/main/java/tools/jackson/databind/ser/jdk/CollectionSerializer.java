@@ -119,8 +119,11 @@ public class CollectionSerializer
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContentsImpl(value, g, ctxt);
-                return;
+                // [databind#6299]: do not unwrap if the only element is filtered out
+                if (!isEmpty(ctxt, value)) {
+                    serializeContentsImpl(value, g, ctxt);
+                    return;
+                }
             }
         }
         g.writeStartArray(value, len);

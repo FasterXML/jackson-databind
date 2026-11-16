@@ -796,30 +796,61 @@ public class BeanDeserializerFactory
         }
         // Some properties have no getter for deserialization (ignored, `WRITE_ONLY`,
         // getter not visible) or are not included above at all, but their existing values
-        // still need to be retained: link these to the Record component of the same name
-        // as parameter (implicit parameter name; or if no match, explicit)
+        // still need to be retained: link these to the Record component by name.
+        // Explicit parameter name (if any) wins, and refers to external name of
+        // component (explicit name, if any); implicit name to component name
+        final DeserializationConfig config = ctxt.getConfig();
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        String[] externalNames = null;
         for (int i = 0; i < accessors.length; ++i) {
             if (accessors[i] != null) {
                 continue;
             }
             final AnnotatedParameter param = creator.getParameter(i);
-            accessors[i] = _findComponentAccessor(components,
-                    intr.findImplicitPropertyName(ctxt.getConfig(), param));
-            if (accessors[i] == null) {
-                PropertyName explName = intr.findNameForDeserialization(ctxt.getConfig(), param);
-                if (explName != null) {
-                    accessors[i] = _findComponentAccessor(components, explName.getSimpleName());
+            final PropertyName explName = intr.findNameForDeserialization(config, param);
+            if ((explName != null) && explName.hasSimpleName()) {
+                if (externalNames == null) {
+                    externalNames = _componentExternalNames(config, beanDesc, components);
                 }
+                accessors[i] = _findComponentAccessor(components, externalNames,
+                        explName.getSimpleName());
+            } else {
+                accessors[i] = _findComponentAccessor(components, null,
+                        intr.findImplicitPropertyName(config, param));
             }
         }
         return accessors;
     }
 
-    private static Method _findComponentAccessor(RecordComponent[] components, String name) {
-        for (RecordComponent component : components) {
-            if (component.getName().equals(name)) {
-                return component.getAccessor();
+    // External names of Record components: explicit name of accessor (which
+    // Record component annotations propagate to), if any; otherwise component name
+    private static String[] _componentExternalNames(DeserializationConfig config,
+            BeanDescription beanDesc, RecordComponent[] components)
+    {
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        final String[] names = new String[components.length];
+        for (int i = 0; i < components.length; ++i) {
+            names[i] = components[i].getName();
+            AnnotatedMethod accessor = beanDesc.getClassInfo().findMethod(names[i], null);
+            if (accessor != null) {
+                PropertyName explName = intr.findNameForSerialization(config, accessor);
+                if ((explName != null) && explName.hasSimpleName()) {
+                    names[i] = explName.getSimpleName();
+                }
+            }
+        }
+        return names;
+    }
+
+    // Accessor of Record component with given name (from `names`, if not null;
+    // otherwise component name)
+    private static Method _findComponentAccessor(RecordComponent[] components,
+            String[] names, String name)
+    {
+        for (int i = 0; i < components.length; ++i) {
+            String compName = (names == null) ? components[i].getName() : names[i];
+            if (compName.equals(name)) {
+                return components[i].getAccessor();
             }
         }
         return null;

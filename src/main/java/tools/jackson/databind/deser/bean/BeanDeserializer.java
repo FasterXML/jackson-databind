@@ -509,7 +509,7 @@ public class BeanDeserializer
             final Method accessor = (ix >= 0 && ix < accessors.length) ? accessors[ix] : null;
             if (accessor != null) {
                 return ctxt.reportBadDefinition(_beanType, String.format(
-"Cannot update Record %s: value of Record component %s (%s) does not fit type of Creator property %s (%s), and input has no value for it",
+"Cannot update Record %s: value of Record accessor %s (%s) does not fit type of Creator property %s (%s), and input has no value for it",
                         ClassUtil.nameOf(_beanType.getRawClass()),
                         ClassUtil.name(accessor.getName()),
                         ClassUtil.nameOf(accessor.getReturnType()),

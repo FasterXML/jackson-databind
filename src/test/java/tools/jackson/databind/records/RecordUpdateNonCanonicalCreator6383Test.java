@@ -188,6 +188,25 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
         }
     }
 
+    // Explicit and implicit parameter names cross: explicit name must win
+    public record Crossed(String first, String last) {
+        @JsonCreator
+        public static Crossed of(@JsonProperty("first") String last,
+                @JsonProperty("last") String first) {
+            return new Crossed(last, first);
+        }
+    }
+
+    // `WRITE_ONLY` component with explicit name differing from component name
+    public record RenamedPwAccount(String id,
+            @JsonProperty(value = "pw", access = JsonProperty.Access.WRITE_ONLY) String password) {
+        @JsonCreator
+        public static RenamedPwAccount of(@JsonProperty("pw") String secret,
+                @JsonProperty("id") String id) {
+            return new RenamedPwAccount(id, secret);
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     private final ObjectMapper NO_PARAM_NAMES_MAPPER = jsonMapperBuilder()
@@ -383,7 +402,7 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
                 () -> r.readValue("""
                         {"id":"2"}
                         """));
-        verifyException(e, "does not fit type of Creator property 'nick'");
+        verifyException(e, "value of Record accessor 'nick'");
 
         Opt result = MAPPER.readerForUpdating(new Opt("1", Optional.of("x")))
                 .readValue("""
@@ -481,5 +500,30 @@ public class RecordUpdateNonCanonicalCreator6383Test extends DatabindTestUtil
                         {"name":"b"}
                         """);
         assertEquals(new Tags(List.of("x"), "b"), result);
+    }
+
+    @Test
+    public void updateWithCrossedExplicitAndImplicitNamesWithoutGetters() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultVisibility(vc -> vc
+                        .withVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE)
+                        .withVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE))
+                .build();
+        Crossed result = mapper.readerForUpdating(new Crossed("John", "Smith"))
+                .readValue("""
+                        {"first":"Jane"}
+                        """);
+        assertEquals(new Crossed("Jane", "Smith"), result);
+    }
+
+    @Test
+    public void updateKeepsRenamedWriteOnlyComponent() throws Exception
+    {
+        RenamedPwAccount result = MAPPER.readerForUpdating(new RenamedPwAccount("1", "secret"))
+                .readValue("""
+                        {"id":"2"}
+                        """);
+        assertEquals(new RenamedPwAccount("2", "secret"), result);
     }
 }

@@ -192,9 +192,12 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
             return _withResolved(property, unwrapSingle, valueToSuppress, suppressNulls);
         }
         // otherwise...
-        // note: will never have TypeSerializer, because Strings are "natural" type
+        // note: will never have TypeSerializer, because Strings are "natural" type.
+        // Must retain format and content inclusion settings resolved above
         return new CollectionSerializer(ctxt.constructType(String.class),
-                true, /*TypeSerializer*/ null, (ValueSerializer<Object>) ser);
+                true, /*TypeSerializer*/ null, (ValueSerializer<Object>) ser)
+            .withResolved(property, /*TypeSerializer*/ null, ser,
+                    unwrapSingle, valueToSuppress, suppressNulls);
     }
 
     @Override

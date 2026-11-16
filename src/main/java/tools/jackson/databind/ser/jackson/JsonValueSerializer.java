@@ -76,6 +76,13 @@ public class JsonValueSerializer
      */
     protected final boolean _emptyCheckDisabled;
 
+    /**
+     * Transformer applied to dynamically resolved value serializers (to apply
+     * {@link #_ignoredProperties}); held to avoid allocation on every lookup.
+     */
+    private final UnaryOperator<ValueSerializer<Object>> _ignoredPropertiesTransformer =
+            this::_applyIgnoredProperties;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -424,15 +431,8 @@ public class JsonValueSerializer
     }
 
     protected ValueSerializer<Object> _findSerializer(SerializationContext ctxt, Object value) {
-        final UnaryOperator<ValueSerializer<Object>> serTransformer =
-                valueSer -> _withIgnoreProperties(valueSer, _ignoredProperties);
-        Class<?> cc = value.getClass();
-        if (_valueType.hasGenericTypes()) {
-            return _findAndAddDynamic(ctxt,
-                    ctxt.constructSpecializedType(_valueType, cc),
-                    serTransformer);
-        }
-        return _findAndAddDynamic(ctxt, cc, serTransformer);
+        // [databind#6392]: must check for already resolved serializer first
+        return _findCachedOrAddDynamic(ctxt, _valueType, value.getClass(), _ignoredPropertiesTransformer);
     }
 
     /**
@@ -453,6 +453,10 @@ public class JsonValueSerializer
             }
         }
         return (ValueSerializer<Object>) ser;
+    }
+
+    private ValueSerializer<Object> _applyIgnoredProperties(ValueSerializer<Object> ser) {
+        return _withIgnoreProperties(ser, _ignoredProperties);
     }
 
     @Override
@@ -492,12 +496,8 @@ public class JsonValueSerializer
         }
         ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            Class<?> cc = value.getClass();
-            if (_valueType.hasGenericTypes()) {
-                ser = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_valueType, cc));
-            } else {
-                ser = _findAndAddDynamic(ctxt, cc);
-            }
+            // [databind#6392]: same lookup as `serialize()`, as cache is shared
+            ser = _findSerializer(ctxt, value);
         }
         // [databind#6206]: simple check for direct cycle through accessor
         //   (if written as null, no type id, same as with actual null value above)

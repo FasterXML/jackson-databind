@@ -36,6 +36,9 @@ Steven Schlansker (@stevenschlansker)
  * Contributed #6193: Use `JsonParser.nextNameMatchAndToken()` in the vanilla
    `BeanDeserializer` loops
   [3.3.0]
+ * Reported #6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+   `AccessPattern.ALWAYS_NULL` but return an empty Optional
+  [3.3.1]
 
 Michael Dillon (@michaelcdillon)
  * Requested #2593: StackTraceElement w/ >= Java 9 doesn't deserialize properly
@@ -811,6 +814,9 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6296: Duplicate properties merged under the wrong key in non-vanilla
    `UntypedObjectDeserializer`
   [3.2.5]
+ * Reported #6299: Malformed JSON (or failure) for a single-element container whose only
+   element is filtered with `APPLY_JSON_INCLUDE_FOR_CONTAINERS` + `WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED`
+  [3.4.0]
  * Reported, fixed #6305: `InetSocketAddress` deserialization ignores text after the closing
    bracket of an IPv6 address
   [3.2.5]
@@ -847,6 +853,9 @@ Martin Mirchev (@Marti2203)
   [3.3.1]
  * Reported #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
   [3.3.1]
+ * Reported, fixed #6443: JDK deserialization of a `JsonNode` with a negative length prefix
+   throws `NegativeArraySizeException` instead of an `IOException`
+  [3.3.1]
 
 @essiembre
  * Reported #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
@@ -857,6 +866,9 @@ Matt Van Horn (@mvanhorn)
  * Fixed #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
    writes a `null` over a non-null default, so the `null` can't round-trip
   [3.3.0]
+ * Fixed #6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+   `AccessPattern.ALWAYS_NULL` but return an empty Optional
+  [3.3.1]
 
 @LSwiatek
  * Reported #5380: `@JsonValue` ignores property inclusion config override of the value type
@@ -943,3 +955,13 @@ Jared Jacobs (@2is10)
  * Reported, fixed #6426: Varargs delegating `@JsonCreator` fails with "Cannot cast
    [Ljava.lang.String; to java.lang.String" (3.x regression)
   [3.3.1]
+
+Mateusz Hubert Stefaniak (@EmhyrVarEmreis)
+ * Reported #6164: `@JsonCreator` on Enum with single `int` parameter fails with
+   `ClassCastException` if parameter name matches a getter
+  [3.4.0]
+
+@agamal026
+ * Fixed #6299: Malformed JSON (or failure) for a single-element container whose only
+   element is filtered with `APPLY_JSON_INCLUDE_FOR_CONTAINERS` + `WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED`
+  [3.4.0]

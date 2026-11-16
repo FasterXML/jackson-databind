@@ -82,6 +82,51 @@ public abstract class StdDynamicSerializer<T>
     /**********************************************************************
      */
 
+    /**
+     * Helper method for finding serializer for value of given runtime type:
+     * first checks for an already resolved serializer in {@link #_dynamicValueSerializers}
+     * and, if none found, resolves one (using type specialized from {@code declaredType}
+     * if it has generic types; otherwise {@code runtimeType} as is) and adds it.
+     *
+     * @param declaredType Declared (nominal) value type
+     * @param runtimeType Actual runtime type of value
+     *
+     * @since 3.4
+     */
+    protected final ValueSerializer<Object> _findCachedOrAddDynamic(SerializationContext ctxt,
+            JavaType declaredType, Class<?> runtimeType)
+    {
+        return _findCachedOrAddDynamic(ctxt, declaredType, runtimeType, UnaryOperator.identity());
+    }
+
+    /**
+     * Variant of {@link #_findCachedOrAddDynamic(SerializationContext, JavaType, Class)}
+     * that applies given transformer to newly resolved serializer before adding it.
+     *
+     * @since 3.4
+     */
+    protected final ValueSerializer<Object> _findCachedOrAddDynamic(SerializationContext ctxt,
+            JavaType declaredType, Class<?> runtimeType,
+            UnaryOperator<ValueSerializer<Object>> serTransformer)
+    {
+        ValueSerializer<Object> ser = _dynamicValueSerializers.serializerFor(runtimeType);
+        if (ser == null) {
+            if (declaredType.hasGenericTypes()) {
+                ser = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(declaredType, runtimeType),
+                        serTransformer);
+            } else {
+                ser = _findAndAddDynamic(ctxt, runtimeType, serTransformer);
+            }
+        }
+        return ser;
+    }
+
+    /**
+     * Method for resolving serializer for given type and adding it in
+     * {@link #_dynamicValueSerializers}. NOTE: does NOT check for an already
+     * resolved serializer first; callers should usually use
+     * {@link #_findCachedOrAddDynamic} instead.
+     */
     protected final ValueSerializer<Object> _findAndAddDynamic(SerializationContext ctxt, Class<?> type)
     {
         PropertySerializerMap map = _dynamicValueSerializers;

@@ -957,3 +957,8 @@ Mateusz Hubert Stefaniak (@EmhyrVarEmreis)
  * Reported #6164: `@JsonCreator` on Enum with single `int` parameter fails with
    `ClassCastException` if parameter name matches a getter
   [3.4.0]
+
+Shin seongsu (@shinseongsu)
+ * Reported, fixed #6383: Record update with `readerForUpdating()` passes existing values
+   to wrong parameters for non-canonical `@JsonCreator`
+  [3.4.0]

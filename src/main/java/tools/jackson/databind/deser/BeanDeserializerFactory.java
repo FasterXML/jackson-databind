@@ -1,6 +1,8 @@
 package tools.jackson.databind.deser;
 
 import java.io.Serial;
+import java.lang.reflect.Method;
+import java.lang.reflect.RecordComponent;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -19,6 +21,7 @@ import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.util.BeanUtil;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
+import tools.jackson.databind.util.RecordUtil;
 import tools.jackson.databind.util.SimpleBeanPropertyDefinition;
 
 /**
@@ -284,6 +287,11 @@ public class BeanDeserializerFactory
             for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 deserBuilder = mod.updateBuilder(config, beanDescRef, deserBuilder);
             }
+        }
+        // [databind#6383]: link Record accessors to Creator parameters for "update"
+        // (after modifiers, which may change ValueInstantiator)
+        if (type.isRecordType()) {
+            _addRecordAccessors(ctxt, beanDescRef.get(), deserBuilder);
         }
         ValueDeserializer<?> deserializer;
 
@@ -728,6 +736,124 @@ public class BeanDeserializerFactory
                 builder.addProperty(prop);
             }
         }
+    }
+
+    /**
+     * Helper method for linking each parameter of the property-based Record Creator
+     * to the Record accessor of the same logical property, for use when updating
+     * an existing Record. For the canonical constructor Creator index is the
+     * component index; for other Creators accessors are linked through property
+     * introspection (not by position). Whether the value fits the parameter type
+     * is checked when updating, against the actual value (Creator may adapt types).
+     * Nothing is linked if Record components are not accessible (native image).
+     */
+    private void _addRecordAccessors(DeserializationContext ctxt,
+            BeanDescription beanDesc, BeanDeserializerBuilder builder)
+    {
+        final ValueInstantiator valueInstantiator = builder.getValueInstantiator();
+        final RecordComponent[] components = beanDesc.getBeanClass().getRecordComponents();
+        if ((components == null) || (valueInstantiator == null)
+                || (valueInstantiator.getFromObjectArguments(ctxt.getConfig()) == null)) {
+            return;
+        }
+        final AnnotatedWithParams creator = valueInstantiator.getWithArgsCreator();
+        final Method[] accessors;
+        // Creator not known: assume canonical constructor
+        if (creator == null || RecordUtil.isCanonicalConstructor(components, creator)) {
+            accessors = Arrays.stream(components)
+                    .map(RecordComponent::getAccessor)
+                    .toArray(Method[]::new);
+        } else {
+            accessors = _linkRecordAccessors(ctxt, beanDesc, creator, components);
+        }
+        if (ctxt.canOverrideAccessModifiers()) {
+            final boolean force = ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
+            for (Method accessor : accessors) {
+                if (accessor != null) {
+                    ClassUtil.checkAndFixAccess(accessor, force);
+                }
+            }
+        }
+        // If all components are linked, a Creator parameter with no linked
+        // accessor has no existing value to retain
+        final boolean allComponentsLinked = Arrays.asList(accessors).containsAll(
+                Arrays.stream(components).map(RecordComponent::getAccessor).toList());
+        builder.setRecordAccessors(accessors, allComponentsLinked);
+    }
+
+    // Link accessors to parameters of non-canonical Creator, by property introspection
+    private static Method[] _linkRecordAccessors(DeserializationContext ctxt,
+            BeanDescription beanDesc, AnnotatedWithParams creator, RecordComponent[] components)
+    {
+        final Method[] accessors = new Method[creator.getParameterCount()];
+        for (BeanPropertyDefinition propDef : beanDesc.findProperties()) {
+            final AnnotatedParameter param = propDef.getConstructorParameter();
+            final AnnotatedMethod getter = propDef.getGetter();
+            if ((param != null) && (getter != null) && (param.getIndex() < accessors.length)
+                    && creator.getAnnotated().equals(param.getOwner().getAnnotated())) {
+                accessors[param.getIndex()] = getter.getAnnotated();
+            }
+        }
+        // Some properties have no getter for deserialization (ignored, `WRITE_ONLY`,
+        // getter not visible) or are not included above at all, but their existing values
+        // still need to be retained: link these to the Record component by name.
+        // Explicit parameter name (if any) wins, and refers to external name of
+        // component (explicit name, if any); implicit name to component name
+        final DeserializationConfig config = ctxt.getConfig();
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        String[] externalNames = null;
+        for (int i = 0; i < accessors.length; ++i) {
+            if (accessors[i] != null) {
+                continue;
+            }
+            final AnnotatedParameter param = creator.getParameter(i);
+            final PropertyName explName = intr.findNameForDeserialization(config, param);
+            if ((explName != null) && explName.hasSimpleName()) {
+                if (externalNames == null) {
+                    externalNames = _componentExternalNames(config, beanDesc, components);
+                }
+                accessors[i] = _findComponentAccessor(components, externalNames,
+                        explName.getSimpleName());
+            } else {
+                accessors[i] = _findComponentAccessor(components, null,
+                        intr.findImplicitPropertyName(config, param));
+            }
+        }
+        return accessors;
+    }
+
+    // External names of Record components: explicit name of accessor (which
+    // Record component annotations propagate to), if any; otherwise component name
+    private static String[] _componentExternalNames(DeserializationConfig config,
+            BeanDescription beanDesc, RecordComponent[] components)
+    {
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        final String[] names = new String[components.length];
+        for (int i = 0; i < components.length; ++i) {
+            names[i] = components[i].getName();
+            AnnotatedMethod accessor = beanDesc.getClassInfo().findMethod(names[i], null);
+            if (accessor != null) {
+                PropertyName explName = intr.findNameForSerialization(config, accessor);
+                if ((explName != null) && explName.hasSimpleName()) {
+                    names[i] = explName.getSimpleName();
+                }
+            }
+        }
+        return names;
+    }
+
+    // Accessor of Record component with given name (from `names`, if not null;
+    // otherwise component name)
+    private static Method _findComponentAccessor(RecordComponent[] components,
+            String[] names, String name)
+    {
+        for (int i = 0; i < components.length; ++i) {
+            String compName = (names == null) ? components[i].getName() : names[i];
+            if (compName.equals(name)) {
+                return components[i].getAccessor();
+            }
+        }
+        return null;
     }
 
     // since 2.18

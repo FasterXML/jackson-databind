@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -121,6 +122,22 @@ public class BeanDeserializerBuilder
      */
     protected JsonPOJOBuilder.Value _builderConfig;
 
+    /**
+     * For Record types: Record accessors linked to Creator parameters, by Creator
+     * index (entry {@code null} if not linked), for Record "update".
+     *
+     * @since 3.4
+     */
+    protected Method[] _recordAccessors;
+
+    /**
+     * For Record types: whether every Record component is linked to some Creator
+     * parameter (see {@link #_recordAccessors}).
+     *
+     * @since 3.4
+     */
+    protected boolean _allRecordComponentsLinked;
+
     /*
     /**********************************************************************
     /* Life-cycle: construction
@@ -161,6 +178,8 @@ public class BeanDeserializerBuilder
 
         _buildMethod = src._buildMethod;
         _builderConfig = src._builderConfig;
+        _recordAccessors = src._recordAccessors;
+        _allRecordComponentsLinked = src._allRecordComponentsLinked;
     }
 
     private static HashMap<String, SettableBeanProperty> _copy(HashMap<String, SettableBeanProperty> src) {
@@ -293,6 +312,14 @@ public class BeanDeserializerBuilder
         addProperty(prop);
     }
 
+    /**
+     * @since 3.4
+     */
+    public void setRecordAccessors(Method[] accessors, boolean allComponentsLinked) {
+        _recordAccessors = accessors;
+        _allRecordComponentsLinked = allComponentsLinked;
+    }
+
     public void setAnySetter(SettableAnyProperty s)
     {
         if (_anySetter != null && s != null) {
@@ -355,6 +382,20 @@ public class BeanDeserializerBuilder
 
     public SettableAnyProperty getAnySetter() {
         return _anySetter;
+    }
+
+    /**
+     * @since 3.4
+     */
+    public Method[] getRecordAccessors() {
+        return _recordAccessors;
+    }
+
+    /**
+     * @since 3.4
+     */
+    public boolean allRecordComponentsLinked() {
+        return _allRecordComponentsLinked;
     }
 
     public ValueInstantiator getValueInstantiator() {

@@ -7,7 +7,6 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsontype.TypeSerializer;
-import tools.jackson.databind.ser.impl.PropertySerializerMap;
 import tools.jackson.databind.ser.std.AsArraySerializerBase;
 import tools.jackson.databind.ser.std.StdContainerSerializer;
 
@@ -94,8 +93,11 @@ public final class IndexedListSerializer
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, g, ctxt);
-                return;
+                // [databind#6299]: do not unwrap if the only element is filtered out
+                if (!isEmpty(ctxt, value)) {
+                    serializeContents(value, g, ctxt);
+                    return;
+                }
             }
         }
         g.writeStartArray(value, len);
@@ -137,15 +139,7 @@ public final class IndexedListSerializer
                     ctxt.defaultSerializeNullValue(g);
                 } else {
                     Class<?> cc = elem.getClass();
-                    ValueSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
-                    if (serializer == null) {
-                        if (_elementType.hasGenericTypes()) {
-                            serializer = _findAndAddDynamic(ctxt,
-                                    ctxt.constructSpecializedType(_elementType, cc));
-                        } else {
-                            serializer = _findAndAddDynamic(ctxt, cc);
-                        }
-                    }
+                    ValueSerializer<Object> serializer = _findCachedOrAddDynamic(ctxt, _elementType, cc);
                     // Check if this element should be suppressed (only in filtered mode)
                     if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                         continue;
@@ -205,7 +199,6 @@ public final class IndexedListSerializer
         final boolean filtered = _needToCheckFiltering(ctxt);
         try {
             final TypeSerializer typeSer = _valueTypeSerializer;
-            PropertySerializerMap serializers = _dynamicValueSerializers;
             for (; i < len; ++i) {
                 Object elem = value.get(i);
                 if (elem == null) {
@@ -215,16 +208,7 @@ public final class IndexedListSerializer
                     ctxt.defaultSerializeNullValue(g);
                 } else {
                     Class<?> cc = elem.getClass();
-                    ValueSerializer<Object> serializer = serializers.serializerFor(cc);
-                    if (serializer == null) {
-                        if (_elementType.hasGenericTypes()) {
-                            serializer = _findAndAddDynamic(ctxt,
-                                    ctxt.constructSpecializedType(_elementType, cc));
-                        } else {
-                            serializer = _findAndAddDynamic(ctxt, cc);
-                        }
-                        serializers = _dynamicValueSerializers;
-                    }
+                    ValueSerializer<Object> serializer = _findCachedOrAddDynamic(ctxt, _elementType, cc);
                     // Check if this element should be suppressed (only in filtered mode)
                     if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                         continue;

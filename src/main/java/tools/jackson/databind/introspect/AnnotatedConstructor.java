@@ -30,7 +30,7 @@ public final class AnnotatedConstructor
      */
     protected volatile MethodHandle _invokerNullary;
     protected volatile MethodHandle _invokerUnary;
-    protected volatile MethodHandle _invokerFixedArity;
+    protected volatile MethodHandle _invokerWithArgs;
 
     // // Simple lazy-caching:
 
@@ -131,7 +131,7 @@ public final class AnnotatedConstructor
     @Override
     public final Object call(Object[] args) throws Exception {
         try {
-            return _invokerFixedArityHandle().invokeWithArguments(args);
+            return _invokerWithArgsHandle().invokeWithArguments(args);
         } catch (Throwable e) {
             throw ClassUtil.sneakyThrow(e);
         }
@@ -164,11 +164,11 @@ public final class AnnotatedConstructor
         return h;
     }
 
-    private MethodHandle _invokerFixedArityHandle() throws IllegalAccessException {
-        MethodHandle h = _invokerFixedArity;
+    private MethodHandle _invokerWithArgsHandle() throws IllegalAccessException {
+        MethodHandle h = _invokerWithArgs;
         if (h == null) {
-            h = _unreflect().asFixedArity();
-            _invokerFixedArity = h;
+            h = _unreflect();
+            _invokerWithArgs = h;
         }
         return h;
     }
@@ -178,7 +178,11 @@ public final class AnnotatedConstructor
      * already; access checks are suppressed for an accessible {@link Constructor}.
      */
     private MethodHandle _unreflect() throws IllegalAccessException {
-        return MethodHandles.lookup().unreflectConstructor(_constructor);
+        // [databind#5231], [databind#6426] A varargs member unreflects to a variable-arity
+        // handle, which would collect the (already array-valued) trailing argument into
+        // another array. That applies both to `asType()` and to callers using
+        // `invokeWithArguments()`: so all handles must be fixed-arity
+        return MethodHandles.lookup().unreflectConstructor(_constructor).asFixedArity();
     }
 
     /*

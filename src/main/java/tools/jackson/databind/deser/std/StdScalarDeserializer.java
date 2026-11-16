@@ -39,14 +39,30 @@ public abstract class StdScalarDeserializer<T> extends StdDeserializer<T>
         return Boolean.FALSE;
     }
 
-    // Typically Scalar values have default setting of "nulls as nulls"
+    /**
+     * Typically Scalar values have default setting of "nulls as nulls".
+     *<p>
+     * NOTE: sub-classes that override {@link #getNullValue} to return something
+     * other than {@code null} MUST also override this method (usually to return
+     * {@link AccessPattern#CONSTANT}, or {@link AccessPattern#DYNAMIC} if the
+     * value is mutable or context-dependent): access pattern is not derived
+     * from the value (see [databind#6437]).
+     */
     @Override
     public AccessPattern getNullAccessPattern() {
         return AccessPattern.ALWAYS_NULL;
     }
 
-    // While some scalar types have non-null empty values (hence can't say "ALWAYS_NULL")
-    // they are mostly immutable, shareable and so constant.
+    /**
+     * While some scalar types have non-null empty values (hence can't say "ALWAYS_NULL")
+     * they are mostly immutable, shareable and so constant.
+     *<p>
+     * NOTE: sub-classes whose {@link #getEmptyValue} returns a mutable value
+     * (like {@link java.util.concurrent.atomic.AtomicInteger}), or one that depends
+     * on the context, MUST override this method to return
+     * {@link AccessPattern#DYNAMIC}: otherwise a single instance may be cached
+     * and shared (see [databind#6437]).
+     */
     @Override // since 2.9
     public AccessPattern getEmptyAccessPattern() {
         return AccessPattern.CONSTANT;

@@ -1038,7 +1038,7 @@ public class MapSerializer
             v2.keyFormat(_keySerializer, _keyType);
             ValueSerializer<?> valueSer = _valueSerializer;
             if (valueSer == null) {
-                valueSer = _findAndAddDynamic(visitor.getContext(), _valueType);
+                valueSer = _findCachedOrAddDynamic(visitor.getContext(), _valueType, _valueType.getRawClass());
             }
             v2.valueFormat(valueSer, _valueType);
         }
@@ -1145,15 +1145,6 @@ public class MapSerializer
     private final ValueSerializer<Object> _findSerializer(SerializationContext ctxt,
             Object value)
     {
-        final Class<?> cc = value.getClass();
-        ValueSerializer<Object> valueSer = _dynamicValueSerializers.serializerFor(cc);
-        if (valueSer != null) {
-            return valueSer;
-        }
-        if (_valueType.hasGenericTypes()) {
-            return _findAndAddDynamic(ctxt,
-                    ctxt.constructSpecializedType(_valueType, cc));
-        }
-        return _findAndAddDynamic(ctxt, cc);
+        return _findCachedOrAddDynamic(ctxt, _valueType, value.getClass());
     }
 }

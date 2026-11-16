@@ -85,12 +85,12 @@ public class StringCollectionSerializer
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                if (_needToCheckFiltering(ctxt)) {
-                    serializeFilteredContents(value, g, ctxt);
-                } else {
+                // [databind#6299]: do not unwrap if the only element is filtered out
+                // (and if not, no need to filter it again)
+                if (!isEmpty(ctxt, value)) {
                     serializeContents(value, g, ctxt);
+                    return;
                 }
-                return;
             }
         }
         g.writeStartArray(value, len);

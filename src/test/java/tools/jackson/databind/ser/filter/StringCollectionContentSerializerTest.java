@@ -48,6 +48,33 @@ public class StringCollectionContentSerializerTest extends DatabindTestUtil
     }
 
     @JsonPropertyOrder({ "list", "set" })
+    static class NonNullBean {
+        @JsonSerialize(contentUsing = UpperCaseSerializer.class)
+        @JsonInclude(content = JsonInclude.Include.NON_NULL)
+        public List<String> list = new ArrayList<>(Arrays.asList(null, "a"));
+
+        @JsonSerialize(contentUsing = UpperCaseSerializer.class)
+        @JsonInclude(content = JsonInclude.Include.NON_NULL)
+        public Set<String> set = new LinkedHashSet<>(Arrays.asList(null, "b"));
+    }
+
+    // Property itself also NON_EMPTY: dropped if all elements filtered out
+    @JsonPropertyOrder({ "list", "set", "after" })
+    static class AllFilteredBean {
+        @JsonSerialize(contentUsing = UpperCaseSerializer.class)
+        @JsonInclude(value = JsonInclude.Include.NON_EMPTY,
+                content = JsonInclude.Include.NON_EMPTY)
+        public List<String> list = new ArrayList<>(List.of(""));
+
+        @JsonSerialize(contentUsing = UpperCaseSerializer.class)
+        @JsonInclude(value = JsonInclude.Include.NON_EMPTY,
+                content = JsonInclude.Include.NON_EMPTY)
+        public Set<String> set = new LinkedHashSet<>(List.of(""));
+
+        public int after = 1;
+    }
+
+    @JsonPropertyOrder({ "list", "set" })
     static class UnwrapBean {
         @JsonSerialize(contentUsing = UpperCaseSerializer.class)
         @JsonFormat(with = JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
@@ -75,6 +102,28 @@ public class StringCollectionContentSerializerTest extends DatabindTestUtil
                     .disable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
                     .build()
                     .writeValueAsString(new InclusionBean()));
+    }
+
+    @Test
+    void nullElementsSuppressed() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
+                .build();
+        assertEquals("""
+                {"list":["A"],"set":["B"]}""",
+                mapper.writeValueAsString(new NonNullBean()));
+    }
+
+    @Test
+    void allElementsFilteredDropsProperty() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
+                .build();
+        assertEquals("""
+                {"after":1}""",
+                mapper.writeValueAsString(new AllFilteredBean()));
     }
 
     @Test

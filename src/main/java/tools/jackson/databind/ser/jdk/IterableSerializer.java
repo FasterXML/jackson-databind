@@ -97,7 +97,9 @@ public class IterableSerializer
                 ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                 || (_unwrapSingle == Boolean.TRUE)) {
             // [databind#6299]: do not unwrap if the only element is filtered out
-            if (hasSingleElement(value) && !isEmpty(ctxt, value)) {
+            // (check filtering first: `isEmpty()` always iterates)
+            if (hasSingleElement(value)
+                    && !(_needToCheckFiltering(ctxt) && isEmpty(ctxt, value))) {
                 serializeContents(value, g, ctxt);
                 return;
             }

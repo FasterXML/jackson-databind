@@ -4,12 +4,17 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,11 +36,74 @@ public class JsonIncludeUnwrapSingle6299Test extends DatabindTestUtil
     // Genuine non-Collection Iterable, to be routed through `IterableSerializer`
     static class StringIterable implements Iterable<String> {
         private final List<String> _values;
+        int iteratorCalls;
 
         StringIterable(String value) { _values = List.of(value); }
 
         @Override
-        public Iterator<String> iterator() { return _values.iterator(); }
+        public Iterator<String> iterator() {
+            ++iteratorCalls;
+            return _values.iterator();
+        }
+    }
+
+    static class UpperCaseSerializer extends StdSerializer<String> {
+        UpperCaseSerializer() { super(String.class); }
+
+        @Override
+        public boolean isEmpty(SerializationContext ctxt, String value) {
+            return value.isEmpty();
+        }
+
+        @Override
+        public void serialize(String value, JsonGenerator g, SerializationContext ctxt) {
+            g.writeString(value.toUpperCase());
+        }
+    }
+
+    // Unwrapping enabled per-property, not with global feature
+    @JsonPropertyOrder({ "stringList", "objectList", "after" })
+    static class FormatUnwrapBean {
+        @JsonFormat(with = JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
+        @JsonInclude(content = JsonInclude.Include.NON_EMPTY)
+        public List<String> stringList;
+        @JsonFormat(with = JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
+        @JsonInclude(content = JsonInclude.Include.NON_EMPTY)
+        public List<Object> objectList;
+        public int after = 1;
+
+        FormatUnwrapBean(String value) {
+            stringList = new ArrayList<>(List.of(value));
+            objectList = new ArrayList<>(List.of(value));
+        }
+    }
+
+    @JsonPropertyOrder({ "stringList", "objectList", "after" })
+    static class NonNullBean {
+        @JsonInclude(content = JsonInclude.Include.NON_NULL)
+        public List<String> stringList;
+        @JsonInclude(content = JsonInclude.Include.NON_NULL)
+        public List<Object> objectList;
+        public int after = 1;
+
+        NonNullBean(String value) {
+            stringList = new ArrayList<>(Collections.singletonList(value));
+            objectList = new ArrayList<>(Collections.singletonList(value));
+        }
+    }
+
+    // NOTE: `List<Object>`, not `List<String>`: latter ignores content inclusion
+    // when combined with `contentUsing` (separate issue)
+    @JsonPropertyOrder({ "values", "after" })
+    static class ContentUsingBean {
+        @JsonSerialize(contentUsing = UpperCaseSerializer.class)
+        @JsonInclude(content = JsonInclude.Include.NON_EMPTY)
+        public List<Object> values;
+        public int after = 1;
+
+        ContentUsingBean(String value) {
+            values = new ArrayList<>(List.of(value));
+        }
     }
 
     // One property per affected container serializer
@@ -158,5 +226,57 @@ public class JsonIncludeUnwrapSingle6299Test extends DatabindTestUtil
         // Unwrapping is based on physical size: filtering down to one element
         // still produces an array
         assertEquals("[\"a\"]", mapper.writerFor(type).writeValueAsString(List.of("a", "")));
+    }
+
+    @Test
+    void perPropertyUnwrapping() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
+                .disable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
+                .build();
+        assertEquals("""
+                {"stringList":[],"objectList":[],"after":1}""",
+                mapper.writeValueAsString(new FormatUnwrapBean("")));
+        assertEquals("""
+                {"stringList":"a","objectList":"a","after":1}""",
+                mapper.writeValueAsString(new FormatUnwrapBean("a")));
+    }
+
+    @Test
+    void nullElementWithNonNullContent() throws Exception
+    {
+        assertEquals("""
+                {"stringList":[],"objectList":[],"after":1}""",
+                MAPPER.writeValueAsString(new NonNullBean(null)));
+        assertEquals("""
+                {"stringList":"a","objectList":"a","after":1}""",
+                MAPPER.writeValueAsString(new NonNullBean("a")));
+    }
+
+    @Test
+    void customContentSerializer() throws Exception
+    {
+        assertEquals("""
+                {"values":[],"after":1}""",
+                MAPPER.writeValueAsString(new ContentUsingBean("")));
+        assertEquals("""
+                {"values":"A","after":1}""",
+                MAPPER.writeValueAsString(new ContentUsingBean("a")));
+    }
+
+    // Unwrapping without content filtering must not iterate an extra time
+    @Test
+    void iterableNotIteratedExtraWithoutFiltering() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
+                .disable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
+                .build();
+        StringIterable it = new StringIterable("a");
+        assertEquals("\"a\"", mapper.writerFor(new TypeReference<Iterable<String>>() { })
+                .writeValueAsString(it));
+        // once for `hasSingleElement()`, once for actual serialization
+        assertEquals(2, it.iteratorCalls);
     }
 }

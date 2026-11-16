@@ -92,17 +92,20 @@ public class JsonIncludeUnwrapSingle6299Test extends DatabindTestUtil
         }
     }
 
-    // NOTE: `List<Object>`, not `List<String>`: latter ignores content inclusion
-    // when combined with `contentUsing` (separate issue)
-    @JsonPropertyOrder({ "values", "after" })
+    // `List<String>` with `contentUsing` relies on [databind#6455]
+    @JsonPropertyOrder({ "stringList", "objectList", "after" })
     static class ContentUsingBean {
         @JsonSerialize(contentUsing = UpperCaseSerializer.class)
         @JsonInclude(content = JsonInclude.Include.NON_EMPTY)
-        public List<Object> values;
+        public List<String> stringList;
+        @JsonSerialize(contentUsing = UpperCaseSerializer.class)
+        @JsonInclude(content = JsonInclude.Include.NON_EMPTY)
+        public List<Object> objectList;
         public int after = 1;
 
         ContentUsingBean(String value) {
-            values = new ArrayList<>(List.of(value));
+            stringList = new ArrayList<>(List.of(value));
+            objectList = new ArrayList<>(List.of(value));
         }
     }
 
@@ -258,10 +261,10 @@ public class JsonIncludeUnwrapSingle6299Test extends DatabindTestUtil
     void customContentSerializer() throws Exception
     {
         assertEquals("""
-                {"values":[],"after":1}""",
+                {"stringList":[],"objectList":[],"after":1}""",
                 MAPPER.writeValueAsString(new ContentUsingBean("")));
         assertEquals("""
-                {"values":"A","after":1}""",
+                {"stringList":"A","objectList":"A","after":1}""",
                 MAPPER.writeValueAsString(new ContentUsingBean("a")));
     }
 

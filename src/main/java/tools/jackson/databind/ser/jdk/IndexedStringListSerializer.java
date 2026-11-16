@@ -84,13 +84,9 @@ public final class IndexedStringListSerializer
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
                 // [databind#6299]: do not unwrap if the only element is filtered out
+                // (and if not, no need to filter it again)
                 if (!isEmpty(ctxt, value)) {
-                    if (_needToCheckFiltering(ctxt)) {
-                        serializeContentsFiltered(value, g, ctxt, 1);
-
-                    } else {
-                        serializeContentsNonFiltered(value, g, ctxt, 1);
-                    }
+                    serializeContentsNonFiltered(value, g, ctxt, 1);
                     return;
                 }
             }

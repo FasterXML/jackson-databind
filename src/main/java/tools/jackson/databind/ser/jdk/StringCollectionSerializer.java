@@ -86,12 +86,9 @@ public class StringCollectionSerializer
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
                 // [databind#6299]: do not unwrap if the only element is filtered out
+                // (and if not, no need to filter it again)
                 if (!isEmpty(ctxt, value)) {
-                    if (_needToCheckFiltering(ctxt)) {
-                        serializeFilteredContents(value, g, ctxt);
-                    } else {
-                        serializeContents(value, g, ctxt);
-                    }
+                    serializeContents(value, g, ctxt);
                     return;
                 }
             }

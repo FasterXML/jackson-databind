@@ -374,7 +374,9 @@ public class EnumMapDeserializer
         case JsonTokenId.ID_START_OBJECT:
         case JsonTokenId.ID_END_OBJECT:
         case JsonTokenId.ID_PROPERTY_NAME:
-            return deserialize(p, ctxt, constructMap(ctxt));
+            // [databind#6445]: Fresh map: never merge, so a repeated key
+            // replaces the earlier value (same as `MapDeserializer._readAndBind`)
+            return _deserializeInto(p, ctxt, constructMap(ctxt), false);
         case JsonTokenId.ID_STRING:
             // (empty) String may be ok however; or single-String-arg ctor
             return _deserializeFromStringForContainer(p, ctxt);
@@ -389,6 +391,22 @@ public class EnumMapDeserializer
     @Override
     public EnumMap<?,?> deserialize(JsonParser p, DeserializationContext ctxt,
             EnumMap result)
+        throws JacksonException
+    {
+        // Caller supplied an existing map: merge into its values when allowed
+        // (see `_deserializeInto`)
+        return _deserializeInto(p, ctxt, result, _mergeValues);
+    }
+
+    /**
+     * Shared implementation for the two {@code deserialize} methods.
+     * Values are merged into existing entries only when {@code mergeValues} is
+     * {@code true}, that is, when the caller supplied a pre-existing map to update.
+     * A freshly constructed map must never merge: a repeated key replaces the
+     * earlier value, as with {@code MapDeserializer._readAndBind}.
+     */
+    private EnumMap<?,?> _deserializeInto(JsonParser p, DeserializationContext ctxt,
+            EnumMap result, boolean mergeValues)
         throws JacksonException
     {
         // [databind#631]: Assign current value, to be accessible by custom deserializers
@@ -451,9 +469,10 @@ public class EnumMapDeserializer
                     }
                     value = null;
                 } else {
-                    // [databind#6445]: Only attempt to merge content values if
-                    // content type's ConfigOverride allows it (same as `MapDeserializer`)
-                    Object old = _mergeValues ? result.get(key) : null;
+                    // [databind#6445]: Only attempt to merge content values when
+                    // updating a caller-supplied map and the content type's
+                    // ConfigOverride allows it (same as `MapDeserializer`)
+                    Object old = mergeValues ? result.get(key) : null;
                     if (old != null) {
                         if (_valueTypeDeserializer == null) {
                             value = _valueDeserializer.deserialize(p, ctxt, old);
@@ -548,7 +567,9 @@ public class EnumMapDeserializer
                     } catch (Exception e) {
                         return wrapAndThrow(ctxt, e, _containerType.getRawClass(), keyName);
                     }
-                    return deserialize(p, ctxt, result);
+                    // Freshly built map: never merge (same as
+                    // `MapDeserializer` creator path using `_readAndBind`)
+                    return _deserializeInto(p, ctxt, result, false);
                 }
                 continue;
             }

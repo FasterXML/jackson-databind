@@ -1,11 +1,13 @@
 package tools.jackson.databind.deser.merge;
 
 import java.util.EnumMap;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
 
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -113,6 +115,42 @@ public class EnumMapMerge6445Test
         assertSame(original, result.beans.get(ChannelKey.INPUT_1));
         assertEquals("A", original.a);
         assertEquals("b", original.b);
+    }
+
+    // [databind#6445]: a repeated key in a plain (fresh) `EnumMap` must
+    // replace the earlier value, not merge into it
+    @Test
+    public void duplicateKeyInFreshEnumMapReplacesListValues() throws Exception
+    {
+        EnumMap<ChannelKey, List<String>> result = MAPPER.readValue(
+                a2q("{'INPUT_1':['x'],'INPUT_1':['y']}"),
+                new TypeReference<EnumMap<ChannelKey, List<String>>>() { });
+        assertEquals(1, result.size());
+        assertEquals(List.of("y"), result.get(ChannelKey.INPUT_1));
+    }
+
+    @Test
+    public void duplicateKeyInFreshEnumMapReplacesBeanValues() throws Exception
+    {
+        EnumMap<ChannelKey, Bean> result = MAPPER.readValue(
+                a2q("{'INPUT_1':{'a':'1','b':'2'},'INPUT_1':{'a':'3'}}"),
+                new TypeReference<EnumMap<ChannelKey, Bean>>() { });
+        assertEquals(1, result.size());
+        Bean bean = result.get(ChannelKey.INPUT_1);
+        assertEquals("3", bean.a);
+        assertNull(bean.b);
+    }
+
+    // With merge problems reported (see MAPPER above), a repeated scalar
+    // key must still replace without throwing: there is nothing to merge
+    @Test
+    public void duplicateKeyInFreshEnumMapReplacesScalarValues() throws Exception
+    {
+        EnumMap<ChannelKey, String> result = MAPPER.readValue(
+                a2q("{'INPUT_1':'x','INPUT_1':'y'}"),
+                new TypeReference<EnumMap<ChannelKey, String>>() { });
+        assertEquals(1, result.size());
+        assertEquals("y", result.get(ChannelKey.INPUT_1));
     }
 
     // [databind#3205]: content type with `mergeable = false` must not merge

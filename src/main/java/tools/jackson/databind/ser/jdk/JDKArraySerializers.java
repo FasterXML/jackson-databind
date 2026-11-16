@@ -175,7 +175,8 @@ public class JDKArraySerializers
         public final void serialize(boolean[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+            // [databind#6299]: do not unwrap if the only element is filtered out
+            if ((len == 1) && _shouldUnwrapSingle(ctxt) && !isEmpty(ctxt, value)) {
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -264,7 +265,8 @@ public class JDKArraySerializers
         public final void serialize(short[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+            // [databind#6299]: do not unwrap if the only element is filtered out
+            if ((len == 1) && _shouldUnwrapSingle(ctxt) && !isEmpty(ctxt, value)) {
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -429,7 +431,8 @@ public class JDKArraySerializers
         public final void serialize(int[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+            // [databind#6299]: do not unwrap if the only element is filtered out
+            if ((len == 1) && _shouldUnwrapSingle(ctxt) && !isEmpty(ctxt, value)) {
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -524,7 +527,8 @@ public class JDKArraySerializers
         public final void serialize(long[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+            // [databind#6299]: do not unwrap if the only element is filtered out
+            if ((len == 1) && _shouldUnwrapSingle(ctxt) && !isEmpty(ctxt, value)) {
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -637,7 +641,8 @@ public class JDKArraySerializers
         public final void serialize(float[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+            // [databind#6299]: do not unwrap if the only element is filtered out
+            if ((len == 1) && _shouldUnwrapSingle(ctxt) && !isEmpty(ctxt, value)) {
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -753,7 +758,8 @@ public class JDKArraySerializers
             throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+            // [databind#6299]: do not unwrap if the only element is filtered out
+            if ((len == 1) && _shouldUnwrapSingle(ctxt) && !isEmpty(ctxt, value)) {
                 serializeContents(value, g, ctxt);
                 return;
             }

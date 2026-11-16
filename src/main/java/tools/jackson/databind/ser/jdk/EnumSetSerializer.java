@@ -86,8 +86,11 @@ public class EnumSetSerializer
             if (((_unwrapSingle == null)
                     && ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, g, ctxt);
-                return;
+                // [databind#6299]: do not unwrap if the only element is filtered out
+                if (!isEmpty(ctxt, value)) {
+                    serializeContents(value, g, ctxt);
+                    return;
+                }
             }
         }
         g.writeStartArray(value, len);

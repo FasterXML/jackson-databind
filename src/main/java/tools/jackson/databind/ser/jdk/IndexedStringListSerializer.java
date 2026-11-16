@@ -83,13 +83,16 @@ public final class IndexedStringListSerializer
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                if (_needToCheckFiltering(ctxt)) {
-                    serializeContentsFiltered(value, g, ctxt, 1);
+                // [databind#6299]: do not unwrap if the only element is filtered out
+                if (!isEmpty(ctxt, value)) {
+                    if (_needToCheckFiltering(ctxt)) {
+                        serializeContentsFiltered(value, g, ctxt, 1);
 
-                } else {
-                    serializeContentsNonFiltered(value, g, ctxt, 1);
+                    } else {
+                        serializeContentsNonFiltered(value, g, ctxt, 1);
+                    }
+                    return;
                 }
-                return;
             }
         }
         g.writeStartArray(value, len);

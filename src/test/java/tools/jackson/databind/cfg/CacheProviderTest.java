@@ -6,7 +6,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.deser.DeserializerCache;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ser.SerializerCache;
+import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.LookupCache;
 import tools.jackson.databind.util.SimpleLookupCache;
 import tools.jackson.databind.util.TypeKey;
@@ -265,6 +268,34 @@ public class CacheProviderTest
         // Assert
         // 4. Should have created two cache instance
         assertEquals(2, cacheProvider.createCacheCount());
+    }
+
+    @Test
+    public void testBuilderUsesDefaultsForUnspecifiedCacheSizes() throws Exception
+    {
+        DefaultCacheProvider provider = DefaultCacheProvider.builder()
+                .build();
+        assertEquals(DeserializerCache.DEFAULT_MAX_CACHE_SIZE, provider._maxDeserializerCacheSize);
+        assertEquals(SerializerCache.DEFAULT_MAX_CACHE_SIZE, provider._maxSerializerCacheSize);
+        assertEquals(TypeFactory.DEFAULT_MAX_CACHE_SIZE, provider._maxTypeFactoryCacheSize);
+
+        provider = DefaultCacheProvider.builder()
+                .maxSerializerCacheSize(1234)
+                .build();
+        assertEquals(DeserializerCache.DEFAULT_MAX_CACHE_SIZE, provider._maxDeserializerCacheSize);
+        assertEquals(1234, provider._maxSerializerCacheSize);
+        assertEquals(TypeFactory.DEFAULT_MAX_CACHE_SIZE, provider._maxTypeFactoryCacheSize);
+    }
+
+    @Test
+    public void testBuilderAllowsDisablingIndividualCaches() throws Exception
+    {
+        DefaultCacheProvider provider = DefaultCacheProvider.builder()
+                .maxDeserializerCacheSize(0)
+                .build();
+        assertEquals(0, provider._maxDeserializerCacheSize);
+        assertEquals(SerializerCache.DEFAULT_MAX_CACHE_SIZE, provider._maxSerializerCacheSize);
+        assertEquals(TypeFactory.DEFAULT_MAX_CACHE_SIZE, provider._maxTypeFactoryCacheSize);
     }
 
     @Test

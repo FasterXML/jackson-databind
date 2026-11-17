@@ -107,6 +107,10 @@ public class ReadableObjectId
         }
         _resolver.bindItem(_key, ob);
         _item = ob;
+        // Let `updateObjectId()` find this entry directly, without scanning all Object Ids
+        if (_mayRebind && (ctxt instanceof DeserializationContextExt ctxtExt)) {
+            ctxtExt.registerRebindableItem(ob, this);
+        }
         Object id = _key.key;
         if (_referringProperties != null) {
             Iterator<Referring> it = _referringProperties.iterator();

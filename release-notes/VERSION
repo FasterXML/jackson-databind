@@ -5,7 +5,70 @@ Versions: 3.x (for earlier see VERSION-2.x)
 === Releases ===
 ------------------------------------------------------------------------
 
-3.3.0 (not yet released)
+3.4.0 (not yet released)
+
+#6164: `@JsonCreator` on Enum with single `int` parameter fails with
+  `ClassCastException` if parameter name matches a getter
+  (NOTE: such Creators are now delegating, not properties-based, so they no
+  longer accept JSON Object input unless parameter has explicit name,
+  `mode = PROPERTIES` is used, or Enum has class-level `@JsonFormat(shape = OBJECT)`)
+ (reported by @EmhyrVarEmreis)
+ (fix by @cowtowncoder, w/ Claude code)
+#6264: `@JsonIgnoreProperties` / `@JsonIncludeProperties` not honored on
+  `@JsonAnySetter` properties
+ (reported, fixed by @aysha-afrah26)
+#6276: `@JsonApplyView` not honored for `@JsonUnwrapped` and `@JsonAnyGetter` properties
+ (reported, fixed by @aysha-afrah26)
+#6299: Malformed JSON (or failure) for a single-element container whose only element
+  is filtered with `APPLY_JSON_INCLUDE_FOR_CONTAINERS` + `WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED`
+ (reported by @Marti2203)
+ (fix by @agamal026, @cowtowncoder w/ Claude code)
+#6303: `IllegalArgumentException` thrown by a setter is reported as a type mismatch
+  ("Problem deserializing property ... expected type ... actual type")
+ (reported, fixed by @caiocv18)
+#6392: `JsonValueSerializer` re-resolves serializer for every dynamically typed
+  `@JsonValue` result, filling its cache with duplicates
+ (fix by @cowtowncoder, w/ Claude code)
+#6395: `StdConvertingSerializer` looks up and contextualizes delegate serializer for
+  every value when converter output type is dynamic
+ (fix by @cowtowncoder, w/ Claude code)
+#6413: Consolidate "effective input names" for `@JsonUnwrapped` properties
+  (include polymorphic type id) instead of special-casing in `UnwrappedPropertyHandler`
+ (fix by @wozhenbang2004)
+#6430: `MapperBuilder.annotationIntrospector(null)` causes NPE on (de)serialization:
+  now treated as "no annotation introspection"
+ (fix by @cowtowncoder, w/ Claude code)
+#6447: `EnumSetSerializer` re-resolves enum serializer on every call when
+  element type is not statically known
+ (fix by @cowtowncoder, w/ Claude code)
+#6449: Add lookup-then-resolve helper for dynamic serializers in
+  `StdDynamicSerializer`/`StdContainerSerializer`
+ (fix by @cowtowncoder, w/ Claude code)
+#6455: `@JsonSerialize(contentUsing)` on `Collection<String>` drops content `@JsonInclude`
+  and `@JsonFormat` settings
+ (fix by @cowtowncoder, w/ Claude code)
+
+3.3.1 (not yet released)
+
+#6309: NPE serializing an Enum whose `toString()` returns `null` (3.x regression from 2.x)
+ (reported by @Marti2203)
+ (fix by @cowtowncoder, w/ Claude code)
+#6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+ (reported by @Marti2203)
+ (fix by @nu11Po1nter1)
+#6426: Varargs delegating `@JsonCreator` fails with "Cannot cast [Ljava.lang.String;
+  to java.lang.String" (3.x regression)
+ (reported, fixed by @2is10)
+#6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+  `AccessPattern.ALWAYS_NULL` but return an empty Optional
+ (reported by @stevenschlansker)
+ (fix by @mvanhorn)
+#6443: JDK deserialization of a `JsonNode` with a negative length prefix throws
+  `NegativeArraySizeException` instead of an `IOException`; corrupt content now
+  also fails with an `IOException` (`InvalidObjectException`), not `IllegalArgumentException`
+ (reported, fixed by @Marti2203)
+
+3.3.0 (07-Nov-2026)
 
 #1127: `@JsonTypeInfo` with `EXTERNAL_PROPERTY` does not handle arrays of
   polymorphic types: now fails eagerly with clear `InvalidDefinitionException`
@@ -14,14 +77,373 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #1803: `TreeTraversingParser` should allow passing of parent context
  (fix by @cowtowncoder, w/ Claude code)
+#3119: Map Key interface not serialized with both type serializer or keyUsing
+ (reported by @lorthirk)
+#3182: Add `StringCanonicalizingConverter` for opt-in canonicalization
+  ("de-duplication") of low-cardinality `String` values
+ (requested by Fabian L)
+ (contributed by DongNyoung L)
+#3947: Multiple suitable annotated Creator factory methods to be used as the
+  Key deserializer when using record als key in Map
+ (reported by @toonborgers)
+ (fix by @DragonFSKY)
+#4385: Allow changing serializer used for a single property of a Class
+  (allow `ValueSerializerModifier` to replace property serializer via
+  `BeanPropertyWriter.assignSerializer()`)
+ (requested by @Guy2You)
+ (fix by @exijn)
 #4762: `@JsonValue` serialization ignores annotations on the annotated accessor
   (particularly `@JsonInclude`, `@JsonFormat`)
  (reported by @sikorskii)
  (fix by @seonwooj0810)
+#5380: `@JsonValue` ignores property inclusion config override of the value type
+  (empty values no longer suppressed if value type override does not exclude them)
+ (reported by @LSwiatek)
+ (fix by @cowtowncoder, w/ Claude code)
 #6069: Change throws declaration on convertValue to JacksonException to match what
   is actually thrown
  (reported by @pctF)
  (fix by @pjfanning)
+#6091: Report the active token when polymorphic deserialization replays buffered content
+ (reported by @Laar)
+ (fix by @jakezwang, w/ OpenAI Codex)
+#6113: Fix `DOMSerializer` to support polymorphic serialization
+ (fix by @dong0713)
+#6114: Fix QName object deserialization to reject non-String namespaceURI/prefix
+ (fix by @dong0713)
+#6120: Use per-node-type Type Ids for DOM values, reconstruct via DOM factory
+  instead of always parsing a `Document`
+ (fix by @cowtowncoder, w/ Claude code)
+#6128: Fail explicitly on POJO that has both `@JsonFormat(shape=ARRAY)` and `@JsonFilter`
+ (fix by @DragonFSKY)
+#6130: Allow limiting maximum length of JDK regex `Pattern` at deser time
+ (contributed by @pjfanning)
+#6136: `@JsonFilter` with `serializeAllExcept()` does not filter `@JsonAnyGetter`
+  entries
+ (fix by Aysha A-Z)
+#6142: Invalidate read-only lookup snapshot in `SerializerCache` when a typed
+  serializer entry is replaced (and not just when added)
+ (fix by @Dongnyoung)
+#6151: Add `DateTimeFeature.ALWAYS_WRITE_SUBSECOND_DIGITS`
+ (contributed by @seonwooj0810)
+#6168: Cache raw parameter types in `AnnotatedConstructor`
+ (fix by @Dongnyoung)
+#6170: Allow skipping null values for properties handled by `@JsonAnySetter`
+ (fix by @Dongnyoung)
+#6175: Parse object-form `QName` after `As.PROPERTY` type id
+ (reported by @jjh75607)
+ (fix by @kalayciburak)
+#6178: `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES` does not work for
+  `java.time.Month`
+ (reported by @laech)
+ (fix by @Dongnyoung)
+#6187: Make `InvokerHolder` access in `AnnotatedConstructor` lazy
+ (requested by @cowtowncoder)
+ (fix by @kalayciburak)
+#6198: Make `InvokerHolder` access in `AnnotatedMethod` lazy
+ (requested by @cowtowncoder)
+ (fix by @kalayciburak)
+#6188: `ThrowableDeserializer` does not resolve standard `Throwable` property
+  names against `PropertyNamingStrategy`
+ (fix by @cowtowncoder, w/ Claude code)
+#6190: Explicit `@JsonView` on a standard `Throwable` property is ignored by
+  `ThrowableDeserializer`
+ (fix by @adityabagla7)
+#6193: Use `JsonParser.nextNameMatchAndToken()` in the vanilla `BeanDeserializer` loops
+ (contributed by Steven S)
+#6195: Close managed `JsonParser` if `ObjectReader.readValues()` initialization fails
+ (fix by @pjfanning)
+#6196: Close `JsonGenerator` if initialization fails before any content is written
+ (fix by @pjfanning)
+#6197: `ClassCastException` for `AutoCloseable` (but not `Closeable`) values in
+  `ObjectMapper.writeValue(JsonGenerator, Object)` with `SerializationFeature.CLOSE_CLOSEABLE`
+ (fix by @pjfanning)
+#6216: Add `TreeTraversingParser` constructors that take explicit
+  `StreamReadConstraints` (for tree-backed format backends)
+#6219: Vanilla `BeanDeserializer` fast path never used with 3.x defaults
+  (`MapperFeature.DEFAULT_VIEW_INCLUSION` disabled)
+ (reported by @cowtowncoder)
+ (fix by @kalayciburak)
+#6220: `@JsonDeserialize(as/keyAs/contentAs)` lost when property's type deserializer
+  (Default Typing, `@JsonTypeInfo`) resolves a type id: type deserializer was built
+  for the declared type, before the refinement
+ (fix by @pjfanning)
+#6229: `DETECT_PARAMETER_NAMES` disabled also prevents `@ConstructorProperties`
+  based Creator detection
+ (fix by @mauriciocsz)
+#6231: Add copy constructor for `JacksonAnnotationIntrospector` (for sub-classes
+  to create re-configured copies)
+ (fix by @cowtowncoder, w/ Claude code)
+#6233: Serialize `Month` as Enum name with `@JsonFormat(shape = STRING)`
+ (fix by @pjfanning)
+#6239: Explicit `JsonFormat.Shape.NUMBER_INT`/`NUMBER_FLOAT` not honored for
+  nanosecond handling of `java.time` values (serialization, deserialization)
+ (fix by @cowtowncoder, w/ Claude code)
+#6243: Filter ignored Creator properties at build time instead of per-loop
+  read-time checks
+ (fix by @dlwhdgus0810)
+#6255: `@JsonIgnoreProperties`/`@JsonIncludeProperties` not honored for
+  `ObjectNode`/`JsonNode`-valued `@JsonAnyGetter` entries
+ (fix by Aysha A-Z)
+#6257: `MapDeserializer`: `@JsonIgnoreProperties`/`@JsonIncludeProperties` checked
+  after key deserialization, so ignored non-convertible key names still failed
+ (fix by @cowtowncoder, w/ Claude code)
+#6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer writes
+  a `null` over a non-null default, so the `null` can't round-trip
+ (reported by @essiembre)
+ (fix by @mvanhorn)
+#6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
+  array contains `null`
+ (reported, fixed by @Marti2203)
+#6296: Duplicate properties merged under the wrong key in non-vanilla
+  `UntypedObjectDeserializer`
+ (reported, fixed by @Marti2203)
+#6305: `InetSocketAddress` deserialization ignores text after the closing bracket
+  of an IPv6 address
+ (reported, fixed by @Marti2203)
+#6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)` to an object
+  whose id is `null`
+ (reported, fixed by @Marti2203)
+#6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
+  values (including primitive array elements)
+ (reported, fixed by @Marti2203)
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
+#6317: Global `NON_DEFAULT` with `USE_REAL_INCLUDE_NON_DEFAULT` now writes explicit
+  `null` over a non-null default (like per-type); previously nulls were suppressed
+ (fix by @cowtowncoder, w/ Claude code)
+#6319: Global `NON_DEFAULT` with `USE_REAL_INCLUDE_NON_DEFAULT` skips "empty" check
+  when default bean cannot be created
+ (fix by @cowtowncoder, w/ Claude code)
+#6320: `Locale` Map keys serialized using `Locale.toString()` instead of
+  BCP-47 language tag (like `Locale` values)
+ (fix by @pjfanning)
+#6324: `ArrayIndexOutOfBoundsException` in `BeanPropertyMap.withoutProperties()`
+  with property-level `@JsonIdentityInfo` + `@JsonIgnoreProperties` when the value
+  type has `@JsonAlias`
+ (reported by @Marti2203)
+ (fix by @hutiefang76)
+#6325: `NullPointerException` when a `@JsonCreator` returns `null` and the input has
+  an Object Id forward reference
+ (reported by @Marti2203)
+ (fix by @hutiefang76)
+#6352: `BeanPropertyMap.withProperty()` modifies shared map when Object Id property
+  name matches existing property (property-level `@JsonIdentityInfo`)
+ (fix by @cowtowncoder, w/ Claude code)
+#6357: `BeanDeserializer` and `BuilderBasedDeserializer` silently stop on
+  unexpected token within Object
+ (fix by @OKAN-SOFTWARE, @cowtowncoder w/ Claude code)
+#6363: `@JsonFormat(shape = ARRAY)` Builder loses property values when not using
+  vanilla processing (e.g. with active View): `deserializeSetAndReturn()` result ignored
+ (fix by @wozhenbang2004)
+#6364: Report property name as found in input (alias or different case with
+  `ACCEPT_CASE_INSENSITIVE_PROPERTIES`), not canonical name, in deserialization
+  error paths
+ (fix by @cowtowncoder, w/ Claude code)
+#6365: `JsonMapper.builder().filterProvider(...).build()` throws `NullPointerException`
+  when a `SimpleFilterProvider` has a `null` filter (`addFilter()` with `null` filter
+  now removes the binding)
+ (reported by @Marti2203)
+ (fix by @wozhenbang2004)
+#6366: `NullPointerException` deserializing raw `Map.Entry` with a `Shape.POJO`
+  config override (raw `Map.Entry` now handled as `Map.Entry<Object,Object>` in all shapes)
+ (reported by @Marti2203)
+ (fix by @wozhenbang2004)
+#6371: Polymorphic key and value types not retained for POJO-shaped `Map.Entry`
+  deserialization
+ (fix by @wozhenbang2004)
+#6372: Immutable Builder loses `@JsonUnwrapped` property values: result of
+  "with"-method ignored by `UnwrappedPropertyHandler`
+ (fix by @wozhenbang2004)
+#6374: `@JsonFormat(shape = ARRAY)` Builder: structured first extra array element
+  not skipped correctly, leaves parser misaligned
+ (fix by @wozhenbang2004)
+#6375: Wrap non-Jackson exceptions thrown by
+  `DeserializationProblemHandler.handleUnknownProperty()` to include bean and property path
+ (fix by @wozhenbang2004)
+#6376: End of input right after a property name (possible with `TokenBuffer`) reported
+  as `DatabindException` wrapping `NullPointerException`, not `MismatchedInputException`
+ (fix by @cowtowncoder, w/ Claude code)
+#6385: Record update with `readerForUpdating()` fails for non-public Record:
+  accessor not made accessible
+ (fix by @wozhenbang2004, @cowtowncoder w/ Claude code)
+#6394: `@JsonFormat(shape = ARRAY)` deserialization hangs when input ends before
+  `END_ARRAY` while skipping extra values
+ (fix by @Sahas2711, @cowtowncoder w/ Claude code)
+#6398: `@JsonFormat(shape = ARRAY)` builder deserialization throws when a
+  `DeserializationProblemHandler` recovers with `null`
+ (fix by @wozhenbang2004)
+#6399: `NullSerializer` should not be annotated with `@JacksonStdImpl`
+#6401: Raw `IllegalArgumentException` escapes polymorphic type-id resolution
+ (reported by @AmirWilayah)
+ (fix by @cowtowncoder, w/ Claude code)
+#6410: Object Ids should NOT be affected by JSON Views or `@JsonFilter`
+ (fix by @cowtowncoder, w/ Claude code)
+
+3.2.5 (not yet released)
+
+#6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+ (reported by @bugada)
+ (fix by @pjfanning, w/ Claude code)
+#6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
+  array contains `null`
+ (reported, fixed by @Marti2203)
+#6296: Duplicate properties merged under the wrong key in non-vanilla
+  `UntypedObjectDeserializer`
+ (reported, fixed by @Marti2203)
+#6305: `InetSocketAddress` deserialization ignores text after the closing bracket
+  of an IPv6 address
+ (reported, fixed by @Marti2203)
+#6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)` to an object
+  whose id is `null`
+ (reported, fixed by @Marti2203)
+#6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
+  values (including primitive array elements)
+ (reported, fixed by @Marti2203)
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
+#6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
+  deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
+  `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6332: Regression from 3.0 to 3.1: `@JsonUnwrapped` drops/rejects the type id
+  property of a polymorphic unwrapped value
+ (reported, fixed by @2is10)
+#6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)` for creator
+  properties: existing value is overwritten with `null`
+ (reported, fixed by @Marti2203)
+#6339: Enum aliases from an appended `AnnotationIntrospector` are discarded:
+  `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
+ (reported, fixed by @Marti2203)
+#6342: `@JsonFormat(shape = NUMBER)` on primitive `boolean` getter written as `true`/`false`
+  with Blackbird / Afterburner (regression via #6111)
+ (reported by @palprat)
+ (fix by @cowtowncoder, w/ Claude code)
+#6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
+  `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
+ (reported, fixed by @Marti2203)
+#6426: Varargs delegating `@JsonCreator` fails with "Cannot cast [Ljava.lang.String;
+  to java.lang.String" (3.x regression)
+ (reported, fixed by @2is10)
+#6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+  `AccessPattern.ALWAYS_NULL` but return an empty Optional
+ (reported by @stevenschlansker)
+ (fix by @mvanhorn)
+
+3.2.4 (18-Oct-2026)
+
+#6145: `@JsonIgnoreProperties` bypassed for Creator properties with builders
+  and external type ids
+ (fix by Aysha A-Z)
+#6206: Report cycle through `@JsonValue` accessor as `DatabindException`
+  (instead of `StackOverflowError`)
+ (fix by @pjfanning, w/ Claude code)
+#6225: `ArrayStoreException` when a Builder-based typed array resolves a forward
+  Object Id reference within the same array
+ (fix by @jakezwang)
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
+ (reported by @sergeylappo)
+ (fix by @pjfanning, w/ Claude code)
+#6232: Validate `StreamReadConstraints` number length when coercing `StringNode`
+  to number
+ (fix by Aysha A-Z)
+#6236: Retain `JsonFormat.Shape` in `withFormat()` of `Month`, `MonthDay`, `Year`
+  and `YearMonth` serializers
+ (fix by @cowtowncoder, w/ Claude code)
+#6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+ (fix by @kimsanhaa)
+#6246: Creator properties not renamed for `@JsonUnwrapped` with prefix/suffix
+  with `MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES`
+ (fix by @cowtowncoder, w/ Claude code)
+#6249: Avoid NPE when parser reports `VALUE_STRING` with `null` text
+ (fix by @pjfanning, w/ Claude code)
+#6252: `@JsonIgnoreProperties` not honored for `EnumMap` properties
+ (fix by Aysha A-Z)
+#6261: Support `@JsonView` on properties-based Creator parameters of Enum, Map
+  and EnumMap types
+ (fix by @pjfanning, w/ Claude code)
+#6273: Deserializing empty `Locale` Map keys (and other non-BCP-47 single-segment
+  values) fails since 3.2.0
+ (reported by @schabe77)
+ (fix by @pjfanning, w/ Claude code)
+#6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: type parameters (and element types of array type ids) are now validated
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type; `allowIfSubTypeIsArray()` no longer
+  accepts abstract or interface element types without allow-listing (except `Number`);
+  approval of an array type covers its element type only if given as exactly that
+  class (`allowIfSubType(Bar[].class)`, new
+  `PolymorphicTypeValidator.isArrayTypeAllowedExplicitly()`), a name-based rule
+  does not; base type approval of a declared array type covers subtypes of its
+  element type unless that is `Object`, `Serializable` or `Cloneable`
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, @martinfrancois)
+
+3.2.3 (21-Sep-2026)
+
+#6157: `@JsonIncludeProperties` not honored for `Throwable` types with
+  `@JsonAnySetter`
+ (fix by Aysha A-Z)
+#6174: Honor `@JsonView` in `ThrowableDeserializer.deserializeFromObject()`
+ (fix by Aysha A-Z)
+#6179: Apply `StreamReadConstraints` number length limit when coercing String
+  to `double`
+ (fix by Aysha A-Z)
+#6182: `StdDateFormat.<clinit>` degrades JIT compilation of
+  `UTF8JsonGenerator._writeStringSegment`
+ (fix by Francesco N)
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [CVE-2026-91776]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [CVE-2026-91777]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6205: Avoid quadratic forward-reference resolution in `ObjectArrayDeserializer`
+ (fix by @pjfanning, w/ Claude code)
+#6214: `DecimalNode` to `BigInteger` conversion no longer guarded by
+  `StreamReadConstraints.validateBigIntegerScale()` (regression from 2.x)
+ (fix by @pjfanning, w/ Claude code)
+#6223: Avoid quadratic Object Id rebinding for Builder- and delegate-based values
+ (fix by @cowtowncoder, w/ Claude code)
+
+3.2.2 (14-Aug-2026)
+
+#6096: Honor `@JsonView` in `BeanAsArrayDeserializer` update path
+ (fixed by Aysha A-Z)
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
+#6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+  after all entries are filtered
+ (reported by @dlwldnjs1009)
+ (fix by @seonwooj0810)
+#6109: Mark built-in JDK 8 handlers (`Optional`, `Stream`) with `@JacksonStdImpl` so
+  optimization modules (Blackbird) can retain optimized handlers
+ (fix by Lee Jiwon)
+#6115: Honor `@JsonIgnoreProperties` before any-setter on more deser paths
+ (fix by Aysha A-Z)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
+#6127: Add `StreamReadConstraints` number len constraint to `javax.xml.datatype.XMLGregorianCalendar`
+  and `javax.xml.datatype.Duration` [CVE-2026-68497]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6129: Limit the supported URL schemes for `java.nio.file.Path`
+  deserialization [CVE-2026-19032]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
+  for unspecified values
+ (reported, fixed by DongNyoung L)
+#6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
+  [CVE-2026-83557]
+ (reported by @prvazsahnazarov)
 
 3.2.1 (10-Jul-2026)
 
@@ -42,10 +464,21 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6055: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
+#6058: Do not allow DNS resolution when deserializing `InetAddress` [CVE-2026-77310]
+ (reported by @thientd)
+ (fix by @pjfanning)
 #6059: `ObjectMapper.valueToTree()` with `byte[]` does not produce `BinaryNode`
  (reported by @sebastien-leveque)
  (fix by @cowtowncoder, w/ Claude code)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
+#6065: `SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS` does not fully
+  remove empty collection during serialization
+ (reported by @doeiqts)
+ (fix by @seonwooj0810)
+#6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
+  (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
+ (reported by João G)
+ (fix by João G and @cowtowncoder, w/ Claude code)
 
 3.2.0 (08-Jun-2026)
 
@@ -272,7 +705,173 @@ Versions: 3.x (for earlier see VERSION-2.x)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 
-3.1.5 (not yet released)
+3.1.9 (not yet released)
+
+#6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+ (reported by @bugada)
+ (fix by @pjfanning, w/ Claude code)
+#6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
+  array contains `null`
+ (reported, fixed by @Marti2203)
+#6296: Duplicate properties merged under the wrong key in non-vanilla
+  `UntypedObjectDeserializer`
+ (reported, fixed by @Marti2203)
+#6305: `InetSocketAddress` deserialization ignores text after the closing bracket
+  of an IPv6 address
+ (reported, fixed by @Marti2203)
+#6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)` to an object
+  whose id is `null`
+ (reported, fixed by @Marti2203)
+#6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
+  values (including primitive array elements)
+ (reported, fixed by @Marti2203)
+#6309: NPE serializing an Enum whose `toString()` returns `null` (3.x regression from 2.x)
+ (reported by @Marti2203)
+ (fix by @cowtowncoder, w/ Claude code)
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
+#6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+ (reported by @Marti2203)
+ (fix by @nu11Po1nter1)
+#6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
+  deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
+  `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6332: Regression from 3.0 to 3.1: `@JsonUnwrapped` drops/rejects the type id
+  property of a polymorphic unwrapped value
+ (reported, fixed by @2is10)
+#6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)` for creator
+  properties: existing value is overwritten with `null`
+ (reported, fixed by @Marti2203)
+#6339: Enum aliases from an appended `AnnotationIntrospector` are discarded:
+  `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
+ (reported, fixed by @Marti2203)
+#6342: `@JsonFormat(shape = NUMBER)` on primitive `boolean` getter written as `true`/`false`
+  with Blackbird / Afterburner (regression via #6111)
+ (reported by @palprat)
+ (fix by @cowtowncoder, w/ Claude code)
+#6350: `allowSubTypesWithExplicitDeserializer()` denies `java.sql.Date`,
+  `java.sql.Timestamp`, `OptionalInt`, `OptionalLong`, `OptionalDouble` and `JsonNode`
+ (reported, fixed by @Marti2203)
+#6426: Varargs delegating `@JsonCreator` fails with "Cannot cast [Ljava.lang.String;
+  to java.lang.String" (3.x regression)
+ (reported, fixed by @2is10)
+#6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+  `AccessPattern.ALWAYS_NULL` but return an empty Optional
+ (reported by @stevenschlansker)
+ (fix by @mvanhorn)
+#6443: JDK deserialization of a `JsonNode` with a negative length prefix throws
+  `NegativeArraySizeException` instead of an `IOException`; corrupt content now
+  also fails with an `IOException` (`InvalidObjectException`), not `IllegalArgumentException`
+ (reported, fixed by @Marti2203)
+
+3.1.8 (17-Oct-2026)
+
+#6206: Report cycle through `@JsonValue` accessor as `DatabindException`
+  (instead of `StackOverflowError`)
+ (fix by @pjfanning, w/ Claude code)
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
+ (reported by @sergeylappo)
+ (fix by @pjfanning, w/ Claude code)
+#6232: Validate `StreamReadConstraints` number length when coercing `StringNode`
+  to number
+ (fix by Aysha A-Z)
+#6236: Retain `JsonFormat.Shape` in `withFormat()` of `Month`, `MonthDay`, `Year`
+  and `YearMonth` serializers
+ (fix by @cowtowncoder, w/ Claude code)
+#6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+ (fix by @kimsanhaa)
+#6246: Creator properties not renamed for `@JsonUnwrapped` with prefix/suffix
+  with `MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES`
+ (fix by @cowtowncoder, w/ Claude code)
+#6249: Avoid NPE when parser reports `VALUE_STRING` with `null` text
+ (fix by @pjfanning, w/ Claude code)
+#6252: `@JsonIgnoreProperties` not honored for `EnumMap` properties
+ (fix by Aysha A-Z)
+#6261: Support `@JsonView` on properties-based Creator parameters of Enum, Map
+  and EnumMap types
+ (fix by @pjfanning, w/ Claude code)
+#6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: type parameters (and element types of array type ids) are now validated
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type; `allowIfSubTypeIsArray()` no longer
+  accepts abstract or interface element types without allow-listing (except `Number`);
+  approval of an array type covers its element type only if given as exactly that
+  class (`allowIfSubType(Bar[].class)`, new
+  `PolymorphicTypeValidator.isArrayTypeAllowedExplicitly()`), a name-based rule
+  does not; base type approval of a declared array type covers subtypes of its
+  element type unless that is `Object`, `Serializable` or `Cloneable`
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, @martinfrancois)
+
+3.1.7 (21-Sep-2026)
+
+#6157: `@JsonIncludeProperties` not honored for `Throwable` types with
+  `@JsonAnySetter`
+ (fix by Aysha A-Z)
+#6174: Honor `@JsonView` in `ThrowableDeserializer.deserializeFromObject()`
+ (fix by Aysha A-Z)
+#6179: Apply `StreamReadConstraints` number length limit when coercing String
+  to `double`
+ (fix by Aysha A-Z)
+#6182: `StdDateFormat.<clinit>` degrades JIT compilation of
+  `UTF8JsonGenerator._writeStringSegment`
+ (fix by Francesco N)
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [CVE-2026-91776]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [CVE-2026-91777]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6205: Avoid quadratic forward-reference resolution in `ObjectArrayDeserializer`
+ (fix by @pjfanning, w/ Claude code)
+#6214: `DecimalNode` to `BigInteger` conversion no longer guarded by
+  `StreamReadConstraints.validateBigIntegerScale()` (regression from 2.x)
+ (fix by @pjfanning, w/ Claude code)
+
+3.1.6 (14-Aug-2026)
+
+#6096: Honor `@JsonView` in `BeanAsArrayDeserializer` update path
+ (fixed by Aysha A-Z)
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
+#6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
+  after all entries are filtered
+ (reported by @dlwldnjs1009)
+ (fix by @seonwooj0810)
+#6109: Mark built-in JDK 8 handlers (`Optional`, `Stream`) with `@JacksonStdImpl` so
+  optimization modules (Blackbird) can retain optimized handlers
+ (fix by Lee Jiwon)
+#6115: Honor `@JsonIgnoreProperties` before any-setter on more deser paths
+ (fix by Aysha A-Z)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
+#6127: Add `StreamReadConstraints` number len constraint to `javax.xml.datatype.XMLGregorianCalendar`
+  and `javax.xml.datatype.Duration` [CVE-2026-68497]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6129: Limit the supported URL schemes for `java.nio.file.Path`
+  deserialization [CVE-2026-19032]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6133: Limit number sizes allowed in `java.time.Instant` deserializer
+ (fix by @pjfanning)
+#6137: `DefaultCacheProvider.Builder` does not preserve default cache sizes
+  for unspecified values
+ (reported, fixed by DongNyoung L)
+#6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
+  [CVE-2026-83557]
+ (reported by @prvazsahnazarov)
+#6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float` Map keys
+ (fix by Aysha A-Z)
+
+3.1.5 (07-Jul-2026)
 
 #6040: Inconsistency in current token on invalid type coercion for `List<String>`
  (reported by João G)
@@ -282,12 +881,15 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6055: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
+#6058: Do not allow DNS resolution when deserializing `InetAddress` [CVE-2026-77310]
+ (reported by @thientd)
+ (fix by @pjfanning)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
 
 3.1.4 (29-May-2026)
 
-#5950: Improve `UUIDeserializer` error handling
- (reported by Omkhar A)
+#5950: Improve `UUIDDeserializer` error handling
+ (reported, fix suggested by Omkhar A)
 #5951: Improve `InetSocketAddress` deserialization [CVE-2026-54514]
  (reported by Omkhar A)
 #5956: Fix problem with float-to-byte range check
@@ -305,7 +907,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fixed by Omkhar A)
 #5971: `@JsonView` by-passed for unwrapped creator parameters [CVE-2026-54518]
  (fixed by Omkhar A)
-#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy`
+#5974: `@JsonIgnore` on Record property ignored with `PropertyNamingStrategy` [CVE-2026-59888]
  (fixed by Omkhar A)
 #5981: `BasicPolymorphicTypeValidator` setting `allowIfSubTypeIsArray()`
   should validate element type [CVE-2026-54513]

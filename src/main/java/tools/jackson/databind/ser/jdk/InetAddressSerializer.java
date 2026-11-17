@@ -9,6 +9,7 @@ import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 
@@ -21,6 +22,7 @@ import tools.jackson.databind.ser.std.StdScalarSerializer;
  * (or <code>ARRAY</code>) is used, will serialize as "host address"
  * (dotted numbers) instead of simple conversion.
  */
+@JacksonStdImpl
 public class InetAddressSerializer
     extends StdScalarSerializer<InetAddress>
 {

@@ -5,6 +5,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+
+import tools.jackson.databind.AnnotationIntrospector;
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.Annotated;
+
 /**
  * @since 2.12
  */
@@ -48,6 +55,42 @@ public class IgnorePropertiesUtil
     }
 
     /**
+     * Factory method for creating and returning a {@link Checker} instance, if (and only if)
+     * one is needed, for {@code @JsonIgnoreProperties} / {@code @JsonIncludeProperties}
+     * declared on given member. Used where there are no pre-configured names to merge
+     * with (any-getters, any-setters); applies the same rules as
+     * {@code MapSerializer.createContextual()} / {@code MapDeserializer.createContextual()}
+     * do for {@code Map}-valued properties, so changes to one should be reflected in the other.
+     *
+     * @param config Configuration to use for annotation introspection
+     * @param member Annotated member (accessor or mutator) to check; may be {@code null}
+     * @param forSerialization Whether names are needed for serialization ({@code true})
+     *    or deserialization ({@code false}): affects handling of
+     *    {@code JsonIgnoreProperties.allowGetters} / {@code allowSetters}
+     *
+     * @return Checker, if validity checks are needed; {@code null} otherwise
+     *
+     * @since 3.4
+     */
+    public static Checker buildCheckerFor(MapperConfig<?> config, Annotated member,
+            boolean forSerialization)
+    {
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        if (member == null) {
+            return null;
+        }
+        JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, member);
+        JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, member);
+        Set<String> toIgnore = null;
+        if (ignorals != null) {
+            toIgnore = forSerialization ? ignorals.findIgnoredForSerialization()
+                    : ignorals.findIgnoredForDeserialization();
+        }
+        return buildCheckerIfNeeded(toIgnore,
+                (inclusions == null) ? null : inclusions.getIncluded());
+    }
+
+    /**
      * Helper that encapsulates logic for combining two sets of "included names":
      * default logic is to do intersection (name must be in both to be included
      * in result)
@@ -73,6 +116,29 @@ public class IgnorePropertiesUtil
             if (prevToInclude.contains(prop)) {
                 result.add(prop);
             }
+        }
+        return result;
+    }
+
+    /**
+     * Helper that encapsulates logic for combining two sets of "ignored names":
+     * default logic is to do union. Neither argument is modified.
+     *
+     * @param prevToIgnore Existing set of names to ignore, if any; {@code null} if none
+     * @param newToIgnore New names to ignore, if any; {@code null} or empty if none
+     *
+     * @return Union of the arguments; {@code prevToIgnore} as-is if there is nothing to add
+     *
+     * @since 3.1.8
+     */
+    public static Set<String> combineNamesToIgnore(Set<String> prevToIgnore,
+            Set<String> newToIgnore) {
+        if (newToIgnore == null || newToIgnore.isEmpty()) {
+            return prevToIgnore;
+        }
+        final Set<String> result = new HashSet<>(newToIgnore);
+        if (prevToIgnore != null) {
+            result.addAll(prevToIgnore);
         }
         return result;
     }

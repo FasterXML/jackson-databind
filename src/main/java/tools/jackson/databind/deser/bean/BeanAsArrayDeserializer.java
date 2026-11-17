@@ -103,7 +103,7 @@ public class BeanAsArrayDeserializer
         if (!p.isExpectedStartArrayToken()) {
             return _deserializeFromNonArray(p, ctxt);
         }
-        if (!_vanillaProcessing) {
+        if (!_useVanillaProcessing(ctxt)) {
             return _deserializeNonVanilla(p, ctxt);
         }
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
@@ -236,9 +236,7 @@ public class BeanAsArrayDeserializer
                 // never gets here
             }
             // otherwise, skip until end
-            do {
-                p.skipChildren();
-            } while (p.nextToken() != JsonToken.END_ARRAY);
+            _skipToEndArray(p, ctxt);
         }
         return bean;
     }
@@ -259,6 +257,7 @@ public class BeanAsArrayDeserializer
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final SettableBeanProperty[] props = _orderedProperties;
         int i = 0;
         final int propCount = props.length;
@@ -270,16 +269,22 @@ public class BeanAsArrayDeserializer
                 break;
             }
             SettableBeanProperty prop = props[i];
-            if (prop != null) { // normal case
-                try {
-                    prop.deserializeAndSet(p, ctxt, bean);
-                } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
-                }
-            } else { // just skip?
-                p.skipChildren();
-            }
             ++i;
+            if (prop != null) { // normal case
+                if (activeView == null || prop.visibleInView(activeView)) {
+                    try {
+                        prop.deserializeAndSet(p, ctxt, bean);
+                    } catch (Exception e) {
+                        throw wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    }
+                    continue;
+                }
+                // [databind#6077]: view-hidden property: fail, or skip, as per feature
+                handleUnexpectedView(p, ctxt, prop, activeView);
+                continue;
+            }
+            // otherwise, skip it (no property for this position)
+            p.skipChildren();
         }
 
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
@@ -290,9 +295,7 @@ public class BeanAsArrayDeserializer
             // never gets here
         }
         // otherwise, skip until end
-        do {
-            p.skipChildren();
-        } while (p.nextToken() != JsonToken.END_ARRAY);
+        _skipToEndArray(p, ctxt);
         return bean;
     }
 
@@ -363,9 +366,7 @@ public class BeanAsArrayDeserializer
             // will never reach here as exception has been thrown
         }
         // otherwise, skip until end
-        do {
-            p.skipChildren();
-        } while (p.nextToken() != JsonToken.END_ARRAY);
+        _skipToEndArray(p, ctxt);
         return bean;
     }
 
@@ -390,7 +391,7 @@ public class BeanAsArrayDeserializer
         Object bean = null;
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
-        for (; p.nextToken() != JsonToken.END_ARRAY; ++i) {
+        for (; !_nextIsEndArray(p, ctxt); ++i) {
             SettableBeanProperty prop = (i < propCount) ? props[i] : null;
             if (prop == null) { // we get null if there are extra elements; maybe otherwise too?
                 // [databind#6043]: extra JSON Array elements past property count must

@@ -4,9 +4,11 @@ import java.util.*;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.AsArraySerializerBase;
 
+@JacksonStdImpl
 public class EnumSetSerializer
     extends AsArraySerializerBase<EnumSet<? extends Enum<?>>>
 {
@@ -52,7 +54,19 @@ public class EnumSetSerializer
         // [databind#6065]: with content @JsonInclude applied to containers,
         // an EnumSet whose every element is suppressed is considered empty
         if (_needToCheckFiltering(prov)) {
-            return _allElementsSuppressed(prov, value.iterator());
+            // [databind#6447]: cannot use `_allElementsSuppressed()` as element
+            // type may not be known (null); and need to share serializer lookup
+            // with `serializeContents()`
+            ValueSerializer<Object> enumSer = _elementSerializer;
+            for (Enum<?> en : value) {
+                if (enumSer == null) {
+                    enumSer = _findCachedOrAddDynamic(prov, en.getDeclaringClass());
+                }
+                if (_shouldSerializeElement(prov, en, enumSer)) {
+                    return false;
+                }
+            }
+            return true;
         }
         return false;
     }
@@ -72,8 +86,11 @@ public class EnumSetSerializer
             if (((_unwrapSingle == null)
                     && ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, g, ctxt);
-                return;
+                // [databind#6299]: do not unwrap if the only element is filtered out
+                if (!isEmpty(ctxt, value)) {
+                    serializeContents(value, g, ctxt);
+                    return;
+                }
             }
         }
         g.writeStartArray(value, len);
@@ -95,7 +112,7 @@ public class EnumSetSerializer
             if (enumSer == null) {
                 // 12-Jan-2010, tatu: Since enums cannot be polymorphic, let's
                 //   not bother with typed serializer variant here
-                enumSer = _findAndAddDynamic(ctxt, en.getDeclaringClass());
+                enumSer = _findCachedOrAddDynamic(ctxt, en.getDeclaringClass());
             }
             // [databind#5369] Support @JsonInclude in Collection
             if (needsFiltering && !_shouldSerializeElement(ctxt, en, enumSer)) {

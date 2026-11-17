@@ -2,7 +2,6 @@ package tools.jackson.databind.ser.std;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
-import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
 
@@ -12,8 +11,11 @@ import tools.jackson.databind.jsontype.TypeSerializer;
  * Used as the default "null serializer" (which is used for serializing
  * null object references unless overridden), as well as for some
  * more exotic types (java.lang.Void).
+ *<p>
+ * NOTE: not annotated with {@code @JacksonStdImpl} (since 3.3): it is a
+ * fallback rather than the default serializer for any type, and optimization
+ * modules (Afterburner, Blackbird) would otherwise consider it replaceable.
  */
-@JacksonStdImpl
 public class NullSerializer
     extends StdSerializer<Object>
 {

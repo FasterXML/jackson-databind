@@ -29,13 +29,17 @@ public class PrivateMaxEntriesMapStressTest {
         final PrivateMaxEntriesMap<Integer, UUID> clhm =
                 new PrivateMaxEntriesMap.Builder<Integer, UUID>().maximumCapacity(maxEntries).build();
         final Map<Integer, UUID> map = new ConcurrentHashMap<>();
+        final Object[] locks = new Object[maxKey];
+        for (int i = 0; i < maxKey; i++) {
+            locks[i] = new Object();
+        }
         final ExecutorService executor = Executors.newFixedThreadPool(threads);
         try {
             for (int i = 0; i < maxKey; i++) {
                 final Integer key = Integer.valueOf(i);
                 executor.submit(() -> {
                     UUID uuid = UUID.randomUUID();
-                    synchronized (key) {
+                    synchronized (locks[key]) {
                         clhm.put(key, uuid);
                         map.put(key, uuid);
                     }
@@ -45,7 +49,7 @@ public class PrivateMaxEntriesMapStressTest {
                 executor.submit(() -> {
                     Integer key = Integer.valueOf(rnd.nextInt(maxKey));
                     UUID uuid = UUID.randomUUID();
-                    synchronized (key) {
+                    synchronized (locks[key]) {
                         clhm.put(key, uuid);
                         map.put(key, uuid);
                     }

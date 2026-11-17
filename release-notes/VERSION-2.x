@@ -4,9 +4,134 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.23.0 (not yet released)
+2.24.0 (not yet released)
 
-No change since 2.22
+#6309: Serializing an Enum whose `toString()` returns `null` as a Map key fails
+  with `WRITE_ENUMS_USING_TO_STRING`
+ (reported, fixed by @Marti2203)
+#6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+ (reported by @Marti2203)
+ (fix by @nu11Po1nter1)
+#6443: JDK deserialization of a `JsonNode` with a negative length prefix throws
+  `NegativeArraySizeException` instead of an `IOException`; corrupt content now
+  also fails with an `IOException` (`InvalidObjectException`), not `IllegalArgumentException`
+ (reported, fixed by @Marti2203)
+
+2.23.1 (not yet released)
+
+#6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to legacy
+  `ObjectMapper.enableDefaultTyping()`
+ (reported by @abdessattar23)
+ (fix by @cowtowncoder, w/ Claude code)
+
+2.23.0 (07-Nov-2026)
+
+#6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
+  (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
+ (reported by João G)
+ (fix by João G, @cowtowncoder; backport by @Dongnyoung)
+#6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+ (reported by @bugada)
+ (fix by @pjfanning, w/ Claude code)
+#6240: `@JsonValue` ignored on getter also annotated with `@JsonKey`
+ (fix by @kimsanhaa)
+#6261: Support `@JsonView` on properties-based Creator parameters of Enum, Map and EnumMap types
+ (fix by @pjfanning, w/ Claude code)
+#6295: `@JsonInclude(NON_DEFAULT)` omits a changed array property when the default
+  array contains `null`
+ (reported, fixed by @Marti2203)
+#6296: Duplicate properties merged under the wrong key in non-vanilla
+  `UntypedObjectDeserializer`
+ (reported, fixed by @Marti2203)
+#6300: NPE when a `DeserializationProblemHandler` returns `null` for primitive
+  values (including primitive array elements)
+ (reported, fixed by @Marti2203)
+#6305: `InetSocketAddress` deserialization ignores text after the closing bracket
+  of an IPv6 address
+ (reported, fixed by @Marti2203)
+#6306: NPE serializing `@JsonIdentityReference(alwaysAsId = true)` to an object
+  whose id is `null`
+ (reported, fixed by @Marti2203)
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
+#6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
+  deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
+  `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)` for creator
+  properties: existing value is overwritten with `null`
+ (reported, fixed by @Marti2203)
+#6339: Enum aliases from an appended `AnnotationIntrospector` are discarded:
+  `JacksonAnnotationIntrospector.findEnumAliases()` overwrites every slot
+ (reported, fixed by @Marti2203)
+#6399: `NullSerializer` should not be annotated with `@JacksonStdImpl`
+
+2.22.5 (not yet released)
+
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
+#6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
+  deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
+  `FilteredRowSetImpl`, `JoinRowSetImpl`)
+
+2.22.4 (17-Oct-2026)
+
+#6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
+  (instead of `StackOverflowError`)
+ (fix by @pjfanning, w/ Claude code)
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
+ (reported by @sergeylappo)
+ (fix by @pjfanning, w/ Claude code)
+#6249: Avoid NPE when parser reports `VALUE_STRING` with `null` text
+ (fix by @pjfanning, w/ Claude code)
+#6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: type parameters (and element types of array type ids) are now validated
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type (also without configured validator);
+  `allowIfSubTypeIsArray()` no longer accepts abstract or interface element types
+  without allow-listing (except `Number`); approval of an array type covers its
+  element type only if given as exactly that class (`allowIfSubType(Bar[].class)`,
+  new `PolymorphicTypeValidator.isArrayTypeAllowedExplicitly()`), a name-based
+  rule does not; base type approval of a declared array type covers subtypes of
+  its element type unless that is `Object`, `Serializable` or `Cloneable`
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, @martinfrancois)
+
+2.22.3 (21-Sep-2026)
+
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [CVE-2026-91776]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [CVE-2026-91777]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6205: Avoid quadratic forward-reference resolution in `ObjectArrayDeserializer`
+ (fix by @pjfanning, w/ Claude code)
+
+2.22.2 (16-Aug-2026)
+
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
+#6127: Add `StreamReadConstraints` number len constraint to `javax.xml.datatype.XMLGregorianCalendar`
+  and `javax.xml.datatype.Duration` [CVE-2026-68497]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6129: Limit the supported URL schemes for `java.nio.file.Path`
+  deserialization [CVE-2026-19032]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
+  [CVE-2026-83557]
+ (reported by @prvazsahnazarov)
 
 2.22.1 (07-Jul-2026)
 
@@ -16,7 +141,7 @@ No change since 2.22
 #6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
-#6058: Do not allow DNS resolution when deserializing `InetAddress`
+#6058: Do not allow DNS resolution when deserializing `InetAddress` [CVE-2026-77310]
  (reported by @thientd)
  (fix by @pjfanning)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
@@ -37,12 +162,80 @@ No change since 2.22
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
 
-2.21.6 (not yet released)
+2.21.9 (not yet released)
 
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
+#6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
+  deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
+  `FilteredRowSetImpl`, `JoinRowSetImpl`)
+#6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to legacy
+  `ObjectMapper.enableDefaultTyping()`
+ (reported by @abdessattar23)
+ (fix by @cowtowncoder, w/ Claude code)
+
+2.21.8 (17-Oct-2026)
+
+#6206: Report cycle through `@JsonValue` accessor as `JsonMappingException`
+  (instead of `StackOverflowError`)
+ (fix by @pjfanning, w/ Claude code)
+#6227: `BeanDescription` is not thread-safe when called concurrently on the
+  same instance (`findProperties()`, `findDefaultViews()`)
+ (reported by @sergeylappo)
+ (fix by @pjfanning, w/ Claude code)
+#6249: Avoid NPE when parser reports `VALUE_STRING` with `null` text
+ (fix by @pjfanning, w/ Claude code)
+#6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: type parameters (and element types of array type ids) are now validated
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type (also without configured validator);
+  `allowIfSubTypeIsArray()` no longer accepts abstract or interface element types
+  without allow-listing (except `Number`); approval of an array type covers its
+  element type only if given as exactly that class (`allowIfSubType(Bar[].class)`,
+  new `PolymorphicTypeValidator.isArrayTypeAllowedExplicitly()`), a name-based
+  rule does not; base type approval of a declared array type covers subtypes of
+  its element type unless that is `Object`, `Serializable` or `Cloneable`
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, @martinfrancois)
+
+2.21.7 (21-Sep-2026)
+
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [CVE-2026-91776]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [CVE-2026-91777]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6205: Avoid quadratic forward-reference resolution in `ObjectArrayDeserializer`
+ (fix by @pjfanning, w/ Claude code)
+
+2.21.6 (14-Aug-2026)
+
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
 #6101: `@JsonInclude(NON_EMPTY, content=CUSTOM)` does not omit a Map property
   after all entries are filtered
  (reported by @dlwldnjs1009)
  (fix by @seonwooj0810)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
+#6127: Add `StreamReadConstraints` number len constraint to `javax.xml.datatype.XMLGregorianCalendar`
+  and `javax.xml.datatype.Duration` [CVE-2026-68497]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6129: Limit the supported URL schemes for `java.nio.file.Path`
+  deserialization [CVE-2026-19032]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
+  [CVE-2026-83557]
+ (reported by @prvazsahnazarov)
 
 2.21.5 (06-Jul-2026)
 
@@ -52,7 +245,7 @@ No change since 2.22
 #6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
-#6058: Do not allow DNS resolution when deserializing `InetAddress`
+#6058: Do not allow DNS resolution when deserializing `InetAddress` [CVE-2026-77310]
  (reported by @thientd)
  (fix by @pjfanning)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]
@@ -61,7 +254,7 @@ No change since 2.22
 
 #5931: Fix `AtomicLongDeserializer` value truncation on coerced values
  (fixed by Lee Jiwon)
-#5950: Improve `UUIDeserializer` error handling#
+#5950: Improve `UUIDDeserializer` error handling
  (reported by Omkhar A)
 #5951: Improve `InetSocketAddress` deserialization [CVE-2026-54514]
  (reported by Omkhar A)
@@ -199,7 +392,7 @@ No change since 2.22
 #4136: Drop deprecated (in 2.12) `PropertyNamingStrategy` implementations
   from 2.20
 #4218: If `@JacksonInject` is specified for field and deserialized by the Creator,
-  the inject process will be executed twice 
+  the inject process will be executed twice
  (reported by @wrongwrong)
  (fix by Giulio L)
 #4656: `DeserializationProblemHandler.handleUnexpectedToken()` cast Object to String
@@ -348,6 +541,72 @@ No changes since 2.19.2
 #5069: Add copy-constructor for `MappingIterator`
  (contributed by @wrongwrong)
 
+2.18.13 (not yet released)
+
+#6315: Map key deserializers should apply same type checks as bean deserializers
+ (reported by @ab310013)
+ (fix by @pjfanning)
+#6329: Add JDK-bundled `RowSet` gadget siblings of `JdbcRowSetImpl` to
+  deserialization deny-list (`CachedRowSetImpl`, `WebRowSetImpl`,
+  `FilteredRowSetImpl`, `JoinRowSetImpl`)
+ (fix by @cowtowncoder)
+#6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to legacy
+  `ObjectMapper.enableDefaultTyping()`
+ (reported by @abdessattar23)
+ (fix by @cowtowncoder, w/ Claude code)
+
+2.18.12 (17-Oct-2026)
+
+#5967: Renamed `@JsonIgnore`d setters can deserialize via private fields
+ [CVE-2026-54516]
+ (fixed by Omkhar A)
+#6287: Type parameters of generic type ids bypass `PolymorphicTypeValidator`
+  [CVE-2026-110879]
+  NOTE: type parameters (and element types of array type ids) are now validated
+  like direct type ids; base type approval (`allowIfBaseType()`) only covers
+  ones that are subtypes of the base type (also without configured validator);
+  `allowIfSubTypeIsArray()` no longer accepts abstract or interface element types
+  without allow-listing (except `Number`); approval of an array type covers its
+  element type only if given as exactly that class (`allowIfSubType(Bar[].class)`,
+  new `PolymorphicTypeValidator.isArrayTypeAllowedExplicitly()`), a name-based
+  rule does not; base type approval of a declared array type covers subtypes of
+  its element type unless that is `Object`, `Serializable` or `Cloneable`
+ (reported by @AdamKorcz, @martinfrancois)
+ (fix by @cowtowncoder, @martinfrancois)
+
+2.18.11 (20-Sep-2026)
+
+#6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization
+ (fix by @pjfanning, w/ Claude code)
+#6203: Prevent unbounded growth of type id cache in `TypeDeserializer`
+  [CVE-2026-91776]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+#6204: Avoid quadratic forward-reference resolution in Collection/Map
+  deserializers [CVE-2026-91777]
+ (reported by @dabirt)
+ (fix by @pjfanning)
+
+2.18.10 (15-Aug-2026)
+
+#6099: Resolve classes without initialization in `TypeFactory.findClass()`
+ (fixed by Aysha A-Z)
+#6116: Reject non-ASCII digits in `InetAddress` literal validation
+ (fixed by Aysha A-Z)
+#6127: Add `StreamReadConstraints` number len constraint to `javax.xml.datatype.XMLGregorianCalendar`
+  and `javax.xml.datatype.Duration` [CVE-2026-68497]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6129: Limit the supported URL schemes for `java.nio.file.Path`
+  deserialization [CVE-2026-19032]
+ (reported by @waydeshi)
+ (fix by @pjfanning)
+#6156: Add `java.lang.Comparable` in set of "unsafe" polymorphic base types
+  [CVE-2026-83557]
+ (reported by @prvazsahnazarov)
+#6165: Apply number length limits to `BigDecimal`/`BigInteger`/`Double`/`Float` Map keys
+ (fix by Aysha A-Z)
+
 2.18.9 (07-Jul-2026)
 
 #5962: Case-insensitive deserialization may use wrong `@JsonIgnoreProperties`
@@ -356,7 +615,7 @@ No changes since 2.19.2
 #6054: Honor `@JsonView` for external-type-id (`EXTERNAL_PROPERTY`)
   properties [GHSA-mhm7-754m-9p8w]
  (reported by @Sharlong-Wen)
-#6058: Do not allow DNS resolution when deserializing `InetAddress`
+#6058: Do not allow DNS resolution when deserializing `InetAddress` [CVE-2026-77310]
  (reported by @thientd)
  (fix by @pjfanning)
 #6060: `@JsonView` by-passed for `@JsonUnwrapped` Field/Setter properties [CVE-2026-59889]

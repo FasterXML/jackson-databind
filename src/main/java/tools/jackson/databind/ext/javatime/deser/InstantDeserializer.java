@@ -238,8 +238,7 @@ public class InstantDeserializer<T extends Temporal>
                 property, formatOverrides);
         Boolean adjustToContextTZOverride = formatOverrides.getFeature(
             JsonFormat.Feature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
-        Boolean readTimestampsAsNanosOverride = formatOverrides.getFeature(
-            JsonFormat.Feature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+        Boolean readTimestampsAsNanosOverride = _findReadTimestampsAsNanosOverride(formatOverrides);
         if (!Objects.equals(adjustToContextTZOverride, deser._adjustToContextTZOverride)
             || !Objects.equals(readTimestampsAsNanosOverride, deser._readTimestampsAsNanosOverride)) {
             return new InstantDeserializer<>(deser, deser._isLenient, deser._formatter,
@@ -366,9 +365,11 @@ public class InstantDeserializer<T extends Temporal>
             if (dots >= 0) { // negative if not simple number
                 try {
                     if (dots == 0) {
+                        _validateTimestampLength(ctxt, string);
                         return _fromLong(ctxt, NumberInput.parseLong(string));
                     }
                     if (dots == 1) {
+                        _validateTimestampLength(ctxt, string);
                         return _fromDecimal(ctxt, NumberInput.parseBigDecimal(string, false));
                     }
                 } catch (NumberFormatException e) {

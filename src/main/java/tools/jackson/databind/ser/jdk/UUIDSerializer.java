@@ -9,6 +9,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.StreamWriteCapability;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
@@ -20,6 +21,7 @@ import tools.jackson.databind.ser.std.StdScalarSerializer;
  * allow serialization using raw binary output (as 16-byte block)
  * if underlying data format has efficient means to access that.
  */
+@JacksonStdImpl
 public class UUIDSerializer
     extends StdScalarSerializer<UUID>
 {

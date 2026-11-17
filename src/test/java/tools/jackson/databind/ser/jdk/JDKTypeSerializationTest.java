@@ -248,6 +248,110 @@ public class JDKTypeSerializationTest
         assertEquals(q(""), MAPPER.writeValueAsString(Locale.ROOT));
     }
 
+    // [databind#6320]: Locale as Map key should use same form as Locale value
+    @SuppressWarnings("deprecation")
+    @Test
+    public void localeAsMapKey() throws IOException
+    {
+        Map<Locale, String> map = new LinkedHashMap<>();
+        map.put(Locale.US, "a");
+        map.put(new Locale("FI", "fi", "savo"), "b");
+        map.put(Locale.ROOT, "c");
+        final String json = MAPPER.writeValueAsString(map);
+        assertEquals("""
+                {"en-US":"a","fi-FI-x-lvariant-savo":"b","":"c"}""", json);
+
+        // also with untyped (dynamic) key serializer
+        Map<Object, String> untyped = new LinkedHashMap<>();
+        untyped.put(Locale.US, "a");
+        assertEquals("""
+                {"en-US":"a"}""", MAPPER.writeValueAsString(untyped));
+
+        // and round-trip
+        Map<Locale, String> result = MAPPER.readValue(json,
+                new TypeReference<Map<Locale, String>>() { });
+        assertEquals(map, result);
+
+        // deserialized ROOT is not the `Locale.ROOT` instance: must still write as ""
+        assertEquals(json, MAPPER.writeValueAsString(result));
+    }
+
+    // [databind#6320]: ROOT check must use `equals()`, not identity, for values too
+    @SuppressWarnings("deprecation")
+    @Test
+    public void localeRootNonSingletonAsValue() throws IOException
+    {
+        assertEquals(q(""), MAPPER.writeValueAsString(new Locale("")));
+
+        // and one obtained via deserialization (not `Locale.ROOT` instance)
+        Locale root = MAPPER.readValue(q(""), Locale.class);
+        assertEquals(q(""), MAPPER.writeValueAsString(root));
+    }
+
+    // [databind#6320]: Well-formed Locales (tag round-trips) use BCP-47 form for keys
+    @Test
+    public void localeAsMapKeyWithRoundTrippingTag() throws IOException
+    {
+        Map<Locale, Integer> map = new LinkedHashMap<>();
+        map.put(Locale.forLanguageTag("zh-Hans-CN"), 1);
+        map.put(Locale.CANADA_FRENCH, 2);
+        final String json = MAPPER.writeValueAsString(map);
+        assertEquals("""
+                {"zh-Hans-CN":1,"fr-CA":2}""", json);
+        assertEquals(map, MAPPER.readValue(json,
+                new TypeReference<Map<Locale, Integer>>() { }));
+    }
+
+    // [databind#6320]: Legacy Locales whose tag differs from Locale ("no_NO_NY" -> "nn-NO")
+    // must not be changed into another Locale by key round-trip
+    @SuppressWarnings("deprecation")
+    @Test
+    public void localeAsMapKeyLegacy() throws IOException
+    {
+        Map<Locale, Integer> map = new LinkedHashMap<>();
+        map.put(new Locale("no", "NO", "NY"), 1);
+        map.put(new Locale("nn", "NO"), 2);
+        map.put(new Locale("ja", "JP", "JP"), 3);
+        final String json = MAPPER.writeValueAsString(map);
+        Map<Locale, Integer> result = MAPPER.readValue(json,
+                new TypeReference<Map<Locale, Integer>>() { });
+        assertEquals(map, result);
+        // keys are unique, so no entries lost
+        assertEquals(3, result.size());
+    }
+
+    // [databind#6320]: same for dynamically resolved key serializer
+    @SuppressWarnings("deprecation")
+    @Test
+    public void localeAsUntypedMapKeyNotRepresentableAsTag() throws IOException
+    {
+        Map<Object, Integer> map = new LinkedHashMap<>();
+        map.put(new Locale("en"), 1);
+        map.put(new Locale("en", "USA"), 2);
+        assertEquals("""
+                {"en":1,"en_USA":2}""", MAPPER.writeValueAsString(map));
+    }
+
+    // [databind#6320]: Locales that BCP-47 tag cannot represent must not collide as keys
+    @SuppressWarnings("deprecation")
+    @Test
+    public void localeAsMapKeyNotRepresentableAsTag() throws IOException
+    {
+        Map<Locale, Integer> map = new LinkedHashMap<>();
+        map.put(new Locale("en"), 1);
+        map.put(new Locale("en", "USA"), 2);
+        map.put(new Locale("und"), 3);
+        map.put(new Locale("verylonglanguage"), 4);
+        map.put(Locale.ROOT, 5);
+        final String json = MAPPER.writeValueAsString(map);
+        assertEquals("""
+                {"en":1,"en_USA":2,"und":3,"verylonglanguage":4,"":5}""", json);
+
+        Map<Locale, Integer> result = MAPPER.readValue(json,
+                new TypeReference<Map<Locale, Integer>>() { });
+        assertEquals(map, result);
+    }
+
     @Test
     public void testInetAddress() throws Exception
     {
@@ -286,6 +390,24 @@ public class JDKTypeSerializationTest
                 MAPPER.writeValueAsString(InetSocketAddress.createUnresolved("google.com", 6667)));
         assertEquals(q("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"),
                 MAPPER.writeValueAsString(new InetSocketAddress("2001:db8:85a3:8d3:1319:8a2e:370:7348", 443)));
+    }
+
+    // [databind#6185]: unresolved IPv6 literal must be bracketed like resolved one
+    @Test
+    public void testInetSocketAddressIPv6Unresolved() throws IOException
+    {
+        assertEquals(q("[2001:db8::1]:443"),
+                MAPPER.writeValueAsString(InetSocketAddress.createUnresolved("2001:db8::1", 443)));
+        // if host name is stored with brackets, must not bracket twice
+        assertEquals(q("[2001:db8::1]:443"),
+                MAPPER.writeValueAsString(InetSocketAddress.createUnresolved("[2001:db8::1]", 443)));
+        // and IPv6 value read by Jackson must survive a full round-trip with port intact
+        InetSocketAddress addr = MAPPER.readValue(q("[2001:db8::1]:443"), InetSocketAddress.class);
+        String json = MAPPER.writeValueAsString(addr);
+        assertEquals(q("[2001:db8::1]:443"), json);
+        InetSocketAddress result = MAPPER.readValue(json, InetSocketAddress.class);
+        assertEquals(addr.getHostName(), result.getHostName());
+        assertEquals(443, result.getPort());
     }
 
     @Test

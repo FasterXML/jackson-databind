@@ -22,6 +22,8 @@ import tools.jackson.databind.util.SimpleLookupCache;
  * {@link tools.jackson.databind.DeserializationContext})
  * and classes that construct deserializers
  * ({@link tools.jackson.databind.deser.DeserializerFactory}).
+ * <p>
+ * Instances are not to be shared across mappers.
  */
 public final class DeserializerCache
     implements java.io.Serializable
@@ -485,9 +487,6 @@ public final class DeserializerCache
             Annotated a, JavaType type)
     {
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr == null) {
-            return type;
-        }
         final MapperConfig<?> config = ctxt.getConfig();
 
         // First things first: find explicitly annotated deserializer(s)

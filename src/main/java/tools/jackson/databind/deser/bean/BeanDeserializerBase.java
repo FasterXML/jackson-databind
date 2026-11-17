@@ -281,14 +281,7 @@ public abstract class BeanDeserializerBase
         //    scalar-delegation cases. It is set when default (0-argument) constructor
         //    is NOT to be used when binding an Object value (or in case of
         //    POJO-as-array, Array value).
-        _nonStandardCreation = (_unwrappedPropertyHandler != null)
-            || _valueInstantiator.canCreateUsingDelegate()
-        // [databind#2486]: as per above, array-delegating creator should not be considered
-        //   as doing so will prevent use of Array-or-standard-Object deserialization
-        //            || _valueInstantiator.canCreateUsingArrayDelegate()
-            || _valueInstantiator.canCreateFromObjectWith()
-            || !_valueInstantiator.canCreateUsingDefault()
-            ;
+        _nonStandardCreation = _calcNonStandardCreation();
 
         // Any transformation we may need to apply?
         _serializationShape = beanDescRef.findExpectedFormat(_beanType.getRawClass()).getShape();
@@ -296,7 +289,31 @@ public abstract class BeanDeserializerBase
         _needViewProcesing = hasViews;
         // [databind#6219]: view processing only needed if a view is active,
         // which is checked per-call
-        _vanillaProcessing = !_nonStandardCreation
+        _vanillaProcessing = _calcVanillaProcessing();
+    }
+
+    /**
+     * Helper method for determining initial value of {@link #_nonStandardCreation}:
+     * may be further changed by {@link #resolve} (external type ids,
+     * unwrapped properties).
+     */
+    private boolean _calcNonStandardCreation() {
+        return (_unwrappedPropertyHandler != null)
+            || _valueInstantiator.canCreateUsingDelegate()
+        // [databind#2486]: as per above, array-delegating creator should not be considered
+        //   as doing so will prevent use of Array-or-standard-Object deserialization
+        //            || _valueInstantiator.canCreateUsingArrayDelegate()
+            || _valueInstantiator.canCreateFromObjectWith()
+            || !_valueInstantiator.canCreateUsingDefault()
+            ;
+    }
+
+    /**
+     * Helper method for determining value of {@link #_vanillaProcessing}
+     * based on {@link #_nonStandardCreation} and other settings.
+     */
+    private boolean _calcVanillaProcessing() {
+        return !_nonStandardCreation
                 && (_injectables == null)
                 // also, may need to reorder stuff if we expect Object Id:
                 && (_objectIdReader == null)
@@ -461,12 +478,10 @@ public abstract class BeanDeserializerBase
         _ignorableProps = _withExcludedTypeIdNames(ignorableProps,
                 src._externalTypeIdHandler, _externalTypeIdHandler, _beanProperties);
         // [databind#6312]: if all external-typed properties were excluded, they no
-        //   longer force non-standard creation (other reasons same as in main constructor)
+        //   longer force non-standard creation (nor prevent vanilla processing)
         if ((src._externalTypeIdHandler != null) && (_externalTypeIdHandler == null)) {
-            _nonStandardCreation = (_unwrappedPropertyHandler != null)
-                    || _valueInstantiator.canCreateUsingDelegate()
-                    || _valueInstantiator.canCreateFromObjectWith()
-                    || !_valueInstantiator.canCreateUsingDefault();
+            _nonStandardCreation = _calcNonStandardCreation();
+            _vanillaProcessing = _calcVanillaProcessing();
         }
     }
 

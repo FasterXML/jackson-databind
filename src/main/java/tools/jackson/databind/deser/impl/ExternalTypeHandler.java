@@ -597,17 +597,13 @@ public class ExternalTypeHandler
         {
             Integer index = _properties.size();
             _properties.add(new ExtTypedProperty(property, typeDeser));
-            _addPropertyIndex(property.getName(), index);
-            _addPropertyIndex(typeDeser.getPropertyName(), index);
+            _addPropertyIndex(_nameToPropertyIndex, property.getName(), index);
+            _addPropertyIndex(_nameToPropertyIndex, typeDeser.getPropertyName(), index);
             if (valueAliases != null) {
                 for (PropertyName alias : valueAliases) {
-                    _addPropertyIndex(alias.getSimpleName(), index);
+                    _addPropertyIndex(_nameToPropertyIndex, alias.getSimpleName(), index);
                 }
             }
-        }
-
-        private void _addPropertyIndex(String name, Integer index) {
-            ExternalTypeHandler._addPropertyIndex(_nameToPropertyIndex, name, index);
         }
 
         /**

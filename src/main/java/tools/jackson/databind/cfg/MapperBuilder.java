@@ -1163,8 +1163,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**
      * Method for locating available modules, using JDK {@link ServiceLoader}
      * facility, along with module-provided SPI.
-     * Modules for which {@link JacksonModule#canAutoRegister()} returns
-     * {@code false} are not included.
+     * All modules found are returned, including ones for which
+     * {@link JacksonModule#canAutoRegister()} returns {@code false}
+     * (those are only skipped by {@link #findAndAddModules()}).
      *<p>
      * Note that method does not do any caching, so calls should be considered
      * potentially expensive.
@@ -1176,8 +1177,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**
      * Method for locating available modules, using JDK {@link ServiceLoader}
      * facility, along with module-provided SPI.
-     * Modules for which {@link JacksonModule#canAutoRegister()} returns
-     * {@code false} are not included.
+     * All modules found are returned, including ones for which
+     * {@link JacksonModule#canAutoRegister()} returns {@code false}
+     * (those are only skipped by {@link #findAndAddModules()}).
      *<p>
      * Note that method does not do any caching, so calls should be considered
      * potentially expensive.
@@ -1187,10 +1189,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         ArrayList<JacksonModule> modules = new ArrayList<>();
         ServiceLoader<JacksonModule> loader = secureGetServiceLoader(JacksonModule.class, classLoader);
         for (JacksonModule module : loader) {
-            // [databind#6457]: allow modules to opt out of auto-registration
-            if (module.canAutoRegister()) {
-                modules.add(module);
-            }
+            modules.add(module);
         }
         return modules;
     }
@@ -1215,13 +1214,15 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      *<code>
      *   addModules(builder.findModules());
      *</code>
+     * except that modules for which {@link JacksonModule#canAutoRegister()}
+     * returns {@code false} are skipped.
      *<p>
      * As with {@link #findModules()}, no caching is done for modules, so for
      * performance reasons it may make sense to cache introspected set of modules
      * if needed multiple times.
      */
     public B findAndAddModules() {
-        return addModules(findModules());
+        return _addAutoRegisterModules(findModules());
     }
 
     /**
@@ -1229,13 +1230,25 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      *<code>
      *   addModules(builder.findModules(classLoader));
      *</code>
+     * except that modules for which {@link JacksonModule#canAutoRegister()}
+     * returns {@code false} are skipped.
      *<p>
      * As with {@link #findModules(ClassLoader)}, no caching is done for modules, so for
      * performance reasons it may make sense to cache introspected set of modules
      * if needed multiple times.
      */
     public B findAndAddModules(ClassLoader cl) {
-        return addModules(findModules(cl));
+        return _addAutoRegisterModules(findModules(cl));
+    }
+
+    // [databind#6457]: allow modules to opt out of auto-registration
+    private B _addAutoRegisterModules(List<JacksonModule> modules) {
+        for (JacksonModule module : modules) {
+            if (module.canAutoRegister()) {
+                addModule(module);
+            }
+        }
+        return _this();
     }
 
     /**

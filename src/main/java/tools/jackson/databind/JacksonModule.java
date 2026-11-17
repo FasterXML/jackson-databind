@@ -69,9 +69,10 @@ public abstract class JacksonModule
 
     /**
      * Method called to determine whether this module can be registered
-     * automatically when found via module auto-discovery
-     * ({@link MapperBuilder#findModules()}, {@link MapperBuilder#findAndAddModules()}).
-     * If {@code false} is returned, module is skipped by auto-discovery;
+     * automatically when found via module auto-discovery by
+     * {@link MapperBuilder#findAndAddModules()}.
+     * If {@code false} is returned, module is skipped by auto-registration
+     * (but still returned by {@link MapperBuilder#findModules()});
      * it can still be registered explicitly with {@link MapperBuilder#addModule}
      * (and is also registered normally if returned by
      * {@link #getDependencies()} of another module).

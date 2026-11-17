@@ -87,7 +87,7 @@ public class ModuleAutoRegister6457Test extends DatabindTestUtil
     }
 
     @Test
-    void autoDiscoverySkipsOptedOutModule(@TempDir Path tempDir) throws Exception
+    void autoRegistrationSkipsOptedOutModule(@TempDir Path tempDir) throws Exception
     {
         final String autoName = AutoModule6457.class.getName();
         final String noAutoName = NoAutoModule6457.class.getName();
@@ -97,9 +97,12 @@ public class ModuleAutoRegister6457Test extends DatabindTestUtil
         ClassLoader cl = new ServiceClassLoader(getClass().getClassLoader(),
                 serviceFile.toUri().toURL(), autoName, noAutoName);
 
+        // Discovery itself finds all modules...
         List<JacksonModule> mods = MapperBuilder.findModules(cl);
-        assertEquals(1, mods.size());
-        assertEquals("AutoModule6457", mods.get(0).getModuleName());
+        assertEquals(List.of("AutoModule6457", "NoAutoModule6457"),
+                mods.stream().map(JacksonModule::getModuleName).toList());
+
+        // ... but auto-registration skips opted-out ones
 
         ObjectMapper mapper = JsonMapper.builder()
                 .findAndAddModules(cl)

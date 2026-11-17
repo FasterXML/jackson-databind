@@ -436,7 +436,6 @@ public abstract class BeanDeserializerBase
                 : src._propertyBasedCreator.withByNameInclusion(ignorableProps, includableProps);
 
         _backRefs = src._backRefs;
-        _ignorableProps = ignorableProps;
         _ignoreAllUnknown = src._ignoreAllUnknown;
         _includableProps = includableProps;
         _anySetter = src._anySetter;
@@ -457,6 +456,10 @@ public abstract class BeanDeserializerBase
         // ... and same for external-typed properties, only known to the handler
         _externalTypeIdHandler = (src._externalTypeIdHandler == null) ? null
                 : src._externalTypeIdHandler.withoutProperties(ignorableProps, includableProps);
+        // [databind#6312]: type ids of excluded external-typed properties are no longer
+        //   handled by the handler, so need to be ignored as well
+        _ignorableProps = _withExcludedTypeIdNames(ignorableProps,
+                src._externalTypeIdHandler, _externalTypeIdHandler, _beanProperties);
         // [databind#6312]: if all external-typed properties were excluded, they no
         //   longer force non-standard creation (other reasons same as in main constructor)
         if ((src._externalTypeIdHandler != null) && (_externalTypeIdHandler == null)) {
@@ -465,6 +468,34 @@ public abstract class BeanDeserializerBase
                     || _valueInstantiator.canCreateFromObjectWith()
                     || !_valueInstantiator.canCreateUsingDefault();
         }
+    }
+
+    /**
+     * Helper method for adding names of external type ids, used only by external-typed
+     * properties excluded from {@code origHandler} (and not by any remaining
+     * external-typed or regular property), to names of properties to ignore.
+     */
+    private static Set<String> _withExcludedTypeIdNames(Set<String> ignorableProps,
+            ExternalTypeHandler origHandler, ExternalTypeHandler newHandler,
+            BeanPropertyMap beanProps)
+    {
+        if ((origHandler == null) || (origHandler == newHandler)) {
+            return ignorableProps;
+        }
+        final Set<String> stillUsed = (newHandler == null) ? Collections.emptySet()
+                : newHandler.getTypePropertyNames();
+        Set<String> result = ignorableProps;
+        for (String name : origHandler.getTypePropertyNames()) {
+            if (stillUsed.contains(name) || (beanProps.findDefinition(name) != null)
+                    || ((result != null) && result.contains(name))) {
+                continue;
+            }
+            if (result == ignorableProps) {
+                result = (ignorableProps == null) ? new HashSet<>() : new HashSet<>(ignorableProps);
+            }
+            result.add(name);
+        }
+        return result;
     }
 
     protected BeanDeserializerBase(BeanDeserializerBase src, BeanPropertyMap beanProps)

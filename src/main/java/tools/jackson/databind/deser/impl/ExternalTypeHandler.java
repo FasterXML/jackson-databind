@@ -122,6 +122,20 @@ public class ExternalTypeHandler
         return new ExternalTypeHandler(_beanType, props, nameToIndex, null, null);
     }
 
+    /**
+     * Accessor for names of external type id properties this handler handles.
+     *
+     * @since 3.4
+     */
+    public Set<String> getTypePropertyNames()
+    {
+        final Set<String> names = new HashSet<>();
+        for (ExtTypedProperty prop : _properties) {
+            names.add(prop.getTypePropertyName());
+        }
+        return names;
+    }
+
     private static void _addPropertyIndex(Map<String, Object> nameToIndex,
             String name, int index)
     {

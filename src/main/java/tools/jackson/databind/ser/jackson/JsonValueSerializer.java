@@ -217,14 +217,14 @@ public class JsonValueSerializer
         }
         // [databind#5380]: may need to honor inclusion configured for value type
         final boolean emptyCheckDisabled = _isEmptyCheckDisabled(ctxt, property);
+        // [databind#4762]: bind the value serializer to the `@JsonValue` accessor, so
+        //   that annotations on the accessor (notably `@JsonInclude`/`@JsonFormat`) are
+        //   honored -- for both resolved and explicitly configured value serializers.
+        //   Configuration on the enclosing property still takes precedence
+        //   (see `JsonValueProperty`), preserving [databind#2822].
+        final BeanProperty valueProp = _accessorProperty(property);
         ValueSerializer<?> ser = _valueSerializer;
         if (ser == null) {
-            // [databind#4762]: bind the value serializer to the `@JsonValue` accessor, so
-            //   that annotations on the accessor (notably `@JsonInclude`/`@JsonFormat`) are
-            //   honored. Configuration on the enclosing property still takes precedence
-            //   (see `JsonValueProperty`), preserving [databind#2822].
-            BeanProperty valueProp = _accessorProperty(property);
-
             // Can only assign serializer statically if the declared type is final:
             // if not, we don't really know the actual type until we get the instance.
 
@@ -254,7 +254,6 @@ public class JsonValueSerializer
                     .withEmptyCheckDisabled(emptyCheckDisabled);
         }
         // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
-        BeanProperty valueProp = _accessorProperty(property);
         ser = ctxt.handlePrimaryContextualization(ser, valueProp);
         return withResolved(valueProp, vts, ser, _forceTypeInformation)
                 .withEmptyCheckDisabled(emptyCheckDisabled);

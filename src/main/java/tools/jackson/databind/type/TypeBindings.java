@@ -36,10 +36,21 @@ public class TypeBindings
      */
     private final JavaType[] _types;
 
+    /** Declaration used to distinguish same-named variables in nested scopes. */
+    private final Class<?> _declaringClass;
+
+    /** Resolved enclosing instance type; not part of this class's own parameters. */
+    private final JavaType _ownerType;
+
+    /** Stable lexical bindings, including while a recursive owner is being resolved. */
+    private final TypeBindings _ownerBindings;
+
     /**
      * Names of potentially unresolved type variables.
      */
     private final String[] _unboundVariables;
+
+    private final transient TypeVariable<?>[] _unboundTypeVariables;
 
     private final int _hashCode;
 
@@ -51,14 +62,34 @@ public class TypeBindings
 
     private TypeBindings(String[] names, JavaType[] types, String[] uvars)
     {
+        this(names, types, uvars, null, null, null);
+    }
+
+    private TypeBindings(String[] names, JavaType[] types, String[] uvars,
+            Class<?> declaringClass, JavaType ownerType, TypeVariable<?>[] unboundTypeVariables)
+    {
+        this(names, types, uvars, declaringClass, ownerType,
+                (ownerType == null) ? null : ownerType.getBindings(), unboundTypeVariables);
+    }
+
+    private TypeBindings(String[] names, JavaType[] types, String[] uvars,
+            Class<?> declaringClass, JavaType ownerType, TypeBindings ownerBindings,
+            TypeVariable<?>[] unboundTypeVariables)
+    {
         _names = (names == null) ? NO_STRINGS : names;
         _types = (types == null) ? NO_TYPES : types;
         if (_names.length != _types.length) {
             throw new IllegalArgumentException("Mismatching names ("+_names.length+"), types ("+_types.length+")");
         }
         _unboundVariables = uvars;
-        // hashCode and equality are based solely on _types.
-        _hashCode = Arrays.hashCode(_types);
+        _declaringClass = declaringClass;
+        _ownerType = ownerType;
+        _ownerBindings = ownerBindings;
+        _unboundTypeVariables = unboundTypeVariables;
+        // Declarations and unresolved-variable guards do not affect type identity.
+        int ownerHash = (ownerType == null) ? 0
+                : 31 * ownerType.getRawClass().getName().hashCode() + _ownerBindings.hashCode();
+        _hashCode = Arrays.hashCode(_types) + 31 * ownerHash;
     }
 
     public static TypeBindings emptyBindings() {
@@ -68,7 +99,7 @@ public class TypeBindings
     // Let's just canonicalize serialized EMPTY back to static instance, if need be
     @Serial
     protected Object readResolve() {
-        if ((_names == null) || (_names.length == 0)) {
+        if (((_names == null) || (_names.length == 0)) && (_ownerType == null)) {
             return EMPTY;
         }
         return this;
@@ -112,7 +143,7 @@ public class TypeBindings
                    +" with "+types.length+" type parameter"
                    +((types.length == 1) ? "" : "s")+": class expects "+names.length);
         }
-        return new TypeBindings(names, types, null);
+        return new TypeBindings(names, types, null, erasedType, null, null);
     }
 
     public static TypeBindings create(Class<?> erasedType, JavaType typeArg1)
@@ -125,7 +156,7 @@ public class TypeBindings
                     +" with 1 type parameter: class expects "+varLen);
         }
         return new TypeBindings(new String[] { vars[0].getName() },
-                new JavaType[] { typeArg1 }, null);
+                new JavaType[] { typeArg1 }, null, erasedType, null, null);
     }
 
     public static TypeBindings create(Class<?> erasedType, JavaType typeArg1, JavaType typeArg2)
@@ -138,7 +169,17 @@ public class TypeBindings
                     +" with 2 type parameters: class expects "+varLen);
         }
         return new TypeBindings(new String[] { vars[0].getName(), vars[1].getName() },
-                new JavaType[] { typeArg1, typeArg2 }, null);
+                new JavaType[] { typeArg1, typeArg2 }, null, erasedType, null, null);
+    }
+
+    static TypeBindings create(Class<?> erasedType, JavaType[] types, JavaType ownerType)
+    {
+        TypeBindings own = create(erasedType, types);
+        // A raw owner adds no information to the existing erased representation.
+        if ((ownerType == null) || !ownerType.hasGenericTypes()) {
+            return own;
+        }
+        return new TypeBindings(own._names, own._types, null, erasedType, ownerType, null);
     }
 
     /**
@@ -169,7 +210,7 @@ public class TypeBindings
                     +" with 1 type parameter: class expects "+varLen);
         }
         return new TypeBindings(new String[] { vars[0].getName() },
-                new JavaType[] { typeArg1 }, null);
+                new JavaType[] { typeArg1 }, null, erasedType, null, null);
     }
 
     /**
@@ -197,7 +238,7 @@ public class TypeBindings
                    +" with "+types.length+" type parameter"
                    +((types.length == 1) ? "" : "s")+": class expects "+names.length);
         }
-        return new TypeBindings(names, types, null);
+        return new TypeBindings(names, types, null, erasedType, null, null);
     }
 
     /**
@@ -211,7 +252,18 @@ public class TypeBindings
         String[] names =  (len == 0)
                 ? new String[1] : Arrays.copyOf(_unboundVariables, len+1);
         names[len] = name;
-        return new TypeBindings(_names, _types, names);
+        return new TypeBindings(_names, _types, names, _declaringClass,
+                _ownerType, _ownerBindings, _unboundTypeVariables);
+    }
+
+    TypeBindings withUnboundVariable(TypeVariable<?> variable)
+    {
+        int len = (_unboundTypeVariables == null) ? 0 : _unboundTypeVariables.length;
+        TypeVariable<?>[] variables = (len == 0) ? new TypeVariable<?>[1]
+                : Arrays.copyOf(_unboundTypeVariables, len + 1);
+        variables[len] = variable;
+        return new TypeBindings(_names, _types, _unboundVariables, _declaringClass,
+                _ownerType, _ownerBindings, variables);
     }
 
     /**
@@ -227,7 +279,8 @@ public class TypeBindings
         }
         JavaType[] newTypes = _types.clone();
         newTypes[index] = null;
-        return new TypeBindings(_names, newTypes, _unboundVariables);
+        return new TypeBindings(_names, newTypes, _unboundVariables,
+                _declaringClass, _ownerType, _ownerBindings, _unboundTypeVariables);
     }
 
     /*
@@ -266,6 +319,34 @@ name, i, t.getRawClass()));
         return null;
     }
 
+    JavaType findBoundType(TypeVariable<?> variable)
+    {
+        GenericDeclaration declaration = variable.getGenericDeclaration();
+        if ((_declaringClass == null) || (_declaringClass == declaration)) {
+            return findBoundType(variable.getName());
+        }
+        if (_ownerType != null) {
+            return _ownerBindings.findBoundType(variable);
+        }
+        return null;
+    }
+
+    /**
+     * Enclosing instance type for a non-static member class, when parameterized.
+     * Its parameters are separate from the parameters returned by {@link #getTypeParameters()}.
+     *
+     * @since 3.3
+     */
+    public JavaType getOwnerType() {
+        if (_ownerType instanceof ResolvedRecursiveType recursive) {
+            JavaType resolved = recursive.getSelfReferencedType();
+            if (resolved != null) {
+                return resolved;
+            }
+        }
+        return _ownerType;
+    }
+
     /**
      * Returns true if a shallow search of the type bindings includes a placeholder
      * type which uses reference equality, thus cannot produce cache hits. This
@@ -281,11 +362,12 @@ name, i, t.getRawClass()));
                 return true;
             }
         }
-        return false;
+        return (_ownerType instanceof IdentityEqualityType)
+                || ((_ownerBindings != null) && _ownerBindings.invalidCacheKey());
     }
 
     public boolean isEmpty() {
-        return (_types.length == 0);
+        return (_types.length == 0) && (_ownerType == null);
     }
 
     /**
@@ -369,6 +451,17 @@ name, i, t.getRawClass()));
         return false;
     }
 
+    boolean hasUnbound(TypeVariable<?> variable) {
+        if (_unboundTypeVariables != null) {
+            for (TypeVariable<?> unbound : _unboundTypeVariables) {
+                if (variable.equals(unbound)) {
+                    return true;
+                }
+            }
+        }
+        return hasUnbound(variable.getName());
+    }
+
     /**
      * Factory method that will create an object that can be used as a key for
      * caching purposes by {@link TypeFactory}
@@ -384,7 +477,8 @@ name, i, t.getRawClass()));
             // If placeholders are present, no key may be returned because the key is unhelpful without context.
             return null;
         }
-        return new AsKey(rawBase, _types, _hashCode);
+        return new AsKey(rawBase, _types,
+                (_ownerType == null) ? null : _ownerType.getRawClass(), _ownerBindings, _hashCode);
     }
 
     /*
@@ -425,8 +519,11 @@ name, i, t.getRawClass()));
             return false;
         }
         TypeBindings other = (TypeBindings) o;
-        // hashCode and equality are based solely on _types.
-        return _hashCode == other._hashCode && Arrays.equals(_types, other._types);
+        return _hashCode == other._hashCode && Arrays.equals(_types, other._types)
+                && ((_ownerType == null) ? (other._ownerType == null)
+                        : (other._ownerType != null)
+                                && _ownerType.hasRawClass(other._ownerType.getRawClass())
+                                && _ownerBindings.equals(other._ownerBindings));
     }
 
     /*
@@ -510,11 +607,16 @@ name, i, t.getRawClass()));
     final static class AsKey {
         private final Class<?> _raw;
         private final JavaType[] _params;
+        private final Class<?> _ownerClass;
+        private final TypeBindings _ownerBindings;
         private final int _hash;
 
-        public AsKey(Class<?> raw, JavaType[] params, int hash) {
+        public AsKey(Class<?> raw, JavaType[] params, Class<?> ownerClass,
+                TypeBindings ownerBindings, int hash) {
             _raw = raw ;
             _params = params;
+            _ownerClass = ownerClass;
+            _ownerBindings = ownerBindings;
             _hash = 31 * raw.hashCode() + hash;
         }
 
@@ -528,7 +630,9 @@ name, i, t.getRawClass()));
             if (o.getClass() != getClass()) return false;
             AsKey other = (AsKey) o;
 
-            if ((_hash == other._hash) && (_raw == other._raw)) {
+            if ((_hash == other._hash) && (_raw == other._raw)
+                    && (_ownerClass == other._ownerClass)
+                    && Objects.equals(_ownerBindings, other._ownerBindings)) {
                 final JavaType[] otherParams = other._params;
                 final int len = _params.length;
 

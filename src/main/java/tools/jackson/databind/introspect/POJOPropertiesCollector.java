@@ -1027,8 +1027,13 @@ ctor.creator()));
         }
         if (ctor.paramCount() == 1) {
             // One more possibility: implicit name that maps to implied
-            // property with at least one visible accessor
-            PropertyName paramName = ctor.implicitName(0);
+            // property with at least one visible accessor.
+            // [databind#6164]: but not for Enums, unless serialized as Objects:
+            //   their accessors do not imply properties.
+            //   NOTE: only class-level `@JsonFormat` (and config overrides) considered;
+            //   property-level `@JsonFormat(shape = OBJECT)` cannot be detected here,
+            //   so Enums serialized that way need explicit Creator mode or names
+            PropertyName paramName = _isEnumAsScalar() ? null : ctor.implicitName(0);
             if (paramName != null) {
                 POJOPropertyBuilder prop = props.get(paramName.getSimpleName());
                 if (prop != null) {
@@ -1588,6 +1593,15 @@ ctor.creator()));
                 // otherwise just remove ones marked to be ignored
                 prop.removeIgnored();
                 if (!prop.couldDeserialize()) {
+                    // [databind#5967]: Strip inferred non-visible field mutators to preserve
+                    // @JsonIgnore semantics: since couldDeserialize() is false, any remaining
+                    // fields are non-visible (kept only for INFER_PROPERTY_MUTATORS) and must
+                    // not be used to bypass the ignored setter.
+                    // But only for deserialization: for serialization fields are needed
+                    // for merging annotations (like @JsonInclude) into getter
+                    if (!_forSerialization) {
+                        prop.removeFields();
+                    }
                     _collectIgnorals(prop.getName());
                 }
             }
@@ -1716,11 +1730,6 @@ ctor.creator()));
                 if (isRecordType() || !prop.anyExplicitsWithoutIgnoral()) {
                     continue;
                 }
-                // [databind#5967]: Strip inferred non-visible field mutators to preserve @JsonIgnore
-                // semantics. The ignored name was collected because couldDeserialize()==false,
-                // meaning any retained fields are non-visible (kept only by INFER_PROPERTY_MUTATORS).
-                // Removing them ensures the renamed property remains read-only (serialization only).
-                prop.removeFields();
             }
 
             Collection<PropertyName> l = prop.findExplicitNames();
@@ -1852,7 +1861,7 @@ ctor.creator()));
         //  as OBJECT format
         // 06-Mar-2024, tatu: Should move format override introspection to this
         //   class, from [Basic]BeanDescription
-        if (_type.isEnumType() && (_findFormatShape() != JsonFormat.Shape.OBJECT)) {
+        if (_isEnumAsScalar()) {
             return;
         }
 
@@ -1907,6 +1916,15 @@ ctor.creator()));
             // replace the creatorProperty too, if there is one
             _replaceCreatorProperty(_creatorProperties, prop);
         }
+    }
+
+    /**
+     * Helper method for checking whether type being introspected is an Enum
+     * type that is NOT serialized as JSON Object (that is, not using
+     * {@code @JsonFormat(shape = JsonFormat.Shape.OBJECT)}).
+     */
+    private boolean _isEnumAsScalar() {
+        return _type.isEnumType() && (_findFormatShape() != JsonFormat.Shape.OBJECT);
     }
 
     /**

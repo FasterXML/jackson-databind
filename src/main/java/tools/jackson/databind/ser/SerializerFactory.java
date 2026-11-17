@@ -37,8 +37,7 @@ public abstract class SerializerFactory
      *
      * @param type Declared type for Map keys
      *
-     * @return Serializer to use, if factory knows it; null if not (in which case default
-     *   serializer is to be used)
+     * @return Serializer to use; never {@code null}
      */
     public abstract ValueSerializer<Object> createKeySerializer(SerializationContext ctxt,
             JavaType type);

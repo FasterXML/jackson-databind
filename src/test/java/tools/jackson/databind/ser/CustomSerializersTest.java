@@ -463,7 +463,7 @@ public class CustomSerializersTest extends DatabindTestUtil
                         strType,
                         null, null, strType,
                         false, null,
-                        null, null));
+                        null, null, null));
             } catch (NoSuchFieldException e) {
                 throw new IllegalStateException(e.getMessage());
             }

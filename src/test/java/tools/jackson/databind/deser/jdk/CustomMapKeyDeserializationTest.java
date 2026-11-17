@@ -13,6 +13,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
@@ -204,5 +205,25 @@ public class CustomMapKeyDeserializationTest
             assertEquals(JsonToken.VALUE_STRING, parser.currentToken());
             assertEquals("notAColor", parser.getString());
         }
+    }
+
+    // Custom key deserializer for `Object.class` returning non-String key should
+    // fail with a meaningful exception (not `ClassCastException`)
+    @Test
+    public void testCustomKeyDeserializerWithNonStringKey() throws Exception
+    {
+        SimpleModule module = new SimpleModule();
+        module.addKeyDeserializer(Object.class, new KeyDeserializer() {
+            @Override
+            public Object deserializeKey(String key, DeserializationContext ctxt) {
+                return Integer.valueOf(key.length());
+            }
+        });
+        ObjectMapper mapper = JsonMapper.builder().addModule(module).build();
+
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> mapper.readValue("{\"a\":{\"b\":1}}", Object.class));
+        assertTrue(e.getMessage().contains("returned key of type `java.lang.Integer`"),
+                "Unexpected message: "+e.getMessage());
     }
 }

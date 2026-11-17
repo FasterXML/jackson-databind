@@ -98,7 +98,7 @@ public abstract class StdSerializer<T>
 
     /**
      * Default implementation specifies no format. This behavior is usually
-     * overriden by custom serializers.
+     * overridden by custom serializers.
      */
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
@@ -330,7 +330,7 @@ public abstract class StdSerializer<T>
             ctxt.setAttribute(KEY_CONTENT_CONVERTER_LOCK, conversions);
         }
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (_neitherNull(intr, prop)) {
+        if (prop != null) {
             conversions.put(prop, Boolean.TRUE);
             try {
                 ValueSerializer<?> ser = _findConvertingContentSerializer(ctxt, intr,

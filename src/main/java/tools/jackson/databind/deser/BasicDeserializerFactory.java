@@ -572,17 +572,12 @@ public abstract class BasicDeserializerFactory
         PropertyMetadata metadata;
         final PropertyName wrapperName;
         {
-            if (intr == null) {
-                metadata = PropertyMetadata.STD_REQUIRED_OR_OPTIONAL;
-                wrapperName = null;
-            } else {
-                Boolean b = intr.hasRequiredMarker(config, param);
-                String desc = intr.findPropertyDescription(config, param);
-                Integer idx = intr.findPropertyIndex(config, param);
-                String def = intr.findPropertyDefaultValue(config, param);
-                metadata = PropertyMetadata.construct(b, desc, idx, def);
-                wrapperName = intr.findWrapperName(config, param);
-            }
+            Boolean b = intr.hasRequiredMarker(config, param);
+            String desc = intr.findPropertyDescription(config, param);
+            Integer idx = intr.findPropertyIndex(config, param);
+            String def = intr.findPropertyDefaultValue(config, param);
+            metadata = PropertyMetadata.construct(b, desc, idx, def);
+            wrapperName = intr.findWrapperName(config, param);
         }
         JavaType type = resolveMemberAndTypeAnnotations(ctxt, param, param.getType());
         BeanProperty.Std property = new BeanProperty.Std(name, type,
@@ -604,11 +599,9 @@ public abstract class BasicDeserializerFactory
                 typeDeser, beanDescRef.getClassAnnotations(), param, index, injectable,
                 metadata);
         // [databind#1516]: Handle @JsonManagedReference for creator properties
-        if (intr != null) {
-            AnnotationIntrospector.ReferenceProperty ref = intr.findReferenceType(config, param);
-            if (ref != null && ref.isManagedReference()) {
-                prop.setManagedReferenceName(ref.getName());
-            }
+        AnnotationIntrospector.ReferenceProperty ref = intr.findReferenceType(config, param);
+        if (ref != null && ref.isManagedReference()) {
+            prop.setManagedReferenceName(ref.getName());
         }
         ValueDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, param);
         if (deser == null) {
@@ -629,7 +622,6 @@ public abstract class BasicDeserializerFactory
     final PropertyMetadata _getSetterInfo(MapperConfig<?> config,
             BeanProperty prop, PropertyMetadata metadata)
     {
-        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
 
         boolean needMerge = true;
         Nulls valueNulls = null;
@@ -641,12 +633,11 @@ public abstract class BasicDeserializerFactory
 
         if (prim != null) {
             // Ok, first: does property itself have something to say?
-            if (intr != null) {
-                JsonSetter.Value setterInfo = intr.findSetterInfo(config, prim);
-                if (setterInfo != null) {
-                    valueNulls = setterInfo.nonDefaultValueNulls();
-                    contentNulls = setterInfo.nonDefaultContentNulls();
-                }
+            JsonSetter.Value propSetterInfo = config.getAnnotationIntrospector()
+                    .findSetterInfo(config, prim);
+            if (propSetterInfo != null) {
+                valueNulls = propSetterInfo.nonDefaultValueNulls();
+                contentNulls = propSetterInfo.nonDefaultContentNulls();
             }
             // If not, config override?
             // 25-Oct-2016, tatu: Either this, or type of accessor...
@@ -924,6 +915,7 @@ public abstract class BasicDeserializerFactory
                 if (!keyType.isEnumImplType()) {
                     throw new IllegalArgumentException("Cannot construct EnumMap; generic (key) type not available");
                 }
+                _assignCreatorViews(ctxt, beanDescRef, inst);
                 // [databind#6252]: class-level and config-override ignorals/inclusions, same as with `MapDeserializer`
                 JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Map.class,
                         beanDescRef.getClassInfo());
@@ -966,6 +958,7 @@ public abstract class BasicDeserializerFactory
                 }
                 if (deser == null) {
                     ValueInstantiator inst = findValueInstantiator(ctxt, beanDescRef);
+                    _assignCreatorViews(ctxt, beanDescRef, inst);
                     // 01-May-2016, tatu: Which base type to use here gets tricky, since
                     //   most often it ought to be `Map` or `EnumMap`, but due to abstract
                     //   mapping it will more likely be concrete type like `HashMap`.
@@ -1082,6 +1075,10 @@ public abstract class BasicDeserializerFactory
                                 "Invalid `@JsonCreator` annotated Enum factory method [%s]: needs to return compatible type",
                                 factory.toString()));
                     }
+                    // [databind#6261]: need to pass views of creator parameters, if any
+                    if (creatorProps != null) {
+                        _assignCreatorViews(ctxt, beanDescRef, creatorProps);
+                    }
                     deser = EnumDeserializer.deserializerForCreator(
                         config, enumClass, factory, valueInstantiator, creatorProps,
                         constructEnumResolver(ctxt, enumClass, beanDescRef));
@@ -1107,6 +1104,45 @@ public abstract class BasicDeserializerFactory
             }
         }
         return deser;
+    }
+
+    /**
+     * Helper method for assigning views (if any) of properties-based Creator
+     * parameters of Enum, Map and EnumMap types, so that they are honored same as
+     * with POJO creator properties.
+     * Parameters without explicit {@code @JsonView} use default views of the type,
+     * which (as with POJOs) is an empty set if {@code MapperFeature.DEFAULT_VIEW_INCLUSION}
+     * is disabled and type has no {@code @JsonView}.
+     */
+    private void _assignCreatorViews(DeserializationContext ctxt,
+            BeanDescription.Supplier beanDescRef, ValueInstantiator inst)
+    {
+        if ((inst != null) && inst.canCreateFromObjectWith()) {
+            _assignCreatorViews(ctxt, beanDescRef, inst.getFromObjectArguments(ctxt.getConfig()));
+        }
+    }
+
+    private void _assignCreatorViews(DeserializationContext ctxt,
+            BeanDescription.Supplier beanDescRef, SettableBeanProperty[] creatorProps)
+    {
+        final DeserializationConfig config = ctxt.getConfig();
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        final Class<?>[] defaultViews = beanDescRef.get().findDefaultViews();
+        for (SettableBeanProperty prop : creatorProps) {
+            Class<?>[] views = null;
+            AnnotatedMember member = prop.getMember();
+            if (member != null) {
+                views = intr.findViews(config, member);
+            }
+            if (views == null) {
+                views = defaultViews;
+            }
+            // Unlike with POJOs, only set if we have something: avoids clearing views
+            // that may have already been assigned (for example by a module)
+            if (views != null) {
+                prop.setViews(views);
+            }
+        }
     }
 
     @Override
@@ -1352,13 +1388,20 @@ public abstract class BasicDeserializerFactory
                     || (valueType == Boolean.class)
                     || (valueType == EnumMap.class)
                     || (valueType == AtomicReference.class)
+                    || (valueType == OptionalInt.class)
+                    || (valueType == OptionalLong.class)
+                    || (valueType == OptionalDouble.class)
                     ) {
                 return true;
             }
             if (JDKDateDeserializers.hasDeserializerFor(valueType)) {
                 return true;
             }
-        } else if (clsName.startsWith("com.fasterxml.")) {
+            // `java.sql.Date` and `java.sql.Timestamp`
+            if (OptionalHandlerFactory.instance.hasDeserializerFor(valueType)) {
+                return true;
+            }
+        } else if (clsName.startsWith("tools.jackson.")) {
             return JsonNode.class.isAssignableFrom(valueType)
                    || (valueType == TokenBuffer.class);
         } else {
@@ -1589,12 +1632,9 @@ public abstract class BasicDeserializerFactory
     protected ValueDeserializer<Object> findDeserializerFromAnnotation(DeserializationContext ctxt,
             Annotated ann)
     {
-        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr != null) {
-            Object deserDef = intr.findDeserializer(ctxt.getConfig(), ann);
-            if (deserDef != null) {
-                return ctxt.deserializerInstance(ann, deserDef);
-            }
+        Object deserDef = ctxt.getAnnotationIntrospector().findDeserializer(ctxt.getConfig(), ann);
+        if (deserDef != null) {
+            return ctxt.deserializerInstance(ann, deserDef);
         }
         return null;
     }
@@ -1607,12 +1647,10 @@ public abstract class BasicDeserializerFactory
     protected KeyDeserializer findKeyDeserializerFromAnnotation(DeserializationContext ctxt,
             Annotated ann)
     {
-        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr != null) {
-            Object deserDef = intr.findKeyDeserializer(ctxt.getConfig(), ann);
-            if (deserDef != null) {
-                return ctxt.keyDeserializerInstance(ann, deserDef);
-            }
+        Object deserDef = ctxt.getAnnotationIntrospector()
+                .findKeyDeserializer(ctxt.getConfig(), ann);
+        if (deserDef != null) {
+            return ctxt.keyDeserializerInstance(ann, deserDef);
         }
         return null;
     }
@@ -1620,12 +1658,10 @@ public abstract class BasicDeserializerFactory
     protected ValueDeserializer<Object> findContentDeserializerFromAnnotation(DeserializationContext ctxt,
             Annotated ann)
     {
-        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr != null) {
-            Object deserDef = intr.findContentDeserializer(ctxt.getConfig(), ann);
-            if (deserDef != null) {
-                return ctxt.deserializerInstance(ann, deserDef);
-            }
+        Object deserDef = ctxt.getAnnotationIntrospector()
+                .findContentDeserializer(ctxt.getConfig(), ann);
+        if (deserDef != null) {
+            return ctxt.deserializerInstance(ann, deserDef);
         }
         return null;
     }
@@ -1640,9 +1676,6 @@ public abstract class BasicDeserializerFactory
             AnnotatedMember member, JavaType type)
     {
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr == null) {
-            return type;
-        }
 
         // First: type-override annotations on the member (`@JsonDeserialize(as/keyAs/contentAs)`),
         // so that the handlers found below are built for the type actually being deserialized.
@@ -1731,12 +1764,8 @@ public abstract class BasicDeserializerFactory
 
     protected boolean _hasCreatorAnnotation(MapperConfig<?> config,
             Annotated ann) {
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        if (intr != null) {
-            JsonCreator.Mode mode = intr.findCreatorAnnotation(config, ann);
-            return (mode != null) && (mode != JsonCreator.Mode.DISABLED);
-        }
-        return false;
+        JsonCreator.Mode mode = config.getAnnotationIntrospector().findCreatorAnnotation(config, ann);
+        return (mode != null) && (mode != JsonCreator.Mode.DISABLED);
     }
 
     // @since 3.1

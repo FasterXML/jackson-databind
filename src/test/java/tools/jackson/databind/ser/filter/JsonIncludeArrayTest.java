@@ -34,6 +34,15 @@ public class JsonIncludeArrayTest extends DatabindTestUtil
         public NonEmptyCharArray(char... v) { value = v; }
     }
 
+    // NON_DEFAULT with an array default that contains null
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    static class NonDefaultArrayWithNullPojo {
+        public String[] values = { null, "a" };
+
+        NonDefaultArrayWithNullPojo() { }
+        NonDefaultArrayWithNullPojo(String... v) { values = v; }
+    }
+
     static class NonEmptyIntArray {
         @JsonInclude(JsonInclude.Include.NON_EMPTY)
         public int[] value;
@@ -251,5 +260,16 @@ public class JsonIncludeArrayTest extends DatabindTestUtil
     public void testNonDefaultWithDoubleArray() throws Exception {
         assertEquals(a2q("{'values':[1.5]}"),
                 MAPPER_CONTAINERS.writeValueAsString(new DoubleArray5515Pojo(0.0, 1.5, 0.0)));
+    }
+
+    // [databind#6295]
+    @Test
+    public void nonDefaultArrayWithNullInDefault() throws Exception
+    {
+        // default is {null, "a"}: a non-null value in the null slot is a change
+        assertEquals(a2q("{'values':['x','a']}"),
+                MAPPER.writeValueAsString(new NonDefaultArrayWithNullPojo("x", "a")));
+        // the default value itself is still suppressed
+        assertEquals("{}", MAPPER.writeValueAsString(new NonDefaultArrayWithNullPojo()));
     }
 }

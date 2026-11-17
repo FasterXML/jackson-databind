@@ -3,6 +3,7 @@ package tools.jackson.databind.ser.jdk;
 import java.io.Serial;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
@@ -72,6 +73,10 @@ public abstract class JDKKeySerializers
         if (rawKeyType == byte[].class) {
             return new Default(Default.TYPE_BYTE_ARRAY, rawKeyType);
         }
+        // [databind#6320]: Locale keys to use same BCP-47 form as values
+        if (rawKeyType == Locale.class) {
+            return new Default(Default.TYPE_LOCALE, rawKeyType);
+        }
         if (useDefault) {
             // 19-Oct-2016, tatu: Used to just return DEFAULT_KEY_SERIALIZER but why not:
             return new Default(Default.TYPE_TO_STRING, rawKeyType);
@@ -131,6 +136,7 @@ public abstract class JDKKeySerializers
         final static int TYPE_LONG = 6; // since 2.9
         final static int TYPE_BYTE_ARRAY = 7; // since 2.9
         final static int TYPE_TO_STRING = 8;
+        final static int TYPE_LOCALE = 9; // since 3.3
 
         protected final int _typeId;
 
@@ -181,10 +187,27 @@ public abstract class JDKKeySerializers
                     g.writeName(encoded);
                 }
                 break;
+            case TYPE_LOCALE: // [databind#6320]
+                g.writeName(_localeToKey((Locale) value));
+                break;
             case TYPE_TO_STRING:
             default:
                 g.writeName(value.toString());
             }
+        }
+
+        // [databind#6320]: Unlike for values, key String must identify the Locale uniquely
+        // (otherwise Map entries collide as duplicate property names, and get silently lost
+        // on read). But `toLanguageTag()` is lossy: ill-formed parts are dropped or replaced
+        // (`new Locale("en", "USA")` -> "en", ill-formed language -> "und"), so different
+        // Locales may give same tag. So only use tag if it maps back to the same Locale;
+        // otherwise fall back to `toString()` ("en_USA"), which key deserializer also accepts.
+        private static String _localeToKey(Locale loc) {
+            String tag = JDKStringLikeSerializer.localeToString(loc);
+            if (tag.isEmpty() || Locale.forLanguageTag(tag).equals(loc)) {
+                return tag;
+            }
+            return loc.toString();
         }
     }
 
